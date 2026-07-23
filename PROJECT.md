@@ -61,7 +61,7 @@
 
 ## 5. Foundational decisions → each gets an ADR before code
 - [x] ADR-0001 Language & framework — TypeScript + Next.js (App Router) + `core/` layer
-- [ ] ADR-0002 Architecture style + the app-vs-kit split (parallel track)
+- [x] ADR-0002 Architecture style + the app-vs-kit split — feature slices over shared layers
 - [ ] ADR-0003 Persistence + the data-durability invariant (backups, migrations)
 - [ ] ADR-0004 Delivery target (deploy on free tier) & CI (+ health check)
 - [ ] ADR-0005 Domain data model: heterogeneous exercises & aggregations

@@ -15,12 +15,12 @@
 - **Goal:** All foundational ADRs accepted, so sprint 1 (walking skeleton) can start with no open architecture questions.
 - **Slices:** (each = one ADR, in dependency order)
   - [x] ADR-0001 Language & framework — TypeScript + Next.js App Router, domain logic in a framework-agnostic `core/`
-  - [ ] ADR-0002 Architecture style + app-vs-kit split (parallel track)
+  - [x] ADR-0002 Architecture style + app-vs-kit split — feature slices over shared layers; kit is a marked folder region, not a package
   - [ ] ADR-0003 Persistence + data-durability invariant (backups, migrations)
   - [ ] ADR-0004 Delivery target (free-tier deploy) & CI + health check
   - [ ] ADR-0005 Domain data model: heterogeneous exercises & aggregations (needed before training, not before nutrition v1)
 - **Risks / open questions:** repeating the Vercel+Supabase failure (config rot / silent data loss); over-abstracting the kit before the app needs it.
-- **Input for ADR-0002 (from the ADR-0001 session):** the previous project died of *under*-abstraction — widgets/cards/toasts existed as near-identical copies, so one style, label or dimension change meant editing many files (shotgun surgery). ADR-0002 must separate three things that behave differently: design tokens (style/spacing/dimensions) and the i18n dictionary — centralised from day one, they are single sources of truth for *values*, not abstractions — versus shared *components*, which are abstractions and should be extracted on the second or third real occurrence, with the copies then deleted. Also needs the enforcement mechanism (lint rules), since an unenforced rule decays.
+- **Carried into S01 (from ADR-0002):** the scaffold is not done until the six `src/` directories, the `eslint-plugin-boundaries` rules and the Tailwind `@theme` token file all exist — an unenforced boundary rule is only a promise.
 - **Review criteria:** ADR-0001..0004 accepted with real options weighed; `python scripts/check.py` clean; CLAUDE.md Stack/Run/Test/Lint fields filled from ADR-0001.
 
 ## Done
