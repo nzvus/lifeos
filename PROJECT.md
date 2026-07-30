@@ -66,7 +66,7 @@
 - [x] ADR-0002 Architecture style + the app-vs-kit split — feature slices over shared layers
 - [x] ADR-0003 Persistence + the data-durability invariant — Postgres on Neon + Drizzle, backups owned by the repo rather than the provider
 - [x] ADR-0004 Delivery target & CI — Vercel Hobby, protected `main`, migrations by human-triggered job, dead-man's switch on the backup
-- [ ] ADR-0006 Authentication & session model (split out of ADR-0003)
+- [x] ADR-0006 Authentication & session model — Better Auth, email+password, identity in our own database; isolation at the `core/` data boundary, RLS deferred
 - [ ] ADR-0005 Domain data model: heterogeneous exercises & aggregations
   (needed before training sprints; not blocking the nutrition v1)
 

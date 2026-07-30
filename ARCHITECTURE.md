@@ -17,7 +17,8 @@ Style values and user-facing strings are centralised in `design/` and `i18n/`.
 No code exists yet — this describes the structure S01 scaffolds. Data lives in
 managed Postgres on Neon, reached only through `core/` repositories (ADR-0003),
 and the app deploys to Vercel Hobby with CI on GitHub Actions (ADR-0004).
-Authentication (ADR-0006) is the last undecided foundation.
+Identity is ours too: Better Auth keeps users and sessions in the same database
+(ADR-0006). All of S00's foundational decisions are now made.
 
 ## Component map
 
@@ -43,7 +44,7 @@ not a package. They become packages only when a second consumer exists.
 | Invariant (PROJECT.md §3) | Enforced where |
 | --- | --- |
 | Logged data is never lost or silently corrupted | Scheduled `pg_dump` to storage Neon does not control + a drilled restore; migrations rehearsed on a DB branch; money as integer minor units, macros as `numeric` (ADR-0003) |
-| A user can never read another user's data | `core/` repositories require a caller identity; each user-owned entity ships a test proving a cross-user read returns nothing (ADR-0003; hardening to RLS is ADR-0006's call) |
+| A user can never read another user's data | `core/` repositories require a caller identity — never middleware (CVE-2025-29927); each user-owned entity ships a `user_id` and a test proving a cross-user read returns nothing. RLS deferred behind that one helper until a second account exists (ADR-0003/0006) |
 | A day/meal's totals equal the sum of its entries | `core/` — computed on read in one place, no stored aggregates; the UI never sums (ADR-0003) |
 
 Structural invariants from ADR-0002, enforced by `eslint-plugin-boundaries`:
@@ -115,9 +116,13 @@ alert. Monitoring here watches for silence, not for errors.
 - **Logging/observability:** `/api/health` returns a trivial DB query plus the
   deployed commit SHA — "deployed" and "working" are different claims. It and
   the backup heartbeat report to the same alerting channel.
-- **Auth/security:** login and sessions are ADR-0006, which also decides whether
-  isolation is hardened from `core/`-level to Postgres RLS. Isolation is a hard
-  invariant, so this lands before the first persisted user-owned entity.
+- **Auth/security:** Better Auth with email+password; its instance and tables sit
+  in `core/` (framework-free, so ADR-0001 purity holds), mounted at
+  `app/api/auth/…`. Cookies are read only in `app/`, which resolves the session
+  and passes a user id into `core/` — `core/` never reads ambient request state.
+  Authorization is checked in the route/action *and* at the data boundary; the
+  duplication is deliberate defence in depth. No account recovery yet: a
+  forgotten password is a database edit until a second account exists (ADR-0006).
 - **Theming/i18n:** tokens are CSS custom properties emitted by Tailwind v4
   `@theme`, so one-click theming is a runtime variable swap. All user-facing
   strings resolve through `i18n/`.

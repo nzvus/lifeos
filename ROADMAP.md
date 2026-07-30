@@ -18,8 +18,9 @@
   - [x] ADR-0002 Architecture style + app-vs-kit split — feature slices over shared layers; kit is a marked folder region, not a package
   - [x] ADR-0003 Persistence + data-durability invariant — Postgres on Neon + Drizzle; migrations rehearsed on a DB branch; backups owned by the repo, not the provider
   - [x] ADR-0004 Delivery target & CI — Vercel Hobby from a protected `main`; migrations applied only by a human-triggered CI job; dead-man's switch on the backup, because a stopped scheduler raises no error
-  - [ ] ADR-0006 Authentication & session model — split out of ADR-0003; also decides whether isolation hardens to Postgres RLS
-  - [ ] ADR-0005 Domain data model: heterogeneous exercises & aggregations (needed before training, not before nutrition v1)
+  - [x] ADR-0006 Authentication & session model — Better Auth, email+password, users/sessions in our own Postgres so a restore is complete; isolation enforced at the `core/` data boundary, never middleware; RLS deferred behind one helper until account #2
+  - [ ] ADR-0005 Domain data model: heterogeneous exercises & aggregations — **deferred out of S00 by design**, belongs to the first training sprint; not a blocker for nutrition v1. `check.py` will WARN about the 0005 numbering gap until it is written — expected, do not "fix" it by renumbering
+- **S00 is complete and ready for the `retro` skill.** Every foundational decision is made; S01 can start with no open architecture questions.
 - **Risks / open questions:** repeating the Vercel+Supabase failure (config rot / silent data loss); over-abstracting the kit before the app needs it.
 - **Carried into S01 (from ADR-0002):** the scaffold is not done until the six `src/` directories, the `eslint-plugin-boundaries` rules and the Tailwind `@theme` token file all exist — an unenforced boundary rule is only a promise.
 - **Carried into S01 (from ADR-0003):** the first entity is not done until its migration went through the committed generate-review-branch-apply path, one restore drill has been performed and written up, and a cross-user read test exists.

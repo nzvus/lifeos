@@ -3,7 +3,7 @@
 <!-- ===== PROJECT-SPECIFIC BLOCK — fill in at kickoff ===== -->
 **Project:** Personal nutrition + training tracker; pilot app that drives a reusable fullstack webapp kit.
 **Domain:** webapp (responsive web; fullstack)
-**Stack:** TypeScript + Next.js (App Router), npm (ADR-0001); Tailwind v4 `@theme` tokens (ADR-0002); Postgres on Neon + Drizzle (ADR-0003); Vercel Hobby + GitHub Actions CI (ADR-0004). Auth = ADR-0006.
+**Stack:** TypeScript + Next.js (App Router), npm (ADR-0001); Tailwind v4 `@theme` tokens (ADR-0002); Postgres on Neon + Drizzle (ADR-0003); Vercel Hobby + GitHub Actions CI (ADR-0004); Better Auth, email+password, users and sessions in our own Postgres (ADR-0006).
 **Layout:** `src/{app,features,core,ui,design,i18n}` — one-way deps, no cross-slice imports, rule of three for `ui/` (ADR-0002).
 **Data:** all DB access via `core/` repositories; migrations are committed SQL from `drizzle-kit generate`, rehearsed on the PR's Neon branch, and applied to production only by the human-triggered CI job that dumps first — never `drizzle-kit push` on a shared DB, never auto-migrate on deploy (ADR-0003/0004).
 **Run:** `npm run dev` (commands become real once S01 scaffolds the app)
@@ -11,7 +11,7 @@
 **Lint/format:** `npm run lint` (ESLint + Prettier)
 <!-- ADR-0001 rule: domain logic lives in core/ and must not import next/*. Route handlers and server actions call into core/, they don't contain logic. -->
 
-<!-- Primary invariant: logged data is never lost/corrupted — provider-independent dump + a drilled restore, not the free tier's promises (ADR-0003). Also: per-user isolation (enforced in core/ repositories; every user-owned entity needs a cross-user read test); totals=parts (computed on read, never stored). Parallel track: kit is EXTRACTED from the app, never built speculatively. -->
+<!-- Primary invariant: logged data is never lost/corrupted — provider-independent dump + a drilled restore, not the free tier's promises (ADR-0003). Also: per-user isolation (enforced at the core/ data boundary, NEVER in middleware — CVE-2025-29927; every user-owned entity needs a user_id, access only via the identity-taking repository helper, and a cross-user read test); totals=parts (computed on read, never stored). Parallel track: kit is EXTRACTED from the app, never built speculatively. -->
 <!-- Docs guardrail: run `python scripts/check.py` after doc/ADR edits and before a slice is done. -->
 
 <!-- ======================================================= -->
