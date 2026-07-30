@@ -55,15 +55,18 @@
 - **Time budget:** bursty / irregular — slices must be resumable after gaps,
   so ADRs and docs carry more weight than usual.
 - **Money budget:** €0 — free tiers only.
-- **Must-use / must-avoid tech:** leaning to repeat Vercel + Supabase (familiar,
-  free-tier friendly) but done properly this time; confirmed in ADR-0001.
+- **Must-use / must-avoid tech:** the old Vercel + Supabase instinct survived
+  only in part — Next.js confirmed (ADR-0001), but Supabase was rejected for
+  Neon on durability and inactivity grounds (ADR-0003). Hosting stays open
+  (ADR-0004).
 - **Platform/runtime targets:** responsive web (desktop + mobile browser).
 
 ## 5. Foundational decisions → each gets an ADR before code
 - [x] ADR-0001 Language & framework — TypeScript + Next.js (App Router) + `core/` layer
 - [x] ADR-0002 Architecture style + the app-vs-kit split — feature slices over shared layers
-- [ ] ADR-0003 Persistence + the data-durability invariant (backups, migrations)
+- [x] ADR-0003 Persistence + the data-durability invariant — Postgres on Neon + Drizzle, backups owned by the repo rather than the provider
 - [ ] ADR-0004 Delivery target (deploy on free tier) & CI (+ health check)
+- [ ] ADR-0006 Authentication & session model (split out of ADR-0003)
 - [ ] ADR-0005 Domain data model: heterogeneous exercises & aggregations
   (needed before training sprints; not blocking the nutrition v1)
 
