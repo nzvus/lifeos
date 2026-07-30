@@ -17,12 +17,13 @@
   - [x] ADR-0001 Language & framework — TypeScript + Next.js App Router, domain logic in a framework-agnostic `core/`
   - [x] ADR-0002 Architecture style + app-vs-kit split — feature slices over shared layers; kit is a marked folder region, not a package
   - [x] ADR-0003 Persistence + data-durability invariant — Postgres on Neon + Drizzle; migrations rehearsed on a DB branch; backups owned by the repo, not the provider
-  - [ ] ADR-0004 Delivery target (free-tier deploy) & CI + health check (also: scheduled dump job + noticing when it fails)
+  - [x] ADR-0004 Delivery target & CI — Vercel Hobby from a protected `main`; migrations applied only by a human-triggered CI job; dead-man's switch on the backup, because a stopped scheduler raises no error
   - [ ] ADR-0006 Authentication & session model — split out of ADR-0003; also decides whether isolation hardens to Postgres RLS
   - [ ] ADR-0005 Domain data model: heterogeneous exercises & aggregations (needed before training, not before nutrition v1)
 - **Risks / open questions:** repeating the Vercel+Supabase failure (config rot / silent data loss); over-abstracting the kit before the app needs it.
 - **Carried into S01 (from ADR-0002):** the scaffold is not done until the six `src/` directories, the `eslint-plugin-boundaries` rules and the Tailwind `@theme` token file all exist — an unenforced boundary rule is only a promise.
 - **Carried into S01 (from ADR-0003):** the first entity is not done until its migration went through the committed generate-review-branch-apply path, one restore drill has been performed and written up, and a cross-user read test exists.
+- **Carried into S01 (from ADR-0004):** the scaffold also owes the CI workflow, branch protection on `main`, `/api/health`, the scheduled dump workflow and the healthchecks.io check — an unmonitored backup is only a hope.
 - **Review criteria:** ADR-0001..0004 + ADR-0006 accepted with real options weighed; `python scripts/check.py` clean; CLAUDE.md Stack/Run/Test/Lint fields filled from ADR-0001.
 
 ## Done

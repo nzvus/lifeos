@@ -3,9 +3,9 @@
 <!-- ===== PROJECT-SPECIFIC BLOCK — fill in at kickoff ===== -->
 **Project:** Personal nutrition + training tracker; pilot app that drives a reusable fullstack webapp kit.
 **Domain:** webapp (responsive web; fullstack)
-**Stack:** TypeScript + Next.js (App Router), npm (ADR-0001); Tailwind v4 `@theme` tokens (ADR-0002); Postgres on Neon + Drizzle (ADR-0003). Hosting/CI = ADR-0004, auth = ADR-0006.
+**Stack:** TypeScript + Next.js (App Router), npm (ADR-0001); Tailwind v4 `@theme` tokens (ADR-0002); Postgres on Neon + Drizzle (ADR-0003); Vercel Hobby + GitHub Actions CI (ADR-0004). Auth = ADR-0006.
 **Layout:** `src/{app,features,core,ui,design,i18n}` — one-way deps, no cross-slice imports, rule of three for `ui/` (ADR-0002).
-**Data:** all DB access via `core/` repositories; migrations are committed SQL from `drizzle-kit generate`, rehearsed on a Neon branch before production — never `drizzle-kit push` on a shared DB (ADR-0003).
+**Data:** all DB access via `core/` repositories; migrations are committed SQL from `drizzle-kit generate`, rehearsed on the PR's Neon branch, and applied to production only by the human-triggered CI job that dumps first — never `drizzle-kit push` on a shared DB, never auto-migrate on deploy (ADR-0003/0004).
 **Run:** `npm run dev` (commands become real once S01 scaffolds the app)
 **Test:** `npm test` (Vitest)
 **Lint/format:** `npm run lint` (ESLint + Prettier)

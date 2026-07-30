@@ -15,8 +15,9 @@ behaviour (which belongs in `core/`) or presentation (which belongs in `ui/`).
 Style values and user-facing strings are centralised in `design/` and `i18n/`.
 
 No code exists yet — this describes the structure S01 scaffolds. Data lives in
-managed Postgres on Neon, reached only through `core/` repositories (ADR-0003).
-Deployment/CI (ADR-0004) and authentication (ADR-0006) are not yet decided.
+managed Postgres on Neon, reached only through `core/` repositories (ADR-0003),
+and the app deploys to Vercel Hobby with CI on GitHub Actions (ADR-0004).
+Authentication (ADR-0006) is the last undecided foundation.
 
 ## Component map
 
@@ -76,13 +77,15 @@ goes to `core/`.
 
 ## Persistence & durability (ADR-0003)
 
-Managed Postgres on Neon, consumed as a plain connection string so the hosting
-decision stays open. Access is Drizzle, inside `core/` only.
+Managed Postgres on Neon, consumed as a plain connection string. Access is
+Drizzle, inside `core/` only.
 
 Schema changes follow one path: `drizzle-kit generate` produces a numbered SQL
-migration → it is read and committed → it is applied to a Neon branch of
-production data and inspected → only then to production. `drizzle-kit push` is
-for throwaway local databases and never touches a shared one.
+migration → it is read and committed → it is applied to the pull request's own
+Neon branch and inspected → production is migrated only by the human-triggered
+CI job, which dumps first (ADR-0004). `drizzle-kit push` is for throwaway local
+databases and never touches a shared one. Schema changes are additive-first (add,
+backfill, then read), because deploy and migrate are separate acts.
 
 Durability does not rely on the provider: the free tier has a 6-hour restore
 window, which is shorter than the normal gap between work sessions. Instead a
@@ -90,14 +93,28 @@ scheduled `pg_dump` writes to storage outside Neon, several generations are
 kept, and the restore procedure is drilled and written down. The user-facing
 data export is part of this invariant, not a feature — it ships in nutrition v1.
 
+## Delivery (ADR-0004)
+
+Vercel Hobby, deployed from git: previews from branches, production only from a
+protected `main` that requires green CI. CI is GitHub Actions — typecheck, ESLint
+with the boundary rules, tests — on every push and pull request. Each preview
+gets its own Neon database branch, which is where migrations are rehearsed.
+
+The scheduled `pg_dump` runs as a GitHub Actions workflow, because no free
+serverless runtime ships the binary. That scheduler self-disables after 60 days
+without a commit, silently, so it is watched by a **dead-man's switch**: the
+workflow pings healthchecks.io on success and the absence of a ping raises the
+alert. Monitoring here watches for silence, not for errors.
+
 ## Cross-cutting concerns
 
 - **Errors:** not yet designed. Decided with the first slice in S01.
-- **Config/secrets:** first real case is the Neon connection string plus dump
-  storage credentials — local and deployed config are separate and never
-  committed. Mechanism finalised in ADR-0004.
-- **Logging/observability:** not yet designed; ADR-0004's health check also
-  covers noticing a backup job that failed silently.
+- **Config/secrets:** Vercel environment variables for the app, GitHub Actions
+  secrets for the dump job; local and deployed config are separate and never
+  committed. Current secrets: Neon connection string, healthchecks.io ping URL.
+- **Logging/observability:** `/api/health` returns a trivial DB query plus the
+  deployed commit SHA — "deployed" and "working" are different claims. It and
+  the backup heartbeat report to the same alerting channel.
 - **Auth/security:** login and sessions are ADR-0006, which also decides whether
   isolation is hardened from `core/`-level to Postgres RLS. Isolation is a hard
   invariant, so this lands before the first persisted user-owned entity.

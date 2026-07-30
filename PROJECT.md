@@ -57,15 +57,15 @@
 - **Money budget:** €0 — free tiers only.
 - **Must-use / must-avoid tech:** the old Vercel + Supabase instinct survived
   only in part — Next.js confirmed (ADR-0001), but Supabase was rejected for
-  Neon on durability and inactivity grounds (ADR-0003). Hosting stays open
-  (ADR-0004).
+  Neon on durability and inactivity grounds (ADR-0003), and Vercel came back on
+  its merits for hosting (ADR-0004).
 - **Platform/runtime targets:** responsive web (desktop + mobile browser).
 
 ## 5. Foundational decisions → each gets an ADR before code
 - [x] ADR-0001 Language & framework — TypeScript + Next.js (App Router) + `core/` layer
 - [x] ADR-0002 Architecture style + the app-vs-kit split — feature slices over shared layers
 - [x] ADR-0003 Persistence + the data-durability invariant — Postgres on Neon + Drizzle, backups owned by the repo rather than the provider
-- [ ] ADR-0004 Delivery target (deploy on free tier) & CI (+ health check)
+- [x] ADR-0004 Delivery target & CI — Vercel Hobby, protected `main`, migrations by human-triggered job, dead-man's switch on the backup
 - [ ] ADR-0006 Authentication & session model (split out of ADR-0003)
 - [ ] ADR-0005 Domain data model: heterogeneous exercises & aggregations
   (needed before training sprints; not blocking the nutrition v1)
