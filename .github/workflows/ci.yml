@@ -1,0 +1,47 @@
+# .github/workflows/ci.yml — the checks every push and pull request must pass
+# (ADR-0004). Branch protection on `main` requires this workflow to be green,
+# so nothing reaches production without it (docs/runbooks/setup.md step 6).
+#
+# Order: cheapest checks first, so a failure is reported as early as possible.
+# No secrets are used: tests run on PGlite (in-process Postgres), and the build
+# doesn't need DATABASE_URL because every page is rendered per request.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read # least privilege: CI only reads the code
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm # reuse downloaded packages between runs
+
+      # `npm ci` installs EXACTLY what package-lock.json says (never updates it).
+      - run: npm ci
+
+      - name: Docs guardrail (template health check)
+        run: python3 scripts/check.py
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint (includes ADR-0002 boundary rules)
+        run: npm run lint
+
+      - name: Tests (includes cross-user isolation and snapshot tests)
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
