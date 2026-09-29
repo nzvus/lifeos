@@ -69,12 +69,30 @@ try {
 const plan = planFitForgeImport(raw);
 if (!plan.ok) usage(`${file} doesn't look like a FitForge export`);
 
+/** The host part of the URL, for messages: never print the whole URL (it holds the password). */
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname || "(no host in DATABASE_URL)";
+  } catch {
+    return "(DATABASE_URL is not a valid URL: was it copied whole?)";
+  }
+}
+const database = hostOf(process.env.DATABASE_URL);
+
 const { db, close } = openDb(process.env.DATABASE_URL);
 try {
-  const owner = await ownerByEmailForLocalScript(db, email);
+  let owner;
+  try {
+    owner = await ownerByEmailForLocalScript(db, email);
+  } catch (e) {
+    // The driver's own error (e.g. "connect ECONNREFUSED", "password
+    // authentication failed") is in `cause`; it never contains the URL.
+    const cause =
+      e instanceof Error && e.cause instanceof Error ? e.cause.message : String(e);
+    usage(`cannot query the database at ${database}: ${cause}`);
+  }
   if (!owner) usage(`no account with email ${email} in this database`);
 
-  const database = new URL(process.env.DATABASE_URL).hostname;
   console.log(
     apply
       ? `APPLYING to ${database}`
