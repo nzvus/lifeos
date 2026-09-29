@@ -38,3 +38,4 @@ the backup ran), and `migrations applied` equals the number of files in
 | Date | Backup | Result | By |
 |---|---|---|---|
 | 2026-09-29 | local test data, script development | pass: all 7 tables' counts matched; non-empty target refused | agent (sandbox, Postgres 16) — does NOT count as the S01 drill |
+| 2026-09-29 | `db-backup-36580999618` (`lifeos-2026-09-29T14-13-30Z.dump.age`), production | **pass**: restored into Postgres 18.6 in /tmp; user 1, ingredients 47, meals 22, meal_items 80, log_entries 0 — identical to production; migrations applied 1. `pg_dump` (CI) and `psql` (local) both connected with `sslmode=verify-full` + `PGSSLROOTCERT=system` | Dino — **the S01 drill** |

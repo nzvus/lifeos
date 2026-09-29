@@ -31,12 +31,13 @@
 - **Only the developer can do (docs/runbooks/setup.md):**
   - [ ] Review the diff and be able to explain it (CLAUDE.md process rule)
   - [ ] Accept or reject ADR-0007 (status is `proposed`)
-  - [ ] Neon project, GitHub secrets/variables, healthchecks.io checks, Vercel project
-  - [ ] Branch protection on `main` requiring `check`
-  - [ ] First backup run, first `migrate production` run
-  - [ ] **The restore drill on a real backup, logged in docs/runbooks/restore-drill.md** — cannot slip: it is the primary invariant
+  - [x] Neon project, GitHub secrets/variables, healthchecks.io checks, Vercel project (2026-09-29; live at lifeos-omega-seven.vercel.app)
+  - [x] Branch protection on `main` requiring `check` (ruleset `protect-main`)
+  - [x] First backup run, first `migrate production` run (2026-09-29)
+  - [x] **The restore drill on a real backup, logged in docs/runbooks/restore-drill.md** (2026-09-29, pass)
+  - [x] Production data: FitForge export + two supplements (diet document recipes) imported — 47 ingredients, 22 meals
 - **Carried over from S00:** the "What I learned" sections of ADR-0001..0007 are still agent-drafted or empty; the developer rewrites them.
-- **Review criteria:** CI green on GitHub; `/api/health` 200 on production; healthchecks.io green for 2 consecutive days; restore drill logged; `python3 scripts/check.py` clean except the expected 0005 gap warning.
+- **Review criteria:** CI green on GitHub ✓; `/api/health` 200 on production ✓; healthchecks.io green for 2 consecutive days (pending: first scheduled runs 2026-09-30 and 10-01); restore drill logged ✓; `python3 scripts/check.py` clean except the expected 0005 gap warning ✓.
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
