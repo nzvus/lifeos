@@ -48,6 +48,9 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
           AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+          # libpq (pg_dump) + sslmode=verify-full: trust the system CA store.
+          # The Node driver ignores this variable, so drizzle-kit is unaffected.
+          PGSSLROOTCERT: system
         run: scripts/backup.sh out
 
       # Stored as a workflow artifact, outside Neon (ADR-0003). 30 daily

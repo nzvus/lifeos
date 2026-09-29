@@ -22,7 +22,7 @@ scripts/restore-drill.sh /tmp/drill/lifeos-*.dump.age ~/.config/lifeos/backup-ke
   "postgres://drill@/drill?host=/tmp&port=5433"
 
 # 4. Compare with production (read-only query):
-psql "$DATABASE_URL_DIRECT" -c "select (select count(*) from ingredients) ing,
+PGSSLROOTCERT=system psql "$DATABASE_URL_DIRECT" -c "select (select count(*) from ingredients) ing,
   (select count(*) from log_entries) entries, (select count(*) from log_entry_items) items"
 
 # 5. Clean up:

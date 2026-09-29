@@ -32,7 +32,14 @@ Check: all tests pass, lint and typecheck print no errors.
 2. Copy two connection strings of the `main` (production) branch:
    the **pooled** one (host contains `-pooler`) for the app, the **direct** one
    for `pg_dump` and migrations.
-3. Create a branch named `dev` for local development and copy its pooled URL.
+3. Create a branch named `dev` for local development and copy its direct URL.
+   If Neon offers an expiry date for the branch, choose none: an expiring
+   `dev` branch deletes your local data and account without warning.
+
+In every URL, replace `sslmode=require` with `sslmode=verify-full` (why:
+`.env.example`). Tools built on libpq (`psql`, `pg_dump`) then need
+`PGSSLROOTCERT=system` in their environment to find the trusted
+certificates; the Node app doesn't.
 
 ## 3. Local development
 

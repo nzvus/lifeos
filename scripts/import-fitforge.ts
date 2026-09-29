@@ -58,7 +58,15 @@ if (!file) usage("missing FILE");
 if (!email) usage("missing --email");
 if (!process.env.DATABASE_URL) usage("DATABASE_URL is not set (see .env.example)");
 
-const plan = planFitForgeImport(JSON.parse(await readFile(file, "utf8")));
+// Read and parse, turning "file missing" or "not JSON" into a one-line
+// message instead of a stack trace.
+let raw: unknown;
+try {
+  raw = JSON.parse(await readFile(file, "utf8"));
+} catch (e) {
+  usage(`cannot read ${file} as JSON: ${e instanceof Error ? e.message : String(e)}`);
+}
+const plan = planFitForgeImport(raw);
 if (!plan.ok) usage(`${file} doesn't look like a FitForge export`);
 
 const { db, close } = openDb(process.env.DATABASE_URL);

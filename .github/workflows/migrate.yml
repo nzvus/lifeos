@@ -51,6 +51,9 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
           AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+          # libpq (pg_dump) + sslmode=verify-full: trust the system CA store.
+          # The Node driver ignores this variable, so drizzle-kit is unaffected.
+          PGSSLROOTCERT: system
         run: scripts/backup.sh out
 
       - uses: actions/upload-artifact@v7
@@ -68,4 +71,5 @@ jobs:
       - name: Show applied migrations
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+          PGSSLROOTCERT: system # psql is libpq, see the backup step
         run: psql "$DATABASE_URL" -c "select id, hash, to_timestamp(created_at/1000) as applied from drizzle.__drizzle_migrations order by id"
