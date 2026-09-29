@@ -14,6 +14,9 @@
 - Day planner, tasks/habits, rewards + accountability rules over an event stream
 - Notes bridge to the Obsidian vault (read/search, quick capture)
 - Home bridge on a LAN device (old Motorola phone): Home Assistant control, Syncthing status — Vercel cannot reach the home network, so this needs its own ADR
+- Drop `user_settings.target_*` (deprecated by ADR-0008) once profiles have run in production for a while
+- UI: pass only the needed dictionary slices to client components (today pages pass the whole dictionary)
+- Training cycle that picks the day profile automatically (ADR-0008 option C, with the training module)
 - Template meta-loop: reset `ai-native-starter` to a clean template; record what S00/S01 taught in its TEMPLATE-CHANGELOG
 
 ## Current sprint: S01 — Walking skeleton + nutrition v1, deployed and owned
@@ -38,6 +41,13 @@
   - [x] Production data: FitForge export + two supplements (diet document recipes) imported — 47 ingredients, 22 meals
 - **Carried over from S00:** the "What I learned" sections of ADR-0001..0007 are still agent-drafted or empty; the developer rewrites them.
 - **Review criteria:** CI green on GitHub ✓; `/api/health` 200 on production ✓; healthchecks.io green for 2 consecutive days (pending: first scheduled runs 2026-09-30 and 10-01); restore drill logged ✓; `python3 scripts/check.py` clean except the expected 0005 gap warning ✓.
+
+## Next sprint: S02 — Day types and targets (started early, 2026-09-29)
+- **Goal:** targets per kind of day (gym / run / rest…), chosen on the day page, stable for past days.
+- [x] ADR-0008 accepted (developer chose the recommended option B)
+- [x] Migrations 0001 (tables) + 0002 (backfill "Standard" profile), rehearsed on real Postgres with old-schema data
+- [x] Profiles page, day-type picker on the day page, export v2; 45 tests incl. cross-user and snapshot
+- [ ] Developer review; production migration via `migrate.yml`; create the real profiles (gym / run / rest)
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

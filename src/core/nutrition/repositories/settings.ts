@@ -1,7 +1,8 @@
 /**
- * core/nutrition/repositories/settings.ts — per-user settings: time zone,
- * language and daily nutrient targets (PROJECT.md v1 §4: "day totals vs. an
- * objective").
+ * core/nutrition/repositories/settings.ts — per-user settings: time zone and
+ * language. (Daily targets moved to day profiles, ADR-0008:
+ * ./profiles.ts. The old target columns are still in the table, unread,
+ * until a later migration drops them.)
  *
  * The row is created lazily: until you save the settings form, `getSettings`
  * returns defaults. "Upsert" (insert, or update if it exists) saves it in one
@@ -14,34 +15,26 @@ import type { Db } from "../../db/client";
 import { userSettings } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "../../shared/locales";
-import { NUTRIENT_KEYS, type NutrientKey } from "../nutrients";
 import type { SettingsInput } from "../validation";
 
 export type Settings = {
   timezone: string;
   locale: Locale;
-  /** Daily target per nutrient, or null when not set. */
-  targets: Record<NutrientKey, string | null>;
 };
 
 export const DEFAULT_TIMEZONE = "Europe/Rome";
 
 function defaults(): Settings {
-  const targets = {} as Settings["targets"];
-  for (const k of NUTRIENT_KEYS) targets[k] = null;
-  return { timezone: DEFAULT_TIMEZONE, locale: DEFAULT_LOCALE, targets };
+  return { timezone: DEFAULT_TIMEZONE, locale: DEFAULT_LOCALE };
 }
 
 export async function getSettings(db: Db, owner: Owner): Promise<Settings> {
   const [row] = await db.select().from(userSettings).where(ownedBy(userSettings, owner));
   if (!row) return defaults();
-  const targets = {} as Settings["targets"];
-  for (const k of NUTRIENT_KEYS) targets[k] = row[k];
   return {
     timezone: row.timezone,
     // The DB column is plain text; fall back if it ever holds an unknown value.
     locale: isLocale(row.locale) ? row.locale : DEFAULT_LOCALE,
-    targets,
   };
 }
 

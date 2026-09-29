@@ -28,6 +28,7 @@ export const ERROR_CODES = [
   "in_use",
   "empty_meal",
   "invalid_day",
+  "is_default",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 

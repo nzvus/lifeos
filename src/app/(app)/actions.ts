@@ -24,7 +24,9 @@ import {
   logIngredient,
   logMeal,
 } from "@/core/nutrition/repositories/log";
+import { setDayProfile } from "@/core/nutrition/repositories/profiles";
 import {
+  dayProfileInput,
   logIngredientInput,
   logMealInput,
   parseInput,
@@ -76,4 +78,24 @@ export async function deleteLogEntryAction(
     return { status: "error", message: t.errors[result.errors._form ?? "not_found"] };
   revalidatePath("/");
   return { status: "idle" };
+}
+
+/** "Today is a gym day": copies that profile's targets onto the day (ADR-0008). */
+export async function setDayProfileAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(dayProfileInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const result = await setDayProfile(
+    getDb(),
+    owner,
+    input.value.day,
+    input.value.profileId,
+  );
+  if (!result.ok) return { status: "error", errors: result.errors, values };
+  revalidatePath("/");
+  return { status: "saved" };
 }

@@ -22,6 +22,7 @@ export const en = {
     ingredients: "Ingredients",
     meals: "Meals",
     settings: "Settings",
+    profiles: "Targets",
     signOut: "Sign out",
   },
   nutrients: {
@@ -48,6 +49,7 @@ export const en = {
     in_use: "A meal still uses it. Remove it from those meals first.",
     empty_meal: "Add at least one ingredient.",
     invalid_day: "That date doesn't exist.",
+    is_default: "This is the default day type. Make another one the default first.",
   },
   auth: {
     signInTitle: "Sign in",
@@ -79,6 +81,12 @@ export const en = {
     servingsTimes: "× {n}",
     noMeals: "No meals yet. Create one in Meals to log it here.",
     noIngredients: "No ingredients yet. Add them in Ingredients first.",
+    profileLabel: "Day type",
+    applyProfile: "Apply",
+    profileFixed: "Targets fixed for this day: {name}",
+    profileDefault:
+      "Default: {name}. Fixed when you log the first food; choose another now if today is different.",
+    noProfiles: "No day types yet. Create them in Targets to see targets here.",
   },
   label: {
     title: "Day totals",
@@ -89,7 +97,7 @@ export const en = {
     cost: "Cost",
     costPartial: "at least {v} — some prices are missing",
     costPartialShort: "at least {v}",
-    setTargets: "Set daily targets in Settings.",
+    setTargets: "Set daily targets in Targets.",
   },
   ingredients: {
     title: "Ingredients",
@@ -140,8 +148,6 @@ export const en = {
     timezone: "Time zone",
     timezoneHint: "Decides when your day starts and ends, e.g. Europe/Rome.",
     locale: "Language",
-    targets: "Daily targets",
-    targetsHint: "Leave a field empty for no target.",
     save: "Save settings",
     saved: "Saved.",
     exportTitle: "Your data",
@@ -149,6 +155,27 @@ export const en = {
       "Download everything you have entered as a JSON file. Keep a copy: it works without this app.",
     export: "Download my data",
     localeNames: { it: "Italiano", en: "English" },
+  },
+  profiles: {
+    title: "Day types and targets",
+    intro:
+      "Each kind of day (gym, run, rest…) has its own daily targets. Pick one on the day page; the default applies when you don't.",
+    newTitle: "New day type",
+    editTitle: "Edit day type",
+    name: "Name",
+    targets: "Daily targets",
+    targetsHint: "Leave a field empty for no target.",
+    create: "Create day type",
+    save: "Save changes",
+    delete: "Delete day type",
+    makeDefault: "Make default",
+    isDefault: "Default",
+    empty:
+      'No day types yet. Create one, e.g. "Gym", "Run", "Rest". The first one becomes the default.',
+    edit: "Edit",
+    back: "Back to day types",
+    editNote:
+      "Editing changes today and future days that aren't fixed yet. A fixed day keeps its targets; choose the type again on that day to refresh them.",
   },
   errorPage: {
     title: "Something went wrong",
