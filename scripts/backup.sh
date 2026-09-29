@@ -14,6 +14,8 @@
 #
 # Usage:  DATABASE_URL=... AGE_RECIPIENT=age1... scripts/backup.sh OUT_DIR
 # DATABASE_URL: use Neon's DIRECT url (no "-pooler"): pg_dump needs a real session.
+# With sslmode=verify-full, pg_dump (libpq) must know which certificate
+# authorities to trust: export PGSSLROOTCERT=system (the workflows do).
 set -euo pipefail # stop on any error, unset variable, or failed pipe
 
 out_dir="${1:?usage: backup.sh OUT_DIR}"
