@@ -4,16 +4,16 @@
  */
 import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
-import { getDb } from "@/app/_server/runtime";
-import { listIngredients } from "@/core/nutrition/repositories/ingredients";
 import { MealForm } from "@/features/nutrition/meals/MealForm";
 import { createMealAction } from "../actions";
+import { mealEditorIngredients } from "../ingredient-options";
 
 export default async function NewMealPage() {
-  const { owner, t } = await requireContext();
-  const ingredients = await listIngredients(getDb(), owner);
+  const { owner, settings, t } = await requireContext();
+  const ingredients = await mealEditorIngredients(owner, settings);
   return (
-    <>
+    // Forms read best narrow: cap the width even on wide screens.
+    <div className="flex max-w-page flex-col gap-8">
       <Link href="/meals" className="text-sm underline">
         {t.meals.back}
       </Link>
@@ -28,12 +28,18 @@ export default async function NewMealPage() {
       ) : (
         <MealForm
           action={createMealAction}
-          ingredients={ingredients.map((i) => ({ id: i.id, name: i.name, unit: i.unit }))}
+          ingredients={ingredients}
           initial={{ name: "", notes: "", items: [] }}
           submitLabel={t.meals.create}
-          t={t}
+          t={{
+            meals: t.meals,
+            errors: t.errors,
+            search: t.search,
+            macro: t.macro,
+            ingredients: t.ingredients,
+          }}
         />
       )}
-    </>
+    </div>
   );
 }

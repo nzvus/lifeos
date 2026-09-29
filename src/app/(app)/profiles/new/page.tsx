@@ -7,7 +7,8 @@ import { createProfileAction } from "../actions";
 export default async function NewProfilePage() {
   const { t } = await requireContext();
   return (
-    <>
+    // Forms read best narrow: cap the width even on wide screens.
+    <div className="flex max-w-page flex-col gap-8">
       <Link href="/profiles" className="text-sm underline">
         {t.profiles.back}
       </Link>
@@ -16,8 +17,8 @@ export default async function NewProfilePage() {
         action={createProfileAction}
         initial={{}}
         submitLabel={t.profiles.create}
-        t={t}
+        t={{ profiles: t.profiles, nutrients: t.nutrients, errors: t.errors }}
       />
-    </>
+    </div>
   );
 }

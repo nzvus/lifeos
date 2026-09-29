@@ -72,4 +72,6 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
           PGSSLROOTCERT: system # psql is libpq, see the backup step
-        run: psql "$DATABASE_URL" -c "select id, hash, to_timestamp(created_at/1000) as applied from drizzle.__drizzle_migrations order by id"
+        # created_at is when the migration was GENERATED (drizzle stores the
+        # journal time), not when it was applied: labelled accordingly.
+        run: psql "$DATABASE_URL" -c "select id, hash, to_timestamp(created_at/1000) as generated from drizzle.__drizzle_migrations order by id"

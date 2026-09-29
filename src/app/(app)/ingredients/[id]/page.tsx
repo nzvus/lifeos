@@ -26,7 +26,8 @@ export default async function EditIngredientPage({ params }: Props) {
   if (!ingredient) notFound();
 
   return (
-    <>
+    // Forms read best narrow: cap the width even on wide screens.
+    <div className="flex max-w-page flex-col gap-8">
       <Link href="/ingredients" className="text-sm underline">
         {t.ingredients.back}
       </Link>
@@ -35,12 +36,12 @@ export default async function EditIngredientPage({ params }: Props) {
         action={updateIngredientAction.bind(null, id)}
         initial={ingredientFormValues(ingredient)}
         submitLabel={t.ingredients.save}
-        t={t}
+        t={{ ingredients: t.ingredients, nutrients: t.nutrients, errors: t.errors }}
       />
       <ActionButtonForm
         action={deleteIngredientAction.bind(null, id)}
         label={t.ingredients.delete}
       />
-    </>
+    </div>
   );
 }
