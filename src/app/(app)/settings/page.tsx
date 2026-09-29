@@ -12,13 +12,14 @@ export default async function SettingsPage() {
   // Every IANA time zone the server's runtime knows, for suggestions.
   const timeZones = Intl.supportedValuesOf("timeZone");
   return (
-    <>
+    // Forms read best narrow: cap the width even on wide screens.
+    <div className="flex max-w-page flex-col gap-8">
       <h1 className="font-display text-3xl font-bold">{t.settings.title}</h1>
       <SettingsForm
         action={saveSettingsAction}
         initial={settingsFormValues(settings)}
         timeZones={timeZones}
-        t={t}
+        t={{ settings: t.settings, errors: t.errors }}
       />
       <section className="flex flex-col items-start gap-2 border-t-6 border-ink pt-3">
         <h2 className="font-display text-xl font-bold">{t.settings.exportTitle}</h2>
@@ -31,6 +32,6 @@ export default async function SettingsPage() {
           {t.settings.export}
         </a>
       </section>
-    </>
+    </div>
   );
 }

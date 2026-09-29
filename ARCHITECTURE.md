@@ -31,7 +31,8 @@ src/
                 repositories/), export/, import/ (FitForge plan + apply),
                 auth/, shared/ (decimal, dates, result, format, locales),
                 testing/ (PGlite test db)
-  ui/           Field, SelectField, SubmitButton, FormAlert, ActionButtonForm
+  ui/           Field, SelectField, SearchSelect (combobox), NavBar,
+                MacroBar, SubmitButton, FormAlert, ActionButtonForm
   design/       theme.css — Tailwind v4 @theme tokens (light + dark)
   i18n/         messages.en.ts (reference shape), messages.it.ts, fill()
 drizzle/        committed SQL migrations (generated, reviewed)
@@ -113,7 +114,8 @@ cannot poll URLs itself, so app health has daily granularity.
   `.env.example`). Vercel env for the app; GitHub secrets/variables for
   backup and migrate; age private key only on the developer's machine.
 - **Auth/security:** Better Auth, email+password (min 10), DB-backed sessions
-  (30 days) and DB-backed rate limiting; HttpOnly cookies, Secure on HTTPS;
+  (30 days, cached 5 min in a signed cookie: a revoked session can live up to
+  5 more minutes) and DB-backed rate limiting; HttpOnly cookies, Secure on HTTPS;
   sign-up closed unless `ALLOW_SIGNUP=true`. Authorization checked in every
   page/action (`requireContext`) and again at the data boundary (`Owner`).
 - **Targets:** per day from `core/nutrition/repositories/profiles.ts`:
@@ -121,6 +123,18 @@ cannot poll URLs itself, so app health has daily granularity.
   `user_settings.target_*` are deprecated and unread.
 - **Time:** days are `date` strings; "today" uses the user's time zone
   (`user_settings.timezone`), never the server's UTC clock.
+- **Search & ordering:** one function, `core/shared/search.ts` (case- and
+  accent-insensitive, every word must match, ranked by match quality then
+  usage). Usage = log entries per meal/ingredient in the last 60 days,
+  computed on read (`repositories/usage.ts`). Lists search in the browser.
+- **Responsive UI:** phones get a bottom tab bar and card lists; md+ gets
+  header navigation and tables; lg+ shows the day in two columns with a
+  sticky label. Form pages cap at `--container-page`, others at
+  `--container-wide`.
+- **Performance:** Vercel functions pinned to `fra1` next to Neon
+  (`vercel.json`); Better Auth cookie cache (5 min) skips the session query;
+  `app/(app)/loading.tsx` gives instant feedback; client components receive
+  only the dictionary slices they use.
 - **Theming/i18n:** tokens are CSS custom properties; dark theme follows the
   OS (manual toggle is backlog). Locale per user (`it` default, `en`).
 - **Testing:** Vitest; DB tests on PGlite with the real migrations applied.

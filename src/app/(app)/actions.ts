@@ -20,6 +20,7 @@ import { formToObject } from "@/app/_server/forms";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import {
+  copyDay,
   deleteLogEntry,
   logIngredient,
   logMeal,
@@ -31,6 +32,7 @@ import {
   logMealInput,
   parseInput,
 } from "@/core/nutrition/validation";
+import { addDays } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 
@@ -98,4 +100,23 @@ export async function setDayProfileAction(
   if (!result.ok) return { status: "error", errors: result.errors, values };
   revalidatePath("/");
   return { status: "saved" };
+}
+
+/**
+ * "Repeat yesterday": copies the previous day's entries into `day`, as
+ * logged (core copyDay). Bound per day by the page. Shown only on an empty
+ * day, so a tap can't duplicate a day that already has food.
+ */
+export async function copyPreviousDayAction(
+  day: string,
+  _prev: ActionButtonState,
+  _formData: FormData,
+): Promise<ActionButtonState> {
+  const { owner, t } = await requireContext();
+  const result = await copyDay(getDb(), owner, addDays(day, -1), day);
+  if (!result.ok) return { status: "error", message: t.errors.not_found };
+  if (result.value.copied === 0)
+    return { status: "error", message: t.day.nothingYesterday };
+  revalidatePath("/");
+  return { status: "idle" };
 }

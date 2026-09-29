@@ -15,7 +15,7 @@
 - Notes bridge to the Obsidian vault (read/search, quick capture)
 - Home bridge on a LAN device (old Motorola phone): Home Assistant control, Syncthing status — Vercel cannot reach the home network, so this needs its own ADR
 - Drop `user_settings.target_*` (deprecated by ADR-0008) once profiles have run in production for a while
-- UI: pass only the needed dictionary slices to client components (today pages pass the whole dictionary)
+- UI: installable app (PWA) + offline logging at the gym; one-click theme toggle; charts of weight and intake over time
 - Training cycle that picks the day profile automatically (ADR-0008 option C, with the training module)
 - Template meta-loop: reset `ai-native-starter` to a clean template; record what S00/S01 taught in its TEMPLATE-CHANGELOG
 
@@ -48,6 +48,16 @@
 - [x] Migrations 0001 (tables) + 0002 (backfill "Standard" profile), rehearsed on real Postgres with old-schema data
 - [x] Profiles page, day-type picker on the day page, export v2; 45 tests incl. cross-user and snapshot
 - [ ] Developer review; production migration via `migrate.yml`; create the real profiles (gym / run / rest)
+
+## Next sprint: S03 — Interface and usability (started 2026-09-29, night)
+- **Goal:** faster, adapted to phone and desktop, smarter search and ordering, richer but minimal information.
+- [x] Speed: functions in `fra1` next to the database; session cookie cache; loading skeleton; smaller pages (dictionary slices)
+- [x] Layout: bottom tab bar on phones, two-column day view with sticky label on desktop, card/table lists
+- [x] Smart search (accents/case-insensitive, all words, best match) and ordering by usage in the last 60 days
+- [x] Searchable pickers in the log forms and the meal editor; ingredient and meal browsers with 6–7 sort orders
+- [x] Richer info: energy split bar, all macros per entry, expandable entry contents, protein per 100 kcal, price per kg
+- [x] "Repeat yesterday's meals" on an empty day (copies the logged snapshot, ADR-0007)
+- [ ] Developer review on a real phone and a desktop browser (no browser was available to the agent: layout and keyboard behaviour are untested visually)
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

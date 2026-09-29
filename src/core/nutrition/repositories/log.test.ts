@@ -7,7 +7,7 @@ import type { Db } from "../../db/client";
 import type { Owner } from "../../identity/owner";
 import { createTestDb, createTestUser, ingredientFixture } from "../../testing/test-db";
 import { createIngredient, deleteIngredient, updateIngredient } from "./ingredients";
-import { deleteLogEntry, getDay, logIngredient, logMeal } from "./log";
+import { copyDay, deleteLogEntry, getDay, logIngredient, logMeal } from "./log";
 import { createMeal, deleteMeal, getMeal, listMeals, updateMeal } from "./meals";
 
 let db: Db;
@@ -145,5 +145,32 @@ describe("daily log", () => {
     });
     expect((await deleteLogEntry(db, bob, entry.value.id)).ok).toBe(false);
     expect((await getDay(db, alice, day)).entries).toHaveLength(1);
+  });
+
+  it("copyDay repeats a day's food as logged, and nothing of another user", async () => {
+    const mealId = await porridge();
+    await logMeal(db, alice, { day, mealId, servings: "1.5" });
+    await logIngredient(db, alice, { day, ingredientId: oatsId, quantity: "10" });
+    // A later recipe change must NOT leak into the copy (ADR-0007).
+    await updateIngredient(db, alice, oatsId, ingredientFixture({ kcal: "999" }));
+
+    expect(await copyDay(db, alice, day, "2026-09-30")).toEqual({
+      ok: true,
+      value: { copied: 2 },
+    });
+    const copy = await getDay(db, alice, "2026-09-30");
+    const original = await getDay(db, alice, day);
+    expect(copy.totals).toEqual(original.totals);
+    expect(copy.entries.map((e) => [e.label, e.servings])).toEqual([
+      ["Porridge", "1.50"],
+      ["Oats", "1.00"],
+    ]);
+
+    // CROSS-USER: Bob copying Alice's day copies nothing (he sees no entries).
+    expect(await copyDay(db, bob, day, "2026-09-30")).toEqual({
+      ok: true,
+      value: { copied: 0 },
+    });
+    expect((await getDay(db, bob, "2026-09-30")).entries).toEqual([]);
   });
 });

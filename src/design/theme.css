@@ -29,6 +29,10 @@
   --color-herb: #2d6a4c; /* within target, primary actions */
   --color-tomato: #b23a2a; /* over target, errors, destructive actions */
   --color-focus: #2d6a4c;
+  /* Macronutrient split bar: three calm, distinguishable tones. */
+  --color-macro-protein: #2d6a4c;
+  --color-macro-carbs: #c9a227;
+  --color-macro-fat: #7a8a82;
 
   /* --- type: Barlow Condensed for numbers and headings, Barlow for text ---
      Self-hosted via @fontsource (imported in src/app/layout.tsx): no request
@@ -42,6 +46,8 @@
 
   /* --- layout: one readable column (≈ 38 characters of label per half) --- */
   --container-page: 42rem;
+  /* Wide screens: day view in two columns, lists as tables (72rem ≈ 1150 px). */
+  --container-wide: 72rem;
 }
 
 /*
@@ -59,6 +65,9 @@
     --color-herb: #7cc39b;
     --color-tomato: #f08a76;
     --color-focus: #7cc39b;
+    --color-macro-protein: #7cc39b;
+    --color-macro-carbs: #e2c35a;
+    --color-macro-fat: #9aa8a0;
   }
 }
 :root[data-theme="dark"] {
@@ -70,4 +79,7 @@
   --color-herb: #7cc39b;
   --color-tomato: #f08a76;
   --color-focus: #7cc39b;
+  --color-macro-protein: #7cc39b;
+  --color-macro-carbs: #e2c35a;
+  --color-macro-fat: #9aa8a0;
 }

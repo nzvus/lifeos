@@ -11,18 +11,20 @@
  *   - a thin bar per row: herb green while under target, tomato once over.
  */
 import type { NutrientKey } from "@/core/nutrition/nutrients";
+import { macroSplit } from "@/core/nutrition/insights";
 import { NUTRIENT_KEYS, NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { compareToTarget } from "@/core/nutrition/targets";
 import type { DisplayTotals } from "@/core/nutrition/totals";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
+import { MacroBar } from "@/ui/MacroBar";
 
 type Props = {
   totals: DisplayTotals;
   targets: Record<NutrientKey, string | null>;
   locale: Locale;
-  t: Pick<Messages, "label" | "nutrients">;
+  t: Pick<Messages, "label" | "nutrients" | "macro">;
 };
 
 /** Sub-rows of the label ("of which ..."), indented. */
@@ -30,6 +32,7 @@ const SUB_ROWS: ReadonlySet<NutrientKey> = new Set(["sugars", "saturatedFat"]);
 
 export function NutritionLabel({ totals, targets, locale, t }: Props) {
   const anyTarget = NUTRIENT_KEYS.some((k) => targets[k] !== null);
+  const split = macroSplit(totals.nutrients); // null on an empty day
   return (
     <section
       aria-labelledby="label-title"
@@ -41,6 +44,14 @@ export function NutritionLabel({ totals, targets, locale, t }: Props) {
       >
         {t.label.title}
       </h2>
+      {split && (
+        <div className="flex flex-col gap-1 pt-2">
+          <MacroBar {...split} label={t.macro.splitTitle} />
+          <p className="font-display text-sm text-muted tabular-nums">
+            {`${t.macro.protein} ${split.protein}% · ${t.macro.carbs} ${split.carbs}% · ${t.macro.fat} ${split.fat}%`}
+          </p>
+        </div>
+      )}
       <table className="w-full border-collapse">
         <tbody>
           {NUTRIENT_KEYS.map((k) => {

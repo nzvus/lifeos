@@ -27,7 +27,12 @@ import { getIngredient, per100Of, type Ingredient } from "./ingredients";
 import { getMeal } from "./meals";
 import { ensureDayPlan } from "./profiles";
 
-export type LoggedLine = TotalsLine & { name: string; unit: Ingredient["unit"] };
+export type LoggedLine = TotalsLine & {
+  name: string;
+  unit: Ingredient["unit"];
+  /** Link to the current ingredient; null if it was deleted since. */
+  ingredientId: string | null;
+};
 
 export type LogEntryView = {
   id: string;
@@ -72,6 +77,7 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
     list.push({
       name: it.name,
       unit: it.unit,
+      ingredientId: it.ingredientId,
       quantity: it.quantity,
       per100: per100Of(it),
       packagePriceCents: it.packagePriceCents,
@@ -182,4 +188,55 @@ export async function deleteLogEntry(
     .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)))
     .returning({ id: logEntries.id });
   return deleted.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/**
+ * Copies every entry of one day into another ("repeat yesterday's meals").
+ *
+ * What is copied is the SNAPSHOT (ADR-0007): the lines exactly as they were
+ * logged, not the current version of the meals. "I ate the same again"
+ * means the same food; if a recipe changed since, log it fresh instead.
+ * One transaction: either the whole day is copied or nothing is. The target
+ * day then gets its targets fixed like any day with food (ADR-0008).
+ * Returns how many entries were copied (0 if the source day was empty).
+ */
+export async function copyDay(
+  db: Db,
+  owner: Owner,
+  fromDay: string,
+  toDay: string,
+): Promise<Result<{ copied: number }>> {
+  const source = await getDay(db, owner, fromDay); // owner-filtered read
+  if (source.entries.length === 0) return ok({ copied: 0 });
+
+  await db.transaction(async (tx) => {
+    for (const e of source.entries) {
+      const [entry] = await tx
+        .insert(logEntries)
+        .values({
+          userId: owner.id,
+          day: toDay,
+          mealId: e.mealId,
+          label: e.label,
+          servings: e.servings,
+        })
+        .returning({ id: logEntries.id });
+      await tx.insert(logEntryItems).values(
+        e.lines.map((l, position) => ({
+          userId: owner.id,
+          entryId: entry!.id,
+          ingredientId: l.ingredientId,
+          name: l.name,
+          unit: l.unit,
+          quantity: l.quantity,
+          ...l.per100,
+          packagePriceCents: l.packagePriceCents,
+          packageSize: l.packageSize,
+          position,
+        })),
+      );
+    }
+  });
+  await ensureDayPlan(db, owner, toDay);
+  return ok({ copied: source.entries.length });
 }

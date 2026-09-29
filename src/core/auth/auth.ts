@@ -50,6 +50,12 @@ export function createAuth(config: AuthConfig) {
       // A session lives 30 days; each use within the last day extends it.
       expiresIn: 60 * 60 * 24 * 30,
       updateAge: 60 * 60 * 24,
+      // Speed: keep the verified session in a signed cookie for 5 minutes,
+      // so most requests skip the `session` table query entirely. The
+      // trade-off: a session revoked in the database (e.g. "log out that
+      // device") stays usable for up to 5 minutes. Acceptable for one user;
+      // revisit with ADR-0006's tripwire when a second account exists.
+      cookieCache: { enabled: true, maxAge: 5 * 60 },
     },
     rateLimit: {
       enabled: true,

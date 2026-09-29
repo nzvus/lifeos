@@ -26,7 +26,8 @@ export default async function EditProfilePage({ params }: Props) {
   if (!profile) notFound();
 
   return (
-    <>
+    // Forms read best narrow: cap the width even on wide screens.
+    <div className="flex max-w-page flex-col gap-8">
       <Link href="/profiles" className="text-sm underline">
         {t.profiles.back}
       </Link>
@@ -36,7 +37,7 @@ export default async function EditProfilePage({ params }: Props) {
         action={updateProfileAction.bind(null, id)}
         initial={profileFormValues(profile)}
         submitLabel={t.profiles.save}
-        t={t}
+        t={{ profiles: t.profiles, nutrients: t.nutrients, errors: t.errors }}
       />
       <div className="flex flex-wrap gap-4">
         {!profile.isDefault && (
@@ -51,6 +52,6 @@ export default async function EditProfilePage({ params }: Props) {
           label={t.profiles.delete}
         />
       </div>
-    </>
+    </div>
   );
 }
