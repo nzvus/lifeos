@@ -6,9 +6,10 @@
 **Stack:** TypeScript + Next.js (App Router), npm (ADR-0001); Tailwind v4 `@theme` tokens (ADR-0002); Postgres on Neon + Drizzle (ADR-0003); Vercel Hobby + GitHub Actions CI (ADR-0004); Better Auth, email+password, users and sessions in our own Postgres (ADR-0006).
 **Layout:** `src/{app,features,core,ui,design,i18n}` — one-way deps, no cross-slice imports, rule of three for `ui/` (ADR-0002).
 **Data:** all DB access via `core/` repositories; migrations are committed SQL from `drizzle-kit generate`, rehearsed on the PR's Neon branch, and applied to production only by the human-triggered CI job that dumps first — never `drizzle-kit push` on a shared DB, never auto-migrate on deploy (ADR-0003/0004).
-**Run:** `npm run dev` (commands become real once S01 scaffolds the app)
-**Test:** `npm test` (Vitest)
-**Lint/format:** `npm run lint` (ESLint + Prettier)
+**Run:** `npm run dev` (needs `.env`, see `.env.example` and `docs/runbooks/setup.md`)
+**Test:** `npm test` (Vitest; DB tests run on PGlite with the real migrations — no database needed)
+**Lint/format:** `npm run lint` (includes ADR-0002 boundary rules), `npm run typecheck`, `npm run format`
+**Schema change:** edit `src/core/db/schema/*` → `npm run db:generate` → read the SQL in `drizzle/` → commit. Log entries are snapshots (ADR-0007, proposed).
 <!-- ADR-0001 rule: domain logic lives in core/ and must not import next/*. Route handlers and server actions call into core/, they don't contain logic. -->
 
 <!-- Primary invariant: logged data is never lost/corrupted — provider-independent dump + a drilled restore, not the free tier's promises (ADR-0003). Also: per-user isolation (enforced at the core/ data boundary, NEVER in middleware — CVE-2025-29927; every user-owned entity needs a user_id, access only via the identity-taking repository helper, and a cross-user read test); totals=parts (computed on read, never stored). Parallel track: kit is EXTRACTED from the app, never built speculatively. -->
@@ -42,6 +43,10 @@ for code quality, then for speed. Never for speed first.
 5. **Teach through review.** When the human writes code, review it like a
    thoughtful senior: what's good, what's risky, one thing to learn. Don't
    rewrite it unless asked.
+6. **Agent writes, human reviews before commit** (S00 retro, 2026-09-29).
+   The agent may write code, but never commits. It delivers small diffs; the
+   developer reads each one and must be able to explain it before committing.
+   After each diff: say what to look at first, and ask one check question.
 
 ## Workflow cadence
 

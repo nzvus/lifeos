@@ -67,6 +67,7 @@
 - [x] ADR-0003 Persistence + the data-durability invariant — Postgres on Neon + Drizzle, backups owned by the repo rather than the provider
 - [x] ADR-0004 Delivery target & CI — Vercel Hobby, protected `main`, migrations by human-triggered job, dead-man's switch on the backup
 - [x] ADR-0006 Authentication & session model — Better Auth, email+password, identity in our own database; isolation at the `core/` data boundary, RLS deferred
+- [ ] ADR-0007 Log entries snapshot what was eaten; totals computed on read from the snapshot — *proposed* 2026-09-29, awaiting the developer's acceptance
 - [ ] ADR-0005 Domain data model: heterogeneous exercises & aggregations
   (needed before training sprints; not blocking the nutrition v1)
 
