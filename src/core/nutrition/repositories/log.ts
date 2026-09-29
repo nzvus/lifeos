@@ -25,6 +25,7 @@ import {
 import type { LogIngredientInput, LogMealInput } from "../validation";
 import { getIngredient, per100Of, type Ingredient } from "./ingredients";
 import { getMeal } from "./meals";
+import { ensureDayPlan } from "./profiles";
 
 export type LoggedLine = TotalsLine & { name: string; unit: Ingredient["unit"] };
 
@@ -131,6 +132,10 @@ export async function logMeal(
     );
     return entry!.id;
   });
+  // First food of the day fixes the day's targets (ADR-0008). Outside the
+  // transaction on purpose: if this step failed, the food is still logged
+  // and the next log call fixes the day.
+  await ensureDayPlan(db, owner, input.day);
   return ok({ id });
 }
 
@@ -162,6 +167,7 @@ export async function logIngredient(
     });
     return entry!.id;
   });
+  await ensureDayPlan(db, owner, input.day); // see logMeal
   return ok({ id });
 }
 

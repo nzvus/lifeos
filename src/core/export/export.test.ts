@@ -5,6 +5,7 @@ import { account } from "../db/schema";
 import type { Owner } from "../identity/owner";
 import { createIngredient } from "../nutrition/repositories/ingredients";
 import { logIngredient } from "../nutrition/repositories/log";
+import { createProfile } from "../nutrition/repositories/profiles";
 import { saveSettings } from "../nutrition/repositories/settings";
 import { createTestDb, createTestUser, ingredientFixture } from "../testing/test-db";
 import { EXPORT_FORMAT, exportUserData } from "./export";
@@ -23,16 +24,8 @@ afterEach(() => close());
 
 describe("exportUserData", () => {
   it("contains my data, none of another user's, and no password hash", async () => {
-    const ing = await createIngredient(db, alice, ingredientFixture());
-    if (!ing.ok) throw new Error("setup failed");
-    await logIngredient(db, alice, {
-      day: "2026-09-29",
-      ingredientId: ing.value.id,
-      quantity: "50",
-    });
-    await saveSettings(db, alice, {
-      timezone: "Europe/Rome",
-      locale: "it",
+    await createProfile(db, alice, {
+      name: "Palestra",
       kcal: "2400",
       protein: null,
       carbs: null,
@@ -42,6 +35,14 @@ describe("exportUserData", () => {
       fiber: null,
       salt: null,
     });
+    const ing = await createIngredient(db, alice, ingredientFixture());
+    if (!ing.ok) throw new Error("setup failed");
+    await logIngredient(db, alice, {
+      day: "2026-09-29",
+      ingredientId: ing.value.id,
+      quantity: "50",
+    });
+    await saveSettings(db, alice, { timezone: "Europe/Rome", locale: "it" });
     await createIngredient(db, bob, ingredientFixture({ name: "Bob's secret" }));
     await db.insert(account).values({
       accountId: "a",
@@ -57,7 +58,14 @@ describe("exportUserData", () => {
     expect(data.account?.email).toBe("alice@example.com");
     expect(data.ingredients.map((i) => i.name)).toEqual(["Oats"]);
     expect(data.log[0]?.items[0]?.quantity).toBe("50.00"); // exact, as stored
-    expect(data.settings?.kcal).toBe("2400.000");
+    expect(data.settings?.timezone).toBe("Europe/Rome");
+    expect(data.dayProfiles.map((p) => [p.name, p.kcal, p.isDefault])).toEqual([
+      ["Palestra", "2400.000", true],
+    ]);
+    // Logging food fixed the day to the default profile (ADR-0008):
+    expect(data.dayPlans.map((d) => [d.day, d.profileName])).toEqual([
+      ["2026-09-29", "Palestra"],
+    ]);
     expect(text).not.toContain("Bob's secret");
     expect(text).not.toContain("HASH-SHOULD-NOT-LEAK");
     expect(text).not.toContain(alice.id); // user ids are stripped

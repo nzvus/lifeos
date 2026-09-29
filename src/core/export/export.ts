@@ -19,6 +19,8 @@
 import { asc, eq } from "drizzle-orm";
 import type { Db } from "../db/client";
 import {
+  dayPlans,
+  dayProfiles,
   ingredients,
   logEntries,
   logEntryItems,
@@ -30,7 +32,8 @@ import {
 import { ownedBy, type Owner } from "../identity/owner";
 
 export const EXPORT_FORMAT = "lifeos-export";
-export const EXPORT_VERSION = 1;
+/** 2: adds dayProfiles and dayPlans (ADR-0008). */
+export const EXPORT_VERSION = 2;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -44,23 +47,37 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     .from(user)
     .where(eq(user.id, owner.id));
 
-  const [settings, ingredientRows, mealRows, mealItemRows, entryRows, entryItemRows] =
-    await Promise.all([
-      db.select().from(userSettings).where(ownedBy(userSettings, owner)),
-      db
-        .select()
-        .from(ingredients)
-        .where(ownedBy(ingredients, owner))
-        .orderBy(asc(ingredients.name)),
-      db.select().from(meals).where(ownedBy(meals, owner)).orderBy(asc(meals.name)),
-      db.select().from(mealItems).where(ownedBy(mealItems, owner)),
-      db
-        .select()
-        .from(logEntries)
-        .where(ownedBy(logEntries, owner))
-        .orderBy(asc(logEntries.day)),
-      db.select().from(logEntryItems).where(ownedBy(logEntryItems, owner)),
-    ]);
+  const [
+    settings,
+    ingredientRows,
+    mealRows,
+    mealItemRows,
+    entryRows,
+    entryItemRows,
+    profileRows,
+    planRows,
+  ] = await Promise.all([
+    db.select().from(userSettings).where(ownedBy(userSettings, owner)),
+    db
+      .select()
+      .from(ingredients)
+      .where(ownedBy(ingredients, owner))
+      .orderBy(asc(ingredients.name)),
+    db.select().from(meals).where(ownedBy(meals, owner)).orderBy(asc(meals.name)),
+    db.select().from(mealItems).where(ownedBy(mealItems, owner)),
+    db
+      .select()
+      .from(logEntries)
+      .where(ownedBy(logEntries, owner))
+      .orderBy(asc(logEntries.day)),
+    db.select().from(logEntryItems).where(ownedBy(logEntryItems, owner)),
+    db
+      .select()
+      .from(dayProfiles)
+      .where(ownedBy(dayProfiles, owner))
+      .orderBy(asc(dayProfiles.name)),
+    db.select().from(dayPlans).where(ownedBy(dayPlans, owner)).orderBy(asc(dayPlans.day)),
+  ]);
 
   return {
     format: EXPORT_FORMAT,
@@ -73,6 +90,8 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       ...m,
       items: stripOwner(mealItemRows.filter((i) => i.mealId === m.id)),
     })),
+    dayProfiles: stripOwner(profileRows),
+    dayPlans: stripOwner(planRows),
     log: stripOwner(entryRows).map((e) => ({
       ...e,
       items: stripOwner(entryItemRows.filter((i) => i.entryId === e.id)),

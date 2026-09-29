@@ -135,13 +135,23 @@ export const logIngredientInput = z.object({
 });
 export type LogIngredientInput = z.output<typeof logIngredientInput>;
 
-/** Settings form: time zone, language, optional daily targets. */
+/** Settings form: time zone and language (targets moved to profiles, ADR-0008). */
 export const settingsInput = z.object({
   timezone: z.string().refine(isValidTimeZone, "invalid_choice"),
   locale: z.enum(LOCALES, "invalid_choice"),
-  ...perNutrient(() => optionalDecimalString(NUTRIENT)),
 });
 export type SettingsInput = z.output<typeof settingsInput>;
+
+/** A day profile: a name and optional daily targets (empty = no target). */
+export const profileInput = z.object({
+  name: z.string().trim().min(1, "required").max(60, "too_long"),
+  ...perNutrient(() => optionalDecimalString(NUTRIENT)),
+});
+export type ProfileInput = z.output<typeof profileInput>;
+
+/** "This day follows this profile." */
+export const dayProfileInput = z.object({ day, profileId: id });
+export type DayProfileInput = z.output<typeof dayProfileInput>;
 
 /** An id coming from a form or URL (delete buttons, edit pages). */
 export const idInput = id;
@@ -197,15 +207,23 @@ export function ingredientFormValues(
   return values;
 }
 
-/** Settings as form field values: targets as plain decimals, empty when unset. */
+/** Settings as form field values. */
 export function settingsFormValues(s: {
   timezone: string;
   locale: string;
-  targets: Record<NutrientKey, string | null>;
 }): Record<string, string> {
-  const values: Record<string, string> = { timezone: s.timezone, locale: s.locale };
+  return { timezone: s.timezone, locale: s.locale };
+}
+
+/** A profile as form field values: targets as plain decimals, empty when unset. */
+export function profileFormValues(
+  p: {
+    name: string;
+  } & Record<NutrientKey, string | null>,
+): Record<string, string> {
+  const values: Record<string, string> = { name: p.name };
   for (const k of NUTRIENT_KEYS) {
-    const v = s.targets[k];
+    const v = p[k];
     values[k] = v === null ? "" : new Big(v).toString();
   }
   return values;

@@ -14,6 +14,7 @@ export const it: Messages = {
     ingredients: "Ingredienti",
     meals: "Pasti",
     settings: "Impostazioni",
+    profiles: "Obiettivi",
     signOut: "Esci",
   },
   nutrients: {
@@ -40,6 +41,8 @@ export const it: Messages = {
     in_use: "Un pasto lo usa ancora. Toglilo prima da quei pasti.",
     empty_meal: "Aggiungi almeno un ingrediente.",
     invalid_day: "Quella data non esiste.",
+    is_default:
+      "È il tipo di giornata predefinito. Rendi predefinito un altro tipo prima.",
   },
   auth: {
     signInTitle: "Accedi",
@@ -73,6 +76,13 @@ export const it: Messages = {
     servingsTimes: "× {n}",
     noMeals: "Nessun pasto. Creane uno in Pasti per registrarlo qui.",
     noIngredients: "Nessun ingrediente. Aggiungili prima in Ingredienti.",
+    profileLabel: "Tipo di giornata",
+    applyProfile: "Applica",
+    profileFixed: "Obiettivi fissati per questo giorno: {name}",
+    profileDefault:
+      "Predefinito: {name}. Si fissa al primo alimento registrato; se oggi è diverso, scegline un altro ora.",
+    noProfiles:
+      "Nessun tipo di giornata. Creali in Obiettivi per vedere qui gli obiettivi.",
   },
   label: {
     title: "Totali del giorno",
@@ -83,7 +93,7 @@ export const it: Messages = {
     cost: "Costo",
     costPartial: "almeno {v}: mancano alcuni prezzi",
     costPartialShort: "almeno {v}",
-    setTargets: "Imposta gli obiettivi giornalieri in Impostazioni.",
+    setTargets: "Imposta gli obiettivi giornalieri in Obiettivi.",
   },
   ingredients: {
     title: "Ingredienti",
@@ -135,8 +145,6 @@ export const it: Messages = {
     timezone: "Fuso orario",
     timezoneHint: "Decide quando inizia e finisce la tua giornata, es. Europe/Rome.",
     locale: "Lingua",
-    targets: "Obiettivi giornalieri",
-    targetsHint: "Lascia vuoto un campo per non avere obiettivo.",
     save: "Salva impostazioni",
     saved: "Salvato.",
     exportTitle: "I tuoi dati",
@@ -144,6 +152,27 @@ export const it: Messages = {
       "Scarica tutto ciò che hai inserito in un file JSON. Tienine una copia: funziona anche senza questa app.",
     export: "Scarica i miei dati",
     localeNames: { it: "Italiano", en: "English" },
+  },
+  profiles: {
+    title: "Tipi di giornata e obiettivi",
+    intro:
+      "Ogni tipo di giornata (palestra, corsa, riposo…) ha i suoi obiettivi. Sceglilo nella pagina del giorno; se non lo scegli vale il predefinito.",
+    newTitle: "Nuovo tipo di giornata",
+    editTitle: "Modifica tipo di giornata",
+    name: "Nome",
+    targets: "Obiettivi giornalieri",
+    targetsHint: "Lascia vuoto un campo per non avere obiettivo.",
+    create: "Crea tipo di giornata",
+    save: "Salva modifiche",
+    delete: "Elimina tipo di giornata",
+    makeDefault: "Rendi predefinito",
+    isDefault: "Predefinito",
+    empty:
+      'Nessun tipo di giornata. Creane uno, per esempio "Palestra", "Corsa", "Riposo". Il primo diventa il predefinito.',
+    edit: "Modifica",
+    back: "Torna ai tipi di giornata",
+    editNote:
+      "Le modifiche valgono per oggi e per i giorni non ancora fissati. Un giorno già fissato mantiene i suoi obiettivi: per aggiornarli, scegli di nuovo il tipo in quel giorno.",
   },
   errorPage: {
     title: "Qualcosa è andato storto",

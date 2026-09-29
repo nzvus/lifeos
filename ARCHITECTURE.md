@@ -12,7 +12,8 @@ session, call `core/`, and render feature components. All domain and data
 logic lives in `core/`, which imports no framework. Data is Postgres on Neon
 through Drizzle (ADR-0003); identity is Better Auth in the same database
 (ADR-0006). Nutrition v1 is implemented: ingredients, meals, daily log with
-snapshots (ADR-0007, proposed), targets, JSON export.
+snapshots (ADR-0007, proposed), day profiles with per-day target copies
+(ADR-0008), JSON export.
 
 ## Component map
 
@@ -47,6 +48,7 @@ docs/runbooks/  setup, restore drill, lint-rule proof
 | --- | --- |
 | Logged data is never lost or silently corrupted | Daily encrypted `pg_dump` outside Neon + drilled restore (`scripts/`, `backup.yml`); migrations only via committed SQL, rehearsed on preview branches, applied to production by `migrate.yml` after a backup; log entries are snapshots (ADR-0007); decimals exact end to end (`numeric` + big.js), money in integer cents; validation rejects more decimals than a column stores |
 | A user can never read another user's data | Every repository takes an `Owner` (branded type, only from a verified session) and filters with `ownedBy()`; composite foreign keys `(id, user_id)` make the DB refuse cross-user links; cross-user tests per entity. Never middleware (CVE-2025-29927) |
+| A past day's targets never change | `day_plans` holds a copy of the profile's targets, fixed when the day is chosen or its first food is logged (ADR-0008) |
 | A day/meal's totals equal the sum of its entries | `core/nutrition/totals.ts` only; computed on read, exact, rounded once at display; no stored aggregates |
 
 Structural invariants, enforced by ESLint (proof: `docs/runbooks/lint-boundaries.md`):
@@ -114,6 +116,9 @@ cannot poll URLs itself, so app health has daily granularity.
   (30 days) and DB-backed rate limiting; HttpOnly cookies, Secure on HTTPS;
   sign-up closed unless `ALLOW_SIGNUP=true`. Authorization checked in every
   page/action (`requireContext`) and again at the data boundary (`Owner`).
+- **Targets:** per day from `core/nutrition/repositories/profiles.ts`:
+  fixed copy, else default profile (live), else none (ADR-0008).
+  `user_settings.target_*` are deprecated and unread.
 - **Time:** days are `date` strings; "today" uses the user's time zone
   (`user_settings.timezone`), never the server's UTC clock.
 - **Theming/i18n:** tokens are CSS custom properties; dark theme follows the

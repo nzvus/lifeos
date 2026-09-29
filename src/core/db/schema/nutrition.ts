@@ -6,7 +6,9 @@
  *   user ─┬─< ingredients >──────────────┐ (restrict: can't delete an
  *         ├─< meals ─< meal_items >──────┘  ingredient a meal still uses)
  *         ├─< log_entries ─< log_entry_items   (a SNAPSHOT, see below)
- *         └── user_settings (1 row: timezone, locale, daily targets)
+ *         ├─< day_profiles ─┐ (set null: plans keep their copy)
+ *         ├─< day_plans  <──┘  (one per day: chosen profile + targets COPY)
+ *         └── user_settings (1 row: timezone, locale)
  *
  * Rules applied to every table here (ADR-0003 / ADR-0006):
  *   - every user-owned table has `user_id` from its first migration, and is
@@ -15,6 +17,12 @@
  *   - nutrients are `numeric` (exact decimal), money is integer cents;
  *   - primary keys are Postgres-generated UUIDs; timestamps have time zone;
  *   - no totals are stored anywhere (core/nutrition/totals.ts computes them).
+ *
+ * Day profiles (ADR-0008): targets depend on the kind of day (gym, run,
+ * rest...). The user defines the kinds (day_profiles); each day that matters
+ * gets a day_plans row holding a COPY of its profile's targets, for the same
+ * reason log entries copy food (ADR-0007): editing a profile never rewrites
+ * a past day.
  *
  * The one decision specific to this file (ADR-0007): a log entry does NOT
  * point at the live meal/ingredient for its numbers. When you log something,
@@ -25,6 +33,7 @@
  */
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   check,
   date,
   foreignKey,
@@ -32,9 +41,11 @@ import {
   integer,
   numeric,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import type { NutrientKey } from "../../nutrition/nutrients";
@@ -259,9 +270,68 @@ export const userSettings = pgTable("user_settings", {
     .references(() => user.id, { onDelete: "cascade" }),
   timezone: text("timezone").notNull().default("Europe/Rome"),
   locale: text("locale").notNull().default("it"),
+  // DEPRECATED since migration 0001 (ADR-0008): targets moved to
+  // day_profiles; migration 0002 copied them into a "Standard" profile.
+  // Nothing reads these columns any more. A later migration drops them,
+  // once production has run on profiles for a while (additive-first: add,
+  // backfill, switch reads, then remove — ADR-0004).
   ...targetColumns(),
   updatedAt: tstz("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
 });
+
+/**
+ * A kind of day with its own daily targets ("Palestra", "Corsa", "Riposo"),
+ * defined by the user (ADR-0008: kinds are data, not code). At most one per
+ * user is the default: the partial unique index below makes a second default
+ * impossible, not just unlikely.
+ */
+export const dayProfiles = pgTable(
+  "day_profiles",
+  {
+    id: idColumn(),
+    userId: ownerColumn(),
+    name: text("name").notNull(),
+    isDefault: boolean("is_default").notNull().default(false),
+    ...targetColumns(),
+    createdAt: tstz("created_at").defaultNow().notNull(),
+    updatedAt: tstz("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    unique("day_profiles_user_name_uq").on(t.userId, t.name),
+    // At most one row per user with is_default = true.
+    uniqueIndex("day_profiles_one_default_uq")
+      .on(t.userId)
+      .where(sql`${t.isDefault}`),
+  ],
+);
+
+/**
+ * Which profile a given day follows, with a COPY of its targets (ADR-0008,
+ * same reasoning as ADR-0007). Created when the user picks a profile for the
+ * day, or automatically from the default profile when the first food of the
+ * day is logged, so every day with food has frozen targets.
+ * `profile_id` is only a link; it becomes null if the profile is deleted.
+ */
+export const dayPlans = pgTable(
+  "day_plans",
+  {
+    userId: ownerColumn(),
+    day: date("day", { mode: "string" }).notNull(),
+    profileId: uuid("profile_id").references(() => dayProfiles.id, {
+      onDelete: "set null",
+    }),
+    profileName: text("profile_name").notNull(), // the name at the time
+    ...targetColumns(),
+    updatedAt: tstz("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.day] })],
+);

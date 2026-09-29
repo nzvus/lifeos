@@ -8,7 +8,10 @@
 name: ci
 
 on:
+  # Push: only main (after a merge). Other branches are checked through their
+  # pull request; triggering on every push too ran CI twice per PR.
   push:
+    branches: [main]
   pull_request:
 
 permissions:
