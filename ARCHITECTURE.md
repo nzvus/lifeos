@@ -27,13 +27,15 @@ src/
                 nutrition/{ingredients,meals,log}. Components only.
   core/         db/ (schema, client), identity/ (Owner, ownedBy),
                 nutrition/ (nutrients, totals, targets, validation,
-                repositories/), export/, auth/, shared/ (decimal, dates,
-                result, format, locales), testing/ (PGlite test db)
+                repositories/), export/, import/ (FitForge plan + apply),
+                auth/, shared/ (decimal, dates, result, format, locales),
+                testing/ (PGlite test db)
   ui/           Field, SelectField, SubmitButton, FormAlert, ActionButtonForm
   design/       theme.css — Tailwind v4 @theme tokens (light + dark)
   i18n/         messages.en.ts (reference shape), messages.it.ts, fill()
 drizzle/        committed SQL migrations (generated, reviewed)
-scripts/        check.py, backup.sh, restore-drill.sh, vercel-build.mjs
+scripts/        check.py, backup.sh, restore-drill.sh, vercel-build.mjs,
+                import-fitforge.ts (local CLI; dry run unless --apply)
 docs/runbooks/  setup, restore drill, lint-rule proof
 ```
 
@@ -70,6 +72,9 @@ app  →  features  →  core
 - `core/` never reads `process.env` or request state; `app/_server/` passes in
   what it needs (factories `createDb`, `createAuth`; an `Owner` per call).
 - `ui/` is presentation only: translated strings in, no domain types.
+- Local CLI scripts get an `Owner` from `core/identity/local-admin.ts` (by
+  email, no session): they already hold full DB credentials. The web app
+  (`app/`, `features/`) never imports that file.
 - Promotion into `ui/` follows the rule of three; the current `ui/` components
   each had 3+ users when written.
 

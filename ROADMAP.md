@@ -7,7 +7,7 @@
 - Training: heterogeneous exercises, sessions, sets, estimated burn (ADR-0005 first); importers for FitForge JSON and the PUSH/PULL text logs
 - Gamification: daily/weekly/monthly roll-ups, surplus/cut, objectives
 - UX/kit: one-click theme toggle, reusable widgets, smart search, lazy loading, gym timer
-- Data ownership: import of the lifeos export format (round trip); later AI review of goals
+- Data ownership: import of the lifeos export format (round trip); FitForge daily logs as snapshots (ADR-0007); later AI review of goals
 - Nutrition: live totals preview in the meal editor; "re-snapshot entry" if label fixes become common (ADR-0007 tripwire)
 - Finance: accounts, manual entries, bank + PayPal export importers (dedupe, transfer matching), categories, monthly report — needs its own ADR on where financial data lives
 - Receipts: photo/OCR -> reviewed line items -> products linked to ingredients; price history, purchase frequency (ADR-0007 option D likely)
@@ -26,6 +26,8 @@
   - [x] Cross-user read test for every user-owned entity (ADR-0003/0006)
   - [x] CI workflow, `/api/health`, backup workflow + heartbeat, human-triggered migrate workflow (ADR-0004)
   - [x] Error-handling design (ARCHITECTURE.md "Errors")
+  - [x] Forms tested in a real browser by the developer (2026-09-29)
+  - [x] FitForge importer for ingredients + meals (`npm run import:fitforge`, dry run by default); verified on the real export: 32 ingredients, 13 meals, kcal identical to an independent calculation
 - **Only the developer can do (docs/runbooks/setup.md):**
   - [ ] Review the diff and be able to explain it (CLAUDE.md process rule)
   - [ ] Accept or reject ADR-0007 (status is `proposed`)

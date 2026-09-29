@@ -31,6 +31,15 @@ export type Db = PgDatabase<PgQueryResultHKT, Schema>;
  * are right. Use the pooled URL for the app, the direct one for pg_dump.
  */
 export function createDb(connectionString: string): Db {
+  return openDb(connectionString).db;
+}
+
+/**
+ * Same, plus `close()` to end the pool. A long-running server never closes
+ * it; a command-line script must, or Node keeps waiting on open connections
+ * and the script never exits (scripts/import-fitforge.ts).
+ */
+export function openDb(connectionString: string): { db: Db; close: () => Promise<void> } {
   const pool = new Pool({ connectionString, max: 5 });
-  return drizzle(pool, { schema });
+  return { db: drizzle(pool, { schema }), close: () => pool.end() };
 }

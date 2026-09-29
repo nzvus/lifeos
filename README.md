@@ -40,6 +40,7 @@ npm run dev           # http://localhost:3000
 | `npm run build` | Production build |
 | `npm run db:generate` | Schema change -> new SQL migration file in `drizzle/` (read it!) |
 | `npm run db:migrate` | Apply migrations to the `DATABASE_URL` database |
+| `npm run import:fitforge -- FILE --email EMAIL [--apply]` | Import FitForge ingredients + meals (dry run without `--apply`) |
 | `python3 scripts/check.py` | Docs/ADR health check (`--strict` makes warnings fail) |
 
 Production is migrated only by the `migrate` GitHub workflow, by hand, after
