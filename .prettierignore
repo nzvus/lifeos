@@ -1,0 +1,8 @@
+# Files Prettier must not touch (gitignore syntax: comments on their own line).
+# Generated migrations: never edited after generation.
+drizzle/
+.next/
+node_modules/
+package-lock.json
+# Docs are hand-formatted, and accepted ADRs must never change.
+*.md

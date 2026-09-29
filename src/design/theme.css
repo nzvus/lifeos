@@ -1,0 +1,73 @@
+/*
+ * design/theme.css — THE place for visual values (ADR-0002: values are
+ * centralised from day one). No colour, font or special spacing may be written
+ * anywhere else; ESLint rejects hex colours and Tailwind arbitrary values
+ * like `p-[13px]` outside this folder (eslint.config.mjs).
+ *
+ * How it works (Tailwind v4): every `--color-X` declared in @theme creates
+ * utilities `bg-X`, `text-X`, `border-X`; `--font-X` creates `font-X`. The
+ * values become CSS custom properties, so re-declaring them under a selector
+ * (dark theme below) re-colours the whole app at runtime with no rebuild —
+ * the substrate for PROJECT.md's "one-click theming".
+ *
+ * Visual direction: the EU nutrition label ("Valori nutrizionali"). This app
+ * is mostly numbers read standing in a kitchen, so type is condensed and
+ * numeric, sections are separated by heavy rules like on a label, and colour
+ * is reserved for meaning: herb green = within target, tomato = over target.
+ * No cards, no shadows, no decorative gradients.
+ *
+ * Imported once, by src/app/globals.css.
+ */
+
+@theme {
+  /* --- colour: light theme (default) --- */
+  --color-paper: #f4f6f3; /* page background: a cool, faintly green white */
+  --color-sheet: #ffffff; /* the "label" surface: inputs, tables */
+  --color-ink: #17201c; /* text and heavy rules */
+  --color-muted: #5c6862; /* secondary text, hints */
+  --color-hairline: #c9d0cc; /* thin separators between rows */
+  --color-herb: #2d6a4c; /* within target, primary actions */
+  --color-tomato: #b23a2a; /* over target, errors, destructive actions */
+  --color-focus: #2d6a4c;
+
+  /* --- type: Barlow Condensed for numbers and headings, Barlow for text ---
+     Self-hosted via @fontsource (imported in src/app/layout.tsx): no request
+     to Google at runtime, and it works offline. Fallbacks keep the layout
+     usable if the fonts fail to load. */
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Rule thickness uses Tailwind's numeric scale directly: border-b-6 is the
+     label's heavy rule, border-b-2 the medium one (v4: border-N = N px). */
+
+  /* --- layout: one readable column (≈ 38 characters of label per half) --- */
+  --container-page: 42rem;
+}
+
+/*
+ * Dark theme: same names, different values. Follows the operating system
+ * setting for now; a manual toggle is backlog ("one-click theming"), and will
+ * set data-theme on <html> — which is why the selector already accepts it.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-paper: #111714;
+    --color-sheet: #19211d;
+    --color-ink: #e8eee9;
+    --color-muted: #9aa8a0;
+    --color-hairline: #34403a;
+    --color-herb: #7cc39b;
+    --color-tomato: #f08a76;
+    --color-focus: #7cc39b;
+  }
+}
+:root[data-theme="dark"] {
+  --color-paper: #111714;
+  --color-sheet: #19211d;
+  --color-ink: #e8eee9;
+  --color-muted: #9aa8a0;
+  --color-hairline: #34403a;
+  --color-herb: #7cc39b;
+  --color-tomato: #f08a76;
+  --color-focus: #7cc39b;
+}

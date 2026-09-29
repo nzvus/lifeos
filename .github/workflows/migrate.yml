@@ -1,0 +1,71 @@
+# .github/workflows/migrate.yml — apply committed migrations to PRODUCTION,
+# only when a human presses the button (ADR-0004).
+#
+# Never on build, never on merge: forgetting to migrate gives a loud error
+# (a missing column); an automatic migration gone wrong can silently lose
+# rows. When durability is the primary invariant, the loud failure is the
+# one to prefer.
+#
+# Order matters: 1) backup FIRST, kept 90 days; 2) apply migrations.
+# Run it: Actions -> migrate -> Run workflow -> type "migrate production".
+name: migrate
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "migrate production" to confirm'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    if: github.event.inputs.confirm == 'migrate production'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    # A GitHub "environment": lets you add a required approval later, and
+    # scopes the production secrets to this job.
+    environment: production
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install pg_dump 18 and age
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-18 age
+          echo "/usr/lib/postgresql/18/bin" >> "$GITHUB_PATH"
+
+      - name: 1. Backup before touching anything
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+          AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+        run: scripts/backup.sh out
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pre-migration-backup-${{ github.run_id }}
+          path: out/*.dump.age
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: 2. Apply committed migrations (drizzle/*.sql)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+        run: npx drizzle-kit migrate
+
+      - name: Show applied migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+        run: psql "$DATABASE_URL" -c "select id, hash, to_timestamp(created_at/1000) as applied from drizzle.__drizzle_migrations order by id"

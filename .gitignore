@@ -1,8 +1,27 @@
+# --- dependencies & build output (recreated by `npm ci` / `npm run build`) ---
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- secrets: NEVER committed (ADR-0003/0004). Copy .env.example to .env ---
 .env
 .env.*
-node_modules/
-__pycache__/
-dist/
-build/
-target/
+!.env.example
+
+# --- backups & restore-drill material: contain your real data ---
+*.dump
+*.dump.age
+restore-drill/
+
+# --- private inputs (e.g. old FitForge exports with personal data) ---
+private/
+
+# --- editor / OS noise ---
 .DS_Store
+.vscode/
+.idea/
+
+# --- Python caches (scripts/check.py) ---
+__pycache__/

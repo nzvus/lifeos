@@ -1,0 +1,57 @@
+/**
+ * ui/SelectField.tsx — a labelled <select> with optional error. Same contract
+ * and accessibility wiring as ui/Field.tsx.
+ */
+import type { SelectHTMLAttributes } from "react";
+
+type Option = { value: string; label: string };
+
+type SelectFieldProps = {
+  label: string;
+  name: string;
+  options: readonly Option[];
+  error?: string;
+  /** Shown as a first, empty option ("Choose…") when given. */
+  placeholder?: string;
+} & Omit<SelectHTMLAttributes<HTMLSelectElement>, "name">;
+
+export function SelectField({
+  label,
+  name,
+  options,
+  error,
+  placeholder,
+  id,
+  className,
+  ...select
+}: SelectFieldProps) {
+  const selectId = id ?? `field-${name}`;
+  const errorId = error ? `${selectId}-error` : undefined;
+  return (
+    <div className={className ?? "flex flex-col gap-1"}>
+      <label htmlFor={selectId} className="text-sm font-semibold">
+        {label}
+      </label>
+      <select
+        id={selectId}
+        name={name}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={errorId}
+        className="w-full border-b-2 border-ink bg-sheet px-2 py-2 text-base outline-none focus-visible:border-focus aria-invalid:border-tomato"
+        {...select}
+      >
+        {placeholder !== undefined && <option value="">{placeholder}</option>}
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      {error && (
+        <p id={errorId} className="text-sm font-semibold text-tomato">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,81 @@
+# .github/workflows/backup.yml — the daily encrypted database backup
+# (ADR-0003 durability protocol) with a dead-man's switch (ADR-0004).
+#
+# Why a heartbeat and not just "email me on failure": GitHub silently DISABLES
+# scheduled workflows after 60 days without a commit. A disabled workflow
+# never fails — it just stops. So on success this job pings healthchecks.io,
+# and healthchecks.io alerts you when the ping does NOT arrive. Absence is the
+# signal (ADR-0004: "instrument absence, not failure").
+#
+# Secrets/variables (Settings -> Secrets and variables -> Actions), see
+# docs/runbooks/setup.md:
+#   secret   DATABASE_URL_DIRECT      Neon DIRECT url (no -pooler) of production
+#   secret   HEALTHCHECKS_BACKUP_URL  ping URL of the "backup" check
+#   variable AGE_RECIPIENT            your age PUBLIC key (not secret by nature)
+name: backup
+
+on:
+  schedule:
+    # Daily at 03:17 UTC. An odd minute: GitHub delays jobs queued on the hour.
+    - cron: "17 3 * * *"
+  workflow_dispatch: # "Run workflow" button: use it for the first run and drills
+
+permissions:
+  contents: read
+
+jobs:
+  dump:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      # pg_dump must be at least as new as the server; Neon may run 17 or 18,
+      # so install client 18 from the official PostgreSQL apt repository.
+      - name: Install pg_dump 18 and age
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-18 age
+          echo "/usr/lib/postgresql/18/bin" >> "$GITHUB_PATH"
+
+      - name: Tell healthchecks.io the backup started
+        run: curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECKS_BACKUP_URL }}/start" || true
+
+      - name: Dump, verify, encrypt
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+          AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+        run: scripts/backup.sh out
+
+      # Stored as a workflow artifact, outside Neon (ADR-0003). 30 daily
+      # generations; each dump is small (tens of KB at this scale).
+      - uses: actions/upload-artifact@v7
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: out/*.dump.age
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Heartbeat — success
+        run: curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECKS_BACKUP_URL }}"
+
+      - name: Report failure immediately
+        if: failure()
+        run: curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECKS_BACKUP_URL }}/fail" || true
+
+  # healthchecks.io RECEIVES pings; it can't poll a URL itself. So this job
+  # asks the deployed app "are you working?" once a day and pings a second
+  # check only if the answer is yes (HTTP 200 = database reachable).
+  #   variable APP_URL               e.g. https://lifeos.vercel.app
+  #   secret   HEALTHCHECKS_APP_URL  ping URL of the "app" check
+  app-health:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Call /api/health, then heartbeat
+        run: |
+          curl -fsS -m 30 --retry 3 "${{ vars.APP_URL }}/api/health"
+          curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECKS_APP_URL }}"

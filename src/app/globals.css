@@ -1,0 +1,33 @@
+/*
+ * app/globals.css — the only global stylesheet, loaded by app/layout.tsx.
+ *
+ * 1. `@import "tailwindcss"` pulls in Tailwind v4 (compiled by the PostCSS
+ *    plugin in postcss.config.mjs): it generates only the utility classes the
+ *    code actually uses.
+ * 2. The design tokens come from design/theme.css — no colour or font value
+ *    is written here (ADR-0002 rule 3).
+ * 3. A few base rules for the whole document.
+ */
+@import "tailwindcss";
+@import "../design/theme.css";
+
+@layer base {
+  html {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    /* Numbers line up in columns everywhere (tables, labels). */
+    font-variant-numeric: tabular-nums;
+  }
+  /* Visible keyboard focus on every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
