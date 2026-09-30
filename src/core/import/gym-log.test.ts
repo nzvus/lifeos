@@ -132,4 +132,33 @@ Compiuto in 55 min`,
     expect(s.durationMin).toBe(55);
     expect(s.warnings).toEqual(['line not understood: "strano!"']);
   });
+
+  it("gives bare reps the load of the set above, and skips exercises not done", () => {
+    const s = parseGymLog(
+      "PULL 3_260927_083949.txt",
+      `PULL
+
+Chest supp row  (oggi non l ho fatto)
+3x10 con 2 da 17.5
+
+Preacher curl
+12 con 2 da 7.5 + asta
+10
+9
+
+Hanging folded legs raises
+3x10`,
+    );
+    expect(s.warnings).toEqual(['skipped, not done: "Chest supp row"']);
+    expect(s.exercises.map((e) => e.name)).toEqual([
+      "Preacher curl",
+      "Hanging folded legs raises",
+    ]);
+    expect(s.exercises[0]!.sets.map((x) => [x.reps, x.loadKg, x.loadText])).toEqual([
+      [12, "15", "2×7,5 + asta"],
+      [10, "15", "2×7,5 + asta"],
+      [9, "15", "2×7,5 + asta"],
+    ]);
+    expect(s.exercises[1]!.sets[0]!.loadKg).toBeNull(); // nothing above: bodyweight
+  });
 });

@@ -125,7 +125,9 @@ export type MeasurementInput = z.output<typeof measurementInput>;
  * duration. `kinds[i]` is the kind of `exercises[i]`.
  */
 export function checkSetsForKinds(
-  exercises: readonly { sets: readonly SetInput[] }[],
+  exercises: readonly {
+    sets: readonly Pick<SetInput, "reps" | "loadKg" | "durationS">[];
+  }[],
   kinds: readonly ExerciseKind[],
 ): FieldErrors | null {
   const errors: FieldErrors = {};

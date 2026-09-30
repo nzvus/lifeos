@@ -10,7 +10,9 @@
  *     routine with an existing name or a measurement with the same day and
  *     weight: re-running an import adds nothing twice.
  *
- * `planTrainingImport` reads only (the dry run); `applyTrainingImport` writes.
+ * `planTrainingImport` reads only (the dry run) but runs the same per-kind
+ * set checks as saving, so a session that would be refused shows up in the
+ * dry run, not halfway through the real import; `applyTrainingImport` writes.
  */
 import { and, eq } from "drizzle-orm";
 import type { Db } from "../db/client";
@@ -18,6 +20,7 @@ import { bodyMeasurements, trainingSessions } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
 import type { FieldErrors } from "../shared/result";
 import type { ExerciseKind } from "../training/kinds";
+import { checkSetsForKinds } from "../training/validation";
 import { createExercise, listExercises } from "../training/repositories/exercises";
 import { addMeasurement } from "../training/repositories/measurements";
 import { createRoutine, listRoutines } from "../training/repositories/routines";
@@ -39,7 +42,13 @@ export type TrainingImport = {
 
 export type TrainingImportPlan = {
   newExercises: { name: string; kind: ExerciseKind }[];
-  sessions: { label: string; day: string; exists: boolean }[];
+  /** `problems`: what saving would refuse (null = fine). */
+  sessions: {
+    label: string;
+    day: string;
+    exists: boolean;
+    problems: FieldErrors | null;
+  }[];
   routines: { name: string; exists: boolean }[];
   measurements: { day: string; weightKg: string; exists: boolean }[];
 };
@@ -59,7 +68,8 @@ export async function planTrainingImport(
   input: TrainingImport,
 ): Promise<TrainingImportPlan> {
   const name = resolve(input);
-  const known = new Set((await listExercises(db, owner)).map((e) => key(e.name)));
+  const existing = await listExercises(db, owner);
+  const known = new Set(existing.map((e) => key(e.name)));
   const created = new Map<string, { name: string; kind: ExerciseKind }>();
   const kindHints = new Map<string, PlannedSession["exercises"][number]["sets"]>();
   for (const s of input.sessions)
@@ -90,6 +100,11 @@ export async function planTrainingImport(
     if (!known.has(key(n)) && !created.has(key(n)))
       created.set(key(n), { name: n, kind: kindOf(kindHints.get(key(n)) ?? []) });
 
+  const kindByKey = new Map<string, ExerciseKind>([
+    ...existing.map((e) => [key(e.name), e.kind] as const),
+    ...[...created].map(([k, e]) => [k, e.kind] as const),
+  ]);
+
   const existingSessions = await db
     .select({ day: trainingSessions.day, label: trainingSessions.label })
     .from(trainingSessions)
@@ -108,6 +123,10 @@ export async function planTrainingImport(
       label: s.label,
       day: s.day,
       exists: sessionKeys.has(`${s.day}|${key(s.label)}`),
+      problems: checkSetsForKinds(
+        s.exercises,
+        s.exercises.map((e) => kindByKey.get(key(name(e.name)))!),
+      ),
     })),
     routines: input.routines.map((r) => ({
       name: r.name,

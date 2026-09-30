@@ -10,6 +10,7 @@ import { listSessions } from "../training/repositories/sessions";
 import { parseFitforgeTraining } from "./fitforge-training";
 import { parseGymLog, toPlannedSession } from "./gym-log";
 import { applyTrainingImport, planTrainingImport, sessionExists } from "./training-apply";
+import { plainSet } from "./training-plan";
 
 let db: Db;
 let close: () => Promise<void>;
@@ -153,5 +154,30 @@ describe("training import", () => {
 
     // CROSS-USER: nothing leaked to the other account.
     expect(await listSessions(db, other, "2026-01-01", "2026-12-31")).toEqual([]);
+  });
+
+  it("shows in the dry run a session that saving would refuse", async () => {
+    const bare = {
+      label: "X",
+      day: "2026-09-20",
+      time: null,
+      durationMin: null,
+      notes: "",
+      exercises: [
+        {
+          name: "Lat pulldown",
+          notes: "",
+          restS: null,
+          sets: [
+            plainSet({ reps: 10, loadKg: "40" }),
+            plainSet({ reps: 8 }), // a strength set with no load
+          ],
+        },
+      ],
+    };
+    const plan = await planTrainingImport(db, me, { ...input(), sessions: [bare] });
+    expect(plan.sessions[0]!.problems).toEqual({
+      "exercises.0.sets.1.loadKg": "required",
+    });
   });
 });
