@@ -8,7 +8,7 @@
 - Gamification: daily/weekly/monthly roll-ups, surplus/cut, objectives
 - UX/kit: one-click theme toggle, reusable widgets, smart search, lazy loading, gym timer
 - Data ownership: import of the lifeos export format (round trip); FitForge daily logs as snapshots (ADR-0007); later AI review of goals
-- Nutrition: live totals preview in the meal editor; "re-snapshot entry" if label fixes become common (ADR-0007 tripwire)
+- Nutrition: "re-snapshot entry" if label fixes become common (ADR-0007 tripwire)
 - Finance: accounts, manual entries, bank + PayPal export importers (dedupe, transfer matching), categories, monthly report — needs its own ADR on where financial data lives
 - Receipts: photo/OCR -> reviewed line items -> products linked to ingredients; price history, purchase frequency (ADR-0007 option D likely)
 - Day planner, tasks/habits, rewards + accountability rules over an event stream
@@ -84,6 +84,10 @@
 - [x] Design pass on `label`: ~~bugs (€ €/kg, ring centre, kcal decimals)~~ → ~~one list-row layout (ui/ListItem) for ingredients/meals/entries~~ → ~~type scale (5 tokens + lint)~~ → ~~day panel and week chart legends~~ → ~~details drawer (quiet buttons, per-line kcal)~~ → ~~small UX (auto-apply day type, labels)~~
 - [x] Unified "add to day": one search over meals + ingredients + "estimated meal", then only the fields that fit (`AddToDay`)
 - [x] Two more themes as tokens: `orto` (warm, soft) and `cruscotto` (dense, monospace); `user_settings.theme` (migration 0004) + picker; contract test
+- [x] Unify repeated UI (PageHeader, Section, ListToolbar, FoodDetails, MacroStrip values, MacroPreview; core display/browse/pickerSearch)
+- [x] Richer macro bar (sugars, saturated, fibre); one card grid for ingredients and meals
+- [x] Live previews: meal serving while composing; ingredient label + effect on every meal using it (% per macro)
+- [ ] History: day page gets a date navigator; charts and analysis move to Targets ("Targets and trends"), week/month/range, all nutrients, eating times
 - [ ] Their components: slots `ListItem` (orto: cards; cruscotto: one line) and `DayPanel` (cruscotto: tiles) — only these two are needed
 
 ## Done

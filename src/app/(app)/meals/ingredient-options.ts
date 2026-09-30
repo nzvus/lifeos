@@ -28,6 +28,14 @@ export async function mealEditorIngredients(owner: Owner, settings: Settings) {
     unit: i.unit,
     kcal: formatNumber(i.kcal, settings.locale, 0),
     protein: formatNumber(i.protein, settings.locale, 0),
+    // Exact per-100 values for the live serving preview.
+    values: {
+      kcal: i.kcal,
+      protein: i.protein,
+      carbs: i.carbs,
+      fat: i.fat,
+      fiber: i.fiber,
+    },
     uses: usage.ingredients[i.id]?.uses ?? 0,
     lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
   }));

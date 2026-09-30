@@ -10,7 +10,9 @@ import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
 import { PageHeader } from "@/ui/PageHeader";
 import { getDb } from "@/app/_server/runtime";
+import { mealsUsing } from "@/core/nutrition/preview";
 import { getIngredient } from "@/core/nutrition/repositories/ingredients";
+import { listMeals } from "@/core/nutrition/repositories/meals";
 import { idInput, ingredientFormValues } from "@/core/nutrition/validation";
 import { IngredientForm } from "@/features/nutrition/ingredients/IngredientForm";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
@@ -19,10 +21,14 @@ import { deleteIngredientAction, updateIngredientAction } from "../actions";
 type Props = { params: Promise<{ id: string }> };
 
 export default async function EditIngredientPage({ params }: Props) {
-  const { owner, t } = await requireContext();
+  const { owner, settings, t } = await requireContext();
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
-  const ingredient = await getIngredient(getDb(), owner, id);
+  const db = getDb();
+  const [ingredient, meals] = await Promise.all([
+    getIngredient(db, owner, id),
+    listMeals(db, owner),
+  ]);
   if (!ingredient) notFound();
 
   return (
@@ -36,7 +42,14 @@ export default async function EditIngredientPage({ params }: Props) {
         action={updateIngredientAction.bind(null, id)}
         initial={ingredientFormValues(ingredient)}
         submitLabel={t.ingredients.save}
-        t={{ ingredients: t.ingredients, nutrients: t.nutrients, errors: t.errors }}
+        locale={settings.locale}
+        usedIn={mealsUsing(meals, id)}
+        t={{
+          ingredients: t.ingredients,
+          nutrients: t.nutrients,
+          errors: t.errors,
+          macro: t.macro,
+        }}
       />
       <ActionButtonForm
         action={deleteIngredientAction.bind(null, id)}
