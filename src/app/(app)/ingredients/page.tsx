@@ -38,6 +38,7 @@ export default async function IngredientsPage() {
           fat: i.fat,
           saturatedFat: i.saturatedFat,
           fiber: i.fiber,
+          salt: i.salt,
           packagePriceCents: i.packagePriceCents,
           packageSize: i.packageSize,
         }))}

@@ -12,33 +12,29 @@
 
 import { Tag } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { proteinPer100kcal } from "@/core/nutrition/insights";
+import { useMemo } from "react";
+import {
+  browseFoods,
+  PER,
+  sortChoices,
+  sortNote,
+  type Per,
+  type SortKey,
+} from "@/core/nutrition/metrics";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { detailLines, macroBars } from "@/core/nutrition/display";
 import type { MealWithLines } from "@/core/nutrition/repositories/meals";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
-import { browse } from "@/core/shared/browse";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import { FoodDetails } from "@/ui/FoodDetails";
 import { FoodCardMeta } from "@/ui/FoodCardMeta";
 import { ListItem } from "@/ui/ListItem";
 import { MacroBars } from "@/ui/MacroBars";
 import { ListToolbar } from "@/ui/ListToolbar";
-import type { SortDirection } from "@/ui/SortControl";
-
-/** Sorts and their natural direction (the arrow button reverses it). */
-const SORTS = [
-  { key: "used", natural: "desc" },
-  { key: "name", natural: "asc" },
-  { key: "protein", natural: "desc" },
-  { key: "density", natural: "desc" },
-  { key: "kcal", natural: "asc" },
-  { key: "cost", natural: "asc" },
-] as const satisfies readonly { key: string; natural: SortDirection }[];
-type Sort = (typeof SORTS)[number]["key"];
+import { SortNote } from "@/ui/SortNote";
+import { useListControls } from "@/ui/useListControls";
 
 type Props = {
   meals: MealWithLines[];
@@ -48,15 +44,22 @@ type Props = {
 };
 
 export function MealBrowser({ meals, usage, locale, t }: Props) {
-  const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<Sort>("used");
-  const [direction, setDirection] = useState<SortDirection>("desc");
+  const list = useListControls<SortKey, Per>({
+    sort: "used",
+    direction: "desc",
+    per: "none",
+    plainSorts: ["used", "name"],
+  });
 
   const rows = useMemo(
     () =>
       meals.map((m) => ({
         ...m,
-        density: proteinPer100kcal(m.totals.nutrients),
+        // Per serving, cost included (only when every price is known).
+        metrics: {
+          nutrients: m.totals.nutrients,
+          costCents: m.totals.costComplete ? m.totals.costCents : null,
+        },
         uses: usage[m.id]?.uses ?? 0,
         lastUsed: usage[m.id]?.lastUsed ?? null,
         // Ingredient names are searchable too: "skyr" finds every meal with skyr.
@@ -67,25 +70,21 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
 
   const shown = useMemo(
     () =>
-      browse(rows, {
-        query,
+      browseFoods(rows, {
+        query: list.query,
         describe: (r) => ({
           text: r.searchText,
           name: r.name,
           uses: r.uses,
           lastUsed: r.lastUsed,
         }),
-        sort,
-        direction,
-        values: {
-          protein: (m) => Number(m.totals.nutrients.protein),
-          density: (m) => (m.density === null ? null : Number(m.density)),
-          kcal: (m) => Number(m.totals.nutrients.kcal),
-          cost: (m) => m.totals.costCents,
-        },
+        metricRow: (r) => r.metrics,
+        sort: list.sort,
+        per: list.per,
+        direction: list.direction,
         locale,
       }),
-    [rows, query, sort, direction, locale],
+    [rows, list.query, list.sort, list.per, list.direction, locale],
   );
 
   const labels = macroLabels(t);
@@ -94,33 +93,12 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <ListToolbar
-        query={query}
-        onQuery={setQuery}
-        sorts={SORTS.map((o) => ({
-          value: o.key,
-          label: t.search.sorts[o.key],
-          natural: o.natural,
-        }))}
-        sort={sort}
-        direction={direction}
-        onSort={(nextSort, nextDirection) => {
-          setSort(nextSort);
-          setDirection(nextDirection);
-        }}
-        count={
-          shown.length === 0 && query
-            ? fill(t.search.noResults, { q: query })
-            : fill(t.search.count, {
-                n: String(shown.length),
-                total: String(rows.length),
-              })
-        }
-        labels={{
-          search: t.search.placeholder,
-          sortBy: t.search.sortBy,
-          asc: t.search.asc,
-          desc: t.search.desc,
-        }}
+        {...list.toolbar}
+        choices={sortChoices()}
+        perChoices={PER}
+        shown={shown.length}
+        total={rows.length}
+        t={t.search}
       />
 
       <ul className="grid gap-x-8 md:grid-cols-2">
@@ -160,6 +138,12 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
                 rows={macroBars(m.totals.nutrients, locale)}
                 labels={t.macroShort}
                 unit="g"
+              />
+              <SortNote
+                value={sortNote(m.metrics, list.sort, list.per, locale)}
+                sort={list.sort}
+                per={list.per}
+                t={t.search}
               />
               {/* The same details as a logged entry: one serving's lines. */}
               <FoodDetails

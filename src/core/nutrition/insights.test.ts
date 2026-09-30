@@ -1,11 +1,6 @@
 /** Tests for core/nutrition/insights.ts. */
 import { describe, expect, it } from "vitest";
-import {
-  average,
-  macroSplit,
-  pricePerThousandCents,
-  proteinPer100kcal,
-} from "./insights";
+import { average, macroSplit, pricePerThousandCents } from "./insights";
 
 describe("insights", () => {
   it("splits energy by macronutrient from the grams", () => {
@@ -49,9 +44,7 @@ describe("insights", () => {
     ).toBe(100);
   });
 
-  it("computes protein density and price per kg", () => {
-    expect(proteinPer100kcal({ kcal: "380", protein: "78" })).toBe("20.5");
-    expect(proteinPer100kcal({ kcal: "0", protein: "0" })).toBeNull();
+  it("computes the price per kg", () => {
     expect(pricePerThousandCents({ packagePriceCents: 189, packageSize: "500" })).toBe(
       378,
     );

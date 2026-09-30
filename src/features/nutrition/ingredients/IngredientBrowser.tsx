@@ -16,20 +16,28 @@
 
 import { Tag } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { pricePerThousandCents, proteinPer100kcal } from "@/core/nutrition/insights";
+import { useMemo } from "react";
+import { pricePerThousandCents } from "@/core/nutrition/insights";
+import {
+  browseFoods,
+  PER,
+  sortChoices,
+  sortNote,
+  type Per,
+  type SortKey,
+} from "@/core/nutrition/metrics";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { macroBars } from "@/core/nutrition/display";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
-import { browse } from "@/core/shared/browse";
 import { fill, type Messages } from "@/i18n";
 import { FoodCardMeta } from "@/ui/FoodCardMeta";
 import { ListItem } from "@/ui/ListItem";
 import { MacroBars } from "@/ui/MacroBars";
 import { ListToolbar } from "@/ui/ListToolbar";
-import type { SortDirection } from "@/ui/SortControl";
+import { SortNote } from "@/ui/SortNote";
+import { useListControls } from "@/ui/useListControls";
 
 /** The fields this view needs (a subset of an ingredient row). */
 export type IngredientRow = {
@@ -44,21 +52,10 @@ export type IngredientRow = {
   fat: string;
   saturatedFat: string;
   fiber: string;
+  salt: string;
   packagePriceCents: number | null;
   packageSize: string | null;
 };
-
-/** Sorts and their natural direction (the arrow button reverses it). */
-const SORTS = [
-  { key: "used", natural: "desc" },
-  { key: "name", natural: "asc" },
-  { key: "protein", natural: "desc" },
-  { key: "density", natural: "desc" },
-  { key: "kcal", natural: "asc" },
-  { key: "fiber", natural: "desc" },
-  { key: "price", natural: "asc" },
-] as const satisfies readonly { key: string; natural: SortDirection }[];
-type Sort = (typeof SORTS)[number]["key"];
 
 type Props = {
   ingredients: IngredientRow[];
@@ -68,77 +65,70 @@ type Props = {
 };
 
 export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
-  const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<Sort>("used");
-  const [direction, setDirection] = useState<SortDirection>("desc");
+  const list = useListControls<SortKey, Per>({
+    sort: "used",
+    direction: "desc",
+    per: "none",
+    plainSorts: ["used", "name"],
+  });
 
-  // Derived numbers computed once per row, not on every keystroke.
+  // Derived values computed once per row, not on every keystroke.
   const rows = useMemo(
     () =>
-      ingredients.map((i) => ({
-        ...i,
-        density: proteinPer100kcal(i),
-        perKg: pricePerThousandCents(i),
-        uses: usage[i.id]?.uses ?? 0,
-        lastUsed: usage[i.id]?.lastUsed ?? null,
-      })),
+      ingredients.map((i) => {
+        const perKg = pricePerThousandCents(i);
+        return {
+          ...i,
+          perKg,
+          // Everything per 100 g/ml, cost included (per kg / 10).
+          metrics: {
+            nutrients: {
+              kcal: i.kcal,
+              protein: i.protein,
+              carbs: i.carbs,
+              sugars: i.sugars,
+              fat: i.fat,
+              saturatedFat: i.saturatedFat,
+              fiber: i.fiber,
+              salt: i.salt,
+            },
+            costCents: perKg === null ? null : perKg / 10,
+          },
+          uses: usage[i.id]?.uses ?? 0,
+          lastUsed: usage[i.id]?.lastUsed ?? null,
+        };
+      }),
     [ingredients, usage],
   );
 
   const shown = useMemo(
     () =>
-      browse(rows, {
-        query,
+      browseFoods(rows, {
+        query: list.query,
         describe: (r) => ({
           text: `${r.name} ${r.description}`,
           name: r.name,
           uses: r.uses,
           lastUsed: r.lastUsed,
         }),
-        sort,
-        direction,
-        values: {
-          protein: (r) => Number(r.protein),
-          density: (r) => (r.density === null ? null : Number(r.density)),
-          kcal: (r) => Number(r.kcal),
-          fiber: (r) => Number(r.fiber),
-          price: (r) => r.perKg,
-        },
+        metricRow: (r) => r.metrics,
+        sort: list.sort,
+        per: list.per,
+        direction: list.direction,
         locale,
       }),
-    [rows, query, sort, direction, locale],
+    [rows, list.query, list.sort, list.per, list.direction, locale],
   );
 
   return (
     <div className="flex flex-col gap-4">
       <ListToolbar
-        query={query}
-        onQuery={setQuery}
-        sorts={SORTS.map((o) => ({
-          value: o.key,
-          label: t.search.sorts[o.key],
-          natural: o.natural,
-        }))}
-        sort={sort}
-        direction={direction}
-        onSort={(nextSort, nextDirection) => {
-          setSort(nextSort);
-          setDirection(nextDirection);
-        }}
-        count={
-          shown.length === 0 && query
-            ? fill(t.search.noResults, { q: query })
-            : fill(t.search.count, {
-                n: String(shown.length),
-                total: String(rows.length),
-              })
-        }
-        labels={{
-          search: t.search.placeholder,
-          sortBy: t.search.sortBy,
-          asc: t.search.asc,
-          desc: t.search.desc,
-        }}
+        {...list.toolbar}
+        choices={sortChoices()}
+        perChoices={PER}
+        shown={shown.length}
+        total={rows.length}
+        t={t.search}
       />
 
       {/* One layout on every screen, the same as the meals list: cards,
@@ -174,6 +164,12 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
               }
             />
             <MacroBars rows={macroBars(r, locale)} labels={t.macroShort} unit="g" />
+            <SortNote
+              value={sortNote(r.metrics, list.sort, list.per, locale)}
+              sort={list.sort}
+              per={list.per}
+              t={t.search}
+            />
           </ListItem>
         ))}
       </ul>
