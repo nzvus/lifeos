@@ -6,6 +6,7 @@
  *   npm run import:training -- --email you@example.com --logs DIR --fitforge FILE   (dry run)
  *   … --alias "OCTE=Overhead cable triceps extention"    (repeatable: two names, one exercise)
  *   … --day "PUSH pre=2026-07-20"                        (repeatable: fix a session's day)
+ *   … --skip "PUSH pre"                                  (repeatable: leave a session out)
  *   … --apply                                            (writes)
  *
  * Nothing is deleted or overwritten: existing sessions (same day and label),
@@ -29,7 +30,7 @@ import { getSettings } from "../src/core/nutrition/repositories/settings";
 
 function usage(message: string): never {
   console.error(
-    `${message}\nusage: npm run import:training -- --email EMAIL [--logs DIR] [--fitforge FILE] [--alias "A=B"]… [--day "LABEL=YYYY-MM-DD"]… [--apply]`,
+    `${message}\nusage: npm run import:training -- --email EMAIL [--logs DIR] [--fitforge FILE] [--alias "A=B"]… [--day "LABEL=YYYY-MM-DD"]… [--skip LABEL]… [--apply]`,
   );
   process.exit(2);
 }
@@ -40,6 +41,7 @@ let fitforge: string | undefined;
 let apply = false;
 const aliases: Record<string, string> = {};
 const days: Record<string, string> = {};
+const skip = new Set<string>();
 const args = process.argv.slice(2);
 const pair = (v: string | undefined, flag: string) => {
   const [a, b] = (v ?? "").split("=").map((x) => x.trim());
@@ -58,6 +60,10 @@ for (let i = 0; i < args.length; i++) {
   } else if (arg === "--day") {
     const [a, b] = pair(args[++i], "--day");
     days[a.toLowerCase()] = b;
+  } else if (arg === "--skip") {
+    const label = args[++i];
+    if (!label) usage("--skip needs a session label");
+    skip.add(label.trim().toLowerCase());
   } else usage(`unexpected argument: ${arg}`);
 }
 if (!email) usage("missing --email");
@@ -84,6 +90,7 @@ if (fitforge) {
   input.routines.push(...t.routines);
   input.measurements.push(...t.measurements);
 }
+input.sessions = input.sessions.filter((s) => !skip.has(s.label.toLowerCase()));
 for (const s of input.sessions) s.day = days[s.label.toLowerCase()] ?? s.day;
 
 let host = "(invalid DATABASE_URL)";
