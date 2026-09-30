@@ -2,8 +2,9 @@
 
 Use it to restore an export, or to move a profile between databases (e.g.
 the `dev` branch's data into production). It DELETES the account's current
-nutrition data (ingredients, meals, day types, day plans, log, settings)
-and inserts the file's, in one transaction. The login is kept.
+nutrition data (ingredients, tags, meals, ratings, day types, day plans,
+log, settings — theme and preferences included) and inserts the file's, in
+one transaction. The login is kept.
 
 1. **Backup first** (production): `gh workflow run backup.yml`, then
    `gh run watch` until `dump` is green. That artifact is the way back.

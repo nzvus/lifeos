@@ -71,7 +71,22 @@ const exportFile = z.object({
     z.literal(4),
     z.literal(5),
   ]),
-  settings: z.object({ timezone: z.string(), locale: z.string() }).nullable(),
+  settings: z
+    .object({
+      timezone: z.string(),
+      locale: z.string(),
+      // Version 3+ (ADR-0010) and 5 (migration 0006): absent in older files,
+      // then the defaults. Checked again by the database constraints.
+      theme: z.string().default("label"),
+      autoTargets: z.boolean().default(true),
+      lunchFrom: z.number().int().default(660),
+      snackFrom: z.number().int().default(900),
+      dinnerFrom: z.number().int().default(1110),
+      trendsRange: z.number().int().default(7),
+      listSort: z.string().default("used"),
+      listPer: z.string().default("none"),
+    })
+    .nullable(),
   ingredients: z.array(
     z.object({
       id: z.string(),

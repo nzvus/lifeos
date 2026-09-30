@@ -11,6 +11,7 @@ import { exportUserData } from "../export/export";
 import { createIngredient } from "../nutrition/repositories/ingredients";
 import { logMeal } from "../nutrition/repositories/log";
 import { createFactor } from "../nutrition/repositories/ratings";
+import { savePreferences, saveSettings } from "../nutrition/repositories/settings";
 import { createMeal, listMeals } from "../nutrition/repositories/meals";
 import { createProfile, setDayProfile } from "../nutrition/repositories/profiles";
 import { createTestDb, createTestUser, ingredientFixture } from "../testing/test-db";
@@ -49,6 +50,17 @@ function comparable(e: Awaited<ReturnType<typeof exportUserData>>) {
 }
 
 async function seed(owner: Owner) {
+  // Settings beyond time zone and language must survive too.
+  await saveSettings(db, owner, { timezone: "Europe/Rome", locale: "it", theme: "orto" });
+  await savePreferences(db, owner, {
+    autoTargets: false,
+    lunchFrom: 720,
+    snackFrom: 960,
+    dinnerFrom: 1170,
+    trendsRange: 30,
+    listSort: "fiber",
+    listPer: "kcal",
+  });
   const factor = await createFactor(db, owner, "Gusto");
   if (!factor.ok) throw new Error("setup failed");
   const oats = await createIngredient(db, owner, {
