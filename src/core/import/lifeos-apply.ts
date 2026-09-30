@@ -33,6 +33,7 @@ import {
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
 import { isLocale } from "../shared/locales";
+import { isTheme } from "../shared/themes";
 import type { LifeosImport } from "./lifeos";
 
 export type ReplaceCounts = {
@@ -95,10 +96,13 @@ export async function replaceWithExport(
 
     // 2. Insert, parents before children, mapping file ids -> new ids.
     if (data.settings) {
+      // Every setting, not only time zone and language: a replace must not
+      // silently reset the theme or the preferences.
       await tx.insert(userSettings).values({
+        ...data.settings,
         userId: u,
-        timezone: data.settings.timezone,
         locale: isLocale(data.settings.locale) ? data.settings.locale : "it",
+        theme: isTheme(data.settings.theme) ? data.settings.theme : "label",
       });
     }
     const ingredientId = new Map<string, string>();
