@@ -34,6 +34,7 @@ import { rank } from "@/core/shared/search";
 import { reverseIf, sortByValue } from "@/core/shared/sorting";
 import { fill, type Messages } from "@/i18n";
 import { MacroBar } from "@/ui/MacroBar";
+import { ListItem } from "@/ui/ListItem";
 import { MacroStrip } from "@/ui/MacroStrip";
 import { SortControl, type SortDirection } from "@/ui/SortControl";
 
@@ -160,18 +161,29 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
       {/* Phones: cards. */}
       <ul className="flex flex-col md:hidden">
         {shown.map((r) => (
-          <li key={r.id} className="border-b border-hairline py-2">
-            <Link
-              href={`/ingredients/${r.id}`}
-              className="flex items-baseline justify-between gap-3"
-            >
-              <span className="font-semibold">{r.name}</span>
-              <span className="font-display text-sm whitespace-nowrap text-muted tabular-nums">
-                {r.perKg === null
-                  ? ""
-                  : `${formatCents(r.perKg, locale)} ${t.macro.perKg}`}
-              </span>
-            </Link>
+          <ListItem
+            key={r.id}
+            title={
+              <Link
+                href={`/ingredients/${r.id}`}
+                className="underline-offset-4 hover:underline"
+              >
+                {r.name}
+              </Link>
+            }
+            aside={
+              r.perKg === null
+                ? undefined
+                : `${formatCents(r.perKg, locale)} ${t.macro.perKg}`
+            }
+            footer={[
+              fill(t.ingredients.per100Short, { unit: r.unit }),
+              r.density && `${n(r.density)} ${t.macro.density}`,
+              r.uses > 0 && fill(t.search.uses, { n: String(r.uses) }),
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          >
             <MacroStrip
               energy={`${formatNumber(r.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}
               protein={n(r.protein)}
@@ -187,16 +199,7 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
                 split: t.macro.splitTitle,
               }}
             />
-            <p className="text-xs text-muted">
-              {[
-                fill(t.ingredients.per100Short, { unit: r.unit }),
-                r.density && `${n(r.density)} ${t.macro.density}`,
-                r.uses > 0 && fill(t.search.uses, { n: String(r.uses) }),
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
-          </li>
+          </ListItem>
         ))}
       </ul>
 

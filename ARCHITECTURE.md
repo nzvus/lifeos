@@ -32,7 +32,7 @@ src/
                 ingredient upsert by name),
                 auth/, shared/, testing/ (PGlite test db)
   ui/           form controls, SearchSelect, NavBar, SortControl, Ring,
-                Meter, MacroStrip (THE macro display), NutrientIcon, …
+                MacroStrip (THE macro display), ListItem (THE food row), …
   design/       theme.css — Tailwind v4 @theme tokens (light + dark)
   i18n/         messages.en.ts (reference shape), messages.it.ts, fill()
 drizzle/        committed SQL migrations (generated, reviewed)
