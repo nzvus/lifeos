@@ -5,6 +5,7 @@
  *   exercises ─< session_exercises >─ training_sessions
  *                     └─< sets                      (typed columns)
  *   body_measurements                               (weight for burn estimates)
+ *   day_activity                                    (ADR-0014: the rest of the day)
  *
  * Same rules as nutrition.ts: every table has user_id; child tables reach
  * their parents through composite (id, user_id) keys, so rows of two users
@@ -22,6 +23,7 @@ import {
   integer,
   numeric,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   unique,
@@ -224,5 +226,33 @@ export const bodyMeasurements = pgTable(
     check("body_measurements_weight_ck", sql`${t.weightKg} > 0`),
     check("body_measurements_fat_ck", sql`${t.bodyFatPct} between 0 and 70`),
     index("body_measurements_user_day_idx").on(t.userId, t.day),
+  ],
+);
+
+/**
+ * What the day was like outside training (ADR-0014), declared by the user:
+ * how much of it was spent sitting, and walking (minutes, or steps). One row
+ * per day; the energy model (core/energy) reads it for dynamic day types.
+ */
+export const dayActivity = pgTable(
+  "day_activity",
+  {
+    userId: ownerColumn(),
+    day: date("day", { mode: "string" }).notNull(),
+    level: text("level").notNull().default("mixed"),
+    walkingMin: integer("walking_min"),
+    steps: integer("steps"),
+    updatedAt: tstz("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.day] }),
+    check("day_activity_level_ck", sql`${t.level} in ('sitting', 'mixed', 'on_feet')`),
+    check(
+      "day_activity_amounts_ck",
+      sql`coalesce(${t.walkingMin}, 0) between 0 and 1440 and coalesce(${t.steps}, 0) between 0 and 100000`,
+    ),
   ],
 );

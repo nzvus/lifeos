@@ -93,6 +93,25 @@ function nutrientColumns() {
 }
 
 /** Same columns, nullable, named target_*: "no target set" is a real state. */
+/**
+ * How a day type sets targets (ADR-0014): "fixed" uses its eight targets;
+ * "dynamic" derives them from the day's energy model with these parameters
+ * (a deficit in kcal/day, protein and fat in g per kg of body weight).
+ * Copied into day_plans like the targets (ADR-0008).
+ */
+function dynamicColumns() {
+  return {
+    mode: text("mode").notNull().default("fixed"),
+    deficitKcal: integer("deficit_kcal").notNull().default(0),
+    proteinGPerKg: numeric("protein_g_per_kg", { precision: 3, scale: 1, mode: "string" })
+      .notNull()
+      .default("1.8"),
+    fatGPerKg: numeric("fat_g_per_kg", { precision: 3, scale: 1, mode: "string" })
+      .notNull()
+      .default("0.8"),
+  };
+}
+
 function targetColumns() {
   return {
     kcal: nutrient("target_kcal"),
@@ -348,6 +367,11 @@ export const userSettings = pgTable(
     trendsRange: integer("trends_range").notNull().default(7),
     listSort: text("list_sort").notNull().default("used"),
     listPer: text("list_per").notNull().default("none"),
+    // Body data for the energy model (ADR-0014); null until given. Weight
+    // comes from body_measurements (ADR-0005), per day.
+    sex: text("sex"),
+    birthYear: integer("birth_year"),
+    heightCm: integer("height_cm"),
     // DEPRECATED since migration 0001 (ADR-0008): targets moved to
     // day_profiles; migration 0002 copied them into a "Standard" profile.
     // Nothing reads these columns any more. A later migration drops them,
@@ -365,6 +389,9 @@ export const userSettings = pgTable(
       sql`300 <= ${t.lunchFrom} and ${t.lunchFrom} < ${t.snackFrom} and ${t.snackFrom} < ${t.dinnerFrom} and ${t.dinnerFrom} < 1440`,
     ),
     check("user_settings_trends_range_ck", sql`${t.trendsRange} in (7, 30, 90)`),
+    check("user_settings_sex_ck", sql`${t.sex} in ('male', 'female')`),
+    check("user_settings_birth_year_ck", sql`${t.birthYear} between 1900 and 2100`),
+    check("user_settings_height_ck", sql`${t.heightCm} between 100 and 250`),
   ],
 );
 
@@ -382,6 +409,7 @@ export const dayProfiles = pgTable(
     name: text("name").notNull(),
     isDefault: boolean("is_default").notNull().default(false),
     ...targetColumns(),
+    ...dynamicColumns(),
     createdAt: tstz("created_at").defaultNow().notNull(),
     updatedAt: tstz("updated_at")
       .defaultNow()
@@ -390,6 +418,11 @@ export const dayProfiles = pgTable(
   },
   (t) => [
     unique("day_profiles_user_name_uq").on(t.userId, t.name),
+    check("day_profiles_mode_ck", sql`${t.mode} in ('fixed', 'dynamic')`),
+    check(
+      "day_profiles_dynamic_ck",
+      sql`${t.deficitKcal} between -1500 and 1500 and ${t.proteinGPerKg} between 0 and 4 and ${t.fatGPerKg} between 0 and 3`,
+    ),
     // At most one row per user with is_default = true.
     uniqueIndex("day_profiles_one_default_uq")
       .on(t.userId)
@@ -414,6 +447,7 @@ export const dayPlans = pgTable(
     }),
     profileName: text("profile_name").notNull(), // the name at the time
     ...targetColumns(),
+    ...dynamicColumns(),
     updatedAt: tstz("updated_at")
       .defaultNow()
       .$onUpdate(() => new Date())

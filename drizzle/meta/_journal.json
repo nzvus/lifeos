@@ -64,6 +64,13 @@
       "when": 1790789305941,
       "tag": "0008_training",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790811037758,
+      "tag": "0009_energy_model",
+      "breakpoints": true
     }
   ]
 }
