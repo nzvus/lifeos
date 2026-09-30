@@ -25,9 +25,17 @@ type Props = {
   variant?: keyof typeof VARIANTS;
   /** Lets one form have several buttons with different actions. */
   formAction?: (formData: FormData) => void;
+  /** Show only the icon; the text stays for screen readers and as tooltip. */
+  iconOnly?: boolean;
 };
 
-export function SubmitButton({ children, icon, variant = "primary", formAction }: Props) {
+export function SubmitButton({
+  children,
+  icon,
+  variant = "primary",
+  formAction,
+  iconOnly = false,
+}: Props) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -35,10 +43,11 @@ export function SubmitButton({ children, icon, variant = "primary", formAction }
       formAction={formAction}
       disabled={pending}
       aria-disabled={pending}
-      className={`${VARIANTS[variant]} inline-flex rounded-control items-center gap-2 px-4 py-2 font-display text-lg font-semibold tracking-wide disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
+      title={iconOnly && typeof children === "string" ? children : undefined}
+      className={`${VARIANTS[variant]} inline-flex rounded-control items-center gap-2 ${iconOnly ? "p-2" : "px-4 py-2"} font-display text-lg font-semibold tracking-wide disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
       {icon}
-      {children}
+      {iconOnly ? <span className="sr-only">{children}</span> : children}
     </button>
   );
 }

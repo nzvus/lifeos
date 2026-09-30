@@ -1,10 +1,11 @@
 /**
  * features/nutrition/log/EntryList.tsx — what was eaten on the day, in order.
  *
- * Each entry: its label (the name at logging time — ADR-0007), servings if
- * not 1, energy and macros as a colour strip (ui/MacroStrip), a remove
- * button, and a "Details" disclosure (native <details>, no JavaScript) with
- * what the entry contained and the "update with current values" action —
+ * Each entry, in the shared row (ui/ListItem): its label (the name at
+ * logging time — ADR-0007), servings if not 1, energy and macros as a colour
+ * strip (ui/MacroStrip), a compact remove button, and a "Details" disclosure
+ * (native <details>, no JavaScript) with what the entry contained and the
+ * "update with current values" action —
  * the deliberate way to apply later corrections, e.g. a price added after
  * logging (core refreshLogEntry).
  */
@@ -16,6 +17,7 @@ import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 import { ActionButtonForm, type ActionButtonState } from "@/ui/ActionButtonForm";
+import { ListItem } from "@/ui/ListItem";
 import { MacroStrip } from "@/ui/MacroStrip";
 import { timeIn } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
@@ -58,51 +60,49 @@ export function EntryList({
       {day.entries.map((e) => {
         const tn = e.totals.nutrients;
         return (
-          <li
+          <ListItem
             key={e.id}
-            // Planned (ADR-0009): translucent with a dashed edge; eaten: solid.
-            className={`flex flex-col gap-1 border-b border-hairline py-2 ${
-              e.status === "planned"
-                ? "rule-l-strong border-l-hairline border-dashed pl-2 opacity-60"
-                : ""
-            }`}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-2">
-                <StatusToggle
-                  eaten={e.status === "eaten"}
-                  action={statusAction(e.id, e.status === "eaten" ? "planned" : "eaten")}
-                  labels={{ markEaten: t.day.markEaten, markPlanned: t.day.markPlanned }}
-                />
-                <p className="pt-1 font-semibold">
-                  {e.at && (
-                    <span className="pr-2 font-display text-muted tabular-nums">
-                      {timeIn(new Date(e.at), timeZone)}
-                    </span>
-                  )}
-                  {e.estimated && <span aria-hidden="true">~</span>}
-                  {e.label}
-                  {e.servings !== "1.00" && (
-                    <span className="pl-2 font-display text-muted">
-                      {fill(t.day.servingsTimes, {
-                        n: formatNumber(e.servings, locale, 2),
-                      })}
-                    </span>
-                  )}
-                </p>
+            muted={e.status === "planned"}
+            leading={
+              <StatusToggle
+                eaten={e.status === "eaten"}
+                action={statusAction(e.id, e.status === "eaten" ? "planned" : "eaten")}
+                labels={{ markEaten: t.day.markEaten, markPlanned: t.day.markPlanned }}
+              />
+            }
+            title={
+              <>
+                {e.at && (
+                  <span className="pr-2 font-display text-muted tabular-nums">
+                    {timeIn(new Date(e.at), timeZone)}
+                  </span>
+                )}
+                {e.estimated && <span aria-hidden="true">~</span>}
+                {e.label}
+                {e.servings !== "1.00" && (
+                  <span className="pl-2 font-display text-muted">
+                    {fill(t.day.servingsTimes, {
+                      n: formatNumber(e.servings, locale, 2),
+                    })}
+                  </span>
+                )}
                 {e.estimated && (
-                  <span className="mt-1 border border-hairline px-1 text-xs text-muted">
+                  <span className="ml-2 border border-hairline px-1 text-xs font-normal text-muted">
                     {t.day.estimated}
                   </span>
                 )}
-              </div>
+              </>
+            }
+            action={
               <ActionButtonForm
                 action={removeAction(e.id)}
                 label={t.day.remove}
-                icon={<Trash2 size={16} aria-hidden="true" />}
+                icon={<Trash2 size={18} aria-hidden="true" />}
                 variant="quiet"
+                iconOnly
               />
-            </div>
+            }
+          >
             <MacroStrip
               energy={`${n(tn.kcal)} ${NUTRIENT_UNIT.kcal}`}
               protein={n(tn.protein)}
@@ -148,7 +148,7 @@ export function EntryList({
                 <p className="pt-1 text-xs text-muted">{t.day.refreshHint}</p>
               </div>
             </details>
-          </li>
+          </ListItem>
         );
       })}
     </ol>

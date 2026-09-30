@@ -21,6 +21,7 @@ import type { Locale } from "@/core/shared/locales";
 import { rank } from "@/core/shared/search";
 import { reverseIf, sortByValue } from "@/core/shared/sorting";
 import { fill, type Messages } from "@/i18n";
+import { ListItem } from "@/ui/ListItem";
 import { MacroStrip } from "@/ui/MacroStrip";
 import { SortControl, type SortDirection } from "@/ui/SortControl";
 
@@ -129,21 +130,37 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
         {shown.map((m) => {
           const tn = m.totals.nutrients;
           return (
-            <li key={m.id} className="flex flex-col gap-1 rule-b-medium border-ink py-3">
-              <div className="flex items-baseline justify-between gap-3">
+            <ListItem
+              key={m.id}
+              title={
                 <Link
                   href={`/meals/${m.id}`}
-                  className="font-display text-xl font-bold underline-offset-4 hover:underline"
+                  className="underline-offset-4 hover:underline"
                 >
                   {m.name}
                 </Link>
-                <span className="font-display text-lg tabular-nums">{`${formatNumber(tn.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}</span>
-              </div>
+              }
+              aside={
+                m.totals.costComplete
+                  ? formatCents(m.totals.costCents, locale)
+                  : fill(t.label.costPartialShort, {
+                      v: formatCents(m.totals.costCents, locale),
+                    })
+              }
+              footer={[
+                t.meals.perServing,
+                m.density && `${n(m.density)} ${t.macro.density}`,
+                m.uses > 0 && fill(t.search.uses, { n: String(m.uses) }),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            >
               <MacroStrip
-                protein={`${n(tn.protein)} ${NUTRIENT_UNIT.protein}`}
-                carbs={`${n(tn.carbs)} ${NUTRIENT_UNIT.carbs}`}
-                fat={`${n(tn.fat)} ${NUTRIENT_UNIT.fat}`}
-                fiber={`${n(tn.fiber)} ${NUTRIENT_UNIT.fiber}`}
+                energy={`${formatNumber(tn.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}
+                protein={n(tn.protein)}
+                carbs={n(tn.carbs)}
+                fat={n(tn.fat)}
+                fiber={n(tn.fiber)}
                 split={m.split}
                 labels={{
                   protein: t.nutrients.protein,
@@ -153,21 +170,7 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
                   split: t.macro.splitTitle,
                 }}
               />
-              <p className="text-sm text-muted tabular-nums">
-                {[
-                  t.meals.perServing,
-                  m.density && `${n(m.density)} ${t.macro.density}`,
-                  m.totals.costComplete
-                    ? formatCents(m.totals.costCents, locale)
-                    : fill(t.label.costPartialShort, {
-                        v: formatCents(m.totals.costCents, locale),
-                      }),
-                  m.uses > 0 && fill(t.search.uses, { n: String(m.uses) }),
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-            </li>
+            </ListItem>
           );
         })}
       </ul>

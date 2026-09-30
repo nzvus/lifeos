@@ -20,16 +20,24 @@ type Props = {
   label: string;
   icon?: ReactNode;
   variant?: "danger" | "quiet";
+  /** Compact: icon only, label for screen readers and as tooltip. */
+  iconOnly?: boolean;
 };
 
 export type ActionButtonState = State;
 
-export function ActionButtonForm({ action, label, icon, variant = "danger" }: Props) {
+export function ActionButtonForm({
+  action,
+  label,
+  icon,
+  variant = "danger",
+  iconOnly,
+}: Props) {
   const [state, formAction] = useActionState(action, { status: "idle" });
   return (
     <form action={formAction} className="flex flex-col items-start gap-2">
       {state.status === "error" && <FormAlert tone="error">{state.message}</FormAlert>}
-      <SubmitButton variant={variant} icon={icon}>
+      <SubmitButton variant={variant} icon={icon} iconOnly={iconOnly}>
         {label}
       </SubmitButton>
     </form>
