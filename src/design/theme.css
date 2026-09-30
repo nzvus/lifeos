@@ -85,6 +85,46 @@
 }
 
 /*
+ * Layout setting (ADR-0010): sm:, md:, lg: are redefined so the user can
+ * force a layout on any device. data-layout on <html>:
+ *   absent / "auto" -> the usual media query (width >= breakpoint);
+ *   "desktop"       -> always on, whatever the screen width;
+ *   "phone"         -> never on.
+ * Components keep writing plain md:… — this block is the only place that
+ * knows about the setting. Widths are Tailwind's defaults.
+ */
+@custom-variant sm {
+  @media (width >= 40rem) {
+    &:where(:not([data-layout="phone"] *)) {
+      @slot;
+    }
+  }
+  &:where([data-layout="desktop"] *) {
+    @slot;
+  }
+}
+@custom-variant md {
+  @media (width >= 48rem) {
+    &:where(:not([data-layout="phone"] *)) {
+      @slot;
+    }
+  }
+  &:where([data-layout="desktop"] *) {
+    @slot;
+  }
+}
+@custom-variant lg {
+  @media (width >= 64rem) {
+    &:where(:not([data-layout="phone"] *)) {
+      @slot;
+    }
+  }
+  &:where([data-layout="desktop"] *) {
+    @slot;
+  }
+}
+
+/*
  * Dark mode: same names, different values. Follows the operating system
  * unless data-mode on <html> says otherwise (ADR-0010: the light / dark /
  * system choice is a per-device setting, separate from the theme).

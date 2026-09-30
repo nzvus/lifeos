@@ -130,8 +130,8 @@ cannot poll URLs itself, so app health has daily granularity.
   computed on read (`repositories/usage.ts`). Lists search in the browser.
 - **Responsive UI:** phones get a bottom tab bar and card lists; md+ gets
   header navigation and tables; lg+ shows the day in two columns with a
-  sticky label. Form pages cap at `--container-page`, others at
-  `--container-wide`.
+  sticky label. `sm:/md:/lg:` are redefined in `design/theme.css` to obey
+  `data-layout` (auto/desktop/phone, ADR-0010). Forms cap at `--container-page`.
 - **Visual language:** one colour per nutrient (`--color-macro-*`); targets
   have kinds (min/max/target, `core/nutrition/targets.ts`) and colours are
   graded by kind and distance (`ui/targetTone.ts`: faint → herb → warn →
