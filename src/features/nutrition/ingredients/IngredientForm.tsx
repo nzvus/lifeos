@@ -23,6 +23,7 @@ import { fill, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { SelectField } from "@/ui/SelectField";
+import { Section } from "@/ui/Section";
 import { SubmitButton } from "@/ui/SubmitButton";
 
 type Props = {
@@ -69,11 +70,8 @@ export function IngredientForm({ action, initial, submitLabel, t }: Props) {
       />
 
       {/* The label block: heavy rule on top, one row per nutrient. */}
-      <fieldset className="rule-t-heavy border-ink pt-3">
-        <legend className="font-display text-section font-bold">
-          {fill(t.ingredients.per100, { unit })}
-        </legend>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3 pt-2">
+      <Section as="fieldset" title={fill(t.ingredients.per100, { unit })}>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
           {NUTRIENT_KEYS.map((k) => (
             <Field
               key={k}
@@ -86,7 +84,7 @@ export function IngredientForm({ action, initial, submitLabel, t }: Props) {
             />
           ))}
         </div>
-      </fieldset>
+      </Section>
 
       <fieldset className="rule-t-medium border-ink pt-3">
         <p className="pb-2 text-meta text-muted">{t.ingredients.priceHint}</p>

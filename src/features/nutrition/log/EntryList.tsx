@@ -10,15 +10,13 @@
  * logging (core refreshLogEntry).
  */
 import { RefreshCw, Trash2 } from "lucide-react";
-import { macroSplit } from "@/core/nutrition/insights";
-import { sumLines, toDisplay } from "@/core/nutrition/totals";
-import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
+import { detailLines, stripValues } from "@/core/nutrition/display";
 import type { DayView } from "@/core/nutrition/repositories/log";
-import { Big } from "@/core/shared/decimal";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
-import { fill, type Messages } from "@/i18n";
+import { fill, macroLabels, type Messages } from "@/i18n";
 import { ActionButtonForm, type ActionButtonState } from "@/ui/ActionButtonForm";
+import { FoodDetails } from "@/ui/FoodDetails";
 import { ListItem } from "@/ui/ListItem";
 import { MacroStrip } from "@/ui/MacroStrip";
 import { timeIn } from "@/core/shared/dates";
@@ -56,11 +54,10 @@ export function EntryList({
   t,
 }: Props) {
   if (day.entries.length === 0) return <p className="text-muted">{t.day.empty}</p>;
-  const n = (v: string) => formatNumber(v, locale, 0);
+  const labels = macroLabels(t);
   return (
     <ol className="flex flex-col">
       {day.entries.map((e) => {
-        const tn = e.totals.nutrients;
         return (
           <ListItem
             key={e.id}
@@ -106,78 +103,34 @@ export function EntryList({
             }
           >
             <MacroStrip
-              energy={`${n(tn.kcal)} ${NUTRIENT_UNIT.kcal}`}
-              protein={n(tn.protein)}
-              carbs={n(tn.carbs)}
-              fat={n(tn.fat)}
-              fiber={n(tn.fiber)}
-              split={macroSplit(tn)}
-              labels={{
-                protein: t.nutrients.protein,
-                carbs: t.nutrients.carbs,
-                fat: t.nutrients.fat,
-                fiber: t.nutrients.fiber,
-                split: t.macro.splitTitle,
-              }}
+              values={stripValues(e.totals.nutrients, locale)}
+              labels={labels}
             />
-            <details className="text-meta">
-              <summary className="cursor-pointer text-muted">
-                {e.lines.length > 1
+            <FoodDetails
+              summary={
+                e.lines.length > 1
                   ? fill(t.macro.ingredientsCount, { n: String(e.lines.length) })
-                  : t.day.details}
-              </summary>
-              {/* Indented under a hairline: clearly part of this entry. */}
-              <div className="mt-1 ml-2 flex flex-col gap-3 border-l border-hairline pl-3">
-                {/* Each ingredient with its own macro strip and bar (the
-                    same display as every row), servings applied. */}
-                <ul className="flex flex-col gap-2">
-                  {e.lines.map((l, i) => {
-                    const ln = toDisplay(sumLines([l], e.servings)).nutrients;
-                    return (
-                      <li key={i} className="flex flex-col gap-0.5">
-                        <span>
-                          {l.name}
-                          <span className="pl-2 font-display text-muted tabular-nums">
-                            {/* What was eaten: per-serving quantity × servings. */}
-                            {`${formatNumber(new Big(l.quantity).times(e.servings).toString(), locale, 0)} ${l.unit}`}
-                          </span>
-                        </span>
-                        <MacroStrip
-                          energy={`${n(ln.kcal)} ${NUTRIENT_UNIT.kcal}`}
-                          protein={n(ln.protein)}
-                          carbs={n(ln.carbs)}
-                          fat={n(ln.fat)}
-                          fiber={n(ln.fiber)}
-                          split={macroSplit(ln)}
-                          labels={{
-                            protein: t.nutrients.protein,
-                            carbs: t.nutrients.carbs,
-                            fat: t.nutrients.fat,
-                            fiber: t.nutrients.fiber,
-                            split: t.macro.splitTitle,
-                          }}
-                        />
-                      </li>
-                    );
-                  })}
-                </ul>
-                <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
-                  <TimeEditor
-                    action={timeAction(e.id)}
-                    initial={e.at ? timeIn(new Date(e.at), timeZone) : ""}
-                    t={t}
-                  />
-                  <ActionButtonForm
-                    action={refreshAction(e.id)}
-                    label={t.day.refresh}
-                    icon={<RefreshCw size={14} aria-hidden="true" />}
-                    variant="subtle"
-                    size="small"
-                  />
-                </div>
-                <p className="text-meta text-muted">{t.day.refreshHint}</p>
+                  : t.day.details
+              }
+              lines={detailLines(e.lines, e.servings, locale)}
+              labels={labels}
+            >
+              <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
+                <TimeEditor
+                  action={timeAction(e.id)}
+                  initial={e.at ? timeIn(new Date(e.at), timeZone) : ""}
+                  t={t}
+                />
+                <ActionButtonForm
+                  action={refreshAction(e.id)}
+                  label={t.day.refresh}
+                  icon={<RefreshCw size={14} aria-hidden="true" />}
+                  variant="subtle"
+                  size="small"
+                />
               </div>
-            </details>
+              <p className="text-meta text-muted">{t.day.refreshHint}</p>
+            </FoodDetails>
           </ListItem>
         );
       })}

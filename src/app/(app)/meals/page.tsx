@@ -2,8 +2,8 @@
  * app/(app)/meals/page.tsx — URL /meals: meals with per-serving totals,
  * instant search (also by ingredient) and smart ordering.
  */
-import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
+import { PageHeader } from "@/ui/PageHeader";
 import { getDb } from "@/app/_server/runtime";
 import { listMeals } from "@/core/nutrition/repositories/meals";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
@@ -19,15 +19,10 @@ export default async function MealsPage() {
   ]);
   return (
     <>
-      <div className="flex items-baseline justify-between gap-4">
-        <h1 className="font-display text-title font-bold">{t.meals.title}</h1>
-        <Link
-          href="/meals/new"
-          className="bg-herb px-3 py-1 font-display text-item font-semibold text-sheet"
-        >
-          {t.meals.new}
-        </Link>
-      </div>
+      <PageHeader
+        title={t.meals.title}
+        action={{ href: "/meals/new", label: t.meals.new }}
+      />
       <MealBrowser
         meals={meals}
         usage={usage.meals}

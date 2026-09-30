@@ -6,9 +6,9 @@
  * Postgres throw) and the lookup is owner-checked, so someone else's id gives
  * the same 404 as a non-existent one.
  */
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
+import { PageHeader } from "@/ui/PageHeader";
 import { getDb } from "@/app/_server/runtime";
 import { getIngredient } from "@/core/nutrition/repositories/ingredients";
 import { idInput, ingredientFormValues } from "@/core/nutrition/validation";
@@ -28,10 +28,10 @@ export default async function EditIngredientPage({ params }: Props) {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <Link href="/ingredients" className="text-meta underline">
-        {t.ingredients.back}
-      </Link>
-      <h1 className="font-display text-title font-bold">{t.ingredients.editTitle}</h1>
+      <PageHeader
+        title={t.ingredients.editTitle}
+        back={{ href: "/ingredients", label: t.ingredients.back }}
+      />
       <IngredientForm
         action={updateIngredientAction.bind(null, id)}
         initial={ingredientFormValues(ingredient)}

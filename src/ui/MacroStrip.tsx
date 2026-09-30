@@ -1,39 +1,53 @@
 /**
  * ui/MacroStrip.tsx — THE way macros are shown everywhere (ingredient rows,
- * meal cards, log entries): one compact line with a coloured square per
- * nutrient and its value, and underneath the thin energy-split bar.
+ * meal cards, log entries, details lines, the add-to-day preview): one
+ * compact line with a coloured square per nutrient and its value, and
+ * underneath the thin energy-split bar.
  *
  * The colour is the key: raspberry = protein, amber = carbs, blue = fat,
  * green = fibre (design/theme.css), the same as in the charts, so after a day
  * of use the letters are barely needed. Two lines tall at most, so long
  * lists stay scannable.
  *
- * Presentation only: values arrive formatted, the split arrives computed
- * (core/nutrition/insights.ts macroSplit). `labels` are the short letters
- * for screen readers and the legend (i18n `macro`).
+ * Presentation only: `values` arrive formatted and the split computed
+ * (core/nutrition/display.ts stripValues); `labels` come from i18n
+ * (macroLabels), for screen readers and the bar's title.
  */
 import { MacroBar } from "./MacroBar";
 
-type Props = {
-  /** Energy, already formatted with its unit ("372 kcal"), optional. */
+export type MacroStripValues = {
+  /** Energy with its unit ("372 kcal"), optional. */
   energy?: string;
   protein: string;
   carbs: string;
   fat: string;
   fiber?: string;
-  /** Percent of energy from protein/carbs/fat; omit to hide the bar. */
+  /** Percent of energy from protein/carbs/fat; null/absent hides the bar. */
   split?: { protein: number; carbs: number; fat: number } | null;
-  labels: { protein: string; carbs: string; fat: string; fiber?: string; split: string };
+};
+export type MacroStripLabels = {
+  protein: string;
+  carbs: string;
+  fat: string;
+  fiber: string;
+  split: string;
 };
 
 const DOT = "inline-block h-2 w-2 shrink-0";
 
-export function MacroStrip({ energy, protein, carbs, fat, fiber, split, labels }: Props) {
+export function MacroStrip({
+  values,
+  labels,
+}: {
+  values: MacroStripValues;
+  labels: MacroStripLabels;
+}) {
+  const { energy, protein, carbs, fat, fiber, split } = values;
   const items = [
     { key: "p", color: "bg-macro-protein", label: labels.protein, value: protein },
     { key: "c", color: "bg-macro-carbs", label: labels.carbs, value: carbs },
     { key: "f", color: "bg-macro-fat", label: labels.fat, value: fat },
-    ...(fiber !== undefined && labels.fiber
+    ...(fiber !== undefined
       ? [{ key: "fi", color: "bg-macro-fiber", label: labels.fiber, value: fiber }]
       : []),
   ];

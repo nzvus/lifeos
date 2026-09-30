@@ -17,3 +17,14 @@ export const dictionaries = { en, it };
 export function fill(template: string, vars: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (whole, key: string) => vars[key] ?? whole);
 }
+
+/** The labels of ui/MacroStrip, from a dictionary: one place, not one per use. */
+export function macroLabels(t: Pick<Messages, "nutrients" | "macro">) {
+  return {
+    protein: t.nutrients.protein,
+    carbs: t.nutrients.carbs,
+    fat: t.nutrients.fat,
+    fiber: t.nutrients.fiber,
+    split: t.macro.splitTitle,
+  };
+}

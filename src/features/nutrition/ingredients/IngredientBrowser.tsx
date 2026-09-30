@@ -6,10 +6,8 @@
  * keystroke, with no server round trip (hundreds of rows sort in well under
  * a millisecond). The server page passes the rows once plus usage counts.
  *
- * - Search: core/shared/search.ts (case/accent-insensitive, every word must
- *   match, name and notes are searched).
- * - Sort "Most used" = relevance while typing, else usage (the default:
- *   what you eat is on top). Other sorts filter first, then order by value.
+ * - Search and sort: core/shared/browse.ts (the same rules as every list;
+ *   name and notes are searched), toolbar: ui/ListToolbar.
  * - Derived columns come from core/nutrition/insights.ts: protein per
  *   100 kcal ("how much protein for the energy") and price per kg/l.
  * - Layout: cards on phones, a table from the md breakpoint up. Both are in
@@ -18,7 +16,6 @@
  */
 "use client";
 
-import { Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
@@ -26,17 +23,17 @@ import {
   pricePerThousandCents,
   proteinPer100kcal,
 } from "@/core/nutrition/insights";
-import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
+import { stripValues } from "@/core/nutrition/display";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
-import { rank } from "@/core/shared/search";
-import { reverseIf, sortByValue } from "@/core/shared/sorting";
-import { fill, type Messages } from "@/i18n";
+import { browse } from "@/core/shared/browse";
+import { fill, macroLabels, type Messages } from "@/i18n";
 import { MacroBar } from "@/ui/MacroBar";
 import { ListItem } from "@/ui/ListItem";
 import { MacroStrip } from "@/ui/MacroStrip";
-import { SortControl, type SortDirection } from "@/ui/SortControl";
+import { ListToolbar } from "@/ui/ListToolbar";
+import type { SortDirection } from "@/ui/SortControl";
 
 /** The fields this view needs (a subset of an ingredient row). */
 export type IngredientRow = {
@@ -91,72 +88,63 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
     [ingredients, usage],
   );
 
-  const shown = useMemo(() => {
-    const matched = rank(rows, query, (r) => ({
-      text: `${r.name} ${r.description}`,
-      name: r.name,
-      uses: r.uses,
-      lastUsed: r.lastUsed,
-    }));
-    // "Use": rank's own order (relevance while typing, else most used);
-    // ascending = the same list reversed. Other sorts: by value, with
-    // missing values (no price, 0 kcal) always last (core/shared/sorting.ts).
-    if (sort === "used") return reverseIf(matched, direction === "asc");
-    if (sort === "name") return sortByValue(matched, (r) => r.name, direction, locale);
-    const value: Record<
-      Exclude<Sort, "used" | "name">,
-      (r: (typeof rows)[number]) => number | null
-    > = {
-      protein: (r) => Number(r.protein),
-      density: (r) => (r.density === null ? null : Number(r.density)),
-      kcal: (r) => Number(r.kcal),
-      fiber: (r) => Number(r.fiber),
-      price: (r) => r.perKg,
-    };
-    return sortByValue(matched, value[sort], direction, locale);
-  }, [rows, query, sort, direction, locale]);
+  const shown = useMemo(
+    () =>
+      browse(rows, {
+        query,
+        describe: (r) => ({
+          text: `${r.name} ${r.description}`,
+          name: r.name,
+          uses: r.uses,
+          lastUsed: r.lastUsed,
+        }),
+        sort,
+        direction,
+        values: {
+          protein: (r) => Number(r.protein),
+          density: (r) => (r.density === null ? null : Number(r.density)),
+          kcal: (r) => Number(r.kcal),
+          fiber: (r) => Number(r.fiber),
+          price: (r) => r.perKg,
+        },
+        locale,
+      }),
+    [rows, query, sort, direction, locale],
+  );
 
   const n = (v: string) => formatNumber(v, locale, 1);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Toolbar: search grows, sort stays compact; stacks on narrow phones. */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <label className="relative flex flex-1 flex-col gap-1">
-          <span className="sr-only">{t.search.placeholder}</span>
-          <Search
-            size={18}
-            aria-hidden="true"
-            className="pointer-events-none absolute bottom-2.5 left-2 text-muted"
-          />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.search.placeholder}
-            className="w-full rule-b-medium border-ink bg-sheet py-2 pr-2 pl-8 text-body outline-none focus-visible:border-focus"
-          />
-        </label>
-        <SortControl
-          options={SORTS.map((o) => ({
-            value: o.key,
-            label: t.search.sorts[o.key],
-            natural: o.natural,
-          }))}
-          sort={sort}
-          direction={direction}
-          onChange={(nextSort, nextDirection) => {
-            setSort(nextSort);
-            setDirection(nextDirection);
-          }}
-          labels={{ sortBy: t.search.sortBy, asc: t.search.asc, desc: t.search.desc }}
-        />
-      </div>
-      <p className="text-meta text-muted" aria-live="polite">
-        {shown.length === 0 && query
-          ? fill(t.search.noResults, { q: query })
-          : fill(t.search.count, { n: String(shown.length), total: String(rows.length) })}
-      </p>
+      <ListToolbar
+        query={query}
+        onQuery={setQuery}
+        sorts={SORTS.map((o) => ({
+          value: o.key,
+          label: t.search.sorts[o.key],
+          natural: o.natural,
+        }))}
+        sort={sort}
+        direction={direction}
+        onSort={(nextSort, nextDirection) => {
+          setSort(nextSort);
+          setDirection(nextDirection);
+        }}
+        count={
+          shown.length === 0 && query
+            ? fill(t.search.noResults, { q: query })
+            : fill(t.search.count, {
+                n: String(shown.length),
+                total: String(rows.length),
+              })
+        }
+        labels={{
+          search: t.search.placeholder,
+          sortBy: t.search.sortBy,
+          asc: t.search.asc,
+          desc: t.search.desc,
+        }}
+      />
 
       {/* Phones: cards. */}
       <ul className="flex flex-col md:hidden">
@@ -184,21 +172,7 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
               .filter(Boolean)
               .join(" · ")}
           >
-            <MacroStrip
-              energy={`${formatNumber(r.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}
-              protein={n(r.protein)}
-              carbs={n(r.carbs)}
-              fat={n(r.fat)}
-              fiber={n(r.fiber)}
-              split={r.split}
-              labels={{
-                protein: t.nutrients.protein,
-                carbs: t.nutrients.carbs,
-                fat: t.nutrients.fat,
-                fiber: t.nutrients.fiber,
-                split: t.macro.splitTitle,
-              }}
-            />
+            <MacroStrip values={stripValues(r, locale, 1)} labels={macroLabels(t)} />
           </ListItem>
         ))}
       </ul>

@@ -20,7 +20,7 @@
 
 import { Calculator, Carrot, Plus, UtensilsCrossed } from "lucide-react";
 import { useActionState, useCallback, useMemo, useState, type ReactNode } from "react";
-import { macroSplit } from "@/core/nutrition/insights";
+import { stripValues } from "@/core/nutrition/display";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import {
   estimateValues,
@@ -32,25 +32,20 @@ import {
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fieldError, IDLE, type FormState } from "@/core/shared/result";
-import { rank } from "@/core/shared/search";
-import { fill, type Messages } from "@/i18n";
+import { pickerSearch, type Pickable as SearchItem } from "@/core/shared/search";
+import { fill, macroLabels, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroStrip } from "@/ui/MacroStrip";
-import { SearchSelect, type SearchOption } from "@/ui/SearchSelect";
+import { Section } from "@/ui/Section";
+import { SearchSelect } from "@/ui/SearchSelect";
 import { SubmitButton } from "@/ui/SubmitButton";
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 type Kind = "meal" | "ingredient" | "estimate";
 
 /** What the search and the preview need about each meal / ingredient. */
-export type Pickable = {
-  id: string;
-  name: string;
-  /** Notes/description: searched too ("Lidl", "STIMA", "senza lattosio"). */
-  notes: string;
-  uses: number;
-  lastUsed: string | null;
+export type Pickable = SearchItem & {
   /** Exact values: per serving for a meal, per 100 g/ml for an ingredient. */
   values: MacroValues;
   unit?: string; // ingredients only
@@ -128,8 +123,7 @@ export function AddToDay({
   const common = { day, locale, t };
 
   return (
-    <section className="flex flex-col gap-4 rule-t-heavy border-ink pt-3">
-      <h2 className="font-display text-section font-bold">{t.day.addTitle}</h2>
+    <Section title={t.day.addTitle}>
       <div role="tablist" aria-label={t.day.addTitle} className="flex">
         {tabs.map((tab) => {
           const selected = tab.kind === kind;
@@ -194,7 +188,7 @@ export function AddToDay({
           />
         )}
       </div>
-    </section>
+    </Section>
   );
 }
 
@@ -248,20 +242,7 @@ function PickForm({
         .join(" · "),
     [t, locale],
   );
-  const picker = useMemo(() => {
-    const options = new Map<string, SearchOption>(
-      items.map((i) => [i.id, { value: i.id, label: i.name, hint: hint(i) }]),
-    );
-    const search = (q: string) =>
-      rank(items, q, (i) => ({
-        text: `${i.name} ${i.notes}`,
-        name: i.name,
-        uses: i.uses,
-        lastUsed: i.lastUsed,
-      })).map((i) => options.get(i.id)!);
-    const find = (value: string) => options.get(value);
-    return { search, find };
-  }, [items, hint]);
+  const picker = useMemo(() => pickerSearch(items, hint), [items, hint]);
 
   if (items.length === 0) return <p className="text-meta text-muted">{empty}</p>;
   const chosen = items.find((i) => i.id === id);
@@ -378,28 +359,13 @@ function Preview({
   locale: Locale;
   t: T;
 }) {
-  const n = (v: string) => formatNumber(v, locale, 0);
   return (
     <div className="flex flex-col gap-1 rounded-control border border-hairline bg-sheet p-3">
       <p className="text-meta font-semibold text-muted">{t.day.preview}</p>
       {values === null ? (
         <p className="text-meta text-muted">{t.day.previewEmpty}</p>
       ) : (
-        <MacroStrip
-          energy={`${n(values.kcal)} ${NUTRIENT_UNIT.kcal}`}
-          protein={n(values.protein)}
-          carbs={n(values.carbs)}
-          fat={n(values.fat)}
-          fiber={n(values.fiber)}
-          split={macroSplit(values)}
-          labels={{
-            protein: t.nutrients.protein,
-            carbs: t.nutrients.carbs,
-            fat: t.nutrients.fat,
-            fiber: t.nutrients.fiber,
-            split: t.macro.splitTitle,
-          }}
-        />
+        <MacroStrip values={stripValues(values, locale)} labels={macroLabels(t)} />
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 /** app/(app)/profiles/new/page.tsx — URL /profiles/new: empty day type form. */
-import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
+import { PageHeader } from "@/ui/PageHeader";
 import { ProfileForm } from "@/features/nutrition/profiles/ProfileForm";
 import { createProfileAction } from "../actions";
 
@@ -9,10 +9,10 @@ export default async function NewProfilePage() {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <Link href="/profiles" className="text-meta underline">
-        {t.profiles.back}
-      </Link>
-      <h1 className="font-display text-title font-bold">{t.profiles.newTitle}</h1>
+      <PageHeader
+        title={t.profiles.newTitle}
+        back={{ href: "/profiles", label: t.profiles.back }}
+      />
       <ProfileForm
         action={createProfileAction}
         initial={{}}
