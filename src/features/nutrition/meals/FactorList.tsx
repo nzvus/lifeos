@@ -16,9 +16,15 @@ import { SubmitButton } from "@/ui/SubmitButton";
 type Props = {
   factors: { id: string; name: string }[];
   createAction: (prev: FormState, formData: FormData) => Promise<FormState>;
+  /**
+   * The server action itself, bound to each factor's id here: a server page
+   * may hand a client component server actions, not plain functions.
+   */
   deleteAction: (
     id: string,
-  ) => (prev: ActionButtonState, formData: FormData) => Promise<ActionButtonState>;
+    prev: ActionButtonState,
+    formData: FormData,
+  ) => Promise<ActionButtonState>;
   t: Pick<Messages, "ratings" | "errors">;
 };
 
@@ -39,7 +45,7 @@ export function FactorList({ factors, createAction, deleteAction, t }: Props) {
                 {f.name}
               </span>
               <ActionButtonForm
-                action={deleteAction(f.id)}
+                action={deleteAction.bind(null, f.id)}
                 label={`${t.ratings.deleteFactor} ${f.name}`}
                 icon={<Trash2 size={16} aria-hidden="true" />}
                 variant="quiet"
