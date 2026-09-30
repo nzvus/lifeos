@@ -17,3 +17,16 @@ export const DEFAULT_THEME: Theme = "label";
 export function isTheme(s: string): s is Theme {
   return (THEMES as readonly string[]).includes(s);
 }
+
+/**
+ * The component variants each theme uses where a different LAYOUT is
+ * needed (ADR-0010 "slots"). Everything else a theme changes is tokens
+ * (design/themes/<id>.css: colours, type, spacing, surfaces). Today one
+ * slot is needed: the day panel as rings + bars, or as a grid of tiles.
+ */
+export type ThemeSlots = { dayPanel: "rings" | "tiles" };
+export const THEME_SLOTS: Record<Theme, ThemeSlots> = {
+  label: { dayPanel: "rings" },
+  orto: { dayPanel: "rings" },
+  cruscotto: { dayPanel: "tiles" },
+};

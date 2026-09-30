@@ -84,6 +84,47 @@
   --container-wide: 72rem;
 }
 
+/*
+ * Surfaces (ADR-0010): what a panel, a tile and a list row look like. The
+ * components only say "panel", "tile", "item"; each theme decides whether
+ * that is a ruled row (label), a soft card with a shadow (orto) or a dense
+ * boxed row (cruscotto), by overriding these variables. Defaults = label.
+ */
+:root {
+  --panel-bg: var(--color-sheet);
+  --panel-border: var(--rule-strong) solid var(--color-ink);
+  --panel-radius: var(--radius-surface);
+  --panel-shadow: none;
+  --tile-bg: var(--color-paper);
+  --tile-border: 1px solid var(--color-hairline);
+  --tile-radius: var(--radius-control);
+  --item-bg: transparent;
+  --item-rule: 1px solid var(--color-hairline);
+  --item-radius: 0;
+  --item-shadow: none;
+  --item-pad: 0rem;
+  --item-gap: 0rem;
+}
+@utility panel {
+  background: var(--panel-bg);
+  border: var(--panel-border);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--panel-shadow);
+}
+@utility tile {
+  background: var(--tile-bg);
+  border: var(--tile-border);
+  border-radius: var(--tile-radius);
+}
+@utility item {
+  background: var(--item-bg);
+  border-bottom: var(--item-rule);
+  border-radius: var(--item-radius);
+  box-shadow: var(--item-shadow);
+  padding-inline: var(--item-pad);
+  margin-bottom: var(--item-gap);
+}
+
 /* Rule utilities: border width from the --rule-* tokens, any side. The
    colour stays a separate utility (border-ink, border-tomato…). */
 @utility rule-* {
