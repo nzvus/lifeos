@@ -27,6 +27,18 @@ const ICONS: Record<string, LucideIcon> = {
   salt: Diamond, // a salt crystal; salt has no colour of its own (ink)
 };
 
+/** CSS variable of each nutrient's own colour (for ui/targetTone, charts). */
+export const NUTRIENT_VAR: Record<string, string> = {
+  kcal: "--color-kcal",
+  protein: "--color-macro-protein",
+  carbs: "--color-macro-carbs",
+  sugars: "--color-macro-carbs",
+  fat: "--color-macro-fat",
+  saturatedFat: "--color-macro-fat",
+  fiber: "--color-macro-fiber",
+  salt: "--color-muted",
+};
+
 /** Text colour class per nutrient (for icons and legends). */
 export const NUTRIENT_TEXT: Record<string, string> = {
   protein: "text-macro-protein",

@@ -93,3 +93,12 @@ export function pricePerThousandCents(i: {
     .round(0, Big.roundHalfUp)
     .toNumber();
 }
+
+/** The exact mean of decimal strings, or null for an empty list. */
+export function average(values: readonly string[]): string | null {
+  if (values.length === 0) return null;
+  return values
+    .reduce((sum, v) => sum.plus(v), new Big(0))
+    .div(values.length)
+    .toString();
+}

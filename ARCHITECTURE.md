@@ -25,7 +25,7 @@ src/
     (auth)/     /sign-in, /sign-up          (app)/  every signed-in page
     api/        auth/[...all], health, export
   features/     vertical slices (area/slice): account/{auth,settings},
-                nutrition/{ingredients,meals,log}. Components only.
+                nutrition/{ingredients,meals,log,profiles,trends}. Components only.
   core/         db/ (schema, client), identity/ (Owner, ownedBy),
                 nutrition/ (nutrients, totals, targets, insights, display,
                 preview, validation, repositories/), export/, import/ (FitForge; lifeos replace;

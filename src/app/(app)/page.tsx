@@ -27,16 +27,15 @@ import {
 import { getHistory } from "@/core/nutrition/repositories/history";
 import { withAutoTargets } from "@/core/nutrition/targets";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
-import { addDays, isValidDay, todayIn } from "@/core/shared/dates";
+import { addDays, isValidDay, startOfWeek, todayIn } from "@/core/shared/dates";
 import { Copy } from "lucide-react";
 import { DayNav } from "@/features/nutrition/log/DayNav";
 import { DayProfilePicker } from "@/features/nutrition/log/DayProfilePicker";
 import { EntryList } from "@/features/nutrition/log/EntryList";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
-import { WeekChart } from "@/features/nutrition/log/WeekChart";
+import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
-import { Section } from "@/ui/Section";
 import {
   copyPreviousDayAction,
   deleteLogEntryAction,
@@ -60,16 +59,18 @@ export default async function DayPage({ searchParams }: Props) {
 
   const db = getDb();
   // Promise.all: independent queries at once instead of one after another.
-  const [view, meals, ingredients, dayTargets, profiles, usage, history] =
-    await Promise.all([
+  const monday = startOfWeek(day);
+  const [view, meals, ingredients, dayTargets, profiles, usage, week] = await Promise.all(
+    [
       getDay(db, owner, day),
       listMeals(db, owner),
       listIngredients(db, owner),
       getDayTargets(db, owner, day), // fixed copy, default profile, or none (ADR-0008)
       listProfiles(db, owner),
       getUsage(db, owner, addDays(today, -USAGE_WINDOW_DAYS)),
-      getHistory(db, owner, addDays(day, -6), day), // the 7 days ending on the shown day
-    ]);
+      getHistory(db, owner, monday, addDays(monday, 6)), // the shown day's week, for WeekStrip
+    ],
+  );
   // The day's own targets, plus recommended maxima where none is set
   // (sugars, saturated fat, salt — core/nutrition/targets.ts).
   const { targets, auto } = withAutoTargets(
@@ -87,6 +88,7 @@ export default async function DayPage({ searchParams }: Props) {
   return (
     <>
       <DayNav day={day} today={today} locale={locale} t={t.day} />
+      <WeekStrip week={week} day={day} today={today} locale={locale} t={t.day} />
       <DayProfilePicker
         day={day}
         current={dayTargets}
@@ -108,115 +110,60 @@ export default async function DayPage({ searchParams }: Props) {
           day: t.day,
         }}
       />
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="flex flex-col gap-8 lg:col-span-2">
-          <EntryList
-            day={view}
-            locale={locale}
-            removeAction={(id) => deleteLogEntryAction.bind(null, id)}
-            refreshAction={(id) => refreshLogEntryAction.bind(null, id)}
-            statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
-            timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
-            timeZone={settings.timezone}
-            t={t}
+      <div className="flex flex-col gap-8">
+        <EntryList
+          day={view}
+          locale={locale}
+          removeAction={(id) => deleteLogEntryAction.bind(null, id)}
+          refreshAction={(id) => refreshLogEntryAction.bind(null, id)}
+          statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
+          timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
+          timeZone={settings.timezone}
+          t={t}
+        />
+        {view.entries.length === 0 && (
+          <ActionButtonForm
+            action={copyPreviousDayAction.bind(null, day)}
+            label={t.day.copyYesterday}
+            icon={<Copy size={18} aria-hidden="true" />}
+            variant="quiet"
           />
-          {view.entries.length === 0 && (
-            <ActionButtonForm
-              action={copyPreviousDayAction.bind(null, day)}
-              label={t.day.copyYesterday}
-              icon={<Copy size={18} aria-hidden="true" />}
-              variant="quiet"
-            />
-          )}
-          <AddToDay
-            day={day}
-            locale={locale}
-            meals={meals.map((m) => ({
-              id: m.id,
-              name: m.name,
-              notes: m.notes,
-              values: pick(m.totals.nutrients), // per serving
-              uses: usage.meals[m.id]?.uses ?? 0,
-              lastUsed: usage.meals[m.id]?.lastUsed ?? null,
-            }))}
-            ingredients={ingredients.map((i) => ({
-              id: i.id,
-              name: i.name,
-              notes: i.description,
-              unit: i.unit,
-              values: pick(i), // per 100 g/ml
-              uses: usage.ingredients[i.id]?.uses ?? 0,
-              lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
-            }))}
-            logMealAction={logMealAction}
-            logIngredientAction={logIngredientAction}
-            logEstimateAction={logEstimateAction}
-            // Only the dictionary parts the client component uses travel to
-            // the browser (smaller page, faster load).
-            t={{
-              day: t.day,
-              errors: t.errors,
-              meals: t.meals,
-              search: t.search,
-              macro: t.macro,
-              ingredients: t.ingredients,
-              nutrients: t.nutrients,
-            }}
-          />
-        </div>
-        {/* Trends: right column on desktop (stays in view while scrolling),
-            after the forms on phones. */}
-        <aside className="flex flex-col gap-6 lg:sticky lg:top-4 lg:self-start">
-          <Section title={t.glance.week}>
-            <WeekChart
-              history={history}
-              nutrient="kcal"
-              title={t.glance.energy}
-              plainFill="fill-kcal"
-              selectedDay={day}
-              locale={locale}
-              t={t}
-            />
-            <WeekChart
-              history={history}
-              nutrient="protein"
-              title={t.glance.protein}
-              plainFill="fill-macro-protein"
-              selectedDay={day}
-              locale={locale}
-              t={t}
-            />
-            {/* Same graded colours as the day panel (ui/targetTone). */}
-            <p className="flex flex-wrap gap-x-4 gap-y-1 text-meta text-muted">
-              <span className="inline-flex items-center gap-1">
-                <span className="inline-flex" aria-hidden="true">
-                  <span className="inline-block h-2.5 w-2.5 bg-kcal opacity-50" />
-                  <span className="inline-block h-2.5 w-2.5 bg-macro-protein opacity-50" />
-                </span>
-                {t.glance.underTarget}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="inline-block h-2.5 w-2.5 bg-herb" aria-hidden="true" />
-                {t.glance.withinTarget}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="inline-block h-2.5 w-2.5 bg-tomato" aria-hidden="true" />
-                {t.glance.overTarget}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="inline-block h-0.5 w-3 bg-ink" aria-hidden="true" />
-                {t.glance.targetLine}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span
-                  className="inline-block h-3 w-3 border border-dashed border-ink"
-                  aria-hidden="true"
-                />
-                {t.glance.shownDay}
-              </span>
-            </p>
-          </Section>
-        </aside>
+        )}
+        <AddToDay
+          day={day}
+          locale={locale}
+          meals={meals.map((m) => ({
+            id: m.id,
+            name: m.name,
+            notes: m.notes,
+            values: pick(m.totals.nutrients), // per serving
+            uses: usage.meals[m.id]?.uses ?? 0,
+            lastUsed: usage.meals[m.id]?.lastUsed ?? null,
+          }))}
+          ingredients={ingredients.map((i) => ({
+            id: i.id,
+            name: i.name,
+            notes: i.description,
+            unit: i.unit,
+            values: pick(i), // per 100 g/ml
+            uses: usage.ingredients[i.id]?.uses ?? 0,
+            lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
+          }))}
+          logMealAction={logMealAction}
+          logIngredientAction={logIngredientAction}
+          logEstimateAction={logEstimateAction}
+          // Only the dictionary parts the client component uses travel to
+          // the browser (smaller page, faster load).
+          t={{
+            day: t.day,
+            errors: t.errors,
+            meals: t.meals,
+            search: t.search,
+            macro: t.macro,
+            ingredients: t.ingredients,
+            nutrients: t.nutrients,
+          }}
+        />
       </div>
     </>
   );
