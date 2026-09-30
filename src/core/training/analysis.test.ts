@@ -30,6 +30,22 @@ describe("tonnage", () => {
     expect(push1.reduce((sum, sets) => sum + tonnage(sets), 0)).toBe(4722);
   });
 
+  it("matches PULL 1 (2026-09-15): 4 080 kg — pairs doubled, '+ asta' left out", () => {
+    const approx = (reps: number, load: number) => ({
+      ...s(reps, load),
+      loadApprox: true,
+    });
+    const pull1 = [
+      [s(10, 35), s(10, 35), s(10, 35)], // pulley row
+      [s(10, 20), s(8, 20), s(10, 15)], // reverse peck deck
+      [s(8, 35), s(10, 30), s(10, 30)], // chest supp row "con 2 da 17.5 / 15"
+      [s(8, 35), s(10, 30), s(8, 30)], // lat pulldown
+      [approx(10, 10), approx(10, 10), approx(10, 10)], // preacher "con 2 da 5 + asta"
+      [s(8, 35), s(10, 30), s(8, 30)], // cable biceps curl
+    ];
+    expect(pull1.reduce((sum, sets) => sum + tonnage(sets), 0)).toBe(4080);
+  });
+
   it("leaves out warm-ups and sets without a load", () => {
     expect(tonnage([s(5, 30, true), s(10, 60), s(10, null)])).toBe(600);
   });

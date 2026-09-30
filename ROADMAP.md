@@ -104,7 +104,7 @@
 - **Goal:** log and plan training sessions from real data (PUSH/PULL logs, FitForge), see progression (tonnage, estimated 1RM, records), burn as an estimated range.
 - [x] ADR-0005 accepted (delegated: typed sets, exercises as identities, planned/done sessions + routines, MET range + body measurements); migration 0008
 - [x] Core: validation per kind, repositories (exercises + merge, sessions, routines, measurements), analysis (tonnage matching the hand-made PUSH 1 = 4 722 kg, e1RM, records), burn range (ACSM + Compendium)
-- [ ] Importers: FitForge sessions/presets/body metrics; PUSH/PULL text logs (dry run)
+- [x] Importers: FitForge sessions/presets/body metrics; PUSH/PULL text logs (`npm run import:training`, dry run, idempotent, aliases, day overrides); the parser reproduces every hand-made tonnage in the diet plan
 - [ ] UI: sessions on the day page, session editor, routines, progression charts
 
 ## Done
