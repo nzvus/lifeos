@@ -12,6 +12,9 @@ const config: NextConfig = {
   // optional native bindings; telling Next not to bundle it avoids build noise
   // and keeps it as a plain `require` at runtime on Vercel's Node functions.
   serverExternalPackages: ["pg"],
+  // `next dev` would otherwise append its own agent block to CLAUDE.md on
+  // every start; our agent instructions are hand-written and reviewed.
+  agentRules: false,
 };
 
 export default config;
