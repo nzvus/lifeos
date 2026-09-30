@@ -9,16 +9,21 @@
  *   [{"ingredientId":"…","quantity":"60"}, …]
  * The server action parses it (app/_server/forms.ts parseJsonField) and core
  * validates every line; errors come back keyed "items.2.quantity".
+ * Under the lines, a live preview of one serving (ui/MacroPreview).
  */
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
+import { stripValues } from "@/core/nutrition/display";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
+import { scaleMacros, sumMacros, type MacroValues } from "@/core/nutrition/preview";
+import type { Locale } from "@/core/shared/locales";
 import { pickerSearch } from "@/core/shared/search";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
-import { fill, type Messages } from "@/i18n";
+import { fill, macroLabels, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
+import { MacroPreview } from "@/ui/MacroPreview";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { Section } from "@/ui/Section";
 import { SubmitButton } from "@/ui/SubmitButton";
@@ -35,6 +40,8 @@ type IngredientOption = {
   lastUsed: string | null;
   /** Searched too, like the name. */
   notes: string;
+  /** Exact per-100 values, for the live serving preview. */
+  values: MacroValues;
 };
 
 type Props = {
@@ -46,7 +53,11 @@ type Props = {
     items: { ingredientId: string; quantity: string }[];
   };
   submitLabel: string;
-  t: Pick<Messages, "meals" | "errors" | "search" | "macro" | "ingredients">;
+  locale: Locale;
+  t: Pick<
+    Messages,
+    "meals" | "errors" | "search" | "macro" | "ingredients" | "nutrients"
+  >;
 };
 
 // A counter for React `key`s: each line needs a stable identity so that
@@ -55,7 +66,14 @@ let nextKey = 0;
 const withKeys = (items: { ingredientId: string; quantity: string }[]): Line[] =>
   items.map((i) => ({ ...i, key: nextKey++ }));
 
-export function MealForm({ action, ingredients, initial, submitLabel, t }: Props) {
+export function MealForm({
+  action,
+  ingredients,
+  initial,
+  submitLabel,
+  locale,
+  t,
+}: Props) {
   const [state, formAction] = useActionState(action, IDLE);
   const [lines, setLines] = useState<Line[]>(() =>
     withKeys(initial.items.length ? initial.items : [{ ingredientId: "", quantity: "" }]),
@@ -74,6 +92,19 @@ export function MealForm({ action, ingredients, initial, submitLabel, t }: Props
       ),
     [ingredients, t],
   );
+
+  // One serving as it is being composed: the lines that already have an
+  // ingredient and a valid quantity, summed (core/nutrition/preview.ts).
+  const serving = useMemo(() => {
+    const byId = new Map(ingredients.map((i) => [i.id, i]));
+    const parts = lines
+      .map((l) => {
+        const ing = byId.get(l.ingredientId);
+        return ing ? scaleMacros(ing.values, l.quantity, "100") : null;
+      })
+      .filter((p) => p !== null);
+    return parts.length === 0 ? null : sumMacros(parts);
+  }, [lines, ingredients]);
 
   const update = (key: number, patch: Partial<Line>) =>
     setLines((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)));
@@ -142,6 +173,13 @@ export function MealForm({ action, ingredients, initial, submitLabel, t }: Props
           {t.meals.addLine}
         </button>
       </Section>
+
+      <MacroPreview
+        title={t.meals.previewTitle}
+        values={serving && stripValues(serving, locale)}
+        empty={t.meals.previewEmpty}
+        labels={macroLabels(t)}
+      />
 
       {/* What the server actually reads: all lines, in order, as JSON. */}
       <input

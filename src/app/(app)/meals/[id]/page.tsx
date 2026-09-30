@@ -44,8 +44,10 @@ export default async function EditMealPage({ params }: Props) {
           })),
         }}
         submitLabel={t.meals.save}
+        locale={settings.locale}
         t={{
           meals: t.meals,
+          nutrients: t.nutrients,
           errors: t.errors,
           search: t.search,
           macro: t.macro,

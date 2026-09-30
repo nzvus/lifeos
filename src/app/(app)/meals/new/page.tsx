@@ -32,8 +32,10 @@ export default async function NewMealPage() {
           ingredients={ingredients}
           initial={{ name: "", notes: "", items: [] }}
           submitLabel={t.meals.create}
+          locale={settings.locale}
           t={{
             meals: t.meals,
+            nutrients: t.nutrients,
             errors: t.errors,
             search: t.search,
             macro: t.macro,

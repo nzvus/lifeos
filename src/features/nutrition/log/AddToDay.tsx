@@ -36,7 +36,7 @@ import { pickerSearch, type Pickable as SearchItem } from "@/core/shared/search"
 import { fill, macroLabels, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
-import { MacroStrip } from "@/ui/MacroStrip";
+import { MacroPreview } from "@/ui/MacroPreview";
 import { Section } from "@/ui/Section";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { SubmitButton } from "@/ui/SubmitButton";
@@ -349,7 +349,7 @@ function EstimateForm({ day, locale, t, state, action }: EstimateProps) {
   );
 }
 
-/** What the entry would add: kcal, macros, energy split (ui/MacroStrip). */
+/** What the entry would add (ui/MacroPreview). */
 function Preview({
   values,
   locale,
@@ -360,14 +360,12 @@ function Preview({
   t: T;
 }) {
   return (
-    <div className="flex flex-col gap-1 rounded-control border border-hairline bg-sheet p-3">
-      <p className="text-meta font-semibold text-muted">{t.day.preview}</p>
-      {values === null ? (
-        <p className="text-meta text-muted">{t.day.previewEmpty}</p>
-      ) : (
-        <MacroStrip values={stripValues(values, locale)} labels={macroLabels(t)} />
-      )}
-    </div>
+    <MacroPreview
+      title={t.day.preview}
+      values={values && stripValues(values, locale)}
+      empty={t.day.previewEmpty}
+      labels={macroLabels(t)}
+    />
   );
 }
 

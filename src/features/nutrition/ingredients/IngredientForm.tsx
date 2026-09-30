@@ -12,36 +12,75 @@
  *      error codes, which `fieldError` translates with `t.errors`.
  * This component never talks to the database and holds no business rules.
  *
- * "use client": it needs browser state (the unit selector changes labels).
+ * "use client": it needs browser state (the unit selector changes labels,
+ * and a live preview shows the label as typed and, when editing, how every
+ * meal using it would change — MealImpact).
  */
 "use client";
 
 import { useActionState, useState } from "react";
+import { stripValues } from "@/core/nutrition/display";
 import { NUTRIENT_KEYS } from "@/core/nutrition/nutrients";
+import {
+  estimateValues,
+  PREVIEW_KEYS,
+  type MealUse,
+  type PreviewKey,
+} from "@/core/nutrition/preview";
+import type { Locale } from "@/core/shared/locales";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
-import { fill, type Messages } from "@/i18n";
+import { fill, macroLabels, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
+import { MacroPreview } from "@/ui/MacroPreview";
 import { SelectField } from "@/ui/SelectField";
 import { Section } from "@/ui/Section";
 import { SubmitButton } from "@/ui/SubmitButton";
+import { MealImpact } from "./MealImpact";
 
 type Props = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   /** Field values to start from: empty for "new", the stored row for "edit". */
   initial: Record<string, string>;
   submitLabel: string;
-  t: Pick<Messages, "ingredients" | "nutrients" | "errors">;
+  locale: Locale;
+  /** Meals using this ingredient (edit page), for the live effect preview. */
+  usedIn?: readonly MealUse[];
+  t: Pick<Messages, "ingredients" | "nutrients" | "errors" | "macro">;
 };
 
-export function IngredientForm({ action, initial, submitLabel, t }: Props) {
+/** The five previewed values as typed in the form (strings, maybe invalid). */
+const typedValues = (read: (k: PreviewKey) => string) =>
+  Object.fromEntries(PREVIEW_KEYS.map((k) => [k, read(k)])) as Record<PreviewKey, string>;
+
+export function IngredientForm({
+  action,
+  initial,
+  submitLabel,
+  locale,
+  usedIn = [],
+  t,
+}: Props) {
   const [state, formAction] = useActionState(action, IDLE);
   const [unit, setUnit] = useState(initial.unit || "g");
   const err = (field: string) => fieldError(state, field, t.errors);
   const val = (field: string) => valueOf(state, field, initial[field] ?? "");
+  // Live preview (core/nutrition/preview.ts): the label as typed, and the
+  // label as saved, to show how each meal using it would change.
+  const [typed, setTyped] = useState(() => typedValues((k) => val(k)));
+  const saved = estimateValues(typedValues((k) => initial[k] ?? ""));
+  const current = estimateValues(typed);
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form
+      action={formAction}
+      // Change events bubble: one handler reads the five values after any edit.
+      onChange={(e) => {
+        const data = new FormData(e.currentTarget);
+        setTyped(typedValues((k) => String(data.get(k) ?? "")));
+      }}
+      className="flex flex-col gap-6"
+    >
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
 
       <Field
@@ -85,6 +124,22 @@ export function IngredientForm({ action, initial, submitLabel, t }: Props) {
           ))}
         </div>
       </Section>
+
+      <MacroPreview
+        title={fill(t.ingredients.previewTitle, { unit })}
+        values={current && stripValues(current, locale, 1)}
+        empty={t.ingredients.previewEmpty}
+        labels={macroLabels(t)}
+      >
+        <MealImpact
+          usedIn={usedIn}
+          before={saved}
+          after={current}
+          unit={unit}
+          locale={locale}
+          t={t}
+        />
+      </MacroPreview>
 
       <fieldset className="rule-t-medium border-ink pt-3">
         <p className="pb-2 text-meta text-muted">{t.ingredients.priceHint}</p>

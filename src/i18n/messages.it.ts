@@ -118,6 +118,11 @@ export const it: Messages = {
     setTargets: "Imposta gli obiettivi giornalieri in Obiettivi.",
   },
   ingredients: {
+    previewTitle: "Anteprima per 100 {unit}",
+    previewEmpty: "Inserisci almeno le kcal per vedere l'anteprima.",
+    impactTitle: "Effetto sui {n} pasti che lo usano (per porzione)",
+    impactQuantity: "{q} {unit} a porzione",
+    impactNone: "invariato",
     title: "Ingredienti",
     newTitle: "Nuovo ingrediente",
     editTitle: "Modifica ingrediente",
@@ -139,6 +144,9 @@ export const it: Messages = {
     back: "Torna agli ingredienti",
   },
   meals: {
+    previewTitle: "Una porzione, mentre la componi",
+    previewEmpty:
+      "Scegli un ingrediente e la quantità: qui vedi kcal e macro di una porzione.",
     title: "Pasti",
     newTitle: "Nuovo pasto",
     editTitle: "Modifica pasto",

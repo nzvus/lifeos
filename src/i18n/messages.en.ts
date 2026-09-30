@@ -122,6 +122,11 @@ export const en = {
     setTargets: "Set daily targets in Targets.",
   },
   ingredients: {
+    previewTitle: "Preview per 100 {unit}",
+    previewEmpty: "Enter at least the kcal to see the preview.",
+    impactTitle: "Effect on the {n} meals using it (per serving)",
+    impactQuantity: "{q} {unit} per serving",
+    impactNone: "unchanged",
     title: "Ingredients",
     newTitle: "New ingredient",
     editTitle: "Edit ingredient",
@@ -143,6 +148,9 @@ export const en = {
     back: "Back to ingredients",
   },
   meals: {
+    previewTitle: "One serving, as you build it",
+    previewEmpty:
+      "Choose an ingredient and a quantity: kcal and macros of one serving show here.",
     title: "Meals",
     newTitle: "New meal",
     editTitle: "Edit meal",
