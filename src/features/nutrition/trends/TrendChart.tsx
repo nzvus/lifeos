@@ -5,10 +5,8 @@
  *
  * Each bar: the day's eaten total, coloured like the day panel (ui/
  * targetTone: graded by the target's kind and distance); a short line marks
- * the target; every bar links to its day. Up to a week the chart fits the
- * width; longer ranges keep a readable bar width and scroll sideways,
- * starting at the most recent day (dir="rtl" on the scroller, no script).
- * Totals and targets come from core (getHistory), already rounded; heights
+ * the target; every bar links to its day. Caption, axis and scrolling:
+ * ui/ChartFrame.tsx. Totals and targets come from core (getHistory), already rounded; heights
  * are only proportions.
  */
 import Link from "next/link";
@@ -18,6 +16,7 @@ import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { NutrientIcon, NUTRIENT_VAR } from "@/ui/NutrientIcon";
 import { targetTone } from "@/ui/targetTone";
+import { ChartFrame, dayAxis, FIT } from "@/ui/ChartFrame";
 
 export type TrendDay = {
   day: string;
@@ -37,10 +36,8 @@ type Props = {
   label: string;
 };
 
-const INTL: Record<Locale, string> = { it: "it-IT", en: "en-GB" };
 const H = 110;
 const BAR_AREA = 86; // the rest is labels
-const FIT = 7; // up to this many days, fit the width; beyond, scroll
 
 export function TrendChart({
   nutrient,
@@ -58,19 +55,10 @@ export function TrendChart({
   const slot = scroll ? 14 : 40;
   const W = slot * days.length;
   const barW = slot * (scroll ? 0.7 : 0.6);
-  const date = (d: string) => new Date(`${d}T12:00:00Z`);
-  const fmt = (o: Intl.DateTimeFormatOptions) =>
-    new Intl.DateTimeFormat(INTL[locale], { ...o, timeZone: "UTC" });
-  const weekday = fmt({ weekday: "narrow" });
-  const month = fmt({ month: "short" });
-  /** Axis label: weekdays for a week; for longer ranges, a few dates. */
-  const axis = (d: string): string | null => {
-    if (!scroll) return weekday.format(date(d));
-    const dom = date(d).getUTCDate();
-    if (dom === 1) return month.format(date(d));
-    if (days.length <= 31 ? dom % 5 === 0 : dom === 15) return String(dom);
-    return null;
-  };
+  const axis = dayAxis(
+    days.map((d) => d.day),
+    locale,
+  );
 
   const svg = (
     <svg
@@ -141,27 +129,13 @@ export function TrendChart({
   );
 
   return (
-    <figure className="flex flex-col gap-1">
-      <figcaption className="flex items-baseline justify-between gap-2 text-meta">
-        <span className="flex items-center gap-1.5 font-semibold">
-          <NutrientIcon name={nutrient} />
-          {title}
-        </span>
-        {summary && (
-          <span className="font-display text-muted tabular-nums">{summary}</span>
-        )}
-      </figcaption>
-      {scroll ? (
-        // rtl: the scroller starts at its right end (the latest day); the
-        // chart inside is laid out left to right as usual.
-        <div dir="rtl" className="overflow-x-auto">
-          <div dir="ltr" className="w-max">
-            {svg}
-          </div>
-        </div>
-      ) : (
-        svg
-      )}
-    </figure>
+    <ChartFrame
+      title={title}
+      icon={<NutrientIcon name={nutrient} />}
+      summary={summary}
+      scroll={scroll}
+    >
+      {svg}
+    </ChartFrame>
   );
 }

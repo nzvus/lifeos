@@ -265,6 +265,14 @@ export const it: Messages = {
     sortValue: "{what}: {v}",
   },
   training: {
+    chart: {
+      title: "Allenamento",
+      label: "tonnellaggio per giorno, tocca un giorno per aprirlo",
+      sessions: "{n} sessioni",
+      tonnage: "{v} kg sollevati",
+      burn: "~{low}–{high} kcal",
+      rest: "riposo",
+    },
     title: "Allenamento",
     new: "Nuova sessione",
     startFrom: "Inizia da una scheda",
@@ -562,6 +570,11 @@ export const it: Messages = {
     targetLine: "obiettivo",
     chartLabel: "un giorno per barra, tocca per aprirlo",
     dayTypes: "Tipi di giornata",
+    macrosTitle: "Macro rispetto al target",
+    limitsTitle: "Limiti",
+    averageOf: "{v} %",
+    relativeNote:
+      "Barre più chiare: nessun target quel giorno, scala sul giorno più alto del periodo.",
   },
   panel: {
     left: "rimaste",

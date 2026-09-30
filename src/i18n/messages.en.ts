@@ -267,6 +267,14 @@ export const en = {
     sortValue: "{what}: {v}",
   },
   training: {
+    chart: {
+      title: "Training",
+      label: "tonnage per day, tap a day to open it",
+      sessions: "{n} sessions",
+      tonnage: "{v} kg lifted",
+      burn: "~{low}–{high} kcal",
+      rest: "rest",
+    },
     title: "Training",
     new: "New session",
     startFrom: "Start from a routine",
@@ -562,6 +570,10 @@ export const en = {
     targetLine: "target",
     chartLabel: "one day per bar, tap to open it",
     dayTypes: "Day types",
+    macrosTitle: "Macros vs target",
+    limitsTitle: "Limits",
+    averageOf: "{v} %",
+    relativeNote: "Fainter bars: no target that day, scaled to the period's highest.",
   },
   panel: {
     left: "left",
