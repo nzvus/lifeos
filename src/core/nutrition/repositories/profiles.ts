@@ -71,7 +71,11 @@ export async function getProfile(
   return row ?? null;
 }
 
-async function getDefaultProfile(db: Db, owner: Owner): Promise<DayProfile | null> {
+/** The default profile, or null if there is none. */
+export async function getDefaultProfile(
+  db: Db,
+  owner: Owner,
+): Promise<DayProfile | null> {
   const [row] = await db
     .select()
     .from(dayProfiles)

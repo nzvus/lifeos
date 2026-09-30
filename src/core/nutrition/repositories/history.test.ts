@@ -64,4 +64,42 @@ describe("getHistory", () => {
     const theirs = await getHistory(db, other, "2026-09-28", "2026-09-30");
     expect(theirs.every((d) => !d.logged && d.targets === null)).toBe(true);
   });
+
+  it("gives the day type, when each eaten entry was eaten, and unconfirmed plans", async () => {
+    const gym = await createProfile(db, me, {
+      name: "Palestra",
+      kcal: "2600",
+      protein: null,
+      carbs: null,
+      sugars: null,
+      fat: null,
+      saturatedFat: null,
+      fiber: null,
+      salt: null,
+    });
+    if (!gym.ok) throw new Error("setup failed");
+    const oats = await createIngredient(db, me, ingredientFixture());
+    if (!oats.ok) throw new Error("setup failed");
+    const at = new Date("2026-09-28T06:30:00Z");
+    await logIngredient(db, me, {
+      day: "2026-09-28",
+      ingredientId: oats.value.id,
+      quantity: "100",
+      status: "eaten",
+      at,
+    });
+    await logIngredient(db, me, {
+      day: "2026-09-28",
+      ingredientId: oats.value.id,
+      quantity: "50",
+      status: "planned",
+      at: null,
+    });
+
+    const [d] = await getHistory(db, me, "2026-09-28", "2026-09-28");
+    expect(d!.dayType).toBe("Palestra"); // the default profile
+    expect(d!.eaten).toEqual([{ at: at.toISOString(), kcal: "372" }]);
+    expect(d!.plannedLeft).toBe(1);
+    expect(d!.totals.nutrients.kcal).toBe("372.0"); // plans are not eaten
+  });
 });
