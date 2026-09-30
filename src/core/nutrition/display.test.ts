@@ -1,6 +1,6 @@
 /** Tests for core/nutrition/display.ts — the shared display values. */
 import { describe, expect, it } from "vitest";
-import { detailLines, stripValues } from "./display";
+import { detailLines, macroBars, stripValues } from "./display";
 import type { TotalsLine } from "./totals";
 
 const zero = { sugars: "0", saturatedFat: "0", salt: "0" };
@@ -48,5 +48,37 @@ describe("detailLines", () => {
     const [d] = detailLines([line], "2", "it");
     expect(d?.amount).toBe("100 g");
     expect(d?.values.energy).toBe("42 kcal");
+  });
+});
+
+describe("macroBars", () => {
+  const peanut = {
+    protein: "25.8",
+    carbs: "14",
+    sugars: "6",
+    fat: "49",
+    saturatedFat: "10",
+    fiber: "8.2",
+  };
+
+  it("scales per 100 g, with sugars and saturated fat as parts", () => {
+    const rows = macroBars(peanut, "it");
+    // Bar lengths are floats (drawing only): compare to 3 decimals.
+    const round = (x: number) => Math.round(x * 1000) / 1000;
+    expect(rows.map((r) => [r.key, r.grams, round(r.share)])).toEqual([
+      ["protein", "25,8", 0.258],
+      ["carbs", "14,0", 0.14],
+      ["fat", "49,0", 0.49],
+      ["fiber", "8,2", 0.082],
+    ]);
+    expect(rows[1]!.part).toEqual({ key: "sugars", grams: "6,0", share: 0.06 });
+    expect(rows[2]!.part?.share).toBe(0.1);
+  });
+
+  it("scales to the largest macro when a serving has more than 100 g", () => {
+    const rows = macroBars({ ...peanut, carbs: "150", sugars: "200" }, "it");
+    expect(rows[1]!.share).toBe(1);
+    expect(rows[1]!.part?.share).toBe(1); // a part never exceeds its macro
+    expect(rows[0]!.share).toBeCloseTo(25.8 / 150);
   });
 });

@@ -32,6 +32,7 @@ export default async function MealsPage() {
           nutrients: t.nutrients,
           search: t.search,
           macro: t.macro,
+          macroShort: t.macroShort,
           label: t.label,
         }}
       />

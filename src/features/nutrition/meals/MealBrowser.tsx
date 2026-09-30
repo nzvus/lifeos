@@ -10,10 +10,12 @@
  */
 "use client";
 
+import { Tag } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { proteinPer100kcal } from "@/core/nutrition/insights";
-import { detailLines, stripValues } from "@/core/nutrition/display";
+import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
+import { detailLines, macroBars } from "@/core/nutrition/display";
 import type { MealWithLines } from "@/core/nutrition/repositories/meals";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
@@ -21,8 +23,9 @@ import type { Locale } from "@/core/shared/locales";
 import { browse } from "@/core/shared/browse";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import { FoodDetails } from "@/ui/FoodDetails";
+import { FoodCardMeta } from "@/ui/FoodCardMeta";
 import { ListItem } from "@/ui/ListItem";
-import { MacroStrip } from "@/ui/MacroStrip";
+import { MacroBars } from "@/ui/MacroBars";
 import { ListToolbar } from "@/ui/ListToolbar";
 import type { SortDirection } from "@/ui/SortControl";
 
@@ -41,7 +44,7 @@ type Props = {
   meals: MealWithLines[];
   usage: UsageMap;
   locale: Locale;
-  t: Pick<Messages, "meals" | "nutrients" | "search" | "macro" | "label">;
+  t: Pick<Messages, "meals" | "nutrients" | "search" | "macro" | "label" | "macroShort">;
 };
 
 export function MealBrowser({ meals, usage, locale, t }: Props) {
@@ -85,7 +88,6 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
     [rows, query, sort, direction, locale],
   );
 
-  const n = (v: string) => formatNumber(v, locale, 1);
   const labels = macroLabels(t);
 
   if (meals.length === 0) return <p className="text-muted">{t.meals.empty}</p>;
@@ -135,23 +137,29 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
                 </Link>
               }
               aside={
-                m.totals.costComplete
-                  ? formatCents(m.totals.costCents, locale)
-                  : fill(t.label.costPartialShort, {
-                      v: formatCents(m.totals.costCents, locale),
-                    })
+                <span className="inline-flex items-center gap-1">
+                  <Tag size={14} aria-hidden="true" />
+                  {m.totals.costComplete
+                    ? formatCents(m.totals.costCents, locale)
+                    : fill(t.label.costPartialShort, {
+                        v: formatCents(m.totals.costCents, locale),
+                      })}
+                </span>
               }
-              footer={[
-                t.meals.perServing,
-                m.density && `${n(m.density)} ${t.macro.density}`,
-                m.uses > 0 && fill(t.search.uses, { n: String(m.uses) }),
-              ]
-                .filter(Boolean)
-                .join(" · ")}
             >
-              <MacroStrip
-                values={stripValues(m.totals.nutrients, locale, 1)}
-                labels={labels}
+              <FoodCardMeta
+                energy={`${formatNumber(m.totals.nutrients.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}
+                basis={t.meals.perServing}
+                uses={
+                  m.uses > 0
+                    ? fill(t.search.uses, { n: String(m.uses) })
+                    : t.search.neverUsed
+                }
+              />
+              <MacroBars
+                rows={macroBars(m.totals.nutrients, locale)}
+                labels={t.macroShort}
+                unit="g"
               />
               {/* The same details as a logged entry: one serving's lines. */}
               <FoodDetails

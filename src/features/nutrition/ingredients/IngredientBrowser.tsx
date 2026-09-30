@@ -14,17 +14,20 @@
  */
 "use client";
 
+import { Tag } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { pricePerThousandCents, proteinPer100kcal } from "@/core/nutrition/insights";
-import { stripValues } from "@/core/nutrition/display";
+import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
+import { macroBars } from "@/core/nutrition/display";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { browse } from "@/core/shared/browse";
-import { fill, macroLabels, type Messages } from "@/i18n";
+import { fill, type Messages } from "@/i18n";
+import { FoodCardMeta } from "@/ui/FoodCardMeta";
 import { ListItem } from "@/ui/ListItem";
-import { MacroStrip } from "@/ui/MacroStrip";
+import { MacroBars } from "@/ui/MacroBars";
 import { ListToolbar } from "@/ui/ListToolbar";
 import type { SortDirection } from "@/ui/SortControl";
 
@@ -61,7 +64,7 @@ type Props = {
   ingredients: IngredientRow[];
   usage: UsageMap;
   locale: Locale;
-  t: Pick<Messages, "ingredients" | "nutrients" | "search" | "macro">;
+  t: Pick<Messages, "ingredients" | "nutrients" | "search" | "macro" | "macroShort">;
 };
 
 export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
@@ -105,8 +108,6 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
       }),
     [rows, query, sort, direction, locale],
   );
-
-  const n = (v: string) => formatNumber(v, locale, 1);
 
   return (
     <div className="flex flex-col gap-4">
@@ -155,19 +156,24 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
               </Link>
             }
             aside={
-              r.perKg === null
-                ? undefined
-                : `${formatCents(r.perKg, locale)} ${t.macro.perKg}`
+              r.perKg === null ? undefined : (
+                <span className="inline-flex items-center gap-1">
+                  <Tag size={14} aria-hidden="true" />
+                  {`${formatCents(r.perKg, locale)} ${t.macro.perKg}`}
+                </span>
+              )
             }
-            footer={[
-              fill(t.ingredients.per100Short, { unit: r.unit }),
-              r.density && `${n(r.density)} ${t.macro.density}`,
-              r.uses > 0 && fill(t.search.uses, { n: String(r.uses) }),
-            ]
-              .filter(Boolean)
-              .join(" · ")}
           >
-            <MacroStrip values={stripValues(r, locale, 1)} labels={macroLabels(t)} />
+            <FoodCardMeta
+              energy={`${formatNumber(r.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}
+              basis={fill(t.ingredients.per100Short, { unit: r.unit })}
+              uses={
+                r.uses > 0
+                  ? fill(t.search.uses, { n: String(r.uses) })
+                  : t.search.neverUsed
+              }
+            />
+            <MacroBars rows={macroBars(r, locale)} labels={t.macroShort} unit="g" />
           </ListItem>
         ))}
       </ul>

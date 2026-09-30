@@ -235,6 +235,7 @@ export const it: Messages = {
     noResults: "Nessun risultato per «{q}».",
     noMatches: "Nessun risultato",
     uses: "{n}× in 60 giorni",
+    neverUsed: "mai usato",
     sorts: {
       used: "Utilizzo",
       name: "Nome",
@@ -245,6 +246,14 @@ export const it: Messages = {
       fiber: "Fibre",
       cost: "Costo a porzione",
     },
+  },
+  macroShort: {
+    protein: "Proteine",
+    carbs: "Carbo",
+    fat: "Grassi",
+    fiber: "Fibre",
+    sugars: "zucch.",
+    saturatedFat: "saturi",
   },
   macro: {
     protein: "P",

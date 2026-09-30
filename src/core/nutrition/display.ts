@@ -64,3 +64,59 @@ export function detailLines(
     values: stripValues(toDisplay(sumLines([l], factor)).nutrients, locale),
   }));
 }
+
+/** One row of ui/MacroBars: grams, bar length, and the "of which" part. */
+export type MacroBarRow = {
+  key: "protein" | "carbs" | "fat" | "fiber";
+  grams: string;
+  /** Bar length, 0–1 of the card's scale. */
+  share: number;
+  /** Sugars inside carbs, saturated fat inside fat: grams and bar length. */
+  part?: { key: "sugars" | "saturatedFat"; grams: string; share: number };
+};
+
+/**
+ * The four macro rows of a food card. Bars share one scale per card:
+ * 100 g, or the largest macro when a serving has more — so a per-100 g
+ * ingredient reads as "percent of its weight" and cards compare at a glance.
+ */
+export function macroBars(
+  n: {
+    protein: string;
+    carbs: string;
+    sugars: string;
+    fat: string;
+    saturatedFat: string;
+    fiber: string;
+  },
+  locale: Locale,
+): MacroBarRow[] {
+  const g = (v: string) => Math.max(0, Number(v));
+  const scale = Math.max(100, g(n.protein), g(n.carbs), g(n.fat), g(n.fiber));
+  const f = (v: string) => formatNumber(v, locale, 1);
+  const share = (v: string) => Math.min(1, g(v) / scale);
+  return [
+    { key: "protein", grams: f(n.protein), share: share(n.protein) },
+    {
+      key: "carbs",
+      grams: f(n.carbs),
+      share: share(n.carbs),
+      part: {
+        key: "sugars",
+        grams: f(n.sugars),
+        share: Math.min(share(n.sugars), share(n.carbs)),
+      },
+    },
+    {
+      key: "fat",
+      grams: f(n.fat),
+      share: share(n.fat),
+      part: {
+        key: "saturatedFat",
+        grams: f(n.saturatedFat),
+        share: Math.min(share(n.saturatedFat), share(n.fat)),
+      },
+    },
+    { key: "fiber", grams: f(n.fiber), share: share(n.fiber) },
+  ];
+}
