@@ -48,6 +48,7 @@ export default async function IngredientsPage() {
           nutrients: t.nutrients,
           search: t.search,
           macro: t.macro,
+          macroShort: t.macroShort,
         }}
       />
     </>

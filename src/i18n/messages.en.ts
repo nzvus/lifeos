@@ -237,6 +237,7 @@ export const en = {
     noResults: "Nothing matches “{q}”.",
     noMatches: "No matches",
     uses: "{n}× in 60 days",
+    neverUsed: "never used",
     sorts: {
       used: "Use",
       name: "Name",
@@ -247,6 +248,14 @@ export const en = {
       fiber: "Fibre",
       cost: "Cost per serving",
     },
+  },
+  macroShort: {
+    protein: "Protein",
+    carbs: "Carbs",
+    fat: "Fat",
+    fiber: "Fibre",
+    sugars: "sugars",
+    saturatedFat: "sat.",
   },
   macro: {
     protein: "P",
