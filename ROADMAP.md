@@ -74,7 +74,7 @@
 - [x] Planned / eaten checkbox with time (tick = now, editable; user's time zone), estimated meals, planned drawn translucent in rings and bars; "repeat yesterday" makes plans (ADR-0009, migration 0003)
 - [x] ADR-0012 accepted (tags C + ratings A): typed NOVA/origin/fibre types (snapshotted) + free tags; meal ratings per factor; migration 0007
 - [x] Tags and ratings in the app: ingredient editor + badges, meal quality summary (NOVA energy, protein origin, fibre types, tags), rating factors + stars + notes; export v5
-- [ ] Fibre-type bars and the day quality score (visible breakdown)
+- [x] Day quality score 0–100 with its breakdown (targets 40, processing 35, fibre variety 25; missing parts re-weighted) and fibre eaten by type
 
 ## Next sprint: S05 — Themes and design pass (started 2026-09-30)
 - **Goal:** user-selectable themes that may replace components (ADR-0010), light/dark/system and auto/desktop/phone per device, then a design pass on the default `label` theme.

@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { NUTRIENT_KEYS, type NutrientValues } from "./nutrients";
 import { NO_QUALITY } from "./quality";
-import { mealTags, qualitySummary } from "./quality-summary";
+import { eatenQuality, mealTags, qualitySummary } from "./quality-summary";
 
 const per100 = (v: Partial<NutrientValues>): NutrientValues =>
   ({ ...Object.fromEntries(NUTRIENT_KEYS.map((k) => [k, "0"])), ...v }) as NutrientValues;
@@ -64,5 +64,16 @@ describe("mealTags", () => {
       ["b", [{ name: "Lidl", icon: "store" }]],
     ]);
     expect(mealTags(["a", "b", "c"], map).map((t) => t.name)).toEqual(["Bio", "Lidl"]);
+  });
+});
+
+describe("eatenQuality", () => {
+  it("counts eaten entries only, servings applied", () => {
+    const s = eatenQuality([
+      { status: "eaten", servings: "2", lines: [oats] },
+      { status: "planned", servings: "1", lines: [biscuits] },
+    ]);
+    expect(s.nova.unknown).toBe(0);
+    expect(s.fiber.beta_glucan).toBe("5"); // 50 g × 2 servings × 10 % / 2 types
   });
 });

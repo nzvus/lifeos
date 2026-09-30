@@ -91,3 +91,23 @@ export function mealTags<T extends { name: string }>(
     for (const tag of tagsByIngredient.get(id) ?? []) byName.set(tag.name, tag);
   return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
+
+/** The summary of what was EATEN on a day (ADR-0009): lines × servings. */
+export function eatenQuality(
+  entries: readonly {
+    status: "planned" | "eaten";
+    servings: string;
+    lines: readonly QualityLine[];
+  }[],
+): QualitySummary {
+  return qualitySummary(
+    entries
+      .filter((e) => e.status === "eaten")
+      .flatMap((e) =>
+        e.lines.map((l) => ({
+          ...l,
+          quantity: new Big(l.quantity).times(e.servings).toString(),
+        })),
+      ),
+  );
+}
