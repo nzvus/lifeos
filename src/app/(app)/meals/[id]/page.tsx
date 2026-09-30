@@ -10,6 +10,7 @@ import { MealForm } from "@/features/nutrition/meals/MealForm";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
 import { deleteMealAction, updateMealAction } from "../actions";
 import { mealEditorIngredients } from "../ingredient-options";
+import { listFactors, ratingsByMeal } from "@/core/nutrition/repositories/ratings";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -18,9 +19,11 @@ export default async function EditMealPage({ params }: Props) {
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
   const db = getDb();
-  const [meal, ingredients] = await Promise.all([
+  const [meal, ingredients, factors, ratings] = await Promise.all([
     getMeal(db, owner, id),
     mealEditorIngredients(owner, settings),
+    listFactors(db, owner),
+    ratingsByMeal(db, owner),
   ]);
   if (!meal) notFound();
 
@@ -38,6 +41,8 @@ export default async function EditMealPage({ params }: Props) {
           name: meal.name,
           notes: meal.notes,
           category: meal.category ?? "",
+          review: meal.review,
+          ratings: ratings.get(id) ?? {},
           // "60.00" from the database is shown as "60" in the field.
           items: meal.lines.map((l) => ({
             ingredientId: l.ingredientId,
@@ -46,9 +51,11 @@ export default async function EditMealPage({ params }: Props) {
         }}
         submitLabel={t.meals.save}
         locale={settings.locale}
+        factors={factors}
         t={{
           meals: t.meals,
           moments: t.moments,
+          ratings: t.ratings,
           nutrients: t.nutrients,
           errors: t.errors,
           search: t.search,

@@ -263,6 +263,28 @@ export const it: Messages = {
     },
     sortValue: "{what}: {v}",
   },
+  ratings: {
+    title: "Valutazione",
+    factorsTitle: "Fattori di valutazione dei pasti",
+    factorsHint:
+      "Su cosa valuti i pasti, da 1 a 5 stelle (es. gusto, sazietà, praticità).",
+    factorName: "Nuovo fattore",
+    addFactor: "Aggiungi fattore",
+    deleteFactor: "Elimina",
+    noFactors: "Nessun fattore: aggiungili in Impostazioni per valutare i pasti.",
+    review: "Note",
+    score: "{n} su 5",
+    none: "nessun voto",
+    average: "{v}/5",
+    averageLabel: "Valutazione media {v} su 5",
+  },
+  mealQuality: {
+    nova: "Energia per trasformazione: {parts}",
+    novaPart: "NOVA {n} {v}%",
+    unknown: "non classificato {v}%",
+    origin: "Proteine: {parts}",
+    originPart: "{name} {v}%",
+  },
   quality: {
     title: "Qualità e tag",
     nova: "Trasformazione (NOVA)",

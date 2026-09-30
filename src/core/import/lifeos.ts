@@ -96,6 +96,11 @@ const exportFile = z.object({
       notes: z.string(),
       // Version 4 (ADR-0011); older files have no category.
       category: z.enum(MOMENTS).nullable().default(null),
+      // Version 5 (ADR-0012): notes and scores; older files have none.
+      review: z.string().default(""),
+      ratings: z
+        .array(z.object({ factorId: z.string(), score: z.number().int().min(1).max(5) }))
+        .default([]),
       items: z.array(
         z.object({
           ingredientId: z.string(),
@@ -105,6 +110,11 @@ const exportFile = z.object({
       ),
     }),
   ),
+  ratingFactors: z
+    .array(
+      z.object({ id: z.string(), name: z.string().min(1), position: z.number().int() }),
+    )
+    .default([]),
   dayProfiles: z
     .array(
       z.object({

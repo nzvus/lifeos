@@ -8,10 +8,15 @@ import { PageHeader } from "@/ui/PageHeader";
 import { MealForm } from "@/features/nutrition/meals/MealForm";
 import { createMealAction } from "../actions";
 import { mealEditorIngredients } from "../ingredient-options";
+import { getDb } from "@/app/_server/runtime";
+import { listFactors } from "@/core/nutrition/repositories/ratings";
 
 export default async function NewMealPage() {
   const { owner, settings, t } = await requireContext();
-  const ingredients = await mealEditorIngredients(owner, settings);
+  const [ingredients, factors] = await Promise.all([
+    mealEditorIngredients(owner, settings),
+    listFactors(getDb(), owner),
+  ]);
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
@@ -30,12 +35,21 @@ export default async function NewMealPage() {
         <MealForm
           action={createMealAction}
           ingredients={ingredients}
-          initial={{ name: "", notes: "", category: "", items: [] }}
+          initial={{
+            name: "",
+            notes: "",
+            category: "",
+            review: "",
+            ratings: {},
+            items: [],
+          }}
           submitLabel={t.meals.create}
           locale={settings.locale}
+          factors={factors}
           t={{
             meals: t.meals,
             moments: t.moments,
+            ratings: t.ratings,
             nutrients: t.nutrients,
             errors: t.errors,
             search: t.search,

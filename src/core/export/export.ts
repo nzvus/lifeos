@@ -26,6 +26,8 @@ import {
   logEntries,
   logEntryItems,
   mealItems,
+  mealRatings,
+  ratingFactors,
   tags,
   meals,
   user,
@@ -59,6 +61,8 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     profileRows,
     planRows,
     tagRows,
+    factorRows,
+    ratingRows,
   ] = await Promise.all([
     db.select().from(userSettings).where(ownedBy(userSettings, owner)),
     db
@@ -90,6 +94,12 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       .innerJoin(tags, eq(ingredientTags.tagId, tags.id))
       .where(ownedBy(ingredientTags, owner))
       .orderBy(asc(tags.name)),
+    db
+      .select()
+      .from(ratingFactors)
+      .where(ownedBy(ratingFactors, owner))
+      .orderBy(asc(ratingFactors.position)),
+    db.select().from(mealRatings).where(ownedBy(mealRatings, owner)),
   ]);
 
   return {
@@ -108,7 +118,11 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     meals: stripOwner(mealRows).map((m) => ({
       ...m,
       items: stripOwner(mealItemRows.filter((i) => i.mealId === m.id)),
+      ratings: ratingRows
+        .filter((r) => r.mealId === m.id)
+        .map(({ factorId, score }) => ({ factorId, score })),
     })),
+    ratingFactors: stripOwner(factorRows),
     dayProfiles: stripOwner(profileRows),
     dayPlans: stripOwner(planRows),
     log: stripOwner(entryRows).map((e) => ({

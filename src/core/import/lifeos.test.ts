@@ -10,6 +10,7 @@ import type { Owner } from "../identity/owner";
 import { exportUserData } from "../export/export";
 import { createIngredient } from "../nutrition/repositories/ingredients";
 import { logMeal } from "../nutrition/repositories/log";
+import { createFactor } from "../nutrition/repositories/ratings";
 import { createMeal, listMeals } from "../nutrition/repositories/meals";
 import { createProfile, setDayProfile } from "../nutrition/repositories/profiles";
 import { createTestDb, createTestUser, ingredientFixture } from "../testing/test-db";
@@ -48,6 +49,8 @@ function comparable(e: Awaited<ReturnType<typeof exportUserData>>) {
 }
 
 async function seed(owner: Owner) {
+  const factor = await createFactor(db, owner, "Gusto");
+  if (!factor.ok) throw new Error("setup failed");
   const oats = await createIngredient(db, owner, {
     ...ingredientFixture({ description: "Lidl" }),
     // ADR-0012: survive the round trip, in the ingredient and the snapshot.
@@ -61,6 +64,8 @@ async function seed(owner: Owner) {
     name: "Porridge",
     notes: "with milk",
     category: "breakfast", // ADR-0011: survives the round trip
+    review: "with cinnamon",
+    ratings: [{ factorId: factor.value.id, score: 4 }],
     items: [{ ingredientId: oats.value.id, quantity: "60" }],
   });
   if (!meal.ok) throw new Error("setup failed");
