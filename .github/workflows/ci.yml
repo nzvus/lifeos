@@ -13,6 +13,8 @@ on:
   push:
     branches: [main]
   pull_request:
+    # labeled/unlabeled too: adding "production-migrated" re-runs the gate.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 permissions:
   contents: read # least privilege: CI only reads the code
@@ -23,6 +25,29 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the migration gate diffs against the PR's base
+
+      # Deploy happens on merge, production migrations only by hand
+      # (migrate.yml), so a PR with a new migration must not be merged before
+      # production has it: the code would query columns that don't exist yet
+      # (outage of 2026-09-30, PR #22). Run migrate.yml on the PR branch,
+      # then add the label "production-migrated"; this re-runs and passes.
+      - name: Migration gate
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          new=$(git diff --name-only --diff-filter=A "$BASE" HEAD -- 'drizzle/*.sql')
+          if [ -z "$new" ]; then echo "No new migration."; exit 0; fi
+          echo "New migration(s): $new"
+          if echo "$LABELS" | grep -q '"production-migrated"'; then
+            echo "Label production-migrated present."
+          else
+            echo "::error::This PR adds a migration. Run: gh workflow run migrate.yml --ref ${{ github.head_ref }} -f confirm=\"migrate production\" — then add the label production-migrated."
+            exit 1
+          fi
 
       - uses: actions/setup-node@v7
         with:
