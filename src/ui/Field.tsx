@@ -12,22 +12,37 @@
  * and error are linked with aria-describedby so screen readers announce them;
  * aria-invalid marks the field as wrong.
  */
-import type { InputHTMLAttributes } from "react";
+import type { InputHTMLAttributes, ReactNode } from "react";
 
 type FieldProps = {
   label: string;
+  /** Optional icon before the label (decorative: the label names the field). */
+  icon?: ReactNode;
   name: string;
   error?: string;
   hint?: string;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, "name">;
 
-export function Field({ label, name, error, hint, id, className, ...input }: FieldProps) {
+export function Field({
+  label,
+  icon,
+  name,
+  error,
+  hint,
+  id,
+  className,
+  ...input
+}: FieldProps) {
   const inputId = id ?? `field-${name}`;
   const hintId = hint ? `${inputId}-hint` : undefined;
   const errorId = error ? `${inputId}-error` : undefined;
   return (
     <div className={className ?? "flex flex-col gap-1"}>
-      <label htmlFor={inputId} className="text-meta font-semibold">
+      <label
+        htmlFor={inputId}
+        className="flex items-center gap-1.5 text-meta font-semibold"
+      >
+        {icon}
         {label}
       </label>
       <input

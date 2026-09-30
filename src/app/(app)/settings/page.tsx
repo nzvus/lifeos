@@ -2,6 +2,7 @@
  * app/(app)/settings/page.tsx — URL /settings: preferences, display (this
  * device only), and the data export link (GET /api/export, a plain download).
  */
+import { Download, Eye } from "lucide-react";
 import { getDisplay } from "@/app/_server/display";
 import { requireContext } from "@/app/_server/owner";
 import { PageHeader } from "@/ui/PageHeader";
@@ -26,7 +27,10 @@ export default async function SettingsPage() {
         timeZones={timeZones}
         t={{ settings: t.settings, errors: t.errors }}
       />
-      <Section title={t.settings.display.title}>
+      <Section
+        title={t.settings.display.title}
+        icon={<Eye size={20} aria-hidden="true" />}
+      >
         <p className="text-muted">{t.settings.display.hint}</p>
         <DisplayForm
           action={saveDisplayAction}
@@ -34,7 +38,10 @@ export default async function SettingsPage() {
           t={{ ...t.settings.display, saved: t.settings.saved }}
         />
       </Section>
-      <Section title={t.settings.exportTitle}>
+      <Section
+        title={t.settings.exportTitle}
+        icon={<Download size={20} aria-hidden="true" />}
+      >
         <p className="text-muted">{t.settings.exportHint}</p>
         {/* A plain link, not a fetch: the browser handles the file download. */}
         <a

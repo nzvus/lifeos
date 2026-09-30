@@ -13,6 +13,7 @@
  */
 "use client";
 
+import { Carrot } from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
@@ -126,7 +127,11 @@ export function MealForm({
         error={err("notes")}
       />
 
-      <Section as="fieldset" title={t.meals.lines}>
+      <Section
+        as="fieldset"
+        title={t.meals.lines}
+        icon={<Carrot size={20} aria-hidden="true" />}
+      >
         {err("items") && <FormAlert tone="error">{err("items")!}</FormAlert>}
         {lines.map((line, idx) => (
           <div

@@ -5,6 +5,7 @@
  */
 "use client";
 
+import { Target } from "lucide-react";
 import { useActionState } from "react";
 import { NUTRIENT_KEYS, NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
@@ -36,7 +37,11 @@ export function ProfileForm({ action, initial, submitLabel, t }: Props) {
         error={err("name")}
         required
       />
-      <Section as="fieldset" title={t.profiles.targets}>
+      <Section
+        as="fieldset"
+        title={t.profiles.targets}
+        icon={<Target size={20} aria-hidden="true" />}
+      >
         <p className="text-meta text-muted">{t.profiles.targetsHint}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
           {NUTRIENT_KEYS.map((k) => (

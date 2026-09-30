@@ -7,23 +7,29 @@
 import type { ReactNode } from "react";
 
 const BOX = "flex flex-col gap-4 rule-t-heavy border-ink pt-3";
-const HEADING = "font-display text-section font-bold";
+const HEADING = "flex items-center gap-2 font-display text-section font-bold";
 
 export function Section({
   title,
   children,
   id,
   as = "section",
+  icon,
 }: {
   title: string;
   children: ReactNode;
   id?: string;
   as?: "section" | "fieldset";
+  /** Optional icon before the heading (decorative). */
+  icon?: ReactNode;
 }) {
   if (as === "fieldset") {
     return (
       <fieldset className={BOX}>
-        <legend className={HEADING}>{title}</legend>
+        <legend className={HEADING}>
+          {icon}
+          {title}
+        </legend>
         {children}
       </fieldset>
     );
@@ -31,6 +37,7 @@ export function Section({
   return (
     <section aria-labelledby={id} className={BOX}>
       <h2 id={id} className={HEADING}>
+        {icon}
         {title}
       </h2>
       {children}

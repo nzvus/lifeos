@@ -6,6 +6,7 @@
  */
 "use client";
 
+import { MonitorSmartphone, SunMoon } from "lucide-react";
 import { useActionState } from "react";
 import { IDLE, type FormState } from "@/core/shared/result";
 import type { Display } from "@/core/shared/display";
@@ -27,6 +28,7 @@ export function DisplayForm({ action, initial, t }: Props) {
       {state.status === "saved" && <FormAlert tone="success">{t.saved}</FormAlert>}
       <SelectField
         label={t.mode}
+        icon={<SunMoon size={16} aria-hidden="true" />}
         name="mode"
         defaultValue={initial.mode}
         options={[
@@ -37,6 +39,7 @@ export function DisplayForm({ action, initial, t }: Props) {
       />
       <SelectField
         label={t.layout}
+        icon={<MonitorSmartphone size={16} aria-hidden="true" />}
         name="layout"
         defaultValue={initial.layout}
         options={[
