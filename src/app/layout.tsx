@@ -18,6 +18,7 @@ import "@fontsource/barlow-condensed/600.css";
 import "@fontsource/barlow-condensed/700.css";
 import "@fontsource/barlow-condensed/800.css";
 import "./globals.css";
+import { getDisplay } from "@/app/_server/display";
 import { DEFAULT_LOCALE } from "@/core/shared/locales";
 import { dictionaries } from "@/i18n";
 
@@ -27,18 +28,38 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  // Lets the page use the full screen on phones with a notch/home indicator;
-  // the bottom tab bar pads itself with env(safe-area-inset-bottom).
-  viewportFit: "cover",
-};
+/** Page width a phone lays out when "desktop" is forced: --container-wide + margins. */
+const DESKTOP_VIEWPORT_WIDTH = 1200;
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export async function generateViewport(): Promise<Viewport> {
+  const { layout } = await getDisplay();
+  return {
+    // "desktop" on a phone: lay the page out as wide as a desktop and let the
+    // browser zoom out to fit, like "request desktop site".
+    ...(layout === "desktop"
+      ? // initialScale must be present AND undefined: Next's default (1)
+        // would otherwise stay, and the phone would show the page at 100 %
+        // zoom (only its top-left corner) instead of the whole width.
+        { width: DESKTOP_VIEWPORT_WIDTH, initialScale: undefined }
+      : { width: "device-width", initialScale: 1 }),
+    // Lets the page use the full screen on phones with a notch/home indicator;
+    // the bottom tab bar pads itself with env(safe-area-inset-bottom).
+    viewportFit: "cover",
+  };
+}
+
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // Per-device display settings (ADR-0010), from cookies, rendered on the
+  // server so the first paint already has the right palette and layout.
+  // The defaults ("system", "auto") are the absence of the attribute.
+  const { mode, layout } = await getDisplay();
   // `lang` is the default locale; signed-in pages set their own on their wrapper.
   return (
-    <html lang={DEFAULT_LOCALE}>
+    <html
+      lang={DEFAULT_LOCALE}
+      data-mode={mode === "system" ? undefined : mode}
+      data-layout={layout === "auto" ? undefined : layout}
+    >
       <body className="min-h-dvh">{children}</body>
     </html>
   );
