@@ -179,7 +179,15 @@ export default async function DayPage({ searchParams }: Props) {
               locale={locale}
               t={t}
             />
+            {/* Same graded colours as the day panel (ui/targetTone). */}
             <p className="flex flex-wrap gap-x-4 gap-y-1 text-meta text-muted">
+              <span className="inline-flex items-center gap-1">
+                <span className="inline-flex" aria-hidden="true">
+                  <span className="inline-block h-2.5 w-2.5 bg-kcal opacity-50" />
+                  <span className="inline-block h-2.5 w-2.5 bg-macro-protein opacity-50" />
+                </span>
+                {t.glance.underTarget}
+              </span>
               <span className="inline-flex items-center gap-1">
                 <span className="inline-block h-2.5 w-2.5 bg-herb" aria-hidden="true" />
                 {t.glance.withinTarget}
@@ -191,6 +199,13 @@ export default async function DayPage({ searchParams }: Props) {
               <span className="inline-flex items-center gap-1">
                 <span className="inline-block h-0.5 w-3 bg-ink" aria-hidden="true" />
                 {t.glance.targetLine}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span
+                  className="inline-block h-3 w-3 border border-dashed border-ink"
+                  aria-hidden="true"
+                />
+                {t.glance.shownDay}
               </span>
             </p>
           </section>

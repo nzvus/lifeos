@@ -6,7 +6,16 @@
  * ui/ may not import core types (ADR-0002), and an unknown key simply gets no
  * icon. Colours are the --color-macro-* tokens (design/theme.css).
  */
-import { Beef, Candy, Droplet, Flame, Leaf, Wheat, type LucideIcon } from "lucide-react";
+import {
+  Beef,
+  Candy,
+  Diamond,
+  Droplet,
+  Flame,
+  Leaf,
+  Wheat,
+  type LucideIcon,
+} from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
   kcal: Flame,
@@ -15,6 +24,7 @@ const ICONS: Record<string, LucideIcon> = {
   sugars: Candy,
   fat: Droplet,
   fiber: Leaf,
+  salt: Diamond, // a salt crystal; salt has no colour of its own (ink)
 };
 
 /** Text colour class per nutrient (for icons and legends). */
