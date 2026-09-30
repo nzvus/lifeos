@@ -106,7 +106,8 @@
 - [x] Core: validation per kind, repositories (exercises + merge, sessions, routines, measurements), analysis (tonnage matching the hand-made PUSH 1 = 4 722 kg, e1RM, records), burn range (ACSM + Compendium)
 - [x] Importers: FitForge sessions/presets/body metrics; PUSH/PULL text logs (`npm run import:training`, dry run, idempotent, aliases, day overrides); the parser reproduces every hand-made tonnage in the diet plan
 - [x] UI: Training tab (recent sessions with tonnage, duration and burn range; start from a routine), session editor (fields per kind, last time shown, "add set" copies the row), sessions on the day page
-- [ ] UI: exercises page (records, e1RM over time, merge duplicates); routines editor; body weight entry
+- [x] UI: exercises (records, e1RM progression chart, history, edit, merge duplicates, delete when unused), routines editor, body weight entry
+- [ ] Import the real history into production (after the developer confirms aliases and the dates of the "pre" sessions)
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

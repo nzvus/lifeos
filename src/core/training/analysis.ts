@@ -163,3 +163,40 @@ export function weightAt(
   const before = known.filter((m) => m.day <= day).at(-1);
   return (before ?? known[0])?.weightKg ?? null;
 }
+
+export type ExercisePoint = {
+  day: string;
+  sessionId: string;
+  bestE1rm: number | null;
+  tonnage: number;
+  sets: readonly SetLike[];
+};
+
+/**
+ * One exercise across sessions (oldest first): per DONE session, its best
+ * e1RM, its tonnage and its sets — the progression of that exercise.
+ */
+export function exerciseHistory(
+  sessions: readonly {
+    id: string;
+    day: string;
+    status: string;
+    exercises: readonly { exerciseId: string; sets: readonly SetLike[] }[];
+  }[],
+  exerciseId: string,
+): ExercisePoint[] {
+  return [...sessions]
+    .filter((s) => s.status === "done")
+    .sort((a, b) => a.day.localeCompare(b.day))
+    .flatMap((s) =>
+      s.exercises
+        .filter((e) => e.exerciseId === exerciseId)
+        .map((e) => ({
+          day: s.day,
+          sessionId: s.id,
+          bestE1rm: bestE1rm(e.sets),
+          tonnage: tonnage(e.sets),
+          sets: e.sets,
+        })),
+    );
+}
