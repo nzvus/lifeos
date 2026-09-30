@@ -72,7 +72,7 @@
 - [x] One day panel (concentric rings + bars for all 8 nutrients) replaces ring + label; target kinds (min / max / target) with graded colours; auto maxima for sugars (EU RI), saturated fat and salt (WHO)
 - [x] Ingredient upsert by name (`upsert:ingredients`, field-level dry run): 4 labels photographed, prices from 2 Lidl receipts
 - [x] Planned / eaten checkbox with time (tick = now, editable; user's time zone), estimated meals, planned drawn translucent in rings and bars; "repeat yesterday" makes plans (ADR-0009, migration 0003)
-- [ ] Tags with icons (processing level, origin, fibre types, shop…) stacking into meals; meal ratings (ADR-0011)
+- [ ] Tags with icons (processing level, origin, fibre types, shop…) stacking into meals; meal ratings (ADR-0012)
 
 ## Next sprint: S05 — Themes and design pass (started 2026-09-30)
 - **Goal:** user-selectable themes that may replace components (ADR-0010), light/dark/system and auto/desktop/phone per device, then a design pass on the default `label` theme.
@@ -90,6 +90,8 @@
 - [x] History: day page gets a week strip + date jump; Targets shows trends for every nutrient over 7 / 30 / 90 days, scrollable back in time, with averages
 - [x] Analysis on Targets: adherence per nutrient, averages per day type, eating times (first/last, window, energy by part of day), unconfirmed plans
 - [x] Themes really different: surfaces as tokens (orto: soft cards with shadows; cruscotto: boxed dense rows), day panel as tiles in cruscotto (`THEME_SLOTS`). The ADR-0010 `themes/` layer was not needed: one slot, chosen by a table in core
+- [x] ADR-0011 accepted (option C): meal category as a hint, moment on each entry; migration 0005
+- [ ] Moments in the app: add form, meal editor, day grouped by moment, analysis
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

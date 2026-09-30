@@ -48,6 +48,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { Moment } from "../../nutrition/moments";
 import type { NutrientKey } from "../../nutrition/nutrients";
 import { user } from "./auth";
 
@@ -155,6 +156,8 @@ export const meals = pgTable(
     userId: ownerColumn(),
     name: text("name").notNull(),
     notes: text("notes").notNull().default(""),
+    // ADR-0011: optional category, only a hint for the moment of new entries.
+    category: text("category").$type<Moment>(),
     createdAt: tstz("created_at").defaultNow().notNull(),
     updatedAt: tstz("updated_at")
       .defaultNow()
@@ -162,6 +165,10 @@ export const meals = pgTable(
       .notNull(),
   },
   (t) => [
+    check(
+      "meals_category_ck",
+      sql`${t.category} in ('breakfast', 'lunch', 'snack', 'dinner')`,
+    ),
     unique("meals_user_name_uq").on(t.userId, t.name),
     unique("meals_id_user_uq").on(t.id, t.userId),
   ],
@@ -226,11 +233,18 @@ export const logEntries = pgTable(
     at: tstz("at"),
     // true for an "estimated meal": typed approximate totals, not ingredients.
     estimated: boolean("estimated").notNull().default(false),
+    // ADR-0011: the moment of the day, stored as it happened. Null = not set
+    // (older entries): derived from `at` when read.
+    moment: text("moment").$type<Moment>(),
     createdAt: tstz("created_at").defaultNow().notNull(),
   },
   (t) => [
     unique("log_entries_id_user_uq").on(t.id, t.userId),
     check("log_entries_status_ck", sql`${t.status} in ('planned', 'eaten')`),
+    check(
+      "log_entries_moment_ck",
+      sql`${t.moment} in ('breakfast', 'lunch', 'snack', 'dinner')`,
+    ),
     check("log_entries_servings_ck", sql`${t.servings} > 0`),
     index("log_entries_user_day_idx").on(t.userId, t.day), // "my day" queries
   ],
