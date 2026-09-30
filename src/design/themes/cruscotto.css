@@ -8,6 +8,7 @@
 :root[data-theme="cruscotto"] {
   /* Instrument panel: thin boxes, sheet rows with hairline frames. */
   --panel-border: 1px solid var(--color-hairline);
+  --panel-radius: var(--radius-control);
   --tile-bg: var(--color-sheet);
   --item-bg: var(--color-sheet);
   --item-rule: 1px solid var(--color-hairline);

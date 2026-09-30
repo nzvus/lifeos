@@ -10,6 +10,7 @@
 :root[data-theme="orto"] {
   /* Soft cards: no rules, rounded, a light shadow, space between rows. */
   --panel-border: 0 solid transparent;
+  --panel-radius: var(--radius-surface);
   --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 6px 20px rgb(0 0 0 / 0.07);
   --tile-border: 0 solid transparent;
   --tile-radius: 0.75rem;
