@@ -28,6 +28,7 @@
   --color-hairline: #c9d0cc; /* thin separators between rows */
   --color-herb: #2d6a4c; /* within target, primary actions */
   --color-tomato: #b23a2a; /* over target, errors, destructive actions */
+  --color-warn: #c2560b; /* close to a limit / slightly over (contrast 4.2:1 on paper) */
   --color-focus: #2d6a4c;
   /* Nutrient colours: one per nutrient, used everywhere (bars, legends,
      charts, icons) so the code is learned once. Following common nutrition
@@ -72,6 +73,7 @@
     --color-hairline: #34403a;
     --color-herb: #7cc39b;
     --color-tomato: #f08a76;
+    --color-warn: #f5a25a;
     --color-focus: #7cc39b;
     --color-macro-protein: #ef7fae;
     --color-macro-carbs: #f0bd4f;
@@ -88,6 +90,7 @@
   --color-hairline: #34403a;
   --color-herb: #7cc39b;
   --color-tomato: #f08a76;
+  --color-warn: #f5a25a;
   --color-focus: #7cc39b;
   --color-macro-protein: #ef7fae;
   --color-macro-carbs: #f0bd4f;

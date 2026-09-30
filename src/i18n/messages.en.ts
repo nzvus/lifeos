@@ -229,6 +229,17 @@ export const en = {
     targetLine: "target",
     ingredientMix: "Energy mix",
   },
+  panel: {
+    left: "left",
+    over: "over",
+    off: "on target",
+    onTarget: "on target",
+    underLimit: "{v} under the limit",
+    overLimit: "{v} over the limit",
+    auto: "auto",
+    autoHint:
+      "Recommended maximum, used because this day type has no value of its own: sugars 90 g per 2000 kcal (EU reference intake), saturated fat under 10 % of energy, salt under 5 g (WHO).",
+  },
   errorPage: {
     title: "Something went wrong",
     body: "Your data is safe. Try again, and if it keeps happening, check /api/health.",

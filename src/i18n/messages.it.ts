@@ -226,6 +226,17 @@ export const it: Messages = {
     targetLine: "obiettivo",
     ingredientMix: "Composizione energetica",
   },
+  panel: {
+    left: "rimaste",
+    over: "in più",
+    off: "in obiettivo",
+    onTarget: "in obiettivo",
+    underLimit: "{v} sotto il limite",
+    overLimit: "{v} oltre il limite",
+    auto: "auto",
+    autoHint:
+      "Massimo consigliato, usato perché questo tipo di giornata non ha un valore suo: zuccheri 90 g ogni 2000 kcal (riferimento UE), grassi saturi sotto il 10 % dell'energia, sale sotto 5 g (OMS).",
+  },
   errorPage: {
     title: "Qualcosa è andato storto",
     body: "I tuoi dati sono al sicuro. Riprova; se succede ancora, controlla /api/health.",

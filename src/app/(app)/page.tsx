@@ -4,9 +4,9 @@
  * `?day=2026-09-29` selects another day. An invalid value falls back to
  * today in the user's time zone (core/shared/dates.ts).
  *
- * Layout: on phones one column (date, day type, at-a-glance ring and bars,
- * entries, forms, detailed label, 7-day charts); from the lg breakpoint two
- * columns, with the label and charts in a sticky right column.
+ * Layout: date, day type, then the day panel (rings + bars, full width);
+ * below it, on phones one column (entries, forms, 7-day charts), from the lg
+ * breakpoint two columns with the charts in a sticky right column.
  *
  * This page only LOADS and COMPOSES: it fetches the day, meals, ingredients,
  * the day's targets, the day types and usage counts through core
@@ -24,16 +24,16 @@ import {
   listProfiles,
 } from "@/core/nutrition/repositories/profiles";
 import { getHistory } from "@/core/nutrition/repositories/history";
+import { withAutoTargets } from "@/core/nutrition/targets";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, todayIn } from "@/core/shared/dates";
 import { formatNumber } from "@/core/shared/format";
 import { Copy } from "lucide-react";
-import { DayGlance } from "@/features/nutrition/log/DayGlance";
 import { DayNav } from "@/features/nutrition/log/DayNav";
 import { DayProfilePicker } from "@/features/nutrition/log/DayProfilePicker";
 import { EntryList } from "@/features/nutrition/log/EntryList";
 import { LogForms } from "@/features/nutrition/log/LogForms";
-import { NutritionLabel } from "@/features/nutrition/log/NutritionLabel";
+import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekChart } from "@/features/nutrition/log/WeekChart";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
 import {
@@ -66,7 +66,11 @@ export default async function DayPage({ searchParams }: Props) {
       getUsage(db, owner, addDays(today, -USAGE_WINDOW_DAYS)),
       getHistory(db, owner, addDays(day, -6), day), // the 7 days ending on the shown day
     ]);
-  const targets = dayTargets.source === "none" ? emptyTargets() : dayTargets.targets;
+  // The day's own targets, plus recommended maxima where none is set
+  // (sugars, saturated fat, salt — core/nutrition/targets.ts).
+  const { targets, auto } = withAutoTargets(
+    dayTargets.source === "none" ? emptyTargets() : dayTargets.targets,
+  );
   const whole = (v: string) => formatNumber(v, locale, 0);
 
   return (
@@ -79,14 +83,15 @@ export default async function DayPage({ searchParams }: Props) {
         action={setDayProfileAction}
         t={{ day: t.day, errors: t.errors }}
       />
+      <DayPanel
+        totals={view.totals}
+        targets={targets}
+        auto={auto}
+        locale={locale}
+        t={{ label: t.label, nutrients: t.nutrients, macro: t.macro, panel: t.panel }}
+      />
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="flex flex-col gap-8 lg:col-span-2">
-          <DayGlance
-            totals={view.totals}
-            targets={targets}
-            locale={locale}
-            t={{ glance: t.glance, nutrients: t.nutrients }}
-          />
           <EntryList
             day={view}
             locale={locale}
@@ -137,10 +142,9 @@ export default async function DayPage({ searchParams }: Props) {
             }}
           />
         </div>
-        {/* Details and trends: right column on desktop (stays in view while
-            scrolling), after the forms on phones. */}
+        {/* Trends: right column on desktop (stays in view while scrolling),
+            after the forms on phones. */}
         <aside className="flex flex-col gap-6 lg:sticky lg:top-4 lg:self-start">
-          <NutritionLabel totals={view.totals} targets={targets} locale={locale} t={t} />
           <section className="flex flex-col gap-4 border-t-6 border-ink pt-3">
             <h2 className="font-display text-xl font-bold">{t.glance.week}</h2>
             <WeekChart
