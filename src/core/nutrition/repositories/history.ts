@@ -8,7 +8,7 @@
  * Three owner-filtered queries for the whole range (entries, lines, plans),
  * not one per day.
  */
-import { and, asc, gte, inArray, lte } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, lte } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { dayPlans, logEntries, logEntryItems } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
@@ -47,6 +47,7 @@ export async function getHistory(
         ownedBy(logEntries, owner),
         gte(logEntries.day, fromDay),
         lte(logEntries.day, toDay),
+        eq(logEntries.status, "eaten"), // history = what was eaten, not plans (ADR-0009)
       ),
     )
     .orderBy(asc(logEntries.day));

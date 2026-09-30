@@ -52,7 +52,7 @@ export const ingredientRow = z.object({
 
 const exportFile = z.object({
   format: z.literal("lifeos-export"),
-  version: z.union([z.literal(1), z.literal(2)]),
+  version: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   settings: z.object({ timezone: z.string(), locale: z.string() }).nullable(),
   ingredients: z.array(
     z.object({
@@ -105,6 +105,10 @@ const exportFile = z.object({
       label: z.string(),
       servings: dec(2),
       createdAt: z.string(),
+      // Version 3 (ADR-0009); older files default to "eaten, time unknown".
+      status: z.enum(["planned", "eaten"]).default("eaten"),
+      at: z.string().nullable().default(null),
+      estimated: z.boolean().default(false),
       items: z.array(
         z.object({
           ingredientId: z.string().nullable(),

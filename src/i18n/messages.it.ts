@@ -44,6 +44,7 @@ export const it: Messages = {
     invalid_day: "Quella data non esiste.",
     is_default:
       "È il tipo di giornata predefinito. Rendi predefinito un altro tipo prima.",
+    invalid_time: "Inserisci un'ora come 12:30.",
   },
   auth: {
     signInTitle: "Accedi",
@@ -78,6 +79,19 @@ export const it: Messages = {
     noMeals: "Nessun pasto. Creane uno in Pasti per registrarlo qui.",
     noIngredients: "Nessun ingrediente. Aggiungili prima in Ingredienti.",
     copyYesterday: "Ripeti i pasti di ieri",
+    planned: "Pianificato (non ancora mangiato)",
+    time: "Ora",
+    timeHint: "Vuoto = adesso (o nessuna ora, se pianificato).",
+    saveTime: "Salva ora",
+    markEaten: "Segna come mangiato",
+    markPlanned: "Rimetti tra i pianificati",
+    estimated: "stima",
+    estimateTitle: "Aggiungi un pasto stimato",
+    estimateHint:
+      "Per un pasto che non sai descrivere con gli ingredienti: un nome e valori approssimati. I campi vuoti contano 0.",
+    estimateName: "Cos'era",
+    estimateCost: "Costo (€, facoltativo)",
+    plannedNote: "+{v} kcal pianificate",
     details: "Dettagli",
     refresh: "Aggiorna con i valori attuali",
     refreshHint:

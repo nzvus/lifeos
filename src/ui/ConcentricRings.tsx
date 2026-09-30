@@ -15,8 +15,9 @@ export type RingSpec = {
   color: string;
   opacity: number;
   label: string;
+  /** Eaten + planned (ADR-0009): drawn translucent BEHIND the eaten arc. */
+  plannedRatio?: number;
 };
-
 type Props = { rings: RingSpec[]; size?: number; label: string; children?: ReactNode };
 
 export function ConcentricRings({ rings, size = 200, label, children }: Props) {
@@ -51,6 +52,18 @@ export function ConcentricRings({ rings, size = 200, label, children }: Props) {
                 strokeWidth={stroke}
                 className="stroke-hairline"
               />
+              {ring.plannedRatio !== undefined && ring.plannedRatio > ring.ratio && (
+                <circle
+                  cx={c}
+                  cy={c}
+                  r={r}
+                  fill="none"
+                  strokeWidth={stroke}
+                  strokeLinecap="round"
+                  strokeDasharray={arc(ring.plannedRatio)}
+                  style={{ stroke: ring.color, opacity: 0.25 }}
+                />
+              )}
               <circle
                 cx={c}
                 cy={c}

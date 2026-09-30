@@ -22,7 +22,10 @@ import {
   type DisplayTotals,
   type TotalsLine,
 } from "../totals";
-import type { LogIngredientInput, LogMealInput } from "../validation";
+import type { EstimateInput, LogIngredientInput, LogMealInput } from "../validation";
+import type { EntryStatus } from "../../db/schema";
+import { instantFor } from "../../shared/dates";
+import { Big } from "../../shared/decimal";
 import { getIngredient, per100Of, type Ingredient } from "./ingredients";
 import { getMeal } from "./meals";
 import { ensureDayPlan } from "./profiles";
@@ -41,6 +44,12 @@ export type LogEntryView = {
   servings: string;
   /** The meal it was logged from; null for a single ingredient or a deleted meal. */
   mealId: string | null;
+  /** ADR-0009: planned (intended) or eaten (confirmed). */
+  status: EntryStatus;
+  /** When eaten / planned, ISO instant; null if unknown. */
+  at: string | null;
+  /** An estimated meal (typed approximate totals). */
+  estimated: boolean;
   lines: LoggedLine[];
   totals: DisplayTotals; // already multiplied by servings
 };
@@ -48,7 +57,12 @@ export type LogEntryView = {
 export type DayView = {
   day: string;
   entries: LogEntryView[];
-  totals: DisplayTotals; // sum of the EXACT entry totals, rounded once
+  /** What was EATEN: the day's real totals (exact sum, rounded once). */
+  totals: DisplayTotals;
+  /** Only the planned entries. */
+  planned: DisplayTotals;
+  /** Eaten + planned: where the day ends if the plan is followed. */
+  withPlanned: DisplayTotals;
 };
 
 /** Everything I logged on one day, with per-entry and whole-day totals. */
@@ -86,8 +100,14 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
     linesByEntry.set(it.entryId, list);
   }
 
+  // Order by time of eating when known, else by when it was logged.
+  const when = (e: (typeof entries)[number]) => (e.at ?? e.createdAt).getTime();
+  entries.sort((a, b) => when(a) - when(b));
+
   // Keep EXACT totals per entry, add them exactly, and round only at the end.
   const exact = entries.map((e) => sumLines(linesByEntry.get(e.id) ?? [], e.servings));
+  const sumWhere = (keep: (status: EntryStatus) => boolean) =>
+    toDisplay(addTotals(exact.filter((_, i) => keep(entries[i]!.status))));
   return {
     day,
     entries: entries.map((e, i) => ({
@@ -95,10 +115,15 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
       label: e.label,
       servings: e.servings,
       mealId: e.mealId,
+      status: e.status,
+      at: e.at ? e.at.toISOString() : null,
+      estimated: e.estimated,
       lines: linesByEntry.get(e.id) ?? [],
       totals: toDisplay(exact[i]!),
     })),
-    totals: toDisplay(addTotals(exact)),
+    totals: sumWhere((s) => s === "eaten"),
+    planned: sumWhere((s) => s === "planned"),
+    withPlanned: sumWhere(() => true),
   };
 }
 
@@ -106,7 +131,7 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
 export async function logMeal(
   db: Db,
   owner: Owner,
-  input: LogMealInput,
+  input: Omit<LogMealInput, "planned" | "time"> & Partial<EntryTiming>,
 ): Promise<Result<{ id: string }>> {
   const meal = await getMeal(db, owner, input.mealId); // owner-checked read
   if (!meal) return fail({ mealId: "not_found" });
@@ -120,6 +145,7 @@ export async function logMeal(
         mealId: meal.id,
         label: meal.name, // the name as it is today
         servings: input.servings,
+        ...timingOf(input),
       })
       .returning({ id: logEntries.id });
     await tx.insert(logEntryItems).values(
@@ -149,7 +175,7 @@ export async function logMeal(
 export async function logIngredient(
   db: Db,
   owner: Owner,
-  input: LogIngredientInput,
+  input: Omit<LogIngredientInput, "planned" | "time"> & Partial<EntryTiming>,
 ): Promise<Result<{ id: string }>> {
   const ing = await getIngredient(db, owner, input.ingredientId);
   if (!ing) return fail({ ingredientId: "not_found" });
@@ -157,7 +183,13 @@ export async function logIngredient(
   const id = await db.transaction(async (tx) => {
     const [entry] = await tx
       .insert(logEntries)
-      .values({ userId: owner.id, day: input.day, label: ing.name, servings: "1" })
+      .values({
+        userId: owner.id,
+        day: input.day,
+        label: ing.name,
+        servings: "1",
+        ...timingOf(input),
+      })
       .returning({ id: logEntries.id });
     await tx.insert(logEntryItems).values({
       userId: owner.id,
@@ -219,6 +251,11 @@ export async function copyDay(
           mealId: e.mealId,
           label: e.label,
           servings: e.servings,
+          // Repeating a day creates a PLAN (ADR-0009): confirm what you
+          // actually eat. Times are not copied.
+          status: "planned",
+          at: null,
+          estimated: e.estimated,
         })
         .returning({ id: logEntries.id });
       await tx.insert(logEntryItems).values(
@@ -313,4 +350,120 @@ export async function refreshLogEntry(
       .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)));
   });
   return ok(null);
+}
+
+/** When and whether an entry was eaten (ADR-0009). */
+export type EntryTiming = { status: EntryStatus; at: Date | null };
+
+/**
+ * Defaults for entries created without explicit timing: eaten, now.
+ * A planned entry without a time has no time.
+ */
+function timingOf(input: Partial<EntryTiming>): EntryTiming {
+  const status = input.status ?? "eaten";
+  const at = input.at !== undefined ? input.at : status === "eaten" ? new Date() : null;
+  return { status, at };
+}
+
+/**
+ * From a form's "Planned" checkbox and optional "HH:MM" to status + instant,
+ * in the user's time zone. Eaten without a time = now; planned without a
+ * time = no time. Pure; used by the server actions.
+ */
+export function entryTiming(
+  day: string,
+  planned: boolean,
+  time: string | null,
+  timeZone: string,
+  now: Date = new Date(),
+): EntryTiming {
+  const status: EntryStatus = planned ? "planned" : "eaten";
+  if (time) return { status, at: instantFor(day, time, timeZone) };
+  return { status, at: planned ? null : now };
+}
+
+/**
+ * Ticks or unticks an entry. Confirming sets the time to NOW (the moment
+ * the box was ticked), which the user can then edit; un-confirming keeps
+ * the time as a planned time.
+ */
+export async function setEntryStatus(
+  db: Db,
+  owner: Owner,
+  id: string,
+  status: EntryStatus,
+  now: Date = new Date(),
+): Promise<Result<null>> {
+  const set = status === "eaten" ? { status, at: now } : { status };
+  const updated = await db
+    .update(logEntries)
+    .set(set)
+    .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)))
+    .returning({ id: logEntries.id });
+  return updated.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/** Sets (or clears) the time of an entry. */
+export async function setEntryTime(
+  db: Db,
+  owner: Owner,
+  id: string,
+  at: Date | null,
+): Promise<Result<null>> {
+  const updated = await db
+    .update(logEntries)
+    .set({ at })
+    .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)))
+    .returning({ id: logEntries.id });
+  return updated.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/**
+ * An "estimated meal" (ADR-0009): approximate totals typed by hand. Stored
+ * like any entry, so totals stay "computed from lines" (ADR-0003): one line
+ * of 100 g whose per-100 values ARE the typed totals. Sugars, saturated fat
+ * and salt are unknown and stored as 0; the entry is flagged `estimated` so
+ * the UI shows it as "~". A typed cost becomes a 100 g "package" at that
+ * price, so the cost adds up exactly.
+ */
+export async function logEstimate(
+  db: Db,
+  owner: Owner,
+  input: Omit<EstimateInput, "planned" | "time"> & Partial<EntryTiming>,
+): Promise<Result<{ id: string }>> {
+  const id = await db.transaction(async (tx) => {
+    const [entry] = await tx
+      .insert(logEntries)
+      .values({
+        userId: owner.id,
+        day: input.day,
+        label: input.label,
+        servings: "1",
+        estimated: true,
+        ...timingOf(input),
+      })
+      .returning({ id: logEntries.id });
+    await tx.insert(logEntryItems).values({
+      userId: owner.id,
+      entryId: entry!.id,
+      name: input.label,
+      unit: "g",
+      quantity: "100",
+      kcal: input.kcal,
+      protein: input.protein,
+      carbs: input.carbs,
+      sugars: "0",
+      fat: input.fat,
+      saturatedFat: "0",
+      fiber: input.fiber,
+      salt: "0",
+      packagePriceCents:
+        input.cost === null ? null : new Big(input.cost).times(100).toNumber(),
+      packageSize: input.cost === null ? null : "100",
+      position: 0,
+    });
+    return entry!.id;
+  });
+  await ensureDayPlan(db, owner, input.day);
+  return ok({ id });
 }

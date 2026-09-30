@@ -51,6 +51,7 @@ export const en = {
     empty_meal: "Add at least one ingredient.",
     invalid_day: "That date doesn't exist.",
     is_default: "This is the default day type. Make another one the default first.",
+    invalid_time: "Enter a time like 12:30.",
   },
   auth: {
     signInTitle: "Sign in",
@@ -83,6 +84,19 @@ export const en = {
     noMeals: "No meals yet. Create one in Meals to log it here.",
     noIngredients: "No ingredients yet. Add them in Ingredients first.",
     copyYesterday: "Repeat yesterday's meals",
+    planned: "Planned (not eaten yet)",
+    time: "Time",
+    timeHint: "Empty = now (or no time, if planned).",
+    saveTime: "Save time",
+    markEaten: "Mark as eaten",
+    markPlanned: "Back to planned",
+    estimated: "estimate",
+    estimateTitle: "Add an estimated meal",
+    estimateHint:
+      "For a meal you can't describe with ingredients: a name and approximate values. Empty fields count as 0.",
+    estimateName: "What it was",
+    estimateCost: "Cost (€, optional)",
+    plannedNote: "+{v} kcal planned",
     details: "Details",
     refresh: "Update with current values",
     refreshHint:

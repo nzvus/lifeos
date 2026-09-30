@@ -32,8 +32,8 @@ import {
 import { ownedBy, type Owner } from "../identity/owner";
 
 export const EXPORT_FORMAT = "lifeos-export";
-/** 2: adds dayProfiles and dayPlans (ADR-0008). */
-export const EXPORT_VERSION = 2;
+/** 2: adds dayProfiles and dayPlans (ADR-0008). 3: log status/at/estimated (ADR-0009). */
+export const EXPORT_VERSION = 3;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {

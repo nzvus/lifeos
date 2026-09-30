@@ -23,17 +23,23 @@ import {
   copyDay,
   deleteLogEntry,
   logIngredient,
+  entryTiming,
+  logEstimate,
   logMeal,
   refreshLogEntry,
+  setEntryStatus,
+  setEntryTime,
 } from "@/core/nutrition/repositories/log";
 import { setDayProfile } from "@/core/nutrition/repositories/profiles";
 import {
   dayProfileInput,
+  entryTimeInput,
+  estimateInput,
   logIngredientInput,
   logMealInput,
   parseInput,
 } from "@/core/nutrition/validation";
-import { addDays } from "@/core/shared/dates";
+import { addDays, instantFor } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 
@@ -41,11 +47,13 @@ export async function logMealAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const { owner } = await requireContext();
+  const { owner, settings } = await requireContext();
   const values = formToObject(formData);
   const input = parseInput(logMealInput, values);
   if (!input.ok) return { status: "error", errors: input.errors, values };
-  const result = await logMeal(getDb(), owner, input.value);
+  const { planned, time, ...rest } = input.value;
+  const timing = entryTiming(rest.day, planned, time, settings.timezone);
+  const result = await logMeal(getDb(), owner, { ...rest, ...timing });
   if (!result.ok) return { status: "error", errors: result.errors, values };
   revalidatePath("/");
   return { status: "saved" };
@@ -55,11 +63,13 @@ export async function logIngredientAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const { owner } = await requireContext();
+  const { owner, settings } = await requireContext();
   const values = formToObject(formData);
   const input = parseInput(logIngredientInput, values);
   if (!input.ok) return { status: "error", errors: input.errors, values };
-  const result = await logIngredient(getDb(), owner, input.value);
+  const { planned, time, ...rest } = input.value;
+  const timing = entryTiming(rest.day, planned, time, settings.timezone);
+  const result = await logIngredient(getDb(), owner, { ...rest, ...timing });
   if (!result.ok) return { status: "error", errors: result.errors, values };
   revalidatePath("/");
   return { status: "saved" };
@@ -133,4 +143,56 @@ export async function refreshLogEntryAction(
   if (!result.ok) return { status: "error", message: t.day.refreshGone };
   revalidatePath("/");
   return { status: "idle" };
+}
+
+/** "Estimated meal" form (ADR-0009): name + approximate totals. */
+export async function logEstimateAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner, settings } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(estimateInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const { planned, time, ...rest } = input.value;
+  const timing = entryTiming(rest.day, planned, time, settings.timezone);
+  const result = await logEstimate(getDb(), owner, { ...rest, ...timing });
+  if (!result.ok) return { status: "error", errors: result.errors, values };
+  revalidatePath("/");
+  return { status: "saved" };
+}
+
+/** The round checkbox on an entry. Bound per entry with the status to set. */
+export async function setEntryStatusAction(
+  id: string,
+  status: "planned" | "eaten",
+  _prev: ActionButtonState,
+  _formData: FormData,
+): Promise<ActionButtonState> {
+  const { owner, t } = await requireContext();
+  const result = await setEntryStatus(getDb(), owner, id, status);
+  if (!result.ok) return { status: "error", message: t.errors.not_found };
+  revalidatePath("/");
+  return { status: "idle" };
+}
+
+/** Edits an entry's time ("HH:MM" on the entry's day, user's time zone). Bound per entry. */
+export async function setEntryTimeAction(
+  id: string,
+  day: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner, settings } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(entryTimeInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const at =
+    input.value.time === null
+      ? null
+      : instantFor(day, input.value.time, settings.timezone);
+  const result = await setEntryTime(getDb(), owner, id, at);
+  if (!result.ok) return { status: "error", errors: result.errors, values };
+  revalidatePath("/");
+  return { status: "saved" };
 }

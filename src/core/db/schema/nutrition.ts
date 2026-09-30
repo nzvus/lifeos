@@ -103,6 +103,10 @@ function targetColumns() {
   } satisfies Record<NutrientKey, unknown>;
 }
 
+/** Whether a log entry is only planned or actually eaten (ADR-0009). */
+export const ENTRY_STATUSES = ["planned", "eaten"] as const;
+export type EntryStatus = (typeof ENTRY_STATUSES)[number];
+
 /** Units an ingredient can be measured in. Nutrients are per 100 of it. */
 export const INGREDIENT_UNITS = ["g", "ml"] as const;
 export type IngredientUnit = (typeof INGREDIENT_UNITS)[number];
@@ -214,10 +218,19 @@ export const logEntries = pgTable(
     servings: numeric("servings", { precision: 6, scale: 2, mode: "string" })
       .notNull()
       .default("1"),
+    // ADR-0009. "planned": intended, not eaten yet (drawn translucent, not
+    // counted as eaten). "eaten": confirmed. Existing rows became "eaten".
+    status: text("status").$type<EntryStatus>().notNull().default("eaten"),
+    // When it was (or is planned to be) eaten. Set to "now" when an entry is
+    // confirmed, editable. Null = unknown (entries logged before 0003).
+    at: tstz("at"),
+    // true for an "estimated meal": typed approximate totals, not ingredients.
+    estimated: boolean("estimated").notNull().default(false),
     createdAt: tstz("created_at").defaultNow().notNull(),
   },
   (t) => [
     unique("log_entries_id_user_uq").on(t.id, t.userId),
+    check("log_entries_status_ck", sql`${t.status} in ('planned', 'eaten')`),
     check("log_entries_servings_ck", sql`${t.servings} > 0`),
     index("log_entries_user_day_idx").on(t.userId, t.day), // "my day" queries
   ],

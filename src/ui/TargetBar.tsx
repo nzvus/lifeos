@@ -17,6 +17,8 @@ type Props = {
   value: string; // formatted, e.g. "82 / 150 g"
   status?: string; // formatted, e.g. "68 g left"
   ratio: number | null; // null = no target: no bar fill
+  /** Eaten + planned (ADR-0009), drawn translucent beyond the eaten fill. */
+  plannedRatio?: number;
   color: string;
   opacity: number;
   autoLabel?: string; // e.g. "auto", when the target is a recommended default
@@ -32,12 +34,14 @@ export function TargetBar({
   value,
   status,
   ratio,
+  plannedRatio,
   color,
   opacity,
   autoLabel,
   autoHint,
 }: Props) {
-  const width = ratio === null ? 0 : (Math.min(ratio, SCALE) / SCALE) * 100;
+  const scaled = (r: number) => (Math.min(r, SCALE) / SCALE) * 100;
+  const width = ratio === null ? 0 : scaled(ratio);
   return (
     <div className={`flex flex-col gap-0.5 ${sub ? "pl-5" : ""}`}>
       <div className="flex items-baseline justify-between gap-2 text-sm">
@@ -58,9 +62,19 @@ export function TargetBar({
         <span className="font-display tabular-nums">{value}</span>
       </div>
       <div className="relative h-2 w-full bg-hairline" aria-hidden="true">
+        {ratio !== null && plannedRatio !== undefined && plannedRatio > ratio && (
+          <div
+            className="absolute top-0 left-0 h-2"
+            style={{
+              width: `${scaled(plannedRatio)}%`,
+              background: color,
+              opacity: 0.25,
+            }}
+          />
+        )}
         {ratio !== null && (
           <div
-            className="h-2"
+            className="relative h-2"
             style={{ width: `${width}%`, background: color, opacity }}
           />
         )}

@@ -32,11 +32,13 @@ import { targetTone } from "@/ui/targetTone";
 
 type Props = {
   totals: DisplayTotals;
+  /** Eaten + planned (ADR-0009): shown translucent behind what was eaten. */
+  withPlanned: DisplayTotals;
   /** Targets including auto defaults (core withAutoTargets). */
   targets: Targets;
   auto: NutrientKey[];
   locale: Locale;
-  t: Pick<Messages, "label" | "nutrients" | "macro" | "panel">;
+  t: Pick<Messages, "label" | "nutrients" | "macro" | "panel" | "day">;
 };
 
 /** Each nutrient's own colour token (bars and rings start from it). */
@@ -53,11 +55,17 @@ const BASE: Record<NutrientKey, string> = {
 const SUB: ReadonlySet<NutrientKey> = new Set(["sugars", "saturatedFat"]);
 const RINGS = ["kcal", "protein", "carbs", "fat", "fiber"] as const;
 
-export function DayPanel({ totals, targets, auto, locale, t }: Props) {
+export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Props) {
   const num = (v: string, k: NutrientKey) =>
     formatNumber(v, locale, k === "salt" ? 1 : 0);
   const assess = (k: NutrientKey) =>
     assessTarget(totals.nutrients[k], targets[k], TARGET_KIND[k]);
+  /** Where the day ends if the plan is followed, as a ratio of the target. */
+  const plannedRatio = (k: NutrientKey) => {
+    const a = assessTarget(withPlanned.nutrients[k], targets[k], TARGET_KIND[k]);
+    return a.status === "none" ? undefined : a.ratio;
+  };
+  const plannedKcal = Number(withPlanned.nutrients.kcal) - Number(totals.nutrients.kcal);
   const tone = (k: NutrientKey) => {
     const a = assess(k);
     return targetTone({
@@ -103,6 +111,7 @@ export function DayPanel({ totals, targets, auto, locale, t }: Props) {
               return {
                 key: k,
                 ratio: a.status === "none" ? 0 : a.ratio,
+                plannedRatio: plannedRatio(k),
                 color,
                 opacity,
                 label: `${t.nutrients[k]}: ${num(totals.nutrients[k], k)} ${NUTRIENT_UNIT[k]}`,
@@ -117,6 +126,13 @@ export function DayPanel({ totals, targets, auto, locale, t }: Props) {
                 ? `${unit}`
                 : `${unit} ${kcal.status === "under" ? t.panel.left : kcal.status === "over" ? t.panel.over : t.panel.off}`}
             </span>
+            {plannedKcal > 0 && (
+              <span className="pt-0.5 text-xs text-muted tabular-nums">
+                {fill(t.day.plannedNote, {
+                  v: formatNumber(String(plannedKcal), locale, 0),
+                })}
+              </span>
+            )}
           </ConcentricRings>
           {/* Legend: ring order, outside -> inside. */}
           <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted">
@@ -154,6 +170,7 @@ export function DayPanel({ totals, targets, auto, locale, t }: Props) {
                 value={value}
                 status={statusText(k)}
                 ratio={a.status === "none" ? null : a.ratio}
+                plannedRatio={plannedRatio(k)}
                 color={color}
                 opacity={opacity}
                 autoLabel={auto.includes(k) ? t.panel.auto : undefined}
