@@ -9,7 +9,7 @@
  */
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, type ReactNode } from "react";
 import { SubmitButton } from "./SubmitButton";
 import { FormAlert } from "./FormAlert";
 
@@ -18,17 +18,20 @@ type State = { status: "idle" } | { status: "error"; message: string };
 type Props = {
   action: (prev: State, formData: FormData) => Promise<State>;
   label: string;
+  icon?: ReactNode;
   variant?: "danger" | "quiet";
 };
 
 export type ActionButtonState = State;
 
-export function ActionButtonForm({ action, label, variant = "danger" }: Props) {
+export function ActionButtonForm({ action, label, icon, variant = "danger" }: Props) {
   const [state, formAction] = useActionState(action, { status: "idle" });
   return (
     <form action={formAction} className="flex flex-col items-start gap-2">
       {state.status === "error" && <FormAlert tone="error">{state.message}</FormAlert>}
-      <SubmitButton variant={variant}>{label}</SubmitButton>
+      <SubmitButton variant={variant} icon={icon}>
+        {label}
+      </SubmitButton>
     </form>
   );
 }

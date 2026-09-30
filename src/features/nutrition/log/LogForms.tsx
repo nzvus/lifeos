@@ -15,6 +15,7 @@
  */
 "use client";
 
+import { Plus } from "lucide-react";
 import { useActionState, useCallback, useMemo, useState } from "react";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { fieldError, IDLE, type FormState } from "@/core/shared/result";
@@ -36,6 +37,8 @@ export type Pickable = {
   protein: string;
   uses: number;
   lastUsed: string | null;
+  /** Notes/description: searched too ("Lidl", "STIMA", "senza lattosio"). */
+  notes: string;
   unit?: string; // ingredients only
 };
 
@@ -73,7 +76,7 @@ function usePicker(items: Pickable[], hint: (i: Pickable) => string) {
     );
     const search = (q: string) =>
       rank(items, q, (i) => ({
-        text: i.name,
+        text: `${i.name} ${i.notes}`,
         name: i.name,
         uses: i.uses,
         lastUsed: i.lastUsed,
@@ -150,7 +153,9 @@ export function LogForms({
               required
             />
             <div>
-              <SubmitButton>{t.day.add}</SubmitButton>
+              <SubmitButton icon={<Plus size={18} aria-hidden="true" />}>
+                {t.day.add}
+              </SubmitButton>
             </div>
           </>
         )}
@@ -190,7 +195,9 @@ export function LogForms({
               required
             />
             <div>
-              <SubmitButton>{t.day.add}</SubmitButton>
+              <SubmitButton icon={<Plus size={18} aria-hidden="true" />}>
+                {t.day.add}
+              </SubmitButton>
             </div>
           </>
         )}

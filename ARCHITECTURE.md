@@ -27,17 +27,16 @@ src/
   features/     vertical slices (area/slice): account/{auth,settings},
                 nutrition/{ingredients,meals,log}. Components only.
   core/         db/ (schema, client), identity/ (Owner, ownedBy),
-                nutrition/ (nutrients, totals, targets, validation,
-                repositories/), export/, import/ (FitForge plan + apply),
-                auth/, shared/ (decimal, dates, result, format, locales),
-                testing/ (PGlite test db)
-  ui/           Field, SelectField, SearchSelect (combobox), NavBar,
-                MacroBar, SubmitButton, FormAlert, ActionButtonForm
+                nutrition/ (nutrients, totals, targets, insights, validation,
+                repositories/), export/, import/ (FitForge; lifeos replace),
+                auth/, shared/, testing/ (PGlite test db)
+  ui/           form controls, SearchSelect, NavBar, SortControl, Ring,
+                Meter, MacroStrip (THE macro display), NutrientIcon, …
   design/       theme.css — Tailwind v4 @theme tokens (light + dark)
   i18n/         messages.en.ts (reference shape), messages.it.ts, fill()
 drizzle/        committed SQL migrations (generated, reviewed)
 scripts/        check.py, backup.sh, restore-drill.sh, vercel-build.mjs,
-                import-fitforge.ts (local CLI; dry run unless --apply)
+                import-fitforge.ts, import-lifeos.ts (dry run by default)
 docs/runbooks/  setup, restore drill, lint-rule proof
 ```
 
@@ -131,6 +130,12 @@ cannot poll URLs itself, so app health has daily granularity.
   header navigation and tables; lg+ shows the day in two columns with a
   sticky label. Form pages cap at `--container-page`, others at
   `--container-wide`.
+- **Visual language:** one colour per nutrient (`--color-macro-*`, used by
+  bars, legends, charts, icons); herb = within target, tomato = over.
+  Icons: `lucide-react` (SVG, only imported icons ship). Charts are plain
+  SVG in feature components (no chart library). Sorts have a natural
+  direction and an ↑/↓ toggle; missing values sort last
+  (`core/shared/sorting.ts`).
 - **Performance:** Vercel functions pinned to `fra1` next to Neon
   (`vercel.json`); Better Auth cookie cache (5 min) skips the session query;
   `app/(app)/loading.tsx` gives instant feedback; client components receive

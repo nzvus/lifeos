@@ -57,7 +57,19 @@
 - [x] Searchable pickers in the log forms and the meal editor; ingredient and meal browsers with 6–7 sort orders
 - [x] Richer info: energy split bar, all macros per entry, expandable entry contents, protein per 100 kcal, price per kg
 - [x] "Repeat yesterday's meals" on an empty day (copies the logged snapshot, ADR-0007)
+- [x] Sort direction ↑/↓ on every sort (natural direction by default, missing values always last)
+- [x] Colours per nutrient everywhere; icons (lucide-react) in nav, buttons, nutrients, search, sorting
+- [x] Day at a glance: energy ring (left / over) and coloured bars per macro and fibre with targets
+- [x] Last 7 days charts (energy, protein) with target ticks, linked to each day; macro composition per ingredient
 - [ ] Developer review on a real phone and a desktop browser (no browser was available to the agent: layout and keyboard behaviour are untested visually)
+
+## Next sprint: S04 — Richer logging and food knowledge (started 2026-09-30)
+- [x] lifeos export importer, "replace" mode (one transaction, backup-first runbook); round-trip test
+- [x] Ingredient and meal names/notes revised (approval table), numbers untouched
+- [x] "Update with current values" on log entries (ADR-0007 tripwire: prices added after logging)
+- [x] MacroStrip: one colour-coded macro display everywhere; pickers also search notes
+- [ ] Planned / eaten checkbox with time, estimated meals (ADR-0009)
+- [ ] Tags with icons (processing level, origin, fibre types, shop…) stacking into meals; meal ratings (ADR-0010)
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

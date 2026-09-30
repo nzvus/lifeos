@@ -9,6 +9,7 @@
  */
 "use client";
 
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { macroSplit, proteinPer100kcal } from "@/core/nutrition/insights";
@@ -18,11 +19,21 @@ import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { rank } from "@/core/shared/search";
+import { reverseIf, sortByValue } from "@/core/shared/sorting";
 import { fill, type Messages } from "@/i18n";
-import { MacroBar } from "@/ui/MacroBar";
+import { MacroStrip } from "@/ui/MacroStrip";
+import { SortControl, type SortDirection } from "@/ui/SortControl";
 
-const SORTS = ["used", "name", "protein", "density", "kcalLow", "costLow"] as const;
-type Sort = (typeof SORTS)[number];
+/** Sorts and their natural direction (the arrow button reverses it). */
+const SORTS = [
+  { key: "used", natural: "desc" },
+  { key: "name", natural: "asc" },
+  { key: "protein", natural: "desc" },
+  { key: "density", natural: "desc" },
+  { key: "kcal", natural: "asc" },
+  { key: "cost", natural: "asc" },
+] as const satisfies readonly { key: string; natural: SortDirection }[];
+type Sort = (typeof SORTS)[number]["key"];
 
 type Props = {
   meals: MealWithLines[];
@@ -34,6 +45,7 @@ type Props = {
 export function MealBrowser({ meals, usage, locale, t }: Props) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("used");
+  const [direction, setDirection] = useState<SortDirection>("desc");
 
   const rows = useMemo(
     () =>
@@ -56,26 +68,20 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
       uses: r.uses,
       lastUsed: r.lastUsed,
     }));
-    const num = (s: string | null) => (s === null ? -Infinity : Number(s));
-    switch (sort) {
-      case "used":
-        return matched;
-      case "name":
-        return [...matched].sort((a, b) => a.name.localeCompare(b.name, locale));
-      case "protein":
-        return [...matched].sort(
-          (a, b) => num(b.totals.nutrients.protein) - num(a.totals.nutrients.protein),
-        );
-      case "density":
-        return [...matched].sort((a, b) => num(b.density) - num(a.density));
-      case "kcalLow":
-        return [...matched].sort(
-          (a, b) => num(a.totals.nutrients.kcal) - num(b.totals.nutrients.kcal),
-        );
-      case "costLow":
-        return [...matched].sort((a, b) => a.totals.costCents - b.totals.costCents);
-    }
-  }, [rows, query, sort, locale]);
+    // Same rules as the ingredient browser (see core/shared/sorting.ts).
+    if (sort === "used") return reverseIf(matched, direction === "asc");
+    if (sort === "name") return sortByValue(matched, (m) => m.name, direction, locale);
+    const value: Record<
+      Exclude<Sort, "used" | "name">,
+      (m: (typeof rows)[number]) => number | null
+    > = {
+      protein: (m) => Number(m.totals.nutrients.protein),
+      density: (m) => (m.density === null ? null : Number(m.density)),
+      kcal: (m) => Number(m.totals.nutrients.kcal),
+      cost: (m) => m.totals.costCents,
+    };
+    return sortByValue(matched, value[sort], direction, locale);
+  }, [rows, query, sort, direction, locale]);
 
   const n = (v: string) => formatNumber(v, locale, 1);
 
@@ -83,30 +89,35 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <label className="flex flex-1 flex-col gap-1">
+        <label className="relative flex flex-1 flex-col gap-1">
           <span className="sr-only">{t.search.placeholder}</span>
+          <Search
+            size={18}
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-2.5 left-2 text-muted"
+          />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.search.placeholder}
-            className="w-full border-b-2 border-ink bg-sheet px-2 py-2 text-base outline-none focus-visible:border-focus"
+            className="w-full border-b-2 border-ink bg-sheet py-2 pr-2 pl-8 text-base outline-none focus-visible:border-focus"
           />
         </label>
-        <label className="flex flex-col gap-1 sm:w-64">
-          <span className="text-sm font-semibold">{t.search.sortBy}</span>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as Sort)}
-            className="border-b-2 border-ink bg-sheet px-2 py-2 text-base"
-          >
-            {SORTS.map((s) => (
-              <option key={s} value={s}>
-                {t.search.sorts[s]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <SortControl
+          options={SORTS.map((o) => ({
+            value: o.key,
+            label: t.search.sorts[o.key],
+            natural: o.natural,
+          }))}
+          sort={sort}
+          direction={direction}
+          onChange={(nextSort, nextDirection) => {
+            setSort(nextSort);
+            setDirection(nextDirection);
+          }}
+          labels={{ sortBy: t.search.sortBy, asc: t.search.asc, desc: t.search.desc }}
+        />
       </div>
       <p className="text-sm text-muted" aria-live="polite">
         {shown.length === 0 && query
@@ -128,10 +139,20 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
                 </Link>
                 <span className="font-display text-lg tabular-nums">{`${n(tn.kcal)} ${NUTRIENT_UNIT.kcal}`}</span>
               </div>
-              {m.split && <MacroBar {...m.split} label={t.macro.splitTitle} />}
-              <p className="font-display text-sm tabular-nums">
-                {`${t.macro.protein} ${n(tn.protein)} · ${t.macro.carbs} ${n(tn.carbs)} · ${t.macro.fat} ${n(tn.fat)} · ${t.nutrients.fiber} ${n(tn.fiber)}`}
-              </p>
+              <MacroStrip
+                protein={`${n(tn.protein)} ${NUTRIENT_UNIT.protein}`}
+                carbs={`${n(tn.carbs)} ${NUTRIENT_UNIT.carbs}`}
+                fat={`${n(tn.fat)} ${NUTRIENT_UNIT.fat}`}
+                fiber={`${n(tn.fiber)} ${NUTRIENT_UNIT.fiber}`}
+                split={m.split}
+                labels={{
+                  protein: t.nutrients.protein,
+                  carbs: t.nutrients.carbs,
+                  fat: t.nutrients.fat,
+                  fiber: t.nutrients.fiber,
+                  split: t.macro.splitTitle,
+                }}
+              />
               <p className="text-sm text-muted tabular-nums">
                 {[
                   t.meals.perServing,

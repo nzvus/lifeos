@@ -7,6 +7,7 @@ import type { DayProfile } from "@/core/nutrition/repositories/profiles";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import type { Messages } from "@/i18n";
+import { NutrientIcon } from "@/ui/NutrientIcon";
 
 type Props = {
   profiles: DayProfile[];
@@ -38,7 +39,10 @@ export function ProfileList({ profiles, locale, t }: Props) {
           <dl className="grid grid-cols-5 gap-2 pt-1 text-sm">
             {SHOWN.map((k) => (
               <div key={k}>
-                <dt className="text-muted">{t.nutrients[k]}</dt>
+                <dt className="flex items-center gap-1 text-muted">
+                  <NutrientIcon name={k} size={14} />
+                  <span className="truncate">{t.nutrients[k]}</span>
+                </dt>
                 <dd className="font-display text-lg tabular-nums">
                   {p[k] === null ? "—" : formatNumber(p[k], locale, 0)}
                 </dd>

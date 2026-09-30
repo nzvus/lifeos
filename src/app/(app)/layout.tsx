@@ -22,12 +22,12 @@ import { NavBar } from "@/ui/NavBar";
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const { t, settings } = await requireContext();
   const links = [
-    { href: "/", label: t.nav.today },
-    { href: "/meals", label: t.nav.meals },
-    { href: "/ingredients", label: t.nav.ingredients },
-    { href: "/profiles", label: t.nav.profiles },
-    { href: "/settings", label: t.nav.settings },
-  ];
+    { href: "/", label: t.nav.today, icon: "today" },
+    { href: "/meals", label: t.nav.meals, icon: "meals" },
+    { href: "/ingredients", label: t.nav.ingredients, icon: "ingredients" },
+    { href: "/profiles", label: t.nav.profiles, icon: "targets" },
+    { href: "/settings", label: t.nav.settings, icon: "settings" },
+  ] as const;
   return (
     <div
       lang={settings.locale}
@@ -37,7 +37,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <Link href="/" className="font-display text-3xl font-extrabold">
           {t.app.name}
         </Link>
-        <NavBar links={links} label={t.nav.menu} />
+        <NavBar links={[...links]} label={t.nav.menu} />
         <SignOutButton label={t.nav.signOut} />
       </header>
       <main className="flex flex-col gap-8">{children}</main>
