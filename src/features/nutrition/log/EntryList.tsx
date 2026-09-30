@@ -11,8 +11,10 @@
  */
 import { RefreshCw, Trash2 } from "lucide-react";
 import { macroSplit } from "@/core/nutrition/insights";
+import { sumLines, toDisplay } from "@/core/nutrition/totals";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import type { DayView } from "@/core/nutrition/repositories/log";
+import { Big } from "@/core/shared/decimal";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
@@ -124,28 +126,40 @@ export function EntryList({
                   ? fill(t.macro.ingredientsCount, { n: String(e.lines.length) })
                   : t.day.details}
               </summary>
-              <ul className="pt-1 pl-4">
-                {e.lines.map((l, i) => (
-                  <li key={i} className="tabular-nums">
-                    {`${l.name} — ${formatNumber(l.quantity, locale, 0)} ${l.unit}`}
-                  </li>
-                ))}
-              </ul>
-              <div className="pt-2">
-                <TimeEditor
-                  action={timeAction(e.id)}
-                  initial={e.at ? timeIn(new Date(e.at), timeZone) : ""}
-                  t={t}
-                />
-              </div>
-              <div className="pt-2">
-                <ActionButtonForm
-                  action={refreshAction(e.id)}
-                  label={t.day.refresh}
-                  icon={<RefreshCw size={16} aria-hidden="true" />}
-                  variant="quiet"
-                />
-                <p className="pt-1 text-meta text-muted">{t.day.refreshHint}</p>
+              {/* Indented under a hairline: clearly part of this entry. */}
+              <div className="mt-1 ml-2 flex flex-col gap-3 border-l border-hairline pl-3">
+                <ul className="flex flex-col gap-0.5">
+                  {e.lines.map((l, i) => (
+                    <li key={i} className="flex items-baseline justify-between gap-3">
+                      <span>
+                        {l.name}
+                        <span className="pl-2 font-display text-muted tabular-nums">
+                          {/* What was eaten: per-serving quantity × servings. */}
+                          {`${formatNumber(new Big(l.quantity).times(e.servings).toString(), locale, 0)} ${l.unit}`}
+                        </span>
+                      </span>
+                      {/* This line's share of the entry (servings applied). */}
+                      <span className="shrink-0 font-display text-muted tabular-nums">
+                        {`${n(toDisplay(sumLines([l], e.servings)).nutrients.kcal)} ${NUTRIENT_UNIT.kcal}`}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
+                  <TimeEditor
+                    action={timeAction(e.id)}
+                    initial={e.at ? timeIn(new Date(e.at), timeZone) : ""}
+                    t={t}
+                  />
+                  <ActionButtonForm
+                    action={refreshAction(e.id)}
+                    label={t.day.refresh}
+                    icon={<RefreshCw size={14} aria-hidden="true" />}
+                    variant="subtle"
+                    size="small"
+                  />
+                </div>
+                <p className="text-meta text-muted">{t.day.refreshHint}</p>
               </div>
             </details>
           </ListItem>

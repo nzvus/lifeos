@@ -19,9 +19,10 @@ type Props = {
   action: (prev: State, formData: FormData) => Promise<State>;
   label: string;
   icon?: ReactNode;
-  variant?: "danger" | "quiet";
+  variant?: "danger" | "quiet" | "subtle";
   /** Compact: icon only, label for screen readers and as tooltip. */
   iconOnly?: boolean;
+  size?: "normal" | "small";
 };
 
 export type ActionButtonState = State;
@@ -32,12 +33,13 @@ export function ActionButtonForm({
   icon,
   variant = "danger",
   iconOnly,
+  size,
 }: Props) {
   const [state, formAction] = useActionState(action, { status: "idle" });
   return (
     <form action={formAction} className="flex flex-col items-start gap-2">
       {state.status === "error" && <FormAlert tone="error">{state.message}</FormAlert>}
-      <SubmitButton variant={variant} icon={icon} iconOnly={iconOnly}>
+      <SubmitButton variant={variant} icon={icon} iconOnly={iconOnly} size={size}>
         {label}
       </SubmitButton>
     </form>
