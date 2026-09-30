@@ -291,26 +291,49 @@ export const logEntryItems = pgTable(
  * - locale: which i18n dictionary the UI uses.
  * - targets: daily objectives; null = no target for that nutrient.
  */
-export const userSettings = pgTable("user_settings", {
-  userId: uuid("user_id")
-    .primaryKey() // exactly one settings row per user
-    .references(() => user.id, { onDelete: "cascade" }),
-  timezone: text("timezone").notNull().default("Europe/Rome"),
-  locale: text("locale").notNull().default("it"),
-  // ADR-0010: the chosen theme (core/shared/themes.ts). Plain text like
-  // locale; unknown values fall back to the default when read.
-  theme: text("theme").notNull().default("label"),
-  // DEPRECATED since migration 0001 (ADR-0008): targets moved to
-  // day_profiles; migration 0002 copied them into a "Standard" profile.
-  // Nothing reads these columns any more. A later migration drops them,
-  // once production has run on profiles for a while (additive-first: add,
-  // backfill, switch reads, then remove — ADR-0004).
-  ...targetColumns(),
-  updatedAt: tstz("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+export const userSettings = pgTable(
+  "user_settings",
+  {
+    userId: uuid("user_id")
+      .primaryKey() // exactly one settings row per user
+      .references(() => user.id, { onDelete: "cascade" }),
+    timezone: text("timezone").notNull().default("Europe/Rome"),
+    locale: text("locale").notNull().default("it"),
+    // ADR-0010: the chosen theme (core/shared/themes.ts). Plain text like
+    // locale; unknown values fall back to the default when read.
+    theme: text("theme").notNull().default("label"),
+    // Preferences (migration 0006). Recommended maxima for sugars, saturated
+    // fat and salt when no target is set (core/nutrition/targets.ts).
+    autoTargets: boolean("auto_targets").notNull().default(true),
+    // Where lunch, snack and dinner start, in minutes after midnight
+    // (ADR-0011 core/nutrition/moments.ts); breakfast is before lunch.
+    lunchFrom: integer("lunch_from").notNull().default(660), // 11:00
+    snackFrom: integer("snack_from").notNull().default(900), // 15:00
+    dinnerFrom: integer("dinner_from").notNull().default(1110), // 18:30
+    // Starting views: the trends period (days) and the food lists' sort.
+    // Sort keys are validated by the app (unknown -> default when read).
+    trendsRange: integer("trends_range").notNull().default(7),
+    listSort: text("list_sort").notNull().default("used"),
+    listPer: text("list_per").notNull().default("none"),
+    // DEPRECATED since migration 0001 (ADR-0008): targets moved to
+    // day_profiles; migration 0002 copied them into a "Standard" profile.
+    // Nothing reads these columns any more. A later migration drops them,
+    // once production has run on profiles for a while (additive-first: add,
+    // backfill, switch reads, then remove — ADR-0004).
+    ...targetColumns(),
+    updatedAt: tstz("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    check(
+      "user_settings_moments_ck",
+      sql`300 <= ${t.lunchFrom} and ${t.lunchFrom} < ${t.snackFrom} and ${t.snackFrom} < ${t.dinnerFrom} and ${t.dinnerFrom} < 1440`,
+    ),
+    check("user_settings_trends_range_ck", sql`${t.trendsRange} in (7, 30, 90)`),
+  ],
+);
 
 /**
  * A kind of day with its own daily targets ("Palestra", "Corsa", "Riposo"),
