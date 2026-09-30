@@ -100,6 +100,13 @@
 - [x] Two production incidents, both fixed the same day and guarded: PR #22 merged before its migration (5 min of 500s → CI migration gate); settings page crash from an inline function passed to a client component (#44)
 - [ ] Developer review on phone and desktop of everything above (themes, lists, add-to-day, trends, moments, quality); retro to close S01–S05
 
+## Next sprint: S06 — Training (started 2026-09-30)
+- **Goal:** log and plan training sessions from real data (PUSH/PULL logs, FitForge), see progression (tonnage, estimated 1RM, records), burn as an estimated range.
+- [x] ADR-0005 accepted (delegated: typed sets, exercises as identities, planned/done sessions + routines, MET range + body measurements); migration 0008
+- [ ] Core: validation per kind, repositories, analysis (tonnage, e1RM, records), burn range
+- [ ] Importers: FitForge sessions/presets/body metrics; PUSH/PULL text logs (dry run)
+- [ ] UI: sessions on the day page, session editor, routines, progression charts
+
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
 
