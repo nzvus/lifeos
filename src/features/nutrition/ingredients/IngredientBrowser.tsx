@@ -61,14 +61,16 @@ type Props = {
   ingredients: IngredientRow[];
   usage: UsageMap;
   locale: Locale;
+  /** The sort the list opens with (preferences). */
+  initialSort: { sort: SortKey; per: Per };
   t: Pick<Messages, "ingredients" | "nutrients" | "search" | "macro" | "macroShort">;
 };
 
-export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
+export function IngredientBrowser({ ingredients, usage, locale, initialSort, t }: Props) {
   const list = useListControls<SortKey, Per>({
-    sort: "used",
-    direction: "desc",
-    per: "none",
+    sort: initialSort.sort,
+    direction: sortChoices().find((c) => c.value === initialSort.sort)!.natural,
+    per: initialSort.per,
     plainSorts: ["used", "name"],
   });
 

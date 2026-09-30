@@ -9,8 +9,8 @@ import { formToObject } from "@/app/_server/forms";
 import { saveDisplay } from "@/app/_server/display";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { saveSettings } from "@/core/nutrition/repositories/settings";
-import { parseInput, settingsInput } from "@/core/nutrition/validation";
+import { savePreferences, saveSettings } from "@/core/nutrition/repositories/settings";
+import { parseInput, preferencesInput, settingsInput } from "@/core/nutrition/validation";
 import { parseColorMode, parseLayout } from "@/core/shared/display";
 import type { FormState } from "@/core/shared/result";
 
@@ -43,6 +43,21 @@ export async function saveDisplayAction(
     layout: parseLayout(value("layout")),
   });
   // The attributes live on <html>, in the root layout.
+  revalidatePath("/", "layout");
+  return { status: "saved" };
+}
+
+/** Preferences (migration 0006): auto targets, moment hours, default views. */
+export async function savePreferencesAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(preferencesInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  await savePreferences(getDb(), owner, input.value);
+  // Targets, moments and default views show on every page.
   revalidatePath("/", "layout");
   return { status: "saved" };
 }

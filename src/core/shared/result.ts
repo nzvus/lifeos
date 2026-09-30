@@ -30,6 +30,7 @@ export const ERROR_CODES = [
   "invalid_day",
   "is_default",
   "invalid_time",
+  "moments_order",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 

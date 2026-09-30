@@ -3,8 +3,8 @@
  * days went over a period (every nutrient, 7 / 30 / 90 days, scrollable back
  * in time) and the day types that define the targets (ADR-0008).
  *
- * The period is in the URL (?range=30&to=2026-09-30); anything invalid falls
- * back to the last 7 days up to today.
+ * The period is in the URL (?range=30&to=2026-09-30); without it (or when
+ * invalid), the user's default period (preferences) up to today.
  */
 import { CalendarRange, TrendingUp } from "lucide-react";
 import { requireContext } from "@/app/_server/owner";
@@ -13,7 +13,8 @@ import { getHistory } from "@/core/nutrition/repositories/history";
 import { listProfiles } from "@/core/nutrition/repositories/profiles";
 import { daysEnding, isValidDay, todayIn } from "@/core/shared/dates";
 import { ProfileList } from "@/features/nutrition/profiles/ProfileList";
-import { RangeNav, RANGES, type Range } from "@/features/nutrition/trends/RangeNav";
+import { TREND_RANGES, type TrendRange } from "@/core/nutrition/preferences";
+import { RangeNav } from "@/features/nutrition/trends/RangeNav";
 import { Trends } from "@/features/nutrition/trends/Trends";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
@@ -24,7 +25,10 @@ export default async function ProfilesPage({ searchParams }: Props) {
   const { owner, settings, t } = await requireContext();
   const params = await searchParams;
   const today = todayIn(settings.timezone);
-  const range: Range = RANGES.find((r) => String(r) === params.range) ?? 7;
+  // No period in the URL: the user's default (preferences).
+  const range: TrendRange =
+    TREND_RANGES.find((r) => String(r) === params.range) ??
+    settings.preferences.trendsRange;
   const to = params.to && isValidDay(params.to) && params.to <= today ? params.to : today;
   const days = daysEnding(to, range);
   const db = getDb();
@@ -51,6 +55,7 @@ export default async function ProfilesPage({ searchParams }: Props) {
           history={history}
           today={today}
           timeZone={settings.timezone}
+          autoTargets={settings.preferences.autoTargets}
           locale={settings.locale}
           t={t}
         />

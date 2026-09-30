@@ -2,15 +2,17 @@
  * app/(app)/settings/page.tsx — URL /settings: preferences, display (this
  * device only), and the data export link (GET /api/export, a plain download).
  */
-import { Download, Eye } from "lucide-react";
+import { Download, Eye, SlidersHorizontal } from "lucide-react";
 import { getDisplay } from "@/app/_server/display";
 import { requireContext } from "@/app/_server/owner";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
+import { preferencesFormValues } from "@/core/nutrition/preferences";
 import { settingsFormValues } from "@/core/nutrition/validation";
 import { DisplayForm } from "@/features/account/settings/DisplayForm";
+import { PreferencesForm } from "@/features/account/settings/PreferencesForm";
 import { SettingsForm } from "@/features/account/settings/SettingsForm";
-import { saveDisplayAction, saveSettingsAction } from "./actions";
+import { saveDisplayAction, savePreferencesAction, saveSettingsAction } from "./actions";
 
 export default async function SettingsPage() {
   const { settings, t } = await requireContext();
@@ -27,6 +29,23 @@ export default async function SettingsPage() {
         timeZones={timeZones}
         t={{ settings: t.settings, errors: t.errors }}
       />
+      <Section
+        title={t.preferences.title}
+        icon={<SlidersHorizontal size={20} aria-hidden="true" />}
+      >
+        <PreferencesForm
+          action={savePreferencesAction}
+          initial={preferencesFormValues(settings.preferences)}
+          t={{
+            preferences: t.preferences,
+            moments: t.moments,
+            search: t.search,
+            trends: t.trends,
+            errors: t.errors,
+            settings: t.settings,
+          }}
+        />
+      </Section>
       <Section
         title={t.settings.display.title}
         icon={<Eye size={20} aria-hidden="true" />}

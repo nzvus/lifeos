@@ -42,17 +42,19 @@ type Props = {
   meals: MealWithLines[];
   usage: UsageMap;
   locale: Locale;
+  /** The sort the list opens with (preferences). */
+  initialSort: { sort: SortKey; per: Per };
   t: Pick<
     Messages,
     "meals" | "nutrients" | "search" | "macro" | "label" | "macroShort" | "moments"
   >;
 };
 
-export function MealBrowser({ meals, usage, locale, t }: Props) {
+export function MealBrowser({ meals, usage, locale, initialSort, t }: Props) {
   const list = useListControls<SortKey, Per>({
-    sort: "used",
-    direction: "desc",
-    per: "none",
+    sort: initialSort.sort,
+    direction: sortChoices().find((c) => c.value === initialSort.sort)!.natural,
+    per: initialSort.per,
     plainSorts: ["used", "name"],
   });
 

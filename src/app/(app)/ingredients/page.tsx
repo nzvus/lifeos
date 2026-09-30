@@ -44,6 +44,10 @@ export default async function IngredientsPage() {
         }))}
         usage={usage.ingredients}
         locale={settings.locale}
+        initialSort={{
+          sort: settings.preferences.listSort,
+          per: settings.preferences.listPer,
+        }}
         t={{
           ingredients: t.ingredients,
           nutrients: t.nutrients,

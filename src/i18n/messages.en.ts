@@ -52,6 +52,8 @@ export const en = {
     invalid_day: "That date doesn't exist.",
     is_default: "This is the default day type. Make another one the default first.",
     invalid_time: "Enter a time like 12:30.",
+    moments_order:
+      "The times must be in order: lunch after 05:00, then snack, then dinner.",
   },
   auth: {
     signInTitle: "Sign in",
@@ -262,6 +264,19 @@ export const en = {
       fiber: "of fibre",
     },
     sortValue: "{what}: {v}",
+  },
+  preferences: {
+    title: "Preferences",
+    autoTargets: "Automatic recommended limits",
+    autoTargetsHint:
+      "When a day type sets no sugars, saturated fat or salt target, use the recommended maximums (EU, WHO). Off: only the targets you wrote.",
+    momentsTitle: "Moment times",
+    from: "{moment} from",
+    momentsHint:
+      "Used to suggest the moment when you add something and to group entries without one. Breakfast is before lunch.",
+    trendsRange: "Trends period when opening",
+    listSort: "List order when opening",
+    save: "Save preferences",
   },
   moments: {
     label: "Moment",

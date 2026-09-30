@@ -27,6 +27,10 @@ export default async function MealsPage() {
         meals={meals}
         usage={usage.meals}
         locale={settings.locale}
+        initialSort={{
+          sort: settings.preferences.listSort,
+          per: settings.preferences.listPer,
+        }}
         t={{
           meals: t.meals,
           nutrients: t.nutrients,

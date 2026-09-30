@@ -92,7 +92,7 @@
 - [x] Themes really different: surfaces as tokens (orto: soft cards with shadows; cruscotto: boxed dense rows), day panel as tiles in cruscotto (`THEME_SLOTS`). The ADR-0010 `themes/` layer was not needed: one slot, chosen by a table in core
 - [x] ADR-0011 accepted (option C): meal category as a hint, moment on each entry; migration 0005
 - [x] Moments in the app: prefilled moment on add, category in the meal editor, day grouped by moment with subtotals, meals filter; export v4 + import keep them
-- [ ] Settings: automatic targets on/off, moment hours, default trends period and list sort
+- [x] Preferences (migration 0006): automatic limits on/off, moment hours, default trends period and list sort
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

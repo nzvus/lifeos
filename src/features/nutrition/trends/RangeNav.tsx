@@ -6,15 +6,13 @@
  */
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { TREND_RANGES, type TrendRange } from "@/core/nutrition/preferences";
 import { addDays } from "@/core/shared/dates";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 
-export const RANGES = [7, 30, 90] as const;
-export type Range = (typeof RANGES)[number];
-
 type Props = {
-  range: Range;
+  range: TrendRange;
   from: string;
   to: string;
   today: string;
@@ -37,7 +35,7 @@ export function RangeNav({ range, from, to, today, locale, t }: Props) {
   return (
     <div className="flex flex-col gap-2">
       <nav aria-label={t.ranges} className="flex gap-1">
-        {RANGES.map((r) => (
+        {TREND_RANGES.map((r) => (
           <Link
             key={r}
             href={href(r, to)}
