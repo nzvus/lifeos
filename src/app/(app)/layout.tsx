@@ -41,7 +41,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <NavBar links={[...links]} label={t.nav.menu} />
         <SignOutButton label={t.nav.signOut} />
       </header>
-      <main className="flex flex-col gap-8">{children}</main>
+      <main className="flex flex-col gap-4">{children}</main>
     </div>
   );
 }

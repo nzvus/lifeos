@@ -99,11 +99,15 @@
  * components only say "panel", "tile", "item"; each theme decides whether
  * that is a ruled row (label), a soft card with a shadow (orto) or a dense
  * boxed row (cruscotto), by overriding these variables. Defaults = label.
+ *
+ * Every page section is a panel (ui/Section, 2026-10-01): one card per
+ * section, the same padding on every side, 16 px between cards — the
+ * spacing the developer chose from three mock-ups ("A · Schede").
  */
 :root {
   --panel-bg: var(--color-sheet);
-  --panel-border: var(--rule-strong) solid var(--color-ink);
-  --panel-radius: var(--radius-surface);
+  --panel-border: 1px solid var(--color-hairline);
+  --panel-radius: 0.75rem;
   --panel-shadow: none;
   --tile-bg: var(--color-paper);
   --tile-border: 1px solid var(--color-hairline);

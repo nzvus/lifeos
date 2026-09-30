@@ -1,14 +1,16 @@
 /**
- * ui/Section.tsx — a page section: the heavy rule above, its heading, its
- * content (the "label" look, one copy instead of one per page). As a
- * <fieldset> (`as="fieldset"`), the heading is its <legend>, so a group of
- * form fields is announced with its name. `aside` (a count, a total) sits
+ * ui/Section.tsx — a page section: one card (the theme's `panel` surface)
+ * with its heading and its content, the same padding on every side. As a
+ * <fieldset> (`as="fieldset"`), the heading is also its <legend> (for screen
+ * readers; the visible heading is a plain row, since a legend would sit on
+ * the card's border), so a group of form fields is announced with its name. `aside` (a count, a total) sits
  * at the right end of the heading, so the heading row uses its full width. The icon takes the theme's
  * accent (herb) unless it carries a colour of its own (a nutrient, a moment).
  */
 import type { ReactNode } from "react";
+import { CARD } from "./Card";
 
-const BOX = "flex flex-col gap-4 rule-t-heavy border-ink pt-3";
+const BOX = CARD;
 const HEADING = "flex w-full items-center gap-2 font-display text-section font-bold";
 const ASIDE = "ml-auto font-display text-meta font-normal text-muted tabular-nums";
 
@@ -32,11 +34,12 @@ export function Section({
   if (as === "fieldset") {
     return (
       <fieldset className={BOX}>
-        <legend className={HEADING}>
+        <legend className="sr-only">{title}</legend>
+        <div aria-hidden="true" className={HEADING}>
           {icon && <span className="inline-flex text-herb">{icon}</span>}
           {title}
           {aside && <span className={ASIDE}>{aside}</span>}
-        </legend>
+        </div>
         {children}
       </fieldset>
     );

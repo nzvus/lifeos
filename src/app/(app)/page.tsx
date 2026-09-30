@@ -42,6 +42,7 @@ import { SessionList } from "@/features/training/sessions/SessionList";
 import { presetTiles } from "./training/preset-tiles";
 import { listMeasurements } from "@/core/training/repositories/measurements";
 import { listSessions } from "@/core/training/repositories/sessions";
+import { Card } from "@/ui/Card";
 import { Section } from "@/ui/Section";
 import { dayScore } from "@/core/nutrition/day-score";
 import { eatenQuality } from "@/core/nutrition/quality-summary";
@@ -113,15 +114,17 @@ export default async function DayPage({ searchParams }: Props) {
 
   return (
     <>
-      <DayNav day={day} today={today} locale={locale} t={t.day} />
-      <WeekStrip week={week} day={day} today={today} locale={locale} t={t.day} />
-      <DayProfilePicker
-        day={day}
-        current={dayTargets}
-        profiles={profiles.map((p) => ({ id: p.id, name: p.name }))}
-        action={setDayProfileAction}
-        t={{ day: t.day, errors: t.errors }}
-      />
+      <Card>
+        <DayNav day={day} today={today} locale={locale} t={t.day} />
+        <WeekStrip week={week} day={day} today={today} locale={locale} t={t.day} />
+        <DayProfilePicker
+          day={day}
+          current={dayTargets}
+          profiles={profiles.map((p) => ({ id: p.id, name: p.name }))}
+          action={setDayProfileAction}
+          t={{ day: t.day, errors: t.errors }}
+        />
+      </Card>
       <DayPanel
         totals={view.totals}
         withPlanned={view.withPlanned}
@@ -159,7 +162,7 @@ export default async function DayPage({ searchParams }: Props) {
         locale={locale}
         t={{ dayScore: t.dayScore, quality: t.quality }}
       />
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4">
         <EntryList
           day={view}
           locale={locale}

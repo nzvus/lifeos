@@ -20,6 +20,7 @@ import type { Locale } from "@/core/shared/locales";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import { ActionButtonForm, type ActionButtonState } from "@/ui/ActionButtonForm";
 import { FoodDetails } from "@/ui/FoodDetails";
+import { CARD } from "@/ui/Card";
 import { ListItem } from "@/ui/ListItem";
 import { MOMENT_TEXT, MomentIcon } from "@/ui/MomentIcon";
 import { MacroStrip } from "@/ui/MacroStrip";
@@ -66,7 +67,7 @@ export function EntryList({
     // Grouped by moment of the day (ADR-0011), each with its eaten kcal.
     <div className="flex flex-col gap-4">
       {groupByMoment(day.entries, timeZone, bounds).map((group) => (
-        <section key={group.moment ?? "none"} className="flex flex-col">
+        <section key={group.moment ?? "none"} className={CARD}>
           <h3 className="flex items-center justify-between gap-2 rule-b-medium border-ink pb-1 font-display text-item font-bold">
             <span
               className={`flex items-center gap-1.5 ${
