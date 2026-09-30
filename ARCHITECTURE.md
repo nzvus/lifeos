@@ -27,10 +27,9 @@ src/
   features/     vertical slices (area/slice): account/{auth,settings},
                 nutrition/{ingredients,meals,log,profiles,trends}. Components only.
   core/         db/ (schema, client), identity/ (Owner, ownedBy),
-                nutrition/ (nutrients, totals, targets, insights, display,
-                preview, validation, repositories/), export/, import/ (FitForge; lifeos replace;
-                ingredient upsert by name),
-                auth/, shared/ (search, browse, sorting…), testing/ (PGlite test db)
+                nutrition/ (totals, targets, quality, display, preview, validation,
+                repositories/), training/ (ADR-0005), export/, import/, auth/,
+                shared/ (validation, search, browse, sorting…), testing/ (PGlite db)
   ui/           one component per repeated thing: PageHeader, Section, ListToolbar,
                 ListItem, MacroStrip, FoodDetails, form controls, SearchSelect, …
   design/       theme.css — Tailwind v4 @theme tokens (light + dark)
