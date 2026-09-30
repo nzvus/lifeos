@@ -35,11 +35,19 @@ jobs:
       # then add the label "production-migrated"; this re-runs and passes.
       - name: Migration gate
         if: github.event_name == 'pull_request'
+        shell: bash # process substitution <(…)
         env:
-          BASE: ${{ github.event.pull_request.base.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
           LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
         run: |
-          new=$(git diff --name-only --diff-filter=A "$BASE" HEAD -- 'drizzle/*.sql')
+          # Compare with the base branch as it is NOW, not as it was when the
+          # PR was opened: a PR stacked on one that added a migration must not
+          # count that migration as new once it is merged (#38, 2026-09-30).
+          # "New" = migration files in this PR that the base branch doesn't have.
+          git fetch --quiet origin "$BASE_REF"
+          new=$(comm -13 \
+            <(git ls-tree --name-only "origin/$BASE_REF" drizzle/ | grep '\.sql$' | sort) \
+            <(git ls-tree --name-only HEAD drizzle/ | grep '\.sql$' | sort))
           if [ -z "$new" ]; then echo "No new migration."; exit 0; fi
           echo "New migration(s): $new"
           if echo "$LABELS" | grep -q '"production-migrated"'; then
