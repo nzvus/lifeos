@@ -13,10 +13,14 @@
  *   10 da 60                       10 reps with 60 kg
  *   2x9 da 15                      2 sets of 9 with 15 kg
  *   3x10                           3 sets of 10, no load (bodyweight)
+ *   8                              8 reps with the load of the set above
+ *                                  (none above: no load, bodyweight)
  *   3x8 con 2 da 20                two dumbbells: load 40, written "2×20"
  *   7 con 2 da 10 + asta           plates plus a bar of unknown weight:
  *                                  load 20 (known part), approximate
  *   (reps da un braccio …)         a note on the exercise above
+ *   Row (oggi non l'ho fatto)      an exercise NOT done that day: skipped,
+ *                                  with a warning
  *   Compiuto in 55 min / circa 1 ora   the duration
  *
  * Prose — the warm-up description before the first exercise, a sentence
@@ -56,6 +60,7 @@ const REST = /^pause\s+da\s+(\d+)[.,:](\d{1,2})\b/i;
 const REST_SEC = /^(\d+)\s*sec\s+di\s+pausa/i;
 const DONE = /^compiuto\s+in\s+(?:circa\s+)?(?:(\d+)\s*min|(un|\d+)\s*or[ae])/i;
 const NOTE_REST = /pause\s+da\s+(\d+)\s*sec/i;
+const NOT_DONE = /non\s+l[' ]?\s*ho\s+fatt/i;
 
 /** "17.5" or "17,5" -> "17.5"; doubled -> "35". Exact enough for half kilos. */
 const kg = (raw: string, times = 1) => {
@@ -115,12 +120,19 @@ export function parseGymLog(fileName: string, text: string): ParsedSession {
         return;
       }
       const [, count, reps, pair, load, bar] = r;
-      const set: ParsedSet = {
-        reps: Number(reps),
-        loadKg: load ? kg(load, pair ? 2 : 1) : null,
-        loadText: pair ? `2×${load!.replace(".", ",")}${bar ? " + asta" : ""}` : null,
-        loadApprox: Boolean(bar),
-      };
+      // Bare reps ("8") keep the load of the set above, as written by hand.
+      const above = current.sets.at(-1);
+      const set: ParsedSet =
+        !load && above
+          ? { ...above, reps: Number(reps) }
+          : {
+              reps: Number(reps),
+              loadKg: load ? kg(load, pair ? 2 : 1) : null,
+              loadText: pair
+                ? `2×${load!.replace(".", ",")}${bar ? " + asta" : ""}`
+                : null,
+              loadApprox: Boolean(bar),
+            };
       for (let k = 0; k < Number(count ?? 1); k++) current.sets.push({ ...set });
       return;
     }
@@ -141,6 +153,11 @@ export function parseGymLog(fileName: string, text: string): ParsedSession {
         restS: noteRest ? Number(noteRest[1]) : restS,
         sets: [],
       };
+      if (NOT_DONE.test(current.notes)) {
+        // Kept as `current` so its sets are consumed, but not in the session.
+        warnings.push(`skipped, not done: "${name}"`);
+        return;
+      }
       session.exercises.push(current);
       return;
     }

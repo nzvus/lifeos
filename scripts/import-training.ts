@@ -108,8 +108,11 @@ try {
   console.log(`New exercises (${plan.newExercises.length}):`);
   for (const e of plan.newExercises) console.log(`  + ${e.name}  [${e.kind}]`);
   console.log(`\nSessions:`);
-  for (const s of plan.sessions)
+  for (const s of plan.sessions) {
     console.log(`  ${s.exists ? "= exists " : "+ new    "} ${s.day}  ${s.label}`);
+    if (s.problems && !s.exists)
+      console.log(`      ! would be refused: ${JSON.stringify(s.problems)}`);
+  }
   console.log(`\nRoutines:`);
   for (const r of plan.routines)
     console.log(`  ${r.exists ? "= exists " : "+ new    "} ${r.name}`);
