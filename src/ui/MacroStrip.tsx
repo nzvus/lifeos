@@ -39,7 +39,7 @@ export function MacroStrip({ energy, protein, carbs, fat, fiber, split, labels }
   ];
   return (
     <div className="flex flex-col gap-1">
-      <p className="flex flex-wrap items-center gap-x-3 gap-y-0.5 font-display text-sm tabular-nums">
+      <p className="flex flex-wrap items-center gap-x-3 gap-y-0.5 font-display text-meta tabular-nums">
         {energy && <span className="font-semibold">{energy}</span>}
         {items.map((i) => (
           <span key={i.key} className="inline-flex items-center gap-1">

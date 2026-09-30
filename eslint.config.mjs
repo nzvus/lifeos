@@ -11,8 +11,9 @@
  *        ui       -> ui, design, i18n
  *        core     -> core only (and no framework packages at all)
  *        design, i18n -> themselves only (leaves)
- *   3. Values stay centralised (ADR-0002 rule 3): no hex colours and no
- *      Tailwind arbitrary values like p-[13px] outside design/; no hard-coded
+ *   3. Values stay centralised (ADR-0002 rule 3): no hex colours, no
+ *      Tailwind arbitrary values like p-[13px], no default text sizes or
+ *      numeric border widths (ADR-0010 tokens) outside design/; no hard-coded
  *      user-facing text in JSX outside i18n/.
  *
  * Proof that the rules bite: docs/runbooks/lint-boundaries.md lists the
@@ -173,6 +174,26 @@ const config = [
           selector: "TemplateElement[value.raw=/(^|\\s)[a-z-]+-\\[[^\\]]+\\]/]",
           message:
             "No Tailwind arbitrary values; add a token in src/design/theme.css (ADR-0002 rule 3).",
+        },
+        {
+          // Type scale (ADR-0010): only the five named sizes of theme.css.
+          selector: "Literal[value=/(^|[\\s:])text-(xs|sm|base|lg|xl|[2-9]xl)(\\s|$)/]",
+          message: "Use text-title/section/item/body/meta (src/design/theme.css).",
+        },
+        {
+          selector:
+            "TemplateElement[value.raw=/(^|[\\s:])text-(xs|sm|base|lg|xl|[2-9]xl)(\\s|$)/]",
+          message: "Use text-title/section/item/body/meta (src/design/theme.css).",
+        },
+        {
+          // Rule thickness is a token (ADR-0010): rule-b-medium, not border-b-2.
+          selector: "Literal[value=/(^|[\\s:])border(-[trblxy])?-[0-9]+(\\s|$)/]",
+          message: "Use rule-*/rule-t-*/rule-b-*/rule-l-* (src/design/theme.css).",
+        },
+        {
+          selector:
+            "TemplateElement[value.raw=/(^|[\\s:])border(-[trblxy])?-[0-9]+(\\s|$)/]",
+          message: "Use rule-*/rule-t-*/rule-b-*/rule-l-* (src/design/theme.css).",
         },
       ],
       // Text written directly between JSX tags must come from i18n/.

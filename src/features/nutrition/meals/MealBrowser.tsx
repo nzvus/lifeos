@@ -102,7 +102,7 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.search.placeholder}
-            className="w-full rule-b-medium border-ink bg-sheet py-2 pr-2 pl-8 text-base outline-none focus-visible:border-focus"
+            className="w-full rule-b-medium border-ink bg-sheet py-2 pr-2 pl-8 text-body outline-none focus-visible:border-focus"
           />
         </label>
         <SortControl
@@ -120,7 +120,7 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
           labels={{ sortBy: t.search.sortBy, asc: t.search.asc, desc: t.search.desc }}
         />
       </div>
-      <p className="text-sm text-muted" aria-live="polite">
+      <p className="text-meta text-muted" aria-live="polite">
         {shown.length === 0 && query
           ? fill(t.search.noResults, { q: query })
           : fill(t.search.count, { n: String(shown.length), total: String(rows.length) })}

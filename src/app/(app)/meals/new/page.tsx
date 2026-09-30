@@ -14,10 +14,10 @@ export default async function NewMealPage() {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <Link href="/meals" className="text-sm underline">
+      <Link href="/meals" className="text-meta underline">
         {t.meals.back}
       </Link>
-      <h1 className="font-display text-3xl font-bold">{t.meals.newTitle}</h1>
+      <h1 className="font-display text-title font-bold">{t.meals.newTitle}</h1>
       {ingredients.length === 0 ? (
         <p className="text-muted">
           {t.meals.needIngredients}{" "}

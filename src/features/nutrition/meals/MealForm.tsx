@@ -109,7 +109,7 @@ export function MealForm({ action, ingredients, initial, submitLabel, t }: Props
       />
 
       <fieldset className="flex flex-col gap-4 rule-t-heavy border-ink pt-3">
-        <legend className="font-display text-xl font-bold">{t.meals.lines}</legend>
+        <legend className="font-display text-section font-bold">{t.meals.lines}</legend>
         {err("items") && <FormAlert tone="error">{err("items")!}</FormAlert>}
         {lines.map((line, idx) => (
           <div
@@ -140,7 +140,7 @@ export function MealForm({ action, ingredients, initial, submitLabel, t }: Props
             <button
               type="button"
               onClick={() => setLines((ls) => ls.filter((l) => l.key !== line.key))}
-              className="pb-2 text-sm underline"
+              className="pb-2 text-meta underline"
             >
               {t.meals.removeLine}
             </button>

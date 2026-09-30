@@ -21,10 +21,10 @@ export default async function IngredientsPage() {
   return (
     <>
       <div className="flex items-baseline justify-between gap-4">
-        <h1 className="font-display text-3xl font-bold">{t.ingredients.title}</h1>
+        <h1 className="font-display text-title font-bold">{t.ingredients.title}</h1>
         <Link
           href="/ingredients/new"
-          className="bg-herb px-3 py-1 font-display text-lg font-semibold text-sheet"
+          className="bg-herb px-3 py-1 font-display text-item font-semibold text-sheet"
         >
           {t.ingredients.newTitle}
         </Link>

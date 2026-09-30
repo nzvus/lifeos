@@ -34,7 +34,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       className="mx-auto flex max-w-wide flex-col gap-6 px-4 pb-24 md:pb-16"
     >
       <header className="flex items-baseline justify-between gap-x-6 gap-y-2 rule-b-heavy border-ink pt-4 pb-2">
-        <Link href="/" className="font-display text-3xl font-extrabold">
+        <Link href="/" className="font-display text-title font-extrabold">
           {t.app.name}
         </Link>
         <NavBar links={[...links]} label={t.nav.menu} />

@@ -87,7 +87,7 @@ export function EntryList({
                   </span>
                 )}
                 {e.estimated && (
-                  <span className="ml-2 border border-hairline px-1 text-xs font-normal text-muted">
+                  <span className="ml-2 border border-hairline px-1 text-meta font-normal text-muted">
                     {t.day.estimated}
                   </span>
                 )}
@@ -118,7 +118,7 @@ export function EntryList({
                 split: t.macro.splitTitle,
               }}
             />
-            <details className="text-sm">
+            <details className="text-meta">
               <summary className="cursor-pointer text-muted">
                 {e.lines.length > 1
                   ? fill(t.macro.ingredientsCount, { n: String(e.lines.length) })
@@ -145,7 +145,7 @@ export function EntryList({
                   icon={<RefreshCw size={16} aria-hidden="true" />}
                   variant="quiet"
                 />
-                <p className="pt-1 text-xs text-muted">{t.day.refreshHint}</p>
+                <p className="pt-1 text-meta text-muted">{t.day.refreshHint}</p>
               </div>
             </details>
           </ListItem>

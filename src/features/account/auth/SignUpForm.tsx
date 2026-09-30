@@ -57,11 +57,11 @@ export function SignUpForm({ t }: { t: Messages["auth"] }) {
       <button
         type="submit"
         disabled={pending}
-        className="bg-herb px-4 py-2 font-display text-lg font-semibold text-sheet disabled:opacity-50"
+        className="bg-herb px-4 py-2 font-display text-item font-semibold text-sheet disabled:opacity-50"
       >
         {t.signUp}
       </button>
-      <Link href="/sign-in" className="text-sm underline">
+      <Link href="/sign-in" className="text-meta underline">
         {t.toSignIn}
       </Link>
     </form>

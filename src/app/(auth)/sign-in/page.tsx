@@ -17,7 +17,7 @@ export default async function SignInPage() {
   const t = dictionaries[DEFAULT_LOCALE];
   return (
     <>
-      <h1 className="font-display text-2xl font-bold">{t.auth.signInTitle}</h1>
+      <h1 className="font-display text-section font-bold">{t.auth.signInTitle}</h1>
       <SignInForm t={t.auth} />
     </>
   );

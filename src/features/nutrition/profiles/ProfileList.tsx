@@ -26,24 +26,24 @@ export function ProfileList({ profiles, locale, t }: Props) {
           <div className="flex items-baseline justify-between gap-3">
             <Link
               href={`/profiles/${p.id}`}
-              className="font-display text-xl font-bold underline-offset-4 hover:underline"
+              className="font-display text-section font-bold underline-offset-4 hover:underline"
             >
               {p.name}
             </Link>
             {p.isDefault && (
-              <span className="rule-medium border-herb px-2 font-display text-sm font-semibold text-herb">
+              <span className="rule-medium border-herb px-2 font-display text-meta font-semibold text-herb">
                 {t.profiles.isDefault}
               </span>
             )}
           </div>
-          <dl className="grid grid-cols-5 gap-2 pt-1 text-sm">
+          <dl className="grid grid-cols-5 gap-2 pt-1 text-meta">
             {SHOWN.map((k) => (
               <div key={k}>
                 <dt className="flex items-center gap-1 text-muted">
                   <NutrientIcon name={k} size={14} />
                   <span className="truncate">{t.nutrients[k]}</span>
                 </dt>
-                <dd className="font-display text-lg tabular-nums">
+                <dd className="font-display text-item tabular-nums">
                   {p[k] === null ? "—" : formatNumber(p[k], locale, 0)}
                 </dd>
               </div>

@@ -28,7 +28,7 @@ type Props = {
 export function DayProfilePicker({ day, current, profiles, action, t }: Props) {
   const [state, formAction] = useActionState(action, IDLE);
   if (profiles.length === 0)
-    return <p className="text-sm text-muted">{t.day.noProfiles}</p>;
+    return <p className="text-meta text-muted">{t.day.noProfiles}</p>;
 
   const status =
     current.source === "fixed"
@@ -55,7 +55,7 @@ export function DayProfilePicker({ day, current, profiles, action, t }: Props) {
         />
         <SubmitButton variant="quiet">{t.day.applyProfile}</SubmitButton>
       </div>
-      <p className="text-sm text-muted">{status}</p>
+      <p className="text-meta text-muted">{status}</p>
     </form>
   );
 }

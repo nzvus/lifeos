@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const t = dictionaries[DEFAULT_LOCALE];
   return (
     <main className="mx-auto flex max-w-sm flex-col gap-6 px-4 py-12">
-      <p className="rule-b-heavy border-ink pb-1 font-display text-4xl font-extrabold">
+      <p className="rule-b-heavy border-ink pb-1 font-display text-title font-extrabold">
         {t.app.name}
       </p>
       {children}

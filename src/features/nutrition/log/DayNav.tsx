@@ -29,11 +29,11 @@ export function DayNav({ day, today, locale, t }: Props) {
         <ChevronLeft size={28} aria-hidden="true" />
       </Link>
       <div className="text-center">
-        <h1 className="font-display text-2xl font-bold first-letter:uppercase">
+        <h1 className="font-display text-section font-bold first-letter:uppercase">
           {heading}
         </h1>
         {day !== today && (
-          <Link href="/" className="text-sm underline">
+          <Link href="/" className="text-meta underline">
             {t.backToToday}
           </Link>
         )}

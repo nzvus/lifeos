@@ -42,14 +42,14 @@ export function ListItem({
         {leading}
         <div className="min-w-0 flex-1 pt-1 font-semibold">{title}</div>
         {aside && (
-          <div className="shrink-0 pt-1 font-display text-sm whitespace-nowrap text-muted tabular-nums">
+          <div className="shrink-0 pt-1 font-display text-meta whitespace-nowrap text-muted tabular-nums">
             {aside}
           </div>
         )}
         {action && <div className="shrink-0">{action}</div>}
       </div>
       {children}
-      {footer && <div className="text-xs text-muted tabular-nums">{footer}</div>}
+      {footer && <div className="text-meta text-muted tabular-nums">{footer}</div>}
     </li>
   );
 }

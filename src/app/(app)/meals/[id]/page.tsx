@@ -27,10 +27,10 @@ export default async function EditMealPage({ params }: Props) {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <Link href="/meals" className="text-sm underline">
+      <Link href="/meals" className="text-meta underline">
         {t.meals.back}
       </Link>
-      <h1 className="font-display text-3xl font-bold">{t.meals.editTitle}</h1>
+      <h1 className="font-display text-title font-bold">{t.meals.editTitle}</h1>
       <MealForm
         action={updateMealAction.bind(null, id)}
         ingredients={ingredients}
