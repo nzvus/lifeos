@@ -19,7 +19,9 @@ import "@fontsource/barlow-condensed/700.css";
 import "@fontsource/barlow-condensed/800.css";
 import "./globals.css";
 import { getDisplay } from "@/app/_server/display";
+import { getTheme } from "@/app/_server/owner";
 import { DEFAULT_LOCALE } from "@/core/shared/locales";
+import { DEFAULT_THEME } from "@/core/shared/themes";
 import { dictionaries } from "@/i18n";
 
 export const metadata: Metadata = {
@@ -53,10 +55,13 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   // server so the first paint already has the right palette and layout.
   // The defaults ("system", "auto") are the absence of the attribute.
   const { mode, layout } = await getDisplay();
+  // The user's theme (ADR-0010); the default one needs no attribute.
+  const theme = await getTheme();
   // `lang` is the default locale; signed-in pages set their own on their wrapper.
   return (
     <html
       lang={DEFAULT_LOCALE}
+      data-theme={theme === DEFAULT_THEME ? undefined : theme}
       data-mode={mode === "system" ? undefined : mode}
       data-layout={layout === "auto" ? undefined : layout}
     >

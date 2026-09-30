@@ -173,6 +173,14 @@ export const it: Messages = {
       "Scarica tutto ciò che hai inserito in un file JSON. Tienine una copia: funziona anche senza questa app.",
     export: "Scarica i miei dati",
     localeNames: { it: "Italiano", en: "English" },
+    theme: "Tema",
+    themeHint:
+      "Vale su tutti i tuoi dispositivi. Chiaro o scuro si sceglie sotto, in Aspetto.",
+    themeNames: {
+      label: "Etichetta — numeri condensati, righe marcate",
+      orto: "Orto — caldo, morbido, più spazio",
+      cruscotto: "Cruscotto — denso, tanti numeri",
+    },
     display: {
       title: "Aspetto",
       hint: "Salvato solo su questo dispositivo: telefono e computer possono essere diversi.",

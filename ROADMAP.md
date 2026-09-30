@@ -83,8 +83,8 @@
 - [x] Phone screenshots (2026-09-30)
 - [x] Design pass on `label`: ~~bugs (€ €/kg, ring centre, kcal decimals)~~ → ~~one list-row layout (ui/ListItem) for ingredients/meals/entries~~ → ~~type scale (5 tokens + lint)~~ → ~~day panel and week chart legends~~ → ~~details drawer (quiet buttons, per-line kcal)~~ → ~~small UX (auto-apply day type, labels)~~
 - [x] Unified "add to day": one search over meals + ingredients + "estimated meal", then only the fields that fit (`AddToDay`)
-- [ ] Design a second theme; it decides which slots are really needed (the developer delegated theme design to the agent)
-- [ ] Only then: `themes/` layer, slot switches for those slots, contract test, lint boundaries, `user_settings.theme` + theme picker (building them before a second theme exists would be speculative, PROJECT.md §5)
+- [x] Two more themes as tokens: `orto` (warm, soft) and `cruscotto` (dense, monospace); `user_settings.theme` (migration 0004) + picker; contract test
+- [ ] Their components: slots `ListItem` (orto: cards; cruscotto: one line) and `DayPanel` (cruscotto: tiles) — only these two are needed
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

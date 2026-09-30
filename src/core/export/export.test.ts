@@ -42,7 +42,11 @@ describe("exportUserData", () => {
       ingredientId: ing.value.id,
       quantity: "50",
     });
-    await saveSettings(db, alice, { timezone: "Europe/Rome", locale: "it" });
+    await saveSettings(db, alice, {
+      timezone: "Europe/Rome",
+      locale: "it",
+      theme: "orto",
+    });
     await createIngredient(db, bob, ingredientFixture({ name: "Bob's secret" }));
     await db.insert(account).values({
       accountId: "a",
@@ -59,6 +63,7 @@ describe("exportUserData", () => {
     expect(data.ingredients.map((i) => i.name)).toEqual(["Oats"]);
     expect(data.log[0]?.items[0]?.quantity).toBe("50.00"); // exact, as stored
     expect(data.settings?.timezone).toBe("Europe/Rome");
+    expect(data.settings?.theme).toBe("orto");
     expect(data.dayProfiles.map((p) => [p.name, p.kcal, p.isDefault])).toEqual([
       ["Palestra", "2400.000", true],
     ]);

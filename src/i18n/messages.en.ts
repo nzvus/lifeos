@@ -176,6 +176,13 @@ export const en = {
       "Download everything you have entered as a JSON file. Keep a copy: it works without this app.",
     export: "Download my data",
     localeNames: { it: "Italiano", en: "English" },
+    theme: "Theme",
+    themeHint: "Applies on all your devices. Light or dark is chosen below, in Display.",
+    themeNames: {
+      label: "Label — condensed numbers, strong rules",
+      orto: "Garden — warm, soft, more space",
+      cruscotto: "Dashboard — dense, lots of numbers",
+    },
     display: {
       title: "Display",
       hint: "Saved on this device only: your phone and your computer can differ.",

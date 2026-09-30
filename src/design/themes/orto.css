@@ -1,0 +1,70 @@
+/*
+ * design/themes/orto.css — "Orto" (garden): warm, soft, airy (ADR-0010).
+ * Cream paper, rounded corners, thin rules, a little more space; the rounded
+ * system font where the OS has one (no web font to download). Same meaning
+ * of colour as every theme: herb =
+ * within target, tomato = over; nutrient colours keep their hue.
+ * Contrast checked 2026-09-30: text >= 4.5:1, graphics >= 3:1 on paper and
+ * sheet, light and dark; button text on herb >= 5:1.
+ */
+:root[data-theme="orto"] {
+  --font-display: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --spacing: 0.28rem;
+  --rule-heavy: 2px;
+  --rule-strong: 1px;
+  --rule-medium: 1px;
+  --radius-control: 0.6rem;
+  --radius-surface: 1rem;
+  --text-title: 1.75rem;
+  --color-paper: #f7f1e6;
+  --color-sheet: #fffcf6;
+  --color-ink: #2a2420;
+  --color-muted: #6b6058;
+  --color-hairline: #e0d5c5;
+  --color-herb: #3d7a4a;
+  --color-tomato: #b8432c;
+  --color-warn: #a65209;
+  --color-focus: #3d7a4a;
+  --color-macro-protein: #b0426e;
+  --color-macro-carbs: #946508;
+  --color-macro-fat: #3b66a0;
+  --color-macro-fiber: #4d7c2c;
+  --color-kcal: #2a2420;
+}
+
+/* Dark: more specific than the default dark block, so it wins. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="orto"]:not([data-mode="light"]) {
+    --color-paper: #1d1a16;
+    --color-sheet: #26221d;
+    --color-ink: #efe7da;
+    --color-muted: #b3a695;
+    --color-hairline: #3d362e;
+    --color-herb: #86c596;
+    --color-tomato: #f0917a;
+    --color-warn: #f2a860;
+    --color-focus: #86c596;
+    --color-macro-protein: #ee86b3;
+    --color-macro-carbs: #eec060;
+    --color-macro-fat: #8db3e8;
+    --color-macro-fiber: #a2cf73;
+    --color-kcal: #efe7da;
+  }
+}
+:root[data-theme="orto"][data-mode="dark"] {
+  --color-paper: #1d1a16;
+  --color-sheet: #26221d;
+  --color-ink: #efe7da;
+  --color-muted: #b3a695;
+  --color-hairline: #3d362e;
+  --color-herb: #86c596;
+  --color-tomato: #f0917a;
+  --color-warn: #f2a860;
+  --color-focus: #86c596;
+  --color-macro-protein: #ee86b3;
+  --color-macro-carbs: #eec060;
+  --color-macro-fat: #8db3e8;
+  --color-macro-fiber: #a2cf73;
+  --color-kcal: #efe7da;
+}

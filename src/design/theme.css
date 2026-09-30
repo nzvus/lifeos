@@ -60,8 +60,10 @@
   --rule-heavy: 6px;
   --rule-strong: 4px;
   --rule-medium: 2px;
-  /* Corners of inputs and buttons (rounded-control). Square on the label. */
+  /* Corners of inputs and buttons (rounded-control) and of panels
+     (rounded-surface). Square on the label. */
   --radius-control: 0rem;
+  --radius-surface: 0rem;
   /* Type scale: five named levels, the only text sizes the app uses (lint
      forbids text-xs … text-4xl). Sizes and line heights are Tailwind's own
      3xl / xl / lg / base / sm, so the label theme looks as before. */

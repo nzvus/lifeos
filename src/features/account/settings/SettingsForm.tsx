@@ -1,6 +1,6 @@
 /**
- * features/account/settings/SettingsForm.tsx — time zone and language. Same
- * server-action pattern as IngredientForm. (Daily targets live in day
+ * features/account/settings/SettingsForm.tsx — time zone, language and
+ * theme (ADR-0010). Same server-action pattern as IngredientForm. (Daily targets live in day
  * profiles since ADR-0008: features/nutrition/profiles/.)
  *
  * Time zone: a text field with suggestions (<datalist>) from the list the
@@ -11,6 +11,7 @@
 
 import { useActionState } from "react";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
+import { THEMES } from "@/core/shared/themes";
 import type { Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
@@ -58,6 +59,14 @@ export function SettingsForm({ action, initial, timeZones, t }: Props) {
         ]}
         error={err("locale")}
       />
+      <SelectField
+        label={t.settings.theme}
+        name="theme"
+        defaultValue={val("theme")}
+        options={THEMES.map((id) => ({ value: id, label: t.settings.themeNames[id] }))}
+        error={err("theme")}
+      />
+      <p className="-mt-4 text-meta text-muted">{t.settings.themeHint}</p>
       <div>
         <SubmitButton>{t.settings.save}</SubmitButton>
       </div>

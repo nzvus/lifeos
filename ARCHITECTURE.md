@@ -144,7 +144,7 @@ cannot poll URLs itself, so app health has daily granularity.
 - **Performance:** functions in `fra1` next to Neon (`vercel.json`); auth cookie
   cache (5 min); `app/(app)/loading.tsx`; client components get only the
   dictionary slices they use.
-- **Theming/i18n:** CSS custom property tokens (ADR-0010): colour, `--spacing`,
-  `--text-*` (5 levels), `--rule-*`, `--radius-control`; `data-mode`/`data-layout`
-  on html come from per-device cookies (`app/_server/display.ts`).
+- **Theming/i18n:** tokens (ADR-0010: colour, spacing, 5 text levels, rules, radii)
+  in `design/`; themes `label` (default) / `orto` / `cruscotto` override them under
+  `data-theme` (per user, `user_settings.theme`); `data-mode`/`data-layout` from cookies.
 - **Testing:** Vitest; DB tests on PGlite with the real migrations applied.
