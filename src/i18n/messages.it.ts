@@ -128,7 +128,6 @@ export const it: Messages = {
     unitMl: "millilitri (ml)",
     per100: "Valori nutrizionali per 100 {unit}",
     per100Short: "/100 {unit}",
-    pricePerThousand: "€ al kg o l",
     price: "Prezzo confezione (€)",
     packageSize: "Contenuto confezione ({unit})",
     priceHint: "Facoltativo. Serve a calcolare quanto costano pasti e giornate.",
@@ -238,7 +237,11 @@ export const it: Messages = {
     protein: "P",
     carbs: "C",
     fat: "G",
-    splitTitle: "Energia da proteine · carboidrati · grassi",
+    splitTitle:
+      "Energia da proteine · carboidrati (pieno = zuccheri) · grassi (pieno = saturi) · fibre",
+    sugarsOf: "zuccheri {v}%",
+    saturatedOf: "saturi {v}%",
+    fiberOf: "fibre {v}%",
     density: "P/100 kcal",
     perKg: "/kg",
     ingredientsCount: "{n} ingredienti",
@@ -257,7 +260,6 @@ export const it: Messages = {
     targetLine: "obiettivo",
     underTarget: "sotto l'obiettivo: colore del nutriente, più chiaro = più lontano",
     shownDay: "giorno mostrato",
-    ingredientMix: "Composizione energetica",
   },
   panel: {
     left: "rimaste",

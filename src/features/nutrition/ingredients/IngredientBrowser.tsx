@@ -10,26 +10,19 @@
  *   name and notes are searched), toolbar: ui/ListToolbar.
  * - Derived columns come from core/nutrition/insights.ts: protein per
  *   100 kcal ("how much protein for the energy") and price per kg/l.
- * - Layout: cards on phones, a table from the md breakpoint up. Both are in
- *   the HTML; CSS shows one (simpler than measuring the screen in JS, and
- *   no layout jump on load).
+ * - Layout: the shared row (ui/ListItem) in a grid, like the meals list.
  */
 "use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import {
-  macroSplit,
-  pricePerThousandCents,
-  proteinPer100kcal,
-} from "@/core/nutrition/insights";
+import { pricePerThousandCents, proteinPer100kcal } from "@/core/nutrition/insights";
 import { stripValues } from "@/core/nutrition/display";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { browse } from "@/core/shared/browse";
 import { fill, macroLabels, type Messages } from "@/i18n";
-import { MacroBar } from "@/ui/MacroBar";
 import { ListItem } from "@/ui/ListItem";
 import { MacroStrip } from "@/ui/MacroStrip";
 import { ListToolbar } from "@/ui/ListToolbar";
@@ -44,7 +37,9 @@ export type IngredientRow = {
   kcal: string;
   protein: string;
   carbs: string;
+  sugars: string;
   fat: string;
+  saturatedFat: string;
   fiber: string;
   packagePriceCents: number | null;
   packageSize: string | null;
@@ -66,7 +61,7 @@ type Props = {
   ingredients: IngredientRow[];
   usage: UsageMap;
   locale: Locale;
-  t: Pick<Messages, "ingredients" | "nutrients" | "search" | "macro" | "glance">;
+  t: Pick<Messages, "ingredients" | "nutrients" | "search" | "macro">;
 };
 
 export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
@@ -80,7 +75,6 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
       ingredients.map((i) => ({
         ...i,
         density: proteinPer100kcal(i),
-        split: macroSplit(i),
         perKg: pricePerThousandCents(i),
         uses: usage[i.id]?.uses ?? 0,
         lastUsed: usage[i.id]?.lastUsed ?? null,
@@ -146,8 +140,9 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
         }}
       />
 
-      {/* Phones: cards. */}
-      <ul className="flex flex-col md:hidden">
+      {/* One layout on every screen, the same as the meals list: cards,
+          two columns from md up. */}
+      <ul className="grid gap-x-8 md:grid-cols-2">
         {shown.map((r) => (
           <ListItem
             key={r.id}
@@ -176,63 +171,6 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
           </ListItem>
         ))}
       </ul>
-
-      {/* Tablets and desktops: a real table, horizontally scrollable if needed. */}
-      <div className="hidden overflow-x-auto md:block">
-        <table className="w-full border-collapse text-left">
-          <thead>
-            <tr className="rule-b-heavy border-ink font-display text-meta">
-              <th className="py-2 pr-3">{t.ingredients.name}</th>
-              {(["kcal", "protein", "carbs", "fat", "fiber"] as const).map((k) => (
-                <th key={k} className="px-2 py-2 text-right">
-                  {t.nutrients[k]}
-                </th>
-              ))}
-              <th className="w-28 px-2 py-2">{t.glance.ingredientMix}</th>
-              <th className="px-2 py-2 text-right">{t.macro.density}</th>
-              <th className="px-2 py-2 text-right">{t.ingredients.pricePerThousand}</th>
-              <th className="py-2 pl-2 text-right">{t.search.sorts.used}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shown.map((r) => (
-              <tr key={r.id} className="border-b border-hairline hover:bg-sheet">
-                <td className="py-2 pr-3">
-                  <Link
-                    href={`/ingredients/${r.id}`}
-                    className="font-semibold underline-offset-4 hover:underline"
-                  >
-                    {r.name}
-                  </Link>
-                  <span className="pl-1 text-meta text-muted">
-                    {fill(t.ingredients.per100Short, { unit: r.unit })}
-                  </span>
-                </td>
-                {([r.kcal, r.protein, r.carbs, r.fat, r.fiber] as const).map((v, idx) => (
-                  <td
-                    key={idx}
-                    className="px-2 py-2 text-right font-display tabular-nums"
-                  >
-                    {n(v)}
-                  </td>
-                ))}
-                <td className="px-2 py-2 align-middle">
-                  {r.split && <MacroBar {...r.split} label={t.macro.splitTitle} />}
-                </td>
-                <td className="px-2 py-2 text-right font-display tabular-nums">
-                  {r.density === null ? "—" : n(r.density)}
-                </td>
-                <td className="px-2 py-2 text-right font-display tabular-nums">
-                  {r.perKg === null ? "—" : formatCents(r.perKg, locale)}
-                </td>
-                <td className="py-2 pl-2 text-right font-display text-muted tabular-nums">
-                  {r.uses || "—"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }

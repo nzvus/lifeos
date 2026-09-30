@@ -147,9 +147,14 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
           </ul>
           {split && (
             <div className="w-full">
-              <MacroBar {...split} label={t.macro.splitTitle} />
+              <MacroBar split={split} label={t.macro.splitTitle} />
               <p className="pt-1 text-center font-display text-meta text-muted tabular-nums">
-                {`${t.macro.protein} ${split.protein}% · ${t.macro.carbs} ${split.carbs}% · ${t.macro.fat} ${split.fat}%`}
+                {[
+                  `${t.macro.protein} ${split.protein}%`,
+                  `${t.macro.carbs} ${split.carbs}% (${fill(t.macro.sugarsOf, { v: String(split.sugars) })})`,
+                  `${t.macro.fat} ${split.fat}% (${fill(t.macro.saturatedOf, { v: String(split.saturatedFat) })})`,
+                  fill(t.macro.fiberOf, { v: String(split.fiber) }),
+                ].join(" · ")}
               </p>
             </div>
           )}

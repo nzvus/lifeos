@@ -13,7 +13,7 @@
  * (core/nutrition/display.ts stripValues); `labels` come from i18n
  * (macroLabels), for screen readers and the bar's title.
  */
-import { MacroBar } from "./MacroBar";
+import { MacroBar, type MacroBarSplit } from "./MacroBar";
 
 export type MacroStripValues = {
   /** Energy with its unit ("372 kcal"), optional. */
@@ -22,8 +22,8 @@ export type MacroStripValues = {
   carbs: string;
   fat: string;
   fiber?: string;
-  /** Percent of energy from protein/carbs/fat; null/absent hides the bar. */
-  split?: { protein: number; carbs: number; fat: number } | null;
+  /** Percent of energy (core macroSplit); null/absent hides the bar. */
+  split?: MacroBarSplit | null;
 };
 export type MacroStripLabels = {
   protein: string;
@@ -63,7 +63,7 @@ export function MacroStrip({
           </span>
         ))}
       </p>
-      {split && <MacroBar {...split} label={labels.split} />}
+      {split && <MacroBar split={split} label={labels.split} />}
     </div>
   );
 }

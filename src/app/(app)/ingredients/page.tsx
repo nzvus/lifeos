@@ -34,7 +34,9 @@ export default async function IngredientsPage() {
           kcal: i.kcal,
           protein: i.protein,
           carbs: i.carbs,
+          sugars: i.sugars,
           fat: i.fat,
+          saturatedFat: i.saturatedFat,
           fiber: i.fiber,
           packagePriceCents: i.packagePriceCents,
           packageSize: i.packageSize,
@@ -46,7 +48,6 @@ export default async function IngredientsPage() {
           nutrients: t.nutrients,
           search: t.search,
           macro: t.macro,
-          glance: t.glance,
         }}
       />
     </>
