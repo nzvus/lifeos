@@ -1,6 +1,6 @@
 /** Tests for core/shared/search.ts — matching and ranking rules. */
 import { describe, expect, it } from "vitest";
-import { matchScore, normalize, rank } from "./search";
+import { matchScore, normalize, pickerSearch, rank } from "./search";
 
 describe("normalize / matchScore", () => {
   it("ignores case and accents", () => {
@@ -46,5 +46,26 @@ describe("rank", () => {
       "Latte Scremato", // same match quality as "Latte di Cocco", but used
       "Latte di Cocco",
     ]);
+  });
+});
+
+describe("pickerSearch", () => {
+  const items = [
+    { id: "a", name: "Skyr", notes: "Lidl", uses: 1, lastUsed: null },
+    { id: "b", name: "Skyr da bere", notes: "", uses: 5, lastUsed: null },
+  ];
+  const picker = pickerSearch(items, (i) => `${i.uses}×`);
+
+  it("offers id/name/hint, most used first, notes searched", () => {
+    expect(picker.search("skyr")).toEqual([
+      { value: "b", label: "Skyr da bere", hint: "5×" },
+      { value: "a", label: "Skyr", hint: "1×" },
+    ]);
+    expect(picker.search("lidl").map((o) => o.value)).toEqual(["a"]);
+  });
+
+  it("finds the option for a chosen id", () => {
+    expect(picker.find("a")?.label).toBe("Skyr");
+    expect(picker.find("zzz")).toBeUndefined();
   });
 });

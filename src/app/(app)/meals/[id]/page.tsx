@@ -1,7 +1,7 @@
 /** app/(app)/meals/[id]/page.tsx — URL /meals/<id>: edit or delete a meal. */
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
+import { PageHeader } from "@/ui/PageHeader";
 import { getDb } from "@/app/_server/runtime";
 import { getMeal } from "@/core/nutrition/repositories/meals";
 import { Big } from "@/core/shared/decimal";
@@ -27,10 +27,10 @@ export default async function EditMealPage({ params }: Props) {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <Link href="/meals" className="text-meta underline">
-        {t.meals.back}
-      </Link>
-      <h1 className="font-display text-title font-bold">{t.meals.editTitle}</h1>
+      <PageHeader
+        title={t.meals.editTitle}
+        back={{ href: "/meals", label: t.meals.back }}
+      />
       <MealForm
         action={updateMealAction.bind(null, id)}
         ingredients={ingredients}

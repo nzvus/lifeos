@@ -14,12 +14,13 @@
 
 import { useActionState, useMemo, useState } from "react";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
-import { rank } from "@/core/shared/search";
+import { pickerSearch } from "@/core/shared/search";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import { fill, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
-import { SearchSelect, type SearchOption } from "@/ui/SearchSelect";
+import { SearchSelect } from "@/ui/SearchSelect";
+import { Section } from "@/ui/Section";
 import { SubmitButton } from "@/ui/SubmitButton";
 
 type Line = { key: number; ingredientId: string; quantity: string };
@@ -63,30 +64,16 @@ export function MealForm({ action, ingredients, initial, submitLabel, t }: Props
   const unitOf = (id: string) => ingredients.find((i) => i.id === id)?.unit ?? "";
 
   // Searchable ingredient picker, most used first (core/shared/search.ts).
-  const picker = useMemo(() => {
-    const options = new Map<string, SearchOption>(
-      ingredients.map((i) => [
-        i.id,
-        {
-          value: i.id,
-          label: i.name,
-          hint:
-            `${i.kcal} ${NUTRIENT_UNIT.kcal} · ${t.macro.protein} ${i.protein} · ` +
-            fill(t.ingredients.per100Short, { unit: i.unit }),
-        },
-      ]),
-    );
-    return {
-      search: (q: string) =>
-        rank(ingredients, q, (i) => ({
-          text: `${i.name} ${i.notes}`,
-          name: i.name,
-          uses: i.uses,
-          lastUsed: i.lastUsed,
-        })).map((i) => options.get(i.id)!),
-      find: (id: string) => options.get(id),
-    };
-  }, [ingredients, t]);
+  const picker = useMemo(
+    () =>
+      pickerSearch(
+        ingredients,
+        (i) =>
+          `${i.kcal} ${NUTRIENT_UNIT.kcal} · ${t.macro.protein} ${i.protein} · ` +
+          fill(t.ingredients.per100Short, { unit: i.unit }),
+      ),
+    [ingredients, t],
+  );
 
   const update = (key: number, patch: Partial<Line>) =>
     setLines((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)));
@@ -108,8 +95,7 @@ export function MealForm({ action, ingredients, initial, submitLabel, t }: Props
         error={err("notes")}
       />
 
-      <fieldset className="flex flex-col gap-4 rule-t-heavy border-ink pt-3">
-        <legend className="font-display text-section font-bold">{t.meals.lines}</legend>
+      <Section as="fieldset" title={t.meals.lines}>
         {err("items") && <FormAlert tone="error">{err("items")!}</FormAlert>}
         {lines.map((line, idx) => (
           <div
@@ -155,7 +141,7 @@ export function MealForm({ action, ingredients, initial, submitLabel, t }: Props
         >
           {t.meals.addLine}
         </button>
-      </fieldset>
+      </Section>
 
       {/* What the server actually reads: all lines, in order, as JSON. */}
       <input

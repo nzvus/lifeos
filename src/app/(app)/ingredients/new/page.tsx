@@ -1,6 +1,6 @@
 /** app/(app)/ingredients/new/page.tsx — URL /ingredients/new: empty form. */
-import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
+import { PageHeader } from "@/ui/PageHeader";
 import { IngredientForm } from "@/features/nutrition/ingredients/IngredientForm";
 import { createIngredientAction } from "../actions";
 
@@ -9,10 +9,10 @@ export default async function NewIngredientPage() {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <Link href="/ingredients" className="text-meta underline">
-        {t.ingredients.back}
-      </Link>
-      <h1 className="font-display text-title font-bold">{t.ingredients.newTitle}</h1>
+      <PageHeader
+        title={t.ingredients.newTitle}
+        back={{ href: "/ingredients", label: t.ingredients.back }}
+      />
       <IngredientForm
         action={createIngredientAction}
         initial={{ unit: "g" }}

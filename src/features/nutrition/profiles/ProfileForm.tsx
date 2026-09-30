@@ -11,6 +11,7 @@ import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result"
 import type { Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
+import { Section } from "@/ui/Section";
 import { SubmitButton } from "@/ui/SubmitButton";
 
 type Props = {
@@ -35,11 +36,8 @@ export function ProfileForm({ action, initial, submitLabel, t }: Props) {
         error={err("name")}
         required
       />
-      <fieldset className="rule-t-heavy border-ink pt-3">
-        <legend className="font-display text-section font-bold">
-          {t.profiles.targets}
-        </legend>
-        <p className="pb-2 text-meta text-muted">{t.profiles.targetsHint}</p>
+      <Section as="fieldset" title={t.profiles.targets}>
+        <p className="text-meta text-muted">{t.profiles.targetsHint}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
           {NUTRIENT_KEYS.map((k) => (
             <Field
@@ -52,7 +50,7 @@ export function ProfileForm({ action, initial, submitLabel, t }: Props) {
             />
           ))}
         </div>
-      </fieldset>
+      </Section>
       <div>
         <SubmitButton>{submitLabel}</SubmitButton>
       </div>

@@ -3,8 +3,8 @@
  * instant search and smart ordering (features/.../IngredientBrowser), most
  * used in the last 60 days first.
  */
-import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
+import { PageHeader } from "@/ui/PageHeader";
 import { getDb } from "@/app/_server/runtime";
 import { listIngredients } from "@/core/nutrition/repositories/ingredients";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
@@ -20,15 +20,10 @@ export default async function IngredientsPage() {
   ]);
   return (
     <>
-      <div className="flex items-baseline justify-between gap-4">
-        <h1 className="font-display text-title font-bold">{t.ingredients.title}</h1>
-        <Link
-          href="/ingredients/new"
-          className="bg-herb px-3 py-1 font-display text-item font-semibold text-sheet"
-        >
-          {t.ingredients.newTitle}
-        </Link>
-      </div>
+      <PageHeader
+        title={t.ingredients.title}
+        action={{ href: "/ingredients/new", label: t.ingredients.newTitle }}
+      />
       <IngredientBrowser
         // Only the fields the list shows are sent to the browser.
         ingredients={ingredients.map((i) => ({

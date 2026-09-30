@@ -80,3 +80,38 @@ export function rank<T>(
   );
   return scored.map((s) => s.item);
 }
+
+/** An item a search picker can offer: what `rank` needs plus an id. */
+export type Pickable = {
+  id: string;
+  name: string;
+  /** Searched too ("Lidl", "STIMA", "senza lattosio"). */
+  notes: string;
+  uses: number;
+  lastUsed: string | null;
+};
+
+/**
+ * The `search` and `find` functions of a searchable picker (ui/SearchSelect):
+ * items ranked by match then usage, each offered as { value: id, label:
+ * name, hint }. Every picker in the app (add to the day, meal editor) is
+ * built with this, so they all search the same way.
+ */
+export function pickerSearch<T extends Pickable>(
+  items: readonly T[],
+  hint: (item: T) => string,
+) {
+  const options = new Map(
+    items.map((i) => [i.id, { value: i.id, label: i.name, hint: hint(i) }]),
+  );
+  return {
+    search: (query: string) =>
+      rank(items, query, (i) => ({
+        text: `${i.name} ${i.notes}`,
+        name: i.name,
+        uses: i.uses,
+        lastUsed: i.lastUsed,
+      })).map((i) => options.get(i.id)!),
+    find: (id: string) => options.get(id),
+  };
+}

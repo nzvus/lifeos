@@ -2,9 +2,9 @@
  * app/(app)/profiles/[id]/page.tsx — URL /profiles/<id>: edit a day type,
  * make it the default, or delete it. Untrusted id: validated, owner-checked.
  */
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
+import { PageHeader } from "@/ui/PageHeader";
 import { getDb } from "@/app/_server/runtime";
 import { getProfile } from "@/core/nutrition/repositories/profiles";
 import { idInput, profileFormValues } from "@/core/nutrition/validation";
@@ -28,10 +28,10 @@ export default async function EditProfilePage({ params }: Props) {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <Link href="/profiles" className="text-meta underline">
-        {t.profiles.back}
-      </Link>
-      <h1 className="font-display text-title font-bold">{t.profiles.editTitle}</h1>
+      <PageHeader
+        title={t.profiles.editTitle}
+        back={{ href: "/profiles", label: t.profiles.back }}
+      />
       <p className="text-meta text-muted">{t.profiles.editNote}</p>
       <ProfileForm
         action={updateProfileAction.bind(null, id)}

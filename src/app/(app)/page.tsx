@@ -36,6 +36,7 @@ import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekChart } from "@/features/nutrition/log/WeekChart";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
+import { Section } from "@/ui/Section";
 import {
   copyPreviousDayAction,
   deleteLogEntryAction,
@@ -166,8 +167,7 @@ export default async function DayPage({ searchParams }: Props) {
         {/* Trends: right column on desktop (stays in view while scrolling),
             after the forms on phones. */}
         <aside className="flex flex-col gap-6 lg:sticky lg:top-4 lg:self-start">
-          <section className="flex flex-col gap-4 rule-t-heavy border-ink pt-3">
-            <h2 className="font-display text-section font-bold">{t.glance.week}</h2>
+          <Section title={t.glance.week}>
             <WeekChart
               history={history}
               nutrient="kcal"
@@ -215,7 +215,7 @@ export default async function DayPage({ searchParams }: Props) {
                 {t.glance.shownDay}
               </span>
             </p>
-          </section>
+          </Section>
         </aside>
       </div>
     </>
