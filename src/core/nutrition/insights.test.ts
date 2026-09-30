@@ -1,6 +1,11 @@
 /** Tests for core/nutrition/insights.ts. */
 import { describe, expect, it } from "vitest";
-import { macroSplit, pricePerThousandCents, proteinPer100kcal } from "./insights";
+import {
+  average,
+  macroSplit,
+  pricePerThousandCents,
+  proteinPer100kcal,
+} from "./insights";
 
 describe("insights", () => {
   it("splits energy by macronutrient from the grams", () => {
@@ -53,5 +58,11 @@ describe("insights", () => {
     expect(
       pricePerThousandCents({ packagePriceCents: null, packageSize: null }),
     ).toBeNull();
+  });
+
+  it("averages decimal strings exactly, null for none", () => {
+    expect(average(["1800", "2000", "2200"])).toBe("2000");
+    expect(average(["0.1", "0.2"])).toBe("0.15"); // no floating-point drift
+    expect(average([])).toBeNull();
   });
 });

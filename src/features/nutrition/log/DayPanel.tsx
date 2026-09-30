@@ -26,7 +26,7 @@ import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 import { ConcentricRings } from "@/ui/ConcentricRings";
 import { MacroBar } from "@/ui/MacroBar";
-import { NutrientIcon } from "@/ui/NutrientIcon";
+import { NutrientIcon, NUTRIENT_VAR } from "@/ui/NutrientIcon";
 import { TargetBar } from "@/ui/TargetBar";
 import { targetTone } from "@/ui/targetTone";
 
@@ -42,16 +42,6 @@ type Props = {
 };
 
 /** Each nutrient's own colour token (bars and rings start from it). */
-const BASE: Record<NutrientKey, string> = {
-  kcal: "--color-kcal",
-  protein: "--color-macro-protein",
-  carbs: "--color-macro-carbs",
-  sugars: "--color-macro-carbs",
-  fat: "--color-macro-fat",
-  saturatedFat: "--color-macro-fat",
-  fiber: "--color-macro-fiber",
-  salt: "--color-muted",
-};
 const SUB: ReadonlySet<NutrientKey> = new Set(["sugars", "saturatedFat"]);
 const RINGS = ["kcal", "protein", "carbs", "fat", "fiber"] as const;
 
@@ -72,7 +62,7 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
       kind: TARGET_KIND[k],
       status: a.status,
       ratio: a.status === "none" ? 0 : a.ratio,
-      base: BASE[k],
+      base: NUTRIENT_VAR[k]!,
     });
   };
 

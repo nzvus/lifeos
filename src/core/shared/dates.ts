@@ -38,6 +38,18 @@ export function addDays(day: string, n: number): string {
 }
 
 /** True if the runtime knows this IANA time zone name. */
+/** The Monday of the week containing `day` (weeks start on Monday, ISO 8601). */
+export function startOfWeek(day: string): string {
+  // getUTCDay: 0 = Sunday … 6 = Saturday; noon UTC so no zone can shift it.
+  const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
+  return addDays(day, -((weekday + 6) % 7));
+}
+
+/** The `n` days ending on `last`, oldest first: ["…", …, last]. */
+export function daysEnding(last: string, n: number): string[] {
+  return Array.from({ length: n }, (_, i) => addDays(last, i - (n - 1)));
+}
+
 export function isValidTimeZone(tz: string): boolean {
   try {
     new Intl.DateTimeFormat("en", { timeZone: tz });

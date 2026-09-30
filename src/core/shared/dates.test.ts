@@ -2,10 +2,12 @@
 import { describe, expect, it } from "vitest";
 import {
   addDays,
+  daysEnding,
   instantFor,
   isValidDay,
   isValidTime,
   isValidTimeZone,
+  startOfWeek,
   timeIn,
   todayIn,
 } from "./dates";
@@ -52,5 +54,21 @@ describe("dates", () => {
     expect(timeIn(new Date("2026-09-29T10:30:00Z"), "Europe/Rome")).toBe("12:30");
     expect(isValidTime("23:59")).toBe(true);
     expect(isValidTime("24:00")).toBe(false);
+  });
+});
+
+describe("weeks and ranges", () => {
+  it("finds the Monday of a week", () => {
+    expect(startOfWeek("2026-09-30")).toBe("2026-09-28"); // Wednesday
+    expect(startOfWeek("2026-09-28")).toBe("2026-09-28"); // Monday itself
+    expect(startOfWeek("2026-10-04")).toBe("2026-09-28"); // Sunday
+  });
+
+  it("lists the n days ending on a day, oldest first", () => {
+    expect(daysEnding("2026-10-01", 3)).toEqual([
+      "2026-09-29",
+      "2026-09-30",
+      "2026-10-01",
+    ]);
   });
 });
