@@ -76,7 +76,8 @@ app  →  features  →  core
   what it needs (factories `createDb`, `createAuth`; an `Owner` per call).
 - `ui/` is presentation only: translated strings in, no domain types.
 - Local CLI scripts get an `Owner` by email (`core/identity/local-admin.ts`);
-  the web app never imports it.- Promotion into `ui/` follows the rule of three; the current `ui/` components
+  the web app never imports it.
+- Promotion into `ui/` follows the rule of three; the current `ui/` components
   each had 3+ users when written.
 
 ## Persistence & durability (ADR-0003, ADR-0007)
