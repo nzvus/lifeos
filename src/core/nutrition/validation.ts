@@ -190,6 +190,26 @@ export const mealInput = z.object({
   name,
   notes: z.string().trim().max(1000, "too_long"),
   category: optionalMoment, // ADR-0011: only a hint for new entries
+  // ADR-0012: notes next to the ratings, and the scores as JSON
+  // ([{"factorId":"…","score":4}]) from a hidden field; absent = keep.
+  review: z.string().trim().max(2000, "too_long").optional(),
+  ratings: z
+    .string()
+    .optional()
+    .transform((raw, ctx) => {
+      if (raw === undefined) return undefined;
+      try {
+        return JSON.parse(raw) as unknown;
+      } catch {
+        ctx.addIssue({ code: "custom", message: "invalid_choice" });
+        return z.NEVER;
+      }
+    })
+    .pipe(
+      z
+        .array(z.object({ factorId: id, score: z.number().int().min(1).max(5) }))
+        .optional(),
+    ),
   items: z
     .array(
       z.object({
@@ -310,6 +330,11 @@ export const preferencesInput = z
       ctx.addIssue({ code: "custom", path: ["dinnerFrom"], message: "moments_order" });
   });
 export type PreferencesInput = z.output<typeof preferencesInput>;
+
+/** A rating factor ("Gusto", "Sazietà"…), ADR-0012. */
+export const factorInput = z.object({
+  name: z.string().trim().min(1, "required").max(40, "too_long"),
+});
 
 /** A day profile: a name and optional daily targets (empty = no target). */
 export const profileInput = z.object({

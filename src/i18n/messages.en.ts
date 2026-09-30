@@ -265,6 +265,28 @@ export const en = {
     },
     sortValue: "{what}: {v}",
   },
+  ratings: {
+    title: "Rating",
+    factorsTitle: "Meal rating factors",
+    factorsHint:
+      "What you rate meals on, 1 to 5 stars (e.g. taste, fullness, convenience).",
+    factorName: "New factor",
+    addFactor: "Add factor",
+    deleteFactor: "Delete",
+    noFactors: "No factors yet: add them in Settings to rate meals.",
+    review: "Notes",
+    score: "{n} of 5",
+    none: "no score",
+    average: "{v}/5",
+    averageLabel: "Average rating {v} of 5",
+  },
+  mealQuality: {
+    nova: "Energy by processing: {parts}",
+    novaPart: "NOVA {n} {v}%",
+    unknown: "not classified {v}%",
+    origin: "Protein: {parts}",
+    originPart: "{name} {v}%",
+  },
   quality: {
     title: "Quality and tags",
     nova: "Processing (NOVA)",

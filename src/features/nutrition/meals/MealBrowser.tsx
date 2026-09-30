@@ -22,6 +22,7 @@ import {
   type SortKey,
 } from "@/core/nutrition/metrics";
 import { MOMENTS, type Moment } from "@/core/nutrition/moments";
+import { qualitySummary } from "@/core/nutrition/quality-summary";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { detailLines, macroBars } from "@/core/nutrition/display";
 import type { MealWithLines } from "@/core/nutrition/repositories/meals";
@@ -30,6 +31,7 @@ import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import { FoodDetails } from "@/ui/FoodDetails";
+import { MealQuality } from "./MealQuality";
 import { FoodCardMeta } from "@/ui/FoodCardMeta";
 import { ListItem } from "@/ui/ListItem";
 import { MacroBars } from "@/ui/MacroBars";
@@ -42,15 +44,36 @@ type Props = {
   meals: MealWithLines[];
   usage: UsageMap;
   locale: Locale;
+  /** ADR-0012: average score by meal id (rated meals only). */
+  ratings: Record<string, number>;
+  /** ADR-0012: the union of each meal's ingredients' tags, by meal id. */
+  tags: Record<string, { name: string; icon: string }[]>;
   /** The sort the list opens with (preferences). */
   initialSort: { sort: SortKey; per: Per };
   t: Pick<
     Messages,
-    "meals" | "nutrients" | "search" | "macro" | "label" | "macroShort" | "moments"
+    | "meals"
+    | "nutrients"
+    | "search"
+    | "macro"
+    | "label"
+    | "macroShort"
+    | "moments"
+    | "quality"
+    | "ratings"
+    | "mealQuality"
   >;
 };
 
-export function MealBrowser({ meals, usage, locale, initialSort, t }: Props) {
+export function MealBrowser({
+  meals,
+  usage,
+  ratings,
+  tags,
+  locale,
+  initialSort,
+  t,
+}: Props) {
   const list = useListControls<SortKey, Per>({
     sort: initialSort.sort,
     direction: sortChoices().find((c) => c.value === initialSort.sort)!.natural,
@@ -177,6 +200,13 @@ export function MealBrowser({ meals, usage, locale, initialSort, t }: Props) {
                 rows={macroBars(m.totals.nutrients, locale)}
                 labels={t.macroShort}
                 unit="g"
+              />
+              <MealQuality
+                summary={qualitySummary(m.lines)}
+                rating={ratings[m.id] ?? null}
+                tags={tags[m.id] ?? []}
+                locale={locale}
+                t={t}
               />
               <SortNote
                 value={sortNote(m.metrics, list.sort, list.per, locale)}

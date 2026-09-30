@@ -25,6 +25,8 @@ import {
   logEntries,
   logEntryItems,
   mealItems,
+  mealRatings,
+  ratingFactors,
   meals,
   tags,
   userSettings,
@@ -82,6 +84,8 @@ export async function replaceWithExport(
     await tx.delete(logEntries).where(ownedBy(logEntries, owner));
     await tx.delete(dayPlans).where(ownedBy(dayPlans, owner));
     await tx.delete(dayProfiles).where(ownedBy(dayProfiles, owner));
+    await tx.delete(mealRatings).where(ownedBy(mealRatings, owner));
+    await tx.delete(ratingFactors).where(ownedBy(ratingFactors, owner));
     await tx.delete(mealItems).where(ownedBy(mealItems, owner));
     await tx.delete(meals).where(ownedBy(meals, owner));
     await tx.delete(ingredientTags).where(ownedBy(ingredientTags, owner));
@@ -116,13 +120,32 @@ export async function replaceWithExport(
           .onConflictDoNothing();
       }
     }
+    const factorId = new Map<string, string>();
+    for (const { id, ...f } of data.ratingFactors) {
+      const [row] = await tx
+        .insert(ratingFactors)
+        .values({ ...f, userId: u })
+        .returning({ id: ratingFactors.id });
+      factorId.set(id, row!.id);
+    }
     const mealId = new Map<string, string>();
-    for (const { id, items, ...m } of data.meals) {
+    for (const { id, items, ratings, ...m } of data.meals) {
       const [row] = await tx
         .insert(meals)
         .values({ ...m, userId: u })
         .returning({ id: meals.id });
       mealId.set(id, row!.id);
+      const scores = ratings.filter((r) => factorId.has(r.factorId)); // checked by the parser too
+      if (scores.length) {
+        await tx.insert(mealRatings).values(
+          scores.map((r) => ({
+            userId: u,
+            mealId: row!.id,
+            factorId: factorId.get(r.factorId)!,
+            score: r.score,
+          })),
+        );
+      }
       if (items.length) {
         await tx.insert(mealItems).values(
           items.map((it) => ({

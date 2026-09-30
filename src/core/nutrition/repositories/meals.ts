@@ -16,7 +16,7 @@
  */
 import { and, asc, eq } from "drizzle-orm";
 import type { Db } from "../../db/client";
-import { ingredients, mealItems, meals } from "../../db/schema";
+import { ingredients, mealItems, mealRatings, meals } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import {
   fail,
@@ -31,8 +31,50 @@ import { qualityOf, type Quality } from "../quality";
 import type { MealInput } from "../validation";
 
 /** A meal to save; the category (ADR-0011) may be left out (imports, tests). */
-type MealWrite = Omit<MealInput, "category"> & { category?: Moment | null };
+type MealWrite = Omit<MealInput, "category" | "review" | "ratings"> & {
+  category?: Moment | null;
+  /** ADR-0012: notes and 1–5 scores per factor; left out = keep as is. */
+  review?: string;
+  ratings?: { factorId: string; score: number }[];
+};
+
+type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
+
+/** Replaces a meal's scores, inside the caller's transaction. */
+async function setRatings(
+  tx: Tx,
+  owner: Owner,
+  mealId: string,
+  ratings: NonNullable<MealWrite["ratings"]>,
+) {
+  await tx
+    .delete(mealRatings)
+    .where(and(ownedBy(mealRatings, owner), eq(mealRatings.mealId, mealId)));
+  if (ratings.length)
+    await tx.insert(mealRatings).values(
+      ratings.map((r) => ({
+        userId: owner.id,
+        mealId,
+        factorId: r.factorId,
+        score: r.score,
+      })),
+    );
+}
+
+/** Every rated factor must be one of mine (the composite key would refuse it anyway). */
+async function checkFactors(
+  db: Db,
+  owner: Owner,
+  input: MealWrite,
+): Promise<FieldErrors | null> {
+  if (!input.ratings?.length) return null;
+  const mine = new Set((await listFactors(db, owner)).map((f) => f.id));
+  return input.ratings.every((r) => mine.has(r.factorId))
+    ? null
+    : { ratings: "not_found" };
+}
 import { getIngredientsByIds, per100Of, type Ingredient } from "./ingredients";
+import { listFactors } from "./ratings";
 
 /** One line of a meal, joined with the ingredient it uses. */
 export type MealLine = TotalsLine & {
@@ -50,6 +92,8 @@ export type MealWithLines = {
   notes: string;
   /** ADR-0011: optional, a hint for the moment of new entries. */
   category: Moment | null;
+  /** ADR-0012: the user's notes next to the ratings. */
+  review: string;
   lines: MealLine[];
   totals: DisplayTotals; // per ONE serving
 };
@@ -88,6 +132,7 @@ export async function listMeals(db: Db, owner: Owner): Promise<MealWithLines[]> 
       name: m.name,
       notes: m.notes,
       category: m.category,
+      review: m.review,
       lines,
       totals: toDisplay(sumLines(lines)),
     };
@@ -119,6 +164,7 @@ export async function getMeal(
     name: m.name,
     notes: m.notes,
     category: m.category,
+    review: m.review,
     lines,
     totals: toDisplay(sumLines(lines)),
   };
@@ -162,7 +208,8 @@ export async function createMeal(
   owner: Owner,
   input: MealWrite,
 ): Promise<Result<{ id: string }>> {
-  const bad = await checkIngredients(db, owner, input);
+  const bad =
+    (await checkIngredients(db, owner, input)) ?? (await checkFactors(db, owner, input));
   if (bad) return fail(bad);
   try {
     // db.transaction: everything inside uses `tx`; any throw rolls it all back.
@@ -174,6 +221,7 @@ export async function createMeal(
           name: input.name,
           notes: input.notes,
           category: input.category ?? null,
+          review: input.review ?? "",
         })
         .returning({ id: meals.id });
       await tx.insert(mealItems).values(
@@ -185,6 +233,7 @@ export async function createMeal(
           position,
         })),
       );
+      if (input.ratings) await setRatings(tx, owner, meal!.id, input.ratings);
       return meal!.id;
     });
     return ok({ id });
@@ -205,13 +254,19 @@ export async function updateMeal(
   id: string,
   input: MealWrite,
 ): Promise<Result<{ id: string }>> {
-  const bad = await checkIngredients(db, owner, input);
+  const bad =
+    (await checkIngredients(db, owner, input)) ?? (await checkFactors(db, owner, input));
   if (bad) return fail(bad);
   try {
     const found = await db.transaction(async (tx) => {
       const updated = await tx
         .update(meals)
-        .set({ name: input.name, notes: input.notes, category: input.category ?? null })
+        .set({
+          name: input.name,
+          notes: input.notes,
+          category: input.category ?? null,
+          ...(input.review !== undefined && { review: input.review }),
+        })
         .where(and(ownedBy(meals, owner), eq(meals.id, id)))
         .returning({ id: meals.id });
       if (updated.length === 0) return false; // not mine / not there: change nothing
@@ -227,6 +282,7 @@ export async function updateMeal(
           position,
         })),
       );
+      if (input.ratings) await setRatings(tx, owner, id, input.ratings);
       return true;
     });
     return found ? ok({ id }) : fail({ _form: "not_found" });

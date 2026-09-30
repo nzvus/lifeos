@@ -2,8 +2,10 @@
  * app/(app)/settings/page.tsx — URL /settings: preferences, display (this
  * device only), and the data export link (GET /api/export, a plain download).
  */
-import { Download, Eye, SlidersHorizontal } from "lucide-react";
+import { Download, Eye, SlidersHorizontal, Star } from "lucide-react";
 import { getDisplay } from "@/app/_server/display";
+import { getDb } from "@/app/_server/runtime";
+import { listFactors } from "@/core/nutrition/repositories/ratings";
 import { requireContext } from "@/app/_server/owner";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
@@ -11,12 +13,20 @@ import { preferencesFormValues } from "@/core/nutrition/preferences";
 import { settingsFormValues } from "@/core/nutrition/validation";
 import { DisplayForm } from "@/features/account/settings/DisplayForm";
 import { PreferencesForm } from "@/features/account/settings/PreferencesForm";
+import { FactorList } from "@/features/nutrition/meals/FactorList";
 import { SettingsForm } from "@/features/account/settings/SettingsForm";
-import { saveDisplayAction, savePreferencesAction, saveSettingsAction } from "./actions";
+import {
+  createFactorAction,
+  deleteFactorAction,
+  saveDisplayAction,
+  savePreferencesAction,
+  saveSettingsAction,
+} from "./actions";
 
 export default async function SettingsPage() {
-  const { settings, t } = await requireContext();
+  const { owner, settings, t } = await requireContext();
   const display = await getDisplay();
+  const factors = await listFactors(getDb(), owner);
   // Every IANA time zone the server's runtime knows, for suggestions.
   const timeZones = Intl.supportedValuesOf("timeZone");
   return (
@@ -44,6 +54,17 @@ export default async function SettingsPage() {
             errors: t.errors,
             settings: t.settings,
           }}
+        />
+      </Section>
+      <Section
+        title={t.ratings.factorsTitle}
+        icon={<Star size={20} aria-hidden="true" />}
+      >
+        <FactorList
+          factors={factors}
+          createAction={createFactorAction}
+          deleteAction={(id) => deleteFactorAction.bind(null, id)}
+          t={{ ratings: t.ratings, errors: t.errors }}
         />
       </Section>
       <Section

@@ -13,7 +13,7 @@
  */
 "use client";
 
-import { Carrot } from "lucide-react";
+import { Carrot, Star } from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import { MOMENTS } from "@/core/nutrition/moments";
@@ -27,6 +27,7 @@ import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
 import { MomentIcon } from "@/ui/MomentIcon";
+import { StarInput } from "@/ui/StarRating";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { SelectField } from "@/ui/SelectField";
 import { Section } from "@/ui/Section";
@@ -56,13 +57,25 @@ type Props = {
     notes: string;
     /** ADR-0011: "" for none. */
     category: string;
+    /** ADR-0012: notes and scores by factor id. */
+    review: string;
+    ratings: Record<string, number>;
     items: { ingredientId: string; quantity: string }[];
   };
   submitLabel: string;
   locale: Locale;
+  /** My rating factors (ADR-0012), in order. */
+  factors: { id: string; name: string }[];
   t: Pick<
     Messages,
-    "meals" | "errors" | "search" | "macro" | "ingredients" | "nutrients" | "moments"
+    | "meals"
+    | "errors"
+    | "search"
+    | "macro"
+    | "ingredients"
+    | "nutrients"
+    | "moments"
+    | "ratings"
   >;
 };
 
@@ -78,6 +91,7 @@ export function MealForm({
   initial,
   submitLabel,
   locale,
+  factors,
   t,
 }: Props) {
   const [state, formAction] = useActionState(action, IDLE);
@@ -85,6 +99,7 @@ export function MealForm({
     withKeys(initial.items.length ? initial.items : [{ ingredientId: "", quantity: "" }]),
   );
   const err = (field: string) => fieldError(state, field, t.errors);
+  const [scores, setScores] = useState<Record<string, number>>(initial.ratings);
   const [category, setCategory] = useState(valueOf(state, "category", initial.category));
   const unitOf = (id: string) => ingredients.find((i) => i.id === id)?.unit ?? "";
 
@@ -196,6 +211,54 @@ export function MealForm({
         >
           {t.meals.addLine}
         </button>
+      </Section>
+
+      <Section
+        as="fieldset"
+        title={t.ratings.title}
+        icon={<Star size={20} aria-hidden="true" />}
+      >
+        {factors.length === 0 ? (
+          <p className="text-meta text-muted">{t.ratings.noFactors}</p>
+        ) : (
+          factors.map((f) => (
+            <StarInput
+              key={f.id}
+              name={`rating-${f.id}`} // not read by the server; `ratings` is
+              label={f.name}
+              value={scores[f.id] ?? null}
+              onChange={(v) =>
+                setScores((prev) => {
+                  const next = { ...prev };
+                  if (v === null) delete next[f.id];
+                  else next[f.id] = v;
+                  return next;
+                })
+              }
+              labels={{
+                score: (n) => fill(t.ratings.score, { n: String(n) }),
+                none: t.ratings.none,
+              }}
+            />
+          ))
+        )}
+        {err("ratings") && <FormAlert tone="error">{err("ratings")!}</FormAlert>}
+        <label className="flex flex-col gap-1 text-meta">
+          <span className="font-semibold">{t.ratings.review}</span>
+          <textarea
+            name="review"
+            rows={3}
+            defaultValue={valueOf(state, "review", initial.review)}
+            className="rounded-control rule-b-medium border-ink bg-sheet px-2 py-1.5 text-body"
+          />
+        </label>
+        <input
+          type="hidden"
+          name="ratings"
+          value={JSON.stringify(
+            Object.entries(scores).map(([factorId, score]) => ({ factorId, score })),
+          )}
+        />
       </Section>
 
       <MacroPreview

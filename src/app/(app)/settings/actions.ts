@@ -10,7 +10,14 @@ import { saveDisplay } from "@/app/_server/display";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { savePreferences, saveSettings } from "@/core/nutrition/repositories/settings";
-import { parseInput, preferencesInput, settingsInput } from "@/core/nutrition/validation";
+import {
+  factorInput,
+  parseInput,
+  preferencesInput,
+  settingsInput,
+} from "@/core/nutrition/validation";
+import { createFactor, deleteFactor } from "@/core/nutrition/repositories/ratings";
+import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { parseColorMode, parseLayout } from "@/core/shared/display";
 import type { FormState } from "@/core/shared/result";
 
@@ -60,4 +67,32 @@ export async function savePreferencesAction(
   // Targets, moments and default views show on every page.
   revalidatePath("/", "layout");
   return { status: "saved" };
+}
+
+/** A new rating factor (ADR-0012). */
+export async function createFactorAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(factorInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const r = await createFactor(getDb(), owner, input.value.name);
+  if (!r.ok) return { status: "error", errors: r.errors, values };
+  revalidatePath("/", "layout"); // the meal editors and lists show factors
+  return { status: "saved" };
+}
+
+/** Deletes a factor and its scores. Bound per factor. */
+export async function deleteFactorAction(
+  id: string,
+  _prev: ActionButtonState,
+  _formData: FormData,
+): Promise<ActionButtonState> {
+  const { owner, t } = await requireContext();
+  const r = await deleteFactor(getDb(), owner, id);
+  if (!r.ok) return { status: "error", message: t.errors.not_found };
+  revalidatePath("/", "layout");
+  return { status: "idle" };
 }
