@@ -41,6 +41,15 @@ const price = {
 };
 const day = z.string().refine(isValidDay, "invalid_day");
 
+/** One ingredient as stored/exported (no id). Reused by ./ingredients-upsert.ts. */
+export const ingredientRow = z.object({
+  name: z.string().min(1),
+  description: z.string(),
+  unit,
+  ...nutrients,
+  ...price,
+});
+
 const exportFile = z.object({
   format: z.literal("lifeos-export"),
   version: z.union([z.literal(1), z.literal(2)]),
