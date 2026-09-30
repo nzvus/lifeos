@@ -96,7 +96,7 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
   return (
     <section
       aria-labelledby="day-panel-title"
-      className="flex flex-col gap-4 rule-strong border-ink bg-sheet p-4"
+      className="flex flex-col gap-4 rounded-surface rule-strong border-ink bg-sheet p-4"
     >
       <h2 id="day-panel-title" className="font-display text-section font-extrabold">
         {t.label.title}

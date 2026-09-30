@@ -21,6 +21,7 @@ import { ERROR_CODES, type ErrorCode, type FieldErrors } from "../shared/result"
 import { INGREDIENT_UNITS } from "../db/schema/nutrition";
 import { NUTRIENT_KEYS, type NutrientKey } from "./nutrients";
 import { LOCALES } from "../shared/locales";
+import { THEMES } from "../shared/themes";
 
 /**
  * A decimal typed by a person, e.g. "12,5". Returns the canonical string.
@@ -186,6 +187,7 @@ export type LogIngredientInput = z.output<typeof logIngredientInput>;
 export const settingsInput = z.object({
   timezone: z.string().refine(isValidTimeZone, "invalid_choice"),
   locale: z.enum(LOCALES, "invalid_choice"),
+  theme: z.enum(THEMES, "invalid_choice"),
 });
 export type SettingsInput = z.output<typeof settingsInput>;
 
@@ -258,8 +260,9 @@ export function ingredientFormValues(
 export function settingsFormValues(s: {
   timezone: string;
   locale: string;
+  theme: string;
 }): Record<string, string> {
-  return { timezone: s.timezone, locale: s.locale };
+  return { timezone: s.timezone, locale: s.locale, theme: s.theme };
 }
 
 /** A profile as form field values: targets as plain decimals, empty when unset. */

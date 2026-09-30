@@ -21,6 +21,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ownerFromVerifiedSession, type Owner } from "@/core/identity/owner";
 import { getSettings, type Settings } from "@/core/nutrition/repositories/settings";
+import { DEFAULT_THEME, type Theme } from "@/core/shared/themes";
 import type { Messages } from "@/i18n";
 import { getMessages } from "./i18n";
 import { getAuth, getDb } from "./runtime";
@@ -48,9 +49,28 @@ export type PageContext = {
   t: Messages;
 };
 
+/**
+ * One settings query per request, shared by the root layout and the page.
+ * Keyed by the user id (a string): cache() compares arguments by identity,
+ * and each Owner object is a new one.
+ */
+const settingsOf = cache((userId: string) =>
+  getSettings(getDb(), ownerFromVerifiedSession(userId)),
+);
+
 /** Owner + settings + dictionary: what nearly every page needs. */
 export const requireContext = cache(async (): Promise<PageContext> => {
   const owner = await requireOwner();
-  const settings = await getSettings(getDb(), owner);
+  const settings = await settingsOf(owner.id);
   return { owner, settings, t: getMessages(settings.locale) };
+});
+
+/**
+ * The signed-in user's theme (ADR-0010), or the default when nobody is
+ * signed in (sign-in page). For the root layout, which must not redirect.
+ */
+export const getTheme = cache(async (): Promise<Theme> => {
+  const session = await getSession();
+  if (!session) return DEFAULT_THEME;
+  return (await settingsOf(session.user.id)).theme;
 });

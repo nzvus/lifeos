@@ -1,0 +1,72 @@
+/*
+ * design/themes/cruscotto.css — "Cruscotto" (dashboard): dense, numeric
+ * (ADR-0010). Slate greys, monospaced numbers and headings, smaller type and
+ * spacing, thin rules. Same meaning of colour as every theme.
+ * Contrast checked 2026-09-30: text >= 4.5:1, graphics >= 3:1 on paper and
+ * sheet, light and dark; button text on herb >= 5:1.
+ */
+:root[data-theme="cruscotto"] {
+  --font-display: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --spacing: 0.22rem;
+  --rule-heavy: 2px;
+  --rule-strong: 1px;
+  --rule-medium: 1px;
+  --radius-control: 0.25rem;
+  --radius-surface: 0.375rem;
+  --text-title: 1.5rem;
+  --text-section: 1.125rem;
+  --text-item: 1rem;
+  --text-body: 0.9375rem;
+  --text-meta: 0.8125rem;
+  --color-paper: #eef1f4;
+  --color-sheet: #ffffff;
+  --color-ink: #111820;
+  --color-muted: #56616d;
+  --color-hairline: #cfd6de;
+  --color-herb: #1f7a5a;
+  --color-tomato: #b3261e;
+  --color-warn: #a14a06;
+  --color-focus: #1d5fd1;
+  --color-macro-protein: #b0306a;
+  --color-macro-carbs: #8f5f00;
+  --color-macro-fat: #2f5f9e;
+  --color-macro-fiber: #3f7a24;
+  --color-kcal: #111820;
+}
+
+/* Dark: more specific than the default dark block, so it wins. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="cruscotto"]:not([data-mode="light"]) {
+    --color-paper: #0d1117;
+    --color-sheet: #161b22;
+    --color-ink: #e6edf3;
+    --color-muted: #8b98a5;
+    --color-hairline: #2b333d;
+    --color-herb: #3fb68b;
+    --color-tomato: #f47067;
+    --color-warn: #e3a23a;
+    --color-focus: #58a6ff;
+    --color-macro-protein: #f07aad;
+    --color-macro-carbs: #e8b84a;
+    --color-macro-fat: #79a8f0;
+    --color-macro-fiber: #8fcc5e;
+    --color-kcal: #e6edf3;
+  }
+}
+:root[data-theme="cruscotto"][data-mode="dark"] {
+  --color-paper: #0d1117;
+  --color-sheet: #161b22;
+  --color-ink: #e6edf3;
+  --color-muted: #8b98a5;
+  --color-hairline: #2b333d;
+  --color-herb: #3fb68b;
+  --color-tomato: #f47067;
+  --color-warn: #e3a23a;
+  --color-focus: #58a6ff;
+  --color-macro-protein: #f07aad;
+  --color-macro-carbs: #e8b84a;
+  --color-macro-fat: #79a8f0;
+  --color-macro-fiber: #8fcc5e;
+  --color-kcal: #e6edf3;
+}

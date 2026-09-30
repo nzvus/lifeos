@@ -1,6 +1,6 @@
 /**
- * core/nutrition/repositories/settings.ts — per-user settings: time zone and
- * language. (Daily targets moved to day profiles, ADR-0008:
+ * core/nutrition/repositories/settings.ts — per-user settings: time zone,
+ * language and theme (ADR-0010). (Daily targets moved to day profiles, ADR-0008:
  * ./profiles.ts. The old target columns are still in the table, unread,
  * until a later migration drops them.)
  *
@@ -15,17 +15,19 @@ import type { Db } from "../../db/client";
 import { userSettings } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "../../shared/locales";
+import { DEFAULT_THEME, isTheme, type Theme } from "../../shared/themes";
 import type { SettingsInput } from "../validation";
 
 export type Settings = {
   timezone: string;
   locale: Locale;
+  theme: Theme;
 };
 
 export const DEFAULT_TIMEZONE = "Europe/Rome";
 
 function defaults(): Settings {
-  return { timezone: DEFAULT_TIMEZONE, locale: DEFAULT_LOCALE };
+  return { timezone: DEFAULT_TIMEZONE, locale: DEFAULT_LOCALE, theme: DEFAULT_THEME };
 }
 
 export async function getSettings(db: Db, owner: Owner): Promise<Settings> {
@@ -35,6 +37,7 @@ export async function getSettings(db: Db, owner: Owner): Promise<Settings> {
     timezone: row.timezone,
     // The DB column is plain text; fall back if it ever holds an unknown value.
     locale: isLocale(row.locale) ? row.locale : DEFAULT_LOCALE,
+    theme: isTheme(row.theme) ? row.theme : DEFAULT_THEME,
   };
 }
 

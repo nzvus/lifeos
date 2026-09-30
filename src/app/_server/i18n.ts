@@ -4,12 +4,13 @@
  *
  * i18n/ may not import core/ (it's a leaf) and core/ may not import i18n/
  * (it's the bottom of the graph). app/ may import both, so the consistency
- * checks live here: if a nutrient, an error code or a locale is added in
+ * checks live here: if a nutrient, an error code, a locale or a theme is added in
  * core/ without a label in the dictionaries, THIS file stops compiling.
  */
 import "server-only";
 import type { ErrorCode } from "@/core/shared/result";
 import type { Locale } from "@/core/shared/locales";
+import type { Theme } from "@/core/shared/themes";
 import type { NutrientKey } from "@/core/nutrition/nutrients";
 import { dictionaries, type Messages } from "@/i18n";
 
@@ -19,7 +20,8 @@ type Exact<A, B> = [keyof A] extends [B] ? ([B] extends [keyof A] ? true : false
 const _nutrients: Exact<Messages["nutrients"], NutrientKey> = true;
 const _errors: Exact<Messages["errors"], ErrorCode> = true;
 const _locales: Exact<typeof dictionaries, Locale> = true;
-void [_nutrients, _errors, _locales]; // "used", so the linter doesn't complain
+const _themes: Exact<Messages["settings"]["themeNames"], Theme> = true;
+void [_nutrients, _errors, _locales, _themes]; // "used", so the linter doesn't complain
 
 export function getMessages(locale: Locale): Messages {
   return dictionaries[locale];

@@ -8,7 +8,7 @@
  *         ├─< log_entries ─< log_entry_items   (a SNAPSHOT, see below)
  *         ├─< day_profiles ─┐ (set null: plans keep their copy)
  *         ├─< day_plans  <──┘  (one per day: chosen profile + targets COPY)
- *         └── user_settings (1 row: timezone, locale)
+ *         └── user_settings (1 row: timezone, locale, theme)
  *
  * Rules applied to every table here (ADR-0003 / ADR-0006):
  *   - every user-owned table has `user_id` from its first migration, and is
@@ -283,6 +283,9 @@ export const userSettings = pgTable("user_settings", {
     .references(() => user.id, { onDelete: "cascade" }),
   timezone: text("timezone").notNull().default("Europe/Rome"),
   locale: text("locale").notNull().default("it"),
+  // ADR-0010: the chosen theme (core/shared/themes.ts). Plain text like
+  // locale; unknown values fall back to the default when read.
+  theme: text("theme").notNull().default("label"),
   // DEPRECATED since migration 0001 (ADR-0008): targets moved to
   // day_profiles; migration 0002 copied them into a "Standard" profile.
   // Nothing reads these columns any more. A later migration drops them,
