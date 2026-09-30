@@ -7,7 +7,9 @@ import {
   change,
   e1rm,
   records,
+  sessionTonnage,
   tonnage,
+  weightAt,
 } from "./analysis";
 
 const s = (reps: number, load: number | null, warmup = false) => ({
@@ -118,5 +120,24 @@ describe("burn range", () => {
       high: Math.round(6 * 76 * (40 / 60) + met * 1.15 * 76 * (20 / 60)),
     });
     expect(burnRange(session, null)).toBeNull();
+  });
+});
+
+describe("session helpers", () => {
+  it("adds up a session's tonnage", () => {
+    expect(
+      sessionTonnage([{ sets: [s(10, 60)] }, { sets: [s(8, 25), s(8, 25, true)] }]),
+    ).toBe(800);
+  });
+
+  it("uses the latest weight on or before a day, else the first after", () => {
+    const m = [
+      { day: "2026-09-20", weightKg: "74.50" },
+      { day: "2026-05-31", weightKg: "76.00" },
+    ];
+    expect(weightAt(m, "2026-09-28")).toBe("74.50");
+    expect(weightAt(m, "2026-06-10")).toBe("76.00");
+    expect(weightAt(m, "2026-01-01")).toBe("76.00");
+    expect(weightAt([], "2026-01-01")).toBeNull();
   });
 });

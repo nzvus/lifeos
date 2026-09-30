@@ -13,6 +13,7 @@
  * repositories (in parallel), formats numbers for display, and hands plain
  * data and server actions to feature components. No sums, no rules, no SQL.
  */
+import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { listIngredients } from "@/core/nutrition/repositories/ingredients";
@@ -28,7 +29,7 @@ import { getHistory } from "@/core/nutrition/repositories/history";
 import { withAutoTargets } from "@/core/nutrition/targets";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, startOfWeek, todayIn } from "@/core/shared/dates";
-import { Copy } from "lucide-react";
+import { Copy, Dumbbell } from "lucide-react";
 import { DayNav } from "@/features/nutrition/log/DayNav";
 import { DayProfilePicker } from "@/features/nutrition/log/DayProfilePicker";
 import { EntryList } from "@/features/nutrition/log/EntryList";
@@ -37,6 +38,10 @@ import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { DayScore } from "@/features/nutrition/log/DayScore";
+import { SessionList } from "@/features/training/sessions/SessionList";
+import { listMeasurements } from "@/core/training/repositories/measurements";
+import { listSessions } from "@/core/training/repositories/sessions";
+import { Section } from "@/ui/Section";
 import { dayScore } from "@/core/nutrition/day-score";
 import { eatenQuality } from "@/core/nutrition/quality-summary";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
@@ -64,17 +69,27 @@ export default async function DayPage({ searchParams }: Props) {
   const db = getDb();
   // Promise.all: independent queries at once instead of one after another.
   const monday = startOfWeek(day);
-  const [view, meals, ingredients, dayTargets, profiles, usage, week] = await Promise.all(
-    [
-      getDay(db, owner, day),
-      listMeals(db, owner),
-      listIngredients(db, owner),
-      getDayTargets(db, owner, day), // fixed copy, default profile, or none (ADR-0008)
-      listProfiles(db, owner),
-      getUsage(db, owner, addDays(today, -USAGE_WINDOW_DAYS)),
-      getHistory(db, owner, monday, addDays(monday, 6)), // the shown day's week, for WeekStrip
-    ],
-  );
+  const [
+    view,
+    meals,
+    ingredients,
+    dayTargets,
+    profiles,
+    usage,
+    week,
+    sessions,
+    measurements,
+  ] = await Promise.all([
+    getDay(db, owner, day),
+    listMeals(db, owner),
+    listIngredients(db, owner),
+    getDayTargets(db, owner, day), // fixed copy, default profile, or none (ADR-0008)
+    listProfiles(db, owner),
+    getUsage(db, owner, addDays(today, -USAGE_WINDOW_DAYS)),
+    getHistory(db, owner, monday, addDays(monday, 6)), // the shown day's week, for WeekStrip
+    listSessions(db, owner, day, day), // ADR-0005: the day's training
+    listMeasurements(db, owner), // body weight, for the burn estimate
+  ]);
   // The day's own targets, plus recommended maxima where none is set
   // (sugars, saturated fat, salt — core/nutrition/targets.ts), unless the
   // user turned them off (preferences).
@@ -119,6 +134,26 @@ export default async function DayPage({ searchParams }: Props) {
           day: t.day,
         }}
       />
+      <Section
+        title={t.training.onThisDay}
+        icon={<Dumbbell size={20} aria-hidden="true" />}
+      >
+        {sessions.length > 0 && (
+          <SessionList
+            sessions={sessions}
+            measurements={measurements}
+            showDay={false}
+            locale={locale}
+            t={t.training}
+          />
+        )}
+        <Link
+          href={`/training/new?day=${day}`}
+          className="self-start text-meta underline"
+        >
+          {t.training.planForDay}
+        </Link>
+      </Section>
       <DayScore
         score={dayScore({ totals: view.totals.nutrients, targets, quality: dayQuality })}
         quality={dayQuality}
