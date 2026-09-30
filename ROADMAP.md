@@ -48,7 +48,8 @@
 - [x] ADR-0008 accepted (developer chose the recommended option B)
 - [x] Migrations 0001 (tables) + 0002 (backfill "Standard" profile), rehearsed on real Postgres with old-schema data
 - [x] Profiles page, day-type picker on the day page, export v2; 45 tests incl. cross-user and snapshot
-- [ ] Developer review; production migration via `migrate.yml`; create the real profiles (gym / run / rest)
+- [x] Production migration via `migrate.yml`; real profiles created (Gym / Rest default / Run, 2026-09-30)
+- [ ] Developer review
 
 ## Next sprint: S03 — Interface and usability (started 2026-09-29, night)
 - **Goal:** faster, adapted to phone and desktop, smarter search and ordering, richer but minimal information.
@@ -95,6 +96,9 @@
 - [x] ADR-0011 accepted (option C): meal category as a hint, moment on each entry; migration 0005
 - [x] Moments in the app: prefilled moment on add, category in the meal editor, day grouped by moment with subtotals, meals filter; export v4 + import keep them
 - [x] Preferences (migration 0006): automatic limits on/off, moment hours, default trends period and list sort
+- [x] Production data classified (2026-09-30): NOVA, origin, fibre types and shop/frozen/lactose-free tags on the 52 ingredients, categories on the meals (lifeos replace import, backup first); the 15 entries logged before stay "not classified" (ADR-0012)
+- [x] Two production incidents, both fixed the same day and guarded: PR #22 merged before its migration (5 min of 500s → CI migration gate); settings page crash from an inline function passed to a client component (#44)
+- [ ] Developer review on phone and desktop of everything above (themes, lists, add-to-day, trends, moments, quality); retro to close S01–S05
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
