@@ -200,3 +200,47 @@ export function exerciseHistory(
         })),
     );
 }
+
+export type TrainingDay = {
+  day: string;
+  /** Done sessions that day. */
+  sessions: number;
+  tonnage: number;
+  /** Σ of the sessions' ranges; null when none could be estimated. */
+  burn: BurnRange | null;
+};
+
+/**
+ * Training per day over `days` (the Targets page, next to intake): done
+ * sessions only (a plan burns nothing), tonnage and estimated burn with the
+ * weight of each day (`weightAt`). Days without training are present with
+ * zeros, so charts line up with the nutrition history.
+ */
+export function trainingByDay(
+  days: readonly string[],
+  sessions: readonly {
+    day: string;
+    status: string;
+    durationMin: number | null;
+    exercises: readonly { kind: ExerciseKind; sets: readonly SetLike[] }[];
+  }[],
+  measurements: readonly { day: string; weightKg: string | null }[],
+): TrainingDay[] {
+  return days.map((day) => {
+    const done = sessions.filter((s) => s.day === day && s.status === "done");
+    const ranges = done
+      .map((s) => burnRange(s, weightAt(measurements, day)))
+      .filter((r): r is BurnRange => r !== null);
+    return {
+      day,
+      sessions: done.length,
+      tonnage: done.reduce((sum, s) => sum + sessionTonnage(s.exercises), 0),
+      burn: ranges.length
+        ? {
+            low: ranges.reduce((a, r) => a + r.low, 0),
+            high: ranges.reduce((a, r) => a + r.high, 0),
+          }
+        : null,
+    };
+  });
+}

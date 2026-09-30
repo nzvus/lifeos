@@ -10,6 +10,7 @@ import {
   records,
   sessionTonnage,
   tonnage,
+  trainingByDay,
   weightAt,
 } from "./analysis";
 
@@ -171,6 +172,44 @@ describe("exerciseHistory", () => {
     expect(h.map((p) => [p.day, Math.round(p.bestE1rm!), p.tonnage])).toEqual([
       ["2026-09-11", 63, 540],
       ["2026-09-23", 80, 600],
+    ]);
+  });
+});
+
+describe("trainingByDay", () => {
+  it("adds up done sessions per day, zeros elsewhere, burn with that day's weight", () => {
+    const strength = (load: number) => ({
+      kind: "strength" as const,
+      sets: [s(10, load)],
+    });
+    const r = trainingByDay(
+      ["2026-09-27", "2026-09-28", "2026-09-29"],
+      [
+        { day: "2026-09-28", status: "done", durationMin: 60, exercises: [strength(40)] },
+        {
+          day: "2026-09-28",
+          status: "done",
+          durationMin: null,
+          exercises: [strength(20)],
+        },
+        {
+          day: "2026-09-29",
+          status: "planned",
+          durationMin: 60,
+          exercises: [strength(50)],
+        },
+      ],
+      [{ day: "2026-09-01", weightKg: "76" }],
+    );
+    expect(r).toEqual([
+      { day: "2026-09-27", sessions: 0, tonnage: 0, burn: null },
+      {
+        day: "2026-09-28",
+        sessions: 2,
+        tonnage: 600,
+        burn: { low: Math.round(3.5 * 76), high: 6 * 76 }, // the second has no time
+      },
+      { day: "2026-09-29", sessions: 0, tonnage: 0, burn: null }, // plans don't count
     ]);
   });
 });

@@ -1,7 +1,8 @@
 /**
  * app/(app)/profiles/page.tsx — URL /profiles, the "Targets" tab: how the
  * days went over a period (every nutrient, 7 / 30 / 90 days, scrollable back
- * in time) and the day types that define the targets (ADR-0008).
+ * in time), training over the same days (ADR-0005), and the day types that
+ * define the targets (ADR-0008).
  *
  * The period is in the URL (?range=30&to=2026-09-30); without it (or when
  * invalid), the user's default period (preferences) up to today.
@@ -15,6 +16,10 @@ import { daysEnding, isValidDay, todayIn } from "@/core/shared/dates";
 import { ProfileList } from "@/features/nutrition/profiles/ProfileList";
 import { TREND_RANGES, type TrendRange } from "@/core/nutrition/preferences";
 import { RangeNav } from "@/features/nutrition/trends/RangeNav";
+import { TrainingChart } from "@/features/training/progress/TrainingChart";
+import { trainingByDay } from "@/core/training/analysis";
+import { listMeasurements } from "@/core/training/repositories/measurements";
+import { listSessions } from "@/core/training/repositories/sessions";
 import { Trends } from "@/features/nutrition/trends/Trends";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
@@ -32,9 +37,11 @@ export default async function ProfilesPage({ searchParams }: Props) {
   const to = params.to && isValidDay(params.to) && params.to <= today ? params.to : today;
   const days = daysEnding(to, range);
   const db = getDb();
-  const [profiles, history] = await Promise.all([
+  const [profiles, history, sessions, measurements] = await Promise.all([
     listProfiles(db, owner),
     getHistory(db, owner, days[0]!, to),
+    listSessions(db, owner, days[0]!, to),
+    listMeasurements(db, owner),
   ]);
   return (
     <>
@@ -57,6 +64,13 @@ export default async function ProfilesPage({ searchParams }: Props) {
           timeZone={settings.timezone}
           autoTargets={settings.preferences.autoTargets}
           locale={settings.locale}
+          beside={
+            <TrainingChart
+              days={trainingByDay(days, sessions, measurements)}
+              locale={settings.locale}
+              t={t.training}
+            />
+          }
           t={t}
         />
       </Section>
