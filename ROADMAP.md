@@ -72,7 +72,8 @@
 - [x] One day panel (concentric rings + bars for all 8 nutrients) replaces ring + label; target kinds (min / max / target) with graded colours; auto maxima for sugars (EU RI), saturated fat and salt (WHO)
 - [x] Ingredient upsert by name (`upsert:ingredients`, field-level dry run): 4 labels photographed, prices from 2 Lidl receipts
 - [x] Planned / eaten checkbox with time (tick = now, editable; user's time zone), estimated meals, planned drawn translucent in rings and bars; "repeat yesterday" makes plans (ADR-0009, migration 0003)
-- [ ] Tags with icons (processing level, origin, fibre types, shop…) stacking into meals; meal ratings (ADR-0012)
+- [x] ADR-0012 accepted (tags C + ratings A): typed NOVA/origin/fibre types (snapshotted) + free tags; meal ratings per factor; migration 0007
+- [ ] Tags and ratings in the app: ingredient editor, meal derived values, ratings UI, then fibre-type bars and the day quality score
 
 ## Next sprint: S05 — Themes and design pass (started 2026-09-30)
 - **Goal:** user-selectable themes that may replace components (ADR-0010), light/dark/system and auto/desktop/phone per device, then a design pass on the default `label` theme.
