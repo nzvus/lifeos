@@ -130,10 +130,10 @@ export function LogForms({
           action={mealAction}
           className="flex flex-col gap-3 rule-t-heavy border-ink pt-3"
         >
-          <h2 className="font-display text-xl font-bold">{t.day.logMeal}</h2>
+          <h2 className="font-display text-section font-bold">{t.day.logMeal}</h2>
           <input type="hidden" name="day" value={day} />
           {meals.length === 0 ? (
-            <p className="text-sm text-muted">{t.day.noMeals}</p>
+            <p className="text-meta text-muted">{t.day.noMeals}</p>
           ) : (
             <>
               {mealErr("_form") && (
@@ -177,10 +177,10 @@ export function LogForms({
           action={ingAction}
           className="flex flex-col gap-3 rule-t-heavy border-ink pt-3"
         >
-          <h2 className="font-display text-xl font-bold">{t.day.logIngredient}</h2>
+          <h2 className="font-display text-section font-bold">{t.day.logIngredient}</h2>
           <input type="hidden" name="day" value={day} />
           {ingredients.length === 0 ? (
-            <p className="text-sm text-muted">{t.day.noIngredients}</p>
+            <p className="text-meta text-muted">{t.day.noIngredients}</p>
           ) : (
             <>
               {ingErr("_form") && <FormAlert tone="error">{ingErr("_form")!}</FormAlert>}
@@ -230,7 +230,7 @@ export function LogForms({
 function TimingFields({ idPrefix, t }: { idPrefix: string; t: Pick<Messages, "day"> }) {
   return (
     <div className="flex flex-wrap items-end gap-4">
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2 text-meta">
         <input
           type="checkbox"
           name="planned"
@@ -239,7 +239,7 @@ function TimingFields({ idPrefix, t }: { idPrefix: string; t: Pick<Messages, "da
         />
         {t.day.planned}
       </label>
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex flex-col gap-1 text-meta">
         <span className="font-semibold">{t.day.time}</span>
         <input
           type="time"
@@ -248,7 +248,7 @@ function TimingFields({ idPrefix, t }: { idPrefix: string; t: Pick<Messages, "da
           className="rule-b-medium border-ink bg-sheet px-2 py-1"
         />
       </label>
-      <p className="w-full text-xs text-muted">{t.day.timeHint}</p>
+      <p className="w-full text-meta text-muted">{t.day.timeHint}</p>
     </div>
   );
 }
@@ -269,11 +269,11 @@ function EstimateForm({ day, action, state, t }: EstimateProps) {
   const err = (f: string) => fieldError(state, f, t.errors);
   return (
     <details className="rule-t-medium border-ink pt-3">
-      <summary className="cursor-pointer font-display text-lg font-bold">
+      <summary className="cursor-pointer font-display text-item font-bold">
         {t.day.estimateTitle}
       </summary>
       <form action={action} className="flex flex-col gap-3 pt-3">
-        <p className="text-sm text-muted">{t.day.estimateHint}</p>
+        <p className="text-meta text-muted">{t.day.estimateHint}</p>
         <input type="hidden" name="day" value={day} />
         <Field
           label={t.day.estimateName}

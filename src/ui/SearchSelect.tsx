@@ -95,7 +95,7 @@ export function SearchSelect({
   const errorId = error ? `${id}-error` : undefined;
   return (
     <div className={className ?? "flex flex-col gap-1"}>
-      <label htmlFor={id} className="text-sm font-semibold">
+      <label htmlFor={id} className="text-meta font-semibold">
         {label}
       </label>
       <div className="relative">
@@ -127,7 +127,7 @@ export function SearchSelect({
             setOpen(false);
           }}
           onKeyDown={onKeyDown}
-          className="w-full rounded-control rule-b-medium border-ink bg-sheet px-2 py-2 text-base outline-none focus-visible:border-focus aria-invalid:border-tomato"
+          className="w-full rounded-control rule-b-medium border-ink bg-sheet px-2 py-2 text-body outline-none focus-visible:border-focus aria-invalid:border-tomato"
         />
         {open && (
           <ul
@@ -136,7 +136,7 @@ export function SearchSelect({
             className="absolute z-20 mt-1 max-h-72 w-full overflow-y-auto rounded-control rule-medium border-ink bg-sheet"
           >
             {results.length === 0 ? (
-              <li className="px-3 py-2 text-sm text-muted">{noResults}</li>
+              <li className="px-3 py-2 text-meta text-muted">{noResults}</li>
             ) : (
               results.map((o, i) => (
                 <li
@@ -155,7 +155,7 @@ export function SearchSelect({
                 >
                   <span className="font-semibold">{o.label}</span>
                   {o.hint && (
-                    <span className="font-display text-sm text-muted tabular-nums">
+                    <span className="font-display text-meta text-muted tabular-nums">
                       {o.hint}
                     </span>
                   )}
@@ -167,7 +167,7 @@ export function SearchSelect({
       </div>
       <input type="hidden" name={name} value={current} />
       {error && (
-        <p id={errorId} className="text-sm font-semibold text-tomato">
+        <p id={errorId} className="text-meta font-semibold text-tomato">
           {error}
         </p>
       )}

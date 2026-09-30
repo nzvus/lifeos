@@ -28,11 +28,11 @@ export default async function EditProfilePage({ params }: Props) {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <Link href="/profiles" className="text-sm underline">
+      <Link href="/profiles" className="text-meta underline">
         {t.profiles.back}
       </Link>
-      <h1 className="font-display text-3xl font-bold">{t.profiles.editTitle}</h1>
-      <p className="text-sm text-muted">{t.profiles.editNote}</p>
+      <h1 className="font-display text-title font-bold">{t.profiles.editTitle}</h1>
+      <p className="text-meta text-muted">{t.profiles.editNote}</p>
       <ProfileForm
         action={updateProfileAction.bind(null, id)}
         initial={profileFormValues(profile)}

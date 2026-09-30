@@ -9,10 +9,10 @@ export default async function NewProfilePage() {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <Link href="/profiles" className="text-sm underline">
+      <Link href="/profiles" className="text-meta underline">
         {t.profiles.back}
       </Link>
-      <h1 className="font-display text-3xl font-bold">{t.profiles.newTitle}</h1>
+      <h1 className="font-display text-title font-bold">{t.profiles.newTitle}</h1>
       <ProfileForm
         action={createProfileAction}
         initial={{}}

@@ -9,10 +9,10 @@ export default async function NewIngredientPage() {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <Link href="/ingredients" className="text-sm underline">
+      <Link href="/ingredients" className="text-meta underline">
         {t.ingredients.back}
       </Link>
-      <h1 className="font-display text-3xl font-bold">{t.ingredients.newTitle}</h1>
+      <h1 className="font-display text-title font-bold">{t.ingredients.newTitle}</h1>
       <IngredientForm
         action={createIngredientAction}
         initial={{ unit: "g" }}

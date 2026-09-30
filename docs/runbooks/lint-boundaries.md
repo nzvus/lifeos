@@ -15,6 +15,8 @@ then delete them:
 | same | import from `@/app/...` | `boundaries/dependencies` (no upward import) |
 | same | `className="p-[13px]"` | `no-restricted-syntax` (arbitrary value) |
 | same | `"#ff0000"` | `no-restricted-syntax` (hex colour) |
+| same | `"p-2 text-sm"` | `no-restricted-syntax` (default text size, ADR-0010) |
+| same | `` `md:border-b-2` `` | `no-restricted-syntax` (numeric border width, ADR-0010) |
 | same | a `div` containing the literal text "Hello world" | `react/jsx-no-literals` (text outside i18n) |
 | `src/ui/x.tsx` | import from `@/core/...` | `boundaries/dependencies` |
 | `src/i18n/x.ts` | import from `@/core/...` | `boundaries/dependencies` |
@@ -23,3 +25,5 @@ And one that must NOT fire: `src/features/nutrition/meals/x.tsx` importing
 `./MealList` (a slice importing itself).
 
 Last run: 2026-09-29, 9 of 9 reported, the same-slice import allowed.
+2026-09-30: the two ADR-0010 rows added and checked (both reported;
+`"text-meta border rule-b-medium"` allowed).

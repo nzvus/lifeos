@@ -59,7 +59,7 @@ export function WeekChart({
 
   return (
     <figure className="flex flex-col gap-1">
-      <figcaption className="flex items-center gap-1.5 text-sm font-semibold">
+      <figcaption className="flex items-center gap-1.5 text-meta font-semibold">
         <NutrientIcon name={nutrient} />
         {title}
       </figcaption>
@@ -139,7 +139,7 @@ export function WeekChart({
                 x={i * slot + slot / 2}
                 y={H - 4}
                 textAnchor="middle"
-                className="fill-muted text-xs"
+                className="fill-muted text-meta"
               >
                 {weekday.format(new Date(`${d.day}T12:00:00Z`))}
               </text>

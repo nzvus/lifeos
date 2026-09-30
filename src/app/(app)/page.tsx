@@ -160,7 +160,7 @@ export default async function DayPage({ searchParams }: Props) {
             after the forms on phones. */}
         <aside className="flex flex-col gap-6 lg:sticky lg:top-4 lg:self-start">
           <section className="flex flex-col gap-4 rule-t-heavy border-ink pt-3">
-            <h2 className="font-display text-xl font-bold">{t.glance.week}</h2>
+            <h2 className="font-display text-section font-bold">{t.glance.week}</h2>
             <WeekChart
               history={history}
               nutrient="kcal"
@@ -179,7 +179,7 @@ export default async function DayPage({ searchParams }: Props) {
               locale={locale}
               t={t}
             />
-            <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+            <p className="flex flex-wrap gap-x-4 gap-y-1 text-meta text-muted">
               <span className="inline-flex items-center gap-1">
                 <span className="inline-block h-2.5 w-2.5 bg-herb" aria-hidden="true" />
                 {t.glance.withinTarget}

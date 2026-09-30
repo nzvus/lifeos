@@ -29,7 +29,7 @@ export function SelectField({
   const errorId = error ? `${selectId}-error` : undefined;
   return (
     <div className={className ?? "flex flex-col gap-1"}>
-      <label htmlFor={selectId} className="text-sm font-semibold">
+      <label htmlFor={selectId} className="text-meta font-semibold">
         {label}
       </label>
       <select
@@ -37,7 +37,7 @@ export function SelectField({
         name={name}
         aria-invalid={error ? true : undefined}
         aria-describedby={errorId}
-        className="w-full rounded-control rule-b-medium border-ink bg-sheet px-2 py-2 text-base outline-none focus-visible:border-focus aria-invalid:border-tomato"
+        className="w-full rounded-control rule-b-medium border-ink bg-sheet px-2 py-2 text-body outline-none focus-visible:border-focus aria-invalid:border-tomato"
         {...select}
       >
         {placeholder !== undefined && <option value="">{placeholder}</option>}
@@ -48,7 +48,7 @@ export function SelectField({
         ))}
       </select>
       {error && (
-        <p id={errorId} className="text-sm font-semibold text-tomato">
+        <p id={errorId} className="text-meta font-semibold text-tomato">
           {error}
         </p>
       )}

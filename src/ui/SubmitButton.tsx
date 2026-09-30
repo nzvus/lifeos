@@ -44,7 +44,7 @@ export function SubmitButton({
       disabled={pending}
       aria-disabled={pending}
       title={iconOnly && typeof children === "string" ? children : undefined}
-      className={`${VARIANTS[variant]} inline-flex rounded-control items-center gap-2 ${iconOnly ? "p-2" : "px-4 py-2"} font-display text-lg font-semibold tracking-wide disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
+      className={`${VARIANTS[variant]} inline-flex rounded-control items-center gap-2 ${iconOnly ? "p-2" : "px-4 py-2"} font-display text-item font-semibold tracking-wide disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
       {icon}
       {iconOnly ? <span className="sr-only">{children}</span> : children}

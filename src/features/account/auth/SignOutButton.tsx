@@ -18,7 +18,7 @@ export function SignOutButton({ label }: { label: string }) {
         router.push("/sign-in");
         router.refresh();
       }}
-      className="text-sm underline"
+      className="text-meta underline"
     >
       {label}
     </button>

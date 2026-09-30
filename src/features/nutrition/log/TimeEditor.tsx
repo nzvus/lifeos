@@ -21,7 +21,7 @@ export function TimeEditor({ action, initial, t }: Props) {
   const error = fieldError(state, "time", t.errors);
   return (
     <form action={formAction} className="flex items-end gap-2">
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex flex-col gap-1 text-meta">
         <span className="font-semibold">{t.day.time}</span>
         <input
           type="time"
@@ -31,7 +31,7 @@ export function TimeEditor({ action, initial, t }: Props) {
         />
       </label>
       <SubmitButton variant="quiet">{t.day.saveTime}</SubmitButton>
-      {error && <span className="text-sm text-tomato">{error}</span>}
+      {error && <span className="text-meta text-tomato">{error}</span>}
     </form>
   );
 }

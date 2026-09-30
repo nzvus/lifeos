@@ -98,7 +98,7 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
       aria-labelledby="day-panel-title"
       className="flex flex-col gap-4 rule-strong border-ink bg-sheet p-4"
     >
-      <h2 id="day-panel-title" className="font-display text-2xl font-extrabold">
+      <h2 id="day-panel-title" className="font-display text-section font-extrabold">
         {t.label.title}
       </h2>
       <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
@@ -119,10 +119,10 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
               };
             })}
           >
-            <span className="font-display text-3xl font-extrabold tabular-nums">
+            <span className="font-display text-title font-extrabold tabular-nums">
               {num(kcal.status === "none" ? totals.nutrients.kcal : kcal.delta, "kcal")}
             </span>
-            <span className="text-xs text-muted">
+            <span className="text-meta text-muted">
               {kcal.status === "none"
                 ? `${unit}`
                 : `${unit} ${kcal.status === "under" ? t.panel.left : kcal.status === "over" ? t.panel.over : t.panel.off}`}
@@ -130,14 +130,14 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
           </ConcentricRings>
           {/* Below, not inside: the centre only fits the main number. */}
           {plannedKcal > 0 && (
-            <span className="text-sm text-muted tabular-nums">
+            <span className="text-meta text-muted tabular-nums">
               {fill(t.day.plannedNote, {
                 v: formatNumber(String(plannedKcal), locale, 0),
               })}
             </span>
           )}
           {/* Legend: ring order, outside -> inside. */}
-          <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted">
+          <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-meta text-muted">
             {RINGS.map((k) => (
               <li key={k} className="inline-flex items-center gap-1">
                 <NutrientIcon name={k} size={12} />
@@ -148,7 +148,7 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
           {split && (
             <div className="w-full">
               <MacroBar {...split} label={t.macro.splitTitle} />
-              <p className="pt-1 text-center font-display text-xs text-muted tabular-nums">
+              <p className="pt-1 text-center font-display text-meta text-muted tabular-nums">
                 {`${t.macro.protein} ${split.protein}% · ${t.macro.carbs} ${split.carbs}% · ${t.macro.fat} ${split.fat}%`}
               </p>
             </div>
@@ -182,12 +182,12 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
           })}
         </div>
       </div>
-      <p className="flex items-center justify-between gap-2 rule-t-medium border-ink pt-2 text-sm">
+      <p className="flex items-center justify-between gap-2 rule-t-medium border-ink pt-2 text-meta">
         <span className="flex items-center gap-1.5 font-semibold">
           <Coins size={16} aria-hidden="true" />
           {t.label.cost}
         </span>
-        <span className="font-display text-lg tabular-nums">
+        <span className="font-display text-item tabular-nums">
           {totals.costComplete
             ? formatCents(totals.costCents, locale)
             : fill(t.label.costPartial, { v: formatCents(totals.costCents, locale) })}

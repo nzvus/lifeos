@@ -44,7 +44,7 @@ export function TargetBar({
   const width = ratio === null ? 0 : scaled(ratio);
   return (
     <div className={`flex flex-col gap-0.5 ${sub ? "pl-5" : ""}`}>
-      <div className="flex items-baseline justify-between gap-2 text-sm">
+      <div className="flex items-baseline justify-between gap-2 text-meta">
         <span
           className={`flex items-center gap-1.5 ${sub ? "text-muted" : "font-semibold"}`}
         >
@@ -53,7 +53,7 @@ export function TargetBar({
           {autoLabel && (
             <span
               title={autoHint}
-              className="border border-hairline px-1 text-xs font-normal text-muted"
+              className="border border-hairline px-1 text-meta font-normal text-muted"
             >
               {autoLabel}
             </span>
@@ -86,7 +86,7 @@ export function TargetBar({
           />
         )}
       </div>
-      {status && <span className="text-xs text-muted">{status}</span>}
+      {status && <span className="text-meta text-muted">{status}</span>}
     </div>
   );
 }

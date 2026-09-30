@@ -55,7 +55,7 @@ export function NavBar({ links, label }: { links: NavLink[]; label: string }) {
               key={l.href}
               href={l.href}
               aria-current={active ? "page" : undefined}
-              className={`flex items-center gap-1.5 font-display text-lg font-semibold underline-offset-8 hover:underline ${
+              className={`flex items-center gap-1.5 font-display text-item font-semibold underline-offset-8 hover:underline ${
                 active ? "text-herb underline decoration-4" : ""
               }`}
             >
@@ -78,7 +78,7 @@ export function NavBar({ links, label }: { links: NavLink[]; label: string }) {
               key={l.href}
               href={l.href}
               aria-current={active ? "page" : undefined}
-              className={`flex flex-1 flex-col items-center gap-0.5 rule-t-strong py-2 font-display text-xs font-semibold ${
+              className={`flex flex-1 flex-col items-center gap-0.5 rule-t-strong py-2 font-display text-meta font-semibold ${
                 active ? "border-herb text-herb" : "border-transparent"
               }`}
             >

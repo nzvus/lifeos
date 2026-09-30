@@ -36,14 +36,14 @@ export function SortControl<S extends string>({
   return (
     <div className="flex items-end gap-2">
       <label className="flex flex-1 flex-col gap-1 sm:w-56 sm:flex-none">
-        <span className="text-sm font-semibold">{labels.sortBy}</span>
+        <span className="text-meta font-semibold">{labels.sortBy}</span>
         <select
           value={sort}
           onChange={(e) => {
             const next = options.find((o) => o.value === e.target.value)!;
             onChange(next.value, next.natural); // new sort: its natural direction
           }}
-          className="rounded-control rule-b-medium border-ink bg-sheet px-2 py-2 text-base"
+          className="rounded-control rule-b-medium border-ink bg-sheet px-2 py-2 text-body"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>

@@ -56,7 +56,8 @@ Structural invariants, enforced by ESLint (proof: `docs/runbooks/lint-boundaries
 
 - `core/` imports only `core/` and no framework package (ADR-0001).
 - No feature slice imports another; slices meet in `core/` (ADR-0002).
-- No hex colour, Tailwind arbitrary value or JSX text outside `design/`/`i18n/`.
+- No hex colour, arbitrary value, default text size, numeric border width or
+  JSX text outside `design/`/`i18n/` (type scale: `text-title…meta`).
 - i18n ↔ core consistency (nutrients, error codes, locales) is a compile-time
   check in `app/_server/i18n.ts`.
 
@@ -140,11 +141,10 @@ cannot poll URLs itself, so app health has daily granularity.
   SVG in feature components (no chart library). Sorts have a natural
   direction and an ↑/↓ toggle; missing values sort last
   (`core/shared/sorting.ts`).
-- **Performance:** Vercel functions pinned to `fra1` next to Neon
-  (`vercel.json`); Better Auth cookie cache (5 min) skips the session query;
-  `app/(app)/loading.tsx` gives instant feedback; client components receive
-  only the dictionary slices they use.
-- **Theming/i18n:** tokens are CSS custom properties: colour, `--spacing`,
-  `--text-*`, `--rule-*`, `--radius-control` (ADR-0010); `data-mode` and
-  `data-layout` on html come from per-device cookies (`app/_server/display.ts`).
+- **Performance:** functions in `fra1` next to Neon (`vercel.json`); auth cookie
+  cache (5 min); `app/(app)/loading.tsx`; client components get only the
+  dictionary slices they use.
+- **Theming/i18n:** CSS custom property tokens (ADR-0010): colour, `--spacing`,
+  `--text-*` (5 levels), `--rule-*`, `--radius-control`; `data-mode`/`data-layout`
+  on html come from per-device cookies (`app/_server/display.ts`).
 - **Testing:** Vitest; DB tests on PGlite with the real migrations applied.

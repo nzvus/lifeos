@@ -36,8 +36,10 @@ export function ProfileForm({ action, initial, submitLabel, t }: Props) {
         required
       />
       <fieldset className="rule-t-heavy border-ink pt-3">
-        <legend className="font-display text-xl font-bold">{t.profiles.targets}</legend>
-        <p className="pb-2 text-sm text-muted">{t.profiles.targetsHint}</p>
+        <legend className="font-display text-section font-bold">
+          {t.profiles.targets}
+        </legend>
+        <p className="pb-2 text-meta text-muted">{t.profiles.targetsHint}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
           {NUTRIENT_KEYS.map((k) => (
             <Field
