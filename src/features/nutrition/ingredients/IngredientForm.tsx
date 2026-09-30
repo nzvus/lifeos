@@ -38,6 +38,17 @@ import { SelectField } from "@/ui/SelectField";
 import { Section } from "@/ui/Section";
 import { SubmitButton } from "@/ui/SubmitButton";
 import { MealImpact } from "./MealImpact";
+import { QualityFields } from "./QualityFields";
+
+/** The tags sent back after an error (the hidden JSON field), or none. */
+function parseTags(raw: string): { name: string; icon: string }[] {
+  try {
+    const v: unknown = JSON.parse(raw);
+    return Array.isArray(v) ? (v as { name: string; icon: string }[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 type Props = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
@@ -47,7 +58,10 @@ type Props = {
   locale: Locale;
   /** Meals using this ingredient (edit page), for the live effect preview. */
   usedIn?: readonly MealUse[];
-  t: Pick<Messages, "ingredients" | "nutrients" | "errors" | "macro">;
+  /** ADR-0012: this ingredient's free tags, and all mine (suggestions). */
+  tags?: { name: string; icon: string }[];
+  knownTags: { name: string; icon: string }[];
+  t: Pick<Messages, "ingredients" | "nutrients" | "errors" | "macro" | "quality">;
 };
 
 /** The five previewed values as typed in the form (strings, maybe invalid). */
@@ -60,6 +74,8 @@ export function IngredientForm({
   submitLabel,
   locale,
   usedIn = [],
+  tags = [],
+  knownTags,
   t,
 }: Props) {
   const [state, formAction] = useActionState(action, IDLE);
@@ -165,6 +181,25 @@ export function IngredientForm({
           />
         </div>
       </fieldset>
+
+      <QualityFields
+        nova={val("nova")}
+        origin={val("origin")}
+        fiberTypes={val("fiberTypes")}
+        tags={
+          state.status === "error" && state.values.tags
+            ? parseTags(state.values.tags)
+            : tags
+        }
+        knownTags={knownTags}
+        errors={{
+          nova: err("nova"),
+          origin: err("origin"),
+          fiberTypes: err("fiberTypes"),
+          tags: err("tags"),
+        }}
+        t={t}
+      />
 
       <div>
         <SubmitButton>{submitLabel}</SubmitButton>

@@ -27,6 +27,7 @@ import {
 } from "../../shared/result";
 import { sumLines, toDisplay, type DisplayTotals, type TotalsLine } from "../totals";
 import type { Moment } from "../moments";
+import { qualityOf, type Quality } from "../quality";
 import type { MealInput } from "../validation";
 
 /** A meal to save; the category (ADR-0011) may be left out (imports, tests). */
@@ -38,6 +39,8 @@ export type MealLine = TotalsLine & {
   ingredientId: string;
   ingredientName: string;
   unit: Ingredient["unit"];
+  /** ADR-0012: the ingredient's quality attributes, as they are now. */
+  quality: Quality;
 };
 
 /** A meal as the UI needs it: the row, its lines, and its computed totals. */
@@ -130,6 +133,7 @@ function toMealLine(quantity: string, ing: Ingredient): MealLine {
     per100: per100Of(ing),
     packagePriceCents: ing.packagePriceCents,
     packageSize: ing.packageSize,
+    quality: qualityOf(ing),
   };
 }
 

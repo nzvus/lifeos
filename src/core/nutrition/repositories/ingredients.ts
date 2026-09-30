@@ -15,7 +15,7 @@
  */
 import { and, asc, eq, inArray } from "drizzle-orm";
 import type { Db } from "../../db/client";
-import { ingredients } from "../../db/schema";
+import { ingredients, ingredientTags, tags } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { fail, ok, pgErrorCode, type Result } from "../../shared/result";
 import type { IngredientInput } from "../validation";
@@ -73,17 +73,64 @@ export async function getIngredientsByIds(
     .where(and(ownedBy(ingredients, owner), inArray(ingredients.id, [...ids])));
 }
 
+/**
+ * What create/update accept: the form's fields; the quality attributes and
+ * tags (ADR-0012) may be left out (importers, tests) — on update, left-out
+ * means "keep as is".
+ */
+export type IngredientWrite = Omit<
+  IngredientInput,
+  "nova" | "origin" | "fiberTypes" | "tags"
+> &
+  Partial<Pick<IngredientInput, "nova" | "origin" | "fiberTypes" | "tags">>;
+
+type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
+
+/**
+ * Replaces an ingredient's free tags: each name becomes one of my tags
+ * (created if new, its icon updated if it changed), then the links are
+ * rewritten. Inside the caller's transaction.
+ */
+async function setTags(
+  tx: Tx,
+  owner: Owner,
+  ingredientId: string,
+  list: NonNullable<IngredientInput["tags"]>,
+): Promise<void> {
+  await tx
+    .delete(ingredientTags)
+    .where(
+      and(ownedBy(ingredientTags, owner), eq(ingredientTags.ingredientId, ingredientId)),
+    );
+  for (const t of list) {
+    const [tag] = await tx
+      .insert(tags)
+      .values({ userId: owner.id, name: t.name, icon: t.icon })
+      .onConflictDoUpdate({ target: [tags.userId, tags.name], set: { icon: t.icon } })
+      .returning({ id: tags.id });
+    await tx
+      .insert(ingredientTags)
+      .values({ userId: owner.id, ingredientId, tagId: tag!.id })
+      .onConflictDoNothing(); // the same name twice in the list
+  }
+}
+
 export async function createIngredient(
   db: Db,
   owner: Owner,
-  input: IngredientInput,
+  input: IngredientWrite,
 ): Promise<Result<Ingredient>> {
+  const { tags: tagList, ...fields } = input;
   try {
-    const [row] = await db
-      .insert(ingredients)
-      .values({ ...input, userId: owner.id }) // owner always from the Owner, never from input
-      .returning();
-    return ok(row!); // insert ... returning always yields the inserted row
+    const row = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(ingredients)
+        .values({ ...fields, userId: owner.id }) // owner always from the Owner, never from input
+        .returning();
+      if (tagList) await setTags(tx, owner, created!.id, tagList);
+      return created!; // insert ... returning always yields the inserted row
+    });
+    return ok(row);
   } catch (e) {
     if (pgErrorCode(e) === "23505") return fail({ name: "duplicate_name" });
     throw e; // anything else is unexpected: let it surface
@@ -94,20 +141,59 @@ export async function updateIngredient(
   db: Db,
   owner: Owner,
   id: string,
-  input: IngredientInput,
+  input: IngredientWrite,
 ): Promise<Result<Ingredient>> {
+  const { tags: tagList, ...fields } = input;
   try {
-    const [row] = await db
-      .update(ingredients)
-      .set(input)
-      .where(and(ownedBy(ingredients, owner), eq(ingredients.id, id)))
-      .returning();
+    const row = await db.transaction(async (tx) => {
+      const [updated] = await tx
+        .update(ingredients)
+        .set(fields)
+        .where(and(ownedBy(ingredients, owner), eq(ingredients.id, id)))
+        .returning();
+      if (updated && tagList) await setTags(tx, owner, id, tagList);
+      return updated;
+    });
     // No row updated = not mine or not existing. Same answer for both.
     return row ? ok(row) : fail({ _form: "not_found" });
   } catch (e) {
     if (pgErrorCode(e) === "23505") return fail({ name: "duplicate_name" });
     throw e;
   }
+}
+
+/** A free tag (ADR-0012). */
+export type Tag = { id: string; name: string; icon: string };
+
+/** All my free tags, alphabetically. */
+export async function listTags(db: Db, owner: Owner): Promise<Tag[]> {
+  return db
+    .select({ id: tags.id, name: tags.name, icon: tags.icon })
+    .from(tags)
+    .where(ownedBy(tags, owner))
+    .orderBy(asc(tags.name));
+}
+
+/** The free tags of each of my ingredients: ingredient id -> tags. */
+export async function tagsByIngredient(
+  db: Db,
+  owner: Owner,
+): Promise<Map<string, Tag[]>> {
+  const rows = await db
+    .select({
+      ingredientId: ingredientTags.ingredientId,
+      id: tags.id,
+      name: tags.name,
+      icon: tags.icon,
+    })
+    .from(ingredientTags)
+    .innerJoin(tags, eq(ingredientTags.tagId, tags.id))
+    .where(ownedBy(ingredientTags, owner))
+    .orderBy(asc(tags.name));
+  const out = new Map<string, Tag[]>();
+  for (const { ingredientId, ...tag } of rows)
+    out.set(ingredientId, [...(out.get(ingredientId) ?? []), tag]);
+  return out;
 }
 
 /**

@@ -21,10 +21,12 @@ import {
   dayPlans,
   dayProfiles,
   ingredients,
+  ingredientTags,
   logEntries,
   logEntryItems,
   mealItems,
   meals,
+  tags,
   userSettings,
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
@@ -82,7 +84,9 @@ export async function replaceWithExport(
     await tx.delete(dayProfiles).where(ownedBy(dayProfiles, owner));
     await tx.delete(mealItems).where(ownedBy(mealItems, owner));
     await tx.delete(meals).where(ownedBy(meals, owner));
+    await tx.delete(ingredientTags).where(ownedBy(ingredientTags, owner));
     await tx.delete(ingredients).where(ownedBy(ingredients, owner));
+    await tx.delete(tags).where(ownedBy(tags, owner));
     await tx.delete(userSettings).where(ownedBy(userSettings, owner));
 
     // 2. Insert, parents before children, mapping file ids -> new ids.
@@ -94,12 +98,23 @@ export async function replaceWithExport(
       });
     }
     const ingredientId = new Map<string, string>();
-    for (const { id, ...i } of data.ingredients) {
+    for (const { id, tags: tagList, ...i } of data.ingredients) {
       const [row] = await tx
         .insert(ingredients)
         .values({ ...i, userId: u })
         .returning({ id: ingredients.id });
       ingredientId.set(id, row!.id);
+      for (const t of tagList) {
+        const [tag] = await tx
+          .insert(tags)
+          .values({ userId: u, name: t.name, icon: t.icon })
+          .onConflictDoUpdate({ target: [tags.userId, tags.name], set: { icon: t.icon } })
+          .returning({ id: tags.id });
+        await tx
+          .insert(ingredientTags)
+          .values({ userId: u, ingredientId: row!.id, tagId: tag!.id })
+          .onConflictDoNothing();
+      }
     }
     const mealId = new Map<string, string>();
     for (const { id, items, ...m } of data.meals) {

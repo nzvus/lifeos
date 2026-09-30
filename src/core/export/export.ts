@@ -22,9 +22,11 @@ import {
   dayPlans,
   dayProfiles,
   ingredients,
+  ingredientTags,
   logEntries,
   logEntryItems,
   mealItems,
+  tags,
   meals,
   user,
   userSettings,
@@ -33,7 +35,7 @@ import { ownedBy, type Owner } from "../identity/owner";
 
 export const EXPORT_FORMAT = "lifeos-export";
 /** 2: adds dayProfiles and dayPlans (ADR-0008). 3: log status/at/estimated (ADR-0009). */
-export const EXPORT_VERSION = 4; // 4: meal category, entry moment (ADR-0011)
+export const EXPORT_VERSION = 5; // 4: category, moment (ADR-0011); 5: quality + tags (ADR-0012)
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -56,6 +58,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     entryItemRows,
     profileRows,
     planRows,
+    tagRows,
   ] = await Promise.all([
     db.select().from(userSettings).where(ownedBy(userSettings, owner)),
     db
@@ -77,6 +80,16 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       .where(ownedBy(dayProfiles, owner))
       .orderBy(asc(dayProfiles.name)),
     db.select().from(dayPlans).where(ownedBy(dayPlans, owner)).orderBy(asc(dayPlans.day)),
+    db
+      .select({
+        ingredientId: ingredientTags.ingredientId,
+        name: tags.name,
+        icon: tags.icon,
+      })
+      .from(ingredientTags)
+      .innerJoin(tags, eq(ingredientTags.tagId, tags.id))
+      .where(ownedBy(ingredientTags, owner))
+      .orderBy(asc(tags.name)),
   ]);
 
   return {
@@ -85,7 +98,13 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     exportedAt: now.toISOString(),
     account: me ?? null,
     settings: stripOwner(settings)[0] ?? null,
-    ingredients: stripOwner(ingredientRows),
+    // Free tags ride along with each ingredient (ADR-0012).
+    ingredients: stripOwner(ingredientRows).map((i) => ({
+      ...i,
+      tags: tagRows
+        .filter((t) => t.ingredientId === i.id)
+        .map(({ name, icon }) => ({ name, icon })),
+    })),
     meals: stripOwner(mealRows).map((m) => ({
       ...m,
       items: stripOwner(mealItemRows.filter((i) => i.mealId === m.id)),

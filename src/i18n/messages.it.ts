@@ -263,6 +263,67 @@ export const it: Messages = {
     },
     sortValue: "{what}: {v}",
   },
+  quality: {
+    title: "Qualità e tag",
+    nova: "Trasformazione (NOVA)",
+    novaNone: "— non classificato",
+    novaShort: "NOVA {n}",
+    novaNames: {
+      1: "1 · non o poco trasformato",
+      2: "2 · ingrediente culinario (olio, burro, zucchero, sale)",
+      3: "3 · trasformato (conserve, formaggi, pane)",
+      4: "4 · ultra-trasformato",
+    },
+    origin: "Origine",
+    originNone: "— non indicata",
+    origins: { plant: "Vegetale", animal: "Animale", mixed: "Mista" },
+    fiberTypes: "Tipi di fibra prevalenti",
+    fiberNames: {
+      inulin_fos: "Inulina / FOS",
+      beta_glucan: "Beta-glucani",
+      resistant_starch: "Amido resistente",
+      pectin: "Pectine",
+      psyllium: "Psyllium / mucillagini",
+      insoluble: "Insolubile (cellulosa, crusca)",
+      gos: "GOS",
+    },
+    fiberAbout: {
+      inulin_fos:
+        "Cicoria, cipolla, aglio, porri, topinambur. Fermentata soprattutto da bifidobatteri.",
+      beta_glucan:
+        "Avena, orzo, funghi. Fibra solubile e viscosa; associata a Bacteroides e alla produzione di propionato.",
+      resistant_starch:
+        "Legumi, patate e riso cotti e raffreddati, banane poco mature. Associato a Ruminococcus bromii e al butirrato.",
+      pectin:
+        "Mele, agrumi, frutti di bosco, carote. Fermentata da Bacteroides e Faecalibacterium.",
+      psyllium:
+        "Psyllium, semi di lino e chia. Gelificante e poco fermentata: soprattutto volume e regolarità.",
+      insoluble: "Crusca, cereali integrali, bucce. Poco fermentata: aumenta il volume.",
+      gos: "Legumi, latte. Fermentati soprattutto da bifidobatteri.",
+    },
+    fiberNote:
+      "Descrizioni indicative: associazioni riportate in letteratura, non promesse di salute.",
+    tags: "Tag",
+    tagsHint: "Etichette libere (negozio, bio, preferito…): solo descrittive.",
+    tagName: "Nuovo tag",
+    tagIcon: "Icona",
+    addTag: "Aggiungi",
+    removeTag: "Rimuovi il tag {name}",
+    tagIcons: {
+      tag: "Etichetta",
+      store: "Negozio",
+      "shopping-cart": "Carrello",
+      leaf: "Foglia",
+      sprout: "Germoglio",
+      star: "Stella",
+      heart: "Cuore",
+      flame: "Fiamma",
+      snowflake: "Surgelato",
+      package: "Confezione",
+      "wheat-off": "Senza glutine",
+      "milk-off": "Senza lattosio",
+    },
+  },
   preferences: {
     title: "Preferenze",
     autoTargets: "Limiti consigliati automatici",

@@ -11,7 +11,11 @@ import { requireContext } from "@/app/_server/owner";
 import { PageHeader } from "@/ui/PageHeader";
 import { getDb } from "@/app/_server/runtime";
 import { mealsUsing } from "@/core/nutrition/preview";
-import { getIngredient } from "@/core/nutrition/repositories/ingredients";
+import {
+  getIngredient,
+  listTags,
+  tagsByIngredient,
+} from "@/core/nutrition/repositories/ingredients";
 import { listMeals } from "@/core/nutrition/repositories/meals";
 import { idInput, ingredientFormValues } from "@/core/nutrition/validation";
 import { IngredientForm } from "@/features/nutrition/ingredients/IngredientForm";
@@ -25,9 +29,11 @@ export default async function EditIngredientPage({ params }: Props) {
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
   const db = getDb();
-  const [ingredient, meals] = await Promise.all([
+  const [ingredient, meals, knownTags, tagMap] = await Promise.all([
     getIngredient(db, owner, id),
     listMeals(db, owner),
+    listTags(db, owner),
+    tagsByIngredient(db, owner),
   ]);
   if (!ingredient) notFound();
 
@@ -44,11 +50,14 @@ export default async function EditIngredientPage({ params }: Props) {
         submitLabel={t.ingredients.save}
         locale={settings.locale}
         usedIn={mealsUsing(meals, id)}
+        tags={(tagMap.get(id) ?? []).map(({ name, icon }) => ({ name, icon }))}
+        knownTags={knownTags.map(({ name, icon }) => ({ name, icon }))}
         t={{
           ingredients: t.ingredients,
           nutrients: t.nutrients,
           errors: t.errors,
           macro: t.macro,
+          quality: t.quality,
         }}
       />
       <ActionButtonForm

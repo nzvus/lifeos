@@ -15,6 +15,7 @@
  */
 import { z } from "zod";
 import { MOMENTS } from "../nutrition/moments";
+import { FIBER_TYPES, ORIGINS, TAG_ICONS } from "../nutrition/quality";
 import { ok, type Result } from "../shared/result";
 import { isValidDay } from "../shared/dates";
 
@@ -51,9 +52,25 @@ export const ingredientRow = z.object({
   ...price,
 });
 
+/** ADR-0012 quality attributes; absent in files before version 5. */
+const quality = {
+  nova: z
+    .union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)])
+    .nullable()
+    .default(null),
+  origin: z.enum(ORIGINS).nullable().default(null),
+  fiberTypes: z.array(z.enum(FIBER_TYPES)).default([]),
+};
+
 const exportFile = z.object({
   format: z.literal("lifeos-export"),
-  version: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
+  version: z.union([
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5),
+  ]),
   settings: z.object({ timezone: z.string(), locale: z.string() }).nullable(),
   ingredients: z.array(
     z.object({
@@ -63,6 +80,13 @@ const exportFile = z.object({
       unit,
       ...nutrients,
       ...price,
+      // Version 5 (ADR-0012); older files: not classified, no tags.
+      ...quality,
+      tags: z
+        .array(
+          z.object({ name: z.string().min(1), icon: z.enum(TAG_ICONS).catch("tag") }),
+        )
+        .default([]),
     }),
   ),
   meals: z.array(
@@ -123,6 +147,7 @@ const exportFile = z.object({
           position: z.number().int(),
           ...nutrients,
           ...price,
+          ...quality, // version 5: the snapshot's quality attributes
         }),
       ),
     }),
