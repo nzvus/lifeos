@@ -40,8 +40,13 @@
   --color-macro-protein: #b0426e;
   --color-macro-carbs: #946508;
   --color-macro-fat: #3b66a0;
-  --color-macro-fiber: #4d7c2c;
+  --color-macro-fiber: #4a782a;
   --color-kcal: #2a2420;
+  --color-moment-breakfast: #8c5530;
+  --color-moment-lunch: #2a6b5e;
+  --color-moment-snack: #636611;
+  --color-moment-dinner: #4a4a9c;
+  --color-price: #7d4a8f;
 }
 
 /* Dark: more specific than the default dark block, so it wins. */
@@ -61,6 +66,11 @@
     --color-macro-fat: #8db3e8;
     --color-macro-fiber: #a2cf73;
     --color-kcal: #efe7da;
+    --color-moment-breakfast: #e0a77e;
+    --color-moment-lunch: #7fcbb8;
+    --color-moment-snack: #c9c860;
+    --color-moment-dinner: #aeb0ec;
+    --color-price: #d2a8e0;
   }
 }
 :root[data-theme="orto"][data-mode="dark"] {
@@ -78,4 +88,9 @@
   --color-macro-fat: #8db3e8;
   --color-macro-fiber: #a2cf73;
   --color-kcal: #efe7da;
+  --color-moment-breakfast: #e0a77e;
+  --color-moment-lunch: #7fcbb8;
+  --color-moment-snack: #c9c860;
+  --color-moment-dinner: #aeb0ec;
+  --color-price: #d2a8e0;
 }

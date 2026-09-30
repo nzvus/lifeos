@@ -41,6 +41,11 @@
   --color-macro-fat: #2f5f9e;
   --color-macro-fiber: #3f7a24;
   --color-kcal: #111820;
+  --color-moment-breakfast: #9a4f12;
+  --color-moment-lunch: #06707a;
+  --color-moment-snack: #56700a;
+  --color-moment-dinner: #3a4fc0;
+  --color-price: #7a3fc0;
 }
 
 /* Dark: more specific than the default dark block, so it wins. */
@@ -60,6 +65,11 @@
     --color-macro-fat: #79a8f0;
     --color-macro-fiber: #8fcc5e;
     --color-kcal: #e6edf3;
+    --color-moment-breakfast: #f0a868;
+    --color-moment-lunch: #4fd6e0;
+    --color-moment-snack: #b8d84a;
+    --color-moment-dinner: #8fa4ff;
+    --color-price: #c69cff;
   }
 }
 :root[data-theme="cruscotto"][data-mode="dark"] {
@@ -77,4 +87,9 @@
   --color-macro-fat: #79a8f0;
   --color-macro-fiber: #8fcc5e;
   --color-kcal: #e6edf3;
+  --color-moment-breakfast: #f0a868;
+  --color-moment-lunch: #4fd6e0;
+  --color-moment-snack: #b8d84a;
+  --color-moment-dinner: #8fa4ff;
+  --color-price: #c69cff;
 }
