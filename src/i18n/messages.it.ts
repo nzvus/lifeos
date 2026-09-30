@@ -174,6 +174,15 @@ export const it: Messages = {
       "Scarica tutto ciò che hai inserito in un file JSON. Tienine una copia: funziona anche senza questa app.",
     export: "Scarica i miei dati",
     localeNames: { it: "Italiano", en: "English" },
+    display: {
+      title: "Aspetto",
+      hint: "Salvato solo su questo dispositivo: telefono e computer possono essere diversi.",
+      mode: "Chiaro o scuro",
+      modes: { system: "Come il dispositivo", light: "Chiaro", dark: "Scuro" },
+      layout: "Impaginazione",
+      layouts: { auto: "Automatica", desktop: "Desktop", phone: "Telefono" },
+      save: "Salva aspetto",
+    },
   },
   profiles: {
     title: "Tipi di giornata e obiettivi",

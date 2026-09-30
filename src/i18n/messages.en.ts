@@ -177,6 +177,15 @@ export const en = {
       "Download everything you have entered as a JSON file. Keep a copy: it works without this app.",
     export: "Download my data",
     localeNames: { it: "Italiano", en: "English" },
+    display: {
+      title: "Display",
+      hint: "Saved on this device only: your phone and your computer can differ.",
+      mode: "Light or dark",
+      modes: { system: "Like the device", light: "Light", dark: "Dark" },
+      layout: "Layout",
+      layouts: { auto: "Automatic", desktop: "Desktop", phone: "Phone" },
+      save: "Save display",
+    },
   },
   profiles: {
     title: "Day types and targets",

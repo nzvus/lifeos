@@ -129,6 +129,16 @@
  * unless data-mode on <html> says otherwise (ADR-0010: the light / dark /
  * system choice is a per-device setting, separate from the theme).
  */
+/* Native controls (select popups, scrollbars, date pickers) follow the mode. */
+:root {
+  color-scheme: light dark;
+}
+:root[data-mode="light"] {
+  color-scheme: light;
+}
+:root[data-mode="dark"] {
+  color-scheme: dark;
+}
 @media (prefers-color-scheme: dark) {
   :root:not([data-mode="light"]) {
     --color-paper: #111714;

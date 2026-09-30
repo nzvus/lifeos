@@ -79,7 +79,7 @@
 - [x] ADR-0010 accepted (developer chose option B)
 - [x] Shape tokens in `design/` (rules, control radius, density); `data-theme` → `data-mode`
 - [x] Layout variants: `sm:/md:/lg:` redefined with `@custom-variant` to obey `data-layout` (no rewrite or lint rule needed)
-- [ ] Mode + layout cookies and settings UI
+- [x] Mode + layout cookies and settings UI ("desktop" also widens the phone viewport to 1200 px)
 - [ ] `themes/` layer, slot switches, contract test, lint boundaries
 - [ ] `user_settings.theme` migration + theme picker
 - [ ] Phone + desktop screenshots, then design pass on `label`

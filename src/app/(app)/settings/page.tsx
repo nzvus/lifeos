@@ -1,14 +1,17 @@
 /**
- * app/(app)/settings/page.tsx — URL /settings: preferences, targets, and the
- * data export link (GET /api/export, a plain download).
+ * app/(app)/settings/page.tsx — URL /settings: preferences, display (this
+ * device only), and the data export link (GET /api/export, a plain download).
  */
+import { getDisplay } from "@/app/_server/display";
 import { requireContext } from "@/app/_server/owner";
 import { settingsFormValues } from "@/core/nutrition/validation";
+import { DisplayForm } from "@/features/account/settings/DisplayForm";
 import { SettingsForm } from "@/features/account/settings/SettingsForm";
-import { saveSettingsAction } from "./actions";
+import { saveDisplayAction, saveSettingsAction } from "./actions";
 
 export default async function SettingsPage() {
   const { settings, t } = await requireContext();
+  const display = await getDisplay();
   // Every IANA time zone the server's runtime knows, for suggestions.
   const timeZones = Intl.supportedValuesOf("timeZone");
   return (
@@ -21,6 +24,15 @@ export default async function SettingsPage() {
         timeZones={timeZones}
         t={{ settings: t.settings, errors: t.errors }}
       />
+      <section className="flex flex-col gap-4 rule-t-heavy border-ink pt-3">
+        <h2 className="font-display text-xl font-bold">{t.settings.display.title}</h2>
+        <p className="text-muted">{t.settings.display.hint}</p>
+        <DisplayForm
+          action={saveDisplayAction}
+          initial={display}
+          t={{ ...t.settings.display, saved: t.settings.saved }}
+        />
+      </section>
       <section className="flex flex-col items-start gap-2 rule-t-heavy border-ink pt-3">
         <h2 className="font-display text-xl font-bold">{t.settings.exportTitle}</h2>
         <p className="text-muted">{t.settings.exportHint}</p>
