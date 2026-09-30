@@ -263,6 +263,28 @@ export const it: Messages = {
     },
     sortValue: "{what}: {v}",
   },
+  dayScore: {
+    title: "Qualità della giornata",
+    outOf: "/100",
+    none: "Ancora nessun dato: registra qualcosa di mangiato.",
+    parts: {
+      targets: "Obiettivi",
+      processing: "Trasformazione",
+      fiberVariety: "Varietà di fibre",
+    },
+    weight: "peso {w}%",
+    targets: "{on} nutrienti su {of} nell'obiettivo",
+    processing:
+      "Energia da alimenti poco trasformati (NOVA 1–2 intera, 3 a metà, 4 zero)",
+    fiberVariety: "{types} tipi di fibra con almeno 1 g",
+    noTargets: "Non disponibile: nessun obiettivo per questa giornata.",
+    notClassified:
+      "Non disponibile: ingredienti senza livello NOVA (classificali in Ingredienti).",
+    fiberTitle: "Fibre per tipo",
+    fiberUnknown: "senza tipo: {v} g",
+    howTo:
+      "Come si calcola: media pesata delle parti disponibili; le parti mancanti non contano.",
+  },
   ratings: {
     title: "Valutazione",
     factorsTitle: "Fattori di valutazione dei pasti",

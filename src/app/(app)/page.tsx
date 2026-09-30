@@ -36,6 +36,9 @@ import { THEME_SLOTS } from "@/core/shared/themes";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
+import { DayScore } from "@/features/nutrition/log/DayScore";
+import { dayScore } from "@/core/nutrition/day-score";
+import { eatenQuality } from "@/core/nutrition/quality-summary";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
 import {
   copyPreviousDayAction,
@@ -79,6 +82,8 @@ export default async function DayPage({ searchParams }: Props) {
   const { targets, auto } = settings.preferences.autoTargets
     ? withAutoTargets(own)
     : { targets: own, auto: [] };
+  // What the eaten food is made of (ADR-0012), for the score and fibre types.
+  const dayQuality = eatenQuality(view.entries);
   /** The five values the add-to-day preview scales (core/nutrition/preview.ts). */
   const pick = (v: MacroValues): MacroValues => ({
     kcal: v.kcal,
@@ -113,6 +118,13 @@ export default async function DayPage({ searchParams }: Props) {
           panel: t.panel,
           day: t.day,
         }}
+      />
+      <DayScore
+        score={dayScore({ totals: view.totals.nutrients, targets, quality: dayQuality })}
+        quality={dayQuality}
+        empty={view.entries.every((e) => e.status !== "eaten")}
+        locale={locale}
+        t={{ dayScore: t.dayScore, quality: t.quality }}
       />
       <div className="flex flex-col gap-8">
         <EntryList
