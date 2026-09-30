@@ -78,7 +78,7 @@
 - **Goal:** user-selectable themes that may replace components (ADR-0010), light/dark/system and auto/desktop/phone per device, then a design pass on the default `label` theme.
 - [x] ADR-0010 accepted (developer chose option B)
 - [x] Shape tokens in `design/` (rules, control radius, density); `data-theme` → `data-mode`
-- [ ] Layout variants (`@custom-variant`), rewrite of the breakpoint uses, lint rule
+- [x] Layout variants: `sm:/md:/lg:` redefined with `@custom-variant` to obey `data-layout` (no rewrite or lint rule needed)
 - [ ] Mode + layout cookies and settings UI
 - [ ] `themes/` layer, slot switches, contract test, lint boundaries
 - [ ] `user_settings.theme` migration + theme picker
