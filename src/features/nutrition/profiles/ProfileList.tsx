@@ -3,6 +3,7 @@
  * targets; the default one first and marked. Server component.
  */
 import Link from "next/link";
+import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import type { DayProfile } from "@/core/nutrition/repositories/profiles";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
@@ -36,15 +37,18 @@ export function ProfileList({ profiles, locale, t }: Props) {
               </span>
             )}
           </div>
-          <dl className="grid grid-cols-5 gap-2 pt-1 text-meta">
+          {/* Icon + value + unit: the colour and icon name the nutrient, the
+              word is for screen readers (five words never fit a phone row). */}
+          <dl className="flex flex-wrap gap-x-4 gap-y-1 pt-1">
             {SHOWN.map((k) => (
-              <div key={k}>
-                <dt className="flex items-center gap-1 text-muted">
+              <div key={k} className="flex items-center gap-1">
+                <dt className="flex items-center" title={t.nutrients[k]}>
                   <NutrientIcon name={k} size={14} />
-                  <span className="truncate">{t.nutrients[k]}</span>
+                  <span className="sr-only">{t.nutrients[k]}</span>
                 </dt>
-                <dd className="font-display text-item tabular-nums">
+                <dd className="font-display tabular-nums">
                   {p[k] === null ? "—" : formatNumber(p[k], locale, 0)}
+                  <span className="pl-0.5 text-meta text-muted">{NUTRIENT_UNIT[k]}</span>
                 </dd>
               </div>
             ))}

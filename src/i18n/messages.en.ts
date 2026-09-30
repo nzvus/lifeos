@@ -104,7 +104,6 @@ export const en = {
     refreshGone: "The meal or ingredient this came from no longer exists.",
     nothingYesterday: "Nothing was logged the day before.",
     profileLabel: "Day type",
-    applyProfile: "Apply",
     profileFixed: "Targets fixed for this day: {name}",
     profileDefault:
       "Default: {name}. Fixed when you log the first food; choose another now if today is different.",
@@ -188,7 +187,7 @@ export const en = {
     },
   },
   profiles: {
-    title: "Day types and targets",
+    title: "Targets",
     intro:
       "Each kind of day (gym, run, rest…) has its own daily targets. Pick one on the day page; the default applies when you don't.",
     newTitle: "New day type",
