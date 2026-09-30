@@ -37,7 +37,7 @@ export function SelectField({
         name={name}
         aria-invalid={error ? true : undefined}
         aria-describedby={errorId}
-        className="w-full border-b-2 border-ink bg-sheet px-2 py-2 text-base outline-none focus-visible:border-focus aria-invalid:border-tomato"
+        className="w-full rounded-control rule-b-medium border-ink bg-sheet px-2 py-2 text-base outline-none focus-visible:border-focus aria-invalid:border-tomato"
         {...select}
       >
         {placeholder !== undefined && <option value="">{placeholder}</option>}

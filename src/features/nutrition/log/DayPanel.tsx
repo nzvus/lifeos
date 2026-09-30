@@ -96,7 +96,7 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
   return (
     <section
       aria-labelledby="day-panel-title"
-      className="flex flex-col gap-4 border-4 border-ink bg-sheet p-4"
+      className="flex flex-col gap-4 rule-strong border-ink bg-sheet p-4"
     >
       <h2 id="day-panel-title" className="font-display text-2xl font-extrabold">
         {t.label.title}
@@ -180,7 +180,7 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
           })}
         </div>
       </div>
-      <p className="flex items-center justify-between gap-2 border-t-2 border-ink pt-2 text-sm">
+      <p className="flex items-center justify-between gap-2 rule-t-medium border-ink pt-2 text-sm">
         <span className="flex items-center gap-1.5 font-semibold">
           <Coins size={16} aria-hidden="true" />
           {t.label.cost}

@@ -50,8 +50,18 @@
   --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  /* Rule thickness uses Tailwind's numeric scale directly: border-b-6 is the
-     label's heavy rule, border-b-2 the medium one (v4: border-N = N px). */
+  /* --- shape (ADR-0010): what a theme may change besides colour ---
+     Themes override these under [data-theme="<id>"]; so do Tailwind's own
+     scales, which utilities read through variables: --spacing (density:
+     every p-/m-/gap- is a multiple of it) and --text-* (type scale). */
+  --spacing: 0.25rem;
+  /* Rules: the label's separators. Utilities below: rule-heavy, rule-t-heavy,
+     rule-b-medium… (border-N would hard-code the thickness in every file). */
+  --rule-heavy: 6px;
+  --rule-strong: 4px;
+  --rule-medium: 2px;
+  /* Corners of inputs and buttons (rounded-control). Square on the label. */
+  --radius-control: 0rem;
 
   /* --- layout: one readable column (≈ 38 characters of label per half) --- */
   --container-page: 42rem;
@@ -59,13 +69,28 @@
   --container-wide: 72rem;
 }
 
+/* Rule utilities: border width from the --rule-* tokens, any side. The
+   colour stays a separate utility (border-ink, border-tomato…). */
+@utility rule-* {
+  border-width: --value(--rule-*);
+}
+@utility rule-t-* {
+  border-top-width: --value(--rule-*);
+}
+@utility rule-b-* {
+  border-bottom-width: --value(--rule-*);
+}
+@utility rule-l-* {
+  border-left-width: --value(--rule-*);
+}
+
 /*
- * Dark theme: same names, different values. Follows the operating system
- * setting for now; a manual toggle is backlog ("one-click theming"), and will
- * set data-theme on <html> — which is why the selector already accepts it.
+ * Dark mode: same names, different values. Follows the operating system
+ * unless data-mode on <html> says otherwise (ADR-0010: the light / dark /
+ * system choice is a per-device setting, separate from the theme).
  */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-mode="light"]) {
     --color-paper: #111714;
     --color-sheet: #19211d;
     --color-ink: #e8eee9;
@@ -82,7 +107,7 @@
     --color-kcal: #e8eee9;
   }
 }
-:root[data-theme="dark"] {
+:root[data-mode="dark"] {
   --color-paper: #111714;
   --color-sheet: #19211d;
   --color-ink: #e8eee9;

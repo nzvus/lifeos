@@ -14,8 +14,8 @@ import { useFormStatus } from "react-dom";
 
 const VARIANTS = {
   primary: "bg-herb text-sheet",
-  danger: "border-2 border-tomato text-tomato",
-  quiet: "border-2 border-ink text-ink",
+  danger: "rule-medium border-tomato text-tomato",
+  quiet: "rule-medium border-ink text-ink",
 } as const;
 
 type Props = {
@@ -35,7 +35,7 @@ export function SubmitButton({ children, icon, variant = "primary", formAction }
       formAction={formAction}
       disabled={pending}
       aria-disabled={pending}
-      className={`${VARIANTS[variant]} inline-flex items-center gap-2 px-4 py-2 font-display text-lg font-semibold tracking-wide disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
+      className={`${VARIANTS[variant]} inline-flex rounded-control items-center gap-2 px-4 py-2 font-display text-lg font-semibold tracking-wide disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
       {icon}
       {children}

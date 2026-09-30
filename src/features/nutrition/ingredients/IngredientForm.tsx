@@ -69,7 +69,7 @@ export function IngredientForm({ action, initial, submitLabel, t }: Props) {
       />
 
       {/* The label block: heavy rule on top, one row per nutrient. */}
-      <fieldset className="border-t-6 border-ink pt-3">
+      <fieldset className="rule-t-heavy border-ink pt-3">
         <legend className="font-display text-xl font-bold">
           {fill(t.ingredients.per100, { unit })}
         </legend>
@@ -88,7 +88,7 @@ export function IngredientForm({ action, initial, submitLabel, t }: Props) {
         </div>
       </fieldset>
 
-      <fieldset className="border-t-2 border-ink pt-3">
+      <fieldset className="rule-t-medium border-ink pt-3">
         <p className="pb-2 text-sm text-muted">{t.ingredients.priceHint}</p>
         <div className="grid grid-cols-2 gap-4">
           <Field

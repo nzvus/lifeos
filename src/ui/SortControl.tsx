@@ -43,7 +43,7 @@ export function SortControl<S extends string>({
             const next = options.find((o) => o.value === e.target.value)!;
             onChange(next.value, next.natural); // new sort: its natural direction
           }}
-          className="border-b-2 border-ink bg-sheet px-2 py-2 text-base"
+          className="rounded-control rule-b-medium border-ink bg-sheet px-2 py-2 text-base"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>
@@ -57,7 +57,7 @@ export function SortControl<S extends string>({
         onClick={() => onChange(sort, direction === "asc" ? "desc" : "asc")}
         aria-label={current}
         title={current}
-        className="flex h-10 w-10 items-center justify-center border-2 border-ink bg-sheet hover:bg-paper"
+        className="flex h-10 w-10 items-center justify-center rounded-control rule-medium border-ink bg-sheet hover:bg-paper"
       >
         <Icon size={20} aria-hidden="true" />
       </button>

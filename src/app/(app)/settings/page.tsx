@@ -21,13 +21,13 @@ export default async function SettingsPage() {
         timeZones={timeZones}
         t={{ settings: t.settings, errors: t.errors }}
       />
-      <section className="flex flex-col items-start gap-2 border-t-6 border-ink pt-3">
+      <section className="flex flex-col items-start gap-2 rule-t-heavy border-ink pt-3">
         <h2 className="font-display text-xl font-bold">{t.settings.exportTitle}</h2>
         <p className="text-muted">{t.settings.exportHint}</p>
         {/* A plain link, not a fetch: the browser handles the file download. */}
         <a
           href="/api/export"
-          className="border-2 border-ink px-4 py-2 font-display font-semibold"
+          className="rule-medium border-ink px-4 py-2 font-display font-semibold"
         >
           {t.settings.export}
         </a>

@@ -27,7 +27,7 @@ export function TimeEditor({ action, initial, t }: Props) {
           type="time"
           name="time"
           defaultValue={initial}
-          className="border-b-2 border-ink bg-sheet px-2 py-1"
+          className="rule-b-medium border-ink bg-sheet px-2 py-1"
         />
       </label>
       <SubmitButton variant="quiet">{t.day.saveTime}</SubmitButton>

@@ -101,7 +101,7 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.search.placeholder}
-            className="w-full border-b-2 border-ink bg-sheet py-2 pr-2 pl-8 text-base outline-none focus-visible:border-focus"
+            className="w-full rule-b-medium border-ink bg-sheet py-2 pr-2 pl-8 text-base outline-none focus-visible:border-focus"
           />
         </label>
         <SortControl
@@ -129,7 +129,7 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
         {shown.map((m) => {
           const tn = m.totals.nutrients;
           return (
-            <li key={m.id} className="flex flex-col gap-1 border-b-2 border-ink py-3">
+            <li key={m.id} className="flex flex-col gap-1 rule-b-medium border-ink py-3">
               <div className="flex items-baseline justify-between gap-3">
                 <Link
                   href={`/meals/${m.id}`}

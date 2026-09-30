@@ -144,6 +144,7 @@ cannot poll URLs itself, so app health has daily granularity.
   (`vercel.json`); Better Auth cookie cache (5 min) skips the session query;
   `app/(app)/loading.tsx` gives instant feedback; client components receive
   only the dictionary slices they use.
-- **Theming/i18n:** tokens are CSS custom properties; dark theme follows the
-  OS (manual toggle is backlog). Locale per user (`it` default, `en`).
+- **Theming/i18n:** tokens are CSS custom properties: colour, `--spacing`,
+  `--text-*`, `--rule-*` (`rule-b-medium`…), `--radius-control` (ADR-0010).
+  Dark follows the OS unless `data-mode` on the html element. Locale per user (`it`, `en`).
 - **Testing:** Vitest; DB tests on PGlite with the real migrations applied.

@@ -63,7 +63,7 @@ export function EntryList({
             // Planned (ADR-0009): translucent with a dashed edge; eaten: solid.
             className={`flex flex-col gap-1 border-b border-hairline py-2 ${
               e.status === "planned"
-                ? "border-l-4 border-l-hairline border-dashed pl-2 opacity-60"
+                ? "rule-l-strong border-l-hairline border-dashed pl-2 opacity-60"
                 : ""
             }`}
           >
