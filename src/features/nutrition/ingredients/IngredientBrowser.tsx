@@ -166,14 +166,14 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
               className="flex items-baseline justify-between gap-3"
             >
               <span className="font-semibold">{r.name}</span>
-              <span className="font-display text-sm text-muted tabular-nums">
+              <span className="font-display text-sm whitespace-nowrap text-muted tabular-nums">
                 {r.perKg === null
                   ? ""
                   : `${formatCents(r.perKg, locale)} ${t.macro.perKg}`}
               </span>
             </Link>
             <MacroStrip
-              energy={`${n(r.kcal)} ${NUTRIENT_UNIT.kcal}`}
+              energy={`${formatNumber(r.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}
               protein={n(r.protein)}
               carbs={n(r.carbs)}
               fat={n(r.fat)}

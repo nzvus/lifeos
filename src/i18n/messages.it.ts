@@ -232,7 +232,7 @@ export const it: Messages = {
     fat: "G",
     splitTitle: "Energia da proteine · carboidrati · grassi",
     density: "P/100 kcal",
-    perKg: "€/kg",
+    perKg: "/kg",
     ingredientsCount: "{n} ingredienti",
   },
   glance: {

@@ -104,6 +104,7 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
       <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
         <div className="flex flex-col items-center gap-2">
           <ConcentricRings
+            size={220}
             label={t.label.title}
             rings={RINGS.map((k) => {
               const a = assess(k);
@@ -126,14 +127,15 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
                 ? `${unit}`
                 : `${unit} ${kcal.status === "under" ? t.panel.left : kcal.status === "over" ? t.panel.over : t.panel.off}`}
             </span>
-            {plannedKcal > 0 && (
-              <span className="pt-0.5 text-xs text-muted tabular-nums">
-                {fill(t.day.plannedNote, {
-                  v: formatNumber(String(plannedKcal), locale, 0),
-                })}
-              </span>
-            )}
           </ConcentricRings>
+          {/* Below, not inside: the centre only fits the main number. */}
+          {plannedKcal > 0 && (
+            <span className="text-sm text-muted tabular-nums">
+              {fill(t.day.plannedNote, {
+                v: formatNumber(String(plannedKcal), locale, 0),
+              })}
+            </span>
+          )}
           {/* Legend: ring order, outside -> inside. */}
           <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted">
             {RINGS.map((k) => (

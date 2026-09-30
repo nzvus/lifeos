@@ -137,7 +137,7 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
                 >
                   {m.name}
                 </Link>
-                <span className="font-display text-lg tabular-nums">{`${n(tn.kcal)} ${NUTRIENT_UNIT.kcal}`}</span>
+                <span className="font-display text-lg tabular-nums">{`${formatNumber(tn.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}</span>
               </div>
               <MacroStrip
                 protein={`${n(tn.protein)} ${NUTRIENT_UNIT.protein}`}

@@ -80,9 +80,10 @@
 - [x] Shape tokens in `design/` (rules, control radius, density); `data-theme` → `data-mode`
 - [x] Layout variants: `sm:/md:/lg:` redefined with `@custom-variant` to obey `data-layout` (no rewrite or lint rule needed)
 - [x] Mode + layout cookies and settings UI ("desktop" also widens the phone viewport to 1200 px)
-- [ ] `themes/` layer, slot switches, contract test, lint boundaries
-- [ ] `user_settings.theme` migration + theme picker
-- [ ] Phone + desktop screenshots, then design pass on `label`
+- [x] Phone screenshots (2026-09-30)
+- [ ] Design pass on `label`: bugs (€ €/kg, ring centre, kcal decimals) → one list-row layout for ingredients/meals/entries → type scale → day panel and week chart legends → small UX (auto-apply day type, labels)
+- [ ] Design a second theme; it decides which slots are really needed
+- [ ] Only then: `themes/` layer, slot switches for those slots, contract test, lint boundaries, `user_settings.theme` + theme picker (building them before a second theme exists would be speculative, PROJECT.md §5)
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
