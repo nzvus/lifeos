@@ -22,6 +22,7 @@ import { INGREDIENT_UNITS } from "../db/schema/nutrition";
 import { NUTRIENT_KEYS, type NutrientKey } from "./nutrients";
 import { LOCALES } from "../shared/locales";
 import { THEMES } from "../shared/themes";
+import { isMoment, type Moment } from "./moments";
 
 /**
  * A decimal typed by a person, e.g. "12,5". Returns the canonical string.
@@ -103,10 +104,22 @@ export const ingredientInput = z
   });
 export type IngredientInput = z.output<typeof ingredientInput>;
 
+/**
+ * A moment of the day (ADR-0011) or empty: an empty field means "not set"
+ * (the day view then derives it from the time).
+ */
+const optionalMoment = z
+  .string()
+  .optional()
+  .transform((v) => (v ?? "").trim())
+  .refine((v) => v === "" || isMoment(v), "invalid_choice")
+  .transform((v) => (v === "" ? null : (v as Moment)));
+
 /** A meal form: name, notes, and at least one ingredient line. */
 export const mealInput = z.object({
   name,
   notes: z.string().trim().max(1000, "too_long"),
+  category: optionalMoment, // ADR-0011: only a hint for new entries
   items: z
     .array(
       z.object({
@@ -140,6 +153,7 @@ export const logMealInput = z.object({
   servings: decimalString(SERVINGS),
   planned,
   time,
+  moment: optionalMoment,
 });
 export type LogMealInput = z.output<typeof logMealInput>;
 
@@ -150,6 +164,7 @@ export const logIngredientInput = z.object({
   quantity: decimalString({ ...QUANTITY, positive: true }),
   planned,
   time,
+  moment: optionalMoment,
 });
 
 /** Empty field -> "0": an estimate may leave some macros out. */
@@ -176,6 +191,7 @@ export const estimateInput = z.object({
   cost: optionalDecimalString({ scale: 2, max: "99999" }),
   planned,
   time,
+  moment: optionalMoment,
 });
 export type EstimateInput = z.output<typeof estimateInput>;
 

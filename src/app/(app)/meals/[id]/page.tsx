@@ -37,6 +37,7 @@ export default async function EditMealPage({ params }: Props) {
         initial={{
           name: meal.name,
           notes: meal.notes,
+          category: meal.category ?? "",
           // "60.00" from the database is shown as "60" in the field.
           items: meal.lines.map((l) => ({
             ingredientId: l.ingredientId,
@@ -47,6 +48,7 @@ export default async function EditMealPage({ params }: Props) {
         locale={settings.locale}
         t={{
           meals: t.meals,
+          moments: t.moments,
           nutrients: t.nutrients,
           errors: t.errors,
           search: t.search,

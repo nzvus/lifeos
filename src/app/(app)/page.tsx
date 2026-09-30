@@ -138,6 +138,7 @@ export default async function DayPage({ searchParams }: Props) {
             id: m.id,
             name: m.name,
             notes: m.notes,
+            category: m.category, // suggests the moment (ADR-0011)
             values: pick(m.totals.nutrients), // per serving
             uses: usage.meals[m.id]?.uses ?? 0,
             lastUsed: usage.meals[m.id]?.lastUsed ?? null,
@@ -164,6 +165,7 @@ export default async function DayPage({ searchParams }: Props) {
             macro: t.macro,
             ingredients: t.ingredients,
             nutrients: t.nutrients,
+            moments: t.moments,
           }}
         />
       </div>

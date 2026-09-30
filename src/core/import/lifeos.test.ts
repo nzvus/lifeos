@@ -57,6 +57,7 @@ async function seed(owner: Owner) {
   const meal = await createMeal(db, owner, {
     name: "Porridge",
     notes: "with milk",
+    category: "breakfast", // ADR-0011: survives the round trip
     items: [{ ingredientId: oats.value.id, quantity: "60" }],
   });
   if (!meal.ok) throw new Error("setup failed");
@@ -73,7 +74,12 @@ async function seed(owner: Owner) {
   });
   if (!profile.ok) throw new Error("setup failed");
   await setDayProfile(db, owner, "2026-09-29", profile.value.id);
-  await logMeal(db, owner, { day: "2026-09-29", mealId: meal.value.id, servings: "1.5" });
+  await logMeal(db, owner, {
+    day: "2026-09-29",
+    mealId: meal.value.id,
+    servings: "1.5",
+    moment: "snack",
+  });
 }
 
 describe("lifeos import (replace)", () => {

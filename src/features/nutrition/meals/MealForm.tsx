@@ -16,6 +16,7 @@
 import { Carrot } from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
+import { MOMENTS } from "@/core/nutrition/moments";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { scaleMacros, sumMacros, type MacroValues } from "@/core/nutrition/preview";
 import type { Locale } from "@/core/shared/locales";
@@ -25,7 +26,9 @@ import { fill, macroLabels, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
+import { MomentIcon } from "@/ui/MomentIcon";
 import { SearchSelect } from "@/ui/SearchSelect";
+import { SelectField } from "@/ui/SelectField";
 import { Section } from "@/ui/Section";
 import { SubmitButton } from "@/ui/SubmitButton";
 
@@ -51,13 +54,15 @@ type Props = {
   initial: {
     name: string;
     notes: string;
+    /** ADR-0011: "" for none. */
+    category: string;
     items: { ingredientId: string; quantity: string }[];
   };
   submitLabel: string;
   locale: Locale;
   t: Pick<
     Messages,
-    "meals" | "errors" | "search" | "macro" | "ingredients" | "nutrients"
+    "meals" | "errors" | "search" | "macro" | "ingredients" | "nutrients" | "moments"
   >;
 };
 
@@ -80,6 +85,7 @@ export function MealForm({
     withKeys(initial.items.length ? initial.items : [{ ingredientId: "", quantity: "" }]),
   );
   const err = (field: string) => fieldError(state, field, t.errors);
+  const [category, setCategory] = useState(valueOf(state, "category", initial.category));
   const unitOf = (id: string) => ingredients.find((i) => i.id === id)?.unit ?? "";
 
   // Searchable ingredient picker, most used first (core/shared/search.ts).
@@ -126,6 +132,19 @@ export function MealForm({
         defaultValue={valueOf(state, "notes", initial.notes)}
         error={err("notes")}
       />
+      <SelectField
+        label={t.moments.categoryLabel}
+        icon={<MomentIcon moment={category || null} />}
+        name="category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        options={[
+          { value: "", label: t.moments.categoryNone },
+          ...MOMENTS.map((m) => ({ value: m, label: t.moments.names[m] })),
+        ]}
+        error={err("category")}
+      />
+      <p className="-mt-4 text-meta text-muted">{t.moments.categoryHint}</p>
 
       <Section
         as="fieldset"

@@ -261,6 +261,22 @@ export const it: Messages = {
     },
     sortValue: "{what}: {v}",
   },
+  moments: {
+    label: "Momento",
+    hint: "Precompilato dalla categoria del pasto o dall'ora; puoi cambiarlo.",
+    none: "Senza momento",
+    categoryLabel: "Categoria",
+    categoryNone: "— nessuna",
+    categoryHint: "Facoltativa: suggerisce il momento quando lo aggiungi alla giornata.",
+    all: "Tutti",
+    subtotal: "{v} kcal",
+    names: {
+      breakfast: "Colazione",
+      lunch: "Pranzo",
+      snack: "Spuntino",
+      dinner: "Cena",
+    },
+  },
   macroShort: {
     protein: "Proteine",
     carbs: "Carbo",

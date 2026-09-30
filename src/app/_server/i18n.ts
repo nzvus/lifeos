@@ -11,6 +11,7 @@ import "server-only";
 import type { ErrorCode } from "@/core/shared/result";
 import type { Locale } from "@/core/shared/locales";
 import type { Theme } from "@/core/shared/themes";
+import type { Moment } from "@/core/nutrition/moments";
 import type { NutrientKey } from "@/core/nutrition/nutrients";
 import { dictionaries, type Messages } from "@/i18n";
 
@@ -21,7 +22,8 @@ const _nutrients: Exact<Messages["nutrients"], NutrientKey> = true;
 const _errors: Exact<Messages["errors"], ErrorCode> = true;
 const _locales: Exact<typeof dictionaries, Locale> = true;
 const _themes: Exact<Messages["settings"]["themeNames"], Theme> = true;
-void [_nutrients, _errors, _locales, _themes]; // "used", so the linter doesn't complain
+const _moments: Exact<Messages["moments"]["names"], Moment> = true;
+void [_nutrients, _errors, _locales, _themes, _moments]; // "used", so the linter doesn't complain
 
 export function getMessages(locale: Locale): Messages {
   return dictionaries[locale];

@@ -26,7 +26,11 @@ import {
   type Result,
 } from "../../shared/result";
 import { sumLines, toDisplay, type DisplayTotals, type TotalsLine } from "../totals";
+import type { Moment } from "../moments";
 import type { MealInput } from "../validation";
+
+/** A meal to save; the category (ADR-0011) may be left out (imports, tests). */
+type MealWrite = Omit<MealInput, "category"> & { category?: Moment | null };
 import { getIngredientsByIds, per100Of, type Ingredient } from "./ingredients";
 
 /** One line of a meal, joined with the ingredient it uses. */
@@ -41,6 +45,8 @@ export type MealWithLines = {
   id: string;
   name: string;
   notes: string;
+  /** ADR-0011: optional, a hint for the moment of new entries. */
+  category: Moment | null;
   lines: MealLine[];
   totals: DisplayTotals; // per ONE serving
 };
@@ -78,6 +84,7 @@ export async function listMeals(db: Db, owner: Owner): Promise<MealWithLines[]> 
       id: m.id,
       name: m.name,
       notes: m.notes,
+      category: m.category,
       lines,
       totals: toDisplay(sumLines(lines)),
     };
@@ -108,6 +115,7 @@ export async function getMeal(
     id: m.id,
     name: m.name,
     notes: m.notes,
+    category: m.category,
     lines,
     totals: toDisplay(sumLines(lines)),
   };
@@ -134,7 +142,7 @@ function toMealLine(quantity: string, ing: Ingredient): MealLine {
 async function checkIngredients(
   db: Db,
   owner: Owner,
-  input: MealInput,
+  input: MealWrite,
 ): Promise<FieldErrors | null> {
   const ids = input.items.map((i) => i.ingredientId);
   const found = new Set((await getIngredientsByIds(db, owner, ids)).map((i) => i.id));
@@ -148,7 +156,7 @@ async function checkIngredients(
 export async function createMeal(
   db: Db,
   owner: Owner,
-  input: MealInput,
+  input: MealWrite,
 ): Promise<Result<{ id: string }>> {
   const bad = await checkIngredients(db, owner, input);
   if (bad) return fail(bad);
@@ -157,7 +165,12 @@ export async function createMeal(
     const id = await db.transaction(async (tx) => {
       const [meal] = await tx
         .insert(meals)
-        .values({ userId: owner.id, name: input.name, notes: input.notes })
+        .values({
+          userId: owner.id,
+          name: input.name,
+          notes: input.notes,
+          category: input.category ?? null,
+        })
         .returning({ id: meals.id });
       await tx.insert(mealItems).values(
         input.items.map((item, position) => ({
@@ -186,7 +199,7 @@ export async function updateMeal(
   db: Db,
   owner: Owner,
   id: string,
-  input: MealInput,
+  input: MealWrite,
 ): Promise<Result<{ id: string }>> {
   const bad = await checkIngredients(db, owner, input);
   if (bad) return fail(bad);
@@ -194,7 +207,7 @@ export async function updateMeal(
     const found = await db.transaction(async (tx) => {
       const updated = await tx
         .update(meals)
-        .set({ name: input.name, notes: input.notes })
+        .set({ name: input.name, notes: input.notes, category: input.category ?? null })
         .where(and(ownedBy(meals, owner), eq(meals.id, id)))
         .returning({ id: meals.id });
       if (updated.length === 0) return false; // not mine / not there: change nothing
