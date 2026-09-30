@@ -128,22 +128,38 @@ export function EntryList({
               </summary>
               {/* Indented under a hairline: clearly part of this entry. */}
               <div className="mt-1 ml-2 flex flex-col gap-3 border-l border-hairline pl-3">
-                <ul className="flex flex-col gap-0.5">
-                  {e.lines.map((l, i) => (
-                    <li key={i} className="flex items-baseline justify-between gap-3">
-                      <span>
-                        {l.name}
-                        <span className="pl-2 font-display text-muted tabular-nums">
-                          {/* What was eaten: per-serving quantity × servings. */}
-                          {`${formatNumber(new Big(l.quantity).times(e.servings).toString(), locale, 0)} ${l.unit}`}
+                {/* Each ingredient with its own macro strip and bar (the
+                    same display as every row), servings applied. */}
+                <ul className="flex flex-col gap-2">
+                  {e.lines.map((l, i) => {
+                    const ln = toDisplay(sumLines([l], e.servings)).nutrients;
+                    return (
+                      <li key={i} className="flex flex-col gap-0.5">
+                        <span>
+                          {l.name}
+                          <span className="pl-2 font-display text-muted tabular-nums">
+                            {/* What was eaten: per-serving quantity × servings. */}
+                            {`${formatNumber(new Big(l.quantity).times(e.servings).toString(), locale, 0)} ${l.unit}`}
+                          </span>
                         </span>
-                      </span>
-                      {/* This line's share of the entry (servings applied). */}
-                      <span className="shrink-0 font-display text-muted tabular-nums">
-                        {`${n(toDisplay(sumLines([l], e.servings)).nutrients.kcal)} ${NUTRIENT_UNIT.kcal}`}
-                      </span>
-                    </li>
-                  ))}
+                        <MacroStrip
+                          energy={`${n(ln.kcal)} ${NUTRIENT_UNIT.kcal}`}
+                          protein={n(ln.protein)}
+                          carbs={n(ln.carbs)}
+                          fat={n(ln.fat)}
+                          fiber={n(ln.fiber)}
+                          split={macroSplit(ln)}
+                          labels={{
+                            protein: t.nutrients.protein,
+                            carbs: t.nutrients.carbs,
+                            fat: t.nutrients.fat,
+                            fiber: t.nutrients.fiber,
+                            split: t.macro.splitTitle,
+                          }}
+                        />
+                      </li>
+                    );
+                  })}
                 </ul>
                 <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
                   <TimeEditor
