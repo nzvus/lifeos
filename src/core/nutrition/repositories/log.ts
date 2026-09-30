@@ -240,3 +240,77 @@ export async function copyDay(
   await ensureDayPlan(db, owner, toDay);
   return ok({ copied: source.entries.length });
 }
+
+/**
+ * Rebuilds a logged entry from the CURRENT meal or ingredient: the deliberate
+ * way to apply later corrections (a price added, a label fixed) to a past
+ * entry — ADR-0007's tripwire "re-snapshot this entry". Day, servings and
+ * (for a single ingredient) quantity are kept; name and values are refreshed.
+ * Fails with not_found if the meal/ingredient it came from no longer exists.
+ */
+export async function refreshLogEntry(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<Result<null>> {
+  const [entry] = await db
+    .select()
+    .from(logEntries)
+    .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)));
+  if (!entry) return fail({ _form: "not_found" });
+  const oldItems = await db
+    .select()
+    .from(logEntryItems)
+    .where(and(ownedBy(logEntryItems, owner), eq(logEntryItems.entryId, id)));
+
+  let label: string;
+  let lines: Omit<typeof logEntryItems.$inferInsert, "userId" | "entryId" | "position">[];
+  if (entry.mealId) {
+    const meal = await getMeal(db, owner, entry.mealId);
+    if (!meal) return fail({ _form: "not_found" });
+    label = meal.name;
+    lines = meal.lines.map((l) => ({
+      ingredientId: l.ingredientId,
+      name: l.ingredientName,
+      unit: l.unit,
+      quantity: l.quantity,
+      ...l.per100,
+      packagePriceCents: l.packagePriceCents,
+      packageSize: l.packageSize,
+    }));
+  } else {
+    const only = oldItems.length === 1 ? oldItems[0]! : null;
+    const ing = only?.ingredientId
+      ? await getIngredient(db, owner, only.ingredientId)
+      : null;
+    if (!only || !ing) return fail({ _form: "not_found" });
+    label = ing.name;
+    lines = [
+      {
+        ingredientId: ing.id,
+        name: ing.name,
+        unit: ing.unit,
+        quantity: only.quantity, // what you ate stays; only the values refresh
+        ...per100Of(ing),
+        packagePriceCents: ing.packagePriceCents,
+        packageSize: ing.packageSize,
+      },
+    ];
+  }
+
+  await db.transaction(async (tx) => {
+    await tx
+      .delete(logEntryItems)
+      .where(and(ownedBy(logEntryItems, owner), eq(logEntryItems.entryId, id)));
+    await tx
+      .insert(logEntryItems)
+      .values(
+        lines.map((l, position) => ({ ...l, userId: owner.id, entryId: id, position })),
+      );
+    await tx
+      .update(logEntries)
+      .set({ label })
+      .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)));
+  });
+  return ok(null);
+}

@@ -18,15 +18,24 @@
  */
 "use client";
 
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { pricePerThousandCents, proteinPer100kcal } from "@/core/nutrition/insights";
+import {
+  macroSplit,
+  pricePerThousandCents,
+  proteinPer100kcal,
+} from "@/core/nutrition/insights";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { rank } from "@/core/shared/search";
+import { reverseIf, sortByValue } from "@/core/shared/sorting";
 import { fill, type Messages } from "@/i18n";
+import { MacroBar } from "@/ui/MacroBar";
+import { MacroStrip } from "@/ui/MacroStrip";
+import { SortControl, type SortDirection } from "@/ui/SortControl";
 
 /** The fields this view needs (a subset of an ingredient row). */
 export type IngredientRow = {
@@ -43,27 +52,29 @@ export type IngredientRow = {
   packageSize: string | null;
 };
 
+/** Sorts and their natural direction (the arrow button reverses it). */
 const SORTS = [
-  "used",
-  "name",
-  "protein",
-  "density",
-  "kcalLow",
-  "fiber",
-  "priceLow",
-] as const;
-type Sort = (typeof SORTS)[number];
+  { key: "used", natural: "desc" },
+  { key: "name", natural: "asc" },
+  { key: "protein", natural: "desc" },
+  { key: "density", natural: "desc" },
+  { key: "kcal", natural: "asc" },
+  { key: "fiber", natural: "desc" },
+  { key: "price", natural: "asc" },
+] as const satisfies readonly { key: string; natural: SortDirection }[];
+type Sort = (typeof SORTS)[number]["key"];
 
 type Props = {
   ingredients: IngredientRow[];
   usage: UsageMap;
   locale: Locale;
-  t: Pick<Messages, "ingredients" | "nutrients" | "search" | "macro">;
+  t: Pick<Messages, "ingredients" | "nutrients" | "search" | "macro" | "glance">;
 };
 
 export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("used");
+  const [direction, setDirection] = useState<SortDirection>("desc");
 
   // Derived numbers computed once per row, not on every keystroke.
   const rows = useMemo(
@@ -71,6 +82,7 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
       ingredients.map((i) => ({
         ...i,
         density: proteinPer100kcal(i),
+        split: macroSplit(i),
         perKg: pricePerThousandCents(i),
         uses: usage[i.id]?.uses ?? 0,
         lastUsed: usage[i.id]?.lastUsed ?? null,
@@ -85,32 +97,23 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
       uses: r.uses,
       lastUsed: r.lastUsed,
     }));
-    if (sort === "used") return matched; // rank's own order
-    const num = (s: string | null | number) => (s === null ? null : Number(s));
-    // Missing values (no price, 0 kcal) always go last, whatever the direction.
-    const by = (get: (r: (typeof rows)[number]) => number | null, dir: 1 | -1) =>
-      [...matched].sort((a, b) => {
-        const x = get(a);
-        const y = get(b);
-        if (x === null) return y === null ? 0 : 1;
-        if (y === null) return -1;
-        return (x - y) * dir;
-      });
-    switch (sort) {
-      case "name":
-        return [...matched].sort((a, b) => a.name.localeCompare(b.name, locale));
-      case "protein":
-        return by((r) => num(r.protein), -1);
-      case "density":
-        return by((r) => num(r.density), -1);
-      case "kcalLow":
-        return by((r) => num(r.kcal), 1);
-      case "fiber":
-        return by((r) => num(r.fiber), -1);
-      case "priceLow":
-        return by((r) => r.perKg, 1);
-    }
-  }, [rows, query, sort, locale]);
+    // "Use": rank's own order (relevance while typing, else most used);
+    // ascending = the same list reversed. Other sorts: by value, with
+    // missing values (no price, 0 kcal) always last (core/shared/sorting.ts).
+    if (sort === "used") return reverseIf(matched, direction === "asc");
+    if (sort === "name") return sortByValue(matched, (r) => r.name, direction, locale);
+    const value: Record<
+      Exclude<Sort, "used" | "name">,
+      (r: (typeof rows)[number]) => number | null
+    > = {
+      protein: (r) => Number(r.protein),
+      density: (r) => (r.density === null ? null : Number(r.density)),
+      kcal: (r) => Number(r.kcal),
+      fiber: (r) => Number(r.fiber),
+      price: (r) => r.perKg,
+    };
+    return sortByValue(matched, value[sort], direction, locale);
+  }, [rows, query, sort, direction, locale]);
 
   const n = (v: string) => formatNumber(v, locale, 1);
 
@@ -118,30 +121,35 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
     <div className="flex flex-col gap-4">
       {/* Toolbar: search grows, sort stays compact; stacks on narrow phones. */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <label className="flex flex-1 flex-col gap-1">
+        <label className="relative flex flex-1 flex-col gap-1">
           <span className="sr-only">{t.search.placeholder}</span>
+          <Search
+            size={18}
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-2.5 left-2 text-muted"
+          />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.search.placeholder}
-            className="w-full border-b-2 border-ink bg-sheet px-2 py-2 text-base outline-none focus-visible:border-focus"
+            className="w-full border-b-2 border-ink bg-sheet py-2 pr-2 pl-8 text-base outline-none focus-visible:border-focus"
           />
         </label>
-        <label className="flex flex-col gap-1 sm:w-64">
-          <span className="text-sm font-semibold">{t.search.sortBy}</span>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as Sort)}
-            className="border-b-2 border-ink bg-sheet px-2 py-2 text-base"
-          >
-            {SORTS.map((s) => (
-              <option key={s} value={s}>
-                {t.search.sorts[s]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <SortControl
+          options={SORTS.map((o) => ({
+            value: o.key,
+            label: t.search.sorts[o.key],
+            natural: o.natural,
+          }))}
+          sort={sort}
+          direction={direction}
+          onChange={(nextSort, nextDirection) => {
+            setSort(nextSort);
+            setDirection(nextDirection);
+          }}
+          labels={{ sortBy: t.search.sortBy, asc: t.search.asc, desc: t.search.desc }}
+        />
       </div>
       <p className="text-sm text-muted" aria-live="polite">
         {shown.length === 0 && query
@@ -164,13 +172,29 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
                   : `${formatCents(r.perKg, locale)} ${t.macro.perKg}`}
               </span>
             </Link>
-            <p className="font-display text-sm tabular-nums">
-              {`${n(r.kcal)} ${NUTRIENT_UNIT.kcal} · ${t.macro.protein} ${n(r.protein)} · ${t.macro.carbs} ${n(r.carbs)} · ${t.macro.fat} ${n(r.fat)}`}
-              <span className="text-muted">
-                {` · ${fill(t.ingredients.per100Short, { unit: r.unit })}`}
-                {r.density && ` · ${n(r.density)} ${t.macro.density}`}
-                {r.uses > 0 && ` · ${fill(t.search.uses, { n: String(r.uses) })}`}
-              </span>
+            <MacroStrip
+              energy={`${n(r.kcal)} ${NUTRIENT_UNIT.kcal}`}
+              protein={n(r.protein)}
+              carbs={n(r.carbs)}
+              fat={n(r.fat)}
+              fiber={n(r.fiber)}
+              split={r.split}
+              labels={{
+                protein: t.nutrients.protein,
+                carbs: t.nutrients.carbs,
+                fat: t.nutrients.fat,
+                fiber: t.nutrients.fiber,
+                split: t.macro.splitTitle,
+              }}
+            />
+            <p className="text-xs text-muted">
+              {[
+                fill(t.ingredients.per100Short, { unit: r.unit }),
+                r.density && `${n(r.density)} ${t.macro.density}`,
+                r.uses > 0 && fill(t.search.uses, { n: String(r.uses) }),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
             </p>
           </li>
         ))}
@@ -187,6 +211,7 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
                   {t.nutrients[k]}
                 </th>
               ))}
+              <th className="w-28 px-2 py-2">{t.glance.ingredientMix}</th>
               <th className="px-2 py-2 text-right">{t.macro.density}</th>
               <th className="px-2 py-2 text-right">{t.ingredients.pricePerThousand}</th>
               <th className="py-2 pl-2 text-right">{t.search.sorts.used}</th>
@@ -214,6 +239,9 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
                     {n(v)}
                   </td>
                 ))}
+                <td className="px-2 py-2 align-middle">
+                  {r.split && <MacroBar {...r.split} label={t.macro.splitTitle} />}
+                </td>
                 <td className="px-2 py-2 text-right font-display tabular-nums">
                   {r.density === null ? "—" : n(r.density)}
                 </td>

@@ -24,6 +24,7 @@ export async function mealEditorIngredients(owner: Owner, settings: Settings) {
   return ingredients.map((i) => ({
     id: i.id,
     name: i.name,
+    notes: i.description,
     unit: i.unit,
     kcal: formatNumber(i.kcal, settings.locale, 0),
     protein: formatNumber(i.protein, settings.locale, 0),

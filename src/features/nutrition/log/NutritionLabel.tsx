@@ -19,6 +19,7 @@ import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 import { MacroBar } from "@/ui/MacroBar";
+import { NUTRIENT_BG, NutrientIcon } from "@/ui/NutrientIcon";
 
 type Props = {
   totals: DisplayTotals;
@@ -69,7 +70,10 @@ export function NutritionLabel({ totals, targets, locale, t }: Props) {
                   scope="row"
                   className={`py-2 text-left align-top font-normal ${SUB_ROWS.has(k) ? "pl-5 text-muted" : "font-semibold"}`}
                 >
-                  {t.nutrients[k]}
+                  <span className="inline-flex items-center gap-1.5">
+                    {!SUB_ROWS.has(k) && <NutrientIcon name={k} />}
+                    {t.nutrients[k]}
+                  </span>
                 </th>
                 <td className="py-2 text-right align-top">
                   <span
@@ -85,7 +89,7 @@ export function NutritionLabel({ totals, targets, locale, t }: Props) {
                         aria-hidden="true"
                       >
                         <span
-                          className={`block h-1 ${cmp.status === "over" ? "bg-tomato" : "bg-herb"}`}
+                          className={`block h-1 ${cmp.status === "over" ? "bg-tomato" : (NUTRIENT_BG[k] ?? "bg-herb")}`}
                           style={{ width: `${cmp.percent}%` }}
                         />
                       </span>

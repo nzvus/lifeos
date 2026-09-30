@@ -24,6 +24,7 @@ import {
   deleteLogEntry,
   logIngredient,
   logMeal,
+  refreshLogEntry,
 } from "@/core/nutrition/repositories/log";
 import { setDayProfile } from "@/core/nutrition/repositories/profiles";
 import {
@@ -117,6 +118,19 @@ export async function copyPreviousDayAction(
   if (!result.ok) return { status: "error", message: t.errors.not_found };
   if (result.value.copied === 0)
     return { status: "error", message: t.day.nothingYesterday };
+  revalidatePath("/");
+  return { status: "idle" };
+}
+
+/** "Update with current values" on one entry (core refreshLogEntry). Bound per entry. */
+export async function refreshLogEntryAction(
+  id: string,
+  _prev: ActionButtonState,
+  _formData: FormData,
+): Promise<ActionButtonState> {
+  const { owner, t } = await requireContext();
+  const result = await refreshLogEntry(getDb(), owner, id);
+  if (!result.ok) return { status: "error", message: t.day.refreshGone };
   revalidatePath("/");
   return { status: "idle" };
 }

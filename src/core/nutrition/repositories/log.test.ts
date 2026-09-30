@@ -7,7 +7,14 @@ import type { Db } from "../../db/client";
 import type { Owner } from "../../identity/owner";
 import { createTestDb, createTestUser, ingredientFixture } from "../../testing/test-db";
 import { createIngredient, deleteIngredient, updateIngredient } from "./ingredients";
-import { copyDay, deleteLogEntry, getDay, logIngredient, logMeal } from "./log";
+import {
+  copyDay,
+  deleteLogEntry,
+  getDay,
+  logIngredient,
+  logMeal,
+  refreshLogEntry,
+} from "./log";
 import { createMeal, deleteMeal, getMeal, listMeals, updateMeal } from "./meals";
 
 let db: Db;
@@ -172,5 +179,32 @@ describe("daily log", () => {
       value: { copied: 0 },
     });
     expect((await getDay(db, bob, "2026-09-30")).entries).toEqual([]);
+  });
+
+  it("refreshLogEntry applies current values on purpose (e.g. a price added later)", async () => {
+    await logIngredient(db, alice, { day, ingredientId: milkId, quantity: "200" }); // milk: no price
+    expect((await getDay(db, alice, day)).totals.costComplete).toBe(false);
+    await updateIngredient(
+      db,
+      alice,
+      milkId,
+      ingredientFixture({
+        name: "Milk",
+        unit: "ml",
+        kcal: "46",
+        packagePriceCents: 100,
+        packageSize: "1000",
+      }),
+    );
+    expect((await getDay(db, alice, day)).totals.costComplete).toBe(false); // snapshot: unchanged
+
+    const [entry] = (await getDay(db, alice, day)).entries;
+    expect((await refreshLogEntry(db, alice, entry!.id)).ok).toBe(true);
+    const after = await getDay(db, alice, day);
+    expect(after.totals).toMatchObject({ costCents: 20, costComplete: true }); // 200 ml at 1 €/l
+    expect(after.entries[0]!.lines[0]!.quantity).toBe("200.00"); // the amount eaten is kept
+
+    // CROSS-USER: Bob can't refresh Alice's entry.
+    expect((await refreshLogEntry(db, bob, entry!.id)).ok).toBe(false);
   });
 });

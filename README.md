@@ -41,6 +41,7 @@ npm run dev           # http://localhost:3000
 | `npm run db:generate` | Schema change -> new SQL migration file in `drizzle/` (read it!) |
 | `npm run db:migrate` | Apply migrations to the `DATABASE_URL` database |
 | `npm run import:fitforge -- FILE --email EMAIL [--apply]` | Import FitForge ingredients + meals (dry run without `--apply`) |
+| `npm run import:lifeos -- FILE --email EMAIL [--apply --replace]` | Replace an account's data with a lifeos export (runbook: `docs/runbooks/replace-data.md`) |
 | `python3 scripts/check.py` | Docs/ADR health check (`--strict` makes warnings fail) |
 
 Production is migrated only by the `migrate` GitHub workflow, by hand, after

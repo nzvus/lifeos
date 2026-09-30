@@ -20,12 +20,14 @@ const VARIANTS = {
 
 type Props = {
   children: ReactNode;
+  /** Optional icon shown before the text (decorative). */
+  icon?: ReactNode;
   variant?: keyof typeof VARIANTS;
   /** Lets one form have several buttons with different actions. */
   formAction?: (formData: FormData) => void;
 };
 
-export function SubmitButton({ children, variant = "primary", formAction }: Props) {
+export function SubmitButton({ children, icon, variant = "primary", formAction }: Props) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -33,8 +35,9 @@ export function SubmitButton({ children, variant = "primary", formAction }: Prop
       formAction={formAction}
       disabled={pending}
       aria-disabled={pending}
-      className={`${VARIANTS[variant]} px-4 py-2 font-display text-lg font-semibold tracking-wide disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
+      className={`${VARIANTS[variant]} inline-flex items-center gap-2 px-4 py-2 font-display text-lg font-semibold tracking-wide disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
     >
+      {icon}
       {children}
     </button>
   );

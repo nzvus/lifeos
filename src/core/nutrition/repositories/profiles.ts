@@ -79,6 +79,12 @@ async function getDefaultProfile(db: Db, owner: Owner): Promise<DayProfile | nul
   return row ?? null;
 }
 
+/** The default profile's targets, or null if there is no default profile. */
+export async function getDefaultTargets(db: Db, owner: Owner): Promise<Targets | null> {
+  const def = await getDefaultProfile(db, owner);
+  return def ? targetsOf(def) : null;
+}
+
 /** Creates a profile. The FIRST profile becomes the default automatically. */
 export async function createProfile(
   db: Db,

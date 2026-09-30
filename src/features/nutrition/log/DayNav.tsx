@@ -5,6 +5,7 @@
  * has its own address, so back/forward and bookmarks work, and a reload never
  * silently jumps to "today". Server component: plain links.
  */
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { addDays } from "@/core/shared/dates";
 import type { Locale } from "@/core/shared/locales";
@@ -24,12 +25,8 @@ export function DayNav({ day, today, locale, t }: Props) {
   }).format(new Date(`${day}T12:00:00Z`));
   return (
     <nav aria-label={t.backToToday} className="flex items-center justify-between gap-2">
-      <Link
-        href={`/?day=${addDays(day, -1)}`}
-        aria-label={t.previous}
-        className="px-2 font-display text-3xl"
-      >
-        ‹
+      <Link href={`/?day=${addDays(day, -1)}`} aria-label={t.previous} className="p-2">
+        <ChevronLeft size={28} aria-hidden="true" />
       </Link>
       <div className="text-center">
         <h1 className="font-display text-2xl font-bold first-letter:uppercase">
@@ -41,12 +38,8 @@ export function DayNav({ day, today, locale, t }: Props) {
           </Link>
         )}
       </div>
-      <Link
-        href={`/?day=${addDays(day, 1)}`}
-        aria-label={t.next}
-        className="px-2 font-display text-3xl"
-      >
-        ›
+      <Link href={`/?day=${addDays(day, 1)}`} aria-label={t.next} className="p-2">
+        <ChevronRight size={28} aria-hidden="true" />
       </Link>
     </nav>
   );

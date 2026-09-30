@@ -32,6 +32,8 @@ type IngredientOption = {
   protein: string;
   uses: number;
   lastUsed: string | null;
+  /** Searched too, like the name. */
+  notes: string;
 };
 
 type Props = {
@@ -77,7 +79,7 @@ export function MealForm({ action, ingredients, initial, submitLabel, t }: Props
     return {
       search: (q: string) =>
         rank(ingredients, q, (i) => ({
-          text: i.name,
+          text: `${i.name} ${i.notes}`,
           name: i.name,
           uses: i.uses,
           lastUsed: i.lastUsed,
