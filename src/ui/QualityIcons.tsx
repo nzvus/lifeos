@@ -31,6 +31,12 @@ import {
 } from "lucide-react";
 
 const ORIGIN: Record<string, LucideIcon> = { plant: Leaf, animal: Beef, mixed: Blend };
+/** Origin chip colour: plant green, animal the protein colour, mixed neutral. */
+const ORIGIN_TEXT: Record<string, string> = {
+  plant: "text-herb",
+  animal: "text-macro-protein",
+  mixed: "text-muted",
+};
 const FIBER: Record<string, LucideIcon> = {
   inulin_fos: Sprout,
   beta_glucan: Wheat,
@@ -108,7 +114,7 @@ export function QualityBadges({
         </li>
       )}
       {origin !== null && (
-        <li className={`${CHIP} border-hairline text-muted`}>
+        <li className={`${CHIP} border-hairline ${ORIGIN_TEXT[origin] ?? "text-muted"}`}>
           <OriginIcon origin={origin} />
           {labels.origin(origin)}
         </li>

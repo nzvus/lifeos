@@ -34,7 +34,7 @@ export function ListItem({
 }: Props) {
   return (
     <li
-      className={`item flex flex-col gap-1 py-3 ${
+      className={`item flex flex-col gap-1 py-2 ${
         muted ? "rule-l-strong border-l-hairline border-dashed pl-2 opacity-60" : ""
       }`}
     >

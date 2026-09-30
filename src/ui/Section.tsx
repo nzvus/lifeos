@@ -2,7 +2,8 @@
  * ui/Section.tsx — a page section: the heavy rule above, its heading, its
  * content (the "label" look, one copy instead of one per page). As a
  * <fieldset> (`as="fieldset"`), the heading is its <legend>, so a group of
- * form fields is announced with its name.
+ * form fields is announced with its name. The icon takes the theme's
+ * accent (herb) unless it carries a colour of its own (a nutrient, a moment).
  */
 import type { ReactNode } from "react";
 
@@ -27,7 +28,7 @@ export function Section({
     return (
       <fieldset className={BOX}>
         <legend className={HEADING}>
-          {icon}
+          {icon && <span className="inline-flex text-herb">{icon}</span>}
           {title}
         </legend>
         {children}
@@ -37,7 +38,7 @@ export function Section({
   return (
     <section aria-labelledby={id} className={BOX}>
       <h2 id={id} className={HEADING}>
-        {icon}
+        {icon && <span className="inline-flex text-herb">{icon}</span>}
         {title}
       </h2>
       {children}

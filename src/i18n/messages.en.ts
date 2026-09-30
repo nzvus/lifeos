@@ -501,14 +501,6 @@ export const en = {
       dinner: "Dinner",
     },
   },
-  macroShort: {
-    protein: "Protein",
-    carbs: "Carbs",
-    fat: "Fat",
-    fiber: "Fibre",
-    sugars: "sugars",
-    saturatedFat: "sat.",
-  },
   macro: {
     protein: "P",
     carbs: "C",

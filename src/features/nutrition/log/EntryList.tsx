@@ -21,7 +21,7 @@ import { fill, macroLabels, type Messages } from "@/i18n";
 import { ActionButtonForm, type ActionButtonState } from "@/ui/ActionButtonForm";
 import { FoodDetails } from "@/ui/FoodDetails";
 import { ListItem } from "@/ui/ListItem";
-import { MomentIcon } from "@/ui/MomentIcon";
+import { MOMENT_TEXT, MomentIcon } from "@/ui/MomentIcon";
 import { MacroStrip } from "@/ui/MacroStrip";
 import { timeIn } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
@@ -68,7 +68,11 @@ export function EntryList({
       {groupByMoment(day.entries, timeZone, bounds).map((group) => (
         <section key={group.moment ?? "none"} className="flex flex-col">
           <h3 className="flex items-center justify-between gap-2 rule-b-medium border-ink pb-1 font-display text-item font-bold">
-            <span className="flex items-center gap-1.5">
+            <span
+              className={`flex items-center gap-1.5 ${
+                (group.moment && MOMENT_TEXT[group.moment]) || ""
+              }`}
+            >
               <MomentIcon moment={group.moment} />
               {group.moment ? t.moments.names[group.moment] : t.moments.none}
             </span>

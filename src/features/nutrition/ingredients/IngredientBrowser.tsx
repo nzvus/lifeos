@@ -27,14 +27,14 @@ import {
   type SortKey,
 } from "@/core/nutrition/metrics";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
-import { macroBars } from "@/core/nutrition/display";
+import { stripValues } from "@/core/nutrition/display";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
-import { fill, qualityLabels, type Messages } from "@/i18n";
+import { fill, macroLabels, qualityLabels, type Messages } from "@/i18n";
 import { FoodCardMeta } from "@/ui/FoodCardMeta";
 import { ListItem } from "@/ui/ListItem";
-import { MacroBars } from "@/ui/MacroBars";
+import { MacroStrip } from "@/ui/MacroStrip";
 import { QualityBadges } from "@/ui/QualityIcons";
 import { ListToolbar } from "@/ui/ListToolbar";
 import { SortNote } from "@/ui/SortNote";
@@ -69,10 +69,7 @@ type Props = {
   locale: Locale;
   /** The sort the list opens with (preferences). */
   initialSort: { sort: SortKey; per: Per };
-  t: Pick<
-    Messages,
-    "ingredients" | "nutrients" | "search" | "macro" | "macroShort" | "quality"
-  >;
+  t: Pick<Messages, "ingredients" | "nutrients" | "search" | "macro" | "quality">;
 };
 
 export function IngredientBrowser({ ingredients, usage, locale, initialSort, t }: Props) {
@@ -132,6 +129,7 @@ export function IngredientBrowser({ ingredients, usage, locale, initialSort, t }
     [rows, list.query, list.sort, list.per, list.direction, locale],
   );
 
+  const labels = macroLabels(t);
   return (
     <div className="flex flex-col gap-4">
       <ListToolbar
@@ -159,7 +157,7 @@ export function IngredientBrowser({ ingredients, usage, locale, initialSort, t }
             }
             aside={
               r.perKg === null ? undefined : (
-                <span className="inline-flex items-center gap-1">
+                <span className="inline-flex items-center gap-1 text-price">
                   <Tag size={14} aria-hidden="true" />
                   {`${formatCents(r.perKg, locale)} ${t.macro.perKg}`}
                 </span>
@@ -175,7 +173,11 @@ export function IngredientBrowser({ ingredients, usage, locale, initialSort, t }
                   : t.search.neverUsed
               }
             />
-            <MacroBars rows={macroBars(r, locale)} labels={t.macroShort} unit="g" />
+            <MacroStrip
+              values={stripValues(r, locale, 1)}
+              labels={labels}
+              withEnergy={false}
+            />
             <QualityBadges
               nova={r.nova}
               origin={r.origin}

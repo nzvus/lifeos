@@ -1,6 +1,6 @@
 /** Tests for core/nutrition/display.ts — the shared display values. */
 import { describe, expect, it } from "vitest";
-import { detailLines, macroBars, stripValues } from "./display";
+import { detailLines, stripValues } from "./display";
 import type { TotalsLine } from "./totals";
 
 const zero = { sugars: "0", saturatedFat: "0", salt: "0" };
@@ -51,8 +51,9 @@ describe("detailLines", () => {
   });
 });
 
-describe("macroBars", () => {
+describe("stripValues, of which", () => {
   const peanut = {
+    kcal: "585",
     protein: "25.8",
     carbs: "14",
     sugars: "6",
@@ -61,24 +62,15 @@ describe("macroBars", () => {
     fiber: "8.2",
   };
 
-  it("scales per 100 g, with sugars and saturated fat as parts", () => {
-    const rows = macroBars(peanut, "it");
-    // Bar lengths are floats (drawing only): compare to 3 decimals.
-    const round = (x: number) => Math.round(x * 1000) / 1000;
-    expect(rows.map((r) => [r.key, r.grams, round(r.share)])).toEqual([
-      ["protein", "25,8", 0.258],
-      ["carbs", "14,0", 0.14],
-      ["fat", "49,0", 0.49],
-      ["fiber", "8,2", 0.082],
-    ]);
-    expect(rows[1]!.part).toEqual({ key: "sugars", grams: "6,0", share: 0.06 });
-    expect(rows[2]!.part?.share).toBe(0.1);
+  it("passes sugars and saturated fat on when the source has them", () => {
+    const v = stripValues(peanut, "it", 1);
+    expect([v.sugars, v.saturatedFat]).toEqual(["6,0", "10,0"]);
+    expect(v.split?.sugars).toBeGreaterThan(0);
   });
 
-  it("scales to the largest macro when a serving has more than 100 g", () => {
-    const rows = macroBars({ ...peanut, carbs: "150", sugars: "200" }, "it");
-    expect(rows[1]!.share).toBe(1);
-    expect(rows[1]!.part?.share).toBe(1); // a part never exceeds its macro
-    expect(rows[0]!.share).toBeCloseTo(25.8 / 150);
+  it("leaves them out otherwise (the add-to-day preview)", () => {
+    const { sugars: _s, saturatedFat: _f, ...five } = peanut;
+    const v = stripValues(five, "it");
+    expect("sugars" in v || "saturatedFat" in v).toBe(false);
   });
 });
