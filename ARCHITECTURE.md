@@ -28,7 +28,8 @@ src/
                 nutrition/{ingredients,meals,log}. Components only.
   core/         db/ (schema, client), identity/ (Owner, ownedBy),
                 nutrition/ (nutrients, totals, targets, insights, validation,
-                repositories/), export/, import/ (FitForge; lifeos replace),
+                repositories/), export/, import/ (FitForge; lifeos replace;
+                ingredient upsert by name),
                 auth/, shared/, testing/ (PGlite test db)
   ui/           form controls, SearchSelect, NavBar, SortControl, Ring,
                 Meter, MacroStrip (THE macro display), NutrientIcon, …

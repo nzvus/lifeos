@@ -20,7 +20,8 @@
     "db:push:local": "drizzle-kit push",
     "check": "python3 scripts/check.py",
     "import:fitforge": "tsx scripts/import-fitforge.ts",
-    "import:lifeos": "tsx scripts/import-lifeos.ts"
+    "import:lifeos": "tsx scripts/import-lifeos.ts",
+    "upsert:ingredients": "tsx scripts/upsert-ingredients.ts"
   },
   "dependencies": {
     "@fontsource/barlow": "5.3.0",
