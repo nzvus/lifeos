@@ -2,12 +2,14 @@
  * ui/SelectField.tsx — a labelled <select> with optional error. Same contract
  * and accessibility wiring as ui/Field.tsx.
  */
-import type { SelectHTMLAttributes } from "react";
+import type { SelectHTMLAttributes, ReactNode } from "react";
 
 type Option = { value: string; label: string };
 
 type SelectFieldProps = {
   label: string;
+  /** Optional icon before the label (decorative: the label names the field). */
+  icon?: ReactNode;
   name: string;
   options: readonly Option[];
   error?: string;
@@ -17,6 +19,7 @@ type SelectFieldProps = {
 
 export function SelectField({
   label,
+  icon,
   name,
   options,
   error,
@@ -29,7 +32,11 @@ export function SelectField({
   const errorId = error ? `${selectId}-error` : undefined;
   return (
     <div className={className ?? "flex flex-col gap-1"}>
-      <label htmlFor={selectId} className="text-meta font-semibold">
+      <label
+        htmlFor={selectId}
+        className="flex items-center gap-1.5 text-meta font-semibold"
+      >
+        {icon}
         {label}
       </label>
       <select

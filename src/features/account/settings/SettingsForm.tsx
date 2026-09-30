@@ -9,6 +9,7 @@
  */
 "use client";
 
+import { Globe, Languages, Palette } from "lucide-react";
 import { useActionState } from "react";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import { THEMES } from "@/core/shared/themes";
@@ -37,6 +38,7 @@ export function SettingsForm({ action, initial, timeZones, t }: Props) {
       )}
       <Field
         label={t.settings.timezone}
+        icon={<Globe size={16} aria-hidden="true" />}
         name="timezone"
         list="time-zones"
         defaultValue={val("timezone")}
@@ -51,6 +53,7 @@ export function SettingsForm({ action, initial, timeZones, t }: Props) {
       </datalist>
       <SelectField
         label={t.settings.locale}
+        icon={<Languages size={16} aria-hidden="true" />}
         name="locale"
         defaultValue={val("locale")}
         options={[
@@ -61,6 +64,7 @@ export function SettingsForm({ action, initial, timeZones, t }: Props) {
       />
       <SelectField
         label={t.settings.theme}
+        icon={<Palette size={16} aria-hidden="true" />}
         name="theme"
         defaultValue={val("theme")}
         options={THEMES.map((id) => ({ value: id, label: t.settings.themeNames[id] }))}

@@ -123,7 +123,7 @@ export function AddToDay({
   const common = { day, locale, t };
 
   return (
-    <Section title={t.day.addTitle}>
+    <Section title={t.day.addTitle} icon={<Plus size={20} aria-hidden="true" />}>
       <div role="tablist" aria-label={t.day.addTitle} className="flex">
         {tabs.map((tab) => {
           const selected = tab.kind === kind;

@@ -6,6 +6,7 @@
  * The period is in the URL (?range=30&to=2026-09-30); anything invalid falls
  * back to the last 7 days up to today.
  */
+import { CalendarRange, TrendingUp } from "lucide-react";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { getHistory } from "@/core/nutrition/repositories/history";
@@ -37,7 +38,7 @@ export default async function ProfilesPage({ searchParams }: Props) {
         title={t.profiles.title}
         action={{ href: "/profiles/new", label: t.profiles.newTitle }}
       />
-      <Section title={t.trends.title}>
+      <Section title={t.trends.title} icon={<TrendingUp size={20} aria-hidden="true" />}>
         <RangeNav
           range={range}
           from={days[0]!}
@@ -54,7 +55,10 @@ export default async function ProfilesPage({ searchParams }: Props) {
           t={t}
         />
       </Section>
-      <Section title={t.trends.dayTypes}>
+      <Section
+        title={t.trends.dayTypes}
+        icon={<CalendarRange size={20} aria-hidden="true" />}
+      >
         <p className="text-muted">{t.profiles.intro}</p>
         <ProfileList profiles={profiles} locale={settings.locale} t={t} />
       </Section>

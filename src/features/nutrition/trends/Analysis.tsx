@@ -4,6 +4,7 @@
  * plans never confirmed. Every number is computed by core/nutrition/
  * analysis.ts and shown with what it counts — no hidden score.
  */
+import { CalendarDays, Clock, ListChecks, Target } from "lucide-react";
 import type { ReactNode } from "react";
 import type { DaySummary } from "@/core/nutrition/repositories/history";
 import {
@@ -44,10 +45,21 @@ const PART_SHADE = [
   "opacity-100",
 ];
 
-function Block({ title, children }: { title: string; children: ReactNode }) {
+function Block({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="font-display text-item font-bold">{title}</h3>
+      <h3 className="flex items-center gap-1.5 font-display text-item font-bold">
+        {icon}
+        {title}
+      </h3>
       {children}
     </div>
   );
@@ -63,7 +75,7 @@ export function Analysis({ history, targets, today, timeZone, locale, t }: Props
 
   return (
     <div className="grid gap-x-8 gap-y-6 md:grid-cols-2">
-      <Block title={a.adherenceTitle}>
+      <Block title={a.adherenceTitle} icon={<Target size={16} aria-hidden="true" />}>
         {adh.length === 0 ? (
           <p className="text-meta text-muted">{a.noTargets}</p>
         ) : (
@@ -93,7 +105,7 @@ export function Analysis({ history, targets, today, timeZone, locale, t }: Props
         <p className="text-meta text-muted">{a.adherenceHint}</p>
       </Block>
 
-      <Block title={a.dayTypesTitle}>
+      <Block title={a.dayTypesTitle} icon={<CalendarDays size={16} aria-hidden="true" />}>
         {types.length === 0 ? (
           <p className="text-meta text-muted">{a.noDays}</p>
         ) : (
@@ -125,7 +137,7 @@ export function Analysis({ history, targets, today, timeZone, locale, t }: Props
         )}
       </Block>
 
-      <Block title={a.timesTitle}>
+      <Block title={a.timesTitle} icon={<Clock size={16} aria-hidden="true" />}>
         {times.days === 0 ? (
           <p className="text-meta text-muted">{a.noTimes}</p>
         ) : (
@@ -174,7 +186,7 @@ export function Analysis({ history, targets, today, timeZone, locale, t }: Props
         )}
       </Block>
 
-      <Block title={a.plansTitle}>
+      <Block title={a.plansTitle} icon={<ListChecks size={16} aria-hidden="true" />}>
         <p className="text-meta text-muted">
           {left === 0 ? a.plansNone : fill(a.plansLeft, { n: String(left) })}
         </p>

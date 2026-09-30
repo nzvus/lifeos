@@ -18,6 +18,7 @@
  */
 "use client";
 
+import { ClipboardList } from "lucide-react";
 import { useActionState, useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import { NUTRIENT_KEYS } from "@/core/nutrition/nutrients";
@@ -109,7 +110,11 @@ export function IngredientForm({
       />
 
       {/* The label block: heavy rule on top, one row per nutrient. */}
-      <Section as="fieldset" title={fill(t.ingredients.per100, { unit })}>
+      <Section
+        as="fieldset"
+        title={fill(t.ingredients.per100, { unit })}
+        icon={<ClipboardList size={20} aria-hidden="true" />}
+      >
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">
           {NUTRIENT_KEYS.map((k) => (
             <Field
