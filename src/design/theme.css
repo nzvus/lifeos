@@ -28,20 +28,28 @@
   --color-hairline: #c9d0cc; /* thin separators between rows */
   --color-herb: #2d6a4c; /* within target, primary actions */
   --color-tomato: #b23a2a; /* over target, errors, destructive actions */
-  --color-warn: #c2560b; /* close to a limit / slightly over (contrast 4.2:1 on paper) */
+  --color-warn: #b6500a; /* close to a limit / slightly over (4.6:1 on paper: usable as text) */
   --color-focus: #2d6a4c;
   /* Nutrient colours: one per nutrient, used everywhere (bars, legends,
      charts, icons) so the code is learned once. Following common nutrition
      app conventions: protein red-pink, carbs amber, fat blue, fibre green.
      Distinct from herb (= within target) and tomato (= over target), which
-     keep their meaning. Contrast checked (WCAG, >= 3:1 for graphics)
-     against paper and sheet in both themes on 2026-09-30; the first amber
-     (#c98a0c) failed at 2.7:1 and was darkened. */
+     keep their meaning. They colour text too (a value in its nutrient's
+     colour), so they meet WCAG AA for text, 4.5:1, on paper and sheet in
+     every theme and mode — design/theme.test.ts fails otherwise. */
   --color-macro-protein: #b53d6f;
-  --color-macro-carbs: #a06c05;
+  --color-macro-carbs: #966504;
   --color-macro-fat: #3a67a3;
-  --color-macro-fiber: #4f7f2a;
+  --color-macro-fiber: #4c7b28;
   --color-kcal: #17201c;
+  /* Moments of the day (ADR-0011) and money: their own hues, away from
+     the nutrient colours where possible; text contrast >= 4.5:1 on paper
+     and sheet, checked by design/theme.test.ts. */
+  --color-moment-breakfast: #8a5a3c;
+  --color-moment-lunch: #0e6e66;
+  --color-moment-snack: #63680a;
+  --color-moment-dinner: #3f4aa8;
+  --color-price: #7a47a6;
 
   /* --- type: Barlow Condensed for numbers and headings, Barlow for text ---
      Self-hosted via @fontsource (imported in src/app/layout.tsx): no request
@@ -211,6 +219,11 @@
     --color-macro-fat: #86aee6;
     --color-macro-fiber: #9ccd6c;
     --color-kcal: #e8eee9;
+    --color-moment-breakfast: #dcaa85;
+    --color-moment-lunch: #6fd0c4;
+    --color-moment-snack: #c6cc5a;
+    --color-moment-dinner: #a8b1f5;
+    --color-price: #cda8ef;
   }
 }
 :root[data-mode="dark"] {
@@ -228,4 +241,9 @@
   --color-macro-fat: #86aee6;
   --color-macro-fiber: #9ccd6c;
   --color-kcal: #e8eee9;
+  --color-moment-breakfast: #dcaa85;
+  --color-moment-lunch: #6fd0c4;
+  --color-moment-snack: #c6cc5a;
+  --color-moment-dinner: #a8b1f5;
+  --color-price: #cda8ef;
 }

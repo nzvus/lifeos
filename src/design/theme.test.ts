@@ -97,6 +97,56 @@ describe("theme contract", () => {
     expect(declarations(darkByChoice)).toBe(declarations(darkBySystem));
   });
 
+  /**
+   * Colours that colour TEXT (a value in its nutrient's colour, a moment's
+   * name, a price) must be readable: WCAG AA, 4.5:1, on paper and on sheet,
+   * in every theme and mode. Hairline and focus are not text.
+   */
+  const TEXT = /^--color-(ink|muted|herb|tomato|warn|macro-.+|kcal|moment-.+|price)$/;
+  const hex = (block: string) =>
+    new Map(
+      [...block.matchAll(/(--color-[a-z-]+)\s*:\s*(#[0-9a-f]{6})/gi)].map((m) => [
+        m[1]!,
+        m[2]!,
+      ]),
+    );
+  const luminance = (h: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => {
+      const c = parseInt(h.slice(i, i + 2), 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
+  };
+  const contrast = (a: string, b: string) => {
+    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return (hi! + 0.05) / (lo! + 0.05);
+  };
+  const label = read("theme.css");
+  const palettes: [string, string | null][] = [
+    ["label light", label.split("@theme {")[1]!.split("\n}")[0]!],
+    ["label dark", blockOf(label, ':root[data-mode="dark"]')],
+    ...["orto", "cruscotto"].flatMap((id): [string, string | null][] => {
+      const css = read(`themes/${id}.css`);
+      const sel = `:root[data-theme="${id}"]`;
+      return [
+        [`${id} light`, blockOf(css, sel)],
+        [`${id} dark`, blockOf(css, `${sel}[data-mode="dark"]`)],
+      ];
+    }),
+  ];
+
+  it.each(palettes)("%s: text colours reach 4.5:1 on paper and sheet", (_, block) => {
+    const colours = hex(block ?? "");
+    const failing = [...colours]
+      .filter(([token]) => TEXT.test(token))
+      .flatMap(([token, value]) =>
+        ["--color-paper", "--color-sheet"]
+          .map((bg) => [token, bg, contrast(value, colours.get(bg)!)] as const)
+          .filter(([, , ratio]) => ratio < 4.5),
+      );
+    expect(failing).toEqual([]);
+  });
+
   it("every theme file is part of the stylesheet", () => {
     expect(css).toContain('[data-theme="orto"]');
     expect(css).toContain('[data-theme="cruscotto"]');

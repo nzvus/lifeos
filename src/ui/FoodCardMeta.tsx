@@ -21,7 +21,7 @@ export function FoodCardMeta({
   return (
     <div className="flex items-baseline justify-between gap-3 text-meta">
       <span>
-        <span className="font-display text-item font-bold tabular-nums">{energy}</span>
+        <span className="font-display text-body font-bold tabular-nums">{energy}</span>
         <span className="pl-1.5 text-muted">{basis}</span>
       </span>
       <span className="inline-flex shrink-0 items-center gap-1 text-muted tabular-nums">

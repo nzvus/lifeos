@@ -24,7 +24,7 @@ import {
 import { MOMENTS, type Moment } from "@/core/nutrition/moments";
 import { qualitySummary } from "@/core/nutrition/quality-summary";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
-import { detailLines, macroBars } from "@/core/nutrition/display";
+import { detailLines, stripValues } from "@/core/nutrition/display";
 import type { MealWithLines } from "@/core/nutrition/repositories/meals";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
@@ -34,7 +34,7 @@ import { FoodDetails } from "@/ui/FoodDetails";
 import { MealQuality } from "./MealQuality";
 import { FoodCardMeta } from "@/ui/FoodCardMeta";
 import { ListItem } from "@/ui/ListItem";
-import { MacroBars } from "@/ui/MacroBars";
+import { MacroStrip } from "@/ui/MacroStrip";
 import { MomentIcon } from "@/ui/MomentIcon";
 import { ListToolbar } from "@/ui/ListToolbar";
 import { SortNote } from "@/ui/SortNote";
@@ -57,7 +57,6 @@ type Props = {
     | "search"
     | "macro"
     | "label"
-    | "macroShort"
     | "moments"
     | "quality"
     | "ratings"
@@ -177,7 +176,7 @@ export function MealBrowser({
                 ) : undefined
               }
               aside={
-                <span className="inline-flex items-center gap-1">
+                <span className="inline-flex items-center gap-1 text-price">
                   <Tag size={14} aria-hidden="true" />
                   {m.totals.costComplete
                     ? formatCents(m.totals.costCents, locale)
@@ -196,10 +195,10 @@ export function MealBrowser({
                     : t.search.neverUsed
                 }
               />
-              <MacroBars
-                rows={macroBars(m.totals.nutrients, locale)}
-                labels={t.macroShort}
-                unit="g"
+              <MacroStrip
+                values={stripValues(m.totals.nutrients, locale)}
+                labels={labels}
+                withEnergy={false}
               />
               <MealQuality
                 summary={qualitySummary(m.lines)}

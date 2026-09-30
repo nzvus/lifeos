@@ -11,6 +11,7 @@ import {
   Candy,
   Diamond,
   Droplet,
+  Droplets,
   Flame,
   Leaf,
   Wheat,
@@ -23,6 +24,7 @@ const ICONS: Record<string, LucideIcon> = {
   carbs: Wheat,
   sugars: Candy,
   fat: Droplet,
+  saturatedFat: Droplets, // the denser fat
   fiber: Leaf,
   salt: Diamond, // a salt crystal; salt has no colour of its own (ink)
 };

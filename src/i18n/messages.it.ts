@@ -500,14 +500,6 @@ export const it: Messages = {
       dinner: "Cena",
     },
   },
-  macroShort: {
-    protein: "Proteine",
-    carbs: "Carbo",
-    fat: "Grassi",
-    fiber: "Fibre",
-    sugars: "zucch.",
-    saturatedFat: "saturi",
-  },
   macro: {
     protein: "P",
     carbs: "C",

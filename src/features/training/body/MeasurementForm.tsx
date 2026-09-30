@@ -26,11 +26,7 @@ export function MeasurementForm({ action, today, count, t }: Props) {
   const b = t.body;
   return (
     // key: the count grows after each save, so an empty form comes back
-    <form
-      key={count}
-      action={formAction}
-      className="flex flex-wrap items-end gap-2"
-    >
+    <form key={count} action={formAction} className="flex flex-wrap items-end gap-2">
       <Field
         label={b.day}
         name="day"
