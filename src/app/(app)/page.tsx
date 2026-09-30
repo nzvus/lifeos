@@ -32,7 +32,7 @@ import { Copy } from "lucide-react";
 import { DayNav } from "@/features/nutrition/log/DayNav";
 import { DayProfilePicker } from "@/features/nutrition/log/DayProfilePicker";
 import { EntryList } from "@/features/nutrition/log/EntryList";
-import { LogForms } from "@/features/nutrition/log/LogForms";
+import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekChart } from "@/features/nutrition/log/WeekChart";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
@@ -120,7 +120,7 @@ export default async function DayPage({ searchParams }: Props) {
               variant="quiet"
             />
           )}
-          <LogForms
+          <AddToDay
             day={day}
             meals={meals.map((m) => ({
               id: m.id,
@@ -143,7 +143,8 @@ export default async function DayPage({ searchParams }: Props) {
             }))}
             logMealAction={logMealAction}
             logIngredientAction={logIngredientAction}
-            logEstimateAction={logEstimateAction} // Only the dictionary parts the client component uses travel to
+            logEstimateAction={logEstimateAction}
+            // Only the dictionary parts the client component uses travel to
             // the browser (smaller page, faster load).
             t={{
               day: t.day,

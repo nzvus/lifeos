@@ -82,7 +82,8 @@
 - [x] Mode + layout cookies and settings UI ("desktop" also widens the phone viewport to 1200 px)
 - [x] Phone screenshots (2026-09-30)
 - [x] Design pass on `label`: ~~bugs (€ €/kg, ring centre, kcal decimals)~~ → ~~one list-row layout (ui/ListItem) for ingredients/meals/entries~~ → ~~type scale (5 tokens + lint)~~ → ~~day panel and week chart legends~~ → ~~details drawer (quiet buttons, per-line kcal)~~ → ~~small UX (auto-apply day type, labels)~~
-- [ ] Design a second theme; it decides which slots are really needed
+- [x] Unified "add to day": one search over meals + ingredients + "estimated meal", then only the fields that fit (`AddToDay`)
+- [ ] Design a second theme; it decides which slots are really needed (the developer delegated theme design to the agent)
 - [ ] Only then: `themes/` layer, slot switches for those slots, contract test, lint boundaries, `user_settings.theme` + theme picker (building them before a second theme exists would be speculative, PROJECT.md §5)
 
 ## Done
