@@ -1,10 +1,11 @@
 /**
  * core/training/analysis.ts — what a session says (ADR-0005), pure:
  *
- *   tonnage      Σ reps × load over working sets (warm-ups excluded), as
- *                written: "da 14" counts 14 even for a pair of dumbbells,
- *                matching the developer's hand-made numbers (PUSH 1 on
- *                2026-09-11 = 4 722 kg, tested)
+ *   tonnage      Σ reps × load over working sets, as the developer counts
+ *                by hand: "da 14" = 14, "con 2 da 20" = 40 (two
+ *                dumbbells), warm-ups and approximate loads ("+ asta", a
+ *                bar of unknown weight) left out — PUSH 1 (2026-09-11) =
+ *                4 722 kg and PULL 1 (2026-09-15) = 4 080 kg, tested
  *   e1RM         Epley, load × (1 + reps / 30), only for 1–12 reps (beyond
  *                that it's not a strength estimate)
  *   comparison   tonnage and best e1RM against the previous time
@@ -21,6 +22,8 @@ export type SetLike = {
   reps: number | null;
   loadKg: string | null;
   warmup: boolean;
+  /** Part of the load is unknown (a bar): kept, but not in tonnage. */
+  loadApprox?: boolean;
   durationS?: number | null;
   speedKmh?: string | null;
   inclinePct?: string | null;
@@ -28,9 +31,11 @@ export type SetLike = {
 
 const working = (sets: readonly SetLike[]) => sets.filter((s) => !s.warmup);
 
-/** Σ reps × load of the working sets (no load = 0). */
+/** Σ reps × load of the working sets with a known load. */
 export function tonnage(sets: readonly SetLike[]): number {
-  return working(sets).reduce((sum, s) => sum + (s.reps ?? 0) * Number(s.loadKg ?? 0), 0);
+  return working(sets)
+    .filter((s) => !s.loadApprox)
+    .reduce((sum, s) => sum + (s.reps ?? 0) * Number(s.loadKg ?? 0), 0);
 }
 
 /** Estimated one-rep max (Epley); null outside 1–12 reps or without a load. */
