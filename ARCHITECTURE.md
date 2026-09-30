@@ -129,8 +129,8 @@ cannot poll URLs itself, so app health has daily granularity.
   accent-insensitive, every word must match, ranked by match quality then
   usage). Usage = log entries per meal/ingredient in the last 60 days,
   computed on read (`repositories/usage.ts`). Lists search in the browser.
-- **Responsive UI:** phones get a bottom tab bar and card lists; md+ gets
-  header navigation and tables; lg+ shows the day in two columns with a
+- **Responsive UI:** phones get a bottom tab bar; md+ gets header navigation;
+  food lists are one card grid everywhere (1 column, 2 from md); lg+ shows the day in two columns with a
   sticky label. `sm:/md:/lg:` are redefined in `design/theme.css` to obey
   `data-layout` (auto/desktop/phone, ADR-0010). Forms cap at `--container-page`.
 - **Visual language:** one colour per nutrient (`--color-macro-*`); targets

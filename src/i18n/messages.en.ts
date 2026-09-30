@@ -132,7 +132,6 @@ export const en = {
     unitMl: "millilitres (ml)",
     per100: "Nutrition per 100 {unit}",
     per100Short: "/100 {unit}",
-    pricePerThousand: "€ per kg or l",
     price: "Package price (€)",
     packageSize: "Package size ({unit})",
     priceHint: "Optional. Used to compute what meals and days cost.",
@@ -240,7 +239,11 @@ export const en = {
     protein: "P",
     carbs: "C",
     fat: "F",
-    splitTitle: "Energy from protein · carbs · fat",
+    splitTitle:
+      "Energy from protein · carbs (solid = sugars) · fat (solid = saturated) · fibre",
+    sugarsOf: "sugars {v}%",
+    saturatedOf: "saturated {v}%",
+    fiberOf: "fibre {v}%",
     density: "P/100 kcal",
     perKg: "/kg",
     ingredientsCount: "{n} ingredients",
@@ -259,7 +262,6 @@ export const en = {
     targetLine: "target",
     underTarget: "under target: the nutrient's colour, fainter = further away",
     shownDay: "day shown",
-    ingredientMix: "Energy mix",
   },
   panel: {
     left: "left",

@@ -12,7 +12,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { macroSplit, proteinPer100kcal } from "@/core/nutrition/insights";
+import { proteinPer100kcal } from "@/core/nutrition/insights";
 import { detailLines, stripValues } from "@/core/nutrition/display";
 import type { MealWithLines } from "@/core/nutrition/repositories/meals";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
@@ -54,7 +54,6 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
       meals.map((m) => ({
         ...m,
         density: proteinPer100kcal(m.totals.nutrients),
-        split: macroSplit(m.totals.nutrients),
         uses: usage[m.id]?.uses ?? 0,
         lastUsed: usage[m.id]?.lastUsed ?? null,
         // Ingredient names are searchable too: "skyr" finds every meal with skyr.
