@@ -259,6 +259,40 @@ export const it: Messages = {
     perKg: "/kg",
     ingredientsCount: "{n} ingredienti",
   },
+  analysis: {
+    adherenceTitle: "Obiettivi raggiunti",
+    adherenceHint:
+      "Giorni in cui eri nell'obiettivo, sui giorni registrati che ne avevano uno. Minimi (proteine, fibre): raggiunti; massimi (zuccheri, saturi, sale): non superati; obiettivi: entro ±5 %.",
+    noTargets: "Nessun obiettivo nei giorni registrati del periodo.",
+    daysOf: "{n}/{of} giorni",
+    dayTypesTitle: "Per tipo di giornata",
+    days: "{n} giorni",
+    avg: "media {v} {unit}",
+    energyOnTarget: "energia in obiettivo {n}/{of}",
+    noDays: "Nessun giorno registrato nel periodo.",
+    timesTitle: "Orari",
+    first: "primo pasto {v}",
+    last: "ultimo {v}",
+    window: "finestra {v}",
+    duration: "{h} h {m} min",
+    partsLabel: "Energia per momento della giornata",
+    parts: {
+      morning: "mattina",
+      midday: "pranzo",
+      afternoon: "pomeriggio",
+      evening: "sera",
+      night: "notte",
+    },
+    timesBase: "Medie su {n} giorni con almeno un orario.",
+    untimed: "{n} voci senza orario non contate.",
+    noTimes:
+      'Nessuna voce con orario nel periodo: spunta "mangiato" o indica l\'ora per vedere gli orari.',
+    plansTitle: "Pianificato",
+    plansNone:
+      "Tutto ciò che era pianificato nei giorni passati è stato confermato o rimosso.",
+    plansLeft:
+      "{n} voci pianificate nei giorni passati non sono mai state confermate: non contano nei totali.",
+  },
   trends: {
     title: "Andamento",
     ranges: "Periodo",

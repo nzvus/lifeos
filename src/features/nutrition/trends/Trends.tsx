@@ -1,7 +1,7 @@
 /**
- * features/nutrition/trends/Trends.tsx — every nutrient over the chosen
- * period: one TrendChart each, with its average over the days something was
- * logged. The page (app/(app)/profiles) loads the history and the period.
+ * features/nutrition/trends/Trends.tsx — the chosen period: first the
+ * numbers (Analysis), then every nutrient as a TrendChart with its average
+ * over the days something was logged. The page (app/(app)/profiles) loads the history and the period.
  *
  * Targets per day are the day's own (fixed copy or default profile,
  * ADR-0008) plus the automatic maxima for sugars, saturated fat and salt
@@ -15,21 +15,32 @@ import { withAutoTargets } from "@/core/nutrition/targets";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
+import { Analysis } from "./Analysis";
 import { ChartLegend } from "./ChartLegend";
 import { TrendChart } from "./TrendChart";
 
 type Props = {
   history: DaySummary[];
+  today: string;
+  timeZone: string;
   locale: Locale;
-  t: Pick<Messages, "trends" | "nutrients">;
+  t: Pick<Messages, "trends" | "nutrients" | "analysis">;
 };
 
-export function Trends({ history, locale, t }: Props) {
+export function Trends({ history, today, timeZone, locale, t }: Props) {
   const targetsByDay = history.map(
     (d) => withAutoTargets(d.targets ?? emptyTargets()).targets,
   );
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
+      <Analysis
+        history={history}
+        targets={targetsByDay}
+        today={today}
+        timeZone={timeZone}
+        locale={locale}
+        t={t}
+      />
       <div className="grid gap-x-8 gap-y-6 md:grid-cols-2">
         {NUTRIENT_KEYS.map((k) => {
           const logged = history

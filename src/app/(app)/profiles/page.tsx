@@ -46,7 +46,13 @@ export default async function ProfilesPage({ searchParams }: Props) {
           locale={settings.locale}
           t={t.trends}
         />
-        <Trends history={history} locale={settings.locale} t={t} />
+        <Trends
+          history={history}
+          today={today}
+          timeZone={settings.timezone}
+          locale={settings.locale}
+          t={t}
+        />
       </Section>
       <Section title={t.trends.dayTypes}>
         <p className="text-muted">{t.profiles.intro}</p>

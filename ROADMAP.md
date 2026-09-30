@@ -88,7 +88,7 @@
 - [x] Richer macro bar (sugars, saturated, fibre); one card grid for ingredients and meals
 - [x] Live previews: meal serving while composing; ingredient label + effect on every meal using it (% per macro)
 - [x] History: day page gets a week strip + date jump; Targets shows trends for every nutrient over 7 / 30 / 90 days, scrollable back in time, with averages
-- [ ] Analysis on Targets: adherence per nutrient and day type, eating times (first/last meal, window, kcal by time of day), planned vs eaten
+- [x] Analysis on Targets: adherence per nutrient, averages per day type, eating times (first/last, window, energy by part of day), unconfirmed plans
 - [ ] Their components: slots `ListItem` (orto: cards; cruscotto: one line) and `DayPanel` (cruscotto: tiles) — only these two are needed
 
 ## Done
