@@ -6,7 +6,7 @@
  *
  *   strength     reps, kg, load as written, approximate, warm-up
  *   bodyweight   reps, kg (optional, e.g. a vest), warm-up
- *   cardio       minutes, km/h, incline %
+ *   cardio       minutes, km (outdoors), km/h, incline % (treadmill)
  *
  * Under each exercise, what was done the last time (from the page). "Add
  * set" copies the previous row, as one does at the gym. Like the meal
@@ -35,6 +35,8 @@ export type EditorSet = {
   loadApprox: boolean;
   warmup: boolean;
   minutes: string;
+  /** Distance in km (a run outdoors); with the minutes it gives the speed. */
+  km: string;
   speedKmh: string;
   inclinePct: string;
 };
@@ -72,6 +74,7 @@ export const EMPTY_SET: EditorSet = {
   loadApprox: false,
   warmup: false,
   minutes: "",
+  km: "",
   speedKmh: "",
   inclinePct: "",
 };
@@ -79,6 +82,11 @@ export const EMPTY_SET: EditorSet = {
 let nextKey = 0;
 const keyed = (list: EditorExercise[]) => list.map((e) => ({ ...e, key: nextKey++ }));
 const int = (v: string) => (/^\d+$/.test(v.trim()) ? Number(v.trim()) : null);
+/** "5,2" km -> 5200 m; empty or not a number -> null. */
+const kmToM = (v: string) => {
+  const n = Number(v.trim().replace(",", "."));
+  return v.trim() && Number.isFinite(n) ? Math.round(n * 1000) : null;
+};
 
 /** The editor's rows as the JSON core validates (core/training/validation.ts). */
 function serialize(list: EditorExercise[]) {
@@ -93,6 +101,7 @@ function serialize(list: EditorExercise[]) {
         loadText: s.loadText,
         loadApprox: s.loadApprox,
         durationS: int(s.minutes) === null ? null : int(s.minutes)! * 60,
+        distanceM: kmToM(s.km),
         speedKmh: s.speedKmh,
         inclinePct: s.inclinePct,
         warmup: s.warmup,
@@ -246,6 +255,15 @@ export function SessionEditor({
                             updateSet(e.key, j, { minutes: ev.target.value })
                           }
                           error={err(`${at}.durationS`)}
+                          className="flex w-20 flex-col gap-1"
+                        />
+                        <Field
+                          label={tr.distance}
+                          name={`${at}.k`}
+                          inputMode="decimal"
+                          value={s.km}
+                          onChange={(ev) => updateSet(e.key, j, { km: ev.target.value })}
+                          error={err(`${at}.distanceM`)}
                           className="flex w-20 flex-col gap-1"
                         />
                         <Field

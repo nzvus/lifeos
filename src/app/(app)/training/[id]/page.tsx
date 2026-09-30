@@ -60,6 +60,7 @@ export default async function EditSessionPage({ params }: Props) {
               loadApprox: s.loadApprox,
               warmup: s.warmup,
               minutes: s.durationS ? String(Math.round(s.durationS / 60)) : "",
+              km: s.distanceM ? String(s.distanceM / 1000) : "",
               speedKmh: str(s.speedKmh),
               inclinePct: str(s.inclinePct),
             })),

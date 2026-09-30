@@ -213,3 +213,24 @@ describe("trainingByDay", () => {
     ]);
   });
 });
+
+describe("burn outdoors", () => {
+  it("takes the speed from distance and time: 5 km in 30 min runs at 10 km/h", () => {
+    const run = {
+      durationMin: 30,
+      exercises: [
+        {
+          kind: "cardio" as const,
+          sets: [
+            { reps: null, loadKg: null, warmup: false, durationS: 1800, distanceM: 5000 },
+          ],
+        },
+      ],
+    };
+    const met = cardioMet(10, 0); // ACSM running
+    expect(burnRange(run, "76")).toEqual({
+      low: Math.round(met * 0.85 * 76 * 0.5),
+      high: Math.round(met * 1.15 * 76 * 0.5),
+    });
+  });
+});

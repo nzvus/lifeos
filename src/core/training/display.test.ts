@@ -22,5 +22,8 @@ describe("training display", () => {
         "it",
       ),
     ).toBe("20 min 5,0 km/h 12%");
+    expect(setText(s(null, null, { durationS: 1800, distanceM: 5000 }), "it")).toBe(
+      "30 min 5,0 km",
+    );
   });
 });
