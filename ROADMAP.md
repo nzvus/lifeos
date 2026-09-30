@@ -17,6 +17,7 @@
 - Drop `user_settings.target_*` (deprecated by ADR-0008) once profiles have run in production for a while
 - UI: installable app (PWA) + offline logging at the gym; one-click theme toggle; charts of weight and intake over time
 - Training cycle that picks the day profile automatically (ADR-0008 option C, with the training module)
+- Activity-based targets: plan the day's activities (gym session: type, exercises, duration, rests; walks, runs; how sedentary the rest was) and derive energy/carb targets from them. Needs the training module (ADR-0005) and an explicit energy model (MET-style, always shown as estimates — PROJECT.md non-goal: no falsely precise burn numbers)
 - Template meta-loop: reset `ai-native-starter` to a clean template; record what S00/S01 taught in its TEMPLATE-CHANGELOG
 
 ## Current sprint: S01 — Walking skeleton + nutrition v1, deployed and owned
@@ -68,6 +69,7 @@
 - [x] Ingredient and meal names/notes revised (approval table), numbers untouched
 - [x] "Update with current values" on log entries (ADR-0007 tripwire: prices added after logging)
 - [x] MacroStrip: one colour-coded macro display everywhere; pickers also search notes
+- [x] One day panel (concentric rings + bars for all 8 nutrients) replaces ring + label; target kinds (min / max / target) with graded colours; auto maxima for sugars (EU RI), saturated fat and salt (WHO)
 - [ ] Planned / eaten checkbox with time, estimated meals (ADR-0009)
 - [ ] Tags with icons (processing level, origin, fibre types, shop…) stacking into meals; meal ratings (ADR-0010)
 

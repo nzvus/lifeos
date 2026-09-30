@@ -3,18 +3,21 @@
  * over the last 7 days, drawn as plain SVG (no chart library: a few
  * rectangles are all it takes, and they use the theme's colour tokens).
  *
- * Each bar: the day's total. Green (herb) if at or under that day's target,
- * tomato if over, the nutrient's own colour if the day has no target. A short
+ * Each bar: the day's total, coloured like the day panel (ui/targetTone:
+ * graded by the target's kind and distance); the nutrient's own colour if
+ * the day has no target. A short
  * dark tick marks the target. The shown day is outlined; every bar is a link
  * to its day. Totals and targets come from core (getHistory), already rounded
  * for display; heights are only proportions for drawing.
  */
 import Link from "next/link";
 import type { DaySummary } from "@/core/nutrition/repositories/history";
+import { assessTarget, TARGET_KIND } from "@/core/nutrition/targets";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import type { Messages } from "@/i18n";
 import { NutrientIcon } from "@/ui/NutrientIcon";
+import { targetTone } from "@/ui/targetTone";
 
 type Props = {
   history: DaySummary[];
@@ -71,8 +74,19 @@ export function WeekChart({
           const target = targets[i]!;
           const h = (v / max) * BAR_AREA;
           const x = i * slot + (slot - barW) / 2;
-          const fillClass =
-            target === null ? plainFill : v > target ? "fill-tomato" : "fill-herb";
+          // Same graded colours as the day panel (kind-aware: for protein,
+          // being above the minimum is good; for energy, only near is good).
+          const a = assessTarget(
+            d.totals.nutrients[nutrient],
+            d.targets?.[nutrient] ?? null,
+            TARGET_KIND[nutrient],
+          );
+          const tone = targetTone({
+            kind: TARGET_KIND[nutrient],
+            status: a.status,
+            ratio: a.status === "none" ? 0 : a.ratio,
+            base: nutrient === "kcal" ? "--color-kcal" : "--color-macro-protein",
+          });
           const label = `${d.day}: ${formatNumber(d.totals.nutrients[nutrient], locale, 0)}`;
           return (
             <Link key={d.day} href={`/?day=${d.day}`} aria-label={label}>
@@ -92,7 +106,12 @@ export function WeekChart({
                   width={barW}
                   height={Math.max(h, 1)}
                   rx={2}
-                  className={fillClass}
+                  className={target === null ? plainFill : undefined}
+                  style={
+                    target === null
+                      ? undefined
+                      : { fill: tone.color, opacity: tone.opacity }
+                  }
                 />
               )}
               {target !== null && (

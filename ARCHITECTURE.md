@@ -130,8 +130,10 @@ cannot poll URLs itself, so app health has daily granularity.
   header navigation and tables; lg+ shows the day in two columns with a
   sticky label. Form pages cap at `--container-page`, others at
   `--container-wide`.
-- **Visual language:** one colour per nutrient (`--color-macro-*`, used by
-  bars, legends, charts, icons); herb = within target, tomato = over.
+- **Visual language:** one colour per nutrient (`--color-macro-*`); targets
+  have kinds (min/max/target, `core/nutrition/targets.ts`) and colours are
+  graded by kind and distance (`ui/targetTone.ts`: faint → herb → warn →
+  tomato); auto maxima for sugars/saturated fat/salt when unset.
   Icons: `lucide-react` (SVG, only imported icons ship). Charts are plain
   SVG in feature components (no chart library). Sorts have a natural
   direction and an ↑/↓ toggle; missing values sort last
