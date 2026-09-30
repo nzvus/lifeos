@@ -14,7 +14,7 @@ export default async function ProfilesPage() {
         <h1 className="font-display text-title font-bold">{t.profiles.title}</h1>
         <Link
           href="/profiles/new"
-          className="bg-herb px-3 py-1 font-display text-item font-semibold text-sheet"
+          className="bg-herb px-3 py-1 font-display text-item font-semibold whitespace-nowrap text-sheet"
         >
           {t.profiles.newTitle}
         </Link>

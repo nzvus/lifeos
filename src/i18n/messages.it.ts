@@ -99,7 +99,6 @@ export const it: Messages = {
     refreshGone: "Il pasto o l'ingrediente da cui viene non esiste più.",
     nothingYesterday: "Il giorno prima non hai registrato niente.",
     profileLabel: "Tipo di giornata",
-    applyProfile: "Applica",
     profileFixed: "Obiettivi fissati per questo giorno: {name}",
     profileDefault:
       "Predefinito: {name}. Si fissa al primo alimento registrato; se oggi è diverso, scegline un altro ora.",
@@ -185,7 +184,7 @@ export const it: Messages = {
     },
   },
   profiles: {
-    title: "Tipi di giornata e obiettivi",
+    title: "Obiettivi",
     intro:
       "Ogni tipo di giornata (palestra, corsa, riposo…) ha i suoi obiettivi. Sceglilo nella pagina del giorno; se non lo scegli vale il predefinito.",
     newTitle: "Nuovo tipo di giornata",

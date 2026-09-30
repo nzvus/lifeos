@@ -3,7 +3,8 @@
  * on the day page (ADR-0008).
  *
  * Shows where the day's targets come from (fixed / default / none) and lets
- * the user pick a day type, which copies its targets onto the day. The
+ * the user pick a day type, which copies its targets onto the day as soon
+ * as the select changes (no separate "Apply" button). The
  * explanation texts matter: the difference between "default" (follows the
  * profile, still changeable) and "fixed" (a frozen copy) must be visible.
  */
@@ -15,7 +16,6 @@ import { fieldError, IDLE, type FormState } from "@/core/shared/result";
 import { fill, type Messages } from "@/i18n";
 import { FormAlert } from "@/ui/FormAlert";
 import { SelectField } from "@/ui/SelectField";
-import { SubmitButton } from "@/ui/SubmitButton";
 
 type Props = {
   day: string;
@@ -26,7 +26,7 @@ type Props = {
 };
 
 export function DayProfilePicker({ day, current, profiles, action, t }: Props) {
-  const [state, formAction] = useActionState(action, IDLE);
+  const [state, formAction, pending] = useActionState(action, IDLE);
   if (profiles.length === 0)
     return <p className="text-meta text-muted">{t.day.noProfiles}</p>;
 
@@ -44,17 +44,16 @@ export function DayProfilePicker({ day, current, profiles, action, t }: Props) {
       {fieldError(state, "profileId", t.errors) && (
         <FormAlert tone="error">{fieldError(state, "profileId", t.errors)!}</FormAlert>
       )}
-      <div className="flex items-end gap-3">
-        <SelectField
-          label={t.day.profileLabel}
-          name="profileId"
-          id="day-profile"
-          defaultValue={selected}
-          options={profiles.map((p) => ({ value: p.id, label: p.name }))}
-          className="flex min-w-0 flex-1 flex-col gap-1"
-        />
-        <SubmitButton variant="quiet">{t.day.applyProfile}</SubmitButton>
-      </div>
+      {/* Applies as soon as it changes: one tap instead of two. */}
+      <SelectField
+        label={t.day.profileLabel}
+        name="profileId"
+        id="day-profile"
+        defaultValue={selected}
+        options={profiles.map((p) => ({ value: p.id, label: p.name }))}
+        onChange={(event) => event.currentTarget.form?.requestSubmit()}
+        disabled={pending}
+      />
       <p className="text-meta text-muted">{status}</p>
     </form>
   );
