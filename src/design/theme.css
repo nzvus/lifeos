@@ -64,10 +64,12 @@
      every p-/m-/gap- is a multiple of it) and --text-* (type scale). */
   --spacing: 0.25rem;
   /* Rules: the label's separators. Utilities below: rule-heavy, rule-t-heavy,
-     rule-b-medium… (border-N would hard-code the thickness in every file). */
-  --rule-heavy: 6px;
-  --rule-strong: 4px;
-  --rule-medium: 2px;
+     rule-b-medium… (border-N would hard-code the thickness in every file).
+     Halved on 2026-10-01 (6/4/2 px): on a phone the heavy bars dominated the
+     content; the label's hierarchy survives at 3/2/1. */
+  --rule-heavy: 3px;
+  --rule-strong: 2px;
+  --rule-medium: 1px;
   /* Corners of inputs and buttons (rounded-control) and of panels
      (rounded-surface). Square on the label. */
   --radius-control: 0rem;
