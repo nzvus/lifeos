@@ -7,7 +7,9 @@
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { addDays, isValidDay, todayIn } from "@/core/shared/dates";
+import { latestPreset, type PresetSet } from "@/core/training/presets";
 import { listRoutines } from "@/core/training/repositories/routines";
+import { listSessions } from "@/core/training/repositories/sessions";
 import {
   EMPTY_SET,
   SessionEditor,
@@ -24,42 +26,32 @@ export default async function NewSessionPage({ searchParams }: Props) {
   const params = await searchParams;
   const today = todayIn(settings.timezone);
   const day = params.day && isValidDay(params.day) ? params.day : today;
-  const [{ exercises, last, previous }, routines] = await Promise.all([
+  const [{ exercises, last }, routines, history] = await Promise.all([
     editorData(owner, addDays(day, -1), settings.locale, t.training),
     listRoutines(getDb(), owner),
+    listSessions(getDb(), owner, "2000-01-01", day),
   ]);
   const routine = routines.find((r) => r.id === params.routine);
-  const toSet = (v: {
-    reps: number | null;
-    loadKg: string | null;
-    loadText?: string | null;
-    loadApprox?: boolean;
-    durationS?: number | null;
-    speedKmh?: string | null;
-    inclinePct?: string | null;
-  }): EditorSet => ({
+  const toSet = (v: PresetSet): EditorSet => ({
     ...EMPTY_SET,
     reps: v.reps === null ? "" : String(v.reps),
     loadKg: v.loadKg === null ? "" : String(Number(v.loadKg)),
     loadText: v.loadText ?? "",
     loadApprox: v.loadApprox ?? false,
     minutes: v.durationS ? String(Math.round(v.durationS / 60)) : "",
+    km: v.distanceM ? String(v.distanceM / 1000) : "",
     speedKmh: v.speedKmh ? String(Number(v.speedKmh)) : "",
     inclinePct: v.inclinePct ? String(Number(v.inclinePct)) : "",
   });
-  const initialExercises = (routine?.items ?? []).map((it) => {
-    const before = previous.get(it.exerciseId)?.sets.filter((s) => !s.warmup);
-    return {
-      exerciseId: it.exerciseId,
-      restS: it.restS === null ? "" : String(it.restS),
-      notes: "",
-      sets: before?.length
-        ? before.map(toSet)
-        : Array.from({ length: it.sets }, () =>
-            toSet({ reps: it.reps, loadKg: it.loadKg, durationS: it.durationS }),
-          ),
-    };
-  });
+  const preset = routine
+    ? latestPreset<PresetSet>(routine, history, (it) => ({ ...it, warmup: false }))
+    : null;
+  const initialExercises = (preset?.exercises ?? []).map((e) => ({
+    exerciseId: e.exerciseId,
+    restS: e.restS === null ? "" : String(e.restS),
+    notes: "",
+    sets: e.sets.map(toSet),
+  }));
   return (
     <div className="flex max-w-page flex-col gap-8">
       <PageHeader
@@ -71,7 +63,7 @@ export default async function NewSessionPage({ searchParams }: Props) {
         exercises={exercises}
         last={last}
         initial={{
-          label: routine?.name ?? t.training.title,
+          label: preset?.label ?? t.training.title,
           day,
           status: day > today ? "planned" : "done",
           time: "",

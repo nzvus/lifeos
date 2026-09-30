@@ -1,7 +1,7 @@
 /**
  * core/training/display.ts — training numbers as short text, the same way
  * everywhere: a set is "10×40" (reps × kg), "×10" (bodyweight), "20 min"
- * (cardio, with speed/incline when known); a list of sets joins with " · ";
+ * (cardio, with distance, speed and incline when known); a list of sets joins with " · ";
  * repeated identical sets collapse ("3×10×40" = 3 sets of 10 at 40 kg),
  * as the developer writes them.
  */
@@ -14,6 +14,7 @@ type SetText = {
   loadApprox?: boolean;
   warmup?: boolean;
   durationS?: number | null;
+  distanceM?: number | null;
   speedKmh?: string | null;
   inclinePct?: string | null;
 };
@@ -21,6 +22,8 @@ type SetText = {
 export function setText(s: SetText, locale: Locale): string {
   if (s.durationS) {
     const parts = [`${Math.round(s.durationS / 60)} min`];
+    if (s.distanceM)
+      parts.push(`${formatNumber(String(s.distanceM / 1000), locale, 1)} km`);
     if (s.speedKmh) parts.push(`${formatNumber(s.speedKmh, locale, 1)} km/h`);
     if (s.inclinePct && Number(s.inclinePct) > 0)
       parts.push(`${formatNumber(s.inclinePct, locale, 0)}%`);

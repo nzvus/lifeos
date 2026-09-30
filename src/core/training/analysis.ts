@@ -14,7 +14,8 @@
  *                MET × body weight × hours; strength and bodyweight time at
  *                3.5–6 MET (Compendium of Physical Activities, resistance
  *                training light–vigorous); cardio from speed and incline
- *                with the ACSM walking/running equations, ±15 %
+ *                with the ACSM walking/running equations, ±15 %; outdoors,
+ *                the speed comes from distance ÷ time
  */
 import type { ExerciseKind } from "./kinds";
 
@@ -25,6 +26,7 @@ export type SetLike = {
   /** Part of the load is unknown (a bar): kept, but not in tonnage. */
   loadApprox?: boolean;
   durationS?: number | null;
+  distanceM?: number | null;
   speedKmh?: string | null;
   inclinePct?: string | null;
 };
@@ -126,9 +128,13 @@ export function burnRange(
       const min = (s.durationS ?? 0) / 60;
       if (min <= 0) continue;
       cardioMin += min;
-      const met = s.speedKmh
-        ? cardioMet(Number(s.speedKmh), Number(s.inclinePct ?? 0))
-        : null;
+      // Treadmill: the speed shown; outdoors: distance ÷ time.
+      const speed = s.speedKmh
+        ? Number(s.speedKmh)
+        : s.distanceM
+          ? s.distanceM / 1000 / (min / 60)
+          : null;
+      const met = speed ? cardioMet(speed, Number(s.inclinePct ?? 0)) : null;
       // Unknown speed: a broad walking-to-jogging band.
       low += (met ? met * 0.85 : 3.5) * kg * (min / 60);
       high += (met ? met * 1.15 : 7) * kg * (min / 60);

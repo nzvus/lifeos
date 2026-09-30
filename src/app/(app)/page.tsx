@@ -13,7 +13,6 @@
  * repositories (in parallel), formats numbers for display, and hands plain
  * data and server actions to feature components. No sums, no rules, no SQL.
  */
-import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { listIngredients } from "@/core/nutrition/repositories/ingredients";
@@ -38,7 +37,9 @@ import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { DayScore } from "@/features/nutrition/log/DayScore";
+import { PresetPicker } from "@/features/training/sessions/PresetPicker";
 import { SessionList } from "@/features/training/sessions/SessionList";
+import { presetTiles } from "./training/preset-tiles";
 import { listMeasurements } from "@/core/training/repositories/measurements";
 import { listSessions } from "@/core/training/repositories/sessions";
 import { Section } from "@/ui/Section";
@@ -79,6 +80,7 @@ export default async function DayPage({ searchParams }: Props) {
     week,
     sessions,
     measurements,
+    presets,
   ] = await Promise.all([
     getDay(db, owner, day),
     listMeals(db, owner),
@@ -89,6 +91,7 @@ export default async function DayPage({ searchParams }: Props) {
     getHistory(db, owner, monday, addDays(monday, 6)), // the shown day's week, for WeekStrip
     listSessions(db, owner, day, day), // ADR-0005: the day's training
     listMeasurements(db, owner), // body weight, for the burn estimate
+    presetTiles(owner, day), // start a session from a routine, at its latest version
   ]);
   // The day's own targets, plus recommended maxima where none is set
   // (sugars, saturated fat, salt — core/nutrition/targets.ts), unless the
@@ -147,12 +150,7 @@ export default async function DayPage({ searchParams }: Props) {
             t={t.training}
           />
         )}
-        <Link
-          href={`/training/new?day=${day}`}
-          className="self-start text-meta underline"
-        >
-          {t.training.planForDay}
-        </Link>
+        <PresetPicker presets={presets} day={day} t={t.training} />
       </Section>
       <DayScore
         score={dayScore({ totals: view.totals.nutrients, targets, quality: dayQuality })}
