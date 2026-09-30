@@ -105,7 +105,8 @@
 - [x] ADR-0005 accepted (delegated: typed sets, exercises as identities, planned/done sessions + routines, MET range + body measurements); migration 0008
 - [x] Core: validation per kind, repositories (exercises + merge, sessions, routines, measurements), analysis (tonnage matching the hand-made PUSH 1 = 4 722 kg, e1RM, records), burn range (ACSM + Compendium)
 - [x] Importers: FitForge sessions/presets/body metrics; PUSH/PULL text logs (`npm run import:training`, dry run, idempotent, aliases, day overrides); the parser reproduces every hand-made tonnage in the diet plan
-- [ ] UI: sessions on the day page, session editor, routines, progression charts
+- [x] UI: Training tab (recent sessions with tonnage, duration and burn range; start from a routine), session editor (fields per kind, last time shown, "add set" copies the row), sessions on the day page
+- [ ] UI: exercises page (records, e1RM over time, merge duplicates); routines editor; body weight entry
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

@@ -140,3 +140,26 @@ export function burnRange(
   if (low === 0 && high === 0) return null;
   return { low: Math.round(low), high: Math.round(high) };
 }
+
+/** A session's tonnage: Σ over its exercises (same rules as `tonnage`). */
+export function sessionTonnage(
+  exercises: readonly { sets: readonly SetLike[] }[],
+): number {
+  return exercises.reduce((sum, e) => sum + tonnage(e.sets), 0);
+}
+
+/**
+ * The weight to use on a day: the latest measurement on or before it, else
+ * the earliest one after it (better than no estimate), else null.
+ * `measurements` in any order; weights as exact strings.
+ */
+export function weightAt(
+  measurements: readonly { day: string; weightKg: string | null }[],
+  day: string,
+): string | null {
+  const known = measurements
+    .filter((m) => m.weightKg !== null)
+    .sort((a, b) => a.day.localeCompare(b.day));
+  const before = known.filter((m) => m.day <= day).at(-1);
+  return (before ?? known[0])?.weightKg ?? null;
+}

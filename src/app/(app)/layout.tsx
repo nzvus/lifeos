@@ -23,6 +23,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const { t, settings } = await requireContext();
   const links = [
     { href: "/", label: t.nav.today, icon: "today" },
+    { href: "/training", label: t.nav.training, icon: "training" },
     { href: "/meals", label: t.nav.meals, icon: "meals" },
     { href: "/ingredients", label: t.nav.ingredients, icon: "ingredients" },
     { href: "/profiles", label: t.nav.profiles, icon: "targets" },

@@ -18,6 +18,7 @@
 import {
   CalendarDays,
   Carrot,
+  Dumbbell,
   Settings,
   Target,
   UtensilsCrossed,
@@ -31,6 +32,7 @@ const ICONS = {
   meals: UtensilsCrossed,
   ingredients: Carrot,
   targets: Target,
+  training: Dumbbell,
   settings: Settings,
 } satisfies Record<string, LucideIcon>;
 

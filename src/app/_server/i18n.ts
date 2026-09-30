@@ -12,6 +12,7 @@ import type { ErrorCode } from "@/core/shared/result";
 import type { Locale } from "@/core/shared/locales";
 import type { Theme } from "@/core/shared/themes";
 import type { Moment } from "@/core/nutrition/moments";
+import type { ExerciseKind, SessionStatus } from "@/core/training/kinds";
 import type { FiberType, Nova, Origin, TagIcon } from "@/core/nutrition/quality";
 import type { NutrientKey } from "@/core/nutrition/nutrients";
 import { dictionaries, type Messages } from "@/i18n";
@@ -29,6 +30,8 @@ const _origins: Exact<Messages["quality"]["origins"], Origin> = true;
 const _fibers: Exact<Messages["quality"]["fiberNames"], FiberType> = true;
 const _fiberAbout: Exact<Messages["quality"]["fiberAbout"], FiberType> = true;
 const _tagIcons: Exact<Messages["quality"]["tagIcons"], TagIcon> = true;
+const _kinds: Exact<Messages["training"]["kinds"], ExerciseKind> = true;
+const _statuses: Exact<Messages["training"]["statuses"], SessionStatus> = true;
 void [
   _nutrients,
   _errors,
