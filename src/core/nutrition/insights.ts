@@ -6,7 +6,7 @@
  * All inputs are exact decimal strings or integer cents; results are rounded
  * once, for display (same rule as core/nutrition/totals.ts).
  */
-import { Big, toFixedDisplay } from "../shared/decimal";
+import { Big } from "../shared/decimal";
 
 /**
  * Energy per gram (EU Regulation 1169/2011, Annex XIV): protein and carbs
@@ -64,19 +64,6 @@ export function macroSplit(g: {
     sugars: pct(su),
     saturatedFat: pct(sa),
   };
-}
-
-/**
- * Grams of protein per 100 kcal: "how much protein do I get for the energy".
- * The number that ranks whey (~20) above almonds (~4). null for 0 kcal.
- */
-export function proteinPer100kcal(per100: {
-  kcal: string;
-  protein: string;
-}): string | null {
-  const kcal = new Big(per100.kcal);
-  if (kcal.eq(0)) return null;
-  return toFixedDisplay(new Big(per100.protein).div(kcal).times(100), 1);
 }
 
 /** Price of 1000 g/ml in cents from a package price, or null without a price. */
