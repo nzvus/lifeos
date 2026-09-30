@@ -16,7 +16,7 @@
  */
 import { z } from "zod";
 import { Big, parseDecimalInput } from "../shared/decimal";
-import { isValidDay, isValidTimeZone } from "../shared/dates";
+import { isValidDay, isValidTime, isValidTimeZone } from "../shared/dates";
 import { ERROR_CODES, type ErrorCode, type FieldErrors } from "../shared/result";
 import { INGREDIENT_UNITS } from "../db/schema/nutrition";
 import { NUTRIENT_KEYS, type NutrientKey } from "./nutrients";
@@ -119,11 +119,26 @@ export type MealInput = z.output<typeof mealInput>;
 
 const day = z.string().refine(isValidDay, "invalid_day");
 
-/** "I ate N servings of this meal on this day." */
+/** The "Planned" checkbox: browsers send "on" when ticked, nothing otherwise. */
+const planned = z
+  .string()
+  .optional()
+  .transform((v) => v === "on");
+/** Optional clock time "HH:MM"; empty = not given (ADR-0009). */
+const time = z
+  .string()
+  .optional()
+  .transform((v) => (v ?? "").trim())
+  .refine((v) => v === "" || isValidTime(v), "invalid_time")
+  .transform((v) => (v === "" ? null : v));
+
+/** "I ate (or plan to eat) N servings of this meal on this day." */
 export const logMealInput = z.object({
   day,
   mealId: id,
   servings: decimalString(SERVINGS),
+  planned,
+  time,
 });
 export type LogMealInput = z.output<typeof logMealInput>;
 
@@ -132,7 +147,39 @@ export const logIngredientInput = z.object({
   day,
   ingredientId: id,
   quantity: decimalString({ ...QUANTITY, positive: true }),
+  planned,
+  time,
 });
+
+/** Empty field -> "0": an estimate may leave some macros out. */
+const optionalZero = (opts: { scale: number; max: string }) =>
+  z
+    .string()
+    .optional()
+    .transform((raw) => (raw ?? "").trim() || "0")
+    .pipe(decimalString(opts));
+
+/**
+ * An "estimated meal" (ADR-0009): something eaten that can't be described
+ * with ingredients, with approximate totals typed by hand. Energy is
+ * required; the rest may be left empty (counted as 0). Cost in euros.
+ */
+export const estimateInput = z.object({
+  day,
+  label: name,
+  kcal: decimalString(NUTRIENT),
+  protein: optionalZero(NUTRIENT),
+  carbs: optionalZero(NUTRIENT),
+  fat: optionalZero(NUTRIENT),
+  fiber: optionalZero(NUTRIENT),
+  cost: optionalDecimalString({ scale: 2, max: "99999" }),
+  planned,
+  time,
+});
+export type EstimateInput = z.output<typeof estimateInput>;
+
+/** Editing an entry's time (the entry id is bound by the page). */
+export const entryTimeInput = z.object({ time });
 export type LogIngredientInput = z.output<typeof logIngredientInput>;
 
 /** Settings form: time zone and language (targets moved to profiles, ADR-0008). */

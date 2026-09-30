@@ -181,7 +181,7 @@ const config = [
         "error",
         {
           noStrings: false,
-          allowedStrings: ["‹", "›", "·", "—", "×", "(", ")", "/"],
+          allowedStrings: ["‹", "›", "·", "—", "×", "~", "(", ")", "/"],
           ignoreProps: true,
         },
       ],

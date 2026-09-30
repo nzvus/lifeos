@@ -46,3 +46,58 @@ export function isValidTimeZone(tz: string): boolean {
     return false;
   }
 }
+
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/** True for a clock time "HH:MM" (00:00–23:59). */
+export function isValidTime(s: string): boolean {
+  return TIME_RE.test(s);
+}
+
+/** Offset of `timeZone` from UTC at `instant`, in minutes (Rome summer: +120). */
+function offsetMinutes(timeZone: string, instant: Date): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).formatToParts(instant);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)!.value);
+  const asUtc = Date.UTC(
+    get("year"),
+    get("month") - 1,
+    get("day"),
+    get("hour"),
+    get("minute"),
+  );
+  return Math.round((asUtc - instant.getTime()) / 60000);
+}
+
+/**
+ * The instant at which the clock shows `time` on `day` in `timeZone`
+ * ("2026-09-29", "12:30", "Europe/Rome" -> 10:30 UTC). Done without a
+ * library: take the wall time as if it were UTC, subtract the zone's offset,
+ * then correct once more because the offset itself can differ on the other
+ * side of a daylight-saving change.
+ */
+export function instantFor(day: string, time: string, timeZone: string): Date {
+  const [y, m, d] = day.split("-").map(Number) as [number, number, number];
+  const [h, min] = time.split(":").map(Number) as [number, number];
+  const wall = Date.UTC(y, m - 1, d, h, min);
+  let guess = new Date(wall - offsetMinutes(timeZone, new Date(wall)) * 60000);
+  guess = new Date(wall - offsetMinutes(timeZone, guess) * 60000);
+  return guess;
+}
+
+/** The wall-clock time "HH:MM" of `instant` in `timeZone`. */
+export function timeIn(instant: Date, timeZone: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(instant);
+}

@@ -71,8 +71,7 @@
 - [x] MacroStrip: one colour-coded macro display everywhere; pickers also search notes
 - [x] One day panel (concentric rings + bars for all 8 nutrients) replaces ring + label; target kinds (min / max / target) with graded colours; auto maxima for sugars (EU RI), saturated fat and salt (WHO)
 - [x] Ingredient upsert by name (`upsert:ingredients`, field-level dry run): 4 labels photographed, prices from 2 Lidl receipts
-- [ ] Planned / eaten checkbox with time, estimated meals (ADR-0009)
-- [ ] Tags with icons (processing level, origin, fibre types, shop…) stacking into meals; meal ratings (ADR-0010)
+- [x] Planned / eaten checkbox with time (tick = now, editable; user's time zone), estimated meals, planned drawn translucent in rings and bars; "repeat yesterday" makes plans (ADR-0009, migration 0003)- [ ] Tags with icons (processing level, origin, fibre types, shop…) stacking into meals; meal ratings (ADR-0010)
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

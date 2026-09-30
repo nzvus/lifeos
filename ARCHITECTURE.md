@@ -75,10 +75,8 @@ app  →  features  →  core
 - `core/` never reads `process.env` or request state; `app/_server/` passes in
   what it needs (factories `createDb`, `createAuth`; an `Owner` per call).
 - `ui/` is presentation only: translated strings in, no domain types.
-- Local CLI scripts get an `Owner` from `core/identity/local-admin.ts` (by
-  email, no session): they already hold full DB credentials. The web app
-  (`app/`, `features/`) never imports that file.
-- Promotion into `ui/` follows the rule of three; the current `ui/` components
+- Local CLI scripts get an `Owner` by email (`core/identity/local-admin.ts`);
+  the web app never imports it.- Promotion into `ui/` follows the rule of three; the current `ui/` components
   each had 3+ users when written.
 
 ## Persistence & durability (ADR-0003, ADR-0007)
@@ -121,7 +119,9 @@ cannot poll URLs itself, so app health has daily granularity.
 - **Targets:** per day from `core/nutrition/repositories/profiles.ts`:
   fixed copy, else default profile (live), else none (ADR-0008).
   `user_settings.target_*` are deprecated and unread.
-- **Time:** days are `date` strings; "today" uses the user's time zone
+- **Log entries** (ADR-0009): planned or eaten, optional time `at`,
+  optionally an estimate; the day's totals are the EATEN ones.
+- **Time:** days are `date` strings;"today" uses the user's time zone
   (`user_settings.timezone`), never the server's UTC clock.
 - **Search & ordering:** one function, `core/shared/search.ts` (case- and
   accent-insensitive, every word must match, ranked by match quality then

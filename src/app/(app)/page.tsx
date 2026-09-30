@@ -39,10 +39,13 @@ import { ActionButtonForm } from "@/ui/ActionButtonForm";
 import {
   copyPreviousDayAction,
   deleteLogEntryAction,
+  logEstimateAction,
   logIngredientAction,
   logMealAction,
   refreshLogEntryAction,
   setDayProfileAction,
+  setEntryStatusAction,
+  setEntryTimeAction,
 } from "./actions";
 
 type Props = { searchParams: Promise<{ day?: string }> };
@@ -85,10 +88,17 @@ export default async function DayPage({ searchParams }: Props) {
       />
       <DayPanel
         totals={view.totals}
+        withPlanned={view.withPlanned}
         targets={targets}
         auto={auto}
         locale={locale}
-        t={{ label: t.label, nutrients: t.nutrients, macro: t.macro, panel: t.panel }}
+        t={{
+          label: t.label,
+          nutrients: t.nutrients,
+          macro: t.macro,
+          panel: t.panel,
+          day: t.day,
+        }}
       />
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="flex flex-col gap-8 lg:col-span-2">
@@ -97,6 +107,9 @@ export default async function DayPage({ searchParams }: Props) {
             locale={locale}
             removeAction={(id) => deleteLogEntryAction.bind(null, id)}
             refreshAction={(id) => refreshLogEntryAction.bind(null, id)}
+            statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
+            timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
+            timeZone={settings.timezone}
             t={t}
           />
           {view.entries.length === 0 && (
@@ -130,7 +143,7 @@ export default async function DayPage({ searchParams }: Props) {
             }))}
             logMealAction={logMealAction}
             logIngredientAction={logIngredientAction}
-            // Only the dictionary parts the client component uses travel to
+            logEstimateAction={logEstimateAction} // Only the dictionary parts the client component uses travel to
             // the browser (smaller page, faster load).
             t={{
               day: t.day,
@@ -139,6 +152,7 @@ export default async function DayPage({ searchParams }: Props) {
               search: t.search,
               macro: t.macro,
               ingredients: t.ingredients,
+              nutrients: t.nutrients,
             }}
           />
         </div>

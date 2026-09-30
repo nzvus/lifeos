@@ -135,7 +135,7 @@ export async function replaceWithExport(
         profileId: p.profileId ? (profileId.get(p.profileId) ?? null) : null,
       });
     }
-    for (const { items, createdAt, ...e } of data.log) {
+    for (const { items, createdAt, at, ...e } of data.log) {
       const [row] = await tx
         .insert(logEntries)
         .values({
@@ -143,6 +143,7 @@ export async function replaceWithExport(
           userId: u,
           mealId: e.mealId ? (mealId.get(e.mealId) ?? null) : null,
           createdAt: new Date(createdAt), // keeps the day's order as logged
+          at: at === null ? null : new Date(at),
         })
         .returning({ id: logEntries.id });
       if (items.length) {

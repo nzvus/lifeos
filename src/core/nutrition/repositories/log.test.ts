@@ -7,13 +7,18 @@ import type { Db } from "../../db/client";
 import type { Owner } from "../../identity/owner";
 import { createTestDb, createTestUser, ingredientFixture } from "../../testing/test-db";
 import { createIngredient, deleteIngredient, updateIngredient } from "./ingredients";
+import { getHistory } from "./history";
 import {
   copyDay,
   deleteLogEntry,
+  entryTiming,
   getDay,
+  logEstimate,
   logIngredient,
   logMeal,
   refreshLogEntry,
+  setEntryStatus,
+  setEntryTime,
 } from "./log";
 import { createMeal, deleteMeal, getMeal, listMeals, updateMeal } from "./meals";
 
@@ -167,7 +172,9 @@ describe("daily log", () => {
     });
     const copy = await getDay(db, alice, "2026-09-30");
     const original = await getDay(db, alice, day);
-    expect(copy.totals).toEqual(original.totals);
+    // The copy is a PLAN (ADR-0009): nothing eaten yet, the same food planned.
+    expect(copy.totals.nutrients.kcal).toBe("0.0");
+    expect(copy.withPlanned).toEqual(original.totals);
     expect(copy.entries.map((e) => [e.label, e.servings])).toEqual([
       ["Porridge", "1.50"],
       ["Oats", "1.00"],
@@ -206,5 +213,97 @@ describe("daily log", () => {
 
     // CROSS-USER: Bob can't refresh Alice's entry.
     expect((await refreshLogEntry(db, bob, entry!.id)).ok).toBe(false);
+  });
+
+  it("ADR-0009: planned entries count only in withPlanned; confirming sets the time", async () => {
+    const mealId = await porridge(); // 315.2 kcal per serving
+    await logMeal(db, alice, { day, mealId, servings: "1" }); // eaten (default)
+    const planned = await logMeal(db, alice, {
+      day,
+      mealId,
+      servings: "1",
+      status: "planned",
+      at: null,
+    });
+    if (!planned.ok) throw new Error("setup failed");
+
+    let view = await getDay(db, alice, day);
+    expect(view.totals.nutrients.kcal).toBe("315.2"); // eaten only
+    expect(view.planned.nutrients.kcal).toBe("315.2");
+    expect(view.withPlanned.nutrients.kcal).toBe("630.4");
+    expect(view.entries.find((e) => e.id === planned.value.id)).toMatchObject({
+      status: "planned",
+      at: null,
+    });
+
+    const tick = new Date("2026-09-29T11:15:00Z");
+    expect((await setEntryStatus(db, alice, planned.value.id, "eaten", tick)).ok).toBe(
+      true,
+    );
+    view = await getDay(db, alice, day);
+    expect(view.totals.nutrients.kcal).toBe("630.4");
+    expect(view.entries.find((e) => e.id === planned.value.id)?.at).toBe(
+      tick.toISOString(),
+    );
+
+    // The time stays editable.
+    await setEntryTime(db, alice, planned.value.id, new Date("2026-09-29T10:00:00Z"));
+    expect(
+      (await getDay(db, alice, day)).entries.find((e) => e.id === planned.value.id)?.at,
+    ).toBe("2026-09-29T10:00:00.000Z");
+
+    // CROSS-USER: Bob can neither tick nor move Alice's entry.
+    expect((await setEntryStatus(db, bob, planned.value.id, "planned")).ok).toBe(false);
+    expect((await setEntryTime(db, bob, planned.value.id, null)).ok).toBe(false);
+  });
+
+  it("entryTiming: eaten without time = now, planned without time = none, time in the user's zone", () => {
+    const now = new Date("2026-09-29T08:00:00Z");
+    expect(entryTiming(day, false, null, "Europe/Rome", now)).toEqual({
+      status: "eaten",
+      at: now,
+    });
+    expect(entryTiming(day, true, null, "Europe/Rome", now)).toEqual({
+      status: "planned",
+      at: null,
+    });
+    expect(entryTiming(day, true, "13:00", "Europe/Rome", now).at?.toISOString()).toBe(
+      "2026-09-29T11:00:00.000Z",
+    );
+  });
+
+  it("estimated meal: typed totals and cost add up exactly; copyDay makes plans", async () => {
+    const est = await logEstimate(db, alice, {
+      day,
+      label: "Pizza da amici",
+      kcal: "850",
+      protein: "35",
+      carbs: "95",
+      fat: "32",
+      fiber: "0",
+      cost: "8.50",
+    });
+    if (!est.ok) throw new Error("setup failed");
+    const view = await getDay(db, alice, day);
+    expect(view.entries[0]).toMatchObject({ label: "Pizza da amici", estimated: true });
+    expect(view.totals.nutrients).toMatchObject({
+      kcal: "850.0",
+      protein: "35.0",
+      fat: "32.0",
+    });
+    expect(view.totals).toMatchObject({ costCents: 850, costComplete: true });
+
+    await copyDay(db, alice, day, "2026-09-30");
+    const copy = await getDay(db, alice, "2026-09-30");
+    expect(copy.entries[0]).toMatchObject({
+      status: "planned",
+      at: null,
+      estimated: true,
+    });
+    expect(copy.totals.nutrients.kcal).toBe("0.0"); // nothing EATEN yet
+    expect(copy.withPlanned.nutrients.kcal).toBe("850.0");
+    // The 7-day history counts only eaten food.
+    const h = await getHistory(db, alice, "2026-09-29", "2026-09-30");
+    expect(h.map((d) => d.totals.nutrients.kcal)).toEqual(["850.0", "0.0"]);
   });
 });
