@@ -247,6 +247,8 @@ export const it: Messages = {
     withinTarget: "entro l'obiettivo",
     overTarget: "oltre l'obiettivo",
     targetLine: "obiettivo",
+    underTarget: "sotto l'obiettivo: colore del nutriente, più chiaro = più lontano",
+    shownDay: "giorno mostrato",
     ingredientMix: "Composizione energetica",
   },
   panel: {

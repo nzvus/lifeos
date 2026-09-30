@@ -250,6 +250,8 @@ export const en = {
     withinTarget: "within target",
     overTarget: "over target",
     targetLine: "target",
+    underTarget: "under target: the nutrient's colour, fainter = further away",
+    shownDay: "day shown",
     ingredientMix: "Energy mix",
   },
   panel: {
