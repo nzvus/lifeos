@@ -6,6 +6,7 @@ import {
   cardioMet,
   change,
   e1rm,
+  exerciseHistory,
   records,
   sessionTonnage,
   tonnage,
@@ -139,5 +140,37 @@ describe("session helpers", () => {
     expect(weightAt(m, "2026-06-10")).toBe("76.00");
     expect(weightAt(m, "2026-01-01")).toBe("76.00");
     expect(weightAt([], "2026-01-01")).toBeNull();
+  });
+});
+
+describe("exerciseHistory", () => {
+  it("follows one exercise through done sessions, oldest first", () => {
+    const h = exerciseHistory(
+      [
+        {
+          id: "b",
+          day: "2026-09-23",
+          status: "done",
+          exercises: [{ exerciseId: "chest", sets: [s(10, 60)] }],
+        },
+        {
+          id: "a",
+          day: "2026-09-11",
+          status: "done",
+          exercises: [{ exerciseId: "chest", sets: [s(12, 45)] }],
+        },
+        {
+          id: "c",
+          day: "2026-10-01",
+          status: "planned",
+          exercises: [{ exerciseId: "chest", sets: [s(10, 65)] }],
+        },
+      ],
+      "chest",
+    );
+    expect(h.map((p) => [p.day, Math.round(p.bestE1rm!), p.tonnage])).toEqual([
+      ["2026-09-11", 63, 540],
+      ["2026-09-23", 80, 600],
+    ]);
   });
 });
