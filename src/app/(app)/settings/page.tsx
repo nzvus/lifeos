@@ -63,7 +63,7 @@ export default async function SettingsPage() {
         <FactorList
           factors={factors}
           createAction={createFactorAction}
-          deleteAction={(id) => deleteFactorAction.bind(null, id)}
+          deleteAction={deleteFactorAction}
           t={{ ratings: t.ratings, errors: t.errors }}
         />
       </Section>
