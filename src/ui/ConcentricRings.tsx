@@ -21,8 +21,9 @@ export type RingSpec = {
 type Props = { rings: RingSpec[]; size?: number; label: string; children?: ReactNode };
 
 export function ConcentricRings({ rings, size = 200, label, children }: Props) {
-  const stroke = 11;
-  const gap = 3;
+  // Thin enough that five rings leave a centre wide enough for the label.
+  const stroke = 9;
+  const gap = 2;
   const c = size / 2;
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>

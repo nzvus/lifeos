@@ -235,7 +235,7 @@ export const en = {
     fat: "F",
     splitTitle: "Energy from protein · carbs · fat",
     density: "P/100 kcal",
-    perKg: "€/kg",
+    perKg: "/kg",
     ingredientsCount: "{n} ingredients",
   },
   glance: {
