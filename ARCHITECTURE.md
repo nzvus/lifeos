@@ -86,8 +86,8 @@ app  →  features  →  core
 Schema: `core/db/schema/{auth,nutrition}.ts`. Change path: edit schema →
 `npm run db:generate` → read the SQL in `drizzle/` → commit → PR preview
 applies it to its own Neon branch (`scripts/vercel-build.mjs`, only when
-`PREVIEW_DB_IS_BRANCH=true`) → merge → run `migrate.yml` (backup, then
-migrate). `drizzle-kit push` only against throwaway local databases.
+`PREVIEW_DB_IS_BRANCH=true`) → run `migrate.yml` on the PR branch (backup,
+then migrate) → label `production-migrated` (CI gate) → merge. No `drizzle-kit push`.
 Additive-first changes, because deploy and migrate are separate acts.
 
 Backups: `backup.yml` daily → `scripts/backup.sh` (pg_dump -Fc, verified with
