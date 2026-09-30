@@ -6,7 +6,10 @@
 import { requireContext } from "@/app/_server/owner";
 import { PageHeader } from "@/ui/PageHeader";
 import { getDb } from "@/app/_server/runtime";
-import { listIngredients } from "@/core/nutrition/repositories/ingredients";
+import {
+  listIngredients,
+  tagsByIngredient,
+} from "@/core/nutrition/repositories/ingredients";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, todayIn } from "@/core/shared/dates";
 import { IngredientBrowser } from "@/features/nutrition/ingredients/IngredientBrowser";
@@ -14,9 +17,10 @@ import { IngredientBrowser } from "@/features/nutrition/ingredients/IngredientBr
 export default async function IngredientsPage() {
   const { owner, settings, t } = await requireContext();
   const db = getDb();
-  const [ingredients, usage] = await Promise.all([
+  const [ingredients, usage, tagMap] = await Promise.all([
     listIngredients(db, owner),
     getUsage(db, owner, addDays(todayIn(settings.timezone), -USAGE_WINDOW_DAYS)),
+    tagsByIngredient(db, owner),
   ]);
   return (
     <>
@@ -39,6 +43,10 @@ export default async function IngredientsPage() {
           saturatedFat: i.saturatedFat,
           fiber: i.fiber,
           salt: i.salt,
+          nova: i.nova,
+          origin: i.origin,
+          fiberTypes: i.fiberTypes,
+          tags: (tagMap.get(i.id) ?? []).map(({ name, icon }) => ({ name, icon })),
           packagePriceCents: i.packagePriceCents,
           packageSize: i.packageSize,
         }))}
@@ -54,6 +62,7 @@ export default async function IngredientsPage() {
           search: t.search,
           macro: t.macro,
           macroShort: t.macroShort,
+          quality: t.quality,
         }}
       />
     </>

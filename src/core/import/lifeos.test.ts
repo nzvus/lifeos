@@ -48,11 +48,14 @@ function comparable(e: Awaited<ReturnType<typeof exportUserData>>) {
 }
 
 async function seed(owner: Owner) {
-  const oats = await createIngredient(
-    db,
-    owner,
-    ingredientFixture({ description: "Lidl" }),
-  );
+  const oats = await createIngredient(db, owner, {
+    ...ingredientFixture({ description: "Lidl" }),
+    // ADR-0012: survive the round trip, in the ingredient and the snapshot.
+    nova: 1,
+    origin: "plant",
+    fiberTypes: ["beta_glucan"],
+    tags: [{ name: "Bio", icon: "leaf" }],
+  });
   if (!oats.ok) throw new Error("setup failed");
   const meal = await createMeal(db, owner, {
     name: "Porridge",

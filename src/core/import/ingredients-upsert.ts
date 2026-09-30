@@ -26,7 +26,7 @@ import {
   listIngredients,
   updateIngredient,
 } from "../nutrition/repositories/ingredients";
-import type { IngredientInput } from "../nutrition/validation";
+import type { IngredientWrite } from "../nutrition/repositories/ingredients";
 import { ingredientRow } from "./lifeos";
 
 const upsertFile = z.object({
@@ -112,7 +112,8 @@ export async function applyUpsert(
 ): Promise<{ name: string; errors: FieldErrors }[]> {
   const failed: { name: string; errors: FieldErrors }[] = [];
   for (const p of plan) {
-    const input: IngredientInput = { ...p.row };
+    // Quality attributes and tags are not in the upsert file: left as they are.
+    const input: IngredientWrite = { ...p.row };
     if (p.action === "same") continue;
     const r =
       p.action === "create"

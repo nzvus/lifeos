@@ -31,10 +31,11 @@ import { macroBars } from "@/core/nutrition/display";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
-import { fill, type Messages } from "@/i18n";
+import { fill, qualityLabels, type Messages } from "@/i18n";
 import { FoodCardMeta } from "@/ui/FoodCardMeta";
 import { ListItem } from "@/ui/ListItem";
 import { MacroBars } from "@/ui/MacroBars";
+import { QualityBadges } from "@/ui/QualityIcons";
 import { ListToolbar } from "@/ui/ListToolbar";
 import { SortNote } from "@/ui/SortNote";
 import { useListControls } from "@/ui/useListControls";
@@ -55,6 +56,11 @@ export type IngredientRow = {
   salt: string;
   packagePriceCents: number | null;
   packageSize: string | null;
+  /** ADR-0012 */
+  nova: number | null;
+  origin: string | null;
+  fiberTypes: string[];
+  tags: { name: string; icon: string }[];
 };
 
 type Props = {
@@ -63,7 +69,10 @@ type Props = {
   locale: Locale;
   /** The sort the list opens with (preferences). */
   initialSort: { sort: SortKey; per: Per };
-  t: Pick<Messages, "ingredients" | "nutrients" | "search" | "macro" | "macroShort">;
+  t: Pick<
+    Messages,
+    "ingredients" | "nutrients" | "search" | "macro" | "macroShort" | "quality"
+  >;
 };
 
 export function IngredientBrowser({ ingredients, usage, locale, initialSort, t }: Props) {
@@ -108,7 +117,8 @@ export function IngredientBrowser({ ingredients, usage, locale, initialSort, t }
       browseFoods(rows, {
         query: list.query,
         describe: (r) => ({
-          text: `${r.name} ${r.description}`,
+          // Tags are searchable too: "lidl" finds everything tagged Lidl.
+          text: `${r.name} ${r.description} ${r.tags.map((t) => t.name).join(" ")}`,
           name: r.name,
           uses: r.uses,
           lastUsed: r.lastUsed,
@@ -166,6 +176,13 @@ export function IngredientBrowser({ ingredients, usage, locale, initialSort, t }
               }
             />
             <MacroBars rows={macroBars(r, locale)} labels={t.macroShort} unit="g" />
+            <QualityBadges
+              nova={r.nova}
+              origin={r.origin}
+              fiberTypes={r.fiberTypes}
+              tags={r.tags}
+              labels={qualityLabels(t)}
+            />
             <SortNote
               value={sortNote(r.metrics, list.sort, list.per, locale)}
               sort={list.sort}

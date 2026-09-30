@@ -23,6 +23,7 @@ import {
   type TotalsLine,
 } from "../totals";
 import type { Moment } from "../moments";
+import { qualityOf, type Quality } from "../quality";
 import type { EstimateInput, LogIngredientInput, LogMealInput } from "../validation";
 import type { EntryStatus } from "../../db/schema";
 import { instantFor } from "../../shared/dates";
@@ -36,6 +37,8 @@ export type LoggedLine = TotalsLine & {
   unit: Ingredient["unit"];
   /** Link to the current ingredient; null if it was deleted since. */
   ingredientId: string | null;
+  /** ADR-0012: quality attributes as they were when logged (snapshot). */
+  quality: Quality;
 };
 
 export type LogEntryView = {
@@ -99,6 +102,7 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
       per100: per100Of(it),
       packagePriceCents: it.packagePriceCents,
       packageSize: it.packageSize,
+      quality: qualityOf(it),
     });
     linesByEntry.set(it.entryId, list);
   }
@@ -163,6 +167,7 @@ export async function logMeal(
         unit: line.unit,
         quantity: line.quantity,
         ...line.per100, // the COPY: kcal, protein, ... as they are right now
+        ...line.quality, // and NOVA, origin, fibre types (ADR-0012)
         packagePriceCents: line.packagePriceCents,
         packageSize: line.packageSize,
         position,
@@ -209,6 +214,7 @@ export async function logIngredient(
       ...per100Of(ing),
       packagePriceCents: ing.packagePriceCents,
       packageSize: ing.packageSize,
+      ...qualityOf(ing),
       position: 0,
     });
     return entry!.id;
@@ -278,6 +284,7 @@ export async function copyDay(
           ...l.per100,
           packagePriceCents: l.packagePriceCents,
           packageSize: l.packageSize,
+          ...l.quality,
           position,
         })),
       );
@@ -323,6 +330,7 @@ export async function refreshLogEntry(
       ...l.per100,
       packagePriceCents: l.packagePriceCents,
       packageSize: l.packageSize,
+      ...l.quality,
     }));
   } else {
     const only = oldItems.length === 1 ? oldItems[0]! : null;
@@ -340,6 +348,7 @@ export async function refreshLogEntry(
         ...per100Of(ing),
         packagePriceCents: ing.packagePriceCents,
         packageSize: ing.packageSize,
+        ...qualityOf(ing),
       },
     ];
   }

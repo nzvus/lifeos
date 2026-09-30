@@ -265,6 +265,67 @@ export const en = {
     },
     sortValue: "{what}: {v}",
   },
+  quality: {
+    title: "Quality and tags",
+    nova: "Processing (NOVA)",
+    novaNone: "— not classified",
+    novaShort: "NOVA {n}",
+    novaNames: {
+      1: "1 · unprocessed or minimally processed",
+      2: "2 · culinary ingredient (oil, butter, sugar, salt)",
+      3: "3 · processed (preserves, cheese, bread)",
+      4: "4 · ultra-processed",
+    },
+    origin: "Origin",
+    originNone: "— not set",
+    origins: { plant: "Plant", animal: "Animal", mixed: "Mixed" },
+    fiberTypes: "Main fibre types",
+    fiberNames: {
+      inulin_fos: "Inulin / FOS",
+      beta_glucan: "Beta-glucans",
+      resistant_starch: "Resistant starch",
+      pectin: "Pectins",
+      psyllium: "Psyllium / mucilages",
+      insoluble: "Insoluble (cellulose, bran)",
+      gos: "GOS",
+    },
+    fiberAbout: {
+      inulin_fos:
+        "Chicory, onion, garlic, leeks, Jerusalem artichoke. Fermented mainly by bifidobacteria.",
+      beta_glucan:
+        "Oats, barley, mushrooms. Soluble and viscous; associated with Bacteroides and propionate production.",
+      resistant_starch:
+        "Legumes, potatoes and rice cooked then cooled, green bananas. Associated with Ruminococcus bromii and butyrate.",
+      pectin:
+        "Apples, citrus, berries, carrots. Fermented by Bacteroides and Faecalibacterium.",
+      psyllium:
+        "Psyllium, flax and chia seeds. Gel-forming and little fermented: mostly bulk and regularity.",
+      insoluble: "Bran, whole grains, skins. Little fermented: adds bulk.",
+      gos: "Legumes, milk. Fermented mainly by bifidobacteria.",
+    },
+    fiberNote:
+      "Indicative descriptions: associations reported in the literature, not health promises.",
+    tags: "Tags",
+    tagsHint: "Free labels (shop, organic, favourite…): descriptive only.",
+    tagName: "New tag",
+    tagIcon: "Icon",
+    addTag: "Add",
+    removeTag: "Remove the tag {name}",
+    tagIcons: {
+      tag: "Label",
+      store: "Shop",
+      "shopping-cart": "Cart",
+      leaf: "Leaf",
+      sprout: "Sprout",
+      star: "Star",
+      heart: "Heart",
+      flame: "Flame",
+      snowflake: "Frozen",
+      package: "Package",
+      "wheat-off": "Gluten-free",
+      "milk-off": "Lactose-free",
+    },
+  },
   preferences: {
     title: "Preferences",
     autoTargets: "Automatic recommended limits",

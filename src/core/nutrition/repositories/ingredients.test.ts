@@ -14,9 +14,12 @@ import {
   deleteIngredient,
   getIngredient,
   listIngredients,
+  listTags,
+  tagsByIngredient,
   updateIngredient,
 } from "./ingredients";
 import { createMeal } from "./meals";
+import { getDay, logIngredient } from "./log";
 
 let db: Db;
 let close: () => Promise<void>;
@@ -84,5 +87,70 @@ describe("ingredients repository", () => {
 
     // The same name is fine for another user (uniqueness is per user).
     expect((await createIngredient(db, bob, ingredientFixture())).ok).toBe(true);
+  });
+});
+
+describe("quality attributes and free tags (ADR-0012)", () => {
+  it("saves them; update keeps tags when not given and replaces them when given", async () => {
+    const r = await createIngredient(db, alice, {
+      ...ingredientFixture({ name: "Avena" }),
+      nova: 1,
+      origin: "plant",
+      fiberTypes: ["beta_glucan"],
+      tags: [
+        { name: "Lidl", icon: "store" },
+        { name: "Bio", icon: "leaf" },
+      ],
+    });
+    if (!r.ok) throw new Error("setup failed");
+    expect([r.value.nova, r.value.origin, r.value.fiberTypes]).toEqual([
+      1,
+      "plant",
+      ["beta_glucan"],
+    ]);
+    const names = async () =>
+      ((await tagsByIngredient(db, alice)).get(r.value.id) ?? []).map((t) => t.name);
+    expect(await names()).toEqual(["Bio", "Lidl"]);
+
+    await updateIngredient(db, alice, r.value.id, ingredientFixture({ name: "Avena" }));
+    expect(await names()).toEqual(["Bio", "Lidl"]); // not given: kept
+
+    await updateIngredient(db, alice, r.value.id, {
+      ...ingredientFixture({ name: "Avena" }),
+      tags: [{ name: "Lidl", icon: "shopping-cart" }],
+    });
+    expect(await names()).toEqual(["Lidl"]);
+    expect((await listTags(db, alice)).find((t) => t.name === "Lidl")?.icon).toBe(
+      "shopping-cart",
+    );
+
+    // CROSS-USER: bob sees none of alice's tags.
+    expect(await listTags(db, bob)).toEqual([]);
+    expect((await tagsByIngredient(db, bob)).size).toBe(0);
+  });
+
+  it("copies the attributes into the log snapshot; reclassifying later changes no past day", async () => {
+    const r = await createIngredient(db, alice, {
+      ...ingredientFixture({ name: "Biscotti" }),
+      nova: 4,
+      origin: "mixed",
+      fiberTypes: [],
+    });
+    if (!r.ok) throw new Error("setup failed");
+    await logIngredient(db, alice, {
+      day: "2026-09-30",
+      ingredientId: r.value.id,
+      quantity: "30",
+    });
+    await updateIngredient(db, alice, r.value.id, {
+      ...ingredientFixture({ name: "Biscotti" }),
+      nova: 3,
+    });
+    const day = await getDay(db, alice, "2026-09-30");
+    expect(day.entries[0]!.lines[0]!.quality).toEqual({
+      nova: 4,
+      origin: "mixed",
+      fiberTypes: [],
+    });
   });
 });

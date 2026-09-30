@@ -23,6 +23,14 @@ import { NUTRIENT_KEYS, type NutrientKey } from "./nutrients";
 import { LOCALES } from "../shared/locales";
 import { THEMES } from "../shared/themes";
 import { PER, SORTS } from "./metrics";
+import {
+  isFiberType,
+  isOrigin,
+  TAG_ICONS,
+  type FiberType,
+  type Nova,
+  type Origin,
+} from "./quality";
 import { isMoment, minutesOf, type Moment } from "./moments";
 import type { TrendRange } from "./preferences";
 
@@ -77,6 +85,61 @@ function perNutrient<S extends z.ZodType>(make: () => S): Record<NutrientKey, S>
  * An ingredient form. Price is typed in euros ("1,89"); it is converted to
  * integer cents here, the only place that knows about that conversion.
  */
+/** Empty = not classified; else one of the closed list (ADR-0012). */
+const optionalNova = z
+  .string()
+  .optional()
+  .transform((v) => (v ?? "").trim())
+  .refine((v) => v === "" || ["1", "2", "3", "4"].includes(v), "invalid_choice")
+  .transform((v) => (v === "" ? null : (Number(v) as Nova)));
+const optionalOrigin = z
+  .string()
+  .optional()
+  .transform((v) => (v ?? "").trim())
+  .refine((v) => v === "" || isOrigin(v), "invalid_choice")
+  .transform((v) => (v === "" ? null : (v as Origin)));
+/** Comma-separated fibre types ("inulin_fos,pectin"), each from the list. */
+const fiberTypesField = z
+  .string()
+  .optional()
+  .transform((v) => [
+    ...new Set(
+      (v ?? "")
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean),
+    ),
+  ])
+  .refine((xs) => xs.every(isFiberType), "invalid_choice")
+  .transform((xs) => xs as FiberType[]);
+/**
+ * Free tags as JSON ([{"name":"Lidl","icon":"store"}]), sent by the editor
+ * in a hidden field. Absent = leave the ingredient's tags as they are.
+ */
+const tagsField = z
+  .string()
+  .optional()
+  .transform((raw, ctx) => {
+    if (raw === undefined) return undefined;
+    try {
+      return JSON.parse(raw) as unknown;
+    } catch {
+      ctx.addIssue({ code: "custom", message: "invalid_choice" });
+      return z.NEVER;
+    }
+  })
+  .pipe(
+    z
+      .array(
+        z.object({
+          name: z.string().trim().min(1, "required").max(40, "too_long"),
+          icon: z.enum(TAG_ICONS, "invalid_choice"),
+        }),
+      )
+      .max(20, "too_long")
+      .optional(),
+  );
+
 export const ingredientInput = z
   .object({
     name,
@@ -85,6 +148,11 @@ export const ingredientInput = z
     ...perNutrient(() => decimalString(NUTRIENT)),
     packagePrice: optionalDecimalString({ scale: 2, max: "99999" }),
     packageSize: optionalDecimalString(QUANTITY),
+    // ADR-0012: quality attributes and free tags.
+    nova: optionalNova,
+    origin: optionalOrigin,
+    fiberTypes: fiberTypesField,
+    tags: tagsField,
   })
   .transform((v, ctx) => {
     // Price needs both parts: "1.89 €" alone doesn't say for how much.
@@ -292,6 +360,9 @@ export function ingredientFormValues(
     unit: string;
     packagePriceCents: number | null;
     packageSize: string | null;
+    nova?: number | null;
+    origin?: string | null;
+    fiberTypes?: readonly string[];
   } & Record<NutrientKey, string>,
 ): Record<string, string> {
   const values: Record<string, string> = {
@@ -303,6 +374,10 @@ export function ingredientFormValues(
         ? ""
         : new Big(row.packagePriceCents).div(100).toString(),
     packageSize: row.packageSize === null ? "" : new Big(row.packageSize).toString(),
+    // ADR-0012: "" = not classified.
+    nova: row.nova == null ? "" : String(row.nova),
+    origin: row.origin ?? "",
+    fiberTypes: (row.fiberTypes ?? []).join(","),
   };
   for (const k of NUTRIENT_KEYS) values[k] = new Big(row[k]).toString();
   return values;

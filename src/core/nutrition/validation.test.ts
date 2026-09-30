@@ -93,3 +93,62 @@ describe("mealInput / logMealInput", () => {
     });
   });
 });
+
+describe("ingredient quality fields (ADR-0012)", () => {
+  const base = {
+    name: "X",
+    description: "",
+    unit: "g",
+    kcal: "1",
+    protein: "0",
+    carbs: "0",
+    sugars: "0",
+    fat: "0",
+    saturatedFat: "0",
+    fiber: "0",
+    salt: "0",
+    packagePrice: "",
+    packageSize: "",
+  };
+
+  it("parses NOVA, origin, fibre types and tags; empty = not classified", () => {
+    const r = parseInput(ingredientInput, {
+      ...base,
+      nova: "2",
+      origin: "plant",
+      fiberTypes: "pectin, inulin_fos,pectin",
+      tags: JSON.stringify([{ name: " Lidl ", icon: "store" }]),
+    });
+    expect(
+      r.ok && [r.value.nova, r.value.origin, r.value.fiberTypes, r.value.tags],
+    ).toEqual([2, "plant", ["pectin", "inulin_fos"], [{ name: "Lidl", icon: "store" }]]);
+    const empty = parseInput(ingredientInput, {
+      ...base,
+      nova: "",
+      origin: "",
+      fiberTypes: "",
+    });
+    expect(
+      empty.ok && [
+        empty.value.nova,
+        empty.value.origin,
+        empty.value.fiberTypes,
+        empty.value.tags,
+      ],
+    ).toEqual([null, null, [], undefined]);
+  });
+
+  it("rejects values outside the closed lists", () => {
+    const r = parseInput(ingredientInput, {
+      ...base,
+      nova: "5",
+      origin: "mineral",
+      fiberTypes: "magic",
+    });
+    expect(r.ok ? {} : r.errors).toEqual({
+      nova: "invalid_choice",
+      origin: "invalid_choice",
+      fiberTypes: "invalid_choice",
+    });
+  });
+});
