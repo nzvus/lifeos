@@ -107,7 +107,17 @@
 - [x] Importers: FitForge sessions/presets/body metrics; PUSH/PULL text logs (`npm run import:training`, dry run, idempotent, aliases, day overrides); the parser reproduces every hand-made tonnage in the diet plan
 - [x] UI: Training tab (recent sessions with tonnage, duration and burn range; start from a routine), session editor (fields per kind, last time shown, "add set" copies the row), sessions on the day page
 - [x] UI: exercises (records, e1RM progression chart, history, edit, merge duplicates, delete when unused), routines editor, body weight entry
-- [ ] Import the real history into production (after the developer confirms aliases and the dates of the "pre" sessions)
+- [x] Real history imported into production (2026-10-01): 21 exercises, 14 sessions, 4 routines; bare-rep lines keep the load above, the dry run validates sets (#54)
+
+## Next sprint: S07 — Training you can use at the gym, and a design pass (started 2026-10-01)
+- **Goal:** training as progress (routines, exercises, muscle groups, overall stats) and a fast live logger; the whole app with calmer spacing and widgets that use their full width; Targets with grouped macro bars and training data.
+- [x] ADR-0013 accepted (delegated: products → ingredients, stock derived from purchases − eaten ± counts); implementation after S07
+- [ ] Design pass: spacing/size/rule tokens per theme revisited; one `Stat`/widget convention (label ↔ value spread across the width, centred numbers in tiles); applied to day panel, cards, sections
+- [ ] Muscle groups: fixed list with a colour per group in every theme; a movement-pattern icon per exercise (own SVG set); the 21 exercises classified; chips in the exercise editor
+- [ ] Training page as progress: this week (sessions, sets per muscle group vs a 10–20 range, tonnage, burn), routines (tonnage per run), exercises (e1RM trend + change), compact session cards coloured by muscle group
+- [ ] Live session mode: start from a routine, big steppers prefilled from last time, tick a set, rest timer, saves as you go
+- [ ] Targets: macros per day as grouped bars (side by side, macro colours); training per day (tonnage, burn) next to intake
+- [ ] Developer review on phone of everything above
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
