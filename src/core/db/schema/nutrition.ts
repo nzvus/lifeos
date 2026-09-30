@@ -33,6 +33,7 @@
  */
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   boolean,
   check,
   date,
@@ -49,6 +50,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import type { Moment } from "../../nutrition/moments";
+import type { FiberType, Nova, Origin } from "../../nutrition/quality";
 import type { NutrientKey } from "../../nutrition/nutrients";
 import { user } from "./auth";
 
@@ -113,6 +115,31 @@ export const INGREDIENT_UNITS = ["g", "ml"] as const;
 export type IngredientUnit = (typeof INGREDIENT_UNITS)[number];
 
 /**
+ * The typed quality attributes (ADR-0012), on ingredients and copied into
+ * each log line's snapshot. Unclassified = null / empty.
+ */
+const qualityColumns = () => ({
+  nova: integer("nova").$type<Nova>(),
+  origin: text("origin").$type<Origin>(),
+  fiberTypes: text("fiber_types")
+    .array()
+    .$type<FiberType[]>()
+    .notNull()
+    .default(sql`'{}'::text[]`),
+});
+const qualityChecks = (
+  table: string,
+  t: { nova: AnyPgColumn; origin: AnyPgColumn; fiberTypes: AnyPgColumn },
+) => [
+  check(`${table}_nova_ck`, sql`${t.nova} between 1 and 4`),
+  check(`${table}_origin_ck`, sql`${t.origin} in ('plant', 'animal', 'mixed')`),
+  check(
+    `${table}_fiber_types_ck`,
+    sql`${t.fiberTypes} <@ array['inulin_fos', 'beta_glucan', 'resistant_starch', 'pectin', 'psyllium', 'insoluble', 'gos']::text[]`,
+  ),
+];
+
+/**
  * An ingredient as on its label: nutrients per 100 g/ml, optional price.
  * Price is stored as the thing you actually pay: a package price in cents and
  * the package size (e.g. 189 cents for 500 g). Price per gram is derived.
@@ -128,6 +155,7 @@ export const ingredients = pgTable(
     ...nutrientColumns(), // spreads kcal, protein, ... into this table
     packagePriceCents: integer("package_price_cents"),
     packageSize: numeric("package_size", { precision: 10, scale: 2, mode: "string" }),
+    ...qualityColumns(), // ADR-0012
     createdAt: tstz("created_at").defaultNow().notNull(),
     updatedAt: tstz("updated_at")
       .defaultNow()
@@ -145,6 +173,7 @@ export const ingredients = pgTable(
       "ingredients_price_pair_ck",
       sql`(${t.packagePriceCents} is null) = (${t.packageSize} is null)`,
     ),
+    ...qualityChecks("ingredients", t),
   ],
 );
 
@@ -156,6 +185,8 @@ export const meals = pgTable(
     userId: ownerColumn(),
     name: text("name").notNull(),
     notes: text("notes").notNull().default(""),
+    // ADR-0012: the user's notes on the meal, next to its ratings.
+    review: text("review").notNull().default(""),
     // ADR-0011: optional category, only a hint for the moment of new entries.
     category: text("category").$type<Moment>(),
     createdAt: tstz("created_at").defaultNow().notNull(),
@@ -271,6 +302,7 @@ export const logEntryItems = pgTable(
     ...nutrientColumns(),
     packagePriceCents: integer("package_price_cents"),
     packageSize: numeric("package_size", { precision: 10, scale: 2, mode: "string" }),
+    ...qualityColumns(), // ADR-0012: snapshot, like the nutrients
     position: integer("position").notNull(),
   },
   (t) => [
@@ -281,6 +313,7 @@ export const logEntryItems = pgTable(
     }).onDelete("cascade"),
     check("log_entry_items_quantity_ck", sql`${t.quantity} > 0`),
     index("log_entry_items_entry_idx").on(t.entryId),
+    ...qualityChecks("log_entry_items", t),
   ],
 );
 
@@ -387,4 +420,86 @@ export const dayPlans = pgTable(
       .notNull(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.day] })],
+);
+
+/**
+ * Free tags (ADR-0012): descriptive labels with an icon ("Lidl", "bio",
+ * "favourite"), per user. Not snapshotted and not read by any analysis.
+ */
+export const tags = pgTable(
+  "tags",
+  {
+    id: idColumn(),
+    userId: ownerColumn(),
+    name: text("name").notNull(),
+    icon: text("icon").notNull().default("tag"), // a key of the icon set in ui/
+    createdAt: tstz("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    unique("tags_user_name_uq").on(t.userId, t.name),
+    unique("tags_id_user_uq").on(t.id, t.userId),
+  ],
+);
+
+/** Which free tags an ingredient has. Composite keys: never across users. */
+export const ingredientTags = pgTable(
+  "ingredient_tags",
+  {
+    userId: uuid("user_id").notNull(),
+    ingredientId: uuid("ingredient_id").notNull(),
+    tagId: uuid("tag_id").notNull(),
+  },
+  (t) => [
+    primaryKey({ name: "ingredient_tags_pk", columns: [t.ingredientId, t.tagId] }),
+    foreignKey({
+      name: "ingredient_tags_ingredient_fk",
+      columns: [t.ingredientId, t.userId],
+      foreignColumns: [ingredients.id, ingredients.userId],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "ingredient_tags_tag_fk",
+      columns: [t.tagId, t.userId],
+      foreignColumns: [tags.id, tags.userId],
+    }).onDelete("cascade"),
+  ],
+);
+
+/** What the user rates meals on ("Gusto", "Sazietà"…), in their order. */
+export const ratingFactors = pgTable(
+  "rating_factors",
+  {
+    id: idColumn(),
+    userId: ownerColumn(),
+    name: text("name").notNull(),
+    position: integer("position").notNull().default(0),
+  },
+  (t) => [
+    unique("rating_factors_user_name_uq").on(t.userId, t.name),
+    unique("rating_factors_id_user_uq").on(t.id, t.userId),
+  ],
+);
+
+/** A meal's score, 1–5, on one factor (ADR-0012: on the meal, editable). */
+export const mealRatings = pgTable(
+  "meal_ratings",
+  {
+    userId: uuid("user_id").notNull(),
+    mealId: uuid("meal_id").notNull(),
+    factorId: uuid("factor_id").notNull(),
+    score: integer("score").notNull(),
+  },
+  (t) => [
+    primaryKey({ name: "meal_ratings_pk", columns: [t.mealId, t.factorId] }),
+    foreignKey({
+      name: "meal_ratings_meal_fk",
+      columns: [t.mealId, t.userId],
+      foreignColumns: [meals.id, meals.userId],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "meal_ratings_factor_fk",
+      columns: [t.factorId, t.userId],
+      foreignColumns: [ratingFactors.id, ratingFactors.userId],
+    }).onDelete("cascade"),
+    check("meal_ratings_score_ck", sql`${t.score} between 1 and 5`),
+  ],
 );
