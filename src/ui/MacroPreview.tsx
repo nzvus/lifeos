@@ -24,7 +24,7 @@ export function MacroPreview({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1 rounded-control border border-hairline bg-sheet p-3">
+    <div className="tile flex flex-col gap-1 p-3">
       <p className="text-meta font-semibold text-muted">{title}</p>
       {values === null ? (
         <p className="text-meta text-muted">{empty}</p>

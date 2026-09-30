@@ -89,7 +89,7 @@
 - [x] Live previews: meal serving while composing; ingredient label + effect on every meal using it (% per macro)
 - [x] History: day page gets a week strip + date jump; Targets shows trends for every nutrient over 7 / 30 / 90 days, scrollable back in time, with averages
 - [x] Analysis on Targets: adherence per nutrient, averages per day type, eating times (first/last, window, energy by part of day), unconfirmed plans
-- [ ] Their components: slots `ListItem` (orto: cards; cruscotto: one line) and `DayPanel` (cruscotto: tiles) — only these two are needed
+- [x] Themes really different: surfaces as tokens (orto: soft cards with shadows; cruscotto: boxed dense rows), day panel as tiles in cruscotto (`THEME_SLOTS`). The ADR-0010 `themes/` layer was not needed: one slot, chosen by a table in core
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

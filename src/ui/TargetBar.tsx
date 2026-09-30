@@ -23,6 +23,9 @@ type Props = {
   opacity: number;
   autoLabel?: string; // e.g. "auto", when the target is a recommended default
   autoHint?: string; // tooltip explaining where the auto target comes from
+  /** "row": label and value on one line (default); "tile": the value large,
+   *  under the label — for a grid of tiles (the cruscotto theme). */
+  layout?: "row" | "tile";
 };
 
 const SCALE = 1.25;
@@ -39,12 +42,19 @@ export function TargetBar({
   opacity,
   autoLabel,
   autoHint,
+  layout = "row",
 }: Props) {
   const scaled = (r: number) => (Math.min(r, SCALE) / SCALE) * 100;
   const width = ratio === null ? 0 : scaled(ratio);
   return (
     <div className={`flex flex-col gap-0.5 ${sub ? "pl-5" : ""}`}>
-      <div className="flex items-baseline justify-between gap-2 text-meta">
+      <div
+        className={
+          layout === "tile"
+            ? "flex flex-col gap-0.5 text-meta"
+            : "flex items-baseline justify-between gap-2 text-meta"
+        }
+      >
         <span
           className={`flex items-center gap-1.5 ${sub ? "text-muted" : "font-semibold"}`}
         >
@@ -59,7 +69,11 @@ export function TargetBar({
             </span>
           )}
         </span>
-        <span className="font-display tabular-nums">{value}</span>
+        <span
+          className={`font-display tabular-nums ${layout === "tile" ? "text-section font-bold" : ""}`}
+        >
+          {value}
+        </span>
       </div>
       <div className="relative h-2 w-full bg-hairline" aria-hidden="true">
         {ratio !== null && plannedRatio !== undefined && plannedRatio > ratio && (

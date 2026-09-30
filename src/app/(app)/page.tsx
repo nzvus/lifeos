@@ -32,6 +32,7 @@ import { Copy } from "lucide-react";
 import { DayNav } from "@/features/nutrition/log/DayNav";
 import { DayProfilePicker } from "@/features/nutrition/log/DayProfilePicker";
 import { EntryList } from "@/features/nutrition/log/EntryList";
+import { THEME_SLOTS } from "@/core/shared/themes";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
@@ -101,6 +102,7 @@ export default async function DayPage({ searchParams }: Props) {
         withPlanned={view.withPlanned}
         targets={targets}
         auto={auto}
+        variant={THEME_SLOTS[settings.theme].dayPanel}
         locale={locale}
         t={{
           label: t.label,

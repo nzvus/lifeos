@@ -37,6 +37,8 @@ type Props = {
   /** Targets including auto defaults (core withAutoTargets). */
   targets: Targets;
   auto: NutrientKey[];
+  /** Theme slot (core THEME_SLOTS): rings + bars, or a grid of tiles. */
+  variant?: "rings" | "tiles";
   locale: Locale;
   t: Pick<Messages, "label" | "nutrients" | "macro" | "panel" | "day">;
 };
@@ -45,7 +47,15 @@ type Props = {
 const SUB: ReadonlySet<NutrientKey> = new Set(["sugars", "saturatedFat"]);
 const RINGS = ["kcal", "protein", "carbs", "fat", "fiber"] as const;
 
-export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Props) {
+export function DayPanel({
+  totals,
+  withPlanned,
+  targets,
+  auto,
+  variant = "rings",
+  locale,
+  t,
+}: Props) {
   const num = (v: string, k: NutrientKey) =>
     formatNumber(v, locale, k === "salt" ? 1 : 0);
   const assess = (k: NutrientKey) =>
@@ -79,15 +89,107 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
     return fill(t.label.over, { v }); // over a target, or above a minimum (fine)
   };
 
+  /** One nutrient against its target (ui/TargetBar), as a row or a tile. */
+  const bar = (k: NutrientKey, layout: "row" | "tile") => {
+    const a = assess(k);
+    const { color, opacity } = tone(k);
+    const value =
+      targets[k] === null
+        ? `${num(totals.nutrients[k], k)} ${NUTRIENT_UNIT[k]}`
+        : `${num(totals.nutrients[k], k)} / ${num(targets[k]!, k)} ${NUTRIENT_UNIT[k]}`;
+    return (
+      <TargetBar
+        key={k}
+        layout={layout}
+        icon={SUB.has(k) && layout === "row" ? null : <NutrientIcon name={k} />}
+        label={t.nutrients[k]}
+        sub={SUB.has(k) && layout === "row"}
+        value={value}
+        status={statusText(k)}
+        ratio={a.status === "none" ? null : a.ratio}
+        plannedRatio={plannedRatio(k)}
+        color={color}
+        opacity={opacity}
+        autoLabel={auto.includes(k) ? t.panel.auto : undefined}
+        autoHint={auto.includes(k) ? t.panel.autoHint : undefined}
+      />
+    );
+  };
+
   const kcal = assess("kcal");
   const split = macroSplit(totals.nutrients);
   const unit = NUTRIENT_UNIT.kcal;
+  /** Where the energy comes from: the bar and its words. */
+  const splitLine = split && (
+    <div className="w-full">
+      <MacroBar split={split} label={t.macro.splitTitle} />
+      <p className="pt-1 text-center font-display text-meta text-muted tabular-nums">
+        {[
+          `${t.macro.protein} ${split.protein}%`,
+          `${t.macro.carbs} ${split.carbs}% (${fill(t.macro.sugarsOf, { v: String(split.sugars) })})`,
+          `${t.macro.fat} ${split.fat}% (${fill(t.macro.saturatedOf, { v: String(split.saturatedFat) })})`,
+          fill(t.macro.fiberOf, { v: String(split.fiber) }),
+        ].join(" · ")}
+      </p>
+    </div>
+  );
+  const cost = (
+    <p className="flex items-center justify-between gap-2 rule-t-medium border-ink pt-2 text-meta">
+      <span className="flex items-center gap-1.5 font-semibold">
+        <Coins size={16} aria-hidden="true" />
+        {t.label.cost}
+      </span>
+      <span className="font-display text-item tabular-nums">
+        {totals.costComplete
+          ? formatCents(totals.costCents, locale)
+          : fill(t.label.costPartial, { v: formatCents(totals.costCents, locale) })}
+      </span>
+    </p>
+  );
+
+  if (variant === "tiles") {
+    return (
+      <section
+        aria-labelledby="day-panel-title"
+        className="panel flex flex-col gap-4 p-4"
+      >
+        <h2 id="day-panel-title" className="font-display text-section font-extrabold">
+          {t.label.title}
+        </h2>
+        {/* Energy first and wider, then one tile per nutrient. */}
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          <div className="tile col-span-2 flex flex-col gap-1 p-3">
+            <span className="font-display text-title font-extrabold tabular-nums">
+              {num(kcal.status === "none" ? totals.nutrients.kcal : kcal.delta, "kcal")}
+              <span className="pl-2 text-meta font-normal text-muted">
+                {kcal.status === "none"
+                  ? unit
+                  : `${unit} ${kcal.status === "under" ? t.panel.left : kcal.status === "over" ? t.panel.over : t.panel.off}`}
+              </span>
+            </span>
+            {bar("kcal", "row")}
+            {plannedKcal > 0 && (
+              <span className="text-meta text-muted tabular-nums">
+                {fill(t.day.plannedNote, {
+                  v: formatNumber(String(plannedKcal), locale, 0),
+                })}
+              </span>
+            )}
+          </div>
+          {NUTRIENT_KEYS.filter((k) => k !== "kcal").map((k) => (
+            <div key={k} className="tile p-3">
+              {bar(k, "tile")}
+            </div>
+          ))}
+        </div>
+        {splitLine}
+        {cost}
+      </section>
+    );
+  }
 
   return (
-    <section
-      aria-labelledby="day-panel-title"
-      className="flex flex-col gap-4 rounded-surface rule-strong border-ink bg-sheet p-4"
-    >
+    <section aria-labelledby="day-panel-title" className="panel flex flex-col gap-4 p-4">
       <h2 id="day-panel-title" className="font-display text-section font-extrabold">
         {t.label.title}
       </h2>
@@ -135,59 +237,14 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
               </li>
             ))}
           </ul>
-          {split && (
-            <div className="w-full">
-              <MacroBar split={split} label={t.macro.splitTitle} />
-              <p className="pt-1 text-center font-display text-meta text-muted tabular-nums">
-                {[
-                  `${t.macro.protein} ${split.protein}%`,
-                  `${t.macro.carbs} ${split.carbs}% (${fill(t.macro.sugarsOf, { v: String(split.sugars) })})`,
-                  `${t.macro.fat} ${split.fat}% (${fill(t.macro.saturatedOf, { v: String(split.saturatedFat) })})`,
-                  fill(t.macro.fiberOf, { v: String(split.fiber) }),
-                ].join(" · ")}
-              </p>
-            </div>
-          )}
+          {splitLine}
         </div>
 
         <div className="flex w-full flex-1 flex-col gap-2.5">
-          {NUTRIENT_KEYS.map((k) => {
-            const a = assess(k);
-            const { color, opacity } = tone(k);
-            const value =
-              targets[k] === null
-                ? `${num(totals.nutrients[k], k)} ${NUTRIENT_UNIT[k]}`
-                : `${num(totals.nutrients[k], k)} / ${num(targets[k]!, k)} ${NUTRIENT_UNIT[k]}`;
-            return (
-              <TargetBar
-                key={k}
-                icon={SUB.has(k) ? null : <NutrientIcon name={k} />}
-                label={t.nutrients[k]}
-                sub={SUB.has(k)}
-                value={value}
-                status={statusText(k)}
-                ratio={a.status === "none" ? null : a.ratio}
-                plannedRatio={plannedRatio(k)}
-                color={color}
-                opacity={opacity}
-                autoLabel={auto.includes(k) ? t.panel.auto : undefined}
-                autoHint={auto.includes(k) ? t.panel.autoHint : undefined}
-              />
-            );
-          })}
+          {NUTRIENT_KEYS.map((k) => bar(k, "row"))}
         </div>
       </div>
-      <p className="flex items-center justify-between gap-2 rule-t-medium border-ink pt-2 text-meta">
-        <span className="flex items-center gap-1.5 font-semibold">
-          <Coins size={16} aria-hidden="true" />
-          {t.label.cost}
-        </span>
-        <span className="font-display text-item tabular-nums">
-          {totals.costComplete
-            ? formatCents(totals.costCents, locale)
-            : fill(t.label.costPartial, { v: formatCents(totals.costCents, locale) })}
-        </span>
-      </p>
+      {cost}
     </section>
   );
 }

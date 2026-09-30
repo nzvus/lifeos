@@ -144,7 +144,7 @@ cannot poll URLs itself, so app health has daily granularity.
 - **Performance:** functions in `fra1` next to Neon (`vercel.json`); auth cookie
   cache (5 min); `app/(app)/loading.tsx`; client components get only the
   dictionary slices they use.
-- **Theming/i18n:** tokens (ADR-0010: colour, spacing, 5 text levels, rules, radii)
-  in `design/`; themes `label` (default) / `orto` / `cruscotto` override them under
-  `data-theme` (per user, `user_settings.theme`); `data-mode`/`data-layout` from cookies.
+- **Theming/i18n:** tokens (ADR-0010: colour, spacing, type, rules, radii, surfaces
+  `panel`/`tile`/`item`) in `design/`; themes `label`/`orto`/`cruscotto` override them
+  (`data-theme`, per user). Layout variants: `THEME_SLOTS` (core/shared/themes.ts).
 - **Testing:** Vitest; DB tests on PGlite with the real migrations applied.
