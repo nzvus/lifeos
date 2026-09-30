@@ -1,76 +1,76 @@
 /**
- * features/nutrition/log/AddToDay.tsx — THE way to add something to a day:
- * one search over meals AND ingredients, plus "estimated meal" (ADR-0009)
- * as the last option, then only the fields that fit the choice:
+ * features/nutrition/log/AddToDay.tsx — adding to a day: three tabs, one
+ * visible at a time, each with its own search and fields:
  *
- *   meal        -> servings
- *   ingredient  -> quantity (in its unit)
- *   estimate    -> name (prefilled with what you typed), kcal, macros, cost
+ *   Meal         search meals        -> servings
+ *   Ingredient   search ingredients  -> quantity (in its unit)
+ *   Estimate     name, kcal (required), macros, cost (ADR-0009)
  *
- * and for all three the planned checkbox and the optional time.
+ * Each tab shows a PREVIEW (kcal, macros, energy-split bar) of what it would
+ * add, updated while typing (core/nutrition/preview.ts), then the planned
+ * checkbox, the optional time and Add.
  *
- * Search and order come from core (core/shared/search.ts rank + usage in
- * the last 60 days), meals and ingredients ranked together. Each option's
- * hint says what it is and its energy/protein, so choosing is informed.
- *
- * No new server code: the one form calls one of the three existing actions
- * (src/app/(app)/actions.ts), picked by the choice. After a successful add
- * the form is remounted empty (see useSavedCount); after an error the
- * choice and the typed values stay so they can be fixed.
+ * Search order: core/shared/search.ts rank + usage in the last 60 days, so
+ * the usual foods are at the top of each list. Every tab posts to its own
+ * server action (src/app/(app)/actions.ts), which validates, snapshots
+ * (ADR-0007) and re-renders. After a successful add the tab's form is
+ * remounted empty (useSavedCount); after an error its values stay.
  */
 "use client";
 
-import { Plus } from "lucide-react";
-import { useActionState, useCallback, useMemo, useState } from "react";
+import { Calculator, Carrot, Plus, UtensilsCrossed } from "lucide-react";
+import { useActionState, useCallback, useMemo, useState, type ReactNode } from "react";
+import { macroSplit } from "@/core/nutrition/insights";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
+import {
+  estimateValues,
+  PREVIEW_KEYS,
+  scaleMacros,
+  type MacroValues,
+  type PreviewKey,
+} from "@/core/nutrition/preview";
+import { formatNumber } from "@/core/shared/format";
+import type { Locale } from "@/core/shared/locales";
 import { fieldError, IDLE, type FormState } from "@/core/shared/result";
 import { rank } from "@/core/shared/search";
 import { fill, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
+import { MacroStrip } from "@/ui/MacroStrip";
 import { SearchSelect, type SearchOption } from "@/ui/SearchSelect";
 import { SubmitButton } from "@/ui/SubmitButton";
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
+type Kind = "meal" | "ingredient" | "estimate";
 
-/** What the search needs about each meal / ingredient. */
+/** What the search and the preview need about each meal / ingredient. */
 export type Pickable = {
   id: string;
   name: string;
-  /** Already formatted for display by the page ("372", "13,5"). */
-  kcal: string;
-  protein: string;
-  uses: number;
-  lastUsed: string | null;
   /** Notes/description: searched too ("Lidl", "STIMA", "senza lattosio"). */
   notes: string;
+  uses: number;
+  lastUsed: string | null;
+  /** Exact values: per serving for a meal, per 100 g/ml for an ingredient. */
+  values: MacroValues;
   unit?: string; // ingredients only
 };
 
+type T = Pick<
+  Messages,
+  "day" | "errors" | "meals" | "search" | "macro" | "ingredients" | "nutrients"
+>;
+
 type Props = {
   day: string;
+  locale: Locale;
   meals: Pickable[];
   ingredients: Pickable[];
   logMealAction: Action;
   logIngredientAction: Action;
   logEstimateAction: Action;
-  t: Pick<
-    Messages,
-    "day" | "errors" | "meals" | "search" | "macro" | "ingredients" | "nutrients"
-  >;
+  t: T;
 };
-
-/*
- * The chosen value is one string, so it can travel through SearchSelect and
- * come back after an error: "meal:<id>", "ing:<id>" or "estimate:<typed>".
- */
-type Choice =
-  | { kind: "meal"; id: string }
-  | { kind: "ingredient"; id: string; unit: string }
-  | { kind: "estimate"; name: string }
-  | { kind: "none" };
-
-const ESTIMATE = "estimate:";
 
 /**
  * Counts successful submissions. Changing a component's `key` makes React
@@ -89,204 +89,324 @@ function useSavedCount(state: FormState): number {
   return count;
 }
 
-export function AddToDay(props: Props) {
-  const { logMealAction, logIngredientAction, logEstimateAction } = props;
-  // One form, three actions: the hidden "kind" field says which one.
-  const [state, formAction] = useActionState(async (prev: FormState, data: FormData) => {
-    const kind = data.get("kind");
-    if (kind === "meal") return logMealAction(prev, data);
-    if (kind === "ingredient") return logIngredientAction(prev, data);
-    if (kind === "estimate") return logEstimateAction(prev, data);
-    return prev; // nothing chosen: the submit button is disabled anyway
-  }, IDLE);
-  const key = useSavedCount(state);
-  return <AddForm key={key} {...props} state={state} formAction={formAction} />;
-}
-
-function AddForm({
+export function AddToDay({
   day,
+  locale,
   meals,
   ingredients,
+  logMealAction,
+  logIngredientAction,
+  logEstimateAction,
   t,
+}: Props) {
+  const [kind, setKind] = useState<Kind>("meal");
+  // One action state per tab, kept while switching tabs.
+  const [mealState, mealAction] = useActionState(logMealAction, IDLE);
+  const [ingState, ingAction] = useActionState(logIngredientAction, IDLE);
+  const [estState, estAction] = useActionState(logEstimateAction, IDLE);
+  const mealKey = useSavedCount(mealState);
+  const ingKey = useSavedCount(ingState);
+  const estKey = useSavedCount(estState);
+
+  const tabs: { kind: Kind; label: string; icon: ReactNode }[] = [
+    {
+      kind: "meal",
+      label: t.day.meal,
+      icon: <UtensilsCrossed size={16} aria-hidden="true" />,
+    },
+    {
+      kind: "ingredient",
+      label: t.day.ingredient,
+      icon: <Carrot size={16} aria-hidden="true" />,
+    },
+    {
+      kind: "estimate",
+      label: t.day.tabEstimate,
+      icon: <Calculator size={16} aria-hidden="true" />,
+    },
+  ];
+  const common = { day, locale, t };
+
+  return (
+    <section className="flex flex-col gap-4 rule-t-heavy border-ink pt-3">
+      <h2 className="font-display text-section font-bold">{t.day.addTitle}</h2>
+      <div role="tablist" aria-label={t.day.addTitle} className="flex">
+        {tabs.map((tab) => {
+          const selected = tab.kind === kind;
+          return (
+            <button
+              key={tab.kind}
+              type="button"
+              role="tab"
+              id={`add-tab-${tab.kind}`}
+              aria-selected={selected}
+              aria-controls="add-panel"
+              onClick={() => setKind(tab.kind)}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-control px-2 py-2 font-display text-item ${
+                selected
+                  ? "rule-b-heavy border-ink bg-sheet font-bold text-ink"
+                  : "rule-b-medium border-hairline text-muted hover:text-ink"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+      <div id="add-panel" role="tabpanel" aria-labelledby={`add-tab-${kind}`}>
+        {kind === "meal" && (
+          <PickForm
+            key={`m${mealKey}`}
+            {...common}
+            items={meals}
+            per="1"
+            idField="mealId"
+            amountField="servings"
+            amountLabel={t.day.servings}
+            defaultAmount="1"
+            empty={t.day.noMeals}
+            state={mealState}
+            action={mealAction}
+          />
+        )}
+        {kind === "ingredient" && (
+          <PickForm
+            key={`i${ingKey}`}
+            {...common}
+            items={ingredients}
+            per="100"
+            idField="ingredientId"
+            amountField="quantity"
+            amountLabel={t.day.quantity}
+            defaultAmount=""
+            empty={t.day.noIngredients}
+            state={ingState}
+            action={ingAction}
+          />
+        )}
+        {kind === "estimate" && (
+          <EstimateForm
+            key={`e${estKey}`}
+            {...common}
+            state={estState}
+            action={estAction}
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+
+type PickProps = {
+  day: string;
+  locale: Locale;
+  t: T;
+  items: Pickable[];
+  /** "1": values are per serving (meals); "100": per 100 g/ml (ingredients). */
+  per: "1" | "100";
+  idField: "mealId" | "ingredientId";
+  amountField: "servings" | "quantity";
+  amountLabel: string;
+  defaultAmount: string;
+  empty: string;
+  state: FormState;
+  action: (formData: FormData) => void;
+};
+
+/** A meal or an ingredient: search, amount, preview, timing, Add. */
+function PickForm({
+  day,
+  locale,
+  t,
+  items,
+  per,
+  idField,
+  amountField,
+  amountLabel,
+  defaultAmount,
+  empty,
   state,
-  formAction,
-}: Props & { state: FormState; formAction: (data: FormData) => void }) {
+  action,
+}: PickProps) {
   const err = (f: string) => fieldError(state, f, t.errors);
   const kept = (f: string) => (state.status === "error" ? state.values[f] : undefined);
-  const [value, setValue] = useState(kept("choice") ?? "");
+  const [id, setId] = useState(kept(idField) ?? "");
+  const [amount, setAmount] = useState(kept(amountField) ?? defaultAmount);
 
   // Stable across renders (depends only on the dictionary), so the search
   // list isn't rebuilt on every keystroke.
   const hint = useCallback(
     (i: Pickable) =>
       [
-        i.unit ? t.day.ingredient : t.day.meal,
-        `${i.kcal} ${NUTRIENT_UNIT.kcal}`,
-        `${t.macro.protein} ${i.protein}`,
+        `${formatNumber(i.values.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`,
+        `${t.macro.protein} ${formatNumber(i.values.protein, locale, 0)}`,
         i.unit ? fill(t.ingredients.per100Short, { unit: i.unit }) : t.meals.perServing,
         i.uses > 0 ? fill(t.search.uses, { n: String(i.uses) }) : "",
       ]
         .filter(Boolean)
         .join(" · "),
-    [t],
+    [t, locale],
   );
-
   const picker = useMemo(() => {
-    const all = [
-      ...meals.map((m) => ({ item: m, value: `meal:${m.id}` })),
-      ...ingredients.map((i) => ({ item: i, value: `ing:${i.id}` })),
-    ];
     const options = new Map<string, SearchOption>(
-      all.map((a) => [
-        a.value,
-        { value: a.value, label: a.item.name, hint: hint(a.item) },
-      ]),
+      items.map((i) => [i.id, { value: i.id, label: i.name, hint: hint(i) }]),
     );
-    const estimateOption = (typed: string): SearchOption => ({
-      value: `${ESTIMATE}${typed}`,
-      label: typed.trim()
-        ? fill(t.day.estimateOption, { q: typed.trim() })
-        : t.day.estimateOptionBlank,
-      hint: t.day.estimateOptionHint,
-    });
-    const search = (q: string) => [
-      ...rank(all, q, (a) => ({
-        text: `${a.item.name} ${a.item.notes}`,
-        name: a.item.name,
-        uses: a.item.uses,
-        lastUsed: a.item.lastUsed,
-      }))
-        .slice(0, 7) // SearchSelect shows 8: keep the last place for the estimate
-        .map((a) => options.get(a.value)!),
-      estimateOption(q),
-    ];
-    const find = (v: string) =>
-      v.startsWith(ESTIMATE) ? estimateOption(v.slice(ESTIMATE.length)) : options.get(v);
+    const search = (q: string) =>
+      rank(items, q, (i) => ({
+        text: `${i.name} ${i.notes}`,
+        name: i.name,
+        uses: i.uses,
+        lastUsed: i.lastUsed,
+      })).map((i) => options.get(i.id)!);
+    const find = (value: string) => options.get(value);
     return { search, find };
-  }, [meals, ingredients, hint, t]);
+  }, [items, hint]);
 
-  const choice: Choice = useMemo(() => {
-    if (value.startsWith("meal:")) return { kind: "meal", id: value.slice(5) };
-    if (value.startsWith("ing:")) {
-      const id = value.slice(4);
-      return {
-        kind: "ingredient",
-        id,
-        unit: ingredients.find((i) => i.id === id)?.unit ?? "",
-      };
-    }
-    if (value.startsWith(ESTIMATE))
-      return { kind: "estimate", name: value.slice(ESTIMATE.length) };
-    return { kind: "none" };
-  }, [value, ingredients]);
+  if (items.length === 0) return <p className="text-meta text-muted">{empty}</p>;
+  const chosen = items.find((i) => i.id === id);
+  const preview = chosen ? scaleMacros(chosen.values, amount, per) : null;
 
   return (
-    <form
-      action={formAction}
-      className="flex flex-col gap-3 rule-t-heavy border-ink pt-3"
-    >
-      <h2 className="font-display text-section font-bold">{t.day.addTitle}</h2>
+    <form action={action} className="flex flex-col gap-3">
       <input type="hidden" name="day" value={day} />
-      <input type="hidden" name="kind" value={choice.kind} />
-      {choice.kind === "meal" && <input type="hidden" name="mealId" value={choice.id} />}
-      {choice.kind === "ingredient" && (
-        <input type="hidden" name="ingredientId" value={choice.id} />
-      )}
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
-
       <SearchSelect
-        label={t.day.what}
-        name="choice"
+        label={per === "1" ? t.day.meal : t.day.ingredient}
+        name={idField}
         search={picker.search}
         find={picker.find}
-        value={value}
-        onChange={setValue}
+        value={id}
+        onChange={setId}
         placeholder={t.search.typeToSearch}
         noResults={t.search.noMatches}
-        error={err("mealId") ?? err("ingredientId")}
+        error={err(idField)}
       />
-
-      {choice.kind === "meal" && (
-        <Field
-          label={t.day.servings}
-          name="servings"
-          id="add-servings"
-          inputMode="decimal"
-          defaultValue={kept("servings") ?? "1"}
-          error={err("servings")}
-          required
-        />
-      )}
-
-      {choice.kind === "ingredient" && (
-        <Field
-          label={choice.unit ? `${t.day.quantity} (${choice.unit})` : t.day.quantity}
-          name="quantity"
-          id="add-quantity"
-          inputMode="decimal"
-          defaultValue={kept("quantity") ?? ""}
-          error={err("quantity")}
-          required
-          autoFocus
-        />
-      )}
-
-      {choice.kind === "estimate" && (
-        <>
-          <p className="text-meta text-muted">{t.day.estimateHint}</p>
-          <Field
-            label={t.day.estimateName}
-            name="label"
-            id="add-label"
-            defaultValue={kept("label") ?? choice.name.trim()}
-            error={err("label")}
-            required
-          />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {(["kcal", "protein", "carbs", "fat", "fiber"] as const).map((k) => (
-              <Field
-                key={k}
-                label={`${t.nutrients[k]} (${NUTRIENT_UNIT[k]})`}
-                name={k}
-                id={`add-${k}`}
-                inputMode="decimal"
-                defaultValue={kept(k) ?? ""}
-                error={err(k)}
-                required={k === "kcal"}
-              />
-            ))}
-            <Field
-              label={t.day.estimateCost}
-              name="cost"
-              id="add-cost"
-              inputMode="decimal"
-              defaultValue={kept("cost") ?? ""}
-              error={err("cost")}
-            />
-          </div>
-        </>
-      )}
-
-      {choice.kind !== "none" && (
-        <>
-          <TimingFields
-            t={t}
-            planned={kept("planned") === "on"}
-            time={kept("time") ?? ""}
-          />
-          <div>
-            <SubmitButton icon={<Plus size={18} aria-hidden="true" />}>
-              {t.day.add}
-            </SubmitButton>
-          </div>
-        </>
-      )}
+      <Field
+        label={chosen?.unit ? `${amountLabel} (${chosen.unit})` : amountLabel}
+        name={amountField}
+        id={`add-${amountField}`}
+        inputMode="decimal"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        error={err(amountField)}
+        required
+      />
+      <Preview values={preview} locale={locale} t={t} />
+      <Timing t={t} planned={kept("planned") === "on"} time={kept("time") ?? ""} />
+      <div>
+        <SubmitButton icon={<Plus size={18} aria-hidden="true" />}>
+          {t.day.add}
+        </SubmitButton>
+      </div>
     </form>
   );
 }
 
+type EstimateProps = {
+  day: string;
+  locale: Locale;
+  t: T;
+  state: FormState;
+  action: (formData: FormData) => void;
+};
+
+/** An estimated meal (ADR-0009): a name and approximate totals. */
+function EstimateForm({ day, locale, t, state, action }: EstimateProps) {
+  const err = (f: string) => fieldError(state, f, t.errors);
+  const kept = (f: string) => (state.status === "error" ? state.values[f] : undefined);
+  const [typed, setTyped] = useState<Record<PreviewKey, string>>(
+    () =>
+      Object.fromEntries(PREVIEW_KEYS.map((k) => [k, kept(k) ?? ""])) as Record<
+        PreviewKey,
+        string
+      >,
+  );
+  return (
+    <form action={action} className="flex flex-col gap-3">
+      <input type="hidden" name="day" value={day} />
+      <p className="text-meta text-muted">{t.day.estimateHint}</p>
+      <Field
+        label={t.day.estimateName}
+        name="label"
+        id="add-label"
+        defaultValue={kept("label") ?? ""}
+        error={err("label")}
+        required
+      />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {PREVIEW_KEYS.map((k) => (
+          <Field
+            key={k}
+            label={`${t.nutrients[k]} (${NUTRIENT_UNIT[k]})`}
+            name={k}
+            id={`add-${k}`}
+            inputMode="decimal"
+            value={typed[k]}
+            onChange={(e) => setTyped((prev) => ({ ...prev, [k]: e.target.value }))}
+            error={err(k)}
+            required={k === "kcal"}
+          />
+        ))}
+        <Field
+          label={t.day.estimateCost}
+          name="cost"
+          id="add-cost"
+          inputMode="decimal"
+          defaultValue={kept("cost") ?? ""}
+          error={err("cost")}
+        />
+      </div>
+      <Preview values={estimateValues(typed)} locale={locale} t={t} />
+      <Timing t={t} planned={kept("planned") === "on"} time={kept("time") ?? ""} />
+      <div>
+        <SubmitButton icon={<Plus size={18} aria-hidden="true" />}>
+          {t.day.add}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** What the entry would add: kcal, macros, energy split (ui/MacroStrip). */
+function Preview({
+  values,
+  locale,
+  t,
+}: {
+  values: MacroValues | null;
+  locale: Locale;
+  t: T;
+}) {
+  const n = (v: string) => formatNumber(v, locale, 0);
+  return (
+    <div className="flex flex-col gap-1 rounded-control border border-hairline bg-sheet p-3">
+      <p className="text-meta font-semibold text-muted">{t.day.preview}</p>
+      {values === null ? (
+        <p className="text-meta text-muted">{t.day.previewEmpty}</p>
+      ) : (
+        <MacroStrip
+          energy={`${n(values.kcal)} ${NUTRIENT_UNIT.kcal}`}
+          protein={n(values.protein)}
+          carbs={n(values.carbs)}
+          fat={n(values.fat)}
+          fiber={n(values.fiber)}
+          split={macroSplit(values)}
+          labels={{
+            protein: t.nutrients.protein,
+            carbs: t.nutrients.carbs,
+            fat: t.nutrients.fat,
+            fiber: t.nutrients.fiber,
+            split: t.macro.splitTitle,
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 /** "Planned" checkbox + optional time (ADR-0009). */
-function TimingFields({
+function Timing({
   t,
   planned,
   time,

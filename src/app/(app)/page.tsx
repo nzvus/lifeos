@@ -18,6 +18,7 @@ import { getDb } from "@/app/_server/runtime";
 import { listIngredients } from "@/core/nutrition/repositories/ingredients";
 import { getDay } from "@/core/nutrition/repositories/log";
 import { listMeals } from "@/core/nutrition/repositories/meals";
+import type { MacroValues } from "@/core/nutrition/preview";
 import {
   emptyTargets,
   getDayTargets,
@@ -27,7 +28,6 @@ import { getHistory } from "@/core/nutrition/repositories/history";
 import { withAutoTargets } from "@/core/nutrition/targets";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, todayIn } from "@/core/shared/dates";
-import { formatNumber } from "@/core/shared/format";
 import { Copy } from "lucide-react";
 import { DayNav } from "@/features/nutrition/log/DayNav";
 import { DayProfilePicker } from "@/features/nutrition/log/DayProfilePicker";
@@ -74,7 +74,14 @@ export default async function DayPage({ searchParams }: Props) {
   const { targets, auto } = withAutoTargets(
     dayTargets.source === "none" ? emptyTargets() : dayTargets.targets,
   );
-  const whole = (v: string) => formatNumber(v, locale, 0);
+  /** The five values the add-to-day preview scales (core/nutrition/preview.ts). */
+  const pick = (v: MacroValues): MacroValues => ({
+    kcal: v.kcal,
+    protein: v.protein,
+    carbs: v.carbs,
+    fat: v.fat,
+    fiber: v.fiber,
+  });
 
   return (
     <>
@@ -122,12 +129,12 @@ export default async function DayPage({ searchParams }: Props) {
           )}
           <AddToDay
             day={day}
+            locale={locale}
             meals={meals.map((m) => ({
               id: m.id,
               name: m.name,
               notes: m.notes,
-              kcal: whole(m.totals.nutrients.kcal),
-              protein: whole(m.totals.nutrients.protein),
+              values: pick(m.totals.nutrients), // per serving
               uses: usage.meals[m.id]?.uses ?? 0,
               lastUsed: usage.meals[m.id]?.lastUsed ?? null,
             }))}
@@ -136,8 +143,7 @@ export default async function DayPage({ searchParams }: Props) {
               name: i.name,
               notes: i.description,
               unit: i.unit,
-              kcal: whole(i.kcal),
-              protein: whole(i.protein),
+              values: pick(i), // per 100 g/ml
               uses: usage.ingredients[i.id]?.uses ?? 0,
               lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
             }))}
