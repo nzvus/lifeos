@@ -9,11 +9,11 @@ type Props = { tone: "error" | "success"; children: string };
 
 export function FormAlert({ tone, children }: Props) {
   return tone === "error" ? (
-    <p role="alert" className="border-l-6 border-tomato pl-3 font-semibold text-tomato">
+    <p role="alert" className="rule-l-heavy border-tomato pl-3 font-semibold text-tomato">
       {children}
     </p>
   ) : (
-    <p role="status" className="border-l-6 border-herb pl-3 font-semibold text-herb">
+    <p role="status" className="rule-l-heavy border-herb pl-3 font-semibold text-herb">
       {children}
     </p>
   );

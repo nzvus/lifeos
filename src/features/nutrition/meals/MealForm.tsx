@@ -108,7 +108,7 @@ export function MealForm({ action, ingredients, initial, submitLabel, t }: Props
         error={err("notes")}
       />
 
-      <fieldset className="flex flex-col gap-4 border-t-6 border-ink pt-3">
+      <fieldset className="flex flex-col gap-4 rule-t-heavy border-ink pt-3">
         <legend className="font-display text-xl font-bold">{t.meals.lines}</legend>
         {err("items") && <FormAlert tone="error">{err("items")!}</FormAlert>}
         {lines.map((line, idx) => (
@@ -151,7 +151,7 @@ export function MealForm({ action, ingredients, initial, submitLabel, t }: Props
           onClick={() =>
             setLines((ls) => [...ls, ...withKeys([{ ingredientId: "", quantity: "" }])])
           }
-          className="self-start border-2 border-ink px-3 py-1 font-display font-semibold"
+          className="self-start rule-medium border-ink px-3 py-1 font-display font-semibold"
         >
           {t.meals.addLine}
         </button>

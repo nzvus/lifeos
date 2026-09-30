@@ -127,13 +127,13 @@ export function SearchSelect({
             setOpen(false);
           }}
           onKeyDown={onKeyDown}
-          className="w-full border-b-2 border-ink bg-sheet px-2 py-2 text-base outline-none focus-visible:border-focus aria-invalid:border-tomato"
+          className="w-full rounded-control rule-b-medium border-ink bg-sheet px-2 py-2 text-base outline-none focus-visible:border-focus aria-invalid:border-tomato"
         />
         {open && (
           <ul
             id={listId}
             role="listbox"
-            className="absolute z-20 mt-1 max-h-72 w-full overflow-y-auto border-2 border-ink bg-sheet"
+            className="absolute z-20 mt-1 max-h-72 w-full overflow-y-auto rounded-control rule-medium border-ink bg-sheet"
           >
             {results.length === 0 ? (
               <li className="px-3 py-2 text-sm text-muted">{noResults}</li>

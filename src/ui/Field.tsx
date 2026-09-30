@@ -35,7 +35,7 @@ export function Field({ label, name, error, hint, id, className, ...input }: Fie
         name={name}
         aria-invalid={error ? true : undefined}
         aria-describedby={[hintId, errorId].filter(Boolean).join(" ") || undefined}
-        className="w-full border-b-2 border-ink bg-sheet px-2 py-2 font-display text-lg tabular-nums outline-none focus-visible:border-focus aria-invalid:border-tomato"
+        className="w-full rounded-control rule-b-medium border-ink bg-sheet px-2 py-2 font-display text-lg tabular-nums outline-none focus-visible:border-focus aria-invalid:border-tomato"
         {...input}
       />
       {hint && (

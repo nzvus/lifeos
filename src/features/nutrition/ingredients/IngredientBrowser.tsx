@@ -133,7 +133,7 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.search.placeholder}
-            className="w-full border-b-2 border-ink bg-sheet py-2 pr-2 pl-8 text-base outline-none focus-visible:border-focus"
+            className="w-full rule-b-medium border-ink bg-sheet py-2 pr-2 pl-8 text-base outline-none focus-visible:border-focus"
           />
         </label>
         <SortControl
@@ -204,7 +204,7 @@ export function IngredientBrowser({ ingredients, usage, locale, t }: Props) {
       <div className="hidden overflow-x-auto md:block">
         <table className="w-full border-collapse text-left">
           <thead>
-            <tr className="border-b-6 border-ink font-display text-sm">
+            <tr className="rule-b-heavy border-ink font-display text-sm">
               <th className="py-2 pr-3">{t.ingredients.name}</th>
               {(["kcal", "protein", "carbs", "fat", "fiber"] as const).map((k) => (
                 <th key={k} className="px-2 py-2 text-right">

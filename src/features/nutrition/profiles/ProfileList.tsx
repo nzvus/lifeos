@@ -22,7 +22,7 @@ export function ProfileList({ profiles, locale, t }: Props) {
   return (
     <ul className="flex flex-col">
       {profiles.map((p) => (
-        <li key={p.id} className="border-b-2 border-ink py-3">
+        <li key={p.id} className="rule-b-medium border-ink py-3">
           <div className="flex items-baseline justify-between gap-3">
             <Link
               href={`/profiles/${p.id}`}
@@ -31,7 +31,7 @@ export function ProfileList({ profiles, locale, t }: Props) {
               {p.name}
             </Link>
             {p.isDefault && (
-              <span className="border-2 border-herb px-2 font-display text-sm font-semibold text-herb">
+              <span className="rule-medium border-herb px-2 font-display text-sm font-semibold text-herb">
                 {t.profiles.isDefault}
               </span>
             )}

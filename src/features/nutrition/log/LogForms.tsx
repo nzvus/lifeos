@@ -128,7 +128,7 @@ export function LogForms({
         <form
           key={`m${mealKey}`}
           action={mealAction}
-          className="flex flex-col gap-3 border-t-6 border-ink pt-3"
+          className="flex flex-col gap-3 rule-t-heavy border-ink pt-3"
         >
           <h2 className="font-display text-xl font-bold">{t.day.logMeal}</h2>
           <input type="hidden" name="day" value={day} />
@@ -175,7 +175,7 @@ export function LogForms({
         <form
           key={`i${ingKey}`}
           action={ingAction}
-          className="flex flex-col gap-3 border-t-6 border-ink pt-3"
+          className="flex flex-col gap-3 rule-t-heavy border-ink pt-3"
         >
           <h2 className="font-display text-xl font-bold">{t.day.logIngredient}</h2>
           <input type="hidden" name="day" value={day} />
@@ -245,7 +245,7 @@ function TimingFields({ idPrefix, t }: { idPrefix: string; t: Pick<Messages, "da
           type="time"
           name="time"
           id={`${idPrefix}-time`}
-          className="border-b-2 border-ink bg-sheet px-2 py-1"
+          className="rule-b-medium border-ink bg-sheet px-2 py-1"
         />
       </label>
       <p className="w-full text-xs text-muted">{t.day.timeHint}</p>
@@ -268,7 +268,7 @@ type EstimateProps = {
 function EstimateForm({ day, action, state, t }: EstimateProps) {
   const err = (f: string) => fieldError(state, f, t.errors);
   return (
-    <details className="border-t-2 border-ink pt-3">
+    <details className="rule-t-medium border-ink pt-3">
       <summary className="cursor-pointer font-display text-lg font-bold">
         {t.day.estimateTitle}
       </summary>

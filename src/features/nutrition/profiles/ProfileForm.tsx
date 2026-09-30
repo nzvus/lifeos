@@ -35,7 +35,7 @@ export function ProfileForm({ action, initial, submitLabel, t }: Props) {
         error={err("name")}
         required
       />
-      <fieldset className="border-t-6 border-ink pt-3">
+      <fieldset className="rule-t-heavy border-ink pt-3">
         <legend className="font-display text-xl font-bold">{t.profiles.targets}</legend>
         <p className="pb-2 text-sm text-muted">{t.profiles.targetsHint}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-3">

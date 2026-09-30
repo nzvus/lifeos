@@ -77,7 +77,7 @@
 ## Next sprint: S05 — Themes and design pass (started 2026-09-30)
 - **Goal:** user-selectable themes that may replace components (ADR-0010), light/dark/system and auto/desktop/phone per device, then a design pass on the default `label` theme.
 - [x] ADR-0010 accepted (developer chose option B)
-- [ ] Shape tokens in `design/`; `data-theme` → `data-mode`
+- [x] Shape tokens in `design/` (rules, control radius, density); `data-theme` → `data-mode`
 - [ ] Layout variants (`@custom-variant`), rewrite of the breakpoint uses, lint rule
 - [ ] Mode + layout cookies and settings UI
 - [ ] `themes/` layer, slot switches, contract test, lint boundaries
