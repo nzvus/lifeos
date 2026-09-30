@@ -21,7 +21,13 @@
 import { Calculator, Carrot, Plus, UtensilsCrossed } from "lucide-react";
 import { useActionState, useCallback, useMemo, useState, type ReactNode } from "react";
 import { stripValues } from "@/core/nutrition/display";
-import { isMoment, MOMENTS, suggestMoment, type Moment } from "@/core/nutrition/moments";
+import {
+  isMoment,
+  MOMENTS,
+  suggestMoment,
+  type Moment,
+  type MomentBounds,
+} from "@/core/nutrition/moments";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import {
   estimateValues,
@@ -70,6 +76,8 @@ type T = Pick<
 type Props = {
   day: string;
   locale: Locale;
+  /** Where the moments start (preferences), for the suggestion. */
+  bounds: MomentBounds;
   meals: Pickable[];
   ingredients: Pickable[];
   logMealAction: Action;
@@ -98,6 +106,7 @@ function useSavedCount(state: FormState): number {
 export function AddToDay({
   day,
   locale,
+  bounds,
   meals,
   ingredients,
   logMealAction,
@@ -131,7 +140,7 @@ export function AddToDay({
       icon: <Calculator size={16} aria-hidden="true" />,
     },
   ];
-  const common = { day, locale, t };
+  const common = { day, locale, bounds, t };
 
   return (
     <Section title={t.day.addTitle} icon={<Plus size={20} aria-hidden="true" />}>
@@ -206,6 +215,7 @@ export function AddToDay({
 type PickProps = {
   day: string;
   locale: Locale;
+  bounds: MomentBounds;
   t: T;
   items: Pickable[];
   /** "1": values are per serving (meals); "100": per 100 g/ml (ingredients). */
@@ -223,6 +233,7 @@ type PickProps = {
 function PickForm({
   day,
   locale,
+  bounds,
   t,
   items,
   per,
@@ -285,7 +296,7 @@ function PickForm({
         required
       />
       <Preview values={preview} locale={locale} t={t} />
-      <Timing t={t} kept={kept} category={chosen?.category ?? null} />
+      <Timing t={t} kept={kept} category={chosen?.category ?? null} bounds={bounds} />
       <div>
         <SubmitButton icon={<Plus size={18} aria-hidden="true" />}>
           {t.day.add}
@@ -298,13 +309,14 @@ function PickForm({
 type EstimateProps = {
   day: string;
   locale: Locale;
+  bounds: MomentBounds;
   t: T;
   state: FormState;
   action: (formData: FormData) => void;
 };
 
 /** An estimated meal (ADR-0009): a name and approximate totals. */
-function EstimateForm({ day, locale, t, state, action }: EstimateProps) {
+function EstimateForm({ day, locale, bounds, t, state, action }: EstimateProps) {
   const err = (f: string) => fieldError(state, f, t.errors);
   const kept = (f: string) => (state.status === "error" ? state.values[f] : undefined);
   const [typed, setTyped] = useState<Record<PreviewKey, string>>(
@@ -350,7 +362,7 @@ function EstimateForm({ day, locale, t, state, action }: EstimateProps) {
         />
       </div>
       <Preview values={estimateValues(typed)} locale={locale} t={t} />
-      <Timing t={t} kept={kept} category={null} />
+      <Timing t={t} kept={kept} category={null} bounds={bounds} />
       <div>
         <SubmitButton icon={<Plus size={18} aria-hidden="true" />}>
           {t.day.add}
@@ -389,12 +401,14 @@ function Timing({
   t,
   kept,
   category,
+  bounds,
 }: {
   t: Pick<Messages, "day" | "moments">;
   /** Values sent back after an error, by field name. */
   kept: (field: string) => string | undefined;
   /** The chosen meal's category, if any. */
   category: Moment | null;
+  bounds: MomentBounds;
 }) {
   const [time, setTime] = useState(kept("time") ?? "");
   const [picked, setPicked] = useState<Moment | null>(() => {
@@ -406,6 +420,7 @@ function Timing({
     category,
     time || null,
     now.getHours() * 60 + now.getMinutes(),
+    bounds,
   );
   const moment = picked ?? suggested;
   return (

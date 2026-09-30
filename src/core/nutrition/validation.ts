@@ -22,7 +22,9 @@ import { INGREDIENT_UNITS } from "../db/schema/nutrition";
 import { NUTRIENT_KEYS, type NutrientKey } from "./nutrients";
 import { LOCALES } from "../shared/locales";
 import { THEMES } from "../shared/themes";
-import { isMoment, type Moment } from "./moments";
+import { PER, SORTS } from "./metrics";
+import { isMoment, minutesOf, type Moment } from "./moments";
+import type { TrendRange } from "./preferences";
 
 /**
  * A decimal typed by a person, e.g. "12,5". Returns the canonical string.
@@ -206,6 +208,40 @@ export const settingsInput = z.object({
   theme: z.enum(THEMES, "invalid_choice"),
 });
 export type SettingsInput = z.output<typeof settingsInput>;
+
+/** "HH:MM" -> minutes after midnight; invalid -> "invalid_time". */
+const minutesField = z
+  .string()
+  .refine((v) => isValidTime(v), "invalid_time")
+  .transform((v) => minutesOf(v));
+
+/**
+ * The preferences form (core/nutrition/preferences.ts). Moment hours must
+ * keep their order (lunch after 05:00, before snack, before dinner), the
+ * same rule as the database CHECK.
+ */
+export const preferencesInput = z
+  .object({
+    autoTargets: z
+      .string()
+      .optional()
+      .transform((v) => v === "on"),
+    lunchFrom: minutesField,
+    snackFrom: minutesField,
+    dinnerFrom: minutesField,
+    trendsRange: z
+      .enum(["7", "30", "90"], "invalid_choice")
+      .transform((v) => Number(v) as TrendRange),
+    listSort: z.enum(SORTS, "invalid_choice"),
+    listPer: z.enum(PER, "invalid_choice"),
+  })
+  .superRefine((v, ctx) => {
+    if (v.lunchFrom < 300 || v.snackFrom <= v.lunchFrom)
+      ctx.addIssue({ code: "custom", path: ["snackFrom"], message: "moments_order" });
+    if (v.dinnerFrom <= v.snackFrom)
+      ctx.addIssue({ code: "custom", path: ["dinnerFrom"], message: "moments_order" });
+  });
+export type PreferencesInput = z.output<typeof preferencesInput>;
 
 /** A day profile: a name and optional daily targets (empty = no target). */
 export const profileInput = z.object({

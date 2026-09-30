@@ -13,7 +13,7 @@
  */
 import { RefreshCw, Trash2 } from "lucide-react";
 import { detailLines, stripValues } from "@/core/nutrition/display";
-import { groupByMoment } from "@/core/nutrition/moments";
+import { groupByMoment, type MomentBounds } from "@/core/nutrition/moments";
 import type { DayView } from "@/core/nutrition/repositories/log";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
@@ -36,6 +36,8 @@ type Props = {
   locale: Locale;
   /** The user's time zone: entry times are shown in it. */
   timeZone: string;
+  /** Where the moments start (preferences). */
+  bounds: MomentBounds;
   removeAction: EntryAction;
   refreshAction: EntryAction;
   /** Tick / untick (ADR-0009), bound per entry and target status. */
@@ -51,6 +53,7 @@ export function EntryList({
   day,
   locale,
   timeZone,
+  bounds,
   removeAction,
   refreshAction,
   statusAction,
@@ -62,7 +65,7 @@ export function EntryList({
   return (
     // Grouped by moment of the day (ADR-0011), each with its eaten kcal.
     <div className="flex flex-col gap-4">
-      {groupByMoment(day.entries, timeZone).map((group) => (
+      {groupByMoment(day.entries, timeZone, bounds).map((group) => (
         <section key={group.moment ?? "none"} className="flex flex-col">
           <h3 className="flex items-center justify-between gap-2 rule-b-medium border-ink pb-1 font-display text-item font-bold">
             <span className="flex items-center gap-1.5">

@@ -73,10 +73,12 @@ export default async function DayPage({ searchParams }: Props) {
     ],
   );
   // The day's own targets, plus recommended maxima where none is set
-  // (sugars, saturated fat, salt — core/nutrition/targets.ts).
-  const { targets, auto } = withAutoTargets(
-    dayTargets.source === "none" ? emptyTargets() : dayTargets.targets,
-  );
+  // (sugars, saturated fat, salt — core/nutrition/targets.ts), unless the
+  // user turned them off (preferences).
+  const own = dayTargets.source === "none" ? emptyTargets() : dayTargets.targets;
+  const { targets, auto } = settings.preferences.autoTargets
+    ? withAutoTargets(own)
+    : { targets: own, auto: [] };
   /** The five values the add-to-day preview scales (core/nutrition/preview.ts). */
   const pick = (v: MacroValues): MacroValues => ({
     kcal: v.kcal,
@@ -121,6 +123,7 @@ export default async function DayPage({ searchParams }: Props) {
           statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
           timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
           timeZone={settings.timezone}
+          bounds={settings.preferences.bounds}
           t={t}
         />
         {view.entries.length === 0 && (
@@ -134,6 +137,7 @@ export default async function DayPage({ searchParams }: Props) {
         <AddToDay
           day={day}
           locale={locale}
+          bounds={settings.preferences.bounds}
           meals={meals.map((m) => ({
             id: m.id,
             name: m.name,

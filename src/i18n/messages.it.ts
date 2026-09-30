@@ -45,6 +45,8 @@ export const it: Messages = {
     is_default:
       "È il tipo di giornata predefinito. Rendi predefinito un altro tipo prima.",
     invalid_time: "Inserisci un'ora come 12:30.",
+    moments_order:
+      "Gli orari devono essere in ordine: pranzo dopo le 05:00, poi spuntino, poi cena.",
   },
   auth: {
     signInTitle: "Accedi",
@@ -260,6 +262,19 @@ export const it: Messages = {
       fiber: "su fibre",
     },
     sortValue: "{what}: {v}",
+  },
+  preferences: {
+    title: "Preferenze",
+    autoTargets: "Limiti consigliati automatici",
+    autoTargetsHint:
+      "Se un tipo di giornata non fissa zuccheri, grassi saturi o sale, usa i massimi consigliati (UE, OMS). Spento: solo gli obiettivi che hai scritto tu.",
+    momentsTitle: "Orari dei momenti",
+    from: "{moment} dalle",
+    momentsHint:
+      "Servono a proporre il momento quando aggiungi qualcosa e a raggruppare le voci senza momento. La colazione è prima del pranzo.",
+    trendsRange: "Periodo dell'andamento all'apertura",
+    listSort: "Ordine delle liste all'apertura",
+    save: "Salva preferenze",
   },
   moments: {
     label: "Momento",

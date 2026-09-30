@@ -5,7 +5,8 @@
  *
  * Targets per day are the day's own (fixed copy or default profile,
  * ADR-0008) plus the automatic maxima for sugars, saturated fat and salt
- * (core/nutrition/targets.ts withAutoTargets), exactly as on the day page.
+ * (core/nutrition/targets.ts withAutoTargets) unless turned off, exactly as
+ * on the day page.
  */
 import { average } from "@/core/nutrition/insights";
 import { NUTRIENT_KEYS, NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
@@ -23,14 +24,17 @@ type Props = {
   history: DaySummary[];
   today: string;
   timeZone: string;
+  /** Recommended maxima where no target is set (preferences). */
+  autoTargets: boolean;
   locale: Locale;
   t: Pick<Messages, "trends" | "nutrients" | "analysis">;
 };
 
-export function Trends({ history, today, timeZone, locale, t }: Props) {
-  const targetsByDay = history.map(
-    (d) => withAutoTargets(d.targets ?? emptyTargets()).targets,
-  );
+export function Trends({ history, today, timeZone, autoTargets, locale, t }: Props) {
+  const targetsByDay = history.map((d) => {
+    const own = d.targets ?? emptyTargets();
+    return autoTargets ? withAutoTargets(own).targets : own;
+  });
   return (
     <div className="flex flex-col gap-8">
       <Analysis

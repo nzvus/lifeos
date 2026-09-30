@@ -9,7 +9,8 @@ import type { Db } from "../../db/client";
 import { userSettings } from "../../db/schema";
 import type { Owner } from "../../identity/owner";
 import { createTestDb, createTestUser } from "../../testing/test-db";
-import { getSettings, saveSettings } from "./settings";
+import { DEFAULT_PREFERENCES } from "../preferences";
+import { getSettings, savePreferences, saveSettings } from "./settings";
 
 let db: Db;
 let close: () => Promise<void>;
@@ -29,13 +30,14 @@ describe("settings", () => {
       timezone: "Europe/Rome",
       locale: "it",
       theme: "label",
+      preferences: DEFAULT_PREFERENCES,
     });
   });
 
   it("saves the theme with the rest, and saving again updates the row", async () => {
     await saveSettings(db, me, { timezone: "Europe/Rome", locale: "it", theme: "orto" });
     await saveSettings(db, me, { timezone: "UTC", locale: "en", theme: "cruscotto" });
-    expect(await getSettings(db, me)).toEqual({
+    expect(await getSettings(db, me)).toMatchObject({
       timezone: "UTC",
       locale: "en",
       theme: "cruscotto",
@@ -54,5 +56,28 @@ describe("settings", () => {
   it("never reads another user's settings", async () => {
     await saveSettings(db, other, { timezone: "UTC", locale: "en", theme: "cruscotto" });
     expect((await getSettings(db, me)).theme).toBe("label");
+  });
+
+  it("saves preferences without touching the other settings", async () => {
+    await saveSettings(db, me, { timezone: "UTC", locale: "en", theme: "orto" });
+    await savePreferences(db, me, {
+      autoTargets: false,
+      lunchFrom: 720,
+      snackFrom: 960,
+      dinnerFrom: 1170,
+      trendsRange: 30,
+      listSort: "fiber",
+      listPer: "cost",
+    });
+    const s = await getSettings(db, me);
+    expect(s.theme).toBe("orto");
+    expect(s.preferences).toEqual({
+      autoTargets: false,
+      bounds: { lunch: 720, snack: 960, dinner: 1170 },
+      trendsRange: 30,
+      listSort: "fiber",
+      listPer: "cost",
+    });
+    expect((await getSettings(db, other)).preferences).toEqual(DEFAULT_PREFERENCES);
   });
 });

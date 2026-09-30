@@ -1,6 +1,6 @@
 /**
  * core/nutrition/repositories/settings.ts — per-user settings: time zone,
- * language and theme (ADR-0010). (Daily targets moved to day profiles, ADR-0008:
+ * language, theme (ADR-0010) and preferences (core/nutrition/preferences.ts). (Daily targets moved to day profiles, ADR-0008:
  * ./profiles.ts. The old target columns are still in the table, unread,
  * until a later migration drops them.)
  *
@@ -16,18 +16,25 @@ import { userSettings } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "../../shared/locales";
 import { DEFAULT_THEME, isTheme, type Theme } from "../../shared/themes";
-import type { SettingsInput } from "../validation";
+import { DEFAULT_PREFERENCES, preferencesOf, type Preferences } from "../preferences";
+import type { PreferencesInput, SettingsInput } from "../validation";
 
 export type Settings = {
   timezone: string;
   locale: Locale;
   theme: Theme;
+  preferences: Preferences;
 };
 
 export const DEFAULT_TIMEZONE = "Europe/Rome";
 
 function defaults(): Settings {
-  return { timezone: DEFAULT_TIMEZONE, locale: DEFAULT_LOCALE, theme: DEFAULT_THEME };
+  return {
+    timezone: DEFAULT_TIMEZONE,
+    locale: DEFAULT_LOCALE,
+    theme: DEFAULT_THEME,
+    preferences: DEFAULT_PREFERENCES,
+  };
 }
 
 export async function getSettings(db: Db, owner: Owner): Promise<Settings> {
@@ -38,6 +45,7 @@ export async function getSettings(db: Db, owner: Owner): Promise<Settings> {
     // The DB column is plain text; fall back if it ever holds an unknown value.
     locale: isLocale(row.locale) ? row.locale : DEFAULT_LOCALE,
     theme: isTheme(row.theme) ? row.theme : DEFAULT_THEME,
+    preferences: preferencesOf(row),
   };
 }
 
@@ -50,5 +58,17 @@ export async function saveSettings(
     .insert(userSettings)
     .values({ userId: owner.id, ...input })
     // Conflict on the primary key (user_id) = row exists: update it instead.
+    .onConflictDoUpdate({ target: userSettings.userId, set: input });
+}
+
+/** Saves the preferences (migration 0006); creates the row if needed. */
+export async function savePreferences(
+  db: Db,
+  owner: Owner,
+  input: PreferencesInput,
+): Promise<void> {
+  await db
+    .insert(userSettings)
+    .values({ userId: owner.id, ...input })
     .onConflictDoUpdate({ target: userSettings.userId, set: input });
 }
