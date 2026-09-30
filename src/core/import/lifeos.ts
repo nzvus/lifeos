@@ -14,6 +14,7 @@
  * entry -> meal, plan -> profile); the database gives every row a new id.
  */
 import { z } from "zod";
+import { MOMENTS } from "../nutrition/moments";
 import { ok, type Result } from "../shared/result";
 import { isValidDay } from "../shared/dates";
 
@@ -52,7 +53,7 @@ export const ingredientRow = z.object({
 
 const exportFile = z.object({
   format: z.literal("lifeos-export"),
-  version: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+  version: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
   settings: z.object({ timezone: z.string(), locale: z.string() }).nullable(),
   ingredients: z.array(
     z.object({
@@ -69,6 +70,8 @@ const exportFile = z.object({
       id: z.string(),
       name: z.string().min(1),
       notes: z.string(),
+      // Version 4 (ADR-0011); older files have no category.
+      category: z.enum(MOMENTS).nullable().default(null),
       items: z.array(
         z.object({
           ingredientId: z.string(),
@@ -109,6 +112,8 @@ const exportFile = z.object({
       status: z.enum(["planned", "eaten"]).default("eaten"),
       at: z.string().nullable().default(null),
       estimated: z.boolean().default(false),
+      // Version 4 (ADR-0011); older files have no moment (derived from the time).
+      moment: z.enum(MOMENTS).nullable().default(null),
       items: z.array(
         z.object({
           ingredientId: z.string().nullable(),

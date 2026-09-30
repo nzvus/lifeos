@@ -263,6 +263,22 @@ export const en = {
     },
     sortValue: "{what}: {v}",
   },
+  moments: {
+    label: "Moment",
+    hint: "Prefilled from the meal's category or the time; you can change it.",
+    none: "No moment",
+    categoryLabel: "Category",
+    categoryNone: "— none",
+    categoryHint: "Optional: suggests the moment when you add it to a day.",
+    all: "All",
+    subtotal: "{v} kcal",
+    names: {
+      breakfast: "Breakfast",
+      lunch: "Lunch",
+      snack: "Snack",
+      dinner: "Dinner",
+    },
+  },
   macroShort: {
     protein: "Protein",
     carbs: "Carbs",

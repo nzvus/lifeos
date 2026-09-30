@@ -12,7 +12,7 @@
 
 import { Tag } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   browseFoods,
   PER,
@@ -21,6 +21,7 @@ import {
   type Per,
   type SortKey,
 } from "@/core/nutrition/metrics";
+import { MOMENTS, type Moment } from "@/core/nutrition/moments";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { detailLines, macroBars } from "@/core/nutrition/display";
 import type { MealWithLines } from "@/core/nutrition/repositories/meals";
@@ -32,6 +33,7 @@ import { FoodDetails } from "@/ui/FoodDetails";
 import { FoodCardMeta } from "@/ui/FoodCardMeta";
 import { ListItem } from "@/ui/ListItem";
 import { MacroBars } from "@/ui/MacroBars";
+import { MomentIcon } from "@/ui/MomentIcon";
 import { ListToolbar } from "@/ui/ListToolbar";
 import { SortNote } from "@/ui/SortNote";
 import { useListControls } from "@/ui/useListControls";
@@ -40,7 +42,10 @@ type Props = {
   meals: MealWithLines[];
   usage: UsageMap;
   locale: Locale;
-  t: Pick<Messages, "meals" | "nutrients" | "search" | "macro" | "label" | "macroShort">;
+  t: Pick<
+    Messages,
+    "meals" | "nutrients" | "search" | "macro" | "label" | "macroShort" | "moments"
+  >;
 };
 
 export function MealBrowser({ meals, usage, locale, t }: Props) {
@@ -68,9 +73,12 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
     [meals, usage],
   );
 
+  // Filter by category (ADR-0011): null = all meals.
+  const [category, setCategory] = useState<Moment | null>(null);
+
   const shown = useMemo(
     () =>
-      browseFoods(rows, {
+      browseFoods(category ? rows.filter((r) => r.category === category) : rows, {
         query: list.query,
         describe: (r) => ({
           text: r.searchText,
@@ -84,7 +92,7 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
         direction: list.direction,
         locale,
       }),
-    [rows, list.query, list.sort, list.per, list.direction, locale],
+    [rows, category, list.query, list.sort, list.per, list.direction, locale],
   );
 
   const labels = macroLabels(t);
@@ -100,6 +108,28 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
         total={rows.length}
         t={t.search}
       />
+      <div
+        role="group"
+        aria-label={t.moments.categoryLabel}
+        className="flex flex-wrap gap-1.5"
+      >
+        {[null, ...MOMENTS].map((m) => (
+          <button
+            key={m ?? "all"}
+            type="button"
+            aria-pressed={category === m}
+            onClick={() => setCategory(m)}
+            className={`inline-flex items-center gap-1 rounded-control border px-2 py-1 text-meta ${
+              category === m
+                ? "border-ink bg-sheet font-semibold"
+                : "border-hairline text-muted hover:border-ink"
+            }`}
+          >
+            {m && <MomentIcon moment={m} size={14} />}
+            {m ? t.moments.names[m] : t.moments.all}
+          </button>
+        ))}
+      </div>
 
       <ul className="grid gap-x-8 md:grid-cols-2">
         {shown.map((m) => {
@@ -113,6 +143,13 @@ export function MealBrowser({ meals, usage, locale, t }: Props) {
                 >
                   {m.name}
                 </Link>
+              }
+              leading={
+                m.category ? (
+                  <span className="pt-1 text-muted" title={t.moments.names[m.category]}>
+                    <MomentIcon moment={m.category} />
+                  </span>
+                ) : undefined
               }
               aside={
                 <span className="inline-flex items-center gap-1">

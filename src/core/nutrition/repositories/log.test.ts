@@ -307,3 +307,34 @@ describe("daily log", () => {
     expect(h.map((d) => d.totals.nutrients.kcal)).toEqual(["850.0", "0.0"]);
   });
 });
+
+describe("moments (ADR-0011)", () => {
+  it("stores an entry's moment, copies it when a day is repeated, and a meal's category", async () => {
+    const meal = await createMeal(db, alice, {
+      name: "Yogurt",
+      notes: "",
+      category: "breakfast",
+      items: [{ ingredientId: milkId, quantity: "200" }],
+    });
+    if (!meal.ok) throw new Error("setup failed");
+    expect((await getMeal(db, alice, meal.value.id))?.category).toBe("breakfast");
+
+    await logMeal(db, alice, {
+      day: "2026-09-29",
+      mealId: meal.value.id,
+      servings: "1",
+      moment: "snack",
+    });
+    await logIngredient(db, alice, {
+      day: "2026-09-29",
+      ingredientId: oatsId,
+      quantity: "50",
+    });
+    const day = await getDay(db, alice, "2026-09-29");
+    expect(day.entries.map((e) => e.moment)).toEqual(["snack", null]);
+
+    await copyDay(db, alice, "2026-09-29", "2026-09-30");
+    const copy = await getDay(db, alice, "2026-09-30");
+    expect(copy.entries.map((e) => e.moment).sort()).toEqual(["snack", null].sort());
+  });
+});

@@ -121,8 +121,8 @@ cannot poll URLs itself, so app health has daily granularity.
 - **Targets:** per day from `core/nutrition/repositories/profiles.ts`:
   fixed copy, else default profile (live), else none (ADR-0008).
   `user_settings.target_*` are deprecated and unread.
-- **Log entries** (ADR-0009): planned or eaten, optional time `at`,
-  optionally an estimate; the day's totals are the EATEN ones.
+- **Log entries** (ADR-0009/0011): planned or eaten, optional time `at`, a
+  moment (else derived from `at`), optionally an estimate; totals = EATEN.
 - **Time:** days are `date` strings;"today" uses the user's time zone
   (`user_settings.timezone`), never the server's UTC clock.
 - **Search & ordering:** one function, `core/shared/search.ts` (case- and

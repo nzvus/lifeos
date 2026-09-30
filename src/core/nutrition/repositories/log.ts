@@ -22,6 +22,7 @@ import {
   type DisplayTotals,
   type TotalsLine,
 } from "../totals";
+import type { Moment } from "../moments";
 import type { EstimateInput, LogIngredientInput, LogMealInput } from "../validation";
 import type { EntryStatus } from "../../db/schema";
 import { instantFor } from "../../shared/dates";
@@ -48,6 +49,8 @@ export type LogEntryView = {
   status: EntryStatus;
   /** When eaten / planned, ISO instant; null if unknown. */
   at: string | null;
+  /** ADR-0011: the stored moment, null if not set (derive with entryMoment). */
+  moment: Moment | null;
   /** An estimated meal (typed approximate totals). */
   estimated: boolean;
   lines: LoggedLine[];
@@ -117,6 +120,7 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
       mealId: e.mealId,
       status: e.status,
       at: e.at ? e.at.toISOString() : null,
+      moment: e.moment,
       estimated: e.estimated,
       lines: linesByEntry.get(e.id) ?? [],
       totals: toDisplay(exact[i]!),
@@ -131,7 +135,8 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
 export async function logMeal(
   db: Db,
   owner: Owner,
-  input: Omit<LogMealInput, "planned" | "time"> & Partial<EntryTiming>,
+  input: Omit<LogMealInput, "planned" | "time" | "moment"> &
+    Partial<EntryTiming> & { moment?: Moment | null },
 ): Promise<Result<{ id: string }>> {
   const meal = await getMeal(db, owner, input.mealId); // owner-checked read
   if (!meal) return fail({ mealId: "not_found" });
@@ -145,6 +150,7 @@ export async function logMeal(
         mealId: meal.id,
         label: meal.name, // the name as it is today
         servings: input.servings,
+        moment: input.moment ?? null,
         ...timingOf(input),
       })
       .returning({ id: logEntries.id });
@@ -175,7 +181,8 @@ export async function logMeal(
 export async function logIngredient(
   db: Db,
   owner: Owner,
-  input: Omit<LogIngredientInput, "planned" | "time"> & Partial<EntryTiming>,
+  input: Omit<LogIngredientInput, "planned" | "time" | "moment"> &
+    Partial<EntryTiming> & { moment?: Moment | null },
 ): Promise<Result<{ id: string }>> {
   const ing = await getIngredient(db, owner, input.ingredientId);
   if (!ing) return fail({ ingredientId: "not_found" });
@@ -187,6 +194,7 @@ export async function logIngredient(
         userId: owner.id,
         day: input.day,
         label: ing.name,
+        moment: input.moment ?? null,
         servings: "1",
         ...timingOf(input),
       })
@@ -255,6 +263,7 @@ export async function copyDay(
           // actually eat. Times are not copied.
           status: "planned",
           at: null,
+          moment: e.moment, // the same moment as the day it repeats
           estimated: e.estimated,
         })
         .returning({ id: logEntries.id });
@@ -429,7 +438,8 @@ export async function setEntryTime(
 export async function logEstimate(
   db: Db,
   owner: Owner,
-  input: Omit<EstimateInput, "planned" | "time"> & Partial<EntryTiming>,
+  input: Omit<EstimateInput, "planned" | "time" | "moment"> &
+    Partial<EntryTiming> & { moment?: Moment | null },
 ): Promise<Result<{ id: string }>> {
   const id = await db.transaction(async (tx) => {
     const [entry] = await tx
@@ -440,6 +450,7 @@ export async function logEstimate(
         label: input.label,
         servings: "1",
         estimated: true,
+        moment: input.moment ?? null,
         ...timingOf(input),
       })
       .returning({ id: logEntries.id });

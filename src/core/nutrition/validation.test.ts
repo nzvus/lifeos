@@ -80,4 +80,16 @@ describe("mealInput / logMealInput", () => {
     });
     expect(r).toEqual({ ok: false, errors: { day: "invalid_day", mealId: "not_found" } });
   });
+
+  it("takes an optional moment (ADR-0011): empty = not set, unknown = error", () => {
+    const base = { day: "2026-09-30", mealId: crypto.randomUUID(), servings: "1" };
+    const ok = parseInput(logMealInput, { ...base, moment: "dinner" });
+    expect(ok.ok && ok.value.moment).toBe("dinner");
+    const empty = parseInput(logMealInput, { ...base, moment: "" });
+    expect(empty.ok && empty.value.moment).toBeNull();
+    expect(parseInput(logMealInput, { ...base, moment: "brunch" })).toEqual({
+      ok: false,
+      errors: { moment: "invalid_choice" },
+    });
+  });
 });

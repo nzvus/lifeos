@@ -30,11 +30,12 @@ export default async function NewMealPage() {
         <MealForm
           action={createMealAction}
           ingredients={ingredients}
-          initial={{ name: "", notes: "", items: [] }}
+          initial={{ name: "", notes: "", category: "", items: [] }}
           submitLabel={t.meals.create}
           locale={settings.locale}
           t={{
             meals: t.meals,
+            moments: t.moments,
             nutrients: t.nutrients,
             errors: t.errors,
             search: t.search,

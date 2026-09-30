@@ -33,6 +33,7 @@ export default async function MealsPage() {
           search: t.search,
           macro: t.macro,
           macroShort: t.macroShort,
+          moments: t.moments,
           label: t.label,
         }}
       />

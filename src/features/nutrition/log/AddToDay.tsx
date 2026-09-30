@@ -21,6 +21,7 @@
 import { Calculator, Carrot, Plus, UtensilsCrossed } from "lucide-react";
 import { useActionState, useCallback, useMemo, useState, type ReactNode } from "react";
 import { stripValues } from "@/core/nutrition/display";
+import { isMoment, MOMENTS, suggestMoment, type Moment } from "@/core/nutrition/moments";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import {
   estimateValues,
@@ -37,7 +38,9 @@ import { fill, macroLabels, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
+import { MomentIcon } from "@/ui/MomentIcon";
 import { Section } from "@/ui/Section";
+import { SelectField } from "@/ui/SelectField";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { SubmitButton } from "@/ui/SubmitButton";
 
@@ -49,11 +52,19 @@ export type Pickable = SearchItem & {
   /** Exact values: per serving for a meal, per 100 g/ml for an ingredient. */
   values: MacroValues;
   unit?: string; // ingredients only
+  category?: Moment | null; // meals only (ADR-0011)
 };
 
 type T = Pick<
   Messages,
-  "day" | "errors" | "meals" | "search" | "macro" | "ingredients" | "nutrients"
+  | "day"
+  | "errors"
+  | "meals"
+  | "search"
+  | "macro"
+  | "ingredients"
+  | "nutrients"
+  | "moments"
 >;
 
 type Props = {
@@ -274,7 +285,7 @@ function PickForm({
         required
       />
       <Preview values={preview} locale={locale} t={t} />
-      <Timing t={t} planned={kept("planned") === "on"} time={kept("time") ?? ""} />
+      <Timing t={t} kept={kept} category={chosen?.category ?? null} />
       <div>
         <SubmitButton icon={<Plus size={18} aria-hidden="true" />}>
           {t.day.add}
@@ -339,7 +350,7 @@ function EstimateForm({ day, locale, t, state, action }: EstimateProps) {
         />
       </div>
       <Preview values={estimateValues(typed)} locale={locale} t={t} />
-      <Timing t={t} planned={kept("planned") === "on"} time={kept("time") ?? ""} />
+      <Timing t={t} kept={kept} category={null} />
       <div>
         <SubmitButton icon={<Plus size={18} aria-hidden="true" />}>
           {t.day.add}
@@ -369,16 +380,34 @@ function Preview({
   );
 }
 
-/** "Planned" checkbox + optional time (ADR-0009). */
+/**
+ * "Planned" checkbox, optional time (ADR-0009) and the moment of the day
+ * (ADR-0011). The moment follows the suggestion — the meal's category, else
+ * the time typed, else the current time — until the user picks one.
+ */
 function Timing({
   t,
-  planned,
-  time,
+  kept,
+  category,
 }: {
-  t: Pick<Messages, "day">;
-  planned: boolean;
-  time: string;
+  t: Pick<Messages, "day" | "moments">;
+  /** Values sent back after an error, by field name. */
+  kept: (field: string) => string | undefined;
+  /** The chosen meal's category, if any. */
+  category: Moment | null;
 }) {
+  const [time, setTime] = useState(kept("time") ?? "");
+  const [picked, setPicked] = useState<Moment | null>(() => {
+    const m = kept("moment");
+    return m && isMoment(m) ? m : null;
+  });
+  const now = new Date();
+  const suggested = suggestMoment(
+    category,
+    time || null,
+    now.getHours() * 60 + now.getMinutes(),
+  );
+  const moment = picked ?? suggested;
   return (
     <div className="flex flex-wrap items-end gap-4">
       <label className="flex items-center gap-2 text-meta">
@@ -386,7 +415,7 @@ function Timing({
           type="checkbox"
           name="planned"
           id="add-planned"
-          defaultChecked={planned}
+          defaultChecked={kept("planned") === "on"}
           className="h-4 w-4 accent-herb"
         />
         {t.day.planned}
@@ -397,11 +426,21 @@ function Timing({
           type="time"
           name="time"
           id="add-time"
-          defaultValue={time}
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
           className="rule-b-medium border-ink bg-sheet px-2 py-1"
         />
       </label>
-      <p className="w-full text-meta text-muted">{t.day.timeHint}</p>
+      <SelectField
+        label={t.moments.label}
+        icon={<MomentIcon moment={moment} />}
+        name="moment"
+        id="add-moment"
+        value={moment}
+        onChange={(e) => setPicked(e.target.value as Moment)}
+        options={MOMENTS.map((m) => ({ value: m, label: t.moments.names[m] }))}
+      />
+      <p className="w-full text-meta text-muted">{`${t.day.timeHint} ${t.moments.hint}`}</p>
     </div>
   );
 }
