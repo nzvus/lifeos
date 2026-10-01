@@ -7,8 +7,9 @@
  *
  * A session belongs to a routine when it was started from it (routineId) or
  * when its label is the routine's name plus an optional number ("PUSH 5" is
- * a "Push"), so the imported text logs count too. The next label continues
- * the numbering ("PUSH 6"). Pure.
+ * a "Push"), so the imported text logs count too. A new session is called
+ * like its routine, with no number: the date already orders the runs, and
+ * "PUSH 5" and "PUSH 6" are the same routine (developer, 2026-10-01). Pure.
  */
 
 /** What a preset set carries (a stored set row has more). */
@@ -27,7 +28,7 @@ export type PresetSet = {
 export type PresetExercise<S> = { exerciseId: string; restS: number | null; sets: S[] };
 
 export type Preset<S> = {
-  /** "PUSH 6", or the routine's name when nothing is numbered. */
+  /** The routine's name. */
   label: string;
   /** Where the exercises come from: the last session of the routine, or its items. */
   from: { kind: "session"; day: string; label: string } | { kind: "routine" };
@@ -79,11 +80,8 @@ export function latestPreset<S extends PresetSet>(
       s.status === "done" &&
       (s.routineId === routine.id || labelFamily(s.label).family === family),
   );
-  const numbers = mine.map((s) => labelFamily(s.label).n).filter((n) => n !== null);
   const last = [...mine].sort((a, b) => a.day.localeCompare(b.day)).at(-1);
-  const label = numbers.length
-    ? `${last!.label.replace(/\s*\d+\s*$/, "")} ${Math.max(...numbers) + 1}`
-    : routine.name;
+  const label = routine.name;
   if (!last)
     return {
       label,
