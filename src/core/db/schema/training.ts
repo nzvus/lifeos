@@ -30,7 +30,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import type { ExerciseKind, SessionStatus } from "../../training/kinds";
+import type { ExerciseKind, Intensity, SessionStatus } from "../../training/kinds";
 import { user } from "./auth";
 
 const tstz = (name: string) => timestamp(name, { withTimezone: true });
@@ -141,12 +141,25 @@ export const trainingSessions = pgTable(
     // The routine it was started from; the session stands on its own after.
     routineId: uuid("routine_id").references(() => routines.id, { onDelete: "set null" }),
     notes: text("notes").notNull().default(""),
+    // ADR-0016, an estimated session (no exercises): how hard it was, the
+    // kcal the user guesses (optional) and roughly which muscle groups.
+    intensity: text("intensity").$type<Intensity>(),
+    kcalEstimate: integer("kcal_estimate"),
+    muscleGroups: text("muscle_groups")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     createdAt: tstz("created_at").defaultNow().notNull(),
     // ADR-0015: in the trash since then (null = live); purged after 30 days.
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     unique("training_sessions_id_user_uq").on(t.id, t.userId),
+    check(
+      "training_sessions_intensity_ck",
+      sql`${t.intensity} in ('light', 'moderate', 'vigorous')`,
+    ),
+    check("training_sessions_kcal_ck", sql`${t.kcalEstimate} between 1 and 10000`),
     check("training_sessions_status_ck", sql`${t.status} in ('planned', 'done')`),
     check("training_sessions_duration_ck", sql`${t.durationMin} > 0`),
     index("training_sessions_user_day_idx").on(t.userId, t.day),

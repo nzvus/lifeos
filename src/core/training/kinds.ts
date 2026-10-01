@@ -11,3 +11,7 @@ export type ExerciseKind = (typeof EXERCISE_KINDS)[number];
 
 export const SESSION_STATUSES = ["planned", "done"] as const;
 export type SessionStatus = (typeof SESSION_STATUSES)[number];
+
+/** How hard an estimated session was (ADR-0016): a MET band each (analysis.ts). */
+export const INTENSITIES = ["light", "moderate", "vigorous"] as const;
+export type Intensity = (typeof INTENSITIES)[number];
