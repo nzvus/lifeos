@@ -69,6 +69,8 @@
      usable if the fonts fail to load. */
   --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* The phone tab bar's labels: five must fit in 390 px in every theme. */
+  --font-nav: var(--font-display);
 
   /* --- shape (ADR-0010): what a theme may change besides colour ---
      Themes override these under [data-theme="<id>"]; so do Tailwind's own
@@ -86,7 +88,10 @@
      (rounded-surface). Square on the label. */
   --radius-control: 0rem;
   --radius-surface: 0rem;
-  --radius-badge: 0.25rem; /* ui/Badge: status and kind labels */
+  /* rounded-button: buttons (ui/button.ts) — the control radius unless a
+     theme rounds them further (orto's pills), declared in :root below. */
+  --radius-button: var(--radius-control);
+  --radius-badge: 0rem; /* ui/Badge: status and kind labels (square on the label) */
   /* Type scale: five named levels, the only text sizes the app uses (lint
      forbids text-xs … text-4xl). Sizes and line heights are Tailwind's own
      3xl / xl / lg / base / sm, so the label theme looks as before. */
@@ -119,8 +124,9 @@
  */
 :root {
   --panel-bg: var(--color-sheet);
-  --panel-border: 1px solid var(--color-hairline);
-  --panel-radius: 0.75rem;
+  /* Label (S20): every card is a label box — square, framed in ink. */
+  --panel-border: var(--rule-strong) solid var(--color-ink);
+  --panel-radius: 0;
   --panel-shadow: none;
   --tile-bg: var(--color-paper);
   --tile-border: 1px solid var(--color-hairline);
@@ -131,6 +137,47 @@
   --item-shadow: none;
   --item-pad: 0rem;
   --item-gap: 0rem;
+  /* Section headings (S20): what makes a theme recognisable at a glance.
+     Label: the heavy rule under every heading, like a nutrition label. */
+  --heading-case: none;
+  --heading-tracking: normal;
+  --heading-size: var(--text-section);
+  --heading-weight: 700;
+  --heading-color: var(--color-ink);
+  --heading-rule: var(--rule-heavy) solid var(--color-ink);
+  --heading-pad: 0.375rem;
+  /* The icon before a heading: bare (label), a tinted disc (orto)… */
+  --icon-chip-bg: transparent;
+  --icon-chip-pad: 0;
+  --icon-chip-radius: 0;
+  /* The rule under the app header. */
+  --header-rule: var(--rule-heavy) solid var(--color-ink);
+}
+@utility section-heading {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  font-family: var(--font-display);
+  font-size: var(--heading-size);
+  line-height: var(--text-section--line-height);
+  font-weight: var(--heading-weight);
+  color: var(--heading-color);
+  text-transform: var(--heading-case);
+  letter-spacing: var(--heading-tracking);
+  border-bottom: var(--heading-rule);
+  padding-bottom: var(--heading-pad);
+}
+@utility section-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-herb);
+  background: var(--icon-chip-bg);
+  padding: var(--icon-chip-pad);
+  border-radius: var(--icon-chip-radius);
+}
+@utility app-header-rule {
+  border-bottom: var(--header-rule);
 }
 @utility panel {
   background: var(--panel-bg);

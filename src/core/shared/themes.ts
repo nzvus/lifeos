@@ -22,11 +22,12 @@ export function isTheme(s: string): s is Theme {
  * The component variants each theme uses where a different LAYOUT is
  * needed (ADR-0010 "slots"). Everything else a theme changes is tokens
  * (design/themes/<id>.css: colours, type, spacing, surfaces). Today one
- * slot is needed: the day panel as rings + bars, or as a grid of tiles.
+ * slot is needed: the day panel as rings + bars, a grid of tiles, or a
+ * nutrition-facts table (S20: the label theme is a label).
  */
-export type ThemeSlots = { dayPanel: "rings" | "tiles" };
+export type ThemeSlots = { dayPanel: "rings" | "tiles" | "table" };
 export const THEME_SLOTS: Record<Theme, ThemeSlots> = {
-  label: { dayPanel: "rings" },
+  label: { dayPanel: "table" },
   orto: { dayPanel: "rings" },
   cruscotto: { dayPanel: "tiles" },
 };

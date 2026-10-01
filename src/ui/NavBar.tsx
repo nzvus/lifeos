@@ -84,12 +84,13 @@ export function NavBar({ links, label }: { links: NavLink[]; label: string }) {
               key={l.href}
               href={l.href}
               aria-current={active ? "page" : undefined}
-              className={`flex flex-1 flex-col items-center gap-0.5 rule-t-strong py-2 font-display text-meta font-semibold ${
+              className={`flex min-w-0 flex-auto flex-col items-center gap-0.5 rule-t-strong py-2 font-nav text-meta font-semibold tracking-tight ${
                 active ? "border-herb text-herb" : "border-transparent"
               }`}
             >
               <Icon size={22} aria-hidden="true" />
-              {l.label}
+              {/* A wide font (Cruscotto's monospace) must not run into the next tab. */}
+              <span className="w-full truncate text-center">{l.label}</span>
             </Link>
           );
         })}
