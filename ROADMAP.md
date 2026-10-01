@@ -120,6 +120,15 @@
 - [ ] Targets: macros per day as grouped bars (side by side, macro colours); training per day (tonnage, burn) next to intake
 - [ ] Developer review on phone of everything above
 
+## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)
+- **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.
+- [ ] ADR revising ADR-0013 (options, then the developer decides). Open questions:
+  - products not linked to an ingredient (detergent, toiletries…), counted in pieces;
+  - batch cooking as an event that uses ingredients from stock and makes N portions of a meal; logging that meal uses a portion;
+  - reminders: derived ("2 portions left → cook again"; "runs out in 3 days → buy") vs set by hand, and where they show up (day page, shopping list).
+- [ ] Training in the JSON export (exercises, sessions, routines, measurements); next export version
+- [ ] Schema (migration PR first), then purchases + counts, stock and "runs out in", shopping list, batches, reminders
+
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
 
