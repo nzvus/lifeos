@@ -1,6 +1,11 @@
 /**
  * ui/SelectField.tsx — a labelled <select> with optional error. Same contract
  * and accessibility wiring as ui/Field.tsx.
+ *
+ * Keyed on its defaultValue: after a server action React 19 resets the form
+ * to each field's default, and a <select> keeps the default it MOUNTED with
+ * (React does not update it on new props). Without the key, a saved choice
+ * showed the old value until a reload. A new saved value = a fresh select.
  */
 import type { SelectHTMLAttributes, ReactNode } from "react";
 
@@ -40,6 +45,7 @@ export function SelectField({
         {label}
       </label>
       <select
+        key={String(select.defaultValue ?? "")}
         id={selectId}
         name={name}
         aria-invalid={error ? true : undefined}

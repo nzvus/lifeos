@@ -151,6 +151,30 @@ export const energyIt: Messages["energy"] = {
     "Calorie = consumo stimato del giorno con il piano − deficit; proteine e grassi seguono il peso; i carboidrati il resto. Zuccheri, saturi e sale restano limiti.",
   dynamicNote: "Obiettivi dinamici: {kcal} kcal dal consumo con il piano",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
+  formulas: {
+    title: "Come è calcolato",
+    years: "anni",
+    walkNone:
+      "{steps} passi, non oltre i {level} già contati nel livello, e nessuna camminata apposta",
+    walkMinutes:
+      "{min} min = il maggiore fra camminata apposta ({declared} min) e (passi {steps} − {level} del livello) ÷ 100",
+    noBurn: "senza durata né stima: non contato",
+    fromEstimate: "la tua stima {kcal} kcal ±15 %",
+    fromSets:
+      "forza {strength} min × 3,5–5 MET × {kg} kg + cardio {cardio} min a MET dalla velocità",
+    rest: "riposo già nel basale {kcal} kcal ({min} min × 1 MET)",
+    sumDone: "attività quotidiana + camminata + allenamenti fatti",
+    sumPlan: "consumo finora + allenamenti pianificati",
+    deficit: "Obiettivo calorie (deficit)",
+    surplus: "Obiettivo calorie (surplus)",
+    maintenance: "Obiettivo calorie (mantenimento)",
+    midpoint: "metà del consumo con il piano",
+    floor: "minimo 1200",
+    protein: "Proteine",
+    fat: "Grassi",
+    carbs: "Carboidrati (il resto)",
+    fiber: "Fibre",
+  },
   calibration: {
     title: "Calibrazione",
     how: "Confronta gli ultimi {days} giorni: quanto hai mangiato e come è cambiato il peso dicono quanto hai speso davvero.",

@@ -247,6 +247,11 @@ export default async function DayPage({ searchParams }: Props) {
           eaten={view.totals.nutrients.kcal}
           withPlanned={view.withPlanned.nutrients.kcal}
           action={setDayActivityAction.bind(null, day)}
+          dynamic={
+            dynamic && dayTargets.source !== "none" && dayTargets.dynamic
+              ? { params: dayTargets.dynamic, ...dynamic }
+              : null
+          }
           correction={energyView.body.correction ?? 1}
           calibration={calibration}
           setCorrection={setEnergyCorrectionAction}
