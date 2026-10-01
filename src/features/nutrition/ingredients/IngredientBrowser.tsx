@@ -15,7 +15,6 @@
 "use client";
 
 import { Tag } from "lucide-react";
-import Link from "next/link";
 import { useMemo } from "react";
 import { pricePerThousandCents } from "@/core/nutrition/insights";
 import {
@@ -38,6 +37,7 @@ import { MacroStrip } from "@/ui/MacroStrip";
 import { QualityBadges } from "@/ui/QualityIcons";
 import { ListToolbar } from "@/ui/ListToolbar";
 import { SortNote } from "@/ui/SortNote";
+import { TrashMenu } from "@/ui/TrashMenu";
 import { useListControls } from "@/ui/useListControls";
 
 /** The fields this view needs (a subset of an ingredient row). */
@@ -69,10 +69,24 @@ type Props = {
   locale: Locale;
   /** The sort the list opens with (preferences). */
   initialSort: { sort: SortKey; per: Per };
-  t: Pick<Messages, "ingredients" | "nutrients" | "search" | "macro" | "quality">;
+  t: Pick<
+    Messages,
+    "ingredients" | "nutrients" | "search" | "macro" | "quality" | "actions"
+  >;
+  /** The row's "⋯ → Delete" and its Undo (ADR-0015): server actions. */
+  trash: (id: string) => Promise<{ ok: boolean; message?: string }>;
+  restore: (id: string) => Promise<{ ok: boolean; message?: string }>;
 };
 
-export function IngredientBrowser({ ingredients, usage, locale, initialSort, t }: Props) {
+export function IngredientBrowser({
+  ingredients,
+  usage,
+  locale,
+  initialSort,
+  t,
+  trash,
+  restore,
+}: Props) {
   const list = useListControls<SortKey, Per>({
     sort: initialSort.sort,
     direction: sortChoices().find((c) => c.value === initialSort.sort)!.natural,
@@ -147,13 +161,16 @@ export function IngredientBrowser({ ingredients, usage, locale, initialSort, t }
         {shown.map((r) => (
           <ListItem
             key={r.id}
-            title={
-              <Link
-                href={`/ingredients/${r.id}`}
-                className="underline-offset-4 hover:underline"
-              >
-                {r.name}
-              </Link>
+            href={`/ingredients/${r.id}`}
+            title={r.name}
+            action={
+              <TrashMenu
+                id={r.id}
+                name={r.name}
+                trash={trash}
+                restore={restore}
+                labels={t.actions}
+              />
             }
             aside={
               r.perKg === null ? undefined : (

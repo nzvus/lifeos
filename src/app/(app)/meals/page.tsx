@@ -11,6 +11,7 @@ import { listMeals } from "@/core/nutrition/repositories/meals";
 import { averageScores, ratingsByMeal } from "@/core/nutrition/repositories/ratings";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, todayIn } from "@/core/shared/dates";
+import { deleteMealAction, restoreMealAction } from "./actions";
 import { MealBrowser } from "@/features/nutrition/meals/MealBrowser";
 
 export default async function MealsPage() {
@@ -56,7 +57,10 @@ export default async function MealsPage() {
           quality: t.quality,
           ratings: t.ratings,
           mealQuality: t.mealQuality,
+          actions: t.actions,
         }}
+        trash={deleteMealAction}
+        restore={restoreMealAction}
       />
     </>
   );

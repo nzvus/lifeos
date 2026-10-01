@@ -3,7 +3,8 @@
  * of, line by line (name, amount eaten, and its macro strip when there is
  * more than one line — a single ingredient's strip would repeat the row's),
  * then whatever the caller adds (time editor, actions). Native <details>, no
- * JavaScript. Used by the day's entries and the meals list.
+ * JavaScript. Used by the day's entries and the meals list; it sits above
+ * the cover of a row that opens on tap (ui/ListItem), so it still expands.
  */
 import type { ReactNode } from "react";
 import { MacroStrip, type MacroStripLabels, type MacroStripValues } from "./MacroStrip";
@@ -23,7 +24,7 @@ export function FoodDetails({
 }) {
   const withStrips = lines.length > 1;
   return (
-    <details className="text-meta">
+    <details className="relative z-2 text-meta">
       <summary className="cursor-pointer text-muted">{summary}</summary>
       {/* Indented under a hairline: clearly part of the row above. */}
       <div className="mt-1 ml-2 flex flex-col gap-3 border-l border-hairline pl-3">

@@ -11,7 +11,6 @@
 "use client";
 
 import { Tag } from "lucide-react";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   browseFoods,
@@ -38,6 +37,7 @@ import { MacroStrip } from "@/ui/MacroStrip";
 import { MomentIcon } from "@/ui/MomentIcon";
 import { ListToolbar } from "@/ui/ListToolbar";
 import { SortNote } from "@/ui/SortNote";
+import { TrashMenu } from "@/ui/TrashMenu";
 import { useListControls } from "@/ui/useListControls";
 
 type Props = {
@@ -61,7 +61,11 @@ type Props = {
     | "quality"
     | "ratings"
     | "mealQuality"
+    | "actions"
   >;
+  /** The row's "⋯ → Delete" and its Undo (ADR-0015): server actions. */
+  trash: (id: string) => Promise<{ ok: boolean; message?: string }>;
+  restore: (id: string) => Promise<{ ok: boolean; message?: string }>;
 };
 
 export function MealBrowser({
@@ -72,6 +76,8 @@ export function MealBrowser({
   locale,
   initialSort,
   t,
+  trash,
+  restore,
 }: Props) {
   const list = useListControls<SortKey, Per>({
     sort: initialSort.sort,
@@ -160,13 +166,19 @@ export function MealBrowser({
           return (
             <ListItem
               key={m.id}
-              title={
-                <Link
-                  href={`/meals/${m.id}`}
-                  className="underline-offset-4 hover:underline"
-                >
-                  {m.name}
-                </Link>
+              href={`/meals/${m.id}`}
+              title={m.name}
+              action={
+                <TrashMenu
+                  id={m.id}
+                  name={m.name}
+                  trash={trash}
+                  restore={restore}
+                  items={[
+                    { label: t.actions.duplicate, href: `/meals/new?copy=${m.id}` },
+                  ]}
+                  labels={t.actions}
+                />
               }
               leading={
                 m.category ? (
