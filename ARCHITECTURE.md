@@ -14,8 +14,8 @@ through Drizzle (ADR-0003); identity is Better Auth in the same database
 (ADR-0006). Modules: nutrition (ingredients, meals, daily log with snapshots,
 day types and targets, quality, trends) and training (exercises, routines,
 sessions incl. estimates and live mode, body measurements, progress); pantry
-(products, purchases, derived stock, batches, reminders); a trash for
-everything deletable; JSON export/import.
+(products, purchases, derived stock, batches, reminders); an assistant that
+acts through core tools (ADR-0018); a trash for everything deletable; export.
 
 ## Component map
 
@@ -30,7 +30,8 @@ src/
                 account/{auth,settings,trash}, nutrition/{ingredients,meals,log,
                 profiles,trends,pantry}, training/{body,exercises,live,progress,routines,sessions}
   core/         db/ (schema: auth, nutrition, training; client), identity/ (Owner,
-                ownedBy), nutrition/, training/, pantry/, trash/, export/, import/, auth/,
+                ownedBy), nutrition/, training/, pantry/, energy/, assistant/, trash/,
+                export/, import/, auth/,
                 shared/ (validation, search, browse, sorting, dates, trash…), testing/
   ui/           one component per repeated thing: button.ts, Badge, Section,
                 Collapsible, ListItem, Menu/TrashMenu, ActionBar, Toast, MacroStrip, …
@@ -106,10 +107,8 @@ pings healthchecks.io after each dump, and its `app-health` job calls
 
 ## Cross-cutting concerns
 
-- **Errors:** expected failures are values (`Result` with codes from
-  `core/shared/result.ts`), translated via i18n `errors`; forms get codes per
-  field plus their values back. Unexpected failures throw to
-  `app/(app)/error.tsx`. Postgres codes (23505, 23503, 23001) map to codes.
+- **Errors:** expected failures are `Result` values with codes (`core/shared/result.ts`,
+  translated by i18n; Postgres 23505/23503/23001 mapped); the rest throw to `error.tsx`.
 - **Config/secrets:** validated once in `app/_server/env.ts` (`.env.example`); Vercel
   env for the app, GitHub secrets for backup/migrate, age key only on the developer's machine.
 - **Auth/security:** Better Auth, email+password, DB-backed sessions (30 days,
@@ -124,9 +123,12 @@ pings healthchecks.io after each dump, and its `app-health` job calls
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (pinned ↺ / Cancel /
   Save), drafts in the browser, `?from=` for back and after-save, toasts with
   Undo. Rows open on tap and carry "⋯" (ui/ListItem `href`, ui/TrashMenu).
-  Delete = trash (`deleted_at`, `live()` filter); `/settings/trash` restores or
-  deletes for good; a daily purge of what is over 30 days old is prepared
-  (core `purgeExpiredTrash`), its workflow job still to be merged.
+  Delete = trash (`deleted_at`, `live()`); `/settings/trash` restores or deletes for
+  good; the 30-day purge (`purgeExpiredTrash`) awaits its workflow job.
+- **Assistant (ADR-0018):** the model runs on the server with the user's key
+  (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
+  writes come back with Undo, deletes/imports wait for a tap; photo text is read
+  on the phone (tesseract.js). Tests use a scripted fake model.
 - **Pantry (ADR-0013/0017):** stock is derived, never stored (`core/pantry/stock.ts`):
   purchases − eaten (not batch portions) − cooked ± counts; food per ingredient.
 - **Time:** days are `date` strings; "today" uses `user_settings.timezone`,
@@ -138,11 +140,9 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   the day in two columns. Page layout uses `sm:/md:/lg:`, redefined to obey
   `data-layout` (auto/desktop/phone, ADR-0010); inside cards and `<main>`,
   container queries follow the real width.
-- **Visual language:** one colour per nutrient; targets have kinds (min / max /
-  target) with colours graded by distance (`ui/targetTone.ts`); planned items
-  are dashed, never translucent. Every button from `ui/button.ts`, every status
-  from `ui/Badge`, every section with its icon. Icons: `lucide-react`; charts
-  are plain SVG.
+- **Visual language:** one colour per nutrient, graded by target kind and distance
+  (`ui/targetTone.ts`); planned = dashed; buttons `ui/button.ts`, statuses `ui/Badge`,
+  every section with its icon; `lucide-react` icons; plain SVG charts.
 - **Theming/i18n:** tokens (ADR-0010: colour, type, frames, radii, surfaces
   `panel`/`tile`/`item`, headings, icon chips) in `design/`; themes `label`
   (default) / `quaderno` / `sport` / `minimal` / `notte` override them

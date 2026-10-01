@@ -19,6 +19,8 @@
 import { and, asc, eq } from "drizzle-orm";
 import type { Db } from "../db/client";
 import {
+  assistantConversations,
+  assistantMessages,
   batches,
   batchLines,
   bodyMeasurements,
@@ -55,8 +57,9 @@ export const EXPORT_FORMAT = "lifeos-export";
 // 4: category, moment (ADR-0011); 5: quality + tags (ADR-0012);
 // 6: training — exercises, routines, sessions with exercises and sets, body
 // measurements, day activity (ADR-0005/0016); 7: pantry — products with
-// purchases, stock counts, batches with lines, reminders (ADR-0017).
-export const EXPORT_VERSION = 7;
+// purchases, stock counts, batches with lines, reminders (ADR-0017);
+// 8: the assistant's conversations with their messages (ADR-0018).
+export const EXPORT_VERSION = 8;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -212,6 +215,19 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
         .orderBy(asc(reminders.createdAt)),
     ]);
 
+  const [conversationRows, messageRows] = await Promise.all([
+    db
+      .select()
+      .from(assistantConversations)
+      .where(and(ownedBy(assistantConversations, owner), live(assistantConversations)))
+      .orderBy(asc(assistantConversations.createdAt)),
+    db
+      .select()
+      .from(assistantMessages)
+      .where(ownedBy(assistantMessages, owner))
+      .orderBy(asc(assistantMessages.createdAt)),
+  ]);
+
   return {
     format: EXPORT_FORMAT,
     version: EXPORT_VERSION,
@@ -272,6 +288,12 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
         lines: stripOwner(batchLineRows.filter((l) => l.batchId === b.id)),
       })),
       reminders: stripOwner(reminderRows),
+    },
+    assistant: {
+      conversations: stripOwner(conversationRows).map((c) => ({
+        ...c,
+        messages: stripOwner(messageRows.filter((m) => m.conversationId === c.id)),
+      })),
     },
   };
 }

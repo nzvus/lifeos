@@ -173,7 +173,11 @@
 ## Next sprint: S10 — The assistant (ADR-0018, requested 2026-10-01)
 - **Goal:** an assistant that does what the app can do when asked (ingredients from labels, meals, imports, planned days, sessions from notes, tags, ratings) and gives advice; photos/JSON/TXT attachments, text extracted on the phone by default.
 - [x] ADR-0018 accepted (A, A, A, A): key on the server, encrypted; mixed autonomy with Undo; text from photos by default; history in the database
-- [ ] Migration PR (settings key + model, conversations, messages), then key setup in Settings, chat page, tools (one per user action), attachments + on-phone OCR
+- [x] Migration 0015 (#101): encrypted key + model, conversations, messages
+- [x] Core: AES-GCM key, conversations, tools (find ingredients/meals/exercises, day, recent days, pantry; create ingredient/meal, log food/estimate, reminders; gym notes import and move to trash with confirmation), the agent's turn; tested with a fake model
+- [x] Settings → Assistant (key write-only, last 4 shown, model); /assistant chat with Undo per change, Confirm / Leave it, attachments (photo text read on the phone, or the photo; JSON/TXT/CSV/MD); conversations in the trash and export v8
+- [ ] Developer: set ASSISTANT_KEY_SECRET on Vercel, paste the OpenRouter key, try it on the phone
+- [ ] More tools as needed (products and purchases, routines, exercises, ratings, tags, day types, batches), advice prompts, streaming
 
 ## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)
 - **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.

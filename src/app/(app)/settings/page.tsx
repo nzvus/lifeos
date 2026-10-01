@@ -8,13 +8,18 @@ import {
   Eye,
   PersonStanding,
   SlidersHorizontal,
+  Sparkles,
   Star,
   Trash2,
   UserCog,
 } from "lucide-react";
+import { env } from "@/app/_server/env";
+import { getKeyStatus } from "@/core/assistant/repositories/assistant";
 import { getBody } from "@/core/energy/repositories/energy";
 import { todayIn } from "@/core/shared/dates";
+import { AssistantKeyForm } from "@/features/account/settings/AssistantKeyForm";
 import { BodyForm } from "@/features/account/settings/BodyForm";
+import { clearAssistantKeyAction, saveAssistantKeyAction } from "../assistant/actions";
 import Link from "next/link";
 import { getDisplay } from "@/app/_server/display";
 import { getDb } from "@/app/_server/runtime";
@@ -41,9 +46,10 @@ import { buttonClass } from "@/ui/button";
 export default async function SettingsPage() {
   const { owner, settings, t } = await requireContext();
   const display = await getDisplay();
-  const [factors, body] = await Promise.all([
+  const [factors, body, assistantStatus] = await Promise.all([
     listFactors(getDb(), owner),
     getBody(getDb(), owner, todayIn(settings.timezone)),
+    getKeyStatus(getDb(), owner),
   ]);
   // Every IANA time zone the server's runtime knows, for suggestions.
   const timeZones = Intl.supportedValuesOf("timeZone");
@@ -73,6 +79,22 @@ export default async function SettingsPage() {
           }}
           t={{ energy: t.energy, errors: t.errors, settings: t.settings }}
         />
+      </Section>
+      <Section
+        title={t.assistant.keyTitle}
+        icon={<Sparkles size={20} aria-hidden="true" />}
+      >
+        <p className="text-muted">{t.assistant.keyHint}</p>
+        {env().ASSISTANT_KEY_SECRET ? (
+          <AssistantKeyForm
+            action={saveAssistantKeyAction}
+            clear={clearAssistantKeyAction}
+            status={assistantStatus}
+            t={{ assistant: t.assistant, errors: t.errors, settings: t.settings }}
+          />
+        ) : (
+          <p className="text-meta">{t.assistant.noSecret}</p>
+        )}
       </Section>
       <Section
         title={t.preferences.title}

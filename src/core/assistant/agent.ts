@@ -103,7 +103,10 @@ export async function runTurn(opts: {
           content = JSON.stringify({ ok: true, waitingForUser: true, preview: r.data });
         } else {
           if (r.ok && r.change) changes.push({ tool: call.function.name, ...r.change });
-          content = JSON.stringify(r.ok ? { ok: true, data: r.data } : r);
+          // The change rides along: the chat shows Undo next to it.
+          content = JSON.stringify(
+            r.ok ? { ok: true, data: r.data, change: r.change } : r,
+          );
         }
       }
       const toolMsg: ChatMessage = { role: "tool", tool_call_id: call.id, content };

@@ -18,6 +18,7 @@
 import { and, eq, isNotNull, lt, notExists } from "drizzle-orm";
 import type { Db } from "../db/client";
 import {
+  assistantConversations,
   batches,
   bodyMeasurements,
   dayProfiles,
@@ -35,6 +36,10 @@ import {
   trainingSessions,
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
+import {
+  deleteConversation,
+  restoreConversation,
+} from "../assistant/repositories/assistant";
 import { deleteBatch, restoreBatch } from "../nutrition/repositories/batches";
 import {
   deleteIngredient,
@@ -74,6 +79,8 @@ export const TRASH_KINDS = [
   "purchase",
   "batch",
   "reminder",
+  // ADR-0018: the assistant's conversations.
+  "conversation",
 ] as const;
 export type TrashKind = (typeof TRASH_KINDS)[number];
 
@@ -103,7 +110,7 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
       .select({ id: t.id, name: t.name, deletedAt: t.deletedAt })
       .from(t)
       .where(and(ownedBy(t, owner), isNotNull(t.deletedAt)));
-  const [m, i, p, r, x, e, s, b, pr, pu, ba, re] = await Promise.all([
+  const [m, i, p, r, x, e, s, b, pr, pu, ba, re, co] = await Promise.all([
     named(meals),
     named(ingredients),
     named(dayProfiles),
@@ -173,6 +180,19 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
       .select({ id: reminders.id, name: reminders.text, deletedAt: reminders.deletedAt })
       .from(reminders)
       .where(and(ownedBy(reminders, owner), isNotNull(reminders.deletedAt))),
+    db
+      .select({
+        id: assistantConversations.id,
+        name: assistantConversations.title,
+        deletedAt: assistantConversations.deletedAt,
+      })
+      .from(assistantConversations)
+      .where(
+        and(
+          ownedBy(assistantConversations, owner),
+          isNotNull(assistantConversations.deletedAt),
+        ),
+      ),
   ]);
   const item =
     (kind: TrashKind) =>
@@ -200,6 +220,7 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
     ...pu.map(item("purchase")),
     ...ba.map(item("batch")),
     ...re.map(item("reminder")),
+    ...co.map(item("conversation")),
   ].sort((a, b) => b.deletedAt.localeCompare(a.deletedAt));
 }
 
@@ -239,6 +260,8 @@ export function moveToTrash(
       return deleteBatch(db, owner, id);
     case "reminder":
       return deleteReminder(db, owner, id);
+    case "conversation":
+      return deleteConversation(db, owner, id);
   }
 }
 
@@ -274,6 +297,8 @@ export function restoreFromTrash(
       return restoreBatch(db, owner, id);
     case "reminder":
       return restoreReminder(db, owner, id);
+    case "conversation":
+      return restoreConversation(db, owner, id);
   }
 }
 
@@ -290,7 +315,8 @@ type TrashTable =
   | typeof products
   | typeof purchases
   | typeof batches
-  | typeof reminders;
+  | typeof reminders
+  | typeof assistantConversations;
 
 /**
  * Deletes one of my records in the trash for good (only from the trash:
@@ -363,6 +389,11 @@ export async function purgeFromTrash(
             .delete(reminders)
             .where(where(reminders))
             .returning({ id: reminders.id });
+        case "conversation":
+          return db
+            .delete(assistantConversations)
+            .where(where(assistantConversations))
+            .returning({ id: assistantConversations.id });
       }
     })();
     return gone.length ? ok(null) : fail({ _form: "not_found" });
@@ -434,6 +465,12 @@ export async function purgeExpiredTrash(
         .where(expired(reminders))
         .returning({ id: reminders.id }),
     );
+    const conversation = count(
+      await tx
+        .delete(assistantConversations)
+        .where(expired(assistantConversations))
+        .returning({ id: assistantConversations.id }),
+    );
     const dayProfile = count(
       await tx
         .delete(dayProfiles)
@@ -498,6 +535,7 @@ export async function purgeExpiredTrash(
       purchase,
       batch,
       reminder,
+      conversation,
     };
   });
 }
