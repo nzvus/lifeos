@@ -19,6 +19,7 @@ on:
 
 permissions:
   contents: read
+  actions: write # re-run the PRs' migration gates afterwards
 
 jobs:
   migrate:
@@ -75,3 +76,14 @@ jobs:
         # created_at is when the migration was GENERATED (drizzle stores the
         # journal time), not when it was applied: labelled accordingly.
         run: psql "$DATABASE_URL" -c "select id, hash, to_timestamp(created_at/1000) as generated from drizzle.__drizzle_migrations order by id"
+
+      # The PRs waiting for this migration: their CI failed at the migration
+      # gate; re-run the failed jobs so they pass now (ci.yml finds this run).
+      - name: Re-run the waiting migration gates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for id in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml \
+              --event pull_request --status failure --limit 20 --json databaseId -q '.[].databaseId'); do
+            gh run rerun "$id" --failed --repo "$GITHUB_REPOSITORY" || true
+          done

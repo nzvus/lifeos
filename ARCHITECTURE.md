@@ -84,11 +84,11 @@ app  →  features  →  core
 
 ## Persistence & durability (ADR-0003, ADR-0007)
 
-Schema: `core/db/schema/{auth,nutrition,training,pantry}.ts`. Change path: edit schema
+Schema: `core/db/schema/*.ts`. Change path: edit schema
 → `npm run db:generate` → read the SQL in `drizzle/` → commit → the PR preview
 applies it to its own Neon branch (`scripts/vercel-build.mjs`, when
 `PREVIEW_DB_IS_BRANCH=true`) → `migrate.yml` on the PR branch (backup, then
-migrate) → label `production-migrated` (CI gate) → merge. No `drizzle-kit
+migrate) → the CI gate passes by itself (it finds that successful run; no label) → merge. No `drizzle-kit
 push`. Schema PRs must be safe to merge in any order (additive first).
 
 Backups: `backup.yml` daily → `scripts/backup.sh` (pg_dump -Fc, verified,
