@@ -13,8 +13,9 @@ logic lives in `core/`, which imports no framework. Data is Postgres on Neon
 through Drizzle (ADR-0003); identity is Better Auth in the same database
 (ADR-0006). Modules: nutrition (ingredients, meals, daily log with snapshots,
 day types and targets, quality, trends) and training (exercises, routines,
-sessions incl. estimates and live mode, body measurements, progress); a trash
-for everything deletable; JSON export/import.
+sessions incl. estimates and live mode, body measurements, progress); pantry
+(products, purchases, derived stock, batches, reminders); a trash for
+everything deletable; JSON export/import.
 
 ## Component map
 
@@ -27,9 +28,9 @@ src/
     api/        auth/[...all], health, export
   features/     vertical slices (area/slice), components only:
                 account/{auth,settings,trash}, nutrition/{ingredients,meals,log,
-                profiles,trends}, training/{body,exercises,live,progress,routines,sessions}
+                profiles,trends,pantry}, training/{body,exercises,live,progress,routines,sessions}
   core/         db/ (schema: auth, nutrition, training; client), identity/ (Owner,
-                ownedBy), nutrition/, training/, trash/, export/, import/, auth/,
+                ownedBy), nutrition/, training/, pantry/, trash/, export/, import/, auth/,
                 shared/ (validation, search, browse, sorting, dates, trash…), testing/
   ui/           one component per repeated thing: button.ts, Badge, Section,
                 Collapsible, ListItem, Menu/TrashMenu, ActionBar, Toast, MacroStrip, …
@@ -82,7 +83,7 @@ app  →  features  →  core
 
 ## Persistence & durability (ADR-0003, ADR-0007)
 
-Schema: `core/db/schema/{auth,nutrition,training}.ts`. Change path: edit schema
+Schema: `core/db/schema/{auth,nutrition,training,pantry}.ts`. Change path: edit schema
 → `npm run db:generate` → read the SQL in `drizzle/` → commit → the PR preview
 applies it to its own Neon branch (`scripts/vercel-build.mjs`, when
 `PREVIEW_DB_IS_BRANCH=true`) → `migrate.yml` on the PR branch (backup, then
@@ -109,15 +110,13 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   `core/shared/result.ts`), translated via i18n `errors`; forms get codes per
   field plus their values back. Unexpected failures throw to
   `app/(app)/error.tsx`. Postgres codes (23505, 23503, 23001) map to codes.
-- **Config/secrets:** validated once in `app/_server/env.ts` (names in
-  `.env.example`). Vercel env for the app; GitHub secrets for backup and
-  migrate; the age private key only on the developer's machine.
+- **Config/secrets:** validated once in `app/_server/env.ts` (`.env.example`); Vercel
+  env for the app, GitHub secrets for backup/migrate, age key only on the developer's machine.
 - **Auth/security:** Better Auth, email+password, DB-backed sessions (30 days,
   5-min signed cookie cache) and rate limiting; sign-up closed unless
   `ALLOW_SIGNUP=true`. Authorization in every page/action (`requireContext`)
   and again at the data boundary (`Owner`).
-- **Targets:** per day from `repositories/profiles.ts`: fixed copy, else default
-  profile, else none (ADR-0008); auto maxima for sugars/saturated fat/salt.
+- **Targets:** per day (ADR-0008): fixed copy, else default profile, else none; auto maxima.
 - **Log entries** (ADR-0009/0011): planned or eaten, optional time, a moment
   (else derived from the time), optionally an estimate; totals = eaten, and
   every panel also says where the day ends with the plan.
@@ -127,6 +126,8 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   Delete = trash (`deleted_at`, `live()` filter); `/settings/trash` restores or
   deletes for good; a daily purge of what is over 30 days old is prepared
   (core `purgeExpiredTrash`), its workflow job still to be merged.
+- **Pantry (ADR-0013/0017):** stock is derived, never stored (`core/pantry/stock.ts`):
+  purchases − eaten (not batch portions) − cooked ± counts; food per ingredient.
 - **Time:** days are `date` strings; "today" uses `user_settings.timezone`,
   never the server's clock. Client clocks start in the browser (hydration).
 - **Search & ordering:** `core/shared/search.ts` (accent-insensitive, every

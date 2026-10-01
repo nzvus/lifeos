@@ -31,7 +31,13 @@ import { getHistory } from "@/core/nutrition/repositories/history";
 import { withAutoTargets } from "@/core/nutrition/targets";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, startOfWeek, todayIn } from "@/core/shared/dates";
-import { Copy, Dumbbell } from "lucide-react";
+import { Bell, Copy, Dumbbell } from "lucide-react";
+import Link from "next/link";
+import { listBatches } from "@/core/nutrition/repositories/batches";
+import { derivedReminders, listReminders } from "@/core/pantry/repositories/reminders";
+import { getPantry } from "@/core/pantry/repositories/stock";
+import { TEXT_LINK } from "@/ui/button";
+import { formatNumber } from "@/core/shared/format";
 import { DayNav } from "@/features/nutrition/log/DayNav";
 import { DayProfilePicker } from "@/features/nutrition/log/DayProfilePicker";
 import { averageScores, ratingsByMeal } from "@/core/nutrition/repositories/ratings";
@@ -65,6 +71,7 @@ import {
   deleteLogEntryAction,
   restoreLogEntryAction,
   logEstimateAction,
+  logPortionAction,
   logIngredientAction,
   logMealAction,
   refreshLogEntryAction,
@@ -99,6 +106,9 @@ export default async function DayPage({ searchParams }: Props) {
     exercises,
     ratings,
     tagMap,
+    batchList,
+    pantry,
+    manualReminders,
   ] = await Promise.all([
     getDay(db, owner, day),
     listMeals(db, owner),
@@ -113,7 +123,25 @@ export default async function DayPage({ searchParams }: Props) {
     listExercises(db, owner), // "Add training · Exercise" (ADR-0016)
     ratingsByMeal(db, owner), // entries show what their meal shows (ADR-0012)
     tagsByIngredient(db, owner),
+    listBatches(db, owner), // ADR-0017: portions to log, and their reminders
+    getPantry(db, owner),
+    listReminders(db, owner),
   ]);
+  // Today's reminders (ADR-0017): derived from the pantry and the batches,
+  // plus the hand-made ones that are due. Worded here, shown only if any.
+  const p = t.pantry;
+  const reminderLines = [
+    ...derivedReminders(pantry, batchList).map((d) =>
+      d.kind === "gone"
+        ? fill(p.gone, { name: d.name })
+        : d.kind === "runOut"
+          ? d.daysLeft === 0
+            ? fill(p.runOutToday, { name: d.name })
+            : fill(p.runOut, { name: d.name, n: String(d.daysLeft) })
+          : fill(p.lastPortion, { name: d.name }),
+    ),
+    ...manualReminders.filter((r) => !r.dueDay || r.dueDay <= today).map((r) => r.text),
+  ];
   const mealRatings = averageScores(ratings);
   // The day's own targets, plus recommended maxima where none is set
   // (sugars, saturated fat, salt — core/nutrition/targets.ts), unless the
@@ -199,6 +227,23 @@ export default async function DayPage({ searchParams }: Props) {
         />
       </div>
       <div className="flex min-w-0 flex-col gap-4">
+        {day === today && reminderLines.length > 0 && (
+          <Section
+            title={p.reminders}
+            icon={<Bell size={20} aria-hidden="true" />}
+            aside={
+              <Link href="/pantry" className={TEXT_LINK}>
+                {p.open}
+              </Link>
+            }
+          >
+            <ul className="flex flex-col gap-1">
+              {reminderLines.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </Section>
+        )}
         <div className="flex flex-col gap-4">
           <EntryList
             day={view}
@@ -259,6 +304,19 @@ export default async function DayPage({ searchParams }: Props) {
             logMealAction={logMealAction}
             logIngredientAction={logIngredientAction}
             logEstimateAction={logEstimateAction}
+            portions={batchList
+              .filter((b) => Number(b.portionsLeft) > 0)
+              .map((b) => ({
+                id: b.id,
+                name: b.label,
+                notes: fill(p.portionsLeft, {
+                  n: formatNumber(b.portionsLeft, locale, 0),
+                }),
+                values: pick(b.perPortion.nutrients), // per portion
+                uses: 0,
+                lastUsed: null,
+              }))}
+            logPortionAction={logPortionAction}
             // Only the dictionary parts the client component uses travel to
             // the browser (smaller page, faster load).
             t={{

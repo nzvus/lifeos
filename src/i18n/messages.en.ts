@@ -13,6 +13,8 @@
  * Leaf module: imports nothing. Keys that must match core/ (nutrients, error
  * codes, locales) are checked in src/app/_server/i18n.ts, where both meet.
  */
+import { pantryEn, trashEn } from "./messages.home.en";
+
 export const en = {
   app: {
     name: "Lifeos",
@@ -110,6 +112,9 @@ export const en = {
     quantity: "Quantity",
     add: "Add",
     addTitle: "Add to the day",
+    tabPortion: "Portion",
+    portions: "Portions",
+    noPortions: "No batch with portions left.",
     tabEstimate: "Estimate",
     preview: "Preview",
     previewEmpty: "Choose what and how much: kcal and macros show here before you add.",
@@ -208,30 +213,8 @@ export const en = {
     back: "Back to meals",
     needIngredients: "Add some ingredients first: a meal is made of them.",
   },
-  trash: {
-    title: "Trash",
-    hint: "Deleted things stay here for 30 days, then they are deleted for good.",
-    open: "Open the trash",
-    empty: "The trash is empty.",
-    kinds: {
-      meal: "Meal",
-      ingredient: "Ingredient",
-      logEntry: "Day entry",
-      dayProfile: "Day type",
-      session: "Session",
-      routine: "Routine",
-      exercise: "Exercise",
-      measurement: "Measurement",
-    },
-    purgeOn: "deleted for good on {date}",
-    restore: "Restore",
-    purge: "Delete for good",
-    confirm: "Delete «{name}» for good? This can't be undone.",
-    confirmYes: "Yes, delete",
-    cancel: "Cancel",
-    restored: "«{name}» restored",
-    purged: "«{name}» deleted for good",
-  },
+  pantry: pantryEn,
+  trash: trashEn,
   settings: {
     title: "Settings",
     timezone: "Time zone",

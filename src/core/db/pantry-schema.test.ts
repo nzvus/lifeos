@@ -63,30 +63,26 @@ describe("pantry schema (migration 0014)", () => {
       db.insert(stockCounts).values({ userId: me.id, at, quantity: "1" }),
     ).rejects.toThrow();
     await expect(
-      db
-        .insert(stockCounts)
-        .values({
-          userId: me.id,
-          at,
-          ingredientId: oatsId,
-          productId: p!.id,
-          quantity: "1",
-        }),
+      db.insert(stockCounts).values({
+        userId: me.id,
+        at,
+        ingredientId: oatsId,
+        productId: p!.id,
+        quantity: "1",
+      }),
     ).rejects.toThrow();
   });
 
   it("a batch has portions, and a log entry can take one", async () => {
     const at = new Date("2026-10-01T18:00:00Z");
     await expect(
-      db
-        .insert(batches)
-        .values({
-          userId: me.id,
-          label: "Riso",
-          portions: 0,
-          cookedAt: at,
-          day: "2026-10-01",
-        }),
+      db.insert(batches).values({
+        userId: me.id,
+        label: "Riso",
+        portions: 0,
+        cookedAt: at,
+        day: "2026-10-01",
+      }),
     ).rejects.toThrow();
     const [b] = await db
       .insert(batches)

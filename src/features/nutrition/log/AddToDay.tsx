@@ -18,7 +18,7 @@
  */
 "use client";
 
-import { Calculator, Carrot, Plus, UtensilsCrossed } from "lucide-react";
+import { Calculator, Carrot, CookingPot, Plus, UtensilsCrossed } from "lucide-react";
 import { useActionState, useCallback, useMemo, useState, type ReactNode } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import {
@@ -51,7 +51,7 @@ import { SearchSelect } from "@/ui/SearchSelect";
 import { SubmitButton } from "@/ui/SubmitButton";
 
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
-type Kind = "meal" | "ingredient" | "estimate";
+type Kind = "meal" | "ingredient" | "estimate" | "portion";
 
 /** What the search and the preview need about each meal / ingredient. */
 export type Pickable = SearchItem & {
@@ -80,7 +80,10 @@ type Props = {
   bounds: MomentBounds;
   meals: Pickable[];
   ingredients: Pickable[];
+  /** ADR-0017: batches with portions left; values are per portion. */
+  portions: Pickable[];
   logMealAction: Action;
+  logPortionAction: Action;
   logIngredientAction: Action;
   logEstimateAction: Action;
   t: T;
@@ -109,7 +112,9 @@ export function AddToDay({
   bounds,
   meals,
   ingredients,
+  portions,
   logMealAction,
+  logPortionAction,
   logIngredientAction,
   logEstimateAction,
   t,
@@ -119,9 +124,11 @@ export function AddToDay({
   const [mealState, mealAction] = useActionState(logMealAction, IDLE);
   const [ingState, ingAction] = useActionState(logIngredientAction, IDLE);
   const [estState, estAction] = useActionState(logEstimateAction, IDLE);
+  const [porState, porAction] = useActionState(logPortionAction, IDLE);
   const mealKey = useSavedCount(mealState);
   const ingKey = useSavedCount(ingState);
   const estKey = useSavedCount(estState);
+  const porKey = useSavedCount(porState);
 
   const tabs: { kind: Kind; label: string; icon: ReactNode }[] = [
     {
@@ -139,6 +146,16 @@ export function AddToDay({
       label: t.day.tabEstimate,
       icon: <Calculator size={16} aria-hidden="true" />,
     },
+    // Only when something cooked in portions is waiting (ADR-0017).
+    ...(portions.length > 0
+      ? [
+          {
+            kind: "portion" as const,
+            label: t.day.tabPortion,
+            icon: <CookingPot size={16} aria-hidden="true" />,
+          },
+        ]
+      : []),
   ];
   const common = { day, locale, bounds, t };
 
@@ -161,14 +178,15 @@ export function AddToDay({
               aria-selected={selected}
               aria-controls="add-panel"
               onClick={() => setKind(tab.kind)}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-control px-2 py-2 font-display text-item ${
+              // Icon over label: four tabs fit a phone (like the bottom tab bar).
+              className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-control px-1 py-2 font-display text-meta ${
                 selected
                   ? "rule-b-heavy border-ink bg-sheet font-bold text-ink"
                   : "rule-b-medium border-hairline text-muted hover:text-ink"
               }`}
             >
               {tab.icon}
-              {tab.label}
+              <span className="w-full truncate text-center">{tab.label}</span>
             </button>
           );
         })}
@@ -204,6 +222,21 @@ export function AddToDay({
             action={ingAction}
           />
         )}
+        {kind === "portion" && (
+          <PickForm
+            key={`p${porKey}`}
+            {...common}
+            items={portions}
+            per="1"
+            idField="batchId"
+            amountField="servings"
+            amountLabel={t.day.portions}
+            defaultAmount="1"
+            empty={t.day.noPortions}
+            state={porState}
+            action={porAction}
+          />
+        )}
         {kind === "estimate" && (
           <EstimateForm
             key={`e${estKey}`}
@@ -225,7 +258,7 @@ type PickProps = {
   items: Pickable[];
   /** "1": values are per serving (meals); "100": per 100 g/ml (ingredients). */
   per: "1" | "100";
-  idField: "mealId" | "ingredientId";
+  idField: "mealId" | "ingredientId" | "batchId";
   amountField: "servings" | "quantity";
   amountLabel: string;
   defaultAmount: string;

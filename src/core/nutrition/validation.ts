@@ -210,6 +210,12 @@ export const logMealInput = z.object({
 });
 export type LogMealInput = z.output<typeof logMealInput>;
 
+/** "I ate N portions of this batch" (ADR-0017): like a meal, from a batch. */
+export const logPortionInput = logMealInput
+  .omit({ mealId: true })
+  .extend({ batchId: id });
+export type LogPortionInput = z.output<typeof logPortionInput>;
+
 /** "I ate this quantity of this single ingredient on this day." */
 export const logIngredientInput = z.object({
   day,

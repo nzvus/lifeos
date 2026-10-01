@@ -14,6 +14,9 @@ import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage
 import { addDays, todayIn } from "@/core/shared/dates";
 import { deleteIngredientAction, restoreIngredientAction } from "./actions";
 import { IngredientBrowser } from "@/features/nutrition/ingredients/IngredientBrowser";
+import { Package } from "lucide-react";
+import Link from "next/link";
+import { buttonClass } from "@/ui/button";
 
 export default async function IngredientsPage() {
   const { owner, settings, t } = await requireContext();
@@ -29,6 +32,13 @@ export default async function IngredientsPage() {
         title={t.ingredients.title}
         action={{ href: "/ingredients/new", label: t.ingredients.newTitle }}
       />
+      {/* The pantry (ADR-0017) lives next to the ingredients it counts. */}
+      <nav className="flex flex-wrap gap-2">
+        <Link href="/pantry" className={buttonClass({ variant: "subtle", size: "sm" })}>
+          <Package size={16} aria-hidden="true" />
+          {t.pantry.open}
+        </Link>
+      </nav>
       <IngredientBrowser
         // Only the fields the list shows are sent to the browser.
         ingredients={ingredients.map((i) => ({

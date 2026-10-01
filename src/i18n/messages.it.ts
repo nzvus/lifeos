@@ -3,6 +3,7 @@
  * Typed as `Messages` (the shape of messages.en.ts): a missing or extra key
  * is a compile error, so the two languages can never drift apart silently.
  */
+import { pantryIt, trashIt } from "./messages.home.it";
 import type { Messages } from "./index";
 
 export const it: Messages = {
@@ -105,6 +106,9 @@ export const it: Messages = {
     quantity: "Quantità",
     add: "Aggiungi",
     addTitle: "Aggiungi alla giornata",
+    tabPortion: "Porzione",
+    portions: "Porzioni",
+    noPortions: "Nessuna cucinata con porzioni rimaste.",
     tabEstimate: "Stima",
     preview: "Anteprima",
     previewEmpty: "Scegli cosa e quanto: qui vedi kcal e macro prima di aggiungere.",
@@ -205,30 +209,8 @@ export const it: Messages = {
     needIngredients:
       "Aggiungi prima qualche ingrediente: un pasto è fatto di ingredienti.",
   },
-  trash: {
-    title: "Cestino",
-    hint: "Le cose eliminate restano qui 30 giorni, poi vengono cancellate per sempre.",
-    open: "Apri il cestino",
-    empty: "Il cestino è vuoto.",
-    kinds: {
-      meal: "Pasto",
-      ingredient: "Ingrediente",
-      logEntry: "Voce del giorno",
-      dayProfile: "Tipo di giornata",
-      session: "Sessione",
-      routine: "Scheda",
-      exercise: "Esercizio",
-      measurement: "Misura",
-    },
-    purgeOn: "eliminato per sempre il {date}",
-    restore: "Ripristina",
-    purge: "Elimina per sempre",
-    confirm: "Eliminare «{name}» per sempre? Non si può annullare.",
-    confirmYes: "Sì, elimina",
-    cancel: "Annulla",
-    restored: "«{name}» ripristinato",
-    purged: "«{name}» eliminato per sempre",
-  },
+  pantry: pantryIt,
+  trash: trashIt,
   settings: {
     title: "Impostazioni",
     timezone: "Fuso orario",

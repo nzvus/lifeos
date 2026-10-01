@@ -16,6 +16,8 @@ import { createTestDb, createTestUser, ingredientFixture } from "../testing/test
 import { createExercise, deleteExercise } from "../training/repositories/exercises";
 import { addMeasurement, deleteMeasurement } from "../training/repositories/measurements";
 import { createRoutine, deleteRoutine } from "../training/repositories/routines";
+import { createProduct, deleteProduct } from "../pantry/repositories/products";
+import { products } from "../db/schema";
 import { listTrash, purgeExpiredTrash, purgeFromTrash, restoreFromTrash } from "./trash";
 
 let db: Db;
@@ -180,5 +182,36 @@ describe("the daily purge", () => {
     const counts = await purgeExpiredTrash(db, NOW);
     expect(Object.values(counts).every((n) => n === 0)).toBe(true);
     expect(await listMeals(db, me)).toHaveLength(1);
+  });
+});
+
+describe("the pantry in the trash (ADR-0017)", () => {
+  it("an ingredient a product points to waits for the product", async () => {
+    const oats = await createIngredient(db, me, ingredientFixture());
+    if (!oats.ok) throw new Error("setup");
+    const p = await createProduct(db, me, {
+      name: "Avena 1 kg",
+      brand: "",
+      unit: "g",
+      packageSize: "1000",
+      ingredientId: oats.value.id,
+      shop: "",
+      notes: "",
+    });
+    if (!p.ok) throw new Error("setup");
+    await deleteProduct(db, me, p.value.id);
+    await deleteIngredient(db, me, oats.value.id);
+    expect((await listTrash(db, me)).map((x) => x.kind).sort()).toEqual([
+      "ingredient",
+      "product",
+    ]);
+    expect(await purgeFromTrash(db, me, "ingredient", oats.value.id)).toEqual({
+      ok: false,
+      errors: { _form: "still_referenced" },
+    });
+    // Both expired: the product goes first, so the ingredient follows in the same run.
+    await db.update(products).set({ deletedAt: ago(31) });
+    await db.update(ingredients).set({ deletedAt: ago(31) });
+    expect(await purgeExpiredTrash(db, NOW)).toMatchObject({ product: 1, ingredient: 1 });
   });
 });
