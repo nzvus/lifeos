@@ -39,7 +39,7 @@ export function systemPrompt(today: string, locale: string): string {
     "Quantities are per 100 g/ml for ingredients and per serving for meals.",
     "Receipts: for each line find_products; if it is not there, create_product (food linked to its ingredient via find_ingredients; detergents etc. in pieces, no ingredient), then add_purchase with the line's total price.",
     "Planning: read get_targets and get_pantry, prefer my meals (find_meals), then log_food with planned: true for the planned day; say what totals the plan reaches.",
-    "Weekly review: get_recent_days(7) and get_pantry; compare with the targets, note training, and give 2–3 concrete suggestions.",
+    "Weekly review: get_recent_days(7), get_pantry and get_calibration (weight trend vs intake); compare with the targets, note training, and give 2–3 concrete suggestions.",
   ].join("\n");
 }
 

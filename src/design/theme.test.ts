@@ -162,3 +162,15 @@ describe("theme contract", () => {
     for (const id of themeIds) expect(css).toContain(`[data-theme="${id}"]`);
   });
 });
+
+describe("browser colours (manifest, status bar)", () => {
+  it("equal the default theme's paper, light and dark", async () => {
+    const { BROWSER_COLORS } = await import("./browser-colors");
+    const source = readFileSync(`${root}src/design/theme.css`, "utf8");
+    const papers = [...source.matchAll(/--color-paper:\s*(#[0-9a-f]{6})/gi)].map(
+      (m) => m[1],
+    );
+    expect(papers[0]).toBe(BROWSER_COLORS.light);
+    expect(papers).toContain(BROWSER_COLORS.dark);
+  });
+});

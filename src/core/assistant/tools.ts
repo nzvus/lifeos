@@ -41,7 +41,7 @@ import { getPantry } from "../pantry/repositories/stock";
 import { productInput, purchaseInput, reminderInput } from "../pantry/validation";
 import { getDayTargets } from "../nutrition/repositories/profiles";
 import { dynamicTargets } from "../energy/energy";
-import { getDayEnergy } from "../energy/repositories/energy";
+import { getCalibration, getDayEnergy } from "../energy/repositories/energy";
 import { addDays } from "../shared/dates";
 import { rank } from "../shared/search";
 import { parseInput } from "../shared/validation";
@@ -49,9 +49,17 @@ import { parseGymLog, toPlannedSession } from "../import/gym-log";
 import { applyTrainingImport, planTrainingImport } from "../import/training-apply";
 import { listExercises } from "../training/repositories/exercises";
 import { isTrashKind, moveToTrash, type TrashKind } from "../trash/trash";
+import type { OffPrefill } from "../nutrition/off";
 import type { ToolSpec } from "./model";
 
-export type ToolContext = { db: Db; owner: Owner; today: string; timeZone: string };
+export type ToolContext = {
+  db: Db;
+  owner: Owner;
+  today: string;
+  timeZone: string;
+  /** Open Food Facts by barcode; injected by the app (core does no network I/O). */
+  lookupBarcode?: (code: string) => Promise<OffPrefill | null>;
+};
 export type ToolResult =
   | { ok: true; data: unknown; change?: { kind: TrashKind; id: string; label: string } }
   | { ok: false; error: unknown };
@@ -216,6 +224,25 @@ export const TOOLS: Record<string, Tool> = {
     ),
     async run({ db, owner }) {
       return { ok: true, data: await getPantry(db, owner) };
+    },
+  },
+  lookup_barcode: {
+    effect: "read",
+    spec: fn(
+      "lookup_barcode",
+      "Look up a packaged food on Open Food Facts by its barcode (EAN/UPC digits). Returns name, brand, unit, nutrients per 100 g/ml, package size and NOVA, to pass to create_ingredient after showing them to me.",
+      { barcode: S("the digits under the bars") },
+      ["barcode"],
+    ),
+    async run({ lookupBarcode }, a) {
+      const code = str(a.barcode).replace(/\D/g, "");
+      if (!/^\d{6,14}$/.test(code))
+        return { ok: false, error: "A barcode has 6 to 14 digits." };
+      if (!lookupBarcode) return { ok: false, error: "Barcode lookup is not available." };
+      const found = await lookupBarcode(code);
+      return found
+        ? { ok: true, data: found }
+        : { ok: false, error: `Code ${code} is not on Open Food Facts.` };
     },
   },
   create_ingredient: {
@@ -536,6 +563,17 @@ export const TOOLS: Record<string, Tool> = {
             change: { kind: "purchase", id: r.value.id, label: `${input.value.day}` },
           }
         : { ok: false, error: r.errors };
+    },
+  },
+  get_calibration: {
+    effect: "read",
+    spec: fn(
+      "get_calibration",
+      "The last 28 days against the energy model: average eaten, weight trend (kg/week), spent by the scale vs by the model, a verdict on the data and the proposed factor on everyday activity. Only the user can accept it (day page → Energy → Calibration).",
+      {},
+    ),
+    async run({ db, owner, today }) {
+      return { ok: true, data: await getCalibration(db, owner, today) };
     },
   },
   get_targets: {

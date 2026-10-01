@@ -101,11 +101,12 @@ export const energyEn = {
   title: "Energy",
   subtitle: "Estimates, always as ranges: every part is below.",
   bmr: "Basal metabolism",
-  baseline: "Everyday activity (basal included)",
+  baseline: "Everyday activity (basal and digestion included)",
+  baselineCorrected:
+    "Everyday activity (basal and digestion included, calibrated ×{factor})",
   walking: "Walking",
   trainingDone: "Training done",
   trainingPlanned: "Training planned",
-  digestion: "Digestion (≈10 %)",
   totalDone: "Spent so far",
   totalPlan: "Spent with the plan",
   intake: "Intake",
@@ -124,8 +125,8 @@ export const energyEn = {
   activity: "Today's movement",
   level: "Besides training",
   levels: { sitting: "Mostly sitting", mixed: "Mixed", on_feet: "Often on my feet" },
-  walkingMin: "Walking (min)",
-  steps: "Steps",
+  walkingMin: "A walk (min)",
+  steps: "Steps that day (those beyond the level count)",
   saveActivity: "Save",
   activitySaved: "Movement saved",
   body: "Body",
@@ -148,6 +149,23 @@ export const energyEn = {
     "Calories = the day's estimated energy with the plan − deficit; protein and fat follow your weight; carbs are the rest. Sugars, saturated fat and salt stay limits.",
   dynamicNote: "Dynamic targets: {kcal} kcal from the energy with the plan",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
+  calibration: {
+    title: "Calibration",
+    how: "Compares the last {days} days: what you ate and how your weight moved tell what you really spent.",
+    fewWeighIns: "Needs at least 6 weigh-ins over 3 weeks (now {n}).",
+    fewLogged: "Needs at least 80 % of days logged (now {n} of {of}).",
+    intake: "Eaten on average",
+    trend: "Weight trend",
+    trendValue: "{kg} kg a week",
+    observed: "Spent, by the scale",
+    estimated: "Spent, by the model",
+    fits: "The model fits your data (everyday activity {now}).",
+    proposal: "Proposal: everyday activity {factor} (now {now}).",
+    accept: "Accept",
+    accepted: "Everyday activity now {factor}",
+    reset: "Back to ×1.00 (now {now})",
+    wasReset: "Calibration reset",
+  },
 };
 
 export const assistantEn = {
@@ -204,4 +222,17 @@ export const assistantEn = {
   saveKey: "Save",
   removeKey: "Remove the key",
   keyRemoved: "Key removed",
+};
+
+export const barcodeEn = {
+  title: "From a barcode",
+  scan: "Scan the code",
+  stop: "Close the camera",
+  code: "Barcode",
+  lookup: "Look up the code",
+  found: "Values from Open Food Facts: check them against the label before saving.",
+  missing: "Code {code} is not on Open Food Facts: fill it in by hand.",
+  invalid: "A barcode has 6 to 14 digits.",
+  noCamera: "This browser can't read codes from the camera: type the digits.",
+  hint: "Open Food Facts is a free, open database of food products.",
 };

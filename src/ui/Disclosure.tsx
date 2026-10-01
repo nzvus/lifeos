@@ -8,13 +8,16 @@ import type { ReactNode } from "react";
 
 export function Disclosure({
   summary,
+  defaultOpen = false,
   children,
 }: {
   summary: string;
+  /** Open on first render (it stays a native <details> the user can close). */
+  defaultOpen?: boolean;
   children: ReactNode;
 }) {
   return (
-    <details className="relative z-2 text-meta">
+    <details open={defaultOpen} className="relative z-2 text-meta">
       <summary className="cursor-pointer text-muted">{summary}</summary>
       <div className="pt-3">{children}</div>
     </details>

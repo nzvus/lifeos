@@ -115,11 +115,11 @@ describe("burn range", () => {
       ],
     };
     const r = burnRange(session, "76");
-    // 40 min strength at 3.5–6 MET + 20 min treadmill at 8.52 MET ±15 %.
+    // 40 min strength at 3.5–5 MET (rests included) + 20 min treadmill at 8.52 MET ±15 %.
     const met = cardioMet(5, 12);
     expect(r).toEqual({
       low: Math.round(3.5 * 76 * (40 / 60) + met * 0.85 * 76 * (20 / 60)),
-      high: Math.round(6 * 76 * (40 / 60) + met * 1.15 * 76 * (20 / 60)),
+      high: Math.round(5 * 76 * (40 / 60) + met * 1.15 * 76 * (20 / 60)),
     });
     expect(burnRange(session, null)).toBeNull();
   });
@@ -207,7 +207,7 @@ describe("trainingByDay", () => {
         day: "2026-09-28",
         sessions: 2,
         tonnage: 600,
-        burn: { low: Math.round(3.5 * 76), high: 6 * 76 }, // the second has no time
+        burn: { low: Math.round(3.5 * 76), high: 5 * 76 }, // the second has no time
       },
       { day: "2026-09-29", sessions: 0, tonnage: 0, burn: null }, // plans don't count
     ]);

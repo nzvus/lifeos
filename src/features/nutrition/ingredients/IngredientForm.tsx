@@ -75,6 +75,8 @@ type Props = {
   restore?: (id: string) => Promise<{ ok: boolean; message?: string }>;
   /** Field values to start from: empty for "new", the stored row for "edit". */
   initial: Record<string, string>;
+  /** Shown under the header (the new-ingredient page's barcode box). */
+  intro?: React.ReactNode;
   locale: Locale;
   /** Meals using this ingredient (edit page), for the live effect preview. */
   usedIn?: readonly MealUse[];
@@ -99,6 +101,7 @@ export function IngredientForm({
   trash,
   restore,
   initial,
+  intro,
   locale,
   usedIn = [],
   tags = [],
@@ -179,6 +182,7 @@ export function IngredientForm({
           ) : undefined
         }
       />
+      {intro}
       {offer && (
         <DraftNotice
           onRestore={() => {

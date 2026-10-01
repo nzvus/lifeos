@@ -3,12 +3,17 @@
  * Typed as `Messages` (the shape of messages.en.ts): a missing or extra key
  * is a compile error, so the two languages can never drift apart silently.
  */
-import { pantryIt, trashIt, energyIt, assistantIt } from "./messages.home.it";
+import { pantryIt, trashIt, energyIt, assistantIt, barcodeIt } from "./messages.home.it";
 import type { Messages } from "./index";
 
 export const it: Messages = {
   app: {
     name: "Lifeos",
+    description: "Diario di alimentazione, allenamento e dispensa.",
+    offline: "Sei offline",
+    offlineHint:
+      "Questa pagina ha bisogno della rete. Quello che hai già salvato è al sicuro sul server.",
+    retry: "Riprova",
   },
   actions: {
     back: "← Indietro",
@@ -213,6 +218,7 @@ export const it: Messages = {
   trash: trashIt,
   energy: energyIt,
   assistant: assistantIt,
+  barcode: barcodeIt,
   settings: {
     title: "Impostazioni",
     timezone: "Fuso orario",

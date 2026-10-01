@@ -103,11 +103,12 @@ export const energyIt: Messages["energy"] = {
   title: "Energia",
   subtitle: "Stime, sempre come intervalli: ogni parte è qui sotto.",
   bmr: "Metabolismo basale",
-  baseline: "Attività di tutti i giorni (incluso il basale)",
+  baseline: "Attività di tutti i giorni (basale e digestione inclusi)",
+  baselineCorrected:
+    "Attività di tutti i giorni (basale e digestione inclusi, calibrata ×{factor})",
   walking: "Camminata",
   trainingDone: "Allenamento fatto",
   trainingPlanned: "Allenamento pianificato",
-  digestion: "Digestione (≈10 %)",
   totalDone: "Consumo finora",
   totalPlan: "Consumo con il piano",
   intake: "Entrate",
@@ -126,8 +127,8 @@ export const energyIt: Messages["energy"] = {
   activity: "Movimento di oggi",
   level: "Oltre all'allenamento",
   levels: { sitting: "Quasi sempre seduto", mixed: "Misto", on_feet: "Spesso in piedi" },
-  walkingMin: "Camminata (min)",
-  steps: "Passi",
+  walkingMin: "Camminata apposta (min)",
+  steps: "Passi del giorno (contano quelli oltre il livello)",
   saveActivity: "Salva",
   activitySaved: "Movimento salvato",
   body: "Corpo",
@@ -150,6 +151,23 @@ export const energyIt: Messages["energy"] = {
     "Calorie = consumo stimato del giorno con il piano − deficit; proteine e grassi seguono il peso; i carboidrati il resto. Zuccheri, saturi e sale restano limiti.",
   dynamicNote: "Obiettivi dinamici: {kcal} kcal dal consumo con il piano",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
+  calibration: {
+    title: "Calibrazione",
+    how: "Confronta gli ultimi {days} giorni: quanto hai mangiato e come è cambiato il peso dicono quanto hai speso davvero.",
+    fewWeighIns: "Servono almeno 6 pesate in 3 settimane (ora {n}).",
+    fewLogged: "Servono almeno l'80 % dei giorni registrati (ora {n} su {of}).",
+    intake: "Mangiato in media",
+    trend: "Andamento del peso",
+    trendValue: "{kg} kg a settimana",
+    observed: "Speso secondo la bilancia",
+    estimated: "Speso secondo il modello",
+    fits: "Il modello è in linea con i tuoi dati (attività quotidiana {now}).",
+    proposal: "Proposta: attività quotidiana {factor} (ora {now}).",
+    accept: "Accetta",
+    accepted: "Attività quotidiana ora {factor}",
+    reset: "Torna a ×1,00 (ora {now})",
+    wasReset: "Calibrazione azzerata",
+  },
 };
 
 export const assistantIt: Messages["assistant"] = {
@@ -207,4 +225,17 @@ export const assistantIt: Messages["assistant"] = {
   saveKey: "Salva",
   removeKey: "Rimuovi la chiave",
   keyRemoved: "Chiave rimossa",
+};
+
+export const barcodeIt: Messages["barcode"] = {
+  title: "Da codice a barre",
+  scan: "Inquadra il codice",
+  stop: "Chiudi la fotocamera",
+  code: "Codice a barre",
+  lookup: "Cerca il codice",
+  found: "Valori presi da Open Food Facts: controllali con l'etichetta prima di salvare.",
+  missing: "Il codice {code} non è su Open Food Facts: compila a mano.",
+  invalid: "Un codice a barre ha da 6 a 14 cifre.",
+  noCamera: "Questo browser non legge i codici dalla fotocamera: scrivi le cifre.",
+  hint: "Open Food Facts è un archivio libero e gratuito di prodotti alimentari.",
 };

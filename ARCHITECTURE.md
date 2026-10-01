@@ -116,10 +116,10 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   `ALLOW_SIGNUP=true`. Authorization in every page/action (`requireContext`)
   and again at the data boundary (`Owner`).
 - **Targets:** per day (ADR-0008): fixed copy, else default profile, else none; auto maxima.
-  A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done + planned).
-- **Log entries** (ADR-0009/0011): planned or eaten, optional time, a moment
-  (else derived from the time), optionally an estimate; totals = eaten, and
-  every panel also says where the day ends with the plan.
+  A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done + planned;
+  no double counts, ADR-0021; the baseline × the accepted calibration, ADR-0020).
+- **Log entries** (ADR-0009/0011): planned or eaten, optional time/moment, maybe an
+  estimate; totals = eaten, and every panel also shows the day with the plan.
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (pinned ↺ / Cancel /
   Save), drafts in the browser, `?from=` for back and after-save, toasts with
   Undo. Rows open on tap and carry "⋯" (ui/ListItem `href`, ui/TrashMenu).
@@ -127,15 +127,15 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   good; the 30-day purge (`purgeExpiredTrash`) awaits its workflow job.
 - **Assistant (ADR-0018):** the model runs on the server with the user's key
   (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
-  writes come back with Undo, deletes/imports wait for a tap; photo text is read
-  on the phone (tesseract.js). Tests use a scripted fake model.
+  writes come back with Undo, deletes/imports wait for a tap; files are read on
+  the phone; network (Open Food Facts) is injected from `app/_server`.
 - **Pantry (ADR-0013/0017):** stock is derived, never stored (`core/pantry/stock.ts`):
   purchases − eaten (not batch portions) − cooked ± counts; food per ingredient.
-- **Time:** days are `date` strings; "today" uses `user_settings.timezone`,
-  never the server's clock. Client clocks start in the browser (hydration).
-- **Search & ordering:** `core/shared/search.ts` (accent-insensitive, every
-  word, ranked by match then usage in the last 60 days); sorts have a natural
-  direction, an ↑/↓ toggle, missing values last.
+- **PWA (ADR-0019):** `app/manifest.ts` + `public/sw.js`: pages network-only (offline
+  page as fallback), `/_next/static` cache-first; no user data is ever cached.
+- **Time:** `date` strings; "today" from `user_settings.timezone`, never the server's clock.
+- **Search & ordering:** `core/shared/search.ts` (accent-insensitive, every word,
+  ranked by match then 60-day usage); sorts toggle ↑/↓, missing values last.
 - **Responsive UI:** phones get a bottom tab bar, md+ header navigation, lg+
   the day in two columns. Page layout uses `sm:/md:/lg:`, redefined to obey
   `data-layout` (auto/desktop/phone, ADR-0010); inside cards and `<main>`,

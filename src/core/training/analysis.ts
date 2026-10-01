@@ -115,9 +115,16 @@ export const INTENSITY_MET: Record<Intensity, [number, number]> = {
 };
 
 /**
+ * A whole strength session, rests between sets included (ADR-0021): the
+ * Compendium's 3.5 (multiple exercises, 8–15 reps) to 5.0 MET. Its 6.0 is
+ * for continuous vigorous lifting, not a session with rests.
+ */
+export const STRENGTH_MET: [number, number] = [3.5, 5];
+
+/**
  * Estimated kcal range of a session. Cardio sets with a speed use their own
  * MET (±15 %); the rest of the session's minutes count as strength time at
- * 3.5–6 MET. Without a body weight, or without any time, there is no
+ * STRENGTH_MET. Without a body weight, or without any time, there is no
  * estimate (null) — never a guessed number.
  */
 export function burnRange(
@@ -168,8 +175,8 @@ export function burnRange(
     }
   }
   const strengthMin = Math.max(0, (session.durationMin ?? 0) - cardioMin);
-  low += 3.5 * kg * (strengthMin / 60);
-  high += 6 * kg * (strengthMin / 60);
+  low += STRENGTH_MET[0] * kg * (strengthMin / 60);
+  high += STRENGTH_MET[1] * kg * (strengthMin / 60);
   if (low === 0 && high === 0) return null;
   return { low: Math.round(low), high: Math.round(high) };
 }

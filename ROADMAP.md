@@ -15,7 +15,7 @@
 - Notes bridge to the Obsidian vault (read/search, quick capture)
 - Home bridge on a LAN device (old Motorola phone): Home Assistant control, Syncthing status — Vercel cannot reach the home network, so this needs its own ADR
 - Drop `user_settings.target_*` (deprecated by ADR-0008) once profiles have run in production for a while
-- UI: installable app (PWA) + offline logging at the gym; one-click theme toggle; charts of weight and intake over time
+- UI: offline logging at the gym (ADR-0019 tripwire; the app is already installable); one-click theme toggle; charts of weight and intake over time
 - Training cycle that picks the day profile automatically (ADR-0008 option C, with the training module)
 - Activity-based targets: plan the day's activities (gym session: type, exercises, duration, rests; walks, runs; how sedentary the rest was) and derive energy/carb targets from them. Needs the training module (ADR-0005) and an explicit energy model (MET-style, always shown as estimates — PROJECT.md non-goal: no falsely precise burn numbers)
 - Template meta-loop: reset `ai-native-starter` to a clean template; record what S00/S01 taught in its TEMPLATE-CHANGELOG
@@ -168,7 +168,9 @@
 - [x] core/energy (ADR-0014 model B, ranges; training done and planned) + the day's movement on the day page
 - [x] Dynamic day types with goal presets (gain / recomposition / cut): deficit or surplus, protein and fat per kg; targets from the energy with the plan
 - [x] Energy section: every part, spent so far and with the plan, intake and balance (both)
-- [ ] Developer review on the phone; calibration from the weight trend later (ADR-0014 option C)
+- [x] Calibration (ADR-0020): migration 0016 (#103); 28 days of weigh-ins (least-squares trend) and intake vs the model → a proposed factor on everyday activity (0.80–1.20), accepted or reset on today's Energy section; the assistant reads it for the weekly review
+- [x] ADR-0021: the model counted digestion, everyday steps and gym rests twice (≈+18 % on a gym day); fixed
+- [ ] Developer review on the phone
 
 ## Next sprint: S10 — The assistant (ADR-0018, requested 2026-10-01)
 - **Goal:** an assistant that does what the app can do when asked (ingredients from labels, meals, imports, planned days, sessions from notes, tags, ratings) and gives advice; photos/JSON/TXT attachments, text extracted on the phone by default.
@@ -176,6 +178,8 @@
 - [x] Migration 0015 (#101): encrypted key + model, conversations, messages
 - [x] Core: AES-GCM key, conversations, tools (find ingredients/meals/exercises, day, recent days, pantry; create ingredient/meal, log food/estimate, reminders; gym notes import and move to trash with confirmation), the agent's turn; tested with a fake model
 - [x] Settings → Assistant (key write-only, last 4 shown, model); /assistant chat with Undo per change, Confirm / Leave it, attachments (photo text read on the phone, or the photo; JSON/TXT/CSV/MD); conversations in the trash and export v8
+- [x] Barcode → Open Food Facts: camera (BarcodeDetector) or typed digits prefill a new ingredient; the assistant's `lookup_barcode` (fetch injected from `app/_server`)
+- [x] Installable app (ADR-0019): manifest + icons, service worker (offline page, hashed static files; never user data), production only
 - [ ] Developer: set ASSISTANT_KEY_SECRET on Vercel, paste the OpenRouter key, try it on the phone
 - [ ] More tools as needed (products and purchases, routines, exercises, ratings, tags, day types, batches), advice prompts, streaming
 
