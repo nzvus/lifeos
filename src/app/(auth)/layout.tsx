@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const t = dictionaries[DEFAULT_LOCALE];
   return (
     <main className="mx-auto flex max-w-sm flex-col gap-6 px-4 py-12">
-      <p className="app-header-rule pb-1 font-display text-title font-extrabold">
+      <p className="app-header-rule pb-1 font-heading text-title font-extrabold">
         {t.app.name}
       </p>
       {/* The same card as every page section (S20). */}

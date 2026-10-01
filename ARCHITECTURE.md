@@ -151,8 +151,8 @@ cannot poll URLs itself, so app health has daily granularity.
   dictionary slices they use.
 - **Theming/i18n:** tokens (ADR-0010: colour, spacing, type, rules, radii, surfaces
   `panel`/`tile`/`item`, section headings and icon chips, button/badge radii) in
-  `design/`; themes `label` (framed, ruled, day as a nutrition table) / `orto`
-  (soft, pills) / `cruscotto` (dense, uppercase captions, tiles) override them
-  (`data-theme`, per user). Day panel variant: `THEME_SLOTS` (core/shared/themes.ts).
+  `design/`; themes `label` (default) / `quaderno` / `sport` / `minimal` /
+  `notte` override them (`data-theme`, per user); all share the same
+  components (rings and bars).
   Every button: `ui/button.ts`; every status label: `ui/Badge`.
 - **Testing:** Vitest; DB tests on PGlite with the real migrations applied.

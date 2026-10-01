@@ -245,9 +245,11 @@ export const it: Messages = {
     themeHint:
       "Vale su tutti i tuoi dispositivi. Chiaro o scuro si sceglie sotto, in Aspetto.",
     themeNames: {
-      label: "Etichetta — numeri condensati, righe marcate",
-      orto: "Orto — caldo, morbido, più spazio",
-      cruscotto: "Cruscotto — denso, tanti numeri",
+      label: "Etichetta — cornici marcate, numeri condensati",
+      quaderno: "Quaderno — carta avorio, inchiostro blu, titoli serif",
+      sport: "Sport — nero e bianco, accento lime, numeri grandi",
+      minimal: "Minimal — niente cornici, solo spazio e ombre leggere",
+      notte: "Notte — blu notte e ambra, per la sera",
     },
     display: {
       title: "Aspetto",
@@ -778,10 +780,6 @@ export const it: Messages = {
       "Barre più chiare: nessun target quel giorno, scala sul giorno più alto del periodo.",
   },
   panel: {
-    colNutrient: "Nutriente",
-    colEaten: "Mangiato",
-    colTarget: "Obiettivo",
-    colPercent: "% obiettivo",
     left: "rimaste",
     over: "in più",
     off: "in obiettivo",

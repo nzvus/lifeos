@@ -51,7 +51,11 @@ function comparable(e: Awaited<ReturnType<typeof exportUserData>>) {
 
 async function seed(owner: Owner) {
   // Settings beyond time zone and language must survive too.
-  await saveSettings(db, owner, { timezone: "Europe/Rome", locale: "it", theme: "orto" });
+  await saveSettings(db, owner, {
+    timezone: "Europe/Rome",
+    locale: "it",
+    theme: "quaderno",
+  });
   await savePreferences(db, owner, {
     autoTargets: false,
     lunchFrom: 720,

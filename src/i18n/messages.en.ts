@@ -247,9 +247,11 @@ export const en = {
     theme: "Theme",
     themeHint: "Applies on all your devices. Light or dark is chosen below, in Display.",
     themeNames: {
-      label: "Label — condensed numbers, strong rules",
-      orto: "Garden — warm, soft, more space",
-      cruscotto: "Dashboard — dense, lots of numbers",
+      label: "Label — strong frames, condensed numbers",
+      quaderno: "Notebook — ivory paper, blue ink, serif headings",
+      sport: "Sport — black and white, a lime accent, big numbers",
+      minimal: "Minimal — no frames, just space and soft shadows",
+      notte: "Night — night blue and amber, for the evening",
     },
     display: {
       title: "Display",
@@ -775,10 +777,6 @@ export const en = {
     relativeNote: "Fainter bars: no target that day, scaled to the period's highest.",
   },
   panel: {
-    colNutrient: "Nutrient",
-    colEaten: "Eaten",
-    colTarget: "Target",
-    colPercent: "% of target",
     left: "left",
     over: "over",
     off: "on target",

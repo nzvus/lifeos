@@ -71,6 +71,8 @@
   --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
   /* The phone tab bar's labels: five must fit in 390 px in every theme. */
   --font-nav: var(--font-display);
+  /* Page titles and section headings (Quaderno: a serif; numbers keep the display font). */
+  --font-heading: var(--font-display);
 
   /* --- shape (ADR-0010): what a theme may change besides colour ---
      Themes override these under [data-theme="<id>"]; so do Tailwind's own
@@ -160,7 +162,7 @@
   width: 100%;
   align-items: center;
   gap: calc(var(--spacing) * 2);
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-size: var(--heading-size);
   line-height: var(--text-section--line-height);
   font-weight: var(--heading-weight);

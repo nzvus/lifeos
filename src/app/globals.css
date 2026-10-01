@@ -12,8 +12,10 @@
 @import "../design/theme.css";
 /* Other themes (ADR-0010): token overrides under [data-theme="<id>"], after
    the default so they win. */
-@import "../design/themes/orto.css";
-@import "../design/themes/cruscotto.css";
+@import "../design/themes/quaderno.css";
+@import "../design/themes/sport.css";
+@import "../design/themes/minimal.css";
+@import "../design/themes/notte.css";
 
 @layer base {
   html {

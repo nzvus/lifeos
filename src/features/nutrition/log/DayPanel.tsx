@@ -25,7 +25,6 @@ import type { DisplayTotals } from "@/core/nutrition/totals";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
-import { Badge } from "@/ui/Badge";
 import { ConcentricRings } from "@/ui/ConcentricRings";
 import { MacroBar } from "@/ui/MacroBar";
 import { NutrientIcon, NUTRIENT_VAR } from "@/ui/NutrientIcon";
@@ -42,8 +41,6 @@ type Props = {
   /** Targets including auto defaults (core withAutoTargets). */
   targets: Targets;
   auto: NutrientKey[];
-  /** Theme slot (core THEME_SLOTS): rings + bars, a grid of tiles, or a table. */
-  variant?: "rings" | "tiles" | "table";
   locale: Locale;
   t: Pick<Messages, "label" | "nutrients" | "macro" | "panel" | "day">;
 };
@@ -52,15 +49,7 @@ type Props = {
 const SUB: ReadonlySet<NutrientKey> = new Set(["sugars", "saturatedFat"]);
 const RINGS = ["kcal", "protein", "carbs", "fat", "fiber"] as const;
 
-export function DayPanel({
-  totals,
-  withPlanned,
-  targets,
-  auto,
-  variant = "rings",
-  locale,
-  t,
-}: Props) {
+export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Props) {
   const num = (v: string, k: NutrientKey) =>
     formatNumber(v, locale, k === "salt" ? 1 : 0);
   const assess = (k: NutrientKey) =>
@@ -110,17 +99,16 @@ export function DayPanel({
   };
 
   /** One nutrient against its target (ui/TargetBar), as a row or a tile. */
-  const bar = (k: NutrientKey, layout: "row" | "tile") => {
+  const bar = (k: NutrientKey) => {
     const a = assess(k);
     const { color, opacity } = tone(k);
     const value = valueText(totals.nutrients[k], k);
     return (
       <TargetBar
         key={k}
-        layout={layout}
-        icon={SUB.has(k) && layout === "row" ? null : <NutrientIcon name={k} />}
+        icon={SUB.has(k) ? null : <NutrientIcon name={k} />}
         label={t.nutrients[k]}
-        sub={SUB.has(k) && layout === "row"}
+        sub={SUB.has(k)}
         value={value}
         status={statusText(k)}
         ratio={a.status === "none" ? null : a.ratio}
@@ -193,149 +181,6 @@ export function DayPanel({
     </h2>
   );
 
-  /** "% of target" (the label's "%RI"), coloured like the bars would be. */
-  const percent = (k: NutrientKey) => {
-    const a = assess(k);
-    if (a.status === "none") return <span className="text-muted">—</span>;
-    return (
-      <span className="font-bold" style={{ color: tone(k).color }}>
-        {`${Math.round(a.ratio * 100)}%`}
-      </span>
-    );
-  };
-
-  if (variant === "table") {
-    // The label theme: the day as a nutrition-facts table. One row per
-    // nutrient (the "of which" rows indented), a heavy rule under energy,
-    // what is left and where the plan leads written under each name.
-    const ROW = "border-b border-hairline align-top";
-    return (
-      <section
-        aria-labelledby="day-panel-title"
-        className="@container panel flex flex-col gap-4 p-4"
-      >
-        {heading}
-        <p className="flex items-baseline gap-2">
-          <span className="font-display text-title font-extrabold tabular-nums">
-            {num(kcal.status === "none" ? totals.nutrients.kcal : kcal.delta, "kcal")}
-          </span>
-          <span className="text-muted">
-            {kcal.status === "none"
-              ? unit
-              : `${unit} ${kcal.status === "under" ? t.panel.left : kcal.status === "over" ? t.panel.over : t.panel.off}`}
-          </span>
-          {plannedKcal > 0 && (
-            <span className="ml-auto text-meta text-muted tabular-nums">
-              {fill(t.day.plannedNote, {
-                v: formatNumber(String(plannedKcal), locale, 0),
-              })}
-            </span>
-          )}
-        </p>
-        <table className="w-full border-collapse font-display tabular-nums">
-          <thead>
-            <tr className="rule-b-strong border-ink text-meta text-muted">
-              <th scope="col" className="py-1 text-left font-semibold">
-                {t.panel.colNutrient}
-              </th>
-              <th scope="col" className="py-1 text-right font-semibold">
-                {t.panel.colEaten}
-              </th>
-              <th scope="col" className="py-1 pl-3 text-right font-semibold">
-                {t.panel.colTarget}
-              </th>
-              <th scope="col" className="py-1 pl-3 text-right font-semibold">
-                {t.panel.colPercent}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {NUTRIENT_KEYS.map((k) => {
-              const notes = [statusText(k), plannedText(k)].filter(Boolean);
-              return (
-                <tr
-                  key={k}
-                  className={k === "kcal" ? "rule-b-heavy border-ink align-top" : ROW}
-                >
-                  <th
-                    scope="row"
-                    className={`py-1.5 text-left font-body ${SUB.has(k) ? "pl-5 font-normal text-muted" : "font-semibold"}`}
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      {!SUB.has(k) && <NutrientIcon name={k} />}
-                      {t.nutrients[k]}
-                    </span>
-                    {notes.map((n) => (
-                      <span key={n} className="block text-meta font-normal text-muted">
-                        {n}
-                      </span>
-                    ))}
-                  </th>
-                  <td className="py-1.5 text-right text-item whitespace-nowrap">{`${num(totals.nutrients[k], k)} ${NUTRIENT_UNIT[k]}`}</td>
-                  <td className="py-1.5 pl-3 text-right whitespace-nowrap text-muted">
-                    {targets[k] === null
-                      ? "—"
-                      : `${num(targets[k]!, k)} ${NUTRIENT_UNIT[k]}`}
-                    {/* A recommended default, not the user's own target. */}
-                    {auto.includes(k) && (
-                      <span className="block" title={t.panel.autoHint}>
-                        <Badge>{t.panel.auto}</Badge>
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-1.5 pl-3 text-right whitespace-nowrap">
-                    {percent(k)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {splitLine}
-        {cost}
-      </section>
-    );
-  }
-
-  if (variant === "tiles") {
-    return (
-      <section
-        aria-labelledby="day-panel-title"
-        className="@container panel flex flex-col gap-4 p-4"
-      >
-        {heading}
-        {/* Energy first and wider, then one tile per nutrient. */}
-        <div className="grid grid-cols-2 gap-2 @2xl:grid-cols-4">
-          <div className="tile col-span-2 flex flex-col gap-1 p-3">
-            <span className="font-display text-title font-extrabold tabular-nums">
-              {num(kcal.status === "none" ? totals.nutrients.kcal : kcal.delta, "kcal")}
-              <span className="pl-2 text-meta font-normal text-muted">
-                {kcal.status === "none"
-                  ? unit
-                  : `${unit} ${kcal.status === "under" ? t.panel.left : kcal.status === "over" ? t.panel.over : t.panel.off}`}
-              </span>
-            </span>
-            {bar("kcal", "row")}
-            {plannedKcal > 0 && (
-              <span className="text-meta text-muted tabular-nums">
-                {fill(t.day.plannedNote, {
-                  v: formatNumber(String(plannedKcal), locale, 0),
-                })}
-              </span>
-            )}
-          </div>
-          {NUTRIENT_KEYS.filter((k) => k !== "kcal").map((k) => (
-            <div key={k} className="tile p-3">
-              {bar(k, "tile")}
-            </div>
-          ))}
-        </div>
-        {splitLine}
-        {cost}
-      </section>
-    );
-  }
-
   return (
     <section
       aria-labelledby="day-panel-title"
@@ -390,7 +235,7 @@ export function DayPanel({
         </div>
 
         <div className="flex w-full flex-1 flex-col gap-2.5">
-          {NUTRIENT_KEYS.map((k) => bar(k, "row"))}
+          {NUTRIENT_KEYS.map((k) => bar(k))}
         </div>
       </div>
       {cost}
