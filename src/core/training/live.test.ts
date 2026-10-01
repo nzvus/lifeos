@@ -2,7 +2,12 @@
 import { describe, expect, it } from "vitest";
 import { parseInput } from "../shared/validation";
 import {
+  baselineSet,
   copyLastSet,
+  move,
+  newExercise,
+  restoreSet,
+  setChange,
   finished,
   minutesSince,
   nextSet,
@@ -96,5 +101,43 @@ describe("live mode", () => {
       true,
       false,
     ]);
+  });
+
+  it("compares a set with the same set of last time, else its last one", () => {
+    const base = [set(10, "40"), set(9, "40")];
+    expect(baselineSet(base, 1)).toEqual(set(9, "40"));
+    expect(baselineSet(base, 3)).toEqual(set(9, "40"));
+    expect(baselineSet([], 0)).toBeNull();
+    // 10 × 42.5 against 10 × 40: +6 %; 8 × 40 against 9 × 40: −11 %.
+    expect(setChange("strength", set(10, "42.5"), set(10, "40"))).toBe(6);
+    expect(setChange("strength", set(8, "40"), set(9, "40"))).toBe(-11);
+    expect(setChange("strength", set(8, "40"), null)).toBeNull();
+    // Bodyweight without a load: reps alone.
+    const bw = (reps: number) => ({ ...set(reps, "0"), loadKg: null });
+    expect(setChange("bodyweight", bw(12), bw(10))).toBe(20);
+    // Cardio: distance when both have it.
+    const run = (m: number, s: number) => ({
+      ...set(0, "0"),
+      reps: null,
+      loadKg: null,
+      distanceM: m,
+      durationS: s,
+    });
+    expect(setChange("cardio", run(5500, 1800), run(5000, 1800))).toBe(10);
+  });
+
+  it("restores the numbers of last time, keeping the tick", () => {
+    expect(restoreSet(set(12, "45", true), set(10, "40"))).toEqual(set(10, "40", true));
+  });
+
+  it("moves exercises one place, not past the ends", () => {
+    expect(move(["a", "b", "c"], 0, 1)).toEqual(["b", "a", "c"]);
+    expect(move(["a", "b", "c"], 0, -1)).toEqual(["a", "b", "c"]);
+    expect(move(["a", "b", "c"], 2, -1)).toEqual(["a", "c", "b"]);
+  });
+
+  it("a new exercise starts from last time's sets, not done", () => {
+    expect(newExercise(id(3), 90, [set(10, "20", true)]).sets).toEqual([set(10, "20")]);
+    expect(newExercise(id(3), null, undefined).sets).toHaveLength(1);
   });
 });

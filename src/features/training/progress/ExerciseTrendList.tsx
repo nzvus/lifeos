@@ -13,7 +13,8 @@ import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { REGION_TEXT } from "@/ui/MuscleChip";
-import { Change, Sparkline } from "./Sparkline";
+import { Change } from "@/ui/Change";
+import { Sparkline } from "./Sparkline";
 
 export function ExerciseTrendList({
   trends,
