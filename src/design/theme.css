@@ -150,6 +150,19 @@
   box-shadow: var(--item-shadow);
   padding-inline: var(--item-pad);
   margin-bottom: var(--item-gap);
+  /* The card's edge already closes the list: no rule under the last row. */
+  &:last-child {
+    border-bottom-color: transparent;
+    margin-bottom: 0;
+  }
+}
+/* A planned row (ADR-0009): still fully readable (no opacity: its text must
+   keep 4.5:1), told apart by a dashed rule and, where rows are cards, a
+   flatter surface. ui/ListItem adds it; its title also turns muted. */
+@utility item-planned {
+  border-bottom-style: dashed;
+  background: var(--item-planned-bg, var(--item-bg));
+  box-shadow: none;
 }
 
 /* Rule utilities: border width from the --rule-* tokens, any side. The

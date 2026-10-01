@@ -182,7 +182,7 @@ export function MealBrowser({
               }
               leading={
                 m.category ? (
-                  <span className="pt-1 text-muted" title={t.moments.names[m.category]}>
+                  <span className="text-muted" title={t.moments.names[m.category]}>
                     <MomentIcon moment={m.category} />
                   </span>
                 ) : undefined

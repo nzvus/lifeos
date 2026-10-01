@@ -9,6 +9,7 @@ import {
   CalendarDays,
   ClipboardList,
   Dumbbell,
+  History,
   ListOrdered,
   Scale,
   TrendingUp,
@@ -152,7 +153,7 @@ export default async function TrainingPage({ searchParams }: Props) {
           />
         </Section>
       )}
-      <Section title={t.training.recent}>
+      <Section title={t.training.recent} icon={<History size={20} aria-hidden="true" />}>
         {sessions.length === 0 ? (
           <p className="text-muted">{t.training.empty}</p>
         ) : (

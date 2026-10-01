@@ -180,7 +180,7 @@ export default async function DayPage({ searchParams }: Props) {
         <Section
           title={t.training.onThisDay}
           icon={<Dumbbell size={20} aria-hidden="true" />}
-          aside={burnText}
+          subtitle={burnText}
         >
           <SessionList
             sessions={sessions}

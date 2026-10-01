@@ -29,7 +29,7 @@ type Props = {
   aside?: ReactNode;
   action?: ReactNode;
   footer?: ReactNode;
-  /** Planned log entries (ADR-0009): translucent, dashed left edge. */
+  /** Planned (ADR-0009): dashed rule, muted title — never translucent text. */
   muted?: boolean;
   children?: ReactNode;
 };
@@ -46,13 +46,13 @@ export function ListItem({
 }: Props) {
   return (
     <li
-      className={`item relative flex flex-col gap-1 py-2 has-aria-expanded:z-30 ${href ? "hover:bg-paper" : ""} ${
-        muted ? "rule-l-strong border-l-hairline border-dashed pl-2 opacity-60" : ""
+      className={`item relative flex flex-col gap-2 py-3 has-aria-expanded:z-30 ${href ? "hover:bg-paper" : ""} ${
+        muted ? "item-planned" : ""
       }`}
     >
-      <div className="flex items-start gap-2">
+      <div className="flex min-h-11 items-center gap-3">
         {leading}
-        <div className="min-w-0 flex-1 pt-1 font-semibold">
+        <div className={`min-w-0 flex-1 font-semibold ${muted ? "text-muted" : ""}`}>
           {href ? (
             <Link
               href={href}
@@ -65,7 +65,7 @@ export function ListItem({
           )}
         </div>
         {aside && (
-          <div className="shrink-0 pt-1 font-display text-meta whitespace-nowrap text-muted tabular-nums">
+          <div className="shrink-0 font-display text-meta whitespace-nowrap text-muted tabular-nums">
             {aside}
           </div>
         )}

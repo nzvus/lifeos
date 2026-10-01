@@ -52,7 +52,7 @@ export default async function ExercisesPage() {
               <ListItem
                 key={e.id}
                 leading={
-                  <span className="pt-1">
+                  <span className="inline-flex">
                     <ExerciseIcon
                       pattern={e.pattern}
                       region={regionOf(e.muscleGroups)}

@@ -99,38 +99,43 @@ export function DayScore({ score, planned, quality, empty, locale, t }: Props) {
             </ul>
             <p className="text-meta text-muted">{d.howTo}</p>
           </div>
-          <div className="flex flex-col gap-2">
-            <h3 className="font-display text-item font-bold">{d.fiberTitle}</h3>
-            <ul className="flex flex-col gap-1 text-meta">
-              {fibers.map((f) => (
-                <li key={f} className="flex items-center gap-2">
-                  <span className="inline-flex w-44 shrink-0 items-center gap-1 text-macro-fiber">
-                    <FiberTypeIcon type={f} />
-                    {t.quality.fiberNames[f]}
-                  </span>
-                  <span className="w-14 shrink-0 text-right font-display tabular-nums">
-                    {`${formatNumber(quality.fiber[f], locale, 1)} g`}
-                  </span>
-                  <span
-                    className="h-1.5 flex-1 overflow-hidden bg-hairline"
-                    aria-hidden="true"
-                  >
+          {/* Only when there is something to show: an empty heading reads as broken. */}
+          {(fibers.length > 0 || Number(quality.fiber.unknown) > 0) && (
+            <div className="flex flex-col gap-2">
+              <h3 className="font-display text-item font-bold">{d.fiberTitle}</h3>
+              <ul className="flex flex-col gap-1 text-meta">
+                {fibers.map((f) => (
+                  <li key={f} className="flex items-center gap-2">
+                    <span className="inline-flex w-44 shrink-0 items-center gap-1 text-macro-fiber">
+                      <FiberTypeIcon type={f} />
+                      {t.quality.fiberNames[f]}
+                    </span>
+                    <span className="w-14 shrink-0 text-right font-display tabular-nums">
+                      {`${formatNumber(quality.fiber[f], locale, 1)} g`}
+                    </span>
                     <span
-                      className="block h-full bg-macro-fiber"
-                      style={{ width: `${(Number(quality.fiber[f]) / maxFiber) * 100}%` }}
-                    />
-                  </span>
-                </li>
-              ))}
-            </ul>
-            {Number(quality.fiber.unknown) > 0 && (
-              <p className="text-meta text-muted">
-                {fill(d.fiberUnknown, {
-                  v: formatNumber(quality.fiber.unknown, locale, 1),
-                })}
-              </p>
-            )}
-          </div>
+                      className="h-1.5 flex-1 overflow-hidden bg-hairline"
+                      aria-hidden="true"
+                    >
+                      <span
+                        className="block h-full bg-macro-fiber"
+                        style={{
+                          width: `${(Number(quality.fiber[f]) / maxFiber) * 100}%`,
+                        }}
+                      />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {Number(quality.fiber.unknown) > 0 && (
+                <p className="text-meta text-muted">
+                  {fill(d.fiberUnknown, {
+                    v: formatNumber(quality.fiber.unknown, locale, 1),
+                  })}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
     </Section>

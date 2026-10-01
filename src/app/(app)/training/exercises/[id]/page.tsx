@@ -4,7 +4,7 @@
  * editing, merging into another exercise, and the "⋯" menu (to the trash
  * when unused, ADR-0015). `?from=` is where back, Cancel and saving lead.
  */
-import { TrendingUp } from "lucide-react";
+import { Merge, Pencil, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
@@ -92,7 +92,10 @@ export default async function ExercisePage({ params, searchParams }: Props) {
           </ul>
         </Section>
       )}
-      <Section title={t.training.editTitle}>
+      <Section
+        title={t.training.editTitle}
+        icon={<Pencil size={20} aria-hidden="true" />}
+      >
         <ExerciseForm
           id={id}
           from={from}
@@ -114,7 +117,7 @@ export default async function ExercisePage({ params, searchParams }: Props) {
           }}
         />
       </Section>
-      <Section title={x.mergeTitle}>
+      <Section title={x.mergeTitle} icon={<Merge size={20} aria-hidden="true" />}>
         <MergeForm
           action={mergeExerciseAction.bind(null, id)}
           others={exercises

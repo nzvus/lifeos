@@ -12,7 +12,8 @@
  * assessTarget, auto targets); colour grading from ui/targetTone.ts. Server
  * component: renders once, no JavaScript sent.
  */
-import { Coins } from "lucide-react";
+import { Coins, PieChart } from "lucide-react";
+
 import { macroSplit } from "@/core/nutrition/insights";
 import {
   NUTRIENT_KEYS,
@@ -29,6 +30,9 @@ import { MacroBar } from "@/ui/MacroBar";
 import { NutrientIcon, NUTRIENT_VAR } from "@/ui/NutrientIcon";
 import { TargetBar } from "@/ui/TargetBar";
 import { targetTone } from "@/ui/targetTone";
+
+/** The same heading as every ui/Section. */
+const PANEL_HEADING = "flex items-center gap-2 font-display text-section font-bold";
 
 type Props = {
   totals: DisplayTotals;
@@ -179,7 +183,8 @@ export function DayPanel({
         aria-labelledby="day-panel-title"
         className="panel flex flex-col gap-4 p-4"
       >
-        <h2 id="day-panel-title" className="font-display text-section font-extrabold">
+        <h2 id="day-panel-title" className={PANEL_HEADING}>
+          <PieChart size={20} aria-hidden="true" className="text-herb" />
           {t.label.title}
         </h2>
         {/* Energy first and wider, then one tile per nutrient. */}
@@ -216,7 +221,8 @@ export function DayPanel({
 
   return (
     <section aria-labelledby="day-panel-title" className="panel flex flex-col gap-4 p-4">
-      <h2 id="day-panel-title" className="font-display text-section font-extrabold">
+      <h2 id="day-panel-title" className={PANEL_HEADING}>
+        <PieChart size={20} aria-hidden="true" className="text-herb" />
         {t.label.title}
       </h2>
       <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
