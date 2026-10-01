@@ -20,6 +20,12 @@
 - Activity-based targets: plan the day's activities (gym session: type, exercises, duration, rests; walks, runs; how sedentary the rest was) and derive energy/carb targets from them. Needs the training module (ADR-0005) and an explicit energy model (MET-style, always shown as estimates — PROJECT.md non-goal: no falsely precise burn numbers)
 - Template meta-loop: reset `ai-native-starter` to a clean template; record what S00/S01 taught in its TEMPLATE-CHANGELOG
 
+## Open items owned by the developer (from the 2026-09-30 handoff)
+- **Security:** the production DB password was pasted into a chat on 2026-09-30. Rotate `neondb_owner` on the production branch, update GitHub `DATABASE_URL_DIRECT` and Vercel `DATABASE_URL`, redeploy, run `backup` — unless already done.
+- Data confirmations: receipt "SALSA DI POMODORO CI" 0,89 € (cherry tomato, a separate product?); "CIOCC. FONDENTE" 0,85 € (70 % or 50 %?); "CREMA DI ARACHIDI" 2,09 € → 100 % peanut butter?; package weights of protein mozzarella (100 g) and cod fillets (1 kg).
+- ADR-0007 still `proposed`: accept or reject; "What I learned" in the ADRs (agent-drafted or empty).
+- `gh auth refresh -s workflow`, so the trash purge job (branch `s18g-purge-workflow`) can be pushed.
+
 ## Current sprint: S01 — Walking skeleton + nutrition v1, deployed and owned
 - **Goal:** PROJECT.md v1 live on the free tier: sign in, ingredients, meals, daily log vs targets, export — with the ADR-0003/0004 durability pipeline actually running.
 - **Built by the agent on 2026-09-29 at the developer's explicit request (one batch, not small slices), verified in a sandbox:** typecheck, lint, 31 tests, production build, HTTP smoke test on Postgres 16, one local restore drill.
