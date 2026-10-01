@@ -29,6 +29,7 @@ import { fill, type Messages } from "@/i18n";
 import { ConcentricRings } from "@/ui/ConcentricRings";
 import { MacroBar } from "@/ui/MacroBar";
 import { NutrientIcon, NUTRIENT_VAR } from "@/ui/NutrientIcon";
+import { BandBar } from "@/ui/BandBar";
 import { TargetBar } from "@/ui/TargetBar";
 import { targetTone } from "@/ui/targetTone";
 
@@ -123,11 +124,44 @@ export function DayPanel({
       .join(" · ");
   };
 
-  /** One nutrient against its target (ui/TargetBar), as a row or a tile. */
+  /** One nutrient: against its band (ui/BandBar), else its target (ui/TargetBar). */
   const bar = (k: NutrientKey) => {
     const a = assess(k);
     const { color, opacity } = tone(k);
     const value = valueText(totals.nutrients[k], k);
+    const b = bands?.[k];
+    if (b) {
+      const g = (v: number) => `${num(String(v), k)} ${NUTRIENT_UNIT[k]}`;
+      return (
+        <BandBar
+          key={k}
+          icon={<NutrientIcon name={k} />}
+          label={t.nutrients[k]}
+          value={value}
+          status={[zoneText(k, totals.nutrients[k]), statusText(k)]
+            .filter(Boolean)
+            .join(" · ")}
+          planned={plannedText(k)}
+          eaten={Number(totals.nutrients[k])}
+          withPlan={Number(withPlanned.nutrients[k])}
+          target={targets[k] === null ? null : Number(targets[k])}
+          band={b}
+          color={`var(${NUTRIENT_VAR[k]})`}
+          legend={{
+            floor: fill(t.panel.bandFloor, { v: g(b.floor) }),
+            good: fill(t.panel.bandGood, { low: num(String(b.low), k), high: g(b.high) }),
+            ceiling: fill(
+              b.ceilingKind === "health"
+                ? t.panel.bandCeilingHealth
+                : t.panel.bandCeilingUseful,
+              { v: g(b.ceiling) },
+            ),
+          }}
+          autoLabel={auto.includes(k) ? t.panel.auto : undefined}
+          autoHint={auto.includes(k) ? t.panel.autoHint : undefined}
+        />
+      );
+    }
     return (
       <TargetBar
         key={k}
@@ -135,21 +169,7 @@ export function DayPanel({
         label={t.nutrients[k]}
         sub={SUB.has(k)}
         value={value}
-        status={[zoneText(k, totals.nutrients[k]), statusText(k)]
-          .filter(Boolean)
-          .join(" · ")}
-        zone={(() => {
-          const b = bands?.[k];
-          const target = targets[k] === null ? null : Number(targets[k]);
-          return b && target
-            ? {
-                floor: b.floor / target,
-                low: b.low / target,
-                high: b.high / target,
-                ceiling: b.ceiling / target,
-              }
-            : undefined;
-        })()}
+        status={statusText(k)}
         ratio={a.status === "none" ? null : a.ratio}
         plannedRatio={plannedRatio(k)}
         planned={plannedText(k)}

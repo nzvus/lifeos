@@ -18,7 +18,16 @@
  */
 "use client";
 
-import { CalendarDays, Carrot, Dumbbell, Settings, Sparkles, Target, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import {
+  CalendarDays,
+  Carrot,
+  Dumbbell,
+  Settings,
+  Sparkles,
+  Target,
+  UtensilsCrossed,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { buttonClass } from "./button";

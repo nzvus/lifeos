@@ -119,6 +119,17 @@ describe("dynamicTargets", () => {
     });
   });
 
+  it("fat never under 25 % of the energy (the health minimum is 20 %)", () => {
+    const e = dayEnergy(body, quiet)!; // midpoint 2076
+    const t = dynamicTargets(e, "75", {
+      deficitKcal: -1000,
+      proteinGPerKg: "1.8",
+      fatGPerKg: "0.6",
+    });
+    // 0.6 × 75 = 45 g, but 25 % of 3076 kcal ÷ 9 = 85 g.
+    expect(t).toMatchObject({ kcal: 3076, fat: 85 });
+  });
+
   it("never below 1200 kcal", () => {
     const e = dayEnergy({ ...body, weightKg: "45", heightCm: 150 }, quiet)!;
     expect(
