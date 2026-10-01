@@ -12,6 +12,9 @@
  *
  * The bottom bar pads itself by env(safe-area-inset-bottom) so it clears the
  * iPhone home indicator (needs viewport-fit=cover, set in app/layout.tsx).
+ *
+ * Settings is not a tab (2026-10-01: too many tabs for a phone): it is an
+ * icon button in the header on every screen (`NavIconLink`).
  */
 "use client";
 
@@ -91,5 +94,33 @@ export function NavBar({ links, label }: { links: NavLink[]; label: string }) {
         })}
       </nav>
     </>
+  );
+}
+
+/** An icon-only link in the header (settings), highlighted when current. */
+export function NavIconLink({
+  href,
+  label,
+  icon,
+}: {
+  href: string;
+  label: string;
+  icon: keyof typeof ICONS;
+}) {
+  const pathname = usePathname();
+  const Icon = ICONS[icon];
+  const active = isActive(pathname, href);
+  return (
+    <Link
+      href={href}
+      aria-label={label}
+      title={label}
+      aria-current={active ? "page" : undefined}
+      className={`tile inline-flex h-10 w-10 items-center justify-center rounded-control ${
+        active ? "border-herb text-herb" : "hover:border-ink"
+      }`}
+    >
+      <Icon size={20} aria-hidden="true" />
+    </Link>
   );
 }
