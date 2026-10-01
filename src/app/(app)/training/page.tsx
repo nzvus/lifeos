@@ -33,7 +33,9 @@ import { formatNumber } from "@/core/shared/format";
 import {
   addMeasurementAction,
   deleteMeasurementAction,
+  deleteSessionAction,
   restoreMeasurementAction,
+  restoreSessionAction,
 } from "./actions";
 import { startLiveAction } from "./live-actions";
 import { presetTiles } from "./preset-tiles";
@@ -160,6 +162,9 @@ export default async function TrainingPage({ searchParams }: Props) {
             locale={settings.locale}
             t={t.training}
             tx={t.exercises}
+            trash={deleteSessionAction}
+            restore={restoreSessionAction}
+            labels={t.actions}
           />
         )}
       </Section>

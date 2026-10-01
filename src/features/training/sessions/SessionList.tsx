@@ -6,10 +6,10 @@
  * exercise with its sets as short text. Planned sessions are drawn muted,
  * like planned food (ADR-0009). An estimated session (ADR-0016, no
  * exercises) shows its intensity and muscle groups instead, marked as an
- * estimate. Used by /training and by the day page.
+ * estimate. The whole row opens the session; "⋯" deletes it with Undo.
+ * Used by /training and by the day page.
  * Server component.
  */
-import Link from "next/link";
 import { burnRange, sessionTonnage, weightAt } from "@/core/training/analysis";
 import { setsText } from "@/core/training/display";
 import type { SessionView } from "@/core/training/repositories/sessions";
@@ -20,6 +20,7 @@ import { isMuscleGroup, MUSCLE_GROUP_REGION, regionOf } from "@/core/training/an
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { ListItem } from "@/ui/ListItem";
 import { MuscleChips } from "@/ui/MuscleChip";
+import { TrashMenu } from "@/ui/TrashMenu";
 
 type Props = {
   sessions: SessionView[];
@@ -30,11 +31,25 @@ type Props = {
   t: Messages["training"];
   /** Muscle group names, for estimated sessions. */
   tx: Messages["exercises"];
+  /** The row's "⋯ → Delete" and its Undo (ADR-0015): server actions. */
+  trash: (id: string) => Promise<{ ok: boolean; message?: string }>;
+  restore: (id: string) => Promise<{ ok: boolean; message?: string }>;
+  labels: Messages["actions"];
 };
 
 const INTL: Record<Locale, string> = { it: "it-IT", en: "en-GB" };
 
-export function SessionList({ sessions, measurements, showDay, locale, t, tx }: Props) {
+export function SessionList({
+  sessions,
+  measurements,
+  showDay,
+  locale,
+  t,
+  tx,
+  trash,
+  restore,
+  labels,
+}: Props) {
   const date = new Intl.DateTimeFormat(INTL[locale], {
     weekday: "short",
     day: "numeric",
@@ -55,17 +70,20 @@ export function SessionList({ sessions, measurements, showDay, locale, t, tx }: 
           <ListItem
             key={s.id}
             muted={s.status === "planned"}
-            title={
-              <Link
-                href={
-                  showDay
-                    ? `/training/${s.id}`
-                    : `/training/${s.id}?from=${encodeURIComponent(`/?day=${s.day}`)}`
-                }
-                className="underline-offset-4 hover:underline"
-              >
-                {s.label}
-              </Link>
+            href={
+              showDay
+                ? `/training/${s.id}`
+                : `/training/${s.id}?from=${encodeURIComponent(`/?day=${s.day}`)}`
+            }
+            title={s.label}
+            action={
+              <TrashMenu
+                id={s.id}
+                name={s.label}
+                trash={trash}
+                restore={restore}
+                labels={labels}
+              />
             }
             aside={
               showDay ? date.format(new Date(`${s.day}T12:00:00Z`)) : t.statuses[s.status]
@@ -102,7 +120,7 @@ export function SessionList({ sessions, measurements, showDay, locale, t, tx }: 
                 />
               </div>
             ) : (
-              <details className="text-meta">
+              <details className="relative z-2 text-meta">
                 <summary
                   className="flex cursor-pointer list-none flex-wrap items-center gap-1.5"
                   aria-label={s.exercises.map((e) => e.name).join(", ")}

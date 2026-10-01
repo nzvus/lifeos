@@ -131,7 +131,7 @@
 - [x] Log entries and measurements: the row's bin moves to the trash with Undo (ui/TrashButton); trashed entries leave totals, history, usage and burn weight
 - [ ] Developer review on the phone
 - [x] Meals and ingredients lists: the whole row opens (ui/ListItem `href`), "⋯" duplicates / deletes with Undo
-- [ ] Training lists (sessions, exercises, routines): same rows and "⋯"
+- [x] Training lists (sessions, exercises, routines): same rows; "⋯" new session from an exercise or routine, delete with Undo
 - [ ] Trash page under Settings; purge after 30 days in the daily workflow
 
 ## Training logged like food (ADR-0016, 2026-10-01)

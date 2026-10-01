@@ -43,7 +43,11 @@ import { presetTiles } from "./training/preset-tiles";
 import { listMeasurements } from "@/core/training/repositories/measurements";
 import { listSessions } from "@/core/training/repositories/sessions";
 import { listExercises } from "@/core/training/repositories/exercises";
-import { createEstimateAction } from "./training/actions";
+import {
+  createEstimateAction,
+  deleteSessionAction,
+  restoreSessionAction,
+} from "./training/actions";
 import { Card } from "@/ui/Card";
 import { Section } from "@/ui/Section";
 import { dayScore } from "@/core/nutrition/day-score";
@@ -157,6 +161,9 @@ export default async function DayPage({ searchParams }: Props) {
             locale={locale}
             t={t.training}
             tx={t.exercises}
+            trash={deleteSessionAction}
+            restore={restoreSessionAction}
+            labels={t.actions}
           />
         </Section>
       )}
