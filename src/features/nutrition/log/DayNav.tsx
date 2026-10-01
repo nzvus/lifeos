@@ -37,7 +37,7 @@ export function DayNav({ day, today, locale, t }: Props) {
       </Link>
       <div className="flex flex-col items-center">
         <div className="flex items-center gap-1">
-          <h1 className="font-display text-section font-bold first-letter:uppercase">
+          <h1 className="font-display text-section font-bold whitespace-nowrap first-letter:uppercase">
             {heading}
           </h1>
           <DayPicker day={day} label={t.goTo} />

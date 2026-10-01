@@ -25,6 +25,7 @@ import type { DisplayTotals } from "@/core/nutrition/totals";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
+import { Badge } from "@/ui/Badge";
 import { ConcentricRings } from "@/ui/ConcentricRings";
 import { MacroBar } from "@/ui/MacroBar";
 import { NutrientIcon, NUTRIENT_VAR } from "@/ui/NutrientIcon";
@@ -160,8 +161,14 @@ export function DayPanel({
         <span className="font-display text-item tabular-nums">
           {totals.costComplete
             ? formatCents(totals.costCents, locale)
-            : fill(t.label.costPartial, { v: formatCents(totals.costCents, locale) })}
+            : fill(t.label.costPartialShort, {
+                v: formatCents(totals.costCents, locale),
+              })}
         </span>
+        {/* The reason on its own small line: the amount stays one line. */}
+        {!totals.costComplete && (
+          <span className="text-muted">{t.label.costMissing}</span>
+        )}
         {withPlanned.costCents !== totals.costCents && (
           <span className="text-muted italic tabular-nums">
             {fill(t.label.costWithPlanned, {
@@ -257,14 +264,6 @@ export function DayPanel({
                     <span className="inline-flex items-center gap-1.5">
                       {!SUB.has(k) && <NutrientIcon name={k} />}
                       {t.nutrients[k]}
-                      {auto.includes(k) && (
-                        <span
-                          title={t.panel.autoHint}
-                          className="text-meta font-normal text-muted"
-                        >
-                          {`(${t.panel.auto})`}
-                        </span>
-                      )}
                     </span>
                     {notes.map((n) => (
                       <span key={n} className="block text-meta font-normal text-muted">
@@ -277,6 +276,12 @@ export function DayPanel({
                     {targets[k] === null
                       ? "—"
                       : `${num(targets[k]!, k)} ${NUTRIENT_UNIT[k]}`}
+                    {/* A recommended default, not the user's own target. */}
+                    {auto.includes(k) && (
+                      <span className="block" title={t.panel.autoHint}>
+                        <Badge>{t.panel.auto}</Badge>
+                      </span>
+                    )}
                   </td>
                   <td className="py-1.5 pl-3 text-right whitespace-nowrap">
                     {percent(k)}

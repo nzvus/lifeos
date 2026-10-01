@@ -360,7 +360,10 @@ export function LiveSession({
             <button
               type="button"
               onClick={() =>
-                startRest({ ends: Math.max(rest.ends, wallClock()) + 15000, buzzed: false })
+                startRest({
+                  ends: Math.max(rest.ends, wallClock()) + 15000,
+                  buzzed: false,
+                })
               }
               className={buttonClass({ variant: "subtle" })}
             >
@@ -384,10 +387,7 @@ export function LiveSession({
         const done = e.sets.filter((v) => v.done).length;
         const isOpen = open === ei;
         return (
-          <section
-            key={`${e.exerciseId}-${ei}`}
-            className="panel flex flex-col gap-3 p-3"
-          >
+          <section key={`${e.exerciseId}-${ei}`} className="tile flex flex-col gap-3 p-3">
             <button
               type="button"
               onClick={() => setOpen(isOpen ? -1 : ei)}

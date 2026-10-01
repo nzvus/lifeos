@@ -153,6 +153,7 @@ export const en = {
     cost: "Cost",
     costPartial: "at least {v} — some prices are missing",
     costWithPlanned: "with the plan {v}",
+    costMissing: "some prices are missing",
     costPartialShort: "at least {v}",
     setTargets: "Set daily targets in Targets.",
   },

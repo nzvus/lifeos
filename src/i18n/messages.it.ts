@@ -149,6 +149,7 @@ export const it: Messages = {
     cost: "Costo",
     costPartial: "almeno {v}: mancano alcuni prezzi",
     costWithPlanned: "con i pianificati {v}",
+    costMissing: "mancano alcuni prezzi",
     costPartialShort: "almeno {v}",
     setTargets: "Imposta gli obiettivi giornalieri in Obiettivi.",
   },
