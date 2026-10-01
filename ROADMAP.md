@@ -115,7 +115,7 @@
 - [ ] Design pass: spacing/size/rule tokens per theme revisited; one `Stat`/widget convention (label ↔ value spread across the width, centred numbers in tiles); applied to day panel, cards, sections
 - [x] Muscle groups: closed list of 17 in 6 regions, one colour per region in every theme; movement pattern per exercise (migration 0010); suggestion from the name (the 21 real names tested); chips in the editor and list; `classify:exercises` for existing ones
 - [x] Movement-pattern icons (own SVG set, one per pattern, in the region colour)
-- [ ] Training page as progress: this week (sessions, sets per muscle group vs a 10–20 range, tonnage, burn), routines (tonnage per run), exercises (e1RM trend + change), compact session cards coloured by muscle group
+- [x] Training page as progress: week (sessions, working sets, kg, kcal vs the week before; sets per muscle group over the 10–20 band, browsable by week), routines (runs, kg per run, change, sparkline), exercises (e1RM, change in 4 weeks, sparkline), compact session cards (icons by region, sets on tap); ui/StatTiles = the centred-number widget
 - [ ] Live session mode: start from a routine, big steppers prefilled from last time, tick a set, rest timer, saves as you go
 - [ ] Targets: macros per day as grouped bars (side by side, macro colours); training per day (tonnage, burn) next to intake
 - [ ] Developer review on phone of everything above
