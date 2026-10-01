@@ -1,23 +1,35 @@
-/** app/(app)/profiles/new/page.tsx — URL /profiles/new: empty day type form. */
+/** app/(app)/profiles/new/page.tsx — URL /profiles/new[?from=PATH]: empty day type form. */
 import { requireContext } from "@/app/_server/owner";
-import { PageHeader } from "@/ui/PageHeader";
+import { safeFrom } from "@/core/shared/navigation";
 import { ProfileForm } from "@/features/nutrition/profiles/ProfileForm";
+import { PageHeader } from "@/ui/PageHeader";
 import { createProfileAction } from "../actions";
 
-export default async function NewProfilePage() {
+type Props = { searchParams: Promise<{ from?: string }> };
+
+export default async function NewProfilePage({ searchParams }: Props) {
   const { t } = await requireContext();
+  const from = safeFrom((await searchParams).from, "/profiles");
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
       <PageHeader
         title={t.profiles.newTitle}
-        back={{ href: "/profiles", label: t.profiles.back }}
+        back={{
+          href: from,
+          label: from === "/profiles" ? t.profiles.back : t.actions.back,
+        }}
       />
       <ProfileForm
+        from={from}
         action={createProfileAction}
         initial={{}}
-        submitLabel={t.profiles.create}
-        t={{ profiles: t.profiles, nutrients: t.nutrients, errors: t.errors }}
+        t={{
+          profiles: t.profiles,
+          nutrients: t.nutrients,
+          errors: t.errors,
+          actions: t.actions,
+        }}
       />
     </div>
   );

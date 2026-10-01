@@ -20,10 +20,11 @@
  *
  * Tested in profiles.test.ts (including the cross-user test).
  */
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { dayPlans, dayProfiles } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { live } from "../../shared/trash";
 import { fail, ok, pgErrorCode, type Result } from "../../shared/result";
 import { NUTRIENT_KEYS, type NutrientKey } from "../nutrients";
 import type { ProfileInput } from "../validation";
@@ -55,7 +56,7 @@ export async function listProfiles(db: Db, owner: Owner): Promise<DayProfile[]> 
   return db
     .select()
     .from(dayProfiles)
-    .where(ownedBy(dayProfiles, owner))
+    .where(and(ownedBy(dayProfiles, owner), live(dayProfiles)))
     .orderBy(desc(dayProfiles.isDefault), asc(dayProfiles.name));
 }
 
@@ -67,7 +68,7 @@ export async function getProfile(
   const [row] = await db
     .select()
     .from(dayProfiles)
-    .where(and(ownedBy(dayProfiles, owner), eq(dayProfiles.id, id)));
+    .where(and(ownedBy(dayProfiles, owner), live(dayProfiles), eq(dayProfiles.id, id)));
   return row ?? null;
 }
 
@@ -79,7 +80,13 @@ export async function getDefaultProfile(
   const [row] = await db
     .select()
     .from(dayProfiles)
-    .where(and(ownedBy(dayProfiles, owner), eq(dayProfiles.isDefault, true)));
+    .where(
+      and(
+        ownedBy(dayProfiles, owner),
+        live(dayProfiles),
+        eq(dayProfiles.isDefault, true),
+      ),
+    );
   return row ?? null;
 }
 
@@ -119,7 +126,7 @@ export async function updateProfile(
     const [row] = await db
       .update(dayProfiles)
       .set(input)
-      .where(and(ownedBy(dayProfiles, owner), eq(dayProfiles.id, id)))
+      .where(and(ownedBy(dayProfiles, owner), live(dayProfiles), eq(dayProfiles.id, id)))
       .returning();
     return row ? ok(row) : fail({ _form: "not_found" });
   } catch (e) {
@@ -147,15 +154,15 @@ export async function setDefaultProfile(
     await tx
       .update(dayProfiles)
       .set({ isDefault: true })
-      .where(and(ownedBy(dayProfiles, owner), eq(dayProfiles.id, id)));
+      .where(and(ownedBy(dayProfiles, owner), live(dayProfiles), eq(dayProfiles.id, id)));
   });
   return ok(null);
 }
 
 /**
- * Deletes a profile. The default can't be deleted (make another one default
- * first): otherwise new days would silently lose their targets. Days that
- * used the profile keep their copy; their link becomes null.
+ * Moves a day type to the trash (ADR-0015); the default one: "is_default".
+ * Days already planned with it keep their own copy of its targets
+ * (ADR-0008), so nothing past changes.
  */
 export async function deleteProfile(
   db: Db,
@@ -166,9 +173,35 @@ export async function deleteProfile(
   if (!profile) return fail({ _form: "not_found" });
   if (profile.isDefault) return fail({ _form: "is_default" });
   await db
-    .delete(dayProfiles)
+    .update(dayProfiles)
+    .set({ deletedAt: new Date() })
     .where(and(ownedBy(dayProfiles, owner), eq(dayProfiles.id, id)));
   return ok(null);
+}
+
+/** Takes a day type out of the trash; a live namesake created since: "duplicate_name". */
+export async function restoreProfile(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<Result<null>> {
+  try {
+    const restored = await db
+      .update(dayProfiles)
+      .set({ deletedAt: null })
+      .where(
+        and(
+          ownedBy(dayProfiles, owner),
+          isNotNull(dayProfiles.deletedAt),
+          eq(dayProfiles.id, id),
+        ),
+      )
+      .returning({ id: dayProfiles.id });
+    return restored.length ? ok(null) : fail({ _form: "not_found" });
+  } catch (e) {
+    if (pgErrorCode(e) === "23505") return fail({ _form: "duplicate_name" });
+    throw e;
+  }
 }
 
 /** The targets that apply to a day (see the header for the three cases). */

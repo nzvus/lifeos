@@ -127,7 +127,8 @@
 - [x] Ingredients: same model (useEditFlow + useFormValues for uncontrolled forms); trash refused while a live meal uses it; restoring a meal brings its ingredients back
 - [x] Exercises and routines (ui/useEditableForm, TrashMenu for detail pages); an exercise with history still says "merge instead"
 - [x] Sessions (editor and estimates): ⋯ to the trash with Undo, pinned bar, drafts; from the day page everything returns to the day
-- [ ] Developer review on the phone, then: day types, measurements
+- [x] Day types: ⋯ make default / delete (the default is refused), pinned bar, drafts, Undo
+- [ ] Developer review on the phone, then: measurements
 - [ ] Lists and rows: tap opens, "⋯" for quick actions; log entries with Undo
 - [ ] Trash page under Settings; purge after 30 days in the daily workflow
 
