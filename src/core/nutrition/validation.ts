@@ -399,9 +399,20 @@ export function settingsFormValues(s: {
 export function profileFormValues(
   p: {
     name: string;
+    mode?: string;
+    deficitKcal?: number;
+    proteinGPerKg?: string;
+    fatGPerKg?: string;
   } & Record<NutrientKey, string | null>,
 ): Record<string, string> {
-  const values: Record<string, string> = { name: p.name };
+  const values: Record<string, string> = {
+    name: p.name,
+    // ADR-0014: the dynamic parameters, as typed (decimals without trailing zeros).
+    mode: p.mode ?? "fixed",
+    deficitKcal: String(p.deficitKcal ?? 0),
+    proteinGPerKg: new Big(p.proteinGPerKg ?? "1.8").toString(),
+    fatGPerKg: new Big(p.fatGPerKg ?? "0.8").toString(),
+  };
   for (const k of NUTRIENT_KEYS) {
     const v = p[k];
     values[k] = v === null ? "" : new Big(v).toString();

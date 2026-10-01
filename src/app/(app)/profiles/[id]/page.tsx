@@ -74,6 +74,7 @@ export default async function EditProfilePage({ params, searchParams }: Props) {
           nutrients: t.nutrients,
           errors: t.errors,
           actions: t.actions,
+          energy: t.energy,
         }}
       />
     </div>

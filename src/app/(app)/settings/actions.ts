@@ -19,6 +19,8 @@ import {
 import { createFactor, deleteFactor } from "@/core/nutrition/repositories/ratings";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { parseColorMode, parseLayout } from "@/core/shared/display";
+import { saveBody } from "@/core/energy/repositories/energy";
+import { bodyInput } from "@/core/energy/validation";
 import type { FormState } from "@/core/shared/result";
 
 export async function saveSettingsAction(
@@ -95,4 +97,18 @@ export async function deleteFactorAction(
   if (!r.ok) return { status: "error", message: t.errors.not_found };
   revalidatePath("/", "layout");
   return { status: "idle" };
+}
+
+/** Body data for the energy model (ADR-0014). */
+export async function saveBodyAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(bodyInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  await saveBody(getDb(), owner, input.value);
+  revalidatePath("/", "layout"); // the day's energy and dynamic targets
+  return { status: "saved" };
 }

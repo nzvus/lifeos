@@ -45,6 +45,8 @@ import {
 import { addDays, instantFor } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
+import { setDayActivity } from "@/core/energy/repositories/energy";
+import { activityInput } from "@/core/energy/validation";
 
 export async function logMealAction(
   _prev: FormState,
@@ -219,6 +221,21 @@ export async function setEntryTimeAction(
       : instantFor(day, input.value.time, settings.timezone);
   const result = await setEntryTime(getDb(), owner, id, at);
   if (!result.ok) return { status: "error", errors: result.errors, values };
+  revalidatePath("/");
+  return { status: "saved" };
+}
+
+/** The day's movement besides training (ADR-0014), bound to the day. */
+export async function setDayActivityAction(
+  day: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(activityInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  await setDayActivity(getDb(), owner, day, input.value);
   revalidatePath("/");
   return { status: "saved" };
 }

@@ -3,7 +3,18 @@
  * device only), the data export link (GET /api/export, a plain download)
  * and the way to the trash (/settings/trash).
  */
-import { Download, Eye, SlidersHorizontal, Star, Trash2, UserCog } from "lucide-react";
+import {
+  Download,
+  Eye,
+  PersonStanding,
+  SlidersHorizontal,
+  Star,
+  Trash2,
+  UserCog,
+} from "lucide-react";
+import { getBody } from "@/core/energy/repositories/energy";
+import { todayIn } from "@/core/shared/dates";
+import { BodyForm } from "@/features/account/settings/BodyForm";
 import Link from "next/link";
 import { getDisplay } from "@/app/_server/display";
 import { getDb } from "@/app/_server/runtime";
@@ -20,6 +31,7 @@ import { SettingsForm } from "@/features/account/settings/SettingsForm";
 import {
   createFactorAction,
   deleteFactorAction,
+  saveBodyAction,
   saveDisplayAction,
   savePreferencesAction,
   saveSettingsAction,
@@ -29,7 +41,10 @@ import { buttonClass } from "@/ui/button";
 export default async function SettingsPage() {
   const { owner, settings, t } = await requireContext();
   const display = await getDisplay();
-  const factors = await listFactors(getDb(), owner);
+  const [factors, body] = await Promise.all([
+    listFactors(getDb(), owner),
+    getBody(getDb(), owner, todayIn(settings.timezone)),
+  ]);
   // Every IANA time zone the server's runtime knows, for suggestions.
   const timeZones = Intl.supportedValuesOf("timeZone");
   return (
@@ -42,6 +57,21 @@ export default async function SettingsPage() {
           initial={settingsFormValues(settings)}
           timeZones={timeZones}
           t={{ settings: t.settings, errors: t.errors }}
+        />
+      </Section>
+      <Section
+        title={t.energy.body}
+        icon={<PersonStanding size={20} aria-hidden="true" />}
+        subtitle={t.energy.bodyHint}
+      >
+        <BodyForm
+          action={saveBodyAction}
+          initial={{
+            sex: body.sex ?? "",
+            birthYear: body.birthYear ? String(body.birthYear) : "",
+            heightCm: body.heightCm ? String(body.heightCm) : "",
+          }}
+          t={{ energy: t.energy, errors: t.errors, settings: t.settings }}
         />
       </Section>
       <Section

@@ -72,6 +72,7 @@ import {
   restoreLogEntryAction,
   logEstimateAction,
   logPortionAction,
+  setDayActivityAction,
   logIngredientAction,
   logMealAction,
   refreshLogEntryAction,
@@ -79,6 +80,9 @@ import {
   setEntryStatusAction,
   setEntryTimeAction,
 } from "./actions";
+import { dynamicTargets } from "@/core/energy/energy";
+import { getDayEnergy } from "@/core/energy/repositories/energy";
+import { EnergySection } from "@/features/nutrition/log/EnergySection";
 
 type Props = { searchParams: Promise<{ day?: string }> };
 
@@ -109,6 +113,7 @@ export default async function DayPage({ searchParams }: Props) {
     batchList,
     pantry,
     manualReminders,
+    energyView,
   ] = await Promise.all([
     getDay(db, owner, day),
     listMeals(db, owner),
@@ -126,6 +131,7 @@ export default async function DayPage({ searchParams }: Props) {
     listBatches(db, owner), // ADR-0017: portions to log, and their reminders
     getPantry(db, owner),
     listReminders(db, owner),
+    getDayEnergy(db, owner, day), // ADR-0014: what the day costs
   ]);
   // Today's reminders (ADR-0017): derived from the pantry and the batches,
   // plus the hand-made ones that are due. Worded here, shown only if any.
@@ -146,7 +152,25 @@ export default async function DayPage({ searchParams }: Props) {
   // The day's own targets, plus recommended maxima where none is set
   // (sugars, saturated fat, salt — core/nutrition/targets.ts), unless the
   // user turned them off (preferences).
-  const own = dayTargets.source === "none" ? emptyTargets() : dayTargets.targets;
+  // A dynamic day type (ADR-0014): energy, protein, fat, carbs and fibre
+  // come from what the day costs with the plan; the limits stay automatic.
+  const dynamic =
+    dayTargets.source !== "none" && dayTargets.dynamic && energyView.energy
+      ? dynamicTargets(energyView.energy, energyView.body.weightKg!, dayTargets.dynamic)
+      : null;
+  const own =
+    dayTargets.source === "none"
+      ? emptyTargets()
+      : dynamic
+        ? {
+            ...emptyTargets(),
+            kcal: String(dynamic.kcal),
+            protein: String(dynamic.protein),
+            fat: String(dynamic.fat),
+            carbs: String(dynamic.carbs),
+            fiber: String(dynamic.fiber),
+          }
+        : dayTargets.targets;
   const { targets, auto } = settings.preferences.autoTargets
     ? withAutoTargets(own)
     : { targets: own, auto: [] };
@@ -190,6 +214,14 @@ export default async function DayPage({ searchParams }: Props) {
             action={setDayProfileAction}
             t={{ day: t.day, errors: t.errors }}
           />
+          {/* ADR-0014: say where dynamic targets come from, or why they can't. */}
+          {dayTargets.source !== "none" && dayTargets.dynamic && (
+            <p className="text-meta text-muted">
+              {dynamic
+                ? fill(t.energy.dynamicNote, { kcal: String(dynamic.kcal) })
+                : t.energy.dynamicMissing}
+            </p>
+          )}
         </Card>
         <DayPanel
           totals={view.totals}
@@ -204,6 +236,16 @@ export default async function DayPage({ searchParams }: Props) {
             panel: t.panel,
             day: t.day,
           }}
+        />
+        <EnergySection
+          energy={energyView.energy}
+          missing={energyView.missing}
+          activity={energyView.activity}
+          eaten={view.totals.nutrients.kcal}
+          withPlanned={view.withPlanned.nutrients.kcal}
+          action={setDayActivityAction.bind(null, day)}
+          locale={locale}
+          t={{ energy: t.energy, errors: t.errors }}
         />
         <DayScore
           score={dayScore({

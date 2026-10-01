@@ -33,8 +33,12 @@ export type Targets = Record<NutrientKey, string | null>;
 export type DayProfile = typeof dayProfiles.$inferSelect;
 
 /** What a profile write needs; the ADR-0014 fields default (fixed) when absent. */
-export type ProfileWrite = Omit<ProfileInput, keyof DynamicFields> & Partial<DynamicFields>;
-type DynamicFields = Pick<ProfileInput, "mode" | "deficitKcal" | "proteinGPerKg" | "fatGPerKg">;
+export type ProfileWrite = Omit<ProfileInput, keyof DynamicFields> &
+  Partial<DynamicFields>;
+type DynamicFields = Pick<
+  ProfileInput,
+  "mode" | "deficitKcal" | "proteinGPerKg" | "fatGPerKg"
+>;
 
 /** ADR-0014: a dynamic day's parameters (its targets come from core/energy). */
 export type DynamicPlan = {

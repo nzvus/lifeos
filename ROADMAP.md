@@ -164,10 +164,11 @@
 
 ## Next sprint: S09 — Energy needs and the dynamic day (ADR-0014, requested again 2026-10-01)
 - **Goal:** know my energy need at every level (BMR, everyday activity, walking, training, digestion), what comes in and goes out, done and planned; a dynamic day type whose macros follow the plan and the goal (muscle gain, fat loss, or both).
-- [ ] Body data in Settings (sex, birth year, height; weight from measurements)
-- [ ] core/energy (ADR-0014 model B, ranges) + day activity on the day page
-- [ ] Dynamic day types with goal presets (gain / recomposition / cut): deficit or surplus, protein and fat per kg
-- [ ] Day panel: energy in vs out (done, and with the plan), every part shown
+- [x] Body data in Settings (sex, birth year, height; weight from measurements)
+- [x] core/energy (ADR-0014 model B, ranges; training done and planned) + the day's movement on the day page
+- [x] Dynamic day types with goal presets (gain / recomposition / cut): deficit or surplus, protein and fat per kg; targets from the energy with the plan
+- [x] Energy section: every part, spent so far and with the plan, intake and balance (both)
+- [ ] Developer review on the phone; calibration from the weight trend later (ADR-0014 option C)
 
 ## Next sprint: S10 — The assistant (ADR-0018, requested 2026-10-01)
 - **Goal:** an assistant that does what the app can do when asked (ingredients from labels, meals, imports, planned days, sessions from notes, tags, ratings) and gives advice; photos/JSON/TXT attachments, text extracted on the phone by default.
