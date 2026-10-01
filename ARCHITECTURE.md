@@ -124,7 +124,7 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   Save), drafts in the browser, `?from=` for back and after-save, toasts with
   Undo. Rows open on tap and carry "⋯" (ui/ListItem `href`, ui/TrashMenu).
   Delete = trash (`deleted_at`, `live()`); `/settings/trash` restores or deletes for
-  good; the 30-day purge (`purgeExpiredTrash`) awaits its workflow job.
+  good; after 30 days `backup.yml`'s `purge-trash` job deletes it (after the dump).
 - **Assistant (ADR-0018):** the model runs on the server with the user's key
   (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
   writes come back with Undo, deletes/imports wait for a tap; files are read on
