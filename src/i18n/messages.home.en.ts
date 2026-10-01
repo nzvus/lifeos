@@ -297,3 +297,12 @@ export const panelZonesEn = {
   high: "above the good zone {low}–{high} {u}: more adds little",
   above_ceiling: "past the useful ceiling ({ceiling} {u})",
 };
+
+export const appEn = {
+  name: "Lifeos",
+  description: "Nutrition, training and pantry log.",
+  offline: "You are offline",
+  offlineHint:
+    "This page needs the network. What you already saved is safe on the server.",
+  retry: "Try again",
+};

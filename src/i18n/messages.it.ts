@@ -11,18 +11,12 @@ import {
   barcodeIt,
   trainingWhenIt,
   panelZonesIt,
+  appIt,
 } from "./messages.home.it";
 import type { Messages } from "./index";
 
 export const it: Messages = {
-  app: {
-    name: "Lifeos",
-    description: "Diario di alimentazione, allenamento e dispensa.",
-    offline: "Sei offline",
-    offlineHint:
-      "Questa pagina ha bisogno della rete. Quello che hai già salvato è al sicuro sul server.",
-    retry: "Riprova",
-  },
+  app: appIt,
   actions: {
     back: "← Indietro",
     general: "Generale",

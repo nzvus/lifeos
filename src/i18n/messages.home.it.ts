@@ -302,3 +302,12 @@ export const panelZonesIt: Messages["panel"]["zones"] = {
   high: "sopra la zona buona {low}–{high} {u}: oltre serve poco",
   above_ceiling: "oltre il tetto utile ({ceiling} {u})",
 };
+
+export const appIt: Messages["app"] = {
+  name: "Lifeos",
+  description: "Diario di alimentazione, allenamento e dispensa.",
+  offline: "Sei offline",
+  offlineHint:
+    "Questa pagina ha bisogno della rete. Quello che hai già salvato è al sicuro sul server.",
+  retry: "Riprova",
+};
