@@ -128,4 +128,13 @@ levels in several slices — reconsider a request-scoped mechanism;
 - This ADR extends ADR-0002 (adds the `themes/` layer); ADR-0002 stays
   accepted and unchanged.
 
+## Update 2026-10-01 — one set of components
+
+After trying them, the developer kept the default theme (with rounded corners,
+rings and bars) and dropped "Orto" and "Cruscotto". Four new themes built on
+it — Quaderno, Sport, Minimal, Notte — differ in tokens only (colours, type,
+frames, heading style), so the per-theme component slots (`THEME_SLOTS`: tiles,
+table) were removed. The mechanism stays possible: a slot comes back when a
+theme needs a different component, not before.
+
 ## What I learned

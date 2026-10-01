@@ -1,0 +1,107 @@
+/*
+ * design/themes/sport.css — "Sport": hard contrast — black and white with one live
+ * accent (lime), big condensed numbers, thick frames, uppercase headings:
+ * readable at a glance, between two sets at the gym.
+ * Same meaning of colour as every theme: herb = within target, tomato = over;
+ * nutrient, moment and muscle colours keep their hue. Text colours reach
+ * 4.5:1 on paper and sheet in light and dark (design/theme.test.ts).
+ * Generated from the label palette, then hand-tuned tokens (S20).
+ */
+:root[data-theme="sport"] {
+  --panel-border: 3px solid var(--color-ink);
+  --heading-rule: 3px solid var(--color-ink);
+  --heading-pad: 0.375rem;
+  --heading-case: uppercase;
+  --heading-tracking: 0.04em;
+  --heading-weight: 800;
+  --icon-chip-bg: color-mix(in oklab, var(--color-herb) 20%, transparent);
+  --icon-chip-pad: 0.3rem;
+  --icon-chip-radius: 0.375rem;
+  --header-rule: 4px solid var(--color-ink);
+  --text-title: 2.25rem;
+  --radius-control: 0.5rem;
+  --radius-surface: 0.875rem;
+  --color-paper: #f1f1ee;
+  --color-sheet: #ffffff;
+  --color-ink: #0a0a0a;
+  --color-muted: #4f4f4f;
+  --color-hairline: #cfcfc8;
+  --color-herb: #3b7a0a;
+  --color-tomato: #c4211b;
+  --color-warn: #a64b00;
+  --color-focus: #3b7a0a;
+  --color-macro-protein: #b53d6f;
+  --color-macro-carbs: #906104;
+  --color-macro-fat: #3a67a3;
+  --color-macro-fiber: #497626;
+  --color-kcal: #0a0a0a;
+  --color-moment-breakfast: #8a5a3c;
+  --color-moment-lunch: #0e6e66;
+  --color-moment-snack: #63680a;
+  --color-moment-dinner: #3f4aa8;
+  --color-price: #7a47a6;
+  --color-muscle-chest: #b4441c;
+  --color-muscle-back: #2c5fa6;
+  --color-muscle-shoulders: #7f6400;
+  --color-muscle-arms: #7a43ad;
+  --color-muscle-core: #0b6f6f;
+  --color-muscle-legs: #3d7620;
+}
+
+/* Dark: more specific than the default dark block, so it wins. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="sport"]:not([data-mode="light"]) {
+    --color-paper: #080808;
+    --color-sheet: #141414;
+    --color-ink: #f6f6f2;
+    --color-muted: #a9a9a2;
+    --color-hairline: #2e2e2a;
+    --color-herb: #a3e635;
+    --color-tomato: #ff6b5b;
+    --color-warn: #ffb02e;
+    --color-focus: #a3e635;
+    --color-macro-protein: #ef7fae;
+    --color-macro-carbs: #f0bd4f;
+    --color-macro-fat: #86aee6;
+    --color-macro-fiber: #9ccd6c;
+    --color-kcal: #f6f6f2;
+    --color-moment-breakfast: #dcaa85;
+    --color-moment-lunch: #6fd0c4;
+    --color-moment-snack: #c6cc5a;
+    --color-moment-dinner: #a8b1f5;
+    --color-price: #cda8ef;
+    --color-muscle-chest: #f59a6b;
+    --color-muscle-back: #8fb4ee;
+    --color-muscle-shoulders: #e0c050;
+    --color-muscle-arms: #c9a2f2;
+    --color-muscle-core: #6fd3cf;
+    --color-muscle-legs: #9fd27a;
+  }
+}
+:root[data-theme="sport"][data-mode="dark"] {
+  --color-paper: #080808;
+  --color-sheet: #141414;
+  --color-ink: #f6f6f2;
+  --color-muted: #a9a9a2;
+  --color-hairline: #2e2e2a;
+  --color-herb: #a3e635;
+  --color-tomato: #ff6b5b;
+  --color-warn: #ffb02e;
+  --color-focus: #a3e635;
+  --color-macro-protein: #ef7fae;
+  --color-macro-carbs: #f0bd4f;
+  --color-macro-fat: #86aee6;
+  --color-macro-fiber: #9ccd6c;
+  --color-kcal: #f6f6f2;
+  --color-moment-breakfast: #dcaa85;
+  --color-moment-lunch: #6fd0c4;
+  --color-moment-snack: #c6cc5a;
+  --color-moment-dinner: #a8b1f5;
+  --color-price: #cda8ef;
+  --color-muscle-chest: #f59a6b;
+  --color-muscle-back: #8fb4ee;
+  --color-muscle-shoulders: #e0c050;
+  --color-muscle-arms: #c9a2f2;
+  --color-muscle-core: #6fd3cf;
+  --color-muscle-legs: #9fd27a;
+}

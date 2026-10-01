@@ -4,7 +4,7 @@
  * on <html>. A Tailwind upgrade that brought back the built-in variants
  * would silently break "phone" on a wide screen; this test catches it.
  */
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import postcss from "postcss";
 import tailwind from "@tailwindcss/postcss";
@@ -69,6 +69,10 @@ describe("layout variants (data-layout)", () => {
  */
 describe("theme contract", () => {
   const read = (path: string) => readFileSync(`${root}src/design/${path}`, "utf8");
+  /** Every theme file in design/themes: a new theme is checked without editing this test. */
+  const themeIds = readdirSync(`${root}src/design/themes`)
+    .filter((f) => f.endsWith(".css"))
+    .map((f) => f.slice(0, -4));
   // Derived tokens (color-mix of other tokens) follow the theme by
   // themselves: a theme need not, and should not, repeat them.
   const colourTokens = (block: string) =>
@@ -85,7 +89,11 @@ describe("theme contract", () => {
     expect(defaults.length).toBeGreaterThan(10);
   });
 
-  it.each(["orto", "cruscotto"])("%s defines every colour, light and dark", (id) => {
+  it("has the theme files", () => {
+    expect(themeIds.length).toBeGreaterThan(0);
+  });
+
+  it.each(themeIds)("%s defines every colour, light and dark", (id) => {
     const css = read(`themes/${id}.css`);
     const sel = `:root[data-theme="${id}"]`;
     const light = blockOf(css, sel);
@@ -128,7 +136,7 @@ describe("theme contract", () => {
   const palettes: [string, string | null][] = [
     ["label light", label.split("@theme {")[1]!.split("\n}")[0]!],
     ["label dark", blockOf(label, ':root[data-mode="dark"]')],
-    ...["orto", "cruscotto"].flatMap((id): [string, string | null][] => {
+    ...themeIds.flatMap((id): [string, string | null][] => {
       const css = read(`themes/${id}.css`);
       const sel = `:root[data-theme="${id}"]`;
       return [
@@ -151,7 +159,6 @@ describe("theme contract", () => {
   });
 
   it("every theme file is part of the stylesheet", () => {
-    expect(css).toContain('[data-theme="orto"]');
-    expect(css).toContain('[data-theme="cruscotto"]');
+    for (const id of themeIds) expect(css).toContain(`[data-theme="${id}"]`);
   });
 });

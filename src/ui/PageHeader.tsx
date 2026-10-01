@@ -29,7 +29,7 @@ export function PageHeader({
         </Link>
       )}
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <h1 className="font-display text-title font-bold">{title}</h1>
+        <h1 className="font-heading text-title font-bold">{title}</h1>
         {action && (
           <Link href={action.href} className={buttonClass({ variant: "primary" })}>
             {action.label}

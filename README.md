@@ -43,6 +43,9 @@ npm run dev           # http://localhost:3000
 | `npm run import:fitforge -- FILE --email EMAIL [--apply]` | Import FitForge ingredients + meals (dry run without `--apply`) |
 | `npm run import:lifeos -- FILE --email EMAIL [--apply --replace]` | Replace an account's data with a lifeos export (runbook: `docs/runbooks/replace-data.md`) |
 | `npm run upsert:ingredients -- FILE --email EMAIL [--apply]` | Create/update ingredients by name (label values, receipt prices); dry run shows every changed field |
+| `npm run import:training -- --email EMAIL --logs DIR --fitforge FILE [--apply]` | Import training history (PUSH/PULL text logs, FitForge); dry run without `--apply` |
+| `npm run classify:exercises -- --email EMAIL [--apply]` | Suggest movement pattern and muscle groups for exercises |
+| `npm run tidy:training -- --email EMAIL [--apply]` | Rename hand-numbered sessions to their routine, link them |
 | `python3 scripts/check.py` | Docs/ADR health check (`--strict` makes warnings fail) |
 
 Production is migrated only by the `migrate` GitHub workflow, by hand, after

@@ -20,6 +20,12 @@
 - Activity-based targets: plan the day's activities (gym session: type, exercises, duration, rests; walks, runs; how sedentary the rest was) and derive energy/carb targets from them. Needs the training module (ADR-0005) and an explicit energy model (MET-style, always shown as estimates — PROJECT.md non-goal: no falsely precise burn numbers)
 - Template meta-loop: reset `ai-native-starter` to a clean template; record what S00/S01 taught in its TEMPLATE-CHANGELOG
 
+## Open items owned by the developer (from the 2026-09-30 handoff)
+- **Security:** the production DB password was pasted into a chat on 2026-09-30. Rotate `neondb_owner` on the production branch, update GitHub `DATABASE_URL_DIRECT` and Vercel `DATABASE_URL`, redeploy, run `backup` — unless already done.
+- Data confirmations: receipt "SALSA DI POMODORO CI" 0,89 € (cherry tomato, a separate product?); "CIOCC. FONDENTE" 0,85 € (70 % or 50 %?); "CREMA DI ARACHIDI" 2,09 € → 100 % peanut butter?; package weights of protein mozzarella (100 g) and cod fillets (1 kg).
+- ADR-0007 still `proposed`: accept or reject; "What I learned" in the ADRs (agent-drafted or empty).
+- `gh auth refresh -s workflow`, so the trash purge job (branch `s18g-purge-workflow`) can be pushed.
+
 ## Current sprint: S01 — Walking skeleton + nutrition v1, deployed and owned
 - **Goal:** PROJECT.md v1 live on the free tier: sign in, ingredients, meals, daily log vs targets, export — with the ADR-0003/0004 durability pipeline actually running.
 - **Built by the agent on 2026-09-29 at the developer's explicit request (one batch, not small slices), verified in a sandbox:** typecheck, lint, 31 tests, production build, HTTP smoke test on Postgres 16, one local restore drill.
@@ -112,12 +118,12 @@
 ## Next sprint: S07 — Training you can use at the gym, and a design pass (started 2026-10-01)
 - **Goal:** training as progress (routines, exercises, muscle groups, overall stats) and a fast live logger; the whole app with calmer spacing and widgets that use their full width; Targets with grouped macro bars and training data.
 - [x] ADR-0013 accepted (delegated: products → ingredients, stock derived from purchases − eaten ± counts); implementation after S07
-- [ ] Design pass: spacing/size/rule tokens per theme revisited; one `Stat`/widget convention (label ↔ value spread across the width, centred numbers in tiles); applied to day panel, cards, sections
+- [x] Design pass: superseded by the full design pass below (buttons, badges, rhythm, themes); ui/StatTiles is the centred-number widget
 - [x] Muscle groups: closed list of 17 in 6 regions, one colour per region in every theme; movement pattern per exercise (migration 0010); suggestion from the name (the 21 real names tested); chips in the editor and list; `classify:exercises` for existing ones
 - [x] Movement-pattern icons (own SVG set, one per pattern, in the region colour)
 - [x] Training page as progress: week (sessions, working sets, kg, kcal vs the week before; sets per muscle group over the 10–20 band, browsable by week), routines (runs, kg per run, change, sparkline), exercises (e1RM, change in 4 weeks, sparkline), compact session cards (icons by region, sets on tap); ui/StatTiles = the centred-number widget
 - [x] Live session mode (`/training/<id>/live`): a routine tile starts it now at its latest version; big ✓ and −/+ steppers prefilled from last time; rest timer (vibrates); saved whole 0.7 s after each edit (`sets.done`, migration 0011); finish keeps only done sets and sets the duration; per-set change vs last time with ↺ restore; add, move, remove exercises; unsaved edits kept in the browser and restored on reload
-- [ ] Targets: macros per day as grouped bars (side by side, macro colours); training per day (tonnage, burn) next to intake
+- [x] Targets: macros per day as grouped bars (side by side, macro colours); training per day (tonnage, burn) next to intake (b22a7a4)
 - [ ] Developer review on phone of everything above
 
 ## Next sprint: S07b — One edit model and the visual refactoring (ADR-0015, started 2026-10-01)
@@ -153,16 +159,14 @@
 - [x] Day page and desktop: one navigation row (‹ day 📅 ›, the week strip without its own arrows, no "Go to" row); wide screens: numbers left, food and training right; cards lay out by their own width (container queries)
 - [x] Themes with an identity (heading, icon chip, button/badge radius and header tokens): Label = framed boxes, heavy rule under every heading, the day as a nutrition-facts table (new THEME_SLOTS variant); Orto = pills, tinted icon discs, no rules, rounder cards; Cruscotto = uppercase captions, thin frames, tiles; the tab bar fits five labels in every theme
 - [x] Second pass: dark mode checked in all themes; cost on one line ("at least 0,72 €" + small "some prices are missing"); "auto" as a badge in the table's target column; the day's date never wraps; live session exercises as light tiles; sign-in in a card; "Default" as ui/Badge; live clock hydration bug fixed
-- [ ] Developer review of the three themes on the phone
+- [x] Developer's verdict: Label stays, with rounded corners and rings + bars; Orto and Cruscotto replaced by four themes built on Label: Quaderno (ivory, blue ink, serif headings), Sport (black/white, lime), Minimal (no frames, shadows), Notte (night blue, amber headings); per-theme components (THEME_SLOTS) removed until a theme needs one
+- [ ] Developer review of the four new themes on the phone
 
 ## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)
 - **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.
-- [ ] ADR revising ADR-0013 (options, then the developer decides). Open questions:
-  - products not linked to an ingredient (detergent, toiletries…), counted in pieces;
-  - batch cooking as an event that uses ingredients from stock and makes N portions of a meal; logging that meal uses a portion;
-  - reminders: derived ("2 portions left → cook again"; "runs out in 3 days → buy") vs set by hand, and where they show up (day page, shopping list).
-- [ ] Training in the JSON export (exercises, sessions, routines, measurements); next export version
-- [ ] Schema (migration PR first), then purchases + counts, stock and "runs out in", shopping list, batches, reminders
+- [x] ADR-0017 accepted (A, A, A): products of any kind (unit g/ml/pieces, ingredient optional); batches make portions, a log entry from a batch takes a portion; reminders derived + by hand
+- [x] Training in the JSON export, version 6 (exercises, routines with items, sessions with exercises and sets, measurements, day activity; live records only); the lifeos importer accepts v6 and restores nutrition only
+- [ ] Schema (migration PR first, ADR-0017 Consequences), then purchases + counts, stock and "runs out in", shopping list, batches, reminders
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

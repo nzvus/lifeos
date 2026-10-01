@@ -21,7 +21,7 @@ export default function AppError({ reset }: { error: Error; reset: () => void })
       role="alert"
       className="flex flex-col items-start gap-3 rule-l-heavy border-tomato pl-4"
     >
-      <h1 className="font-display text-section font-bold">{t.title}</h1>
+      <h1 className="section-heading">{t.title}</h1>
       <p>{t.body}</p>
       <button type="button" onClick={reset} className={buttonClass()}>
         {t.retry}

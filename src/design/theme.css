@@ -71,6 +71,8 @@
   --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
   /* The phone tab bar's labels: five must fit in 390 px in every theme. */
   --font-nav: var(--font-display);
+  /* Page titles and section headings (Quaderno: a serif; numbers keep the display font). */
+  --font-heading: var(--font-display);
 
   /* --- shape (ADR-0010): what a theme may change besides colour ---
      Themes override these under [data-theme="<id>"]; so do Tailwind's own
@@ -85,13 +87,14 @@
   --rule-strong: 2px;
   --rule-medium: 1px;
   /* Corners of inputs and buttons (rounded-control) and of panels
-     (rounded-surface). Square on the label. */
-  --radius-control: 0rem;
-  --radius-surface: 0rem;
+     (rounded-surface). Softly rounded on the label (the developer's choice,
+     2026-10-01: framed like a label, but not square). */
+  --radius-control: 0.375rem;
+  --radius-surface: 0.75rem;
   /* rounded-button: buttons (ui/button.ts) — the control radius unless a
      theme rounds them further (orto's pills), declared in :root below. */
   --radius-button: var(--radius-control);
-  --radius-badge: 0rem; /* ui/Badge: status and kind labels (square on the label) */
+  --radius-badge: 0.25rem; /* ui/Badge: status and kind labels */
   /* Type scale: five named levels, the only text sizes the app uses (lint
      forbids text-xs … text-4xl). Sizes and line heights are Tailwind's own
      3xl / xl / lg / base / sm, so the label theme looks as before. */
@@ -124,9 +127,10 @@
  */
 :root {
   --panel-bg: var(--color-sheet);
-  /* Label (S20): every card is a label box — square, framed in ink. */
+  /* Label (S20): every card is a label box framed in ink, with rounded
+     corners. */
   --panel-border: var(--rule-strong) solid var(--color-ink);
-  --panel-radius: 0;
+  --panel-radius: var(--radius-surface);
   --panel-shadow: none;
   --tile-bg: var(--color-paper);
   --tile-border: 1px solid var(--color-hairline);
@@ -158,7 +162,7 @@
   width: 100%;
   align-items: center;
   gap: calc(var(--spacing) * 2);
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-size: var(--heading-size);
   line-height: var(--text-section--line-height);
   font-weight: var(--heading-weight);

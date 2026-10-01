@@ -19,7 +19,10 @@
 import { and, asc, eq } from "drizzle-orm";
 import type { Db } from "../db/client";
 import {
+  bodyMeasurements,
+  dayActivity,
   dayPlans,
+  exercises,
   dayProfiles,
   ingredients,
   ingredientTags,
@@ -28,8 +31,13 @@ import {
   mealItems,
   mealRatings,
   ratingFactors,
+  routineItems,
+  routines,
+  sessionExercises,
+  sets,
   tags,
   meals,
+  trainingSessions,
   user,
   userSettings,
 } from "../db/schema";
@@ -38,7 +46,10 @@ import { live } from "../shared/trash";
 
 export const EXPORT_FORMAT = "lifeos-export";
 /** 2: adds dayProfiles and dayPlans (ADR-0008). 3: log status/at/estimated (ADR-0009). */
-export const EXPORT_VERSION = 5; // 4: category, moment (ADR-0011); 5: quality + tags (ADR-0012)
+// 4: category, moment (ADR-0011); 5: quality + tags (ADR-0012);
+// 6: training — exercises, routines, sessions with exercises and sets, body
+// measurements, day activity (ADR-0005/0016).
+export const EXPORT_VERSION = 6;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -108,6 +119,56 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     db.select().from(mealRatings).where(ownedBy(mealRatings, owner)),
   ]);
 
+  // Training (ADR-0005), live records only like the rest; parts nest in
+  // their parent (routine → items, session → exercises → sets).
+  const [
+    exerciseRows,
+    routineRows,
+    routineItemRows,
+    sessionRows,
+    sessionExRows,
+    setRows,
+    measurementRows,
+    activityRows,
+  ] = await Promise.all([
+    db
+      .select()
+      .from(exercises)
+      .where(and(ownedBy(exercises, owner), live(exercises)))
+      .orderBy(asc(exercises.name)),
+    db
+      .select()
+      .from(routines)
+      .where(and(ownedBy(routines, owner), live(routines)))
+      .orderBy(asc(routines.position)),
+    db
+      .select()
+      .from(routineItems)
+      .where(ownedBy(routineItems, owner))
+      .orderBy(asc(routineItems.position)),
+    db
+      .select()
+      .from(trainingSessions)
+      .where(and(ownedBy(trainingSessions, owner), live(trainingSessions)))
+      .orderBy(asc(trainingSessions.day)),
+    db
+      .select()
+      .from(sessionExercises)
+      .where(ownedBy(sessionExercises, owner))
+      .orderBy(asc(sessionExercises.position)),
+    db.select().from(sets).where(ownedBy(sets, owner)).orderBy(asc(sets.position)),
+    db
+      .select()
+      .from(bodyMeasurements)
+      .where(and(ownedBy(bodyMeasurements, owner), live(bodyMeasurements)))
+      .orderBy(asc(bodyMeasurements.day)),
+    db
+      .select()
+      .from(dayActivity)
+      .where(ownedBy(dayActivity, owner))
+      .orderBy(asc(dayActivity.day)),
+  ]);
+
   return {
     format: EXPORT_FORMAT,
     version: EXPORT_VERSION,
@@ -135,6 +196,24 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       ...e,
       items: stripOwner(entryItemRows.filter((i) => i.entryId === e.id)),
     })),
+    training: {
+      exercises: stripOwner(exerciseRows),
+      routines: stripOwner(routineRows).map((r) => ({
+        ...r,
+        items: stripOwner(routineItemRows.filter((i) => i.routineId === r.id)),
+      })),
+      sessions: stripOwner(sessionRows).map((x) => ({
+        ...x,
+        exercises: stripOwner(sessionExRows.filter((e) => e.sessionId === x.id)).map(
+          (e) => ({
+            ...e,
+            sets: stripOwner(setRows.filter((st) => st.sessionExerciseId === e.id)),
+          }),
+        ),
+      })),
+      measurements: stripOwner(measurementRows),
+      dayActivity: stripOwner(activityRows),
+    },
   };
 }
 

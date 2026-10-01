@@ -35,17 +35,21 @@ describe("settings", () => {
   });
 
   it("saves the theme with the rest, and saving again updates the row", async () => {
-    await saveSettings(db, me, { timezone: "Europe/Rome", locale: "it", theme: "orto" });
-    await saveSettings(db, me, { timezone: "UTC", locale: "en", theme: "cruscotto" });
+    await saveSettings(db, me, {
+      timezone: "Europe/Rome",
+      locale: "it",
+      theme: "quaderno",
+    });
+    await saveSettings(db, me, { timezone: "UTC", locale: "en", theme: "notte" });
     expect(await getSettings(db, me)).toMatchObject({
       timezone: "UTC",
       locale: "en",
-      theme: "cruscotto",
+      theme: "notte",
     });
   });
 
   it("falls back to the default theme for an unknown stored value", async () => {
-    await saveSettings(db, me, { timezone: "UTC", locale: "it", theme: "orto" });
+    await saveSettings(db, me, { timezone: "UTC", locale: "it", theme: "quaderno" });
     await db
       .update(userSettings)
       .set({ theme: "removed-theme" })
@@ -54,12 +58,12 @@ describe("settings", () => {
   });
 
   it("never reads another user's settings", async () => {
-    await saveSettings(db, other, { timezone: "UTC", locale: "en", theme: "cruscotto" });
+    await saveSettings(db, other, { timezone: "UTC", locale: "en", theme: "notte" });
     expect((await getSettings(db, me)).theme).toBe("label");
   });
 
   it("saves preferences without touching the other settings", async () => {
-    await saveSettings(db, me, { timezone: "UTC", locale: "en", theme: "orto" });
+    await saveSettings(db, me, { timezone: "UTC", locale: "en", theme: "quaderno" });
     await savePreferences(db, me, {
       autoTargets: false,
       lunchFrom: 720,
@@ -70,7 +74,7 @@ describe("settings", () => {
       listPer: "cost",
     });
     const s = await getSettings(db, me);
-    expect(s.theme).toBe("orto");
+    expect(s.theme).toBe("quaderno");
     expect(s.preferences).toEqual({
       autoTargets: false,
       bounds: { lunch: 720, snack: 960, dinner: 1170 },

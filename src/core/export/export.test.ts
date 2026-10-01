@@ -8,7 +8,10 @@ import { logIngredient } from "../nutrition/repositories/log";
 import { createProfile } from "../nutrition/repositories/profiles";
 import { saveSettings } from "../nutrition/repositories/settings";
 import { createTestDb, createTestUser, ingredientFixture } from "../testing/test-db";
-import { EXPORT_FORMAT, exportUserData } from "./export";
+import { createExercise } from "../training/repositories/exercises";
+import { addMeasurement, deleteMeasurement } from "../training/repositories/measurements";
+import { createSession } from "../training/repositories/sessions";
+import { EXPORT_FORMAT, EXPORT_VERSION, exportUserData } from "./export";
 
 let db: Db;
 let close: () => Promise<void>;
@@ -45,7 +48,7 @@ describe("exportUserData", () => {
     await saveSettings(db, alice, {
       timezone: "Europe/Rome",
       locale: "it",
-      theme: "orto",
+      theme: "quaderno",
     });
     await createIngredient(db, bob, ingredientFixture({ name: "Bob's secret" }));
     await db.insert(account).values({
@@ -63,7 +66,7 @@ describe("exportUserData", () => {
     expect(data.ingredients.map((i) => i.name)).toEqual(["Oats"]);
     expect(data.log[0]?.items[0]?.quantity).toBe("50.00"); // exact, as stored
     expect(data.settings?.timezone).toBe("Europe/Rome");
-    expect(data.settings?.theme).toBe("orto");
+    expect(data.settings?.theme).toBe("quaderno");
     expect(data.dayProfiles.map((p) => [p.name, p.kcal, p.isDefault])).toEqual([
       ["Palestra", "2400.000", true],
     ]);
@@ -74,5 +77,91 @@ describe("exportUserData", () => {
     expect(text).not.toContain("Bob's secret");
     expect(text).not.toContain("HASH-SHOULD-NOT-LEAK");
     expect(text).not.toContain(alice.id); // user ids are stripped
+  });
+
+  it("contains my training (version 6), live records only, nobody else's", async () => {
+    const lat = await createExercise(db, alice, {
+      name: "Lat pulldown",
+      kind: "strength",
+      muscleGroups: ["lats"],
+      pattern: null,
+      equipment: null,
+      unilateral: false,
+      notes: "",
+    });
+    if (!lat.ok) throw new Error("setup failed");
+    const s = await createSession(
+      db,
+      alice,
+      {
+        label: "Pull",
+        day: "2026-09-30",
+        status: "done",
+        time: "",
+        durationMin: 60,
+        notes: "",
+        routineId: null,
+        exercises: [
+          {
+            exerciseId: lat.value.id,
+            notes: "",
+            restS: null,
+            sets: [
+              {
+                reps: 10,
+                loadKg: "40",
+                loadText: null,
+                loadApprox: false,
+                durationS: null,
+                distanceM: null,
+                speedKmh: null,
+                inclinePct: null,
+                warmup: false,
+                done: true,
+              },
+            ],
+          },
+        ],
+      },
+      "Europe/Rome",
+    );
+    if (!s.ok) throw new Error("setup failed: " + JSON.stringify(s));
+    const kept = await addMeasurement(db, alice, {
+      day: "2026-09-30",
+      weightKg: "75",
+      bodyFatPct: null,
+      waistCm: null,
+      notes: "",
+    });
+    const trashed = await addMeasurement(db, alice, {
+      day: "2026-09-29",
+      weightKg: "99",
+      bodyFatPct: null,
+      waistCm: null,
+      notes: "",
+    });
+    if (!kept.ok || !trashed.ok) throw new Error("setup failed");
+    await deleteMeasurement(db, alice, trashed.value.id);
+    await createExercise(db, bob, {
+      name: "Bob's squat",
+      kind: "strength",
+      muscleGroups: [],
+      pattern: null,
+      equipment: null,
+      unilateral: false,
+      notes: "",
+    });
+
+    const data = await exportUserData(db, alice);
+    expect(data.version).toBe(EXPORT_VERSION);
+    expect(data.training.exercises.map((e) => e.name)).toEqual(["Lat pulldown"]);
+    const [session] = data.training.sessions;
+    expect(session?.label).toBe("Pull");
+    expect(session?.exercises[0]?.sets.map((x) => [x.reps, x.loadKg])).toEqual([
+      [10, "40.00"],
+    ]);
+    // The trash is not exported, like every other kind.
+    expect(data.training.measurements.map((m) => m.weightKg)).toEqual(["75.00"]);
+    expect(JSON.stringify(data)).not.toContain("Bob's squat");
   });
 });

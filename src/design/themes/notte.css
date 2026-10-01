@@ -1,0 +1,105 @@
+/*
+ * design/themes/notte.css — "Notte" (night): made for the evening — deep night blue,
+ * warm amber accents, soft contrasts that do not glare; its light version
+ * is a cool dusk.
+ * Same meaning of colour as every theme: herb = within target, tomato = over;
+ * nutrient, moment and muscle colours keep their hue. Text colours reach
+ * 4.5:1 on paper and sheet in light and dark (design/theme.test.ts).
+ * Generated from the label palette, then hand-tuned tokens (S20).
+ */
+:root[data-theme="notte"] {
+  --panel-border: 1px solid color-mix(in oklab, var(--color-warn) 30%, var(--color-hairline));
+  --heading-rule: 1px solid color-mix(in oklab, var(--color-warn) 30%, var(--color-hairline));
+  --heading-pad: 0.375rem;
+  --heading-weight: 600;
+  --heading-color: var(--color-warn); /* amber headings: the evening light */
+  --icon-chip-bg: color-mix(in oklab, var(--color-warn) 18%, transparent);
+  --icon-chip-pad: 0.35rem;
+  --icon-chip-radius: 999px;
+  --header-rule: 1px solid var(--color-hairline);
+  --radius-control: 0.5rem;
+  --radius-surface: 1rem;
+  --color-paper: #eceff5;
+  --color-sheet: #fbfcfe;
+  --color-ink: #1a2133;
+  --color-muted: #555e76;
+  --color-hairline: #d2d8e4;
+  --color-herb: #2a7658;
+  --color-tomato: #b1352a;
+  --color-warn: #965000;
+  --color-focus: #965000;
+  --color-macro-protein: #b53d6f;
+  --color-macro-carbs: #906104;
+  --color-macro-fat: #3a67a3;
+  --color-macro-fiber: #497626;
+  --color-kcal: #1a2133;
+  --color-moment-breakfast: #8a5a3c;
+  --color-moment-lunch: #0e6e66;
+  --color-moment-snack: #63680a;
+  --color-moment-dinner: #3f4aa8;
+  --color-price: #7a47a6;
+  --color-muscle-chest: #b4441c;
+  --color-muscle-back: #2c5fa6;
+  --color-muscle-shoulders: #7f6400;
+  --color-muscle-arms: #7a43ad;
+  --color-muscle-core: #0b6f6f;
+  --color-muscle-legs: #3d7620;
+}
+
+/* Dark: more specific than the default dark block, so it wins. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="notte"]:not([data-mode="light"]) {
+    --color-paper: #0c1222;
+    --color-sheet: #141c31;
+    --color-ink: #e4e7f1;
+    --color-muted: #a2aac2;
+    --color-hairline: #28324d;
+    --color-herb: #6fd3a5;
+    --color-tomato: #ff8d7d;
+    --color-warn: #ffb454;
+    --color-focus: #ffb454;
+    --color-macro-protein: #ef7fae;
+    --color-macro-carbs: #f0bd4f;
+    --color-macro-fat: #86aee6;
+    --color-macro-fiber: #9ccd6c;
+    --color-kcal: #e4e7f1;
+    --color-moment-breakfast: #dcaa85;
+    --color-moment-lunch: #6fd0c4;
+    --color-moment-snack: #c6cc5a;
+    --color-moment-dinner: #a8b1f5;
+    --color-price: #cda8ef;
+    --color-muscle-chest: #f59a6b;
+    --color-muscle-back: #8fb4ee;
+    --color-muscle-shoulders: #e0c050;
+    --color-muscle-arms: #c9a2f2;
+    --color-muscle-core: #6fd3cf;
+    --color-muscle-legs: #9fd27a;
+  }
+}
+:root[data-theme="notte"][data-mode="dark"] {
+  --color-paper: #0c1222;
+  --color-sheet: #141c31;
+  --color-ink: #e4e7f1;
+  --color-muted: #a2aac2;
+  --color-hairline: #28324d;
+  --color-herb: #6fd3a5;
+  --color-tomato: #ff8d7d;
+  --color-warn: #ffb454;
+  --color-focus: #ffb454;
+  --color-macro-protein: #ef7fae;
+  --color-macro-carbs: #f0bd4f;
+  --color-macro-fat: #86aee6;
+  --color-macro-fiber: #9ccd6c;
+  --color-kcal: #e4e7f1;
+  --color-moment-breakfast: #dcaa85;
+  --color-moment-lunch: #6fd0c4;
+  --color-moment-snack: #c6cc5a;
+  --color-moment-dinner: #a8b1f5;
+  --color-price: #cda8ef;
+  --color-muscle-chest: #f59a6b;
+  --color-muscle-back: #8fb4ee;
+  --color-muscle-shoulders: #e0c050;
+  --color-muscle-arms: #c9a2f2;
+  --color-muscle-core: #6fd3cf;
+  --color-muscle-legs: #9fd27a;
+}

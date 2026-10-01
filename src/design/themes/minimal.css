@@ -1,0 +1,112 @@
+/*
+ * design/themes/minimal.css — "Minimal": no frames and no rules — only space, soft greys,
+ * light shadows and the system font, like a system app. The calmest theme.
+ * Same meaning of colour as every theme: herb = within target, tomato = over;
+ * nutrient, moment and muscle colours keep their hue. Text colours reach
+ * 4.5:1 on paper and sheet in light and dark (design/theme.test.ts).
+ * Generated from the label palette, then hand-tuned tokens (S20).
+ */
+:root[data-theme="minimal"] {
+  --panel-border: 0 solid transparent;
+  --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.05);
+  --tile-border: 0 solid transparent;
+  --tile-radius: 0.75rem;
+  --heading-rule: 0 solid transparent;
+  --heading-pad: 0;
+  --heading-weight: 600;
+  --icon-chip-bg: color-mix(in oklab, var(--color-herb) 12%, transparent);
+  --icon-chip-pad: 0.35rem;
+  --icon-chip-radius: 0.6rem;
+  --header-rule: 0 solid transparent;
+  --font-display: system-ui, -apple-system, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  --font-body: system-ui, -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --font-nav: var(--font-body);
+  --rule-heavy: 1px;
+  --rule-strong: 1px;
+  --radius-control: 0.625rem;
+  --radius-surface: 1.125rem;
+  --radius-button: 0.75rem;
+  --color-paper: #f2f2f5;
+  --color-sheet: #ffffff;
+  --color-ink: #1d1d1f;
+  --color-muted: #6a6a6e;
+  --color-hairline: #e3e3e8;
+  --color-herb: #1f7a36;
+  --color-tomato: #c8001a;
+  --color-warn: #a34a00;
+  --color-focus: #0066cc;
+  --color-macro-protein: #b53d6f;
+  --color-macro-carbs: #906104;
+  --color-macro-fat: #3a67a3;
+  --color-macro-fiber: #497626;
+  --color-kcal: #1d1d1f;
+  --color-moment-breakfast: #8a5a3c;
+  --color-moment-lunch: #0e6e66;
+  --color-moment-snack: #63680a;
+  --color-moment-dinner: #3f4aa8;
+  --color-price: #7a47a6;
+  --color-muscle-chest: #b4441c;
+  --color-muscle-back: #2c5fa6;
+  --color-muscle-shoulders: #7f6400;
+  --color-muscle-arms: #7a43ad;
+  --color-muscle-core: #0b6f6f;
+  --color-muscle-legs: #3d7620;
+}
+
+/* Dark: more specific than the default dark block, so it wins. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="minimal"]:not([data-mode="light"]) {
+    --color-paper: #000000;
+    --color-sheet: #1c1c1e;
+    --color-ink: #f5f5f7;
+    --color-muted: #a1a1a6;
+    --color-hairline: #38383a;
+    --color-herb: #30d158;
+    --color-tomato: #ff6961;
+    --color-warn: #ffb340;
+    --color-focus: #0a84ff;
+    --color-macro-protein: #ef7fae;
+    --color-macro-carbs: #f0bd4f;
+    --color-macro-fat: #86aee6;
+    --color-macro-fiber: #9ccd6c;
+    --color-kcal: #f5f5f7;
+    --color-moment-breakfast: #dcaa85;
+    --color-moment-lunch: #6fd0c4;
+    --color-moment-snack: #c6cc5a;
+    --color-moment-dinner: #a8b1f5;
+    --color-price: #cda8ef;
+    --color-muscle-chest: #f59a6b;
+    --color-muscle-back: #8fb4ee;
+    --color-muscle-shoulders: #e0c050;
+    --color-muscle-arms: #c9a2f2;
+    --color-muscle-core: #6fd3cf;
+    --color-muscle-legs: #9fd27a;
+  }
+}
+:root[data-theme="minimal"][data-mode="dark"] {
+  --color-paper: #000000;
+  --color-sheet: #1c1c1e;
+  --color-ink: #f5f5f7;
+  --color-muted: #a1a1a6;
+  --color-hairline: #38383a;
+  --color-herb: #30d158;
+  --color-tomato: #ff6961;
+  --color-warn: #ffb340;
+  --color-focus: #0a84ff;
+  --color-macro-protein: #ef7fae;
+  --color-macro-carbs: #f0bd4f;
+  --color-macro-fat: #86aee6;
+  --color-macro-fiber: #9ccd6c;
+  --color-kcal: #f5f5f7;
+  --color-moment-breakfast: #dcaa85;
+  --color-moment-lunch: #6fd0c4;
+  --color-moment-snack: #c6cc5a;
+  --color-moment-dinner: #a8b1f5;
+  --color-price: #cda8ef;
+  --color-muscle-chest: #f59a6b;
+  --color-muscle-back: #8fb4ee;
+  --color-muscle-shoulders: #e0c050;
+  --color-muscle-arms: #c9a2f2;
+  --color-muscle-core: #6fd3cf;
+  --color-muscle-legs: #9fd27a;
+}
