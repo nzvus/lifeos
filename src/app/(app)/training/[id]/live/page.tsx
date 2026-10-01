@@ -9,7 +9,11 @@ import { getDb } from "@/app/_server/runtime";
 import { addDays, timeIn } from "@/core/shared/dates";
 import { idInput } from "@/core/nutrition/validation";
 import { regionOf } from "@/core/training/anatomy";
-import type { LiveSession as Live } from "@/core/training/live";
+import {
+  fromStoredSet,
+  type LiveSession as Live,
+  type LiveSet,
+} from "@/core/training/live";
 import { getSession } from "@/core/training/repositories/sessions";
 import { LiveSession, type LiveExerciseInfo } from "@/features/training/live/LiveSession";
 import { PageHeader } from "@/ui/PageHeader";
@@ -27,21 +31,24 @@ export default async function LivePage({ params }: Props) {
   const session = await getSession(db, owner, id);
   if (!session) notFound();
   if (session.status === "done") redirect(`/training/${id}`);
-  const [{ last }, exercises] = await Promise.all([
+  const [{ last, previous }, exercises] = await Promise.all([
     editorData(owner, addDays(session.day, -1), settings.locale, t.training),
     listExercises(db, owner),
   ]);
-  const byId = new Map(exercises.map((e) => [e.id, e]));
+  // Every exercise (the session's and any that can be added), and last
+  // time's working sets: the "default" each set is compared with.
   const info: Record<string, LiveExerciseInfo> = {};
-  for (const e of session.exercises) {
-    const x = byId.get(e.exerciseId);
-    info[e.exerciseId] = {
-      name: e.name,
-      kind: e.kind,
-      pattern: x?.pattern ?? null,
-      region: x ? regionOf(x.muscleGroups) : null,
-      last: last[e.exerciseId] ?? null,
+  const baseline: Record<string, LiveSet[]> = {};
+  for (const x of exercises) {
+    info[x.id] = {
+      name: x.name,
+      kind: x.kind,
+      pattern: x.pattern,
+      region: regionOf(x.muscleGroups),
+      last: last[x.id] ?? null,
     };
+    const p = previous.get(x.id);
+    if (p) baseline[x.id] = p.sets.filter((s) => !s.warmup).map(fromStoredSet);
   }
   const initial: Live = {
     day: session.day,
@@ -53,19 +60,7 @@ export default async function LivePage({ params }: Props) {
       exerciseId: e.exerciseId,
       restS: e.restS,
       notes: e.notes,
-      sets: e.sets.map((s) => ({
-        reps: s.reps,
-        loadKg: s.loadKg === null ? null : String(Number(s.loadKg)),
-        loadText: s.loadText,
-        loadApprox: s.loadApprox,
-        durationS: s.durationS,
-        distanceM: s.distanceM,
-        speedKmh: s.speedKmh,
-        inclinePct: s.inclinePct,
-        restS: s.restS,
-        warmup: s.warmup,
-        done: s.done,
-      })),
+      sets: e.sets.map(fromStoredSet),
     })),
   };
   return (
@@ -79,6 +74,8 @@ export default async function LivePage({ params }: Props) {
         initial={initial}
         startedAt={session.startedAt}
         info={info}
+        baseline={baseline}
+        locale={settings.locale}
         save={saveLiveAction}
         finish={finishLiveAction}
         t={t.training.live}

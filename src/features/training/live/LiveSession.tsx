@@ -7,30 +7,58 @@
  * the start, the save state and the rest countdown, so nothing hides under
  * the phone's tab bar.
  *
- * Saving: every change is saved whole, 0.7 s after the last edit, in order
- * (one promise chain), so the database always has what was done. Finishing
- * waits for pending saves, then the server keeps only the done sets.
+ * Each set shows its change against the same set of last time (reps × kg,
+ * core/training/live.ts setChange) as you edit, and ↺ puts last time's
+ * numbers back. Exercises can be added (prefilled from last time), moved
+ * and removed (while none of their sets is done).
+ *
+ * Saving: every change is saved whole, 0.5 s after the last edit, in order
+ * (one promise chain), so the database always has what was done. Until the
+ * server confirms it, the change is also kept in this browser (a draft in
+ * localStorage) and saved at once when the page is hidden or left; a
+ * reload restores the draft and saves it. Finishing waits for pending
+ * saves, then the server keeps only the done sets.
  * The screen is kept awake while the page is open (Wake Lock, where the
  * browser has it).
  */
 "use client";
 
-import { Check, ChevronDown, Plus, Timer, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Check,
+  ChevronDown,
+  Plus,
+  RotateCcw,
+  Timer,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
+  baselineSet,
   copyLastSet,
   DEFAULT_REST_S,
+  move,
+  newExercise,
   nextSet,
+  restoreSet,
+  setChange,
   stepLoad,
   undoneCount,
   type LiveExercise,
   type LiveSession as Live,
   type LiveSet,
 } from "@/core/training/live";
+import { setText } from "@/core/training/display";
 import type { ExerciseKind } from "@/core/training/kinds";
+import type { Locale } from "@/core/shared/locales";
+import { pickerSearch } from "@/core/shared/search";
 import { fill, type Messages } from "@/i18n";
+import { Change } from "@/ui/Change";
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
+import { SearchSelect } from "@/ui/SearchSelect";
 import { Stepper } from "./Stepper";
 
 export type LiveExerciseInfo = {
@@ -47,7 +75,11 @@ type Props = {
   initial: Live;
   /** ISO instant of the start, for the elapsed time; null when unknown. */
   startedAt: string | null;
+  /** Every exercise of mine: the session's, and those that can be added. */
   info: Record<string, LiveExerciseInfo>;
+  /** Last time's working sets per exercise: what each set is compared with. */
+  baseline: Record<string, LiveSet[]>;
+  locale: Locale;
   save: (id: string, live: Live) => Promise<{ ok: boolean }>;
   finish: (id: string, live: Live) => Promise<{ ok: boolean }>;
   t: Messages["training"]["live"];
@@ -66,7 +98,40 @@ const decimal = (raw: string) => raw.replace(",", ".").trim() || null;
 const whole = (raw: string) => (/^\d+$/.test(raw.trim()) ? Number(raw.trim()) : null);
 const shown = (v: string | null) => (v === null ? "" : v.replace(".", ","));
 
-export function LiveSession({ id, initial, startedAt, info, save, finish, t }: Props) {
+const draftKey = (id: string) => `lifeos.live.${id}`;
+/** Browser storage can be missing or refuse (private mode): never fatal. */
+const draft = {
+  read(id: string): Live | null {
+    try {
+      const raw = localStorage.getItem(draftKey(id));
+      return raw ? (JSON.parse(raw) as Live) : null;
+    } catch {
+      return null;
+    }
+  },
+  write(id: string, live: Live) {
+    try {
+      localStorage.setItem(draftKey(id), JSON.stringify(live));
+    } catch {}
+  },
+  clear(id: string) {
+    try {
+      localStorage.removeItem(draftKey(id));
+    } catch {}
+  },
+};
+
+export function LiveSession({
+  id,
+  initial,
+  startedAt,
+  info,
+  baseline,
+  locale,
+  save,
+  finish,
+  t,
+}: Props) {
   const [s, setS] = useState(initial);
   const [open, setOpen] = useState(() => nextSet(initial.exercises)?.exercise ?? 0);
   const [rest, setRest] = useState<{ ends: number; buzzed: boolean } | null>(null);
@@ -77,7 +142,19 @@ export function LiveSession({ id, initial, startedAt, info, save, finish, t }: P
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const restRef = useRef<{ ends: number; buzzed: boolean } | null>(null);
   const finishingRef = useRef(false);
+  /** The newest state, for saving from timers and page events. */
+  const latest = useRef(initial);
   const router = useRouter();
+  const picker = pickerSearch(
+    Object.entries(info).map(([eid, x]) => ({
+      id: eid,
+      name: x.name,
+      notes: "",
+      uses: 0,
+      lastUsed: null,
+    })),
+    () => "",
+  );
 
   // The clock of the timers; buzzes once when the rest is over.
   useEffect(() => {
@@ -125,22 +202,67 @@ export function LiveSession({ id, initial, startedAt, info, save, finish, t }: P
     setRest(r);
   };
 
-  /** Every edit: show it, then save the whole session 0.7 s later, in order. */
+  /** Saves a state now, after any save already running; clears the draft if it is still the newest. */
+  const saveNow = (snapshot: Live) => {
+    chain.current = chain.current.then(async () => {
+      try {
+        const ok = (await save(id, snapshot)).ok;
+        setState(ok ? "saved" : "error");
+        if (ok && latest.current === snapshot) draft.clear(id);
+      } catch {
+        setState("error");
+      }
+    });
+  };
+
+  /** Every edit: show it, keep it in the browser, save it 0.5 s later. */
   const change = (next: Live) => {
     setS(next);
+    latest.current = next;
     if (finishingRef.current) return;
+    draft.write(id, next);
     setState("saving");
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      chain.current = chain.current.then(async () => {
-        try {
-          setState((await save(id, next)).ok ? "saved" : "error");
-        } catch {
-          setState("error");
-        }
-      });
-    }, 700);
+      timer.current = null;
+      saveNow(next);
+    }, 500);
   };
+
+  // A reload restores what the server had not confirmed yet, and saves it.
+  // (After mount: the server render cannot read this browser's storage.)
+  useEffect(() => {
+    const h = setTimeout(() => {
+      const d = draft.read(id);
+      if (!d || JSON.stringify(d) === JSON.stringify(initial)) return draft.clear(id);
+      setS(d);
+      latest.current = d;
+      setOpen(nextSet(d.exercises)?.exercise ?? 0);
+      setState("saving");
+      saveNow(d);
+    }, 0);
+    return () => clearTimeout(h);
+    // Once, on mount: `initial` is the server's state at load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Leaving or hiding the page: save the pending change at once.
+  useEffect(() => {
+    const flush = () => {
+      if (!timer.current || finishingRef.current) return;
+      clearTimeout(timer.current);
+      timer.current = null;
+      saveNow(latest.current);
+    };
+    const onHide = () => document.visibilityState === "hidden" && flush();
+    document.addEventListener("visibilitychange", onHide);
+    window.addEventListener("pagehide", flush);
+    return () => {
+      document.removeEventListener("visibilitychange", onHide);
+      window.removeEventListener("pagehide", flush);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const update = (ei: number, f: (e: LiveExercise) => LiveExercise) =>
     change({ ...s, exercises: s.exercises.map((e, i) => (i === ei ? f(e) : e)) });
@@ -168,8 +290,10 @@ export function LiveSession({ id, initial, startedAt, info, save, finish, t }: P
     chain.current = chain.current.then(async () => {
       try {
         const r = await finish(id, snapshot);
-        if (r.ok) router.push(`/training/${id}`);
-        else {
+        if (r.ok) {
+          draft.clear(id);
+          router.push(`/training/${id}`);
+        } else {
           finishingRef.current = false;
           setFinishing(false);
           setState("error");
@@ -372,6 +496,39 @@ export function LiveSession({ id, initial, startedAt, info, save, finish, t }: P
                             />
                           </>
                         )}
+                        {(() => {
+                          const b = baselineSet(baseline[e.exerciseId], si);
+                          if (!b) return null;
+                          return (
+                            <div className="flex items-center justify-between gap-2 text-meta tabular-nums">
+                              <span className="truncate text-muted">
+                                {fill(t.before, { v: setText(b, locale) })}
+                              </span>
+                              <span className="flex shrink-0 items-center gap-2">
+                                <Change pct={setChange(x?.kind ?? "strength", v, b)} />
+                                {JSON.stringify(restoreSet(v, b)) !==
+                                  JSON.stringify(v) && (
+                                  <button
+                                    type="button"
+                                    aria-label={t.restore}
+                                    title={t.restore}
+                                    onClick={() =>
+                                      update(ei, (ex) => ({
+                                        ...ex,
+                                        sets: ex.sets.map((y, j) =>
+                                          j === si ? restoreSet(y, b) : y,
+                                        ),
+                                      }))
+                                    }
+                                    className="tile inline-flex h-8 w-8 items-center justify-center rounded-control text-muted"
+                                  >
+                                    <RotateCcw size={16} aria-hidden="true" />
+                                  </button>
+                                )}
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </li>
                   ))}
@@ -387,6 +544,51 @@ export function LiveSession({ id, initial, startedAt, info, save, finish, t }: P
                     <Plus size={18} aria-hidden="true" />
                     {t.addSet}
                   </button>
+                  <span className="flex gap-2">
+                    <button
+                      type="button"
+                      aria-label={t.moveUp}
+                      disabled={ei === 0}
+                      onClick={() => {
+                        change({ ...s, exercises: move(s.exercises, ei, -1) });
+                        setOpen(ei - 1);
+                      }}
+                      className="tile inline-flex h-11 w-11 items-center justify-center rounded-control disabled:opacity-40"
+                    >
+                      <ArrowUp size={18} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={t.moveDown}
+                      disabled={ei === s.exercises.length - 1}
+                      onClick={() => {
+                        change({ ...s, exercises: move(s.exercises, ei, 1) });
+                        setOpen(ei + 1);
+                      }}
+                      className="tile inline-flex h-11 w-11 items-center justify-center rounded-control disabled:opacity-40"
+                    >
+                      <ArrowDown size={18} aria-hidden="true" />
+                    </button>
+                    {!e.sets.some((v) => v.done) && (
+                      <button
+                        type="button"
+                        aria-label={t.removeExercise}
+                        title={t.removeExercise}
+                        onClick={() => {
+                          change({
+                            ...s,
+                            exercises: s.exercises.filter((_, i) => i !== ei),
+                          });
+                          setOpen(-1);
+                        }}
+                        className="tile inline-flex h-11 w-11 items-center justify-center rounded-control text-tomato"
+                      >
+                        <X size={18} aria-hidden="true" />
+                      </button>
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-end">
                   {e.sets.length > 0 && !e.sets.at(-1)!.done && (
                     <button
                       type="button"
@@ -405,6 +607,27 @@ export function LiveSession({ id, initial, startedAt, info, save, finish, t }: P
           </section>
         );
       })}
+
+      <div className="panel flex flex-col gap-2 p-3">
+        <SearchSelect
+          label={t.addExercise}
+          name="add-exercise"
+          value=""
+          onChange={(eid) => {
+            if (!eid || !info[eid]) return;
+            const restS = s.exercises.find((x) => x.exerciseId === eid)?.restS ?? null;
+            change({
+              ...s,
+              exercises: [...s.exercises, newExercise(eid, restS, baseline[eid])],
+            });
+            setOpen(s.exercises.length);
+          }}
+          search={picker.search}
+          find={picker.find}
+          placeholder={t.search}
+          noResults={t.noResults}
+        />
+      </div>
 
       {s.exercises.length > 0 && left === 0 && (
         <p className="text-center font-semibold text-herb">{t.allDone}</p>

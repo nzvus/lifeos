@@ -136,3 +136,110 @@ export function finished(s: LiveSession, now: string): Record<string, string> {
 export function undoneCount(s: LiveSession): number {
   return s.exercises.reduce((a, e) => a + e.sets.filter((x) => !x.done).length, 0);
 }
+
+/**
+ * The "default" a set is compared with: the same set of last time (by
+ * position), else last time's last set; null without a history.
+ */
+export function baselineSet(
+  base: readonly LiveSet[] | undefined,
+  j: number,
+): LiveSet | null {
+  if (!base || base.length === 0) return null;
+  return base[j] ?? base.at(-1)!;
+}
+
+/** What one set is worth, to compare it: reps × kg (reps alone without a load); cardio: km, else minutes. */
+function worth(
+  kind: "strength" | "bodyweight" | "cardio",
+  s: LiveSet,
+  b: LiveSet,
+): [number, number] {
+  if (kind === "cardio")
+    return s.distanceM && b.distanceM
+      ? [s.distanceM, b.distanceM]
+      : [s.durationS ?? 0, b.durationS ?? 0];
+  const v = (x: LiveSet) => (x.reps ?? 0) * (Number(x.loadKg ?? 0) || 1);
+  return [v(s), v(b)];
+}
+
+/** Whole-percent change of a set against its baseline; null when there is nothing to compare. */
+export function setChange(
+  kind: "strength" | "bodyweight" | "cardio",
+  s: LiveSet,
+  base: LiveSet | null,
+): number | null {
+  if (!base) return null;
+  const [now, before] = worth(kind, s, base);
+  if (before <= 0) return null;
+  return Math.round(((now - before) / before) * 100);
+}
+
+/** The set with its numbers back to the baseline (done stays as it is). */
+export function restoreSet(s: LiveSet, base: LiveSet): LiveSet {
+  return {
+    ...s,
+    reps: base.reps,
+    loadKg: base.loadKg,
+    loadText: base.loadText,
+    loadApprox: base.loadApprox,
+    durationS: base.durationS,
+    distanceM: base.distanceM,
+    speedKmh: base.speedKmh,
+    inclinePct: base.inclinePct,
+  };
+}
+
+/** The list with item `i` moved one place up (−1) or down (+1); unchanged at the ends. */
+export function move<T>(list: readonly T[], i: number, direction: 1 | -1): T[] {
+  const j = i + direction;
+  if (j < 0 || j >= list.length) return [...list];
+  const out = [...list];
+  [out[i], out[j]] = [out[j]!, out[i]!];
+  return out;
+}
+
+/** A new exercise for the session: last time's working sets, not done; else one empty set. */
+export function newExercise(
+  exerciseId: string,
+  restS: number | null,
+  base: readonly LiveSet[] | undefined,
+): LiveExercise {
+  const e: LiveExercise = { exerciseId, restS, notes: "", sets: [] };
+  return {
+    ...e,
+    sets:
+      base && base.length
+        ? base.map((s) => ({ ...s, warmup: false, done: false }))
+        : [copyLastSet(e)],
+  };
+}
+
+/** A stored set (repositories) as a live set. */
+export function fromStoredSet(s: {
+  reps: number | null;
+  loadKg: string | null;
+  loadText: string | null;
+  loadApprox: boolean;
+  durationS: number | null;
+  distanceM: number | null;
+  speedKmh: string | null;
+  inclinePct: string | null;
+  restS: number | null;
+  warmup: boolean;
+  done?: boolean;
+}): LiveSet {
+  return {
+    reps: s.reps,
+    loadKg: s.loadKg === null ? null : String(Number(s.loadKg)),
+    loadText: s.loadText,
+    loadApprox: s.loadApprox,
+    durationS: s.durationS,
+    distanceM: s.distanceM,
+    speedKmh: s.speedKmh,
+    inclinePct: s.inclinePct,
+    restS: s.restS,
+    warmup: s.warmup,
+    done: s.done ?? true,
+  };
+}

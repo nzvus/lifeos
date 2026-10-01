@@ -9,7 +9,8 @@ import type { RoutineProgress } from "@/core/training/progress";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
-import { Change, Sparkline } from "./Sparkline";
+import { Change } from "@/ui/Change";
+import { Sparkline } from "./Sparkline";
 
 export function RoutineProgressList({
   routines,
