@@ -1,7 +1,8 @@
 /** Tests for the user-facing export: complete for me, nothing of anyone else, no secrets. */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "../db/client";
-import { account } from "../db/schema";
+import { eq } from "drizzle-orm";
+import { account, userSettings } from "../db/schema";
 import type { Owner } from "../identity/owner";
 import { createIngredient } from "../nutrition/repositories/ingredients";
 import { logIngredient } from "../nutrition/repositories/log";
@@ -51,6 +52,14 @@ describe("exportUserData", () => {
       locale: "it",
       theme: "quaderno",
     });
+    // ADR-0018: an assistant key set (encrypted) must never be exported.
+    await db
+      .update(userSettings)
+      .set({
+        assistantKeyEnc: "ENCRYPTED-KEY-SHOULD-NOT-LEAK",
+        assistantKeyLast4: "ab12",
+      })
+      .where(eq(userSettings.userId, alice.id));
     await createIngredient(db, bob, ingredientFixture({ name: "Bob's secret" }));
     await db.insert(account).values({
       accountId: "a",
@@ -77,6 +86,7 @@ describe("exportUserData", () => {
     ]);
     expect(text).not.toContain("Bob's secret");
     expect(text).not.toContain("HASH-SHOULD-NOT-LEAK");
+    expect(text).not.toContain("ENCRYPTED-KEY-SHOULD-NOT-LEAK");
     expect(text).not.toContain(alice.id); // user ids are stripped
   });
 
