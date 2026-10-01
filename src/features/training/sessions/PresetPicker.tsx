@@ -36,7 +36,7 @@ export function PresetPicker({
   // From the day page: that day, and back to it after saving (ADR-0015 `from`).
   const dayParam = day ? `day=${day}&from=${encodeURIComponent(`/?day=${day}`)}` : "";
   return (
-    <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+    <ul className="grid grid-cols-2 gap-2 @lg:grid-cols-4">
       {presets.map((p) => (
         <li key={p.routineId}>
           {start ? (

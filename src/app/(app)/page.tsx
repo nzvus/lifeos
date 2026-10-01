@@ -149,156 +149,166 @@ export default async function DayPage({ searchParams }: Props) {
   });
 
   return (
-    <>
-      <Card>
-        <DayNav day={day} today={today} locale={locale} t={t.day} />
-        <WeekStrip week={week} day={day} today={today} locale={locale} t={t.day} />
-        <DayProfilePicker
-          day={day}
-          current={dayTargets}
-          profiles={profiles.map((p) => ({ id: p.id, name: p.name }))}
-          action={setDayProfileAction}
-          t={{ day: t.day, errors: t.errors }}
-        />
-      </Card>
-      <DayPanel
-        totals={view.totals}
-        withPlanned={view.withPlanned}
-        targets={targets}
-        auto={auto}
-        variant={THEME_SLOTS[settings.theme].dayPanel}
-        locale={locale}
-        t={{
-          label: t.label,
-          nutrients: t.nutrients,
-          macro: t.macro,
-          panel: t.panel,
-          day: t.day,
-        }}
-      />
-      {sessions.length > 0 && (
-        <Section
-          title={t.training.onThisDay}
-          icon={<Dumbbell size={20} aria-hidden="true" />}
-          subtitle={burnText}
-        >
-          <SessionList
-            sessions={sessions}
-            measurements={measurements}
-            showDay={false}
-            locale={locale}
-            t={t.training}
-            tx={t.exercises}
-            trash={deleteSessionAction}
-            restore={restoreSessionAction}
-            labels={t.actions}
+    // Phone: one column, in this order. Wide screens: the day's numbers on
+    // the left, what was eaten and trained on the right (S20).
+    <div className="grid items-start gap-4 lg:grid-cols-2">
+      <div className="flex min-w-0 flex-col gap-4">
+        <Card>
+          <DayNav day={day} today={today} locale={locale} t={t.day} />
+          <WeekStrip week={week} day={day} today={today} locale={locale} />
+          <DayProfilePicker
+            day={day}
+            current={dayTargets}
+            profiles={profiles.map((p) => ({ id: p.id, name: p.name }))}
+            action={setDayProfileAction}
+            t={{ day: t.day, errors: t.errors }}
           />
-        </Section>
-      )}
-      <AddTraining
-        day={day}
-        plannedByDefault={day > today}
-        presets={presets}
-        exercises={exercises.map(({ id, name, kind }) => ({ id, name, kind }))}
-        estimate={createEstimateAction}
-        t={{
-          training: t.training,
-          exercises: t.exercises,
-          errors: t.errors,
-          actions: t.actions,
-          search: t.search,
-        }}
-      />
-      <DayScore
-        score={dayScore({ totals: view.totals.nutrients, targets, quality: dayQuality })}
-        planned={
-          view.entries.some((e) => e.status === "planned")
-            ? dayScore({
-                totals: view.withPlanned.nutrients,
-                targets,
-                quality: eatenQuality(view.entries, true),
-              })
-            : null
-        }
-        quality={dayQuality}
-        empty={view.entries.every((e) => e.status !== "eaten")}
-        locale={locale}
-        t={{ dayScore: t.dayScore, quality: t.quality }}
-      />
-      <div className="flex flex-col gap-4">
-        <EntryList
-          day={view}
+        </Card>
+        <DayPanel
+          totals={view.totals}
+          withPlanned={view.withPlanned}
+          targets={targets}
+          auto={auto}
+          variant={THEME_SLOTS[settings.theme].dayPanel}
           locale={locale}
-          trash={deleteLogEntryAction}
-          restore={restoreLogEntryAction}
-          refresh={refreshLogEntryAction}
-          statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
-          timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
-          timeZone={settings.timezone}
-          bounds={settings.preferences.bounds}
-          // The same quality block as the meal cards, from the entry's
-          // snapshot lines (ADR-0007) and the current tags and ratings.
-          quality={(e) => (
-            <MealQuality
-              summary={qualitySummary(e.lines, e.servings)}
-              rating={e.mealId ? (mealRatings[e.mealId] ?? null) : null}
-              tags={mealTags(
-                e.lines.flatMap((l) => (l.ingredientId ? [l.ingredientId] : [])),
-                tagMap,
-              ).map(({ name, icon }) => ({ name, icon }))}
-              locale={locale}
-              t={t}
+          t={{
+            label: t.label,
+            nutrients: t.nutrients,
+            macro: t.macro,
+            panel: t.panel,
+            day: t.day,
+          }}
+        />
+        <DayScore
+          score={dayScore({
+            totals: view.totals.nutrients,
+            targets,
+            quality: dayQuality,
+          })}
+          planned={
+            view.entries.some((e) => e.status === "planned")
+              ? dayScore({
+                  totals: view.withPlanned.nutrients,
+                  targets,
+                  quality: eatenQuality(view.entries, true),
+                })
+              : null
+          }
+          quality={dayQuality}
+          empty={view.entries.every((e) => e.status !== "eaten")}
+          locale={locale}
+          t={{ dayScore: t.dayScore, quality: t.quality }}
+        />
+      </div>
+      <div className="flex min-w-0 flex-col gap-4">
+        <div className="flex flex-col gap-4">
+          <EntryList
+            day={view}
+            locale={locale}
+            trash={deleteLogEntryAction}
+            restore={restoreLogEntryAction}
+            refresh={refreshLogEntryAction}
+            statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
+            timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
+            timeZone={settings.timezone}
+            bounds={settings.preferences.bounds}
+            // The same quality block as the meal cards, from the entry's
+            // snapshot lines (ADR-0007) and the current tags and ratings.
+            quality={(e) => (
+              <MealQuality
+                summary={qualitySummary(e.lines, e.servings)}
+                rating={e.mealId ? (mealRatings[e.mealId] ?? null) : null}
+                tags={mealTags(
+                  e.lines.flatMap((l) => (l.ingredientId ? [l.ingredientId] : [])),
+                  tagMap,
+                ).map(({ name, icon }) => ({ name, icon }))}
+                locale={locale}
+                t={t}
+              />
+            )}
+            t={t}
+          />
+          {view.entries.length === 0 && (
+            <ActionButtonForm
+              action={copyPreviousDayAction.bind(null, day)}
+              label={t.day.copyYesterday}
+              icon={<Copy size={18} aria-hidden="true" />}
+              variant="secondary"
             />
           )}
-          t={t}
-        />
-        {view.entries.length === 0 && (
-          <ActionButtonForm
-            action={copyPreviousDayAction.bind(null, day)}
-            label={t.day.copyYesterday}
-            icon={<Copy size={18} aria-hidden="true" />}
-            variant="secondary"
+          <AddToDay
+            day={day}
+            locale={locale}
+            bounds={settings.preferences.bounds}
+            meals={meals.map((m) => ({
+              id: m.id,
+              name: m.name,
+              notes: m.notes,
+              category: m.category, // suggests the moment (ADR-0011)
+              values: pick(m.totals.nutrients), // per serving
+              uses: usage.meals[m.id]?.uses ?? 0,
+              lastUsed: usage.meals[m.id]?.lastUsed ?? null,
+            }))}
+            ingredients={ingredients.map((i) => ({
+              id: i.id,
+              name: i.name,
+              notes: i.description,
+              unit: i.unit,
+              values: pick(i), // per 100 g/ml
+              uses: usage.ingredients[i.id]?.uses ?? 0,
+              lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
+            }))}
+            logMealAction={logMealAction}
+            logIngredientAction={logIngredientAction}
+            logEstimateAction={logEstimateAction}
+            // Only the dictionary parts the client component uses travel to
+            // the browser (smaller page, faster load).
+            t={{
+              day: t.day,
+              errors: t.errors,
+              meals: t.meals,
+              search: t.search,
+              macro: t.macro,
+              ingredients: t.ingredients,
+              nutrients: t.nutrients,
+              moments: t.moments,
+            }}
           />
+        </div>
+        {sessions.length > 0 && (
+          <Section
+            title={t.training.onThisDay}
+            icon={<Dumbbell size={20} aria-hidden="true" />}
+            subtitle={burnText}
+          >
+            <SessionList
+              sessions={sessions}
+              measurements={measurements}
+              showDay={false}
+              locale={locale}
+              t={t.training}
+              tx={t.exercises}
+              trash={deleteSessionAction}
+              restore={restoreSessionAction}
+              labels={t.actions}
+            />
+          </Section>
         )}
-        <AddToDay
+        <AddTraining
           day={day}
-          locale={locale}
-          bounds={settings.preferences.bounds}
-          meals={meals.map((m) => ({
-            id: m.id,
-            name: m.name,
-            notes: m.notes,
-            category: m.category, // suggests the moment (ADR-0011)
-            values: pick(m.totals.nutrients), // per serving
-            uses: usage.meals[m.id]?.uses ?? 0,
-            lastUsed: usage.meals[m.id]?.lastUsed ?? null,
-          }))}
-          ingredients={ingredients.map((i) => ({
-            id: i.id,
-            name: i.name,
-            notes: i.description,
-            unit: i.unit,
-            values: pick(i), // per 100 g/ml
-            uses: usage.ingredients[i.id]?.uses ?? 0,
-            lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
-          }))}
-          logMealAction={logMealAction}
-          logIngredientAction={logIngredientAction}
-          logEstimateAction={logEstimateAction}
-          // Only the dictionary parts the client component uses travel to
-          // the browser (smaller page, faster load).
+          plannedByDefault={day > today}
+          presets={presets}
+          exercises={exercises.map(({ id, name, kind }) => ({ id, name, kind }))}
+          estimate={createEstimateAction}
           t={{
-            day: t.day,
+            training: t.training,
+            exercises: t.exercises,
             errors: t.errors,
-            meals: t.meals,
+            actions: t.actions,
             search: t.search,
-            macro: t.macro,
-            ingredients: t.ingredients,
-            nutrients: t.nutrients,
-            moments: t.moments,
           }}
         />
       </div>
-    </>
+    </div>
   );
 }

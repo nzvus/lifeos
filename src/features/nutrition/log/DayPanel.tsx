@@ -181,14 +181,14 @@ export function DayPanel({
     return (
       <section
         aria-labelledby="day-panel-title"
-        className="panel flex flex-col gap-4 p-4"
+        className="@container panel flex flex-col gap-4 p-4"
       >
         <h2 id="day-panel-title" className={PANEL_HEADING}>
           <PieChart size={20} aria-hidden="true" className="text-herb" />
           {t.label.title}
         </h2>
         {/* Energy first and wider, then one tile per nutrient. */}
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 @2xl:grid-cols-4">
           <div className="tile col-span-2 flex flex-col gap-1 p-3">
             <span className="font-display text-title font-extrabold tabular-nums">
               {num(kcal.status === "none" ? totals.nutrients.kcal : kcal.delta, "kcal")}
@@ -220,12 +220,15 @@ export function DayPanel({
   }
 
   return (
-    <section aria-labelledby="day-panel-title" className="panel flex flex-col gap-4 p-4">
+    <section
+      aria-labelledby="day-panel-title"
+      className="@container panel flex flex-col gap-4 p-4"
+    >
       <h2 id="day-panel-title" className={PANEL_HEADING}>
         <PieChart size={20} aria-hidden="true" className="text-herb" />
         {t.label.title}
       </h2>
-      <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
+      <div className="flex flex-col items-center gap-6 @2xl:flex-row @2xl:items-start">
         <div className="flex flex-col items-center gap-2">
           <ConcentricRings
             size={220}

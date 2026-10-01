@@ -73,7 +73,7 @@ export function QualityFields({
 
   return (
     <Section as="fieldset" title={q.title} icon={<Sprout size={20} aria-hidden="true" />}>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 @lg:grid-cols-2">
         <SelectField
           label={q.nova}
           name="nova"
@@ -99,7 +99,7 @@ export function QualityFields({
 
       <div className="flex flex-col gap-2">
         <span className="text-meta font-semibold">{q.fiberTypes}</span>
-        <ul className="grid gap-2 sm:grid-cols-2">
+        <ul className="grid gap-2 @lg:grid-cols-2">
           {FIBER_TYPES.map((f) => (
             <li key={f}>
               <label className="flex items-start gap-2 text-meta">

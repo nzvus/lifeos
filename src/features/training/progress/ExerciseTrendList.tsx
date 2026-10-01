@@ -31,7 +31,7 @@ export function ExerciseTrendList({
   t: Messages["training"]["progress"];
 }) {
   return (
-    <ul className="grid gap-x-8 md:grid-cols-2">
+    <ul className="grid gap-x-8 @3xl:grid-cols-2">
       {trends.map((tr) => {
         const e = exercises.get(tr.exerciseId);
         if (!e) return null;

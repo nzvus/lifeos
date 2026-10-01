@@ -65,7 +65,7 @@ export function Trends({
         locale={locale}
         t={t}
       />
-      <div className="grid gap-x-8 gap-y-8 md:grid-cols-2">
+      <div className="grid gap-x-8 gap-y-8 @3xl:grid-cols-2">
         <div className="flex flex-col gap-2">
           <TrendChart
             nutrient="kcal"

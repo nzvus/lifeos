@@ -150,7 +150,7 @@
 - [x] One button (ui/button.ts: primary / secondary / subtle / quiet / danger, md 44 px / sm 36 px), text links, ui/Badge; every hand-styled button replaced; header icons (settings, sign out)
 - [x] Rhythm: every section has its icon (required by ui/Section) and an optional subtitle; rows breathe (py-3, header row centred on the 44 px action), no rule under the last row; planned rows dashed with a muted title, never translucent
 - [x] Rows and forms: day entries and measurements use the "⋯" of every row (update with current values · delete with Undo; ui/TrashButton removed); every edit form's first fields in a "General" card, no card inside a card
-- [ ] Day page and desktop: simpler day navigation, a two-column layout that fills the width
+- [x] Day page and desktop: one navigation row (‹ day 📅 ›, the week strip without its own arrows, no "Go to" row); wide screens: numbers left, food and training right; cards lay out by their own width (container queries)
 - [ ] Themes with an identity: Label = a nutrition-facts table, square, ruled; Orto = soft, warm, roomy; Cruscotto = dense dashboard tiles
 
 ## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)

@@ -343,7 +343,7 @@ function EstimateForm({ day, locale, bounds, t, state, action }: EstimateProps) 
         error={err("label")}
         required
       />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 @lg:grid-cols-3">
         {PREVIEW_KEYS.map((k) => (
           <Field
             key={k}

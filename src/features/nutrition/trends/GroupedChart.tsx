@@ -150,7 +150,7 @@ export function GroupedChart({
       scroll={scroll}
       footer={
         <>
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-meta sm:grid-cols-4">
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-meta @lg:grid-cols-4">
             {averages.map(({ key, avg }) => (
               <li
                 key={key}

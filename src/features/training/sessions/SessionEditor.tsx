@@ -278,7 +278,7 @@ function SessionFields({
         title={t.actions.general}
         icon={<FileText size={20} aria-hidden="true" />}
       >
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 @lg:grid-cols-2">
           <Field
             label={tr.label}
             name="label"

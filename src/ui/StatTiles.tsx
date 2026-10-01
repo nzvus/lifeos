@@ -11,7 +11,7 @@ export type Stat = { value: ReactNode; label: string; note?: ReactNode };
 
 export function StatTiles({ stats }: { stats: readonly Stat[] }) {
   return (
-    <ul className="grid grid-cols-2 gap-2 sm:grid-flow-col sm:grid-cols-none sm:auto-cols-fr">
+    <ul className="grid grid-cols-2 gap-2 @lg:grid-flow-col @lg:grid-cols-none @lg:auto-cols-fr">
       {stats.map((s) => (
         <li
           key={s.label}

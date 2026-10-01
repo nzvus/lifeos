@@ -58,7 +58,7 @@ export function SessionList({
     timeZone: "UTC",
   });
   return (
-    <ul className="grid gap-x-8 md:grid-cols-2">
+    <ul className="grid gap-x-8 @3xl:grid-cols-2">
       {sessions.map((s) => {
         const burn = burnRange(s, weightAt(measurements, s.day));
         const strength = s.exercises.filter((e) => e.kind !== "cardio");

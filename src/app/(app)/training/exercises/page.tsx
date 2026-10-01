@@ -45,7 +45,7 @@ export default async function ExercisesPage() {
       {exercises.length === 0 ? (
         <p className="text-muted">{x.empty}</p>
       ) : (
-        <ul className="grid gap-x-8 md:grid-cols-2">
+        <ul className="grid gap-x-8 @3xl:grid-cols-2">
           {exercises.map((e) => {
             const r = rec.get(e.id);
             return (
