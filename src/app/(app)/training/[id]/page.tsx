@@ -24,6 +24,7 @@ import {
   updateSessionAction,
 } from "../actions";
 import { editorData } from "../editor-data";
+import { buttonClass } from "@/ui/button";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -103,7 +104,7 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
       {session.status === "planned" && (
         <Link
           href={`/training/${id}/live`}
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-control bg-herb font-display text-item font-bold text-sheet"
+          className={buttonClass({ variant: "primary", block: true })}
         >
           <Dumbbell size={20} aria-hidden="true" />
           {t.training.live.open}

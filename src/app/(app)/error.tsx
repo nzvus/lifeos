@@ -12,6 +12,7 @@
 
 import { DEFAULT_LOCALE } from "@/core/shared/locales";
 import { dictionaries } from "@/i18n";
+import { buttonClass } from "@/ui/button";
 
 export default function AppError({ reset }: { error: Error; reset: () => void }) {
   const t = dictionaries[DEFAULT_LOCALE].errorPage;
@@ -22,11 +23,7 @@ export default function AppError({ reset }: { error: Error; reset: () => void })
     >
       <h1 className="font-display text-section font-bold">{t.title}</h1>
       <p>{t.body}</p>
-      <button
-        type="button"
-        onClick={reset}
-        className="rule-medium border-ink px-4 py-2 font-display font-semibold"
-      >
+      <button type="button" onClick={reset} className={buttonClass()}>
         {t.retry}
       </button>
     </section>

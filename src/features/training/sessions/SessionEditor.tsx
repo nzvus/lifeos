@@ -36,6 +36,7 @@ import { SelectField } from "@/ui/SelectField";
 import { toFormData, useEditableForm } from "@/ui/useEditableForm";
 import { useEditFlow } from "@/ui/useEditFlow";
 import type { FormValues } from "@/ui/useFormValues";
+import { buttonClass } from "@/ui/button";
 
 export type EditorSet = {
   reps: string;
@@ -493,7 +494,7 @@ function SessionFields({
                     sets: [...e.sets, { ...(e.sets.at(-1) ?? EMPTY_SET), warmup: false }],
                   })
                 }
-                className="inline-flex items-center gap-1 rounded-control border border-hairline px-2 py-1 text-meta hover:border-ink"
+                className={buttonClass({ variant: "subtle", size: "sm" })}
               >
                 <Plus size={14} aria-hidden="true" />
                 {tr.addSet}
@@ -526,7 +527,7 @@ function SessionFields({
             ...keyed([{ exerciseId: "", restS: "", notes: "", sets: [EMPTY_SET] }]),
           ])
         }
-        className="inline-flex items-center gap-1 self-start rounded-control rule-medium border-ink px-3 py-1 font-display font-semibold"
+        className={`self-start ${buttonClass()}`}
       >
         <Plus size={16} aria-hidden="true" />
         {tr.addExercise}

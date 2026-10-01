@@ -35,8 +35,8 @@ export function MergeForm({ action, others, t }: Props) {
           className="flex min-w-0 flex-1 flex-col gap-1"
         />
         <SubmitButton
-          variant="quiet"
-          size="small"
+          variant="secondary"
+          size="sm"
           icon={<Merge size={14} aria-hidden="true" />}
         >
           {t.exercises.merge}

@@ -16,6 +16,7 @@ import { fill, type Messages } from "@/i18n";
 import { FiberTypeIcon, OriginIcon, TagIcon } from "@/ui/QualityIcons";
 import { Section } from "@/ui/Section";
 import { SelectField } from "@/ui/SelectField";
+import { buttonClass } from "@/ui/button";
 
 type TagValue = { name: string; icon: string };
 
@@ -187,7 +188,7 @@ export function QualityFields({
           <button
             type="button"
             onClick={add}
-            className="inline-flex items-center gap-1 rounded-control border border-hairline px-2 py-1.5 text-meta hover:border-ink"
+            className={buttonClass({ variant: "subtle", size: "sm" })}
           >
             <Plus size={14} aria-hidden="true" />
             {q.addTag}

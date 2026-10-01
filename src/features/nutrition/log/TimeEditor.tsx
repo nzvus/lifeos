@@ -30,7 +30,7 @@ export function TimeEditor({ action, initial, t }: Props) {
           className="rule-b-medium border-ink bg-sheet px-2 py-1"
         />
       </label>
-      <SubmitButton variant="subtle" size="small">
+      <SubmitButton variant="subtle" size="sm">
         {t.day.saveTime}
       </SubmitButton>
       {error && <span className="text-meta text-tomato">{error}</span>}

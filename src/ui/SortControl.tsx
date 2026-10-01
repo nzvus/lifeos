@@ -9,6 +9,7 @@
 "use client";
 
 import { ArrowDown, ArrowUp } from "lucide-react";
+import { buttonClass } from "./button";
 
 export type SortDirection = "asc" | "desc";
 export type SortOption<S extends string> = {
@@ -85,7 +86,7 @@ export function SortControl<S extends string>({
         onClick={() => onChange(sort, direction === "asc" ? "desc" : "asc")}
         aria-label={current}
         title={current}
-        className="flex h-10 w-10 items-center justify-center rounded-control rule-medium border-ink bg-sheet hover:bg-paper"
+        className={buttonClass({ variant: "secondary", iconOnly: true })}
       >
         <Icon size={20} aria-hidden="true" />
       </button>

@@ -257,7 +257,7 @@ export default async function DayPage({ searchParams }: Props) {
             action={copyPreviousDayAction.bind(null, day)}
             label={t.day.copyYesterday}
             icon={<Copy size={18} aria-hidden="true" />}
-            variant="quiet"
+            variant="secondary"
           />
         )}
         <AddToDay

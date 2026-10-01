@@ -39,7 +39,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           {t.app.name}
         </Link>
         <NavBar links={[...links]} label={t.nav.menu} />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1">
           <NavIconLink href="/settings" label={t.nav.settings} icon="settings" />
           <SignOutButton label={t.nav.signOut} />
         </div>

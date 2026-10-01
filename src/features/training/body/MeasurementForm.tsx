@@ -63,7 +63,7 @@ export function MeasurementForm({ action, today, count, t }: Props) {
       />
       <SubmitButton
         variant="subtle"
-        size="small"
+        size="sm"
         icon={<Plus size={14} aria-hidden="true" />}
       >
         {b.add}

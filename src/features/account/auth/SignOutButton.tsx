@@ -7,6 +7,8 @@
 
 import { useRouter } from "next/navigation";
 import { authClient } from "./auth-client";
+import { LogOut } from "lucide-react";
+import { buttonClass } from "@/ui/button";
 
 export function SignOutButton({ label }: { label: string }) {
   const router = useRouter();
@@ -18,9 +20,11 @@ export function SignOutButton({ label }: { label: string }) {
         router.push("/sign-in");
         router.refresh();
       }}
-      className="text-meta underline"
+      aria-label={label}
+      title={label}
+      className={buttonClass({ variant: "quiet", iconOnly: true })}
     >
-      {label}
+      <LogOut size={20} aria-hidden="true" />
     </button>
   );
 }

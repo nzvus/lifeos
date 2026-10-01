@@ -17,6 +17,7 @@ import type { Locale } from "@/core/shared/locales";
 import type { Messages } from "@/i18n";
 import { NUTRIENT_VAR } from "@/ui/NutrientIcon";
 import { targetTone } from "@/ui/targetTone";
+import { buttonClass, TEXT_LINK } from "@/ui/button";
 
 type Props = {
   week: DaySummary[]; // Monday … Sunday
@@ -40,7 +41,7 @@ export function WeekStrip({ week, day, today, locale, t }: Props) {
         <Link
           href={`/?day=${addDays(day, -7)}`}
           aria-label={t.previousWeek}
-          className="flex items-center px-1"
+          className={buttonClass({ variant: "quiet", size: "sm", iconOnly: true })}
         >
           <ChevronLeft size={20} aria-hidden="true" />
         </Link>
@@ -97,7 +98,7 @@ export function WeekStrip({ week, day, today, locale, t }: Props) {
         <Link
           href={`/?day=${addDays(day, 7)}`}
           aria-label={t.nextWeek}
-          className="flex items-center px-1"
+          className={buttonClass({ variant: "quiet", size: "sm", iconOnly: true })}
         >
           <ChevronRight size={20} aria-hidden="true" />
         </Link>
@@ -112,14 +113,11 @@ export function WeekStrip({ week, day, today, locale, t }: Props) {
             className="rounded-control rule-b-medium border-ink bg-sheet px-2 py-1"
           />
         </label>
-        <button
-          type="submit"
-          className="rounded-control border border-hairline px-2 py-1 hover:border-ink"
-        >
+        <button type="submit" className={buttonClass({ variant: "subtle", size: "sm" })}>
           {t.go}
         </button>
         {monday > today || addDays(monday, 6) < today ? (
-          <Link href="/" className="underline">
+          <Link href="/" className={TEXT_LINK}>
             {t.thisWeek}
           </Link>
         ) : null}

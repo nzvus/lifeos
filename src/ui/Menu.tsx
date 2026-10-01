@@ -8,6 +8,7 @@
 import { MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { buttonClass } from "./button";
 
 export type MenuItem = {
   label: string;
@@ -49,7 +50,7 @@ export function Menu({ label, items }: { label: string; items: readonly MenuItem
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="tile inline-flex h-10 w-10 items-center justify-center rounded-control"
+        className={buttonClass({ variant: "subtle", iconOnly: true })}
       >
         <MoreVertical size={20} aria-hidden="true" />
       </button>

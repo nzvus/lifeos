@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { buttonClass } from "./button";
 
 const ICONS = {
   today: CalendarDays,
@@ -116,9 +117,7 @@ export function NavIconLink({
       aria-label={label}
       title={label}
       aria-current={active ? "page" : undefined}
-      className={`tile inline-flex h-10 w-10 items-center justify-center rounded-control ${
-        active ? "border-herb text-herb" : "hover:border-ink"
-      }`}
+      className={`${buttonClass({ variant: "quiet", iconOnly: true })} ${active ? "text-herb" : ""}`}
     >
       <Icon size={20} aria-hidden="true" />
     </Link>

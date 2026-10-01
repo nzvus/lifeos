@@ -26,6 +26,7 @@ import { Section } from "@/ui/Section";
 import { toFormData, useEditableForm } from "@/ui/useEditableForm";
 import { useEditFlow } from "@/ui/useEditFlow";
 import type { FormValues } from "@/ui/useFormValues";
+import { buttonClass } from "@/ui/button";
 
 export type RoutineRow = {
   exerciseId: string;
@@ -272,7 +273,7 @@ function RoutineFields({
               },
             ])
           }
-          className="inline-flex items-center gap-1 self-start rounded-control border border-hairline px-2 py-1 text-meta hover:border-ink"
+          className={`self-start ${buttonClass({ variant: "subtle", size: "sm" })}`}
         >
           <Plus size={14} aria-hidden="true" />
           {r.addItem}

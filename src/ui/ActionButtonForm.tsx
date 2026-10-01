@@ -10,6 +10,7 @@
 "use client";
 
 import { useActionState, type ReactNode } from "react";
+import type { ButtonSize, ButtonVariant } from "./button";
 import { SubmitButton } from "./SubmitButton";
 import { FormAlert } from "./FormAlert";
 
@@ -19,10 +20,10 @@ type Props = {
   action: (prev: State, formData: FormData) => Promise<State>;
   label: string;
   icon?: ReactNode;
-  variant?: "danger" | "quiet" | "subtle";
+  variant?: ButtonVariant;
   /** Compact: icon only, label for screen readers and as tooltip. */
   iconOnly?: boolean;
-  size?: "normal" | "small";
+  size?: ButtonSize;
 };
 
 export type ActionButtonState = State;

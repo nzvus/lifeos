@@ -34,6 +34,7 @@ import { timeIn } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
 import { StatusToggle } from "./StatusToggle";
 import { TimeEditor } from "./TimeEditor";
+import { Badge } from "@/ui/Badge";
 type EntryAction = (
   id: string,
 ) => (prev: ActionButtonState, formData: FormData) => Promise<ActionButtonState>;
@@ -144,8 +145,8 @@ export function EntryList({
                         </span>
                       )}
                       {e.estimated && (
-                        <span className="ml-2 border border-hairline px-1 text-meta font-normal text-muted">
-                          {t.day.estimated}
+                        <span className="ml-2 inline-flex align-middle">
+                          <Badge>{t.day.estimated}</Badge>
                         </span>
                       )}
                     </>
@@ -199,7 +200,7 @@ export function EntryList({
                         label={t.day.refresh}
                         icon={<RefreshCw size={14} aria-hidden="true" />}
                         variant="subtle"
-                        size="small"
+                        size="sm"
                       />
                     </div>
                     <p className="text-meta text-muted">{t.day.refreshHint}</p>

@@ -10,6 +10,7 @@ import Link from "next/link";
 import { addDays } from "@/core/shared/dates";
 import type { Locale } from "@/core/shared/locales";
 import type { Messages } from "@/i18n";
+import { TEXT_LINK } from "@/ui/button";
 
 type Props = { day: string; today: string; locale: Locale; t: Messages["day"] };
 
@@ -33,7 +34,7 @@ export function DayNav({ day, today, locale, t }: Props) {
           {heading}
         </h1>
         {day !== today && (
-          <Link href="/" className="text-meta underline">
+          <Link href="/" className={`text-meta ${TEXT_LINK}`}>
             {t.backToToday}
           </Link>
         )}

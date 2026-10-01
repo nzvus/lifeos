@@ -60,6 +60,7 @@ import { Change } from "@/ui/Change";
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { Stepper } from "./Stepper";
+import { buttonClass } from "@/ui/button";
 
 export type LiveExerciseInfo = {
   name: string;
@@ -351,14 +352,14 @@ export function LiveSession({
               onClick={() =>
                 startRest({ ends: Math.max(rest.ends, now) + 15000, buzzed: false })
               }
-              className="tile h-11 rounded-control px-3 font-semibold"
+              className={buttonClass({ variant: "subtle" })}
             >
               {t.plus15}
             </button>
             <button
               type="button"
               onClick={() => startRest(null)}
-              className="tile h-11 rounded-control px-3 font-semibold"
+              className={buttonClass({ variant: "subtle" })}
             >
               {t.skip}
             </button>
@@ -539,7 +540,7 @@ export function LiveSession({
                     onClick={() =>
                       update(ei, (v) => ({ ...v, sets: [...v.sets, copyLastSet(v)] }))
                     }
-                    className="tile inline-flex h-11 items-center gap-1.5 rounded-control px-3 font-semibold"
+                    className={buttonClass({ variant: "subtle" })}
                   >
                     <Plus size={18} aria-hidden="true" />
                     {t.addSet}
@@ -636,7 +637,7 @@ export function LiveSession({
         type="button"
         onClick={onFinish}
         disabled={finishing}
-        className="h-14 rounded-control bg-herb font-display text-section font-bold text-sheet disabled:opacity-60"
+        className={buttonClass({ variant: "primary", block: true })}
       >
         {left > 0 ? fill(t.finishDrop, { n: String(left) }) : t.finish}
       </button>

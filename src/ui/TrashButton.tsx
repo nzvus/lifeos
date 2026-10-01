@@ -31,7 +31,7 @@ export function TrashButton({
   return (
     <form action={async () => void (await onDelete?.())}>
       <SubmitButton
-        variant="quiet"
+        variant="subtle"
         icon={<Trash2 size={18} aria-hidden="true" />}
         iconOnly
       >

@@ -10,6 +10,7 @@ import { TREND_RANGES, type TrendRange } from "@/core/nutrition/preferences";
 import { addDays } from "@/core/shared/dates";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
+import { TEXT_LINK } from "@/ui/button";
 
 type Props = {
   range: TrendRange;
@@ -66,7 +67,7 @@ export function RangeNav({ range, from, to, today, locale, t }: Props) {
         </span>
         {to < today ? (
           <span className="flex items-center gap-2">
-            <Link href={href(range, today)} className="underline">
+            <Link href={href(range, today)} className={TEXT_LINK}>
               {t.latest}
             </Link>
             <Link href={href(range, later)} aria-label={t.later} className="p-1">

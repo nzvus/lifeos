@@ -24,6 +24,7 @@ import {
   savePreferencesAction,
   saveSettingsAction,
 } from "./actions";
+import { buttonClass } from "@/ui/button";
 
 export default async function SettingsPage() {
   const { owner, settings, t } = await requireContext();
@@ -86,19 +87,13 @@ export default async function SettingsPage() {
       >
         <p className="text-muted">{t.settings.exportHint}</p>
         {/* A plain link, not a fetch: the browser handles the file download. */}
-        <a
-          href="/api/export"
-          className="self-start rounded-control rule-medium border-ink px-4 py-2 font-display font-semibold"
-        >
+        <a href="/api/export" className={`self-start ${buttonClass()}`}>
           {t.settings.export}
         </a>
       </Section>
       <Section title={t.trash.title} icon={<Trash2 size={20} aria-hidden="true" />}>
         <p className="text-muted">{t.trash.hint}</p>
-        <Link
-          href="/settings/trash"
-          className="self-start rounded-control rule-medium border-ink px-4 py-2 font-display font-semibold"
-        >
+        <Link href="/settings/trash" className={`self-start ${buttonClass()}`}>
           {t.trash.open}
         </Link>
       </Section>
