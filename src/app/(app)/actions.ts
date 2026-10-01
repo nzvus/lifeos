@@ -253,10 +253,10 @@ export async function setDayActivityAction(
 export async function setEnergyCorrectionAction(
   factor: number,
 ): Promise<{ ok: boolean; message?: string }> {
-  const { owner, t } = await requireContext();
+  const { owner, settings, t } = await requireContext();
   const parsed = correctionInput.safeParse(factor);
   if (!parsed.success) return { ok: false, message: t.errors.invalid_number };
-  await setEnergyCorrection(getDb(), owner, parsed.data);
+  await setEnergyCorrection(getDb(), owner, parsed.data, todayIn(settings.timezone));
   revalidatePath("/");
   return { ok: true };
 }

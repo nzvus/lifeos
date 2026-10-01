@@ -46,7 +46,7 @@ export function ListItem({
 }: Props) {
   return (
     <li
-      className={`item relative flex flex-col gap-2 py-3 has-aria-expanded:z-30 ${href ? "hover:bg-paper" : ""} ${
+      className={`item relative flex flex-col gap-2 py-3 has-aria-expanded:z-30 ${
         muted ? "item-planned" : ""
       }`}
     >

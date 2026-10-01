@@ -8,7 +8,13 @@
  */
 import { and, asc, eq, inArray, isNotNull, ne } from "drizzle-orm";
 import type { Db } from "../../db/client";
-import { programs, programSlots, routines } from "../../db/schema";
+import {
+  exercises,
+  programs,
+  programSlotExercises,
+  programSlots,
+  routines,
+} from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { addDays } from "../../shared/dates";
 import { fail, ok, type Result } from "../../shared/result";
@@ -35,9 +41,19 @@ export async function listPrograms(db: Db, owner: Owner): Promise<ProgramView[]>
     .orderBy(asc(programs.name));
   if (!rows.length) return [];
   const slots = await db
-    .select({ slot: programSlots, routine: routines.name })
+    .select({
+      slot: programSlots,
+      routine: routines.name,
+      exerciseId: programSlotExercises.exerciseId,
+      exercise: exercises.name,
+    })
     .from(programSlots)
     .leftJoin(routines, and(eq(programSlots.routineId, routines.id), live(routines)))
+    .leftJoin(programSlotExercises, eq(programSlotExercises.slotId, programSlots.id))
+    .leftJoin(
+      exercises,
+      and(eq(programSlotExercises.exerciseId, exercises.id), live(exercises)),
+    )
     .where(
       and(
         ownedBy(programSlots, owner),
@@ -56,12 +72,13 @@ export async function listPrograms(db: Db, owner: Owner): Promise<ProgramView[]>
     active: p.active,
     slots: slots
       .filter((s) => s.slot.programId === p.id)
-      .map(({ slot, routine }) => ({
+      .map(({ slot, routine, exerciseId, exercise }) => ({
         position: slot.position,
-        // A routine in the trash counts as missing: the slot is shown by its label.
+        // A routine or exercise in the trash counts as missing: shown by its label.
         routineId: routine === null ? null : slot.routineId,
+        exerciseId: exercise === null ? null : exerciseId,
         label: slot.label,
-        name: routine ?? slot.label,
+        name: routine ?? exercise ?? slot.label,
       })),
   }));
 }
@@ -72,17 +89,39 @@ export async function getProgram(db: Db, owner: Owner, id: string) {
 
 /** Every routine named must be one of my live routines. */
 async function checkSlots(db: Db, owner: Owner, input: ProgramInput) {
-  const ids = [...new Set(input.slots.map((s) => s.routineId).filter((x) => x !== null))];
-  if (!ids.length) return null;
-  const mine = await db
-    .select({ id: routines.id })
-    .from(routines)
-    .where(and(ownedBy(routines, owner), live(routines), inArray(routines.id, ids)));
-  const known = new Set(mine.map((r) => r.id));
-  const bad = input.slots.findIndex(
-    (s) => s.routineId !== null && !known.has(s.routineId),
-  );
-  return bad >= 0 ? { [`slots.${bad}.routineId`]: "not_found" as const } : null;
+  const rIds = [
+    ...new Set(input.slots.map((s) => s.routineId).filter((x) => x !== null)),
+  ];
+  const eIds = [
+    ...new Set(input.slots.map((s) => s.exerciseId).filter((x) => x !== null)),
+  ];
+  const [rs, es] = await Promise.all([
+    rIds.length
+      ? db
+          .select({ id: routines.id })
+          .from(routines)
+          .where(
+            and(ownedBy(routines, owner), live(routines), inArray(routines.id, rIds)),
+          )
+      : [],
+    eIds.length
+      ? db
+          .select({ id: exercises.id })
+          .from(exercises)
+          .where(
+            and(ownedBy(exercises, owner), live(exercises), inArray(exercises.id, eIds)),
+          )
+      : [],
+  ]);
+  const knownR = new Set(rs.map((r) => r.id));
+  const knownE = new Set(es.map((r) => r.id));
+  for (const [i, s] of input.slots.entries()) {
+    if (s.routineId !== null && !knownR.has(s.routineId))
+      return { [`slots.${i}.routineId`]: "not_found" as const };
+    if (s.exerciseId !== null && !knownE.has(s.exerciseId))
+      return { [`slots.${i}.exerciseId`]: "not_found" as const };
+  }
+  return null;
 }
 
 /** Saving an active program makes the others inactive (one plans the days). */
@@ -117,15 +156,29 @@ async function write(db: Db, owner: Owner, id: string | null, input: ProgramInpu
     await tx
       .delete(programSlots)
       .where(and(ownedBy(programSlots, owner), eq(programSlots.programId, programId)));
-    await tx.insert(programSlots).values(
-      input.slots.map((s, position) => ({
-        userId: owner.id,
-        programId,
-        position,
-        routineId: s.routineId,
-        label: s.label,
-      })),
-    );
+    const inserted = await tx
+      .insert(programSlots)
+      .values(
+        input.slots.map((s, position) => ({
+          userId: owner.id,
+          programId,
+          position,
+          routineId: s.exerciseId ? null : s.routineId,
+          label: s.label,
+        })),
+      )
+      .returning({ id: programSlots.id, position: programSlots.position });
+    const withExercise = input.slots
+      .map((s, position) => ({ s, position }))
+      .filter(({ s }) => s.exerciseId);
+    if (withExercise.length)
+      await tx.insert(programSlotExercises).values(
+        withExercise.map(({ s, position }) => ({
+          userId: owner.id,
+          slotId: inserted.find((r) => r.position === position)!.id,
+          exerciseId: s.exerciseId!,
+        })),
+      );
     return programId;
   });
 }
@@ -201,7 +254,11 @@ export async function getActivePlan(
     today,
     done: done
       .filter((s) => s.status === "done")
-      .map((s) => ({ day: s.day, routineId: s.routineId })),
+      .map((s) => ({
+        day: s.day,
+        routineId: s.routineId,
+        exerciseIds: s.exercises.map((e) => e.exerciseId),
+      })),
     days,
   });
   return { program, plan, doneToday };
@@ -213,9 +270,11 @@ export async function programSlotOn(
   owner: Owner,
   today: string,
   day: string,
-): Promise<(PlanDay & { program: string }) | null> {
+): Promise<(PlanDay & { program: string; name: string }) | null> {
   if (day < today || day > addDays(today, 27)) return null;
   const a = await getActivePlan(db, owner, today, 28);
   const hit = a?.plan.find((p) => p.day === day);
-  return a && hit ? { ...hit, program: a.program.name } : null;
+  if (!a || !hit) return null;
+  const name = a.program.slots.find((x) => x.position === hit.slot.position)?.name ?? "";
+  return { ...hit, program: a.program.name, name };
 }

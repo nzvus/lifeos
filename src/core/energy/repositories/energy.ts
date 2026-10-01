@@ -7,9 +7,9 @@
  *
  * Tested in: energy.test.ts.
  */
-import { and, eq, gte, lte } from "drizzle-orm";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
 import type { Db } from "../../db/client";
-import { dayActivity, userSettings } from "../../db/schema";
+import { dayActivity, energyCorrections, userSettings } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { getHistory } from "../../nutrition/repositories/history";
 import { addDays } from "../../shared/dates";
@@ -50,6 +50,21 @@ export type DayEnergyView = {
   energy: Energy | null;
 };
 
+/**
+ * ADR-0026: the calibration factor in force on `day` — the latest accepted
+ * on or before it, else 1. Without any history (a factor accepted before
+ * ADR-0026), the one in settings, as before.
+ */
+async function correctionOn(db: Db, owner: Owner, day: string, legacy: string | null) {
+  const rows = await db
+    .select({ day: energyCorrections.sinceDay, factor: energyCorrections.factor })
+    .from(energyCorrections)
+    .where(ownedBy(energyCorrections, owner))
+    .orderBy(desc(energyCorrections.sinceDay));
+  if (!rows.length) return Number(legacy ?? 1);
+  return Number(rows.find((r) => r.day <= day)?.factor ?? 1);
+}
+
 export async function getBody(db: Db, owner: Owner, day: string): Promise<Body> {
   const [[s], measurements] = await Promise.all([
     db
@@ -68,7 +83,7 @@ export async function getBody(db: Db, owner: Owner, day: string): Promise<Body> 
     birthYear: s?.birthYear ?? null,
     heightCm: s?.heightCm ?? null,
     weightKg: weightAt(measurements, day),
-    correction: Number(s?.correction ?? 1),
+    correction: await correctionOn(db, owner, day, s?.correction ?? null),
   };
 }
 
@@ -93,6 +108,42 @@ export async function setDayActivity(
 }
 
 type ActivityRow = typeof dayActivity.$inferSelect;
+
+/** One exercise as a planned session, with its sets of the last time it was done. */
+async function exerciseAsPlanned(
+  db: Db,
+  owner: Owner,
+  day: string,
+  exerciseId: string,
+): Promise<SessionRow | null> {
+  const [exercises, history] = await Promise.all([
+    listExercises(db, owner),
+    listSessions(db, owner, addDays(day, -365), addDays(day, -1)),
+  ]);
+  const exercise = exercises.find((e) => e.id === exerciseId);
+  if (!exercise) return null;
+  const last = [...history]
+    .filter((s) => s.status === "done")
+    .reverse()
+    .flatMap((s) => s.exercises)
+    .find((e) => e.exerciseId === exerciseId);
+  const sets = last?.sets.filter((x) => !x.warmup) ?? [];
+  return {
+    label: exercise.name,
+    status: "planned",
+    durationMin: null,
+    routineId: null,
+    intensity: null,
+    kcalEstimate: null,
+    exercises: [
+      {
+        kind: exercise.kind,
+        restS: last?.restS ?? null,
+        sets: sets.length ? sets : [{ reps: null, loadKg: null, warmup: false }],
+      },
+    ],
+  };
+}
 
 /** A routine as a planned session with its default sets (for the energy only). */
 async function routineAsPlanned(
@@ -168,9 +219,9 @@ export async function getDayEnergy(
   db: Db,
   owner: Owner,
   day: string,
-  /** ADR-0024: the routine a program puts on this day, counted as planned
-   *  when the day has no session of it yet. */
-  programRoutineId?: string | null,
+  /** ADR-0024: the routine or exercise a program puts on this day, counted
+   *  as planned when the day has no session of it yet. */
+  programSlot?: { routineId?: string | null; exerciseId?: string | null } | null,
 ): Promise<DayEnergyView> {
   const [body, [act], sessions, measurements] = await Promise.all([
     getBody(db, owner, day),
@@ -183,8 +234,16 @@ export async function getDayEnergy(
   ]);
   const kg = weightAt(measurements, day);
   const all: SessionRow[] = [...sessions];
-  if (programRoutineId && !sessions.some((x) => x.routineId === programRoutineId)) {
-    const pseudo = await routineAsPlanned(db, owner, programRoutineId);
+  const rId = programSlot?.routineId;
+  const eId = programSlot?.exerciseId;
+  if (rId && !sessions.some((x) => x.routineId === rId)) {
+    const pseudo = await routineAsPlanned(db, owner, rId);
+    if (pseudo) all.push(pseudo);
+  } else if (
+    eId &&
+    !sessions.some((x) => x.exercises.some((e) => e.exerciseId === eId))
+  ) {
+    const pseudo = await exerciseAsPlanned(db, owner, day, eId);
     if (pseudo) all.push(pseudo);
   }
   const { activity, facts } = factsOf(day, act, all, kg);
@@ -239,13 +298,24 @@ export async function getCalibration(
   return calibrate(days, weighIns, body.correction ?? 1);
 }
 
-/** Accept a proposed factor, or reset to 1 (ADR-0020: only by the user's choice). */
+/**
+ * Accept a proposed factor, or reset to 1 (ADR-0020: only by the user's
+ * choice), from `today` on (ADR-0026): earlier days keep theirs.
+ */
 export async function setEnergyCorrection(
   db: Db,
   owner: Owner,
   factor: number,
+  today: string,
 ): Promise<void> {
   const value = factor.toFixed(2);
+  await db
+    .insert(energyCorrections)
+    .values({ userId: owner.id, sinceDay: today, factor: value })
+    .onConflictDoUpdate({
+      target: [energyCorrections.userId, energyCorrections.sinceDay],
+      set: { factor: value },
+    });
   await db
     .insert(userSettings)
     .values({ userId: owner.id, energyCorrection: value })

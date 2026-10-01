@@ -315,6 +315,10 @@ export const barcodeIt: Messages["barcode"] = {
 
 export const trainingWhenIt: Messages["training"]["when"] = {
   startThis: "Inizia in palestra",
+  pastDay: "Giorno passato: non si aggiunge più niente.",
+  addAnyway: "Ho dimenticato qualcosa",
+  exercisesList: "Esercizi",
+  exercisesN: "{n} esercizi",
   label: "Quando",
   start: "Inizia ora",
   plan: "Pianifica",
@@ -398,6 +402,8 @@ export const programsIt: Messages["programs"] = {
   slotsHint: "Un giorno per riga, nell'ordine. Ricomincia da capo dopo l'ultimo.",
   slot: "Scheda",
   dayN: "G{n}",
+  routineOption: "Scheda · {name}",
+  exerciseOption: "Esercizio · {name}",
   rest: "Riposo",
   addSlot: "Aggiungi un giorno",
   up: "Sposta su",

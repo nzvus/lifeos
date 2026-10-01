@@ -111,18 +111,21 @@ describe("energy repository", () => {
     expect(c.proposed).not.toBeNull();
 
     const plain = (await getDayEnergy(db, me, DAY)).energy!;
-    await setEnergyCorrection(db, me, c.proposed!);
+    await setEnergyCorrection(db, me, c.proposed!, DAY);
     expect((await getBody(db, me, DAY)).correction).toBe(c.proposed);
+    // ADR-0026: from that day on; the day before keeps 1.
+    expect((await getBody(db, me, addDays(DAY, -1))).correction).toBe(1);
     const fixed = (await getDayEnergy(db, me, DAY)).energy!;
     expect(fixed.baseline.low).toBeGreaterThan(plain.baseline.low);
     // Not someone else's; and a reset is 1.
     expect((await getBody(db, other, DAY)).correction).toBe(1);
     expect((await getCalibration(db, other, DAY)).verdict).toBe("no_body");
-    await setEnergyCorrection(db, me, 1);
-    expect((await getBody(db, me, DAY)).correction).toBe(1);
+    await setEnergyCorrection(db, me, 1, addDays(DAY, 3));
+    expect((await getBody(db, me, addDays(DAY, 3))).correction).toBe(1);
+    expect((await getBody(db, me, addDays(DAY, 2))).correction).toBe(c.proposed);
   });
 
   it("the database refuses a factor outside 0.80–1.20", async () => {
-    await expect(setEnergyCorrection(db, me, 1.5)).rejects.toThrow();
+    await expect(setEnergyCorrection(db, me, 1.5, DAY)).rejects.toThrow();
   });
 });

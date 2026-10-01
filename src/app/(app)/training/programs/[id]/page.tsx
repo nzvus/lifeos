@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { getProgram } from "@/core/training/repositories/programs";
+import { listExercises } from "@/core/training/repositories/exercises";
 import { listRoutines } from "@/core/training/repositories/routines";
 import { ProgramEditor } from "@/features/training/programs/ProgramEditor";
 import { PageHeader } from "@/ui/PageHeader";
@@ -14,9 +15,10 @@ export default async function ProgramPage({ params }: Props) {
   const { owner, t } = await requireContext();
   const { id } = await params;
   const db = getDb();
-  const [program, routines] = await Promise.all([
+  const [program, routines, exercises] = await Promise.all([
     getProgram(db, owner, id),
     listRoutines(db, owner),
+    listExercises(db, owner),
   ]);
   if (!program) notFound();
   return (
@@ -30,12 +32,17 @@ export default async function ProgramPage({ params }: Props) {
         from="/training/programs"
         action={updateProgramAction.bind(null, program.id)}
         routines={routines.map(({ id: rid, name }) => ({ id: rid, name }))}
+        exercises={exercises.map(({ id: xid, name }) => ({ id: xid, name }))}
         initial={{
           name: program.name,
           notes: program.notes,
           startDay: program.startDay,
           active: program.active,
-          slots: program.slots.map((s) => ({ routineId: s.routineId, label: s.label })),
+          slots: program.slots.map((s) => ({
+            routineId: s.routineId,
+            exerciseId: s.exerciseId ?? null,
+            label: s.label,
+          })),
         }}
         t={{ programs: t.programs, errors: t.errors, actions: t.actions }}
       />

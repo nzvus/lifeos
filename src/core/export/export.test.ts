@@ -208,7 +208,7 @@ describe("exportUserData", () => {
       notes: "",
       startDay: "2026-10-01",
       active: true,
-      slots: [{ routineId: null, label: "Rest" }],
+      slots: [{ routineId: null, exerciseId: null, label: "Rest" }],
     });
     if (!r.ok) throw new Error("setup failed");
     const data = await exportUserData(db, alice);

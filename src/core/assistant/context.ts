@@ -19,6 +19,7 @@ import { getPantry } from "../pantry/repositories/stock";
 import { addDays } from "../shared/dates";
 import { sessionMinutes, sessionTonnage } from "../training/analysis";
 import { listMeasurements } from "../training/repositories/measurements";
+import { isRest } from "../training/program";
 import { getActivePlan } from "../training/repositories/programs";
 import { listRoutines } from "../training/repositories/routines";
 import { listSessions } from "../training/repositories/sessions";
@@ -190,7 +191,7 @@ export async function userContext(db: Db, owner: Owner, today: string): Promise<
             const name = program.program.slots.find(
               (x) => x.position === d.slot.position,
             )?.name;
-            return `${d.day}: ${d.slot.routineId ? name : "rest"}${d.late ? " (late: was due earlier)" : ""}`;
+            return `${d.day}: ${isRest(d.slot) ? "rest" : name}${d.late ? " (late: was due earlier)" : ""}`;
           })
           .join("\n"),
     );

@@ -11,11 +11,11 @@
  * Used by /training and by the day page.
  * Server component.
  */
-import { Play } from "lucide-react";
+import { Circle, CircleCheck, Play } from "lucide-react";
 import Link from "next/link";
 import { buttonClass } from "@/ui/button";
-import { burnRange, sessionTonnage, weightAt } from "@/core/training/analysis";
-import { setsText } from "@/core/training/display";
+import { burnRange, weightAt } from "@/core/training/analysis";
+import { sessionSummary, setsText } from "@/core/training/display";
 import type { SessionView } from "@/core/training/repositories/sessions";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
@@ -25,7 +25,6 @@ import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { ListItem } from "@/ui/ListItem";
 import { MuscleChips } from "@/ui/MuscleChip";
 import { TrashMenu } from "@/ui/TrashMenu";
-import { Badge } from "@/ui/Badge";
 
 type Props = {
   sessions: SessionView[];
@@ -42,6 +41,8 @@ type Props = {
   labels: Messages["actions"];
   /** The day page on today: planned sessions with exercises offer gym mode. */
   startable?: boolean;
+  /** Shows each session's start time in this zone (the day page). */
+  timeZone?: string;
 };
 
 const INTL: Record<Locale, string> = { it: "it-IT", en: "en-GB" };
@@ -57,6 +58,7 @@ export function SessionList({
   restore,
   labels,
   startable = false,
+  timeZone,
 }: Props) {
   const date = new Intl.DateTimeFormat(INTL[locale], {
     weekday: "short",
@@ -64,26 +66,108 @@ export function SessionList({
     month: "short",
     timeZone: "UTC",
   });
+  const n = (v: number, d = 0) => formatNumber(String(v), locale, d);
+  const clock = timeZone
+    ? new Intl.DateTimeFormat(INTL[locale], {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone,
+      })
+    : null;
+  /** One line of numbers, by what the session is (core/training/display.ts). */
+  const summary = (s: SessionView) => {
+    const x = sessionSummary(s);
+    const parts: string[] = [];
+    if (x.cardio)
+      parts.push(
+        [
+          fill(t.minutesShort, { n: String(x.cardio.minutes) }),
+          x.cardio.km !== null ? `${n(x.cardio.km, 1)} km` : null,
+          x.cardio.kmh !== null ? `${n(x.cardio.kmh, 1)} km/h` : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+      );
+    if (x.strength)
+      parts.push(
+        [
+          x.strength.exercises === 1
+            ? s.exercises.find((e) => e.kind !== "cardio")!.name
+            : fill(t.when.exercisesN, { n: String(x.strength.exercises) }),
+          fill(t.progress.setsN, { n: String(x.strength.sets) }),
+          x.strength.tonnage > 0
+            ? x.strength.tonnage >= 1000
+              ? `${n(x.strength.tonnage / 1000, 1)} t`
+              : `${n(x.strength.tonnage)} kg`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+      );
+    if (!x.cardio && s.exercises.some((e) => e.kind === "cardio"))
+      // Cardio planned without its numbers yet: its name, and the minutes if any.
+      parts.push(
+        [
+          s.exercises
+            .filter((e) => e.kind === "cardio")
+            .map((e) => e.name)
+            .join(", "),
+          x.minutes ? fill(t.minutesShort, { n: String(x.minutes) }) : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+      );
+    if (!x.cardio && !x.strength && s.exercises.length === 0)
+      parts.push(
+        [
+          t.estimate.badge,
+          x.minutes ? fill(t.minutesShort, { n: String(x.minutes) }) : null,
+          s.intensity ? t.estimate.intensities[s.intensity] : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+      );
+    return parts.join(" + ");
+  };
   return (
     <ul className="grid gap-x-8 @3xl:grid-cols-2">
       {sessions.map((s) => {
         const burn = burnRange(s, weightAt(measurements, s.day));
-        const strength = s.exercises.filter((e) => e.kind !== "cardio");
-        const tonnage = sessionTonnage(strength);
-        const sets = strength.reduce(
-          (a, e) => a + e.sets.filter((x) => !x.warmup).length,
-          0,
-        );
+        const kcal = burn ? `~${n(burn.low)}–${n(burn.high)} kcal` : null;
         return (
           <ListItem
             key={s.id}
             muted={s.status === "planned"}
+            leading={
+              s.status === "done" ? (
+                <CircleCheck
+                  size={24}
+                  aria-label={t.statuses.done}
+                  className="text-herb"
+                />
+              ) : (
+                <Circle
+                  size={24}
+                  aria-label={t.statuses.planned}
+                  className="text-muted"
+                />
+              )
+            }
             href={
               showDay
                 ? `/training/${s.id}`
                 : `/training/${s.id}?from=${encodeURIComponent(`/?day=${s.day}`)}`
             }
-            title={s.label}
+            title={
+              <span className="flex items-baseline gap-2">
+                {clock && s.startedAt && (
+                  <span className="font-display font-normal text-muted tabular-nums">
+                    {clock.format(new Date(s.startedAt))}
+                  </span>
+                )}
+                <span className="truncate">{s.label}</span>
+              </span>
+            }
             action={
               <TrashMenu
                 id={s.id}
@@ -93,65 +177,36 @@ export function SessionList({
                 labels={labels}
               />
             }
-            aside={
-              showDay ? (
-                date.format(new Date(`${s.day}T12:00:00Z`))
-              ) : (
-                <Badge tone={s.status === "done" ? "done" : "planned"}>
-                  {t.statuses[s.status]}
-                </Badge>
-              )
-            }
-            footer={[
-              s.durationMin ? fill(t.minutesShort, { n: String(s.durationMin) }) : null,
-              sets > 0 ? fill(t.progress.setsN, { n: String(sets) }) : null,
-              tonnage > 0
-                ? fill(t.tonnage, { v: formatNumber(String(tonnage), locale, 0) })
-                : null,
-              burn
-                ? fill(t.burn, { low: String(burn.low), high: String(burn.high) })
-                : t.burnNone,
-            ]
-              .filter(Boolean)
-              .join(" · ")}
+            aside={showDay ? date.format(new Date(`${s.day}T12:00:00Z`)) : kcal}
           >
-            {s.exercises.length === 0 ? (
-              <div className="flex flex-col gap-1 text-meta">
-                <span className="text-muted">
-                  {[
-                    t.estimate.badge,
-                    s.intensity ? t.estimate.intensities[s.intensity] : null,
-                    s.notes || null,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </span>
-                <MuscleChips
-                  groups={s.muscleGroups.filter(isMuscleGroup).map((g) => ({
-                    label: tx.groups[g],
-                    region: MUSCLE_GROUP_REGION[g],
-                  }))}
-                />
-              </div>
-            ) : (
+            <p className="text-meta text-muted tabular-nums">
+              {summary(s)}
+              {showDay && kcal ? ` · ${kcal}` : ""}
+            </p>
+            {s.exercises.length === 0 && s.muscleGroups.length > 0 && (
+              <MuscleChips
+                groups={s.muscleGroups.filter(isMuscleGroup).map((g) => ({
+                  label: tx.groups[g],
+                  region: MUSCLE_GROUP_REGION[g],
+                }))}
+              />
+            )}
+            {s.exercises.length > 0 && (
               <details className="relative z-2 text-meta">
-                <summary
-                  className="flex cursor-pointer list-none flex-wrap items-center gap-1.5"
-                  aria-label={s.exercises.map((e) => e.name).join(", ")}
-                >
-                  {s.exercises.map((e) => (
-                    <ExerciseIcon
-                      key={e.id}
-                      pattern={e.pattern}
-                      region={regionOf(e.muscleGroups)}
-                      size={22}
-                    />
-                  ))}
+                <summary className="cursor-pointer text-muted">
+                  {t.when.exercisesList}
                 </summary>
-                <ul className="mt-2 flex flex-col">
+                <ul className="mt-2 flex flex-col gap-1">
                   {s.exercises.map((e) => (
-                    <li key={e.id} className="flex justify-between gap-3">
-                      <span className="truncate">{e.name}</span>
+                    <li key={e.id} className="flex items-center justify-between gap-3">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <ExerciseIcon
+                          pattern={e.pattern}
+                          region={regionOf(e.muscleGroups)}
+                          size={18}
+                        />
+                        <span className="truncate">{e.name}</span>
+                      </span>
                       <span className="shrink-0 font-display text-muted tabular-nums">
                         {setsText(e.sets, locale)}
                       </span>

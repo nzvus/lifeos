@@ -311,6 +311,10 @@ export const barcodeEn = {
 
 export const trainingWhenEn = {
   startThis: "Start in gym mode",
+  pastDay: "A past day: nothing more is added.",
+  addAnyway: "I forgot something",
+  exercisesList: "Exercises",
+  exercisesN: "{n} exercises",
   label: "When",
   start: "Start now",
   plan: "Plan",
@@ -394,6 +398,8 @@ export const programsEn = {
   slotsHint: "One day per row, in order. It starts again after the last.",
   slot: "Routine",
   dayN: "D{n}",
+  routineOption: "Routine · {name}",
+  exerciseOption: "Exercise · {name}",
   rest: "Rest",
   addSlot: "Add a day",
   up: "Move up",

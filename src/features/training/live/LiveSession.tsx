@@ -401,7 +401,10 @@ export function LiveSession({
               <span
                 className={`font-display text-item tabular-nums ${done === e.sets.length && done > 0 ? "text-herb" : "text-muted"}`}
               >
-                {fill(t.progress, { done: String(done), all: String(e.sets.length) })}
+                {x?.kind === "cardio"
+                  ? // Cardio is time, not sets: its minutes so far.
+                    `${Math.round(e.sets.reduce((a, v) => a + (v.durationS ?? 0), 0) / 60)} ${t.min}`
+                  : fill(t.progress, { done: String(done), all: String(e.sets.length) })}
               </span>
               <ChevronDown
                 size={18}
@@ -430,9 +433,11 @@ export function LiveSession({
                         }`}
                       >
                         <Check size={24} aria-hidden="true" />
-                        <span className="font-display text-meta tabular-nums">
-                          {si + 1}
-                        </span>
+                        {x?.kind !== "cardio" && (
+                          <span className="font-display text-meta tabular-nums">
+                            {si + 1}
+                          </span>
+                        )}
                       </button>
                       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                         {x?.kind === "cardio" ? (
