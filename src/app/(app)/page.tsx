@@ -52,6 +52,7 @@ import { ActionButtonForm } from "@/ui/ActionButtonForm";
 import {
   copyPreviousDayAction,
   deleteLogEntryAction,
+  restoreLogEntryAction,
   logEstimateAction,
   logIngredientAction,
   logMealAction,
@@ -184,7 +185,8 @@ export default async function DayPage({ searchParams }: Props) {
         <EntryList
           day={view}
           locale={locale}
-          removeAction={(id) => deleteLogEntryAction.bind(null, id)}
+          trash={deleteLogEntryAction}
+          restore={restoreLogEntryAction}
           refreshAction={(id) => refreshLogEntryAction.bind(null, id)}
           statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
           timeAction={(id) => setEntryTimeAction.bind(null, id, day)}

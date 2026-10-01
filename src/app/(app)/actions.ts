@@ -22,6 +22,7 @@ import { getDb } from "@/app/_server/runtime";
 import {
   copyDay,
   deleteLogEntry,
+  restoreLogEntry,
   logIngredient,
   entryTiming,
   logEstimate,
@@ -76,21 +77,29 @@ export async function logIngredientAction(
 }
 
 /**
- * Bound per entry: the page passes `deleteLogEntryAction.bind(null, id)`.
- * The id comes from our own render, but a request can be forged, so it is
- * still only used through the owner-checked repository.
+ * Moves a log entry to the trash (ADR-0015). The id comes from our own
+ * render, but a request can be forged, so it is still only used through
+ * the owner-checked repository.
  */
 export async function deleteLogEntryAction(
   id: string,
-  _prev: ActionButtonState,
-  _formData: FormData,
-): Promise<ActionButtonState> {
+): Promise<{ ok: boolean; message?: string }> {
   const { owner, t } = await requireContext();
   const result = await deleteLogEntry(getDb(), owner, id);
-  if (!result.ok)
-    return { status: "error", message: t.errors[result.errors._form ?? "not_found"] };
+  if (!result.ok) return { ok: false, message: t.errors.not_found };
   revalidatePath("/");
-  return { status: "idle" };
+  return { ok: true };
+}
+
+/** Takes a log entry out of the trash (the toast's "Undo"). */
+export async function restoreLogEntryAction(
+  id: string,
+): Promise<{ ok: boolean; message?: string }> {
+  const { owner, t } = await requireContext();
+  const result = await restoreLogEntry(getDb(), owner, id);
+  if (!result.ok) return { ok: false, message: t.errors.not_found };
+  revalidatePath("/");
+  return { ok: true };
 }
 
 /** "Today is a gym day": copies that profile's targets onto the day (ADR-0008). */

@@ -5,13 +5,14 @@
  *
  * Each entry, in the shared row (ui/ListItem): its label (the name at
  * logging time — ADR-0007), servings if not 1, energy and macros as a colour
- * strip (ui/MacroStrip), a compact remove button, and a "Details" disclosure
+ * strip (ui/MacroStrip), a compact remove button (to the trash with Undo,
+ * ui/TrashButton), and a "Details" disclosure
  * (native <details>, no JavaScript) with what the entry contained and the
  * "update with current values" action —
  * the deliberate way to apply later corrections, e.g. a price added after
  * logging (core refreshLogEntry).
  */
-import { RefreshCw, Trash2 } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { detailLines, stripValues } from "@/core/nutrition/display";
 import { groupByMoment, type MomentBounds } from "@/core/nutrition/moments";
 import type { DayView } from "@/core/nutrition/repositories/log";
@@ -24,6 +25,7 @@ import { CARD } from "@/ui/Card";
 import { ListItem } from "@/ui/ListItem";
 import { MOMENT_TEXT, MomentIcon } from "@/ui/MomentIcon";
 import { MacroStrip } from "@/ui/MacroStrip";
+import { TrashButton } from "@/ui/TrashButton";
 import { timeIn } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
 import { StatusToggle } from "./StatusToggle";
@@ -39,7 +41,9 @@ type Props = {
   timeZone: string;
   /** Where the moments start (preferences). */
   bounds: MomentBounds;
-  removeAction: EntryAction;
+  /** To the trash and back (ADR-0015): server actions, passed as they are. */
+  trash: (id: string) => Promise<{ ok: boolean; message?: string }>;
+  restore: (id: string) => Promise<{ ok: boolean; message?: string }>;
   refreshAction: EntryAction;
   /** Tick / untick (ADR-0009), bound per entry and target status. */
   statusAction: (
@@ -48,14 +52,15 @@ type Props = {
   ) => (prev: ActionButtonState, formData: FormData) => Promise<ActionButtonState>;
   /** Edit the time, bound per entry. */
   timeAction: (id: string) => (prev: FormState, formData: FormData) => Promise<FormState>;
-  t: Pick<Messages, "day" | "nutrients" | "macro" | "errors" | "moments">;
+  t: Pick<Messages, "day" | "nutrients" | "macro" | "errors" | "moments" | "actions">;
 };
 export function EntryList({
   day,
   locale,
   timeZone,
   bounds,
-  removeAction,
+  trash,
+  restore,
   refreshAction,
   statusAction,
   timeAction,
@@ -124,12 +129,13 @@ export function EntryList({
                     </>
                   }
                   action={
-                    <ActionButtonForm
-                      action={removeAction(e.id)}
+                    <TrashButton
+                      id={e.id}
+                      name={e.label}
+                      trash={trash}
+                      restore={restore}
                       label={t.day.remove}
-                      icon={<Trash2 size={18} aria-hidden="true" />}
-                      variant="quiet"
-                      iconOnly
+                      labels={t.actions}
                     />
                   }
                 >

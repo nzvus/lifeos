@@ -8,6 +8,7 @@ import type { Owner } from "../../identity/owner";
 import { createTestDb, createTestUser, ingredientFixture } from "../../testing/test-db";
 import { createIngredient, deleteIngredient, updateIngredient } from "./ingredients";
 import { getHistory } from "./history";
+import { getUsage } from "./usage";
 import {
   copyDay,
   deleteLogEntry,
@@ -17,6 +18,7 @@ import {
   logIngredient,
   logMeal,
   refreshLogEntry,
+  restoreLogEntry,
   setEntryStatus,
   setEntryTime,
 } from "./log";
@@ -381,5 +383,36 @@ describe("meals in the trash (ADR-0015)", () => {
       ok: false,
       errors: { _form: "duplicate_name" },
     });
+  });
+});
+
+describe("log entries in the trash (ADR-0015)", () => {
+  it("leave the day, its totals, the history and the usage; Undo brings them back", async () => {
+    const day = "2026-09-29";
+    const r = await logIngredient(db, alice, {
+      day,
+      ingredientId: oatsId,
+      quantity: "100",
+    });
+    if (!r.ok) throw new Error("setup");
+    const id = r.value.id;
+    const before = await getDay(db, alice, day);
+
+    expect((await deleteLogEntry(db, alice, id)).ok).toBe(true);
+    const gone = await getDay(db, alice, day);
+    expect(gone.entries).toEqual([]);
+    expect(gone.totals.nutrients.kcal).toBe("0.0");
+    expect((await getHistory(db, alice, day, day))[0]?.logged).toBe(false);
+    expect((await getUsage(db, alice, "2026-01-01")).ingredients).toEqual({});
+    // In the trash: no tick, no time change, no second delete.
+    expect((await setEntryStatus(db, alice, id, "planned")).ok).toBe(false);
+    expect((await deleteLogEntry(db, alice, id)).ok).toBe(false);
+
+    // CROSS-USER: someone else can't restore it.
+    expect((await restoreLogEntry(db, bob, id)).ok).toBe(false);
+    expect((await restoreLogEntry(db, alice, id)).ok).toBe(true);
+    expect(await getDay(db, alice, day)).toEqual(before);
+    // Restoring twice: not found.
+    expect((await restoreLogEntry(db, alice, id)).ok).toBe(false);
   });
 });

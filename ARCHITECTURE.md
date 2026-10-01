@@ -125,7 +125,7 @@ cannot poll URLs itself, so app health has daily granularity.
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (↺ / Cancel / Save, pinned),
   a "⋯" ui/Menu (duplicate, delete), drafts in the browser (ui/useDraft), `?from=`
   for back/after-save (core/shared/navigation), toasts with Undo (ui/Toast). Delete
-  = trash (`deleted_at`, `live()` filter, core/shared/trash). Applied to every editor; measurements and lists next.
+  = trash (`deleted_at`, `live()` filter, core/shared/trash). Applied to every editor, log entries and measurements (rows: ui/TrashButton).
 - **Time:** days are `date` strings;"today" uses the user's time zone
   (`user_settings.timezone`), never the server's UTC clock.
 - **Search & ordering:** one function, `core/shared/search.ts` (case- and

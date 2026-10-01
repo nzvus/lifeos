@@ -10,10 +10,11 @@
  * Called by: src/app/(app)/page.tsx (the day view) and its actions.ts.
  * Tested in: log.test.ts (snapshot behaviour, totals, cross-user isolation).
  */
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { logEntries, logEntryItems } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { live } from "../../shared/trash";
 import { fail, ok, type Result } from "../../shared/result";
 import {
   addTotals,
@@ -76,7 +77,7 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
   const entries = await db
     .select()
     .from(logEntries)
-    .where(and(ownedBy(logEntries, owner), eq(logEntries.day, day)))
+    .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.day, day)))
     .orderBy(asc(logEntries.createdAt));
 
   const entryIds = entries.map((e) => e.id);
@@ -223,17 +224,38 @@ export async function logIngredient(
   return ok({ id });
 }
 
-/** Removes one of my log entries (its snapshot lines go with it: cascade). */
+/** Moves one of my log entries to the trash (ADR-0015): out of the day and its totals. */
 export async function deleteLogEntry(
   db: Db,
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
-  const deleted = await db
-    .delete(logEntries)
-    .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)))
+  const trashed = await db
+    .update(logEntries)
+    .set({ deletedAt: new Date() })
+    .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)))
     .returning({ id: logEntries.id });
-  return deleted.length ? ok(null) : fail({ _form: "not_found" });
+  return trashed.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/** Takes a log entry out of the trash (the toast's "Undo"). */
+export async function restoreLogEntry(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<Result<null>> {
+  const restored = await db
+    .update(logEntries)
+    .set({ deletedAt: null })
+    .where(
+      and(
+        ownedBy(logEntries, owner),
+        isNotNull(logEntries.deletedAt),
+        eq(logEntries.id, id),
+      ),
+    )
+    .returning({ id: logEntries.id });
+  return restored.length ? ok(null) : fail({ _form: "not_found" });
 }
 
 /**
@@ -309,7 +331,7 @@ export async function refreshLogEntry(
   const [entry] = await db
     .select()
     .from(logEntries)
-    .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)));
+    .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)));
   if (!entry) return fail({ _form: "not_found" });
   const oldItems = await db
     .select()
@@ -365,7 +387,7 @@ export async function refreshLogEntry(
     await tx
       .update(logEntries)
       .set({ label })
-      .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)));
+      .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)));
   });
   return ok(null);
 }
@@ -416,7 +438,7 @@ export async function setEntryStatus(
   const updated = await db
     .update(logEntries)
     .set(set)
-    .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)))
+    .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)))
     .returning({ id: logEntries.id });
   return updated.length ? ok(null) : fail({ _form: "not_found" });
 }
@@ -431,7 +453,7 @@ export async function setEntryTime(
   const updated = await db
     .update(logEntries)
     .set({ at })
-    .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)))
+    .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)))
     .returning({ id: logEntries.id });
   return updated.length ? ok(null) : fail({ _form: "not_found" });
 }

@@ -128,8 +128,9 @@
 - [x] Exercises and routines (ui/useEditableForm, TrashMenu for detail pages); an exercise with history still says "merge instead"
 - [x] Sessions (editor and estimates): ⋯ to the trash with Undo, pinned bar, drafts; from the day page everything returns to the day
 - [x] Day types: ⋯ make default / delete (the default is refused), pinned bar, drafts, Undo
-- [ ] Developer review on the phone, then: measurements
-- [ ] Lists and rows: tap opens, "⋯" for quick actions; log entries with Undo
+- [x] Log entries and measurements: the row's bin moves to the trash with Undo (ui/TrashButton); trashed entries leave totals, history, usage and burn weight
+- [ ] Developer review on the phone
+- [ ] Lists and rows: tap opens, "⋯" for quick actions
 - [ ] Trash page under Settings; purge after 30 days in the daily workflow
 
 ## Training logged like food (ADR-0016, 2026-10-01)

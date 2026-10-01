@@ -13,6 +13,7 @@ import { and, asc, gte, inArray, lte } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { dayPlans, logEntries, logEntryItems } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { live } from "../../shared/trash";
 import { addDays } from "../../shared/dates";
 import {
   addTotals,
@@ -52,6 +53,7 @@ export async function getHistory(
     .where(
       and(
         ownedBy(logEntries, owner),
+        live(logEntries),
         gte(logEntries.day, fromDay),
         lte(logEntries.day, toDay),
       ),

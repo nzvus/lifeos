@@ -15,6 +15,7 @@ import { and, count, eq, gte, isNotNull, max } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { logEntries, logEntryItems } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { live } from "../../shared/trash";
 
 export type Usage = { uses: number; lastUsed: string };
 export type UsageMap = Record<string, Usage>;
@@ -31,6 +32,7 @@ export async function getUsage(
     .where(
       and(
         ownedBy(logEntries, owner),
+        live(logEntries),
         isNotNull(logEntries.mealId),
         gte(logEntries.day, sinceDay),
       ),
@@ -48,6 +50,7 @@ export async function getUsage(
     .where(
       and(
         ownedBy(logEntryItems, owner),
+        live(logEntries),
         isNotNull(logEntryItems.ingredientId),
         gte(logEntries.day, sinceDay),
       ),

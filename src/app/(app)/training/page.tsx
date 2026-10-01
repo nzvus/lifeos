@@ -12,7 +12,6 @@ import {
   ListOrdered,
   Scale,
   TrendingUp,
-  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
@@ -29,9 +28,13 @@ import { listSessions } from "@/core/training/repositories/sessions";
 import { MeasurementForm } from "@/features/training/body/MeasurementForm";
 import { PresetPicker } from "@/features/training/sessions/PresetPicker";
 import { SessionList } from "@/features/training/sessions/SessionList";
-import { ActionButtonForm } from "@/ui/ActionButtonForm";
+import { TrashButton } from "@/ui/TrashButton";
 import { formatNumber } from "@/core/shared/format";
-import { addMeasurementAction, deleteMeasurementAction } from "./actions";
+import {
+  addMeasurementAction,
+  deleteMeasurementAction,
+  restoreMeasurementAction,
+} from "./actions";
 import { startLiveAction } from "./live-actions";
 import { presetTiles } from "./preset-tiles";
 import { PageHeader } from "@/ui/PageHeader";
@@ -187,12 +190,13 @@ export default async function TrainingPage({ searchParams }: Props) {
                       ` · ${formatNumber(m.bodyFatPct, settings.locale, 1)} %`}
                     {m.waistCm && ` · ${formatNumber(m.waistCm, settings.locale, 0)} cm`}
                   </span>
-                  <ActionButtonForm
-                    action={deleteMeasurementAction.bind(null, m.id)}
+                  <TrashButton
+                    id={m.id}
+                    name={`${m.day.slice(8, 10)}/${m.day.slice(5, 7)}/${m.day.slice(0, 4)}`}
+                    trash={deleteMeasurementAction}
+                    restore={restoreMeasurementAction}
                     label={t.body.delete}
-                    icon={<Trash2 size={14} aria-hidden="true" />}
-                    variant="quiet"
-                    iconOnly
+                    labels={t.actions}
                   />
                 </li>
               ))}
