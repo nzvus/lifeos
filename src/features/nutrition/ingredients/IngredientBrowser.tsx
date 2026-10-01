@@ -39,6 +39,7 @@ import { ListToolbar } from "@/ui/ListToolbar";
 import { SortNote } from "@/ui/SortNote";
 import { TrashMenu } from "@/ui/TrashMenu";
 import { useListControls } from "@/ui/useListControls";
+import { CARD } from "@/ui/Card";
 
 /** The fields this view needs (a subset of an ingredient row). */
 export type IngredientRow = {
@@ -145,7 +146,8 @@ export function IngredientBrowser({
 
   const labels = macroLabels(t);
   return (
-    <div className="flex flex-col gap-4">
+    // The search, the order and the list share one card (S20 audit: nothing floats).
+    <div className={CARD}>
       <ListToolbar
         {...list.toolbar}
         choices={sortChoices()}

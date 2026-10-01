@@ -15,11 +15,14 @@ export function PageHeader({
   back,
   action,
   menu,
+  subtitle,
 }: {
   title: string;
   back?: LinkSpec;
   action?: LinkSpec;
   menu?: ReactNode;
+  /** A line under the title saying what the page is for. */
+  subtitle?: string;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -37,6 +40,7 @@ export function PageHeader({
         )}
         {menu}
       </div>
+      {subtitle && <p className="text-muted">{subtitle}</p>}
     </div>
   );
 }

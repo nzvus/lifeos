@@ -82,8 +82,8 @@ export default async function PantryPage() {
       <PageHeader
         title={p.title}
         action={{ href: "/pantry/products/new?from=/pantry", label: p.newProduct }}
+        subtitle={p.hint}
       />
-      <p className="text-muted">{p.hint}</p>
       <div className="grid items-start gap-4 lg:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-4">
           <Section title={p.reminders} icon={<Bell size={20} aria-hidden="true" />}>

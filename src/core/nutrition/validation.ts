@@ -309,6 +309,36 @@ export const factorInput = z.object({
 export const profileInput = z.object({
   name: z.string().trim().min(1, "required").max(60, "too_long"),
   ...perNutrient(() => optionalDecimalString(NUTRIENT)),
+  // ADR-0014: "dynamic" derives the targets from the day's energy; the
+  // fixed targets above are then ignored. Absent = fixed (older forms).
+  mode: z.enum(["fixed", "dynamic"], "invalid_choice").default("fixed"),
+  // kcal/day below expenditure; negative = surplus (muscle gain).
+  deficitKcal: z
+    .string()
+    .optional()
+    .transform((v, ctx) => {
+      const raw = (v ?? "").trim() || "0";
+      const n = Number(raw);
+      if (!Number.isInteger(n)) {
+        ctx.addIssue({ code: "custom", message: "invalid_number" });
+        return z.NEVER;
+      }
+      if (Math.abs(n) > 1500) {
+        ctx.addIssue({ code: "custom", message: "too_large" });
+        return z.NEVER;
+      }
+      return n;
+    }),
+  proteinGPerKg: z
+    .string()
+    .optional()
+    .transform((v) => (v ?? "").trim() || "1.8")
+    .pipe(decimalString({ scale: 1, max: "4" })),
+  fatGPerKg: z
+    .string()
+    .optional()
+    .transform((v) => (v ?? "").trim() || "0.8")
+    .pipe(decimalString({ scale: 1, max: "3" })),
 });
 export type ProfileInput = z.output<typeof profileInput>;
 
@@ -369,9 +399,20 @@ export function settingsFormValues(s: {
 export function profileFormValues(
   p: {
     name: string;
+    mode?: string;
+    deficitKcal?: number;
+    proteinGPerKg?: string;
+    fatGPerKg?: string;
   } & Record<NutrientKey, string | null>,
 ): Record<string, string> {
-  const values: Record<string, string> = { name: p.name };
+  const values: Record<string, string> = {
+    name: p.name,
+    // ADR-0014: the dynamic parameters, as typed (decimals without trailing zeros).
+    mode: p.mode ?? "fixed",
+    deficitKcal: String(p.deficitKcal ?? 0),
+    proteinGPerKg: new Big(p.proteinGPerKg ?? "1.8").toString(),
+    fatGPerKg: new Big(p.fatGPerKg ?? "0.8").toString(),
+  };
   for (const k of NUTRIENT_KEYS) {
     const v = p[k];
     values[k] = v === null ? "" : new Big(v).toString();

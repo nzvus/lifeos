@@ -117,6 +117,7 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   `ALLOW_SIGNUP=true`. Authorization in every page/action (`requireContext`)
   and again at the data boundary (`Owner`).
 - **Targets:** per day (ADR-0008): fixed copy, else default profile, else none; auto maxima.
+  A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done + planned).
 - **Log entries** (ADR-0009/0011): planned or eaten, optional time, a moment
   (else derived from the time), optionally an estimate; totals = eaten, and
   every panel also says where the day ends with the plan.
@@ -146,5 +147,4 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   `panel`/`tile`/`item`, headings, icon chips) in `design/`; themes `label`
   (default) / `quaderno` / `sport` / `minimal` / `notte` override them
   (`data-theme`, per user) and share the same components.
-- **Performance:** `fra1` next to Neon; cookie cache; `loading.tsx`; slim dictionaries.
-- **Testing:** Vitest; DB tests on PGlite with real migrations; theme contrast tests.
+- **Performance / testing:** `fra1`, cookie cache, `loading.tsx`; Vitest + PGlite, contrast tests.

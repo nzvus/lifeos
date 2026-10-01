@@ -24,6 +24,8 @@ type Macros = {
   /** "Of which": passed on (and into the split) when the source has them. */
   sugars?: string;
   saturatedFat?: string;
+  /** Shown as a number (never a bar) when the source has it. */
+  salt?: string;
 };
 
 /** Formatted values for ui/MacroStrip: kcal with its unit, grams without. */
@@ -35,6 +37,7 @@ export type StripValues = {
   fiber: string;
   sugars?: string;
   saturatedFat?: string;
+  salt?: string;
   split: MacroSplit | null;
 };
 
@@ -48,6 +51,8 @@ export function stripValues(n: Macros, locale: Locale, decimals = 0): StripValue
     fiber: f(n.fiber),
     ...(n.sugars !== undefined && { sugars: f(n.sugars) }),
     ...(n.saturatedFat !== undefined && { saturatedFat: f(n.saturatedFat) }),
+    // Salt is grams with decimals that matter (0.3 g vs 1.2 g): always one.
+    ...(n.salt !== undefined && { salt: formatNumber(n.salt, locale, 1) }),
     split: macroSplit(n),
   };
 }

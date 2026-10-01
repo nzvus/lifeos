@@ -39,6 +39,7 @@ import { ListToolbar } from "@/ui/ListToolbar";
 import { SortNote } from "@/ui/SortNote";
 import { TrashMenu } from "@/ui/TrashMenu";
 import { useListControls } from "@/ui/useListControls";
+import { CARD } from "@/ui/Card";
 
 type Props = {
   meals: MealWithLines[];
@@ -129,7 +130,8 @@ export function MealBrowser({
 
   if (meals.length === 0) return <p className="text-muted">{t.meals.empty}</p>;
   return (
-    <div className="flex flex-col gap-4">
+    // The search, the order and the list share one card (S20 audit: nothing floats).
+    <div className={CARD}>
       <ListToolbar
         {...list.toolbar}
         choices={sortChoices()}

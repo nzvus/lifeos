@@ -162,6 +162,19 @@
 - [x] Developer's verdict: Label stays, with rounded corners and rings + bars; Orto and Cruscotto replaced by four themes built on Label: Quaderno (ivory, blue ink, serif headings), Sport (black/white, lime), Minimal (no frames, shadows), Notte (night blue, amber headings); per-theme components (THEME_SLOTS) removed until a theme needs one
 - [ ] Developer review of the four new themes on the phone
 
+## Next sprint: S09 — Energy needs and the dynamic day (ADR-0014, requested again 2026-10-01)
+- **Goal:** know my energy need at every level (BMR, everyday activity, walking, training, digestion), what comes in and goes out, done and planned; a dynamic day type whose macros follow the plan and the goal (muscle gain, fat loss, or both).
+- [x] Body data in Settings (sex, birth year, height; weight from measurements)
+- [x] core/energy (ADR-0014 model B, ranges; training done and planned) + the day's movement on the day page
+- [x] Dynamic day types with goal presets (gain / recomposition / cut): deficit or surplus, protein and fat per kg; targets from the energy with the plan
+- [x] Energy section: every part, spent so far and with the plan, intake and balance (both)
+- [ ] Developer review on the phone; calibration from the weight trend later (ADR-0014 option C)
+
+## Next sprint: S10 — The assistant (ADR-0018, requested 2026-10-01)
+- **Goal:** an assistant that does what the app can do when asked (ingredients from labels, meals, imports, planned days, sessions from notes, tags, ratings) and gives advice; photos/JSON/TXT attachments, text extracted on the phone by default.
+- [x] ADR-0018 accepted (A, A, A, A): key on the server, encrypted; mixed autonomy with Undo; text from photos by default; history in the database
+- [ ] Migration PR (settings key + model, conversations, messages), then key setup in Settings, chat page, tools (one per user action), attachments + on-phone OCR
+
 ## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)
 - **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.
 - [x] ADR-0017 accepted (A, A, A): products of any kind (unit g/ml/pieces, ingredient optional); batches make portions, a log entry from a batch takes a portion; reminders derived + by hand

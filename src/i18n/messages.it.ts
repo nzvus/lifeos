@@ -3,7 +3,7 @@
  * Typed as `Messages` (the shape of messages.en.ts): a missing or extra key
  * is a compile error, so the two languages can never drift apart silently.
  */
-import { pantryIt, trashIt } from "./messages.home.it";
+import { pantryIt, trashIt, energyIt } from "./messages.home.it";
 import type { Messages } from "./index";
 
 export const it: Messages = {
@@ -211,6 +211,7 @@ export const it: Messages = {
   },
   pantry: pantryIt,
   trash: trashIt,
+  energy: energyIt,
   settings: {
     title: "Impostazioni",
     timezone: "Fuso orario",

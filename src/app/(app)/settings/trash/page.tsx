@@ -11,6 +11,7 @@ import { listTrash } from "@/core/trash/trash";
 import { TrashList } from "@/features/account/trash/TrashList";
 import { PageHeader } from "@/ui/PageHeader";
 import { purgeFromTrashAction, restoreFromTrashAction } from "./actions";
+import { CARD } from "@/ui/Card";
 
 const INTL = { it: "it-IT", en: "en-GB" } as const;
 
@@ -30,24 +31,26 @@ export default async function TrashPage() {
       <PageHeader
         title={t.trash.title}
         back={{ href: "/settings", label: t.settings.title }}
+        subtitle={t.trash.hint}
       />
-      <p className="text-muted">{t.trash.hint}</p>
-      <TrashList
-        rows={items.map((x) => ({
-          kind: x.kind,
-          id: x.id,
-          name:
-            x.kind === "measurement"
-              ? `${formatNumber(x.name, settings.locale, 1)} kg`
-              : x.name,
-          day: x.day ? day(x.day) : "",
-          // The purge runs once a day: the day it becomes due, in my zone.
-          purgeOn: day(todayIn(settings.timezone, new Date(x.purgeAt))),
-        }))}
-        restore={restoreFromTrashAction}
-        purge={purgeFromTrashAction}
-        t={{ trash: t.trash, actions: t.actions }}
-      />
+      <div className={CARD}>
+        <TrashList
+          rows={items.map((x) => ({
+            kind: x.kind,
+            id: x.id,
+            name:
+              x.kind === "measurement"
+                ? `${formatNumber(x.name, settings.locale, 1)} kg`
+                : x.name,
+            day: x.day ? day(x.day) : "",
+            // The purge runs once a day: the day it becomes due, in my zone.
+            purgeOn: day(todayIn(settings.timezone, new Date(x.purgeAt))),
+          }))}
+          restore={restoreFromTrashAction}
+          purge={purgeFromTrashAction}
+          t={{ trash: t.trash, actions: t.actions }}
+        />
+      </div>
     </div>
   );
 }
