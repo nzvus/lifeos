@@ -15,7 +15,10 @@
  */
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { listIngredients } from "@/core/nutrition/repositories/ingredients";
+import {
+  listIngredients,
+  tagsByIngredient,
+} from "@/core/nutrition/repositories/ingredients";
 import { getDay } from "@/core/nutrition/repositories/log";
 import { listMeals } from "@/core/nutrition/repositories/meals";
 import type { MacroValues } from "@/core/nutrition/preview";
@@ -31,6 +34,9 @@ import { addDays, isValidDay, startOfWeek, todayIn } from "@/core/shared/dates";
 import { Copy, Dumbbell } from "lucide-react";
 import { DayNav } from "@/features/nutrition/log/DayNav";
 import { DayProfilePicker } from "@/features/nutrition/log/DayProfilePicker";
+import { averageScores, ratingsByMeal } from "@/core/nutrition/repositories/ratings";
+import { mealTags, qualitySummary } from "@/core/nutrition/quality-summary";
+import { MealQuality } from "@/features/nutrition/meals/MealQuality";
 import { EntryList } from "@/features/nutrition/log/EntryList";
 import { THEME_SLOTS } from "@/core/shared/themes";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
@@ -90,6 +96,8 @@ export default async function DayPage({ searchParams }: Props) {
     measurements,
     presets,
     exercises,
+    ratings,
+    tagMap,
   ] = await Promise.all([
     getDay(db, owner, day),
     listMeals(db, owner),
@@ -102,7 +110,10 @@ export default async function DayPage({ searchParams }: Props) {
     listMeasurements(db, owner), // body weight, for the burn estimate
     presetTiles(owner, day), // start a session from a routine, at its latest version
     listExercises(db, owner), // "Add training · Exercise" (ADR-0016)
+    ratingsByMeal(db, owner), // entries show what their meal shows (ADR-0012)
+    tagsByIngredient(db, owner),
   ]);
+  const mealRatings = averageScores(ratings);
   // The day's own targets, plus recommended maxima where none is set
   // (sugars, saturated fat, salt — core/nutrition/targets.ts), unless the
   // user turned them off (preferences).
@@ -199,6 +210,20 @@ export default async function DayPage({ searchParams }: Props) {
           timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
           timeZone={settings.timezone}
           bounds={settings.preferences.bounds}
+          // The same quality block as the meal cards, from the entry's
+          // snapshot lines (ADR-0007) and the current tags and ratings.
+          quality={(e) => (
+            <MealQuality
+              summary={qualitySummary(e.lines, e.servings)}
+              rating={e.mealId ? (mealRatings[e.mealId] ?? null) : null}
+              tags={mealTags(
+                e.lines.flatMap((l) => (l.ingredientId ? [l.ingredientId] : [])),
+                tagMap,
+              ).map(({ name, icon }) => ({ name, icon }))}
+              locale={locale}
+              t={t}
+            />
+          )}
           t={t}
         />
         {view.entries.length === 0 && (
