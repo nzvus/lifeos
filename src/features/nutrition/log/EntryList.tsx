@@ -6,15 +6,13 @@
  * Each entry, in the shared row (ui/ListItem): its label (the name at
  * logging time — ADR-0007), servings if not 1, energy and macros as a colour
  * strip (ui/MacroStrip), its cost, what it is made of (NOVA, origin, fibre,
- * tags, rating — the meal cards' block, passed in by the page), a compact
- * remove button (to the trash with Undo,
- * ui/TrashButton), and a "Details" disclosure
- * (native <details>, no JavaScript) with what the entry contained and the
- * "update with current values" action —
- * the deliberate way to apply later corrections, e.g. a price added after
- * logging (core refreshLogEntry).
+ * tags, rating — the meal cards' block, passed in by the page), the "⋯" of
+ * every row (ui/TrashMenu): "update with current values" — the deliberate
+ * way to apply later corrections, e.g. a price added after logging (core
+ * refreshLogEntry) — and delete with Undo; then a "Details" disclosure
+ * (native <details>) with what the entry contained and its time.
  */
-import { RefreshCw, Tag } from "lucide-react";
+import { Tag } from "lucide-react";
 import { detailLines, stripValues } from "@/core/nutrition/display";
 import { groupByMoment, type MomentBounds } from "@/core/nutrition/moments";
 import { entriesTotals } from "@/core/nutrition/totals";
@@ -23,22 +21,18 @@ import type { ReactNode } from "react";
 import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, macroLabels, type Messages } from "@/i18n";
-import { ActionButtonForm, type ActionButtonState } from "@/ui/ActionButtonForm";
+import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { FoodDetails } from "@/ui/FoodDetails";
 import { Collapsible } from "@/ui/Collapsible";
 import { ListItem } from "@/ui/ListItem";
 import { MOMENT_TEXT, MomentIcon } from "@/ui/MomentIcon";
 import { MacroStrip } from "@/ui/MacroStrip";
-import { TrashButton } from "@/ui/TrashButton";
+import { TrashMenu } from "@/ui/TrashMenu";
 import { timeIn } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
 import { StatusToggle } from "./StatusToggle";
 import { TimeEditor } from "./TimeEditor";
 import { Badge } from "@/ui/Badge";
-type EntryAction = (
-  id: string,
-) => (prev: ActionButtonState, formData: FormData) => Promise<ActionButtonState>;
-
 type Props = {
   day: DayView;
   locale: Locale;
@@ -49,7 +43,8 @@ type Props = {
   /** To the trash and back (ADR-0015): server actions, passed as they are. */
   trash: (id: string) => Promise<{ ok: boolean; message?: string }>;
   restore: (id: string) => Promise<{ ok: boolean; message?: string }>;
-  refreshAction: EntryAction;
+  /** "Update with current values" (core refreshLogEntry): a server action. */
+  refresh: (id: string) => Promise<{ ok: boolean; message?: string }>;
   /** Tick / untick (ADR-0009), bound per entry and target status. */
   statusAction: (
     id: string,
@@ -74,7 +69,7 @@ export function EntryList({
   bounds,
   trash,
   restore,
-  refreshAction,
+  refresh,
   statusAction,
   timeAction,
   quality,
@@ -165,12 +160,14 @@ export function EntryList({
                     )
                   }
                   action={
-                    <TrashButton
+                    <TrashMenu
                       id={e.id}
                       name={e.label}
                       trash={trash}
                       restore={restore}
-                      label={t.day.remove}
+                      actions={[
+                        { label: t.day.refresh, run: refresh, done: t.day.refreshed },
+                      ]}
                       labels={t.actions}
                     />
                   }
@@ -189,21 +186,11 @@ export function EntryList({
                     lines={detailLines(e.lines, e.servings, locale)}
                     labels={labels}
                   >
-                    <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
-                      <TimeEditor
-                        action={timeAction(e.id)}
-                        initial={e.at ? timeIn(new Date(e.at), timeZone) : ""}
-                        t={t}
-                      />
-                      <ActionButtonForm
-                        action={refreshAction(e.id)}
-                        label={t.day.refresh}
-                        icon={<RefreshCw size={14} aria-hidden="true" />}
-                        variant="subtle"
-                        size="sm"
-                      />
-                    </div>
-                    <p className="text-meta text-muted">{t.day.refreshHint}</p>
+                    <TimeEditor
+                      action={timeAction(e.id)}
+                      initial={e.at ? timeIn(new Date(e.at), timeZone) : ""}
+                      t={t}
+                    />
                   </FoodDetails>
                 </ListItem>
               );

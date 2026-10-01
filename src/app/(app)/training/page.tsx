@@ -29,7 +29,7 @@ import { listSessions } from "@/core/training/repositories/sessions";
 import { MeasurementForm } from "@/features/training/body/MeasurementForm";
 import { PresetPicker } from "@/features/training/sessions/PresetPicker";
 import { SessionList } from "@/features/training/sessions/SessionList";
-import { TrashButton } from "@/ui/TrashButton";
+import { TrashMenu } from "@/ui/TrashMenu";
 import { formatNumber } from "@/core/shared/format";
 import {
   addMeasurementAction,
@@ -197,12 +197,11 @@ export default async function TrainingPage({ searchParams }: Props) {
                       ` · ${formatNumber(m.bodyFatPct, settings.locale, 1)} %`}
                     {m.waistCm && ` · ${formatNumber(m.waistCm, settings.locale, 0)} cm`}
                   </span>
-                  <TrashButton
+                  <TrashMenu
                     id={m.id}
                     name={`${m.day.slice(8, 10)}/${m.day.slice(5, 7)}/${m.day.slice(0, 4)}`}
                     trash={deleteMeasurementAction}
                     restore={restoreMeasurementAction}
-                    label={t.body.delete}
                     labels={t.actions}
                   />
                 </li>

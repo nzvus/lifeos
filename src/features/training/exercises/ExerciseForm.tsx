@@ -17,7 +17,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles } from "lucide-react";
+import { FileText, Sparkles } from "lucide-react";
 import {
   groupsByRegion,
   MOVEMENT_PATTERNS,
@@ -36,6 +36,7 @@ import { MuscleGroupPicker } from "@/ui/MuscleGroupPicker";
 import { SelectField } from "@/ui/SelectField";
 import { toFormData, useEditableForm } from "@/ui/useEditableForm";
 import { useEditFlow } from "@/ui/useEditFlow";
+import { Section } from "@/ui/Section";
 
 type T = Pick<Messages, "exercises" | "training" | "errors" | "actions">;
 
@@ -75,7 +76,13 @@ export function ExerciseForm({ id, from, action, initial, t }: Props) {
           labels={a}
         />
       )}
-      <ExerciseFields key={version} state={state} initial={base} isNew={!id} t={t} />
+      <Section
+        as="fieldset"
+        title={a.general}
+        icon={<FileText size={20} aria-hidden="true" />}
+      >
+        <ExerciseFields key={version} state={state} initial={base} isNew={!id} t={t} />
+      </Section>
       <ActionBar
         dirty={dirty}
         isNew={!id}

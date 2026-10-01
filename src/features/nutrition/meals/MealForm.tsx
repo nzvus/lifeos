@@ -24,7 +24,7 @@
  */
 "use client";
 
-import { Carrot, Copy, Star, Trash2, X } from "lucide-react";
+import { Carrot, Copy, FileText, Star, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import { MOMENTS } from "@/core/nutrition/moments";
@@ -277,34 +277,40 @@ export function MealForm({
         </FormAlert>
       )}
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
-      <Field
-        label={t.meals.name}
-        name="name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        error={err("name")}
-        required
-      />
-      <Field
-        label={t.meals.notes}
-        name="notes"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        error={err("notes")}
-      />
-      <SelectField
-        label={t.moments.categoryLabel}
-        icon={<MomentIcon moment={category || null} />}
-        name="category"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        options={[
-          { value: "", label: t.moments.categoryNone },
-          ...MOMENTS.map((m) => ({ value: m, label: t.moments.names[m] })),
-        ]}
-        error={err("category")}
-      />
-      <p className="-mt-4 text-meta text-muted">{t.moments.categoryHint}</p>
+      <Section
+        as="fieldset"
+        title={a.general}
+        icon={<FileText size={20} aria-hidden="true" />}
+      >
+        <Field
+          label={t.meals.name}
+          name="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          error={err("name")}
+          required
+        />
+        <Field
+          label={t.meals.notes}
+          name="notes"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          error={err("notes")}
+        />
+        <SelectField
+          label={t.moments.categoryLabel}
+          icon={<MomentIcon moment={category || null} />}
+          name="category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          options={[
+            { value: "", label: t.moments.categoryNone },
+            ...MOMENTS.map((m) => ({ value: m, label: t.moments.names[m] })),
+          ]}
+          error={err("category")}
+        />
+        <p className="-mt-2 text-meta text-muted">{t.moments.categoryHint}</p>
+      </Section>
 
       <Section
         as="fieldset"

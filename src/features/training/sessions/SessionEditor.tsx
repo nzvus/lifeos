@@ -20,7 +20,7 @@
  */
 "use client";
 
-import { Dumbbell, Plus, Trash2, X } from "lucide-react";
+import { Dumbbell, FileText, Plus, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { SESSION_STATUSES, type ExerciseKind } from "@/core/training/kinds";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
@@ -273,55 +273,61 @@ function SessionFields({
   return (
     <>
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          label={tr.label}
-          name="label"
-          defaultValue={valueOf(state, "label", initial.label)}
-          error={err("label")}
-          required
-        />
-        <Field
-          label={tr.day}
-          name="day"
-          type="date"
-          defaultValue={valueOf(state, "day", initial.day)}
-          error={err("day")}
-          required
-        />
-        <SelectField
-          label={tr.status}
-          name="status"
-          defaultValue={valueOf(state, "status", initial.status)}
-          options={SESSION_STATUSES.map((s) => ({ value: s, label: tr.statuses[s] }))}
-          error={err("status")}
-        />
-        <div className="grid grid-cols-2 gap-3">
+      <Section
+        as="fieldset"
+        title={t.actions.general}
+        icon={<FileText size={20} aria-hidden="true" />}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label={tr.time}
-            name="time"
-            type="time"
-            defaultValue={valueOf(state, "time", initial.time)}
-            error={err("time")}
+            label={tr.label}
+            name="label"
+            defaultValue={valueOf(state, "label", initial.label)}
+            error={err("label")}
+            required
           />
           <Field
-            label={tr.duration}
-            name="durationMin"
-            inputMode="numeric"
-            defaultValue={valueOf(state, "durationMin", initial.durationMin)}
-            error={err("durationMin")}
+            label={tr.day}
+            name="day"
+            type="date"
+            defaultValue={valueOf(state, "day", initial.day)}
+            error={err("day")}
+            required
           />
+          <SelectField
+            label={tr.status}
+            name="status"
+            defaultValue={valueOf(state, "status", initial.status)}
+            options={SESSION_STATUSES.map((s) => ({ value: s, label: tr.statuses[s] }))}
+            error={err("status")}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <Field
+              label={tr.time}
+              name="time"
+              type="time"
+              defaultValue={valueOf(state, "time", initial.time)}
+              error={err("time")}
+            />
+            <Field
+              label={tr.duration}
+              name="durationMin"
+              inputMode="numeric"
+              defaultValue={valueOf(state, "durationMin", initial.durationMin)}
+              error={err("durationMin")}
+            />
+          </div>
         </div>
-      </div>
-      <label className="flex flex-col gap-1 text-meta">
-        <span className="font-semibold">{tr.notes}</span>
-        <textarea
-          name="notes"
-          rows={2}
-          defaultValue={valueOf(state, "notes", initial.notes)}
-          className="rounded-control rule-b-medium border-ink bg-sheet px-2 py-1.5 text-body"
-        />
-      </label>
+        <label className="flex flex-col gap-1 text-meta">
+          <span className="font-semibold">{tr.notes}</span>
+          <textarea
+            name="notes"
+            rows={2}
+            defaultValue={valueOf(state, "notes", initial.notes)}
+            className="rounded-control rule-b-medium border-ink bg-sheet px-2 py-1.5 text-body"
+          />
+        </label>
+      </Section>
       <input type="hidden" name="routineId" value={initial.routineId} />
 
       {list.map((e, i) => {

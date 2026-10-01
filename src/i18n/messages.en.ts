@@ -19,6 +19,7 @@ export const en = {
   },
   actions: {
     back: "← Back",
+    general: "General",
     save: "Save",
     saving: "Saving…",
     cancel: "Cancel",
@@ -134,6 +135,7 @@ export const en = {
     refresh: "Update with current values",
     refreshHint:
       "Takes the meal/ingredient as it is now (names, values, prices). Quantities eaten stay.",
+    refreshed: "Updated with current values",
     refreshGone: "The meal or ingredient this came from no longer exists.",
     nothingYesterday: "Nothing was logged the day before.",
     profileLabel: "Day type",
