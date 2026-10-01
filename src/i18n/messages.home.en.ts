@@ -311,6 +311,10 @@ export const barcodeEn = {
 
 export const trainingWhenEn = {
   startThis: "Start in gym mode",
+  pastDay: "A past day: nothing more is added.",
+  addAnyway: "I forgot something",
+  exercisesList: "Exercises",
+  exercisesN: "{n} exercises",
   label: "When",
   start: "Start now",
   plan: "Plan",

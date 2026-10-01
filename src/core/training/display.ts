@@ -55,3 +55,54 @@ export function setsText(sets: readonly SetText[], locale: Locale): string {
     )
     .join(" · ");
 }
+
+/**
+ * A session in one line's worth of numbers, by what it is: cardio by time,
+ * distance and pace; strength by exercises, working sets and tonnage; an
+ * estimate (no exercises) by its minutes. Mixed sessions have both parts.
+ */
+export function sessionSummary(session: {
+  durationMin: number | null;
+  exercises: readonly {
+    kind: string;
+    sets: readonly (SetText & { warmup: boolean })[];
+  }[];
+}): {
+  cardio: { minutes: number; km: number | null; kmh: number | null } | null;
+  strength: { exercises: number; sets: number; tonnage: number } | null;
+  minutes: number | null;
+} {
+  const cardioSets = session.exercises
+    .filter((e) => e.kind === "cardio")
+    .flatMap((e) => e.sets.filter((s) => !s.warmup && s.durationS));
+  const strengthEx = session.exercises.filter((e) => e.kind !== "cardio");
+  const seconds = cardioSets.reduce((a, s) => a + (s.durationS ?? 0), 0);
+  const meters = cardioSets.reduce((a, s) => a + (s.distanceM ?? 0), 0);
+  // Pace: from distance and time when known, else the speeds typed, weighted by time.
+  const typed = cardioSets.filter((s) => s.speedKmh);
+  const typedS = typed.reduce((a, s) => a + (s.durationS ?? 0), 0);
+  const kmh =
+    meters > 0 && seconds > 0
+      ? meters / 1000 / (seconds / 3600)
+      : typedS > 0
+        ? typed.reduce((a, s) => a + Number(s.speedKmh) * (s.durationS ?? 0), 0) / typedS
+        : null;
+  const working = strengthEx.flatMap((e) => e.sets.filter((s) => !s.warmup));
+  const tonnage = working.reduce(
+    (a, s) => a + (s.reps && s.loadKg && !s.loadApprox ? s.reps * Number(s.loadKg) : 0),
+    0,
+  );
+  return {
+    cardio: cardioSets.length
+      ? {
+          minutes: Math.round(seconds / 60),
+          km: meters > 0 ? meters / 1000 : kmh !== null ? (kmh * seconds) / 3600 : null,
+          kmh,
+        }
+      : null,
+    strength: strengthEx.length
+      ? { exercises: strengthEx.length, sets: working.length, tonnage }
+      : null,
+    minutes: session.durationMin,
+  };
+}

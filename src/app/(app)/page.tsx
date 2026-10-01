@@ -91,14 +91,17 @@ import { dynamicTargets, goalOf } from "@/core/energy/energy";
 import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 
-type Props = { searchParams: Promise<{ day?: string }> };
+type Props = { searchParams: Promise<{ day?: string; late?: string }> };
 
 export default async function DayPage({ searchParams }: Props) {
   const { owner, settings, t } = await requireContext();
   const locale = settings.locale;
   const today = todayIn(settings.timezone);
-  const requested = (await searchParams).day;
+  const query = await searchParams;
+  const requested = query.day;
   const day = requested && isValidDay(requested) ? requested : today;
+  // A past day is history: adding is hidden, one link away for what was forgotten.
+  const canAdd = day >= today || query.late === "1";
 
   const db = getDb();
   // ADR-0024: what the active program puts on this day (from today on).
@@ -417,65 +420,76 @@ export default async function DayPage({ searchParams }: Props) {
             )}
             t={t}
           />
-          {view.entries.length === 0 && (
-            <ActionButtonForm
-              action={copyPreviousDayAction.bind(null, day)}
-              label={t.day.copyYesterday}
-              icon={<Copy size={18} aria-hidden="true" />}
-              variant="secondary"
-            />
+          {canAdd ? (
+            <>
+              {view.entries.length === 0 && (
+                <ActionButtonForm
+                  action={copyPreviousDayAction.bind(null, day)}
+                  label={t.day.copyYesterday}
+                  icon={<Copy size={18} aria-hidden="true" />}
+                  variant="secondary"
+                />
+              )}
+              <AddToDay
+                day={day}
+                locale={locale}
+                bounds={settings.preferences.bounds}
+                meals={meals.map((m) => ({
+                  id: m.id,
+                  name: m.name,
+                  notes: m.notes,
+                  category: m.category, // suggests the moment (ADR-0011)
+                  values: pick(m.totals.nutrients), // per serving
+                  uses: usage.meals[m.id]?.uses ?? 0,
+                  lastUsed: usage.meals[m.id]?.lastUsed ?? null,
+                }))}
+                ingredients={ingredients.map((i) => ({
+                  id: i.id,
+                  name: i.name,
+                  notes: i.description,
+                  unit: i.unit,
+                  values: pick(i), // per 100 g/ml
+                  uses: usage.ingredients[i.id]?.uses ?? 0,
+                  lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
+                }))}
+                logMealAction={logMealAction}
+                logIngredientAction={logIngredientAction}
+                logEstimateAction={logEstimateAction}
+                portions={batchList
+                  .filter((b) => Number(b.portionsLeft) > 0)
+                  .map((b) => ({
+                    id: b.id,
+                    name: b.label,
+                    notes: fill(p.portionsLeft, {
+                      n: formatNumber(b.portionsLeft, locale, 0),
+                    }),
+                    values: pick(b.perPortion.nutrients), // per portion
+                    uses: 0,
+                    lastUsed: null,
+                  }))}
+                logPortionAction={logPortionAction}
+                // Only the dictionary parts the client component uses travel to
+                // the browser (smaller page, faster load).
+                t={{
+                  day: t.day,
+                  errors: t.errors,
+                  meals: t.meals,
+                  search: t.search,
+                  macro: t.macro,
+                  ingredients: t.ingredients,
+                  nutrients: t.nutrients,
+                  moments: t.moments,
+                }}
+              />
+            </>
+          ) : (
+            <p className="text-meta text-muted">
+              {t.training.when.pastDay}{" "}
+              <Link href={`/?day=${day}&late=1`} className={TEXT_LINK}>
+                {t.training.when.addAnyway}
+              </Link>
+            </p>
           )}
-          <AddToDay
-            day={day}
-            locale={locale}
-            bounds={settings.preferences.bounds}
-            meals={meals.map((m) => ({
-              id: m.id,
-              name: m.name,
-              notes: m.notes,
-              category: m.category, // suggests the moment (ADR-0011)
-              values: pick(m.totals.nutrients), // per serving
-              uses: usage.meals[m.id]?.uses ?? 0,
-              lastUsed: usage.meals[m.id]?.lastUsed ?? null,
-            }))}
-            ingredients={ingredients.map((i) => ({
-              id: i.id,
-              name: i.name,
-              notes: i.description,
-              unit: i.unit,
-              values: pick(i), // per 100 g/ml
-              uses: usage.ingredients[i.id]?.uses ?? 0,
-              lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
-            }))}
-            logMealAction={logMealAction}
-            logIngredientAction={logIngredientAction}
-            logEstimateAction={logEstimateAction}
-            portions={batchList
-              .filter((b) => Number(b.portionsLeft) > 0)
-              .map((b) => ({
-                id: b.id,
-                name: b.label,
-                notes: fill(p.portionsLeft, {
-                  n: formatNumber(b.portionsLeft, locale, 0),
-                }),
-                values: pick(b.perPortion.nutrients), // per portion
-                uses: 0,
-                lastUsed: null,
-              }))}
-            logPortionAction={logPortionAction}
-            // Only the dictionary parts the client component uses travel to
-            // the browser (smaller page, faster load).
-            t={{
-              day: t.day,
-              errors: t.errors,
-              meals: t.meals,
-              search: t.search,
-              macro: t.macro,
-              ingredients: t.ingredients,
-              nutrients: t.nutrients,
-              moments: t.moments,
-            }}
-          />
         </div>
         {programSlot &&
           !sessions.some((x) =>
@@ -526,24 +540,27 @@ export default async function DayPage({ searchParams }: Props) {
               restore={restoreSessionAction}
               labels={t.actions}
               startable={day === today}
+              timeZone={settings.timezone}
             />
           </Collapsible>
         )}
-        <AddTraining
-          day={day}
-          today={today}
-          startOrPlan={startOrPlanAction}
-          presets={presets}
-          exercises={exercises.map(({ id, name, kind }) => ({ id, name, kind }))}
-          estimate={createEstimateAction}
-          t={{
-            training: t.training,
-            exercises: t.exercises,
-            errors: t.errors,
-            actions: t.actions,
-            search: t.search,
-          }}
-        />
+        {canAdd && (
+          <AddTraining
+            day={day}
+            today={today}
+            startOrPlan={startOrPlanAction}
+            presets={presets}
+            exercises={exercises.map(({ id, name, kind }) => ({ id, name, kind }))}
+            estimate={createEstimateAction}
+            t={{
+              training: t.training,
+              exercises: t.exercises,
+              errors: t.errors,
+              actions: t.actions,
+              search: t.search,
+            }}
+          />
+        )}
       </div>
     </div>
   );

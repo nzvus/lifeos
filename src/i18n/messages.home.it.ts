@@ -315,6 +315,10 @@ export const barcodeIt: Messages["barcode"] = {
 
 export const trainingWhenIt: Messages["training"]["when"] = {
   startThis: "Inizia in palestra",
+  pastDay: "Giorno passato: non si aggiunge più niente.",
+  addAnyway: "Ho dimenticato qualcosa",
+  exercisesList: "Esercizi",
+  exercisesN: "{n} esercizi",
   label: "Quando",
   start: "Inizia ora",
   plan: "Pianifica",
