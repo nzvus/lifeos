@@ -39,6 +39,8 @@ export type EditorSet = {
   km: string;
   speedKmh: string;
   inclinePct: string;
+  /** Gym mode: false while not ticked; kept as is (absent = done). */
+  done?: boolean;
 };
 export type EditorExercise = {
   exerciseId: string;
@@ -105,6 +107,7 @@ function serialize(list: EditorExercise[]) {
         speedKmh: s.speedKmh,
         inclinePct: s.inclinePct,
         warmup: s.warmup,
+        done: s.done,
       })),
     })),
   );

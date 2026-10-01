@@ -1,6 +1,7 @@
 /** app/(app)/training/[id]/page.tsx — URL /training/<id>: edit or delete a session. */
 import { notFound } from "next/navigation";
-import { Trash2 } from "lucide-react";
+import { Dumbbell, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { addDays, timeIn } from "@/core/shared/dates";
@@ -34,6 +35,15 @@ export default async function EditSessionPage({ params }: Props) {
         title={t.training.editTitle}
         back={{ href: "/training", label: t.training.back }}
       />
+      {session.status === "planned" && (
+        <Link
+          href={`/training/${id}/live`}
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-control bg-herb font-display text-item font-bold text-sheet"
+        >
+          <Dumbbell size={20} aria-hidden="true" />
+          {t.training.live.open}
+        </Link>
+      )}
       <SessionEditor
         action={updateSessionAction.bind(null, id)}
         exercises={exercises}
@@ -63,6 +73,7 @@ export default async function EditSessionPage({ params }: Props) {
               km: s.distanceM ? String(s.distanceM / 1000) : "",
               speedKmh: str(s.speedKmh),
               inclinePct: str(s.inclinePct),
+              done: s.done,
             })),
           })),
         }}

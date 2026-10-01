@@ -3,7 +3,8 @@
  * one tile per routine, each at its latest version (core/training/presets.ts:
  * the tile says which session it repeats), plus an empty session. A grid of
  * equal tiles, centred text, so the row is balanced on a phone and on a desktop.
- * Links only: the editor opens prefilled for `day` (today when absent).
+ * The editor opens prefilled for `day` (today when absent); with `start`
+ * (the Training page), a routine tile instead starts it now in gym mode.
  */
 import { Plus } from "lucide-react";
 import Link from "next/link";
@@ -23,10 +24,13 @@ const TILE =
 export function PresetPicker({
   presets,
   day,
+  start,
   t,
 }: {
   presets: readonly PresetTile[];
   day?: string;
+  /** Server action starting a routine in gym mode (form field routineId). */
+  start?: (formData: FormData) => Promise<void>;
   t: Messages["training"];
 }) {
   const dayParam = day ? `day=${day}` : "";
@@ -34,15 +38,21 @@ export function PresetPicker({
     <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {presets.map((p) => (
         <li key={p.routineId}>
-          <Link
-            href={`/training/new?routine=${p.routineId}${dayParam ? `&${dayParam}` : ""}`}
-            className={TILE}
-          >
-            <span className="font-display text-item font-semibold">{p.label}</span>
-            <span className="text-meta text-muted">
-              {p.fromDay ? fill(t.presetFrom, { day: p.fromDay }) : t.presetRoutine}
-            </span>
-          </Link>
+          {start ? (
+            <form action={start}>
+              <input type="hidden" name="routineId" value={p.routineId} />
+              <button type="submit" className={`${TILE} w-full`}>
+                <Body p={p} t={t} />
+              </button>
+            </form>
+          ) : (
+            <Link
+              href={`/training/new?routine=${p.routineId}${dayParam ? `&${dayParam}` : ""}`}
+              className={TILE}
+            >
+              <Body p={p} t={t} />
+            </Link>
+          )}
         </li>
       ))}
       <li>
@@ -55,5 +65,16 @@ export function PresetPicker({
         </Link>
       </li>
     </ul>
+  );
+}
+
+function Body({ p, t }: { p: PresetTile; t: Messages["training"] }) {
+  return (
+    <>
+      <span className="font-display text-item font-semibold">{p.label}</span>
+      <span className="text-meta text-muted">
+        {p.fromDay ? fill(t.presetFrom, { day: p.fromDay }) : t.presetRoutine}
+      </span>
+    </>
   );
 }

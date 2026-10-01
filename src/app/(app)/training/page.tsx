@@ -32,6 +32,7 @@ import { SessionList } from "@/features/training/sessions/SessionList";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
 import { formatNumber } from "@/core/shared/format";
 import { addMeasurementAction, deleteMeasurementAction } from "./actions";
+import { startLiveAction } from "./live-actions";
 import { presetTiles } from "./preset-tiles";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
@@ -87,7 +88,8 @@ export default async function TrainingPage({ searchParams }: Props) {
         title={t.training.startFrom}
         icon={<Dumbbell size={20} aria-hidden="true" />}
       >
-        <PresetPicker presets={presets} t={t.training} />
+        <p className="text-meta text-muted">{t.training.live.startHint}</p>
+        <PresetPicker presets={presets} start={startLiveAction} t={t.training} />
       </Section>
       <Section
         title={monday === thisMonday ? p.thisWeek : p.week}
