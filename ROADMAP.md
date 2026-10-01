@@ -162,6 +162,18 @@
 - [x] Developer's verdict: Label stays, with rounded corners and rings + bars; Orto and Cruscotto replaced by four themes built on Label: Quaderno (ivory, blue ink, serif headings), Sport (black/white, lime), Minimal (no frames, shadows), Notte (night blue, amber headings); per-theme components (THEME_SLOTS) removed until a theme needs one
 - [ ] Developer review of the four new themes on the phone
 
+## Next sprint: S11 — The day as a plan, honest energy, smarter targets (requested 2026-10-01)
+- **Goal:** plan and start training from the day like food; energy and targets that make sense for the developer's real data; a day score about zones, not reaching numbers.
+- [x] Energy formulas on screen; selects show the saved value without a reload (#105)
+- [ ] Day page: plan a session / exercise / estimate with a time; start a session and gym mode from the day; planned / time / moment controls regrouped
+- [ ] Goal shown plainly: maintenance / recomposition / gain / cut, with the deficit or surplus in kcal
+- [ ] Alignment pass: Settings and other left-aligned pages, the day type editor in dynamic mode
+- [ ] Energy check against the developer's export (tmp/, never committed)
+- [ ] ADR-0023 macro bands (floor / good / ceiling per kg and training) and a zone-based day score
+- [ ] ADR-0022 edit a day's food entry as a local copy (grams, swaps)
+- [ ] ADR-0024 training programs as an ordered cycle (migration-only PR first), derived plan on the day and the targets page
+- [ ] Assistant: the whole picture each turn (recent detail + older aggregates), answers in terms of the user's own meals and routines; a better chat UI
+
 ## Next sprint: S09 — Energy needs and the dynamic day (ADR-0014, requested again 2026-10-01)
 - **Goal:** know my energy need at every level (BMR, everyday activity, walking, training, digestion), what comes in and goes out, done and planned; a dynamic day type whose macros follow the plan and the goal (muscle gain, fat loss, or both).
 - [x] Body data in Settings (sex, birth year, height; weight from measurements)
