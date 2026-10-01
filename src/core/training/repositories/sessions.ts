@@ -5,7 +5,7 @@
  * is mine and apply the per-kind set rules, then write the session and all
  * its children in one transaction ("replace all" on update, like meals).
  */
-import { and, asc, desc, eq, gte, inArray, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import {
   exercises,
@@ -15,6 +15,7 @@ import {
   trainingSessions,
 } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { live } from "../../shared/trash";
 import { instantFor } from "../../shared/dates";
 import { fail, ok, type FieldErrors, type Result } from "../../shared/result";
 import type { ExerciseKind, Intensity, SessionStatus } from "../kinds";
@@ -69,6 +70,7 @@ export async function listSessions(
     .where(
       and(
         ownedBy(trainingSessions, owner),
+        live(trainingSessions),
         gte(trainingSessions.day, fromDay),
         lte(trainingSessions.day, toDay),
       ),
@@ -90,7 +92,13 @@ export async function getSession(
   const rows = await db
     .select()
     .from(trainingSessions)
-    .where(and(ownedBy(trainingSessions, owner), eq(trainingSessions.id, id)));
+    .where(
+      and(
+        ownedBy(trainingSessions, owner),
+        live(trainingSessions),
+        eq(trainingSessions.id, id),
+      ),
+    );
   return (await withChildren(db, owner, rows))[0] ?? null;
 }
 
@@ -275,7 +283,13 @@ export async function updateSession(
     const updated = await tx
       .update(trainingSessions)
       .set(sessionRow(input, timeZone))
-      .where(and(ownedBy(trainingSessions, owner), eq(trainingSessions.id, id)))
+      .where(
+        and(
+          ownedBy(trainingSessions, owner),
+          live(trainingSessions),
+          eq(trainingSessions.id, id),
+        ),
+      )
       .returning({ id: trainingSessions.id });
     if (!updated.length) return false;
     // Sets go with their session exercise (cascade).
@@ -288,16 +302,44 @@ export async function updateSession(
   return found ? ok({ id }) : fail({ _form: "not_found" });
 }
 
+/** Moves a session to the trash (ADR-0015): out of every list, progress and "last time". */
 export async function deleteSession(
   db: Db,
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
-  const gone = await db
-    .delete(trainingSessions)
-    .where(and(ownedBy(trainingSessions, owner), eq(trainingSessions.id, id)))
+  const trashed = await db
+    .update(trainingSessions)
+    .set({ deletedAt: new Date() })
+    .where(
+      and(
+        ownedBy(trainingSessions, owner),
+        live(trainingSessions),
+        eq(trainingSessions.id, id),
+      ),
+    )
     .returning({ id: trainingSessions.id });
-  return gone.length ? ok(null) : fail({ _form: "not_found" });
+  return trashed.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/** Takes a session out of the trash. */
+export async function restoreSession(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<Result<null>> {
+  const restored = await db
+    .update(trainingSessions)
+    .set({ deletedAt: null })
+    .where(
+      and(
+        ownedBy(trainingSessions, owner),
+        isNotNull(trainingSessions.deletedAt),
+        eq(trainingSessions.id, id),
+      ),
+    )
+    .returning({ id: trainingSessions.id });
+  return restored.length ? ok(null) : fail({ _form: "not_found" });
 }
 
 /**
@@ -320,6 +362,7 @@ export async function lastSets(
         ownedBy(sessionExercises, owner),
         inArray(sessionExercises.exerciseId, [...exerciseIds]),
         eq(trainingSessions.status, "done"),
+        live(trainingSessions),
         ...(beforeDay ? [lte(trainingSessions.day, beforeDay)] : []),
       ),
     )

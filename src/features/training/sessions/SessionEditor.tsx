@@ -12,21 +12,30 @@
  * set" copies the previous row, as one does at the gym. Like the meal
  * editor, the variable-length part travels as JSON in one hidden field,
  * `exercises`; core validates it and applies the per-kind rules.
+ *
+ * ADR-0015: the pinned ui/ActionBar (↺ / Cancel / Save), a draft kept in
+ * this browser, Save back to `from` with Undo (ui/useEditFlow); the page
+ * header holds the "⋯" Delete. The fields (SessionFields) are rebuilt from
+ * the form's own values (`exercises` JSON) by ↺ or a restored draft.
  */
 "use client";
 
 import { Plus, Trash2, X } from "lucide-react";
-import { useActionState, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { SESSION_STATUSES, type ExerciseKind } from "@/core/training/kinds";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import { pickerSearch } from "@/core/shared/search";
 import { fill, type Messages } from "@/i18n";
+import { ActionBar } from "@/ui/ActionBar";
+import { DraftNotice } from "@/ui/DraftNotice";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { Section } from "@/ui/Section";
 import { SelectField } from "@/ui/SelectField";
-import { SubmitButton } from "@/ui/SubmitButton";
+import { toFormData, useEditableForm } from "@/ui/useEditableForm";
+import { useEditFlow } from "@/ui/useEditFlow";
+import type { FormValues } from "@/ui/useFormValues";
 
 export type EditorSet = {
   reps: string;
@@ -59,14 +68,20 @@ export type EditorSession = {
   exercises: EditorExercise[];
 };
 
+type T = Pick<Messages, "training" | "errors" | "search" | "actions">;
+type ExerciseOption = { id: string; name: string; kind: ExerciseKind };
+
 type Props = {
+  /** The session being edited; absent for a new one. */
+  id?: string;
+  /** Where Cancel and "after saving" lead. */
+  from: string;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
-  exercises: { id: string; name: string; kind: ExerciseKind }[];
+  exercises: ExerciseOption[];
   initial: EditorSession;
   /** What was done the last time, by exercise id: "28/09: 3×10×40". */
   last: Record<string, string>;
-  submitLabel: string;
-  t: Pick<Messages, "training" | "errors" | "search">;
+  t: T;
 };
 
 export const EMPTY_SET: EditorSet = {
@@ -81,8 +96,11 @@ export const EMPTY_SET: EditorSet = {
   inclinePct: "",
 };
 
-let nextKey = 0;
+// Exercises added later take keys far above the first render's positions
+// (which must be the same on the server and in the browser).
+let nextKey = 1_000_000;
 const keyed = (list: EditorExercise[]) => list.map((e) => ({ ...e, key: nextKey++ }));
+const str = (v: unknown) => (v === null || v === undefined ? "" : String(v));
 const int = (v: string) => (/^\d+$/.test(v.trim()) ? Number(v.trim()) : null);
 /** "5,2" km -> 5200 m; empty or not a number -> null. */
 const kmToM = (v: string) => {
@@ -113,17 +131,117 @@ function serialize(list: EditorExercise[]) {
   );
 }
 
-export function SessionEditor({
-  action,
+/** The session as the form's own fields (text). */
+function toValues(i: EditorSession): FormValues {
+  return {
+    label: i.label,
+    day: i.day,
+    status: i.status,
+    time: i.time,
+    durationMin: i.durationMin,
+    notes: i.notes,
+    routineId: i.routineId,
+    exercises: serialize(i.exercises),
+  };
+}
+
+/** Form fields back to the editor's rows (a saved version or a draft). */
+function fromValues(v: FormValues): EditorSession {
+  let list: Record<string, unknown>[] = [];
+  try {
+    list = JSON.parse(v.exercises ?? "[]") as Record<string, unknown>[];
+  } catch {}
+  return {
+    label: v.label ?? "",
+    day: v.day ?? "",
+    status: v.status ?? "done",
+    time: v.time ?? "",
+    durationMin: v.durationMin ?? "",
+    notes: v.notes ?? "",
+    routineId: v.routineId ?? "",
+    exercises: list.map((e) => ({
+      exerciseId: str(e.exerciseId),
+      restS: str(e.restS),
+      notes: str(e.notes),
+      sets: ((e.sets as Record<string, unknown>[] | undefined) ?? []).map((x) => ({
+        reps: str(x.reps),
+        loadKg: str(x.loadKg),
+        loadText: str(x.loadText),
+        loadApprox: x.loadApprox === true,
+        warmup: x.warmup === true,
+        minutes: x.durationS ? String(Number(x.durationS) / 60) : "",
+        km: x.distanceM ? String(Number(x.distanceM) / 1000) : "",
+        speedKmh: str(x.speedKmh),
+        inclinePct: str(x.inclinePct),
+        ...(x.done === false ? { done: false } : {}),
+      })),
+    })),
+  };
+}
+
+export function SessionEditor({ id, from, action, exercises, initial, last, t }: Props) {
+  const a = t.actions;
+  const start = toValues(initial);
+  const { form, base, version, values, saved, dirty, draft, offer, load } =
+    useEditableForm(`session:${id ?? "new"}`, start);
+  const { state, formAction } = useEditFlow({
+    id,
+    from,
+    idle: IDLE,
+    action,
+    previous: () => toFormData(saved ?? start),
+    name: () => values?.label?.trim() || initial.label,
+    done: draft.clear,
+    labels: a,
+  });
+  return (
+    <form ref={form} action={formAction} className="flex flex-col gap-6">
+      {offer && (
+        <DraftNotice
+          onRestore={() => {
+            load(offer);
+            draft.clear();
+          }}
+          onDiscard={draft.clear}
+          labels={a}
+        />
+      )}
+      <SessionFields
+        key={version}
+        state={state}
+        initial={fromValues(base)}
+        exercises={exercises}
+        last={last}
+        t={t}
+      />
+      <ActionBar
+        dirty={dirty}
+        isNew={!id}
+        onRestore={() => load(saved ?? start)}
+        cancelHref={from}
+        labels={{ save: a.save, cancel: a.cancel, restore: a.restore, saving: a.saving }}
+      />
+    </form>
+  );
+}
+
+function SessionFields({
+  state,
   exercises,
   initial,
   last,
-  submitLabel,
   t,
-}: Props) {
+}: {
+  state: FormState;
+  exercises: ExerciseOption[];
+  initial: EditorSession;
+  last: Record<string, string>;
+  t: T;
+}) {
   const tr = t.training;
-  const [state, formAction] = useActionState(action, IDLE);
-  const [list, setList] = useState(() => keyed(initial.exercises));
+  const [list, setList] = useState(() =>
+    initial.exercises.map((e, key) => ({ ...e, key })),
+  );
   const err = (f: string) => fieldError(state, f, t.errors);
   const kindOf = (id: string) => exercises.find((e) => e.id === id)?.kind ?? "strength";
   const picker = useMemo(
@@ -152,7 +270,7 @@ export function SessionEditor({
     );
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <>
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
@@ -415,9 +533,6 @@ export function SessionEditor({
       </button>
 
       <input type="hidden" name="exercises" value={serialize(list)} />
-      <div>
-        <SubmitButton>{submitLabel}</SubmitButton>
-      </div>
-    </form>
+    </>
   );
 }
