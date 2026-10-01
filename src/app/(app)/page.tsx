@@ -37,6 +37,8 @@ import { DayProfilePicker } from "@/features/nutrition/log/DayProfilePicker";
 import { averageScores, ratingsByMeal } from "@/core/nutrition/repositories/ratings";
 import { mealTags, qualitySummary } from "@/core/nutrition/quality-summary";
 import { MealQuality } from "@/features/nutrition/meals/MealQuality";
+import { dayBurn } from "@/core/training/progress";
+import { fill } from "@/i18n";
 import { EntryList } from "@/features/nutrition/log/EntryList";
 import { THEME_SLOTS } from "@/core/shared/themes";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
@@ -121,6 +123,20 @@ export default async function DayPage({ searchParams }: Props) {
   const { targets, auto } = settings.preferences.autoTargets
     ? withAutoTargets(own)
     : { targets: own, auto: [] };
+  // The day's training burn as ranges: done, then with the planned sessions.
+  const burn = dayBurn(sessions, measurements);
+  const range = (r: { low: number; high: number }) => ({
+    low: String(r.low),
+    high: String(r.high),
+  });
+  const burnText = [
+    burn.done && fill(t.training.burn, range(burn.done)),
+    burn.withPlanned &&
+      burn.withPlanned.high !== burn.done?.high &&
+      fill(t.training.burnWithPlanned, range(burn.withPlanned)),
+  ]
+    .filter(Boolean)
+    .join(" · ");
   // What the eaten food is made of (ADR-0012), for the score and fibre types.
   const dayQuality = eatenQuality(view.entries);
   /** The five values the add-to-day preview scales (core/nutrition/preview.ts). */
@@ -164,6 +180,7 @@ export default async function DayPage({ searchParams }: Props) {
         <Section
           title={t.training.onThisDay}
           icon={<Dumbbell size={20} aria-hidden="true" />}
+          aside={burnText}
         >
           <SessionList
             sessions={sessions}
@@ -194,6 +211,15 @@ export default async function DayPage({ searchParams }: Props) {
       />
       <DayScore
         score={dayScore({ totals: view.totals.nutrients, targets, quality: dayQuality })}
+        planned={
+          view.entries.some((e) => e.status === "planned")
+            ? dayScore({
+                totals: view.withPlanned.nutrients,
+                targets,
+                quality: eatenQuality(view.entries, true),
+              })
+            : null
+        }
         quality={dayQuality}
         empty={view.entries.every((e) => e.status !== "eaten")}
         locale={locale}

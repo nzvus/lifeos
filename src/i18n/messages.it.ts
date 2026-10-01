@@ -122,6 +122,7 @@ export const it: Messages = {
     estimateName: "Cos'era",
     estimateCost: "Costo (€, facoltativo)",
     plannedNote: "+{v} kcal pianificate",
+    withPlanned: "Con i pianificati: {v}",
     details: "Dettagli",
     refresh: "Aggiorna con i valori attuali",
     refreshHint:
@@ -143,6 +144,7 @@ export const it: Messages = {
     noTarget: "Nessun obiettivo",
     cost: "Costo",
     costPartial: "almeno {v}: mancano alcuni prezzi",
+    costWithPlanned: "con i pianificati {v}",
     costPartialShort: "almeno {v}",
     setTargets: "Imposta gli obiettivi giornalieri in Obiettivi.",
   },
@@ -419,6 +421,7 @@ export const it: Messages = {
     delete: "Elimina sessione",
     tonnage: "{v} kg sollevati",
     burn: "~{low}–{high} kcal (stima)",
+    burnWithPlanned: "con i pianificati ~{low}–{high} kcal",
     burnNone: "consumo: serve il peso corporeo",
     exercisesCount: "{n} esercizi",
     minutesShort: "{n} min",
@@ -545,6 +548,7 @@ export const it: Messages = {
   dayScore: {
     title: "Qualità della giornata",
     outOf: "/100",
+    withPlanned: "Con i pianificati: {v}/100",
     none: "Ancora nessun dato: registra qualcosa di mangiato.",
     parts: {
       targets: "Obiettivi",

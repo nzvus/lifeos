@@ -1,6 +1,6 @@
 /** Tests for core/training/progress.ts: week volume, routines, exercise trends. */
 import { describe, expect, it } from "vitest";
-import { exerciseTrends, routineProgress, weekSummary } from "./progress";
+import { dayBurn, exerciseTrends, routineProgress, weekSummary } from "./progress";
 
 const set = (reps: number, loadKg: string, warmup = false) => ({ reps, loadKg, warmup });
 type Ex = {
@@ -130,5 +130,23 @@ describe("exerciseTrends", () => {
     expect(two!.change).toBe(10);
     const [one] = exerciseTrends([session("2026-10-01", "Pull", [lat(set(10, "30"))])]);
     expect(one!.change).toBeNull();
+  });
+});
+
+describe("dayBurn", () => {
+  it("sums the done sessions, and the planned ones only 'with the plan'", () => {
+    const kg = [{ day: "2026-09-01", weightKg: "75" }];
+    const done = session("2026-10-01", "Pull", [lat(set(10, "40"))]);
+    const planned = session("2026-10-01", "Push", [lat(set(10, "40"))], {
+      status: "planned",
+    });
+    const one = dayBurn([done], kg);
+    const both = dayBurn([done, planned], kg);
+    expect(both.done).toEqual(one.done);
+    expect(both.withPlanned).toEqual({
+      low: one.done!.low * 2,
+      high: one.done!.high * 2,
+    });
+    expect(dayBurn([], kg)).toEqual({ done: null, withPlanned: null });
   });
 });

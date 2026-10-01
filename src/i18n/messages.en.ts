@@ -127,6 +127,7 @@ export const en = {
     estimateName: "What it was",
     estimateCost: "Cost (€, optional)",
     plannedNote: "+{v} kcal planned",
+    withPlanned: "With the plan: {v}",
     details: "Details",
     refresh: "Update with current values",
     refreshHint:
@@ -147,6 +148,7 @@ export const en = {
     noTarget: "No target",
     cost: "Cost",
     costPartial: "at least {v} — some prices are missing",
+    costWithPlanned: "with the plan {v}",
     costPartialShort: "at least {v}",
     setTargets: "Set daily targets in Targets.",
   },
@@ -419,6 +421,7 @@ export const en = {
     delete: "Delete session",
     tonnage: "{v} kg lifted",
     burn: "~{low}–{high} kcal (estimate)",
+    burnWithPlanned: "with the plan ~{low}–{high} kcal",
     burnNone: "burn: needs your body weight",
     exercisesCount: "{n} exercises",
     minutesShort: "{n} min",
@@ -545,6 +548,7 @@ export const en = {
   dayScore: {
     title: "Day quality",
     outOf: "/100",
+    withPlanned: "With the plan: {v}/100",
     none: "No data yet: log something eaten.",
     parts: {
       targets: "Targets",

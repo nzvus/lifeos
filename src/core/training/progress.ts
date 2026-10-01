@@ -97,13 +97,36 @@ export function weekSummary(
     sets,
     tonnage: week.reduce((a, s) => a + sessionTonnage(s.exercises), 0),
     minutes: week.reduce((a, s) => a + (s.durationMin ?? 0), 0),
-    burn: ranges.length
-      ? {
-          low: ranges.reduce((a, r) => a + r.low, 0),
-          high: ranges.reduce((a, r) => a + r.high, 0),
-        }
-      : null,
+    burn: sumRanges(ranges),
     byGroup,
+  };
+}
+
+/** Ranges add up end to end (low + low, high + high); none -> null. */
+function sumRanges(ranges: readonly BurnRange[]): BurnRange | null {
+  return ranges.length
+    ? {
+        low: ranges.reduce((a, r) => a + r.low, 0),
+        high: ranges.reduce((a, r) => a + r.high, 0),
+      }
+    : null;
+}
+
+/**
+ * A day's training burn (ADR-0005: a range): what the done sessions burned,
+ * and where the day ends if the planned ones happen too (ADR-0009).
+ */
+export function dayBurn(
+  sessions: readonly Session[],
+  measurements: readonly Measurement[],
+): { done: BurnRange | null; withPlanned: BurnRange | null } {
+  const ranges = sessions.flatMap((s) => {
+    const r = burnRange(s, weightAt(measurements, s.day));
+    return r ? [{ r, done: s.status === "done" }] : [];
+  });
+  return {
+    done: sumRanges(ranges.filter((x) => x.done).map((x) => x.r)),
+    withPlanned: sumRanges(ranges.map((x) => x.r)),
   };
 }
 

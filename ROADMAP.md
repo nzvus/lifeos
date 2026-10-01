@@ -142,7 +142,7 @@
 - **Goal:** the day fits on a phone screen, and every planned item says in numbers where the day would end.
 - [x] Collapsible sections (ui/Collapsible, remembered on the device): Add training, Add to the day (closed by default), each moment (open; closed shows its macro strip, summed exactly — core entriesTotals)
 - [x] Day entries look like the meal cards: cost, NOVA bar, protein origin, fibre types, tags, rating (from the entry's snapshot lines)
-- [ ] Planned in numbers: macros, cost, day quality and training burn show "now → with planned"
+- [x] Planned in numbers: every bar, the cost, the day quality and the training burn say where the day ends with the plan (core dayBurn, eatenQuality withPlanned)
 
 ## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)
 - **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.

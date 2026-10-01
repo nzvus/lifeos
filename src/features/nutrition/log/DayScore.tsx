@@ -2,7 +2,8 @@
  * features/nutrition/log/DayScore.tsx — the day's quality score with its
  * whole breakdown (core/nutrition/day-score.ts): each part's value, weight
  * and what it counts, or why it is not available; then the fibre eaten by
- * type (ADR-0012), with the untyped rest said out loud. Server component.
+ * type (ADR-0012), with the untyped rest said out loud. With planned food,
+ * also the score the day reaches if the plan is followed. Server component.
  */
 import { Gauge } from "lucide-react";
 import type { DayScore as Score } from "@/core/nutrition/day-score";
@@ -16,6 +17,8 @@ import { Section } from "@/ui/Section";
 
 type Props = {
   score: Score;
+  /** The score with the planned entries too; null when nothing is planned. */
+  planned: Score | null;
   quality: QualitySummary;
   /** Nothing eaten yet: say so instead of showing zeros. */
   empty: boolean;
@@ -29,14 +32,22 @@ const tone = (v: number) =>
 const bar = (v: number) =>
   v >= 75 ? "bg-herb" : v >= 50 ? "bg-muted" : v >= 25 ? "bg-warn" : "bg-tomato";
 
-export function DayScore({ score, quality, empty, locale, t }: Props) {
+export function DayScore({ score, planned, quality, empty, locale, t }: Props) {
   const d = t.dayScore;
   const fibers = FIBER_TYPES.filter((f) => Number(quality.fiber[f]) > 0);
   const maxFiber = Math.max(1, ...fibers.map((f) => Number(quality.fiber[f])));
+  const plannedLine = planned?.score != null && (
+    <p className={`font-display text-item font-bold tabular-nums ${tone(planned.score)}`}>
+      {fill(d.withPlanned, { v: String(planned.score) })}
+    </p>
+  );
   return (
     <Section title={d.title} icon={<Gauge size={20} aria-hidden="true" />}>
       {empty || score.score === null ? (
-        <p className="text-meta text-muted">{d.none}</p>
+        <>
+          <p className="text-meta text-muted">{d.none}</p>
+          {plannedLine}
+        </>
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
           <div className="flex flex-col gap-3">
@@ -46,6 +57,7 @@ export function DayScore({ score, quality, empty, locale, t }: Props) {
               </span>
               <span className="text-item text-muted">{d.outOf}</span>
             </p>
+            {planned?.score !== score.score && plannedLine}
             <ul className="flex flex-col gap-2 text-meta">
               {score.parts.map((p) => (
                 <li key={p.key} className="flex flex-col gap-0.5">
