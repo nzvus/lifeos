@@ -231,7 +231,7 @@ export default async function DayPage({ searchParams }: Props) {
           locale={locale}
           trash={deleteLogEntryAction}
           restore={restoreLogEntryAction}
-          refreshAction={(id) => refreshLogEntryAction.bind(null, id)}
+          refresh={refreshLogEntryAction}
           statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
           timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
           timeZone={settings.timezone}

@@ -11,6 +11,7 @@ export const it: Messages = {
   },
   actions: {
     back: "← Indietro",
+    general: "Generale",
     save: "Salva",
     saving: "Salvataggio…",
     cancel: "Annulla",
@@ -129,6 +130,7 @@ export const it: Messages = {
     refresh: "Aggiorna con i valori attuali",
     refreshHint:
       "Prende il pasto o l'ingrediente com'è ora (nomi, valori, prezzi). Le quantità mangiate restano.",
+    refreshed: "Aggiornata con i valori attuali",
     refreshGone: "Il pasto o l'ingrediente da cui viene non esiste più.",
     nothingYesterday: "Il giorno prima non hai registrato niente.",
     profileLabel: "Tipo di giornata",

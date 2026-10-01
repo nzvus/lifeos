@@ -9,7 +9,7 @@
  */
 "use client";
 
-import { Target } from "lucide-react";
+import { FileText, Target } from "lucide-react";
 import { NUTRIENT_KEYS, NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import type { Messages } from "@/i18n";
@@ -85,13 +85,19 @@ function ProfileFields({
   return (
     <>
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
-      <Field
-        label={t.profiles.name}
-        name="name"
-        defaultValue={val("name")}
-        error={err("name")}
-        required
-      />
+      <Section
+        as="fieldset"
+        title={t.actions.general}
+        icon={<FileText size={20} aria-hidden="true" />}
+      >
+        <Field
+          label={t.profiles.name}
+          name="name"
+          defaultValue={val("name")}
+          error={err("name")}
+          required
+        />
+      </Section>
       <Section
         as="fieldset"
         title={t.profiles.targets}

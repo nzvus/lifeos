@@ -144,14 +144,12 @@ export async function copyPreviousDayAction(
 /** "Update with current values" on one entry (core refreshLogEntry). Bound per entry. */
 export async function refreshLogEntryAction(
   id: string,
-  _prev: ActionButtonState,
-  _formData: FormData,
-): Promise<ActionButtonState> {
+): Promise<{ ok: boolean; message?: string }> {
   const { owner, t } = await requireContext();
   const result = await refreshLogEntry(getDb(), owner, id);
-  if (!result.ok) return { status: "error", message: t.day.refreshGone };
+  if (!result.ok) return { ok: false, message: t.day.refreshGone };
   revalidatePath("/");
-  return { status: "idle" };
+  return { ok: true };
 }
 
 /** "Estimated meal" form (ADR-0009): name + approximate totals. */

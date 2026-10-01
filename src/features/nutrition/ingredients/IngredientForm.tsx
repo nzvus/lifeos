@@ -25,7 +25,7 @@
  */
 "use client";
 
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, FileText } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
@@ -192,30 +192,36 @@ export function IngredientForm({
       <div key={version} className="flex flex-col gap-6">
         {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
 
-        <Field
-          label={t.ingredients.name}
-          name="name"
-          defaultValue={val("name")}
-          error={err("name")}
-          required
-        />
-        <Field
-          label={t.ingredients.description}
-          name="description"
-          defaultValue={val("description")}
-          error={err("description")}
-        />
-        <SelectField
-          label={t.ingredients.unit}
-          name="unit"
-          value={unit}
-          onChange={(e) => setUnit(e.target.value)}
-          options={[
-            { value: "g", label: t.ingredients.unitG },
-            { value: "ml", label: t.ingredients.unitMl },
-          ]}
-          error={err("unit")}
-        />
+        <Section
+          as="fieldset"
+          title={a.general}
+          icon={<FileText size={20} aria-hidden="true" />}
+        >
+          <Field
+            label={t.ingredients.name}
+            name="name"
+            defaultValue={val("name")}
+            error={err("name")}
+            required
+          />
+          <Field
+            label={t.ingredients.description}
+            name="description"
+            defaultValue={val("description")}
+            error={err("description")}
+          />
+          <SelectField
+            label={t.ingredients.unit}
+            name="unit"
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+            options={[
+              { value: "g", label: t.ingredients.unitG },
+              { value: "ml", label: t.ingredients.unitMl },
+            ]}
+            error={err("unit")}
+          />
+        </Section>
 
         {/* The label block: heavy rule on top, one row per nutrient. */}
         <Section

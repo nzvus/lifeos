@@ -11,7 +11,7 @@
  */
 "use client";
 
-import { ListOrdered, Plus, Trash2 } from "lucide-react";
+import { FileText, ListOrdered, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import { pickerSearch } from "@/core/shared/search";
@@ -171,19 +171,25 @@ function RoutineFields({
   return (
     <>
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
-      <Field
-        label={r.name}
-        name="name"
-        defaultValue={valueOf(state, "name", initial.name)}
-        error={err("name")}
-        required
-      />
-      <Field
-        label={r.notes}
-        name="notes"
-        defaultValue={valueOf(state, "notes", initial.notes)}
-        error={err("notes")}
-      />
+      <Section
+        as="fieldset"
+        title={t.actions.general}
+        icon={<FileText size={20} aria-hidden="true" />}
+      >
+        <Field
+          label={r.name}
+          name="name"
+          defaultValue={valueOf(state, "name", initial.name)}
+          error={err("name")}
+          required
+        />
+        <Field
+          label={r.notes}
+          name="notes"
+          defaultValue={valueOf(state, "notes", initial.notes)}
+          error={err("notes")}
+        />
+      </Section>
       <Section
         as="fieldset"
         title={r.items}
