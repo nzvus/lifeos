@@ -76,6 +76,8 @@ export const en = {
     invalid_time: "Enter a time like 12:30.",
     moments_order:
       "The times must be in order: lunch after 05:00, then snack, then dinner.",
+    still_referenced:
+      "Something else still uses it (even if that is in the trash): delete that first.",
   },
   auth: {
     signInTitle: "Sign in",
@@ -202,6 +204,30 @@ export const en = {
     edit: "Edit",
     back: "Back to meals",
     needIngredients: "Add some ingredients first: a meal is made of them.",
+  },
+  trash: {
+    title: "Trash",
+    hint: "Deleted things stay here for 30 days, then they are deleted for good.",
+    open: "Open the trash",
+    empty: "The trash is empty.",
+    kinds: {
+      meal: "Meal",
+      ingredient: "Ingredient",
+      logEntry: "Day entry",
+      dayProfile: "Day type",
+      session: "Session",
+      routine: "Routine",
+      exercise: "Exercise",
+      measurement: "Measurement",
+    },
+    purgeOn: "deleted for good on {date}",
+    restore: "Restore",
+    purge: "Delete for good",
+    confirm: "Delete «{name}» for good? This can't be undone.",
+    confirmYes: "Yes, delete",
+    cancel: "Cancel",
+    restored: "«{name}» restored",
+    purged: "«{name}» deleted for good",
   },
   settings: {
     title: "Settings",

@@ -69,6 +69,8 @@ export const it: Messages = {
     invalid_time: "Inserisci un'ora come 12:30.",
     moments_order:
       "Gli orari devono essere in ordine: pranzo dopo le 05:00, poi spuntino, poi cena.",
+    still_referenced:
+      "Un altro elemento lo usa ancora (anche se è nel cestino): elimina prima quello.",
   },
   auth: {
     signInTitle: "Accedi",
@@ -199,6 +201,30 @@ export const it: Messages = {
     back: "Torna ai pasti",
     needIngredients:
       "Aggiungi prima qualche ingrediente: un pasto è fatto di ingredienti.",
+  },
+  trash: {
+    title: "Cestino",
+    hint: "Le cose eliminate restano qui 30 giorni, poi vengono cancellate per sempre.",
+    open: "Apri il cestino",
+    empty: "Il cestino è vuoto.",
+    kinds: {
+      meal: "Pasto",
+      ingredient: "Ingrediente",
+      logEntry: "Voce del giorno",
+      dayProfile: "Tipo di giornata",
+      session: "Sessione",
+      routine: "Scheda",
+      exercise: "Esercizio",
+      measurement: "Misura",
+    },
+    purgeOn: "eliminato per sempre il {date}",
+    restore: "Ripristina",
+    purge: "Elimina per sempre",
+    confirm: "Eliminare «{name}» per sempre? Non si può annullare.",
+    confirmYes: "Sì, elimina",
+    cancel: "Annulla",
+    restored: "«{name}» ripristinato",
+    purged: "«{name}» eliminato per sempre",
   },
   settings: {
     title: "Impostazioni",
