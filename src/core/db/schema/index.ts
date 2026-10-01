@@ -12,3 +12,4 @@ export * from "./nutrition";
 export * from "./training";
 export * from "./pantry";
 export * from "./assistant";
+export * from "./programs";

@@ -1,0 +1,83 @@
+/**
+ * core/db/schema/programs.ts — training programs as an ordered cycle
+ * (ADR-0024): a program is a sequence of slots (a routine, or rest) that
+ * starts on a day. What comes next is DERIVED from the slots and the
+ * sessions actually done — never stored — so skipping a day just moves
+ * the cycle forward, like stock in the pantry (ADR-0017).
+ *
+ *   programs ──< program_slots ──> routines (null = rest)
+ */
+import { sql } from "drizzle-orm";
+import {
+  boolean,
+  check,
+  date,
+  foreignKey,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
+import { user } from "./auth";
+import { routines } from "./training";
+
+const tstz = (name: string) => timestamp(name, { withTimezone: true });
+const idColumn = () =>
+  uuid("id")
+    .default(sql`pg_catalog.gen_random_uuid()`)
+    .primaryKey();
+const ownerColumn = () =>
+  uuid("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" });
+
+export const programs = pgTable(
+  "programs",
+  {
+    id: idColumn(),
+    userId: ownerColumn(),
+    name: text("name").notNull(),
+    notes: text("notes").notNull().default(""),
+    /** The first slot falls on this day. */
+    startDay: date("start_day", { mode: "string" }).notNull(),
+    /** At most one active program: the one that plans the coming days. */
+    active: boolean("active").notNull().default(true),
+    createdAt: tstz("created_at").defaultNow().notNull(),
+    // ADR-0015: in the trash since then (null = live).
+    deletedAt: tstz("deleted_at"),
+  },
+  (t) => [
+    unique("programs_id_user_uq").on(t.id, t.userId),
+    uniqueIndex("programs_one_active_uq")
+      .on(t.userId)
+      .where(sql`${t.active} and ${t.deletedAt} is null`),
+  ],
+);
+
+export const programSlots = pgTable(
+  "program_slots",
+  {
+    id: idColumn(),
+    userId: uuid("user_id").notNull(),
+    programId: uuid("program_id").notNull(),
+    position: integer("position").notNull(),
+    /** The routine of this slot; null = a rest day. Owner checked in core. */
+    routineId: uuid("routine_id").references(() => routines.id, { onDelete: "set null" }),
+    /** Shown for a rest slot, or when the routine was deleted. */
+    label: text("label").notNull().default(""),
+  },
+  (t) => [
+    foreignKey({
+      name: "program_slots_program_fk",
+      columns: [t.programId, t.userId],
+      foreignColumns: [programs.id, programs.userId],
+    }).onDelete("cascade"),
+    unique("program_slots_position_uq").on(t.programId, t.position),
+    check("program_slots_position_ck", sql`${t.position} >= 0`),
+    index("program_slots_program_idx").on(t.programId),
+  ],
+);
