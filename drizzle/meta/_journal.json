@@ -99,6 +99,13 @@
       "when": 1790835723533,
       "tag": "0013_session_estimate",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790862242451,
+      "tag": "0014_pantry",
+      "breakpoints": true
     }
   ]
 }

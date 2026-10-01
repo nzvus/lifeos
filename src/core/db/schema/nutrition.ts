@@ -296,12 +296,18 @@ export const logEntries = pgTable(
     // ADR-0011: the moment of the day, stored as it happened. Null = not set
     // (older entries): derived from `at` when read.
     moment: text("moment").$type<Moment>(),
+    // ADR-0017: a portion taken from a batch cooked earlier. Its ingredients
+    // left the pantry when the batch was cooked, so stock ignores this entry.
+    batchId: uuid("batch_id").references((): AnyPgColumn => batches.id, {
+      onDelete: "set null",
+    }),
     createdAt: tstz("created_at").defaultNow().notNull(),
     // ADR-0015: in the trash since then (null = live); purged after 30 days.
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     unique("log_entries_id_user_uq").on(t.id, t.userId),
+    index("log_entries_batch_idx").on(t.batchId),
     check("log_entries_status_ck", sql`${t.status} in ('planned', 'eaten')`),
     check(
       "log_entries_moment_ck",
@@ -345,6 +351,67 @@ export const logEntryItems = pgTable(
     check("log_entry_items_quantity_ck", sql`${t.quantity} > 0`),
     index("log_entry_items_entry_idx").on(t.entryId),
     ...qualityChecks("log_entry_items", t),
+  ],
+);
+
+/**
+ * ADR-0017: cooking a batch — a meal made once, in N portions, eaten over
+ * several days. Cooking takes its ingredients out of the pantry at
+ * `cooked_at`; each portion logged later (log_entries.batch_id) takes one
+ * portion. `label` and the lines are a snapshot like a log entry's
+ * (ADR-0007): renaming or changing the meal later rewrites nothing.
+ */
+export const batches = pgTable(
+  "batches",
+  {
+    id: idColumn(),
+    userId: ownerColumn(),
+    mealId: uuid("meal_id").references(() => meals.id, { onDelete: "set null" }),
+    label: text("label").notNull(),
+    portions: integer("portions").notNull(),
+    // When it was cooked: the moment its ingredients left the pantry.
+    cookedAt: tstz("cooked_at").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    notes: text("notes").notNull().default(""),
+    createdAt: tstz("created_at").defaultNow().notNull(),
+    // ADR-0015: in the trash since then (null = live); purged after 30 days.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [
+    unique("batches_id_user_uq").on(t.id, t.userId),
+    check("batches_portions_ck", sql`${t.portions} > 0`),
+    index("batches_user_day_idx").on(t.userId, t.day),
+  ],
+);
+
+/** What went into a batch, all portions together: a snapshot per line. */
+export const batchLines = pgTable(
+  "batch_lines",
+  {
+    id: idColumn(),
+    userId: uuid("user_id").notNull(),
+    batchId: uuid("batch_id").notNull(),
+    ingredientId: uuid("ingredient_id").references(() => ingredients.id, {
+      onDelete: "set null",
+    }),
+    name: text("name").notNull(),
+    unit: text("unit").$type<IngredientUnit>().notNull(),
+    quantity: numeric("quantity", { precision: 10, scale: 2, mode: "string" }).notNull(),
+    ...nutrientColumns(),
+    packagePriceCents: integer("package_price_cents"),
+    packageSize: numeric("package_size", { precision: 10, scale: 2, mode: "string" }),
+    ...qualityColumns(),
+    position: integer("position").notNull(),
+  },
+  (t) => [
+    foreignKey({
+      name: "batch_lines_batch_fk",
+      columns: [t.batchId, t.userId],
+      foreignColumns: [batches.id, batches.userId],
+    }).onDelete("cascade"),
+    check("batch_lines_quantity_ck", sql`${t.quantity} > 0`),
+    index("batch_lines_batch_idx").on(t.batchId),
+    ...qualityChecks("batch_lines", t),
   ],
 );
 

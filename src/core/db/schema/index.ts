@@ -10,3 +10,4 @@
 export * from "./auth";
 export * from "./nutrition";
 export * from "./training";
+export * from "./pantry";
