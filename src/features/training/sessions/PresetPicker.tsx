@@ -11,7 +11,7 @@ import { fill, type Messages } from "@/i18n";
 
 export type PresetTile = {
   routineId: string;
-  /** The label the new session gets: "PUSH 6". */
+  /** The label the new session gets: the routine's name. */
   label: string;
   /** "dd/mm" of the session it repeats, or null when it uses the routine's items. */
   fromDay: string | null;

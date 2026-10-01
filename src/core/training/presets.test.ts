@@ -33,7 +33,7 @@ describe("latestPreset", () => {
     ]);
   });
 
-  it("repeats the last session of the family, numbered on, warm-ups left out", () => {
+  it("repeats the last session of the family, named like the routine, warm-ups left out", () => {
     const session = (
       day: string,
       label: string,
@@ -56,7 +56,7 @@ describe("latestPreset", () => {
       ],
       fromItem,
     );
-    expect(p.label).toBe("PUSH 6");
+    expect(p.label).toBe("Push");
     expect(p.from).toEqual({ kind: "session", day: "2026-09-30", label: "PUSH 5" });
     expect(p.exercises).toEqual([{ exerciseId: "b", restS: 80, sets: [set(10, "60")] }]);
   });
