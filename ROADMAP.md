@@ -166,7 +166,11 @@
 - **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.
 - [x] ADR-0017 accepted (A, A, A): products of any kind (unit g/ml/pieces, ingredient optional); batches make portions, a log entry from a batch takes a portion; reminders derived + by hand
 - [x] Training in the JSON export, version 6 (exercises, routines with items, sessions with exercises and sets, measurements, day activity; live records only); the lifeos importer accepts v6 and restores nutrition only
-- [ ] Schema (migration PR first, ADR-0017 Consequences), then purchases + counts, stock and "runs out in", shopping list, batches, reminders
+- [x] Schema: migration 0014 (#98, migration-only PR)
+- [x] Core: products, purchases, counts, derived stock with days left, shopping list; batches (cook N portions, log a portion); reminders by hand and derived; all in the trash and the purge; export v7
+- [x] /pantry page and product editor (reached from Ingredients)
+- [ ] Day page: derived reminders and "a portion from a batch" in Add to the day
+- [ ] Developer review on the phone
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

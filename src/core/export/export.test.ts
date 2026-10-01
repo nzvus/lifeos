@@ -8,6 +8,7 @@ import { logIngredient } from "../nutrition/repositories/log";
 import { createProfile } from "../nutrition/repositories/profiles";
 import { saveSettings } from "../nutrition/repositories/settings";
 import { createTestDb, createTestUser, ingredientFixture } from "../testing/test-db";
+import { addPurchase, createProduct } from "../pantry/repositories/products";
 import { createExercise } from "../training/repositories/exercises";
 import { addMeasurement, deleteMeasurement } from "../training/repositories/measurements";
 import { createSession } from "../training/repositories/sessions";
@@ -163,5 +164,30 @@ describe("exportUserData", () => {
     // The trash is not exported, like every other kind.
     expect(data.training.measurements.map((m) => m.weightKg)).toEqual(["75.00"]);
     expect(JSON.stringify(data)).not.toContain("Bob's squat");
+  });
+
+  it("contains my pantry (version 7): products with their purchases", async () => {
+    const p = await createProduct(db, alice, {
+      name: "Detersivo piatti",
+      brand: "",
+      unit: "piece",
+      packageSize: "1",
+      ingredientId: null,
+      shop: "",
+      notes: "",
+    });
+    if (!p.ok) throw new Error("setup failed");
+    await addPurchase(db, alice, {
+      productId: p.value.id,
+      day: "2026-10-01",
+      packages: "2",
+      priceCents: 318,
+      shop: "Lidl",
+    });
+    const data = await exportUserData(db, alice);
+    expect(
+      data.pantry.products.map((x) => [x.name, x.purchases.map((y) => y.priceCents)]),
+    ).toEqual([["Detersivo piatti", [318]]]);
+    expect((await exportUserData(db, bob)).pantry.products).toEqual([]);
   });
 });

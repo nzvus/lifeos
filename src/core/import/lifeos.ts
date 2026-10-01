@@ -73,6 +73,8 @@ const exportFile = z.object({
     // 6 adds `training`; this importer restores nutrition only and ignores it
     // (training is imported from its own sources: npm run import:training).
     z.literal(6),
+    // 7 adds `pantry` (ADR-0017); ignored here like `training`.
+    z.literal(7),
   ]),
   settings: z
     .object({

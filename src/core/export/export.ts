@@ -19,6 +19,8 @@
 import { and, asc, eq } from "drizzle-orm";
 import type { Db } from "../db/client";
 import {
+  batches,
+  batchLines,
   bodyMeasurements,
   dayActivity,
   dayPlans,
@@ -30,11 +32,15 @@ import {
   logEntryItems,
   mealItems,
   mealRatings,
+  products,
+  purchases,
   ratingFactors,
+  reminders,
   routineItems,
   routines,
   sessionExercises,
   sets,
+  stockCounts,
   tags,
   meals,
   trainingSessions,
@@ -48,8 +54,9 @@ export const EXPORT_FORMAT = "lifeos-export";
 /** 2: adds dayProfiles and dayPlans (ADR-0008). 3: log status/at/estimated (ADR-0009). */
 // 4: category, moment (ADR-0011); 5: quality + tags (ADR-0012);
 // 6: training — exercises, routines, sessions with exercises and sets, body
-// measurements, day activity (ADR-0005/0016).
-export const EXPORT_VERSION = 6;
+// measurements, day activity (ADR-0005/0016); 7: pantry — products with
+// purchases, stock counts, batches with lines, reminders (ADR-0017).
+export const EXPORT_VERSION = 7;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -169,6 +176,42 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       .orderBy(asc(dayActivity.day)),
   ]);
 
+  // The pantry (ADR-0017), live records only; purchases nest in their
+  // product, lines in their batch.
+  const [productRows, purchaseRows, countRows, batchRows, batchLineRows, reminderRows] =
+    await Promise.all([
+      db
+        .select()
+        .from(products)
+        .where(and(ownedBy(products, owner), live(products)))
+        .orderBy(asc(products.name)),
+      db
+        .select()
+        .from(purchases)
+        .where(and(ownedBy(purchases, owner), live(purchases)))
+        .orderBy(asc(purchases.day)),
+      db
+        .select()
+        .from(stockCounts)
+        .where(ownedBy(stockCounts, owner))
+        .orderBy(asc(stockCounts.at)),
+      db
+        .select()
+        .from(batches)
+        .where(and(ownedBy(batches, owner), live(batches)))
+        .orderBy(asc(batches.cookedAt)),
+      db
+        .select()
+        .from(batchLines)
+        .where(ownedBy(batchLines, owner))
+        .orderBy(asc(batchLines.position)),
+      db
+        .select()
+        .from(reminders)
+        .where(and(ownedBy(reminders, owner), live(reminders)))
+        .orderBy(asc(reminders.createdAt)),
+    ]);
+
   return {
     format: EXPORT_FORMAT,
     version: EXPORT_VERSION,
@@ -213,6 +256,18 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       })),
       measurements: stripOwner(measurementRows),
       dayActivity: stripOwner(activityRows),
+    },
+    pantry: {
+      products: stripOwner(productRows).map((p) => ({
+        ...p,
+        purchases: stripOwner(purchaseRows.filter((x) => x.productId === p.id)),
+      })),
+      stockCounts: stripOwner(countRows),
+      batches: stripOwner(batchRows).map((b) => ({
+        ...b,
+        lines: stripOwner(batchLineRows.filter((l) => l.batchId === b.id)),
+      })),
+      reminders: stripOwner(reminderRows),
     },
   };
 }
