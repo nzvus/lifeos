@@ -27,7 +27,7 @@ export function isTheme(s: string): s is Theme {
  */
 export type ThemeSlots = { dayPanel: "rings" | "tiles" | "table" };
 export const THEME_SLOTS: Record<Theme, ThemeSlots> = {
-  label: { dayPanel: "table" },
+  label: { dayPanel: "rings" }, // the developer prefers rings + bars (2026-10-01)
   orto: { dayPanel: "rings" },
   cruscotto: { dayPanel: "tiles" },
 };
