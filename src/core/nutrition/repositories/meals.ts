@@ -14,7 +14,7 @@
  * Called by: src/app/(app)/meals/* and core/nutrition/repositories/log.ts.
  * Tested in: meals.test.ts.
  */
-import { and, asc, eq, isNotNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { ingredients, mealItems, mealRatings, meals } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
@@ -311,19 +311,43 @@ export async function deleteMeal(
   return trashed.length ? ok(null) : fail({ _form: "not_found" });
 }
 
-/** Takes a meal out of the trash; a live namesake created since: "duplicate_name". */
+/**
+ * Takes a meal out of the trash, with any of its ingredients that went to
+ * the trash after it (a meal never comes back with a missing line). A live
+ * namesake created since: "duplicate_name".
+ */
 export async function restoreMeal(
   db: Db,
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
   try {
-    const restored = await db
-      .update(meals)
-      .set({ deletedAt: null })
-      .where(and(ownedBy(meals, owner), isNotNull(meals.deletedAt), eq(meals.id, id)))
-      .returning({ id: meals.id });
-    return restored.length ? ok(null) : fail({ _form: "not_found" });
+    return await db.transaction(async (tx) => {
+      const restored = await tx
+        .update(meals)
+        .set({ deletedAt: null })
+        .where(and(ownedBy(meals, owner), isNotNull(meals.deletedAt), eq(meals.id, id)))
+        .returning({ id: meals.id });
+      if (!restored.length) return fail({ _form: "not_found" });
+      const lines = await tx
+        .select({ ingredientId: mealItems.ingredientId })
+        .from(mealItems)
+        .where(and(ownedBy(mealItems, owner), eq(mealItems.mealId, id)));
+      await tx
+        .update(ingredients)
+        .set({ deletedAt: null })
+        .where(
+          and(
+            ownedBy(ingredients, owner),
+            isNotNull(ingredients.deletedAt),
+            inArray(
+              ingredients.id,
+              lines.map((l) => l.ingredientId),
+            ),
+          ),
+        );
+      return ok(null);
+    });
   } catch (e) {
     if (pgErrorCode(e) === "23505") return fail({ _form: "duplicate_name" });
     throw e;

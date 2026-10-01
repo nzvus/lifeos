@@ -15,10 +15,11 @@ import {
   getIngredient,
   listIngredients,
   listTags,
+  restoreIngredients,
   tagsByIngredient,
   updateIngredient,
 } from "./ingredients";
-import { createMeal } from "./meals";
+import { createMeal, deleteMeal, getMeal, restoreMeal } from "./meals";
 import { getDay, logIngredient } from "./log";
 
 let db: Db;
@@ -152,5 +153,50 @@ describe("quality attributes and free tags (ADR-0012)", () => {
       origin: "mixed",
       fiberTypes: [],
     });
+  });
+});
+
+describe("ingredients in the trash (ADR-0015)", () => {
+  it("hides a trashed ingredient everywhere, frees its name, and restores it", async () => {
+    const ing = await createIngredient(db, alice, ingredientFixture());
+    if (!ing.ok) throw new Error("setup failed");
+    const id = ing.value.id;
+    expect((await deleteIngredient(db, alice, id)).ok).toBe(true);
+    expect(await getIngredient(db, alice, id)).toBeNull();
+    expect(await listIngredients(db, alice)).toEqual([]);
+    // A meal can't use it, and the log can't either.
+    expect(
+      (
+        await createMeal(db, alice, {
+          name: "P",
+          notes: "",
+          items: [{ ingredientId: id, quantity: "1" }],
+        })
+      ).ok,
+    ).toBe(false);
+    expect((await createIngredient(db, alice, ingredientFixture())).ok).toBe(true); // namesake
+    expect(await restoreIngredients(db, alice, [id])).toEqual({
+      ok: false,
+      errors: { _form: "duplicate_name" },
+    });
+  });
+
+  it("only live meals keep it out of the trash; restoring a meal brings it back", async () => {
+    const ing = await createIngredient(db, alice, ingredientFixture());
+    if (!ing.ok) throw new Error("setup failed");
+    const meal = await createMeal(db, alice, {
+      name: "Porridge",
+      notes: "",
+      items: [{ ingredientId: ing.value.id, quantity: "60" }],
+    });
+    if (!meal.ok) throw new Error("setup failed");
+    await deleteMeal(db, alice, meal.value.id);
+    expect((await deleteIngredient(db, alice, ing.value.id)).ok).toBe(true);
+    expect((await restoreMeal(db, alice, meal.value.id)).ok).toBe(true);
+    expect((await getIngredient(db, alice, ing.value.id))?.name).toBe("Oats");
+    expect((await getMeal(db, alice, meal.value.id))?.lines).toHaveLength(1);
+    // Someone else can't restore mine.
+    expect((await deleteIngredient(db, alice, ing.value.id)).ok).toBe(false); // in use again
+    expect((await restoreIngredients(db, bob, [ing.value.id])).ok).toBe(false);
   });
 });

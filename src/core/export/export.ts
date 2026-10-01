@@ -69,9 +69,9 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     db
       .select()
       .from(ingredients)
-      .where(ownedBy(ingredients, owner))
+      .where(and(ownedBy(ingredients, owner), live(ingredients)))
       .orderBy(asc(ingredients.name)),
-    // The trash is temporary (ADR-0015): only live meals are exported.
+    // The trash is temporary (ADR-0015): only live meals and ingredients are exported.
     db
       .select()
       .from(meals)

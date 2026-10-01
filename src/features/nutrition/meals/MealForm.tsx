@@ -25,8 +25,7 @@
 "use client";
 
 import { Carrot, Copy, Star, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useActionState, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import { MOMENTS } from "@/core/nutrition/moments";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
@@ -46,8 +45,8 @@ import { StarInput } from "@/ui/StarRating";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { SelectField } from "@/ui/SelectField";
 import { Section } from "@/ui/Section";
-import { toast } from "@/ui/Toast";
 import { useDraft } from "@/ui/useDraft";
+import { useEditFlow } from "@/ui/useEditFlow";
 
 type Line = { key: number; ingredientId: string; quantity: string };
 /** An ingredient the editor can offer. kcal/protein are display strings. */
@@ -153,7 +152,6 @@ export function MealForm({
   factors,
   t,
 }: Props) {
-  const router = useRouter();
   const a = t.actions;
   const [name, setName] = useState(initial.name);
   const [notes, setNotes] = useState(initial.notes);
@@ -188,63 +186,20 @@ export function MealForm({
     setLines(withKeys(s.items.length ? s.items : [{ ingredientId: "", quantity: "" }]));
   };
 
-  const [state, formAction] = useActionState(
-    async (prev: FormState, fd: FormData): Promise<FormState> => {
-      const r = await action(prev, fd);
-      if (r.status === "saved") {
-        draft.clear();
-        const before = initial;
-        toast({
-          message: fill(id ? a.saved : a.created, { name: name.trim() }),
-          action:
-            id && action
-              ? {
-                  label: a.undo,
-                  run: async () => {
-                    const u = await action(IDLE, toFormData(before));
-                    toast({
-                      message:
-                        u.status === "saved"
-                          ? a.restored
-                          : fill(a.undoFailed, { why: "" }),
-                    });
-                    router.refresh();
-                  },
-                }
-              : undefined,
-        });
-        router.push(from);
-      }
-      return r;
-    },
-    IDLE,
-  );
+  const { state, formAction, onDelete } = useEditFlow({
+    id,
+    from,
+    idle: IDLE,
+    action,
+    previous: () => toFormData(initial),
+    name: () => name.trim() || initial.name,
+    trash,
+    restore,
+    done: draft.clear,
+    labels: a,
+  });
   const err = (field: string) => fieldError(state, field, t.errors);
   const unitOf = (id: string) => ingredients.find((i) => i.id === id)?.unit ?? "";
-
-  const onDelete = async () => {
-    if (!id || !trash || !restore) return;
-    const r = await trash(id);
-    if (!r.ok) {
-      toast({ message: r.message ?? "" });
-      return;
-    }
-    draft.clear();
-    toast({
-      message: fill(a.deleted, { name: initial.name }),
-      action: {
-        label: a.undo,
-        run: async () => {
-          const u = await restore(id);
-          toast({
-            message: u.ok ? a.restored : fill(a.undoFailed, { why: u.message ?? "" }),
-          });
-          router.refresh();
-        },
-      },
-    });
-    router.push(from);
-  };
 
   // Searchable ingredient picker, most used first (core/shared/search.ts).
   const picker = useMemo(
@@ -293,7 +248,7 @@ export function MealForm({
                   label: a.delete,
                   icon: <Trash2 size={16} aria-hidden="true" />,
                   tone: "danger",
-                  onSelect: onDelete,
+                  onSelect: () => void onDelete?.(),
                 },
               ]}
             />

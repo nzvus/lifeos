@@ -1,24 +1,24 @@
 /**
  * app/(app)/ingredients/actions.ts — server actions for ingredients.
  * Same four steps as app/(app)/actions.ts (who? valid? do it, refresh).
- * On success they redirect() to the list; redirect works by throwing a
- * special signal, so it is never called inside a try/catch.
+ * ADR-0015: saving returns "saved" (the form goes back to where it came
+ * from, with Undo); deleting moves the ingredient to the trash and returns,
+ * so the page can offer Undo (restoreIngredientAction).
  */
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { formToObject } from "@/app/_server/forms";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import {
   createIngredient,
   deleteIngredient,
+  restoreIngredients,
   updateIngredient,
 } from "@/core/nutrition/repositories/ingredients";
 import { ingredientInput, parseInput } from "@/core/nutrition/validation";
 import type { FormState } from "@/core/shared/result";
-import type { ActionButtonState } from "@/ui/ActionButtonForm";
 
 export async function createIngredientAction(
   _prev: FormState,
@@ -31,7 +31,7 @@ export async function createIngredientAction(
   const result = await createIngredient(getDb(), owner, input.value);
   if (!result.ok) return { status: "error", errors: result.errors, values };
   revalidatePath("/ingredients");
-  redirect("/ingredients");
+  return { status: "saved" };
 }
 
 /** Bound per ingredient: `updateIngredientAction.bind(null, id)`. */
@@ -48,19 +48,27 @@ export async function updateIngredientAction(
   if (!result.ok) return { status: "error", errors: result.errors, values };
   revalidatePath("/ingredients");
   revalidatePath("/meals"); // meal totals use current ingredient values
-  redirect("/ingredients");
+  return { status: "saved" };
 }
 
+/** Moves an ingredient to the trash ("in_use" while a live meal has it). */
 export async function deleteIngredientAction(
   id: string,
-  _prev: ActionButtonState,
-  _formData: FormData,
-): Promise<ActionButtonState> {
+): Promise<{ ok: boolean; message?: string }> {
   const { owner, t } = await requireContext();
-  const result = await deleteIngredient(getDb(), owner, id);
-  // "in_use" is the interesting case: a meal still contains this ingredient.
-  if (!result.ok)
-    return { status: "error", message: t.errors[result.errors._form ?? "not_found"] };
-  revalidatePath("/ingredients");
-  redirect("/ingredients");
+  const r = await deleteIngredient(getDb(), owner, id);
+  if (!r.ok) return { ok: false, message: t.errors[r.errors._form ?? "not_found"] };
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+/** Takes an ingredient out of the trash (the toast's "Undo"). */
+export async function restoreIngredientAction(
+  id: string,
+): Promise<{ ok: boolean; message?: string }> {
+  const { owner, t } = await requireContext();
+  const r = await restoreIngredients(getDb(), owner, [id]);
+  if (!r.ok) return { ok: false, message: t.errors[r.errors._form ?? "not_found"] };
+  revalidatePath("/", "layout");
+  return { ok: true };
 }
