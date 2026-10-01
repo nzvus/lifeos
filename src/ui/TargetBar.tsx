@@ -5,7 +5,9 @@
  * so going OVER is visible as a bar passing the tick, not just a full bar.
  * Colour/opacity come from ui/targetTone.ts (graded by kind and distance).
  * Text: "value / target unit", plus a short status line (what's left or how
- * much over), and an "auto" marker when the target is a recommended default.
+ * much over), an "auto" marker when the target is a recommended default, and
+ * where the plan leads in numbers ("With the plan: 1950 / 2700 kcal · 750
+ * kcal left"), not only as the translucent part of the bar.
  */
 import type { ReactNode } from "react";
 
@@ -19,6 +21,8 @@ type Props = {
   ratio: number | null; // null = no target: no bar fill
   /** Eaten + planned (ADR-0009), drawn translucent beyond the eaten fill. */
   plannedRatio?: number;
+  /** The same in words, when the plan changes this nutrient. */
+  planned?: string;
   color: string;
   opacity: number;
   autoLabel?: string; // e.g. "auto", when the target is a recommended default
@@ -38,6 +42,7 @@ export function TargetBar({
   status,
   ratio,
   plannedRatio,
+  planned,
   color,
   opacity,
   autoLabel,
@@ -101,6 +106,9 @@ export function TargetBar({
         )}
       </div>
       {status && <span className="text-meta text-muted">{status}</span>}
+      {planned && (
+        <span className="text-meta text-muted italic tabular-nums">{planned}</span>
+      )}
     </div>
   );
 }

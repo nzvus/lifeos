@@ -76,4 +76,16 @@ describe("eatenQuality", () => {
     expect(s.nova.unknown).toBe(0);
     expect(s.fiber.beta_glucan).toBe("5"); // 50 g × 2 servings × 10 % / 2 types
   });
+
+  it("with the plan, counts the planned entries too", () => {
+    const s = eatenQuality(
+      [
+        { status: "eaten", servings: "2", lines: [oats] },
+        { status: "planned", servings: "1", lines: [biscuits] },
+      ],
+      true,
+    );
+    // 370 kcal of oats, 144 kcal of unclassified biscuits: 28 % unknown.
+    expect(s.nova.unknown).toBe(28);
+  });
 });

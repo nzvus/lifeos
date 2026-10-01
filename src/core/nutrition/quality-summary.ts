@@ -92,17 +92,22 @@ export function mealTags<T extends { name: string }>(
   return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** The summary of what was EATEN on a day (ADR-0009): lines × servings. */
+/**
+ * The summary of what was EATEN on a day (ADR-0009): lines × servings.
+ * `withPlanned`: also the planned entries — where the day ends if the plan
+ * is followed.
+ */
 export function eatenQuality(
   entries: readonly {
     status: "planned" | "eaten";
     servings: string;
     lines: readonly QualityLine[];
   }[],
+  withPlanned = false,
 ): QualitySummary {
   return qualitySummary(
     entries
-      .filter((e) => e.status === "eaten")
+      .filter((e) => withPlanned || e.status === "eaten")
       .flatMap((e) =>
         e.lines.map((l) => ({
           ...l,

@@ -77,8 +77,7 @@ export function DayPanel({
   };
 
   /** The short line under a bar, worded for the target's kind. */
-  const statusText = (k: NutrientKey): string | undefined => {
-    const a = assess(k);
+  const statusText = (k: NutrientKey, a = assess(k)): string | undefined => {
     if (a.status === "none") return undefined;
     const v = `${num(a.delta, k)} ${NUTRIENT_UNIT[k]}`;
     const kind = TARGET_KIND[k];
@@ -89,14 +88,27 @@ export function DayPanel({
     return fill(t.label.over, { v }); // over a target, or above a minimum (fine)
   };
 
+  /** "value / target unit" (or just "value unit" without a target). */
+  const valueText = (v: string, k: NutrientKey) =>
+    targets[k] === null
+      ? `${num(v, k)} ${NUTRIENT_UNIT[k]}`
+      : `${num(v, k)} / ${num(targets[k]!, k)} ${NUTRIENT_UNIT[k]}`;
+
+  /** Where the plan leads, in numbers; nothing when it changes nothing here. */
+  const plannedText = (k: NutrientKey): string | undefined => {
+    const v = withPlanned.nutrients[k];
+    if (num(v, k) === num(totals.nutrients[k], k)) return undefined;
+    const status = statusText(k, assessTarget(v, targets[k], TARGET_KIND[k]));
+    return [fill(t.day.withPlanned, { v: valueText(v, k) }), status]
+      .filter(Boolean)
+      .join(" · ");
+  };
+
   /** One nutrient against its target (ui/TargetBar), as a row or a tile. */
   const bar = (k: NutrientKey, layout: "row" | "tile") => {
     const a = assess(k);
     const { color, opacity } = tone(k);
-    const value =
-      targets[k] === null
-        ? `${num(totals.nutrients[k], k)} ${NUTRIENT_UNIT[k]}`
-        : `${num(totals.nutrients[k], k)} / ${num(targets[k]!, k)} ${NUTRIENT_UNIT[k]}`;
+    const value = valueText(totals.nutrients[k], k);
     return (
       <TargetBar
         key={k}
@@ -108,6 +120,7 @@ export function DayPanel({
         status={statusText(k)}
         ratio={a.status === "none" ? null : a.ratio}
         plannedRatio={plannedRatio(k)}
+        planned={plannedText(k)}
         color={color}
         opacity={opacity}
         autoLabel={auto.includes(k) ? t.panel.auto : undefined}
@@ -139,10 +152,23 @@ export function DayPanel({
         <Coins size={16} aria-hidden="true" />
         {t.label.cost}
       </span>
-      <span className="font-display text-item tabular-nums">
-        {totals.costComplete
-          ? formatCents(totals.costCents, locale)
-          : fill(t.label.costPartial, { v: formatCents(totals.costCents, locale) })}
+      <span className="flex flex-col items-end">
+        <span className="font-display text-item tabular-nums">
+          {totals.costComplete
+            ? formatCents(totals.costCents, locale)
+            : fill(t.label.costPartial, { v: formatCents(totals.costCents, locale) })}
+        </span>
+        {withPlanned.costCents !== totals.costCents && (
+          <span className="text-muted italic tabular-nums">
+            {fill(t.label.costWithPlanned, {
+              v: withPlanned.costComplete
+                ? formatCents(withPlanned.costCents, locale)
+                : fill(t.label.costPartialShort, {
+                    v: formatCents(withPlanned.costCents, locale),
+                  }),
+            })}
+          </span>
+        )}
       </span>
     </p>
   );
