@@ -3,7 +3,7 @@
  * device only), the data export link (GET /api/export, a plain download)
  * and the way to the trash (/settings/trash).
  */
-import { Download, Eye, SlidersHorizontal, Star, Trash2 } from "lucide-react";
+import { Download, Eye, SlidersHorizontal, Star, Trash2, UserCog } from "lucide-react";
 import Link from "next/link";
 import { getDisplay } from "@/app/_server/display";
 import { getDb } from "@/app/_server/runtime";
@@ -36,12 +36,14 @@ export default async function SettingsPage() {
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
       <PageHeader title={t.settings.title} />
-      <SettingsForm
-        action={saveSettingsAction}
-        initial={settingsFormValues(settings)}
-        timeZones={timeZones}
-        t={{ settings: t.settings, errors: t.errors }}
-      />
+      <Section title={t.actions.general} icon={<UserCog size={20} aria-hidden="true" />}>
+        <SettingsForm
+          action={saveSettingsAction}
+          initial={settingsFormValues(settings)}
+          timeZones={timeZones}
+          t={{ settings: t.settings, errors: t.errors }}
+        />
+      </Section>
       <Section
         title={t.preferences.title}
         icon={<SlidersHorizontal size={20} aria-hidden="true" />}

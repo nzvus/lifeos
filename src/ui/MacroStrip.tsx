@@ -29,6 +29,8 @@ export type MacroStripValues = {
   /** "Of which": shown after carbs and fat when present. */
   sugars?: string;
   saturatedFat?: string;
+  /** Salt in g, as a number only (no bar): it is a limit, not a macro. */
+  salt?: string;
   /** Percent of energy (core macroSplit); null/absent hides the bar. */
   split?: MacroBarSplit | null;
 };
@@ -39,6 +41,7 @@ export type MacroStripLabels = {
   fiber: string;
   sugars: string;
   saturatedFat: string;
+  salt: string;
   split: string;
 };
 
@@ -79,7 +82,8 @@ export function MacroStrip({
   /** False when the card already shows the energy elsewhere. */
   withEnergy?: boolean;
 }) {
-  const { energy, protein, carbs, fat, fiber, sugars, saturatedFat, split } = values;
+  const { energy, protein, carbs, fat, fiber, sugars, saturatedFat, salt, split } =
+    values;
   return (
     <div className="flex flex-col gap-1">
       <p className="flex flex-wrap items-center gap-x-3 gap-y-0.5 font-display text-meta tabular-nums">
@@ -103,6 +107,9 @@ export function MacroStrip({
           )}
         </span>
         {fiber !== undefined && <Value name="fiber" value={fiber} label={labels.fiber} />}
+        {salt !== undefined && (
+          <Value name="salt" value={`${salt} g`} label={labels.salt} part />
+        )}
       </p>
       {split && <MacroBar split={split} label={labels.split} />}
     </div>
