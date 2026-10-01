@@ -24,7 +24,7 @@
  */
 "use client";
 
-import { Carrot, Copy, Star, Trash2 } from "lucide-react";
+import { Carrot, Copy, Star, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import { MOMENTS } from "@/core/nutrition/moments";
@@ -47,6 +47,7 @@ import { SelectField } from "@/ui/SelectField";
 import { Section } from "@/ui/Section";
 import { useDraft } from "@/ui/useDraft";
 import { useEditFlow } from "@/ui/useEditFlow";
+import { buttonClass, TEXT_LINK } from "@/ui/button";
 
 type Line = { key: number; ingredientId: string; quantity: string };
 /** An ingredient the editor can offer. kcal/protein are display strings. */
@@ -269,7 +270,7 @@ export function MealForm({
             >
               {a.draftRestore}
             </button>
-            <button type="button" onClick={draft.clear} className="underline">
+            <button type="button" onClick={draft.clear} className={TEXT_LINK}>
               {a.draftDiscard}
             </button>
           </span>
@@ -340,9 +341,11 @@ export function MealForm({
             <button
               type="button"
               onClick={() => setLines((ls) => ls.filter((l) => l.key !== line.key))}
-              className="pb-2 text-meta underline"
+              aria-label={t.meals.removeLine}
+              title={t.meals.removeLine}
+              className={buttonClass({ variant: "quiet", iconOnly: true })}
             >
-              {t.meals.removeLine}
+              <X size={18} aria-hidden="true" />
             </button>
           </div>
         ))}
@@ -351,7 +354,7 @@ export function MealForm({
           onClick={() =>
             setLines((ls) => [...ls, ...withKeys([{ ingredientId: "", quantity: "" }])])
           }
-          className="self-start rule-medium border-ink px-3 py-1 font-display font-semibold"
+          className={`self-start ${buttonClass()}`}
         >
           {t.meals.addLine}
         </button>

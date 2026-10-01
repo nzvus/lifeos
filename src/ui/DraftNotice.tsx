@@ -5,6 +5,7 @@
 "use client";
 
 import { FormAlert } from "./FormAlert";
+import { TEXT_LINK } from "./button";
 
 export function DraftNotice({
   onRestore,
@@ -19,10 +20,14 @@ export function DraftNotice({
     <FormAlert tone="info">
       <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
         <span>{labels.draftFound}</span>
-        <button type="button" onClick={onRestore} className="font-semibold underline">
+        <button
+          type="button"
+          onClick={onRestore}
+          className={`font-semibold ${TEXT_LINK}`}
+        >
           {labels.draftRestore}
         </button>
-        <button type="button" onClick={onDiscard} className="underline">
+        <button type="button" onClick={onDiscard} className={TEXT_LINK}>
           {labels.draftDiscard}
         </button>
       </span>

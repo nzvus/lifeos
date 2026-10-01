@@ -11,30 +11,18 @@
 
 import type { ReactNode } from "react";
 import { useFormStatus } from "react-dom";
-
-const VARIANTS = {
-  primary: "bg-herb text-sheet",
-  danger: "rule-medium border-tomato text-tomato",
-  quiet: "rule-medium border-ink text-ink",
-  /** Secondary actions inside a detail panel: present, not shouting. */
-  subtle: "border border-hairline text-ink hover:border-ink",
-} as const;
-
-const SIZES = {
-  normal: "px-4 py-2 text-item",
-  small: "px-2 py-1 text-meta",
-} as const;
+import { buttonClass, type ButtonSize, type ButtonVariant } from "./button";
 
 type Props = {
   children: ReactNode;
   /** Optional icon shown before the text (decorative). */
   icon?: ReactNode;
-  variant?: keyof typeof VARIANTS;
+  variant?: ButtonVariant;
   /** Lets one form have several buttons with different actions. */
   formAction?: (formData: FormData) => void;
   /** Show only the icon; the text stays for screen readers and as tooltip. */
   iconOnly?: boolean;
-  size?: keyof typeof SIZES;
+  size?: ButtonSize;
 };
 
 export function SubmitButton({
@@ -43,7 +31,7 @@ export function SubmitButton({
   variant = "primary",
   formAction,
   iconOnly = false,
-  size = "normal",
+  size = "md",
 }: Props) {
   const { pending } = useFormStatus();
   return (
@@ -53,7 +41,7 @@ export function SubmitButton({
       disabled={pending}
       aria-disabled={pending}
       title={iconOnly && typeof children === "string" ? children : undefined}
-      className={`${VARIANTS[variant]} inline-flex rounded-control items-center gap-2 ${iconOnly ? "p-2 text-item" : SIZES[size]} font-display font-semibold tracking-wide disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus`}
+      className={buttonClass({ variant, size, iconOnly })}
     >
       {icon}
       {iconOnly ? <span className="sr-only">{children}</span> : children}

@@ -10,6 +10,7 @@
  * kcal left"), not only as the translucent part of the bar.
  */
 import type { ReactNode } from "react";
+import { Badge } from "./Badge";
 
 type Props = {
   icon: ReactNode;
@@ -65,14 +66,7 @@ export function TargetBar({
         >
           {icon}
           {label}
-          {autoLabel && (
-            <span
-              title={autoHint}
-              className="border border-hairline px-1 text-meta font-normal text-muted"
-            >
-              {autoLabel}
-            </span>
-          )}
+          {autoLabel && <Badge title={autoHint}>{autoLabel}</Badge>}
         </span>
         <span
           className={`font-display tabular-nums ${layout === "tile" ? "text-section font-bold" : ""}`}

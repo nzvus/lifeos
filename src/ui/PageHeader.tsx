@@ -6,6 +6,7 @@
  */
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { buttonClass, TEXT_LINK } from "./button";
 
 type LinkSpec = { href: string; label: string };
 
@@ -23,17 +24,14 @@ export function PageHeader({
   return (
     <div className="flex flex-col gap-2">
       {back && (
-        <Link href={back.href} className="text-meta underline">
+        <Link href={back.href} className={`self-start text-meta ${TEXT_LINK}`}>
           {back.label}
         </Link>
       )}
       <div className="flex items-center justify-between gap-4">
         <h1 className="font-display text-title font-bold">{title}</h1>
         {action && (
-          <Link
-            href={action.href}
-            className="rounded-control bg-herb px-3 py-1 font-display text-item font-semibold whitespace-nowrap text-sheet"
-          >
+          <Link href={action.href} className={buttonClass({ variant: "primary" })}>
             {action.label}
           </Link>
         )}

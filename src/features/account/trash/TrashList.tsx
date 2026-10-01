@@ -14,6 +14,7 @@ import { fill, type Messages } from "@/i18n";
 import { ListItem } from "@/ui/ListItem";
 import { Menu } from "@/ui/Menu";
 import { toast } from "@/ui/Toast";
+import { buttonClass } from "@/ui/button";
 
 export type TrashRow = {
   kind: keyof Messages["trash"]["kinds"];
@@ -88,14 +89,14 @@ export function TrashList({
                 <button
                   type="button"
                   onClick={() => void run(purge, row, t.trash.purged)}
-                  className="rule-medium rounded-control border-tomato px-3 py-1.5 font-display font-semibold text-tomato"
+                  className={buttonClass({ variant: "danger", size: "sm" })}
                 >
                   {t.trash.confirmYes}
                 </button>
                 <button
                   type="button"
                   onClick={() => setConfirming(null)}
-                  className="rounded-control border border-hairline px-3 py-1.5 font-display font-semibold"
+                  className={buttonClass({ variant: "quiet", size: "sm" })}
                 >
                   {t.trash.cancel}
                 </button>

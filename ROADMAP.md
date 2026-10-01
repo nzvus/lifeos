@@ -145,6 +145,14 @@
 - [x] Day entries look like the meal cards: cost, NOVA bar, protein origin, fibre types, tags, rating (from the entry's snapshot lines)
 - [x] Planned in numbers: every bar, the cost, the day quality and the training burn say where the day ends with the plan (core dayBurn, eatenQuality withPlanned)
 
+## Design pass: one look, three real themes (requested 2026-10-01)
+- **Goal:** every page uses the same parts with the same spacing; the three themes differ in more than colour. Audit on phone and desktop screenshots, all themes.
+- [x] One button (ui/button.ts: primary / secondary / subtle / quiet / danger, md 44 px / sm 36 px), text links, ui/Badge; every hand-styled button replaced; header icons (settings, sign out)
+- [ ] Rhythm: one spacing scale for cards, rows, headings (every section with its icon); readable meta text
+- [ ] Rows and forms: day entries with "⋯" like every row; planned items readable (no 60 % opacity); every edit field inside a card
+- [ ] Day page and desktop: simpler day navigation, a two-column layout that fills the width
+- [ ] Themes with an identity: Label = a nutrition-facts table, square, ruled; Orto = soft, warm, roomy; Cruscotto = dense dashboard tiles
+
 ## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)
 - **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.
 - [ ] ADR revising ADR-0013 (options, then the developer decides). Open questions:

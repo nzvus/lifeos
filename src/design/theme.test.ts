@@ -69,8 +69,10 @@ describe("layout variants (data-layout)", () => {
  */
 describe("theme contract", () => {
   const read = (path: string) => readFileSync(`${root}src/design/${path}`, "utf8");
+  // Derived tokens (color-mix of other tokens) follow the theme by
+  // themselves: a theme need not, and should not, repeat them.
   const colourTokens = (block: string) =>
-    [...block.matchAll(/(--color-[a-z-]+)\s*:/g)].map((m) => m[1]).sort();
+    [...block.matchAll(/(--color-[a-z-]+)\s*:(?!\s*color-mix)/g)].map((m) => m[1]).sort();
   /** The declarations of the first rule whose selector is exactly `selector`. */
   const blockOf = (css: string, selector: string) => {
     const start = css.indexOf(`${selector} {`);

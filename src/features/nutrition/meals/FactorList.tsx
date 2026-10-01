@@ -48,7 +48,7 @@ export function FactorList({ factors, createAction, deleteAction, t }: Props) {
                 action={deleteAction.bind(null, f.id)}
                 label={`${t.ratings.deleteFactor} ${f.name}`}
                 icon={<Trash2 size={16} aria-hidden="true" />}
-                variant="quiet"
+                variant="secondary"
                 iconOnly
               />
             </li>
@@ -70,7 +70,7 @@ export function FactorList({ factors, createAction, deleteAction, t }: Props) {
         />
         <SubmitButton
           variant="subtle"
-          size="small"
+          size="sm"
           icon={<Plus size={14} aria-hidden="true" />}
         >
           {t.ratings.addFactor}

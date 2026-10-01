@@ -15,6 +15,7 @@ import { RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useFormStatus } from "react-dom";
+import { buttonClass } from "./button";
 
 type Props = {
   /** Something differs from what is saved. */
@@ -51,16 +52,13 @@ export function ActionBar({
             onClick={onRestore}
             aria-label={labels.restore}
             title={labels.restore}
-            className="tile inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-control"
+            className={buttonClass({ variant: "subtle", iconOnly: true })}
           >
             <RotateCcw size={18} aria-hidden="true" />
           </button>
         )}
         <span className="flex-1" />
-        <Link
-          href={cancelHref}
-          className="inline-flex h-11 items-center rounded-control px-4 font-display text-item font-semibold underline-offset-4 hover:underline"
-        >
+        <Link href={cancelHref} className={buttonClass({ variant: "quiet" })}>
           {labels.cancel}
         </Link>
         <Save enabled={dirty || isNew} labels={labels} />
@@ -75,7 +73,7 @@ function Save({ enabled, labels }: { enabled: boolean; labels: Props["labels"] }
     <button
       type="submit"
       disabled={!enabled || pending}
-      className="inline-flex h-11 items-center rounded-control bg-herb px-5 font-display text-item font-bold text-sheet disabled:opacity-40"
+      className={buttonClass({ variant: "primary" })}
     >
       {pending ? labels.saving : labels.save}
     </button>

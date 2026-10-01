@@ -16,6 +16,7 @@ import type { Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { authClient } from "./auth-client";
+import { buttonClass, TEXT_LINK } from "@/ui/button";
 
 export function SignUpForm({ t }: { t: Messages["auth"] }) {
   const router = useRouter();
@@ -57,11 +58,11 @@ export function SignUpForm({ t }: { t: Messages["auth"] }) {
       <button
         type="submit"
         disabled={pending}
-        className="bg-herb px-4 py-2 font-display text-item font-semibold text-sheet disabled:opacity-50"
+        className={buttonClass({ variant: "primary", block: true })}
       >
         {t.signUp}
       </button>
-      <Link href="/sign-in" className="text-meta underline">
+      <Link href="/sign-in" className={`self-start text-meta ${TEXT_LINK}`}>
         {t.toSignIn}
       </Link>
     </form>

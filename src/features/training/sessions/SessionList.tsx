@@ -21,6 +21,7 @@ import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { ListItem } from "@/ui/ListItem";
 import { MuscleChips } from "@/ui/MuscleChip";
 import { TrashMenu } from "@/ui/TrashMenu";
+import { Badge } from "@/ui/Badge";
 
 type Props = {
   sessions: SessionView[];
@@ -86,7 +87,13 @@ export function SessionList({
               />
             }
             aside={
-              showDay ? date.format(new Date(`${s.day}T12:00:00Z`)) : t.statuses[s.status]
+              showDay ? (
+                date.format(new Date(`${s.day}T12:00:00Z`))
+              ) : (
+                <Badge tone={s.status === "done" ? "done" : "planned"}>
+                  {t.statuses[s.status]}
+                </Badge>
+              )
             }
             footer={[
               s.durationMin ? fill(t.minutesShort, { n: String(s.durationMin) }) : null,

@@ -30,6 +30,9 @@
   --color-tomato: #b23a2a; /* over target, errors, destructive actions */
   --color-warn: #b6500a; /* close to a limit / slightly over (4.6:1 on paper: usable as text) */
   --color-focus: #2d6a4c;
+  /* Hover / pressed primary button: herb pushed towards ink (every theme,
+     both modes, since it follows the theme's own herb and ink). */
+  --color-herb-strong: color-mix(in oklab, var(--color-herb) 80%, var(--color-ink));
   /* Nutrient colours: one per nutrient, used everywhere (bars, legends,
      charts, icons) so the code is learned once. Following common nutrition
      app conventions: protein red-pink, carbs amber, fat blue, fibre green.
@@ -83,6 +86,7 @@
      (rounded-surface). Square on the label. */
   --radius-control: 0rem;
   --radius-surface: 0rem;
+  --radius-badge: 0.25rem; /* ui/Badge: status and kind labels */
   /* Type scale: five named levels, the only text sizes the app uses (lint
      forbids text-xs … text-4xl). Sizes and line heights are Tailwind's own
      3xl / xl / lg / base / sm, so the label theme looks as before. */

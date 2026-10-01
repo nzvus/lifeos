@@ -41,6 +41,7 @@ import { startLiveAction } from "./live-actions";
 import { presetTiles } from "./preset-tiles";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
+import { buttonClass, TEXT_LINK } from "@/ui/button";
 
 type Props = { searchParams: Promise<{ week?: string }> };
 
@@ -73,17 +74,17 @@ export default async function TrainingPage({ searchParams }: Props) {
         title={t.training.title}
         action={{ href: "/training/new", label: t.training.new }}
       />
-      <nav className="flex flex-wrap gap-x-4 gap-y-1 text-meta">
+      <nav className="flex flex-wrap gap-2">
         <Link
           href="/training/exercises"
-          className="inline-flex items-center gap-1 underline"
+          className={buttonClass({ variant: "subtle", size: "sm" })}
         >
           <ListOrdered size={14} aria-hidden="true" />
           {t.exercises.title}
         </Link>
         <Link
           href="/training/routines"
-          className="inline-flex items-center gap-1 underline"
+          className={buttonClass({ variant: "subtle", size: "sm" })}
         >
           <ClipboardList size={14} aria-hidden="true" />
           {t.routines.title}
@@ -138,7 +139,7 @@ export default async function TrainingPage({ searchParams }: Props) {
           title={p.exercises}
           icon={<TrendingUp size={20} aria-hidden="true" />}
           aside={
-            <Link href="/training/exercises" className="underline">
+            <Link href="/training/exercises" className={TEXT_LINK}>
               {p.all}
             </Link>
           }

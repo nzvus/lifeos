@@ -17,6 +17,7 @@ import { fill } from "@/i18n";
 import { PageHeader } from "@/ui/PageHeader";
 import { createMealAction } from "../actions";
 import { mealEditorIngredients } from "../ingredient-options";
+import { TEXT_LINK } from "@/ui/button";
 
 type Props = { searchParams: Promise<{ copy?: string; from?: string }> };
 
@@ -44,7 +45,7 @@ export default async function NewMealPage({ searchParams }: Props) {
           />
           <p className="text-muted">
             {t.meals.needIngredients}{" "}
-            <Link href="/ingredients/new" className="underline">
+            <Link href="/ingredients/new" className={TEXT_LINK}>
               {t.ingredients.newTitle}
             </Link>
           </p>
