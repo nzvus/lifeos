@@ -13,7 +13,7 @@
  * Leaf module: imports nothing. Keys that must match core/ (nutrients, error
  * codes, locales) are checked in src/app/_server/i18n.ts, where both meet.
  */
-import { pantryEn, trashEn, energyEn, assistantEn } from "./messages.home.en";
+import { pantryEn, trashEn, energyEn, assistantEn, barcodeEn } from "./messages.home.en";
 
 export const en = {
   app: {
@@ -217,6 +217,7 @@ export const en = {
   trash: trashEn,
   energy: energyEn,
   assistant: assistantEn,
+  barcode: barcodeEn,
   settings: {
     title: "Settings",
     timezone: "Time zone",

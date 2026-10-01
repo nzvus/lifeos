@@ -205,3 +205,16 @@ export const assistantEn = {
   removeKey: "Remove the key",
   keyRemoved: "Key removed",
 };
+
+export const barcodeEn = {
+  title: "From a barcode",
+  scan: "Scan the code",
+  stop: "Close the camera",
+  code: "Barcode",
+  lookup: "Look up the code",
+  found: "Values from Open Food Facts: check them against the label before saving.",
+  missing: "Code {code} is not on Open Food Facts: fill it in by hand.",
+  invalid: "A barcode has 6 to 14 digits.",
+  noCamera: "This browser can't read codes from the camera: type the digits.",
+  hint: "Open Food Facts is a free, open database of food products.",
+};

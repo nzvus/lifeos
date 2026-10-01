@@ -208,3 +208,16 @@ export const assistantIt: Messages["assistant"] = {
   removeKey: "Rimuovi la chiave",
   keyRemoved: "Chiave rimossa",
 };
+
+export const barcodeIt: Messages["barcode"] = {
+  title: "Da codice a barre",
+  scan: "Inquadra il codice",
+  stop: "Chiudi la fotocamera",
+  code: "Codice a barre",
+  lookup: "Cerca il codice",
+  found: "Valori presi da Open Food Facts: controllali con l'etichetta prima di salvare.",
+  missing: "Il codice {code} non è su Open Food Facts: compila a mano.",
+  invalid: "Un codice a barre ha da 6 a 14 cifre.",
+  noCamera: "Questo browser non legge i codici dalla fotocamera: scrivi le cifre.",
+  hint: "Open Food Facts è un archivio libero e gratuito di prodotti alimentari.",
+};
