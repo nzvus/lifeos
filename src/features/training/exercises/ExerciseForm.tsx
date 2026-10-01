@@ -8,10 +8,15 @@
  * "Suggest from the name" fills pattern and groups from core's guess; a new
  * exercise gets the guess as soon as its name is typed, unless something was
  * already chosen.
+ *
+ * ADR-0015: the pinned ui/ActionBar (↺ / Cancel / Save), a draft kept in
+ * this browser, Save back to `from` with Undo (ui/useEditFlow). The page
+ * header (with its "⋯" Delete) belongs to the page, which also shows the
+ * progress. The fields live in ExerciseFields, remounted by ↺ or a draft.
  */
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import {
   MOVEMENT_PATTERNS,
@@ -24,22 +29,77 @@ import {
 import { EXERCISE_KINDS } from "@/core/training/kinds";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import type { Messages } from "@/i18n";
+import { ActionBar } from "@/ui/ActionBar";
+import { DraftNotice } from "@/ui/DraftNotice";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { MuscleChip } from "@/ui/MuscleChip";
 import { SelectField } from "@/ui/SelectField";
-import { SubmitButton } from "@/ui/SubmitButton";
+import { toFormData, useEditableForm } from "@/ui/useEditableForm";
+import { useEditFlow } from "@/ui/useEditFlow";
+
+type T = Pick<Messages, "exercises" | "training" | "errors" | "actions">;
 
 type Props = {
+  /** The exercise being edited; absent for a new one. */
+  id?: string;
+  /** Where Cancel and "after saving" lead. */
+  from: string;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   initial: Record<string, string>;
-  submitLabel: string;
-  t: Pick<Messages, "exercises" | "training" | "errors">;
+  t: T;
 };
 
-export function ExerciseForm({ action, initial, submitLabel, t }: Props) {
-  const [state, formAction] = useActionState(action, IDLE);
+export function ExerciseForm({ id, from, action, initial, t }: Props) {
+  const a = t.actions;
+  const { form, base, version, values, saved, dirty, draft, offer, load } =
+    useEditableForm(`exercise:${id ?? "new"}`, initial);
+  const { state, formAction } = useEditFlow({
+    id,
+    from,
+    idle: IDLE,
+    action,
+    previous: () => toFormData(saved ?? {}),
+    name: () => values?.name?.trim() || initial.name || "",
+    done: draft.clear,
+    labels: a,
+  });
+  return (
+    <form ref={form} action={formAction} className="flex flex-col gap-5">
+      {offer && (
+        <DraftNotice
+          onRestore={() => {
+            load(offer);
+            draft.clear();
+          }}
+          onDiscard={draft.clear}
+          labels={a}
+        />
+      )}
+      <ExerciseFields key={version} state={state} initial={base} isNew={!id} t={t} />
+      <ActionBar
+        dirty={dirty}
+        isNew={!id}
+        onRestore={() => load(saved ?? initial)}
+        cancelHref={from}
+        labels={{ save: a.save, cancel: a.cancel, restore: a.restore, saving: a.saving }}
+      />
+    </form>
+  );
+}
+
+function ExerciseFields({
+  state,
+  initial,
+  isNew,
+  t,
+}: {
+  state: FormState;
+  initial: Record<string, string>;
+  isNew: boolean;
+  t: T;
+}) {
   const err = (f: string) => fieldError(state, f, t.errors);
   const val = (f: string) => valueOf(state, f, initial[f] ?? "");
   const x = t.exercises;
@@ -47,7 +107,6 @@ export function ExerciseForm({ action, initial, submitLabel, t }: Props) {
     val("muscleGroups").split(",").filter(Boolean),
   );
   const [pattern, setPattern] = useState(val("pattern"));
-  const isNew = !initial.name;
   const suggest = (name: string) => {
     const s = suggestAnatomy(name);
     if (s.pattern) setPattern(s.pattern);
@@ -56,10 +115,7 @@ export function ExerciseForm({ action, initial, submitLabel, t }: Props) {
   const toggle = (g: string) =>
     setGroups((gs) => (gs.includes(g) ? gs.filter((x) => x !== g) : [...gs, g]));
   return (
-    <form action={formAction} className="flex flex-col gap-5">
-      {state.status === "saved" && (
-        <FormAlert tone="success">{t.training.save}</FormAlert>
-      )}
+    <>
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
       <Field
         label={x.name}
@@ -165,9 +221,6 @@ export function ExerciseForm({ action, initial, submitLabel, t }: Props) {
         defaultValue={val("notes")}
         error={err("notes")}
       />
-      <div>
-        <SubmitButton>{submitLabel}</SubmitButton>
-      </div>
-    </form>
+    </>
   );
 }

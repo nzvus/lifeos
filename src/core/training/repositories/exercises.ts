@@ -4,10 +4,11 @@
  * owner-filtered; deleting an exercise that history uses is refused
  * ("in_use") — merge it into another instead, which moves the history.
  */
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { exercises, routineItems, sessionExercises } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { live } from "../../shared/trash";
 import { fail, ok, pgErrorCode, type Result } from "../../shared/result";
 import type { ExerciseInput } from "../validation";
 
@@ -17,7 +18,7 @@ export async function listExercises(db: Db, owner: Owner): Promise<Exercise[]> {
   return db
     .select()
     .from(exercises)
-    .where(ownedBy(exercises, owner))
+    .where(and(ownedBy(exercises, owner), live(exercises)))
     .orderBy(asc(exercises.name));
 }
 
@@ -31,7 +32,13 @@ export async function getExercisesByIds(
   return db
     .select()
     .from(exercises)
-    .where(and(ownedBy(exercises, owner), inArray(exercises.id, [...new Set(ids)])));
+    .where(
+      and(
+        ownedBy(exercises, owner),
+        live(exercises),
+        inArray(exercises.id, [...new Set(ids)]),
+      ),
+    );
 }
 
 export async function createExercise(
@@ -61,7 +68,7 @@ export async function updateExercise(
     const [row] = await db
       .update(exercises)
       .set(input)
-      .where(and(ownedBy(exercises, owner), eq(exercises.id, id)))
+      .where(and(ownedBy(exercises, owner), live(exercises), eq(exercises.id, id)))
       .returning();
     return row ? ok(row) : fail({ _form: "not_found" });
   } catch (e) {
@@ -70,22 +77,56 @@ export async function updateExercise(
   }
 }
 
-/** Deletes an unused exercise; one with history or in a routine: "in_use". */
+/**
+ * Moves an unused exercise to the trash (ADR-0015); one with history or in
+ * a routine: "in_use" — merge it into another instead, which moves the
+ * history (mergeExercises).
+ */
 export async function deleteExercise(
   db: Db,
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
+  const [inSession] = await db
+    .select({ id: sessionExercises.id })
+    .from(sessionExercises)
+    .where(and(ownedBy(sessionExercises, owner), eq(sessionExercises.exerciseId, id)))
+    .limit(1);
+  const [inRoutine] = await db
+    .select({ id: routineItems.id })
+    .from(routineItems)
+    .where(and(ownedBy(routineItems, owner), eq(routineItems.exerciseId, id)))
+    .limit(1);
+  if (inSession || inRoutine) return fail({ _form: "in_use" });
+  const trashed = await db
+    .update(exercises)
+    .set({ deletedAt: new Date() })
+    .where(and(ownedBy(exercises, owner), live(exercises), eq(exercises.id, id)))
+    .returning({ id: exercises.id });
+  return trashed.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/** Takes an exercise out of the trash; a live namesake created since: "duplicate_name". */
+export async function restoreExercise(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<Result<null>> {
   try {
-    const gone = await db
-      .delete(exercises)
-      .where(and(ownedBy(exercises, owner), eq(exercises.id, id)))
+    const restored = await db
+      .update(exercises)
+      .set({ deletedAt: null })
+      .where(
+        and(
+          ownedBy(exercises, owner),
+          isNotNull(exercises.deletedAt),
+          eq(exercises.id, id),
+        ),
+      )
       .returning({ id: exercises.id });
-    return gone.length ? ok(null) : fail({ _form: "not_found" });
+    return restored.length ? ok(null) : fail({ _form: "not_found" });
   } catch (e) {
-    // RESTRICT reports 23001, NO ACTION 23503: both mean "still referenced".
-    const code = pgErrorCode(e);
-    if (code === "23001" || code === "23503") return fail({ _form: "in_use" });
+    if (pgErrorCode(e) === "23505") return fail({ _form: "duplicate_name" });
     throw e;
   }
 }

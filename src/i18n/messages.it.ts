@@ -406,6 +406,8 @@ export const it: Messages = {
     kinds: { strength: "forza", bodyweight: "corpo libero", cardio: "cardio" },
   },
   exercises: {
+    inUse:
+      "Ha già una storia o è in una scheda: uniscilo a un altro esercizio (più sotto) invece di eliminarlo.",
     title: "Esercizi",
     new: "Nuovo esercizio",
     back: "← Esercizi",

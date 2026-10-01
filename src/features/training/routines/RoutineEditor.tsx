@@ -3,20 +3,29 @@
  * (ADR-0005): a name, notes and its exercises with default sets, reps, kg
  * and rest. The rows travel as JSON in one hidden field, `items`, like the
  * meal editor's lines.
+ *
+ * ADR-0015: the pinned ui/ActionBar (↺ / Cancel / Save), a draft kept in
+ * this browser, Save back to `from` with Undo (ui/useEditFlow); the page
+ * header holds the "⋯" Delete. The fields (RoutineFields) start from text
+ * values, so ↺ or a draft remount them from the form's own values.
  */
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
-import { useActionState, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import { pickerSearch } from "@/core/shared/search";
 import type { ExerciseKind } from "@/core/training/kinds";
 import type { Messages } from "@/i18n";
+import { ActionBar } from "@/ui/ActionBar";
+import { DraftNotice } from "@/ui/DraftNotice";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { Section } from "@/ui/Section";
-import { SubmitButton } from "@/ui/SubmitButton";
+import { toFormData, useEditableForm } from "@/ui/useEditableForm";
+import { useEditFlow } from "@/ui/useEditFlow";
+import type { FormValues } from "@/ui/useFormValues";
 
 export type RoutineRow = {
   exerciseId: string;
@@ -26,23 +35,117 @@ export type RoutineRow = {
   restS: string;
 };
 
+type T = Pick<Messages, "routines" | "training" | "errors" | "search" | "actions">;
+type Initial = { name: string; notes: string; items: RoutineRow[] };
+type Exercise = { id: string; name: string; kind: ExerciseKind };
+
 type Props = {
+  /** The routine being edited; absent for a new one. */
+  id?: string;
+  /** Where Cancel and "after saving" lead. */
+  from: string;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
-  exercises: { id: string; name: string; kind: ExerciseKind }[];
-  initial: { name: string; notes: string; items: RoutineRow[] };
-  submitLabel: string;
-  t: Pick<Messages, "routines" | "training" | "errors" | "search">;
+  exercises: Exercise[];
+  initial: Initial;
+  t: T;
 };
 
-let nextKey = 0;
+// Rows added later take keys far above the first render's positions (which
+// must be the same on the server and in the browser).
+let nextKey = 1_000_000;
 const int = (v: string) => (/^\d+$/.test(v.trim()) ? Number(v.trim()) : null);
+const str = (v: unknown) => (v === null || v === undefined ? "" : String(v));
 
-export function RoutineEditor({ action, exercises, initial, submitLabel, t }: Props) {
-  const r = t.routines;
-  const [state, formAction] = useActionState(action, IDLE);
-  const [rows, setRows] = useState(() =>
-    initial.items.map((i) => ({ ...i, key: nextKey++ })),
+/** The editor's starting values as the form's own fields (text). */
+function toValues(i: Initial): FormValues {
+  return { name: i.name, notes: i.notes, items: JSON.stringify(i.items.map(wire)) };
+}
+/** Form fields back to the editor's rows (a saved version or a draft). */
+function fromValues(v: FormValues): Initial {
+  let items: Record<string, unknown>[] = [];
+  try {
+    items = JSON.parse(v.items ?? "[]") as Record<string, unknown>[];
+  } catch {}
+  return {
+    name: v.name ?? "",
+    notes: v.notes ?? "",
+    items: items.map((x) => ({
+      exerciseId: str(x.exerciseId),
+      sets: str(x.sets),
+      reps: str(x.reps),
+      loadKg: str(x.loadKg),
+      restS: str(x.restS),
+    })),
+  };
+}
+/** One row as the server reads it. */
+const wire = (x: RoutineRow) => ({
+  exerciseId: x.exerciseId,
+  sets: int(x.sets) ?? 1,
+  reps: int(x.reps),
+  loadKg: x.loadKg,
+  durationS: null,
+  restS: int(x.restS),
+});
+
+export function RoutineEditor({ id, from, action, exercises, initial, t }: Props) {
+  const a = t.actions;
+  const start = toValues(initial);
+  const { form, base, version, values, saved, dirty, draft, offer, load } =
+    useEditableForm(`routine:${id ?? "new"}`, start);
+  const { state, formAction } = useEditFlow({
+    id,
+    from,
+    idle: IDLE,
+    action,
+    previous: () => toFormData(saved ?? start),
+    name: () => values?.name?.trim() || initial.name,
+    done: draft.clear,
+    labels: a,
+  });
+  return (
+    <form ref={form} action={formAction} className="flex flex-col gap-6">
+      {offer && (
+        <DraftNotice
+          onRestore={() => {
+            load(offer);
+            draft.clear();
+          }}
+          onDiscard={draft.clear}
+          labels={a}
+        />
+      )}
+      <RoutineFields
+        key={version}
+        state={state}
+        initial={fromValues(base)}
+        exercises={exercises}
+        t={t}
+      />
+      <ActionBar
+        dirty={dirty}
+        isNew={!id}
+        onRestore={() => load(saved ?? start)}
+        cancelHref={from}
+        labels={{ save: a.save, cancel: a.cancel, restore: a.restore, saving: a.saving }}
+      />
+    </form>
   );
+}
+
+function RoutineFields({
+  state,
+  initial,
+  exercises,
+  t,
+}: {
+  state: FormState;
+  initial: Initial;
+  exercises: Exercise[];
+  t: T;
+}) {
+  const r = t.routines;
+  const [rows, setRows] = useState(() => initial.items.map((i, key) => ({ ...i, key })));
   const err = (f: string) => fieldError(state, f, t.errors);
   const picker = useMemo(
     () =>
@@ -61,8 +164,7 @@ export function RoutineEditor({ action, exercises, initial, submitLabel, t }: Pr
   const update = (key: number, patch: Partial<RoutineRow>) =>
     setRows((l) => l.map((x) => (x.key === key ? { ...x, ...patch } : x)));
   return (
-    <form action={formAction} className="flex flex-col gap-6">
-      {state.status === "saved" && <FormAlert tone="success">{r.save}</FormAlert>}
+    <>
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
       <Field
         label={r.name}
@@ -158,23 +260,7 @@ export function RoutineEditor({ action, exercises, initial, submitLabel, t }: Pr
           {r.addItem}
         </button>
       </Section>
-      <input
-        type="hidden"
-        name="items"
-        value={JSON.stringify(
-          rows.map((x) => ({
-            exerciseId: x.exerciseId,
-            sets: int(x.sets) ?? 1,
-            reps: int(x.reps),
-            loadKg: x.loadKg,
-            durationS: null,
-            restS: int(x.restS),
-          })),
-        )}
-      />
-      <div>
-        <SubmitButton>{submitLabel}</SubmitButton>
-      </div>
-    </form>
+      <input type="hidden" name="items" value={JSON.stringify(rows.map(wire))} />
+    </>
   );
 }

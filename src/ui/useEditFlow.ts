@@ -77,34 +77,50 @@ export function useEditFlow<S extends { status: string }>(opts: {
     idle as Awaited<S>,
   );
 
-  const onDelete =
-    id && trash && restore
-      ? async () => {
-          const shown = name();
-          const r = await trash(id);
-          if (!r.ok) {
-            toast({ message: r.message ?? "" });
-            return;
-          }
-          done?.();
-          toast({
-            message: fill(labels.deleted, { name: shown }),
-            action: {
-              label: labels.undo,
-              run: async () => {
-                const u = await restore(id);
-                toast({
-                  message: u.ok
-                    ? labels.restored
-                    : fill(labels.undoFailed, { why: u.message ?? "" }),
-                });
-                router.refresh();
-              },
-            },
-          });
-          router.push(from);
-        }
-      : undefined;
+  const onDelete = useTrash({ id, from, name, trash, restore, done, labels });
 
   return { state, formAction, onDelete };
+}
+
+/**
+ * Delete = move to the trash, go back to `from`, "«name» moved to the
+ * trash · Undo". Undefined when there is nothing to delete (a new record).
+ */
+export function useTrash(opts: {
+  id?: string;
+  from: string;
+  name: () => string;
+  trash?: (id: string) => Promise<Outcome>;
+  restore?: (id: string) => Promise<Outcome>;
+  done?: () => void;
+  labels: Pick<EditFlowLabels, "deleted" | "restored" | "undo" | "undoFailed">;
+}) {
+  const { id, from, name, trash, restore, done, labels } = opts;
+  const router = useRouter();
+  if (!id || !trash || !restore) return undefined;
+  return async () => {
+    const shown = name();
+    const r = await trash(id);
+    if (!r.ok) {
+      toast({ message: r.message ?? "" });
+      return;
+    }
+    done?.();
+    toast({
+      message: fill(labels.deleted, { name: shown }),
+      action: {
+        label: labels.undo,
+        run: async () => {
+          const u = await restore(id);
+          toast({
+            message: u.ok
+              ? labels.restored
+              : fill(labels.undoFailed, { why: u.message ?? "" }),
+          });
+          router.refresh();
+        },
+      },
+    });
+    router.push(from);
+  };
 }

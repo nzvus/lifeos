@@ -407,6 +407,8 @@ export const en = {
     kinds: { strength: "strength", bodyweight: "bodyweight", cardio: "cardio" },
   },
   exercises: {
+    inUse:
+      "It has history or is in a routine: merge it into another exercise instead (below).",
     title: "Exercises",
     new: "New exercise",
     back: "← Exercises",
