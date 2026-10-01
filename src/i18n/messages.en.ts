@@ -288,6 +288,26 @@ export const en = {
     sortValue: "{what}: {v}",
   },
   training: {
+    estimate: {
+      addTitle: "Add training",
+      tabRoutine: "Routine",
+      tabExercise: "Exercise",
+      tabEstimate: "Estimate",
+      exerciseHint: "Pick an exercise: a session opens with its sets from last time.",
+      estimateHint:
+        "Anything without sets: a match, a hike, a session you didn't write down.",
+      name: "What you did",
+      minutes: "Minutes",
+      intensity: "How hard",
+      intensities: { light: "light", moderate: "moderate", vigorous: "hard" },
+      kcal: "kcal, if you know them",
+      groups: "Muscle groups, roughly",
+      notes: "Notes",
+      done: "Already done",
+      add: "Add",
+      badge: "estimate",
+      noSets: "Estimates have no sets: they don't count in sets per muscle group.",
+    },
     progress: {
       week: "Week",
       thisWeek: "This week",

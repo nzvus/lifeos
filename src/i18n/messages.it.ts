@@ -286,6 +286,27 @@ export const it: Messages = {
     sortValue: "{what}: {v}",
   },
   training: {
+    estimate: {
+      addTitle: "Aggiungi allenamento",
+      tabRoutine: "Scheda",
+      tabExercise: "Esercizio",
+      tabEstimate: "Stima",
+      exerciseHint:
+        "Scegli un esercizio: si apre una sessione con le sue serie dell'ultima volta.",
+      estimateHint:
+        "Tutto ciò che non ha serie: una partita, un'escursione, una sessione non annotata.",
+      name: "Cosa hai fatto",
+      minutes: "Minuti",
+      intensity: "Quanto intensa",
+      intensities: { light: "leggera", moderate: "moderata", vigorous: "intensa" },
+      kcal: "kcal, se le sai",
+      groups: "Gruppi muscolari, più o meno",
+      notes: "Note",
+      done: "Già fatta",
+      add: "Aggiungi",
+      badge: "stima",
+      noSets: "Le stime non hanno serie: non contano nelle serie per gruppo muscolare.",
+    },
     progress: {
       week: "Settimana",
       thisWeek: "Questa settimana",

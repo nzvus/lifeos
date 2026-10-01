@@ -166,3 +166,11 @@ export function suggestAnatomy(name: string): {
     if (re.test(n)) return { pattern, muscleGroups: [...muscleGroups] };
   return { pattern: null, muscleGroups: [] };
 }
+
+/** The groups of each region, in display order (pickers group chips by region). */
+export function groupsByRegion(): { region: MuscleRegion; groups: MuscleGroup[] }[] {
+  return MUSCLE_REGIONS.map((region) => ({
+    region,
+    groups: MUSCLE_GROUPS.filter((g) => MUSCLE_GROUP_REGION[g] === region),
+  }));
+}

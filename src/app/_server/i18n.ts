@@ -13,7 +13,7 @@ import type { Locale } from "@/core/shared/locales";
 import type { Theme } from "@/core/shared/themes";
 import type { Moment } from "@/core/nutrition/moments";
 import type { MovementPattern, MuscleGroup, MuscleRegion } from "@/core/training/anatomy";
-import type { ExerciseKind, SessionStatus } from "@/core/training/kinds";
+import type { ExerciseKind, Intensity, SessionStatus } from "@/core/training/kinds";
 import type { FiberType, Nova, Origin, TagIcon } from "@/core/nutrition/quality";
 import type { NutrientKey } from "@/core/nutrition/nutrients";
 import { dictionaries, type Messages } from "@/i18n";
@@ -33,6 +33,8 @@ const _fiberAbout: Exact<Messages["quality"]["fiberAbout"], FiberType> = true;
 const _tagIcons: Exact<Messages["quality"]["tagIcons"], TagIcon> = true;
 const _kinds: Exact<Messages["training"]["kinds"], ExerciseKind> = true;
 const _statuses: Exact<Messages["training"]["statuses"], SessionStatus> = true;
+const _intensities: Exact<Messages["training"]["estimate"]["intensities"], Intensity> =
+  true;
 const _regions: Exact<Messages["exercises"]["regions"], MuscleRegion> = true;
 const _groups: Exact<Messages["exercises"]["groups"], MuscleGroup> = true;
 const _patterns: Exact<Messages["exercises"]["patterns"], MovementPattern> = true;
@@ -49,6 +51,7 @@ void [
   _regions,
   _groups,
   _patterns,
+  _intensities,
 ]; // "used", so the linter doesn't complain
 
 export function getMessages(locale: Locale): Messages {

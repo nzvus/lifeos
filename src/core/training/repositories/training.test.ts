@@ -352,3 +352,29 @@ describe("training records in the trash (ADR-0015)", () => {
     });
   });
 });
+
+describe("estimated sessions (ADR-0016)", () => {
+  it("are saved without exercises and read back with their estimate", async () => {
+    const r = await createSession(
+      db,
+      me,
+      session("2026-10-01", [], {
+        label: "Calcetto",
+        durationMin: 90,
+        intensity: "vigorous",
+        kcalEstimate: null,
+        muscleGroups: ["quads", "calves"],
+      }),
+      "Europe/Rome",
+    );
+    if (!r.ok) throw new Error("setup");
+    const [s] = await listSessions(db, me, "2026-10-01", "2026-10-01");
+    expect([
+      s?.label,
+      s?.exercises,
+      s?.intensity,
+      s?.kcalEstimate,
+      s?.muscleGroups,
+    ]).toEqual(["Calcetto", [], "vigorous", null, ["quads", "calves"]]);
+  });
+});

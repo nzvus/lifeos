@@ -1,4 +1,8 @@
-/** app/(app)/training/[id]/page.tsx — URL /training/<id>: edit or delete a session. */
+/**
+ * app/(app)/training/[id]/page.tsx — URL /training/<id>[?from=PATH]: edit or
+ * delete a session; an estimated one (ADR-0016, no exercises) gets its own
+ * editor (EstimateEditor).
+ */
 import { notFound } from "next/navigation";
 import { Dumbbell, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -10,17 +14,70 @@ import { getSession } from "@/core/training/repositories/sessions";
 import { EMPTY_SET, SessionEditor } from "@/features/training/sessions/SessionEditor";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
 import { PageHeader } from "@/ui/PageHeader";
-import { deleteSessionAction, updateSessionAction } from "../actions";
+import { safeFrom } from "@/core/shared/navigation";
+import { EstimateEditor } from "@/features/training/sessions/EstimateForm";
+import {
+  deleteSessionAction,
+  updateEstimateAction,
+  updateSessionAction,
+} from "../actions";
 import { editorData } from "../editor-data";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
+};
 
-export default async function EditSessionPage({ params }: Props) {
+export default async function EditSessionPage({ params, searchParams }: Props) {
   const { owner, settings, t } = await requireContext();
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
   const session = await getSession(getDb(), owner, id);
   if (!session) notFound();
+  const from = safeFrom((await searchParams).from, "/training");
+  const time = session.startedAt
+    ? timeIn(new Date(session.startedAt), settings.timezone)
+    : "";
+  if (session.exercises.length === 0 && (session.intensity || session.kcalEstimate))
+    return (
+      <div className="flex max-w-page flex-col gap-8">
+        <PageHeader
+          title={session.label}
+          back={{
+            href: from,
+            label: from === "/training" ? t.training.back : t.actions.back,
+          }}
+        />
+        <EstimateEditor
+          id={id}
+          from={from}
+          action={updateEstimateAction.bind(null, id)}
+          initial={{
+            day: session.day,
+            time,
+            label: session.label,
+            status: session.status,
+            durationMin: session.durationMin === null ? "" : String(session.durationMin),
+            intensity: session.intensity ?? "",
+            kcalEstimate:
+              session.kcalEstimate === null ? "" : String(session.kcalEstimate),
+            muscleGroups: session.muscleGroups.join(","),
+            notes: session.notes,
+          }}
+          t={{
+            training: t.training,
+            exercises: t.exercises,
+            errors: t.errors,
+            actions: t.actions,
+          }}
+        />
+        <ActionButtonForm
+          action={deleteSessionAction.bind(null, id)}
+          label={t.training.delete}
+          icon={<Trash2 size={16} aria-hidden="true" />}
+        />
+      </div>
+    );
   const { exercises, last } = await editorData(
     owner,
     addDays(session.day, -1),

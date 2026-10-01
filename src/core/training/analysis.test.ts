@@ -234,3 +234,30 @@ describe("burn outdoors", () => {
     });
   });
 });
+
+describe("burnRange of an estimated session (ADR-0016)", () => {
+  const est = (v: {
+    durationMin?: number | null;
+    intensity?: "light" | "moderate" | "vigorous" | null;
+    kcalEstimate?: number | null;
+  }) => ({
+    durationMin: v.durationMin ?? null,
+    exercises: [],
+    intensity: v.intensity ?? null,
+    kcalEstimate: v.kcalEstimate ?? null,
+  });
+
+  it("the user's kcal ±15 %, with or without a weight", () => {
+    expect(burnRange(est({ kcalEstimate: 600 }), null)).toEqual({ low: 510, high: 690 });
+  });
+
+  it("else the intensity's MET band × weight × time", () => {
+    // 90 min football, vigorous, 76 kg: 6–9 MET × 76 × 1.5.
+    expect(burnRange(est({ durationMin: 90, intensity: "vigorous" }), "76")).toEqual({
+      low: 684,
+      high: 1026,
+    });
+    expect(burnRange(est({ durationMin: 90, intensity: "vigorous" }), null)).toBeNull();
+    expect(burnRange(est({ intensity: "light" }), "76")).toBeNull();
+  });
+});

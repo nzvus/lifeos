@@ -82,6 +82,44 @@ export async function deleteSessionAction(
   redirect("/training");
 }
 
+// ---- estimated sessions (ADR-0016) -----------------------------------------
+
+/** The estimate form's fields as a session without exercises. */
+function estimateValues(formData: FormData) {
+  return { ...formToObject(formData), exercises: "[]" };
+}
+
+/** Adds an estimated session (the day page's "Add training · Estimate"). */
+export async function createEstimateAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner, settings } = await requireContext();
+  const values = estimateValues(formData);
+  const input = parseInput(sessionInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const r = await createSession(getDb(), owner, input.value, settings.timezone);
+  if (!r.ok) return { status: "error", errors: r.errors, values };
+  revalidatePath("/", "layout");
+  return { status: "saved" };
+}
+
+/** Saves an estimated session's edit page. */
+export async function updateEstimateAction(
+  id: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner, settings } = await requireContext();
+  const values = estimateValues(formData);
+  const input = parseInput(sessionInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const r = await updateSession(getDb(), owner, id, input.value, settings.timezone);
+  if (!r.ok) return { status: "error", errors: r.errors, values };
+  revalidatePath("/", "layout");
+  return { status: "saved" };
+}
+
 // ---- exercises -------------------------------------------------------------
 
 export async function createExerciseAction(
