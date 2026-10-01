@@ -45,7 +45,7 @@ import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
 import { MomentIcon } from "@/ui/MomentIcon";
-import { Section } from "@/ui/Section";
+import { Collapsible } from "@/ui/Collapsible";
 import { SelectField } from "@/ui/SelectField";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { SubmitButton } from "@/ui/SubmitButton";
@@ -143,7 +143,12 @@ export function AddToDay({
   const common = { day, locale, bounds, t };
 
   return (
-    <Section title={t.day.addTitle} icon={<Plus size={20} aria-hidden="true" />}>
+    <Collapsible
+      id="day-add-food"
+      title={t.day.addTitle}
+      icon={<Plus size={20} aria-hidden="true" />}
+      defaultOpen={false}
+    >
       <div role="tablist" aria-label={t.day.addTitle} className="flex">
         {tabs.map((tab) => {
           const selected = tab.kind === kind;
@@ -208,7 +213,7 @@ export function AddToDay({
           />
         )}
       </div>
-    </Section>
+    </Collapsible>
   );
 }
 

@@ -119,3 +119,14 @@ export function toDisplay(t: ExactTotals): DisplayTotals {
     costComplete: t.costComplete,
   };
 }
+
+/**
+ * Display totals of some logged entries (a moment of the day): each entry's
+ * exact lines times its servings, summed, rounded once — never the sum of
+ * the entries' rounded totals.
+ */
+export function entriesTotals(
+  entries: readonly { lines: readonly TotalsLine[]; servings: string }[],
+): DisplayTotals {
+  return toDisplay(addTotals(entries.map((e) => sumLines(e.lines, e.servings))));
+}

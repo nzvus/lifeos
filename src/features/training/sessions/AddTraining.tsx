@@ -16,7 +16,7 @@ import type { FormState } from "@/core/shared/result";
 import type { ExerciseKind } from "@/core/training/kinds";
 import type { Messages } from "@/i18n";
 import { SearchSelect } from "@/ui/SearchSelect";
-import { Section } from "@/ui/Section";
+import { Collapsible } from "@/ui/Collapsible";
 import { Tabs } from "@/ui/Tabs";
 import { EstimateAdd } from "./EstimateForm";
 import { PresetPicker, type PresetTile } from "./PresetPicker";
@@ -52,7 +52,12 @@ export function AddTraining({
     (x) => x.notes,
   );
   return (
-    <Section title={e.addTitle} icon={<Plus size={20} aria-hidden="true" />}>
+    <Collapsible
+      id="day-add-training"
+      title={e.addTitle}
+      icon={<Plus size={20} aria-hidden="true" />}
+      defaultOpen={false}
+    >
       <Tabs
         id="add-training"
         label={e.addTitle}
@@ -110,6 +115,6 @@ export function AddTraining({
           )}
         </div>
       </Tabs>
-    </Section>
+    </Collapsible>
   );
 }

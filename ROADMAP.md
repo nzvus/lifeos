@@ -138,6 +138,12 @@
 - [x] ADR-0016 accepted (delegated: option A); migration 0013
 - [x] Day page "Add training": Routine / Exercise / Estimate tabs; estimated sessions (intensity, kcal, muscle groups; burn as a range) on the day, the Training page and in the week's numbers; their own editor
 
+## Day page: compact and honest about the plan (requested 2026-10-01)
+- **Goal:** the day fits on a phone screen, and every planned item says in numbers where the day would end.
+- [x] Collapsible sections (ui/Collapsible, remembered on the device): Add training, Add to the day (closed by default), each moment (open; closed shows its macro strip, summed exactly — core entriesTotals)
+- [ ] Day entries look like the meal and ingredient rows: NOVA bar, tags, the same meta
+- [ ] Planned in numbers: macros, cost, day quality and training burn show "now → with planned"
+
 ## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)
 - **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.
 - [ ] ADR revising ADR-0013 (options, then the developer decides). Open questions:
