@@ -10,10 +10,22 @@
  * The server action parses it (app/_server/forms.ts parseJsonField) and core
  * validates every line; errors come back keyed "items.2.quantity".
  * Under the lines, a live preview of one serving (ui/MacroPreview).
+ *
+ * ADR-0015, the app's edit model, first applied here:
+ *   - the page header: "←" back to where you came from (`from`), the title,
+ *     and a "⋯" menu with Duplicate and Delete (to the trash, with Undo);
+ *   - every field is controlled, so the form knows when it differs from
+ *     what is saved (`dirty`): the pinned ui/ActionBar then offers ↺ (back
+ *     to the saved version), Cancel and Save;
+ *   - unsaved changes stay in this browser (ui/useDraft) and are offered
+ *     back on the next visit;
+ *   - saving goes back to `from` with "Saved · Undo" (Undo saves the
+ *     previous version again).
  */
 "use client";
 
-import { Carrot, Star } from "lucide-react";
+import { Carrot, Copy, Star, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useActionState, useMemo, useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import { MOMENTS } from "@/core/nutrition/moments";
@@ -21,17 +33,21 @@ import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { scaleMacros, sumMacros, type MacroValues } from "@/core/nutrition/preview";
 import type { Locale } from "@/core/shared/locales";
 import { pickerSearch } from "@/core/shared/search";
-import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
+import { fieldError, IDLE, type FormState } from "@/core/shared/result";
 import { fill, macroLabels, type Messages } from "@/i18n";
+import { ActionBar } from "@/ui/ActionBar";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
+import { Menu } from "@/ui/Menu";
 import { MomentIcon } from "@/ui/MomentIcon";
+import { PageHeader } from "@/ui/PageHeader";
 import { StarInput } from "@/ui/StarRating";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { SelectField } from "@/ui/SelectField";
 import { Section } from "@/ui/Section";
-import { SubmitButton } from "@/ui/SubmitButton";
+import { toast } from "@/ui/Toast";
+import { useDraft } from "@/ui/useDraft";
 
 type Line = { key: number; ingredientId: string; quantity: string };
 /** An ingredient the editor can offer. kcal/protein are display strings. */
@@ -49,20 +65,53 @@ type IngredientOption = {
   values: MacroValues;
 };
 
+/** Everything the form edits, as plain data: compared, kept as a draft, restored. */
+type Snapshot = {
+  name: string;
+  notes: string;
+  category: string;
+  review: string;
+  ratings: Record<string, number>;
+  items: { ingredientId: string; quantity: string }[];
+};
+
+/** The same snapshot always serialises the same way (ratings sorted). */
+const canon = (s: Snapshot) =>
+  JSON.stringify({
+    ...s,
+    ratings: Object.entries(s.ratings).sort(([a], [b]) => a.localeCompare(b)),
+  });
+
+/** A snapshot as the fields the server action reads. */
+function toFormData(s: Snapshot): FormData {
+  const fd = new FormData();
+  fd.set("name", s.name);
+  fd.set("notes", s.notes);
+  fd.set("category", s.category);
+  fd.set("review", s.review);
+  fd.set(
+    "ratings",
+    JSON.stringify(
+      Object.entries(s.ratings).map(([factorId, score]) => ({ factorId, score })),
+    ),
+  );
+  fd.set("items", JSON.stringify(s.items));
+  return fd;
+}
+
 type Props = {
+  /** The meal being edited; absent for a new one. */
+  id?: string;
+  title: string;
+  /** Where back, Cancel and "after saving" lead (core/shared/navigation safeFrom). */
+  from: string;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
+  /** Trash and restore (ADR-0015); only for an existing meal. */
+  trash?: (id: string) => Promise<{ ok: boolean; message?: string }>;
+  restore?: (id: string) => Promise<{ ok: boolean; message?: string }>;
   ingredients: IngredientOption[];
-  initial: {
-    name: string;
-    notes: string;
-    /** ADR-0011: "" for none. */
-    category: string;
-    /** ADR-0012: notes and scores by factor id. */
-    review: string;
-    ratings: Record<string, number>;
-    items: { ingredientId: string; quantity: string }[];
-  };
-  submitLabel: string;
+  /** ADR-0011: category "" for none; ADR-0012: review and scores by factor id. */
+  initial: Snapshot;
   locale: Locale;
   /** My rating factors (ADR-0012), in order. */
   factors: { id: string; name: string }[];
@@ -76,32 +125,126 @@ type Props = {
     | "nutrients"
     | "moments"
     | "ratings"
+    | "actions"
   >;
 };
 
-// A counter for React `key`s: each line needs a stable identity so that
-// removing line 2 doesn't make React reuse line 2's inputs for line 3.
-let nextKey = 0;
+// React `key`s: each line needs a stable identity so that removing line 2
+// doesn't make React reuse line 2's inputs for line 3. The first render's
+// lines are keyed by position, the same on the server and in the browser
+// (a shared counter differed between them: a hydration mismatch); lines
+// added later take numbers from a counter far above any position.
+let nextKey = 1_000_000;
+const firstKeys = (items: { ingredientId: string; quantity: string }[]): Line[] =>
+  items.map((i, key) => ({ ...i, key }));
 const withKeys = (items: { ingredientId: string; quantity: string }[]): Line[] =>
   items.map((i) => ({ ...i, key: nextKey++ }));
 
 export function MealForm({
+  id,
+  title,
+  from,
   action,
+  trash,
+  restore,
   ingredients,
   initial,
-  submitLabel,
   locale,
   factors,
   t,
 }: Props) {
-  const [state, formAction] = useActionState(action, IDLE);
+  const router = useRouter();
+  const a = t.actions;
+  const [name, setName] = useState(initial.name);
+  const [notes, setNotes] = useState(initial.notes);
+  const [category, setCategory] = useState(initial.category);
+  const [review, setReview] = useState(initial.review);
+  const [scores, setScores] = useState<Record<string, number>>(initial.ratings);
   const [lines, setLines] = useState<Line[]>(() =>
-    withKeys(initial.items.length ? initial.items : [{ ingredientId: "", quantity: "" }]),
+    firstKeys(
+      initial.items.length ? initial.items : [{ ingredientId: "", quantity: "" }],
+    ),
+  );
+  const current: Snapshot = {
+    name,
+    notes,
+    category,
+    review,
+    ratings: scores,
+    items: lines.map(({ ingredientId, quantity }) => ({ ingredientId, quantity })),
+  };
+  const initialItems = initial.items.length
+    ? initial.items
+    : [{ ingredientId: "", quantity: "" }];
+  const dirty = canon(current) !== canon({ ...initial, items: initialItems });
+  const draft = useDraft(`meal:${id ?? "new"}`, current, dirty);
+
+  const load = (s: Snapshot) => {
+    setName(s.name);
+    setNotes(s.notes);
+    setCategory(s.category);
+    setReview(s.review);
+    setScores(s.ratings);
+    setLines(withKeys(s.items.length ? s.items : [{ ingredientId: "", quantity: "" }]));
+  };
+
+  const [state, formAction] = useActionState(
+    async (prev: FormState, fd: FormData): Promise<FormState> => {
+      const r = await action(prev, fd);
+      if (r.status === "saved") {
+        draft.clear();
+        const before = initial;
+        toast({
+          message: fill(id ? a.saved : a.created, { name: name.trim() }),
+          action:
+            id && action
+              ? {
+                  label: a.undo,
+                  run: async () => {
+                    const u = await action(IDLE, toFormData(before));
+                    toast({
+                      message:
+                        u.status === "saved"
+                          ? a.restored
+                          : fill(a.undoFailed, { why: "" }),
+                    });
+                    router.refresh();
+                  },
+                }
+              : undefined,
+        });
+        router.push(from);
+      }
+      return r;
+    },
+    IDLE,
   );
   const err = (field: string) => fieldError(state, field, t.errors);
-  const [scores, setScores] = useState<Record<string, number>>(initial.ratings);
-  const [category, setCategory] = useState(valueOf(state, "category", initial.category));
   const unitOf = (id: string) => ingredients.find((i) => i.id === id)?.unit ?? "";
+
+  const onDelete = async () => {
+    if (!id || !trash || !restore) return;
+    const r = await trash(id);
+    if (!r.ok) {
+      toast({ message: r.message ?? "" });
+      return;
+    }
+    draft.clear();
+    toast({
+      message: fill(a.deleted, { name: initial.name }),
+      action: {
+        label: a.undo,
+        run: async () => {
+          const u = await restore(id);
+          toast({
+            message: u.ok ? a.restored : fill(a.undoFailed, { why: u.message ?? "" }),
+          });
+          router.refresh();
+        },
+      },
+    });
+    router.push(from);
+  };
 
   // Searchable ingredient picker, most used first (core/shared/search.ts).
   const picker = useMemo(
@@ -133,18 +276,64 @@ export function MealForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
+      <PageHeader
+        title={title}
+        back={{ href: from, label: from === "/meals" ? t.meals.back : a.back }}
+        menu={
+          id && trash ? (
+            <Menu
+              label={a.more}
+              items={[
+                {
+                  label: a.duplicate,
+                  icon: <Copy size={16} aria-hidden="true" />,
+                  href: `/meals/new?copy=${id}`,
+                },
+                {
+                  label: a.delete,
+                  icon: <Trash2 size={16} aria-hidden="true" />,
+                  tone: "danger",
+                  onSelect: onDelete,
+                },
+              ]}
+            />
+          ) : undefined
+        }
+      />
+      {draft.found && canon(draft.found) !== canon(current) && (
+        <FormAlert tone="info">
+          <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span>{a.draftFound}</span>
+            <button
+              type="button"
+              onClick={() => {
+                load(draft.found!);
+                draft.clear();
+              }}
+              className="font-semibold underline"
+            >
+              {a.draftRestore}
+            </button>
+            <button type="button" onClick={draft.clear} className="underline">
+              {a.draftDiscard}
+            </button>
+          </span>
+        </FormAlert>
+      )}
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
       <Field
         label={t.meals.name}
         name="name"
-        defaultValue={valueOf(state, "name", initial.name)}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
         error={err("name")}
         required
       />
       <Field
         label={t.meals.notes}
         name="notes"
-        defaultValue={valueOf(state, "notes", initial.notes)}
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
         error={err("notes")}
       />
       <SelectField
@@ -248,7 +437,8 @@ export function MealForm({
           <textarea
             name="review"
             rows={3}
-            defaultValue={valueOf(state, "review", initial.review)}
+            value={review}
+            onChange={(e) => setReview(e.target.value)}
             className="rounded-control rule-b-medium border-ink bg-sheet px-2 py-1.5 text-body"
           />
         </label>
@@ -276,9 +466,13 @@ export function MealForm({
           lines.map(({ ingredientId, quantity }) => ({ ingredientId, quantity })),
         )}
       />
-      <div>
-        <SubmitButton>{submitLabel}</SubmitButton>
-      </div>
+      <ActionBar
+        dirty={dirty}
+        isNew={!id}
+        onRestore={() => load({ ...initial, items: initialItems })}
+        cancelHref={from}
+        labels={{ save: a.save, cancel: a.cancel, restore: a.restore, saving: a.saving }}
+      />
     </form>
   );
 }

@@ -122,6 +122,10 @@ cannot poll URLs itself, so app health has daily granularity.
   `user_settings.target_*` are deprecated and unread.
 - **Log entries** (ADR-0009/0011): planned or eaten, optional time `at`, a
   moment (else derived from `at`), optionally an estimate; totals = EATEN.
+- **Editing (ADR-0015):** edit pages share ui/ActionBar (↺ / Cancel / Save, pinned),
+  a "⋯" ui/Menu (duplicate, delete), drafts in the browser (ui/useDraft), `?from=`
+  for back/after-save (core/shared/navigation), toasts with Undo (ui/Toast). Delete
+  = trash (`deleted_at`, `live()` filter, core/shared/trash). Applied so far: meals.
 - **Time:** days are `date` strings;"today" uses the user's time zone
   (`user_settings.timezone`), never the server's UTC clock.
 - **Search & ordering:** one function, `core/shared/search.ts` (case- and

@@ -204,6 +204,17 @@
 }
 
 /*
+ * Editing (ADR-0015): while an edit page is open, ui/ActionBar sets
+ * data-editing on <html>; `editing:` styles react to it (the phone's tab
+ * bar steps aside so the Cancel / Save bar has the bottom of the screen).
+ */
+@custom-variant editing {
+  &:where([data-editing] *) {
+    @slot;
+  }
+}
+
+/*
  * Dark mode: same names, different values. Follows the operating system
  * unless data-mode on <html> says otherwise (ADR-0010: the light / dark /
  * system choice is a per-device setting, separate from the theme).

@@ -170,6 +170,29 @@ export const mealInput = z.object({
 });
 export type MealInput = z.output<typeof mealInput>;
 
+/**
+ * The meal form's fields (strings) as mealInput reads them: every key of
+ * the schema, the lines parsed from their JSON field. Kept next to the
+ * schema so a new field can't be forgotten (it was: category, review and
+ * ratings were never read until 2026-10-01; validation.test.ts checks).
+ */
+export function mealFormData(values: Record<string, string | undefined>) {
+  let items: unknown;
+  try {
+    items = values.items === undefined ? undefined : JSON.parse(values.items);
+  } catch {
+    items = undefined;
+  }
+  return {
+    name: values.name,
+    notes: values.notes,
+    category: values.category,
+    review: values.review,
+    ratings: values.ratings,
+    items,
+  } satisfies Record<keyof typeof mealInput.shape, unknown>;
+}
+
 /** The "Planned" checkbox: browsers send "on" when ticked, nothing otherwise. */
 const planned = z
   .string()

@@ -1,6 +1,12 @@
 /** Tests for core/nutrition/validation.ts — what input is accepted, and the error codes. */
 import { describe, expect, it } from "vitest";
-import { ingredientInput, logMealInput, mealInput, parseInput } from "./validation";
+import {
+  ingredientInput,
+  logMealInput,
+  mealFormData,
+  mealInput,
+  parseInput,
+} from "./validation";
 
 const baseForm = {
   name: " Oats ",
@@ -150,5 +156,30 @@ describe("ingredient quality fields (ADR-0012)", () => {
       origin: "invalid_choice",
       fiberTypes: "invalid_choice",
     });
+  });
+});
+
+describe("mealFormData", () => {
+  it("reads every field of the meal form, so the editor's choices are saved", () => {
+    const r = parseInput(
+      mealInput,
+      mealFormData({
+        name: "Porridge",
+        notes: "",
+        category: "breakfast",
+        review: "good",
+        ratings: JSON.stringify([
+          { factorId: "00000000-0000-4000-8000-000000000001", score: 4 },
+        ]),
+        items: JSON.stringify([
+          { ingredientId: "00000000-0000-4000-8000-000000000002", quantity: "50" },
+        ]),
+      }),
+    );
+    expect(r.ok && [r.value.category, r.value.review, r.value.ratings?.length]).toEqual([
+      "breakfast",
+      "good",
+      1,
+    ]);
   });
 });

@@ -120,6 +120,14 @@
 - [ ] Targets: macros per day as grouped bars (side by side, macro colours); training per day (tonnage, burn) next to intake
 - [ ] Developer review on phone of everything above
 
+## Next sprint: S07b — One edit model and the visual refactoring (ADR-0015, started 2026-10-01)
+- **Goal:** every page navigates, saves, cancels, deletes and restores the same way; nothing is lost by one wrong tap.
+- [x] ADR-0015 accepted (developer chose B); trash migration 0012
+- [x] Kit (ActionBar, Menu, Toast with Undo, useDraft, `?from=`) on the meal editor, checked on phone screenshots; meals go to the trash
+- [ ] Developer review of the meal editor, then: ingredients, day types, exercises, routines, sessions
+- [ ] Lists and rows: tap opens, "⋯" for quick actions; log entries with Undo
+- [ ] Trash page under Settings; purge after 30 days in the daily workflow
+
 ## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)
 - **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.
 - [ ] ADR revising ADR-0013 (options, then the developer decides). Open questions:

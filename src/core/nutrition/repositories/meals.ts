@@ -14,10 +14,11 @@
  * Called by: src/app/(app)/meals/* and core/nutrition/repositories/log.ts.
  * Tested in: meals.test.ts.
  */
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { ingredients, mealItems, mealRatings, meals } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { live } from "../../shared/trash";
 import {
   fail,
   ok,
@@ -106,7 +107,7 @@ export async function listMeals(db: Db, owner: Owner): Promise<MealWithLines[]> 
   const mealRows = await db
     .select()
     .from(meals)
-    .where(ownedBy(meals, owner))
+    .where(and(ownedBy(meals, owner), live(meals)))
     .orderBy(asc(meals.name));
 
   // Every line of every meal of mine, with its ingredient's current values.
@@ -148,7 +149,7 @@ export async function getMeal(
   const [m] = await db
     .select()
     .from(meals)
-    .where(and(ownedBy(meals, owner), eq(meals.id, id)));
+    .where(and(ownedBy(meals, owner), live(meals), eq(meals.id, id)));
   if (!m) return null;
   const lineRows = await db
     .select({ item: mealItems, ingredient: ingredients })
@@ -267,7 +268,7 @@ export async function updateMeal(
           category: input.category ?? null,
           ...(input.review !== undefined && { review: input.review }),
         })
-        .where(and(ownedBy(meals, owner), eq(meals.id, id)))
+        .where(and(ownedBy(meals, owner), live(meals), eq(meals.id, id)))
         .returning({ id: meals.id });
       if (updated.length === 0) return false; // not mine / not there: change nothing
       await tx
@@ -293,17 +294,38 @@ export async function updateMeal(
 }
 
 /**
- * Deletes a meal and (cascade) its lines. Log entries that used it keep their
- * snapshot and label; their meal_id just becomes null (ADR-0007).
+ * Moves a meal to the trash (ADR-0015): it disappears from every list and
+ * picker, keeps its lines, and can be restored for 30 days. Log entries
+ * never depended on it (snapshots, ADR-0007).
  */
 export async function deleteMeal(
   db: Db,
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
-  const deleted = await db
-    .delete(meals)
-    .where(and(ownedBy(meals, owner), eq(meals.id, id)))
+  const trashed = await db
+    .update(meals)
+    .set({ deletedAt: new Date() })
+    .where(and(ownedBy(meals, owner), live(meals), eq(meals.id, id)))
     .returning({ id: meals.id });
-  return deleted.length ? ok(null) : fail({ _form: "not_found" });
+  return trashed.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/** Takes a meal out of the trash; a live namesake created since: "duplicate_name". */
+export async function restoreMeal(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<Result<null>> {
+  try {
+    const restored = await db
+      .update(meals)
+      .set({ deletedAt: null })
+      .where(and(ownedBy(meals, owner), isNotNull(meals.deletedAt), eq(meals.id, id)))
+      .returning({ id: meals.id });
+    return restored.length ? ok(null) : fail({ _form: "not_found" });
+  } catch (e) {
+    if (pgErrorCode(e) === "23505") return fail({ _form: "duplicate_name" });
+    throw e;
+  }
 }

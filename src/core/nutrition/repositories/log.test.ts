@@ -20,7 +20,14 @@ import {
   setEntryStatus,
   setEntryTime,
 } from "./log";
-import { createMeal, deleteMeal, getMeal, listMeals, updateMeal } from "./meals";
+import {
+  createMeal,
+  deleteMeal,
+  getMeal,
+  listMeals,
+  restoreMeal,
+  updateMeal,
+} from "./meals";
 
 let db: Db;
 let close: () => Promise<void>;
@@ -130,7 +137,9 @@ describe("daily log", () => {
     const after = await getDay(db, alice, day);
     expect(after.totals).toEqual(before.totals);
     expect(after.entries[0]?.label).toBe("Porridge"); // the name at logging time
-    expect(after.entries[0]?.mealId).toBeNull(); // the link is gone, the data isn't
+    // In the trash the link stays (the meal can come back, ADR-0015); a purge
+    // deletes the row and the foreign key sets it to null. The data stays.
+    expect(after.entries[0]?.mealId).toBe(mealId);
   });
 
   it("keeps a single-ingredient entry after the ingredient is deleted", async () => {
@@ -336,5 +345,41 @@ describe("moments (ADR-0011)", () => {
     await copyDay(db, alice, "2026-09-29", "2026-09-30");
     const copy = await getDay(db, alice, "2026-09-30");
     expect(copy.entries.map((e) => e.moment).sort()).toEqual(["snack", null].sort());
+  });
+});
+
+describe("meals in the trash (ADR-0015)", () => {
+  const meal = (name: string) => ({
+    name,
+    notes: "",
+    category: null,
+    items: [{ ingredientId: oatsId, quantity: "50" }],
+  });
+
+  it("a deleted meal disappears, can be restored, and frees its name meanwhile", async () => {
+    const r = await createMeal(db, alice, meal("Porridge"));
+    if (!r.ok) throw new Error("setup");
+    const id = r.value.id;
+    expect((await deleteMeal(db, alice, id)).ok).toBe(true);
+    expect(await getMeal(db, alice, id)).toBeNull();
+    expect((await listMeals(db, alice)).map((m) => m.name)).toEqual([]);
+    // Deleting twice, or editing it while in the trash: not found.
+    expect((await deleteMeal(db, alice, id)).ok).toBe(false);
+    expect((await updateMeal(db, alice, id, meal("X"))).ok).toBe(false);
+    // Someone else can't restore it.
+    expect((await restoreMeal(db, bob, id)).ok).toBe(false);
+    expect((await restoreMeal(db, alice, id)).ok).toBe(true);
+    expect((await getMeal(db, alice, id))?.name).toBe("Porridge");
+  });
+
+  it("restoring next to a live namesake is refused, not merged", async () => {
+    const r = await createMeal(db, alice, meal("Porridge"));
+    if (!r.ok) throw new Error("setup");
+    await deleteMeal(db, alice, r.value.id);
+    expect((await createMeal(db, alice, meal("Porridge"))).ok).toBe(true);
+    expect(await restoreMeal(db, alice, r.value.id)).toEqual({
+      ok: false,
+      errors: { _form: "duplicate_name" },
+    });
   });
 });
