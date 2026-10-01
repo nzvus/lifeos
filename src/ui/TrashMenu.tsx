@@ -1,7 +1,8 @@
 /**
- * ui/TrashMenu.tsx — the "⋯" menu of a page whose header is rendered by the
- * server (a detail page with an edit form inside, e.g. an exercise):
- * Delete moves the record to the trash with Undo (ui/useEditFlow useTrash);
+ * ui/TrashMenu.tsx — the "⋯" menu of a record: in the header of a detail
+ * page rendered by the server (e.g. an exercise), or on a row of a list.
+ * Delete moves the record to the trash with Undo (ui/useEditFlow useTrash)
+ * and goes back to `from` (a detail page) or stays (a row, no `from`);
  * other items can be added: links (Duplicate…) and server actions run on
  * this record ("Make default"), which say how it went in a toast.
  */
@@ -24,7 +25,7 @@ export function TrashMenu({
   labels,
 }: {
   id: string;
-  from: string;
+  from?: string;
   name: string;
   trash: (id: string) => Promise<{ ok: boolean; message?: string }>;
   restore: (id: string) => Promise<{ ok: boolean; message?: string }>;

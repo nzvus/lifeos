@@ -12,6 +12,7 @@ import {
 } from "@/core/nutrition/repositories/ingredients";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, todayIn } from "@/core/shared/dates";
+import { deleteIngredientAction, restoreIngredientAction } from "./actions";
 import { IngredientBrowser } from "@/features/nutrition/ingredients/IngredientBrowser";
 
 export default async function IngredientsPage() {
@@ -62,7 +63,10 @@ export default async function IngredientsPage() {
           search: t.search,
           macro: t.macro,
           quality: t.quality,
+          actions: t.actions,
         }}
+        trash={deleteIngredientAction}
+        restore={restoreIngredientAction}
       />
     </>
   );
