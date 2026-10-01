@@ -86,6 +86,7 @@ export const trashEn = {
     batch: "Batch",
     reminder: "Reminder",
     conversation: "Conversation",
+    program: "Program",
   },
   purgeOn: "deleted for good on {date}",
   restore: "Restore",
@@ -363,4 +364,45 @@ export const entryEditEn = {
   copyMeal: "You change only this day's entry: the meal it came from stays as it is.",
   total: "The entry's total",
   edit: "Edit ingredients",
+};
+
+export const programsEn = {
+  title: "Programs",
+  subtitle:
+    "A cycle of routines and rest days: miss a day and the cycle slips, nothing is lost.",
+  new: "New program",
+  back: "Back to programs",
+  empty: "No programs: make one from your routines.",
+  open: "Programs",
+  name: "Name",
+  notes: "Notes",
+  startDay: "Starts on",
+  active: "Active (plans the coming days)",
+  activeBadge: "Active",
+  slots: "The cycle",
+  slotsHint: "One day per row, in order. It starts again after the last.",
+  slot: "Routine",
+  dayN: "D{n}",
+  rest: "Rest",
+  addSlot: "Add a day",
+  up: "Move up",
+  down: "Move down",
+  remove: "Remove",
+  coming: "Coming days · {name}",
+  late: "late",
+  since: "since {day}",
+  fromProgram: "From the program «{name}»",
+  plan: "Plan",
+  start: "Start now",
+};
+
+export const outlookEn = {
+  title: "Next 7 days",
+  subtitle:
+    "Training planned or from the program, estimated energy and the targets that follow.",
+  noDayType: "no day type",
+  rest: "Rest",
+  energy: "spends {lo}–{hi} kcal",
+  noEnergy: "energy: body data missing",
+  targets: "{kcal} kcal · P {p} · C {c} · F {f}",
 };

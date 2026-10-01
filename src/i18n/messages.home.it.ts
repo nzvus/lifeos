@@ -88,6 +88,7 @@ export const trashIt: Messages["trash"] = {
     batch: "Cucinata",
     reminder: "Promemoria",
     conversation: "Conversazione",
+    program: "Programma",
   },
   purgeOn: "eliminato per sempre il {date}",
   restore: "Ripristina",
@@ -368,4 +369,45 @@ export const entryEditIt: Messages["entryEdit"] = {
   copyMeal: "Cambi solo questa voce del giorno: il pasto da cui viene resta com'è.",
   total: "Totale della voce",
   edit: "Modifica ingredienti",
+};
+
+export const programsIt: Messages["programs"] = {
+  title: "Programmi",
+  subtitle:
+    "Un ciclo di schede e riposi: se salti un giorno, il ciclo slitta e non perdi niente.",
+  new: "Nuovo programma",
+  back: "Torna ai programmi",
+  empty: "Nessun programma: creane uno con le tue schede.",
+  open: "Programmi",
+  name: "Nome",
+  notes: "Note",
+  startDay: "Inizia il",
+  active: "Attivo (pianifica i prossimi giorni)",
+  activeBadge: "Attivo",
+  slots: "Il ciclo",
+  slotsHint: "Un giorno per riga, nell'ordine. Ricomincia da capo dopo l'ultimo.",
+  slot: "Scheda",
+  dayN: "G{n}",
+  rest: "Riposo",
+  addSlot: "Aggiungi un giorno",
+  up: "Sposta su",
+  down: "Sposta giù",
+  remove: "Togli",
+  coming: "Prossimi giorni · {name}",
+  late: "in ritardo",
+  since: "dal {day}",
+  fromProgram: "Dal programma «{name}»",
+  plan: "Pianifica",
+  start: "Inizia ora",
+};
+
+export const outlookIt: Messages["outlook"] = {
+  title: "Prossimi 7 giorni",
+  subtitle:
+    "Allenamenti pianificati o dal programma, consumo stimato e obiettivi che ne seguono.",
+  noDayType: "nessun tipo",
+  rest: "Riposo",
+  energy: "consumo {lo}–{hi} kcal",
+  noEnergy: "consumo: mancano i dati del corpo",
+  targets: "{kcal} kcal · P {p} · C {c} · G {f}",
 };

@@ -9,6 +9,8 @@ import {
   energyIt,
   assistantIt,
   barcodeIt,
+  programsIt,
+  outlookIt,
   trainingWhenIt,
   panelZonesIt,
   appIt,
@@ -206,6 +208,8 @@ export const it: Messages = {
   energy: energyIt,
   assistant: assistantIt,
   barcode: barcodeIt,
+  programs: programsIt,
+  outlook: outlookIt,
   settings: {
     title: "Impostazioni",
     timezone: "Fuso orario",

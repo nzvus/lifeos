@@ -52,7 +52,9 @@ import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { DayScore } from "@/features/nutrition/log/DayScore";
+import { ProgramDay } from "@/features/training/programs/ProgramDay";
 import { AddTraining } from "@/features/training/sessions/AddTraining";
+import { programSlotOn } from "@/core/training/repositories/programs";
 import { startOrPlanAction } from "./training/live-actions";
 import { SessionList } from "@/features/training/sessions/SessionList";
 import { presetTiles } from "./training/preset-tiles";
@@ -98,6 +100,8 @@ export default async function DayPage({ searchParams }: Props) {
   const day = requested && isValidDay(requested) ? requested : today;
 
   const db = getDb();
+  // ADR-0024: what the active program puts on this day (from today on).
+  const programSlot = await programSlotOn(db, owner, today, day);
   // Promise.all: independent queries at once instead of one after another.
   const monday = startOfWeek(day);
   const [
@@ -136,7 +140,7 @@ export default async function DayPage({ searchParams }: Props) {
     listBatches(db, owner), // ADR-0017: portions to log, and their reminders
     getPantry(db, owner),
     listReminders(db, owner),
-    getDayEnergy(db, owner, day), // ADR-0014: what the day costs
+    getDayEnergy(db, owner, day, programSlot?.slot.routineId), // ADR-0014: what the day costs
     day === today ? getCalibration(db, owner, today) : null, // ADR-0020
   ]);
   // Today's reminders (ADR-0017): derived from the pantry and the batches,
@@ -434,6 +438,28 @@ export default async function DayPage({ searchParams }: Props) {
             }}
           />
         </div>
+        {programSlot &&
+          !sessions.some(
+            (x) =>
+              programSlot.slot.routineId && x.routineId === programSlot.slot.routineId,
+          ) && (
+            <ProgramDay
+              program={programSlot.program}
+              routineName={
+                programSlot.slot.routineId === null
+                  ? null
+                  : (presets.find((x) => x.routineId === programSlot.slot.routineId)
+                      ?.label ?? programSlot.slot.label)
+              }
+              restLabel={programSlot.slot.label || t.programs.rest}
+              late={programSlot.late}
+              routineId={programSlot.slot.routineId}
+              day={day}
+              isToday={day === today}
+              action={startOrPlanAction}
+              t={t.programs}
+            />
+          )}
         {sessions.length > 0 && (
           <Section
             title={t.training.onThisDay}

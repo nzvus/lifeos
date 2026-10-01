@@ -19,6 +19,8 @@ import {
   energyEn,
   assistantEn,
   barcodeEn,
+  programsEn,
+  outlookEn,
   trainingWhenEn,
   panelZonesEn,
   appEn,
@@ -211,6 +213,8 @@ export const en = {
   energy: energyEn,
   assistant: assistantEn,
   barcode: barcodeEn,
+  programs: programsEn,
+  outlook: outlookEn,
   settings: {
     title: "Settings",
     timezone: "Time zone",

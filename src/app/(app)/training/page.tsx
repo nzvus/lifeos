@@ -7,6 +7,7 @@
  */
 import {
   CalendarDays,
+  CalendarRange,
   ClipboardList,
   Dumbbell,
   History,
@@ -89,6 +90,13 @@ export default async function TrainingPage({ searchParams }: Props) {
         >
           <ClipboardList size={14} aria-hidden="true" />
           {t.routines.title}
+        </Link>
+        <Link
+          href="/training/programs"
+          className={buttonClass({ variant: "subtle", size: "sm" })}
+        >
+          <CalendarRange size={14} aria-hidden="true" />
+          {t.programs.open}
         </Link>
       </nav>
       <Section

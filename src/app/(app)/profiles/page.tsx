@@ -7,7 +7,9 @@
  * The period is in the URL (?range=30&to=2026-09-30); without it (or when
  * invalid), the user's default period (preferences) up to today.
  */
-import { CalendarRange, TrendingUp } from "lucide-react";
+import { CalendarClock, CalendarRange, TrendingUp } from "lucide-react";
+import { weekOutlook } from "@/core/energy/repositories/outlook";
+import { WeekOutlook } from "@/features/nutrition/trends/WeekOutlook";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { getHistory } from "@/core/nutrition/repositories/history";
@@ -37,7 +39,8 @@ export default async function ProfilesPage({ searchParams }: Props) {
   const to = params.to && isValidDay(params.to) && params.to <= today ? params.to : today;
   const days = daysEnding(to, range);
   const db = getDb();
-  const [profiles, history, sessions, measurements] = await Promise.all([
+  const [outlook, profiles, history, sessions, measurements] = await Promise.all([
+    weekOutlook(db, owner, today), // the coming 7 days: training, energy, targets
     listProfiles(db, owner),
     getHistory(db, owner, days[0]!, to),
     listSessions(db, owner, days[0]!, to),
@@ -49,6 +52,17 @@ export default async function ProfilesPage({ searchParams }: Props) {
         title={t.profiles.title}
         action={{ href: "/profiles/new", label: t.profiles.newTitle }}
       />
+      <Section
+        title={t.outlook.title}
+        subtitle={t.outlook.subtitle}
+        icon={<CalendarClock size={20} aria-hidden="true" />}
+      >
+        <WeekOutlook
+          days={outlook}
+          locale={settings.locale}
+          t={{ outlook: t.outlook, energy: t.energy, programs: t.programs }}
+        />
+      </Section>
       <Section title={t.trends.title} icon={<TrendingUp size={20} aria-hidden="true" />}>
         <RangeNav
           range={range}
