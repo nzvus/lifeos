@@ -1,0 +1,2 @@
+ALTER TABLE "user_settings" ADD COLUMN "energy_correction" numeric(3, 2) DEFAULT '1.00' NOT NULL;--> statement-breakpoint
+ALTER TABLE "user_settings" ADD CONSTRAINT "user_settings_energy_correction_ck" CHECK ("user_settings"."energy_correction" between 0.80 and 1.20);

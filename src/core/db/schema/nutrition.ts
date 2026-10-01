@@ -451,6 +451,15 @@ export const userSettings = pgTable(
     sex: text("sex"),
     birthYear: integer("birth_year"),
     heightCm: integer("height_cm"),
+    // ADR-0020: a factor on the everyday baseline, from comparing the weight
+    // trend with what was eaten; 1.00 until the user accepts a proposal.
+    energyCorrection: numeric("energy_correction", {
+      precision: 3,
+      scale: 2,
+      mode: "string",
+    })
+      .notNull()
+      .default("1.00"),
     // ADR-0018: the user's OpenRouter key, encrypted (AES-256-GCM with the
     // server's ASSISTANT_KEY_SECRET), never sent back to the browser; its
     // last 4 characters only, to show which key is set; the model id.
@@ -477,6 +486,10 @@ export const userSettings = pgTable(
     check("user_settings_sex_ck", sql`${t.sex} in ('male', 'female')`),
     check("user_settings_birth_year_ck", sql`${t.birthYear} between 1900 and 2100`),
     check("user_settings_height_ck", sql`${t.heightCm} between 100 and 250`),
+    check(
+      "user_settings_energy_correction_ck",
+      sql`${t.energyCorrection} between 0.80 and 1.20`,
+    ),
   ],
 );
 
