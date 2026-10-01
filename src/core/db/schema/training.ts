@@ -191,6 +191,9 @@ export const sets = pgTable(
     inclinePct: numeric("incline_pct", { precision: 4, scale: 1, mode: "string" }),
     restS: integer("rest_s"),
     warmup: boolean("warmup").notNull().default(false),
+    // Ticked in the gym (live mode): a planned set not done yet is false.
+    // Everything logged before live mode was done (default true).
+    done: boolean("done").notNull().default(true),
   },
   (t) => [
     foreignKey({

@@ -1,0 +1,1 @@
+ALTER TABLE "sets" ADD COLUMN "done" boolean DEFAULT true NOT NULL;
