@@ -22,6 +22,8 @@ import {
   trainingWhenEn,
   panelZonesEn,
   appEn,
+  errorsEn,
+  entryEditEn,
 } from "./messages.home.en";
 
 export const en = {
@@ -68,27 +70,8 @@ export const en = {
     fiber: "Fibre",
     salt: "Salt",
   },
-  errors: {
-    required: "Fill in this field.",
-    too_long: "This is too long.",
-    invalid_number: "Enter a number, like 12.5 or 12,5.",
-    too_many_decimals: "Too many decimals for this field.",
-    too_large: "This number is too large.",
-    not_positive: "Enter a value greater than zero.",
-    invalid_choice: "Choose one of the options.",
-    price_pair: "Enter both the price and the package size, or neither.",
-    duplicate_name: "You already have one with this name.",
-    not_found: "It doesn't exist anymore. Reload the page.",
-    in_use: "A meal still uses it. Remove it from those meals first.",
-    empty_meal: "Add at least one ingredient.",
-    invalid_day: "That date doesn't exist.",
-    is_default: "This is the default day type. Make another one the default first.",
-    invalid_time: "Enter a time like 12:30.",
-    moments_order:
-      "The times must be in order: lunch after 05:00, then snack, then dinner.",
-    still_referenced:
-      "Something else still uses it (even if that is in the trash): delete that first.",
-  },
+  errors: errorsEn,
+  entryEdit: entryEditEn,
   auth: {
     signInTitle: "Sign in",
     signUpTitle: "Create your account",

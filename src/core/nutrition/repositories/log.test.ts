@@ -12,6 +12,8 @@ import { getUsage } from "./usage";
 import {
   copyDay,
   deleteLogEntry,
+  editLogEntry,
+  getLogEntry,
   entryTiming,
   getDay,
   logEstimate,
@@ -414,5 +416,89 @@ describe("log entries in the trash (ADR-0015)", () => {
     expect(await getDay(db, alice, day)).toEqual(before);
     // Restoring twice: not found.
     expect((await restoreLogEntry(db, alice, id)).ok).toBe(false);
+  });
+});
+
+describe("editing a day's entry as a local copy (ADR-0022)", () => {
+  it("grams, swaps and additions change the entry, never the meal", async () => {
+    const mealId = await porridge();
+    const logged = await logMeal(db, alice, { day: "2026-10-01", mealId, servings: "1" });
+    if (!logged.ok) throw new Error("setup failed");
+    const id = logged.value.id;
+    const entry = (await getLogEntry(db, alice, id))!;
+    const [oats, milk] = entry.lines;
+    // The oats change after logging: a kept line keeps its snapshot.
+    await updateIngredient(db, alice, oatsId, ingredientFixture({ kcal: "999" }));
+    const rice = await createIngredient(
+      db,
+      alice,
+      ingredientFixture({ name: "Rice", kcal: "350" }),
+    );
+    if (!rice.ok) throw new Error("setup failed");
+
+    const r = await editLogEntry(db, alice, id, {
+      servings: "1",
+      items: [
+        { itemId: oats!.itemId, quantity: "40" }, // 40 × 3.72 = 148.8
+        { itemId: milk!.itemId, ingredientId: rice.value.id, quantity: "50" }, // swapped: 175
+        { ingredientId: milkId, quantity: "100" }, // added: 46
+      ],
+    });
+    expect(r.ok).toBe(true);
+    const after = (await getLogEntry(db, alice, id))!;
+    expect(after.lines.map((l) => [l.name, l.quantity])).toEqual([
+      ["Oats", "40.00"],
+      ["Rice", "50.00"],
+      ["Milk", "100.00"],
+    ]);
+    expect(after.totals.nutrients.kcal).toBe("369.8");
+    expect(after.mealId).toBe(mealId);
+    // The meal is as it was.
+    const meal = (await getMeal(db, alice, mealId))!;
+    expect(meal.lines.map((l) => l.quantity)).toEqual(["60.00", "200.00"]);
+  });
+
+  it("is mine only, and estimates have nothing to edit", async () => {
+    const mealId = await porridge();
+    const logged = await logMeal(db, alice, { day: "2026-10-01", mealId, servings: "1" });
+    if (!logged.ok) throw new Error("setup failed");
+    const input = { servings: "2", items: [{ ingredientId: oatsId, quantity: "10" }] };
+    expect(await editLogEntry(db, bob, logged.value.id, input)).toEqual({
+      ok: false,
+      errors: { _form: "not_found" },
+    });
+    expect(await getLogEntry(db, bob, logged.value.id)).toBeNull();
+    const est = await logEstimate(db, alice, {
+      day: "2026-10-01",
+      label: "Pizza",
+      kcal: "800",
+      protein: "0",
+      carbs: "0",
+      fat: "0",
+      fiber: "0",
+      cost: null,
+    });
+    if (!est.ok) throw new Error("setup failed");
+    expect(await editLogEntry(db, alice, est.value.id, input)).toEqual({
+      ok: false,
+      errors: { _form: "not_editable" },
+    });
+    // Bob can't add Alice's ingredient to his own entry either.
+    const bobMeal = await createIngredient(
+      db,
+      bob,
+      ingredientFixture({ name: "Bob oats" }),
+    );
+    if (!bobMeal.ok) throw new Error("setup failed");
+    const bobEntry = await logIngredient(db, bob, {
+      day: "2026-10-01",
+      ingredientId: bobMeal.value.id,
+      quantity: "50",
+    });
+    if (!bobEntry.ok) throw new Error("setup failed");
+    expect(await editLogEntry(db, bob, bobEntry.value.id, input)).toEqual({
+      ok: false,
+      errors: { "items.0.ingredientId": "not_found" },
+    });
   });
 });

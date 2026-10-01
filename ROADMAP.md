@@ -171,7 +171,7 @@
 - [x] Energy check against the developer's export: 1 Oct (sitting, 25 min walk, 60 min run, 76 kg) → 2545–2926 kcal, recomposition target 2536 (was 3104); a rest day → 2014
 - [x] ADR-0025: floors and ceilings are health limits, or the useful maximum where none exists; banded macros drawn in grams with zones and a legend (ui/BandBar); dynamic fat ≥ 25 % of kcal
 - [x] ADR-0023 macro bands (core/nutrition/bands.ts): floor / good zone / ceiling per kg, training load and goal; bars shade the zone and say which zone; day score by zone; dynamic carbs stop at the top of their good zone (the energy target with them)
-- [ ] ADR-0022 edit a day's food entry as a local copy (grams, swaps)
+- [x] ADR-0022 edit a day's food entry as a local copy: "⋯ → Edit ingredients" opens /log/[id] (grams, swaps, add/remove, servings); kept lines keep their snapshot, the meal is untouched; no migration (no "edited" flag)
 - [ ] ADR-0024 training programs as an ordered cycle (migration-only PR first), derived plan on the day and the targets page
 - [ ] Assistant: the whole picture each turn (recent detail + older aggregates), answers in terms of the user's own meals and routines; a better chat UI
 
