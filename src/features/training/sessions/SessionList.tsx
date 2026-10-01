@@ -57,7 +57,11 @@ export function SessionList({ sessions, measurements, showDay, locale, t, tx }: 
             muted={s.status === "planned"}
             title={
               <Link
-                href={`/training/${s.id}`}
+                href={
+                  showDay
+                    ? `/training/${s.id}`
+                    : `/training/${s.id}?from=${encodeURIComponent(`/?day=${s.day}`)}`
+                }
                 className="underline-offset-4 hover:underline"
               >
                 {s.label}

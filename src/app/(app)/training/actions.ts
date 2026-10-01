@@ -31,6 +31,7 @@ import {
 import {
   createSession,
   deleteSession,
+  restoreSession,
   updateSession,
 } from "@/core/training/repositories/sessions";
 import {
@@ -52,7 +53,7 @@ export async function createSessionAction(
   const r = await createSession(getDb(), owner, input.value, settings.timezone);
   if (!r.ok) return { status: "error", errors: r.errors, values };
   revalidatePath("/", "layout"); // the day page shows sessions too
-  redirect(`/training/${r.value.id}`);
+  return { status: "saved" };
 }
 
 export async function updateSessionAction(
@@ -70,16 +71,26 @@ export async function updateSessionAction(
   return { status: "saved" };
 }
 
+/** Moves a session to the trash (ADR-0015). */
 export async function deleteSessionAction(
   id: string,
-  _prev: ActionButtonState,
-  _formData: FormData,
-): Promise<ActionButtonState> {
+): Promise<{ ok: boolean; message?: string }> {
   const { owner, t } = await requireContext();
   const r = await deleteSession(getDb(), owner, id);
-  if (!r.ok) return { status: "error", message: t.errors.not_found };
+  if (!r.ok) return { ok: false, message: t.errors.not_found };
   revalidatePath("/", "layout");
-  redirect("/training");
+  return { ok: true };
+}
+
+/** Takes a session out of the trash (the toast's "Undo"). */
+export async function restoreSessionAction(
+  id: string,
+): Promise<{ ok: boolean; message?: string }> {
+  const { owner, t } = await requireContext();
+  const r = await restoreSession(getDb(), owner, id);
+  if (!r.ok) return { ok: false, message: t.errors.not_found };
+  revalidatePath("/", "layout");
+  return { ok: true };
 }
 
 // ---- estimated sessions (ADR-0016) -----------------------------------------

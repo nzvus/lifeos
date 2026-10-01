@@ -1,23 +1,25 @@
 /**
- * app/(app)/training/[id]/page.tsx — URL /training/<id>[?from=PATH]: edit or
- * delete a session; an estimated one (ADR-0016, no exercises) gets its own
- * editor (EstimateEditor).
+ * app/(app)/training/[id]/page.tsx — URL /training/<id>[?from=PATH]: edit a
+ * session, or move it to the trash from the "⋯" menu (ADR-0015); an
+ * estimated one (ADR-0016, no exercises) gets its own editor
+ * (EstimateEditor). A planned session can open in gym mode.
  */
-import { notFound } from "next/navigation";
-import { Dumbbell, Trash2 } from "lucide-react";
+import { Dumbbell } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { addDays, timeIn } from "@/core/shared/dates";
 import { idInput } from "@/core/nutrition/validation";
-import { getSession } from "@/core/training/repositories/sessions";
-import { EMPTY_SET, SessionEditor } from "@/features/training/sessions/SessionEditor";
-import { ActionButtonForm } from "@/ui/ActionButtonForm";
-import { PageHeader } from "@/ui/PageHeader";
+import { addDays, timeIn } from "@/core/shared/dates";
 import { safeFrom } from "@/core/shared/navigation";
+import { getSession } from "@/core/training/repositories/sessions";
 import { EstimateEditor } from "@/features/training/sessions/EstimateForm";
+import { EMPTY_SET, SessionEditor } from "@/features/training/sessions/SessionEditor";
+import { PageHeader } from "@/ui/PageHeader";
+import { TrashMenu } from "@/ui/TrashMenu";
 import {
   deleteSessionAction,
+  restoreSessionAction,
   updateEstimateAction,
   updateSessionAction,
 } from "../actions";
@@ -38,16 +40,32 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
   const time = session.startedAt
     ? timeIn(new Date(session.startedAt), settings.timezone)
     : "";
+  const str = (v: number | string | null | undefined) =>
+    v === null || v === undefined ? "" : String(typeof v === "string" ? Number(v) : v);
+  const header = (title: string) => (
+    <PageHeader
+      title={title}
+      back={{
+        href: from,
+        label: from === "/training" ? t.training.back : t.actions.back,
+      }}
+      menu={
+        <TrashMenu
+          id={id}
+          from={from}
+          name={session.label}
+          trash={deleteSessionAction}
+          restore={restoreSessionAction}
+          labels={t.actions}
+        />
+      }
+    />
+  );
+
   if (session.exercises.length === 0 && (session.intensity || session.kcalEstimate))
     return (
       <div className="flex max-w-page flex-col gap-8">
-        <PageHeader
-          title={session.label}
-          back={{
-            href: from,
-            label: from === "/training" ? t.training.back : t.actions.back,
-          }}
-        />
+        {header(session.label)}
         <EstimateEditor
           id={id}
           from={from}
@@ -57,10 +75,9 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
             time,
             label: session.label,
             status: session.status,
-            durationMin: session.durationMin === null ? "" : String(session.durationMin),
+            durationMin: str(session.durationMin),
             intensity: session.intensity ?? "",
-            kcalEstimate:
-              session.kcalEstimate === null ? "" : String(session.kcalEstimate),
+            kcalEstimate: str(session.kcalEstimate),
             muscleGroups: session.muscleGroups.join(","),
             notes: session.notes,
           }}
@@ -71,27 +88,18 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
             actions: t.actions,
           }}
         />
-        <ActionButtonForm
-          action={deleteSessionAction.bind(null, id)}
-          label={t.training.delete}
-          icon={<Trash2 size={16} aria-hidden="true" />}
-        />
       </div>
     );
+
   const { exercises, last } = await editorData(
     owner,
     addDays(session.day, -1),
     settings.locale,
     t.training,
   );
-  const str = (v: number | string | null | undefined) =>
-    v === null || v === undefined ? "" : String(typeof v === "string" ? Number(v) : v);
   return (
     <div className="flex max-w-page flex-col gap-8">
-      <PageHeader
-        title={t.training.editTitle}
-        back={{ href: "/training", label: t.training.back }}
-      />
+      {header(t.training.editTitle)}
       {session.status === "planned" && (
         <Link
           href={`/training/${id}/live`}
@@ -102,6 +110,8 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
         </Link>
       )}
       <SessionEditor
+        id={id}
+        from={from}
         action={updateSessionAction.bind(null, id)}
         exercises={exercises}
         last={last}
@@ -109,9 +119,7 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
           label: session.label,
           day: session.day,
           status: session.status,
-          time: session.startedAt
-            ? timeIn(new Date(session.startedAt), settings.timezone)
-            : "",
+          time,
           durationMin: str(session.durationMin),
           notes: session.notes,
           routineId: session.routineId ?? "",
@@ -134,13 +142,12 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
             })),
           })),
         }}
-        submitLabel={t.training.save}
-        t={{ training: t.training, errors: t.errors, search: t.search }}
-      />
-      <ActionButtonForm
-        action={deleteSessionAction.bind(null, id)}
-        label={t.training.delete}
-        icon={<Trash2 size={16} aria-hidden="true" />}
+        t={{
+          training: t.training,
+          errors: t.errors,
+          search: t.search,
+          actions: t.actions,
+        }}
       />
     </div>
   );

@@ -21,9 +21,11 @@ import { addMeasurement, weightOn } from "./measurements";
 import { createRoutine, deleteRoutine, listRoutines, restoreRoutine } from "./routines";
 import {
   createSession,
+  deleteSession,
   getSession,
   lastSets,
   listSessions,
+  restoreSession,
   updateSession,
 } from "./sessions";
 
@@ -376,5 +378,32 @@ describe("estimated sessions (ADR-0016)", () => {
       s?.kcalEstimate,
       s?.muscleGroups,
     ]).toEqual(["Calcetto", [], "vigorous", null, ["quads", "calves"]]);
+  });
+});
+
+describe("sessions in the trash (ADR-0015)", () => {
+  it("leave lists, lookups and 'last time', and come back", async () => {
+    const lat = await mine("Lat pulldown");
+    const r = await createSession(
+      db,
+      me,
+      session("2026-09-28", [
+        {
+          exerciseId: lat,
+          restS: null,
+          notes: "",
+          sets: [set({ reps: 10, loadKg: "40" })],
+        },
+      ]),
+      "Europe/Rome",
+    );
+    if (!r.ok) throw new Error("setup");
+    expect((await deleteSession(db, me, r.value.id)).ok).toBe(true);
+    expect(await listSessions(db, me, "2026-09-01", "2026-09-30")).toEqual([]);
+    expect(await getSession(db, me, r.value.id)).toBeNull();
+    expect((await lastSets(db, me, [lat])).size).toBe(0);
+    expect((await restoreSession(db, other, r.value.id)).ok).toBe(false);
+    expect((await restoreSession(db, me, r.value.id)).ok).toBe(true);
+    expect((await lastSets(db, me, [lat])).get(lat)?.day).toBe("2026-09-28");
   });
 });

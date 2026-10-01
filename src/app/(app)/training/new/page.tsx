@@ -17,12 +17,18 @@ import {
   SessionEditor,
   type EditorSet,
 } from "@/features/training/sessions/SessionEditor";
+import { safeFrom } from "@/core/shared/navigation";
 import { PageHeader } from "@/ui/PageHeader";
 import { createSessionAction } from "../actions";
 import { editorData } from "../editor-data";
 
 type Props = {
-  searchParams: Promise<{ routine?: string; exercise?: string; day?: string }>;
+  searchParams: Promise<{
+    routine?: string;
+    exercise?: string;
+    day?: string;
+    from?: string;
+  }>;
 };
 
 export default async function NewSessionPage({ searchParams }: Props) {
@@ -30,6 +36,7 @@ export default async function NewSessionPage({ searchParams }: Props) {
   const params = await searchParams;
   const today = todayIn(settings.timezone);
   const day = params.day && isValidDay(params.day) ? params.day : today;
+  const from = safeFrom(params.from, "/training");
   const [{ exercises, last, previous }, routines, history] = await Promise.all([
     editorData(owner, addDays(day, -1), settings.locale, t.training),
     listRoutines(getDb(), owner),
@@ -74,9 +81,13 @@ export default async function NewSessionPage({ searchParams }: Props) {
     <div className="flex max-w-page flex-col gap-8">
       <PageHeader
         title={t.training.newTitle}
-        back={{ href: "/training", label: t.training.back }}
+        back={{
+          href: from,
+          label: from === "/training" ? t.training.back : t.actions.back,
+        }}
       />
       <SessionEditor
+        from={from}
         action={createSessionAction}
         exercises={exercises}
         last={last}
@@ -90,8 +101,12 @@ export default async function NewSessionPage({ searchParams }: Props) {
           routineId: routine?.id ?? "",
           exercises: initialExercises,
         }}
-        submitLabel={t.training.save}
-        t={{ training: t.training, errors: t.errors, search: t.search }}
+        t={{
+          training: t.training,
+          errors: t.errors,
+          search: t.search,
+          actions: t.actions,
+        }}
       />
     </div>
   );

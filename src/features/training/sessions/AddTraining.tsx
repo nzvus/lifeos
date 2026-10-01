@@ -88,7 +88,10 @@ export function AddTraining({
                 name="add-exercise"
                 value=""
                 onChange={(id) => {
-                  if (id) router.push(`/training/new?exercise=${id}&day=${day}`);
+                  if (id)
+                    router.push(
+                      `/training/new?exercise=${id}&day=${day}&from=${encodeURIComponent(`/?day=${day}`)}`,
+                    );
                 }}
                 search={picker.search}
                 find={picker.find}
