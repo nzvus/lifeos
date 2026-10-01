@@ -180,10 +180,15 @@ export const ingredients = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
+    // ADR-0015: in the trash since then (null = live); purged after 30 days.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     // Two ingredients of the same user can't share a name (per user, not global).
-    unique("ingredients_user_name_uq").on(t.userId, t.name),
+    // Names are unique among live rows only (ADR-0015: the trash may hold a namesake).
+    uniqueIndex("ingredients_user_name_uq")
+      .on(t.userId, t.name)
+      .where(sql`${t.deletedAt} is null`),
     // Needed so child tables can reference (id, user_id) together — see meal_items.
     unique("ingredients_id_user_uq").on(t.id, t.userId),
     check("ingredients_unit_ck", sql`${t.unit} in ('g', 'ml')`),
@@ -213,13 +218,18 @@ export const meals = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
+    // ADR-0015: in the trash since then (null = live); purged after 30 days.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     check(
       "meals_category_ck",
       sql`${t.category} in ('breakfast', 'lunch', 'snack', 'dinner')`,
     ),
-    unique("meals_user_name_uq").on(t.userId, t.name),
+    // Names are unique among live rows only (ADR-0015: the trash may hold a namesake).
+    uniqueIndex("meals_user_name_uq")
+      .on(t.userId, t.name)
+      .where(sql`${t.deletedAt} is null`),
     unique("meals_id_user_uq").on(t.id, t.userId),
   ],
 );
@@ -287,6 +297,8 @@ export const logEntries = pgTable(
     // (older entries): derived from `at` when read.
     moment: text("moment").$type<Moment>(),
     createdAt: tstz("created_at").defaultNow().notNull(),
+    // ADR-0015: in the trash since then (null = live); purged after 30 days.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     unique("log_entries_id_user_uq").on(t.id, t.userId),
@@ -415,9 +427,14 @@ export const dayProfiles = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
+    // ADR-0015: in the trash since then (null = live); purged after 30 days.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
-    unique("day_profiles_user_name_uq").on(t.userId, t.name),
+    // Names are unique among live rows only (ADR-0015: the trash may hold a namesake).
+    uniqueIndex("day_profiles_user_name_uq")
+      .on(t.userId, t.name)
+      .where(sql`${t.deletedAt} is null`),
     check("day_profiles_mode_ck", sql`${t.mode} in ('fixed', 'dynamic')`),
     check(
       "day_profiles_dynamic_ck",
@@ -426,7 +443,7 @@ export const dayProfiles = pgTable(
     // At most one row per user with is_default = true.
     uniqueIndex("day_profiles_one_default_uq")
       .on(t.userId)
-      .where(sql`${t.isDefault}`),
+      .where(sql`${t.isDefault} and ${t.deletedAt} is null`),
   ],
 );
 

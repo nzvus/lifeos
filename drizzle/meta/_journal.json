@@ -85,6 +85,13 @@
       "when": 1790832015650,
       "tag": "0011_set_done",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790833703911,
+      "tag": "0012_trash",
+      "breakpoints": true
     }
   ]
 }
