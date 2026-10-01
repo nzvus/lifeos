@@ -4,7 +4,7 @@
  * chat shows: texts, which tools were used, the changes with Undo, and a
  * pending confirmation (until a later note answers it).
  */
-import { Sparkles } from "lucide-react";
+import { MessagesSquare, Plus } from "lucide-react";
 import Link from "next/link";
 import { env } from "@/app/_server/env";
 import { requireContext } from "@/app/_server/owner";
@@ -15,11 +15,11 @@ import {
   listConversations,
 } from "@/core/assistant/repositories/assistant";
 import { Chat, type ChatItem } from "@/features/account/assistant/Chat";
-import { TEXT_LINK } from "@/ui/button";
+import { buttonClass, TEXT_LINK } from "@/ui/button";
 import { CARD } from "@/ui/Card";
 import { ListItem } from "@/ui/ListItem";
 import { PageHeader } from "@/ui/PageHeader";
-import { Section } from "@/ui/Section";
+import { Collapsible } from "@/ui/Collapsible";
 import { TrashMenu } from "@/ui/TrashMenu";
 import {
   confirmPendingAction,
@@ -104,13 +104,20 @@ export default async function AssistantPage({ searchParams }: Props) {
         </p>
       )}
       <div className="grid items-start gap-4 lg:grid-cols-3">
-        {/* Phone: the chat first, the list under it; wide: the list on the left. */}
-        <div className="order-2 min-w-0 lg:order-1">
-          <Section
+        {/* Phone: the list folded above the chat; wide: open, on the left. */}
+        <div className="min-w-0">
+          <Collapsible
+            id="assistant-conversations"
             title={a.conversations}
-            icon={<Sparkles size={20} aria-hidden="true" />}
+            icon={<MessagesSquare size={20} aria-hidden="true" />}
+            defaultOpen={false}
+            summary={<span className="text-meta text-muted">{conversations.length}</span>}
           >
-            <Link href="/assistant" className={TEXT_LINK}>
+            <Link
+              href="/assistant"
+              className={`self-start ${buttonClass({ size: "sm" })}`}
+            >
+              <Plus size={16} aria-hidden="true" />
               {a.newChat}
             </Link>
             {conversations.length === 0 ? (
@@ -135,9 +142,9 @@ export default async function AssistantPage({ searchParams }: Props) {
                 ))}
               </ul>
             )}
-          </Section>
+          </Collapsible>
         </div>
-        <div className="min-w-0 lg:order-2 lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <Chat
             key={conversation?.id ?? "new"}
             conversationId={conversation?.id ?? null}

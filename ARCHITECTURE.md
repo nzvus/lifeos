@@ -128,7 +128,7 @@ pings healthchecks.io after each dump, and its `app-health` job calls
 - **Assistant (ADR-0018):** the model runs on the server with the user's key
   (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
   writes come back with Undo, deletes/imports wait for a tap; files are read on
-  the phone; network (Open Food Facts) is injected from `app/_server`.
+  the phone; a data summary (`assistant/context.ts`) goes with every turn.
 - **Pantry (ADR-0013/0017):** stock is derived, never stored (`core/pantry/stock.ts`):
   purchases − eaten (not batch portions) − cooked ± counts; food per ingredient.
 - **PWA (ADR-0019):** `app/manifest.ts` + `public/sw.js`: pages network-only (offline

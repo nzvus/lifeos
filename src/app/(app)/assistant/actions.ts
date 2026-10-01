@@ -7,6 +7,8 @@
  */
 "use server";
 
+import { userContext } from "@/core/assistant/context";
+
 import { revalidatePath } from "next/cache";
 import { formToObject } from "@/app/_server/forms";
 import { env } from "@/app/_server/env";
@@ -160,6 +162,8 @@ export async function sendMessageAction(input: {
     : text + notes;
   const messages: ChatMessage[] = [
     { role: "system", content: systemPrompt(today, settings.locale) },
+    // The whole picture, fresh every turn (core/assistant/context.ts).
+    { role: "system", content: await userContext(db, owner, today) },
     ...before.map(toChat).filter((m): m is ChatMessage => m !== null),
     { role: "user", content: userContent },
   ];
