@@ -87,7 +87,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     db
       .select()
       .from(dayProfiles)
-      .where(ownedBy(dayProfiles, owner))
+      .where(and(ownedBy(dayProfiles, owner), live(dayProfiles)))
       .orderBy(asc(dayProfiles.name)),
     db.select().from(dayPlans).where(ownedBy(dayPlans, owner)).orderBy(asc(dayPlans.day)),
     db

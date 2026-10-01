@@ -18,6 +18,7 @@ import {
   setDayProfile,
   setDefaultProfile,
   updateProfile,
+  restoreProfile,
 } from "./profiles";
 
 let db: Db;
@@ -131,7 +132,8 @@ describe("a day's targets", () => {
 
     expect(await getDayTargets(db, me, DAY)).toEqual({
       source: "fixed",
-      profileId: null, // the link is gone, the copy isn't
+      // In the trash the link stays (ADR-0015; a purge sets it to null); the copy is what counts.
+      profileId: gym.id,
       name: "Palestra",
       targets: expect.objectContaining({
         kcal: "2600.000",
@@ -173,5 +175,24 @@ describe("CROSS-USER", () => {
     // Their first profile is THEIR default: defaults are per user.
     await make(other, "Palestra", "1800");
     expect((await listProfiles(db, other))[0]?.isDefault).toBe(true);
+  });
+});
+
+describe("day types in the trash (ADR-0015)", () => {
+  it("leave the list, can't be the default, and come back", async () => {
+    const rest = await make(me, "Riposo", "2200"); // default
+    const gym = await make(me, "Palestra", "2600");
+    expect(await deleteProfile(db, me, rest.id)).toEqual({
+      ok: false,
+      errors: { _form: "is_default" },
+    });
+    expect((await deleteProfile(db, me, gym.id)).ok).toBe(true);
+    expect((await listProfiles(db, me)).map((p) => p.name)).toEqual(["Riposo"]);
+    expect((await restoreProfile(db, other, gym.id)).ok).toBe(false);
+    expect((await restoreProfile(db, me, gym.id)).ok).toBe(true);
+    expect((await listProfiles(db, me)).map((p) => p.name).sort()).toEqual([
+      "Palestra",
+      "Riposo",
+    ]);
   });
 });
