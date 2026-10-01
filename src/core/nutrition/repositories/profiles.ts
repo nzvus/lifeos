@@ -32,10 +32,49 @@ import type { ProfileInput } from "../validation";
 export type Targets = Record<NutrientKey, string | null>;
 export type DayProfile = typeof dayProfiles.$inferSelect;
 
+/** What a profile write needs; the ADR-0014 fields default (fixed) when absent. */
+export type ProfileWrite = Omit<ProfileInput, keyof DynamicFields> & Partial<DynamicFields>;
+type DynamicFields = Pick<ProfileInput, "mode" | "deficitKcal" | "proteinGPerKg" | "fatGPerKg">;
+
+/** ADR-0014: a dynamic day's parameters (its targets come from core/energy). */
+export type DynamicPlan = {
+  deficitKcal: number;
+  proteinGPerKg: string;
+  fatGPerKg: string;
+};
+
 export type DayTargets =
-  | { source: "fixed"; profileId: string | null; name: string; targets: Targets }
-  | { source: "default"; profileId: string; name: string; targets: Targets }
+  | {
+      source: "fixed";
+      profileId: string | null;
+      name: string;
+      targets: Targets;
+      dynamic: DynamicPlan | null;
+    }
+  | {
+      source: "default";
+      profileId: string;
+      name: string;
+      targets: Targets;
+      dynamic: DynamicPlan | null;
+    }
   | { source: "none" };
+
+/** The dynamic parameters of a profile or plan row, or null when fixed. */
+function dynamicOf(row: {
+  mode: string;
+  deficitKcal: number;
+  proteinGPerKg: string;
+  fatGPerKg: string;
+}): DynamicPlan | null {
+  return row.mode === "dynamic"
+    ? {
+        deficitKcal: row.deficitKcal,
+        proteinGPerKg: row.proteinGPerKg,
+        fatGPerKg: row.fatGPerKg,
+      }
+    : null;
+}
 
 /** The eight target values of a profile or plan row. */
 export function targetsOf(row: Record<NutrientKey, string | null>): Targets {
@@ -100,7 +139,7 @@ export async function getDefaultTargets(db: Db, owner: Owner): Promise<Targets |
 export async function createProfile(
   db: Db,
   owner: Owner,
-  input: ProfileInput,
+  input: ProfileWrite,
 ): Promise<Result<DayProfile>> {
   const isFirst = (await listProfiles(db, owner)).length === 0;
   try {
@@ -120,7 +159,7 @@ export async function updateProfile(
   db: Db,
   owner: Owner,
   id: string,
-  input: ProfileInput,
+  input: ProfileWrite,
 ): Promise<Result<DayProfile>> {
   try {
     const [row] = await db
@@ -220,6 +259,7 @@ export async function getDayTargets(
       profileId: plan.profileId,
       name: plan.profileName,
       targets: targetsOf(plan),
+      dynamic: dynamicOf(plan),
     };
   }
   const def = await getDefaultProfile(db, owner);
@@ -229,6 +269,7 @@ export async function getDayTargets(
       profileId: def.id,
       name: def.name,
       targets: targetsOf(def),
+      dynamic: dynamicOf(def),
     };
   }
   return { source: "none" };
@@ -240,6 +281,11 @@ async function writePlan(db: Db, owner: Owner, day: string, profile: DayProfile)
     profileId: profile.id,
     profileName: profile.name,
     ...targetsOf(profile),
+    // ADR-0014: a dynamic day copies its parameters, not numbers.
+    mode: profile.mode,
+    deficitKcal: profile.deficitKcal,
+    proteinGPerKg: profile.proteinGPerKg,
+    fatGPerKg: profile.fatGPerKg,
   };
   await db
     .insert(dayPlans)

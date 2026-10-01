@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "../../db/client";
 import type { Owner } from "../../identity/owner";
 import { createTestDb, createTestUser, ingredientFixture } from "../../testing/test-db";
-import type { ProfileInput } from "../validation";
+import type { ProfileWrite } from "./profiles";
 import { createIngredient } from "./ingredients";
 import { logIngredient } from "./log";
 import {
@@ -27,7 +27,7 @@ let me: Owner;
 let other: Owner;
 
 /** A profile input: a name and a kcal target, other targets empty. */
-function profile(name: string, kcal: string | null): ProfileInput {
+function profile(name: string, kcal: string | null): ProfileWrite {
   return {
     name,
     kcal,
@@ -132,6 +132,7 @@ describe("a day's targets", () => {
 
     expect(await getDayTargets(db, me, DAY)).toEqual({
       source: "fixed",
+      dynamic: null,
       // In the trash the link stays (ADR-0015; a purge sets it to null); the copy is what counts.
       profileId: gym.id,
       name: "Palestra",
@@ -194,5 +195,24 @@ describe("day types in the trash (ADR-0015)", () => {
       "Palestra",
       "Riposo",
     ]);
+  });
+});
+
+describe("dynamic day types (ADR-0014)", () => {
+  it("store their parameters and copy them onto the day, not numbers", async () => {
+    const r = await createProfile(db, me, {
+      ...profile("Palestra dinamica", null),
+      mode: "dynamic",
+      deficitKcal: -250,
+      proteinGPerKg: "1.8",
+      fatGPerKg: "0.9",
+    });
+    if (!r.ok) throw new Error("setup failed");
+    await setDayProfile(db, me, DAY, r.value.id);
+    const t = await getDayTargets(db, me, DAY);
+    expect(t).toMatchObject({
+      source: "fixed",
+      dynamic: { deficitKcal: -250, proteinGPerKg: "1.8", fatGPerKg: "0.9" },
+    });
   });
 });
