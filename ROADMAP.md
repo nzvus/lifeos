@@ -118,12 +118,12 @@
 ## Next sprint: S07 — Training you can use at the gym, and a design pass (started 2026-10-01)
 - **Goal:** training as progress (routines, exercises, muscle groups, overall stats) and a fast live logger; the whole app with calmer spacing and widgets that use their full width; Targets with grouped macro bars and training data.
 - [x] ADR-0013 accepted (delegated: products → ingredients, stock derived from purchases − eaten ± counts); implementation after S07
-- [ ] Design pass: spacing/size/rule tokens per theme revisited; one `Stat`/widget convention (label ↔ value spread across the width, centred numbers in tiles); applied to day panel, cards, sections
+- [x] Design pass: superseded by the full design pass below (buttons, badges, rhythm, themes); ui/StatTiles is the centred-number widget
 - [x] Muscle groups: closed list of 17 in 6 regions, one colour per region in every theme; movement pattern per exercise (migration 0010); suggestion from the name (the 21 real names tested); chips in the editor and list; `classify:exercises` for existing ones
 - [x] Movement-pattern icons (own SVG set, one per pattern, in the region colour)
 - [x] Training page as progress: week (sessions, working sets, kg, kcal vs the week before; sets per muscle group over the 10–20 band, browsable by week), routines (runs, kg per run, change, sparkline), exercises (e1RM, change in 4 weeks, sparkline), compact session cards (icons by region, sets on tap); ui/StatTiles = the centred-number widget
 - [x] Live session mode (`/training/<id>/live`): a routine tile starts it now at its latest version; big ✓ and −/+ steppers prefilled from last time; rest timer (vibrates); saved whole 0.7 s after each edit (`sets.done`, migration 0011); finish keeps only done sets and sets the duration; per-set change vs last time with ↺ restore; add, move, remove exercises; unsaved edits kept in the browser and restored on reload
-- [ ] Targets: macros per day as grouped bars (side by side, macro colours); training per day (tonnage, burn) next to intake
+- [x] Targets: macros per day as grouped bars (side by side, macro colours); training per day (tonnage, burn) next to intake (b22a7a4)
 - [ ] Developer review on phone of everything above
 
 ## Next sprint: S07b — One edit model and the visual refactoring (ADR-0015, started 2026-10-01)
@@ -168,7 +168,7 @@
   - products not linked to an ingredient (detergent, toiletries…), counted in pieces;
   - batch cooking as an event that uses ingredients from stock and makes N portions of a meal; logging that meal uses a portion;
   - reminders: derived ("2 portions left → cook again"; "runs out in 3 days → buy") vs set by hand, and where they show up (day page, shopping list).
-- [ ] Training in the JSON export (exercises, sessions, routines, measurements); next export version
+- [x] Training in the JSON export, version 6 (exercises, routines with items, sessions with exercises and sets, measurements, day activity; live records only); the lifeos importer accepts v6 and restores nutrition only
 - [ ] Schema (migration PR first), then purchases + counts, stock and "runs out in", shopping list, batches, reminders
 
 ## Done

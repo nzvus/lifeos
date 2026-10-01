@@ -70,6 +70,9 @@ const exportFile = z.object({
     z.literal(3),
     z.literal(4),
     z.literal(5),
+    // 6 adds `training`; this importer restores nutrition only and ignores it
+    // (training is imported from its own sources: npm run import:training).
+    z.literal(6),
   ]),
   settings: z
     .object({
