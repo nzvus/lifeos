@@ -19,6 +19,7 @@ import { getPantry } from "../pantry/repositories/stock";
 import { addDays } from "../shared/dates";
 import { sessionMinutes, sessionTonnage } from "../training/analysis";
 import { listMeasurements } from "../training/repositories/measurements";
+import { getActivePlan } from "../training/repositories/programs";
 import { listRoutines } from "../training/repositories/routines";
 import { listSessions } from "../training/repositories/sessions";
 
@@ -178,6 +179,19 @@ export async function userContext(db: Db, owner: Owner, today: string): Promise<
                 ? `, ${s.exercises.length} exercises, ${r(sessionTonnage(s.exercises))} kg lifted`
                 : ""),
           )
+          .join("\n"),
+    );
+  const program = await getActivePlan(db, owner, today, 7);
+  if (program)
+    out.push(
+      `## Training program "${program.program.name}" (cycle: ${program.program.slots.map((x) => x.name || "rest").join(" → ")})\n` +
+        program.plan
+          .map((d) => {
+            const name = program.program.slots.find(
+              (x) => x.position === d.slot.position,
+            )?.name;
+            return `${d.day}: ${d.slot.routineId ? name : "rest"}${d.late ? " (late: was due earlier)" : ""}`;
+          })
           .join("\n"),
     );
   const planned = sessions.filter((s) => s.status === "planned" && s.day >= today);

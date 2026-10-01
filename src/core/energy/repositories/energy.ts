@@ -13,8 +13,17 @@ import { dayActivity, userSettings } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { getHistory } from "../../nutrition/repositories/history";
 import { addDays } from "../../shared/dates";
-import { burnBasis, burnRange, sessionMinutes, weightAt } from "../../training/analysis";
+import {
+  burnBasis,
+  burnRange,
+  sessionMinutes,
+  weightAt,
+  type SetLike,
+} from "../../training/analysis";
+import type { ExerciseKind } from "../../training/kinds";
 import { listMeasurements } from "../../training/repositories/measurements";
+import { listExercises } from "../../training/repositories/exercises";
+import { listRoutines } from "../../training/repositories/routines";
 import { listSessions } from "../../training/repositories/sessions";
 import {
   dayEnergy,
@@ -84,7 +93,50 @@ export async function setDayActivity(
 }
 
 type ActivityRow = typeof dayActivity.$inferSelect;
-type SessionRow = Awaited<ReturnType<typeof listSessions>>[number];
+
+/** A routine as a planned session with its default sets (for the energy only). */
+async function routineAsPlanned(
+  db: Db,
+  owner: Owner,
+  routineId: string,
+): Promise<SessionRow | null> {
+  const [routines, exercises] = await Promise.all([
+    listRoutines(db, owner),
+    listExercises(db, owner),
+  ]);
+  const routine = routines.find((r) => r.id === routineId);
+  if (!routine) return null;
+  const kindOf = new Map(exercises.map((e) => [e.id, e.kind]));
+  return {
+    label: routine.name,
+    status: "planned",
+    durationMin: null,
+    routineId: routine.id,
+    intensity: null,
+    kcalEstimate: null,
+    exercises: routine.items.map((it) => ({
+      kind: kindOf.get(it.exerciseId) ?? "strength",
+      restS: it.restS,
+      sets: Array.from({ length: it.sets }, () => ({
+        reps: it.reps,
+        loadKg: it.loadKg,
+        durationS: it.durationS,
+        warmup: false,
+      })),
+    })),
+  };
+}
+/** What the energy needs of a session: real ones, or a program's routine. */
+type SessionRow = Pick<
+  Awaited<ReturnType<typeof listSessions>>[number],
+  "status" | "durationMin" | "label" | "intensity" | "kcalEstimate" | "routineId"
+> & {
+  exercises: readonly {
+    kind: ExerciseKind;
+    restS: number | null;
+    sets: readonly SetLike[];
+  }[];
+};
 
 /** One day's declared activity (default "mixed") and its sessions → the model's facts. */
 function factsOf(
@@ -116,6 +168,9 @@ export async function getDayEnergy(
   db: Db,
   owner: Owner,
   day: string,
+  /** ADR-0024: the routine a program puts on this day, counted as planned
+   *  when the day has no session of it yet. */
+  programRoutineId?: string | null,
 ): Promise<DayEnergyView> {
   const [body, [act], sessions, measurements] = await Promise.all([
     getBody(db, owner, day),
@@ -126,7 +181,13 @@ export async function getDayEnergy(
     listSessions(db, owner, day, day),
     listMeasurements(db, owner),
   ]);
-  const { activity, facts } = factsOf(day, act, sessions, weightAt(measurements, day));
+  const kg = weightAt(measurements, day);
+  const all: SessionRow[] = [...sessions];
+  if (programRoutineId && !sessions.some((x) => x.routineId === programRoutineId)) {
+    const pseudo = await routineAsPlanned(db, owner, programRoutineId);
+    if (pseudo) all.push(pseudo);
+  }
+  const { activity, facts } = factsOf(day, act, all, kg);
   return { body, missing: missingBody(body), activity, energy: dayEnergy(body, facts) };
 }
 

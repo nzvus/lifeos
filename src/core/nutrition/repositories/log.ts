@@ -500,7 +500,17 @@ export async function setEntryStatus(
   id: string,
   status: EntryStatus,
   now: Date = new Date(),
+  /** The user's today: an entry of a later day can only be planned. */
+  today?: string,
 ): Promise<Result<null>> {
+  if (status === "eaten" && today) {
+    const [entry] = await db
+      .select({ day: logEntries.day })
+      .from(logEntries)
+      .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)));
+    if (!entry) return fail({ _form: "not_found" });
+    if (entry.day > today) return fail({ _form: "future_day" });
+  }
   const set = status === "eaten" ? { status, at: now } : { status };
   const updated = await db
     .update(logEntries)

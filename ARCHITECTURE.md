@@ -129,8 +129,8 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
   writes come back with Undo, deletes/imports wait for a tap; files are read on
   the phone; a data summary (`assistant/context.ts`) goes with every turn.
-- **Pantry (ADR-0013/0017):** stock is derived, never stored (`core/pantry/stock.ts`):
-  purchases − eaten (not batch portions) − cooked ± counts; food per ingredient.
+- **Derived, never stored:** pantry stock (ADR-0017, `core/pantry/stock.ts`: purchases −
+  eaten − cooked ± counts) and a program's coming days (ADR-0024, `core/training/program.ts`).
 - **PWA (ADR-0019):** `app/manifest.ts` + `public/sw.js`: pages network-only (offline
   page as fallback), `/_next/static` cache-first; no user data is ever cached.
 - **Time:** `date` strings; "today" from `user_settings.timezone`, never the server's clock.

@@ -86,6 +86,7 @@ export const trashEn = {
     batch: "Batch",
     reminder: "Reminder",
     conversation: "Conversation",
+    program: "Program",
   },
   purgeOn: "deleted for good on {date}",
   restore: "Restore",
@@ -99,6 +100,7 @@ export const trashEn = {
 
 export const energyEn = {
   title: "Energy",
+  closed: "Spent so far {spent} · balance with the plan {balance}",
   subtitle: "Estimates, always as ranges: every part is below.",
   bmr: "Basal metabolism",
   baseline: "Everyday activity (basal and digestion included)",
@@ -157,8 +159,12 @@ export const energyEn = {
   fatPerKg: "Fat (g per kg)",
   dynamicHint:
     "Calories = the day's estimated energy with the plan − deficit; protein and fat follow your weight; carbs are the rest. Sugars, saturated fat and salt stay limits.",
-  dynamicNote: "{goal}: {kcal} kcal = energy with the plan {spent} {sign} {delta} kcal",
-  dynamicCapped: "{note} → {kcal} kcal: carbs stop at {carbs} g, more adds little",
+  goalMaintain: "maintenance",
+  goalDeficit: "a {kcal} kcal deficit",
+  goalSurplus: "a {kcal} kcal surplus",
+  goalEat: "Eat {kcal} kcal · you spend ~{spent} kcal",
+  goalFixed: "Target {kcal} kcal (fixed)",
+  goalCapped: "Carbs stop at {carbs} g: more adds nothing.",
   goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
@@ -317,12 +323,17 @@ export const trainingWhenEn = {
   },
 };
 
-export const panelZonesEn = {
-  below_floor: "below the health minimum",
-  low: "below the good zone",
-  good: "in the good zone",
-  high: "above the good zone, within the maximum",
-  above_ceiling: "past the maximum",
+export const panelRowsEn = {
+  toGo: "{v} to go",
+  inZone: "in the good zone",
+  aboveZone: "above the good zone ({v})",
+  noBenefit: "past {v}: no further benefit",
+  past: "past the recommended maximum ({v})",
+  bandLine: "health minimum {floor} · good zone {low}–{high} · {kind} {ceiling}",
+  maxHealth: "recommended max",
+  maxUseful: "useful max",
+  targetLine: "target {v}",
+  planLine: "with the plan {v}",
 };
 
 export const appEn = {
@@ -355,6 +366,7 @@ export const errorsEn = {
   still_referenced:
     "Something else still uses it (even if that is in the trash): delete that first.",
   not_editable: "This entry has no ingredients to edit (an estimate or a portion).",
+  future_day: "That day has not come yet: it can only be planned.",
 };
 
 export const entryEditEn = {
@@ -363,4 +375,45 @@ export const entryEditEn = {
   copyMeal: "You change only this day's entry: the meal it came from stays as it is.",
   total: "The entry's total",
   edit: "Edit ingredients",
+};
+
+export const programsEn = {
+  title: "Programs",
+  subtitle:
+    "A cycle of routines and rest days: miss a day and the cycle slips, nothing is lost.",
+  new: "New program",
+  back: "Back to programs",
+  empty: "No programs: make one from your routines.",
+  open: "Programs",
+  name: "Name",
+  notes: "Notes",
+  startDay: "Starts on",
+  active: "Active (plans the coming days)",
+  activeBadge: "Active",
+  slots: "The cycle",
+  slotsHint: "One day per row, in order. It starts again after the last.",
+  slot: "Routine",
+  dayN: "D{n}",
+  rest: "Rest",
+  addSlot: "Add a day",
+  up: "Move up",
+  down: "Move down",
+  remove: "Remove",
+  coming: "Coming days · {name}",
+  late: "late",
+  since: "since {day}",
+  fromProgram: "From the program «{name}»",
+  plan: "Plan",
+  start: "Start now",
+};
+
+export const outlookEn = {
+  title: "Next 7 days",
+  subtitle:
+    "Training planned or from the program, estimated energy and the targets that follow.",
+  noDayType: "no day type",
+  rest: "Rest",
+  energy: "spends {lo}–{hi} kcal",
+  noEnergy: "energy: body data missing",
+  targets: "{kcal} kcal · P {p} · C {c} · F {f}",
 };

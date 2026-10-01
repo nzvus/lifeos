@@ -52,7 +52,9 @@ import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { DayScore } from "@/features/nutrition/log/DayScore";
+import { ProgramDay } from "@/features/training/programs/ProgramDay";
 import { AddTraining } from "@/features/training/sessions/AddTraining";
+import { programSlotOn } from "@/core/training/repositories/programs";
 import { startOrPlanAction } from "./training/live-actions";
 import { SessionList } from "@/features/training/sessions/SessionList";
 import { presetTiles } from "./training/preset-tiles";
@@ -65,6 +67,7 @@ import {
   restoreSessionAction,
 } from "./training/actions";
 import { Card } from "@/ui/Card";
+import { Collapsible } from "@/ui/Collapsible";
 import { Section } from "@/ui/Section";
 import { dayScore } from "@/core/nutrition/day-score";
 import { eatenQuality } from "@/core/nutrition/quality-summary";
@@ -98,6 +101,8 @@ export default async function DayPage({ searchParams }: Props) {
   const day = requested && isValidDay(requested) ? requested : today;
 
   const db = getDb();
+  // ADR-0024: what the active program puts on this day (from today on).
+  const programSlot = await programSlotOn(db, owner, today, day);
   // Promise.all: independent queries at once instead of one after another.
   const monday = startOfWeek(day);
   const [
@@ -136,7 +141,7 @@ export default async function DayPage({ searchParams }: Props) {
     listBatches(db, owner), // ADR-0017: portions to log, and their reminders
     getPantry(db, owner),
     listReminders(db, owner),
-    getDayEnergy(db, owner, day), // ADR-0014: what the day costs
+    getDayEnergy(db, owner, day, programSlot?.slot.routineId), // ADR-0014: what the day costs
     day === today ? getCalibration(db, owner, today) : null, // ADR-0020
   ]);
   // Today's reminders (ADR-0017): derived from the pantry and the batches,
@@ -247,30 +252,67 @@ export default async function DayPage({ searchParams }: Props) {
             t={{ day: t.day, errors: t.errors }}
           />
           {/* ADR-0014: say where dynamic targets come from, or why they can't. */}
-          {dayTargets.source !== "none" && dayTargets.dynamic && (
-            <p className="text-meta text-muted">
-              {dynamic
-                ? (() => {
+          {dayTargets.source !== "none" && (
+            // The goal in plain words: what kind of day, how far from what you
+            // spend, and what to eat. The formulas are under Energy.
+            <div className="tile flex flex-col gap-0.5 px-3 py-2">
+              {dayTargets.dynamic ? (
+                dynamic ? (
+                  (() => {
                     const g = goalOf(dayTargets.dynamic);
                     const d = dayTargets.dynamic.deficitKcal;
                     const w = energyView.energy!.total.withPlan;
-                    const note = fill(t.energy.dynamicNote, {
-                      goal: g ? t.energy.goals[g] : t.energy.goalCustom,
-                      kcal: String(dynamic.uncapped ?? dynamic.kcal),
-                      spent: String(Math.round((w.low + w.high) / 2)),
-                      sign: d >= 0 ? "−" : "+",
-                      delta: String(Math.abs(d)),
-                    });
-                    return dynamic.uncapped === null
-                      ? note
-                      : fill(t.energy.dynamicCapped, {
-                          note,
-                          carbs: String(dynamic.carbs),
-                          kcal: String(dynamic.kcal),
-                        });
+                    return (
+                      <>
+                        <span className="font-display text-item font-semibold">
+                          {[
+                            g ? t.energy.goals[g] : t.energy.goalCustom,
+                            d === 0
+                              ? t.energy.goalMaintain
+                              : fill(
+                                  d > 0 ? t.energy.goalDeficit : t.energy.goalSurplus,
+                                  {
+                                    kcal: String(Math.abs(d)),
+                                  },
+                                ),
+                          ].join(" · ")}
+                        </span>
+                        <span className="text-meta tabular-nums">
+                          {fill(t.energy.goalEat, {
+                            kcal: formatNumber(String(dynamic.kcal), locale, 0),
+                            spent: formatNumber(
+                              String(Math.round((w.low + w.high) / 2)),
+                              locale,
+                              0,
+                            ),
+                          })}
+                        </span>
+                        {dynamic.uncapped !== null && (
+                          <span className="text-meta text-muted">
+                            {fill(t.energy.goalCapped, { carbs: String(dynamic.carbs) })}
+                          </span>
+                        )}
+                      </>
+                    );
                   })()
-                : t.energy.dynamicMissing}
-            </p>
+                ) : (
+                  <span className="text-meta text-muted">{t.energy.dynamicMissing}</span>
+                )
+              ) : (
+                <>
+                  <span className="font-display text-item font-semibold">
+                    {dayTargets.name}
+                  </span>
+                  {targets.kcal !== null && (
+                    <span className="text-meta tabular-nums">
+                      {fill(t.energy.goalFixed, {
+                        kcal: formatNumber(targets.kcal, locale, 0),
+                      })}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
           )}
         </Card>
         <DayPanel
@@ -355,6 +397,7 @@ export default async function DayPage({ searchParams }: Props) {
             restore={restoreLogEntryAction}
             refresh={refreshLogEntryAction}
             statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
+            future={day > today}
             timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
             timeZone={settings.timezone}
             bounds={settings.preferences.bounds}
@@ -434,12 +477,41 @@ export default async function DayPage({ searchParams }: Props) {
             }}
           />
         </div>
+        {programSlot &&
+          !sessions.some(
+            (x) =>
+              programSlot.slot.routineId && x.routineId === programSlot.slot.routineId,
+          ) && (
+            <ProgramDay
+              program={programSlot.program}
+              routineName={
+                programSlot.slot.routineId === null
+                  ? null
+                  : (presets.find((x) => x.routineId === programSlot.slot.routineId)
+                      ?.label ?? programSlot.slot.label)
+              }
+              restLabel={programSlot.slot.label || t.programs.rest}
+              late={programSlot.late}
+              routineId={programSlot.slot.routineId}
+              day={day}
+              isToday={day === today}
+              action={startOrPlanAction}
+              t={t.programs}
+            />
+          )}
         {sessions.length > 0 && (
-          <Section
+          <Collapsible
+            id="day-training"
             title={t.training.onThisDay}
             icon={<Dumbbell size={20} aria-hidden="true" />}
-            subtitle={burnText}
+            aside={String(sessions.length)}
+            summary={
+              <p className="text-meta text-muted">
+                {sessions.map((x) => x.label).join(" · ")}
+              </p>
+            }
           >
+            <p className="text-meta text-muted">{burnText}</p>
             <SessionList
               sessions={sessions}
               measurements={measurements}
@@ -452,7 +524,7 @@ export default async function DayPage({ searchParams }: Props) {
               labels={t.actions}
               startable={day === today}
             />
-          </Section>
+          </Collapsible>
         )}
         <AddTraining
           day={day}

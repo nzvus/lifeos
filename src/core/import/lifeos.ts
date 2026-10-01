@@ -75,8 +75,10 @@ const exportFile = z.object({
     z.literal(6),
     // 7 adds `pantry` (ADR-0017); ignored here like `training`.
     z.literal(7),
-    // 8 adds `assistant` (ADR-0018); ignored here.
+    // 8 adds `assistant` (ADR-0018); 9 adds training `programs` (ADR-0024);
+    // both ignored here.
     z.literal(8),
+    z.literal(9),
   ]),
   settings: z
     .object({

@@ -15,17 +15,20 @@ import type { ActionButtonState } from "@/ui/ActionButtonForm";
 type Props = {
   eaten: boolean;
   action: (prev: ActionButtonState, formData: FormData) => Promise<ActionButtonState>;
-  labels: { markEaten: string; markPlanned: string };
+  labels: { markEaten: string; markPlanned: string; future: string };
+  /** A day still to come: planned food can't be ticked as eaten. */
+  future?: boolean;
 };
 
-export function StatusToggle({ eaten, action, labels }: Props) {
+export function StatusToggle({ eaten, action, labels, future = false }: Props) {
   const [state, formAction, pending] = useActionState(action, { status: "idle" });
-  const label = eaten ? labels.markPlanned : labels.markEaten;
+  const locked = future && !eaten;
+  const label = locked ? labels.future : eaten ? labels.markPlanned : labels.markEaten;
   return (
     <form action={formAction}>
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || locked}
         aria-pressed={eaten}
         aria-label={label}
         title={state.status === "error" ? state.message : label}

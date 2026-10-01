@@ -20,6 +20,7 @@ import type { Db } from "../db/client";
 import {
   assistantConversations,
   batches,
+  programs,
   bodyMeasurements,
   dayProfiles,
   exercises,
@@ -60,6 +61,7 @@ import {
   deleteMeasurement,
   restoreMeasurement,
 } from "../training/repositories/measurements";
+import { deleteProgram, restoreProgram } from "../training/repositories/programs";
 import { deleteRoutine, restoreRoutine } from "../training/repositories/routines";
 import { deleteSession, restoreSession } from "../training/repositories/sessions";
 import { fail, ok, pgErrorCode, type Result } from "../shared/result";
@@ -81,6 +83,8 @@ export const TRASH_KINDS = [
   "reminder",
   // ADR-0018: the assistant's conversations.
   "conversation",
+  // ADR-0024: training programs.
+  "program",
 ] as const;
 export type TrashKind = (typeof TRASH_KINDS)[number];
 
@@ -110,7 +114,7 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
       .select({ id: t.id, name: t.name, deletedAt: t.deletedAt })
       .from(t)
       .where(and(ownedBy(t, owner), isNotNull(t.deletedAt)));
-  const [m, i, p, r, x, e, s, b, pr, pu, ba, re, co] = await Promise.all([
+  const [m, i, p, r, x, e, s, b, pr, pu, ba, re, co, pg] = await Promise.all([
     named(meals),
     named(ingredients),
     named(dayProfiles),
@@ -193,6 +197,10 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
           isNotNull(assistantConversations.deletedAt),
         ),
       ),
+    db
+      .select({ id: programs.id, name: programs.name, deletedAt: programs.deletedAt })
+      .from(programs)
+      .where(and(ownedBy(programs, owner), isNotNull(programs.deletedAt))),
   ]);
   const item =
     (kind: TrashKind) =>
@@ -221,6 +229,7 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
     ...ba.map(item("batch")),
     ...re.map(item("reminder")),
     ...co.map(item("conversation")),
+    ...pg.map(item("program")),
   ].sort((a, b) => b.deletedAt.localeCompare(a.deletedAt));
 }
 
@@ -262,6 +271,8 @@ export function moveToTrash(
       return deleteReminder(db, owner, id);
     case "conversation":
       return deleteConversation(db, owner, id);
+    case "program":
+      return deleteProgram(db, owner, id);
   }
 }
 
@@ -299,6 +310,8 @@ export function restoreFromTrash(
       return restoreReminder(db, owner, id);
     case "conversation":
       return restoreConversation(db, owner, id);
+    case "program":
+      return restoreProgram(db, owner, id);
   }
 }
 
@@ -316,7 +329,8 @@ type TrashTable =
   | typeof purchases
   | typeof batches
   | typeof reminders
-  | typeof assistantConversations;
+  | typeof assistantConversations
+  | typeof programs;
 
 /**
  * Deletes one of my records in the trash for good (only from the trash:
@@ -394,6 +408,11 @@ export async function purgeFromTrash(
             .delete(assistantConversations)
             .where(where(assistantConversations))
             .returning({ id: assistantConversations.id });
+        case "program":
+          return db
+            .delete(programs)
+            .where(where(programs))
+            .returning({ id: programs.id });
       }
     })();
     return gone.length ? ok(null) : fail({ _form: "not_found" });
@@ -421,6 +440,9 @@ export async function purgeExpiredTrash(
     and(isNotNull(t.deletedAt), lt(t.deletedAt, cutoff));
   const count = (rows: unknown[]) => rows.length;
   return db.transaction(async (tx) => {
+    const program = count(
+      await tx.delete(programs).where(expired(programs)).returning({ id: programs.id }),
+    );
     const session = count(
       await tx
         .delete(trainingSessions)
@@ -536,6 +558,7 @@ export async function purgeExpiredTrash(
       batch,
       reminder,
       conversation,
+      program,
     };
   });
 }

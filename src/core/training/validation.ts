@@ -220,3 +220,35 @@ export const routineInput = z.object({
   ).transform((v) => v ?? []),
 });
 export type RoutineInput = z.output<typeof routineInput>;
+
+/**
+ * ADR-0024: a training program — name, start day, and its ordered slots as
+ * JSON from the editor: [{"routineId":"…"}, {"routineId":null,"label":"Rest"}].
+ */
+export const programInput = z.object({
+  name,
+  notes: z.string().trim().max(1000, "too_long").optional().default(""),
+  startDay: day,
+  active: z
+    .string()
+    .optional()
+    .transform((v) => v === "on" || v === "true"),
+  slots: jsonField(
+    z
+      .array(
+        z.object({
+          routineId: id.nullable(),
+          label: z.string().trim().max(40, "too_long").optional().default(""),
+        }),
+      )
+      .min(1, "required")
+      .max(28, "too_long"),
+  ).transform((v, ctx) => {
+    if (v === undefined) {
+      ctx.addIssue({ code: "custom", message: "required" });
+      return z.NEVER;
+    }
+    return v;
+  }),
+});
+export type ProgramInput = z.output<typeof programInput>;
