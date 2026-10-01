@@ -35,17 +35,28 @@ import {
   trainingSessions,
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
-import { restoreBatch } from "../nutrition/repositories/batches";
-import { restoreIngredients } from "../nutrition/repositories/ingredients";
-import { restoreLogEntry } from "../nutrition/repositories/log";
-import { restoreMeal } from "../nutrition/repositories/meals";
-import { restoreProfile } from "../nutrition/repositories/profiles";
-import { restoreProduct, restorePurchase } from "../pantry/repositories/products";
-import { restoreReminder } from "../pantry/repositories/reminders";
-import { restoreExercise } from "../training/repositories/exercises";
-import { restoreMeasurement } from "../training/repositories/measurements";
-import { restoreRoutine } from "../training/repositories/routines";
-import { restoreSession } from "../training/repositories/sessions";
+import { deleteBatch, restoreBatch } from "../nutrition/repositories/batches";
+import {
+  deleteIngredient,
+  restoreIngredients,
+} from "../nutrition/repositories/ingredients";
+import { deleteLogEntry, restoreLogEntry } from "../nutrition/repositories/log";
+import { deleteMeal, restoreMeal } from "../nutrition/repositories/meals";
+import { deleteProfile, restoreProfile } from "../nutrition/repositories/profiles";
+import {
+  deleteProduct,
+  deletePurchase,
+  restoreProduct,
+  restorePurchase,
+} from "../pantry/repositories/products";
+import { deleteReminder, restoreReminder } from "../pantry/repositories/reminders";
+import { deleteExercise, restoreExercise } from "../training/repositories/exercises";
+import {
+  deleteMeasurement,
+  restoreMeasurement,
+} from "../training/repositories/measurements";
+import { deleteRoutine, restoreRoutine } from "../training/repositories/routines";
+import { deleteSession, restoreSession } from "../training/repositories/sessions";
 import { fail, ok, pgErrorCode, type Result } from "../shared/result";
 import { TRASH_DAYS } from "../shared/trash";
 
@@ -190,6 +201,45 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
     ...ba.map(item("batch")),
     ...re.map(item("reminder")),
   ].sort((a, b) => b.deletedAt.localeCompare(a.deletedAt));
+}
+
+/**
+ * Moves one record to the trash with its kind's own rules (an ingredient a
+ * live meal uses is refused, the default day type is refused…). Used where
+ * the kind is data, not code: the assistant's Undo and its delete tool.
+ */
+export function moveToTrash(
+  db: Db,
+  owner: Owner,
+  kind: TrashKind,
+  id: string,
+): Promise<Result<null>> {
+  switch (kind) {
+    case "meal":
+      return deleteMeal(db, owner, id);
+    case "ingredient":
+      return deleteIngredient(db, owner, id);
+    case "logEntry":
+      return deleteLogEntry(db, owner, id);
+    case "dayProfile":
+      return deleteProfile(db, owner, id);
+    case "session":
+      return deleteSession(db, owner, id);
+    case "routine":
+      return deleteRoutine(db, owner, id);
+    case "exercise":
+      return deleteExercise(db, owner, id);
+    case "measurement":
+      return deleteMeasurement(db, owner, id);
+    case "product":
+      return deleteProduct(db, owner, id);
+    case "purchase":
+      return deletePurchase(db, owner, id);
+    case "batch":
+      return deleteBatch(db, owner, id);
+    case "reminder":
+      return deleteReminder(db, owner, id);
+  }
 }
 
 /** Takes one record out of the trash, with its kind's own rules. */
