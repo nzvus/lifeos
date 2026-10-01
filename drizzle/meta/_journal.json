@@ -127,6 +127,13 @@
       "when": 1790890503723,
       "tag": "0017_programs",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790893437693,
+      "tag": "0018_slot_exercises_and_corrections",
+      "breakpoints": true
     }
   ]
 }

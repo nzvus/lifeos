@@ -640,3 +640,24 @@ export const mealRatings = pgTable(
     check("meal_ratings_score_ck", sql`${t.score} between 1 and 5`),
   ],
 );
+
+/**
+ * ADR-0020 amended (ADR-0026): every accepted calibration, from the day it
+ * was accepted. A day's energy uses the factor in force ON that day, so a
+ * later calibration (the body changed) never rewrites past days; only a
+ * fix to the formulas does. A new table: safe in any merge order.
+ */
+export const energyCorrections = pgTable(
+  "energy_corrections",
+  {
+    id: idColumn(),
+    userId: ownerColumn(),
+    sinceDay: date("since_day", { mode: "string" }).notNull(),
+    factor: numeric("factor", { precision: 3, scale: 2, mode: "string" }).notNull(),
+    createdAt: tstz("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("energy_corrections_user_day_uq").on(t.userId, t.sinceDay),
+    check("energy_corrections_factor_ck", sql`${t.factor} between 0.80 and 1.20`),
+  ],
+);
