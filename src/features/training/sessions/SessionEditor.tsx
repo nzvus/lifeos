@@ -20,7 +20,7 @@
  */
 "use client";
 
-import { Plus, Trash2, X } from "lucide-react";
+import { Dumbbell, Plus, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { SESSION_STATUSES, type ExerciseKind } from "@/core/training/kinds";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
@@ -330,6 +330,7 @@ function SessionFields({
           <Section
             key={e.key}
             as="fieldset"
+            icon={<Dumbbell size={20} aria-hidden="true" />}
             title={`${i + 1}. ${exercises.find((x) => x.id === e.exerciseId)?.name ?? tr.exercise}`}
           >
             <div className="flex items-end gap-2">

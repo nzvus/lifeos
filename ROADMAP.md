@@ -148,7 +148,7 @@
 ## Design pass: one look, three real themes (requested 2026-10-01)
 - **Goal:** every page uses the same parts with the same spacing; the three themes differ in more than colour. Audit on phone and desktop screenshots, all themes.
 - [x] One button (ui/button.ts: primary / secondary / subtle / quiet / danger, md 44 px / sm 36 px), text links, ui/Badge; every hand-styled button replaced; header icons (settings, sign out)
-- [ ] Rhythm: one spacing scale for cards, rows, headings (every section with its icon); readable meta text
+- [x] Rhythm: every section has its icon (required by ui/Section) and an optional subtitle; rows breathe (py-3, header row centred on the 44 px action), no rule under the last row; planned rows dashed with a muted title, never translucent
 - [ ] Rows and forms: day entries with "⋯" like every row; planned items readable (no 60 % opacity); every edit field inside a card
 - [ ] Day page and desktop: simpler day navigation, a two-column layout that fills the width
 - [ ] Themes with an identity: Label = a nutrition-facts table, square, ruled; Orto = soft, warm, roomy; Cruscotto = dense dashboard tiles

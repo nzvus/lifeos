@@ -9,7 +9,7 @@
  */
 "use client";
 
-import { Plus, X } from "lucide-react";
+import { Plus, Sprout, X } from "lucide-react";
 import { useState } from "react";
 import { FIBER_TYPES, NOVA_LEVELS, ORIGINS, TAG_ICONS } from "@/core/nutrition/quality";
 import { fill, type Messages } from "@/i18n";
@@ -72,7 +72,7 @@ export function QualityFields({
   };
 
   return (
-    <Section as="fieldset" title={q.title}>
+    <Section as="fieldset" title={q.title} icon={<Sprout size={20} aria-hidden="true" />}>
       <div className="grid gap-4 sm:grid-cols-2">
         <SelectField
           label={q.nova}

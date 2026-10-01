@@ -11,7 +11,7 @@
  */
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { ListOrdered, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import { pickerSearch } from "@/core/shared/search";
@@ -184,7 +184,11 @@ function RoutineFields({
         defaultValue={valueOf(state, "notes", initial.notes)}
         error={err("notes")}
       />
-      <Section as="fieldset" title={r.items}>
+      <Section
+        as="fieldset"
+        title={r.items}
+        icon={<ListOrdered size={20} aria-hidden="true" />}
+      >
         {rows.map((row, i) => (
           <div key={row.key} className="tile flex flex-wrap items-end gap-2 p-2">
             <SearchSelect
