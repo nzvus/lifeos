@@ -48,6 +48,12 @@
   --color-moment-snack: #636611;
   --color-moment-dinner: #4a4a9c;
   --color-price: #7d4a8f;
+  --color-muscle-chest: #b4441c;
+  --color-muscle-back: #2c5fa6;
+  --color-muscle-shoulders: #7f6400;
+  --color-muscle-arms: #7a43ad;
+  --color-muscle-core: #0b6f6f;
+  --color-muscle-legs: #3d7620;
 }
 
 /* Dark: more specific than the default dark block, so it wins. */
@@ -72,6 +78,12 @@
     --color-moment-snack: #c9c860;
     --color-moment-dinner: #aeb0ec;
     --color-price: #d2a8e0;
+    --color-muscle-chest: #f59a6b;
+    --color-muscle-back: #8fb4ee;
+    --color-muscle-shoulders: #e0c050;
+    --color-muscle-arms: #c9a2f2;
+    --color-muscle-core: #6fd3cf;
+    --color-muscle-legs: #9fd27a;
   }
 }
 :root[data-theme="orto"][data-mode="dark"] {
@@ -94,4 +106,10 @@
   --color-moment-snack: #c9c860;
   --color-moment-dinner: #aeb0ec;
   --color-price: #d2a8e0;
+  --color-muscle-chest: #f59a6b;
+  --color-muscle-back: #8fb4ee;
+  --color-muscle-shoulders: #e0c050;
+  --color-muscle-arms: #c9a2f2;
+  --color-muscle-core: #6fd3cf;
+  --color-muscle-legs: #9fd27a;
 }

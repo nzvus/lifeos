@@ -45,6 +45,7 @@ const exercise = (
   name,
   kind,
   muscleGroups: [],
+  pattern: null,
   equipment: null,
   unilateral: false,
   notes: "",

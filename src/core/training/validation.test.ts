@@ -6,16 +6,39 @@ import { checkSetsForKinds, exerciseInput, sessionInput } from "./validation";
 const ex = crypto.randomUUID();
 
 describe("exerciseInput", () => {
-  it("cleans muscle groups and reads the checkbox", () => {
+  it("keeps known muscle groups in order, once, and reads the checkbox", () => {
     const r = parseInput(exerciseInput, {
       name: " Lat pulldown ",
       kind: "strength",
-      muscleGroups: "Dorsali, bicipiti,dorsali",
+      muscleGroups: "lats, biceps,lats",
+      pattern: "vertical_pull",
       unilateral: "on",
     });
     expect(
-      r.ok && [r.value.name, r.value.muscleGroups, r.value.unilateral, r.value.equipment],
-    ).toEqual(["Lat pulldown", ["dorsali", "bicipiti"], true, null]);
+      r.ok && [
+        r.value.name,
+        r.value.muscleGroups,
+        r.value.pattern,
+        r.value.unilateral,
+        r.value.equipment,
+      ],
+    ).toEqual(["Lat pulldown", ["lats", "biceps"], "vertical_pull", true, null]);
+  });
+
+  it("refuses groups and patterns outside the lists; no pattern is null", () => {
+    expect(
+      parseInput(exerciseInput, {
+        name: "X",
+        kind: "strength",
+        muscleGroups: "dorsali",
+        pattern: "yoga",
+      }),
+    ).toEqual({
+      ok: false,
+      errors: { muscleGroups: "invalid_choice", pattern: "invalid_choice" },
+    });
+    const r = parseInput(exerciseInput, { name: "X", kind: "cardio", pattern: "" });
+    expect(r.ok && r.value.pattern).toBeNull();
   });
 
   it("refuses an unknown kind", () => {

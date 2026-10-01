@@ -5,7 +5,8 @@
  *
  *   - Exercises are matched by name, case-insensitive, after optional
  *     aliases ("OCTE" -> "Overhead cable triceps extention"); missing ones
- *     are created with the kind their sets imply.
+ *     are created with the kind their sets imply, and the pattern and
+ *     muscle groups their name suggests (training/anatomy.ts).
  *   - A session that already exists (same day and label) is skipped, as is a
  *     routine with an existing name or a measurement with the same day and
  *     weight: re-running an import adds nothing twice.
@@ -19,6 +20,7 @@ import type { Db } from "../db/client";
 import { bodyMeasurements, trainingSessions } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
 import type { FieldErrors } from "../shared/result";
+import { suggestAnatomy } from "../training/anatomy";
 import type { ExerciseKind } from "../training/kinds";
 import { checkSetsForKinds } from "../training/validation";
 import { createExercise, listExercises } from "../training/repositories/exercises";
@@ -161,7 +163,7 @@ export async function applyTrainingImport(
     const r = await createExercise(db, owner, {
       name: e.name,
       kind: e.kind,
-      muscleGroups: [],
+      ...suggestAnatomy(e.name),
       equipment: null,
       unilateral: false,
       notes: "",

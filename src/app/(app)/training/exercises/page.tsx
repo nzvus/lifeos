@@ -3,11 +3,17 @@ import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { records } from "@/core/training/analysis";
+import {
+  isMovementPattern,
+  isMuscleGroup,
+  MUSCLE_GROUP_REGION,
+} from "@/core/training/anatomy";
 import { formatNumber } from "@/core/shared/format";
 import { listExercises } from "@/core/training/repositories/exercises";
 import { listSessions } from "@/core/training/repositories/sessions";
 import { fill } from "@/i18n";
 import { ListItem } from "@/ui/ListItem";
+import { MuscleChips } from "@/ui/MuscleChip";
 import { PageHeader } from "@/ui/PageHeader";
 
 export default async function ExercisesPage() {
@@ -50,16 +56,23 @@ export default async function ExercisesPage() {
                     {e.name}
                   </Link>
                 }
-                aside={t.training.kinds[e.kind]}
-                footer={[
+                aside={
+                  e.pattern && isMovementPattern(e.pattern)
+                    ? x.patterns[e.pattern]
+                    : t.training.kinds[e.kind]
+                }
+                footer={
                   count.get(e.id)
                     ? fill(x.sessions, { n: String(count.get(e.id)) })
-                    : x.never,
-                  e.muscleGroups.join(", ") || null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
+                    : x.never
+                }
               >
+                <MuscleChips
+                  groups={e.muscleGroups.filter(isMuscleGroup).map((g) => ({
+                    label: x.groups[g],
+                    region: MUSCLE_GROUP_REGION[g],
+                  }))}
+                />
                 {r && (r.maxLoad || r.bestE1rm) && (
                   <p className="text-meta text-muted tabular-nums">
                     {[

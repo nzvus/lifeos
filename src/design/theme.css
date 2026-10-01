@@ -50,6 +50,15 @@
   --color-moment-snack: #63680a;
   --color-moment-dinner: #3f4aa8;
   --color-price: #7a47a6;
+  /* Training (S07): one colour per body region (core/training/anatomy.ts),
+     the same in every theme, so the code is learned once like the nutrient
+     colours. Text-safe (4.5:1), checked by design/theme.test.ts. */
+  --color-muscle-chest: #b4441c;
+  --color-muscle-back: #2c5fa6;
+  --color-muscle-shoulders: #7f6400;
+  --color-muscle-arms: #7a43ad;
+  --color-muscle-core: #0b6f6f;
+  --color-muscle-legs: #3d7620;
 
   /* --- type: Barlow Condensed for numbers and headings, Barlow for text ---
      Self-hosted via @fontsource (imported in src/app/layout.tsx): no request
@@ -230,6 +239,12 @@
     --color-moment-snack: #c6cc5a;
     --color-moment-dinner: #a8b1f5;
     --color-price: #cda8ef;
+    --color-muscle-chest: #f59a6b;
+    --color-muscle-back: #8fb4ee;
+    --color-muscle-shoulders: #e0c050;
+    --color-muscle-arms: #c9a2f2;
+    --color-muscle-core: #6fd3cf;
+    --color-muscle-legs: #9fd27a;
   }
 }
 :root[data-mode="dark"] {
@@ -252,4 +267,10 @@
   --color-moment-snack: #c6cc5a;
   --color-moment-dinner: #a8b1f5;
   --color-price: #cda8ef;
+  --color-muscle-chest: #f59a6b;
+  --color-muscle-back: #8fb4ee;
+  --color-muscle-shoulders: #e0c050;
+  --color-muscle-arms: #c9a2f2;
+  --color-muscle-core: #6fd3cf;
+  --color-muscle-legs: #9fd27a;
 }

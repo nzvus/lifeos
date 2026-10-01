@@ -18,13 +18,17 @@ import {
   optionalDecimalString,
   time,
 } from "../shared/validation";
+import { isMovementPattern, isMuscleGroup } from "./anatomy";
 import { EXERCISE_KINDS, SESSION_STATUSES, type ExerciseKind } from "./kinds";
 
 const name = z.string().trim().min(1, "required").max(80, "too_long");
 const LOAD = { scale: 2, max: "9999" }; // numeric(6,2)
 const TENTH = { scale: 1, max: "999" }; // numeric(4,1)
 
-/** "chest, triceps" -> ["chest", "triceps"], lower-case, no duplicates. */
+/**
+ * "lats,biceps" -> ["lats", "biceps"]: keys of the closed list
+ * (anatomy.ts), in the order chosen (the first is the primary group).
+ */
 const muscleGroups = z
   .string()
   .optional()
@@ -32,16 +36,24 @@ const muscleGroups = z
     ...new Set(
       (v ?? "")
         .split(",")
-        .map((x) => x.trim().toLowerCase())
+        .map((x) => x.trim())
         .filter(Boolean),
     ),
   ])
-  .refine((xs) => xs.length <= 12 && xs.every((x) => x.length <= 30), "too_long");
+  .refine((xs) => xs.every(isMuscleGroup), "invalid_choice");
+
+/** "" -> null (not classified yet). */
+const pattern = z
+  .string()
+  .optional()
+  .transform((v) => v || null)
+  .refine((v) => v === null || isMovementPattern(v), "invalid_choice");
 
 export const exerciseInput = z.object({
   name,
   kind: z.enum(EXERCISE_KINDS, "invalid_choice"),
   muscleGroups,
+  pattern,
   equipment: z
     .string()
     .optional()
