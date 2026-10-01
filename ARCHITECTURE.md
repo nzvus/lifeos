@@ -150,6 +150,9 @@ cannot poll URLs itself, so app health has daily granularity.
   cache (5 min); `app/(app)/loading.tsx`; client components get only the
   dictionary slices they use.
 - **Theming/i18n:** tokens (ADR-0010: colour, spacing, type, rules, radii, surfaces
-  `panel`/`tile`/`item`) in `design/`; themes `label`/`orto`/`cruscotto` override them
-  (`data-theme`, per user). Layout variants: `THEME_SLOTS` (core/shared/themes.ts).
+  `panel`/`tile`/`item`, section headings and icon chips, button/badge radii) in
+  `design/`; themes `label` (framed, ruled, day as a nutrition table) / `orto`
+  (soft, pills) / `cruscotto` (dense, uppercase captions, tiles) override them
+  (`data-theme`, per user). Day panel variant: `THEME_SLOTS` (core/shared/themes.ts).
+  Every button: `ui/button.ts`; every status label: `ui/Badge`.
 - **Testing:** Vitest; DB tests on PGlite with the real migrations applied.

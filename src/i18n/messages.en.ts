@@ -774,6 +774,10 @@ export const en = {
     relativeNote: "Fainter bars: no target that day, scaled to the period's highest.",
   },
   panel: {
+    colNutrient: "Nutrient",
+    colEaten: "Eaten",
+    colTarget: "Target",
+    colPercent: "% of target",
     left: "left",
     over: "over",
     off: "on target",

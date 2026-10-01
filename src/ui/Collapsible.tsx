@@ -75,7 +75,12 @@ export function Collapsible({
   };
   return (
     <section className={CARD}>
-      <h2 className="font-display text-section font-bold">
+      <h2
+        className="section-heading"
+        // Closed with nothing under it, the heading's rule would just underline
+        // the card's own edge: drop it.
+        style={!open && !summary ? { borderBottom: "none", paddingBottom: 0 } : undefined}
+      >
         <button
           type="button"
           aria-expanded={open}
@@ -83,7 +88,7 @@ export function Collapsible({
           onClick={toggle}
           className="flex w-full items-center gap-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         >
-          {icon && <span className="inline-flex text-herb">{icon}</span>}
+          {icon && <span className="section-icon">{icon}</span>}
           <span className="min-w-0">{title}</span>
           {aside && (
             <span className="ml-auto font-display text-meta font-normal text-muted tabular-nums">

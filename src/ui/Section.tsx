@@ -14,7 +14,7 @@ import type { ReactNode } from "react";
 import { CARD } from "./Card";
 
 const BOX = CARD;
-const HEADING = "flex w-full items-center gap-2 font-display text-section font-bold";
+const HEADING = "section-heading";
 const ASIDE = "ml-auto font-display text-meta font-normal text-muted tabular-nums";
 /** Pulled up under the heading: it belongs to it, not to the content. */
 const SUBTITLE = "-mt-2 text-meta text-muted tabular-nums";
@@ -44,7 +44,7 @@ export function Section({
       <fieldset className={BOX}>
         <legend className="sr-only">{title}</legend>
         <div aria-hidden="true" className={HEADING}>
-          <span className="inline-flex text-herb">{icon}</span>
+          <span className="section-icon">{icon}</span>
           {title}
           {aside && <span className={ASIDE}>{aside}</span>}
         </div>
@@ -56,7 +56,7 @@ export function Section({
   return (
     <section aria-labelledby={id} className={BOX}>
       <h2 id={id} className={HEADING}>
-        <span className="inline-flex text-herb">{icon}</span>
+        <span className="section-icon">{icon}</span>
         {title}
         {aside && <span className={ASIDE}>{aside}</span>}
       </h2>

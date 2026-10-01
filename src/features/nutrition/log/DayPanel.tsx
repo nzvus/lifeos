@@ -32,7 +32,7 @@ import { TargetBar } from "@/ui/TargetBar";
 import { targetTone } from "@/ui/targetTone";
 
 /** The same heading as every ui/Section. */
-const PANEL_HEADING = "flex items-center gap-2 font-display text-section font-bold";
+const PANEL_HEADING = "section-heading";
 
 type Props = {
   totals: DisplayTotals;
@@ -41,8 +41,8 @@ type Props = {
   /** Targets including auto defaults (core withAutoTargets). */
   targets: Targets;
   auto: NutrientKey[];
-  /** Theme slot (core THEME_SLOTS): rings + bars, or a grid of tiles. */
-  variant?: "rings" | "tiles";
+  /** Theme slot (core THEME_SLOTS): rings + bars, a grid of tiles, or a table. */
+  variant?: "rings" | "tiles" | "table";
   locale: Locale;
   t: Pick<Messages, "label" | "nutrients" | "macro" | "panel" | "day">;
 };
@@ -156,7 +156,7 @@ export function DayPanel({
         <Coins size={16} aria-hidden="true" />
         {t.label.cost}
       </span>
-      <span className="flex flex-col items-end">
+      <span className="flex flex-col items-end text-right">
         <span className="font-display text-item tabular-nums">
           {totals.costComplete
             ? formatCents(totals.costCents, locale)
@@ -177,16 +177,128 @@ export function DayPanel({
     </p>
   );
 
+  const heading = (
+    <h2 id="day-panel-title" className={PANEL_HEADING}>
+      <span className="section-icon">
+        <PieChart size={20} aria-hidden="true" />
+      </span>
+      {t.label.title}
+    </h2>
+  );
+
+  /** "% of target" (the label's "%RI"), coloured like the bars would be. */
+  const percent = (k: NutrientKey) => {
+    const a = assess(k);
+    if (a.status === "none") return <span className="text-muted">—</span>;
+    return (
+      <span className="font-bold" style={{ color: tone(k).color }}>
+        {`${Math.round(a.ratio * 100)}%`}
+      </span>
+    );
+  };
+
+  if (variant === "table") {
+    // The label theme: the day as a nutrition-facts table. One row per
+    // nutrient (the "of which" rows indented), a heavy rule under energy,
+    // what is left and where the plan leads written under each name.
+    const ROW = "border-b border-hairline align-top";
+    return (
+      <section
+        aria-labelledby="day-panel-title"
+        className="@container panel flex flex-col gap-4 p-4"
+      >
+        {heading}
+        <p className="flex items-baseline gap-2">
+          <span className="font-display text-title font-extrabold tabular-nums">
+            {num(kcal.status === "none" ? totals.nutrients.kcal : kcal.delta, "kcal")}
+          </span>
+          <span className="text-muted">
+            {kcal.status === "none"
+              ? unit
+              : `${unit} ${kcal.status === "under" ? t.panel.left : kcal.status === "over" ? t.panel.over : t.panel.off}`}
+          </span>
+          {plannedKcal > 0 && (
+            <span className="ml-auto text-meta text-muted tabular-nums">
+              {fill(t.day.plannedNote, {
+                v: formatNumber(String(plannedKcal), locale, 0),
+              })}
+            </span>
+          )}
+        </p>
+        <table className="w-full border-collapse font-display tabular-nums">
+          <thead>
+            <tr className="rule-b-strong border-ink text-meta text-muted">
+              <th scope="col" className="py-1 text-left font-semibold">
+                {t.panel.colNutrient}
+              </th>
+              <th scope="col" className="py-1 text-right font-semibold">
+                {t.panel.colEaten}
+              </th>
+              <th scope="col" className="py-1 pl-3 text-right font-semibold">
+                {t.panel.colTarget}
+              </th>
+              <th scope="col" className="py-1 pl-3 text-right font-semibold">
+                {t.panel.colPercent}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {NUTRIENT_KEYS.map((k) => {
+              const notes = [statusText(k), plannedText(k)].filter(Boolean);
+              return (
+                <tr
+                  key={k}
+                  className={k === "kcal" ? "rule-b-heavy border-ink align-top" : ROW}
+                >
+                  <th
+                    scope="row"
+                    className={`py-1.5 text-left font-body ${SUB.has(k) ? "pl-5 font-normal text-muted" : "font-semibold"}`}
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      {!SUB.has(k) && <NutrientIcon name={k} />}
+                      {t.nutrients[k]}
+                      {auto.includes(k) && (
+                        <span
+                          title={t.panel.autoHint}
+                          className="text-meta font-normal text-muted"
+                        >
+                          {`(${t.panel.auto})`}
+                        </span>
+                      )}
+                    </span>
+                    {notes.map((n) => (
+                      <span key={n} className="block text-meta font-normal text-muted">
+                        {n}
+                      </span>
+                    ))}
+                  </th>
+                  <td className="py-1.5 text-right text-item whitespace-nowrap">{`${num(totals.nutrients[k], k)} ${NUTRIENT_UNIT[k]}`}</td>
+                  <td className="py-1.5 pl-3 text-right whitespace-nowrap text-muted">
+                    {targets[k] === null
+                      ? "—"
+                      : `${num(targets[k]!, k)} ${NUTRIENT_UNIT[k]}`}
+                  </td>
+                  <td className="py-1.5 pl-3 text-right whitespace-nowrap">
+                    {percent(k)}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {splitLine}
+        {cost}
+      </section>
+    );
+  }
+
   if (variant === "tiles") {
     return (
       <section
         aria-labelledby="day-panel-title"
         className="@container panel flex flex-col gap-4 p-4"
       >
-        <h2 id="day-panel-title" className={PANEL_HEADING}>
-          <PieChart size={20} aria-hidden="true" className="text-herb" />
-          {t.label.title}
-        </h2>
+        {heading}
         {/* Energy first and wider, then one tile per nutrient. */}
         <div className="grid grid-cols-2 gap-2 @2xl:grid-cols-4">
           <div className="tile col-span-2 flex flex-col gap-1 p-3">
@@ -224,10 +336,7 @@ export function DayPanel({
       aria-labelledby="day-panel-title"
       className="@container panel flex flex-col gap-4 p-4"
     >
-      <h2 id="day-panel-title" className={PANEL_HEADING}>
-        <PieChart size={20} aria-hidden="true" className="text-herb" />
-        {t.label.title}
-      </h2>
+      {heading}
       <div className="flex flex-col items-center gap-6 @2xl:flex-row @2xl:items-start">
         <div className="flex flex-col items-center gap-2">
           <ConcentricRings

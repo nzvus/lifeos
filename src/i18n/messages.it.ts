@@ -777,6 +777,10 @@ export const it: Messages = {
       "Barre più chiare: nessun target quel giorno, scala sul giorno più alto del periodo.",
   },
   panel: {
+    colNutrient: "Nutriente",
+    colEaten: "Mangiato",
+    colTarget: "Obiettivo",
+    colPercent: "% obiettivo",
     left: "rimaste",
     over: "in più",
     off: "in obiettivo",

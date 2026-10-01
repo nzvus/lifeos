@@ -21,6 +21,18 @@
   --item-pad: 1rem;
   --item-gap: 0.75rem;
   --item-planned-bg: var(--color-paper);
+  /* S20 identity: soft and roomy. Pill buttons and badges, headings without
+     rules (space separates instead), each heading's icon in a tinted disc,
+     no rule under the app header, rounder cards. */
+  --radius-button: 999px;
+  --radius-badge: 999px;
+  --heading-rule: 0 solid transparent;
+  --heading-pad: 0;
+  --heading-size: 1.375rem;
+  --icon-chip-bg: color-mix(in oklab, var(--color-herb) 14%, transparent);
+  --icon-chip-pad: 0.45rem;
+  --icon-chip-radius: 999px;
+  --header-rule: 0 solid transparent;
   --font-display: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
   --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --spacing: 0.28rem;
@@ -28,7 +40,7 @@
   --rule-strong: 1px;
   --rule-medium: 1px;
   --radius-control: 0.6rem;
-  --radius-surface: 1rem;
+  --radius-surface: 1.5rem;
   --text-title: 1.75rem;
   --color-paper: #f7f1e6;
   --color-sheet: #fffcf6;

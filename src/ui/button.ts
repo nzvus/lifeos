@@ -17,7 +17,7 @@ export type ButtonVariant = "primary" | "secondary" | "subtle" | "quiet" | "dang
 export type ButtonSize = "md" | "sm";
 
 const BASE =
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-control font-display font-semibold whitespace-nowrap transition-colors select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-button font-display font-semibold whitespace-nowrap transition-colors select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50";
 
 const VARIANT: Record<ButtonVariant, string> = {
   primary: "bg-herb text-sheet hover:bg-herb-strong",
