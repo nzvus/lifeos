@@ -54,6 +54,8 @@ export const exercises = pgTable(
       .array()
       .notNull()
       .default(sql`'{}'::text[]`),
+    /** Movement pattern (a closed list in core/training/): picks the icon. */
+    pattern: text("pattern"),
     equipment: text("equipment"),
     unilateral: boolean("unilateral").notNull().default(false),
     notes: text("notes").notNull().default(""),
