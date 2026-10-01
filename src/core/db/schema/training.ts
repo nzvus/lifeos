@@ -27,6 +27,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import type { ExerciseKind, SessionStatus } from "../../training/kinds";
@@ -60,9 +61,14 @@ export const exercises = pgTable(
     unilateral: boolean("unilateral").notNull().default(false),
     notes: text("notes").notNull().default(""),
     createdAt: tstz("created_at").defaultNow().notNull(),
+    // ADR-0015: in the trash since then (null = live); purged after 30 days.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
-    unique("exercises_user_name_uq").on(t.userId, t.name),
+    // Names are unique among live rows only (ADR-0015: the trash may hold a namesake).
+    uniqueIndex("exercises_user_name_uq")
+      .on(t.userId, t.name)
+      .where(sql`${t.deletedAt} is null`),
     unique("exercises_id_user_uq").on(t.id, t.userId),
     check("exercises_kind_ck", sql`${t.kind} in ('strength', 'bodyweight', 'cardio')`),
   ],
@@ -77,9 +83,14 @@ export const routines = pgTable(
     name: text("name").notNull(),
     notes: text("notes").notNull().default(""),
     position: integer("position").notNull().default(0),
+    // ADR-0015: in the trash since then (null = live); purged after 30 days.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
-    unique("routines_user_name_uq").on(t.userId, t.name),
+    // Names are unique among live rows only (ADR-0015: the trash may hold a namesake).
+    uniqueIndex("routines_user_name_uq")
+      .on(t.userId, t.name)
+      .where(sql`${t.deletedAt} is null`),
     unique("routines_id_user_uq").on(t.id, t.userId),
   ],
 );
@@ -131,6 +142,8 @@ export const trainingSessions = pgTable(
     routineId: uuid("routine_id").references(() => routines.id, { onDelete: "set null" }),
     notes: text("notes").notNull().default(""),
     createdAt: tstz("created_at").defaultNow().notNull(),
+    // ADR-0015: in the trash since then (null = live); purged after 30 days.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     unique("training_sessions_id_user_uq").on(t.id, t.userId),
@@ -226,6 +239,8 @@ export const bodyMeasurements = pgTable(
     hipCm: numeric("hip_cm", { precision: 5, scale: 1, mode: "string" }),
     notes: text("notes").notNull().default(""),
     createdAt: tstz("created_at").defaultNow().notNull(),
+    // ADR-0015: in the trash since then (null = live); purged after 30 days.
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     check("body_measurements_weight_ck", sql`${t.weightKg} > 0`),
