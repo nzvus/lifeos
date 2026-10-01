@@ -214,6 +214,7 @@ async function writeChildren(
           inclinePct: s.inclinePct,
           restS: s.restS ?? null,
           warmup: s.warmup,
+          done: s.done ?? true,
         })),
       );
   }

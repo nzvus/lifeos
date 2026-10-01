@@ -87,6 +87,8 @@ const setInput = z.object({
   inclinePct: z.string().optional().default("").pipe(optionalDecimalString(TENTH)),
   restS: optionalCount,
   warmup: z.boolean().optional().default(false),
+  /** Live mode: false while a planned set is not ticked yet; absent = done. */
+  done: z.boolean().optional(),
 });
 export type SetInput = z.output<typeof setInput>;
 
