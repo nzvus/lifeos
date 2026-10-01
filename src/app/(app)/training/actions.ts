@@ -21,6 +21,7 @@ import {
 import {
   addMeasurement,
   deleteMeasurement,
+  restoreMeasurement,
 } from "@/core/training/repositories/measurements";
 import {
   createRoutine,
@@ -40,7 +41,6 @@ import {
   routineInput,
   sessionInput,
 } from "@/core/training/validation";
-import type { ActionButtonState } from "@/ui/ActionButtonForm";
 
 export async function createSessionAction(
   _prev: FormState,
@@ -269,14 +269,24 @@ export async function addMeasurementAction(
   return { status: "saved" };
 }
 
+/** Moves a measurement to the trash (ADR-0015). */
 export async function deleteMeasurementAction(
   id: string,
-  _prev: ActionButtonState,
-  _formData: FormData,
-): Promise<ActionButtonState> {
+): Promise<{ ok: boolean; message?: string }> {
   const { owner, t } = await requireContext();
   const r = await deleteMeasurement(getDb(), owner, id);
-  if (!r.ok) return { status: "error", message: t.errors.not_found };
+  if (!r.ok) return { ok: false, message: t.errors.not_found };
+  revalidatePath("/", "layout"); // burn estimates everywhere
+  return { ok: true };
+}
+
+/** Takes a measurement out of the trash (the toast's "Undo"). */
+export async function restoreMeasurementAction(
+  id: string,
+): Promise<{ ok: boolean; message?: string }> {
+  const { owner, t } = await requireContext();
+  const r = await restoreMeasurement(getDb(), owner, id);
+  if (!r.ok) return { ok: false, message: t.errors.not_found };
   revalidatePath("/", "layout");
-  return { status: "idle" };
+  return { ok: true };
 }

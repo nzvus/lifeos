@@ -17,7 +17,13 @@ import {
   listExercises,
   mergeExercises,
 } from "./exercises";
-import { addMeasurement, weightOn } from "./measurements";
+import {
+  addMeasurement,
+  deleteMeasurement,
+  listMeasurements,
+  restoreMeasurement,
+  weightOn,
+} from "./measurements";
 import { createRoutine, deleteRoutine, listRoutines, restoreRoutine } from "./routines";
 import {
   createSession,
@@ -405,5 +411,32 @@ describe("sessions in the trash (ADR-0015)", () => {
     expect((await restoreSession(db, other, r.value.id)).ok).toBe(false);
     expect((await restoreSession(db, me, r.value.id)).ok).toBe(true);
     expect((await lastSets(db, me, [lat])).get(lat)?.day).toBe("2026-09-28");
+  });
+});
+
+describe("measurements in the trash (ADR-0015)", () => {
+  it("leave the list and the burn weight; Undo brings them back", async () => {
+    const m = (day: string, weightKg: string) =>
+      addMeasurement(db, me, {
+        day,
+        weightKg,
+        bodyFatPct: null,
+        waistCm: null,
+        notes: "",
+      });
+    await m("2026-09-01", "76");
+    const r = await m("2026-09-20", "74.5");
+    if (!r.ok) throw new Error("setup");
+    const id = r.value.id;
+
+    expect((await deleteMeasurement(db, me, id)).ok).toBe(true);
+    expect((await listMeasurements(db, me)).map((x) => x.day)).toEqual(["2026-09-01"]);
+    expect(await weightOn(db, me, "2026-09-28")).toBe("76.00"); // the older one again
+    expect((await deleteMeasurement(db, me, id)).ok).toBe(false);
+
+    // CROSS-USER: someone else can't restore it.
+    expect((await restoreMeasurement(db, other, id)).ok).toBe(false);
+    expect((await restoreMeasurement(db, me, id)).ok).toBe(true);
+    expect(await weightOn(db, me, "2026-09-28")).toBe("74.50");
   });
 });

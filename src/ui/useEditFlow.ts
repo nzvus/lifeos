@@ -83,12 +83,14 @@ export function useEditFlow<S extends { status: string }>(opts: {
 }
 
 /**
- * Delete = move to the trash, go back to `from`, "«name» moved to the
- * trash · Undo". Undefined when there is nothing to delete (a new record).
+ * Delete = move to the trash, go back to `from` (or stay, for a row in a
+ * list), "«name» moved to the trash · Undo". Undefined when there is
+ * nothing to delete (a new record).
  */
 export function useTrash(opts: {
   id?: string;
-  from: string;
+  /** Where to go once deleted; omitted = stay on this page (a row). */
+  from?: string;
   name: () => string;
   trash?: (id: string) => Promise<Outcome>;
   restore?: (id: string) => Promise<Outcome>;
@@ -121,6 +123,7 @@ export function useTrash(opts: {
         },
       },
     });
-    router.push(from);
+    if (from) router.push(from);
+    else router.refresh();
   };
 }
