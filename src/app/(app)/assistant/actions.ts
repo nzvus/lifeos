@@ -119,7 +119,7 @@ export async function sendMessageAction(input: {
   const attachments = input.attachments.slice(0, 4).map((x) => ({
     name: String(x.name).slice(0, 120),
     kind: x.kind === "image" ? ("image" as const) : ("text" as const),
-    text: x.kind === "text" ? String(x.text ?? "").slice(0, 20000) : undefined,
+    text: x.kind === "text" ? String(x.text ?? "").slice(0, 40000) : undefined,
     dataUrl:
       x.kind === "image" &&
       typeof x.dataUrl === "string" &&

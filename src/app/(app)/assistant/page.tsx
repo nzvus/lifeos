@@ -35,7 +35,7 @@ export const maxDuration = 60;
 type Props = { searchParams: Promise<{ c?: string }> };
 
 export default async function AssistantPage({ searchParams }: Props) {
-  const { owner, t } = await requireContext();
+  const { owner, settings, t } = await requireContext();
   const a = t.assistant;
   const db = getDb();
   const { c } = await searchParams;
@@ -143,6 +143,7 @@ export default async function AssistantPage({ searchParams }: Props) {
             conversationId={conversation?.id ?? null}
             items={items}
             enabled={enabled}
+            lang={settings.locale === "it" ? "it-IT" : "en-GB"}
             send={sendMessageAction}
             confirm={confirmPendingAction}
             undo={undoChangeAction}

@@ -13,6 +13,7 @@ import { listTrash, restoreFromTrash } from "../trash/trash";
 import { runConfirmed, runTurn, systemPrompt } from "./agent";
 import type { ChatMessage, Complete, Completion } from "./model";
 import { moveToTrash } from "../trash/trash";
+import { getPantry } from "../pantry/repositories/stock";
 
 let db: Db;
 let close: () => Promise<void>;
@@ -223,5 +224,69 @@ describe("runTurn", () => {
     });
     expect(model.seen).toHaveLength(3);
     expect(r.pending).toBeNull();
+  });
+
+  it("a receipt: product + purchase, the pantry sees it, both undoable", async () => {
+    const oats = await createIngredient(db, me, ingredientFixture());
+    if (!oats.ok) throw new Error("setup");
+    const model = scripted(
+      {
+        content: null,
+        toolCalls: [
+          call("c1", "create_product", {
+            name: "AVENA 1KG",
+            unit: "g",
+            packageSize: 1000,
+            ingredientId: oats.value.id,
+          }),
+        ],
+      },
+      { content: null, toolCalls: [call("c2", "find_products", { query: "avena" })] },
+      { content: "Registrato.", toolCalls: [] },
+    );
+    const r = await runTurn({
+      complete: model,
+      model: "test",
+      messages: user("scontrino"),
+      ctx: ctx(me),
+    });
+    const productId = r.changes[0]!.id;
+    const buy = await runTurn({
+      complete: scripted(
+        {
+          content: null,
+          toolCalls: [
+            call("c3", "add_purchase", { productId, packages: 2, price: 3.18, day: DAY }),
+          ],
+        },
+        { content: "ok", toolCalls: [] },
+      ),
+      model: "test",
+      messages: user("x"),
+      ctx: ctx(me),
+    });
+    expect([...r.changes, ...buy.changes].map((c) => c.kind)).toEqual([
+      "product",
+      "purchase",
+    ]);
+    const pantry = await getPantry(db, me, new Date("2026-10-02T00:00:00Z"));
+    expect(pantry.map((i) => [i.name, i.quantity])).toEqual([["Oats", "2000"]]);
+  });
+
+  it("get_targets: no day type → no targets, and the energy needs body data", async () => {
+    const r = await runTurn({
+      complete: scripted(
+        { content: null, toolCalls: [call("c1", "get_targets", {})] },
+        { content: "ok", toolCalls: [] },
+      ),
+      model: "test",
+      messages: user("x"),
+      ctx: ctx(me),
+    });
+    const toolMsg = r.messages.find((m) => m.role === "tool") as { content: string };
+    expect(JSON.parse(toolMsg.content)).toMatchObject({
+      ok: true,
+      data: { targets: null, energy: null },
+    });
   });
 });

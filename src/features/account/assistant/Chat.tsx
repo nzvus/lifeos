@@ -15,6 +15,7 @@ import {
   Check,
   FileText,
   Image as ImageIcon,
+  Mic,
   Paperclip,
   Send,
   Undo2,
@@ -27,6 +28,16 @@ import { buttonClass } from "@/ui/button";
 import { CARD } from "@/ui/Card";
 import { FormAlert } from "@/ui/FormAlert";
 import { toast } from "@/ui/Toast";
+import {
+  ocrImage,
+  PDF_FILE,
+  readPdf,
+  readSpreadsheet,
+  readTextFile,
+  SHEET_FILE,
+  shrinkImage,
+  TEXT_FILE,
+} from "./extract";
 
 export type ChatItem =
   | { id: string; role: "user"; text: string; attachments: string[] }
@@ -40,37 +51,22 @@ type Attachment = {
   text?: string;
   dataUrl?: string;
 };
+type SpeechLike = {
+  lang: string;
+  interimResults: boolean;
+  onresult: (e: {
+    results: { [i: number]: { [j: number]: { transcript: string } } };
+  }) => void;
+  onend: () => void;
+  start: () => void;
+};
 type Outcome = { ok: boolean; message?: string };
-
-const TEXT_FILES = /\.(json|txt|csv|md)$/i;
-
-/** A photo shrunk to `max` px on its long side, as a JPEG data URL. */
-async function shrink(file: File, max = 1280): Promise<string> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL("image/jpeg", 0.8);
-}
-
-/** The text in a photo, read on this device (no upload). */
-async function readText(file: File): Promise<string> {
-  const { createWorker } = await import("tesseract.js");
-  const worker = await createWorker(["ita", "eng"]);
-  try {
-    const { data } = await worker.recognize(file);
-    return data.text.trim();
-  } finally {
-    await worker.terminate();
-  }
-}
 
 export function Chat({
   conversationId,
   items,
   enabled,
+  lang,
   send,
   confirm,
   undo,
@@ -79,6 +75,8 @@ export function Chat({
   conversationId: string | null;
   items: ChatItem[];
   enabled: boolean;
+  /** BCP-47 language for dictation, e.g. "it-IT". */
+  lang: string;
   send: (input: {
     conversationId: string | null;
     text: string;
@@ -102,32 +100,50 @@ export function Chat({
     if (!list) return;
     setError(null);
     for (const file of Array.from(list).slice(0, 4)) {
-      if (TEXT_FILES.test(file.name)) {
-        const content = (await file.text()).slice(0, 20000);
-        setFiles((f) => [...f, { name: file.name, kind: "text", text: content }]);
-      } else if (file.type.startsWith("image/")) {
-        if (sendPhoto) {
-          setFiles((f) => [...f, { name: file.name, kind: "image", dataUrl: "" }]);
-          const dataUrl = await shrink(file);
-          setFiles((f) =>
-            f.map((x) =>
-              x.name === file.name && x.kind === "image" ? { ...x, dataUrl } : x,
-            ),
-          );
-        } else {
-          setReading(true);
-          try {
-            const read = await readText(file);
-            setFiles((f) => [...f, { name: file.name, kind: "text", text: read }]);
-          } catch {
-            setError(fill(a.readFailed, { name: file.name }));
-          } finally {
-            setReading(false);
-          }
+      const add = (x: Attachment) => setFiles((f) => [...f, x]);
+      try {
+        if (file.type.startsWith("image/") && sendPhoto) {
+          add({ name: file.name, kind: "image", dataUrl: await shrinkImage(file) });
+          continue;
         }
+        setReading(true);
+        const text = TEXT_FILE.test(file.name)
+          ? await readTextFile(file)
+          : PDF_FILE.test(file.name) || file.type === "application/pdf"
+            ? await readPdf(file)
+            : SHEET_FILE.test(file.name)
+              ? await readSpreadsheet(file)
+              : file.type.startsWith("image/")
+                ? await ocrImage(file)
+                : null;
+        if (text === null) setError(fill(a.readFailed, { name: file.name }));
+        else add({ name: file.name, kind: "text", text });
+      } catch {
+        setError(fill(a.readFailed, { name: file.name }));
+      } finally {
+        setReading(false);
       }
     }
     if (input.current) input.current.value = "";
+  };
+
+  // Dictation (Web Speech API): where the browser has it, a microphone button.
+  const [listening, setListening] = useState(false);
+  const dictate = () => {
+    const w = window as unknown as {
+      SpeechRecognition?: new () => SpeechLike;
+      webkitSpeechRecognition?: new () => SpeechLike;
+    };
+    const Ctor = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+    if (!Ctor) return setError(a.noVoice);
+    const rec = new Ctor();
+    rec.lang = lang;
+    rec.interimResults = false;
+    rec.onresult = (e) =>
+      setText((tx) => `${tx}${tx ? " " : ""}${e.results[0]?.[0]?.transcript ?? ""}`);
+    rec.onend = () => setListening(false);
+    setListening(true);
+    rec.start();
   };
 
   const submit = () =>
@@ -260,6 +276,19 @@ export function Chat({
           if (enabled) submit();
         }}
       >
+        <div className="flex flex-wrap gap-2">
+          {a.quick.map((q) => (
+            <button
+              key={q}
+              type="button"
+              disabled={!enabled}
+              onClick={() => setText(q)}
+              className={buttonClass({ variant: "subtle", size: "sm" })}
+            >
+              {q}
+            </button>
+          ))}
+        </div>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -299,7 +328,7 @@ export function Chat({
               ref={input}
               type="file"
               multiple
-              accept="image/*,.json,.txt,.csv,.md"
+              accept="image/*,.pdf,application/pdf,.xlsx,.json,.txt,.csv,.md"
               className="hidden"
               onChange={(e) => void attach(e.target.files)}
             />
@@ -311,6 +340,20 @@ export function Chat({
             >
               <Paperclip size={16} aria-hidden="true" />
               {a.attach}
+            </button>
+            <button
+              type="button"
+              disabled={!enabled || listening}
+              onClick={dictate}
+              aria-label={a.dictate}
+              title={a.dictate}
+              className={buttonClass({
+                variant: listening ? "primary" : "subtle",
+                size: "sm",
+                iconOnly: true,
+              })}
+            >
+              <Mic size={16} aria-hidden="true" />
             </button>
             <label className="inline-flex items-center gap-2 text-meta">
               <input

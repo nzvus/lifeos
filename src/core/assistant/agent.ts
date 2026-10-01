@@ -37,6 +37,9 @@ export function systemPrompt(today: string, locale: string): string {
     "Creating and logging happen at once and the user can undo them; deleting and importing show a preview the user confirms.",
     "For advice, read the data first (get_recent_days, get_day, get_pantry) and be concrete and kind; you are not a doctor.",
     "Quantities are per 100 g/ml for ingredients and per serving for meals.",
+    "Receipts: for each line find_products; if it is not there, create_product (food linked to its ingredient via find_ingredients; detergents etc. in pieces, no ingredient), then add_purchase with the line's total price.",
+    "Planning: read get_targets and get_pantry, prefer my meals (find_meals), then log_food with planned: true for the planned day; say what totals the plan reaches.",
+    "Weekly review: get_recent_days(7) and get_pantry; compare with the targets, note training, and give 2–3 concrete suggestions.",
   ].join("\n");
 }
 

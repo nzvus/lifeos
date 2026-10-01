@@ -31,9 +31,17 @@ import {
   logMealInput,
   mealInput,
 } from "../nutrition/validation";
+import {
+  addPurchase,
+  createProduct,
+  listProducts,
+} from "../pantry/repositories/products";
 import { createReminder } from "../pantry/repositories/reminders";
 import { getPantry } from "../pantry/repositories/stock";
-import { reminderInput } from "../pantry/validation";
+import { productInput, purchaseInput, reminderInput } from "../pantry/validation";
+import { getDayTargets } from "../nutrition/repositories/profiles";
+import { dynamicTargets } from "../energy/energy";
+import { getDayEnergy } from "../energy/repositories/energy";
 import { addDays } from "../shared/dates";
 import { rank } from "../shared/search";
 import { parseInput } from "../shared/validation";
@@ -429,6 +437,136 @@ export const TOOLS: Record<string, Tool> = {
             change: { kind: "reminder", id: r.value.id, label: input.value.text },
           }
         : { ok: false, error: r.errors };
+    },
+  },
+  find_products: {
+    effect: "read",
+    spec: fn(
+      "find_products",
+      "Search the products I buy (shelf items: brand, package size, linked ingredient).",
+      { query: S("words to search; empty = all") },
+    ),
+    async run({ db, owner }, a) {
+      const all = await listProducts(db, owner);
+      const found = str(a.query)
+        ? rank(all, str(a.query), (p) => ({
+            text: `${p.name} ${p.brand} ${p.ingredientName ?? ""}`,
+            name: p.name,
+          }))
+        : all;
+      return {
+        ok: true,
+        data: found.slice(0, 20).map((p) => ({
+          id: p.id,
+          name: p.name,
+          brand: p.brand,
+          unit: p.unit,
+          packageSize: p.packageSize,
+          ingredientId: p.ingredientId,
+          ingredient: p.ingredientName,
+        })),
+      };
+    },
+  },
+  create_product: {
+    effect: "write",
+    spec: fn(
+      "create_product",
+      'A product as on the shelf or a receipt line ("PASSATA MUTTI 700G"): unit g, ml or piece; for food link its ingredient (find_ingredients first; pieces never link).',
+      {
+        name: S("name"),
+        brand: S("optional"),
+        unit: S('"g" | "ml" | "piece"'),
+        packageSize: N("how much one package holds, in the unit"),
+        ingredientId: S("optional ingredient id (food)"),
+        shop: S("optional shop"),
+      },
+      ["name", "unit", "packageSize"],
+    ),
+    async run({ db, owner }, a) {
+      const input = parseInput(
+        productInput,
+        strings(a, [
+          "name",
+          "brand",
+          "unit",
+          "packageSize",
+          "ingredientId",
+          "shop",
+          "notes",
+        ]),
+      );
+      if (!input.ok) return { ok: false, error: input.errors };
+      const r = await createProduct(db, owner, input.value);
+      return r.ok
+        ? {
+            ok: true,
+            data: r.value,
+            change: { kind: "product", id: r.value.id, label: input.value.name },
+          }
+        : { ok: false, error: r.errors };
+    },
+  },
+  add_purchase: {
+    effect: "write",
+    spec: fn(
+      "add_purchase",
+      "Record a purchase of a product (one receipt line): packages bought and the total price paid in euros.",
+      {
+        productId: S("product id (find_products or create_product)"),
+        day: S("YYYY-MM-DD; empty = today"),
+        packages: N("how many packages, default 1"),
+        price: N("total paid in euros, optional"),
+        shop: S("optional"),
+      },
+      ["productId"],
+    ),
+    async run({ db, owner, today }, a) {
+      const input = parseInput(purchaseInput, {
+        ...strings(a, ["productId", "price", "shop"]),
+        day: str(a.day) || today,
+        packages: str(a.packages) || "1",
+      });
+      if (!input.ok) return { ok: false, error: input.errors };
+      const r = await addPurchase(db, owner, input.value);
+      return r.ok
+        ? {
+            ok: true,
+            data: r.value,
+            change: { kind: "purchase", id: r.value.id, label: `${input.value.day}` },
+          }
+        : { ok: false, error: r.errors };
+    },
+  },
+  get_targets: {
+    effect: "read",
+    spec: fn(
+      "get_targets",
+      "The targets of a day (fixed, or dynamic from the energy model) and what the day costs, for planning meals.",
+      { day: S("YYYY-MM-DD; empty = today") },
+    ),
+    async run({ db, owner, today }, a) {
+      const day = str(a.day) || today;
+      const [t, e] = await Promise.all([
+        getDayTargets(db, owner, day),
+        getDayEnergy(db, owner, day),
+      ]);
+      if (t.source === "none")
+        return { ok: true, data: { targets: null, energy: e.energy } };
+      const dynamic =
+        t.dynamic && e.energy && e.body.weightKg
+          ? dynamicTargets(e.energy, e.body.weightKg, t.dynamic)
+          : null;
+      return {
+        ok: true,
+        data: {
+          dayType: t.name,
+          targets: dynamic ?? t.targets,
+          dynamic: Boolean(dynamic),
+          energy: e.energy,
+          missingBody: e.missing,
+        },
+      };
     },
   },
   import_gym_notes: {
