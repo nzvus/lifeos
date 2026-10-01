@@ -13,11 +13,12 @@
  * and log repositories (to check an ingredient exists and belongs to the owner).
  * Tested in: ingredients.test.ts (including the cross-user test).
  */
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
-import { ingredients, ingredientTags, tags } from "../../db/schema";
+import { ingredients, ingredientTags, mealItems, meals, tags } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { fail, ok, pgErrorCode, type Result } from "../../shared/result";
+import { live } from "../../shared/trash";
 import type { IngredientInput } from "../validation";
 import { NUTRIENT_KEYS, type NutrientValues } from "../nutrients";
 
@@ -39,7 +40,7 @@ export async function listIngredients(db: Db, owner: Owner): Promise<Ingredient[
   return db
     .select()
     .from(ingredients)
-    .where(ownedBy(ingredients, owner))
+    .where(and(ownedBy(ingredients, owner), live(ingredients)))
     .orderBy(asc(ingredients.name));
 }
 
@@ -56,7 +57,7 @@ export async function getIngredient(
   const rows = await db
     .select()
     .from(ingredients)
-    .where(and(ownedBy(ingredients, owner), eq(ingredients.id, id)));
+    .where(and(ownedBy(ingredients, owner), live(ingredients), eq(ingredients.id, id)));
   return rows[0] ?? null;
 }
 
@@ -70,7 +71,13 @@ export async function getIngredientsByIds(
   return db
     .select()
     .from(ingredients)
-    .where(and(ownedBy(ingredients, owner), inArray(ingredients.id, [...ids])));
+    .where(
+      and(
+        ownedBy(ingredients, owner),
+        live(ingredients),
+        inArray(ingredients.id, [...ids]),
+      ),
+    );
 }
 
 /**
@@ -149,7 +156,9 @@ export async function updateIngredient(
       const [updated] = await tx
         .update(ingredients)
         .set(fields)
-        .where(and(ownedBy(ingredients, owner), eq(ingredients.id, id)))
+        .where(
+          and(ownedBy(ingredients, owner), live(ingredients), eq(ingredients.id, id)),
+        )
         .returning();
       if (updated && tagList) await setTags(tx, owner, id, tagList);
       return updated;
@@ -197,26 +206,53 @@ export async function tagsByIngredient(
 }
 
 /**
- * Deletes one of my ingredients. If a meal still uses it, the foreign key
- * (meal_items_ingredient_fk, ON DELETE RESTRICT) makes Postgres refuse, and we
- * report "in_use". Logged history is unaffected either way: log entries hold
- * their own snapshot (ADR-0007).
+ * Moves an ingredient to the trash (ADR-0015). Refused ("in_use") while a
+ * live meal contains it: the meal would lose a line. Meals already in the
+ * trash don't count; restoring one brings its ingredients back too
+ * (meals.ts restoreMeal).
  */
 export async function deleteIngredient(
   db: Db,
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
+  const used = await db
+    .select({ id: mealItems.id })
+    .from(mealItems)
+    .innerJoin(meals, eq(mealItems.mealId, meals.id))
+    .where(and(ownedBy(mealItems, owner), eq(mealItems.ingredientId, id), live(meals)))
+    .limit(1);
+  if (used.length) return fail({ _form: "in_use" });
+  const trashed = await db
+    .update(ingredients)
+    .set({ deletedAt: new Date() })
+    .where(and(ownedBy(ingredients, owner), live(ingredients), eq(ingredients.id, id)))
+    .returning({ id: ingredients.id });
+  return trashed.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/** Takes ingredients out of the trash; a live namesake created since: "duplicate_name". */
+export async function restoreIngredients(
+  db: Db,
+  owner: Owner,
+  ids: readonly string[],
+): Promise<Result<null>> {
+  if (ids.length === 0) return ok(null);
   try {
-    const deleted = await db
-      .delete(ingredients)
-      .where(and(ownedBy(ingredients, owner), eq(ingredients.id, id)))
+    const restored = await db
+      .update(ingredients)
+      .set({ deletedAt: null })
+      .where(
+        and(
+          ownedBy(ingredients, owner),
+          isNotNull(ingredients.deletedAt),
+          inArray(ingredients.id, [...ids]),
+        ),
+      )
       .returning({ id: ingredients.id });
-    return deleted.length ? ok(null) : fail({ _form: "not_found" });
+    return restored.length ? ok(null) : fail({ _form: "not_found" });
   } catch (e) {
-    const code = pgErrorCode(e);
-    // RESTRICT reports 23001; a plain foreign key would report 23503.
-    if (code === "23001" || code === "23503") return fail({ _form: "in_use" });
+    if (pgErrorCode(e) === "23505") return fail({ _form: "duplicate_name" });
     throw e;
   }
 }
