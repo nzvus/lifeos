@@ -174,6 +174,18 @@ reveals nothing beyond commit and database reachability; Vercel's own git
 integration is used rather than a hand-rolled deploy workflow, since it is the
 part of A that is worth having.
 
+## Update 2026-10-01 — previews only when needed
+
+A day of small pull requests hit Vercel Hobby's 100 deployments per day
+(previews count), and production stopped deploying for 24 hours ("Deployment
+rate limited"). The developer chose both remedies: previews build only when
+this ADR needs them — a change under `drizzle/` or `src/core/db/` (the
+migration rehearsal on the PR's Neon branch), or a branch named `*-preview`
+when a preview is wanted for review — via `vercel.json` `ignoreCommand`
+(`scripts/vercel-ignore.sh`); production from `main` always builds. And small
+slices are grouped into fewer pull requests. The delivery path above is
+otherwise unchanged.
+
 ## What I learned
 
 Drafted by the agent from this session, pending the developer's edit.

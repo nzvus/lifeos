@@ -9,6 +9,7 @@ import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import type { Messages } from "@/i18n";
 import { NutrientIcon } from "@/ui/NutrientIcon";
+import { Badge } from "@/ui/Badge";
 
 type Props = {
   profiles: DayProfile[];
@@ -31,11 +32,7 @@ export function ProfileList({ profiles, locale, t }: Props) {
             >
               {p.name}
             </Link>
-            {p.isDefault && (
-              <span className="rule-medium border-herb px-2 font-display text-meta font-semibold text-herb">
-                {t.profiles.isDefault}
-              </span>
-            )}
+            {p.isDefault && <Badge tone="done">{t.profiles.isDefault}</Badge>}
           </div>
           {/* Icon + value + unit: the colour and icon name the nutrient, the
               word is for screen readers (five words never fit a phone row). */}

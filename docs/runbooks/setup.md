@@ -106,6 +106,10 @@ Settings -> Branches: protect `main`, require the status check `check`
      branch and `DATABASE_URL`; add a separate `BETTER_AUTH_SECRET`. After
      checking that preview deployments really get a branch URL, add
      `PREVIEW_DB_IS_BRANCH=true` **in the Preview scope only**.
+   - Previews are skipped unless a PR touches `drizzle/` or `src/core/db/`
+     (`vercel.json` ignoreCommand → `scripts/vercel-ignore.sh`, ADR-0004
+     update 2026-10-01). To get a preview for any other branch, name it
+     `…-preview`.
 3. Deploy. Check: `https://your-app.vercel.app/api/health` returns
    `{"status":"ok","database":"ok","commit":"(git sha)"}`.
 4. Create your account: set `ALLOW_SIGNUP=true` in Production, redeploy, sign

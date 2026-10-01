@@ -14,7 +14,7 @@ export default async function SignUpPage() {
   const t = dictionaries[DEFAULT_LOCALE];
   return (
     <>
-      <h1 className="font-display text-section font-bold">{t.auth.signUpTitle}</h1>
+      <h1 className="section-heading">{t.auth.signUpTitle}</h1>
       <SignUpForm t={t.auth} />
     </>
   );

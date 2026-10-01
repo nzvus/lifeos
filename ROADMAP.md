@@ -152,7 +152,8 @@
 - [x] Rows and forms: day entries and measurements use the "⋯" of every row (update with current values · delete with Undo; ui/TrashButton removed); every edit form's first fields in a "General" card, no card inside a card
 - [x] Day page and desktop: one navigation row (‹ day 📅 ›, the week strip without its own arrows, no "Go to" row); wide screens: numbers left, food and training right; cards lay out by their own width (container queries)
 - [x] Themes with an identity (heading, icon chip, button/badge radius and header tokens): Label = framed boxes, heavy rule under every heading, the day as a nutrition-facts table (new THEME_SLOTS variant); Orto = pills, tinted icon discs, no rules, rounder cards; Cruscotto = uppercase captions, thin frames, tiles; the tab bar fits five labels in every theme
-- [ ] Developer review of the three themes on the phone; then a second pass on what still feels off
+- [x] Second pass: dark mode checked in all themes; cost on one line ("at least 0,72 €" + small "some prices are missing"); "auto" as a badge in the table's target column; the day's date never wraps; live session exercises as light tiles; sign-in in a card; "Default" as ui/Badge; live clock hydration bug fixed
+- [ ] Developer review of the three themes on the phone
 
 ## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)
 - **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.
