@@ -5,19 +5,22 @@
  *
  * Each entry, in the shared row (ui/ListItem): its label (the name at
  * logging time — ADR-0007), servings if not 1, energy and macros as a colour
- * strip (ui/MacroStrip), a compact remove button (to the trash with Undo,
+ * strip (ui/MacroStrip), its cost, what it is made of (NOVA, origin, fibre,
+ * tags, rating — the meal cards' block, passed in by the page), a compact
+ * remove button (to the trash with Undo,
  * ui/TrashButton), and a "Details" disclosure
  * (native <details>, no JavaScript) with what the entry contained and the
  * "update with current values" action —
  * the deliberate way to apply later corrections, e.g. a price added after
  * logging (core refreshLogEntry).
  */
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Tag } from "lucide-react";
 import { detailLines, stripValues } from "@/core/nutrition/display";
 import { groupByMoment, type MomentBounds } from "@/core/nutrition/moments";
 import { entriesTotals } from "@/core/nutrition/totals";
-import type { DayView } from "@/core/nutrition/repositories/log";
-import { formatNumber } from "@/core/shared/format";
+import type { DayView, LogEntryView } from "@/core/nutrition/repositories/log";
+import type { ReactNode } from "react";
+import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import { ActionButtonForm, type ActionButtonState } from "@/ui/ActionButtonForm";
@@ -53,7 +56,15 @@ type Props = {
   ) => (prev: ActionButtonState, formData: FormData) => Promise<ActionButtonState>;
   /** Edit the time, bound per entry. */
   timeAction: (id: string) => (prev: FormState, formData: FormData) => Promise<FormState>;
-  t: Pick<Messages, "day" | "nutrients" | "macro" | "errors" | "moments" | "actions">;
+  /**
+   * What the entry is made of (NOVA, origin, fibre, tags, rating): the same
+   * block as the meal cards, composed by the page (another slice's component).
+   */
+  quality?: (entry: LogEntryView) => ReactNode;
+  t: Pick<
+    Messages,
+    "day" | "nutrients" | "macro" | "errors" | "moments" | "actions" | "label"
+  >;
 };
 export function EntryList({
   day,
@@ -65,6 +76,7 @@ export function EntryList({
   refreshAction,
   statusAction,
   timeAction,
+  quality,
   t,
 }: Props) {
   if (day.entries.length === 0) return <p className="text-muted">{t.day.empty}</p>;
@@ -138,6 +150,19 @@ export function EntryList({
                       )}
                     </>
                   }
+                  aside={
+                    // Cost as on the meal cards; nothing when no price is known.
+                    e.totals.costCents > 0 && (
+                      <span className="inline-flex items-center gap-1 text-price">
+                        <Tag size={14} aria-hidden="true" />
+                        {e.totals.costComplete
+                          ? formatCents(e.totals.costCents, locale)
+                          : fill(t.label.costPartialShort, {
+                              v: formatCents(e.totals.costCents, locale),
+                            })}
+                      </span>
+                    )
+                  }
                   action={
                     <TrashButton
                       id={e.id}
@@ -153,6 +178,7 @@ export function EntryList({
                     values={stripValues(e.totals.nutrients, locale)}
                     labels={labels}
                   />
+                  {quality?.(e)}
                   <FoodDetails
                     summary={
                       e.lines.length > 1
