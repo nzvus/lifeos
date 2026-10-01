@@ -121,6 +121,31 @@ export const INTENSITY_MET: Record<Intensity, [number, number]> = {
  */
 export const STRENGTH_MET: [number, number] = [3.5, 5];
 
+/** Seconds a set takes when not timed, and the rest after it when not given. */
+const SET_WORK_S = 45;
+const SET_REST_S = 90;
+
+/**
+ * A session's minutes: the typed duration, else (a session planned from a
+ * routine has none) each set's time plus its rest. Null without sets.
+ */
+export function sessionMinutes(session: {
+  durationMin: number | null;
+  exercises: readonly { restS?: number | null; sets: readonly SetLike[] }[];
+}): number | null {
+  if (session.durationMin) return session.durationMin;
+  const seconds = session.exercises.reduce(
+    (a, e) =>
+      a +
+      e.sets.reduce(
+        (b, s) => b + (s.durationS ? s.durationS : SET_WORK_S + (e.restS ?? SET_REST_S)),
+        0,
+      ),
+    0,
+  );
+  return seconds > 0 ? Math.round(seconds / 60) : null;
+}
+
 /** What a session's burn range was computed from, to show the formula. */
 export type BurnBasis =
   | { kind: "estimate"; kcal: number }
@@ -130,7 +155,11 @@ export type BurnBasis =
 /** The inputs burnRange uses for a session (same rules, no arithmetic on kcal). */
 export function burnBasis(session: {
   durationMin: number | null;
-  exercises: readonly { kind: ExerciseKind; sets: readonly SetLike[] }[];
+  exercises: readonly {
+    kind: ExerciseKind;
+    restS?: number | null;
+    sets: readonly SetLike[];
+  }[];
   intensity?: Intensity | null;
   kcalEstimate?: number | null;
 }): BurnBasis {
@@ -149,7 +178,7 @@ export function burnBasis(session: {
     .reduce((a, s) => a + Math.max(0, (s.durationS ?? 0) / 60), 0);
   return {
     kind: "sets",
-    strengthMin: Math.max(0, (session.durationMin ?? 0) - cardioMin),
+    strengthMin: Math.max(0, (sessionMinutes(session) ?? 0) - cardioMin),
     cardioMin: Math.round(cardioMin),
   };
 }
@@ -163,7 +192,11 @@ export function burnBasis(session: {
 export function burnRange(
   session: {
     durationMin: number | null;
-    exercises: readonly { kind: ExerciseKind; sets: readonly SetLike[] }[];
+    exercises: readonly {
+      kind: ExerciseKind;
+      restS?: number | null;
+      sets: readonly SetLike[];
+    }[];
     intensity?: Intensity | null;
     kcalEstimate?: number | null;
   },
@@ -207,7 +240,7 @@ export function burnRange(
       high += (met ? met * 1.15 : 7) * kg * (min / 60);
     }
   }
-  const strengthMin = Math.max(0, (session.durationMin ?? 0) - cardioMin);
+  const strengthMin = Math.max(0, (sessionMinutes(session) ?? 0) - cardioMin);
   low += STRENGTH_MET[0] * kg * (strengthMin / 60);
   high += STRENGTH_MET[1] * kg * (strengthMin / 60);
   if (low === 0 && high === 0) return null;
@@ -295,7 +328,11 @@ export function trainingByDay(
     day: string;
     status: string;
     durationMin: number | null;
-    exercises: readonly { kind: ExerciseKind; sets: readonly SetLike[] }[];
+    exercises: readonly {
+      kind: ExerciseKind;
+      restS?: number | null;
+      sets: readonly SetLike[];
+    }[];
   }[],
   measurements: readonly { day: string; weightKg: string | null }[],
 ): TrainingDay[] {

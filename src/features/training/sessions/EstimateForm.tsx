@@ -23,6 +23,7 @@ import { DraftNotice } from "@/ui/DraftNotice";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { MuscleGroupPicker } from "@/ui/MuscleGroupPicker";
+import { Segmented } from "@/ui/Segmented";
 import { SubmitButton } from "@/ui/SubmitButton";
 import { toast } from "@/ui/Toast";
 import { toFormData, useEditableForm } from "@/ui/useEditableForm";
@@ -35,9 +36,12 @@ type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 function EstimateFields({
   state,
   initial,
+  when,
   t,
 }: {
   state: FormState;
+  /** Set by the day page's "When" (status and time); else the done checkbox. */
+  when?: { status: "done" | "planned"; time: string };
   initial: Record<string, string>;
   t: T;
 }) {
@@ -52,11 +56,15 @@ function EstimateFields({
     <>
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
       <input type="hidden" name="day" value={val("day")} />
-      <input type="hidden" name="time" value={val("time")} />
+      <input type="hidden" name="time" value={when ? when.time : val("time")} />
       <input type="hidden" name="routineId" value="" />
       <input type="hidden" name="intensity" value={intensity} />
       <input type="hidden" name="muscleGroups" value={groups.join(",")} />
-      <input type="hidden" name="status" value={done ? "done" : "planned"} />
+      <input
+        type="hidden"
+        name="status"
+        value={when ? when.status : done ? "done" : "planned"}
+      />
       <Field
         label={e.name}
         name="label"
@@ -80,24 +88,12 @@ function EstimateFields({
           error={err("kcalEstimate")}
         />
       </div>
-      <fieldset className="flex flex-col gap-1">
-        <legend className="text-meta font-semibold">{e.intensity}</legend>
-        <div className="grid grid-cols-3 gap-2">
-          {INTENSITIES.map((i) => (
-            <button
-              key={i}
-              type="button"
-              aria-pressed={intensity === i}
-              onClick={() => setIntensity(i)}
-              className={`tile h-11 rounded-control font-display text-item ${
-                intensity === i ? "border-ink font-bold" : "text-muted"
-              }`}
-            >
-              {e.intensities[i]}
-            </button>
-          ))}
-        </div>
-      </fieldset>
+      <Segmented
+        label={e.intensity}
+        value={intensity}
+        onChange={setIntensity}
+        options={INTENSITIES.map((i) => ({ value: i, label: e.intensities[i] }))}
+      />
       <fieldset className="flex flex-col gap-2">
         <legend className="text-meta font-semibold">{e.groups}</legend>
         <MuscleGroupPicker
@@ -117,15 +113,17 @@ function EstimateFields({
         defaultValue={val("notes")}
         error={err("notes")}
       />
-      <label className="flex items-center gap-2 text-meta font-semibold">
-        <input
-          type="checkbox"
-          checked={done}
-          onChange={(ev) => setDone(ev.target.checked)}
-          className="h-4 w-4 accent-herb"
-        />
-        {e.done}
-      </label>
+      {!when && (
+        <label className="flex items-center gap-2 text-meta font-semibold">
+          <input
+            type="checkbox"
+            checked={done}
+            onChange={(ev) => setDone(ev.target.checked)}
+            className="h-4 w-4 accent-herb"
+          />
+          {e.done}
+        </label>
+      )}
     </>
   );
 }
@@ -133,19 +131,19 @@ function EstimateFields({
 /** Inline on the day page: add, then start over empty. */
 export function EstimateAdd({
   day,
-  plannedByDefault,
+  when,
   action,
   t,
 }: {
   day: string;
-  /** A future day: the estimate starts as planned. */
-  plannedByDefault: boolean;
+  /** Done or planned, and at what time: the day page's "When". */
+  when: { status: "done" | "planned"; time: string };
   action: Action;
   t: T;
 }) {
   const router = useRouter();
   const [round, setRound] = useState(0);
-  const empty = { day, status: plannedByDefault ? "planned" : "done" };
+  const empty = { day };
   const [state, formAction] = useActionState(async (prev: FormState, fd: FormData) => {
     const r = await action(prev, fd);
     if (r.status === "saved") {
@@ -161,7 +159,7 @@ export function EstimateAdd({
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <p className="text-meta text-muted">{t.training.estimate.estimateHint}</p>
-      <EstimateFields key={round} state={state} initial={empty} t={t} />
+      <EstimateFields key={round} state={state} initial={empty} when={when} t={t} />
       <div>
         <SubmitButton>{t.training.estimate.add}</SubmitButton>
       </div>

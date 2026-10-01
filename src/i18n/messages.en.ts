@@ -13,7 +13,14 @@
  * Leaf module: imports nothing. Keys that must match core/ (nutrients, error
  * codes, locales) are checked in src/app/_server/i18n.ts, where both meet.
  */
-import { pantryEn, trashEn, energyEn, assistantEn, barcodeEn } from "./messages.home.en";
+import {
+  pantryEn,
+  trashEn,
+  energyEn,
+  assistantEn,
+  barcodeEn,
+  trainingWhenEn,
+} from "./messages.home.en";
 
 export const en = {
   app: {
@@ -129,6 +136,9 @@ export const en = {
     servingsTimes: "× {n}",
     copyYesterday: "Repeat yesterday's meals",
     planned: "Planned (not eaten yet)",
+    when: "When",
+    eaten: "Eaten",
+    plannedShort: "Planned",
     time: "Time",
     timeHint: "Empty = now (or no time, if planned).",
     saveTime: "Save time",
@@ -312,6 +322,7 @@ export const en = {
     sortValue: "{what}: {v}",
   },
   training: {
+    when: trainingWhenEn,
     estimate: {
       addTitle: "Add training",
       tabRoutine: "Routine",

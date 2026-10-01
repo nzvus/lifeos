@@ -51,6 +51,7 @@ import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { DayScore } from "@/features/nutrition/log/DayScore";
 import { AddTraining } from "@/features/training/sessions/AddTraining";
+import { startOrPlanAction } from "./training/live-actions";
 import { SessionList } from "@/features/training/sessions/SessionList";
 import { presetTiles } from "./training/preset-tiles";
 import { listMeasurements } from "@/core/training/repositories/measurements";
@@ -400,12 +401,14 @@ export default async function DayPage({ searchParams }: Props) {
               trash={deleteSessionAction}
               restore={restoreSessionAction}
               labels={t.actions}
+              startable={day === today}
             />
           </Section>
         )}
         <AddTraining
           day={day}
-          plannedByDefault={day > today}
+          today={today}
+          startOrPlan={startOrPlanAction}
           presets={presets}
           exercises={exercises.map(({ id, name, kind }) => ({ id, name, kind }))}
           estimate={createEstimateAction}

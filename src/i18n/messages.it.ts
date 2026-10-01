@@ -3,7 +3,14 @@
  * Typed as `Messages` (the shape of messages.en.ts): a missing or extra key
  * is a compile error, so the two languages can never drift apart silently.
  */
-import { pantryIt, trashIt, energyIt, assistantIt, barcodeIt } from "./messages.home.it";
+import {
+  pantryIt,
+  trashIt,
+  energyIt,
+  assistantIt,
+  barcodeIt,
+  trainingWhenIt,
+} from "./messages.home.it";
 import type { Messages } from "./index";
 
 export const it: Messages = {
@@ -123,6 +130,9 @@ export const it: Messages = {
     servingsTimes: "× {n}",
     copyYesterday: "Ripeti i pasti di ieri",
     planned: "Pianificato (non ancora mangiato)",
+    when: "Quando",
+    eaten: "Mangiato",
+    plannedShort: "Pianificato",
     time: "Ora",
     timeHint: "Vuoto = adesso (o nessuna ora, se pianificato).",
     saveTime: "Salva ora",
@@ -309,6 +319,7 @@ export const it: Messages = {
     sortValue: "{what}: {v}",
   },
   training: {
+    when: trainingWhenIt,
     estimate: {
       addTitle: "Aggiungi allenamento",
       tabRoutine: "Scheda",

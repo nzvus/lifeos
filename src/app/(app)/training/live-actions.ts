@@ -10,7 +10,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { timeIn, todayIn } from "@/core/shared/dates";
+import { isValidDay, timeIn, todayIn } from "@/core/shared/dates";
 import { parseInput } from "@/core/shared/validation";
 import {
   finished,
@@ -19,6 +19,7 @@ import {
   type LiveSession,
 } from "@/core/training/live";
 import { latestPreset, type PresetSet } from "@/core/training/presets";
+import { listExercises } from "@/core/training/repositories/exercises";
 import { listRoutines } from "@/core/training/repositories/routines";
 import {
   createSession,
@@ -27,21 +28,58 @@ import {
 } from "@/core/training/repositories/sessions";
 import { sessionInput } from "@/core/training/validation";
 
-/** Starts a routine at its latest version, today, now: a planned session to tick. */
-export async function startLiveAction(formData: FormData): Promise<void> {
+/**
+ * A routine at its latest version, or one exercise with its working sets of
+ * last time, as a PLANNED session: started now in gym mode ("live"), or
+ * planned on a day at a time ("plan", from the day page).
+ * Form fields: routineId | exerciseId, mode, day, time.
+ */
+export async function startOrPlanAction(formData: FormData): Promise<void> {
   const { owner, settings, t } = await requireContext();
   const db = getDb();
   const today = todayIn(settings.timezone);
+  const mode = formData.get("mode") === "plan" ? "plan" : "live";
+  const asked = String(formData.get("day") ?? "");
+  const day = mode === "plan" && isValidDay(asked) ? asked : today;
+  const time =
+    mode === "plan"
+      ? String(formData.get("time") ?? "")
+      : timeIn(new Date(), settings.timezone);
   const routineId = String(formData.get("routineId") ?? "");
-  const [routines, history] = await Promise.all([
+  const exerciseId = String(formData.get("exerciseId") ?? "");
+  const [routines, history, catalog] = await Promise.all([
     listRoutines(db, owner),
     listSessions(db, owner, "2000-01-01", today),
+    listExercises(db, owner),
   ]);
   const routine = routines.find((r) => r.id === routineId);
-  const preset = routine
-    ? latestPreset<PresetSet>(routine, history, (it) => ({ ...it, warmup: false }))
-    : null;
-  const exercises: LiveExercise[] = (preset?.exercises ?? []).map((e) => ({
+  const exercise = catalog.find((e) => e.id === exerciseId);
+  let label = t.training.title;
+  let sets: { exerciseId: string; restS: number | null; sets: PresetSet[] }[] = [];
+  if (routine) {
+    const preset = latestPreset<PresetSet>(routine, history, (it) => ({
+      ...it,
+      warmup: false,
+    }));
+    label = preset.label;
+    sets = preset.exercises;
+  } else if (exercise) {
+    // Its working sets of the last session that had it, else one empty set.
+    const lastTime = [...history]
+      .reverse()
+      .flatMap((s) => s.exercises)
+      .find((e) => e.exerciseId === exercise.id);
+    label = exercise.name;
+    const working = lastTime?.sets.filter((x) => !x.warmup) ?? [];
+    sets = [
+      {
+        exerciseId: exercise.id,
+        restS: lastTime?.restS ?? null,
+        sets: working.length ? working : [{ reps: null, loadKg: null, warmup: false }],
+      },
+    ];
+  }
+  const exercises: LiveExercise[] = sets.map((e) => ({
     exerciseId: e.exerciseId,
     restS: e.restS,
     notes: "",
@@ -62,23 +100,16 @@ export async function startLiveAction(formData: FormData): Promise<void> {
   const input = parseInput(
     sessionInput,
     toSessionValues(
-      {
-        day: today,
-        label: preset?.label ?? t.training.title,
-        time: timeIn(new Date(), settings.timezone),
-        routineId: routine?.id ?? null,
-        notes: "",
-        exercises,
-      },
+      { day, label, time, routineId: routine?.id ?? null, notes: "", exercises },
       "planned",
       null,
     ),
   );
-  if (!input.ok) throw new Error(`live start: ${JSON.stringify(input.errors)}`);
+  if (!input.ok) throw new Error(`start/plan: ${JSON.stringify(input.errors)}`);
   const r = await createSession(db, owner, input.value, settings.timezone);
-  if (!r.ok) throw new Error(`live start: ${JSON.stringify(r.errors)}`);
+  if (!r.ok) throw new Error(`start/plan: ${JSON.stringify(r.errors)}`);
   revalidatePath("/", "layout");
-  redirect(`/training/${r.value.id}/live`);
+  if (mode === "live") redirect(`/training/${r.value.id}/live`);
 }
 
 /**

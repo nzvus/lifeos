@@ -260,3 +260,17 @@ export const barcodeEn = {
   noCamera: "This browser can't read codes from the camera: type the digits.",
   hint: "Open Food Facts is a free, open database of food products.",
 };
+
+export const trainingWhenEn = {
+  startThis: "Start in gym mode",
+  label: "When",
+  start: "Start now",
+  plan: "Plan",
+  done: "Done",
+  time: "Time",
+  hints: {
+    start: "Gym mode opens with the chosen routine or exercise.",
+    plan: "It stays planned at that time (empty = no time): the energy with the plan counts it.",
+    done: "The editor opens to write what you did.",
+  },
+};

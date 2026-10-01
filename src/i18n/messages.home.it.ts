@@ -263,3 +263,17 @@ export const barcodeIt: Messages["barcode"] = {
   noCamera: "Questo browser non legge i codici dalla fotocamera: scrivi le cifre.",
   hint: "Open Food Facts è un archivio libero e gratuito di prodotti alimentari.",
 };
+
+export const trainingWhenIt: Messages["training"]["when"] = {
+  startThis: "Inizia in palestra",
+  label: "Quando",
+  start: "Inizia ora",
+  plan: "Pianifica",
+  done: "Già fatta",
+  time: "Ora",
+  hints: {
+    start: "Si apre la modalità palestra con la scheda o l'esercizio scelto.",
+    plan: "Resta pianificato a quell'ora (vuoto = senza ora): il consumo con il piano lo conta.",
+    done: "Si apre l'editor per scrivere quello che hai fatto.",
+  },
+};

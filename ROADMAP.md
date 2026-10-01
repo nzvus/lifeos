@@ -165,7 +165,7 @@
 ## Next sprint: S11 — The day as a plan, honest energy, smarter targets (requested 2026-10-01)
 - **Goal:** plan and start training from the day like food; energy and targets that make sense for the developer's real data; a day score about zones, not reaching numbers.
 - [x] Energy formulas on screen; selects show the saved value without a reload (#105)
-- [ ] Day page: plan a session / exercise / estimate with a time; start a session and gym mode from the day; planned / time / moment controls regrouped
+- [x] Day page: plan a routine / exercise / estimate at a time, start it now in gym mode, or write it as done; "Start" on planned sessions; one "When" block (ui/Segmented) for food and training; planned sessions without a duration get one from their sets, so the energy counts them
 - [ ] Goal shown plainly: maintenance / recomposition / gain / cut, with the deficit or surplus in kcal
 - [ ] Alignment pass: Settings and other left-aligned pages, the day type editor in dynamic mode
 - [ ] Energy check against the developer's export (tmp/, never committed)

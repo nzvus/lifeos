@@ -45,6 +45,7 @@ import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
 import { MomentIcon } from "@/ui/MomentIcon";
+import { Segmented } from "@/ui/Segmented";
 import { Collapsible } from "@/ui/Collapsible";
 import { SelectField } from "@/ui/SelectField";
 import { SearchSelect } from "@/ui/SearchSelect";
@@ -461,39 +462,39 @@ function Timing({
     bounds,
   );
   const moment = picked ?? suggested;
+  const [planned, setPlanned] = useState(kept("planned") === "on");
   return (
-    <div className="flex flex-wrap items-end gap-4">
-      <label className="flex items-center gap-2 text-meta">
-        <input
-          type="checkbox"
-          name="planned"
-          id="add-planned"
-          defaultChecked={kept("planned") === "on"}
-          className="h-4 w-4 accent-herb"
-        />
-        {t.day.planned}
-      </label>
-      <label className="flex flex-col gap-1 text-meta">
-        <span className="font-semibold">{t.day.time}</span>
-        <input
-          type="time"
+    <div className="flex flex-col gap-3">
+      {planned && <input type="hidden" name="planned" value="on" />}
+      <Segmented
+        label={t.day.when}
+        value={planned ? "planned" : "eaten"}
+        onChange={(v) => setPlanned(v === "planned")}
+        options={[
+          { value: "eaten", label: t.day.eaten },
+          { value: "planned", label: t.day.plannedShort },
+        ]}
+      />
+      <div className="grid grid-cols-2 items-end gap-3">
+        <Field
+          label={t.day.time}
           name="time"
           id="add-time"
+          type="time"
           value={time}
           onChange={(e) => setTime(e.target.value)}
-          className="rule-b-medium border-ink bg-sheet px-2 py-1"
         />
-      </label>
-      <SelectField
-        label={t.moments.label}
-        icon={<MomentIcon moment={moment} />}
-        name="moment"
-        id="add-moment"
-        value={moment}
-        onChange={(e) => setPicked(e.target.value as Moment)}
-        options={MOMENTS.map((m) => ({ value: m, label: t.moments.names[m] }))}
-      />
-      <p className="w-full text-meta text-muted">{`${t.day.timeHint} ${t.moments.hint}`}</p>
+        <SelectField
+          label={t.moments.label}
+          icon={<MomentIcon moment={moment} />}
+          name="moment"
+          id="add-moment"
+          value={moment}
+          onChange={(e) => setPicked(e.target.value as Moment)}
+          options={MOMENTS.map((m) => ({ value: m, label: t.moments.names[m] }))}
+        />
+      </div>
+      <p className="text-meta text-muted">{`${t.day.timeHint} ${t.moments.hint}`}</p>
     </div>
   );
 }
