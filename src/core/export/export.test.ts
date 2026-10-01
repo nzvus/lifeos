@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "../db/client";
 import { eq } from "drizzle-orm";
 import { account, userSettings } from "../db/schema";
+import { createProgram } from "../training/repositories/programs";
 import type { Owner } from "../identity/owner";
 import { createIngredient } from "../nutrition/repositories/ingredients";
 import { logIngredient } from "../nutrition/repositories/log";
@@ -199,5 +200,22 @@ describe("exportUserData", () => {
       data.pantry.products.map((x) => [x.name, x.purchases.map((y) => y.priceCents)]),
     ).toEqual([["Detersivo piatti", [318]]]);
     expect((await exportUserData(db, bob)).pantry.products).toEqual([]);
+  });
+
+  it("contains my training programs with their slots (version 9)", async () => {
+    const r = await createProgram(db, alice, {
+      name: "Rest only",
+      notes: "",
+      startDay: "2026-10-01",
+      active: true,
+      slots: [{ routineId: null, label: "Rest" }],
+    });
+    if (!r.ok) throw new Error("setup failed");
+    const data = await exportUserData(db, alice);
+    expect(data.version).toBe(9);
+    expect(
+      data.training.programs.map((x) => [x.name, x.slots.map((y) => y.label)]),
+    ).toEqual([["Rest only", ["Rest"]]]);
+    expect((await exportUserData(db, bob)).training.programs).toEqual([]);
   });
 });
