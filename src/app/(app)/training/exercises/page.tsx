@@ -7,11 +7,13 @@ import {
   isMovementPattern,
   isMuscleGroup,
   MUSCLE_GROUP_REGION,
+  regionOf,
 } from "@/core/training/anatomy";
 import { formatNumber } from "@/core/shared/format";
 import { listExercises } from "@/core/training/repositories/exercises";
 import { listSessions } from "@/core/training/repositories/sessions";
 import { fill } from "@/i18n";
+import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { ListItem } from "@/ui/ListItem";
 import { MuscleChips } from "@/ui/MuscleChip";
 import { PageHeader } from "@/ui/PageHeader";
@@ -48,6 +50,15 @@ export default async function ExercisesPage() {
             return (
               <ListItem
                 key={e.id}
+                leading={
+                  <span className="pt-1">
+                    <ExerciseIcon
+                      pattern={e.pattern}
+                      region={regionOf(e.muscleGroups)}
+                      size={24}
+                    />
+                  </span>
+                }
                 title={
                   <Link
                     href={`/training/exercises/${e.id}`}
