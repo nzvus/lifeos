@@ -37,11 +37,13 @@ import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { DayScore } from "@/features/nutrition/log/DayScore";
-import { PresetPicker } from "@/features/training/sessions/PresetPicker";
+import { AddTraining } from "@/features/training/sessions/AddTraining";
 import { SessionList } from "@/features/training/sessions/SessionList";
 import { presetTiles } from "./training/preset-tiles";
 import { listMeasurements } from "@/core/training/repositories/measurements";
 import { listSessions } from "@/core/training/repositories/sessions";
+import { listExercises } from "@/core/training/repositories/exercises";
+import { createEstimateAction } from "./training/actions";
 import { Card } from "@/ui/Card";
 import { Section } from "@/ui/Section";
 import { dayScore } from "@/core/nutrition/day-score";
@@ -82,6 +84,7 @@ export default async function DayPage({ searchParams }: Props) {
     sessions,
     measurements,
     presets,
+    exercises,
   ] = await Promise.all([
     getDay(db, owner, day),
     listMeals(db, owner),
@@ -93,6 +96,7 @@ export default async function DayPage({ searchParams }: Props) {
     listSessions(db, owner, day, day), // ADR-0005: the day's training
     listMeasurements(db, owner), // body weight, for the burn estimate
     presetTiles(owner, day), // start a session from a routine, at its latest version
+    listExercises(db, owner), // "Add training · Exercise" (ADR-0016)
   ]);
   // The day's own targets, plus recommended maxima where none is set
   // (sugars, saturated fat, salt — core/nutrition/targets.ts), unless the
@@ -140,21 +144,35 @@ export default async function DayPage({ searchParams }: Props) {
           day: t.day,
         }}
       />
-      <Section
-        title={t.training.onThisDay}
-        icon={<Dumbbell size={20} aria-hidden="true" />}
-      >
-        {sessions.length > 0 && (
+      {sessions.length > 0 && (
+        <Section
+          title={t.training.onThisDay}
+          icon={<Dumbbell size={20} aria-hidden="true" />}
+        >
           <SessionList
             sessions={sessions}
             measurements={measurements}
             showDay={false}
             locale={locale}
             t={t.training}
+            tx={t.exercises}
           />
-        )}
-        <PresetPicker presets={presets} day={day} t={t.training} />
-      </Section>
+        </Section>
+      )}
+      <AddTraining
+        day={day}
+        plannedByDefault={day > today}
+        presets={presets}
+        exercises={exercises.map(({ id, name, kind }) => ({ id, name, kind }))}
+        estimate={createEstimateAction}
+        t={{
+          training: t.training,
+          exercises: t.exercises,
+          errors: t.errors,
+          actions: t.actions,
+          search: t.search,
+        }}
+      />
       <DayScore
         score={dayScore({ totals: view.totals.nutrients, targets, quality: dayQuality })}
         quality={dayQuality}

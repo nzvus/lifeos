@@ -15,9 +15,12 @@
  *                3.5–6 MET (Compendium of Physical Activities, resistance
  *                training light–vigorous); cardio from speed and incline
  *                with the ACSM walking/running equations, ±15 %; outdoors,
- *                the speed comes from distance ÷ time
+ *                the speed comes from distance ÷ time; an ESTIMATED session
+ *                (ADR-0016, no exercises): the user's kcal ±15 %, else
+ *                its intensity's MET band × weight × minutes (Compendium:
+ *                light 2.5–3.5, moderate 3.5–6, vigorous 6–9)
  */
-import type { ExerciseKind } from "./kinds";
+import type { ExerciseKind, Intensity } from "./kinds";
 
 export type SetLike = {
   reps: number | null;
@@ -104,6 +107,13 @@ export function cardioMet(speedKmh: number, inclinePct: number): number {
 
 export type BurnRange = { low: number; high: number };
 
+/** MET band per intensity of an estimated session (Compendium of Physical Activities). */
+export const INTENSITY_MET: Record<Intensity, [number, number]> = {
+  light: [2.5, 3.5],
+  moderate: [3.5, 6],
+  vigorous: [6, 9],
+};
+
 /**
  * Estimated kcal range of a session. Cardio sets with a speed use their own
  * MET (±15 %); the rest of the session's minutes count as strength time at
@@ -114,10 +124,27 @@ export function burnRange(
   session: {
     durationMin: number | null;
     exercises: readonly { kind: ExerciseKind; sets: readonly SetLike[] }[];
+    intensity?: Intensity | null;
+    kcalEstimate?: number | null;
   },
   weightKg: string | null,
 ): BurnRange | null {
+  if (session.exercises.length === 0 && session.kcalEstimate)
+    return {
+      low: Math.round(session.kcalEstimate * 0.85),
+      high: Math.round(session.kcalEstimate * 1.15),
+    };
   if (weightKg === null) return null;
+  if (session.exercises.length === 0 && session.intensity) {
+    const [lo, hi] = INTENSITY_MET[session.intensity];
+    const h = (session.durationMin ?? 0) / 60;
+    return h > 0
+      ? {
+          low: Math.round(lo * Number(weightKg) * h),
+          high: Math.round(hi * Number(weightKg) * h),
+        }
+      : null;
+  }
   const kg = Number(weightKg);
   let cardioMin = 0;
   let low = 0;

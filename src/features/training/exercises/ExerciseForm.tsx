@@ -19,10 +19,8 @@
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import {
+  groupsByRegion,
   MOVEMENT_PATTERNS,
-  MUSCLE_GROUP_REGION,
-  MUSCLE_GROUPS,
-  MUSCLE_REGIONS,
   regionOf,
   suggestAnatomy,
 } from "@/core/training/anatomy";
@@ -34,7 +32,7 @@ import { DraftNotice } from "@/ui/DraftNotice";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
-import { MuscleChip } from "@/ui/MuscleChip";
+import { MuscleGroupPicker } from "@/ui/MuscleGroupPicker";
 import { SelectField } from "@/ui/SelectField";
 import { toFormData, useEditableForm } from "@/ui/useEditableForm";
 import { useEditFlow } from "@/ui/useEditFlow";
@@ -112,8 +110,6 @@ function ExerciseFields({
     if (s.pattern) setPattern(s.pattern);
     if (s.muscleGroups.length) setGroups(s.muscleGroups);
   };
-  const toggle = (g: string) =>
-    setGroups((gs) => (gs.includes(g) ? gs.filter((x) => x !== g) : [...gs, g]));
   return (
     <>
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
@@ -150,34 +146,16 @@ function ExerciseFields({
         <legend className="text-meta font-semibold">{x.muscles}</legend>
         <p className="text-meta text-muted">{x.musclesHint}</p>
         <input type="hidden" name="muscleGroups" value={groups.join(",")} />
-        {MUSCLE_REGIONS.map((r) => (
-          <div key={r} className="flex flex-col gap-1">
-            <span className="text-meta text-muted">{x.regions[r]}</span>
-            <div className="flex flex-wrap gap-1.5">
-              {MUSCLE_GROUPS.filter((g) => MUSCLE_GROUP_REGION[g] === r).map((g) => {
-                const at = groups.indexOf(g);
-                return (
-                  <button
-                    key={g}
-                    type="button"
-                    aria-pressed={at >= 0}
-                    onClick={() => toggle(g)}
-                    className={`inline-flex items-center gap-1 rounded-control border px-2 py-1 ${
-                      at >= 0
-                        ? "border-ink bg-sheet"
-                        : "border-hairline opacity-60 hover:opacity-100"
-                    }`}
-                  >
-                    <MuscleChip label={x.groups[g]} region={r} main={at === 0} />
-                    {at === 0 && (
-                      <span className="text-meta text-muted">{x.primary}</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+        <MuscleGroupPicker
+          regions={groupsByRegion().map(({ region, groups: gs }) => ({
+            region,
+            label: x.regions[region],
+            groups: gs.map((g) => ({ key: g, label: x.groups[g] })),
+          }))}
+          value={groups}
+          onChange={setGroups}
+          primaryLabel={x.primary}
+        />
         {err("muscleGroups") && (
           <p className="text-meta font-semibold text-tomato">{err("muscleGroups")}</p>
         )}

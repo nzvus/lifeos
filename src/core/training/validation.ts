@@ -19,7 +19,13 @@ import {
   time,
 } from "../shared/validation";
 import { isMovementPattern, isMuscleGroup } from "./anatomy";
-import { EXERCISE_KINDS, SESSION_STATUSES, type ExerciseKind } from "./kinds";
+import {
+  EXERCISE_KINDS,
+  INTENSITIES,
+  SESSION_STATUSES,
+  type ExerciseKind,
+  type Intensity,
+} from "./kinds";
 
 const name = z.string().trim().min(1, "required").max(80, "too_long");
 const LOAD = { scale: 2, max: "9999" }; // numeric(6,2)
@@ -99,29 +105,60 @@ const sessionExerciseInput = z.object({
   sets: z.array(setInput).max(30, "too_long"),
 });
 
-export const sessionInput = z.object({
-  day,
-  label: name,
-  status: z.enum(SESSION_STATUSES, "invalid_choice"),
-  /** Start "HH:MM" in the user's zone; empty = unknown. */
-  time,
-  durationMin: z
-    .string()
-    .optional()
-    .transform((v) => (v ?? "").trim())
-    .refine((v) => v === "" || /^\d{1,3}$/.test(v), "invalid_number")
-    .transform((v) => (v === "" || v === "0" ? null : Number(v))),
-  notes: z.string().trim().max(2000, "too_long").optional().default(""),
-  routineId: z
-    .string()
-    .optional()
-    .transform((v) => v || null)
-    .pipe(id.nullable()),
-  exercises: jsonField(z.array(sessionExerciseInput).max(40, "too_long")).transform(
-    (v) => v ?? [],
-  ),
-});
-export type SessionInput = z.output<typeof sessionInput>;
+export const sessionInput = z
+  .object({
+    day,
+    label: name,
+    status: z.enum(SESSION_STATUSES, "invalid_choice"),
+    /** Start "HH:MM" in the user's zone; empty = unknown. */
+    time,
+    durationMin: z
+      .string()
+      .optional()
+      .transform((v) => (v ?? "").trim())
+      .refine((v) => v === "" || /^\d{1,3}$/.test(v), "invalid_number")
+      .transform((v) => (v === "" || v === "0" ? null : Number(v))),
+    notes: z.string().trim().max(2000, "too_long").optional().default(""),
+    routineId: z
+      .string()
+      .optional()
+      .transform((v) => v || null)
+      .pipe(id.nullable()),
+    exercises: jsonField(z.array(sessionExerciseInput).max(40, "too_long")).transform(
+      (v) => v ?? [],
+    ),
+    // ADR-0016: an estimated session (no exercises). "" = not set.
+    intensity: z
+      .string()
+      .optional()
+      .transform((v) => v || null)
+      .refine(
+        (v) => v === null || (INTENSITIES as readonly string[]).includes(v),
+        "invalid_choice",
+      )
+      .transform((v) => v as Intensity | null),
+    kcalEstimate: z
+      .string()
+      .optional()
+      .transform((v) => (v ?? "").trim())
+      .refine((v) => v === "" || /^\d{1,5}$/.test(v), "invalid_number")
+      .transform((v) => (v === "" ? null : Number(v)))
+      .refine((v) => v !== 0, "not_positive")
+      .refine((v) => v === null || v <= 10000, "too_large"),
+    muscleGroups,
+  })
+  .superRefine((s, ctx) => {
+    // An estimate says how much: minutes (with its intensity) or kcal.
+    if (s.exercises.length === 0 && s.intensity && !s.durationMin && !s.kcalEstimate)
+      ctx.addIssue({ code: "custom", path: ["durationMin"], message: "required" });
+  });
+type SessionOutput = z.output<typeof sessionInput>;
+/** A session to save; the estimate fields (ADR-0016) may be left out (importers, tests). */
+export type SessionInput = Omit<
+  SessionOutput,
+  "intensity" | "kcalEstimate" | "muscleGroups"
+> &
+  Partial<Pick<SessionOutput, "intensity" | "kcalEstimate" | "muscleGroups">>;
 
 /** A body measurement (weight required; the rest optional). */
 export const measurementInput = z.object({

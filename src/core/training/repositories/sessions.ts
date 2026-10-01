@@ -17,7 +17,7 @@ import {
 import { ownedBy, type Owner } from "../../identity/owner";
 import { instantFor } from "../../shared/dates";
 import { fail, ok, type FieldErrors, type Result } from "../../shared/result";
-import type { ExerciseKind, SessionStatus } from "../kinds";
+import type { ExerciseKind, Intensity, SessionStatus } from "../kinds";
 import { checkSetsForKinds, type SessionInput } from "../validation";
 import { getExercisesByIds } from "./exercises";
 
@@ -47,6 +47,10 @@ export type SessionView = {
   durationMin: number | null;
   routineId: string | null;
   notes: string;
+  /** ADR-0016: set on an estimated session (no exercises). */
+  intensity: Intensity | null;
+  kcalEstimate: number | null;
+  muscleGroups: string[];
   exercises: SessionExerciseView[];
 };
 
@@ -143,6 +147,9 @@ async function withChildren(
     durationMin: r.durationMin,
     routineId: r.routineId,
     notes: r.notes,
+    intensity: r.intensity,
+    kcalEstimate: r.kcalEstimate,
+    muscleGroups: r.muscleGroups,
     exercises: itemsBy.get(r.id) ?? [],
   }));
 }
@@ -229,6 +236,9 @@ function sessionRow(input: SessionInput, timeZone: string) {
     durationMin: input.durationMin,
     routineId: input.routineId,
     notes: input.notes,
+    intensity: input.intensity ?? null,
+    kcalEstimate: input.kcalEstimate ?? null,
+    muscleGroups: input.muscleGroups ?? [],
   };
 }
 

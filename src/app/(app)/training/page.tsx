@@ -109,6 +109,13 @@ export default async function TrainingPage({ searchParams }: Props) {
           locale={settings.locale}
           t={{ progress: p, groups: t.exercises.groups }}
         />
+        {history.some(
+          (x) =>
+            x.exercises.length === 0 &&
+            x.status === "done" &&
+            x.day >= week.from &&
+            x.day <= week.to,
+        ) && <p className="text-meta text-muted">{t.training.estimate.noSets}</p>}
       </Section>
       {routines.length > 0 && (
         <Section title={p.routines} icon={<ClipboardList size={20} aria-hidden="true" />}>
@@ -149,6 +156,7 @@ export default async function TrainingPage({ searchParams }: Props) {
             showDay
             locale={settings.locale}
             t={t.training}
+            tx={t.exercises}
           />
         )}
       </Section>

@@ -4,7 +4,9 @@
  * burn estimate as a range (ADR-0005: never a precise number). Compact: a
  * row of exercise icons in their body region's colour; tapping it opens each
  * exercise with its sets as short text. Planned sessions are drawn muted,
- * like planned food (ADR-0009). Used by /training and by the day page.
+ * like planned food (ADR-0009). An estimated session (ADR-0016, no
+ * exercises) shows its intensity and muscle groups instead, marked as an
+ * estimate. Used by /training and by the day page.
  * Server component.
  */
 import Link from "next/link";
@@ -14,9 +16,10 @@ import type { SessionView } from "@/core/training/repositories/sessions";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
-import { regionOf } from "@/core/training/anatomy";
+import { isMuscleGroup, MUSCLE_GROUP_REGION, regionOf } from "@/core/training/anatomy";
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { ListItem } from "@/ui/ListItem";
+import { MuscleChips } from "@/ui/MuscleChip";
 
 type Props = {
   sessions: SessionView[];
@@ -25,11 +28,13 @@ type Props = {
   showDay: boolean;
   locale: Locale;
   t: Messages["training"];
+  /** Muscle group names, for estimated sessions. */
+  tx: Messages["exercises"];
 };
 
 const INTL: Record<Locale, string> = { it: "it-IT", en: "en-GB" };
 
-export function SessionList({ sessions, measurements, showDay, locale, t }: Props) {
+export function SessionList({ sessions, measurements, showDay, locale, t, tx }: Props) {
   const date = new Intl.DateTimeFormat(INTL[locale], {
     weekday: "short",
     day: "numeric",
@@ -74,31 +79,51 @@ export function SessionList({ sessions, measurements, showDay, locale, t }: Prop
               .filter(Boolean)
               .join(" · ")}
           >
-            <details className="text-meta">
-              <summary
-                className="flex cursor-pointer list-none flex-wrap items-center gap-1.5"
-                aria-label={s.exercises.map((e) => e.name).join(", ")}
-              >
-                {s.exercises.map((e) => (
-                  <ExerciseIcon
-                    key={e.id}
-                    pattern={e.pattern}
-                    region={regionOf(e.muscleGroups)}
-                    size={22}
-                  />
-                ))}
-              </summary>
-              <ul className="mt-2 flex flex-col">
-                {s.exercises.map((e) => (
-                  <li key={e.id} className="flex justify-between gap-3">
-                    <span className="truncate">{e.name}</span>
-                    <span className="shrink-0 font-display text-muted tabular-nums">
-                      {setsText(e.sets, locale)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </details>
+            {s.exercises.length === 0 ? (
+              <div className="flex flex-col gap-1 text-meta">
+                <span className="text-muted">
+                  {[
+                    t.estimate.badge,
+                    s.intensity ? t.estimate.intensities[s.intensity] : null,
+                    s.notes || null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </span>
+                <MuscleChips
+                  groups={s.muscleGroups.filter(isMuscleGroup).map((g) => ({
+                    label: tx.groups[g],
+                    region: MUSCLE_GROUP_REGION[g],
+                  }))}
+                />
+              </div>
+            ) : (
+              <details className="text-meta">
+                <summary
+                  className="flex cursor-pointer list-none flex-wrap items-center gap-1.5"
+                  aria-label={s.exercises.map((e) => e.name).join(", ")}
+                >
+                  {s.exercises.map((e) => (
+                    <ExerciseIcon
+                      key={e.id}
+                      pattern={e.pattern}
+                      region={regionOf(e.muscleGroups)}
+                      size={22}
+                    />
+                  ))}
+                </summary>
+                <ul className="mt-2 flex flex-col">
+                  {s.exercises.map((e) => (
+                    <li key={e.id} className="flex justify-between gap-3">
+                      <span className="truncate">{e.name}</span>
+                      <span className="shrink-0 font-display text-muted tabular-nums">
+                        {setsText(e.sets, locale)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
           </ListItem>
         );
       })}

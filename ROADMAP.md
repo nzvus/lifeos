@@ -130,6 +130,10 @@
 - [ ] Lists and rows: tap opens, "⋯" for quick actions; log entries with Undo
 - [ ] Trash page under Settings; purge after 30 days in the daily workflow
 
+## Training logged like food (ADR-0016, 2026-10-01)
+- [x] ADR-0016 accepted (delegated: option A); migration 0013
+- [x] Day page "Add training": Routine / Exercise / Estimate tabs; estimated sessions (intensity, kcal, muscle groups; burn as a range) on the day, the Training page and in the week's numbers; their own editor
+
 ## Next sprint: S08 — Pantry, household and batches (requested 2026-10-01)
 - **Goal:** know what is at home and what to do about it: food, any household product, and cooked portions.
 - [ ] ADR revising ADR-0013 (options, then the developer decides). Open questions:
