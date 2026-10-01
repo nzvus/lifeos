@@ -106,6 +106,9 @@ Settings -> Branches: protect `main`, require the status check `check`
      branch and `DATABASE_URL`; add a separate `BETTER_AUTH_SECRET`. After
      checking that preview deployments really get a branch URL, add
      `PREVIEW_DB_IS_BRANCH=true` **in the Preview scope only**.
+   - Assistant (ADR-0018, optional): `ASSISTANT_KEY_SECRET` in Production and
+     Preview, 32+ random characters (`openssl rand -base64 32`). Changing it
+     makes stored OpenRouter keys unreadable (users paste them again).
    - Previews are skipped unless a PR touches `drizzle/` or `src/core/db/`
      (`vercel.json` ignoreCommand → `scripts/vercel-ignore.sh`, ADR-0004
      update 2026-10-01). To get a preview for any other branch, name it

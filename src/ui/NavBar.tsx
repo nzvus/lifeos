@@ -18,15 +18,7 @@
  */
 "use client";
 
-import {
-  CalendarDays,
-  Carrot,
-  Dumbbell,
-  Settings,
-  Target,
-  UtensilsCrossed,
-  type LucideIcon,
-} from "lucide-react";
+import { CalendarDays, Carrot, Dumbbell, Settings, Sparkles, Target, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { buttonClass } from "./button";
@@ -38,6 +30,7 @@ const ICONS = {
   targets: Target,
   training: Dumbbell,
   settings: Settings,
+  assistant: Sparkles,
 } satisfies Record<string, LucideIcon>;
 
 type NavLink = { href: string; label: string; icon: keyof typeof ICONS };

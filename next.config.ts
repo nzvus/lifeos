@@ -15,6 +15,9 @@ const config: NextConfig = {
   // `next dev` would otherwise append its own agent block to CLAUDE.md on
   // every start; our agent instructions are hand-written and reviewed.
   agentRules: false,
+  // The assistant (ADR-0018) may send up to 4 photos, each shrunk to
+  // 1280 px JPEG (≈150–400 KB as a data URL): above the 1 MB default.
+  experimental: { serverActions: { bodySizeLimit: "4mb" } },
 };
 
 export default config;

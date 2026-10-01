@@ -18,6 +18,7 @@
 import { and, eq, isNotNull, lt, notExists } from "drizzle-orm";
 import type { Db } from "../db/client";
 import {
+  assistantConversations,
   batches,
   bodyMeasurements,
   dayProfiles,
@@ -35,17 +36,32 @@ import {
   trainingSessions,
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
-import { restoreBatch } from "../nutrition/repositories/batches";
-import { restoreIngredients } from "../nutrition/repositories/ingredients";
-import { restoreLogEntry } from "../nutrition/repositories/log";
-import { restoreMeal } from "../nutrition/repositories/meals";
-import { restoreProfile } from "../nutrition/repositories/profiles";
-import { restoreProduct, restorePurchase } from "../pantry/repositories/products";
-import { restoreReminder } from "../pantry/repositories/reminders";
-import { restoreExercise } from "../training/repositories/exercises";
-import { restoreMeasurement } from "../training/repositories/measurements";
-import { restoreRoutine } from "../training/repositories/routines";
-import { restoreSession } from "../training/repositories/sessions";
+import {
+  deleteConversation,
+  restoreConversation,
+} from "../assistant/repositories/assistant";
+import { deleteBatch, restoreBatch } from "../nutrition/repositories/batches";
+import {
+  deleteIngredient,
+  restoreIngredients,
+} from "../nutrition/repositories/ingredients";
+import { deleteLogEntry, restoreLogEntry } from "../nutrition/repositories/log";
+import { deleteMeal, restoreMeal } from "../nutrition/repositories/meals";
+import { deleteProfile, restoreProfile } from "../nutrition/repositories/profiles";
+import {
+  deleteProduct,
+  deletePurchase,
+  restoreProduct,
+  restorePurchase,
+} from "../pantry/repositories/products";
+import { deleteReminder, restoreReminder } from "../pantry/repositories/reminders";
+import { deleteExercise, restoreExercise } from "../training/repositories/exercises";
+import {
+  deleteMeasurement,
+  restoreMeasurement,
+} from "../training/repositories/measurements";
+import { deleteRoutine, restoreRoutine } from "../training/repositories/routines";
+import { deleteSession, restoreSession } from "../training/repositories/sessions";
 import { fail, ok, pgErrorCode, type Result } from "../shared/result";
 import { TRASH_DAYS } from "../shared/trash";
 
@@ -63,6 +79,8 @@ export const TRASH_KINDS = [
   "purchase",
   "batch",
   "reminder",
+  // ADR-0018: the assistant's conversations.
+  "conversation",
 ] as const;
 export type TrashKind = (typeof TRASH_KINDS)[number];
 
@@ -92,7 +110,7 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
       .select({ id: t.id, name: t.name, deletedAt: t.deletedAt })
       .from(t)
       .where(and(ownedBy(t, owner), isNotNull(t.deletedAt)));
-  const [m, i, p, r, x, e, s, b, pr, pu, ba, re] = await Promise.all([
+  const [m, i, p, r, x, e, s, b, pr, pu, ba, re, co] = await Promise.all([
     named(meals),
     named(ingredients),
     named(dayProfiles),
@@ -162,6 +180,19 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
       .select({ id: reminders.id, name: reminders.text, deletedAt: reminders.deletedAt })
       .from(reminders)
       .where(and(ownedBy(reminders, owner), isNotNull(reminders.deletedAt))),
+    db
+      .select({
+        id: assistantConversations.id,
+        name: assistantConversations.title,
+        deletedAt: assistantConversations.deletedAt,
+      })
+      .from(assistantConversations)
+      .where(
+        and(
+          ownedBy(assistantConversations, owner),
+          isNotNull(assistantConversations.deletedAt),
+        ),
+      ),
   ]);
   const item =
     (kind: TrashKind) =>
@@ -189,7 +220,49 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
     ...pu.map(item("purchase")),
     ...ba.map(item("batch")),
     ...re.map(item("reminder")),
+    ...co.map(item("conversation")),
   ].sort((a, b) => b.deletedAt.localeCompare(a.deletedAt));
+}
+
+/**
+ * Moves one record to the trash with its kind's own rules (an ingredient a
+ * live meal uses is refused, the default day type is refused…). Used where
+ * the kind is data, not code: the assistant's Undo and its delete tool.
+ */
+export function moveToTrash(
+  db: Db,
+  owner: Owner,
+  kind: TrashKind,
+  id: string,
+): Promise<Result<null>> {
+  switch (kind) {
+    case "meal":
+      return deleteMeal(db, owner, id);
+    case "ingredient":
+      return deleteIngredient(db, owner, id);
+    case "logEntry":
+      return deleteLogEntry(db, owner, id);
+    case "dayProfile":
+      return deleteProfile(db, owner, id);
+    case "session":
+      return deleteSession(db, owner, id);
+    case "routine":
+      return deleteRoutine(db, owner, id);
+    case "exercise":
+      return deleteExercise(db, owner, id);
+    case "measurement":
+      return deleteMeasurement(db, owner, id);
+    case "product":
+      return deleteProduct(db, owner, id);
+    case "purchase":
+      return deletePurchase(db, owner, id);
+    case "batch":
+      return deleteBatch(db, owner, id);
+    case "reminder":
+      return deleteReminder(db, owner, id);
+    case "conversation":
+      return deleteConversation(db, owner, id);
+  }
 }
 
 /** Takes one record out of the trash, with its kind's own rules. */
@@ -224,6 +297,8 @@ export function restoreFromTrash(
       return restoreBatch(db, owner, id);
     case "reminder":
       return restoreReminder(db, owner, id);
+    case "conversation":
+      return restoreConversation(db, owner, id);
   }
 }
 
@@ -240,7 +315,8 @@ type TrashTable =
   | typeof products
   | typeof purchases
   | typeof batches
-  | typeof reminders;
+  | typeof reminders
+  | typeof assistantConversations;
 
 /**
  * Deletes one of my records in the trash for good (only from the trash:
@@ -313,6 +389,11 @@ export async function purgeFromTrash(
             .delete(reminders)
             .where(where(reminders))
             .returning({ id: reminders.id });
+        case "conversation":
+          return db
+            .delete(assistantConversations)
+            .where(where(assistantConversations))
+            .returning({ id: assistantConversations.id });
       }
     })();
     return gone.length ? ok(null) : fail({ _form: "not_found" });
@@ -384,6 +465,12 @@ export async function purgeExpiredTrash(
         .where(expired(reminders))
         .returning({ id: reminders.id }),
     );
+    const conversation = count(
+      await tx
+        .delete(assistantConversations)
+        .where(expired(assistantConversations))
+        .returning({ id: assistantConversations.id }),
+    );
     const dayProfile = count(
       await tx
         .delete(dayProfiles)
@@ -448,6 +535,7 @@ export async function purgeExpiredTrash(
       purchase,
       batch,
       reminder,
+      conversation,
     };
   });
 }

@@ -24,6 +24,12 @@ const schema = z.object({
     .min(32, "must be at least 32 characters (openssl rand -base64 32)"),
   BETTER_AUTH_URL: z.url().optional(),
   ALLOW_SIGNUP: z.enum(["true", "false"]).default("false"),
+  // ADR-0018: encrypts users' assistant keys at rest. Optional: without it
+  // the assistant is off (Settings says so); with it, at least 32 chars.
+  ASSISTANT_KEY_SECRET: z.preprocess(
+    (v) => (v === "" ? undefined : v), // an empty line in .env = not set
+    z.string().min(32, "must be at least 32 characters (openssl rand -base64 32)").optional(),
+  ),
   // Set automatically by Vercel (https://vercel.com/docs/environment-variables/system-environment-variables).
   VERCEL_URL: z.string().optional(), // this deployment, e.g. lifeos-abc123.vercel.app
   VERCEL_BRANCH_URL: z.string().optional(), // stable URL of a git branch's previews
