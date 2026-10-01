@@ -18,7 +18,8 @@
   --icon-chip-pad: 0.35rem;
   --icon-chip-radius: 0.6rem;
   --header-rule: 0 solid transparent;
-  --font-display: system-ui, -apple-system, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  --font-display:
+    system-ui, -apple-system, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
   --font-body: system-ui, -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
   --font-nav: var(--font-body);
   --rule-heavy: 1px;

@@ -18,8 +18,10 @@ import "@fontsource/barlow-condensed/600.css";
 import "@fontsource/barlow-condensed/700.css";
 import "@fontsource/barlow-condensed/800.css";
 import "./globals.css";
+import { RegisterServiceWorker } from "@/app/_client/RegisterServiceWorker";
 import { getDisplay } from "@/app/_server/display";
 import { getTheme } from "@/app/_server/owner";
+import { BROWSER_COLORS } from "@/design/browser-colors";
 import { DEFAULT_LOCALE } from "@/core/shared/locales";
 import { DEFAULT_THEME } from "@/core/shared/themes";
 import { dictionaries } from "@/i18n";
@@ -28,6 +30,9 @@ export const metadata: Metadata = {
   title: dictionaries[DEFAULT_LOCALE].app.name,
   // A personal app: ask search engines not to index it.
   robots: { index: false, follow: false },
+  description: dictionaries[DEFAULT_LOCALE].app.description,
+  // ADR-0019: installable. On iPhone "Add to Home Screen" reads these.
+  appleWebApp: { capable: true, title: dictionaries[DEFAULT_LOCALE].app.name },
 };
 
 /** Page width a phone lays out when "desktop" is forced: --container-wide + margins. */
@@ -47,6 +52,11 @@ export async function generateViewport(): Promise<Viewport> {
     // Lets the page use the full screen on phones with a notch/home indicator;
     // the bottom tab bar pads itself with env(safe-area-inset-bottom).
     viewportFit: "cover",
+    // The phone's status bar: the default theme's paper, light or dark.
+    themeColor: [
+      { media: "(prefers-color-scheme: light)", color: BROWSER_COLORS.light },
+      { media: "(prefers-color-scheme: dark)", color: BROWSER_COLORS.dark },
+    ],
   };
 }
 
@@ -65,7 +75,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       data-mode={mode === "system" ? undefined : mode}
       data-layout={layout === "auto" ? undefined : layout}
     >
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        {children}
+        <RegisterServiceWorker />
+      </body>
     </html>
   );
 }

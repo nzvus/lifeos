@@ -18,6 +18,10 @@ import { pantryEn, trashEn, energyEn, assistantEn, barcodeEn } from "./messages.
 export const en = {
   app: {
     name: "Lifeos",
+    description: "Nutrition, training and pantry log.",
+    offline: "You are offline",
+    offlineHint: "This page needs the network. What you already saved is safe on the server.",
+    retry: "Try again",
   },
   actions: {
     back: "← Back",
