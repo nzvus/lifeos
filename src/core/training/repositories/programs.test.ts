@@ -62,7 +62,11 @@ const program = (slots: { routineId: string | null; label?: string }[], v = {}) 
   notes: "",
   startDay: "2026-10-01",
   active: true,
-  slots: slots.map((s) => ({ routineId: s.routineId, label: s.label ?? "" })),
+  slots: slots.map((s) => ({
+    routineId: s.routineId,
+    exerciseId: null,
+    label: s.label ?? "",
+  })),
   ...v,
 });
 
@@ -144,5 +148,29 @@ describe("programs", () => {
     expect((await listTrash(db, me)).map((t) => t.kind)).toEqual(["program"]);
     await restoreFromTrash(db, me, "program", p.value.id);
     expect((await listPrograms(db, me)).length).toBe(1);
+  });
+
+  it("a slot can hold one exercise; another user's exercise is refused", async () => {
+    const push = await routine(me, "Push");
+    const theirs = await routine(other, "Theirs");
+    const p = await createProgram(db, me, {
+      ...program([push]),
+      slots: [
+        { routineId: push.routineId, exerciseId: null, label: "" },
+        { routineId: null, exerciseId: push.exerciseId, label: "" },
+      ],
+    });
+    if (!p.ok) throw new Error("setup");
+    const [prog] = await listPrograms(db, me);
+    expect(prog!.slots.map((s) => [s.name, s.exerciseId])).toEqual([
+      ["Push", null],
+      ["Push lift", push.exerciseId],
+    ]);
+    expect(
+      await createProgram(db, me, {
+        ...program([]),
+        slots: [{ routineId: null, exerciseId: theirs.exerciseId, label: "" }],
+      }),
+    ).toEqual({ ok: false, errors: { "slots.0.exerciseId": "not_found" } });
   });
 });

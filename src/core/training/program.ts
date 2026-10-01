@@ -3,20 +3,40 @@
  * says about each day, DERIVED from its slots and the sessions done; never
  * stored. Pure; tested in program.test.ts.
  *
- * Walking the days from the program's start:
- *   - a day with no session done: a rest slot due is consumed (rested as
- *     planned); a routine slot due stays due — the cycle slips, nothing lost;
- *   - a session done of the routine due: that slot is done, the cycle moves on;
- *   - a session of another routine of this round: that slot is marked done
+ * A slot is a routine, one exercise (a session containing it counts), or
+ * a rest day. Walking the days from the program's start:
+ *   - a day with no session that counts: a rest slot due is consumed (rested
+ *     as planned); a training slot due stays due — the cycle slips;
+ *   - a session for the slot due: that slot is done, the cycle moves on;
+ *   - a session for another slot of this round: that slot is marked done
  *     ahead (skipped when reached); a rest due that day is consumed first;
- *   - a session of a routine not in the program: extra, the cycle ignores it.
+ *   - a session that fits no slot: extra, the cycle ignores it.
  * From today on, the slots still to do are laid on the coming days, one per
  * day; today counts only if nothing was done yet.
  */
 import { addDays } from "../shared/dates";
 
-export type Slot = { position: number; routineId: string | null; label: string };
-export type DoneSession = { day: string; routineId: string | null };
+/** A routine, or one exercise (a run), or neither: a rest day. */
+export type Slot = {
+  position: number;
+  routineId: string | null;
+  exerciseId?: string | null;
+  label: string;
+};
+export type DoneSession = {
+  day: string;
+  routineId: string | null;
+  /** Its exercises: a session with an exercise counts for that exercise's slot. */
+  exerciseIds?: readonly string[];
+};
+
+export const isRest = (s: Slot) => !s.routineId && !s.exerciseId;
+const matches = (slot: Slot, s: DoneSession) =>
+  slot.routineId
+    ? s.routineId === slot.routineId
+    : slot.exerciseId
+      ? (s.exerciseIds ?? []).includes(slot.exerciseId)
+      : false;
 export type PlanDay = {
   day: string;
   /** The slot due; rest when routineId is null. */
@@ -50,21 +70,20 @@ export function programPlan(input: {
     since = d;
   };
   const apply = (d: string, sessions: readonly DoneSession[]) => {
-    if (sessions.length === 0) {
-      if (slots[p % n]!.routineId === null) advance(addDays(d, 1));
+    const counted = sessions.filter((x) => slots.some((sl) => matches(sl, x)));
+    if (counted.length === 0) {
+      if (isRest(slots[p % n]!)) advance(addDays(d, 1));
       return;
     }
-    if (slots[p % n]!.routineId === null && !sessions.some((s) => s.routineId === null))
-      advance(d); // trained on a rest day: the rest is taken as done
-    for (const s of sessions) {
-      if (s.routineId === null) continue;
-      if (slots[p % n]!.routineId === s.routineId) {
+    if (isRest(slots[p % n]!)) advance(d); // trained on a rest day: the rest is taken as done
+    for (const x of counted) {
+      if (matches(slots[p % n]!, x)) {
         advance(addDays(d, 1));
         continue;
       }
-      // Another routine of this round: done ahead.
+      // Another slot of this round: done ahead.
       for (let q = p + 1; q < p + n; q++)
-        if (slots[q % n]!.routineId === s.routineId && !ahead.has(q)) {
+        if (matches(slots[q % n]!, x) && !ahead.has(q)) {
           ahead.add(q);
           break;
         }
@@ -86,7 +105,7 @@ export function programPlan(input: {
     plan.push({
       day: d,
       slot,
-      late: plan.length === 0 && slot.routineId !== null && since < d,
+      late: plan.length === 0 && !isRest(slot) && since < d,
     });
     p++;
     while (ahead.has(p)) ahead.delete(p++);

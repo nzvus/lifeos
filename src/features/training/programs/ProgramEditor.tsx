@@ -19,13 +19,14 @@ import { Section } from "@/ui/Section";
 import { SelectField } from "@/ui/SelectField";
 import { useEditFlow } from "@/ui/useEditFlow";
 
-type SlotRow = { key: number; routineId: string; label: string };
+/** "r:<routine id>", "e:<exercise id>", or "" for a rest day. */
+type SlotRow = { key: number; value: string; label: string };
 export type ProgramInitial = {
   name: string;
   notes: string;
   startDay: string;
   active: boolean;
-  slots: { routineId: string | null; label: string }[];
+  slots: { routineId: string | null; exerciseId: string | null; label: string }[];
 };
 
 const REST = "";
@@ -36,6 +37,7 @@ export function ProgramEditor({
   from,
   action,
   routines,
+  exercises,
   initial,
   t,
 }: {
@@ -43,6 +45,8 @@ export function ProgramEditor({
   from: string;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   routines: { id: string; name: string }[];
+  /** Single exercises can fill a day too (a run, the treadmill). */
+  exercises: { id: string; name: string }[];
   initial: ProgramInitial;
   t: Pick<Messages, "programs" | "errors" | "actions">;
 }) {
@@ -55,15 +59,16 @@ export function ProgramEditor({
   const first = () =>
     initial.slots.map((s, key) => ({
       key,
-      routineId: s.routineId ?? REST,
+      value: s.routineId ? `r:${s.routineId}` : s.exerciseId ? `e:${s.exerciseId}` : REST,
       label: s.label,
     }));
   const [slots, setSlots] = useState<SlotRow[]>(first);
   const json = (rows: SlotRow[]) =>
     JSON.stringify(
       rows.map((s) => ({
-        routineId: s.routineId === REST ? null : s.routineId,
-        label: s.routineId === REST ? s.label || p.rest : "",
+        routineId: s.value.startsWith("r:") ? s.value.slice(2) : null,
+        exerciseId: s.value.startsWith("e:") ? s.value.slice(2) : null,
+        label: s.value === REST ? s.label || p.rest : "",
       })),
     );
   const snap = { name, notes, startDay, active, slots: json(slots) };
@@ -96,7 +101,14 @@ export function ProgramEditor({
     });
   const options = [
     { value: REST, label: p.rest },
-    ...routines.map((r) => ({ value: r.id, label: r.name })),
+    ...routines.map((r) => ({
+      value: `r:${r.id}`,
+      label: fill(p.routineOption, { name: r.name }),
+    })),
+    ...exercises.map((e) => ({
+      value: `e:${e.id}`,
+      label: fill(p.exerciseOption, { name: e.name }),
+    })),
   ];
 
   return (
@@ -162,16 +174,16 @@ export function ProgramEditor({
               <SelectField
                 label={p.slot}
                 name={`slot-${s.key}`}
-                value={s.routineId}
+                value={s.value}
                 onChange={(e) =>
                   setSlots((rows) =>
                     rows.map((r) =>
-                      r.key === s.key ? { ...r, routineId: e.target.value } : r,
+                      r.key === s.key ? { ...r, value: e.target.value } : r,
                     ),
                   )
                 }
                 options={options}
-                error={err(`slots.${i}.routineId`)}
+                error={err(`slots.${i}.routineId`) ?? err(`slots.${i}.exerciseId`)}
                 className="flex min-w-0 flex-1 flex-col gap-1"
               />
               <button
@@ -208,7 +220,11 @@ export function ProgramEditor({
           onClick={() =>
             setSlots((rows) => [
               ...rows,
-              { key: nextKey++, routineId: routines[0]?.id ?? REST, label: "" },
+              {
+                key: nextKey++,
+                value: routines[0] ? `r:${routines[0].id}` : REST,
+                label: "",
+              },
             ])
           }
           className={`self-start ${buttonClass()}`}

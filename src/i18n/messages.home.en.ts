@@ -394,6 +394,8 @@ export const programsEn = {
   slotsHint: "One day per row, in order. It starts again after the last.",
   slot: "Routine",
   dayN: "D{n}",
+  routineOption: "Routine · {name}",
+  exerciseOption: "Exercise · {name}",
   rest: "Rest",
   addSlot: "Add a day",
   up: "Move up",

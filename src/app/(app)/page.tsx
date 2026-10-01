@@ -141,7 +141,7 @@ export default async function DayPage({ searchParams }: Props) {
     listBatches(db, owner), // ADR-0017: portions to log, and their reminders
     getPantry(db, owner),
     listReminders(db, owner),
-    getDayEnergy(db, owner, day, programSlot?.slot.routineId), // ADR-0014: what the day costs
+    getDayEnergy(db, owner, day, programSlot?.slot), // ADR-0014: what the day costs
     day === today ? getCalibration(db, owner, today) : null, // ADR-0020
   ]);
   // Today's reminders (ADR-0017): derived from the pantry and the batches,
@@ -478,21 +478,24 @@ export default async function DayPage({ searchParams }: Props) {
           />
         </div>
         {programSlot &&
-          !sessions.some(
-            (x) =>
-              programSlot.slot.routineId && x.routineId === programSlot.slot.routineId,
+          !sessions.some((x) =>
+            programSlot.slot.routineId
+              ? x.routineId === programSlot.slot.routineId
+              : programSlot.slot.exerciseId
+                ? x.exercises.some((e) => e.exerciseId === programSlot.slot.exerciseId)
+                : false,
           ) && (
             <ProgramDay
               program={programSlot.program}
               routineName={
-                programSlot.slot.routineId === null
-                  ? null
-                  : (presets.find((x) => x.routineId === programSlot.slot.routineId)
-                      ?.label ?? programSlot.slot.label)
+                programSlot.slot.routineId || programSlot.slot.exerciseId
+                  ? programSlot.name
+                  : null
               }
               restLabel={programSlot.slot.label || t.programs.rest}
               late={programSlot.late}
               routineId={programSlot.slot.routineId}
+              exerciseId={programSlot.slot.exerciseId ?? null}
               day={day}
               isToday={day === today}
               action={startOrPlanAction}

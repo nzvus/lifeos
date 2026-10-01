@@ -15,6 +15,7 @@ export function ProgramDay({
   restLabel,
   late,
   routineId,
+  exerciseId,
   day,
   isToday,
   action,
@@ -26,6 +27,8 @@ export function ProgramDay({
   restLabel: string;
   late: boolean;
   routineId: string | null;
+  /** A slot with one exercise instead of a routine. */
+  exerciseId: string | null;
   day: string;
   isToday: boolean;
   action: (formData: FormData) => Promise<void>;
@@ -39,6 +42,7 @@ export function ProgramDay({
   ) => (
     <form action={action}>
       <input type="hidden" name="routineId" value={routineId ?? ""} />
+      <input type="hidden" name="exerciseId" value={exerciseId ?? ""} />
       <input type="hidden" name="mode" value={mode} />
       <input type="hidden" name="day" value={day} />
       <input type="hidden" name="time" value="" />
@@ -63,7 +67,7 @@ export function ProgramDay({
           {late && <Badge tone="planned">{t.late}</Badge>}
         </span>
       </div>
-      {routineId && (
+      {(routineId || exerciseId) && (
         <div className="flex gap-2">
           {form("plan", t.plan, <CalendarClock size={16} aria-hidden="true" />, !isToday)}
           {isToday && form("live", t.start, <Play size={16} aria-hidden="true" />, true)}

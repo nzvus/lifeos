@@ -118,4 +118,25 @@ describe("programPlan", () => {
       }).plan,
     ).toEqual([]);
   });
+
+  it("an exercise slot counts any session with that exercise", () => {
+    const run: Slot[] = [
+      { position: 0, routineId: "push", label: "" },
+      { position: 1, routineId: null, exerciseId: "run", label: "" },
+    ];
+    const r = programPlan({
+      slots: run,
+      startDay: "2026-10-01",
+      today: "2026-10-03",
+      done: [
+        { day: "2026-10-01", routineId: "push" },
+        { day: "2026-10-02", routineId: null, exerciseIds: ["run"] },
+      ],
+      days: 2,
+    });
+    expect(r.plan.map((d) => d.slot.routineId ?? d.slot.exerciseId)).toEqual([
+      "push",
+      "run",
+    ]);
+  });
 });

@@ -11,7 +11,6 @@ import { carbsGoodMax, trainingLoad } from "../../nutrition/bands";
 import { getDayTargets } from "../../nutrition/repositories/profiles";
 import { addDays } from "../../shared/dates";
 import { getActivePlan } from "../../training/repositories/programs";
-import { listRoutines } from "../../training/repositories/routines";
 import { listSessions } from "../../training/repositories/sessions";
 import { dynamicTargets, goalOf, type Goal, type Range } from "../energy";
 import { getDayEnergy } from "./energy";
@@ -34,33 +33,38 @@ export async function weekOutlook(
   days = 7,
 ): Promise<OutlookDay[]> {
   const last = addDays(today, days - 1);
-  const [sessions, active, routines] = await Promise.all([
+  const [sessions, active] = await Promise.all([
     listSessions(db, owner, today, last),
     getActivePlan(db, owner, today, days),
-    listRoutines(db, owner),
   ]);
-  const routineName = new Map(routines.map((r) => [r.id, r.name]));
   const out: OutlookDay[] = [];
   for (let i = 0; i < days; i++) {
     const day = addDays(today, i);
     const slot = active?.plan.find((p) => p.day === day) ?? null;
     const own = sessions.filter((s) => s.day === day);
-    const programRoutine =
-      slot?.slot.routineId && !own.some((s) => s.routineId === slot.slot.routineId)
-        ? slot.slot.routineId
-        : null;
+    // The program's slot, unless a session of the day already covers it.
+    const covered =
+      slot &&
+      own.some((s) =>
+        slot.slot.routineId
+          ? s.routineId === slot.slot.routineId
+          : s.exercises.some((e) => e.exerciseId === slot.slot.exerciseId),
+      );
+    const fromProgram = slot && !covered && (slot.slot.routineId || slot.slot.exerciseId);
     const [t, e] = await Promise.all([
       getDayTargets(db, owner, day),
-      getDayEnergy(db, owner, day, programRoutine),
+      getDayEnergy(db, owner, day, fromProgram ? slot.slot : null),
     ]);
     const training = [
       ...own.map((s) => ({ label: s.label, fromProgram: false, late: false })),
-      ...(programRoutine
+      ...(fromProgram
         ? [
             {
-              label: routineName.get(programRoutine) ?? "",
+              label:
+                active!.program.slots.find((x) => x.position === slot.slot.position)
+                  ?.name ?? "",
               fromProgram: true,
-              late: slot!.late,
+              late: slot.late,
             },
           ]
         : []),

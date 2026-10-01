@@ -42,6 +42,7 @@ import {
   routines,
   programs,
   programSlots,
+  programSlotExercises,
   sessionExercises,
   sets,
   stockCounts,
@@ -61,7 +62,8 @@ export const EXPORT_FORMAT = "lifeos-export";
 // measurements, day activity (ADR-0005/0016); 7: pantry — products with
 // purchases, stock counts, batches with lines, reminders (ADR-0017);
 // 8: the assistant's conversations with their messages (ADR-0018);
-// 9: training programs with their ordered slots (ADR-0024).
+// 9: training programs with their ordered slots (ADR-0024; a slot's
+// exerciseId when it holds one exercise instead of a routine).
 export const EXPORT_VERSION = 9;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
@@ -231,7 +233,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       .orderBy(asc(assistantMessages.createdAt)),
   ]);
 
-  const [programRows, slotRows] = await Promise.all([
+  const [programRows, slotRows, slotExerciseRows] = await Promise.all([
     db
       .select()
       .from(programs)
@@ -242,6 +244,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       .from(programSlots)
       .where(ownedBy(programSlots, owner))
       .orderBy(asc(programSlots.position)),
+    db.select().from(programSlotExercises).where(ownedBy(programSlotExercises, owner)),
   ]);
   return {
     format: EXPORT_FORMAT,
@@ -293,7 +296,10 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       dayActivity: stripOwner(activityRows),
       programs: stripOwner(programRows).map((p) => ({
         ...p,
-        slots: stripOwner(slotRows.filter((x) => x.programId === p.id)),
+        slots: stripOwner(slotRows.filter((x) => x.programId === p.id)).map((x) => ({
+          ...x,
+          exerciseId: slotExerciseRows.find((e) => e.slotId === x.id)?.exerciseId ?? null,
+        })),
       })),
     },
     pantry: {

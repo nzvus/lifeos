@@ -7,6 +7,7 @@ import { CalendarRange } from "lucide-react";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { todayIn } from "@/core/shared/dates";
+import { isRest } from "@/core/training/program";
 import { getActivePlan, listPrograms } from "@/core/training/repositories/programs";
 import { fill } from "@/i18n";
 import { Badge } from "@/ui/Badge";
@@ -57,7 +58,7 @@ export default async function ProgramsPage() {
                   {date.format(new Date(`${d.day}T12:00:00Z`))}
                 </span>
                 <span className="font-display text-item font-semibold">
-                  {d.slot.routineId === null
+                  {isRest(d.slot)
                     ? d.slot.label || p.rest
                     : (active.program.slots.find((s) => s.position === d.slot.position)
                         ?.name ?? "")}

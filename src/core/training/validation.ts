@@ -223,7 +223,8 @@ export type RoutineInput = z.output<typeof routineInput>;
 
 /**
  * ADR-0024: a training program — name, start day, and its ordered slots as
- * JSON from the editor: [{"routineId":"…"}, {"routineId":null,"label":"Rest"}].
+ * JSON from the editor: [{"routineId":"…"}, {"routineId":null,"exerciseId":"…"},
+ * {"routineId":null,"label":"Rest"}].
  */
 export const programInput = z.object({
   name,
@@ -238,6 +239,8 @@ export const programInput = z.object({
       .array(
         z.object({
           routineId: id.nullable(),
+          /** One exercise instead of a routine (then routineId is null). */
+          exerciseId: id.nullable().optional().default(null),
           label: z.string().trim().max(40, "too_long").optional().default(""),
         }),
       )

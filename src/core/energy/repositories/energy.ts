@@ -109,6 +109,42 @@ export async function setDayActivity(
 
 type ActivityRow = typeof dayActivity.$inferSelect;
 
+/** One exercise as a planned session, with its sets of the last time it was done. */
+async function exerciseAsPlanned(
+  db: Db,
+  owner: Owner,
+  day: string,
+  exerciseId: string,
+): Promise<SessionRow | null> {
+  const [exercises, history] = await Promise.all([
+    listExercises(db, owner),
+    listSessions(db, owner, addDays(day, -365), addDays(day, -1)),
+  ]);
+  const exercise = exercises.find((e) => e.id === exerciseId);
+  if (!exercise) return null;
+  const last = [...history]
+    .filter((s) => s.status === "done")
+    .reverse()
+    .flatMap((s) => s.exercises)
+    .find((e) => e.exerciseId === exerciseId);
+  const sets = last?.sets.filter((x) => !x.warmup) ?? [];
+  return {
+    label: exercise.name,
+    status: "planned",
+    durationMin: null,
+    routineId: null,
+    intensity: null,
+    kcalEstimate: null,
+    exercises: [
+      {
+        kind: exercise.kind,
+        restS: last?.restS ?? null,
+        sets: sets.length ? sets : [{ reps: null, loadKg: null, warmup: false }],
+      },
+    ],
+  };
+}
+
 /** A routine as a planned session with its default sets (for the energy only). */
 async function routineAsPlanned(
   db: Db,
@@ -183,9 +219,9 @@ export async function getDayEnergy(
   db: Db,
   owner: Owner,
   day: string,
-  /** ADR-0024: the routine a program puts on this day, counted as planned
-   *  when the day has no session of it yet. */
-  programRoutineId?: string | null,
+  /** ADR-0024: the routine or exercise a program puts on this day, counted
+   *  as planned when the day has no session of it yet. */
+  programSlot?: { routineId?: string | null; exerciseId?: string | null } | null,
 ): Promise<DayEnergyView> {
   const [body, [act], sessions, measurements] = await Promise.all([
     getBody(db, owner, day),
@@ -198,8 +234,16 @@ export async function getDayEnergy(
   ]);
   const kg = weightAt(measurements, day);
   const all: SessionRow[] = [...sessions];
-  if (programRoutineId && !sessions.some((x) => x.routineId === programRoutineId)) {
-    const pseudo = await routineAsPlanned(db, owner, programRoutineId);
+  const rId = programSlot?.routineId;
+  const eId = programSlot?.exerciseId;
+  if (rId && !sessions.some((x) => x.routineId === rId)) {
+    const pseudo = await routineAsPlanned(db, owner, rId);
+    if (pseudo) all.push(pseudo);
+  } else if (
+    eId &&
+    !sessions.some((x) => x.exercises.some((e) => e.exerciseId === eId))
+  ) {
+    const pseudo = await exerciseAsPlanned(db, owner, day, eId);
     if (pseudo) all.push(pseudo);
   }
   const { activity, facts } = factsOf(day, act, all, kg);

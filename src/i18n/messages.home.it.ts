@@ -398,6 +398,8 @@ export const programsIt: Messages["programs"] = {
   slotsHint: "Un giorno per riga, nell'ordine. Ricomincia da capo dopo l'ultimo.",
   slot: "Scheda",
   dayN: "G{n}",
+  routineOption: "Scheda · {name}",
+  exerciseOption: "Esercizio · {name}",
   rest: "Riposo",
   addSlot: "Aggiungi un giorno",
   up: "Sposta su",
