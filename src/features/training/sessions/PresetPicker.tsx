@@ -4,7 +4,8 @@
  * the tile says which session it repeats), plus an empty session. A grid of
  * equal tiles, centred text, so the row is balanced on a phone and on a desktop.
  * The editor opens prefilled for `day` (today when absent); with `start`
- * (the Training page), a routine tile instead starts it now in gym mode.
+ * (the Training page), a routine tile instead starts it now in gym mode;
+ * with `onPick` (the day page), the parent decides (start, plan or editor).
  */
 import { Plus } from "lucide-react";
 import Link from "next/link";
@@ -23,23 +24,36 @@ const TILE =
 
 export function PresetPicker({
   presets,
-  day,
   start,
+  onPick,
+  emptyHref = "/training/new",
+  disabled = false,
   t,
 }: {
   presets: readonly PresetTile[];
-  day?: string;
   /** Server action starting a routine in gym mode (form field routineId). */
   start?: (formData: FormData) => Promise<void>;
+  /** A tile was chosen (the parent acts on the routine id). */
+  onPick?: (routineId: string) => void;
+  /** Where the empty session tile leads. */
+  emptyHref?: string;
+  disabled?: boolean;
   t: Messages["training"];
 }) {
-  // From the day page: that day, and back to it after saving (ADR-0015 `from`).
-  const dayParam = day ? `day=${day}&from=${encodeURIComponent(`/?day=${day}`)}` : "";
   return (
     <ul className="grid grid-cols-2 gap-2 @lg:grid-cols-4">
       {presets.map((p) => (
         <li key={p.routineId}>
-          {start ? (
+          {onPick ? (
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => onPick(p.routineId)}
+              className={`${TILE} w-full`}
+            >
+              <Body p={p} t={t} />
+            </button>
+          ) : start ? (
             <form action={start}>
               <input type="hidden" name="routineId" value={p.routineId} />
               <button type="submit" className={`${TILE} w-full`}>
@@ -47,20 +61,14 @@ export function PresetPicker({
               </button>
             </form>
           ) : (
-            <Link
-              href={`/training/new?routine=${p.routineId}${dayParam ? `&${dayParam}` : ""}`}
-              className={TILE}
-            >
+            <Link href={`/training/new?routine=${p.routineId}`} className={TILE}>
               <Body p={p} t={t} />
             </Link>
           )}
         </li>
       ))}
       <li>
-        <Link
-          href={`/training/new${dayParam ? `?${dayParam}` : ""}`}
-          className={`${TILE} border-dashed text-muted`}
-        >
+        <Link href={emptyHref} className={`${TILE} border-dashed text-muted`}>
           <Plus size={18} aria-hidden="true" />
           <span className="text-meta">{t.presetEmpty}</span>
         </Link>

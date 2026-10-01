@@ -143,15 +143,32 @@ export const energyIt: Messages["energy"] = {
   mode: "Come si decidono gli obiettivi",
   modes: { fixed: "Fissi: li scrivi tu", dynamic: "Dinamici: dal consumo del giorno" },
   goal: "Obiettivo",
-  goals: { gain: "Aumento muscolare", recomp: "Ricomposizione", cut: "Dimagrimento" },
-  deficit: "Deficit (kcal/giorno; negativo = surplus)",
+  goals: {
+    maintain: "Mantenimento",
+    recomp: "Ricomposizione",
+    gain: "Aumento muscolare",
+    cut: "Dimagrimento",
+  },
+  deficit: "Deficit (kcal al giorno)",
+  deficitHint:
+    "Positivo = deficit (sotto il consumo); negativo = surplus; 0 = mantenimento.",
+  balanceMaintain: "Mantenimento: mangi quanto consumi.",
+  balanceDeficit: "Deficit di {kcal} kcal al giorno sotto il consumo.",
+  balanceSurplus: "Surplus di {kcal} kcal al giorno sopra il consumo.",
   proteinPerKg: "Proteine (g per kg)",
   fatPerKg: "Grassi (g per kg)",
   dynamicHint:
     "Calorie = consumo stimato del giorno con il piano − deficit; proteine e grassi seguono il peso; i carboidrati il resto. Zuccheri, saturi e sale restano limiti.",
-  dynamicNote: "Obiettivi dinamici: {kcal} kcal dal consumo con il piano",
+  dynamicNote: "{goal}: {kcal} kcal = consumo con il piano {spent} {sign} {delta} kcal",
+  dynamicCapped:
+    "{note} → {kcal} kcal: i carboidrati si fermano a {carbs} g, oltre servono poco",
+  goalCustom: "Obiettivo personalizzato",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
   formulas: {
+    capped:
+      "i carboidrati si fermano a {carbs} g, quindi le kcal sono proteine + grassi + carboidrati",
+    carbsCap:
+      "tetto della zona buona: {g} g ({perKg} g/kg); oltre servono poco a energia e recupero",
     title: "Come è calcolato",
     years: "anni",
     walkNone:
@@ -262,4 +279,35 @@ export const barcodeIt: Messages["barcode"] = {
   invalid: "Un codice a barre ha da 6 a 14 cifre.",
   noCamera: "Questo browser non legge i codici dalla fotocamera: scrivi le cifre.",
   hint: "Open Food Facts è un archivio libero e gratuito di prodotti alimentari.",
+};
+
+export const trainingWhenIt: Messages["training"]["when"] = {
+  startThis: "Inizia in palestra",
+  label: "Quando",
+  start: "Inizia ora",
+  plan: "Pianifica",
+  done: "Già fatta",
+  time: "Ora",
+  hints: {
+    start: "Si apre la modalità palestra con la scheda o l'esercizio scelto.",
+    plan: "Resta pianificato a quell'ora (vuoto = senza ora): il consumo con il piano lo conta.",
+    done: "Si apre l'editor per scrivere quello che hai fatto.",
+  },
+};
+
+export const panelZonesIt: Messages["panel"]["zones"] = {
+  below_floor: "sotto il minimo utile ({floor} {u})",
+  low: "sotto la zona buona {low}–{high} {u}",
+  good: "nella zona buona {low}–{high} {u}",
+  high: "sopra la zona buona {low}–{high} {u}: oltre serve poco",
+  above_ceiling: "oltre il tetto utile ({ceiling} {u})",
+};
+
+export const appIt: Messages["app"] = {
+  name: "Lifeos",
+  description: "Diario di alimentazione, allenamento e dispensa.",
+  offline: "Sei offline",
+  offlineHint:
+    "Questa pagina ha bisogno della rete. Quello che hai già salvato è al sicuro sul server.",
+  retry: "Riprova",
 };

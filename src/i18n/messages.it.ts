@@ -3,18 +3,20 @@
  * Typed as `Messages` (the shape of messages.en.ts): a missing or extra key
  * is a compile error, so the two languages can never drift apart silently.
  */
-import { pantryIt, trashIt, energyIt, assistantIt, barcodeIt } from "./messages.home.it";
+import {
+  pantryIt,
+  trashIt,
+  energyIt,
+  assistantIt,
+  barcodeIt,
+  trainingWhenIt,
+  panelZonesIt,
+  appIt,
+} from "./messages.home.it";
 import type { Messages } from "./index";
 
 export const it: Messages = {
-  app: {
-    name: "Lifeos",
-    description: "Diario di alimentazione, allenamento e dispensa.",
-    offline: "Sei offline",
-    offlineHint:
-      "Questa pagina ha bisogno della rete. Quello che hai già salvato è al sicuro sul server.",
-    retry: "Riprova",
-  },
+  app: appIt,
   actions: {
     back: "← Indietro",
     general: "Generale",
@@ -123,6 +125,9 @@ export const it: Messages = {
     servingsTimes: "× {n}",
     copyYesterday: "Ripeti i pasti di ieri",
     planned: "Pianificato (non ancora mangiato)",
+    when: "Quando",
+    eaten: "Mangiato",
+    plannedShort: "Pianificato",
     time: "Ora",
     timeHint: "Vuoto = adesso (o nessuna ora, se pianificato).",
     saveTime: "Salva ora",
@@ -309,6 +314,7 @@ export const it: Messages = {
     sortValue: "{what}: {v}",
   },
   training: {
+    when: trainingWhenIt,
     estimate: {
       addTitle: "Aggiungi allenamento",
       tabRoutine: "Scheda",
@@ -770,6 +776,7 @@ export const it: Messages = {
       "Barre più chiare: nessun target quel giorno, scala sul giorno più alto del periodo.",
   },
   panel: {
+    zones: panelZonesIt,
     left: "rimaste",
     over: "in più",
     off: "in obiettivo",

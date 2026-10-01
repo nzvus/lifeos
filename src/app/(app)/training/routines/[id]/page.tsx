@@ -32,7 +32,7 @@ export default async function EditRoutinePage({ params, searchParams }: Props) {
   if (!routine) notFound();
   const str = (v: number | string | null) => (v === null ? "" : String(Number(v)));
   return (
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader
         title={routine.name}
         back={{

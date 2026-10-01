@@ -54,7 +54,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
     timeZone: "UTC",
   });
   return (
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader
         title={p.editProduct}
         back={{ href: from, label: from === "/pantry" ? p.back : t.actions.back }}

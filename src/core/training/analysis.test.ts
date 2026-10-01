@@ -8,6 +8,7 @@ import {
   e1rm,
   exerciseHistory,
   records,
+  sessionMinutes,
   sessionTonnage,
   tonnage,
   trainingByDay,
@@ -207,7 +208,8 @@ describe("trainingByDay", () => {
         day: "2026-09-28",
         sessions: 2,
         tonnage: 600,
-        burn: { low: Math.round(3.5 * 76), high: 5 * 76 }, // the second has no time
+        // The second has no time: one set ≈ 45 s + 90 s rest = 2 min.
+        burn: { low: 266 + 9, high: 380 + 13 },
       },
       { day: "2026-09-29", sessions: 0, tonnage: 0, burn: null }, // plans don't count
     ]);
@@ -259,5 +261,23 @@ describe("burnRange of an estimated session (ADR-0016)", () => {
     });
     expect(burnRange(est({ durationMin: 90, intensity: "vigorous" }), null)).toBeNull();
     expect(burnRange(est({ intensity: "light" }), "76")).toBeNull();
+  });
+});
+
+describe("sessionMinutes", () => {
+  it("the typed duration, else sets' time and rests, else null", () => {
+    const set = { reps: 10, loadKg: "40", warmup: false };
+    expect(sessionMinutes({ durationMin: 50, exercises: [] })).toBe(50);
+    // 4 sets × (45 s + 120 s rest) = 11 min; a timed set counts its own time.
+    expect(
+      sessionMinutes({
+        durationMin: null,
+        exercises: [
+          { restS: 120, sets: [set, set, set, set] },
+          { sets: [{ ...set, durationS: 600 }] },
+        ],
+      }),
+    ).toBe(21);
+    expect(sessionMinutes({ durationMin: null, exercises: [] })).toBeNull();
   });
 });

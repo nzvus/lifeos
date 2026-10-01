@@ -11,17 +11,17 @@
 
 import { FileText, Gauge, Target } from "lucide-react";
 import { useState } from "react";
-import { GOAL_PRESETS, type Goal } from "@/core/energy/energy";
-import { buttonClass } from "@/ui/button";
+import { GOAL_PRESETS, goalOf } from "@/core/energy/energy";
 import { SelectField } from "@/ui/SelectField";
 import { NUTRIENT_KEYS, NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
-import type { Messages } from "@/i18n";
+import { fill, type Messages } from "@/i18n";
 import { ActionBar } from "@/ui/ActionBar";
 import { DraftNotice } from "@/ui/DraftNotice";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { Section } from "@/ui/Section";
+import { Segmented } from "@/ui/Segmented";
 import { toFormData, useEditableForm } from "@/ui/useEditableForm";
 import { useEditFlow } from "@/ui/useEditFlow";
 
@@ -133,6 +133,16 @@ function ProfileFields({
   );
 }
 
+const GOALS = ["maintain", "recomp", "gain", "cut"] as const;
+
+/** "Deficit of 200 kcal a day", "surplus of 250", "maintenance". */
+export function balanceText(deficit: number, e: T["energy"]): string {
+  if (!Number.isFinite(deficit) || deficit === 0) return e.balanceMaintain;
+  return deficit > 0
+    ? fill(e.balanceDeficit, { kcal: String(deficit) })
+    : fill(e.balanceSurplus, { kcal: String(-deficit) });
+}
+
 /**
  * ADR-0014: fixed targets, or dynamic ones from the day's energy. A goal
  * preset fills deficit, protein and fat per kg; each stays editable.
@@ -176,28 +186,25 @@ function DynamicFields({
       />
       {/* Hidden, not removed, when fixed: the values are kept for later. */}
       <div className={dynamic ? "flex flex-col gap-4" : "hidden"}>
-        <div className="flex flex-wrap gap-2" role="group" aria-label={e.goal}>
-          {(Object.keys(GOAL_PRESETS) as Goal[]).map((g) => (
-            <button
-              key={g}
-              type="button"
-              onClick={() => {
-                const p = GOAL_PRESETS[g];
-                setV({
-                  deficitKcal: String(p.deficitKcal),
-                  proteinGPerKg: p.proteinGPerKg,
-                  fatGPerKg: p.fatGPerKg,
-                });
-              }}
-              className={buttonClass({ variant: "subtle", size: "sm" })}
-            >
-              {e.goals[g]}
-            </button>
-          ))}
-        </div>
-        <div className="grid gap-4 @lg:grid-cols-3">
+        <Segmented<string>
+          label={e.goal}
+          value={goalOf({ ...v, deficitKcal: Number(v.deficitKcal) }) ?? "custom"}
+          onChange={(g) => {
+            const p = GOAL_PRESETS[g as (typeof GOALS)[number]];
+            if (!p) return;
+            setV({
+              deficitKcal: String(p.deficitKcal),
+              proteinGPerKg: p.proteinGPerKg,
+              fatGPerKg: p.fatGPerKg,
+            });
+          }}
+          options={GOALS.map((g) => ({ value: g, label: e.goals[g] }))}
+        />
+        <p className="font-semibold">{balanceText(Number(v.deficitKcal), e)}</p>
+        <div className="grid items-start gap-4 @lg:grid-cols-3">
           <Field
             label={e.deficit}
+            hint={e.deficitHint}
             name="deficitKcal"
             inputMode="numeric"
             value={v.deficitKcal}

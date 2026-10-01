@@ -7,7 +7,8 @@
  * Text: "value / target unit", plus a short status line (what's left or how
  * much over), an "auto" marker when the target is a recommended default, and
  * where the plan leads in numbers ("With the plan: 1950 / 2700 kcal · 750
- * kcal left"), not only as the translucent part of the bar.
+ * kcal left"), not only as the translucent part of the bar. With a band
+ * (ADR-0023) the good zone is shaded and the floor and ceiling are marked.
  */
 import type { ReactNode } from "react";
 import { Badge } from "./Badge";
@@ -28,6 +29,8 @@ type Props = {
   opacity: number;
   autoLabel?: string; // e.g. "auto", when the target is a recommended default
   autoHint?: string; // tooltip explaining where the auto target comes from
+  /** Floor, good zone and ceiling as ratios of the target. */
+  zone?: { floor: number; low: number; high: number; ceiling: number };
 };
 
 const SCALE = 1.25;
@@ -45,6 +48,7 @@ export function TargetBar({
   opacity,
   autoLabel,
   autoHint,
+  zone,
 }: Props) {
   const scaled = (r: number) => (Math.min(r, SCALE) / SCALE) * 100;
   const width = ratio === null ? 0 : scaled(ratio);
@@ -61,6 +65,26 @@ export function TargetBar({
         <span className="font-display tabular-nums">{value}</span>
       </div>
       <div className="relative h-2 w-full bg-hairline" aria-hidden="true">
+        {zone && (
+          <>
+            <div
+              className="absolute -top-0.5 h-3 rounded-badge border border-ink/40 bg-ink/10"
+              style={{
+                left: `${scaled(zone.low)}%`,
+                width: `${Math.max(1, scaled(zone.high) - scaled(zone.low))}%`,
+              }}
+            />
+            {[zone.floor, zone.ceiling]
+              .filter((x) => x <= SCALE)
+              .map((x, i) => (
+                <div
+                  key={i}
+                  className="absolute top-0 h-2 w-px bg-ink/50"
+                  style={{ left: `${scaled(x)}%` }}
+                />
+              ))}
+          </>
+        )}
         {ratio !== null && plannedRatio !== undefined && plannedRatio > ratio && (
           <div
             className="absolute top-0 left-0 h-2"

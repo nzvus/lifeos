@@ -20,6 +20,7 @@ import {
   NUTRIENT_UNIT,
   type NutrientKey,
 } from "@/core/nutrition/nutrients";
+import { zoneOf, type Bands } from "@/core/nutrition/bands";
 import { assessTarget, TARGET_KIND, type Targets } from "@/core/nutrition/targets";
 import type { DisplayTotals } from "@/core/nutrition/totals";
 import { formatCents, formatNumber } from "@/core/shared/format";
@@ -40,6 +41,8 @@ type Props = {
   withPlanned: DisplayTotals;
   /** Targets including auto defaults (core withAutoTargets). */
   targets: Targets;
+  /** ADR-0023: floor / good zone / ceiling per macro, when the weight is known. */
+  bands?: Bands;
   auto: NutrientKey[];
   locale: Locale;
   t: Pick<Messages, "label" | "nutrients" | "macro" | "panel" | "day">;
@@ -49,7 +52,15 @@ type Props = {
 const SUB: ReadonlySet<NutrientKey> = new Set(["sugars", "saturatedFat"]);
 const RINGS = ["kcal", "protein", "carbs", "fat", "fiber"] as const;
 
-export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Props) {
+export function DayPanel({
+  totals,
+  withPlanned,
+  targets,
+  bands,
+  auto,
+  locale,
+  t,
+}: Props) {
   const num = (v: string, k: NutrientKey) =>
     formatNumber(v, locale, k === "salt" ? 1 : 0);
   const assess = (k: NutrientKey) =>
@@ -67,6 +78,20 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
       status: a.status,
       ratio: a.status === "none" ? 0 : a.ratio,
       base: NUTRIENT_VAR[k]!,
+    });
+  };
+
+  /** With a band: which zone, and the good zone's range. */
+  const zoneText = (k: NutrientKey, v: string): string | undefined => {
+    const b = bands?.[k];
+    if (!b) return undefined;
+    const u = NUTRIENT_UNIT[k];
+    return fill(t.panel.zones[zoneOf(Number(v), b)], {
+      low: num(String(b.low), k),
+      high: num(String(b.high), k),
+      floor: num(String(b.floor), k),
+      ceiling: num(String(b.ceiling), k),
+      u,
     });
   };
 
@@ -110,7 +135,21 @@ export function DayPanel({ totals, withPlanned, targets, auto, locale, t }: Prop
         label={t.nutrients[k]}
         sub={SUB.has(k)}
         value={value}
-        status={statusText(k)}
+        status={[zoneText(k, totals.nutrients[k]), statusText(k)]
+          .filter(Boolean)
+          .join(" · ")}
+        zone={(() => {
+          const b = bands?.[k];
+          const target = targets[k] === null ? null : Number(targets[k]);
+          return b && target
+            ? {
+                floor: b.floor / target,
+                low: b.low / target,
+                high: b.high / target,
+                ceiling: b.ceiling / target,
+              }
+            : undefined;
+        })()}
         ratio={a.status === "none" ? null : a.ratio}
         plannedRatio={plannedRatio(k)}
         planned={plannedText(k)}

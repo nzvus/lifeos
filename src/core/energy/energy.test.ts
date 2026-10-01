@@ -91,9 +91,32 @@ describe("dynamicTargets", () => {
     const e = dayEnergy(body, quiet)!; // with plan 1989–2163 → midpoint 2076
     const t = dynamicTargets(e, "75", GOAL_PRESETS.cut); // −500, 2.2 g/kg, 0.8 g/kg
     // carbs = (1576 − 165×4 − 60×9) ÷ 4 = 94; fiber 14 per 1000 kcal = 22.1
-    expect(t).toEqual({ kcal: 1576, protein: 165, fat: 60, carbs: 94, fiber: 22 });
+    expect(t).toEqual({
+      kcal: 1576,
+      protein: 165,
+      fat: 60,
+      carbs: 94,
+      fiber: 22,
+      uncapped: null,
+    });
     // A surplus for muscle gain.
     expect(dynamicTargets(e, "75", GOAL_PRESETS.gain).kcal).toBe(2326);
+  });
+
+  it("carbs stop at the top of their good zone, and the energy target with them", () => {
+    const e = dayEnergy(body, quiet)!; // midpoint 2076
+    // Maintenance: carbs (2076 − 135×4 − 60×9) ÷ 4 = 249 > a 225 g cap.
+    const t = dynamicTargets(
+      e,
+      "75",
+      { deficitKcal: 0, proteinGPerKg: "1.8", fatGPerKg: "0.8" },
+      225,
+    );
+    expect(t).toMatchObject({
+      carbs: 225,
+      kcal: 135 * 4 + 60 * 9 + 225 * 4,
+      uncapped: 2076,
+    });
   });
 
   it("never below 1200 kcal", () => {

@@ -12,7 +12,7 @@ export default async function NewProfilePage({ searchParams }: Props) {
   const from = safeFrom((await searchParams).from, "/profiles");
   return (
     // Forms read best narrow: cap the width even on wide screens.
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader
         title={t.profiles.newTitle}
         back={{

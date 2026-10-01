@@ -28,7 +28,9 @@ import {
   listProfiles,
 } from "@/core/nutrition/repositories/profiles";
 import { getHistory } from "@/core/nutrition/repositories/history";
+import { carbsGoodMax, macroBands, trainingLoad } from "@/core/nutrition/bands";
 import { withAutoTargets } from "@/core/nutrition/targets";
+import { sessionMinutes } from "@/core/training/analysis";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, startOfWeek, todayIn } from "@/core/shared/dates";
 import { Bell, Copy, Dumbbell } from "lucide-react";
@@ -51,6 +53,7 @@ import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { DayScore } from "@/features/nutrition/log/DayScore";
 import { AddTraining } from "@/features/training/sessions/AddTraining";
+import { startOrPlanAction } from "./training/live-actions";
 import { SessionList } from "@/features/training/sessions/SessionList";
 import { presetTiles } from "./training/preset-tiles";
 import { listMeasurements } from "@/core/training/repositories/measurements";
@@ -81,7 +84,7 @@ import {
   setEntryStatusAction,
   setEntryTimeAction,
 } from "./actions";
-import { dynamicTargets } from "@/core/energy/energy";
+import { dynamicTargets, goalOf } from "@/core/energy/energy";
 import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 
@@ -157,9 +160,23 @@ export default async function DayPage({ searchParams }: Props) {
   // user turned them off (preferences).
   // A dynamic day type (ADR-0014): energy, protein, fat, carbs and fibre
   // come from what the day costs with the plan; the limits stay automatic.
+  // ADR-0023: the day's training load (done + planned) sets the carbs' zone.
+  const minutes = sessions.reduce((a, x) => a + (sessionMinutes(x) ?? 0), 0);
+  const cardio = sessions
+    .flatMap((x) => x.exercises)
+    .filter((e) => e.kind === "cardio")
+    .flatMap((e) => e.sets)
+    .reduce((a, x) => a + (x.durationS ?? 0) / 60, 0);
+  const load = trainingLoad(minutes, cardio);
+  const kg = energyView.body.weightKg ? Number(energyView.body.weightKg) : null;
   const dynamic =
     dayTargets.source !== "none" && dayTargets.dynamic && energyView.energy
-      ? dynamicTargets(energyView.energy, energyView.body.weightKg!, dayTargets.dynamic)
+      ? dynamicTargets(
+          energyView.energy,
+          energyView.body.weightKg!,
+          dayTargets.dynamic,
+          carbsGoodMax(kg!, load),
+        )
       : null;
   const own =
     dayTargets.source === "none"
@@ -177,6 +194,18 @@ export default async function DayPage({ searchParams }: Props) {
   const { targets, auto } = settings.preferences.autoTargets
     ? withAutoTargets(own)
     : { targets: own, auto: [] };
+  // Floor / good zone / ceiling per macro, from the weight, the training and
+  // the goal (ADR-0023). Needs a weight.
+  const bands =
+    kg === null
+      ? undefined
+      : macroBands({
+          kg,
+          kcal: targets.kcal === null ? null : Number(targets.kcal),
+          load,
+          cutting:
+            dayTargets.source !== "none" && (dayTargets.dynamic?.deficitKcal ?? 0) > 0,
+        });
   // The day's training burn as ranges: done, then with the planned sessions.
   const burn = dayBurn(sessions, measurements);
   const range = (r: { low: number; high: number }) => ({
@@ -221,7 +250,25 @@ export default async function DayPage({ searchParams }: Props) {
           {dayTargets.source !== "none" && dayTargets.dynamic && (
             <p className="text-meta text-muted">
               {dynamic
-                ? fill(t.energy.dynamicNote, { kcal: String(dynamic.kcal) })
+                ? (() => {
+                    const g = goalOf(dayTargets.dynamic);
+                    const d = dayTargets.dynamic.deficitKcal;
+                    const w = energyView.energy!.total.withPlan;
+                    const note = fill(t.energy.dynamicNote, {
+                      goal: g ? t.energy.goals[g] : t.energy.goalCustom,
+                      kcal: String(dynamic.uncapped ?? dynamic.kcal),
+                      spent: String(Math.round((w.low + w.high) / 2)),
+                      sign: d >= 0 ? "−" : "+",
+                      delta: String(Math.abs(d)),
+                    });
+                    return dynamic.uncapped === null
+                      ? note
+                      : fill(t.energy.dynamicCapped, {
+                          note,
+                          carbs: String(dynamic.carbs),
+                          kcal: String(dynamic.kcal),
+                        });
+                  })()
                 : t.energy.dynamicMissing}
             </p>
           )}
@@ -230,6 +277,7 @@ export default async function DayPage({ searchParams }: Props) {
           totals={view.totals}
           withPlanned={view.withPlanned}
           targets={targets}
+          bands={bands}
           auto={auto}
           locale={locale}
           t={{
@@ -263,6 +311,7 @@ export default async function DayPage({ searchParams }: Props) {
             totals: view.totals.nutrients,
             targets,
             quality: dayQuality,
+            bands,
           })}
           planned={
             view.entries.some((e) => e.status === "planned")
@@ -270,6 +319,7 @@ export default async function DayPage({ searchParams }: Props) {
                   totals: view.withPlanned.nutrients,
                   targets,
                   quality: eatenQuality(view.entries, true),
+                  bands,
                 })
               : null
           }
@@ -400,12 +450,14 @@ export default async function DayPage({ searchParams }: Props) {
               trash={deleteSessionAction}
               restore={restoreSessionAction}
               labels={t.actions}
+              startable={day === today}
             />
           </Section>
         )}
         <AddTraining
           day={day}
-          plannedByDefault={day > today}
+          today={today}
+          startOrPlan={startOrPlanAction}
           presets={presets}
           exercises={exercises.map(({ id, name, kind }) => ({ id, name, kind }))}
           estimate={createEstimateAction}

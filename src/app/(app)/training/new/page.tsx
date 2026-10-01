@@ -78,7 +78,7 @@ export default async function NewSessionPage({ searchParams }: Props) {
   if (single && initialExercises[0]!.sets.length === 0)
     initialExercises[0]!.sets.push(EMPTY_SET);
   return (
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader
         title={t.training.newTitle}
         back={{

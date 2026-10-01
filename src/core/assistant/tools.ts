@@ -41,6 +41,7 @@ import { getPantry } from "../pantry/repositories/stock";
 import { productInput, purchaseInput, reminderInput } from "../pantry/validation";
 import { getDayTargets } from "../nutrition/repositories/profiles";
 import { dynamicTargets } from "../energy/energy";
+import { carbsGoodMax, trainingLoad } from "../nutrition/bands";
 import { getCalibration, getDayEnergy } from "../energy/repositories/energy";
 import { addDays } from "../shared/dates";
 import { rank } from "../shared/search";
@@ -593,7 +594,21 @@ export const TOOLS: Record<string, Tool> = {
         return { ok: true, data: { targets: null, energy: e.energy } };
       const dynamic =
         t.dynamic && e.energy && e.body.weightKg
-          ? dynamicTargets(e.energy, e.body.weightKg, t.dynamic)
+          ? dynamicTargets(
+              e.energy,
+              e.body.weightKg,
+              t.dynamic,
+              carbsGoodMax(
+                Number(e.body.weightKg),
+                trainingLoad(
+                  e.energy.inputs.sessions.reduce((a, x) => a + x.durationMin, 0),
+                  e.energy.inputs.sessions.reduce(
+                    (a, x) => a + (x.basis?.kind === "sets" ? x.basis.cardioMin : 0),
+                    0,
+                  ),
+                ),
+              ),
+            )
           : null;
       return {
         ok: true,

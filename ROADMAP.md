@@ -162,6 +162,18 @@
 - [x] Developer's verdict: Label stays, with rounded corners and rings + bars; Orto and Cruscotto replaced by four themes built on Label: Quaderno (ivory, blue ink, serif headings), Sport (black/white, lime), Minimal (no frames, shadows), Notte (night blue, amber headings); per-theme components (THEME_SLOTS) removed until a theme needs one
 - [ ] Developer review of the four new themes on the phone
 
+## Next sprint: S11 — The day as a plan, honest energy, smarter targets (requested 2026-10-01)
+- **Goal:** plan and start training from the day like food; energy and targets that make sense for the developer's real data; a day score about zones, not reaching numbers.
+- [x] Energy formulas on screen; selects show the saved value without a reload (#105)
+- [x] Day page: plan a routine / exercise / estimate at a time, start it now in gym mode, or write it as done; "Start" on planned sessions; one "When" block (ui/Segmented) for food and training; planned sessions without a duration get one from their sets, so the energy counts them
+- [x] Goal shown plainly: maintenance added; goal tiles + "deficit / surplus of N kcal a day" in the editor; the day says "Recomposition: 3504 kcal = energy with the plan 3704 − 200"
+- [x] Alignment: form pages (settings, editors, trash, live) centred like their action bar; the dynamic day type's fields aligned
+- [ ] Energy check against the developer's export (tmp/, never committed)
+- [x] ADR-0023 macro bands (core/nutrition/bands.ts): floor / good zone / ceiling per kg, training load and goal; bars shade the zone and say which zone; day score by zone; dynamic carbs stop at the top of their good zone (the energy target with them)
+- [ ] ADR-0022 edit a day's food entry as a local copy (grams, swaps)
+- [ ] ADR-0024 training programs as an ordered cycle (migration-only PR first), derived plan on the day and the targets page
+- [ ] Assistant: the whole picture each turn (recent detail + older aggregates), answers in terms of the user's own meals and routines; a better chat UI
+
 ## Next sprint: S09 — Energy needs and the dynamic day (ADR-0014, requested again 2026-10-01)
 - **Goal:** know my energy need at every level (BMR, everyday activity, walking, training, digestion), what comes in and goes out, done and planned; a dynamic day type whose macros follow the plan and the goal (muscle gain, fat loss, or both).
 - [x] Body data in Settings (sex, birth year, height; weight from measurements)

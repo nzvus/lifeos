@@ -14,7 +14,7 @@ export default async function NewProductPage({ searchParams }: Props) {
   const from = safeFrom((await searchParams).from, "/pantry");
   const ingredients = await listIngredients(getDb(), owner);
   return (
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader
         title={t.pantry.newProduct}
         back={{ href: from, label: from === "/pantry" ? t.pantry.back : t.actions.back }}

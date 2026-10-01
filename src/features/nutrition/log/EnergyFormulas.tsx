@@ -19,6 +19,7 @@ type Props = {
     fat: number;
     carbs: number;
     fiber: number;
+    uncapped: number | null;
   } | null;
   locale: Locale;
   t: Messages["energy"];
@@ -96,7 +97,11 @@ export function EnergyFormulas({ energy, dynamic, locale, t }: Props) {
     lines.push(
       {
         label: d > 0 ? f.deficit : d < 0 ? f.surplus : f.maintenance,
-        formula: `${f.midpoint} ${n(Math.round(mid))} ${d >= 0 ? "−" : "+"} ${n(Math.abs(d))}${dynamic.kcal === 1200 ? ` (${f.floor})` : ""}`,
+        formula:
+          `${f.midpoint} ${n(Math.round(mid))} ${d >= 0 ? "−" : "+"} ${n(Math.abs(d))}${dynamic.kcal === 1200 ? ` (${f.floor})` : ""}` +
+          (dynamic.uncapped !== null
+            ? ` = ${n(dynamic.uncapped)}; ${fill(f.capped, { carbs: n(dynamic.carbs) })}`
+            : ""),
         result: `${n(dynamic.kcal)} kcal`,
       },
       {
@@ -111,7 +116,10 @@ export function EnergyFormulas({ energy, dynamic, locale, t }: Props) {
       },
       {
         label: f.carbs,
-        formula: `(${n(dynamic.kcal)} − ${n(dynamic.protein * 4)} − ${n(dynamic.fat * 9)}) ÷ 4`,
+        formula:
+          dynamic.uncapped !== null
+            ? fill(f.carbsCap, { g: n(dynamic.carbs), perKg: n(dynamic.carbs / i.kg, 1) })
+            : `(${n(dynamic.kcal)} − ${n(dynamic.protein * 4)} − ${n(dynamic.fat * 9)}) ÷ 4`,
         result: `${n(dynamic.carbs)} g`,
       },
       {
@@ -125,10 +133,7 @@ export function EnergyFormulas({ energy, dynamic, locale, t }: Props) {
   return (
     <ol className="flex flex-col gap-2">
       {lines.map((l, k) => (
-        <li
-          key={k}
-          className="flex flex-col gap-0.5 rule-b-medium border-hairline pb-2"
-        >
+        <li key={k} className="flex flex-col gap-0.5 rule-b-medium border-hairline pb-2">
           <span className="flex items-baseline justify-between gap-3">
             <span className="font-semibold">{l.label}</span>
             <span className="shrink-0 font-display whitespace-nowrap tabular-nums">

@@ -25,3 +25,6 @@ private/
 
 # --- Python caches (scripts/check.py) ---
 __pycache__/
+
+# Local data exports for debugging (never committed)
+/tmp/

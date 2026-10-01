@@ -65,7 +65,7 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
 
   if (session.exercises.length === 0 && (session.intensity || session.kcalEstimate))
     return (
-      <div className="flex max-w-page flex-col gap-8">
+      <div className="mx-auto flex w-full max-w-page flex-col gap-8">
         {header(session.label)}
         <EstimateEditor
           id={id}
@@ -99,7 +99,7 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
     t.training,
   );
   return (
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       {header(t.training.editTitle)}
       {session.status === "planned" && (
         <Link

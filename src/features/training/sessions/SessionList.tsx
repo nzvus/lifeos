@@ -6,10 +6,14 @@
  * exercise with its sets as short text. Planned sessions are drawn muted,
  * like planned food (ADR-0009). An estimated session (ADR-0016, no
  * exercises) shows its intensity and muscle groups instead, marked as an
- * estimate. The whole row opens the session; "⋯" deletes it with Undo.
+ * estimate. The whole row opens the session; "⋯" deletes it with Undo; on
+ * today's page a planned session has "Start" (gym mode).
  * Used by /training and by the day page.
  * Server component.
  */
+import { Play } from "lucide-react";
+import Link from "next/link";
+import { buttonClass } from "@/ui/button";
 import { burnRange, sessionTonnage, weightAt } from "@/core/training/analysis";
 import { setsText } from "@/core/training/display";
 import type { SessionView } from "@/core/training/repositories/sessions";
@@ -36,6 +40,8 @@ type Props = {
   trash: (id: string) => Promise<{ ok: boolean; message?: string }>;
   restore: (id: string) => Promise<{ ok: boolean; message?: string }>;
   labels: Messages["actions"];
+  /** The day page on today: planned sessions with exercises offer gym mode. */
+  startable?: boolean;
 };
 
 const INTL: Record<Locale, string> = { it: "it-IT", en: "en-GB" };
@@ -50,6 +56,7 @@ export function SessionList({
   trash,
   restore,
   labels,
+  startable = false,
 }: Props) {
   const date = new Intl.DateTimeFormat(INTL[locale], {
     weekday: "short",
@@ -152,6 +159,15 @@ export function SessionList({
                   ))}
                 </ul>
               </details>
+            )}
+            {startable && s.status === "planned" && s.exercises.length > 0 && (
+              <Link
+                href={`/training/${s.id}/live`}
+                className={`relative z-2 self-start ${buttonClass({ variant: "primary", size: "sm" })}`}
+              >
+                <Play size={16} aria-hidden="true" />
+                {t.when.startThis}
+              </Link>
             )}
           </ListItem>
         );

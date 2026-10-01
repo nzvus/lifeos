@@ -141,15 +141,30 @@ export const energyEn = {
   mode: "How the targets are set",
   modes: { fixed: "Fixed: you write them", dynamic: "Dynamic: from the day's energy" },
   goal: "Goal",
-  goals: { gain: "Muscle gain", recomp: "Recomposition", cut: "Fat loss" },
-  deficit: "Deficit (kcal/day; negative = surplus)",
+  goals: {
+    maintain: "Maintenance",
+    recomp: "Recomposition",
+    gain: "Muscle gain",
+    cut: "Fat loss",
+  },
+  deficit: "Deficit (kcal a day)",
+  deficitHint:
+    "Positive = deficit (below what you spend); negative = surplus; 0 = maintenance.",
+  balanceMaintain: "Maintenance: eat what you spend.",
+  balanceDeficit: "A deficit of {kcal} kcal a day below what you spend.",
+  balanceSurplus: "A surplus of {kcal} kcal a day above what you spend.",
   proteinPerKg: "Protein (g per kg)",
   fatPerKg: "Fat (g per kg)",
   dynamicHint:
     "Calories = the day's estimated energy with the plan − deficit; protein and fat follow your weight; carbs are the rest. Sugars, saturated fat and salt stay limits.",
-  dynamicNote: "Dynamic targets: {kcal} kcal from the energy with the plan",
+  dynamicNote: "{goal}: {kcal} kcal = energy with the plan {spent} {sign} {delta} kcal",
+  dynamicCapped: "{note} → {kcal} kcal: carbs stop at {carbs} g, more adds little",
+  goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
+    capped: "carbs stop at {carbs} g, so kcal = protein + fat + carbs",
+    carbsCap:
+      "top of the good zone: {g} g ({perKg} g/kg); more adds little for energy and recovery",
     title: "How it is computed",
     years: "years",
     walkNone:
@@ -259,4 +274,35 @@ export const barcodeEn = {
   invalid: "A barcode has 6 to 14 digits.",
   noCamera: "This browser can't read codes from the camera: type the digits.",
   hint: "Open Food Facts is a free, open database of food products.",
+};
+
+export const trainingWhenEn = {
+  startThis: "Start in gym mode",
+  label: "When",
+  start: "Start now",
+  plan: "Plan",
+  done: "Done",
+  time: "Time",
+  hints: {
+    start: "Gym mode opens with the chosen routine or exercise.",
+    plan: "It stays planned at that time (empty = no time): the energy with the plan counts it.",
+    done: "The editor opens to write what you did.",
+  },
+};
+
+export const panelZonesEn = {
+  below_floor: "below the useful floor ({floor} {u})",
+  low: "below the good zone {low}–{high} {u}",
+  good: "in the good zone {low}–{high} {u}",
+  high: "above the good zone {low}–{high} {u}: more adds little",
+  above_ceiling: "past the useful ceiling ({ceiling} {u})",
+};
+
+export const appEn = {
+  name: "Lifeos",
+  description: "Nutrition, training and pantry log.",
+  offline: "You are offline",
+  offlineHint:
+    "This page needs the network. What you already saved is safe on the server.",
+  retry: "Try again",
 };
