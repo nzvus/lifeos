@@ -176,6 +176,7 @@
 - [x] Migration 0015 (#101): encrypted key + model, conversations, messages
 - [x] Core: AES-GCM key, conversations, tools (find ingredients/meals/exercises, day, recent days, pantry; create ingredient/meal, log food/estimate, reminders; gym notes import and move to trash with confirmation), the agent's turn; tested with a fake model
 - [x] Settings → Assistant (key write-only, last 4 shown, model); /assistant chat with Undo per change, Confirm / Leave it, attachments (photo text read on the phone, or the photo; JSON/TXT/CSV/MD); conversations in the trash and export v8
+- [x] Barcode → Open Food Facts: camera (BarcodeDetector) or typed digits prefill a new ingredient; the assistant's `lookup_barcode` (fetch injected from `app/_server`)
 - [ ] Developer: set ASSISTANT_KEY_SECRET on Vercel, paste the OpenRouter key, try it on the phone
 - [ ] More tools as needed (products and purchases, routines, exercises, ratings, tags, day types, batches), advice prompts, streaming
 

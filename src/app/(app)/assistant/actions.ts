@@ -10,6 +10,7 @@
 import { revalidatePath } from "next/cache";
 import { formToObject } from "@/app/_server/forms";
 import { env } from "@/app/_server/env";
+import { fetchOff } from "@/app/_server/openfoodfacts";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { runConfirmed, runTurn, systemPrompt } from "@/core/assistant/agent";
@@ -168,7 +169,7 @@ export async function sendMessageAction(input: {
       complete: openRouterComplete(apiKey, env().baseURL),
       model: status.model,
       messages,
-      ctx: { db, owner, today, timeZone: settings.timezone },
+      ctx: { db, owner, today, timeZone: settings.timezone, lookupBarcode: fetchOff },
     });
     for (const m of turn.messages) {
       if (m.role === "assistant")
@@ -234,7 +235,13 @@ export async function confirmPendingAction(
   let content = t.assistant.cancelled;
   if (yes) {
     const r = await runConfirmed(
-      { db, owner, today: todayIn(settings.timezone), timeZone: settings.timezone },
+      {
+        db,
+        owner,
+        today: todayIn(settings.timezone),
+        timeZone: settings.timezone,
+        lookupBarcode: fetchOff,
+      },
       call,
     );
     content = r.ok

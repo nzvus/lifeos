@@ -49,9 +49,17 @@ import { parseGymLog, toPlannedSession } from "../import/gym-log";
 import { applyTrainingImport, planTrainingImport } from "../import/training-apply";
 import { listExercises } from "../training/repositories/exercises";
 import { isTrashKind, moveToTrash, type TrashKind } from "../trash/trash";
+import type { OffPrefill } from "../nutrition/off";
 import type { ToolSpec } from "./model";
 
-export type ToolContext = { db: Db; owner: Owner; today: string; timeZone: string };
+export type ToolContext = {
+  db: Db;
+  owner: Owner;
+  today: string;
+  timeZone: string;
+  /** Open Food Facts by barcode; injected by the app (core does no network I/O). */
+  lookupBarcode?: (code: string) => Promise<OffPrefill | null>;
+};
 export type ToolResult =
   | { ok: true; data: unknown; change?: { kind: TrashKind; id: string; label: string } }
   | { ok: false; error: unknown };
@@ -216,6 +224,25 @@ export const TOOLS: Record<string, Tool> = {
     ),
     async run({ db, owner }) {
       return { ok: true, data: await getPantry(db, owner) };
+    },
+  },
+  lookup_barcode: {
+    effect: "read",
+    spec: fn(
+      "lookup_barcode",
+      "Look up a packaged food on Open Food Facts by its barcode (EAN/UPC digits). Returns name, brand, unit, nutrients per 100 g/ml, package size and NOVA, to pass to create_ingredient after showing them to me.",
+      { barcode: S("the digits under the bars") },
+      ["barcode"],
+    ),
+    async run({ lookupBarcode }, a) {
+      const code = str(a.barcode).replace(/\D/g, "");
+      if (!/^\d{6,14}$/.test(code))
+        return { ok: false, error: "A barcode has 6 to 14 digits." };
+      if (!lookupBarcode) return { ok: false, error: "Barcode lookup is not available." };
+      const found = await lookupBarcode(code);
+      return found
+        ? { ok: true, data: found }
+        : { ok: false, error: `Code ${code} is not on Open Food Facts.` };
     },
   },
   create_ingredient: {

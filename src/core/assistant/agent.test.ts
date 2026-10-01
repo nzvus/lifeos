@@ -289,4 +289,55 @@ describe("runTurn", () => {
       data: { targets: null, energy: null },
     });
   });
+
+  it("lookup_barcode: the injected lookup, digits only; missing → an error for the model", async () => {
+    const asked: string[] = [];
+    const lookupBarcode = async (code: string) => {
+      asked.push(code);
+      return code === "3017620422003"
+        ? {
+            barcode: code,
+            name: "Nutella",
+            description: "Ferrero",
+            unit: "g" as const,
+            kcal: "539",
+            protein: "6.3",
+            carbs: "57.5",
+            sugars: "56.3",
+            fat: "30.9",
+            saturatedFat: "10.6",
+            fiber: "",
+            salt: "0.107",
+            packageSize: "400",
+            nova: "4",
+          }
+        : null;
+    };
+    const r = await runTurn({
+      complete: scripted(
+        {
+          content: null,
+          toolCalls: [
+            call("c1", "lookup_barcode", { barcode: "3017620 422003" }),
+            call("c2", "lookup_barcode", { barcode: "12345678" }),
+            call("c3", "lookup_barcode", { barcode: "12" }),
+          ],
+        },
+        { content: "ok", toolCalls: [] },
+      ),
+      model: "test",
+      messages: user("x"),
+      ctx: { ...ctx(me), lookupBarcode },
+    });
+    const results = r.messages
+      .filter((m) => m.role === "tool")
+      .map((m) => JSON.parse((m as { content: string }).content));
+    expect(results[0]).toMatchObject({
+      ok: true,
+      data: { name: "Nutella", kcal: "539" },
+    });
+    expect(results[1]).toMatchObject({ ok: false });
+    expect(results[2]).toMatchObject({ ok: false });
+    expect(asked).toEqual(["3017620422003", "12345678"]);
+  });
 });

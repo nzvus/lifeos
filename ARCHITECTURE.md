@@ -127,8 +127,8 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   good; the 30-day purge (`purgeExpiredTrash`) awaits its workflow job.
 - **Assistant (ADR-0018):** the model runs on the server with the user's key
   (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
-  writes come back with Undo, deletes/imports wait for a tap; photo text is read
-  on the phone (tesseract.js). Tests use a scripted fake model.
+  writes come back with Undo, deletes/imports wait for a tap; files are read on
+  the phone; network (Open Food Facts) is injected from `app/_server`.
 - **Pantry (ADR-0013/0017):** stock is derived, never stored (`core/pantry/stock.ts`):
   purchases − eaten (not batch portions) − cooked ± counts; food per ingredient.
 - **Time:** days are `date` strings; "today" uses `user_settings.timezone`,
