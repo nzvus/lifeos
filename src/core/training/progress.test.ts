@@ -56,8 +56,8 @@ describe("weekSummary", () => {
     ]);
     expect(Object.fromEntries(w.byGroup)).toEqual({ lats: 3, biceps: 1.5 });
     expect(w.tonnage).toBe(350 + 280 + 350);
-    // 3 sessions × 60 min at 3.5–6 MET × 76 kg.
-    expect(w.burn).toEqual({ low: 3 * 266, high: 3 * 456 });
+    // 3 sessions × 60 min at 3.5–5 MET × 76 kg.
+    expect(w.burn).toEqual({ low: 3 * 266, high: 3 * 380 });
   });
 
   it("an empty week has zeros and no burn", () => {

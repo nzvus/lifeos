@@ -10,7 +10,6 @@ const energy = {
   baseline: { low: 1900, high: 2100 },
   walking: { low: 0, high: 0 },
   training: { done: { low: 0, high: 0 }, planned: { low: 0, high: 0 } },
-  digestion: { done: { low: 0, high: 0 }, withPlan: { low: 0, high: 0 } },
   total: { done: { low: 2400, high: 2600 }, withPlan: { low: 2400, high: 2600 } },
 } satisfies Energy;
 
@@ -50,7 +49,7 @@ describe("weightSlope", () => {
 describe("calibrate", () => {
   it("losing on more than the model says → spends more: the baseline goes up", () => {
     // 2500 eaten, −0.2 kg/week → observed 2500 + 0.2/7 × 7700 = 2720; estimated 2500.
-    // The baseline moves by 220 × 0.9 = 198 on 2000 → ×1.099 → 1.10.
+    // The baseline takes the whole gap: 2000 + 220 → ×1.11.
     const c = calibrate(
       days(28, () => 2500),
       weighIns(-0.2),
@@ -63,7 +62,7 @@ describe("calibrate", () => {
       intake: 2500,
       observed: 2720,
       estimated: 2500,
-      proposed: 1.1,
+      proposed: 1.11,
     });
   });
 
@@ -76,14 +75,14 @@ describe("calibrate", () => {
         1.1,
       ).proposed,
     ).toBeNull();
-    // Gaining on 2500: spends less. From 1.10: target 2000 − 220 × 0.9 → ×0.901 → 0.99.
+    // Gaining on 2500: spends less. From 1.10: 1.10 × (2000 − 220) ÷ 2000 = 0.979 → 0.98.
     expect(
       calibrate(
         days(28, () => 2500),
         weighIns(0.2),
         1.1,
       ).proposed,
-    ).toBe(0.99);
+    ).toBe(0.98);
   });
 
   it("never beyond 0.80–1.20", () => {

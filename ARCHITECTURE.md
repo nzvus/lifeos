@@ -117,7 +117,7 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   and again at the data boundary (`Owner`).
 - **Targets:** per day (ADR-0008): fixed copy, else default profile, else none; auto maxima.
   A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done + planned;
-  the baseline × the user's accepted calibration, ADR-0020).
+  no double counts, ADR-0021; the baseline × the accepted calibration, ADR-0020).
 - **Log entries** (ADR-0009/0011): planned or eaten, optional time/moment, maybe an
   estimate; totals = eaten, and every panel also shows the day with the plan.
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (pinned ↺ / Cancel /

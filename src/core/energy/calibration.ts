@@ -24,7 +24,6 @@ const MIN_LOGGED_SHARE = 0.8;
 export const CORRECTION_RANGE = [0.8, 1.2] as const;
 /** Below this change the model already fits: nothing to propose. */
 const NOTICEABLE = 0.02;
-const TEF = 0.9; // as in energy.ts: the baseline is ×1/0.9 in the total
 
 export type CalibrationDay = {
   day: string;
@@ -105,8 +104,8 @@ export function calibrate(
 
   let proposed: number | null = null;
   if (verdict === "ok" && observed !== null && estimated !== null && baseline) {
-    // The gap is in the total (×1/0.9); the baseline moves by gap × 0.9.
-    const target = baseline + (observed - estimated) * TEF;
+    // The whole gap goes to the baseline, the least certain part.
+    const target = baseline + (observed - estimated);
     const raw = (current * target) / baseline;
     const factor =
       Math.round(

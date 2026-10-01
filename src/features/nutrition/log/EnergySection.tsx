@@ -101,7 +101,6 @@ export function EnergySection({
             {row(e.walking, range(energy.walking))}
             {row(e.trainingDone, range(energy.training.done))}
             {row(e.trainingPlanned, range(energy.training.planned))}
-            {row(e.digestion, range(energy.digestion.withPlan))}
             {row(e.totalDone, range(energy.total.done), true)}
             {row(e.totalPlan, range(energy.total.withPlan), true)}
           </ul>

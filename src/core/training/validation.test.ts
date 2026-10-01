@@ -181,4 +181,3 @@ describe("checkSetsForKinds and planned sets", () => {
     ).toEqual({ "exercises.0.sets.0.durationS": "required" });
   });
 });
-

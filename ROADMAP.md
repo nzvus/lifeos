@@ -169,6 +169,7 @@
 - [x] Dynamic day types with goal presets (gain / recomposition / cut): deficit or surplus, protein and fat per kg; targets from the energy with the plan
 - [x] Energy section: every part, spent so far and with the plan, intake and balance (both)
 - [x] Calibration (ADR-0020): migration 0016 (#103); 28 days of weigh-ins (least-squares trend) and intake vs the model → a proposed factor on everyday activity (0.80–1.20), accepted or reset on today's Energy section; the assistant reads it for the weekly review
+- [x] ADR-0021: the model counted digestion, everyday steps and gym rests twice (≈+18 % on a gym day); fixed
 - [ ] Developer review on the phone
 
 ## Next sprint: S10 — The assistant (ADR-0018, requested 2026-10-01)

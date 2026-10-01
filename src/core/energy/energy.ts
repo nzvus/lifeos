@@ -6,9 +6,13 @@
  *   BMR        Mifflin-St Jeor from sex, age, height and the day's weight
  *   baseline   BMR × the declared everyday level (it includes the BMR),
  *              × the user's accepted calibration (ADR-0020, default 1)
- *   walking    minutes (or steps ÷ 100) at 3.0–3.8 MET, net of resting
+ *   walking    a deliberate walk's minutes, or the steps BEYOND what the
+ *              level already means (ADR-0021), ÷ 100 per minute, at
+ *              3.0–3.8 MET, net of resting
  *   training   each session's burn range, net of resting for its duration
- *   digestion  the thermic effect: the sum ÷ 0.9 − the sum (≈10 %)
+ *
+ * No separate digestion term (ADR-0021): activity factors are measured
+ * total expenditure ÷ BMR, so they already contain it.
  *
  * Training is counted twice over: what was DONE, and done + PLANNED ("with
  * the plan"). Targets of a dynamic day follow the plan: you eat for the
@@ -28,7 +32,12 @@ export const LEVEL_FACTOR: Record<ActivityLevel, [number, number]> = {
   on_feet: [1.5, 1.65],
 };
 const WALK_MET: [number, number] = [3.0, 3.8];
-const TEF = 0.9; // expenditure ÷ 0.9: ≈10 % for digesting
+/** Steps a day at each level already includes (Tudor-Locke's bands). */
+export const LEVEL_STEPS: Record<ActivityLevel, number> = {
+  sitting: 5000,
+  mixed: 7500,
+  on_feet: 10000,
+};
 
 export type Body = {
   sex: Sex | null;
@@ -58,7 +67,6 @@ export type Energy = {
   baseline: Range;
   walking: Range;
   training: { done: Range; planned: Range };
-  digestion: { done: Range; withPlan: Range };
   total: { done: Range; withPlan: Range };
 };
 
@@ -101,8 +109,10 @@ export function dayEnergy(body: Body, facts: DayFacts): Energy | null {
   const c = body.correction ?? 1;
   const baseline = r(bmr * fLo * c, bmr * fHi * c);
 
-  // Steps ÷ 100 ≈ minutes of walking; the larger of the two if both given.
-  const minutes = Math.max(facts.walkingMin ?? 0, (facts.steps ?? 0) / 100);
+  // Steps ÷ 100 ≈ minutes of walking, counting only the steps beyond the
+  // level's own; a declared walk counts whole. The larger if both are given.
+  const extraSteps = Math.max(0, (facts.steps ?? 0) - LEVEL_STEPS[facts.level]);
+  const minutes = Math.max(facts.walkingMin ?? 0, extraSteps / 100);
   const walking = r(
     (WALK_MET[0] - 1) * kg * (minutes / 60),
     (WALK_MET[1] - 1) * kg * (minutes / 60),
@@ -123,21 +133,13 @@ export function dayEnergy(body: Body, facts: DayFacts): Energy | null {
     ...facts.sessions.filter((s) => s.status === "planned").map(net),
   );
 
-  const sumDone = add(baseline, walking, done);
-  const sumPlan = add(sumDone, planned);
-  const withTef = (x: Range) => r(x.low / TEF, x.high / TEF);
-  const totalDone = withTef(sumDone);
-  const totalPlan = withTef(sumPlan);
+  const totalDone = add(baseline, walking, done);
   return {
     bmr,
     baseline,
     walking,
     training: { done, planned },
-    digestion: {
-      done: r(totalDone.low - sumDone.low, totalDone.high - sumDone.high),
-      withPlan: r(totalPlan.low - sumPlan.low, totalPlan.high - sumPlan.high),
-    },
-    total: { done: totalDone, withPlan: totalPlan },
+    total: { done: totalDone, withPlan: add(totalDone, planned) },
   };
 }
 
