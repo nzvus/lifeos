@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { NUTRIENT_KEYS, type NutrientValues } from "./nutrients";
-import { addTotals, sumLines, toDisplay, type TotalsLine } from "./totals";
+import { addTotals, entriesTotals, sumLines, toDisplay, type TotalsLine } from "./totals";
 
 /** Per-100 values where every nutrient is the same number (keeps tests short). */
 function flat(v: string): NutrientValues {
@@ -60,5 +60,22 @@ describe("addTotals + toDisplay (totals = parts)", () => {
     const part = sumLines([line("1", "4")]); // 1 g of 4/100 g = 0.04
     expect(toDisplay(part).nutrients.kcal).toBe("0.0");
     expect(toDisplay(addTotals([part, part, part])).nutrients.kcal).toBe("0.1");
+  });
+});
+
+describe("entriesTotals", () => {
+  it("sums the exact entries, not their rounded totals", () => {
+    // Each entry alone is 0.04 kcal, shown as "0.0"; three of them are 0.12 -> "0.1".
+    const e = { lines: [line("1", "4")], servings: "1" };
+    expect(toDisplay(sumLines(e.lines)).nutrients.kcal).toBe("0.0");
+    expect(entriesTotals([e, e, e]).nutrients.kcal).toBe("0.1");
+  });
+
+  it("applies each entry's servings", () => {
+    const t = entriesTotals([
+      { lines: [line("100", "10")], servings: "2" },
+      { lines: [line("100", "10")], servings: "0.5" },
+    ]);
+    expect(t.nutrients.kcal).toBe("25.0");
   });
 });

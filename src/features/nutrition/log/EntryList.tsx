@@ -15,13 +15,14 @@
 import { RefreshCw } from "lucide-react";
 import { detailLines, stripValues } from "@/core/nutrition/display";
 import { groupByMoment, type MomentBounds } from "@/core/nutrition/moments";
+import { entriesTotals } from "@/core/nutrition/totals";
 import type { DayView } from "@/core/nutrition/repositories/log";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import { ActionButtonForm, type ActionButtonState } from "@/ui/ActionButtonForm";
 import { FoodDetails } from "@/ui/FoodDetails";
-import { CARD } from "@/ui/Card";
+import { Collapsible } from "@/ui/Collapsible";
 import { ListItem } from "@/ui/ListItem";
 import { MOMENT_TEXT, MomentIcon } from "@/ui/MomentIcon";
 import { MacroStrip } from "@/ui/MacroStrip";
@@ -72,8 +73,10 @@ export function EntryList({
     // Grouped by moment of the day (ADR-0011), each with its eaten kcal.
     <div className="flex flex-col gap-4">
       {groupByMoment(day.entries, timeZone, bounds).map((group) => (
-        <section key={group.moment ?? "none"} className={CARD}>
-          <h3 className="flex items-center justify-between gap-2 rule-b-medium border-ink pb-1 font-display text-item font-bold">
+        <Collapsible
+          key={group.moment ?? "none"}
+          id={`day-moment-${group.moment ?? "none"}`}
+          title={
             <span
               className={`flex items-center gap-1.5 ${
                 (group.moment && MOMENT_TEXT[group.moment]) || ""
@@ -82,10 +85,17 @@ export function EntryList({
               <MomentIcon moment={group.moment} />
               {group.moment ? t.moments.names[group.moment] : t.moments.none}
             </span>
-            <span className="text-meta font-normal text-muted tabular-nums">
-              {fill(t.moments.subtotal, { v: formatNumber(group.eatenKcal, locale, 0) })}
-            </span>
-          </h3>
+          }
+          aside={fill(t.moments.subtotal, {
+            v: formatNumber(group.eatenKcal, locale, 0),
+          })}
+          summary={
+            <MacroStrip
+              values={stripValues(entriesTotals(group.entries).nutrients, locale)}
+              labels={labels}
+            />
+          }
+        >
           <ol className="flex flex-col">
             {group.entries.map((e) => {
               return (
@@ -172,7 +182,7 @@ export function EntryList({
               );
             })}
           </ol>
-        </section>
+        </Collapsible>
       ))}
     </div>
   );
