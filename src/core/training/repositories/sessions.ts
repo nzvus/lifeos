@@ -28,6 +28,9 @@ export type SessionExerciseView = {
   exerciseId: string;
   name: string;
   kind: ExerciseKind;
+  /** Movement pattern and muscle groups (anatomy.ts), for icons and volume. */
+  pattern: string | null;
+  muscleGroups: string[];
   unilateral: boolean;
   restS: number | null;
   notes: string;
@@ -123,6 +126,8 @@ async function withChildren(
         exerciseId: exercise.id,
         name: exercise.name,
         kind: exercise.kind,
+        pattern: exercise.pattern,
+        muscleGroups: exercise.muscleGroups,
         unilateral: exercise.unilateral,
         restS: item.restS,
         notes: item.notes,

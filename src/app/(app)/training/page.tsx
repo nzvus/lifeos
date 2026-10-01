@@ -1,12 +1,29 @@
 /**
- * app/(app)/training/page.tsx — URL /training: start a session (empty or
- * from a routine at its latest version) and the sessions of the last 90 days, newest first.
+ * app/(app)/training/page.tsx — URL /training[?week=YYYY-MM-DD]: training as
+ * progress (S07). Start a session (a routine at its latest version), then the
+ * week (numbers against the week before, sets per muscle group), routines
+ * and exercises with their trends, the sessions of the last 90 days
+ * (compact), body weight. Progress uses all done history.
  */
-import { ClipboardList, Dumbbell, ListOrdered, Scale, Trash2 } from "lucide-react";
+import {
+  CalendarDays,
+  ClipboardList,
+  Dumbbell,
+  ListOrdered,
+  Scale,
+  TrendingUp,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { addDays, todayIn } from "@/core/shared/dates";
+import { addDays, isValidDay, startOfWeek, todayIn } from "@/core/shared/dates";
+import { listExercises } from "@/core/training/repositories/exercises";
+import { listRoutines } from "@/core/training/repositories/routines";
+import { exerciseTrends, routineProgress, weekSummary } from "@/core/training/progress";
+import { ExerciseTrendList } from "@/features/training/progress/ExerciseTrendList";
+import { RoutineProgressList } from "@/features/training/progress/RoutineProgressList";
+import { WeekProgress } from "@/features/training/progress/WeekProgress";
 import { listMeasurements } from "@/core/training/repositories/measurements";
 import { listSessions } from "@/core/training/repositories/sessions";
 import { MeasurementForm } from "@/features/training/body/MeasurementForm";
@@ -19,15 +36,31 @@ import { presetTiles } from "./preset-tiles";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
 
-export default async function TrainingPage() {
+type Props = { searchParams: Promise<{ week?: string }> };
+
+/** How many recent exercises the page shows (the rest: the exercises page). */
+const TRENDS = 8;
+
+export default async function TrainingPage({ searchParams }: Props) {
   const { owner, settings, t } = await requireContext();
   const today = todayIn(settings.timezone);
+  const thisMonday = startOfWeek(today);
+  const asked = (await searchParams).week;
+  const monday =
+    asked && isValidDay(asked) && asked <= today ? startOfWeek(asked) : thisMonday;
   const db = getDb();
-  const [sessions, presets, measurements] = await Promise.all([
-    listSessions(db, owner, addDays(today, -90), addDays(today, 30)),
+  const [history, presets, measurements, routines, exercises] = await Promise.all([
+    listSessions(db, owner, "2000-01-01", addDays(today, 30)),
     presetTiles(owner, today),
     listMeasurements(db, owner),
+    listRoutines(db, owner),
+    listExercises(db, owner),
   ]);
+  const sessions = history.filter((s) => s.day >= addDays(today, -90));
+  const week = weekSummary(history, measurements, monday);
+  const prev = weekSummary(history, measurements, addDays(monday, -7));
+  const trends = exerciseTrends(history.filter((s) => s.day <= today));
+  const p = t.training.progress;
   return (
     <>
       <PageHeader
@@ -56,6 +89,54 @@ export default async function TrainingPage() {
       >
         <PresetPicker presets={presets} t={t.training} />
       </Section>
+      <Section
+        title={monday === thisMonday ? p.thisWeek : p.week}
+        icon={<CalendarDays size={20} aria-hidden="true" />}
+      >
+        <WeekProgress
+          week={week}
+          prev={prev}
+          prevHref={`/training?week=${addDays(monday, -7)}`}
+          nextHref={
+            monday === thisMonday
+              ? null
+              : addDays(monday, 7) === thisMonday
+                ? "/training"
+                : `/training?week=${addDays(monday, 7)}`
+          }
+          locale={settings.locale}
+          t={{ progress: p, groups: t.exercises.groups }}
+        />
+      </Section>
+      {routines.length > 0 && (
+        <Section title={p.routines} icon={<ClipboardList size={20} aria-hidden="true" />}>
+          <RoutineProgressList
+            routines={routineProgress(routines, history).sort((a, b) =>
+              (b.last?.day ?? "").localeCompare(a.last?.day ?? ""),
+            )}
+            locale={settings.locale}
+            t={p}
+          />
+        </Section>
+      )}
+      {trends.length > 0 && (
+        <Section
+          title={p.exercises}
+          icon={<TrendingUp size={20} aria-hidden="true" />}
+          aside={
+            <Link href="/training/exercises" className="underline">
+              {p.all}
+            </Link>
+          }
+        >
+          <ExerciseTrendList
+            trends={trends.slice(0, TRENDS)}
+            exercises={new Map(exercises.map((e) => [e.id, e]))}
+            locale={settings.locale}
+            t={p}
+          />
+        </Section>
+      )}
       <Section title={t.training.recent}>
         {sessions.length === 0 ? (
           <p className="text-muted">{t.training.empty}</p>

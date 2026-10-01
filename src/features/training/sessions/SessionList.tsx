@@ -1,9 +1,11 @@
 /**
  * features/training/sessions/SessionList.tsx — sessions as rows (the shared
- * ui/ListItem): name and day, then duration, tonnage and the burn estimate
- * as a range (ADR-0005: never a precise number), then each exercise with its
- * working sets as short text. Planned sessions are drawn muted, like planned
- * food (ADR-0009). Used by /training and by the day page. Server component.
+ * ui/ListItem): name and day, then duration, working sets, tonnage and the
+ * burn estimate as a range (ADR-0005: never a precise number). Compact: a
+ * row of exercise icons in their body region's colour; tapping it opens each
+ * exercise with its sets as short text. Planned sessions are drawn muted,
+ * like planned food (ADR-0009). Used by /training and by the day page.
+ * Server component.
  */
 import Link from "next/link";
 import { burnRange, sessionTonnage, weightAt } from "@/core/training/analysis";
@@ -12,6 +14,8 @@ import type { SessionView } from "@/core/training/repositories/sessions";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
+import { regionOf } from "@/core/training/anatomy";
+import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { ListItem } from "@/ui/ListItem";
 
 type Props = {
@@ -36,7 +40,12 @@ export function SessionList({ sessions, measurements, showDay, locale, t }: Prop
     <ul className="grid gap-x-8 md:grid-cols-2">
       {sessions.map((s) => {
         const burn = burnRange(s, weightAt(measurements, s.day));
-        const tonnage = sessionTonnage(s.exercises.filter((e) => e.kind !== "cardio"));
+        const strength = s.exercises.filter((e) => e.kind !== "cardio");
+        const tonnage = sessionTonnage(strength);
+        const sets = strength.reduce(
+          (a, e) => a + e.sets.filter((x) => !x.warmup).length,
+          0,
+        );
         return (
           <ListItem
             key={s.id}
@@ -54,6 +63,7 @@ export function SessionList({ sessions, measurements, showDay, locale, t }: Prop
             }
             footer={[
               s.durationMin ? fill(t.minutesShort, { n: String(s.durationMin) }) : null,
+              sets > 0 ? fill(t.progress.setsN, { n: String(sets) }) : null,
               tonnage > 0
                 ? fill(t.tonnage, { v: formatNumber(String(tonnage), locale, 0) })
                 : null,
@@ -64,16 +74,31 @@ export function SessionList({ sessions, measurements, showDay, locale, t }: Prop
               .filter(Boolean)
               .join(" · ")}
           >
-            <ul className="flex flex-col text-meta">
-              {s.exercises.map((e) => (
-                <li key={e.id} className="flex justify-between gap-3">
-                  <span className="truncate">{e.name}</span>
-                  <span className="shrink-0 font-display text-muted tabular-nums">
-                    {setsText(e.sets, locale)}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <details className="text-meta">
+              <summary
+                className="flex cursor-pointer list-none flex-wrap items-center gap-1.5"
+                aria-label={s.exercises.map((e) => e.name).join(", ")}
+              >
+                {s.exercises.map((e) => (
+                  <ExerciseIcon
+                    key={e.id}
+                    pattern={e.pattern}
+                    region={regionOf(e.muscleGroups)}
+                    size={22}
+                  />
+                ))}
+              </summary>
+              <ul className="mt-2 flex flex-col">
+                {s.exercises.map((e) => (
+                  <li key={e.id} className="flex justify-between gap-3">
+                    <span className="truncate">{e.name}</span>
+                    <span className="shrink-0 font-display text-muted tabular-nums">
+                      {setsText(e.sets, locale)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </details>
           </ListItem>
         );
       })}
