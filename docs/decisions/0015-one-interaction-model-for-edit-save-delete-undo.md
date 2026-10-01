@@ -1,6 +1,6 @@
 # ADR-0015: One interaction model for navigating, saving, cancelling, deleting and undoing
 
-**Status:** proposed
+**Status:** accepted (developer chose B, 2026-10-01)
 **Date:** 2026-10-01
 
 ## Context
@@ -77,13 +77,13 @@ the behaviour of every repository delete, and possibly the schema.
   - it is the largest cost and risk for the least gain over B.
 
 ## Decision
-Pending: the developer chooses. **Recommendation: B.** It is the only
+**B** (developer, 2026-10-01; the agent's recommendation). It is the only
 option where one wrong tap never costs data, and it removes dialogs instead
 of adding them. Autosave stays where it fits: logging that happens in real
 time (gym mode, ticking food as eaten). Explicit Save stays for definitions
 (ingredients, meals, day types, routines).
 
-## Consequences (if B)
+## Consequences
 - **Migration PR first:** `deleted_at timestamptz null` on ingredients,
   meals, log entries, day profiles, exercises, routines, training sessions
   and measurements. Additive, merge-order safe.
