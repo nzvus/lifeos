@@ -6,6 +6,7 @@
  * the cycle forward, like stock in the pantry (ADR-0017).
  *
  *   programs ──< program_slots ──> routines (null = rest)
+ *                       └── program_slot_exercises ──> exercises (one, instead)
  */
 import { sql } from "drizzle-orm";
 import {
@@ -23,7 +24,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
-import { routines } from "./training";
+import { exercises, routines } from "./training";
 
 const tstz = (name: string) => timestamp(name, { withTimezone: true });
 const idColumn = () =>
@@ -80,4 +81,24 @@ export const programSlots = pgTable(
     check("program_slots_position_ck", sql`${t.position} >= 0`),
     index("program_slots_program_idx").on(t.programId),
   ],
+);
+
+/**
+ * A slot can hold ONE exercise instead of a routine (a run, the treadmill).
+ * A table of its own, not a column on program_slots: adding it is safe to
+ * merge before the migration runs (no existing query changes).
+ */
+export const programSlotExercises = pgTable(
+  "program_slot_exercises",
+  {
+    id: idColumn(),
+    userId: uuid("user_id").notNull(),
+    slotId: uuid("slot_id")
+      .notNull()
+      .references(() => programSlots.id, { onDelete: "cascade" }),
+    exerciseId: uuid("exercise_id")
+      .notNull()
+      .references(() => exercises.id, { onDelete: "cascade" }),
+  },
+  (t) => [unique("program_slot_exercises_slot_uq").on(t.slotId)],
 );
