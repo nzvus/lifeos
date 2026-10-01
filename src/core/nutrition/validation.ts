@@ -168,6 +168,30 @@ export const mealInput = z.object({
     )
     .min(1, "empty_meal"),
 });
+/**
+ * ADR-0022: a day's entry edited as a local copy. A line with `itemId`
+ * keeps its snapshot (a different `ingredientId` swaps it); a line without
+ * one adds an ingredient.
+ */
+export const entryLinesInput = z.object({
+  servings: decimalString({ ...SERVINGS, positive: true }),
+  items: z
+    .array(
+      z
+        .object({
+          itemId: id.optional(),
+          ingredientId: id.optional(),
+          quantity: decimalString({ ...QUANTITY, positive: true }),
+        })
+        .refine((l) => l.itemId || l.ingredientId, {
+          message: "required",
+          path: ["ingredientId"],
+        }),
+    )
+    .min(1, "empty_meal"),
+});
+export type EntryLinesInput = z.output<typeof entryLinesInput>;
+
 export type MealInput = z.output<typeof mealInput>;
 
 /**

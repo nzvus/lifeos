@@ -212,6 +212,32 @@ export const assistantEn = {
   title: "Assistant",
   subtitle:
     "Ask it to create, log, plan, or for advice. Changes can be undone; deletes and imports ask first.",
+  welcome: "Hi! I know your meals, routines and recent days.",
+  welcomeHint:
+    "Ask me to create, log or plan, or for advice on your data. You can attach photos, PDFs, Excel or text.",
+  photoOn: "Photo",
+  photoOff: "Text only",
+  tools: {
+    find_ingredients: "ingredients",
+    find_meals: "meals",
+    find_exercises: "exercises",
+    get_day: "day",
+    get_recent_days: "recent days",
+    get_pantry: "pantry",
+    lookup_barcode: "barcode",
+    create_ingredient: "new ingredient",
+    create_meal: "new meal",
+    log_food: "log food",
+    log_estimate: "estimate",
+    create_reminder: "reminder",
+    find_products: "products",
+    create_product: "new product",
+    add_purchase: "purchase",
+    get_calibration: "calibration",
+    get_targets: "targets",
+    import_gym_notes: "gym import",
+    move_to_trash: "trash",
+  } as Record<string, string>,
   newChat: "New conversation",
   conversations: "Conversations",
   empty: "No conversations.",
@@ -306,4 +332,35 @@ export const appEn = {
   offlineHint:
     "This page needs the network. What you already saved is safe on the server.",
   retry: "Try again",
+};
+
+export const errorsEn = {
+  required: "Fill in this field.",
+  too_long: "This is too long.",
+  invalid_number: "Enter a number, like 12.5 or 12,5.",
+  too_many_decimals: "Too many decimals for this field.",
+  too_large: "This number is too large.",
+  not_positive: "Enter a value greater than zero.",
+  invalid_choice: "Choose one of the options.",
+  price_pair: "Enter both the price and the package size, or neither.",
+  duplicate_name: "You already have one with this name.",
+  not_found: "It doesn't exist anymore. Reload the page.",
+  in_use: "A meal still uses it. Remove it from those meals first.",
+  empty_meal: "Add at least one ingredient.",
+  invalid_day: "That date doesn't exist.",
+  is_default: "This is the default day type. Make another one the default first.",
+  invalid_time: "Enter a time like 12:30.",
+  moments_order:
+    "The times must be in order: lunch after 05:00, then snack, then dinner.",
+  still_referenced:
+    "Something else still uses it (even if that is in the trash): delete that first.",
+  not_editable: "This entry has no ingredients to edit (an estimate or a portion).",
+};
+
+export const entryEditEn = {
+  title: "Edit the entry",
+  copy: "You change only this day's entry.",
+  copyMeal: "You change only this day's entry: the meal it came from stays as it is.",
+  total: "The entry's total",
+  edit: "Edit ingredients",
 };

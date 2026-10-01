@@ -25,7 +25,12 @@ import {
 } from "../totals";
 import type { Moment } from "../moments";
 import { qualityOf, type Quality } from "../quality";
-import type { EstimateInput, LogIngredientInput, LogMealInput } from "../validation";
+import type {
+  EntryLinesInput,
+  EstimateInput,
+  LogIngredientInput,
+  LogMealInput,
+} from "../validation";
 import type { EntryStatus } from "../../db/schema";
 import { instantFor } from "../../shared/dates";
 import { Big } from "../../shared/decimal";
@@ -34,6 +39,8 @@ import { getMeal } from "./meals";
 import { ensureDayPlan } from "./profiles";
 
 export type LoggedLine = TotalsLine & {
+  /** The snapshot row's id (ADR-0022: edited in place). */
+  itemId: string;
   name: string;
   unit: Ingredient["unit"];
   /** Link to the current ingredient; null if it was deleted since. */
@@ -44,6 +51,7 @@ export type LoggedLine = TotalsLine & {
 
 export type LogEntryView = {
   id: string;
+  day: string;
   label: string;
   /** Multiplier applied to every line ("1" for a single ingredient). */
   servings: string;
@@ -57,6 +65,8 @@ export type LogEntryView = {
   moment: Moment | null;
   /** An estimated meal (typed approximate totals). */
   estimated: boolean;
+  /** ADR-0017: a portion of a batch. */
+  batchId: string | null;
   lines: LoggedLine[];
   totals: DisplayTotals; // already multiplied by servings
 };
@@ -96,6 +106,7 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
   for (const it of items) {
     const list = linesByEntry.get(it.entryId) ?? [];
     list.push({
+      itemId: it.id,
       name: it.name,
       unit: it.unit,
       ingredientId: it.ingredientId,
@@ -120,6 +131,7 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
     day,
     entries: entries.map((e, i) => ({
       id: e.id,
+      day: e.day,
       label: e.label,
       servings: e.servings,
       mealId: e.mealId,
@@ -127,6 +139,7 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
       at: e.at ? e.at.toISOString() : null,
       moment: e.moment,
       estimated: e.estimated,
+      batchId: e.batchId,
       lines: linesByEntry.get(e.id) ?? [],
       totals: toDisplay(exact[i]!),
     })),
@@ -562,4 +575,89 @@ export async function logEstimate(
   });
   await ensureDayPlan(db, owner, input.day);
   return ok({ id });
+}
+
+/** One live entry of mine with its lines (the entry editor, ADR-0022). */
+export async function getLogEntry(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<LogEntryView | null> {
+  const [entry] = await db
+    .select({ day: logEntries.day })
+    .from(logEntries)
+    .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)));
+  if (!entry) return null;
+  const view = await getDay(db, owner, entry.day);
+  return view.entries.find((e) => e.id === id) ?? null;
+}
+
+/**
+ * ADR-0022: a day's entry edited as a LOCAL COPY — servings, each line's
+ * quantity, lines added, removed or swapped. A kept line (its `itemId`)
+ * keeps its snapshot values; a new or swapped ingredient is copied as it is
+ * now. The meal it came from is never touched. Estimates and batch
+ * portions have no ingredient lines to edit.
+ */
+export async function editLogEntry(
+  db: Db,
+  owner: Owner,
+  id: string,
+  input: EntryLinesInput,
+): Promise<Result<null>> {
+  const [entry] = await db
+    .select()
+    .from(logEntries)
+    .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)));
+  if (!entry) return fail({ _form: "not_found" });
+  if (entry.estimated || entry.batchId) return fail({ _form: "not_editable" });
+  const old = await db
+    .select()
+    .from(logEntryItems)
+    .where(and(ownedBy(logEntryItems, owner), eq(logEntryItems.entryId, id)));
+  const byId = new Map(old.map((it) => [it.id, it]));
+
+  const lines: Omit<
+    typeof logEntryItems.$inferInsert,
+    "userId" | "entryId" | "position"
+  >[] = [];
+  for (const [i, line] of input.items.entries()) {
+    const kept = line.itemId ? byId.get(line.itemId) : undefined;
+    if (kept && (!line.ingredientId || line.ingredientId === kept.ingredientId)) {
+      // Same id: an Undo that sends the old lines back finds them again.
+      const { userId: _u, entryId: _e, position: _p, ...snapshot } = kept;
+      lines.push({ ...snapshot, quantity: line.quantity });
+      continue;
+    }
+    const ing = line.ingredientId
+      ? await getIngredient(db, owner, line.ingredientId)
+      : null;
+    if (!ing) return fail({ [`items.${i}.ingredientId`]: "not_found" });
+    lines.push({
+      ingredientId: ing.id,
+      name: ing.name,
+      unit: ing.unit,
+      quantity: line.quantity,
+      ...per100Of(ing),
+      packagePriceCents: ing.packagePriceCents,
+      packageSize: ing.packageSize,
+      ...qualityOf(ing),
+    });
+  }
+
+  await db.transaction(async (tx) => {
+    await tx
+      .delete(logEntryItems)
+      .where(and(ownedBy(logEntryItems, owner), eq(logEntryItems.entryId, id)));
+    await tx
+      .insert(logEntryItems)
+      .values(
+        lines.map((l, position) => ({ ...l, userId: owner.id, entryId: id, position })),
+      );
+    await tx
+      .update(logEntries)
+      .set({ servings: input.servings })
+      .where(and(ownedBy(logEntries, owner), eq(logEntries.id, id)));
+  });
+  return ok(null);
 }

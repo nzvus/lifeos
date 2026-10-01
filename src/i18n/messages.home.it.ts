@@ -216,6 +216,32 @@ export const assistantIt: Messages["assistant"] = {
   title: "Assistente",
   subtitle:
     "Chiedi di creare, registrare, pianificare o un consiglio. Le modifiche si annullano; eliminazioni e import chiedono conferma.",
+  welcome: "Ciao! Conosco i tuoi pasti, le schede e gli ultimi giorni.",
+  welcomeHint:
+    "Chiedimi di creare, registrare o pianificare, oppure un consiglio sui tuoi dati. Puoi allegare foto, PDF, Excel o testo.",
+  photoOn: "Foto",
+  photoOff: "Solo testo",
+  tools: {
+    find_ingredients: "ingredienti",
+    find_meals: "pasti",
+    find_exercises: "esercizi",
+    get_day: "giornata",
+    get_recent_days: "ultimi giorni",
+    get_pantry: "dispensa",
+    lookup_barcode: "codice a barre",
+    create_ingredient: "nuovo ingrediente",
+    create_meal: "nuovo pasto",
+    log_food: "registra cibo",
+    log_estimate: "stima",
+    create_reminder: "promemoria",
+    find_products: "prodotti",
+    create_product: "nuovo prodotto",
+    add_purchase: "acquisto",
+    get_calibration: "calibrazione",
+    get_targets: "obiettivi",
+    import_gym_notes: "import palestra",
+    move_to_trash: "cestino",
+  } as Record<string, string>,
   newChat: "Nuova conversazione",
   conversations: "Conversazioni",
   empty: "Nessuna conversazione.",
@@ -311,4 +337,35 @@ export const appIt: Messages["app"] = {
   offlineHint:
     "Questa pagina ha bisogno della rete. Quello che hai già salvato è al sicuro sul server.",
   retry: "Riprova",
+};
+
+export const errorsIt: Messages["errors"] = {
+  required: "Compila questo campo.",
+  too_long: "Il testo è troppo lungo.",
+  invalid_number: "Inserisci un numero, come 12,5 o 12.5.",
+  too_many_decimals: "Troppi decimali per questo campo.",
+  too_large: "Il numero è troppo grande.",
+  not_positive: "Inserisci un valore maggiore di zero.",
+  invalid_choice: "Scegli una delle opzioni.",
+  price_pair: "Inserisci sia il prezzo sia la confezione, oppure nessuno dei due.",
+  duplicate_name: "Esiste già un elemento con questo nome.",
+  not_found: "Non esiste più. Ricarica la pagina.",
+  in_use: "Un pasto lo usa ancora. Toglilo prima da quei pasti.",
+  empty_meal: "Aggiungi almeno un ingrediente.",
+  invalid_day: "Quella data non esiste.",
+  is_default: "È il tipo di giornata predefinito. Rendi predefinito un altro tipo prima.",
+  invalid_time: "Inserisci un'ora come 12:30.",
+  moments_order:
+    "Gli orari devono essere in ordine: pranzo dopo le 05:00, poi spuntino, poi cena.",
+  still_referenced:
+    "Un altro elemento lo usa ancora (anche se è nel cestino): elimina prima quello.",
+  not_editable: "Questa voce non ha ingredienti da modificare (stima o porzione).",
+};
+
+export const entryEditIt: Messages["entryEdit"] = {
+  title: "Modifica la voce",
+  copy: "Cambi solo questa voce del giorno.",
+  copyMeal: "Cambi solo questa voce del giorno: il pasto da cui viene resta com'è.",
+  total: "Totale della voce",
+  edit: "Modifica ingredienti",
 };

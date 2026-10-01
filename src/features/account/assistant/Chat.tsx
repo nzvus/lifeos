@@ -14,6 +14,8 @@
 import {
   Check,
   FileText,
+  Sparkles,
+  Wrench,
   Image as ImageIcon,
   Mic,
   Paperclip,
@@ -28,6 +30,7 @@ import { buttonClass } from "@/ui/button";
 import { CARD } from "@/ui/Card";
 import { FormAlert } from "@/ui/FormAlert";
 import { toast } from "@/ui/Toast";
+import { RichText } from "./RichText";
 import {
   ocrImage,
   PDF_FILE,
@@ -162,141 +165,163 @@ export function Chat({
 
   const kindName = (k: string) => (t.trash.kinds as Record<string, string>)[k] ?? k;
 
+  const empty = items.length === 0 && !pending;
   return (
-    <section className={CARD} aria-label={a.title}>
-      <ol className="flex flex-col gap-3">
-        {items.map((it) => {
-          if (it.role === "user")
+    <section className={`${CARD} gap-4`} aria-label={a.title}>
+      {empty ? (
+        <div className="flex flex-col gap-3">
+          <p className="flex items-center gap-2 font-display text-item font-semibold">
+            <Sparkles size={20} aria-hidden="true" className="text-herb" />
+            {a.welcome}
+          </p>
+          <p className="text-meta text-muted">{a.welcomeHint}</p>
+          <div className="grid gap-2 @lg:grid-cols-2">
+            {a.quick.map((q) => (
+              <button
+                key={q}
+                type="button"
+                disabled={!enabled}
+                onClick={() => setText(q)}
+                className="tile px-3 py-2 text-left text-meta hover:border-ink disabled:opacity-50"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <ol className="flex flex-col gap-4">
+          {items.map((it) => {
+            if (it.role === "user")
+              return (
+                <li
+                  key={it.id}
+                  className="ml-10 flex flex-col gap-1 self-end rounded-surface bg-paper px-3 py-2"
+                >
+                  {it.text && <p className="whitespace-pre-wrap">{it.text}</p>}
+                  {it.attachments.map((n) => (
+                    <span
+                      key={n}
+                      className="inline-flex items-center gap-1 text-meta text-muted"
+                    >
+                      <FileText size={14} aria-hidden="true" />
+                      {fill(a.attached, { name: n })}
+                    </span>
+                  ))}
+                </li>
+              );
+            if (it.role === "assistant")
+              return (
+                <li key={it.id} className="mr-6 flex gap-2">
+                  <span className="section-icon mt-0.5 shrink-0" aria-label={a.me}>
+                    <Sparkles size={16} aria-hidden="true" />
+                  </span>
+                  <div className="flex min-w-0 flex-col gap-1">
+                    {it.text && <RichText text={it.text} />}
+                    {it.tools.length > 0 && (
+                      <span className="flex flex-wrap gap-1">
+                        {it.tools.map((tool, i) => (
+                          <span
+                            key={`${tool}-${i}`}
+                            className="inline-flex items-center gap-1 rounded-badge border border-hairline px-1.5 text-meta text-muted"
+                          >
+                            <Wrench size={12} aria-hidden="true" />
+                            {(a.tools as Record<string, string>)[tool] ?? tool}
+                          </span>
+                        ))}
+                      </span>
+                    )}
+                  </div>
+                </li>
+              );
+            if (it.role === "change")
+              return (
+                <li
+                  key={it.id}
+                  className="ml-10 flex items-center justify-between gap-3 rounded-control border border-hairline px-3 py-2 text-meta"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <Check size={14} aria-hidden="true" className="text-herb" />
+                    {fill(a.done, {
+                      what: `${kindName(it.change.kind)} «${it.change.label}»`,
+                    })}
+                  </span>
+                  <button
+                    type="button"
+                    className={buttonClass({ variant: "subtle", size: "sm" })}
+                    onClick={async () => {
+                      const r = await undo(it.change.kind, it.change.id);
+                      toast({
+                        message: r.ok
+                          ? fill(a.undone, { name: it.change.label })
+                          : (r.message ?? ""),
+                      });
+                      router.refresh();
+                    }}
+                  >
+                    <Undo2 size={16} aria-hidden="true" />
+                    {a.undo}
+                  </button>
+                </li>
+              );
             return (
               <li
                 key={it.id}
-                className="ml-8 flex flex-col gap-1 self-end rounded-surface bg-paper p-3"
+                className="ml-10 flex flex-col gap-2 rounded-control border border-warn p-3 text-meta"
               >
-                <span className="text-meta font-semibold text-muted">{a.you}</span>
-                {it.text && <p className="whitespace-pre-wrap">{it.text}</p>}
-                {it.attachments.map((n) => (
-                  <span
-                    key={n}
-                    className="inline-flex items-center gap-1 text-meta text-muted"
-                  >
-                    <FileText size={14} aria-hidden="true" />
-                    {fill(a.attached, { name: n })}
-                  </span>
-                ))}
-              </li>
-            );
-          if (it.role === "assistant")
-            return (
-              <li key={it.id} className="mr-8 flex flex-col gap-1">
-                <span className="text-meta font-semibold text-herb">{a.me}</span>
-                {it.text && <p className="whitespace-pre-wrap">{it.text}</p>}
-                {it.tools.length > 0 && (
-                  <span className="text-meta text-muted">
-                    {fill(a.toolUsed, { name: it.tools.join(", ") })}
-                  </span>
+                <span className="font-semibold">{a.pendingTitle}</span>
+                <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-muted">
+                  {it.preview}
+                </pre>
+                {it.open && conversationId && (
+                  <div className="flex gap-2">
+                    {[true, false].map((yes) => (
+                      <button
+                        key={String(yes)}
+                        type="button"
+                        className={buttonClass({
+                          variant: yes ? "primary" : "quiet",
+                          size: "sm",
+                        })}
+                        onClick={() =>
+                          startTransition(async () => {
+                            await confirm(conversationId, it.toolCallId, yes);
+                            router.refresh();
+                          })
+                        }
+                      >
+                        {yes ? (
+                          <Check size={16} aria-hidden="true" />
+                        ) : (
+                          <X size={16} aria-hidden="true" />
+                        )}
+                        {yes ? a.confirm : a.cancel}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </li>
             );
-          if (it.role === "change")
-            return (
-              <li
-                key={it.id}
-                className="flex items-center justify-between gap-3 rounded-control border border-hairline px-3 py-2 text-meta"
-              >
-                <span>
-                  {fill(a.done, {
-                    what: `${kindName(it.change.kind)} «${it.change.label}»`,
-                  })}
-                </span>
-                <button
-                  type="button"
-                  className={buttonClass({ variant: "subtle", size: "sm" })}
-                  onClick={async () => {
-                    const r = await undo(it.change.kind, it.change.id);
-                    toast({
-                      message: r.ok
-                        ? fill(a.undone, { name: it.change.label })
-                        : (r.message ?? ""),
-                    });
-                    router.refresh();
-                  }}
-                >
-                  <Undo2 size={16} aria-hidden="true" />
-                  {a.undo}
-                </button>
-              </li>
-            );
-          return (
-            <li
-              key={it.id}
-              className="flex flex-col gap-2 rounded-control border border-warn p-3 text-meta"
-            >
-              <span className="font-semibold">{a.pendingTitle}</span>
-              <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-muted">
-                {it.preview}
-              </pre>
-              {it.open && conversationId && (
-                <div className="flex gap-2">
-                  {[true, false].map((yes) => (
-                    <button
-                      key={String(yes)}
-                      type="button"
-                      className={buttonClass({
-                        variant: yes ? "primary" : "quiet",
-                        size: "sm",
-                      })}
-                      onClick={() =>
-                        startTransition(async () => {
-                          await confirm(conversationId, it.toolCallId, yes);
-                          router.refresh();
-                        })
-                      }
-                    >
-                      {yes ? (
-                        <Check size={16} aria-hidden="true" />
-                      ) : (
-                        <X size={16} aria-hidden="true" />
-                      )}
-                      {yes ? a.confirm : a.cancel}
-                    </button>
-                  ))}
-                </div>
-              )}
+          })}
+          {pending && (
+            <li className="flex items-center gap-2 text-meta text-muted">
+              <span className="section-icon shrink-0">
+                <Sparkles size={16} aria-hidden="true" />
+              </span>
+              {a.thinking}
             </li>
-          );
-        })}
-        {pending && <li className="text-meta text-muted">{a.thinking}</li>}
-      </ol>
+          )}
+        </ol>
+      )}
 
       {error && <FormAlert tone="error">{error}</FormAlert>}
       <form
-        className="flex flex-col gap-2"
+        className="flex flex-col gap-2 rounded-surface border border-hairline bg-sheet p-2"
         onSubmit={(e) => {
           e.preventDefault();
           if (enabled) submit();
         }}
       >
-        <div className="flex flex-wrap gap-2">
-          {a.quick.map((q) => (
-            <button
-              key={q}
-              type="button"
-              disabled={!enabled}
-              onClick={() => setText(q)}
-              className={buttonClass({ variant: "subtle", size: "sm" })}
-            >
-              {q}
-            </button>
-          ))}
-        </div>
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          rows={3}
-          placeholder={a.placeholder}
-          disabled={!enabled}
-          className="rounded-control rule-b-medium border-ink bg-sheet px-2 py-1.5 text-body"
-        />
         {(files.length > 0 || reading) && (
           <ul className="flex flex-wrap gap-2 text-meta">
             {files.map((f, i) => (
@@ -322,61 +347,97 @@ export function Chat({
             {reading && <li className="text-muted">{a.reading}</li>}
           </ul>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-3">
-            <input
-              ref={input}
-              type="file"
-              multiple
-              accept="image/*,.pdf,application/pdf,.xlsx,.json,.txt,.csv,.md"
-              className="hidden"
-              onChange={(e) => void attach(e.target.files)}
-            />
-            <button
-              type="button"
-              disabled={!enabled}
-              onClick={() => input.current?.click()}
-              className={buttonClass({ variant: "subtle", size: "sm" })}
-            >
-              <Paperclip size={16} aria-hidden="true" />
-              {a.attach}
-            </button>
-            <button
-              type="button"
-              disabled={!enabled || listening}
-              onClick={dictate}
-              aria-label={a.dictate}
-              title={a.dictate}
-              className={buttonClass({
-                variant: listening ? "primary" : "subtle",
-                size: "sm",
-                iconOnly: true,
-              })}
-            >
-              <Mic size={16} aria-hidden="true" />
-            </button>
-            <label className="inline-flex items-center gap-2 text-meta">
-              <input
-                type="checkbox"
-                checked={sendPhoto}
-                onChange={(e) => setSendPhoto(e.target.checked)}
-                className="h-4 w-4 accent-herb"
-              />
-              {a.sendPhoto}
-            </label>
-          </div>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            // Enter sends on a computer; Shift+Enter is a new line.
+            if (
+              e.key === "Enter" &&
+              !e.shiftKey &&
+              window.matchMedia("(pointer: fine)").matches
+            ) {
+              e.preventDefault();
+              if (enabled && (text.trim() || files.length)) submit();
+            }
+          }}
+          rows={2}
+          placeholder={a.placeholder}
+          disabled={!enabled}
+          aria-label={a.placeholder}
+          className="w-full resize-y bg-transparent px-1 py-1 text-body outline-none"
+        />
+        <div className="flex items-center gap-1">
+          <input
+            ref={input}
+            type="file"
+            multiple
+            accept="image/*,.pdf,application/pdf,.xlsx,.json,.txt,.csv,.md"
+            className="hidden"
+            onChange={(e) => void attach(e.target.files)}
+          />
+          <button
+            type="button"
+            disabled={!enabled}
+            onClick={() => input.current?.click()}
+            aria-label={a.attach}
+            title={a.attach}
+            className={buttonClass({ variant: "quiet", size: "sm", iconOnly: true })}
+          >
+            <Paperclip size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            disabled={!enabled || listening}
+            onClick={dictate}
+            aria-label={a.dictate}
+            title={a.dictate}
+            className={buttonClass({
+              variant: listening ? "primary" : "quiet",
+              size: "sm",
+              iconOnly: true,
+            })}
+          >
+            <Mic size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-pressed={sendPhoto}
+            onClick={() => setSendPhoto((v) => !v)}
+            title={a.sendPhoto}
+            className={`${buttonClass({ variant: sendPhoto ? "subtle" : "quiet", size: "sm" })} ${sendPhoto ? "" : "text-muted"}`}
+          >
+            <ImageIcon size={16} aria-hidden="true" />
+            {sendPhoto ? a.photoOn : a.photoOff}
+          </button>
           <button
             type="submit"
             disabled={
               !enabled || pending || reading || (!text.trim() && files.length === 0)
             }
-            className={buttonClass({ variant: "primary" })}
+            aria-label={a.send}
+            title={a.send}
+            className={`ml-auto ${buttonClass({ variant: "primary", size: "sm", iconOnly: true })}`}
           >
             <Send size={18} aria-hidden="true" />
-            {a.send}
           </button>
         </div>
       </form>
+      {!empty && (
+        <div className="flex flex-wrap gap-2">
+          {a.quick.map((q) => (
+            <button
+              key={q}
+              type="button"
+              disabled={!enabled}
+              onClick={() => setText(q)}
+              className="max-w-full truncate rounded-badge border border-hairline px-2 py-1 text-meta text-muted hover:text-ink"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

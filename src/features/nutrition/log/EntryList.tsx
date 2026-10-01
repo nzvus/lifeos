@@ -12,7 +12,7 @@
  * refreshLogEntry) — and delete with Undo; then a "Details" disclosure
  * (native <details>) with what the entry contained and its time.
  */
-import { Tag } from "lucide-react";
+import { Pencil, Tag } from "lucide-react";
 import { detailLines, stripValues } from "@/core/nutrition/display";
 import { groupByMoment, type MomentBounds } from "@/core/nutrition/moments";
 import { entriesTotals } from "@/core/nutrition/totals";
@@ -59,7 +59,7 @@ type Props = {
   quality?: (entry: LogEntryView) => ReactNode;
   t: Pick<
     Messages,
-    "day" | "nutrients" | "macro" | "errors" | "moments" | "actions" | "label"
+    "day" | "nutrients" | "macro" | "errors" | "moments" | "actions" | "label" | "entryEdit"
   >;
 };
 export function EntryList({
@@ -165,6 +165,17 @@ export function EntryList({
                       name={e.label}
                       trash={trash}
                       restore={restore}
+                      items={
+                        e.estimated || e.batchId
+                          ? []
+                          : [
+                              {
+                                label: t.entryEdit.edit,
+                                icon: <Pencil size={16} aria-hidden="true" />,
+                                href: `/log/${e.id}?from=${encodeURIComponent(`/?day=${e.day}`)}`,
+                              },
+                            ]
+                      }
                       actions={[
                         { label: t.day.refresh, run: refresh, done: t.day.refreshed },
                       ]}
