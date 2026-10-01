@@ -160,9 +160,15 @@ export const energyIt: Messages["energy"] = {
   dynamicHint:
     "Calorie = consumo stimato del giorno con il piano − deficit; proteine e grassi seguono il peso; i carboidrati il resto. Zuccheri, saturi e sale restano limiti.",
   dynamicNote: "{goal}: {kcal} kcal = consumo con il piano {spent} {sign} {delta} kcal",
+  dynamicCapped:
+    "{note} → {kcal} kcal: i carboidrati si fermano a {carbs} g, oltre servono poco",
   goalCustom: "Obiettivo personalizzato",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
   formulas: {
+    capped:
+      "i carboidrati si fermano a {carbs} g, quindi le kcal sono proteine + grassi + carboidrati",
+    carbsCap:
+      "tetto della zona buona: {g} g ({perKg} g/kg); oltre servono poco a energia e recupero",
     title: "Come è calcolato",
     years: "anni",
     walkNone:
@@ -287,4 +293,12 @@ export const trainingWhenIt: Messages["training"]["when"] = {
     plan: "Resta pianificato a quell'ora (vuoto = senza ora): il consumo con il piano lo conta.",
     done: "Si apre l'editor per scrivere quello che hai fatto.",
   },
+};
+
+export const panelZonesIt: Messages["panel"]["zones"] = {
+  below_floor: "sotto il minimo utile ({floor} {u})",
+  low: "sotto la zona buona {low}–{high} {u}",
+  good: "nella zona buona {low}–{high} {u}",
+  high: "sopra la zona buona {low}–{high} {u}: oltre serve poco",
+  above_ceiling: "oltre il tetto utile ({ceiling} {u})",
 };

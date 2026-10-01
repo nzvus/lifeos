@@ -10,6 +10,7 @@ import {
   assistantIt,
   barcodeIt,
   trainingWhenIt,
+  panelZonesIt,
 } from "./messages.home.it";
 import type { Messages } from "./index";
 
@@ -781,6 +782,7 @@ export const it: Messages = {
       "Barre più chiare: nessun target quel giorno, scala sul giorno più alto del periodo.",
   },
   panel: {
+    zones: panelZonesIt,
     left: "rimaste",
     over: "in più",
     off: "in obiettivo",

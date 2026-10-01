@@ -115,7 +115,7 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   5-min signed cookie cache) and rate limiting; sign-up closed unless
   `ALLOW_SIGNUP=true`. Authorization in every page/action (`requireContext`)
   and again at the data boundary (`Owner`).
-- **Targets:** per day (ADR-0008): fixed copy, else default profile, else none; auto maxima.
+- **Targets:** per day (ADR-0008) fixed / default profile / none; auto maxima; bands (ADR-0023).
   A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done + planned;
   no double counts, ADR-0021; the baseline × the accepted calibration, ADR-0020).
 - **Log entries** (ADR-0009/0011): planned or eaten, optional time/moment, maybe an

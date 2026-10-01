@@ -217,14 +217,30 @@ export function dynamicTargets(
   energy: Energy,
   weightKg: string,
   p: DynamicParams,
-): { kcal: number; protein: number; fat: number; carbs: number; fiber: number } {
+  /** ADR-0023: the top of the carbs' good zone, g; beyond it carbs add little. */
+  carbsMax?: number,
+): {
+  kcal: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+  fiber: number;
+  /** The energy target before the carbs cap, when the cap lowered it. */
+  uncapped: number | null;
+} {
   const kg = Number(weightKg);
   const mid = (energy.total.withPlan.low + energy.total.withPlan.high) / 2;
-  const kcal = Math.max(1200, Math.round(mid - p.deficitKcal));
+  let kcal = Math.max(1200, Math.round(mid - p.deficitKcal));
   const protein = Math.round(Number(p.proteinGPerKg) * kg);
   const fat = Math.round(Number(p.fatGPerKg) * kg);
-  const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
-  return { kcal, protein, fat, carbs, fiber: Math.round((kcal / 1000) * 14) };
+  let carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
+  let uncapped: number | null = null;
+  if (carbsMax !== undefined && carbs > carbsMax) {
+    uncapped = kcal;
+    carbs = Math.round(carbsMax);
+    kcal = protein * 4 + fat * 9 + carbs * 4;
+  }
+  return { kcal, protein, fat, carbs, fiber: Math.round((kcal / 1000) * 14), uncapped };
 }
 
 /** Goal presets (the day type editor fills the three fields from one). */

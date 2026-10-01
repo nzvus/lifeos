@@ -73,4 +73,23 @@ describe("dayScore", () => {
     });
     expect(r.parts.find((p) => p.key === "processing")?.value).toBe(100);
   });
+
+  it("with bands, each macro scores by its zone, not by reaching a number", () => {
+    const r = dayScore({
+      totals: { ...totals, protein: "110", carbs: "300" },
+      targets: { ...noTargets, salt: "5" },
+      quality: quality({ 1: 100, 2: 0, 3: 0, 4: 0, unknown: 0 }),
+      bands: {
+        // protein 110 g: between floor 96 and low 128 → 50 + 14/32 × 50 = 72
+        protein: { floor: 96, low: 128, high: 176, ceiling: 208 },
+        // carbs 300 g: in the good zone → 100, though it is not "the" target
+        carbs: { floor: 120, low: 240, high: 400, ceiling: 640 },
+      },
+    });
+    // salt 0 ≤ 5: 100. (72 + 100 + 100) / 3 = 91
+    expect(r.parts.find((p) => p.key === "targets")).toMatchObject({
+      value: 91,
+      detail: { on: 2, of: 3 },
+    });
+  });
 });

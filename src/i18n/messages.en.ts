@@ -20,6 +20,7 @@ import {
   assistantEn,
   barcodeEn,
   trainingWhenEn,
+  panelZonesEn,
 } from "./messages.home.en";
 
 export const en = {
@@ -779,6 +780,7 @@ export const en = {
     relativeNote: "Fainter bars: no target that day, scaled to the period's highest.",
   },
   panel: {
+    zones: panelZonesEn,
     left: "left",
     over: "over",
     off: "on target",

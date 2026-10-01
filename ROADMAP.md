@@ -169,7 +169,7 @@
 - [x] Goal shown plainly: maintenance added; goal tiles + "deficit / surplus of N kcal a day" in the editor; the day says "Recomposition: 3504 kcal = energy with the plan 3704 − 200"
 - [x] Alignment: form pages (settings, editors, trash, live) centred like their action bar; the dynamic day type's fields aligned
 - [ ] Energy check against the developer's export (tmp/, never committed)
-- [ ] ADR-0023 macro bands (floor / good / ceiling per kg and training) and a zone-based day score
+- [x] ADR-0023 macro bands (core/nutrition/bands.ts): floor / good zone / ceiling per kg, training load and goal; bars shade the zone and say which zone; day score by zone; dynamic carbs stop at the top of their good zone (the energy target with them)
 - [ ] ADR-0022 edit a day's food entry as a local copy (grams, swaps)
 - [ ] ADR-0024 training programs as an ordered cycle (migration-only PR first), derived plan on the day and the targets page
 - [ ] Assistant: the whole picture each turn (recent detail + older aggregates), answers in terms of the user's own meals and routines; a better chat UI

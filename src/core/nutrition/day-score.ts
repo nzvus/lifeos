@@ -4,8 +4,11 @@
  * box"). Computed on read from what was EATEN; nothing is stored, so the
  * formula can change without touching data.
  *
- *   targets      40 %  share of the nutrients with a target that are on
- *                      target (min reached, max not passed, target ±5 %)
+ *   targets      40 %  each nutrient scored, then averaged: a macro with a
+ *                      band (ADR-0023) by its zone — 100 in the good zone,
+ *                      50 at the floor or ceiling, 0 well beyond; a limit
+ *                      (sugars, saturated fat, salt) 100 if not passed, else 0;
+ *                      without bands, 100 when on target, else 0
  *   processing   35 %  energy from NOVA 1–2 counts fully, NOVA 3 half,
  *                      NOVA 4 not at all; unclassified energy is left out
  *   fiberVariety 25 %  fibre types with at least 1 g: 0, 1, 2, 3, 4+ →
@@ -18,6 +21,7 @@ import { Big } from "../shared/decimal";
 import { NUTRIENT_KEYS, type NutrientKey } from "./nutrients";
 import { FIBER_TYPES } from "./quality";
 import type { QualitySummary } from "./quality-summary";
+import { zoneScore, type Bands } from "./bands";
 import { assessTarget, TARGET_KIND, type Targets } from "./targets";
 
 export const SCORE_WEIGHTS = { targets: 40, processing: 35, fiberVariety: 25 } as const;
@@ -42,19 +46,29 @@ export function dayScore(input: {
   totals: Record<NutrientKey, string>;
   targets: Targets;
   quality: QualitySummary;
+  /** ADR-0023: macro bands; nutrients with one are scored by zone. */
+  bands?: Bands;
 }): DayScore {
-  // Targets met.
+  // Each nutrient 0–100; `on` counts those fully right.
   let on = 0;
   let of = 0;
+  let sum = 0;
   for (const k of NUTRIENT_KEYS) {
-    const a = assessTarget(input.totals[k], input.targets[k], TARGET_KIND[k]);
-    if (a.status === "none") continue;
+    const band = input.bands?.[k];
+    let points: number;
+    if (band) points = zoneScore(Number(input.totals[k]), band);
+    else {
+      const a = assessTarget(input.totals[k], input.targets[k], TARGET_KIND[k]);
+      if (a.status === "none") continue;
+      points = a.status === "on" ? 100 : 0;
+    }
     of++;
-    if (a.status === "on") on++;
+    sum += points;
+    if (points === 100) on++;
   }
   const targets: ScorePart = {
     key: "targets",
-    value: of === 0 ? null : Math.round((on / of) * 100),
+    value: of === 0 ? null : Math.round(sum / of),
     weight: 0,
     reason: of === 0 ? "no_targets" : null,
     detail: { on, of },

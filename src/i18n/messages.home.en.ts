@@ -158,9 +158,13 @@ export const energyEn = {
   dynamicHint:
     "Calories = the day's estimated energy with the plan − deficit; protein and fat follow your weight; carbs are the rest. Sugars, saturated fat and salt stay limits.",
   dynamicNote: "{goal}: {kcal} kcal = energy with the plan {spent} {sign} {delta} kcal",
+  dynamicCapped: "{note} → {kcal} kcal: carbs stop at {carbs} g, more adds little",
   goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
+    capped: "carbs stop at {carbs} g, so kcal = protein + fat + carbs",
+    carbsCap:
+      "top of the good zone: {g} g ({perKg} g/kg); more adds little for energy and recovery",
     title: "How it is computed",
     years: "years",
     walkNone:
@@ -284,4 +288,12 @@ export const trainingWhenEn = {
     plan: "It stays planned at that time (empty = no time): the energy with the plan counts it.",
     done: "The editor opens to write what you did.",
   },
+};
+
+export const panelZonesEn = {
+  below_floor: "below the useful floor ({floor} {u})",
+  low: "below the good zone {low}–{high} {u}",
+  good: "in the good zone {low}–{high} {u}",
+  high: "above the good zone {low}–{high} {u}: more adds little",
+  above_ceiling: "past the useful ceiling ({ceiling} {u})",
 };
