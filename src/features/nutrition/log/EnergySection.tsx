@@ -19,6 +19,8 @@ import { Disclosure } from "@/ui/Disclosure";
 import { Section } from "@/ui/Section";
 import { ActivityForm } from "./ActivityForm";
 import { CalibrationBox } from "./CalibrationBox";
+import { EnergyFormulas } from "./EnergyFormulas";
+import type { ComponentProps } from "react";
 import type { FormState } from "@/core/shared/result";
 
 type Props = {
@@ -29,6 +31,8 @@ type Props = {
   eaten: string;
   withPlanned: string;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
+  /** A dynamic day's parameters and targets, for the formulas. */
+  dynamic: ComponentProps<typeof EnergyFormulas>["dynamic"];
   /** ADR-0020: the accepted factor on the baseline (1 = none). */
   correction: number;
   /** ADR-0020: the last 28 days against the model (today's page only). */
@@ -45,6 +49,7 @@ export function EnergySection({
   eaten,
   withPlanned,
   action,
+  dynamic,
   correction,
   calibration,
   setCorrection,
@@ -111,6 +116,11 @@ export function EnergySection({
             {row(e.balance, balance(withPlanned, energy.total.withPlan), true)}
           </ul>
         </div>
+      )}
+      {energy && (
+        <Disclosure summary={e.formulas.title}>
+          <EnergyFormulas energy={energy} dynamic={dynamic} locale={locale} t={e} />
+        </Disclosure>
       )}
       <Disclosure summary={e.activity}>
         <ActivityForm action={action} initial={activity} t={t} />

@@ -11,6 +11,17 @@ const energy = {
   walking: { low: 0, high: 0 },
   training: { done: { low: 0, high: 0 }, planned: { low: 0, high: 0 } },
   total: { done: { low: 2400, high: 2600 }, withPlan: { low: 2400, high: 2600 } },
+  inputs: {
+    sex: "male",
+    age: 30,
+    kg: 80,
+    heightCm: 180,
+    level: "mixed",
+    factor: [1.3, 1.45],
+    correction: 1,
+    walk: { declaredMin: 0, steps: 0, levelSteps: 7500, minutes: 0, met: [3, 3.8] },
+    sessions: [],
+  },
 } satisfies Energy;
 
 const FROM = "2026-09-03";

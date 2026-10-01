@@ -149,6 +149,30 @@ export const energyEn = {
     "Calories = the day's estimated energy with the plan − deficit; protein and fat follow your weight; carbs are the rest. Sugars, saturated fat and salt stay limits.",
   dynamicNote: "Dynamic targets: {kcal} kcal from the energy with the plan",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
+  formulas: {
+    title: "How it is computed",
+    years: "years",
+    walkNone:
+      "{steps} steps, not beyond the {level} already in the level, and no deliberate walk",
+    walkMinutes:
+      "{min} min = the larger of a deliberate walk ({declared} min) and (steps {steps} − the level's {level}) ÷ 100",
+    noBurn: "no duration nor estimate: not counted",
+    fromEstimate: "your estimate {kcal} kcal ±15 %",
+    fromSets:
+      "strength {strength} min × 3.5–5 MET × {kg} kg + cardio {cardio} min at MET from speed",
+    rest: "resting already in the baseline {kcal} kcal ({min} min × 1 MET)",
+    sumDone: "everyday activity + walking + training done",
+    sumPlan: "spent so far + training planned",
+    deficit: "Calorie target (deficit)",
+    surplus: "Calorie target (surplus)",
+    maintenance: "Calorie target (maintenance)",
+    midpoint: "midpoint of the energy with the plan",
+    floor: "1200 minimum",
+    protein: "Protein",
+    fat: "Fat",
+    carbs: "Carbs (the rest)",
+    fiber: "Fibre",
+  },
   calibration: {
     title: "Calibration",
     how: "Compares the last {days} days: what you ate and how your weight moved tell what you really spent.",

@@ -13,7 +13,7 @@ import { dayActivity, userSettings } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { getHistory } from "../../nutrition/repositories/history";
 import { addDays } from "../../shared/dates";
-import { burnRange, weightAt } from "../../training/analysis";
+import { burnBasis, burnRange, weightAt } from "../../training/analysis";
 import { listMeasurements } from "../../training/repositories/measurements";
 import { listSessions } from "../../training/repositories/sessions";
 import {
@@ -105,6 +105,8 @@ function factsOf(
       status: s.status,
       burn: burnRange(s, kg),
       durationMin: s.durationMin,
+      basis: burnBasis(s),
+      name: s.label,
     })),
   };
   return { activity, facts };

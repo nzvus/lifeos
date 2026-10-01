@@ -18,7 +18,7 @@
  * the plan"). Targets of a dynamic day follow the plan: you eat for the
  * day you are going to have.
  */
-import type { BurnRange } from "../training/analysis";
+import type { BurnBasis, BurnRange } from "../training/analysis";
 
 export type Range = { low: number; high: number };
 export const LEVELS = ["sitting", "mixed", "on_feet"] as const;
@@ -59,6 +59,36 @@ export type DayFacts = {
     status: "planned" | "done";
     burn: BurnRange | null;
     durationMin: number | null;
+    /** What the burn came from, for the formula on screen. */
+    basis?: BurnBasis;
+    name?: string;
+  }[];
+};
+
+/** Every input of the estimate, so the page can show each formula. */
+export type EnergyInputs = {
+  sex: Sex;
+  age: number;
+  kg: number;
+  heightCm: number;
+  level: ActivityLevel;
+  factor: [number, number];
+  correction: number;
+  walk: {
+    declaredMin: number;
+    steps: number;
+    levelSteps: number;
+    minutes: number;
+    met: [number, number];
+  };
+  sessions: {
+    name: string;
+    status: "planned" | "done";
+    durationMin: number;
+    burn: BurnRange | null;
+    rest: number;
+    net: Range;
+    basis: BurnBasis | null;
   }[];
 };
 
@@ -68,6 +98,7 @@ export type Energy = {
   walking: Range;
   training: { done: Range; planned: Range };
   total: { done: Range; withPlan: Range };
+  inputs: EnergyInputs;
 };
 
 /** What is missing for an estimate, if anything (never guessed). */
@@ -119,9 +150,10 @@ export function dayEnergy(body: Body, facts: DayFacts): Energy | null {
   );
 
   // Net of resting: one MET for the session's duration is already in the baseline.
+  const restOf = (s: DayFacts["sessions"][number]) => kg * ((s.durationMin ?? 0) / 60);
   const net = (s: DayFacts["sessions"][number]): Range => {
     if (!s.burn) return r(0, 0);
-    const rest = kg * ((s.durationMin ?? 0) / 60);
+    const rest = restOf(s);
     return r(Math.max(0, s.burn.low - rest), Math.max(0, s.burn.high - rest));
   };
   const done = add(
@@ -140,6 +172,31 @@ export function dayEnergy(body: Body, facts: DayFacts): Energy | null {
     walking,
     training: { done, planned },
     total: { done: totalDone, withPlan: add(totalDone, planned) },
+    inputs: {
+      sex: body.sex!,
+      age,
+      kg,
+      heightCm: body.heightCm!,
+      level: facts.level,
+      factor: [fLo, fHi],
+      correction: c,
+      walk: {
+        declaredMin: facts.walkingMin ?? 0,
+        steps: facts.steps ?? 0,
+        levelSteps: LEVEL_STEPS[facts.level],
+        minutes: Math.round(minutes),
+        met: WALK_MET,
+      },
+      sessions: facts.sessions.map((s) => ({
+        name: s.name ?? "",
+        status: s.status,
+        durationMin: s.durationMin ?? 0,
+        burn: s.burn,
+        rest: Math.round(restOf(s)),
+        net: net(s),
+        basis: s.basis ?? null,
+      })),
+    },
   };
 }
 

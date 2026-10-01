@@ -121,6 +121,39 @@ export const INTENSITY_MET: Record<Intensity, [number, number]> = {
  */
 export const STRENGTH_MET: [number, number] = [3.5, 5];
 
+/** What a session's burn range was computed from, to show the formula. */
+export type BurnBasis =
+  | { kind: "estimate"; kcal: number }
+  | { kind: "intensity"; intensity: Intensity; met: [number, number]; minutes: number }
+  | { kind: "sets"; strengthMin: number; cardioMin: number };
+
+/** The inputs burnRange uses for a session (same rules, no arithmetic on kcal). */
+export function burnBasis(session: {
+  durationMin: number | null;
+  exercises: readonly { kind: ExerciseKind; sets: readonly SetLike[] }[];
+  intensity?: Intensity | null;
+  kcalEstimate?: number | null;
+}): BurnBasis {
+  if (session.exercises.length === 0 && session.kcalEstimate)
+    return { kind: "estimate", kcal: session.kcalEstimate };
+  if (session.exercises.length === 0 && session.intensity)
+    return {
+      kind: "intensity",
+      intensity: session.intensity,
+      met: INTENSITY_MET[session.intensity],
+      minutes: session.durationMin ?? 0,
+    };
+  const cardioMin = session.exercises
+    .filter((e) => e.kind === "cardio")
+    .flatMap((e) => e.sets)
+    .reduce((a, s) => a + Math.max(0, (s.durationS ?? 0) / 60), 0);
+  return {
+    kind: "sets",
+    strengthMin: Math.max(0, (session.durationMin ?? 0) - cardioMin),
+    cardioMin: Math.round(cardioMin),
+  };
+}
+
 /**
  * Estimated kcal range of a session. Cardio sets with a speed use their own
  * MET (±15 %); the rest of the session's minutes count as strength time at
