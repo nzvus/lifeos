@@ -125,7 +125,8 @@
 - [x] ADR-0015 accepted (developer chose B); trash migration 0012
 - [x] Kit (ActionBar, Menu, Toast with Undo, useDraft, `?from=`) on the meal editor, checked on phone screenshots; meals go to the trash
 - [x] Ingredients: same model (useEditFlow + useFormValues for uncontrolled forms); trash refused while a live meal uses it; restoring a meal brings its ingredients back
-- [ ] Developer review of the meal editor, then: day types, exercises, routines, sessions
+- [x] Exercises and routines (ui/useEditableForm, TrashMenu for detail pages); an exercise with history still says "merge instead"
+- [ ] Developer review on the phone, then: day types, sessions, measurements
 - [ ] Lists and rows: tap opens, "⋯" for quick actions; log entries with Undo
 - [ ] Trash page under Settings; purge after 30 days in the daily workflow
 

@@ -1,9 +1,10 @@
 /**
  * app/(app)/training/exercises/[id]/page.tsx — URL /training/exercises/<id>:
  * the exercise's progression (estimated 1RM per session), its history,
- * editing, merging into another exercise, deleting when unused.
+ * editing, merging into another exercise, and the "⋯" menu (to the trash
+ * when unused, ADR-0015). `?from=` is where back, Cancel and saving lead.
  */
-import { Trash2, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
@@ -18,21 +19,27 @@ import { listSessions } from "@/core/training/repositories/sessions";
 import { ExerciseForm } from "@/features/training/exercises/ExerciseForm";
 import { MergeForm } from "@/features/training/exercises/MergeForm";
 import { ProgressChart } from "@/features/training/exercises/ProgressChart";
-import { ActionButtonForm } from "@/ui/ActionButtonForm";
+import { safeFrom } from "@/core/shared/navigation";
 import { PageHeader } from "@/ui/PageHeader";
+import { TrashMenu } from "@/ui/TrashMenu";
 import { Section } from "@/ui/Section";
 import {
   deleteExerciseAction,
   mergeExerciseAction,
+  restoreExerciseAction,
   updateExerciseAction,
 } from "../../actions";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
+};
 
-export default async function ExercisePage({ params }: Props) {
+export default async function ExercisePage({ params, searchParams }: Props) {
   const { owner, settings, t } = await requireContext();
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
+  const from = safeFrom((await searchParams).from, "/training/exercises");
   const db = getDb();
   const [exercises, sessions] = await Promise.all([
     listExercises(db, owner),
@@ -47,7 +54,20 @@ export default async function ExercisePage({ params }: Props) {
     <div className="flex max-w-page flex-col gap-8">
       <PageHeader
         title={exercise.name}
-        back={{ href: "/training/exercises", label: x.back }}
+        back={{
+          href: from,
+          label: from === "/training/exercises" ? x.back : t.actions.back,
+        }}
+        menu={
+          <TrashMenu
+            id={id}
+            from={from}
+            name={exercise.name}
+            trash={deleteExerciseAction}
+            restore={restoreExerciseAction}
+            labels={t.actions}
+          />
+        }
       />
       {history.length > 0 && (
         <Section title={x.progress} icon={<TrendingUp size={20} aria-hidden="true" />}>
@@ -74,6 +94,8 @@ export default async function ExercisePage({ params }: Props) {
       )}
       <Section title={t.training.editTitle}>
         <ExerciseForm
+          id={id}
+          from={from}
           action={updateExerciseAction.bind(null, id)}
           initial={{
             name: exercise.name,
@@ -84,8 +106,12 @@ export default async function ExercisePage({ params }: Props) {
             unilateral: exercise.unilateral ? "on" : "",
             notes: exercise.notes,
           }}
-          submitLabel={x.save}
-          t={{ exercises: t.exercises, training: t.training, errors: t.errors }}
+          t={{
+            exercises: t.exercises,
+            training: t.training,
+            errors: t.errors,
+            actions: t.actions,
+          }}
         />
       </Section>
       <Section title={x.mergeTitle}>
@@ -97,11 +123,6 @@ export default async function ExercisePage({ params }: Props) {
           t={{ exercises: t.exercises, errors: t.errors }}
         />
       </Section>
-      <ActionButtonForm
-        action={deleteExerciseAction.bind(null, id)}
-        label={x.delete}
-        icon={<Trash2 size={16} aria-hidden="true" />}
-      />
     </div>
   );
 }

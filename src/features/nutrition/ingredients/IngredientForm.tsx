@@ -27,7 +27,7 @@
 
 import { ClipboardList } from "lucide-react";
 import { Trash2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import { NUTRIENT_KEYS } from "@/core/nutrition/nutrients";
 import {
@@ -47,9 +47,9 @@ import { Menu } from "@/ui/Menu";
 import { PageHeader } from "@/ui/PageHeader";
 import { SelectField } from "@/ui/SelectField";
 import { Section } from "@/ui/Section";
-import { useDraft } from "@/ui/useDraft";
+import { DraftNotice } from "@/ui/DraftNotice";
 import { useEditFlow } from "@/ui/useEditFlow";
-import { sameValues, useFormValues, type FormValues } from "@/ui/useFormValues";
+import { toFormData, useEditableForm } from "@/ui/useEditableForm";
 import { MealImpact } from "./MealImpact";
 import { QualityFields } from "./QualityFields";
 
@@ -91,13 +91,6 @@ type Props = {
 const typedValues = (read: (k: PreviewKey) => string) =>
   Object.fromEntries(PREVIEW_KEYS.map((k) => [k, read(k)])) as Record<PreviewKey, string>;
 
-/** Form values as FormData (the previous version, for Undo). */
-function toFormData(v: FormValues): FormData {
-  const fd = new FormData();
-  for (const [k, x] of Object.entries(v)) fd.set(k, x);
-  return fd;
-}
-
 export function IngredientForm({
   id,
   title,
@@ -113,17 +106,17 @@ export function IngredientForm({
   t,
 }: Props) {
   const a = t.actions;
-  const form = useRef<HTMLFormElement>(null);
-  // The values the fields start from (the saved row, or a restored draft),
-  // and a counter that remounts them when that changes.
-  const [base, setBase] = useState<Record<string, string>>(initial);
-  const [version, setVersion] = useState(0);
-  const values = useFormValues(form, version);
-  // What is saved, as the form reads it on its first render.
-  const [saved, setSaved] = useState<FormValues | null>(null);
-  if (saved === null && values !== null && version === 0) setSaved(values);
-  const dirty = saved !== null && values !== null && !sameValues(values, saved);
-  const draft = useDraft(`ingredient:${id ?? "new"}`, values ?? {}, dirty);
+  const {
+    form,
+    base,
+    version,
+    values,
+    saved,
+    dirty,
+    draft,
+    offer,
+    load: loadFields,
+  } = useEditableForm(`ingredient:${id ?? "new"}`, initial);
 
   const { state, formAction, onDelete } = useEditFlow({
     id,
@@ -148,10 +141,9 @@ export function IngredientForm({
 
   /** Start the fields again from `v` (↺: the saved row; or a draft). */
   const load = (v: Record<string, string>) => {
-    setBase(v);
+    loadFields(v);
     setUnit(v.unit || "g");
     setTyped(typedValues((k) => v[k] ?? ""));
-    setVersion((n) => n + 1);
   };
 
   return (
@@ -187,25 +179,15 @@ export function IngredientForm({
           ) : undefined
         }
       />
-      {draft.found && !sameValues(draft.found, values) && (
-        <FormAlert tone="info">
-          <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span>{a.draftFound}</span>
-            <button
-              type="button"
-              onClick={() => {
-                load(draft.found!);
-                draft.clear();
-              }}
-              className="font-semibold underline"
-            >
-              {a.draftRestore}
-            </button>
-            <button type="button" onClick={draft.clear} className="underline">
-              {a.draftDiscard}
-            </button>
-          </span>
-        </FormAlert>
+      {offer && (
+        <DraftNotice
+          onRestore={() => {
+            load(offer);
+            draft.clear();
+          }}
+          onDiscard={draft.clear}
+          labels={a}
+        />
       )}
       <div key={version} className="flex flex-col gap-6">
         {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}

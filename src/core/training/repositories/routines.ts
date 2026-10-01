@@ -3,10 +3,11 @@
  * like PUSH or Upper A, each a list of exercises with default sets. A
  * session started from a routine keeps a link to it but stands on its own.
  */
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { exercises, routineItems, routines } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { live } from "../../shared/trash";
 import {
   fail,
   ok,
@@ -30,7 +31,7 @@ export async function listRoutines(db: Db, owner: Owner): Promise<RoutineView[]>
   const rows = await db
     .select()
     .from(routines)
-    .where(ownedBy(routines, owner))
+    .where(and(ownedBy(routines, owner), live(routines)))
     .orderBy(asc(routines.position), asc(routines.name));
   const ids = rows.map((r) => r.id);
   const items = ids.length
@@ -130,7 +131,7 @@ export async function updateRoutine(
       const updated = await tx
         .update(routines)
         .set({ name: input.name, notes: input.notes })
-        .where(and(ownedBy(routines, owner), eq(routines.id, id)))
+        .where(and(ownedBy(routines, owner), live(routines), eq(routines.id, id)))
         .returning({ id: routines.id });
       if (!updated.length) return false;
       await tx
@@ -146,15 +147,40 @@ export async function updateRoutine(
   }
 }
 
-/** Deletes a routine; sessions started from it keep their data (link set null). */
+/**
+ * Moves a routine to the trash (ADR-0015). Sessions started from it keep
+ * their link, so restoring it brings its history back with it.
+ */
 export async function deleteRoutine(
   db: Db,
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
-  const gone = await db
-    .delete(routines)
-    .where(and(ownedBy(routines, owner), eq(routines.id, id)))
+  const trashed = await db
+    .update(routines)
+    .set({ deletedAt: new Date() })
+    .where(and(ownedBy(routines, owner), live(routines), eq(routines.id, id)))
     .returning({ id: routines.id });
-  return gone.length ? ok(null) : fail({ _form: "not_found" });
+  return trashed.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/** Takes a routine out of the trash; a live namesake created since: "duplicate_name". */
+export async function restoreRoutine(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<Result<null>> {
+  try {
+    const restored = await db
+      .update(routines)
+      .set({ deletedAt: null })
+      .where(
+        and(ownedBy(routines, owner), isNotNull(routines.deletedAt), eq(routines.id, id)),
+      )
+      .returning({ id: routines.id });
+    return restored.length ? ok(null) : fail({ _form: "not_found" });
+  } catch (e) {
+    if (pgErrorCode(e) === "23505") return fail({ _form: "duplicate_name" });
+    throw e;
+  }
 }

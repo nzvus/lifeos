@@ -13,11 +13,12 @@ import type { ExerciseInput, SessionInput } from "../validation";
 import {
   createExercise,
   deleteExercise,
+  restoreExercise,
   listExercises,
   mergeExercises,
 } from "./exercises";
 import { addMeasurement, weightOn } from "./measurements";
-import { createRoutine, listRoutines } from "./routines";
+import { createRoutine, deleteRoutine, listRoutines, restoreRoutine } from "./routines";
 import {
   createSession,
   getSession,
@@ -302,5 +303,52 @@ describe("training sessions", () => {
         .insert(sets)
         .values({ userId: other.id, sessionExerciseId: item!.id, position: 9, reps: 1 }),
     ).rejects.toThrow();
+  });
+});
+
+describe("training records in the trash (ADR-0015)", () => {
+  it("an unused exercise goes to the trash and comes back; a used one is refused", async () => {
+    const lat = await mine("Lat pulldown");
+    const row = await mine("Pulley row");
+    await createRoutine(db, me, {
+      name: "Pull",
+      notes: "",
+      items: [
+        {
+          exerciseId: row,
+          sets: 3,
+          reps: 10,
+          loadKg: "40",
+          durationS: null,
+          restS: null,
+        },
+      ],
+    });
+    expect(await deleteExercise(db, me, row)).toEqual({
+      ok: false,
+      errors: { _form: "in_use" },
+    });
+    expect((await deleteExercise(db, me, lat)).ok).toBe(true);
+    expect((await listExercises(db, me)).map((e) => e.name)).toEqual(["Pulley row"]);
+    expect((await restoreExercise(db, other, lat)).ok).toBe(false);
+    expect((await restoreExercise(db, me, lat)).ok).toBe(true);
+    expect((await listExercises(db, me)).map((e) => e.name).sort()).toEqual([
+      "Lat pulldown",
+      "Pulley row",
+    ]);
+  });
+
+  it("a routine goes to the trash and comes back; its name is free meanwhile", async () => {
+    const r = await createRoutine(db, me, { name: "Pull", notes: "", items: [] });
+    if (!r.ok) throw new Error("setup");
+    expect((await deleteRoutine(db, me, r.value.id)).ok).toBe(true);
+    expect(await listRoutines(db, me)).toEqual([]);
+    expect((await createRoutine(db, me, { name: "Pull", notes: "", items: [] })).ok).toBe(
+      true,
+    );
+    expect(await restoreRoutine(db, me, r.value.id)).toEqual({
+      ok: false,
+      errors: { _form: "duplicate_name" },
+    });
   });
 });
