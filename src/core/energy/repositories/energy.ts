@@ -7,9 +7,9 @@
  *
  * Tested in: energy.test.ts.
  */
-import { and, eq, gte, lte } from "drizzle-orm";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
 import type { Db } from "../../db/client";
-import { dayActivity, userSettings } from "../../db/schema";
+import { dayActivity, energyCorrections, userSettings } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { getHistory } from "../../nutrition/repositories/history";
 import { addDays } from "../../shared/dates";
@@ -50,6 +50,21 @@ export type DayEnergyView = {
   energy: Energy | null;
 };
 
+/**
+ * ADR-0026: the calibration factor in force on `day` — the latest accepted
+ * on or before it, else 1. Without any history (a factor accepted before
+ * ADR-0026), the one in settings, as before.
+ */
+async function correctionOn(db: Db, owner: Owner, day: string, legacy: string | null) {
+  const rows = await db
+    .select({ day: energyCorrections.sinceDay, factor: energyCorrections.factor })
+    .from(energyCorrections)
+    .where(ownedBy(energyCorrections, owner))
+    .orderBy(desc(energyCorrections.sinceDay));
+  if (!rows.length) return Number(legacy ?? 1);
+  return Number(rows.find((r) => r.day <= day)?.factor ?? 1);
+}
+
 export async function getBody(db: Db, owner: Owner, day: string): Promise<Body> {
   const [[s], measurements] = await Promise.all([
     db
@@ -68,7 +83,7 @@ export async function getBody(db: Db, owner: Owner, day: string): Promise<Body> 
     birthYear: s?.birthYear ?? null,
     heightCm: s?.heightCm ?? null,
     weightKg: weightAt(measurements, day),
-    correction: Number(s?.correction ?? 1),
+    correction: await correctionOn(db, owner, day, s?.correction ?? null),
   };
 }
 
@@ -239,13 +254,24 @@ export async function getCalibration(
   return calibrate(days, weighIns, body.correction ?? 1);
 }
 
-/** Accept a proposed factor, or reset to 1 (ADR-0020: only by the user's choice). */
+/**
+ * Accept a proposed factor, or reset to 1 (ADR-0020: only by the user's
+ * choice), from `today` on (ADR-0026): earlier days keep theirs.
+ */
 export async function setEnergyCorrection(
   db: Db,
   owner: Owner,
   factor: number,
+  today: string,
 ): Promise<void> {
   const value = factor.toFixed(2);
+  await db
+    .insert(energyCorrections)
+    .values({ userId: owner.id, sinceDay: today, factor: value })
+    .onConflictDoUpdate({
+      target: [energyCorrections.userId, energyCorrections.sinceDay],
+      set: { factor: value },
+    });
   await db
     .insert(userSettings)
     .values({ userId: owner.id, energyCorrection: value })
