@@ -1,23 +1,30 @@
-/** app/(app)/meals/[id]/page.tsx — URL /meals/<id>: edit or delete a meal. */
+/**
+ * app/(app)/meals/[id]/page.tsx — URL /meals/<id>[?from=PATH]: edit a meal,
+ * duplicate it, or move it to the trash (ADR-0015). `from` is where back,
+ * Cancel and saving lead (the meals list when absent).
+ */
 import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
-import { PageHeader } from "@/ui/PageHeader";
 import { getDb } from "@/app/_server/runtime";
 import { getMeal } from "@/core/nutrition/repositories/meals";
-import { Big } from "@/core/shared/decimal";
-import { idInput } from "@/core/nutrition/validation";
-import { MealForm } from "@/features/nutrition/meals/MealForm";
-import { ActionButtonForm } from "@/ui/ActionButtonForm";
-import { deleteMealAction, updateMealAction } from "../actions";
-import { mealEditorIngredients } from "../ingredient-options";
 import { listFactors, ratingsByMeal } from "@/core/nutrition/repositories/ratings";
+import { idInput } from "@/core/nutrition/validation";
+import { Big } from "@/core/shared/decimal";
+import { safeFrom } from "@/core/shared/navigation";
+import { MealForm } from "@/features/nutrition/meals/MealForm";
+import { deleteMealAction, restoreMealAction, updateMealAction } from "../actions";
+import { mealEditorIngredients } from "../ingredient-options";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
+};
 
-export default async function EditMealPage({ params }: Props) {
+export default async function EditMealPage({ params, searchParams }: Props) {
   const { owner, settings, t } = await requireContext();
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
+  const from = safeFrom((await searchParams).from, "/meals");
   const db = getDb();
   const [meal, ingredients, factors, ratings] = await Promise.all([
     getMeal(db, owner, id),
@@ -30,12 +37,13 @@ export default async function EditMealPage({ params }: Props) {
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="flex max-w-page flex-col gap-8">
-      <PageHeader
-        title={t.meals.editTitle}
-        back={{ href: "/meals", label: t.meals.back }}
-      />
       <MealForm
+        id={id}
+        title={t.meals.editTitle}
+        from={from}
         action={updateMealAction.bind(null, id)}
+        trash={deleteMealAction}
+        restore={restoreMealAction}
         ingredients={ingredients}
         initial={{
           name: meal.name,
@@ -49,7 +57,6 @@ export default async function EditMealPage({ params }: Props) {
             quantity: new Big(l.quantity).toString(),
           })),
         }}
-        submitLabel={t.meals.save}
         locale={settings.locale}
         factors={factors}
         t={{
@@ -61,9 +68,9 @@ export default async function EditMealPage({ params }: Props) {
           search: t.search,
           macro: t.macro,
           ingredients: t.ingredients,
+          actions: t.actions,
         }}
       />
-      <ActionButtonForm action={deleteMealAction.bind(null, id)} label={t.meals.delete} />
     </div>
   );
 }

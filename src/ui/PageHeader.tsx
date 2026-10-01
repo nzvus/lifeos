@@ -1,9 +1,11 @@
 /**
  * ui/PageHeader.tsx — THE top of a page: an optional "back" link, the title,
- * and an optional primary action ("New ingredient"). Ten pages had their own
- * copy of this markup.
+ * an optional primary action ("New ingredient") and an optional "⋯" menu
+ * (ui/Menu: duplicate, delete… ADR-0015). Ten pages had their own copy of
+ * this markup.
  */
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 type LinkSpec = { href: string; label: string };
 
@@ -11,10 +13,12 @@ export function PageHeader({
   title,
   back,
   action,
+  menu,
 }: {
   title: string;
   back?: LinkSpec;
   action?: LinkSpec;
+  menu?: ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -23,7 +27,7 @@ export function PageHeader({
           {back.label}
         </Link>
       )}
-      <div className="flex items-baseline justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <h1 className="font-display text-title font-bold">{title}</h1>
         {action && (
           <Link
@@ -33,6 +37,7 @@ export function PageHeader({
             {action.label}
           </Link>
         )}
+        {menu}
       </div>
     </div>
   );

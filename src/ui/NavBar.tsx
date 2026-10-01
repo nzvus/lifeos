@@ -72,7 +72,7 @@ export function NavBar({ links, label }: { links: NavLink[]; label: string }) {
       </nav>
       <nav
         aria-label={label}
-        className="fixed inset-x-0 bottom-0 z-30 flex rule-t-medium border-ink bg-sheet md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex rule-t-medium border-ink bg-sheet editing:hidden md:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {links.map((l) => {

@@ -18,6 +18,7 @@ import type { ReactNode } from "react";
 import { requireContext } from "@/app/_server/owner";
 import { SignOutButton } from "@/features/account/auth/SignOutButton";
 import { NavBar, NavIconLink } from "@/ui/NavBar";
+import { ToastHost } from "@/ui/Toast";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const { t, settings } = await requireContext();
@@ -44,6 +45,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="flex flex-col gap-4">{children}</main>
+      <ToastHost closeLabel={t.actions.close} />
     </div>
   );
 }

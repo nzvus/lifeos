@@ -16,7 +16,7 @@
  *
  * Called by: src/app/api/export/route.ts. Tested in export.test.ts.
  */
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import type { Db } from "../db/client";
 import {
   dayPlans,
@@ -34,6 +34,7 @@ import {
   userSettings,
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
+import { live } from "../shared/trash";
 
 export const EXPORT_FORMAT = "lifeos-export";
 /** 2: adds dayProfiles and dayPlans (ADR-0008). 3: log status/at/estimated (ADR-0009). */
@@ -70,7 +71,12 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       .from(ingredients)
       .where(ownedBy(ingredients, owner))
       .orderBy(asc(ingredients.name)),
-    db.select().from(meals).where(ownedBy(meals, owner)).orderBy(asc(meals.name)),
+    // The trash is temporary (ADR-0015): only live meals are exported.
+    db
+      .select()
+      .from(meals)
+      .where(and(ownedBy(meals, owner), live(meals)))
+      .orderBy(asc(meals.name)),
     db.select().from(mealItems).where(ownedBy(mealItems, owner)),
     db
       .select()
