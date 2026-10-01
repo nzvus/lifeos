@@ -44,7 +44,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           <SignOutButton label={t.nav.signOut} />
         </div>
       </header>
-      <main className="flex flex-col gap-4">{children}</main>
+      <main className="@container flex flex-col gap-4">{children}</main>
       <ToastHost closeLabel={t.actions.close} />
     </div>
   );

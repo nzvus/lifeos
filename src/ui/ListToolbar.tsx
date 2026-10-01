@@ -50,7 +50,7 @@ export function ListToolbar<
   return (
     <div className="flex flex-col gap-3">
       {/* Search grows, sort stays compact; stacks on narrow phones. */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+      <div className="flex flex-col gap-3 @2xl:flex-row @2xl:items-end">
         <label className="relative flex flex-1 flex-col gap-1">
           <span className="sr-only">{t.placeholder}</span>
           <Search

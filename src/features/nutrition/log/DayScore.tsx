@@ -49,7 +49,7 @@ export function DayScore({ score, planned, quality, empty, locale, t }: Props) {
           {plannedLine}
         </>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 @2xl:grid-cols-2">
           <div className="flex flex-col gap-3">
             <p className="font-display tabular-nums">
               <span className={`text-title font-extrabold ${tone(score.score)}`}>

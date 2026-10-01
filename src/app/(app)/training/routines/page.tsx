@@ -23,7 +23,7 @@ export default async function RoutinesPage() {
       {routines.length === 0 ? (
         <p className="text-muted">{r.empty}</p>
       ) : (
-        <ul className="grid gap-x-8 md:grid-cols-2">
+        <ul className="grid gap-x-8 @3xl:grid-cols-2">
           {routines.map((routine) => (
             <ListItem
               key={routine.id}

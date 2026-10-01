@@ -1,5 +1,6 @@
 /**
- * features/nutrition/log/DayNav.tsx — "‹ previous day · date · next day ›".
+ * features/nutrition/log/DayNav.tsx — "‹ previous day · date 📅 · next day ›":
+ * one row, the calendar (DayPicker) jumps anywhere.
  *
  * Days travel in the URL (/?day=2026-09-29), not in hidden state: every day
  * has its own address, so back/forward and bookmarks work, and a reload never
@@ -10,7 +11,8 @@ import Link from "next/link";
 import { addDays } from "@/core/shared/dates";
 import type { Locale } from "@/core/shared/locales";
 import type { Messages } from "@/i18n";
-import { TEXT_LINK } from "@/ui/button";
+import { buttonClass, TEXT_LINK } from "@/ui/button";
+import { DayPicker } from "./DayPicker";
 
 type Props = { day: string; today: string; locale: Locale; t: Messages["day"] };
 
@@ -26,21 +28,32 @@ export function DayNav({ day, today, locale, t }: Props) {
   }).format(new Date(`${day}T12:00:00Z`));
   return (
     <nav aria-label={t.backToToday} className="flex items-center justify-between gap-2">
-      <Link href={`/?day=${addDays(day, -1)}`} aria-label={t.previous} className="p-2">
-        <ChevronLeft size={28} aria-hidden="true" />
+      <Link
+        href={`/?day=${addDays(day, -1)}`}
+        aria-label={t.previous}
+        className={buttonClass({ variant: "quiet", iconOnly: true })}
+      >
+        <ChevronLeft size={24} aria-hidden="true" />
       </Link>
-      <div className="text-center">
-        <h1 className="font-display text-section font-bold first-letter:uppercase">
-          {heading}
-        </h1>
+      <div className="flex flex-col items-center">
+        <div className="flex items-center gap-1">
+          <h1 className="font-display text-section font-bold first-letter:uppercase">
+            {heading}
+          </h1>
+          <DayPicker day={day} label={t.goTo} />
+        </div>
         {day !== today && (
           <Link href="/" className={`text-meta ${TEXT_LINK}`}>
             {t.backToToday}
           </Link>
         )}
       </div>
-      <Link href={`/?day=${addDays(day, 1)}`} aria-label={t.next} className="p-2">
-        <ChevronRight size={28} aria-hidden="true" />
+      <Link
+        href={`/?day=${addDays(day, 1)}`}
+        aria-label={t.next}
+        className={buttonClass({ variant: "quiet", iconOnly: true })}
+      >
+        <ChevronRight size={24} aria-hidden="true" />
       </Link>
     </nav>
   );

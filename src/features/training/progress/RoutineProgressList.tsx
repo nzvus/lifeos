@@ -24,7 +24,7 @@ export function RoutineProgressList({
   const n = (v: number) => formatNumber(String(v), locale, 0);
   const day = (d: string) => `${d.slice(8, 10)}/${d.slice(5, 7)}`;
   return (
-    <ul className="grid gap-2 sm:grid-cols-2">
+    <ul className="grid gap-2 @lg:grid-cols-2">
       {routines.map((r) => {
         const body = (
           <>

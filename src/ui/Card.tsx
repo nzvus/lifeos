@@ -5,7 +5,7 @@
  */
 import type { ReactNode } from "react";
 
-export const CARD = "panel flex min-w-0 flex-col gap-4 p-4";
+export const CARD = "@container panel flex min-w-0 flex-col gap-4 p-4";
 
 export function Card({
   children,

@@ -2,49 +2,36 @@
  * features/nutrition/log/WeekStrip.tsx — the week of the shown day, Monday
  * to Sunday, to move between days: each day is a link with its weekday, its
  * date and a thin bar of the energy eaten against its target (coloured like
- * the day panel). Arrows jump a week; a date field jumps anywhere (a plain
- * GET form to "/?day=…": works without JavaScript). Charts over longer
+ * the day panel). The day arrows and the calendar (DayNav) move further,
+ * so the strip is just the seven days (S20: one row of controls). Charts over longer
  * ranges live on the Targets page (features/nutrition/trends).
  *
  * Server component: links and a form, nothing interactive in the browser.
  */
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { DaySummary } from "@/core/nutrition/repositories/history";
 import { assessTarget, TARGET_KIND } from "@/core/nutrition/targets";
-import { addDays } from "@/core/shared/dates";
 import type { Locale } from "@/core/shared/locales";
-import type { Messages } from "@/i18n";
 import { NUTRIENT_VAR } from "@/ui/NutrientIcon";
 import { targetTone } from "@/ui/targetTone";
-import { buttonClass, TEXT_LINK } from "@/ui/button";
 
 type Props = {
   week: DaySummary[]; // Monday … Sunday
   day: string;
   today: string;
   locale: Locale;
-  t: Messages["day"];
 };
 
 const INTL: Record<Locale, string> = { it: "it-IT", en: "en-GB" };
 
-export function WeekStrip({ week, day, today, locale, t }: Props) {
+export function WeekStrip({ week, day, today, locale }: Props) {
   const weekday = new Intl.DateTimeFormat(INTL[locale], {
     weekday: "short",
     timeZone: "UTC",
   });
-  const monday = week[0]!.day;
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-stretch gap-1">
-        <Link
-          href={`/?day=${addDays(day, -7)}`}
-          aria-label={t.previousWeek}
-          className={buttonClass({ variant: "quiet", size: "sm", iconOnly: true })}
-        >
-          <ChevronLeft size={20} aria-hidden="true" />
-        </Link>
         <ol className="grid flex-1 grid-cols-7 gap-1">
           {week.map((d) => {
             const kcal = d.totals.nutrients.kcal;
@@ -95,33 +82,7 @@ export function WeekStrip({ week, day, today, locale, t }: Props) {
             );
           })}
         </ol>
-        <Link
-          href={`/?day=${addDays(day, 7)}`}
-          aria-label={t.nextWeek}
-          className={buttonClass({ variant: "quiet", size: "sm", iconOnly: true })}
-        >
-          <ChevronRight size={20} aria-hidden="true" />
-        </Link>
       </div>
-      <form action="/" className="flex items-center justify-center gap-2 text-meta">
-        <label className="flex items-center gap-2">
-          <span className="text-muted">{t.goTo}</span>
-          <input
-            type="date"
-            name="day"
-            defaultValue={day}
-            className="rounded-control rule-b-medium border-ink bg-sheet px-2 py-1"
-          />
-        </label>
-        <button type="submit" className={buttonClass({ variant: "subtle", size: "sm" })}>
-          {t.go}
-        </button>
-        {monday > today || addDays(monday, 6) < today ? (
-          <Link href="/" className={TEXT_LINK}>
-            {t.thisWeek}
-          </Link>
-        ) : null}
-      </form>
     </div>
   );
 }

@@ -74,7 +74,7 @@ export function Analysis({ history, targets, today, timeZone, locale, t }: Props
   const n0 = (v: string) => formatNumber(v, locale, 0);
 
   return (
-    <div className="grid gap-x-8 gap-y-6 md:grid-cols-2">
+    <div className="grid gap-x-8 gap-y-6 @3xl:grid-cols-2">
       <Block title={a.adherenceTitle} icon={<Target size={16} aria-hidden="true" />}>
         {adh.length === 0 ? (
           <p className="text-meta text-muted">{a.noTargets}</p>
