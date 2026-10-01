@@ -69,6 +69,29 @@ jobs:
         if: failure()
         run: curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECKS_BACKUP_URL }}/fail" || true
 
+  # The trash (ADR-0015): delete for good what has been there over 30 days.
+  # Only after today's dump is stored (needs: dump), so a purged record is
+  # still in the backups for 30 more days. A separate job: a failed purge
+  # shows as a failed run without silencing the backup heartbeat.
+  purge-trash:
+    needs: dump
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Purge the trash
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+        run: npm run trash:purge
+
   # healthchecks.io RECEIVES pings; it can't poll a URL itself. So this job
   # asks the deployed app "are you working?" once a day and pings a second
   # check only if the answer is yes (HTTP 200 = database reachable).

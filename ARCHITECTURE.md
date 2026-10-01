@@ -84,11 +84,11 @@ app  →  features  →  core
 
 ## Persistence & durability (ADR-0003, ADR-0007)
 
-Schema: `core/db/schema/{auth,nutrition,training,pantry}.ts`. Change path: edit schema
+Schema: `core/db/schema/*.ts`. Change path: edit schema
 → `npm run db:generate` → read the SQL in `drizzle/` → commit → the PR preview
 applies it to its own Neon branch (`scripts/vercel-build.mjs`, when
 `PREVIEW_DB_IS_BRANCH=true`) → `migrate.yml` on the PR branch (backup, then
-migrate) → label `production-migrated` (CI gate) → merge. No `drizzle-kit
+migrate) → the CI gate passes by itself (it finds that successful run; no label) → merge. No `drizzle-kit
 push`. Schema PRs must be safe to merge in any order (additive first).
 
 Backups: `backup.yml` daily → `scripts/backup.sh` (pg_dump -Fc, verified,
@@ -124,7 +124,7 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   Save), drafts in the browser, `?from=` for back and after-save, toasts with
   Undo. Rows open on tap and carry "⋯" (ui/ListItem `href`, ui/TrashMenu).
   Delete = trash (`deleted_at`, `live()`); `/settings/trash` restores or deletes for
-  good; the 30-day purge (`purgeExpiredTrash`) awaits its workflow job.
+  good; after 30 days `backup.yml`'s `purge-trash` job deletes it (after the dump).
 - **Assistant (ADR-0018):** the model runs on the server with the user's key
   (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
   writes come back with Undo, deletes/imports wait for a tap; files are read on

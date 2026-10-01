@@ -139,7 +139,7 @@
 - [x] Meals and ingredients lists: the whole row opens (ui/ListItem `href`), "⋯" duplicates / deletes with Undo
 - [x] Training lists (sessions, exercises, routines): same rows; "⋯" new session from an exercise or routine, delete with Undo
 - [x] Trash page under Settings (core/trash): restore, or delete for good after an inline confirmation; things still used elsewhere are refused
-- [ ] Purge after 30 days in the daily workflow
+- [x] Purge after 30 days: `purge-trash` job in backup.yml, after the dump (scripts/purge-trash.ts)
 
 ## Training logged like food (ADR-0016, 2026-10-01)
 - [x] ADR-0016 accepted (delegated: option A); migration 0013

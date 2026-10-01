@@ -13,11 +13,11 @@ on:
   push:
     branches: [main]
   pull_request:
-    # labeled/unlabeled too: adding "production-migrated" re-runs the gate.
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read # least privilege: CI only reads the code
+  actions: read # the migration gate reads migrate.yml's runs
 
 jobs:
   check:
@@ -30,32 +30,37 @@ jobs:
 
       # Deploy happens on merge, production migrations only by hand
       # (migrate.yml), so a PR with a new migration must not be merged before
-      # production has it: the code would query columns that don't exist yet
-      # (outage of 2026-09-30, PR #22). Run migrate.yml on the PR branch,
-      # then add the label "production-migrated"; this re-runs and passes.
+      # production has it: the code would query what doesn't exist yet
+      # (outages of 2026-09-30, PR #22, and 2026-10-01, PR #103 — that one
+      # had the "production-migrated" label, set by hand without the run).
+      # So the gate trusts no label: it passes only if a SUCCESSFUL migrate.yml
+      # run used a commit that contains every new migration file of this PR.
+      # migrate.yml re-runs the failed gates when it finishes.
       - name: Migration gate
         if: github.event_name == 'pull_request'
         shell: bash # process substitution <(…)
         env:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
-          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          # Compare with the base branch as it is NOW, not as it was when the
-          # PR was opened: a PR stacked on one that added a migration must not
-          # count that migration as new once it is merged (#38, 2026-09-30).
-          # "New" = migration files in this PR that the base branch doesn't have.
+          # Compare with the base branch as it is NOW (a migration merged
+          # since the PR was opened is not new any more, #38).
           git fetch --quiet origin "$BASE_REF"
           new=$(comm -13 \
             <(git ls-tree --name-only "origin/$BASE_REF" drizzle/ | grep '\.sql$' | sort) \
             <(git ls-tree --name-only HEAD drizzle/ | grep '\.sql$' | sort))
           if [ -z "$new" ]; then echo "No new migration."; exit 0; fi
           echo "New migration(s): $new"
-          if echo "$LABELS" | grep -q '"production-migrated"'; then
-            echo "Label production-migrated present."
-          else
-            echo "::error::This PR adds a migration. Run: gh workflow run migrate.yml --ref ${{ github.head_ref }} -f confirm=\"migrate production\" — then add the label production-migrated."
-            exit 1
-          fi
+          for sha in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow migrate.yml \
+              --status success --limit 50 --json headSha -q '.[].headSha'); do
+            git cat-file -e "$sha^{commit}" 2>/dev/null || git fetch --quiet origin "$sha" 2>/dev/null || continue
+            have=$(git ls-tree --name-only "$sha" drizzle/ | grep '\.sql$' | sort)
+            if [ -z "$(comm -23 <(echo "$new") <(echo "$have"))" ]; then
+              echo "Production was migrated by migrate.yml from $sha."; exit 0
+            fi
+          done
+          echo "::error::This PR adds a migration production doesn't have. Run: gh workflow run migrate.yml --ref ${{ github.head_ref }} -f confirm=\"migrate production\" — this check re-runs by itself when it succeeds."
+          exit 1
 
       - uses: actions/setup-node@v7
         with:
