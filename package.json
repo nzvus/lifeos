@@ -23,7 +23,8 @@
     "import:lifeos": "tsx scripts/import-lifeos.ts",
     "upsert:ingredients": "tsx scripts/upsert-ingredients.ts",
     "import:training": "tsx scripts/import-training.ts",
-    "classify:exercises": "tsx scripts/classify-exercises.ts"
+    "classify:exercises": "tsx scripts/classify-exercises.ts",
+    "tidy:training": "tsx scripts/tidy-training.ts"
   },
   "dependencies": {
     "@fontsource/barlow": "5.3.0",
