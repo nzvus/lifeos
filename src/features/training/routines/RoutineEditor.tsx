@@ -32,6 +32,8 @@ export type RoutineRow = {
   sets: string;
   reps: string;
   loadKg: string;
+  /** Cardio: minutes instead of reps and kg. */
+  minutes: string;
   restS: string;
 };
 
@@ -74,6 +76,7 @@ function fromValues(v: FormValues): Initial {
       sets: str(x.sets),
       reps: str(x.reps),
       loadKg: str(x.loadKg),
+      minutes: x.durationS ? String(Number(x.durationS) / 60) : "",
       restS: str(x.restS),
     })),
   };
@@ -84,7 +87,7 @@ const wire = (x: RoutineRow) => ({
   sets: int(x.sets) ?? 1,
   reps: int(x.reps),
   loadKg: x.loadKg,
-  durationS: null,
+  durationS: int(x.minutes) === null ? null : int(x.minutes)! * 60,
   restS: int(x.restS),
 });
 
@@ -145,6 +148,7 @@ function RoutineFields({
   t: T;
 }) {
   const r = t.routines;
+  const kindOf = (id: string) => exercises.find((e) => e.id === id)?.kind;
   const [rows, setRows] = useState(() => initial.items.map((i, key) => ({ ...i, key })));
   const err = (f: string) => fieldError(state, f, t.errors);
   const picker = useMemo(
@@ -203,23 +207,36 @@ function RoutineFields({
               error={err(`items.${i}.sets`)}
               className="flex w-16 flex-col gap-1"
             />
-            <Field
-              label={r.reps}
-              name={`it-${row.key}-r`}
-              inputMode="numeric"
-              value={row.reps}
-              onChange={(e) => update(row.key, { reps: e.target.value })}
-              className="flex w-20 flex-col gap-1"
-            />
-            <Field
-              label={r.load}
-              name={`it-${row.key}-k`}
-              inputMode="decimal"
-              value={row.loadKg}
-              onChange={(e) => update(row.key, { loadKg: e.target.value })}
-              error={err(`items.${i}.loadKg`)}
-              className="flex w-20 flex-col gap-1"
-            />
+            {kindOf(row.exerciseId) === "cardio" ? (
+              <Field
+                label={t.training.minutes}
+                name={`it-${row.key}-m`}
+                inputMode="numeric"
+                value={row.minutes}
+                onChange={(e) => update(row.key, { minutes: e.target.value })}
+                className="flex w-20 flex-col gap-1"
+              />
+            ) : (
+              <>
+                <Field
+                  label={r.reps}
+                  name={`it-${row.key}-r`}
+                  inputMode="numeric"
+                  value={row.reps}
+                  onChange={(e) => update(row.key, { reps: e.target.value })}
+                  className="flex w-20 flex-col gap-1"
+                />
+                <Field
+                  label={r.load}
+                  name={`it-${row.key}-k`}
+                  inputMode="decimal"
+                  value={row.loadKg}
+                  onChange={(e) => update(row.key, { loadKg: e.target.value })}
+                  error={err(`items.${i}.loadKg`)}
+                  className="flex w-20 flex-col gap-1"
+                />
+              </>
+            )}
             <Field
               label={r.rest}
               name={`it-${row.key}-p`}
@@ -249,6 +266,7 @@ function RoutineFields({
                 sets: "3",
                 reps: "10",
                 loadKg: "",
+                minutes: "",
                 restS: "",
                 key: nextKey++,
               },

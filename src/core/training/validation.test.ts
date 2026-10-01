@@ -148,6 +148,7 @@ describe("sessionInput, estimated sessions (ADR-0016)", () => {
       kcalEstimate: "700",
       muscleGroups: "quads,calves",
     });
+
     expect(
       r.ok && [r.value.intensity, r.value.kcalEstimate, r.value.muscleGroups],
     ).toEqual(["vigorous", 700, ["quads", "calves"]]);
@@ -162,3 +163,22 @@ describe("sessionInput, estimated sessions (ADR-0016)", () => {
     expect(parseInput(sessionInput, { ...base, kcalEstimate: "0" }).ok).toBe(false);
   });
 });
+
+describe("checkSetsForKinds and planned sets", () => {
+  it("a planned set (done: false) may be incomplete; a done one may not", () => {
+    expect(
+      checkSetsForKinds(
+        [{ sets: [{ reps: null, loadKg: null, durationS: null, done: false }] }],
+        ["cardio"],
+      ),
+    ).toBeNull();
+
+    expect(
+      checkSetsForKinds(
+        [{ sets: [{ reps: null, loadKg: null, durationS: null }] }],
+        ["cardio"],
+      ),
+    ).toEqual({ "exercises.0.sets.0.durationS": "required" });
+  });
+});
+

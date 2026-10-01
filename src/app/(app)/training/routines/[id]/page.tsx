@@ -63,6 +63,7 @@ export default async function EditRoutinePage({ params, searchParams }: Props) {
             sets: String(it.sets),
             reps: str(it.reps),
             loadKg: str(it.loadKg),
+            minutes: it.durationS ? String(it.durationS / 60) : "",
             restS: str(it.restS),
           })),
         }}
