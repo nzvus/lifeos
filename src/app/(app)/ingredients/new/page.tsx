@@ -49,7 +49,7 @@ export default async function NewIngredientPage({ searchParams }: Props) {
     : { unit: "g" };
   return (
     // Forms read best narrow: cap the width even on wide screens.
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <IngredientForm
         // A looked-up code starts the form again from its values.
         key={code ?? "new"}

@@ -55,7 +55,7 @@ export default async function SettingsPage() {
   const timeZones = Intl.supportedValuesOf("timeZone");
   return (
     // Forms read best narrow: cap the width even on wide screens.
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader title={t.settings.title} />
       <Section title={t.actions.general} icon={<UserCog size={20} aria-hidden="true" />}>
         <SettingsForm

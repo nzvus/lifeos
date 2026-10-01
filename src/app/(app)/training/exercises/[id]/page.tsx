@@ -51,7 +51,7 @@ export default async function ExercisePage({ params, searchParams }: Props) {
   const locale = settings.locale;
   const x = t.exercises;
   return (
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader
         title={exercise.name}
         back={{

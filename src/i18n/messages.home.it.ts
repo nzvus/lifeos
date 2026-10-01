@@ -143,13 +143,24 @@ export const energyIt: Messages["energy"] = {
   mode: "Come si decidono gli obiettivi",
   modes: { fixed: "Fissi: li scrivi tu", dynamic: "Dinamici: dal consumo del giorno" },
   goal: "Obiettivo",
-  goals: { gain: "Aumento muscolare", recomp: "Ricomposizione", cut: "Dimagrimento" },
-  deficit: "Deficit (kcal/giorno; negativo = surplus)",
+  goals: {
+    maintain: "Mantenimento",
+    recomp: "Ricomposizione",
+    gain: "Aumento muscolare",
+    cut: "Dimagrimento",
+  },
+  deficit: "Deficit (kcal al giorno)",
+  deficitHint:
+    "Positivo = deficit (sotto il consumo); negativo = surplus; 0 = mantenimento.",
+  balanceMaintain: "Mantenimento: mangi quanto consumi.",
+  balanceDeficit: "Deficit di {kcal} kcal al giorno sotto il consumo.",
+  balanceSurplus: "Surplus di {kcal} kcal al giorno sopra il consumo.",
   proteinPerKg: "Proteine (g per kg)",
   fatPerKg: "Grassi (g per kg)",
   dynamicHint:
     "Calorie = consumo stimato del giorno con il piano − deficit; proteine e grassi seguono il peso; i carboidrati il resto. Zuccheri, saturi e sale restano limiti.",
-  dynamicNote: "Obiettivi dinamici: {kcal} kcal dal consumo con il piano",
+  dynamicNote: "{goal}: {kcal} kcal = consumo con il piano {spent} {sign} {delta} kcal",
+  goalCustom: "Obiettivo personalizzato",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
   formulas: {
     title: "Come è calcolato",

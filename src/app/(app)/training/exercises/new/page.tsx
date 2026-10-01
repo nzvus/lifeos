@@ -11,7 +11,7 @@ export default async function NewExercisePage({ searchParams }: Props) {
   const { t } = await requireContext();
   const from = safeFrom((await searchParams).from, "/training/exercises");
   return (
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader
         title={t.exercises.new}
         back={{

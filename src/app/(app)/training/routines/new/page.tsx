@@ -12,7 +12,7 @@ export default async function NewRoutinePage({ searchParams }: Props) {
   const { owner, t } = await requireContext();
   const from = safeFrom((await searchParams).from, "/training/routines");
   return (
-    <div className="flex max-w-page flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader
         title={t.routines.new}
         back={{

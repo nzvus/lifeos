@@ -166,8 +166,8 @@
 - **Goal:** plan and start training from the day like food; energy and targets that make sense for the developer's real data; a day score about zones, not reaching numbers.
 - [x] Energy formulas on screen; selects show the saved value without a reload (#105)
 - [x] Day page: plan a routine / exercise / estimate at a time, start it now in gym mode, or write it as done; "Start" on planned sessions; one "When" block (ui/Segmented) for food and training; planned sessions without a duration get one from their sets, so the energy counts them
-- [ ] Goal shown plainly: maintenance / recomposition / gain / cut, with the deficit or surplus in kcal
-- [ ] Alignment pass: Settings and other left-aligned pages, the day type editor in dynamic mode
+- [x] Goal shown plainly: maintenance added; goal tiles + "deficit / surplus of N kcal a day" in the editor; the day says "Recomposition: 3504 kcal = energy with the plan 3704 − 200"
+- [x] Alignment: form pages (settings, editors, trash, live) centred like their action bar; the dynamic day type's fields aligned
 - [ ] Energy check against the developer's export (tmp/, never committed)
 - [ ] ADR-0023 macro bands (floor / good / ceiling per kg and training) and a zone-based day score
 - [ ] ADR-0022 edit a day's food entry as a local copy (grams, swaps)

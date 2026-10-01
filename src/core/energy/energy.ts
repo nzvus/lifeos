@@ -229,8 +229,26 @@ export function dynamicTargets(
 
 /** Goal presets (the day type editor fills the three fields from one). */
 export const GOAL_PRESETS = {
+  maintain: { deficitKcal: 0, proteinGPerKg: "1.8", fatGPerKg: "0.8" },
   gain: { deficitKcal: -250, proteinGPerKg: "1.8", fatGPerKg: "0.9" },
   recomp: { deficitKcal: 200, proteinGPerKg: "2.2", fatGPerKg: "0.8" },
   cut: { deficitKcal: 500, proteinGPerKg: "2.2", fatGPerKg: "0.8" },
 } as const satisfies Record<string, DynamicParams>;
 export type Goal = keyof typeof GOAL_PRESETS;
+
+/** The preset these parameters match, or null when edited by hand. */
+export function goalOf(p: {
+  deficitKcal: number;
+  proteinGPerKg: string;
+  fatGPerKg: string;
+}): Goal | null {
+  const found = (Object.keys(GOAL_PRESETS) as Goal[]).find((g) => {
+    const x = GOAL_PRESETS[g];
+    return (
+      x.deficitKcal === p.deficitKcal &&
+      Number(x.proteinGPerKg) === Number(p.proteinGPerKg) &&
+      Number(x.fatGPerKg) === Number(p.fatGPerKg)
+    );
+  });
+  return found ?? null;
+}

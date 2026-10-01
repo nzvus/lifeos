@@ -27,7 +27,7 @@ export default async function TrashPage() {
   // A "YYYY-MM-DD" day, shown as a date (noon UTC: no zone can shift it).
   const day = (d: string) => date.format(new Date(`${d}T12:00:00Z`));
   return (
-    <div className="flex max-w-page flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-6">
       <PageHeader
         title={t.trash.title}
         back={{ href: "/settings", label: t.settings.title }}

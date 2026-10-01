@@ -82,7 +82,7 @@ import {
   setEntryStatusAction,
   setEntryTimeAction,
 } from "./actions";
-import { dynamicTargets } from "@/core/energy/energy";
+import { dynamicTargets, goalOf } from "@/core/energy/energy";
 import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 
@@ -222,7 +222,18 @@ export default async function DayPage({ searchParams }: Props) {
           {dayTargets.source !== "none" && dayTargets.dynamic && (
             <p className="text-meta text-muted">
               {dynamic
-                ? fill(t.energy.dynamicNote, { kcal: String(dynamic.kcal) })
+                ? (() => {
+                    const g = goalOf(dayTargets.dynamic);
+                    const d = dayTargets.dynamic.deficitKcal;
+                    const w = energyView.energy!.total.withPlan;
+                    return fill(t.energy.dynamicNote, {
+                      goal: g ? t.energy.goals[g] : t.energy.goalCustom,
+                      kcal: String(dynamic.kcal),
+                      spent: String(Math.round((w.low + w.high) / 2)),
+                      sign: d >= 0 ? "−" : "+",
+                      delta: String(Math.abs(d)),
+                    });
+                  })()
                 : t.energy.dynamicMissing}
             </p>
           )}

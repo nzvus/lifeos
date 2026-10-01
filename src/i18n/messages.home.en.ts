@@ -141,13 +141,24 @@ export const energyEn = {
   mode: "How the targets are set",
   modes: { fixed: "Fixed: you write them", dynamic: "Dynamic: from the day's energy" },
   goal: "Goal",
-  goals: { gain: "Muscle gain", recomp: "Recomposition", cut: "Fat loss" },
-  deficit: "Deficit (kcal/day; negative = surplus)",
+  goals: {
+    maintain: "Maintenance",
+    recomp: "Recomposition",
+    gain: "Muscle gain",
+    cut: "Fat loss",
+  },
+  deficit: "Deficit (kcal a day)",
+  deficitHint:
+    "Positive = deficit (below what you spend); negative = surplus; 0 = maintenance.",
+  balanceMaintain: "Maintenance: eat what you spend.",
+  balanceDeficit: "A deficit of {kcal} kcal a day below what you spend.",
+  balanceSurplus: "A surplus of {kcal} kcal a day above what you spend.",
   proteinPerKg: "Protein (g per kg)",
   fatPerKg: "Fat (g per kg)",
   dynamicHint:
     "Calories = the day's estimated energy with the plan − deficit; protein and fat follow your weight; carbs are the rest. Sugars, saturated fat and salt stay limits.",
-  dynamicNote: "Dynamic targets: {kcal} kcal from the energy with the plan",
+  dynamicNote: "{goal}: {kcal} kcal = energy with the plan {spent} {sign} {delta} kcal",
+  goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
     title: "How it is computed",

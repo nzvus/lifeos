@@ -64,7 +64,7 @@ export default async function LivePage({ params }: Props) {
     })),
   };
   return (
-    <div className="flex max-w-page flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-page flex-col gap-4">
       <PageHeader
         title={t.training.live.title}
         back={{ href: `/training/${id}`, label: t.training.live.editor }}
