@@ -62,6 +62,9 @@ import { SearchSelect } from "@/ui/SearchSelect";
 import { Stepper } from "./Stepper";
 import { buttonClass } from "@/ui/button";
 
+/** The time now, for event handlers (taps): never called while rendering. */
+const wallClock = () => Date.now();
+
 export type LiveExerciseInfo = {
   name: string;
   kind: ExerciseKind;
@@ -137,7 +140,9 @@ export function LiveSession({
   const [open, setOpen] = useState(() => nextSet(initial.exercises)?.exercise ?? 0);
   const [rest, setRest] = useState<{ ends: number; buzzed: boolean } | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
-  const [now, setNow] = useState(() => Date.now());
+  // null until the first tick in the browser: the server's clock would not
+  // match the browser's, and React would throw the page away (hydration).
+  const [now, setNow] = useState<number | null>(null);
   const [finishing, setFinishing] = useState(false);
   const chain = useRef<Promise<unknown>>(Promise.resolve());
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -159,7 +164,7 @@ export function LiveSession({
 
   // The clock of the timers; buzzes once when the rest is over.
   useEffect(() => {
-    const h = setInterval(() => {
+    const tick = () => {
       const t = Date.now();
       setNow(t);
       const r = restRef.current;
@@ -170,8 +175,13 @@ export function LiveSession({
         restRef.current = { ...r, buzzed: true };
         setRest(restRef.current);
       }
-    }, 500);
-    return () => clearInterval(h);
+    };
+    const first = setTimeout(tick, 0);
+    const h = setInterval(tick, 500);
+    return () => {
+      clearTimeout(first);
+      clearInterval(h);
+    };
   }, []);
 
   // Keep the screen on while training (not every browser has it).
@@ -278,7 +288,7 @@ export function LiveSession({
     const was = e.sets[si]!.done;
     patch(ei, si, { done: !was });
     if (was) return;
-    startRest({ ends: now + (e.restS ?? DEFAULT_REST_S) * 1000, buzzed: false });
+    startRest({ ends: wallClock() + (e.restS ?? DEFAULT_REST_S) * 1000, buzzed: false });
     if (e.sets.every((x, j) => j === si || x.done) && ei + 1 < s.exercises.length)
       setOpen(ei + 1);
   };
@@ -308,7 +318,7 @@ export function LiveSession({
   };
 
   const left = undoneCount(s);
-  const restLeft = rest ? rest.ends - now : 0;
+  const restLeft = rest && now !== null ? rest.ends - now : 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -329,7 +339,7 @@ export function LiveSession({
             </span>
             {startedAt && (
               <span className="font-display text-item font-semibold">
-                {clock(now - Date.parse(startedAt))}
+                {now === null ? "–:––" : clock(now - Date.parse(startedAt))}
               </span>
             )}
           </span>
@@ -350,7 +360,7 @@ export function LiveSession({
             <button
               type="button"
               onClick={() =>
-                startRest({ ends: Math.max(rest.ends, now) + 15000, buzzed: false })
+                startRest({ ends: Math.max(rest.ends, wallClock()) + 15000, buzzed: false })
               }
               className={buttonClass({ variant: "subtle" })}
             >
