@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { formToObject } from "@/app/_server/forms";
 import { requireContext } from "@/app/_server/owner";
+import { todayIn } from "@/core/shared/dates";
 import { getDb } from "@/app/_server/runtime";
 import { parseInput } from "@/core/shared/validation";
 import type { FormState } from "@/core/shared/result";
@@ -50,6 +51,9 @@ export async function createSessionAction(
   const values = formToObject(formData);
   const input = parseInput(sessionInput, values);
   if (!input.ok) return { status: "error", errors: input.errors, values };
+  // A day that has not come yet can only be planned.
+  if (input.value.status === "done" && input.value.day > todayIn(settings.timezone))
+    return { status: "error", errors: { status: "future_day" }, values };
   const r = await createSession(getDb(), owner, input.value, settings.timezone);
   if (!r.ok) return { status: "error", errors: r.errors, values };
   revalidatePath("/", "layout"); // the day page shows sessions too
@@ -65,6 +69,9 @@ export async function updateSessionAction(
   const values = formToObject(formData);
   const input = parseInput(sessionInput, values);
   if (!input.ok) return { status: "error", errors: input.errors, values };
+  // A day that has not come yet can only be planned.
+  if (input.value.status === "done" && input.value.day > todayIn(settings.timezone))
+    return { status: "error", errors: { status: "future_day" }, values };
   const r = await updateSession(getDb(), owner, id, input.value, settings.timezone);
   if (!r.ok) return { status: "error", errors: r.errors, values };
   revalidatePath("/", "layout");
@@ -109,6 +116,9 @@ export async function createEstimateAction(
   const values = estimateValues(formData);
   const input = parseInput(sessionInput, values);
   if (!input.ok) return { status: "error", errors: input.errors, values };
+  // A day that has not come yet can only be planned.
+  if (input.value.status === "done" && input.value.day > todayIn(settings.timezone))
+    return { status: "error", errors: { status: "future_day" }, values };
   const r = await createSession(getDb(), owner, input.value, settings.timezone);
   if (!r.ok) return { status: "error", errors: r.errors, values };
   revalidatePath("/", "layout");
@@ -125,6 +135,9 @@ export async function updateEstimateAction(
   const values = estimateValues(formData);
   const input = parseInput(sessionInput, values);
   if (!input.ok) return { status: "error", errors: input.errors, values };
+  // A day that has not come yet can only be planned.
+  if (input.value.status === "done" && input.value.day > todayIn(settings.timezone))
+    return { status: "error", errors: { status: "future_day" }, values };
   const r = await updateSession(getDb(), owner, id, input.value, settings.timezone);
   if (!r.ok) return { status: "error", errors: r.errors, values };
   revalidatePath("/", "layout");

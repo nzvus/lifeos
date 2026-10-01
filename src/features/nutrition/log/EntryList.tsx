@@ -35,6 +35,8 @@ import { TimeEditor } from "./TimeEditor";
 import { Badge } from "@/ui/Badge";
 type Props = {
   day: DayView;
+  /** A day still to come: planned entries can't be ticked as eaten. */
+  future?: boolean;
   locale: Locale;
   /** The user's time zone: entry times are shown in it. */
   timeZone: string;
@@ -59,11 +61,19 @@ type Props = {
   quality?: (entry: LogEntryView) => ReactNode;
   t: Pick<
     Messages,
-    "day" | "nutrients" | "macro" | "errors" | "moments" | "actions" | "label" | "entryEdit"
+    | "day"
+    | "nutrients"
+    | "macro"
+    | "errors"
+    | "moments"
+    | "actions"
+    | "label"
+    | "entryEdit"
   >;
 };
 export function EntryList({
   day,
+  future = false,
   locale,
   timeZone,
   bounds,
@@ -117,9 +127,11 @@ export function EntryList({
                         e.id,
                         e.status === "eaten" ? "planned" : "eaten",
                       )}
+                      future={future}
                       labels={{
                         markEaten: t.day.markEaten,
                         markPlanned: t.day.markPlanned,
+                        future: t.errors.future_day,
                       }}
                     />
                   }

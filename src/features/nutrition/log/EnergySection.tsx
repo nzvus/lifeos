@@ -16,7 +16,7 @@ import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 import { TEXT_LINK } from "@/ui/button";
 import { Disclosure } from "@/ui/Disclosure";
-import { Section } from "@/ui/Section";
+import { Collapsible } from "@/ui/Collapsible";
 import { ActivityForm } from "./ActivityForm";
 import { CalibrationBox } from "./CalibrationBox";
 import { EnergyFormulas } from "./EnergyFormulas";
@@ -79,11 +79,24 @@ export function EnergySection({
     </li>
   );
   return (
-    <Section
+    <Collapsible
+      id="day-energy"
       title={e.title}
       icon={<Flame size={20} aria-hidden="true" />}
-      subtitle={e.subtitle}
+      aside={energy ? range(energy.total.withPlan) : undefined}
+      summary={
+        energy ? (
+          <p className="text-meta text-muted tabular-nums">
+            {fill(e.closed, {
+              spent: range(energy.total.done),
+              balance: balance(withPlanned, energy.total.withPlan),
+            })}
+          </p>
+        ) : undefined
+      }
+      defaultOpen={false}
     >
+      <p className="text-meta text-muted">{e.subtitle}</p>
       {!energy ? (
         <p className="text-meta">
           {fill(e.missing, { list: missing.map((m) => e.missingNames[m]).join(", ") })}{" "}
@@ -139,6 +152,6 @@ export function EnergySection({
           />
         </Disclosure>
       )}
-    </Section>
+    </Collapsible>
   );
 }

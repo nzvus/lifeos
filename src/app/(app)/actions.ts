@@ -18,6 +18,7 @@
 import { revalidatePath } from "next/cache";
 import { formToObject } from "@/app/_server/forms";
 import { requireContext } from "@/app/_server/owner";
+import { todayIn } from "@/core/shared/dates";
 import { getDb } from "@/app/_server/runtime";
 import {
   copyDay,
@@ -197,9 +198,17 @@ export async function setEntryStatusAction(
   _prev: ActionButtonState,
   _formData: FormData,
 ): Promise<ActionButtonState> {
-  const { owner, t } = await requireContext();
-  const result = await setEntryStatus(getDb(), owner, id, status);
-  if (!result.ok) return { status: "error", message: t.errors.not_found };
+  const { owner, settings, t } = await requireContext();
+  const result = await setEntryStatus(
+    getDb(),
+    owner,
+    id,
+    status,
+    new Date(),
+    todayIn(settings.timezone),
+  );
+  if (!result.ok)
+    return { status: "error", message: t.errors[result.errors._form ?? "not_found"] };
   revalidatePath("/");
   return { status: "idle" };
 }

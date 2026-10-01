@@ -100,6 +100,7 @@ export const trashEn = {
 
 export const energyEn = {
   title: "Energy",
+  closed: "Spent so far {spent} · balance with the plan {balance}",
   subtitle: "Estimates, always as ranges: every part is below.",
   bmr: "Basal metabolism",
   baseline: "Everyday activity (basal and digestion included)",
@@ -158,8 +159,12 @@ export const energyEn = {
   fatPerKg: "Fat (g per kg)",
   dynamicHint:
     "Calories = the day's estimated energy with the plan − deficit; protein and fat follow your weight; carbs are the rest. Sugars, saturated fat and salt stay limits.",
-  dynamicNote: "{goal}: {kcal} kcal = energy with the plan {spent} {sign} {delta} kcal",
-  dynamicCapped: "{note} → {kcal} kcal: carbs stop at {carbs} g, more adds little",
+  goalMaintain: "maintenance",
+  goalDeficit: "a {kcal} kcal deficit",
+  goalSurplus: "a {kcal} kcal surplus",
+  goalEat: "Eat {kcal} kcal · you spend ~{spent} kcal",
+  goalFixed: "Target {kcal} kcal (fixed)",
+  goalCapped: "Carbs stop at {carbs} g: more adds nothing.",
   goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
@@ -318,12 +323,17 @@ export const trainingWhenEn = {
   },
 };
 
-export const panelZonesEn = {
-  below_floor: "below the health minimum",
-  low: "below the good zone",
-  good: "in the good zone",
-  high: "above the good zone, within the maximum",
-  above_ceiling: "past the maximum",
+export const panelRowsEn = {
+  toGo: "{v} to go",
+  inZone: "in the good zone",
+  aboveZone: "above the good zone ({v})",
+  noBenefit: "past {v}: no further benefit",
+  past: "past the recommended maximum ({v})",
+  bandLine: "health minimum {floor} · good zone {low}–{high} · {kind} {ceiling}",
+  maxHealth: "recommended max",
+  maxUseful: "useful max",
+  targetLine: "target {v}",
+  planLine: "with the plan {v}",
 };
 
 export const appEn = {
@@ -356,6 +366,7 @@ export const errorsEn = {
   still_referenced:
     "Something else still uses it (even if that is in the trash): delete that first.",
   not_editable: "This entry has no ingredients to edit (an estimate or a portion).",
+  future_day: "That day has not come yet: it can only be planned.",
 };
 
 export const entryEditEn = {

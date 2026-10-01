@@ -502,3 +502,23 @@ describe("editing a day's entry as a local copy (ADR-0022)", () => {
     });
   });
 });
+
+describe("a day still to come", () => {
+  it("can be planned, not eaten", async () => {
+    const mealId = await porridge();
+    const r = await logMeal(db, alice, {
+      day: "2026-10-05",
+      mealId,
+      servings: "1",
+      status: "planned",
+      at: null,
+    });
+    if (!r.ok) throw new Error("setup failed");
+    expect(
+      await setEntryStatus(db, alice, r.value.id, "eaten", new Date(), "2026-10-01"),
+    ).toEqual({ ok: false, errors: { _form: "future_day" } });
+    expect(
+      await setEntryStatus(db, alice, r.value.id, "eaten", new Date(), "2026-10-05"),
+    ).toEqual({ ok: true, value: null });
+  });
+});

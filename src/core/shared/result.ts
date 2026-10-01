@@ -33,6 +33,7 @@ export const ERROR_CODES = [
   "moments_order",
   "still_referenced",
   "not_editable",
+  "future_day",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 

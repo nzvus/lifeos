@@ -20,7 +20,7 @@ import {
   NUTRIENT_UNIT,
   type NutrientKey,
 } from "@/core/nutrition/nutrients";
-import { zoneOf, type Bands } from "@/core/nutrition/bands";
+import type { Bands } from "@/core/nutrition/bands";
 import { assessTarget, TARGET_KIND, type Targets } from "@/core/nutrition/targets";
 import type { DisplayTotals } from "@/core/nutrition/totals";
 import { formatCents, formatNumber } from "@/core/shared/format";
@@ -29,8 +29,7 @@ import { fill, type Messages } from "@/i18n";
 import { ConcentricRings } from "@/ui/ConcentricRings";
 import { MacroBar } from "@/ui/MacroBar";
 import { NutrientIcon, NUTRIENT_VAR } from "@/ui/NutrientIcon";
-import { BandBar } from "@/ui/BandBar";
-import { TargetBar } from "@/ui/TargetBar";
+import { NutrientRow, type RowState } from "@/ui/NutrientRow";
 import { targetTone } from "@/ui/targetTone";
 
 /** The same heading as every ui/Section. */
@@ -82,101 +81,100 @@ export function DayPanel({
     });
   };
 
-  /** With a band: which zone, and the good zone's range. */
-  const zoneText = (k: NutrientKey, v: string): string | undefined => {
-    const b = bands?.[k];
-    if (!b) return undefined;
-    const u = NUTRIENT_UNIT[k];
-    return fill(t.panel.zones[zoneOf(Number(v), b)], {
-      low: num(String(b.low), k),
-      high: num(String(b.high), k),
-      floor: num(String(b.floor), k),
-      ceiling: num(String(b.ceiling), k),
-      u,
-    });
-  };
-
-  /** The short line under a bar, worded for the target's kind. */
-  const statusText = (k: NutrientKey, a = assess(k)): string | undefined => {
-    if (a.status === "none") return undefined;
-    const v = `${num(a.delta, k)} ${NUTRIENT_UNIT[k]}`;
-    const kind = TARGET_KIND[k];
-    if (kind === "max")
-      return fill(a.status === "over" ? t.panel.overLimit : t.panel.underLimit, { v });
-    if (a.status === "under") return fill(t.label.remaining, { v });
-    if (kind === "target" && a.status === "on") return t.panel.onTarget;
-    return fill(t.label.over, { v }); // over a target, or above a minimum (fine)
-  };
-
-  /** "value / target unit" (or just "value unit" without a target). */
-  const valueText = (v: string, k: NutrientKey) =>
-    targets[k] === null
-      ? `${num(v, k)} ${NUTRIENT_UNIT[k]}`
-      : `${num(v, k)} / ${num(targets[k]!, k)} ${NUTRIENT_UNIT[k]}`;
-
-  /** Where the plan leads, in numbers; nothing when it changes nothing here. */
-  const plannedText = (k: NutrientKey): string | undefined => {
-    const v = withPlanned.nutrients[k];
-    if (num(v, k) === num(totals.nutrients[k], k)) return undefined;
-    const status = statusText(k, assessTarget(v, targets[k], TARGET_KIND[k]));
-    return [fill(t.day.withPlanned, { v: valueText(v, k) }), status]
-      .filter(Boolean)
-      .join(" · ");
-  };
-
-  /** One nutrient: against its band (ui/BandBar), else its target (ui/TargetBar). */
+  /**
+   * One nutrient as a simple row (ui/NutrientRow): its zone — the band
+   * (ADR-0023/0025) where there is one, else one made from the target's
+   * kind — then a single state and a single line of words.
+   */
   const bar = (k: NutrientKey) => {
-    const a = assess(k);
-    const { color, opacity } = tone(k);
-    const value = valueText(totals.nutrients[k], k);
-    const b = bands?.[k];
-    if (b) {
-      const g = (v: number) => `${num(String(v), k)} ${NUTRIENT_UNIT[k]}`;
-      return (
-        <BandBar
-          key={k}
-          icon={<NutrientIcon name={k} />}
-          label={t.nutrients[k]}
-          value={value}
-          status={[zoneText(k, totals.nutrients[k]), statusText(k)]
-            .filter(Boolean)
-            .join(" · ")}
-          planned={plannedText(k)}
-          eaten={Number(totals.nutrients[k])}
-          withPlan={Number(withPlanned.nutrients[k])}
-          target={targets[k] === null ? null : Number(targets[k])}
-          band={b}
-          color={`var(${NUTRIENT_VAR[k]})`}
-          legend={{
-            floor: fill(t.panel.bandFloor, { v: g(b.floor) }),
-            good: fill(t.panel.bandGood, { low: num(String(b.low), k), high: g(b.high) }),
-            ceiling: fill(
-              b.ceilingKind === "health"
-                ? t.panel.bandCeilingHealth
-                : t.panel.bandCeilingUseful,
-              { v: g(b.ceiling) },
-            ),
-          }}
-          autoLabel={auto.includes(k) ? t.panel.auto : undefined}
-          autoHint={auto.includes(k) ? t.panel.autoHint : undefined}
-        />
-      );
-    }
+    const v = Number(totals.nutrients[k]);
+    const vp = Number(withPlanned.nutrients[k]);
+    const target = targets[k] === null ? null : Number(targets[k]);
+    const u = NUTRIENT_UNIT[k];
+    const g = (n: number) => `${num(String(Math.round(n * 10) / 10), k)} ${u}`;
+    const kind = TARGET_KIND[k];
+    const real = bands?.[k];
+    const band = real
+      ? { ...real, kind: real.ceilingKind }
+      : target === null || target === 0
+        ? null
+        : kind === "max"
+          ? { floor: 0, low: 0, high: target, ceiling: target, kind: "health" as const }
+          : kind === "min"
+            ? {
+                floor: 0,
+                low: target,
+                high: target * 1.5,
+                ceiling: target * 1.5,
+                kind: "useful" as const,
+              }
+            : {
+                floor: target * 0.85,
+                low: target * 0.95,
+                high: target * 1.05,
+                ceiling: target * 1.1,
+                kind: "health" as const,
+              };
+    const state: RowState = !band
+      ? "none"
+      : v < band.low
+        ? "short"
+        : v <= band.high
+          ? "good"
+          : v <= band.ceiling || band.kind === "useful"
+            ? "high"
+            : "over";
+    const status = !band
+      ? undefined
+      : state === "short"
+        ? fill(t.panel.toGo, { v: g((k === "kcal" && target ? target : band.low) - v) })
+        : state === "good"
+          ? kind === "max"
+            ? fill(t.panel.underLimit, { v: g(band.high - v) })
+            : t.panel.inZone
+          : state === "high"
+            ? band.kind === "useful" && v > band.ceiling
+              ? fill(t.panel.noBenefit, { v: g(band.ceiling) })
+              : fill(t.panel.aboveZone, { v: g(band.high) })
+            : fill(t.panel.past, { v: g(band.ceiling) });
+    const details = (
+      <>
+        {real && (
+          <span>
+            {fill(t.panel.bandLine, {
+              floor: g(real.floor),
+              low: num(String(real.low), k),
+              high: g(real.high),
+              ceiling: g(real.ceiling),
+              kind: real.ceilingKind === "health" ? t.panel.maxHealth : t.panel.maxUseful,
+            })}
+          </span>
+        )}
+        {target !== null && <span>{fill(t.panel.targetLine, { v: g(target) })}</span>}
+        {vp !== v && <span>{fill(t.panel.planLine, { v: g(vp) })}</span>}
+      </>
+    );
     return (
-      <TargetBar
+      <NutrientRow
         key={k}
-        icon={SUB.has(k) ? null : <NutrientIcon name={k} />}
+        icon={SUB.has(k) ? undefined : <NutrientIcon name={k} />}
         label={t.nutrients[k]}
         sub={SUB.has(k)}
-        value={value}
-        status={statusText(k)}
-        ratio={a.status === "none" ? null : a.ratio}
-        plannedRatio={plannedRatio(k)}
-        planned={plannedText(k)}
-        color={color}
-        opacity={opacity}
+        amount={g(v)}
+        status={status}
+        state={state}
+        eaten={v}
+        withPlan={vp}
+        zone={
+          band && kind !== "max"
+            ? { low: band.low, high: band.high }
+            : band
+              ? { low: 0, high: band.high }
+              : null
+        }
+        max={band ? Math.max(band.ceiling * 1.15, v, vp, target ?? 0) || 1 : 1}
+        details={real || target !== null || vp !== v ? details : undefined}
         autoLabel={auto.includes(k) ? t.panel.auto : undefined}
-        autoHint={auto.includes(k) ? t.panel.autoHint : undefined}
       />
     );
   };
@@ -293,7 +291,7 @@ export function DayPanel({
           {splitLine}
         </div>
 
-        <div className="flex w-full flex-1 flex-col gap-2.5">
+        <div className="flex w-full flex-1 flex-col gap-3">
           {NUTRIENT_KEYS.map((k) => bar(k))}
         </div>
       </div>

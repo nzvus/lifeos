@@ -102,6 +102,7 @@ export const trashIt: Messages["trash"] = {
 
 export const energyIt: Messages["energy"] = {
   title: "Energia",
+  closed: "Speso finora {spent} · bilancio con il piano {balance}",
   subtitle: "Stime, sempre come intervalli: ogni parte è qui sotto.",
   bmr: "Metabolismo basale",
   baseline: "Attività di tutti i giorni (basale e digestione inclusi)",
@@ -160,9 +161,12 @@ export const energyIt: Messages["energy"] = {
   fatPerKg: "Grassi (g per kg)",
   dynamicHint:
     "Calorie = consumo stimato del giorno con il piano − deficit; proteine e grassi seguono il peso; i carboidrati il resto. Zuccheri, saturi e sale restano limiti.",
-  dynamicNote: "{goal}: {kcal} kcal = consumo con il piano {spent} {sign} {delta} kcal",
-  dynamicCapped:
-    "{note} → {kcal} kcal: i carboidrati si fermano a {carbs} g, oltre servono poco",
+  goalMaintain: "mantenimento",
+  goalDeficit: "deficit di {kcal} kcal",
+  goalSurplus: "surplus di {kcal} kcal",
+  goalEat: "Mangia {kcal} kcal · consumi ~{spent} kcal",
+  goalFixed: "Obiettivo {kcal} kcal (fisso)",
+  goalCapped: "Carboidrati fermati a {carbs} g: oltre non servono.",
   goalCustom: "Obiettivo personalizzato",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
   formulas: {
@@ -323,12 +327,17 @@ export const trainingWhenIt: Messages["training"]["when"] = {
   },
 };
 
-export const panelZonesIt: Messages["panel"]["zones"] = {
-  below_floor: "sotto il minimo per la salute",
-  low: "sotto la zona buona",
-  good: "nella zona buona",
-  high: "sopra la zona buona, entro il massimo",
-  above_ceiling: "oltre il massimo",
+export const panelRowsIt = {
+  toGo: "mancano {v}",
+  inZone: "nella zona buona",
+  aboveZone: "sopra la zona buona ({v})",
+  noBenefit: "oltre {v}: nessun beneficio in più",
+  past: "oltre il massimo consigliato ({v})",
+  bandLine: "minimo salute {floor} · zona buona {low}–{high} · {kind} {ceiling}",
+  maxHealth: "massimo consigliato",
+  maxUseful: "massimo utile",
+  targetLine: "obiettivo {v}",
+  planLine: "con il pianificato {v}",
 };
 
 export const appIt: Messages["app"] = {
@@ -361,6 +370,7 @@ export const errorsIt: Messages["errors"] = {
   still_referenced:
     "Un altro elemento lo usa ancora (anche se è nel cestino): elimina prima quello.",
   not_editable: "Questa voce non ha ingredienti da modificare (stima o porzione).",
+  future_day: "È un giorno che non è ancora arrivato: puoi solo pianificarlo.",
 };
 
 export const entryEditIt: Messages["entryEdit"] = {

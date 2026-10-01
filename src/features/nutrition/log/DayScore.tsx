@@ -13,7 +13,7 @@ import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 import { FiberTypeIcon } from "@/ui/QualityIcons";
-import { Section } from "@/ui/Section";
+import { Collapsible } from "@/ui/Collapsible";
 
 type Props = {
   score: Score;
@@ -42,7 +42,20 @@ export function DayScore({ score, planned, quality, empty, locale, t }: Props) {
     </p>
   );
   return (
-    <Section title={d.title} icon={<Gauge size={20} aria-hidden="true" />}>
+    <Collapsible
+      id="day-score"
+      title={d.title}
+      icon={<Gauge size={20} aria-hidden="true" />}
+      aside={
+        !empty && score.score !== null ? (
+          <span className={`font-bold ${tone(score.score)}`}>
+            {score.score}
+            {d.outOf}
+          </span>
+        ) : undefined
+      }
+      defaultOpen={false}
+    >
       {empty || score.score === null ? (
         <>
           <p className="text-meta text-muted">{d.none}</p>
@@ -138,6 +151,6 @@ export function DayScore({ score, planned, quality, empty, locale, t }: Props) {
           )}
         </div>
       )}
-    </Section>
+    </Collapsible>
   );
 }
