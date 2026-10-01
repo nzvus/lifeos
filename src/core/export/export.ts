@@ -217,7 +217,11 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     version: EXPORT_VERSION,
     exportedAt: now.toISOString(),
     account: me ?? null,
-    settings: stripOwner(settings)[0] ?? null,
+    // No secrets: the assistant's key (ADR-0018) never leaves the server,
+    // not even encrypted; its last 4 characters are enough to recognise it.
+    settings:
+      stripOwner(settings).map(({ assistantKeyEnc: _secret, ...rest }) => rest)[0] ??
+      null,
     // Free tags ride along with each ingredient (ADR-0012).
     ingredients: stripOwner(ingredientRows).map((i) => ({
       ...i,

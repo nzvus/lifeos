@@ -451,6 +451,12 @@ export const userSettings = pgTable(
     sex: text("sex"),
     birthYear: integer("birth_year"),
     heightCm: integer("height_cm"),
+    // ADR-0018: the user's OpenRouter key, encrypted (AES-256-GCM with the
+    // server's ASSISTANT_KEY_SECRET), never sent back to the browser; its
+    // last 4 characters only, to show which key is set; the model id.
+    assistantKeyEnc: text("assistant_key_enc"),
+    assistantKeyLast4: text("assistant_key_last4"),
+    assistantModel: text("assistant_model").notNull().default("openrouter/free"),
     // DEPRECATED since migration 0001 (ADR-0008): targets moved to
     // day_profiles; migration 0002 copied them into a "Standard" profile.
     // Nothing reads these columns any more. A later migration drops them,
