@@ -130,3 +130,20 @@ describe("checkSetsForKinds", () => {
     ).toBeNull();
   });
 });
+
+describe("checkSetsForKinds and planned sets", () => {
+  it("a planned set (done: false) may be incomplete; a done one may not", () => {
+    expect(
+      checkSetsForKinds(
+        [{ sets: [{ reps: null, loadKg: null, durationS: null, done: false }] }],
+        ["cardio"],
+      ),
+    ).toBeNull();
+    expect(
+      checkSetsForKinds(
+        [{ sets: [{ reps: null, loadKg: null, durationS: null }] }],
+        ["cardio"],
+      ),
+    ).toEqual({ "exercises.0.sets.0.durationS": "required" });
+  });
+});

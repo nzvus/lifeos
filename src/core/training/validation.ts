@@ -136,17 +136,22 @@ export type MeasurementInput = z.output<typeof measurementInput>;
 /**
  * The rules a set's kind imposes: strength needs reps and a load;
  * bodyweight needs reps (a load is optional, e.g. a vest); cardio needs a
- * duration. `kinds[i]` is the kind of `exercises[i]`.
+ * duration. `kinds[i]` is the kind of `exercises[i]`. A set not done yet
+ * (gym mode's plan, done: false) may be incomplete: it is filled in at the
+ * gym, and finishing drops it if it stays undone.
  */
 export function checkSetsForKinds(
   exercises: readonly {
-    sets: readonly Pick<SetInput, "reps" | "loadKg" | "durationS">[];
+    sets: readonly (Pick<SetInput, "reps" | "loadKg" | "durationS"> & {
+      done?: boolean;
+    })[];
   }[],
   kinds: readonly ExerciseKind[],
 ): FieldErrors | null {
   const errors: FieldErrors = {};
   exercises.forEach((e, i) =>
     e.sets.forEach((s, j) => {
+      if (s.done === false) return;
       const at = `exercises.${i}.sets.${j}`;
       const kind = kinds[i]!;
       if (kind !== "cardio" && s.reps == null) errors[`${at}.reps`] = "required";
