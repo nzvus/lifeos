@@ -775,6 +775,10 @@ export const en = {
   },
   panel: {
     zones: panelZonesEn,
+    bandFloor: "health minimum {v}",
+    bandGood: "good zone {low}–{high}",
+    bandCeilingHealth: "recommended max {v}",
+    bandCeilingUseful: "no benefit past {v}",
     left: "left",
     over: "over",
     off: "on target",

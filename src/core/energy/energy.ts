@@ -232,7 +232,12 @@ export function dynamicTargets(
   const mid = (energy.total.withPlan.low + energy.total.withPlan.high) / 2;
   let kcal = Math.max(1200, Math.round(mid - p.deficitKcal));
   const protein = Math.round(Number(p.proteinGPerKg) * kg);
-  const fat = Math.round(Number(p.fatGPerKg) * kg);
+  // Fat per kg, but never under 25 % of the energy: below 20 % is under the
+  // health minimum (AMDR; ADR-0025), and 25 % keeps it in the good zone.
+  const fat = Math.max(
+    Math.round(Number(p.fatGPerKg) * kg),
+    Math.round((kcal * 0.25) / 9),
+  );
   let carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
   let uncapped: number | null = null;
   if (carbsMax !== undefined && carbs > carbsMax) {

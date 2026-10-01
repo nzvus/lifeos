@@ -168,7 +168,8 @@
 - [x] Day page: plan a routine / exercise / estimate at a time, start it now in gym mode, or write it as done; "Start" on planned sessions; one "When" block (ui/Segmented) for food and training; planned sessions without a duration get one from their sets, so the energy counts them
 - [x] Goal shown plainly: maintenance added; goal tiles + "deficit / surplus of N kcal a day" in the editor; the day says "Recomposition: 3504 kcal = energy with the plan 3704 − 200"
 - [x] Alignment: form pages (settings, editors, trash, live) centred like their action bar; the dynamic day type's fields aligned
-- [ ] Energy check against the developer's export (tmp/, never committed)
+- [x] Energy check against the developer's export: 1 Oct (sitting, 25 min walk, 60 min run, 76 kg) → 2545–2926 kcal, recomposition target 2536 (was 3104); a rest day → 2014
+- [x] ADR-0025: floors and ceilings are health limits, or the useful maximum where none exists; banded macros drawn in grams with zones and a legend (ui/BandBar); dynamic fat ≥ 25 % of kcal
 - [x] ADR-0023 macro bands (core/nutrition/bands.ts): floor / good zone / ceiling per kg, training load and goal; bars shade the zone and say which zone; day score by zone; dynamic carbs stop at the top of their good zone (the energy target with them)
 - [ ] ADR-0022 edit a day's food entry as a local copy (grams, swaps)
 - [ ] ADR-0024 training programs as an ordered cycle (migration-only PR first), derived plan on the day and the targets page

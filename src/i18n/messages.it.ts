@@ -777,6 +777,10 @@ export const it: Messages = {
   },
   panel: {
     zones: panelZonesIt,
+    bandFloor: "minimo salute {v}",
+    bandGood: "zona buona {low}–{high}",
+    bandCeilingHealth: "massimo consigliato {v}",
+    bandCeilingUseful: "oltre {v} nessun beneficio",
     left: "rimaste",
     over: "in più",
     off: "in obiettivo",

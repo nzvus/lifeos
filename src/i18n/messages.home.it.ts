@@ -165,6 +165,7 @@ export const energyIt: Messages["energy"] = {
   goalCustom: "Obiettivo personalizzato",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
   formulas: {
+    fatRule: "il maggiore fra {perKg} e 25 % di {kcal} kcal ÷ 9",
     capped:
       "i carboidrati si fermano a {carbs} g, quindi le kcal sono proteine + grassi + carboidrati",
     carbsCap:
@@ -296,11 +297,11 @@ export const trainingWhenIt: Messages["training"]["when"] = {
 };
 
 export const panelZonesIt: Messages["panel"]["zones"] = {
-  below_floor: "sotto il minimo utile ({floor} {u})",
-  low: "sotto la zona buona {low}–{high} {u}",
-  good: "nella zona buona {low}–{high} {u}",
-  high: "sopra la zona buona {low}–{high} {u}: oltre serve poco",
-  above_ceiling: "oltre il tetto utile ({ceiling} {u})",
+  below_floor: "sotto il minimo per la salute",
+  low: "sotto la zona buona",
+  good: "nella zona buona",
+  high: "sopra la zona buona, entro il massimo",
+  above_ceiling: "oltre il massimo",
 };
 
 export const appIt: Messages["app"] = {

@@ -1,30 +1,46 @@
 /**
  * core/nutrition/bands.ts — for each macro a FLOOR, a GOOD zone and a
- * CEILING (ADR-0023), from body weight, the day's training and the goal.
- * More is not better past a point: protein above ≈2.2 g/kg adds nothing for
- * muscle; carbohydrate needs follow training; fat has a floor for hormones.
- * Sources: ISSN position stands (protein 2017, nutrient timing 2017),
- * ACSM/AND/DC 2016 (carbohydrate by training load).
+ * CEILING (ADR-0023 as amended by ADR-0025), from body weight, energy, the
+ * day's training and the goal.
  *
- *   protein  floor 1.2 · good 1.6–2.2 (cut 1.8–2.4) · ceiling 2.6 (cut 2.8) g/kg
- *   fat      floor 0.6 · good 0.8–1.0 g/kg · ceiling 35 % of kcal
- *   carbs    rest 2–3 · training 3–5 · long training 5–7 g/kg; floor 1.5
- *            (2.5 when training) · ceiling 8 g/kg
- *   fibre    floor 10 · good 14–20 per 1000 kcal · ceiling 70 g
- *   energy   the day's target: good ±5 %, floor −15 %, ceiling +10 %
+ *   floor    the minimum recommended for HEALTH (reference intakes)
+ *   good     where the goal is best served (muscle, training)
+ *   ceiling  the HEALTH maximum where one exists; otherwise the USEFUL
+ *            maximum, beyond which there is no further benefit
+ *
+ *   protein  floor 0.8 g/kg (RDA, EFSA PRI 0.83) · good 1.6–2.2 g/kg
+ *            (cut 1.8–2.4) · useful max = top of good: more adds no muscle
+ *            (Morton 2018 meta-analysis; ISSN 2017)
+ *   carbs    floor 130 g (RDA: the brain's glucose) · good by training:
+ *            rest 2–3, training 3–5, long 5–7 g/kg (ACSM 2016) · useful max
+ *            = top of good: more is only energy
+ *   fat      floor 20 % of kcal (AMDR) · good 25–30 % of kcal, at least
+ *            0.6 g/kg · health max 35 % of kcal (AMDR; EFSA RI 20–35 %)
+ *   fibre    floor 25 g (EFSA adequate intake) · good 14 g/1000 kcal (at
+ *            least 25) to 50 g · useful max 70 g (tolerance; no UL)
+ *
+ * Energy has no band: it has its own target. Sugars, saturated fat and salt
+ * keep their health maxima (targets.ts).
  *
  * Pure; tested in bands.test.ts.
  */
 import type { NutrientKey } from "./nutrients";
 
-export type Band = { floor: number; low: number; high: number; ceiling: number };
+export type Band = {
+  floor: number;
+  low: number;
+  high: number;
+  ceiling: number;
+  /** "health": a recommended maximum; "useful": no benefit beyond it. */
+  ceilingKind: "health" | "useful";
+};
 export type Bands = Partial<Record<NutrientKey, Band>>;
 
-/** rest: no training; training: a session; long: ≥ 90 min, or 60+ min of cardio. */
+/** rest: no training; training: up to ~90 min; long: 2 h, or 90+ min of cardio. */
 export type TrainingLoad = "rest" | "training" | "long";
 
 export function trainingLoad(minutes: number, cardioMinutes: number): TrainingLoad {
-  if (minutes >= 90 || cardioMinutes >= 60) return "long";
+  if (minutes >= 120 || cardioMinutes >= 90) return "long";
   return minutes > 0 ? "training" : "rest";
 }
 
@@ -36,14 +52,14 @@ const CARBS: Record<TrainingLoad, [number, number]> = {
 
 const r = (x: number) => Math.round(x);
 
-/** The top of the carbs' good zone, g: where a dynamic target stops (ADR-0023). */
+/** The top of the carbs' good zone, g: where a dynamic target stops. */
 export function carbsGoodMax(kg: number, load: TrainingLoad): number {
   return r(CARBS[load][1] * kg);
 }
 
 export function macroBands(input: {
   kg: number;
-  /** The day's energy target, kcal (null: no energy band, fat ceiling at 2000). */
+  /** The day's energy target, kcal (2000 when there is none). */
   kcal: number | null;
   load: TrainingLoad;
   /** A deficit keeps protein higher. */
@@ -51,41 +67,40 @@ export function macroBands(input: {
 }): Bands {
   const { kg, load, cutting } = input;
   const kcal = input.kcal ?? 2000;
+  const pLow = (cutting ? 1.8 : 1.6) * kg;
+  const pHigh = (cutting ? 2.4 : 2.2) * kg;
   const [cLo, cHi] = CARBS[load];
-  const bands: Bands = {
+  const fatLow = Math.max(0.6 * kg, (kcal * 0.25) / 9);
+  return {
     protein: {
-      floor: r(1.2 * kg),
-      low: r((cutting ? 1.8 : 1.6) * kg),
-      high: r((cutting ? 2.4 : 2.2) * kg),
-      ceiling: r((cutting ? 2.8 : 2.6) * kg),
-    },
-    fat: {
-      floor: r(0.6 * kg),
-      low: r(0.8 * kg),
-      high: r(Math.min(1.0 * kg, (kcal * 0.35) / 9)),
-      ceiling: r(Math.max(1.0 * kg, (kcal * 0.35) / 9)),
+      floor: r(0.8 * kg),
+      low: r(pLow),
+      high: r(pHigh),
+      ceiling: r(pHigh),
+      ceilingKind: "useful",
     },
     carbs: {
-      floor: r((load === "rest" ? 1.5 : 2.5) * kg),
-      low: r(cLo * kg),
-      high: r(cHi * kg),
-      ceiling: r(8 * kg),
+      floor: 130,
+      low: r(Math.max(130, cLo * kg)),
+      high: r(Math.max(130, cHi * kg)),
+      ceiling: r(Math.max(130, cHi * kg)),
+      ceilingKind: "useful",
+    },
+    fat: {
+      floor: r((kcal * 0.2) / 9),
+      low: r(fatLow),
+      high: r(Math.max(fatLow, (kcal * 0.3) / 9)),
+      ceiling: r(Math.max(fatLow, (kcal * 0.35) / 9)),
+      ceilingKind: "health",
     },
     fiber: {
-      floor: r((10 * kcal) / 1000),
-      low: r((14 * kcal) / 1000),
-      high: r((20 * kcal) / 1000),
+      floor: 25,
+      low: r(Math.max(25, (14 * kcal) / 1000)),
+      high: 50,
       ceiling: 70,
+      ceilingKind: "useful",
     },
   };
-  if (input.kcal !== null)
-    bands.kcal = {
-      floor: r(kcal * 0.85),
-      low: r(kcal * 0.95),
-      high: r(kcal * 1.05),
-      ceiling: r(kcal * 1.1),
-    };
-  return bands;
 }
 
 export type Zone = "below_floor" | "low" | "good" | "high" | "above_ceiling";
@@ -100,7 +115,8 @@ export function zoneOf(value: number, b: Band): Zone {
 
 /**
  * 0–100 for a value against its band: 100 in the good zone, falling to 50
- * at the floor or the ceiling, to 0 as far again beyond them.
+ * at the floor or the ceiling, to 0 as far again beyond them. Past a USEFUL
+ * ceiling nothing is gained but nothing is harmed: 70, not lower.
  */
 export function zoneScore(value: number, b: Band): number {
   const lerp = (x: number, from: number, to: number, a: number, z: number) =>
@@ -108,9 +124,9 @@ export function zoneScore(value: number, b: Band): number {
   let s: number;
   if (value >= b.low && value <= b.high) s = 100;
   else if (value < b.low && value >= b.floor) s = lerp(value, b.floor, b.low, 50, 100);
-  else if (value > b.high && value <= b.ceiling)
-    s = lerp(value, b.high, b.ceiling, 100, 50);
   else if (value < b.floor) s = lerp(value, b.floor - (b.low - b.floor), b.floor, 0, 50);
+  else if (b.ceilingKind === "useful") s = 70;
+  else if (value <= b.ceiling) s = lerp(value, b.high, b.ceiling, 100, 50);
   else s = lerp(value, b.ceiling, b.ceiling + (b.ceiling - b.high), 50, 0);
   return Math.round(Math.max(0, Math.min(100, s)));
 }

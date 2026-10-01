@@ -111,7 +111,10 @@ export function EnergyFormulas({ energy, dynamic, locale, t }: Props) {
       },
       {
         label: f.fat,
-        formula: `${n(Number(dynamic.params.fatGPerKg), 1)} g/kg × ${n(i.kg, 1)} kg`,
+        formula: fill(f.fatRule, {
+          perKg: `${n(Number(dynamic.params.fatGPerKg), 1)} g/kg × ${n(i.kg, 1)} kg`,
+          kcal: n(dynamic.uncapped ?? dynamic.kcal),
+        }),
         result: `${n(dynamic.fat)} g (${n(dynamic.fat * 9)} kcal)`,
       },
       {

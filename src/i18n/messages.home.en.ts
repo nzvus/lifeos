@@ -162,6 +162,7 @@ export const energyEn = {
   goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
+    fatRule: "the larger of {perKg} and 25 % of {kcal} kcal ÷ 9",
     capped: "carbs stop at {carbs} g, so kcal = protein + fat + carbs",
     carbsCap:
       "top of the good zone: {g} g ({perKg} g/kg); more adds little for energy and recovery",
@@ -291,11 +292,11 @@ export const trainingWhenEn = {
 };
 
 export const panelZonesEn = {
-  below_floor: "below the useful floor ({floor} {u})",
-  low: "below the good zone {low}–{high} {u}",
-  good: "in the good zone {low}–{high} {u}",
-  high: "above the good zone {low}–{high} {u}: more adds little",
-  above_ceiling: "past the useful ceiling ({ceiling} {u})",
+  below_floor: "below the health minimum",
+  low: "below the good zone",
+  good: "in the good zone",
+  high: "above the good zone, within the maximum",
+  above_ceiling: "past the maximum",
 };
 
 export const appEn = {
