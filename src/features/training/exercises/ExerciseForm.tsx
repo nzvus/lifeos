@@ -18,6 +18,7 @@ import {
   MUSCLE_GROUP_REGION,
   MUSCLE_GROUPS,
   MUSCLE_REGIONS,
+  regionOf,
   suggestAnatomy,
 } from "@/core/training/anatomy";
 import { EXERCISE_KINDS } from "@/core/training/kinds";
@@ -25,6 +26,7 @@ import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result"
 import type { Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
+import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { MuscleChip } from "@/ui/MuscleChip";
 import { SelectField } from "@/ui/SelectField";
 import { SubmitButton } from "@/ui/SubmitButton";
@@ -78,6 +80,9 @@ export function ExerciseForm({ action, initial, submitLabel, t }: Props) {
       />
       <SelectField
         label={x.pattern}
+        icon={
+          <ExerciseIcon pattern={pattern || null} region={regionOf(groups)} size={24} />
+        }
         name="pattern"
         value={pattern}
         onChange={(e) => setPattern(e.currentTarget.value)}
