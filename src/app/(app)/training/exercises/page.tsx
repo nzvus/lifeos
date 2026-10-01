@@ -1,5 +1,4 @@
 /** app/(app)/training/exercises/page.tsx — URL /training/exercises: my exercises with their records. */
-import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { records } from "@/core/training/analysis";
@@ -17,6 +16,8 @@ import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { ListItem } from "@/ui/ListItem";
 import { MuscleChips } from "@/ui/MuscleChip";
 import { PageHeader } from "@/ui/PageHeader";
+import { TrashMenu } from "@/ui/TrashMenu";
+import { deleteExerciseAction, restoreExerciseAction } from "../actions";
 
 export default async function ExercisesPage() {
   const { owner, settings, t } = await requireContext();
@@ -59,13 +60,19 @@ export default async function ExercisesPage() {
                     />
                   </span>
                 }
-                title={
-                  <Link
-                    href={`/training/exercises/${e.id}`}
-                    className="underline-offset-4 hover:underline"
-                  >
-                    {e.name}
-                  </Link>
+                href={`/training/exercises/${e.id}`}
+                title={e.name}
+                action={
+                  <TrashMenu
+                    id={e.id}
+                    name={e.name}
+                    trash={deleteExerciseAction}
+                    restore={restoreExerciseAction}
+                    items={[
+                      { label: t.training.new, href: `/training/new?exercise=${e.id}` },
+                    ]}
+                    labels={t.actions}
+                  />
                 }
                 aside={
                   e.pattern && isMovementPattern(e.pattern)

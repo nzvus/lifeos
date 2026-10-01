@@ -1,5 +1,4 @@
 /** app/(app)/training/routines/page.tsx — URL /training/routines: my routines. */
-import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { setsText } from "@/core/training/display";
@@ -7,6 +6,8 @@ import { listRoutines } from "@/core/training/repositories/routines";
 import { fill } from "@/i18n";
 import { ListItem } from "@/ui/ListItem";
 import { PageHeader } from "@/ui/PageHeader";
+import { TrashMenu } from "@/ui/TrashMenu";
+import { deleteRoutineAction, restoreRoutineAction } from "../actions";
 
 export default async function RoutinesPage() {
   const { owner, settings, t } = await requireContext();
@@ -26,18 +27,22 @@ export default async function RoutinesPage() {
           {routines.map((routine) => (
             <ListItem
               key={routine.id}
-              title={
-                <Link
-                  href={`/training/routines/${routine.id}`}
-                  className="underline-offset-4 hover:underline"
-                >
-                  {routine.name}
-                </Link>
-              }
-              aside={
-                <Link href={`/training/new?routine=${routine.id}`} className="underline">
-                  {t.training.new}
-                </Link>
+              href={`/training/routines/${routine.id}`}
+              title={routine.name}
+              action={
+                <TrashMenu
+                  id={routine.id}
+                  name={routine.name}
+                  trash={deleteRoutineAction}
+                  restore={restoreRoutineAction}
+                  items={[
+                    {
+                      label: t.training.new,
+                      href: `/training/new?routine=${routine.id}`,
+                    },
+                  ]}
+                  labels={t.actions}
+                />
               }
               footer={fill(r.itemsCount, { n: String(routine.items.length) })}
             >
