@@ -169,7 +169,7 @@
 - [x] Schema: migration 0014 (#98, migration-only PR)
 - [x] Core: products, purchases, counts, derived stock with days left, shopping list; batches (cook N portions, log a portion); reminders by hand and derived; all in the trash and the purge; export v7
 - [x] /pantry page and product editor (reached from Ingredients)
-- [ ] Day page: derived reminders and "a portion from a batch" in Add to the day
+- [x] Day page: today's reminders (derived + due) on top of the food column; "Portion" tab in Add to the day (batches with portions left, preview per portion)
 - [ ] Developer review on the phone
 
 ## Done

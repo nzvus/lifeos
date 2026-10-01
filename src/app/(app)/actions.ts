@@ -27,6 +27,7 @@ import {
   entryTiming,
   logEstimate,
   logMeal,
+  logPortion,
   refreshLogEntry,
   setEntryStatus,
   setEntryTime,
@@ -38,6 +39,7 @@ import {
   estimateInput,
   logIngredientInput,
   logMealInput,
+  logPortionInput,
   parseInput,
 } from "@/core/nutrition/validation";
 import { addDays, instantFor } from "@/core/shared/dates";
@@ -57,6 +59,23 @@ export async function logMealAction(
   const result = await logMeal(getDb(), owner, { ...rest, ...timing });
   if (!result.ok) return { status: "error", errors: result.errors, values };
   revalidatePath("/");
+  return { status: "saved" };
+}
+
+/** A portion from a batch cooked earlier (ADR-0017): like a meal, from a batch. */
+export async function logPortionAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner, settings } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(logPortionInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const { planned, time, ...rest } = input.value;
+  const timing = entryTiming(rest.day, planned, time, settings.timezone);
+  const result = await logPortion(getDb(), owner, { ...rest, ...timing });
+  if (!result.ok) return { status: "error", errors: result.errors, values };
+  revalidatePath("/", "layout"); // the pantry's portions too
   return { status: "saved" };
 }
 

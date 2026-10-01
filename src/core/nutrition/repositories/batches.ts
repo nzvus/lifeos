@@ -17,11 +17,19 @@ import { ownedBy, type Owner } from "../../identity/owner";
 import { Big } from "../../shared/decimal";
 import { fail, ok, type Result } from "../../shared/result";
 import { live } from "../../shared/trash";
+import { NUTRIENT_KEYS, type NutrientValues } from "../nutrients";
+import { sumLines, toDisplay, type DisplayTotals } from "../totals";
 import { getMeal } from "./meals";
+
+/** The eight nutrient columns of a snapshot line, as per-100 values. */
+const perNutrient = (l: Record<(typeof NUTRIENT_KEYS)[number], string>): NutrientValues =>
+  Object.fromEntries(NUTRIENT_KEYS.map((k) => [k, l[k]])) as NutrientValues;
 
 export type BatchView = typeof batches.$inferSelect & {
   /** Portions not yet logged (never below zero), exact. */
   portionsLeft: string;
+  /** What ONE portion holds: the lines' exact sum ÷ portions, rounded once. */
+  perPortion: DisplayTotals;
 };
 
 export async function cookBatch(
@@ -99,9 +107,38 @@ export async function listBatches(db: Db, owner: Owner): Promise<BatchView[]> {
     )
     .groupBy(logEntries.batchId);
   const used = new Map(taken.map((t) => [t.batchId, t.servings]));
+  const lines = await db
+    .select()
+    .from(batchLines)
+    .where(
+      and(
+        ownedBy(batchLines, owner),
+        inArray(
+          batchLines.batchId,
+          rows.map((r) => r.id),
+        ),
+      ),
+    );
   return rows.map((b) => {
     const left = new Big(b.portions).minus(used.get(b.id) ?? "0");
-    return { ...b, portionsLeft: (left.lt(0) ? new Big(0) : left).toString() };
+    const exact = sumLines(
+      lines
+        .filter((l) => l.batchId === b.id)
+        .map((l) => ({
+          quantity: l.quantity,
+          per100: perNutrient(l),
+          packagePriceCents: l.packagePriceCents,
+          packageSize: l.packageSize,
+        })),
+    );
+    for (const k of NUTRIENT_KEYS)
+      exact.nutrients[k] = exact.nutrients[k].div(b.portions);
+    exact.costCents = exact.costCents.div(b.portions);
+    return {
+      ...b,
+      portionsLeft: (left.lt(0) ? new Big(0) : left).toString(),
+      perPortion: toDisplay(exact),
+    };
   });
 }
 

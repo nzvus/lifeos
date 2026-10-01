@@ -52,6 +52,8 @@ describe("batches", () => {
     expect((await listBatches(db, me)).map((x) => [x.label, x.portionsLeft])).toEqual([
       ["Porridge", "4"],
     ]);
+    // One portion holds one serving: 60 g of oats, 223.2 kcal.
+    expect((await listBatches(db, me))[0]?.perPortion.nutrients.kcal).toBe("223.2");
 
     const e = await logPortion(db, me, {
       batchId: b.value.id,
