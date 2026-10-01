@@ -4,7 +4,16 @@ import type { Db } from "../../db/client";
 import type { Owner } from "../../identity/owner";
 import { createTestDb, createTestUser } from "../../testing/test-db";
 import { addMeasurement } from "../../training/repositories/measurements";
-import { getBody, getDayEnergy, saveBody, setDayActivity } from "./energy";
+import { logEstimate } from "../../nutrition/repositories/log";
+import { addDays } from "../../shared/dates";
+import {
+  getBody,
+  getCalibration,
+  getDayEnergy,
+  saveBody,
+  setDayActivity,
+  setEnergyCorrection,
+} from "./energy";
 
 let db: Db;
 let close: () => Promise<void>;
@@ -59,7 +68,61 @@ describe("energy repository", () => {
       birthYear: null,
       heightCm: null,
       weightKg: null,
+      correction: 1,
     });
     expect((await getDayEnergy(db, other, DAY)).activity.level).toBe("mixed");
+  });
+
+  it("calibration: a proposal from the last 28 days; accepting it moves the estimate", async () => {
+    await saveBody(db, me, { sex: "male", birthYear: 1996, heightCm: 180 });
+    const before = (await getDayEnergy(db, me, DAY)).energy;
+    expect(before).toBeNull(); // no weight yet
+    for (let i = 1; i <= 28; i++) {
+      const day = addDays(DAY, -i);
+      await logEstimate(db, me, {
+        day,
+        label: "Day",
+        kcal: "2600",
+        protein: "0",
+        carbs: "0",
+        fat: "0",
+        fiber: "0",
+        cost: null,
+      });
+      if (i % 4 === 0)
+        // −0.5 kg a week, going back in time: heavier in the past.
+        await addMeasurement(db, me, {
+          day,
+          weightKg: (80 + (0.5 / 7) * i).toFixed(2),
+          bodyFatPct: null,
+          waistCm: null,
+          notes: "",
+        });
+    }
+    const c = await getCalibration(db, me, DAY);
+    expect(c).toMatchObject({
+      verdict: "ok",
+      loggedDays: 28,
+      weighIns: 7,
+      intake: 2600,
+      current: 1,
+    });
+    expect(c.trendKgPerWeek).toBeCloseTo(-0.5, 2);
+    expect(c.proposed).not.toBeNull();
+
+    const plain = (await getDayEnergy(db, me, DAY)).energy!;
+    await setEnergyCorrection(db, me, c.proposed!);
+    expect((await getBody(db, me, DAY)).correction).toBe(c.proposed);
+    const fixed = (await getDayEnergy(db, me, DAY)).energy!;
+    expect(fixed.baseline.low).toBeGreaterThan(plain.baseline.low);
+    // Not someone else's; and a reset is 1.
+    expect((await getBody(db, other, DAY)).correction).toBe(1);
+    expect((await getCalibration(db, other, DAY)).verdict).toBe("no_body");
+    await setEnergyCorrection(db, me, 1);
+    expect((await getBody(db, me, DAY)).correction).toBe(1);
+  });
+
+  it("the database refuses a factor outside 0.80–1.20", async () => {
+    await expect(setEnergyCorrection(db, me, 1.5)).rejects.toThrow();
   });
 });

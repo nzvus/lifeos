@@ -73,6 +73,7 @@ import {
   logEstimateAction,
   logPortionAction,
   setDayActivityAction,
+  setEnergyCorrectionAction,
   logIngredientAction,
   logMealAction,
   refreshLogEntryAction,
@@ -81,7 +82,7 @@ import {
   setEntryTimeAction,
 } from "./actions";
 import { dynamicTargets } from "@/core/energy/energy";
-import { getDayEnergy } from "@/core/energy/repositories/energy";
+import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 
 type Props = { searchParams: Promise<{ day?: string }> };
@@ -114,6 +115,7 @@ export default async function DayPage({ searchParams }: Props) {
     pantry,
     manualReminders,
     energyView,
+    calibration,
   ] = await Promise.all([
     getDay(db, owner, day),
     listMeals(db, owner),
@@ -132,6 +134,7 @@ export default async function DayPage({ searchParams }: Props) {
     getPantry(db, owner),
     listReminders(db, owner),
     getDayEnergy(db, owner, day), // ADR-0014: what the day costs
+    day === today ? getCalibration(db, owner, today) : null, // ADR-0020
   ]);
   // Today's reminders (ADR-0017): derived from the pantry and the batches,
   // plus the hand-made ones that are due. Worded here, shown only if any.
@@ -244,6 +247,9 @@ export default async function DayPage({ searchParams }: Props) {
           eaten={view.totals.nutrients.kcal}
           withPlanned={view.withPlanned.nutrients.kcal}
           action={setDayActivityAction.bind(null, day)}
+          correction={energyView.body.correction ?? 1}
+          calibration={calibration}
+          setCorrection={setEnergyCorrectionAction}
           locale={locale}
           t={{ energy: t.energy, errors: t.errors }}
         />

@@ -11,7 +11,8 @@ export const it: Messages = {
     name: "Lifeos",
     description: "Diario di alimentazione, allenamento e dispensa.",
     offline: "Sei offline",
-    offlineHint: "Questa pagina ha bisogno della rete. Quello che hai già salvato è al sicuro sul server.",
+    offlineHint:
+      "Questa pagina ha bisogno della rete. Quello che hai già salvato è al sicuro sul server.",
     retry: "Riprova",
   },
   actions: {

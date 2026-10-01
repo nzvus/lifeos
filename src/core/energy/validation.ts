@@ -4,6 +4,7 @@
  * Empty fields mean "not given" (null), never a guess.
  */
 import { z } from "zod";
+import { CORRECTION_RANGE } from "./calibration";
 import { LEVELS } from "./energy";
 
 /** A whole number in [min, max], or null when the field is empty. */
@@ -43,3 +44,10 @@ export const activityInput = z.object({
   steps: optionalInt(0, 100000),
 });
 export type ActivityInput = z.infer<typeof activityInput>;
+
+/** ADR-0020: an accepted calibration factor (1 = reset), kept to two decimals. */
+export const correctionInput = z
+  .number()
+  .min(CORRECTION_RANGE[0])
+  .max(CORRECTION_RANGE[1])
+  .transform((n) => Math.round(n * 100) / 100);

@@ -20,7 +20,8 @@ export const en = {
     name: "Lifeos",
     description: "Nutrition, training and pantry log.",
     offline: "You are offline",
-    offlineHint: "This page needs the network. What you already saved is safe on the server.",
+    offlineHint:
+      "This page needs the network. What you already saved is safe on the server.",
     retry: "Try again",
   },
   actions: {

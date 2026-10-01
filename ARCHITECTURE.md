@@ -116,7 +116,8 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   `ALLOW_SIGNUP=true`. Authorization in every page/action (`requireContext`)
   and again at the data boundary (`Owner`).
 - **Targets:** per day (ADR-0008): fixed copy, else default profile, else none; auto maxima.
-  A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done + planned).
+  A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done + planned;
+  the baseline × the user's accepted calibration, ADR-0020).
 - **Log entries** (ADR-0009/0011): planned or eaten, optional time/moment, maybe an
   estimate; totals = eaten, and every panel also shows the day with the plan.
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (pinned ↺ / Cancel /
@@ -132,8 +133,7 @@ pings healthchecks.io after each dump, and its `app-health` job calls
   purchases − eaten (not batch portions) − cooked ± counts; food per ingredient.
 - **PWA (ADR-0019):** `app/manifest.ts` + `public/sw.js`: pages network-only (offline
   page as fallback), `/_next/static` cache-first; no user data is ever cached.
-- **Time:** days are `date` strings; "today" uses `user_settings.timezone`,
-  never the server's clock. Client clocks start in the browser (hydration).
+- **Time:** `date` strings; "today" from `user_settings.timezone`, never the server's clock.
 - **Search & ordering:** `core/shared/search.ts` (accent-insensitive, every word,
   ranked by match then 60-day usage); sorts toggle ↑/↓, missing values last.
 - **Responsive UI:** phones get a bottom tab bar, md+ header navigation, lg+

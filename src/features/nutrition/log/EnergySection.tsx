@@ -3,11 +3,13 @@
  * came in (ADR-0014): every part of the expenditure as a range, the total
  * so far and with the plan, the intake eaten and with the planned food, and
  * the balance. Without body data it says what is missing, never a guess.
- * The day's movement (level, walking, steps) is edited here.
+ * The day's movement (level, walking, steps) is edited here, and on today's
+ * page the calibration against the scale (ADR-0020) is proposed.
  * Server component; the movement form is a client island.
  */
 import { Flame } from "lucide-react";
 import Link from "next/link";
+import type { Calibration } from "@/core/energy/calibration";
 import type { Energy, MissingBody, Range } from "@/core/energy/energy";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
@@ -16,6 +18,7 @@ import { TEXT_LINK } from "@/ui/button";
 import { Disclosure } from "@/ui/Disclosure";
 import { Section } from "@/ui/Section";
 import { ActivityForm } from "./ActivityForm";
+import { CalibrationBox } from "./CalibrationBox";
 import type { FormState } from "@/core/shared/result";
 
 type Props = {
@@ -26,6 +29,11 @@ type Props = {
   eaten: string;
   withPlanned: string;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
+  /** ADR-0020: the accepted factor on the baseline (1 = none). */
+  correction: number;
+  /** ADR-0020: the last 28 days against the model (today's page only). */
+  calibration: Calibration | null;
+  setCorrection: (factor: number) => Promise<{ ok: boolean; message?: string }>;
   locale: Locale;
   t: Pick<Messages, "energy" | "errors">;
 };
@@ -37,6 +45,9 @@ export function EnergySection({
   eaten,
   withPlanned,
   action,
+  correction,
+  calibration,
+  setCorrection,
   locale,
   t,
 }: Props) {
@@ -79,7 +90,14 @@ export function EnergySection({
         <div className="grid gap-6 @2xl:grid-cols-2">
           <ul className="flex flex-col gap-1 text-meta">
             {row(e.bmr, `${n(energy.bmr)} kcal`)}
-            {row(e.baseline, range(energy.baseline))}
+            {row(
+              correction === 1
+                ? e.baseline
+                : fill(e.baselineCorrected, {
+                    factor: formatNumber(String(correction), locale, 2),
+                  }),
+              range(energy.baseline),
+            )}
             {row(e.walking, range(energy.walking))}
             {row(e.trainingDone, range(energy.training.done))}
             {row(e.trainingPlanned, range(energy.training.planned))}
@@ -98,6 +116,20 @@ export function EnergySection({
       <Disclosure summary={e.activity}>
         <ActivityForm action={action} initial={activity} t={t} />
       </Disclosure>
+      {calibration && calibration.verdict !== "no_body" && (
+        <Disclosure
+          summary={e.calibration.title}
+          // Open by itself only when there is something to decide.
+          defaultOpen={calibration.proposed !== null}
+        >
+          <CalibrationBox
+            c={calibration}
+            accept={setCorrection}
+            locale={locale}
+            t={e.calibration}
+          />
+        </Disclosure>
+      )}
     </Section>
   );
 }

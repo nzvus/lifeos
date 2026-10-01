@@ -41,7 +41,7 @@ import { getPantry } from "../pantry/repositories/stock";
 import { productInput, purchaseInput, reminderInput } from "../pantry/validation";
 import { getDayTargets } from "../nutrition/repositories/profiles";
 import { dynamicTargets } from "../energy/energy";
-import { getDayEnergy } from "../energy/repositories/energy";
+import { getCalibration, getDayEnergy } from "../energy/repositories/energy";
 import { addDays } from "../shared/dates";
 import { rank } from "../shared/search";
 import { parseInput } from "../shared/validation";
@@ -563,6 +563,17 @@ export const TOOLS: Record<string, Tool> = {
             change: { kind: "purchase", id: r.value.id, label: `${input.value.day}` },
           }
         : { ok: false, error: r.errors };
+    },
+  },
+  get_calibration: {
+    effect: "read",
+    spec: fn(
+      "get_calibration",
+      "The last 28 days against the energy model: average eaten, weight trend (kg/week), spent by the scale vs by the model, a verdict on the data and the proposed factor on everyday activity. Only the user can accept it (day page → Energy → Calibration).",
+      {},
+    ),
+    async run({ db, owner, today }) {
+      return { ok: true, data: await getCalibration(db, owner, today) };
     },
   },
   get_targets: {

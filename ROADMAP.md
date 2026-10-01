@@ -168,7 +168,8 @@
 - [x] core/energy (ADR-0014 model B, ranges; training done and planned) + the day's movement on the day page
 - [x] Dynamic day types with goal presets (gain / recomposition / cut): deficit or surplus, protein and fat per kg; targets from the energy with the plan
 - [x] Energy section: every part, spent so far and with the plan, intake and balance (both)
-- [ ] Developer review on the phone; calibration from the weight trend later (ADR-0014 option C)
+- [x] Calibration (ADR-0020): migration 0016 (#103); 28 days of weigh-ins (least-squares trend) and intake vs the model → a proposed factor on everyday activity (0.80–1.20), accepted or reset on today's Energy section; the assistant reads it for the weekly review
+- [ ] Developer review on the phone
 
 ## Next sprint: S10 — The assistant (ADR-0018, requested 2026-10-01)
 - **Goal:** an assistant that does what the app can do when asked (ingredients from labels, meals, imports, planned days, sessions from notes, tags, ratings) and gives advice; photos/JSON/TXT attachments, text extracted on the phone by default.

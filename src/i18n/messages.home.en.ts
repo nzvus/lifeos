@@ -102,6 +102,7 @@ export const energyEn = {
   subtitle: "Estimates, always as ranges: every part is below.",
   bmr: "Basal metabolism",
   baseline: "Everyday activity (basal included)",
+  baselineCorrected: "Everyday activity (basal included, calibrated ×{factor})",
   walking: "Walking",
   trainingDone: "Training done",
   trainingPlanned: "Training planned",
@@ -148,6 +149,23 @@ export const energyEn = {
     "Calories = the day's estimated energy with the plan − deficit; protein and fat follow your weight; carbs are the rest. Sugars, saturated fat and salt stay limits.",
   dynamicNote: "Dynamic targets: {kcal} kcal from the energy with the plan",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
+  calibration: {
+    title: "Calibration",
+    how: "Compares the last {days} days: what you ate and how your weight moved tell what you really spent.",
+    fewWeighIns: "Needs at least 6 weigh-ins over 3 weeks (now {n}).",
+    fewLogged: "Needs at least 80 % of days logged (now {n} of {of}).",
+    intake: "Eaten on average",
+    trend: "Weight trend",
+    trendValue: "{kg} kg a week",
+    observed: "Spent, by the scale",
+    estimated: "Spent, by the model",
+    fits: "The model fits your data (everyday activity {now}).",
+    proposal: "Proposal: everyday activity {factor} (now {now}).",
+    accept: "Accept",
+    accepted: "Everyday activity now {factor}",
+    reset: "Back to ×1.00 (now {now})",
+    wasReset: "Calibration reset",
+  },
 };
 
 export const assistantEn = {

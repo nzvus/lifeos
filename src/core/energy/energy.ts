@@ -4,7 +4,8 @@
  * precise burn numbers). Pure: the repository gathers the day's facts.
  *
  *   BMR        Mifflin-St Jeor from sex, age, height and the day's weight
- *   baseline   BMR × the declared everyday level (it includes the BMR)
+ *   baseline   BMR × the declared everyday level (it includes the BMR),
+ *              × the user's accepted calibration (ADR-0020, default 1)
  *   walking    minutes (or steps ÷ 100) at 3.0–3.8 MET, net of resting
  *   training   each session's burn range, net of resting for its duration
  *   digestion  the thermic effect: the sum ÷ 0.9 − the sum (≈10 %)
@@ -35,6 +36,8 @@ export type Body = {
   heightCm: number | null;
   /** The weight on that day (latest measurement up to it), kg. */
   weightKg: string | null;
+  /** ADR-0020: the accepted factor on the baseline; 1 (none) if absent. */
+  correction?: number;
 };
 
 export type DayFacts = {
@@ -95,7 +98,8 @@ export function dayEnergy(body: Body, facts: DayFacts): Energy | null {
   const age = Number(facts.day.slice(0, 4)) - body.birthYear!;
   const bmr = bmrOf(body.sex!, kg, body.heightCm!, age);
   const [fLo, fHi] = LEVEL_FACTOR[facts.level];
-  const baseline = r(bmr * fLo, bmr * fHi);
+  const c = body.correction ?? 1;
+  const baseline = r(bmr * fLo * c, bmr * fHi * c);
 
   // Steps ÷ 100 ≈ minutes of walking; the larger of the two if both given.
   const minutes = Math.max(facts.walkingMin ?? 0, (facts.steps ?? 0) / 100);

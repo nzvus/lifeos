@@ -45,8 +45,8 @@ import {
 import { addDays, instantFor } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
-import { setDayActivity } from "@/core/energy/repositories/energy";
-import { activityInput } from "@/core/energy/validation";
+import { setDayActivity, setEnergyCorrection } from "@/core/energy/repositories/energy";
+import { activityInput, correctionInput } from "@/core/energy/validation";
 
 export async function logMealAction(
   _prev: FormState,
@@ -238,4 +238,16 @@ export async function setDayActivityAction(
   await setDayActivity(getDb(), owner, day, input.value);
   revalidatePath("/");
   return { status: "saved" };
+}
+
+/** ADR-0020: accept a calibration proposal, or reset it with 1. */
+export async function setEnergyCorrectionAction(
+  factor: number,
+): Promise<{ ok: boolean; message?: string }> {
+  const { owner, t } = await requireContext();
+  const parsed = correctionInput.safeParse(factor);
+  if (!parsed.success) return { ok: false, message: t.errors.invalid_number };
+  await setEnergyCorrection(getDb(), owner, parsed.data);
+  revalidatePath("/");
+  return { ok: true };
 }

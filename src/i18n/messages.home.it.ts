@@ -104,6 +104,8 @@ export const energyIt: Messages["energy"] = {
   subtitle: "Stime, sempre come intervalli: ogni parte è qui sotto.",
   bmr: "Metabolismo basale",
   baseline: "Attività di tutti i giorni (incluso il basale)",
+  baselineCorrected:
+    "Attività di tutti i giorni (incluso il basale, calibrata ×{factor})",
   walking: "Camminata",
   trainingDone: "Allenamento fatto",
   trainingPlanned: "Allenamento pianificato",
@@ -150,6 +152,23 @@ export const energyIt: Messages["energy"] = {
     "Calorie = consumo stimato del giorno con il piano − deficit; proteine e grassi seguono il peso; i carboidrati il resto. Zuccheri, saturi e sale restano limiti.",
   dynamicNote: "Obiettivi dinamici: {kcal} kcal dal consumo con il piano",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
+  calibration: {
+    title: "Calibrazione",
+    how: "Confronta gli ultimi {days} giorni: quanto hai mangiato e come è cambiato il peso dicono quanto hai speso davvero.",
+    fewWeighIns: "Servono almeno 6 pesate in 3 settimane (ora {n}).",
+    fewLogged: "Servono almeno l'80 % dei giorni registrati (ora {n} su {of}).",
+    intake: "Mangiato in media",
+    trend: "Andamento del peso",
+    trendValue: "{kg} kg a settimana",
+    observed: "Speso secondo la bilancia",
+    estimated: "Speso secondo il modello",
+    fits: "Il modello è in linea con i tuoi dati (attività quotidiana {now}).",
+    proposal: "Proposta: attività quotidiana {factor} (ora {now}).",
+    accept: "Accetta",
+    accepted: "Attività quotidiana ora {factor}",
+    reset: "Torna a ×1,00 (ora {now})",
+    wasReset: "Calibrazione azzerata",
+  },
 };
 
 export const assistantIt: Messages["assistant"] = {
