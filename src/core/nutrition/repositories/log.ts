@@ -12,7 +12,7 @@
  */
 import { and, asc, eq, inArray, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
-import { logEntries, logEntryItems } from "../../db/schema";
+import { batches, batchLines, logEntries, logEntryItems } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { live } from "../../shared/trash";
 import { fail, ok, type Result } from "../../shared/result";
@@ -221,6 +221,60 @@ export async function logIngredient(
     return entry!.id;
   });
   await ensureDayPlan(db, owner, input.day); // see logMeal
+  return ok({ id });
+}
+
+/**
+ * A portion taken from a batch cooked earlier (ADR-0017): the entry points
+ * to the batch, and its lines are the batch's lines ÷ portions (one
+ * portion; quantities rounded to the column's 2 decimals), × servings. The
+ * pantry skips it: the ingredients left when the batch was cooked.
+ */
+export async function logPortion(
+  db: Db,
+  owner: Owner,
+  input: { batchId: string; day: string; servings: string } & Partial<EntryTiming> & {
+      moment?: Moment | null;
+    },
+): Promise<Result<{ id: string }>> {
+  const [batch] = await db
+    .select()
+    .from(batches)
+    .where(and(ownedBy(batches, owner), live(batches), eq(batches.id, input.batchId)));
+  if (!batch) return fail({ batchId: "not_found" });
+  const lines = await db
+    .select()
+    .from(batchLines)
+    .where(and(ownedBy(batchLines, owner), eq(batchLines.batchId, batch.id)))
+    .orderBy(asc(batchLines.position));
+  const id = await db.transaction(async (tx) => {
+    const [entry] = await tx
+      .insert(logEntries)
+      .values({
+        userId: owner.id,
+        day: input.day,
+        mealId: batch.mealId,
+        batchId: batch.id,
+        label: batch.label,
+        servings: input.servings,
+        moment: input.moment ?? null,
+        ...timingOf(input),
+      })
+      .returning({ id: logEntries.id });
+    await tx.insert(logEntryItems).values(
+      lines.map(({ id: _id, batchId: _b, userId: _u, quantity, ...line }) => ({
+        ...line,
+        userId: owner.id,
+        entryId: entry!.id,
+        quantity: new Big(quantity)
+          .div(batch.portions)
+          .round(2, Big.roundHalfUp)
+          .toFixed(2),
+      })),
+    );
+    return entry!.id;
+  });
+  await ensureDayPlan(db, owner, input.day);
   return ok({ id });
 }
 
