@@ -1,8 +1,10 @@
 /**
  * app/(app)/settings/page.tsx — URL /settings: preferences, display (this
- * device only), and the data export link (GET /api/export, a plain download).
+ * device only), the data export link (GET /api/export, a plain download)
+ * and the way to the trash (/settings/trash).
  */
-import { Download, Eye, SlidersHorizontal, Star } from "lucide-react";
+import { Download, Eye, SlidersHorizontal, Star, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { getDisplay } from "@/app/_server/display";
 import { getDb } from "@/app/_server/runtime";
 import { listFactors } from "@/core/nutrition/repositories/ratings";
@@ -90,6 +92,15 @@ export default async function SettingsPage() {
         >
           {t.settings.export}
         </a>
+      </Section>
+      <Section title={t.trash.title} icon={<Trash2 size={20} aria-hidden="true" />}>
+        <p className="text-muted">{t.trash.hint}</p>
+        <Link
+          href="/settings/trash"
+          className="self-start rounded-control rule-medium border-ink px-4 py-2 font-display font-semibold"
+        >
+          {t.trash.open}
+        </Link>
       </Section>
     </div>
   );
