@@ -1,6 +1,6 @@
 # ADR-0016: Training can be logged as an estimate, like a meal
 
-**Status:** proposed
+**Status:** accepted (delegated to the agent by the developer, 2026-10-01)
 **Date:** 2026-10-01
 
 ## Context
@@ -60,10 +60,10 @@ exercise is a session with one exercise; both are UI on the day page.
   - the most code for the same result.
 
 ## Decision
-Pending: the developer chooses. **Recommendation: A.** It is the meals'
+**A** (delegated: "decidi tu"). It is the meals'
 pattern, already known; everything that sums sessions sees it for free.
 
-## Consequences (if A)
+## Consequences
 - A migration PR first (three nullable columns, safe in any merge order).
 - core:
   - `burnRange` handles a session without exercises (intensity × minutes,
