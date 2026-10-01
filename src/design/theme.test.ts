@@ -102,7 +102,8 @@ describe("theme contract", () => {
    * name, a price) must be readable: WCAG AA, 4.5:1, on paper and on sheet,
    * in every theme and mode. Hairline and focus are not text.
    */
-  const TEXT = /^--color-(ink|muted|herb|tomato|warn|macro-.+|kcal|moment-.+|price)$/;
+  const TEXT =
+    /^--color-(ink|muted|herb|tomato|warn|macro-.+|kcal|moment-.+|price|muscle-.+)$/;
   const hex = (block: string) =>
     new Map(
       [...block.matchAll(/(--color-[a-z-]+)\s*:\s*(#[0-9a-f]{6})/gi)].map((m) => [

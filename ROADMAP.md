@@ -113,7 +113,8 @@
 - **Goal:** training as progress (routines, exercises, muscle groups, overall stats) and a fast live logger; the whole app with calmer spacing and widgets that use their full width; Targets with grouped macro bars and training data.
 - [x] ADR-0013 accepted (delegated: products → ingredients, stock derived from purchases − eaten ± counts); implementation after S07
 - [ ] Design pass: spacing/size/rule tokens per theme revisited; one `Stat`/widget convention (label ↔ value spread across the width, centred numbers in tiles); applied to day panel, cards, sections
-- [ ] Muscle groups: fixed list with a colour per group in every theme; a movement-pattern icon per exercise (own SVG set); the 21 exercises classified; chips in the exercise editor
+- [x] Muscle groups: closed list of 17 in 6 regions, one colour per region in every theme; movement pattern per exercise (migration 0010); suggestion from the name (the 21 real names tested); chips in the editor and list; `classify:exercises` for existing ones
+- [ ] Movement-pattern icons (own SVG set, one per pattern)
 - [ ] Training page as progress: this week (sessions, sets per muscle group vs a 10–20 range, tonnage, burn), routines (tonnage per run), exercises (e1RM trend + change), compact session cards coloured by muscle group
 - [ ] Live session mode: start from a routine, big steppers prefilled from last time, tick a set, rest timer, saves as you go
 - [ ] Targets: macros per day as grouped bars (side by side, macro colours); training per day (tonnage, burn) next to intake

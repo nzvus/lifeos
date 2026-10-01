@@ -7,6 +7,7 @@ import { Trash2, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
+import { isMuscleGroup } from "@/core/training/anatomy";
 import { getDb } from "@/app/_server/runtime";
 import { idInput } from "@/core/nutrition/validation";
 import { exerciseHistory } from "@/core/training/analysis";
@@ -77,7 +78,8 @@ export default async function ExercisePage({ params }: Props) {
           initial={{
             name: exercise.name,
             kind: exercise.kind,
-            muscleGroups: exercise.muscleGroups.join(", "),
+            muscleGroups: exercise.muscleGroups.filter(isMuscleGroup).join(","),
+            pattern: exercise.pattern ?? "",
             equipment: exercise.equipment ?? "",
             unilateral: exercise.unilateral ? "on" : "",
             notes: exercise.notes,
