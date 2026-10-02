@@ -24,7 +24,7 @@
  */
 "use client";
 
-import { Carrot, Copy, FileText, Star, Trash2, X } from "lucide-react";
+import { Carrot, Copy, FileText, Star, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import { MOMENTS } from "@/core/nutrition/moments";
@@ -38,6 +38,7 @@ import { ActionBar } from "@/ui/ActionBar";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
+import { DeleteButton } from "@/ui/DeleteButton";
 import { Menu } from "@/ui/Menu";
 import { MomentIcon } from "@/ui/MomentIcon";
 import { PageHeader } from "@/ui/PageHeader";
@@ -237,22 +238,26 @@ export function MealForm({
         back={{ href: from, label: from === "/meals" ? t.meals.back : a.back }}
         menu={
           id && trash ? (
-            <Menu
-              label={a.more}
-              items={[
-                {
-                  label: a.duplicate,
-                  icon: <Copy size={16} aria-hidden="true" />,
-                  href: `/meals/new?copy=${id}`,
-                },
-                {
-                  label: a.delete,
-                  icon: <Trash2 size={16} aria-hidden="true" />,
-                  tone: "danger",
-                  onSelect: () => void onDelete?.(),
-                },
-              ]}
-            />
+            <span className="flex items-center gap-1">
+              <Menu
+                label={a.more}
+                items={[
+                  {
+                    label: a.duplicate,
+                    icon: <Copy size={16} aria-hidden="true" />,
+                    href: `/meals/new?copy=${id}`,
+                  },
+                ]}
+              />
+              {onDelete && (
+                <DeleteButton
+                  onConfirm={() => void onDelete()}
+                  title={fill(a.confirmDelete, { name: name.trim() || initial.name })}
+                  hint={a.confirmDeleteHint}
+                  labels={a}
+                />
+              )}
+            </span>
           ) : undefined
         }
       />

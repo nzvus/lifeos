@@ -1,17 +1,20 @@
 /**
- * ui/TrashMenu.tsx — the "⋯" menu of a record: in the header of a detail
- * page rendered by the server (e.g. an exercise), or on a row of a list.
- * Delete moves the record to the trash with Undo (ui/useEditFlow useTrash)
- * and goes back to `from` (a detail page) or stays (a row, no `from`);
- * other items can be added: links (Duplicate…) and server actions run on
- * this record ("Make default"), which say how it went in a toast.
+ * ui/TrashMenu.tsx — a record's actions: in the header of a detail page
+ * rendered by the server (e.g. an exercise), or on a row of a list.
+ * Delete is a visible bin that asks first (ui/DeleteButton), then moves the
+ * record to the trash with Undo (ui/useEditFlow useTrash) and goes back to
+ * `from` (a detail page) or stays (a row, no `from`). Other actions —
+ * links (Duplicate…) and server actions on this record ("Make default"),
+ * which say how it went in a toast — sit in a "⋯" beside it, only when
+ * there are some.
  */
 "use client";
 
-import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { DeleteButton } from "./DeleteButton";
 import { toast } from "./Toast";
 import { Menu, type MenuItem } from "./Menu";
+import { fill } from "@/i18n";
 import { useTrash, type EditFlowLabels } from "./useEditFlow";
 
 export function TrashMenu({
@@ -39,6 +42,9 @@ export function TrashMenu({
   labels: Pick<EditFlowLabels, "deleted" | "restored" | "undo" | "undoFailed"> & {
     more: string;
     delete: string;
+    cancel: string;
+    confirmDelete: string;
+    confirmDeleteHint: string;
   };
 }) {
   const router = useRouter();
@@ -48,19 +54,21 @@ export function TrashMenu({
     toast({ message: r.ok ? a.done : (r.message ?? "") });
     router.refresh();
   };
+  const others = [
+    ...items,
+    ...actions.map((a) => ({ label: a.label, onSelect: () => void run(a) })),
+  ];
   return (
-    <Menu
-      label={labels.more}
-      items={[
-        ...items,
-        ...actions.map((a) => ({ label: a.label, onSelect: () => void run(a) })),
-        {
-          label: labels.delete,
-          icon: <Trash2 size={16} aria-hidden="true" />,
-          tone: "danger",
-          onSelect: () => void onDelete?.(),
-        },
-      ]}
-    />
+    <div className="flex items-center gap-1">
+      {others.length > 0 && <Menu label={labels.more} items={others} />}
+      {onDelete && (
+        <DeleteButton
+          onConfirm={() => void onDelete()}
+          title={fill(labels.confirmDelete, { name })}
+          hint={labels.confirmDeleteHint}
+          labels={labels}
+        />
+      )}
+    </div>
   );
 }

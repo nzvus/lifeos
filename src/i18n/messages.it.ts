@@ -34,6 +34,9 @@ export const it: Messages = {
     undo: "Annulla",
     duplicate: "Duplica",
     delete: "Elimina",
+    confirmDelete: "Eliminare «{name}»?",
+    confirmDeleteHint:
+      "Finisce nel cestino: puoi ripristinarlo per 30 giorni da Impostazioni → Cestino.",
     saved: "«{name}» salvato",
     created: "«{name}» creato",
     deleted: "«{name}» spostato nel cestino",

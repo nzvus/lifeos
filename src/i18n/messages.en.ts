@@ -43,6 +43,9 @@ export const en = {
     undo: "Undo",
     duplicate: "Duplicate",
     delete: "Delete",
+    confirmDelete: "Delete «{name}»?",
+    confirmDeleteHint:
+      "It goes to the trash: you can restore it for 30 days from Settings → Trash.",
     saved: "“{name}” saved",
     created: "“{name}” created",
     deleted: "“{name}” moved to the trash",
