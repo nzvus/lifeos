@@ -36,6 +36,38 @@ export type SetLike = {
 
 const working = (sets: readonly SetLike[]) => sets.filter((s) => !s.warmup);
 
+/**
+ * ADR-0030: steps a phone or watch counted during a DONE session's cardio,
+ * so they aren't counted again as walking. A run about 160 a minute
+ * (faster than 7 km/h, or a run without a speed), a walk or slow treadmill
+ * about 110, a bike none; other exercises none.
+ */
+export function sessionSteps(session: {
+  status: string;
+  exercises: readonly {
+    kind: ExerciseKind;
+    pattern?: string | null;
+    sets: readonly SetLike[];
+  }[];
+}): number {
+  if (session.status !== "done") return 0;
+  let steps = 0;
+  for (const e of session.exercises) {
+    if (e.kind !== "cardio" || e.pattern !== "run") continue;
+    for (const s of e.sets) {
+      const min = (s.durationS ?? 0) / 60;
+      if (!min) continue;
+      const kmh = s.speedKmh
+        ? Number(s.speedKmh)
+        : s.distanceM
+          ? s.distanceM / 1000 / (min / 60)
+          : null;
+      steps += min * (kmh === null || kmh >= 7 ? 160 : 110);
+    }
+  }
+  return Math.round(steps);
+}
+
 /** Σ reps × load of the working sets with a known load. */
 export function tonnage(sets: readonly SetLike[]): number {
   return working(sets)

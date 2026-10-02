@@ -44,6 +44,7 @@ import {
   programSlotExercises,
   sessionExercises,
   sets,
+  sleepLogs,
   stockCounts,
   tags,
   meals,
@@ -64,8 +65,9 @@ export const EXPORT_FORMAT = "lifeos-export";
 // 8: the assistant's conversations with their messages (ADR-0018);
 // 9: training programs with their ordered slots (ADR-0024; a slot's
 // exerciseId when it holds one exercise instead of a routine);
-// 10: each measurement's `context` (ADR-0027; null = not said).
-export const EXPORT_VERSION = 10;
+// 10: each measurement's `context` (ADR-0027; null = not said);
+// 11: `training.sleep`, the nights (ADR-0031).
+export const EXPORT_VERSION = 11;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -146,6 +148,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     setRows,
     measurementRows,
     activityRows,
+    sleepRows,
   ] = await Promise.all([
     db
       .select()
@@ -179,6 +182,11 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       .from(dayActivity)
       .where(ownedBy(dayActivity, owner))
       .orderBy(asc(dayActivity.day)),
+    db
+      .select()
+      .from(sleepLogs)
+      .where(ownedBy(sleepLogs, owner))
+      .orderBy(asc(sleepLogs.day)),
   ]);
 
   // The pantry (ADR-0017), live records only; purchases nest in their
@@ -290,6 +298,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
         ),
       })),
       measurements: stripOwner(measurementRows),
+      sleep: stripOwner(sleepRows),
       dayActivity: stripOwner(activityRows),
       programs: stripOwner(programRows).map((p) => ({
         ...p,

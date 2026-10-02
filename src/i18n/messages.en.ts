@@ -16,7 +16,9 @@
 import { guidesEn } from "./messages.guides.en";
 import {
   pantryEn,
+  dayScoreEn,
   progressEn,
+  sleepEn,
   addFabEn,
   bodyEn,
   trashEn,
@@ -222,6 +224,7 @@ export const en = {
   },
   guides: guidesEn,
   addFab: addFabEn,
+  sleep: sleepEn,
   progress: progressEn,
   pantry: pantryEn,
   trash: trashEn,
@@ -578,28 +581,7 @@ export const en = {
     itemsCount: "{n} exercises",
   },
   body: bodyEn,
-  dayScore: {
-    title: "Day quality",
-    outOf: "/100",
-    withPlanned: "With the plan: {v}/100",
-    none: "No data yet: log something eaten.",
-    parts: {
-      targets: "Targets",
-      processing: "Processing",
-      fiberVariety: "Fibre variety",
-    },
-    weight: "weight {w}%",
-    targets: "{on} of {of} nutrients on target",
-    processing: "Energy from little-processed food (NOVA 1–2 full, 3 half, 4 none)",
-    fiberVariety: "{types} fibre types with at least 1 g",
-    noTargets: "Not available: no targets for this day.",
-    notClassified:
-      "Not available: ingredients without a NOVA level (classify them in Ingredients).",
-    fiberTitle: "Fibre by type",
-    fiberUnknown: "without a type: {v} g",
-    howTo:
-      "How it's computed: weighted average of the parts available; missing parts don't count.",
-  },
+  dayScore: dayScoreEn,
   ratings: {
     title: "Rating",
     factorsTitle: "Meal rating factors",

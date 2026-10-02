@@ -127,10 +127,14 @@ export const energyEn = {
   activity: "Today's movement",
   level: "Besides training",
   levels: { sitting: "Mostly sitting", mixed: "Mixed", on_feet: "Often on my feet" },
-  walkingMin: "A walk (min)",
-  steps: "Steps that day (those beyond the level count)",
+  walkingMin: "Walking (minutes in all)",
+  steps: "Total steps (phone or watch)",
+  activityHint:
+    "Fill in what you have. With steps they decide, the level too, and runs already logged are taken out; without steps the level plus the walk count.",
+  estimated: "estimate: {v}",
   saveActivity: "Save",
   activitySaved: "Movement saved",
+  activitySaving: "Saving…",
   body: "Body",
   bodyHint: "Used to estimate what each day costs. Weight comes from your measurements.",
   sex: "Sex",
@@ -180,10 +184,12 @@ export const energyEn = {
       "top of the good zone: {g} g ({perKg} g/kg); more adds little for energy and recovery",
     title: "How it is computed",
     years: "years",
-    walkNone:
-      "{steps} steps, not beyond the {level} already in the level, and no deliberate walk",
-    walkMinutes:
-      "{min} min = the larger of a deliberate walk ({declared} min) and (steps {steps} − the level's {level}) ÷ 100",
+    walkNone: "no walk declared and no steps",
+    walkDeclared: "a declared walk of {min} min",
+    walkSteps: "({steps} steps{session} − 10,000 already in the level) ÷ 100 = {min} min",
+    walkStepsNone: "{steps} steps{session}: not beyond 10,000, all in the level",
+    sessionSteps: " − {n} in runs",
+    levelFromSteps: "{level}, from the steps",
     noBurn: "no duration nor estimate: not counted",
     fromEstimate: "your estimate {kcal} kcal ±15 %",
     fromSets:
@@ -479,6 +485,7 @@ export const bodyEn = {
     carbs_up: "more carbs than usual yesterday: likely water",
     carbs_down: "fewer carbs than usual yesterday: likely water lost",
     salt_up: "more salt than usual yesterday: likely water",
+    short_night: "a short night",
   },
 };
 
@@ -496,4 +503,51 @@ export const addFabEn = {
   food: "Food",
   training: "Training",
   weight: "Weight",
+  sleep: "Sleep",
+};
+
+export const sleepEn = {
+  title: "Sleep",
+  hint: "The night that ended this morning: when you went to bed and when you woke up.",
+  none: "No night logged",
+  hours: "{h} h",
+  qualityShort: "{q}/5",
+  bed: "To bed at",
+  wake: "Woke at",
+  quality: "How it went",
+  qualityNone: "— not said",
+  qualities: ["1 · awful", "2 · poor", "3 · normal", "4 · good", "5 · great"],
+  saving: "Saving…",
+  saved: "Night saved",
+  clear: "Clear the night",
+  chartLabel: "hours slept per night, 7–9 h is the good range; tap a day to open it",
+  chartSummary: "average {avg} h over {n} nights",
+  chartNone: "no night logged in the period",
+};
+
+/** The day's quality (ADR-0012 follow-up; sleep part ADR-0031). */
+export const dayScoreEn = {
+  title: "Day quality",
+  outOf: "/100",
+  withPlanned: "With the plan: {v}/100",
+  none: "No data yet: log something eaten.",
+  parts: {
+    targets: "Targets",
+    processing: "Processing",
+    fiberVariety: "Fibre variety",
+    sleep: "Sleep",
+  },
+  sleep: "{hours} h slept (good between 7 and 9)",
+  noSleep: "Not counted: no night logged (+ → Sleep).",
+  weight: "weight {w}%",
+  targets: "{on} of {of} nutrients on target",
+  processing: "Energy from little-processed food (NOVA 1–2 full, 3 half, 4 none)",
+  fiberVariety: "{types} fibre types with at least 1 g",
+  noTargets: "Not available: no targets for this day.",
+  notClassified:
+    "Not available: ingredients without a NOVA level (classify them in Ingredients).",
+  fiberTitle: "Fibre by type",
+  fiberUnknown: "without a type: {v} g",
+  howTo:
+    "How it's computed: weighted average of the parts available; missing parts don't count.",
 };

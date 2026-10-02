@@ -18,6 +18,7 @@ import {
   burnBasis,
   burnRange,
   sessionMinutes,
+  sessionSteps,
   weightAt,
   type SetLike,
 } from "../../training/analysis";
@@ -29,6 +30,7 @@ import {
 import { listExercises } from "../../training/repositories/exercises";
 import { listRoutines } from "../../training/repositories/routines";
 import { listSessions } from "../../training/repositories/sessions";
+import { listSleep } from "../../training/repositories/sleep";
 import {
   dayEnergy,
   missingBody,
@@ -215,6 +217,8 @@ function factsOf(
   const facts: DayFacts = {
     day,
     ...activity,
+    // ADR-0030: the device's steps include a run's; taken out there.
+    sessionSteps: sessions.reduce((a, s) => a + sessionSteps(s), 0),
     sessions: sessions.map((s) => ({
       status: s.status,
       burn: burnRange(s, kg),
@@ -326,19 +330,21 @@ async function weighInReadings(
   if (!weighed.length) return [];
   const first = addDays(weighed[0]!.day, -1 - USUAL_DAYS);
   const last = weighed[weighed.length - 1]!.day;
-  const [[s], history, sessions] = await Promise.all([
+  const [[s], history, sessions, nights] = await Promise.all([
     db
       .select({ timezone: userSettings.timezone })
       .from(userSettings)
       .where(ownedBy(userSettings, owner)),
     getHistory(db, owner, first, last),
     listSessions(db, owner, first, last),
+    listSleep(db, owner, first, last),
   ]);
+  const slept = new Map(nights.map((n) => [n.day, n.hours]));
   const byDay = new Map(history.map((h) => [h.day, h]));
   const zone = s?.timezone ?? "UTC";
   return weighed.map((m) => ({
     m,
-    ...readWeighIn(weighInFacts(m, byDay, sessions, zone)),
+    ...readWeighIn(weighInFacts(m, byDay, sessions, zone, slept)),
   }));
 }
 

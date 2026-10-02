@@ -17,6 +17,8 @@
  * last. Body indices are screening, not diagnosis.
  */
 
+import { SHORT_NIGHT_H } from "./sleep";
+
 export type WeighInClue =
   | "after_food"
   | "after_training"
@@ -24,7 +26,8 @@ export type WeighInClue =
   | "late"
   | "carbs_up"
   | "carbs_down"
-  | "salt_up";
+  | "salt_up"
+  | "short_night";
 
 /** What lowers a weigh-in's reliability, as a factor. */
 const CLUE_FACTOR: Record<WeighInClue, number> = {
@@ -35,6 +38,7 @@ const CLUE_FACTOR: Record<WeighInClue, number> = {
   carbs_up: 0.8,
   carbs_down: 0.8,
   salt_up: 0.85,
+  short_night: 0.9,
 };
 const UNKNOWN = 0.75;
 const FLOOR = 0.25;
@@ -61,6 +65,8 @@ export type WeighInFacts = {
   /** The day before, and the usual day (14-day average), when logged. */
   yesterday: { carbs: number; salt: number } | null;
   usual: { carbs: number; salt: number } | null;
+  /** ADR-0031: hours slept the night before the weigh-in, if logged. */
+  sleptHours?: number | null;
 };
 
 export type WeighInReading = { clues: WeighInClue[]; reliability: number };
@@ -77,6 +83,7 @@ export function readWeighIn(f: WeighInFacts): WeighInReading {
   }
   if (f.yesterday && f.usual && f.usual.salt > 0)
     if (f.yesterday.salt > f.usual.salt * (1 + SWING)) clues.push("salt_up");
+  if (f.sleptHours != null && f.sleptHours < SHORT_NIGHT_H) clues.push("short_night");
 
   // Standard only when the user said so; otherwise "unknown" is the start.
   const standard =

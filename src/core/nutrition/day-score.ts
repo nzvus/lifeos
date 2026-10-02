@@ -13,6 +13,9 @@
  *                      NOVA 4 not at all; unclassified energy is left out
  *   fiberVariety 25 %  fibre types with at least 1 g: 0, 1, 2, 3, 4+ →
  *                      0, 40, 70, 90, 100
+ *   sleep        20    ADR-0031: the night that ended that day, 100 for
+ *                      7–9 h (core/training/sleep sleepScore); left out
+ *                      when no night is logged
  *
  * A part that can't be computed (no targets; nothing classified) is left
  * out and the others are re-weighted; the breakdown says which and why.
@@ -24,7 +27,12 @@ import type { QualitySummary } from "./quality-summary";
 import { zoneScore, type Bands } from "./bands";
 import { assessTarget, TARGET_KIND, type Targets } from "./targets";
 
-export const SCORE_WEIGHTS = { targets: 40, processing: 35, fiberVariety: 25 } as const;
+export const SCORE_WEIGHTS = {
+  targets: 40,
+  processing: 35,
+  fiberVariety: 25,
+  sleep: 20,
+} as const;
 export type ScoreKey = keyof typeof SCORE_WEIGHTS;
 
 export type ScorePart = {
@@ -33,9 +41,9 @@ export type ScorePart = {
   value: number | null;
   /** The weight actually used, after leaving out the missing parts (sums to 100). */
   weight: number;
-  reason: "no_targets" | "not_classified" | null;
+  reason: "no_targets" | "not_classified" | "no_sleep" | null;
   /** What the value is made of, for the words on screen. */
-  detail: { on?: number; of?: number; types?: number };
+  detail: { on?: number; of?: number; types?: number; hours?: number };
 };
 
 export type DayScore = { score: number | null; parts: ScorePart[] };
@@ -48,6 +56,8 @@ export function dayScore(input: {
   quality: QualitySummary;
   /** ADR-0023: macro bands; nutrients with one are scored by zone. */
   bands?: Bands;
+  /** ADR-0031: the night that ended that day: its hours and score. */
+  sleep?: { hours: number; score: number } | null;
 }): DayScore {
   // Each nutrient 0–100; `on` counts those fully right.
   let on = 0;
@@ -98,7 +108,15 @@ export function dayScore(input: {
     detail: { types },
   };
 
-  const parts = [targets, processing, fiberVariety];
+  const sleep: ScorePart = {
+    key: "sleep",
+    value: input.sleep ? input.sleep.score : null,
+    weight: 0,
+    reason: input.sleep ? null : "no_sleep",
+    detail: input.sleep ? { hours: input.sleep.hours } : {},
+  };
+
+  const parts = [targets, processing, fiberVariety, sleep];
   const present = parts.filter((p) => p.value !== null);
   const total = present.reduce((sum, p) => sum + SCORE_WEIGHTS[p.key], 0);
   for (const p of present) p.weight = Math.round((SCORE_WEIGHTS[p.key] / total) * 100);

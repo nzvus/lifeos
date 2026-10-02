@@ -57,6 +57,17 @@ describe("readWeighIn", () => {
   });
 });
 
+describe("readWeighIn: sleep (ADR-0031)", () => {
+  it("a night under 6 h is a clue; 7 h or nothing logged is not", () => {
+    expect(readWeighIn(facts({ sleptHours: 5.5 }))).toEqual({
+      clues: ["short_night"],
+      reliability: 0.68, // 0.75 × 0.9
+    });
+    expect(readWeighIn(facts({ sleptHours: 7 })).clues).toEqual([]);
+    expect(readWeighIn(facts({ sleptHours: null })).clues).toEqual([]);
+  });
+});
+
 describe("weightTrend", () => {
   it("smooths daily swings, and an unreliable weigh-in pulls less", () => {
     const t = weightTrend([

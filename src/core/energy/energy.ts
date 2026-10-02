@@ -6,9 +6,12 @@
  *   BMR        Mifflin-St Jeor from sex, age, height and the day's weight
  *   baseline   BMR × the declared everyday level (it includes the BMR),
  *              × the user's accepted calibration (ADR-0020, default 1)
- *   walking    a deliberate walk's minutes, or the steps BEYOND what the
- *              level already means (ADR-0021), ÷ 100 per minute, at
- *              3.0–3.8 MET, net of resting
+ *   walking    ADR-0030: from the most measured source —
+ *              steps: the day's device steps minus those of the done
+ *              cardio sessions set the everyday factor (interpolated
+ *              between the levels' anchors) and count as walking beyond
+ *              10,000; else a declared walk in full on the declared level;
+ *              ÷ 100 steps per minute, 3.0–3.8 MET, net of resting
  *   training   each session's burn range, net of resting for its duration
  *
  * No separate digestion term (ADR-0021): activity factors are measured
@@ -55,6 +58,8 @@ export type DayFacts = {
   level: ActivityLevel;
   walkingMin: number | null;
   steps: number | null;
+  /** ADR-0030: steps the device counted inside the day's done cardio (a run). */
+  sessionSteps?: number;
   sessions: readonly {
     status: "planned" | "done";
     burn: BurnRange | null;
@@ -75,11 +80,17 @@ export type EnergyInputs = {
   factor: [number, number];
   correction: number;
   walk: {
+    /** ADR-0030: what the movement came from. */
+    source: "steps" | "walk" | "level";
     declaredMin: number;
     steps: number;
+    /** Steps inside done cardio sessions, taken out. */
+    sessionSteps: number;
     levelSteps: number;
     minutes: number;
     met: [number, number];
+    /** Filled in from the other sources (estimates for the form). */
+    estimatedSteps: number | null;
   };
   sessions: {
     name: string;
@@ -130,20 +141,75 @@ export function bmrOf(sex: Sex, weightKg: number, heightCm: number, age: number)
   );
 }
 
+/** Above this many steps, the rest is walking (the "on my feet" anchor). */
+const TOP_STEPS = LEVEL_STEPS.on_feet;
+
+/**
+ * ADR-0030: the everyday factor and the walking minutes, from the most
+ * measured source. With steps, the factor is interpolated between the
+ * levels' anchors (below 5,000: sitting; above 10,000: on my feet + walk),
+ * and the level shown is the nearest anchor.
+ */
+export function movementOf(
+  facts: Pick<DayFacts, "level" | "walkingMin" | "steps" | "sessionSteps">,
+): {
+  source: "steps" | "walk" | "level";
+  level: ActivityLevel;
+  factor: [number, number];
+  minutes: number;
+  sessionSteps: number;
+  estimatedSteps: number | null;
+} {
+  if (facts.steps !== null && facts.steps > 0) {
+    const sessionSteps = Math.min(facts.steps, Math.round(facts.sessionSteps ?? 0));
+    const steps = facts.steps - sessionSteps;
+    const anchors = LEVELS.map((l) => [LEVEL_STEPS[l], LEVEL_FACTOR[l]] as const);
+    let factor: [number, number] = [...anchors[0]![1]];
+    for (let i = 1; i < anchors.length; i++) {
+      const [s0, f0] = anchors[i - 1]!;
+      const [s1, f1] = anchors[i]!;
+      if (steps >= s1) factor = [...f1];
+      else if (steps > s0) {
+        const k = (steps - s0) / (s1 - s0);
+        factor = [f0[0] + k * (f1[0] - f0[0]), f0[1] + k * (f1[1] - f0[1])];
+        break;
+      }
+    }
+    const level = LEVELS.reduce((best, l) =>
+      Math.abs(LEVEL_STEPS[l] - steps) < Math.abs(LEVEL_STEPS[best] - steps) ? l : best,
+    );
+    return {
+      source: "steps",
+      level,
+      factor: [Math.round(factor[0] * 1000) / 1000, Math.round(factor[1] * 1000) / 1000],
+      minutes: Math.max(0, steps - TOP_STEPS) / 100,
+      sessionSteps,
+      estimatedSteps: null,
+    };
+  }
+  const walk = facts.walkingMin ?? 0;
+  return {
+    source: walk > 0 ? "walk" : "level",
+    level: facts.level,
+    factor: LEVEL_FACTOR[facts.level],
+    minutes: walk,
+    sessionSteps: 0,
+    // What the level and the walk imply, for the form's placeholder.
+    estimatedSteps: LEVEL_STEPS[facts.level] + walk * 100,
+  };
+}
+
 /** The day's energy, or null when body data is missing (see missingBody). */
 export function dayEnergy(body: Body, facts: DayFacts): Energy | null {
   if (missingBody(body).length) return null;
   const kg = Number(body.weightKg);
   const age = Number(facts.day.slice(0, 4)) - body.birthYear!;
   const bmr = bmrOf(body.sex!, kg, body.heightCm!, age);
-  const [fLo, fHi] = LEVEL_FACTOR[facts.level];
+  const move = movementOf(facts);
+  const [fLo, fHi] = move.factor;
   const c = body.correction ?? 1;
   const baseline = r(bmr * fLo * c, bmr * fHi * c);
-
-  // Steps ÷ 100 ≈ minutes of walking, counting only the steps beyond the
-  // level's own; a declared walk counts whole. The larger if both are given.
-  const extraSteps = Math.max(0, (facts.steps ?? 0) - LEVEL_STEPS[facts.level]);
-  const minutes = Math.max(facts.walkingMin ?? 0, extraSteps / 100);
+  const minutes = move.minutes;
   const walking = r(
     (WALK_MET[0] - 1) * kg * (minutes / 60),
     (WALK_MET[1] - 1) * kg * (minutes / 60),
@@ -177,15 +243,18 @@ export function dayEnergy(body: Body, facts: DayFacts): Energy | null {
       age,
       kg,
       heightCm: body.heightCm!,
-      level: facts.level,
+      level: move.level,
       factor: [fLo, fHi],
       correction: c,
       walk: {
+        source: move.source,
         declaredMin: facts.walkingMin ?? 0,
         steps: facts.steps ?? 0,
-        levelSteps: LEVEL_STEPS[facts.level],
+        sessionSteps: move.sessionSteps,
+        levelSteps: LEVEL_STEPS[move.level],
         minutes: Math.round(minutes),
         met: WALK_MET,
+        estimatedSteps: move.estimatedSteps,
       },
       sessions: facts.sessions.map((s) => ({
         name: s.name ?? "",

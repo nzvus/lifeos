@@ -47,8 +47,27 @@ describe("dayScore", () => {
       targets: [50, 40],
       processing: [70, 35],
       fiberVariety: [70, 25],
+      sleep: [null, 0], // no night logged: left out (ADR-0031)
     });
     expect(r.score).toBe(62); // (50·40 + 70·35 + 70·25) / 100 = 62
+  });
+
+  it("ADR-0031: a logged night is a part, weight 20 of 120", () => {
+    const r = dayScore({
+      totals,
+      targets: { ...noTargets, kcal: "2000", protein: "150" },
+      quality: quality(
+        { 1: 60, 2: 0, 3: 20, 4: 20, unknown: 0 },
+        fiber({ pectin: "3", beta_glucan: "1.5" }),
+      ),
+      sleep: { hours: 6, score: 50 },
+    });
+    expect(r.parts.find((p) => p.key === "sleep")).toMatchObject({
+      value: 50,
+      weight: 17,
+      detail: { hours: 6 },
+    });
+    expect(r.score).toBe(60); // (50·40 + 70·35 + 70·25 + 50·20) / 120 = 59.6
   });
 
   it("leaves out what can't be computed and re-weights the rest", () => {
@@ -61,6 +80,7 @@ describe("dayScore", () => {
       ["targets", null, "no_targets", 0],
       ["processing", null, "not_classified", 0],
       ["fiberVariety", 0, null, 100],
+      ["sleep", null, "no_sleep", 0],
     ]);
     expect(r.score).toBe(0);
   });

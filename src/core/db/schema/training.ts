@@ -315,3 +315,29 @@ export const dayActivity = pgTable(
     ),
   ],
 );
+
+/**
+ * ADR-0031: a night's sleep, by hand — one row per user and WAKE-UP day.
+ * Instants, so a night across midnight is one row. A new table: safe to
+ * deploy before or after its migration.
+ */
+export const sleepLogs = pgTable(
+  "sleep_logs",
+  {
+    userId: ownerColumn(),
+    /** The day the night ended (the morning you woke up). */
+    day: date("day", { mode: "string" }).notNull(),
+    bedAt: timestamp("bed_at", { withTimezone: true }).notNull(),
+    wakeAt: timestamp("wake_at", { withTimezone: true }).notNull(),
+    /** 1–5, how it felt; null = not said. */
+    quality: integer("quality"),
+    notes: text("notes").notNull().default(""),
+    createdAt: tstz("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.day] }),
+    check("sleep_logs_order_ck", sql`${t.wakeAt} > ${t.bedAt}`),
+    check("sleep_logs_length_ck", sql`${t.wakeAt} - ${t.bedAt} <= interval '24 hours'`),
+    check("sleep_logs_quality_ck", sql`${t.quality} between 1 and 5`),
+  ],
+);

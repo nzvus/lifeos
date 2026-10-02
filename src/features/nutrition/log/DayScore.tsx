@@ -96,16 +96,22 @@ export function DayScore({ score, planned, quality, empty, locale, t }: Props) {
                   <span className="text-muted">
                     {p.reason === "no_targets"
                       ? d.noTargets
-                      : p.reason === "not_classified"
-                        ? d.notClassified
-                        : p.key === "targets"
-                          ? fill(d.targets, {
-                              on: String(p.detail.on),
-                              of: String(p.detail.of),
+                      : p.reason === "no_sleep"
+                        ? d.noSleep
+                        : p.key === "sleep"
+                          ? fill(d.sleep, {
+                              hours: formatNumber(String(p.detail.hours), locale, 1),
                             })
-                          : p.key === "processing"
-                            ? d.processing
-                            : fill(d.fiberVariety, { types: String(p.detail.types) })}
+                          : p.reason === "not_classified"
+                            ? d.notClassified
+                            : p.key === "targets"
+                              ? fill(d.targets, {
+                                  on: String(p.detail.on),
+                                  of: String(p.detail.of),
+                                })
+                              : p.key === "processing"
+                                ? d.processing
+                                : fill(d.fiberVariety, { types: String(p.detail.types) })}
                   </span>
                 </li>
               ))}

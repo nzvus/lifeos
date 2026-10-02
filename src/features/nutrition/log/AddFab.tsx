@@ -2,13 +2,13 @@
  * features/nutrition/log/AddFab.tsx — the day page's "+" (design review S1,
  * 2026-10-02): adding is the most frequent action and its sections sat
  * ~1,200 px down. A round button where the thumb is (above the tab bar)
- * opens a sheet: Food, Training, Weight. Food and Training open their
+ * opens a sheet: Food, Training, Sleep, Weight. Food and Training open their
  * section on this page (ui/Collapsible follows a #id link); Weight goes to
  * Progress. The convention of MacroFactor, Yazio and MyFitnessPal.
  */
 "use client";
 
-import { Dumbbell, Plus, Scale, UtensilsCrossed, X } from "lucide-react";
+import { Dumbbell, Moon, Plus, Scale, UtensilsCrossed, X } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
 import type { Messages } from "@/i18n";
@@ -81,6 +81,10 @@ export function AddFab({
               {a.training}
             </a>
           )}
+          <a href="#day-sleep" onClick={(e) => go(e, "day-sleep")} className={item}>
+            <Moon size={22} aria-hidden="true" className="text-herb" />
+            {a.sleep}
+          </a>
           <Link href="/profiles?view=weight" onClick={close} className={item}>
             <Scale size={22} aria-hidden="true" className="text-herb" />
             {a.weight}

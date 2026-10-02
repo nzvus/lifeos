@@ -19,7 +19,16 @@ const energy = {
     level: "mixed",
     factor: [1.3, 1.45],
     correction: 1,
-    walk: { declaredMin: 0, steps: 0, levelSteps: 7500, minutes: 0, met: [3, 3.8] },
+    walk: {
+      source: "level",
+      declaredMin: 0,
+      steps: 0,
+      sessionSteps: 0,
+      levelSteps: 7500,
+      minutes: 0,
+      met: [3, 3.8],
+      estimatedSteps: 7500,
+    },
     sessions: [],
   },
 } satisfies Energy;

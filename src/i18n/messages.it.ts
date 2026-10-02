@@ -6,7 +6,9 @@
 import { guidesIt } from "./messages.guides.it";
 import {
   pantryIt,
+  dayScoreIt,
   progressIt,
+  sleepIt,
   addFabIt,
   bodyIt,
   trashIt,
@@ -217,6 +219,7 @@ export const it: Messages = {
   },
   guides: guidesIt,
   addFab: addFabIt,
+  sleep: sleepIt,
   progress: progressIt,
   pantry: pantryIt,
   trash: trashIt,
@@ -576,29 +579,7 @@ export const it: Messages = {
     itemsCount: "{n} esercizi",
   },
   body: bodyIt,
-  dayScore: {
-    title: "Qualità della giornata",
-    outOf: "/100",
-    withPlanned: "Con i pianificati: {v}/100",
-    none: "Ancora nessun dato: registra qualcosa di mangiato.",
-    parts: {
-      targets: "Obiettivi",
-      processing: "Trasformazione",
-      fiberVariety: "Varietà di fibre",
-    },
-    weight: "peso {w}%",
-    targets: "{on} nutrienti su {of} nell'obiettivo",
-    processing:
-      "Energia da alimenti poco trasformati (NOVA 1–2 intera, 3 a metà, 4 zero)",
-    fiberVariety: "{types} tipi di fibra con almeno 1 g",
-    noTargets: "Non disponibile: nessun obiettivo per questa giornata.",
-    notClassified:
-      "Non disponibile: ingredienti senza livello NOVA (classificali in Ingredienti).",
-    fiberTitle: "Fibre per tipo",
-    fiberUnknown: "senza tipo: {v} g",
-    howTo:
-      "Come si calcola: media pesata delle parti disponibili; le parti mancanti non contano.",
-  },
+  dayScore: dayScoreIt,
   ratings: {
     title: "Valutazione",
     factorsTitle: "Fattori di valutazione dei pasti",

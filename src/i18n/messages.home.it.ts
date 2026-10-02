@@ -129,10 +129,14 @@ export const energyIt: Messages["energy"] = {
   activity: "Movimento di oggi",
   level: "Oltre all'allenamento",
   levels: { sitting: "Quasi sempre seduto", mixed: "Misto", on_feet: "Spesso in piedi" },
-  walkingMin: "Camminata apposta (min)",
-  steps: "Passi del giorno (contano quelli oltre il livello)",
+  walkingMin: "Camminata (minuti in tutto)",
+  steps: "Passi totali (telefono o orologio)",
+  activityHint:
+    "Compila quello che hai. Con i passi decidono loro, anche il livello, e le corse già registrate vengono tolte; senza passi conta il livello più la camminata.",
+  estimated: "stima: {v}",
   saveActivity: "Salva",
   activitySaved: "Movimento salvato",
+  activitySaving: "Salvataggio…",
   body: "Corpo",
   bodyHint: "Servono a stimare il consumo di ogni giorno. Il peso arriva dalle misure.",
   sex: "Sesso",
@@ -183,10 +187,12 @@ export const energyIt: Messages["energy"] = {
       "tetto della zona buona: {g} g ({perKg} g/kg); oltre servono poco a energia e recupero",
     title: "Come è calcolato",
     years: "anni",
-    walkNone:
-      "{steps} passi, non oltre i {level} già contati nel livello, e nessuna camminata apposta",
-    walkMinutes:
-      "{min} min = il maggiore fra camminata apposta ({declared} min) e (passi {steps} − {level} del livello) ÷ 100",
+    walkNone: "nessuna camminata dichiarata e nessun passo",
+    walkDeclared: "camminata dichiarata {min} min",
+    walkSteps: "({steps} passi{session} − 10.000 già nel livello) ÷ 100 = {min} min",
+    walkStepsNone: "{steps} passi{session}: non oltre i 10.000, già tutti nel livello",
+    sessionSteps: " − {n} nelle corse",
+    levelFromSteps: "{level}, dai passi",
     noBurn: "senza durata né stima: non contato",
     fromEstimate: "la tua stima {kcal} kcal ±15 %",
     fromSets:
@@ -483,6 +489,7 @@ export const bodyIt: Messages["body"] = {
     carbs_up: "ieri più carboidrati del solito: probabile acqua",
     carbs_down: "ieri meno carboidrati del solito: probabile acqua persa",
     salt_up: "ieri più sale del solito: probabile acqua",
+    short_night: "notte corta",
   },
 };
 
@@ -500,4 +507,52 @@ export const addFabIt: Messages["addFab"] = {
   food: "Cibo",
   training: "Allenamento",
   weight: "Peso",
+  sleep: "Sonno",
+};
+
+export const sleepIt: Messages["sleep"] = {
+  title: "Sonno",
+  hint: "La notte finita questa mattina: quando sei andato a letto e quando ti sei svegliato.",
+  none: "Nessuna notte registrata",
+  hours: "{h} h",
+  qualityShort: "{q}/5",
+  bed: "A letto alle",
+  wake: "Sveglia alle",
+  quality: "Com'è andata",
+  qualityNone: "— non dico",
+  qualities: ["1 · pessima", "2 · scarsa", "3 · normale", "4 · buona", "5 · ottima"],
+  saving: "Salvataggio…",
+  saved: "Notte salvata",
+  clear: "Cancella la notte",
+  chartLabel:
+    "ore dormite per notte, la fascia 7–9 h è quella buona; tocca un giorno per aprirlo",
+  chartSummary: "media {avg} h su {n} notti",
+  chartNone: "nessuna notte registrata nel periodo",
+};
+
+/** The day's quality (ADR-0012 follow-up; sleep part ADR-0031). */
+export const dayScoreIt: Messages["dayScore"] = {
+  title: "Qualità della giornata",
+  outOf: "/100",
+  withPlanned: "Con i pianificati: {v}/100",
+  none: "Ancora nessun dato: registra qualcosa di mangiato.",
+  parts: {
+    targets: "Obiettivi",
+    processing: "Trasformazione",
+    fiberVariety: "Varietà di fibre",
+    sleep: "Sonno",
+  },
+  sleep: "{hours} h dormite (bene tra 7 e 9)",
+  noSleep: "Non conta: nessuna notte registrata (+ → Sonno).",
+  weight: "peso {w}%",
+  targets: "{on} nutrienti su {of} nell'obiettivo",
+  processing: "Energia da alimenti poco trasformati (NOVA 1–2 intera, 3 a metà, 4 zero)",
+  fiberVariety: "{types} tipi di fibra con almeno 1 g",
+  noTargets: "Non disponibile: nessun obiettivo per questa giornata.",
+  notClassified:
+    "Non disponibile: ingredienti senza livello NOVA (classificali in Ingredienti).",
+  fiberTitle: "Fibre per tipo",
+  fiberUnknown: "senza tipo: {v} g",
+  howTo:
+    "Come si calcola: media pesata delle parti disponibili; le parti mancanti non contano.",
 };
