@@ -52,7 +52,9 @@ export function ListItem({
     >
       <div className="flex min-h-11 items-center gap-3">
         {leading}
-        <div className={`min-w-0 flex-1 font-semibold ${muted ? "text-muted" : ""}`}>
+        <div
+          className={`min-w-0 flex-1 font-semibold wrap-break-word ${muted ? "text-muted" : ""}`}
+        >
           {href ? (
             <Link
               href={href}

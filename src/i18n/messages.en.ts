@@ -678,8 +678,8 @@ export const en = {
     autoTargets: "Automatic recommended limits",
     autoTargetsHint:
       "When a day type sets no sugars, saturated fat or salt target, use the recommended maximums (EU, WHO). Off: only the targets you wrote.",
-    momentsTitle: "Moment times",
-    from: "{moment} from",
+    momentsTitle: "When each moment starts",
+    from: "{moment}",
     momentsHint:
       "Used to suggest the moment when you add something and to group entries without one. Breakfast is before lunch.",
     trendsRange: "Trends period when opening",

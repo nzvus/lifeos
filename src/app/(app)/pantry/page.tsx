@@ -84,7 +84,7 @@ export default async function PantryPage() {
         action={{ href: "/pantry/products/new?from=/pantry", label: p.newProduct }}
         subtitle={p.hint}
       />
-      <div className="grid items-start gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-4">
           <Section title={p.reminders} icon={<Bell size={20} aria-hidden="true" />}>
             {derived.length === 0 && manual.length === 0 ? (

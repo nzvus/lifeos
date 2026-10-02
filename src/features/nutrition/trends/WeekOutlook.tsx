@@ -31,7 +31,7 @@ export function WeekOutlook({
     timeZone: "UTC",
   });
   return (
-    <ol className="grid gap-2 @2xl:grid-cols-2 @5xl:grid-cols-4">
+    <ol className="grid grid-cols-1 gap-2 @2xl:grid-cols-2 @5xl:grid-cols-4">
       {days.map((d) => (
         <li key={d.day}>
           <Link

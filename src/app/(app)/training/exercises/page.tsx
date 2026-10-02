@@ -47,7 +47,7 @@ export default async function ExercisesPage() {
         <p className="text-muted">{x.empty}</p>
       ) : (
         <div className={CARD}>
-          <ul className="grid gap-x-8 @3xl:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-x-8 @3xl:grid-cols-2">
             {exercises.map((e) => {
               const r = rec.get(e.id);
               return (
@@ -76,16 +76,16 @@ export default async function ExercisesPage() {
                       labels={t.actions}
                     />
                   }
-                  aside={
+                  footer={[
+                    // In the footer, not aside: aside never wraps, and a long
+                    // pattern name pushed into the title (design review).
                     e.pattern && isMovementPattern(e.pattern)
                       ? x.patterns[e.pattern]
-                      : t.training.kinds[e.kind]
-                  }
-                  footer={
+                      : t.training.kinds[e.kind],
                     count.get(e.id)
                       ? fill(x.sessions, { n: String(count.get(e.id)) })
-                      : x.never
-                  }
+                      : x.never,
+                  ].join(" · ")}
                 >
                   <MuscleChips
                     groups={e.muscleGroups.filter(isMuscleGroup).map((g) => ({

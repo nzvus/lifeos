@@ -117,7 +117,7 @@ export function SessionList({
     return parts.filter(Boolean).join(" + ");
   };
   return (
-    <ul className="grid gap-x-8 @3xl:grid-cols-2">
+    <ul className="grid grid-cols-1 gap-x-8 @3xl:grid-cols-2">
       {sessions.map((s) => {
         const burn = burnRange(s, weightAt(measurements, s.day));
         const kcal = burn ? `~${n(burn.low)}–${n(burn.high)} kcal` : null;
@@ -146,13 +146,13 @@ export function SessionList({
                 : `/training/${s.id}?from=${encodeURIComponent(`/?day=${s.day}`)}`
             }
             title={
-              <span className="flex items-baseline gap-2">
+              <span className="flex flex-wrap items-baseline gap-x-2">
                 {clock && s.startedAt && (
                   <span className="font-display font-normal text-muted tabular-nums">
                     {clock.format(new Date(s.startedAt))}
                   </span>
                 )}
-                <span className="truncate">{s.label}</span>
+                <span className="min-w-0">{s.label}</span>
               </span>
             }
             action={
@@ -170,7 +170,7 @@ export function SessionList({
                 its sets), the numbers, and Start on the right. */}
             <div className="-mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 pl-8 text-meta">
               {s.exercises.length > 0 && (
-                <details className="relative z-2 open:basis-full">
+                <details className="relative z-2 min-w-0 open:basis-full">
                   <summary
                     className="flex cursor-pointer list-none items-center gap-1"
                     aria-label={s.exercises.map((e) => e.name).join(", ")}
@@ -186,9 +186,12 @@ export function SessionList({
                   </summary>
                   <ul className="mt-2 flex flex-col gap-1">
                     {s.exercises.map((e) => (
-                      <li key={e.id} className="flex items-center justify-between gap-3">
-                        <span className="truncate">{e.name}</span>
-                        <span className="shrink-0 font-display text-muted tabular-nums">
+                      <li
+                        key={e.id}
+                        className="flex flex-wrap items-baseline justify-between gap-x-3"
+                      >
+                        <span className="min-w-0">{e.name}</span>
+                        <span className="ml-auto font-display text-muted tabular-nums">
                           {setsText(e.sets, locale)}
                         </span>
                       </li>

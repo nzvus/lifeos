@@ -257,7 +257,7 @@ export default async function DayPage({ searchParams }: Props) {
   return (
     // Phone: one column, in this order. Wide screens: the day's numbers on
     // the left, what was eaten and trained on the right (S20).
-    <div className="grid items-start gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
       <div className="flex min-w-0 flex-col gap-4">
         <Card>
           <DayNav day={day} today={today} locale={locale} t={t.day} />

@@ -677,8 +677,8 @@ export const it: Messages = {
     autoTargets: "Limiti consigliati automatici",
     autoTargetsHint:
       "Se un tipo di giornata non fissa zuccheri, grassi saturi o sale, usa i massimi consigliati (UE, OMS). Spento: solo gli obiettivi che hai scritto tu.",
-    momentsTitle: "Orari dei momenti",
-    from: "{moment} dalle",
+    momentsTitle: "Da che ora inizia ogni momento",
+    from: "{moment}",
     momentsHint:
       "Servono a proporre il momento quando aggiungi qualcosa e a raggruppare le voci senza momento. La colazione è prima del pranzo.",
     trendsRange: "Periodo dell'andamento all'apertura",

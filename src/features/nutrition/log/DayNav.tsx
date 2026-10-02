@@ -26,6 +26,14 @@ export function DayNav({ day, today, locale, t }: Props) {
     month: "long",
     timeZone: "UTC",
   }).format(new Date(`${day}T12:00:00Z`));
+  // Narrow cards (small phones, large system text): "ven 2 ott". The query
+  // is in rem, so it follows the text size too.
+  const short = new Intl.DateTimeFormat(INTL[locale], {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  }).format(new Date(`${day}T12:00:00Z`));
   return (
     <nav aria-label={t.backToToday} className="flex items-center justify-between gap-2">
       <Link
@@ -35,10 +43,11 @@ export function DayNav({ day, today, locale, t }: Props) {
       >
         <ChevronLeft size={24} aria-hidden="true" />
       </Link>
-      <div className="flex flex-col items-center">
-        <div className="flex items-center gap-1">
+      <div className="flex min-w-0 flex-col items-center">
+        <div className="flex min-w-0 items-center gap-1">
           <h1 className="font-heading text-section font-bold whitespace-nowrap first-letter:uppercase">
-            {heading}
+            <span className="hidden @xs:inline">{heading}</span>
+            <span className="@xs:hidden">{short}</span>
           </h1>
           <DayPicker day={day} label={t.goTo} />
         </div>

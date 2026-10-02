@@ -105,7 +105,7 @@ export function EnergySection({
           </Link>
         </p>
       ) : (
-        <div className="grid gap-6 @2xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 @2xl:grid-cols-2">
           <ul className="flex flex-col gap-1 text-meta">
             {row(e.bmr, `${n(energy.bmr)} kcal`)}
             {row(

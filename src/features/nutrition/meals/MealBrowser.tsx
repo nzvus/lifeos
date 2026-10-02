@@ -163,7 +163,7 @@ export function MealBrowser({
         ))}
       </div>
 
-      <ul className="grid gap-x-8 @3xl:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-x-8 @3xl:grid-cols-2">
         {shown.map((m) => {
           return (
             <ListItem

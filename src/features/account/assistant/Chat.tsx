@@ -175,7 +175,7 @@ export function Chat({
             {a.welcome}
           </p>
           <p className="text-meta text-muted">{a.welcomeHint}</p>
-          <div className="grid gap-2 @lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 @lg:grid-cols-2">
             {a.quick.map((q) => (
               <button
                 key={q}
