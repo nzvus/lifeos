@@ -10,7 +10,12 @@
 import { Flame } from "lucide-react";
 import Link from "next/link";
 import type { Calibration } from "@/core/energy/calibration";
-import type { Energy, MissingBody, Range } from "@/core/energy/energy";
+import {
+  ON_TARGET_KCAL,
+  type Energy,
+  type MissingBody,
+  type Range,
+} from "@/core/energy/energy";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
@@ -77,25 +82,18 @@ export function EnergySection({
       id="day-energy"
       title={e.title}
       icon={<Flame size={20} aria-hidden="true" />}
-      aside={energy ? range(energy.total.withPlan) : undefined}
       // Closed, still informative (2026-10-02): what is spent, part by part,
       // against what is eaten, on one scale.
       summary={
         energy ? (
-          <div className="flex flex-col gap-2">
-            <EnergyBars
-              energy={energy}
-              eaten={Number(eaten)}
-              withPlanned={Number(withPlanned)}
-              t={e}
-            />
-            <p className="text-meta text-muted tabular-nums">
-              {fill(e.closed, {
-                spent: range(energy.total.done),
-                balance: balance(withPlanned, energy.total.withPlan),
-              })}
-            </p>
-          </div>
+          <EnergyBars
+            energy={energy}
+            eaten={Number(eaten)}
+            withPlanned={Number(withPlanned)}
+            wanted={dynamic ? -dynamic.params.deficitKcal : null}
+            locale={locale}
+            t={e}
+          />
         ) : undefined
       }
       defaultOpen={false}
@@ -167,54 +165,120 @@ export function EnergySection({
 
 const mid = (r: Range) => (r.low + r.high) / 2;
 
-/** Spent (everyday, steps, training done and planned) against eaten. */
+/**
+ * Closed, the section reads as two lines and a verdict (developer, 2026-10-02:
+ * "non si capisce"): what the day costs, part by part with each part's kcal;
+ * what is eaten, on the same scale; and where the day ends with the plan,
+ * in words, green when near the goal. Midpoints ("~"), the same numbers as
+ * the goal under the day type (GoalLine); the ranges are in the detail.
+ */
 function EnergyBars({
   energy,
   eaten,
   withPlanned,
+  wanted,
+  locale,
   t,
 }: {
   energy: Energy;
   eaten: number;
   withPlanned: number;
+  /** The day type's balance (−deficit), when the day has a goal. */
+  wanted: number | null;
+  locale: Locale;
   t: Messages["energy"];
 }) {
+  const b = t.bars;
+  const n = (v: number) => formatNumber(String(Math.round(v)), locale, 0);
   // Fewer steps than the day type's usual lower the everyday part (ADR-0032).
   const everyday = Math.max(0, mid(energy.baseline) + Math.min(0, mid(energy.walking)));
   const steps = Math.max(0, mid(energy.walking));
   const done = mid(energy.training.done);
   const planned = mid(energy.training.planned);
+  const spent = mid(energy.total.withPlan);
   const scale = Math.max(everyday + steps + done + planned, withPlanned, 1);
   const pct = (v: number) => `${(v / scale) * 100}%`;
   const parts = [
-    { label: t.baseline, v: everyday, cls: "bg-muscle-back" },
-    { label: t.walking, v: steps, cls: "bg-muscle-legs" },
-    { label: t.trainingDone, v: done, cls: "bg-muscle-chest" },
-    { label: t.trainingPlanned, v: planned, cls: "bg-muscle-chest opacity-40" },
+    { label: b.everyday, v: everyday, cls: "bg-muscle-back" },
+    { label: b.steps, v: steps, cls: "bg-muscle-legs" },
+    { label: b.done, v: done, cls: "bg-muscle-chest" },
+    { label: b.planned, v: planned, cls: "bg-muscle-chest opacity-40" },
   ].filter((p) => p.v > 0);
+  const balance = Math.round(withPlanned - spent);
+  const verdict =
+    balance === 0
+      ? b.even
+      : fill(balance < 0 ? b.deficit : b.surplus, { kcal: n(Math.abs(balance)) });
+  const tone =
+    wanted === null
+      ? ""
+      : Math.abs(balance - wanted) <= ON_TARGET_KCAL
+        ? "text-herb"
+        : "text-warn";
   const bar = "flex h-3 w-full overflow-hidden rounded-badge bg-hairline";
+  const head = "flex items-baseline justify-between gap-3";
+  const value = "font-display text-item font-semibold whitespace-nowrap tabular-nums";
   return (
-    <div className="flex flex-col gap-1.5 text-meta" aria-hidden="true">
-      <div className={bar}>
-        {parts.map((p) => (
-          <span key={p.label} className={`h-full ${p.cls}`} style={{ width: pct(p.v) }} />
-        ))}
+    <div className="flex flex-col gap-3 text-meta">
+      <div className="flex flex-col gap-1">
+        <p className={head}>
+          <span className="font-semibold">{b.spent}</span>
+          <span className={value}>{`~${n(spent)} kcal`}</span>
+        </p>
+        <div className={bar} aria-hidden="true">
+          {parts.map((p) => (
+            <span
+              key={p.label}
+              className={`h-full ${p.cls}`}
+              style={{ width: pct(p.v) }}
+            />
+          ))}
+        </div>
+        <ul className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted">
+          {parts.map((p) => (
+            <li key={p.label} className="inline-flex items-center gap-1 tabular-nums">
+              <span className={`inline-block h-2 w-2 rounded-full ${p.cls}`} />
+              {p.label} ~{n(p.v)}
+            </li>
+          ))}
+        </ul>
       </div>
-      <div className={bar}>
-        <span className="h-full bg-macro-carbs" style={{ width: pct(eaten) }} />
-        <span
-          className="h-full bg-macro-carbs opacity-40"
-          style={{ width: pct(Math.max(0, withPlanned - eaten)) }}
-        />
+      <div className="flex flex-col gap-1">
+        <p className={head}>
+          <span className="font-semibold">{b.eaten}</span>
+          <span className={value}>{`${n(eaten)} kcal`}</span>
+        </p>
+        <div className={bar} aria-hidden="true">
+          <span className="h-full bg-macro-carbs" style={{ width: pct(eaten) }} />
+          <span
+            className="h-full bg-macro-carbs opacity-40"
+            style={{ width: pct(Math.max(0, withPlanned - eaten)) }}
+          />
+        </div>
+        {withPlanned > eaten && (
+          <p className="text-muted tabular-nums">
+            {fill(b.plannedFood, { kcal: n(withPlanned - eaten) })}
+          </p>
+        )}
       </div>
-      <ul className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted">
-        {[...parts, { label: t.eaten, v: eaten, cls: "bg-macro-carbs" }].map((p) => (
-          <li key={p.label} className="inline-flex items-center gap-1">
-            <span className={`inline-block h-2 w-2 rounded-full ${p.cls}`} />
-            {p.label}
-          </li>
-        ))}
-      </ul>
+      <p className={`${head} rule-t-medium border-hairline pt-2`}>
+        <span className="font-semibold">{b.result}</span>
+        <span className="flex flex-col items-end">
+          <span className={`${value} ${tone}`}>{verdict}</span>
+          {wanted !== null && (
+            <span className="text-muted tabular-nums">
+              {fill(b.goal, {
+                v:
+                  wanted === 0
+                    ? b.even
+                    : fill(wanted < 0 ? b.deficit : b.surplus, {
+                        kcal: n(Math.abs(wanted)),
+                      }),
+              })}
+            </span>
+          )}
+        </span>
+      </p>
     </div>
   );
 }

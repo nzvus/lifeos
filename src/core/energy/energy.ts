@@ -144,6 +144,12 @@ export function bmrOf(sex: Sex, weightKg: number, heightCm: number, age: number)
 export const STEPS_PER_MIN = 100;
 
 /**
+ * A day's balance this close to the wanted one (kcal) counts as on target,
+ * for colouring only: the estimates are ranges wider than this.
+ */
+export const ON_TARGET_KCAL = 150;
+
+/**
  * ADR-0032: the day type (sitting / mixed / on my feet) is the rest of the
  * day and always sets the everyday factor, its usual steps included; the
  * real steps — minus a run's — correct it up or down from those usual
