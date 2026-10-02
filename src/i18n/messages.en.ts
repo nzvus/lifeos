@@ -30,7 +30,6 @@ import {
   assistantEn,
   barcodeEn,
   programsEn,
-  outlookEn,
   trainingWhenEn,
   panelRowsEn,
   appEn,
@@ -39,6 +38,7 @@ import {
   routinesEn,
   packsEn,
   invitesEn,
+  planEn,
 } from "./messages.home.en";
 
 export const en = {
@@ -69,6 +69,7 @@ export const en = {
     copyOf: "{name} (copy)",
   },
   nav: {
+    plan: "Plan",
     today: "Today",
     ingredients: "Ingredients",
     meals: "Meals",
@@ -263,7 +264,6 @@ export const en = {
   assistant: assistantEn,
   barcode: barcodeEn,
   programs: programsEn,
-  outlook: outlookEn,
   settings: {
     autoSaving: "Saving…",
     account: "Account",
@@ -360,7 +360,6 @@ export const en = {
   },
   training: {
     tabs: {
-      sessions: "Sessions",
       exercises: "Exercises",
       routines: "Routines",
       programs: "Programs",
@@ -379,6 +378,10 @@ export const en = {
       tabRoutine: "Routine",
       tabExercise: "Exercise",
       tabEstimate: "Estimate",
+      tabPast: "Past",
+      pastHint:
+        "Starts from a session already done, with its sets: change it as you like.",
+      pastEmpty: "No sessions done yet.",
       exerciseHint: "Pick an exercise: a session opens with its sets from last time.",
       estimateHint:
         "Anything without sets: a match, a hike, a session you didn't write down.",
@@ -423,7 +426,6 @@ export const en = {
     live: {
       title: "In the gym",
       start: "In the gym",
-      startHint: "Tap a routine to start it now, as last time.",
       open: "Open in gym mode",
       finish: "Finish",
       finishDrop: "Finish ({n} sets not done will be left out)",
@@ -478,7 +480,6 @@ export const en = {
     },
     title: "Training",
     new: "New session",
-    startFrom: "Start from",
     presetFrom: "as last time, {day}",
     presetRoutine: "from the routine",
     presetEmpty: "Empty session",
@@ -528,6 +529,7 @@ export const en = {
   routines: routinesEn,
   packs: packsEn,
   invites: invitesEn,
+  plan: planEn,
   body: bodyEn,
   dayScore: dayScoreEn,
   ratings: {

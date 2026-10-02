@@ -10,7 +10,7 @@ import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { idInput } from "@/core/nutrition/validation";
-import { addDays, timeIn } from "@/core/shared/dates";
+import { addDays, timeIn, todayIn } from "@/core/shared/dates";
 import { safeFrom } from "@/core/shared/navigation";
 import { getSession } from "@/core/training/repositories/sessions";
 import { EstimateEditor } from "@/features/training/sessions/EstimateForm";
@@ -37,7 +37,7 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
   if (!idInput.safeParse(id).success) notFound();
   const session = await getSession(getDb(), owner, id);
   if (!session) notFound();
-  const from = safeFrom((await searchParams).from, "/training");
+  const from = safeFrom((await searchParams).from, "/profiles?view=training");
   const time = session.startedAt
     ? timeIn(new Date(session.startedAt), settings.timezone)
     : "";
@@ -48,7 +48,7 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
       title={title}
       back={{
         href: from,
-        label: from === "/training" ? t.training.back : t.actions.back,
+        label: from === "/profiles?view=training" ? t.training.back : t.actions.back,
       }}
       menu={
         <TrashMenu
@@ -101,7 +101,8 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
   return (
     <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       {header(t.training.editTitle)}
-      {session.status === "planned" && (
+      {/* ADR-0035: gym mode is for today's training (to resume it here too). */}
+      {session.status === "planned" && session.day === todayIn(settings.timezone) && (
         <Link
           href={`/training/${id}/live`}
           className={buttonClass({ variant: "primary", block: true })}

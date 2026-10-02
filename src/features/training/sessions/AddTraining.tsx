@@ -4,8 +4,9 @@
  *   Start now   (today only) the session opens in gym mode
  *   Plan        a planned session at the time given, added in place
  *   Done        the editor opens prefilled, to write what was done
- * then WHAT, in three tabs: a routine (at its latest version), one exercise
- * (with its sets of last time), or an estimate (no sets).
+ * then WHAT, in four tabs: a routine (at its latest version), one exercise
+ * (with its sets of last time), a past session as it was (ADR-0035), or an
+ * estimate (no sets).
  */
 "use client";
 
@@ -14,6 +15,7 @@ import {
   Check,
   ClipboardList,
   Dumbbell,
+  History,
   Play,
   Plus,
   Sparkles,
@@ -32,7 +34,7 @@ import { Tabs } from "@/ui/Tabs";
 import { EstimateAdd } from "./EstimateForm";
 import { PresetPicker, type PresetTile } from "./PresetPicker";
 
-type Kind = "routine" | "exercise" | "estimate";
+type Kind = "routine" | "exercise" | "past" | "estimate";
 type Mode = "start" | "plan" | "done";
 
 export function AddTraining({
@@ -40,6 +42,7 @@ export function AddTraining({
   today,
   presets,
   exercises,
+  past,
   estimate,
   startOrPlan,
   t,
@@ -48,6 +51,8 @@ export function AddTraining({
   today: string;
   presets: readonly PresetTile[];
   exercises: readonly { id: string; name: string; kind: ExerciseKind }[];
+  /** Recent sessions done, newest first, to start from ("like a past session"). */
+  past: readonly { id: string; label: string; when: string }[];
   estimate: (prev: FormState, formData: FormData) => Promise<FormState>;
   /** Server action: a routine or exercise started now (gym mode) or planned. */
   startOrPlan: (formData: FormData) => Promise<void>;
@@ -64,11 +69,14 @@ export function AddTraining({
   const [pending, startTransition] = useTransition();
   const fromDay = `day=${day}&from=${encodeURIComponent(`/?day=${day}`)}`;
   /** A routine or an exercise, by the chosen mode. */
-  const add = (field: "routineId" | "exerciseId", id: string) => {
+  const add = (field: "routineId" | "exerciseId" | "fromSessionId", id: string) => {
     if (mode === "done") {
-      router.push(
-        `/training/new?${field === "routineId" ? "routine" : "exercise"}=${id}&${fromDay}`,
-      );
+      const param = {
+        routineId: "routine",
+        exerciseId: "exercise",
+        fromSessionId: "session",
+      };
+      router.push(`/training/new?${param[field]}=${id}&${fromDay}`);
       return;
     }
     const fd = new FormData();
@@ -148,6 +156,11 @@ export function AddTraining({
             icon: <Dumbbell size={16} aria-hidden="true" />,
           },
           {
+            key: "past",
+            label: e.tabPast,
+            icon: <History size={16} aria-hidden="true" />,
+          },
+          {
             key: "estimate",
             label: e.tabEstimate,
             icon: <Sparkles size={16} aria-hidden="true" />,
@@ -181,6 +194,29 @@ export function AddTraining({
               />
             </>
           )}
+          {kind === "past" &&
+            (past.length === 0 ? (
+              <p className="text-meta text-muted">{e.pastEmpty}</p>
+            ) : (
+              <>
+                <p className="text-meta text-muted">{e.pastHint}</p>
+                <ul className="flex flex-col gap-1">
+                  {past.map((x) => (
+                    <li key={x.id}>
+                      <button
+                        type="button"
+                        disabled={pending}
+                        onClick={() => add("fromSessionId", x.id)}
+                        className="tile flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:border-ink disabled:opacity-50"
+                      >
+                        <span className="truncate font-semibold">{x.label}</span>
+                        <span className="shrink-0 text-meta text-muted">{x.when}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ))}
           {kind === "estimate" && (
             <EstimateAdd
               day={day}

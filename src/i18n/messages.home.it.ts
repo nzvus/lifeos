@@ -450,20 +450,9 @@ export const programsIt: Messages["programs"] = {
   asCycle: "Come da ciclo",
   swapWith: "Scambia con {day}",
   dayChoice: "Cosa fare {day}",
+  seePlan: "Vedi i prossimi giorni nel Piano",
   changeHint:
     "Sposta un giorno con ↑/↓ (o trascinalo, sul computer) o scegli cosa fare quel giorno: il resto del ciclo si adatta.",
-};
-
-export const outlookIt: Messages["outlook"] = {
-  title: "Prossimi 7 giorni",
-  subtitle:
-    "Allenamenti pianificati o dal programma, consumo stimato e obiettivi che ne seguono.",
-  noDayType: "nessun tipo",
-  rest: "Riposo",
-  editProgram: "Modifica programma",
-  energy: "consumo {lo}–{hi} kcal",
-  noEnergy: "consumo: mancano i dati del corpo",
-  targets: "{kcal} kcal · P {p} · C {c} · G {f}",
 };
 
 /** Body weight (ADR-0005, read with its context ADR-0027). */
@@ -511,6 +500,7 @@ export const bodyIt: Messages["body"] = {
 };
 
 export const progressIt: Messages["progress"] = {
+  training: "Allenamento",
   title: "Progressi",
   trends: "Andamento",
   weight: "Peso",
@@ -757,4 +747,23 @@ export const invitesIt: Messages["invites"] = {
   remove: "Ritira invito",
   created: "creato il {day} · scade il {until}",
   states: { pending: "in attesa", used: "usato", expired: "scaduto" },
+};
+
+export const planIt: Messages["plan"] = {
+  title: "Piano",
+  calendar: "Calendario",
+  prev: "Mese precedente",
+  next: "Mese successivo",
+  thisMonth: "Torna a questo mese",
+  agenda: "Giorno per giorno",
+  nothing: "Niente in programma questo mese.",
+  late: "in ritardo",
+  changed: "cambiato",
+  legendDone: "fatto",
+  legendPlanned: "previsto",
+  legendRest: "riposo",
+  coming: "Prossimi giorni · {name}",
+  noProgram:
+    "Nessun programma attivo: creane uno in Allenamento → Programmi per vedere qui i prossimi giorni.",
+  rest: "Riposo",
 };

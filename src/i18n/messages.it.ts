@@ -20,7 +20,6 @@ import {
   assistantIt,
   barcodeIt,
   programsIt,
-  outlookIt,
   trainingWhenIt,
   panelRowsIt,
   appIt,
@@ -29,6 +28,7 @@ import {
   routinesIt,
   packsIt,
   invitesIt,
+  planIt,
 } from "./messages.home.it";
 import type { Messages } from "./index";
 
@@ -60,6 +60,7 @@ export const it: Messages = {
     copyOf: "{name} (copia)",
   },
   nav: {
+    plan: "Piano",
     today: "Oggi",
     ingredients: "Ingredienti",
     meals: "Pasti",
@@ -258,7 +259,6 @@ export const it: Messages = {
   assistant: assistantIt,
   barcode: barcodeIt,
   programs: programsIt,
-  outlook: outlookIt,
   settings: {
     autoSaving: "Salvataggio…",
     account: "Account",
@@ -356,7 +356,6 @@ export const it: Messages = {
   },
   training: {
     tabs: {
-      sessions: "Sessioni",
       exercises: "Esercizi",
       routines: "Schede",
       programs: "Programmi",
@@ -375,6 +374,10 @@ export const it: Messages = {
       tabRoutine: "Scheda",
       tabExercise: "Esercizio",
       tabEstimate: "Stima",
+      tabPast: "Passata",
+      pastHint:
+        "Parte da una sessione già fatta, con le sue serie: poi la cambi come vuoi.",
+      pastEmpty: "Ancora nessuna sessione fatta.",
       exerciseHint:
         "Scegli un esercizio: si apre una sessione con le sue serie dell'ultima volta.",
       estimateHint:
@@ -421,7 +424,6 @@ export const it: Messages = {
     live: {
       title: "In palestra",
       start: "In palestra",
-      startHint: "Tocca una scheda per iniziarla subito, come l'ultima volta.",
       open: "Apri in modalità palestra",
       finish: "Termina",
       finishDrop: "Termina ({n} serie non fatte verranno tolte)",
@@ -476,7 +478,6 @@ export const it: Messages = {
     },
     title: "Allenamento",
     new: "Nuova sessione",
-    startFrom: "Inizia da",
     presetFrom: "come l'ultima volta, {day}",
     presetRoutine: "dalla scheda",
     presetEmpty: "Sessione vuota",
@@ -526,6 +527,7 @@ export const it: Messages = {
   routines: routinesIt,
   packs: packsIt,
   invites: invitesIt,
+  plan: planIt,
   body: bodyIt,
   dayScore: dayScoreIt,
   ratings: {

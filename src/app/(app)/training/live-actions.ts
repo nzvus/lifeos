@@ -32,7 +32,9 @@ import { sessionInput } from "@/core/training/validation";
  * A routine at its latest version, or one exercise with its working sets of
  * last time, as a PLANNED session: started now in gym mode ("live"), or
  * planned on a day at a time ("plan", from the day page).
- * Form fields: routineId | exerciseId, mode, day, time.
+ * Or a session done before, as it was (its working sets): "like a past
+ * session" (ADR-0035).
+ * Form fields: routineId | exerciseId | fromSessionId, mode, day, time.
  */
 export async function startOrPlanAction(formData: FormData): Promise<void> {
   const { owner, settings, t } = await requireContext();
@@ -47,6 +49,7 @@ export async function startOrPlanAction(formData: FormData): Promise<void> {
       : timeIn(new Date(), settings.timezone);
   const routineId = String(formData.get("routineId") ?? "");
   const exerciseId = String(formData.get("exerciseId") ?? "");
+  const fromSessionId = String(formData.get("fromSessionId") ?? "");
   const [routines, history, catalog] = await Promise.all([
     listRoutines(db, owner),
     listSessions(db, owner, "2000-01-01", today),
@@ -56,7 +59,15 @@ export async function startOrPlanAction(formData: FormData): Promise<void> {
   const exercise = catalog.find((e) => e.id === exerciseId);
   let label = t.training.title;
   let sets: { exerciseId: string; restS: number | null; sets: PresetSet[] }[] = [];
-  if (routine) {
+  const past = fromSessionId ? history.find((s) => s.id === fromSessionId) : undefined;
+  if (past) {
+    label = past.label;
+    sets = past.exercises.map((e) => ({
+      exerciseId: e.exerciseId,
+      restS: e.restS,
+      sets: e.sets.filter((x) => !x.warmup),
+    }));
+  } else if (routine) {
     const preset = latestPreset<PresetSet>(routine, history, (it) => ({
       ...it,
       warmup: false,
@@ -100,7 +111,14 @@ export async function startOrPlanAction(formData: FormData): Promise<void> {
   const input = parseInput(
     sessionInput,
     toSessionValues(
-      { day, label, time, routineId: routine?.id ?? null, notes: "", exercises },
+      {
+        day,
+        label,
+        time,
+        routineId: past ? past.routineId : (routine?.id ?? null),
+        notes: "",
+        exercises,
+      },
       "planned",
       null,
     ),

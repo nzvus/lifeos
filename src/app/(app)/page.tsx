@@ -156,6 +156,7 @@ export default async function DayPage({ searchParams }: Props) {
     energyView,
     calibration,
     nights,
+    recent,
   ] = await Promise.all([
     getDay(db, owner, day),
     listMeals(db, owner),
@@ -176,6 +177,7 @@ export default async function DayPage({ searchParams }: Props) {
     getDayEnergy(db, owner, day, programSlot?.slot), // ADR-0014: what the day costs
     day === today ? getCalibration(db, owner, today) : null, // ADR-0020
     listSleep(db, owner, day, day), // ADR-0031: the night that ended today
+    listSessions(db, owner, addDays(today, -60), today), // "like a past session" (ADR-0035)
   ]);
   const night = nights[0] ?? null;
   const nightScore = night
@@ -723,6 +725,20 @@ export default async function DayPage({ searchParams }: Props) {
           startOrPlan={startOrPlanAction}
           presets={presets}
           exercises={exercises.map(({ id, name, kind }) => ({ id, name, kind }))}
+          past={recent
+            .filter((x) => x.status === "done" && x.exercises.length > 0)
+            .reverse()
+            .slice(0, 12)
+            .map((x) => ({
+              id: x.id,
+              label: x.label,
+              when: new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-GB", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+                timeZone: "UTC",
+              }).format(new Date(`${x.day}T12:00:00Z`)),
+            }))}
           estimate={createEstimateAction}
           t={{
             training: t.training,
