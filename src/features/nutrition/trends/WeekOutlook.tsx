@@ -10,6 +10,7 @@ import type { OutlookDay } from "@/core/energy/repositories/outlook";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
+import { Badge } from "@/ui/Badge";
 
 const INTL = { it: "it-IT", en: "en-GB" } as const;
 
@@ -47,6 +48,12 @@ export function WeekOutlook({
                 {d.goal && d.goal !== "custom" ? ` · ${t.energy.goals[d.goal]}` : ""}
               </span>
             </span>
+            {/* ADR-0029: a day changed by hand in the program, as on its page. */}
+            {d.changed && (
+              <span className="self-start">
+                <Badge>{t.programs.changed}</Badge>
+              </span>
+            )}
             <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-meta">
               {d.rest ? (
                 <span className="inline-flex items-center gap-1 text-muted">
