@@ -14,7 +14,6 @@
  */
 "use client";
 
-import { Tag } from "lucide-react";
 import { useMemo } from "react";
 import { pricePerThousandCents } from "@/core/nutrition/insights";
 import {
@@ -28,13 +27,11 @@ import {
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import { stripValues } from "@/core/nutrition/display";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
-import { formatCents, formatNumber } from "@/core/shared/format";
+import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
-import { fill, macroLabels, qualityLabels, type Messages } from "@/i18n";
-import { FoodCardMeta } from "@/ui/FoodCardMeta";
+import { fill, macroLabels, type Messages } from "@/i18n";
 import { ListItem } from "@/ui/ListItem";
-import { MacroStrip } from "@/ui/MacroStrip";
-import { QualityBadges } from "@/ui/QualityIcons";
+import { MacroStrip, mainMacros } from "@/ui/MacroStrip";
 import { ListToolbar } from "@/ui/ListToolbar";
 import { SortNote } from "@/ui/SortNote";
 import { TrashMenu } from "@/ui/TrashMenu";
@@ -157,8 +154,9 @@ export function IngredientBrowser({
         t={t.search}
       />
 
-      {/* One layout on every screen, the same as the meals list: cards,
-          two columns from md up. */}
+      {/* Compact rows (design review S4, the convention of Cronometer and
+          Yazio): name, energy, one line of macros; price, NOVA and the rest
+          on the ingredient's page — or here as the sort's value. */}
       <ul className="grid grid-cols-1 gap-x-8 @3xl:grid-cols-2">
         {shown.map((r) => (
           <ListItem
@@ -174,35 +172,15 @@ export function IngredientBrowser({
                 labels={t.actions}
               />
             }
-            aside={
-              r.perKg === null ? undefined : (
-                <span className="inline-flex items-center gap-1 text-price">
-                  <Tag size={14} aria-hidden="true" />
-                  {`${formatCents(r.perKg, locale)} ${t.macro.perKg}`}
-                </span>
-              )
+            aside={`${formatNumber(r.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal} ${fill(t.ingredients.per100Short, { unit: r.unit })}`}
+            footer={
+              r.uses > 0 ? fill(t.search.uses, { n: String(r.uses) }) : t.search.neverUsed
             }
           >
-            <FoodCardMeta
-              energy={`${formatNumber(r.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}
-              basis={fill(t.ingredients.per100Short, { unit: r.unit })}
-              uses={
-                r.uses > 0
-                  ? fill(t.search.uses, { n: String(r.uses) })
-                  : t.search.neverUsed
-              }
-            />
             <MacroStrip
-              values={stripValues(r, locale, 1)}
+              values={mainMacros(stripValues(r, locale, 1))}
               labels={labels}
               withEnergy={false}
-            />
-            <QualityBadges
-              nova={r.nova}
-              origin={r.origin}
-              fiberTypes={r.fiberTypes}
-              tags={r.tags}
-              labels={qualityLabels(t)}
             />
             <SortNote
               value={sortNote(r.metrics, list.sort, list.per, locale)}

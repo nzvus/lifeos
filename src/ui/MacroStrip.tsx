@@ -72,6 +72,12 @@ function Value({
   );
 }
 
+/** The four main macros and the split only: compact list rows (design review S4). */
+export function mainMacros(v: MacroStripValues): MacroStripValues {
+  const { protein, carbs, fat, fiber, split } = v;
+  return { protein, carbs, fat, fiber, split };
+}
+
 export function MacroStrip({
   values,
   labels,
