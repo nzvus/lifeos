@@ -231,6 +231,7 @@ export const en = {
   programs: programsEn,
   outlook: outlookEn,
   settings: {
+    autoSaving: "Saving…",
     account: "Account",
     title: "Settings",
     timezone: "Time zone",

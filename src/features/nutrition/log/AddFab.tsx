@@ -26,7 +26,7 @@ export function AddFab({
   const a = t.addFab;
   const close = () => sheet.current?.close();
   // Same hash twice fires no hashchange: set it and tell ui/Collapsible.
-  const go = (id: string) => (e: React.MouseEvent) => {
+  const go = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     close();
     history.replaceState(null, "", `#${id}`);
@@ -67,12 +67,16 @@ export function AddFab({
               <X size={20} aria-hidden="true" />
             </button>
           </div>
-          <a href="#day-add-food" onClick={go("day-add-food")} className={item}>
+          <a href="#day-add-food" onClick={(e) => go(e, "day-add-food")} className={item}>
             <UtensilsCrossed size={22} aria-hidden="true" className="text-herb" />
             {a.food}
           </a>
           {training && (
-            <a href="#day-add-training" onClick={go("day-add-training")} className={item}>
+            <a
+              href="#day-add-training"
+              onClick={(e) => go(e, "day-add-training")}
+              className={item}
+            >
               <Dumbbell size={22} aria-hidden="true" className="text-herb" />
               {a.training}
             </a>

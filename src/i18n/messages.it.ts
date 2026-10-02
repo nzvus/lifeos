@@ -226,6 +226,7 @@ export const it: Messages = {
   programs: programsIt,
   outlook: outlookIt,
   settings: {
+    autoSaving: "Salvataggio…",
     account: "Account",
     title: "Impostazioni",
     timezone: "Fuso orario",

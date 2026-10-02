@@ -75,6 +75,28 @@ export default async function SettingsPage() {
         />
       </Section>
       <Section
+        title={t.settings.display.title}
+        icon={<Eye size={20} aria-hidden="true" />}
+      >
+        <p className="text-muted">{t.settings.display.hint}</p>
+        <SettingsForm
+          part="theme"
+          action={saveSettingsAction}
+          initial={settingsFormValues(settings)}
+          timeZones={timeZones}
+          t={{ settings: t.settings, errors: t.errors }}
+        />
+        <DisplayForm
+          action={saveDisplayAction}
+          initial={display}
+          t={{
+            ...t.settings.display,
+            saved: t.settings.saved,
+            saving: t.settings.autoSaving,
+          }}
+        />
+      </Section>
+      <Section
         title={t.energy.body}
         icon={<PersonStanding size={20} aria-hidden="true" />}
         subtitle={t.energy.bodyHint}
@@ -150,17 +172,6 @@ export default async function SettingsPage() {
           createAction={createFactorAction}
           deleteAction={deleteFactorAction}
           t={{ ratings: t.ratings, errors: t.errors }}
-        />
-      </Section>
-      <Section
-        title={t.settings.display.title}
-        icon={<Eye size={20} aria-hidden="true" />}
-      >
-        <p className="text-muted">{t.settings.display.hint}</p>
-        <DisplayForm
-          action={saveDisplayAction}
-          initial={display}
-          t={{ ...t.settings.display, saved: t.settings.saved }}
         />
       </Section>
       <Section

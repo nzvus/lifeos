@@ -10,9 +10,9 @@ import { useActionState } from "react";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import type { Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
-import { FormAlert } from "@/ui/FormAlert";
 import { SelectField } from "@/ui/SelectField";
-import { SubmitButton } from "@/ui/SubmitButton";
+import { SaveStatus } from "@/ui/SaveStatus";
+import { useAutoSave } from "@/ui/useAutoSave";
 
 export function BodyForm({
   action,
@@ -24,14 +24,12 @@ export function BodyForm({
   t: Pick<Messages, "energy" | "errors" | "settings">;
 }) {
   const [state, formAction] = useActionState(action, IDLE);
+  const autoSave = useAutoSave(); // design review S3: saves itself
   const e = t.energy;
   const err = (f: string) => fieldError(state, f, t.errors);
   const val = (f: keyof typeof initial) => valueOf(state, f, initial[f]);
   return (
-    <form action={formAction} className="flex flex-col gap-4">
-      {state.status === "saved" && (
-        <FormAlert tone="success">{t.settings.saved}</FormAlert>
-      )}
+    <form action={formAction} {...autoSave} className="flex flex-col gap-4">
       <SelectField
         label={e.sex}
         name="sex"
@@ -59,9 +57,10 @@ export function BodyForm({
           error={err("heightCm")}
         />
       </div>
-      <span className="self-start">
-        <SubmitButton>{e.saveBody}</SubmitButton>
-      </span>
+      <SaveStatus
+        saved={state.status === "saved"}
+        labels={{ saving: t.settings.autoSaving, saved: t.settings.saved }}
+      />
     </form>
   );
 }
