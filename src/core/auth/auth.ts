@@ -16,8 +16,11 @@
  */
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import type { Db } from "../db/client";
 import { account, rateLimit, session, user, verification } from "../db/schema";
+import { INVITE_HEADER } from "./invite-header";
+import { claimInvite, inviteUsable, linkInvite } from "./invites";
 
 export type AuthConfig = {
   db: Db;
@@ -34,6 +37,12 @@ export type AuthConfig = {
    * pack). A failure is the caller's to log: the account exists either way.
    */
   onUserCreated?: (userId: string) => Promise<void>;
+  /**
+   * ADR-0034: a sign-up needs a valid invitation, sent by the form in the
+   * INVITE_HEADER header. Accounts created without a request (tests,
+   * scripts) are not affected.
+   */
+  requireInvite: boolean;
 };
 
 export function createAuth(config: AuthConfig) {
@@ -62,8 +71,37 @@ export function createAuth(config: AuthConfig) {
       // revisit with ADR-0006's tripwire when a second account exists.
       cookieCache: { enabled: true, maxAge: 5 * 60 },
     },
+    // ADR-0034: refuse a sign-up without a usable invitation early, with a
+    // clear code for the form...
+    hooks: {
+      before: createAuthMiddleware(async (ctx) => {
+        if (!config.requireInvite || ctx.path !== "/sign-up/email") return;
+        const code = ctx.headers?.get(INVITE_HEADER);
+        if (!code || !(await inviteUsable(config.db, code, new Date())))
+          throw new APIError("FORBIDDEN", {
+            code: "INVITE_INVALID",
+            message: "INVITE_INVALID",
+          });
+      }),
+    },
     databaseHooks: {
-      user: { create: { after: async (u) => config.onUserCreated?.(u.id) } },
+      user: {
+        create: {
+          // ...and claim it atomically while the account is created: of two
+          // sign-ups with the same code, one gets no account.
+          before: async (u, ctx) => {
+            if (!config.requireInvite || !ctx) return;
+            const code = ctx.headers?.get(INVITE_HEADER);
+            if (!code || !(await claimInvite(config.db, code, u.email, new Date())))
+              return false;
+          },
+          after: async (u, ctx) => {
+            const code = ctx?.headers?.get(INVITE_HEADER);
+            if (code) await linkInvite(config.db, code, u.id);
+            await config.onUserCreated?.(u.id);
+          },
+        },
+      },
     },
     rateLimit: {
       enabled: true,

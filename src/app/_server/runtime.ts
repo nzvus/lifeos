@@ -36,6 +36,7 @@ export function getAuth(): Auth {
     baseURL: e.baseURL,
     trustedOrigins: e.trustedOrigins,
     allowSignUp: e.ALLOW_SIGNUP === "true",
+    requireInvite: e.SIGNUP_INVITES === "true",
     // ADR-0034: every new account starts from the starter pack. Not fatal:
     // without it the account works, and the pack can be imported later.
     onUserCreated: async (userId) => {

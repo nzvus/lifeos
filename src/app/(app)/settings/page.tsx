@@ -15,6 +15,7 @@ import {
   Trash2,
   UserCog,
   PackagePlus,
+  UserPlus,
 } from "lucide-react";
 import { env } from "@/app/_server/env";
 import { getKeyStatus } from "@/core/assistant/repositories/assistant";
@@ -27,11 +28,15 @@ import Link from "next/link";
 import { getDisplay } from "@/app/_server/display";
 import { getDb } from "@/app/_server/runtime";
 import { listFactors } from "@/core/nutrition/repositories/ratings";
-import { requireContext } from "@/app/_server/owner";
+import { isAdmin, requireContext } from "@/app/_server/owner";
+import { fill } from "@/i18n";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
 import { PackForm } from "@/features/account/settings/PackForm";
 import { addStarterAction, importPackAction } from "./pack-actions";
+import { createInviteAction, deleteInviteAction } from "./invite-actions";
+import { InviteForm, type InviteRow } from "@/features/account/settings/InviteForm";
+import { listInvites } from "@/core/auth/invites";
 import { SignOutButton } from "@/features/account/auth/SignOutButton";
 import { preferencesFormValues } from "@/core/nutrition/preferences";
 import { settingsFormValues } from "@/core/nutrition/validation";
@@ -63,6 +68,25 @@ export default async function SettingsPage() {
     listProfiles(getDb(), owner),
   ]);
   const dynamicToday = await dynamicTargetsToday(getDb(), owner, today, profiles);
+  // ADR-0034: invitations, for admins only.
+  const admin = await isAdmin();
+  const now = new Date();
+  const short = new Intl.DateTimeFormat(settings.locale === "it" ? "it-IT" : "en-GB", {
+    day: "numeric",
+    month: "short",
+    timeZone: settings.timezone,
+  });
+  const invites: InviteRow[] = admin
+    ? (await listInvites(getDb(), owner)).map((i) => ({
+        id: i.id,
+        when: fill(t.invites.created, {
+          day: short.format(i.createdAt),
+          until: short.format(i.expiresAt),
+        }),
+        state: i.usedAt ? "used" : i.expiresAt <= now ? "expired" : "pending",
+        usedEmail: i.usedEmail,
+      }))
+    : [];
   // Every IANA time zone the server's runtime knows, for suggestions.
   const timeZones = Intl.supportedValuesOf("timeZone");
   return (
@@ -187,6 +211,20 @@ export default async function SettingsPage() {
           {t.settings.export}
         </a>
       </Section>
+      {admin && (
+        <Section
+          title={t.invites.title}
+          icon={<UserPlus size={20} aria-hidden="true" />}
+          subtitle={t.invites.hint}
+        >
+          <InviteForm
+            invites={invites}
+            create={createInviteAction}
+            remove={deleteInviteAction}
+            t={t.invites}
+          />
+        </Section>
+      )}
       {/* ADR-0034: add the starter, or a pack from a file (only what is missing). */}
       <Section title={t.packs.title} icon={<PackagePlus size={20} aria-hidden="true" />}>
         <p className="text-muted">{t.packs.hint}</p>

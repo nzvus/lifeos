@@ -735,3 +735,19 @@ export const packsEn = {
     meals: "meals: {n}",
   },
 };
+
+export const invitesEn = {
+  title: "Invitations",
+  hint: "To let a friend in: create an invitation and send them the link. It works for one person, for 14 days.",
+  create: "Create invitation",
+  link: "Invitation link",
+  copy: "Copy",
+  copied: "Copied",
+  share: "Share",
+  shareTitle: "Join Lifeos",
+  onlyOnce: "The link is shown only now: copy or share it right away.",
+  empty: "No invitations yet.",
+  remove: "Withdraw invitation",
+  created: "created {day} · expires {until}",
+  states: { pending: "waiting", used: "used", expired: "expired" },
+};

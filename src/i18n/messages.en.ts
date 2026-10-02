@@ -38,6 +38,7 @@ import {
   entryEditEn,
   routinesEn,
   packsEn,
+  invitesEn,
 } from "./messages.home.en";
 
 export const en = {
@@ -92,6 +93,9 @@ export const en = {
   errors: errorsEn,
   entryEdit: entryEditEn,
   auth: {
+    invite: "Invitation code",
+    inviteHint: "It comes in the link you were sent.",
+    inviteInvalid: "Invalid, used or expired invitation: ask for a new one.",
     signInTitle: "Sign in",
     signUpTitle: "Create your account",
     name: "Name",
@@ -523,6 +527,7 @@ export const en = {
   exercises: exercisesEn,
   routines: routinesEn,
   packs: packsEn,
+  invites: invitesEn,
   body: bodyEn,
   dayScore: dayScoreEn,
   ratings: {
