@@ -40,11 +40,12 @@ export function RoutineProgressList({
                   <span className="text-muted">
                     {`${fill(t.lastRun, { day: day(r.last.day) })} · ${fill(t.setsN, { n: String(r.last.sets) })}`}
                   </span>
-                  <span>
+                  {/* Wraps instead of overlapping when narrow (design review S7). */}
+                  <span className="inline-flex flex-wrap items-baseline gap-x-1">
                     <span className="font-display text-item font-semibold">
                       {n(r.last.tonnage)}
                     </span>
-                    {` ${t.tonnage} `}
+                    {t.tonnage}
                     <Change pct={r.change} />
                   </span>
                 </div>
