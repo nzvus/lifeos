@@ -91,9 +91,6 @@ export function SessionList({
     if (x.strength)
       parts.push(
         [
-          x.strength.exercises === 1
-            ? s.exercises.find((e) => e.kind !== "cardio")!.name
-            : fill(t.when.exercisesN, { n: String(x.strength.exercises) }),
           fill(t.progress.setsN, { n: String(x.strength.sets) }),
           x.strength.tonnage > 0
             ? x.strength.tonnage >= 1000
@@ -105,18 +102,8 @@ export function SessionList({
           .join(" · "),
       );
     if (!x.cardio && s.exercises.some((e) => e.kind === "cardio"))
-      // Cardio planned without its numbers yet: its name, and the minutes if any.
-      parts.push(
-        [
-          s.exercises
-            .filter((e) => e.kind === "cardio")
-            .map((e) => e.name)
-            .join(", "),
-          x.minutes ? fill(t.minutesShort, { n: String(x.minutes) }) : null,
-        ]
-          .filter(Boolean)
-          .join(" · "),
-      );
+      // Cardio planned without its numbers yet: the minutes, if any.
+      parts.push(x.minutes ? fill(t.minutesShort, { n: String(x.minutes) }) : "");
     if (!x.cardio && !x.strength && s.exercises.length === 0)
       parts.push(
         [
@@ -127,7 +114,7 @@ export function SessionList({
           .filter(Boolean)
           .join(" · "),
       );
-    return parts.join(" + ");
+    return parts.filter(Boolean).join(" + ");
   };
   return (
     <ul className="grid gap-x-8 @3xl:grid-cols-2">
@@ -141,13 +128,13 @@ export function SessionList({
             leading={
               s.status === "done" ? (
                 <CircleCheck
-                  size={24}
+                  size={20}
                   aria-label={t.statuses.done}
                   className="text-herb"
                 />
               ) : (
                 <Circle
-                  size={24}
+                  size={20}
                   aria-label={t.statuses.planned}
                   className="text-muted"
                 />
@@ -179,10 +166,51 @@ export function SessionList({
             }
             aside={showDay ? date.format(new Date(`${s.day}T12:00:00Z`)) : kcal}
           >
-            <p className="text-meta text-muted tabular-nums">
-              {summary(s)}
-              {showDay && kcal ? ` · ${kcal}` : ""}
-            </p>
+            {/* One line under the title: the exercises as icons (tap: each with
+                its sets), the numbers, and Start on the right. */}
+            <div className="-mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 pl-8 text-meta">
+              {s.exercises.length > 0 && (
+                <details className="relative z-2 open:basis-full">
+                  <summary
+                    className="flex cursor-pointer list-none items-center gap-1"
+                    aria-label={s.exercises.map((e) => e.name).join(", ")}
+                  >
+                    {s.exercises.map((e) => (
+                      <ExerciseIcon
+                        key={e.id}
+                        pattern={e.pattern}
+                        region={regionOf(e.muscleGroups)}
+                        size={22}
+                      />
+                    ))}
+                  </summary>
+                  <ul className="mt-2 flex flex-col gap-1">
+                    {s.exercises.map((e) => (
+                      <li key={e.id} className="flex items-center justify-between gap-3">
+                        <span className="truncate">{e.name}</span>
+                        <span className="shrink-0 font-display text-muted tabular-nums">
+                          {setsText(e.sets, locale)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+              <span className="min-w-0 flex-1 text-muted tabular-nums">
+                {summary(s)}
+                {showDay && kcal ? ` · ${kcal}` : ""}
+              </span>
+              {startable && s.status === "planned" && s.exercises.length > 0 && (
+                <Link
+                  href={`/training/${s.id}/live`}
+                  aria-label={t.when.startThis}
+                  className={`relative z-2 ${buttonClass({ variant: "primary", size: "sm" })}`}
+                >
+                  <Play size={14} aria-hidden="true" />
+                  {t.when.startShort}
+                </Link>
+              )}
+            </div>
             {s.exercises.length === 0 && s.muscleGroups.length > 0 && (
               <MuscleChips
                 groups={s.muscleGroups.filter(isMuscleGroup).map((g) => ({
@@ -190,39 +218,6 @@ export function SessionList({
                   region: MUSCLE_GROUP_REGION[g],
                 }))}
               />
-            )}
-            {s.exercises.length > 0 && (
-              <details className="relative z-2 text-meta">
-                <summary className="cursor-pointer text-muted">
-                  {t.when.exercisesList}
-                </summary>
-                <ul className="mt-2 flex flex-col gap-1">
-                  {s.exercises.map((e) => (
-                    <li key={e.id} className="flex items-center justify-between gap-3">
-                      <span className="flex min-w-0 items-center gap-2">
-                        <ExerciseIcon
-                          pattern={e.pattern}
-                          region={regionOf(e.muscleGroups)}
-                          size={18}
-                        />
-                        <span className="truncate">{e.name}</span>
-                      </span>
-                      <span className="shrink-0 font-display text-muted tabular-nums">
-                        {setsText(e.sets, locale)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            )}
-            {startable && s.status === "planned" && s.exercises.length > 0 && (
-              <Link
-                href={`/training/${s.id}/live`}
-                className={`relative z-2 self-start ${buttonClass({ variant: "primary", size: "sm" })}`}
-              >
-                <Play size={16} aria-hidden="true" />
-                {t.when.startThis}
-              </Link>
             )}
           </ListItem>
         );

@@ -246,7 +246,7 @@ export default async function DayPage({ searchParams }: Props) {
       <div className="flex min-w-0 flex-col gap-4">
         <Card>
           <DayNav day={day} today={today} locale={locale} t={t.day} />
-          <WeekStrip week={week} day={day} today={today} locale={locale} />
+          <WeekStrip week={week} day={day} today={today} locale={locale} t={t.day} />
           <DayProfilePicker
             day={day}
             current={dayTargets}

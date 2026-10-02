@@ -1,6 +1,14 @@
 /** Tests for core/nutrition/bands.ts (ADR-0023, amended by ADR-0025). */
 import { describe, expect, it } from "vitest";
-import { macroBands, trainingLoad, zoneOf, zoneScore, type Band } from "./bands";
+import {
+  bandFor,
+  bandState,
+  macroBands,
+  trainingLoad,
+  zoneOf,
+  zoneScore,
+  type Band,
+} from "./bands";
 
 describe("macroBands", () => {
   it("health floors, good zones by goal and training, health or useful ceilings", () => {
@@ -84,5 +92,34 @@ describe("zones", () => {
     expect(zoneScore(80, health)).toBe(0);
     expect(zoneScore(240, health)).toBe(0);
     expect(zoneScore(400, useful)).toBe(70);
+  });
+});
+
+describe("bandFor and bandState (colour = state)", () => {
+  it("energy: good within ±5 % of the target, over past +10 %", () => {
+    const b = bandFor(undefined, 2000, "target");
+    expect(bandState(1800, b)).toBe("short");
+    expect(bandState(1950, b)).toBe("good");
+    expect(bandState(2150, b)).toBe("high");
+    expect(bandState(2300, b)).toBe("over");
+  });
+
+  it("a maximum is good up to it; a minimum is never 'over'", () => {
+    expect(bandState(5, bandFor(undefined, 5, "max"))).toBe("good");
+    expect(bandState(6, bandFor(undefined, 5, "max"))).toBe("over");
+    expect(bandState(80, bandFor(undefined, 30, "min"))).toBe("high");
+  });
+
+  it("a macro's own band wins; no band and no target says nothing", () => {
+    const own: Band = {
+      floor: 10,
+      low: 20,
+      high: 30,
+      ceiling: 40,
+      ceilingKind: "health",
+    };
+    expect(bandFor(own, 999, "target")).toBe(own);
+    expect(bandState(100, bandFor(undefined, null, "target"))).toBe("none");
+    expect(bandState(100, bandFor(undefined, 0, "target"))).toBe("none");
   });
 });

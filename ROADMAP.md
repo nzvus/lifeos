@@ -162,6 +162,13 @@
 - [x] Developer's verdict: Label stays, with rounded corners and rings + bars; Orto and Cruscotto replaced by four themes built on Label: Quaderno (ivory, blue ink, serif headings), Sport (black/white, lime), Minimal (no frames, shadows), Notte (night blue, amber headings); per-theme components (THEME_SLOTS) removed until a theme needs one
 - [ ] Developer review of the four new themes on the phone
 
+## Requests of 2026-10-02
+- [x] Week strip: each day's bar coloured by state like the Energy row (core bandFor / bandState, shared with the day panel), and the kcal against the target under the date ("−340"), a number instead of a hover
+- [x] Installed app: dark splash (the manifest can't read the user's mode); the status bar follows the mode in Settings
+- [x] Training rows on the day back to icons: status, time, name, kcal; then the exercises as icons (tap: sets), the numbers and a short "Start", on one line
+- [ ] Smarter weigh-ins: read each weight with what came before it (meals, training, time of day) to tell water from tissue; BMI and more (needs an ADR)
+- [ ] Whole-app design review on the phone: overlapping text, padding, where each function sits and how clear it is, conventions of well-made apps, one look across pages (plan first)
+
 ## Next sprint: S11 — The day as a plan, honest energy, smarter targets (requested 2026-10-01)
 - **Goal:** plan and start training from the day like food; energy and targets that make sense for the developer's real data; a day score about zones, not reaching numbers.
 - [x] Energy formulas on screen; selects show the saved value without a reload (#105)

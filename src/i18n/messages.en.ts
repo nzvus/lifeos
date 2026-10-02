@@ -91,6 +91,7 @@ export const en = {
   day: {
     previousWeek: "Previous week",
     nextWeek: "Next week",
+    weekBalance: "Energy: {kcal} of {target} kcal ({delta})",
     goTo: "Go to",
     go: "Go",
     thisWeek: "This week",

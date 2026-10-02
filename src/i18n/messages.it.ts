@@ -83,6 +83,7 @@ export const it: Messages = {
   day: {
     previousWeek: "Settimana precedente",
     nextWeek: "Settimana successiva",
+    weekBalance: "Energia: {kcal} di {target} kcal ({delta})",
     goTo: "Vai al",
     go: "Vai",
     thisWeek: "Questa settimana",
