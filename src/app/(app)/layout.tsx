@@ -16,6 +16,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { requireContext } from "@/app/_server/owner";
+import { AddMenu } from "@/ui/AddMenu";
 import { NavBar, NavIconLink } from "@/ui/NavBar";
 import { ToastHost } from "@/ui/Toast";
 
@@ -48,6 +49,57 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <NavIconLink href="/settings" label={t.nav.settings} icon="settings" />
       </header>
       <main className="@container flex flex-col gap-4">{children}</main>
+      {/* The "+" of each section (the day page has its own). */}
+      <AddMenu
+        labels={{ open: t.addMenu.open, title: t.addMenu.title, close: t.actions.close }}
+        sections={[
+          {
+            prefix: "/training",
+            items: [
+              { href: "/training/new", label: t.addMenu.session, icon: "session" },
+              {
+                href: "/training/routines/new",
+                label: t.addMenu.routine,
+                icon: "routine",
+              },
+              {
+                href: "/training/exercises/new",
+                label: t.addMenu.exercise,
+                icon: "exercise",
+              },
+              {
+                href: "/training/programs/new",
+                label: t.addMenu.program,
+                icon: "program",
+              },
+            ],
+          },
+          ...["/meals", "/ingredients", "/pantry"].map((prefix) => ({
+            prefix,
+            items: [
+              { href: "/meals/new", label: t.addMenu.meal, icon: "meal" as const },
+              {
+                // The quick sheet on the ingredients page (opens on arrival).
+                href: "/ingredients#new-ingredient",
+                label: t.addMenu.ingredient,
+                icon: "ingredient" as const,
+              },
+              {
+                href: "/pantry/products/new?from=/pantry",
+                label: t.addMenu.product,
+                icon: "product" as const,
+              },
+            ],
+          })),
+          {
+            prefix: "/profiles",
+            items: [
+              { href: "/profiles?view=weight", label: t.addMenu.weight, icon: "weight" },
+              { href: "/profiles/new", label: t.addMenu.dayType, icon: "dayType" },
+            ],
+          },
+        ]}
+      />
       <ToastHost closeLabel={t.actions.close} />
     </div>
   );

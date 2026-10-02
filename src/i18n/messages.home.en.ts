@@ -561,3 +561,17 @@ export const dayChipsEn = {
   walk: "{n} min on foot",
   moveNone: "Movement?",
 };
+
+export const addMenuEn = {
+  open: "Add",
+  title: "Add",
+  session: "Session",
+  routine: "Routine",
+  exercise: "Exercise",
+  program: "Program",
+  meal: "Meal",
+  ingredient: "Ingredient",
+  product: "Pantry product",
+  weight: "Weigh-in",
+  dayType: "Day type",
+};

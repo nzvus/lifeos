@@ -10,7 +10,11 @@ import type { Owner } from "../../identity/owner";
 import { carbsGoodMax, trainingLoad } from "../../nutrition/bands";
 import { getDayTargets, type DayProfile } from "../../nutrition/repositories/profiles";
 import { addDays } from "../../shared/dates";
-import { getActivePlan, programSlotOn } from "../../training/repositories/programs";
+import {
+  getActivePlan,
+  programOverrideDays,
+  programSlotOn,
+} from "../../training/repositories/programs";
 import { listSessions } from "../../training/repositories/sessions";
 import { dynamicTargets, goalOf, type Goal, type Range } from "../energy";
 import { getDayEnergy, type DayEnergyView } from "./energy";
@@ -22,6 +26,8 @@ export type OutlookDay = {
   /** Planned / done sessions, then the program's routine if not among them. */
   training: { label: string; fromProgram: boolean; late: boolean }[];
   rest: boolean;
+  /** ADR-0029: the program's slot for this day was changed by hand. */
+  changed: boolean;
   energy: Range | null;
   targets: { kcal: number; protein: number; carbs: number; fat: number } | null;
 };
@@ -37,6 +43,9 @@ export async function weekOutlook(
     listSessions(db, owner, today, last),
     getActivePlan(db, owner, today, days),
   ]);
+  const changed = active
+    ? await programOverrideDays(db, owner, active.program.id, today)
+    : new Set<string>();
   const out: OutlookDay[] = [];
   for (let i = 0; i < days; i++) {
     const day = addDays(today, i);
@@ -76,6 +85,7 @@ export async function weekOutlook(
       goal: t.source !== "none" && t.dynamic ? (goalOf(t.dynamic) ?? "custom") : null,
       training,
       rest: training.length === 0,
+      changed: changed.has(day),
       energy: e.energy?.total.withPlan ?? null,
       targets,
     });

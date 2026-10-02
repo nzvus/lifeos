@@ -566,3 +566,17 @@ export const dayChipsIt: Messages["dayChips"] = {
   walk: "{n} min a piedi",
   moveNone: "Movimento?",
 };
+
+export const addMenuIt: Messages["addMenu"] = {
+  open: "Aggiungi",
+  title: "Aggiungi",
+  session: "Sessione",
+  routine: "Scheda",
+  exercise: "Esercizio",
+  program: "Programma",
+  meal: "Pasto",
+  ingredient: "Ingrediente",
+  product: "Prodotto in dispensa",
+  weight: "Pesata",
+  dayType: "Tipo di giornata",
+};
