@@ -41,6 +41,7 @@ export function TrashMenu({
   }[];
   labels: Pick<EditFlowLabels, "deleted" | "restored" | "undo" | "undoFailed"> & {
     more: string;
+    close?: string;
     delete: string;
     cancel: string;
     confirmDelete: string;
@@ -60,7 +61,9 @@ export function TrashMenu({
   ];
   return (
     <div className="flex items-center gap-1">
-      {others.length > 0 && <Menu label={labels.more} items={others} />}
+      {others.length > 0 && (
+        <Menu label={labels.more} items={others} closeLabel={labels.close} />
+      )}
       {onDelete && (
         <DeleteButton
           onConfirm={() => void onDelete()}

@@ -26,7 +26,9 @@ export function dayAxis(days: readonly string[], locale: string) {
     if (!scroll) return weekday.format(date);
     const dom = date.getUTCDate();
     if (dom === 1) return month.format(date);
-    if (days.length <= 31 ? dom % 5 === 0 : dom === 15) return String(dom);
+    // Not 30: the next month's name comes a slot or two later and would
+    // overlap it.
+    if (days.length <= 31 ? dom % 5 === 0 && dom < 30 : dom === 15) return String(dom);
     return null;
   };
 }

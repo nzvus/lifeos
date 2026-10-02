@@ -678,3 +678,23 @@ export const exercisesEn = {
   mergeInto: "Merge into",
   merge: "Merge",
 };
+
+export const routinesEn = {
+  title: "Routines",
+  new: "New routine",
+  back: "← Routines",
+  empty: "No routines.",
+  name: "Name",
+  notes: "Notes",
+  items: "Exercises in the routine",
+  sets: "Sets",
+  reps: "Reps",
+  load: "Kg",
+  rest: "Rest (s)",
+  addItem: "Add exercise",
+  removeItem: "Remove",
+  save: "Save routine",
+  create: "Create routine",
+  delete: "Delete routine",
+  itemsCount: "{n} exercises",
+};

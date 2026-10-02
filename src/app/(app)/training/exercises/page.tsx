@@ -1,7 +1,17 @@
-/** app/(app)/training/exercises/page.tsx — URL /training/exercises: my exercises with their records. */
+/**
+ * app/(app)/training/exercises/page.tsx — URL /training/exercises, Training →
+ * Exercises (ADR-0033): how each exercise is going (estimated 1RM, change
+ * over 4 weeks, sparkline), then every exercise with its records.
+ */
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { records } from "@/core/training/analysis";
+import { exerciseTrends } from "@/core/training/progress";
+import { todayIn } from "@/core/shared/dates";
+import { TrendingUp } from "lucide-react";
+import { ExerciseTrendList } from "@/features/training/progress/ExerciseTrendList";
+import { TrainingNav } from "@/features/training/nav/TrainingNav";
+import { Section } from "@/ui/Section";
 import {
   isMovementPattern,
   isMuscleGroup,
@@ -29,6 +39,7 @@ export default async function ExercisesPage() {
   ]);
   const done = sessions.filter((s) => s.status === "done");
   const rec = records(done);
+  const trends = exerciseTrends(done.filter((s) => s.day <= todayIn(settings.timezone)));
   const count = new Map<string, number>();
   for (const s of done)
     for (const e of s.exercises)
@@ -38,7 +49,21 @@ export default async function ExercisesPage() {
   const x = t.exercises;
   return (
     <>
-      <PageHeader title={x.title} back={{ href: "/training", label: t.training.back }} />
+      <PageHeader title={t.training.title} />
+      <TrainingNav current="exercises" t={t} />
+      {trends.length > 0 && (
+        <Section
+          title={t.training.progress.exercises}
+          icon={<TrendingUp size={20} aria-hidden="true" />}
+        >
+          <ExerciseTrendList
+            trends={trends}
+            exercises={new Map(exercises.map((e) => [e.id, e]))}
+            locale={settings.locale}
+            t={t.training.progress}
+          />
+        </Section>
+      )}
       {exercises.length === 0 ? (
         <p className="text-muted">{x.empty}</p>
       ) : (

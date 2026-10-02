@@ -36,6 +36,7 @@ import {
   appEn,
   errorsEn,
   entryEditEn,
+  routinesEn,
 } from "./messages.home.en";
 
 export const en = {
@@ -339,6 +340,12 @@ export const en = {
     sortValue: "{what}: {v}",
   },
   training: {
+    tabs: {
+      sessions: "Sessions",
+      exercises: "Exercises",
+      routines: "Routines",
+      programs: "Programs",
+    },
     chips: {
       duration: "Duration",
       sets: "Working sets",
@@ -442,6 +449,7 @@ export const en = {
         "It is for the first compound exercise of each muscle group (bench, squat, deadlift, pulldown…), not every exercise: after it the muscles are warm. Usually 2–3 rising sets with short rests (about a minute): ~50 % of the load for 8–10 reps, ~70 % for 4–6, ~85 % for 1–3. They should not tire you. Warm-up sets don't count in tonnage or comparisons.",
     },
     chart: {
+      period: "Last 4 weeks",
       title: "Training",
       label: "tonnage per day, tap a day to open it",
       sessions: "{n} sessions",
@@ -498,25 +506,7 @@ export const en = {
     kinds: { strength: "strength", bodyweight: "bodyweight", cardio: "cardio" },
   },
   exercises: exercisesEn,
-  routines: {
-    title: "Routines",
-    new: "New routine",
-    back: "← Routines",
-    empty: "No routines.",
-    name: "Name",
-    notes: "Notes",
-    items: "Exercises in the routine",
-    sets: "Sets",
-    reps: "Reps",
-    load: "Kg",
-    rest: "Rest (s)",
-    addItem: "Add exercise",
-    removeItem: "Remove",
-    save: "Save routine",
-    create: "Create routine",
-    delete: "Delete routine",
-    itemsCount: "{n} exercises",
-  },
+  routines: routinesEn,
   body: bodyEn,
   dayScore: dayScoreEn,
   ratings: {

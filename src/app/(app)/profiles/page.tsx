@@ -2,8 +2,8 @@
  * app/(app)/profiles/page.tsx — URL /profiles, the "Progress" tab (design
  * review S5, 2026-10-02), one view at a time (?view=):
  *   trends (default)  how the days went over a period (every nutrient,
- *                     7 / 30 / 90 days, scrollable back in time) with the
- *                     training of the same days (ADR-0005);
+ *                     7 / 30 / 90 days, scrollable back in time) and sleep
+ *                     (training's own chart is in Training, ADR-0033);
  *   weight            weigh-ins read with their context, the trend, BMI
  *                     (ADR-0027) — moved here from Training;
  *   coming            the next 7 days: training, energy, targets.
@@ -21,14 +21,11 @@ import { getDb } from "@/app/_server/runtime";
 import { getHistory } from "@/core/nutrition/repositories/history";
 import { TREND_RANGES, type TrendRange } from "@/core/nutrition/preferences";
 import { daysEnding, isValidDay, todayIn } from "@/core/shared/dates";
-import { trainingByDay } from "@/core/training/analysis";
 import { listMeasurements } from "@/core/training/repositories/measurements";
-import { listSessions } from "@/core/training/repositories/sessions";
 import { RangeNav } from "@/features/nutrition/trends/RangeNav";
 import { Trends } from "@/features/nutrition/trends/Trends";
 import { WeekOutlook } from "@/features/nutrition/trends/WeekOutlook";
 import { WeightSection } from "@/features/training/body/WeightSection";
-import { TrainingChart } from "@/features/training/progress/TrainingChart";
 import { SleepChart } from "@/features/training/body/SleepChart";
 import { listSleep } from "@/core/training/repositories/sleep";
 import { TEXT_LINK } from "@/ui/button";
@@ -97,10 +94,8 @@ export default async function ProgressPage({ searchParams }: Props) {
     const to =
       params.to && isValidDay(params.to) && params.to <= today ? params.to : today;
     const days = daysEnding(to, range);
-    const [history, sessions, measurements, nights] = await Promise.all([
+    const [history, nights] = await Promise.all([
       getHistory(db, owner, days[0]!, to),
-      listSessions(db, owner, days[0]!, to),
-      listMeasurements(db, owner),
       listSleep(db, owner, days[0]!, to), // ADR-0031
     ]);
     body = (
@@ -120,19 +115,13 @@ export default async function ProgressPage({ searchParams }: Props) {
           autoTargets={settings.preferences.autoTargets}
           locale={settings.locale}
           beside={
-            <>
-              <TrainingChart
-                days={trainingByDay(days, sessions, measurements)}
-                locale={settings.locale}
-                t={t.training}
-              />
-              <SleepChart
-                days={days}
-                hours={new Map(nights.map((n) => [n.day, n.hours]))}
-                locale={settings.locale}
-                t={t}
-              />
-            </>
+            // Training's chart lives in Training → Sessions (ADR-0033).
+            <SleepChart
+              days={days}
+              hours={new Map(nights.map((n) => [n.day, n.hours]))}
+              locale={settings.locale}
+              t={t}
+            />
           }
           t={t}
         />

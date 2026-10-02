@@ -21,8 +21,8 @@ export default async function MealsPage() {
   ]);
   return (
     <>
+      <PageHeader title={t.nav.food} />
       <FoodNav current="meals" t={t} />
-      <PageHeader title={t.meals.title} />
       <MealBrowser
         meals={meals}
         usage={usage.meals}

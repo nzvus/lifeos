@@ -241,6 +241,7 @@ export function MealForm({
             <span className="flex items-center gap-1">
               <Menu
                 label={a.more}
+                closeLabel={a.close}
                 items={[
                   {
                     label: a.duplicate,
