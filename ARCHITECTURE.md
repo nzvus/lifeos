@@ -138,9 +138,11 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   as fallback, static files cache-first; no user data cached; dark splash.
 - **Time:** `date` strings; "today" from `user_settings.timezone`, never the server's clock.
   **Search:** `core/shared/search.ts` (accent-insensitive, every word, match then 60-day use).
-- **Responsive UI:** tabs by task — Today · Training · Food (meals | ingredients | pantry)
-  · Progress (trends | weight | coming) · Assistant; a bottom bar on phones, header on md+,
-  the day in two columns on lg+. `sm:/md:/lg:` obey `data-layout` (ADR-0010); inside cards,
+- **Responsive UI:** tabs by task, each with views as URLs (ADR-0033) — Today (summary |
+  food | training, under an always-shown day header) · Training (sessions | exercises |
+  routines | programs) · Food (meals | ingredients | pantry) · Progress (trends | weight |
+  coming) · Assistant; stats live with their records, Progress is the overview; a bottom
+  bar on phones, header on md+, the day's summary in two columns on lg+. `sm:/md:/lg:` obey `data-layout` (ADR-0010); inside cards,
   container queries; every grid has a base column (lint) — checked at 360 px, text 120 %.
 - **Visual language:** colour = state (short / in the zone / over: `bandState`,
   ui/NutrientRow); nutrients keep their colour on icons and bars, numbers are ink;

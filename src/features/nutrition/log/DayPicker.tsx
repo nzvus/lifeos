@@ -12,7 +12,16 @@ import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { buttonClass } from "@/ui/button";
 
-export function DayPicker({ day, label }: { day: string; label: string }) {
+export function DayPicker({
+  day,
+  label,
+  tabQuery = "",
+}: {
+  day: string;
+  label: string;
+  /** The open view as a query suffix ("&tab=food", or ""), kept across days (ADR-0033). */
+  tabQuery?: string;
+}) {
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   return (
@@ -39,7 +48,7 @@ export function DayPicker({ day, label }: { day: string; label: string }) {
         aria-hidden="true"
         defaultValue={day}
         onChange={(e) => {
-          if (e.target.value) router.push(`/?day=${e.target.value}`);
+          if (e.target.value) router.push(`/?day=${e.target.value}${tabQuery}`);
         }}
         // Invisible, under the button: the picker opens anchored here.
         className="pointer-events-none absolute inset-0 opacity-0"

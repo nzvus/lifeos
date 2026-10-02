@@ -30,6 +30,8 @@ const OUT = env("AUDIT_OUT", "audit-ui");
 
 const STATIC = [
   "/",
+  "/?tab=food",
+  "/?tab=training",
   "/assistant",
   "/meals",
   "/meals/new",

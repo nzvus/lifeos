@@ -22,6 +22,9 @@ import { buttonClass } from "@/ui/button";
 import { Field } from "@/ui/Field";
 import { SubmitButton } from "@/ui/SubmitButton";
 
+/** kcal from the wanted balance that still count as on target. */
+const NEAR = 150;
+
 type Props = {
   day: string;
   /** Null when the day's copy lost its type (deleted): no editing then. */
@@ -100,15 +103,27 @@ export function GoalLine(p: Props) {
       <span className="text-meta tabular-nums">
         {fill(e.goalEat, { kcal: n(p.eatKcal), spent: n(p.spentKcal) })}
       </span>
+      {/* Coloured by meaning: the goal in green; the plan green when it
+          lands near the goal, amber when not; "so far" neutral, as the day
+          is not over. */}
       <dl className="grid grid-cols-3 gap-2 pt-1 text-meta tabular-nums">
         {(
           [
-            [e.balanceWanted, p.balance.wanted],
-            [e.balanceWithPlan, p.balance.withPlan],
-            [e.balanceSoFar, p.balance.soFar],
+            [e.balanceWanted, p.balance.wanted, "border-l-herb"],
+            [
+              e.balanceWithPlan,
+              p.balance.withPlan,
+              Math.abs(p.balance.withPlan - p.balance.wanted) <= NEAR
+                ? "border-l-herb"
+                : "border-l-warn",
+            ],
+            [e.balanceSoFar, p.balance.soFar, "border-l-muted"],
           ] as const
-        ).map(([label, v]) => (
-          <div key={label} className="flex min-w-0 flex-col">
+        ).map(([label, v, tone]) => (
+          <div
+            key={label}
+            className={`tile flex min-w-0 flex-col rule-l-heavy px-2 py-1 ${tone}`}
+          >
             <dt className="truncate text-muted">{label}</dt>
             <dd className="font-display text-item font-semibold">
               {v === null

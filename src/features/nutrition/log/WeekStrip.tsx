@@ -24,11 +24,13 @@ type Props = {
   today: string;
   locale: Locale;
   t: Pick<Messages["day"], "weekBalance">;
+  /** The open view as a query suffix ("&tab=food", or ""), kept across days (ADR-0033). */
+  tabQuery?: string;
 };
 
 const INTL: Record<Locale, string> = { it: "it-IT", en: "en-GB" };
 
-export function WeekStrip({ week, day, today, locale, t }: Props) {
+export function WeekStrip({ week, day, today, locale, t, tabQuery = "" }: Props) {
   const weekday = new Intl.DateTimeFormat(INTL[locale], {
     weekday: "short",
     timeZone: "UTC",
@@ -51,7 +53,7 @@ export function WeekStrip({ week, day, today, locale, t }: Props) {
             return (
               <li key={d.day}>
                 <Link
-                  href={`/?day=${d.day}`}
+                  href={`/?day=${d.day}${tabQuery}`}
                   title={
                     delta === null
                       ? undefined
