@@ -7,7 +7,7 @@
  * page the calibration against the scale (ADR-0020) is proposed.
  * Server component; the movement form is a client island.
  */
-import { Flame } from "lucide-react";
+import { Flame, Footprints } from "lucide-react";
 import Link from "next/link";
 import type { Calibration } from "@/core/energy/calibration";
 import type { Energy, MissingBody, Range } from "@/core/energy/energy";
@@ -17,6 +17,7 @@ import { fill, type Messages } from "@/i18n";
 import { TEXT_LINK } from "@/ui/button";
 import { Disclosure } from "@/ui/Disclosure";
 import { Collapsible } from "@/ui/Collapsible";
+import { Sheet } from "@/ui/Sheet";
 import { ActivityForm } from "./ActivityForm";
 import { CalibrationBox } from "./CalibrationBox";
 import { EnergyFormulas } from "./EnergyFormulas";
@@ -39,7 +40,7 @@ type Props = {
   calibration: Calibration | null;
   setCorrection: (factor: number) => Promise<{ ok: boolean; message?: string }>;
   locale: Locale;
-  t: Pick<Messages, "energy" | "errors">;
+  t: Pick<Messages, "energy" | "errors" | "actions">;
 };
 
 export function EnergySection({
@@ -135,7 +136,19 @@ export function EnergySection({
           <EnergyFormulas energy={energy} dynamic={dynamic} locale={locale} t={e} />
         </Disclosure>
       )}
-      <Disclosure summary={e.activity}>
+      {/* The day's movement: one line here, the form in a sheet (#day-move),
+          opened from here, the "+" or the day's chips (2026-10-02). */}
+      <p className="text-meta">
+        <a href="#day-move" className={TEXT_LINK}>
+          {e.activity}
+        </a>
+      </p>
+      <Sheet
+        id="day-move"
+        title={e.activity}
+        icon={<Footprints size={20} aria-hidden="true" />}
+        closeLabel={t.actions.close}
+      >
         <ActivityForm
           action={action}
           initial={activity}
@@ -154,7 +167,7 @@ export function EnergySection({
           }
           t={t}
         />
-      </Disclosure>
+      </Sheet>
       {calibration && calibration.verdict !== "no_body" && (
         <Disclosure
           summary={e.calibration.title}

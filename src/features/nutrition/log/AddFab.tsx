@@ -8,7 +8,15 @@
  */
 "use client";
 
-import { Dumbbell, Moon, Plus, Scale, UtensilsCrossed, X } from "lucide-react";
+import {
+  Dumbbell,
+  Footprints,
+  Moon,
+  Plus,
+  Scale,
+  UtensilsCrossed,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
 import type { Messages } from "@/i18n";
@@ -16,10 +24,13 @@ import { buttonClass } from "@/ui/button";
 
 export function AddFab({
   training,
+  late = null,
   t,
 }: {
   /** False when the day can't take training (none today). */
   training: boolean;
+  /** A past day: food and training first open its "late" view (?late=1). */
+  late?: string | null;
   t: Pick<Messages, "addFab">;
 }) {
   const sheet = useRef<HTMLDialogElement>(null);
@@ -27,6 +38,7 @@ export function AddFab({
   const close = () => sheet.current?.close();
   // Same hash twice fires no hashchange: set it and tell ui/Collapsible.
   const go = (e: React.MouseEvent, id: string) => {
+    if (late && (id === "day-add-food" || id === "day-add-training")) return; // the link navigates
     e.preventDefault();
     close();
     history.replaceState(null, "", `#${id}`);
@@ -67,13 +79,17 @@ export function AddFab({
               <X size={20} aria-hidden="true" />
             </button>
           </div>
-          <a href="#day-add-food" onClick={(e) => go(e, "day-add-food")} className={item}>
+          <a
+            href={late ? `${late}#day-add-food` : "#day-add-food"}
+            onClick={(e) => go(e, "day-add-food")}
+            className={item}
+          >
             <UtensilsCrossed size={22} aria-hidden="true" className="text-herb" />
             {a.food}
           </a>
           {training && (
             <a
-              href="#day-add-training"
+              href={late ? `${late}#day-add-training` : "#day-add-training"}
               onClick={(e) => go(e, "day-add-training")}
               className={item}
             >
@@ -81,6 +97,10 @@ export function AddFab({
               {a.training}
             </a>
           )}
+          <a href="#day-move" onClick={(e) => go(e, "day-move")} className={item}>
+            <Footprints size={22} aria-hidden="true" className="text-herb" />
+            {a.move}
+          </a>
           <a href="#day-sleep" onClick={(e) => go(e, "day-sleep")} className={item}>
             <Moon size={22} aria-hidden="true" className="text-herb" />
             {a.sleep}

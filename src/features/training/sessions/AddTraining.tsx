@@ -25,7 +25,7 @@ import type { FormState } from "@/core/shared/result";
 import type { ExerciseKind } from "@/core/training/kinds";
 import type { Messages } from "@/i18n";
 import { SearchSelect } from "@/ui/SearchSelect";
-import { Collapsible } from "@/ui/Collapsible";
+import { Sheet } from "@/ui/Sheet";
 import { Field } from "@/ui/Field";
 import { Segmented } from "@/ui/Segmented";
 import { Tabs } from "@/ui/Tabs";
@@ -92,11 +92,12 @@ export function AddTraining({
     (x) => x.notes,
   );
   return (
-    <Collapsible
+    // Shown only when asked (the "+"; 2026-10-02): a sheet, not a section.
+    <Sheet
       id="day-add-training"
       title={e.addTitle}
       icon={<Plus size={20} aria-hidden="true" />}
-      defaultOpen={false}
+      closeLabel={t.actions.close}
     >
       <div className="flex flex-col gap-3 pb-3">
         {modes.length > 1 && (
@@ -191,6 +192,6 @@ export function AddTraining({
           )}
         </div>
       </Tabs>
-    </Collapsible>
+    </Sheet>
   );
 }

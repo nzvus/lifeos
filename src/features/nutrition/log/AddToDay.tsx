@@ -46,7 +46,7 @@ import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
 import { MomentIcon } from "@/ui/MomentIcon";
 import { Segmented } from "@/ui/Segmented";
-import { Collapsible } from "@/ui/Collapsible";
+import { Sheet } from "@/ui/Sheet";
 import { SelectField } from "@/ui/SelectField";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { SubmitButton } from "@/ui/SubmitButton";
@@ -72,6 +72,7 @@ type T = Pick<
   | "ingredients"
   | "nutrients"
   | "moments"
+  | "actions"
 >;
 
 type Props = {
@@ -161,11 +162,12 @@ export function AddToDay({
   const common = { day, locale, bounds, t };
 
   return (
-    <Collapsible
+    // Shown only when asked (the "+"; 2026-10-02): a sheet, not a section.
+    <Sheet
       id="day-add-food"
       title={t.day.addTitle}
       icon={<Plus size={20} aria-hidden="true" />}
-      defaultOpen={false}
+      closeLabel={t.actions.close}
     >
       <div role="tablist" aria-label={t.day.addTitle} className="flex">
         {tabs.map((tab) => {
@@ -247,7 +249,7 @@ export function AddToDay({
           />
         )}
       </div>
-    </Collapsible>
+    </Sheet>
   );
 }
 

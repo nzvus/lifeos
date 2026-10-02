@@ -50,6 +50,7 @@ import { fill } from "@/i18n";
 import { EntryList } from "@/features/nutrition/log/EntryList";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { AddFab } from "@/features/nutrition/log/AddFab";
+import { DayChips } from "@/features/nutrition/log/DayChips";
 import { SleepCard } from "@/features/training/body/SleepCard";
 import { listSleep } from "@/core/training/repositories/sleep";
 import { sleepScore } from "@/core/training/sleep";
@@ -349,6 +350,13 @@ export default async function DayPage({ searchParams }: Props) {
               )}
             </div>
           )}
+          {/* The night and the movement at a glance; tap to add or change (sheets). */}
+          <DayChips
+            sleptHours={night?.hours ?? null}
+            activity={energyView.activity}
+            locale={locale}
+            t={t}
+          />
         </Card>
         <DayPanel
           totals={view.totals}
@@ -381,7 +389,7 @@ export default async function DayPage({ searchParams }: Props) {
           calibration={calibration}
           setCorrection={setEnergyCorrectionAction}
           locale={locale}
-          t={{ energy: t.energy, errors: t.errors }}
+          t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
         />
         <DayScore
           score={dayScore({
@@ -421,7 +429,7 @@ export default async function DayPage({ searchParams }: Props) {
           }
           action={setSleepAction}
           clear={clearSleepAction}
-          t={{ sleep: t.sleep, errors: t.errors }}
+          t={{ sleep: t.sleep, errors: t.errors, actions: t.actions }}
         />
       </div>
       <div className="flex min-w-0 flex-col gap-4">
@@ -530,6 +538,7 @@ export default async function DayPage({ searchParams }: Props) {
                   ingredients: t.ingredients,
                   nutrients: t.nutrients,
                   moments: t.moments,
+                  actions: t.actions,
                 }}
               />
             </>
@@ -614,7 +623,7 @@ export default async function DayPage({ searchParams }: Props) {
         )}
       </div>
       {/* Design review S1: adding is one tap away, wherever you are on the page. */}
-      {canAdd && <AddFab training t={t} />}
+      <AddFab training late={canAdd ? null : `/?day=${day}&late=1`} t={t} />
     </div>
   );
 }
