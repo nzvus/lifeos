@@ -29,6 +29,11 @@ export type AuthConfig = {
   trustedOrigins: string[];
   /** false = nobody can create an account (ADR-0006 tripwire; env ALLOW_SIGNUP). */
   allowSignUp: boolean;
+  /**
+   * ADR-0034: runs once, right after an account is created (the starter
+   * pack). A failure is the caller's to log: the account exists either way.
+   */
+  onUserCreated?: (userId: string) => Promise<void>;
 };
 
 export function createAuth(config: AuthConfig) {
@@ -56,6 +61,9 @@ export function createAuth(config: AuthConfig) {
       // device") stays usable for up to 5 minutes. Acceptable for one user;
       // revisit with ADR-0006's tripwire when a second account exists.
       cookieCache: { enabled: true, maxAge: 5 * 60 },
+    },
+    databaseHooks: {
+      user: { create: { after: async (u) => config.onUserCreated?.(u.id) } },
     },
     rateLimit: {
       enabled: true,

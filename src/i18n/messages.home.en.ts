@@ -713,3 +713,25 @@ export const routinesEn = {
   openExercise: "Open {name} (new tab)",
   itemsCount: "{n} exercises",
 };
+
+export const packsEn = {
+  title: "Packs",
+  hint: "A pack adds exercises, routines, programs, ingredients and meals: only those you don't have yet, changing nothing of yours. Programs arrive inactive.",
+  starter: "Add the starter pack",
+  file: "Pack file (.json)",
+  import: "Import",
+  working: "Adding…",
+  added: "Added: {list}.",
+  nothing: "Nothing to add: you already had everything.",
+  missing: "Not linked (missing reference): {list}.",
+  invalid: "The file is not a valid pack (field {field}).",
+  notJson: "The file is not readable JSON.",
+  tooBig: "File too large (2 MB at most).",
+  kinds: {
+    exercises: "exercises: {n}",
+    routines: "routines: {n}",
+    programs: "programs: {n}",
+    ingredients: "ingredients: {n}",
+    meals: "meals: {n}",
+  },
+};

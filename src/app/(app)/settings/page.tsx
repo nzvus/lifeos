@@ -14,6 +14,7 @@ import {
   Star,
   Trash2,
   UserCog,
+  PackagePlus,
 } from "lucide-react";
 import { env } from "@/app/_server/env";
 import { getKeyStatus } from "@/core/assistant/repositories/assistant";
@@ -29,6 +30,8 @@ import { listFactors } from "@/core/nutrition/repositories/ratings";
 import { requireContext } from "@/app/_server/owner";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
+import { PackForm } from "@/features/account/settings/PackForm";
+import { addStarterAction, importPackAction } from "./pack-actions";
 import { SignOutButton } from "@/features/account/auth/SignOutButton";
 import { preferencesFormValues } from "@/core/nutrition/preferences";
 import { settingsFormValues } from "@/core/nutrition/validation";
@@ -183,6 +186,15 @@ export default async function SettingsPage() {
         <a href="/api/export" className={`self-start ${buttonClass()}`}>
           {t.settings.export}
         </a>
+      </Section>
+      {/* ADR-0034: add the starter, or a pack from a file (only what is missing). */}
+      <Section title={t.packs.title} icon={<PackagePlus size={20} aria-hidden="true" />}>
+        <p className="text-muted">{t.packs.hint}</p>
+        <PackForm
+          addStarter={addStarterAction}
+          importPack={importPackAction}
+          t={t.packs}
+        />
       </Section>
       <Section title={t.trash.title} icon={<Trash2 size={20} aria-hidden="true" />}>
         <p className="text-muted">{t.trash.hint}</p>

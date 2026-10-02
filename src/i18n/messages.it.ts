@@ -27,6 +27,7 @@ import {
   errorsIt,
   entryEditIt,
   routinesIt,
+  packsIt,
 } from "./messages.home.it";
 import type { Messages } from "./index";
 
@@ -519,6 +520,7 @@ export const it: Messages = {
   },
   exercises: exercisesIt,
   routines: routinesIt,
+  packs: packsIt,
   body: bodyIt,
   dayScore: dayScoreIt,
   ratings: {
