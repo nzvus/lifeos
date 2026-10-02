@@ -39,7 +39,7 @@
   --color-moment-lunch: #0e6e66;
   --color-moment-snack: #63680a;
   --color-moment-dinner: #3f4aa8;
-  --color-price: #7a47a6;
+  --color-price: var(--color-muted); /* design review S6: colour = state; a price is information */
   --color-muscle-chest: #b4441c;
   --color-muscle-back: #2c5fa6;
   --color-muscle-shoulders: #7f6400;
@@ -69,7 +69,7 @@
     --color-moment-lunch: #6fd0c4;
     --color-moment-snack: #c6cc5a;
     --color-moment-dinner: #a8b1f5;
-    --color-price: #cda8ef;
+    --color-price: var(--color-muted); /* design review S6: colour = state; a price is information */
     --color-muscle-chest: #f59a6b;
     --color-muscle-back: #8fb4ee;
     --color-muscle-shoulders: #e0c050;
@@ -97,7 +97,7 @@
   --color-moment-lunch: #6fd0c4;
   --color-moment-snack: #c6cc5a;
   --color-moment-dinner: #a8b1f5;
-  --color-price: #cda8ef;
+  --color-price: var(--color-muted); /* design review S6: colour = state; a price is information */
   --color-muscle-chest: #f59a6b;
   --color-muscle-back: #8fb4ee;
   --color-muscle-shoulders: #e0c050;

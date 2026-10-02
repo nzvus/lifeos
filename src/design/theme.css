@@ -52,7 +52,7 @@
   --color-moment-lunch: #0e6e66;
   --color-moment-snack: #63680a;
   --color-moment-dinner: #3f4aa8;
-  --color-price: #7a47a6;
+  --color-price: var(--color-muted); /* design review S6: colour = state; a price is information */
   /* Training (S07): one colour per body region (core/training/anatomy.ts),
      the same in every theme, so the code is learned once like the nutrient
      colours. Text-safe (4.5:1), checked by design/theme.test.ts. */
@@ -317,7 +317,7 @@
     --color-moment-lunch: #6fd0c4;
     --color-moment-snack: #c6cc5a;
     --color-moment-dinner: #a8b1f5;
-    --color-price: #cda8ef;
+    --color-price: var(--color-muted); /* design review S6: colour = state; a price is information */
     --color-muscle-chest: #f59a6b;
     --color-muscle-back: #8fb4ee;
     --color-muscle-shoulders: #e0c050;
@@ -345,7 +345,7 @@
   --color-moment-lunch: #6fd0c4;
   --color-moment-snack: #c6cc5a;
   --color-moment-dinner: #a8b1f5;
-  --color-price: #cda8ef;
+  --color-price: var(--color-muted); /* design review S6: colour = state; a price is information */
   --color-muscle-chest: #f59a6b;
   --color-muscle-back: #8fb4ee;
   --color-muscle-shoulders: #e0c050;
