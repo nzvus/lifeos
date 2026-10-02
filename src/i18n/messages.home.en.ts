@@ -524,3 +524,30 @@ export const sleepEn = {
   chartSummary: "average {avg} h over {n} nights",
   chartNone: "no night logged in the period",
 };
+
+/** The day's quality (ADR-0012 follow-up; sleep part ADR-0031). */
+export const dayScoreEn = {
+  title: "Day quality",
+  outOf: "/100",
+  withPlanned: "With the plan: {v}/100",
+  none: "No data yet: log something eaten.",
+  parts: {
+    targets: "Targets",
+    processing: "Processing",
+    fiberVariety: "Fibre variety",
+    sleep: "Sleep",
+  },
+  sleep: "{hours} h slept (good between 7 and 9)",
+  noSleep: "Not counted: no night logged (+ → Sleep).",
+  weight: "weight {w}%",
+  targets: "{on} of {of} nutrients on target",
+  processing: "Energy from little-processed food (NOVA 1–2 full, 3 half, 4 none)",
+  fiberVariety: "{types} fibre types with at least 1 g",
+  noTargets: "Not available: no targets for this day.",
+  notClassified:
+    "Not available: ingredients without a NOVA level (classify them in Ingredients).",
+  fiberTitle: "Fibre by type",
+  fiberUnknown: "without a type: {v} g",
+  howTo:
+    "How it's computed: weighted average of the parts available; missing parts don't count.",
+};

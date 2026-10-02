@@ -529,3 +529,30 @@ export const sleepIt: Messages["sleep"] = {
   chartSummary: "media {avg} h su {n} notti",
   chartNone: "nessuna notte registrata nel periodo",
 };
+
+/** The day's quality (ADR-0012 follow-up; sleep part ADR-0031). */
+export const dayScoreIt: Messages["dayScore"] = {
+  title: "Qualità della giornata",
+  outOf: "/100",
+  withPlanned: "Con i pianificati: {v}/100",
+  none: "Ancora nessun dato: registra qualcosa di mangiato.",
+  parts: {
+    targets: "Obiettivi",
+    processing: "Trasformazione",
+    fiberVariety: "Varietà di fibre",
+    sleep: "Sonno",
+  },
+  sleep: "{hours} h dormite (bene tra 7 e 9)",
+  noSleep: "Non conta: nessuna notte registrata (+ → Sonno).",
+  weight: "peso {w}%",
+  targets: "{on} nutrienti su {of} nell'obiettivo",
+  processing: "Energia da alimenti poco trasformati (NOVA 1–2 intera, 3 a metà, 4 zero)",
+  fiberVariety: "{types} tipi di fibra con almeno 1 g",
+  noTargets: "Non disponibile: nessun obiettivo per questa giornata.",
+  notClassified:
+    "Non disponibile: ingredienti senza livello NOVA (classificali in Ingredienti).",
+  fiberTitle: "Fibre per tipo",
+  fiberUnknown: "senza tipo: {v} g",
+  howTo:
+    "Come si calcola: media pesata delle parti disponibili; le parti mancanti non contano.",
+};
