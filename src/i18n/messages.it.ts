@@ -3,6 +3,7 @@
  * Typed as `Messages` (the shape of messages.en.ts): a missing or extra key
  * is a compile error, so the two languages can never drift apart silently.
  */
+import { guidesIt } from "./messages.guides.it";
 import {
   pantryIt,
   bodyIt,
@@ -210,6 +211,7 @@ export const it: Messages = {
     needIngredients:
       "Aggiungi prima qualche ingrediente: un pasto è fatto di ingredienti.",
   },
+  guides: guidesIt,
   pantry: pantryIt,
   trash: trashIt,
   energy: energyIt,

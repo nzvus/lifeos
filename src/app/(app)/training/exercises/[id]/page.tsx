@@ -1,10 +1,11 @@
 /**
  * app/(app)/training/exercises/[id]/page.tsx — URL /training/exercises/<id>:
- * the exercise's progression (estimated 1RM per session), its history,
+ * its guide and today's target (ADR-0028), the exercise's progression
+ * (estimated 1RM per session), its history,
  * editing, merging into another exercise, and the "⋯" menu (to the trash
  * when unused, ADR-0015). `?from=` is where back, Cancel and saving lead.
  */
-import { Merge, TrendingUp } from "lucide-react";
+import { BookOpen, Merge, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
@@ -13,6 +14,9 @@ import { getDb } from "@/app/_server/runtime";
 import { idInput } from "@/core/nutrition/validation";
 import { exerciseHistory } from "@/core/training/analysis";
 import { setsText } from "@/core/training/display";
+import { GUIDES, guideKeyOf } from "@/core/training/guides";
+import { bestSet, nextTarget } from "@/core/training/targets";
+import { ExerciseGuide } from "@/features/training/live/ExerciseGuide";
 import { formatNumber } from "@/core/shared/format";
 import { listExercises } from "@/core/training/repositories/exercises";
 import { listSessions } from "@/core/training/repositories/sessions";
@@ -48,6 +52,14 @@ export default async function ExercisePage({ params, searchParams }: Props) {
   const exercise = exercises.find((e) => e.id === id);
   if (!exercise) notFound();
   const history = exerciseHistory(sessions, id);
+  // ADR-0028: the guide of its pattern, and today's target from last time.
+  const guideKey = guideKeyOf(exercise);
+  const doneSets = sessions
+    .filter((s) => s.status === "done")
+    .sort((a, b) => (a.day < b.day ? 1 : -1))
+    .flatMap((s) => s.exercises.filter((e) => e.exerciseId === id).map((e) => e.sets));
+  const target = guideKey ? nextTarget(GUIDES[guideKey], doneSets[0]) : null;
+  const best = bestSet(doneSets.flat());
   const locale = settings.locale;
   const x = t.exercises;
   return (
@@ -69,6 +81,20 @@ export default async function ExercisePage({ params, searchParams }: Props) {
           />
         }
       />
+      {(guideKey || best) && (
+        <Section
+          title={t.guides.section}
+          icon={<BookOpen size={20} aria-hidden="true" />}
+        >
+          <ExerciseGuide
+            guideKey={guideKey}
+            target={target}
+            best={best}
+            locale={locale}
+            t={t.guides}
+          />
+        </Section>
+      )}
       {history.length > 0 && (
         <Section title={x.progress} icon={<TrendingUp size={20} aria-hidden="true" />}>
           <ProgressChart points={history} label={x.progressLabel} locale={locale} />
