@@ -18,7 +18,7 @@ import {
 import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { addDays, isValidDay, startOfWeek, todayIn } from "@/core/shared/dates";
+import { addDays, isValidDay, startOfWeek, timeIn, todayIn } from "@/core/shared/dates";
 import { listExercises } from "@/core/training/repositories/exercises";
 import { listRoutines } from "@/core/training/repositories/routines";
 import { exerciseTrends, routineProgress, weekSummary } from "@/core/training/progress";
@@ -28,10 +28,10 @@ import { WeekProgress } from "@/features/training/progress/WeekProgress";
 import { listMeasurements } from "@/core/training/repositories/measurements";
 import { listSessions } from "@/core/training/repositories/sessions";
 import { MeasurementForm } from "@/features/training/body/MeasurementForm";
+import { WeighInList } from "@/features/training/body/WeighInList";
+import { getWeighIns } from "@/core/energy/repositories/energy";
 import { PresetPicker } from "@/features/training/sessions/PresetPicker";
 import { SessionList } from "@/features/training/sessions/SessionList";
-import { TrashMenu } from "@/ui/TrashMenu";
-import { formatNumber } from "@/core/shared/format";
 import {
   addMeasurementAction,
   deleteMeasurementAction,
@@ -58,13 +58,15 @@ export default async function TrainingPage({ searchParams }: Props) {
   const monday =
     asked && isValidDay(asked) && asked <= today ? startOfWeek(asked) : thisMonday;
   const db = getDb();
-  const [history, presets, measurements, routines, exercises] = await Promise.all([
-    listSessions(db, owner, "2000-01-01", addDays(today, 30)),
-    presetTiles(owner, today),
-    listMeasurements(db, owner),
-    listRoutines(db, owner),
-    listExercises(db, owner),
-  ]);
+  const [history, presets, measurements, routines, exercises, weighIns] =
+    await Promise.all([
+      listSessions(db, owner, "2000-01-01", addDays(today, 30)),
+      presetTiles(owner, today),
+      listMeasurements(db, owner),
+      listRoutines(db, owner),
+      listExercises(db, owner),
+      getWeighIns(db, owner), // ADR-0027: each weigh-in read, the trend, BMI
+    ]);
   const sessions = history.filter((s) => s.day >= addDays(today, -90));
   const week = weekSummary(history, measurements, monday);
   const prev = weekSummary(history, measurements, addDays(monday, -7));
@@ -183,38 +185,21 @@ export default async function TrainingPage({ searchParams }: Props) {
         <MeasurementForm
           action={addMeasurementAction}
           today={today}
+          now={timeIn(new Date(), settings.timezone)}
           count={measurements.length}
           t={{ body: t.body, errors: t.errors }}
         />
         {measurements.length === 0 ? (
           <p className="text-meta text-muted">{t.body.none}</p>
         ) : (
-          <ul className="flex flex-col text-meta">
-            {[...measurements]
-              .reverse()
-              .slice(0, 10)
-              .map((m) => (
-                <li
-                  key={m.id}
-                  className="item flex items-center justify-between gap-3 py-1"
-                >
-                  <span className="tabular-nums">
-                    {`${m.day.slice(8, 10)}/${m.day.slice(5, 7)}/${m.day.slice(0, 4)} · `}
-                    <span className="font-display font-semibold">{`${formatNumber(m.weightKg ?? "0", settings.locale, 1)} kg`}</span>
-                    {m.bodyFatPct &&
-                      ` · ${formatNumber(m.bodyFatPct, settings.locale, 1)} %`}
-                    {m.waistCm && ` · ${formatNumber(m.waistCm, settings.locale, 0)} cm`}
-                  </span>
-                  <TrashMenu
-                    id={m.id}
-                    name={`${m.day.slice(8, 10)}/${m.day.slice(5, 7)}/${m.day.slice(0, 4)}`}
-                    trash={deleteMeasurementAction}
-                    restore={restoreMeasurementAction}
-                    labels={t.actions}
-                  />
-                </li>
-              ))}
-          </ul>
+          <WeighInList
+            measurements={measurements}
+            readings={weighIns}
+            locale={settings.locale}
+            trash={deleteMeasurementAction}
+            restore={restoreMeasurementAction}
+            t={{ body: t.body, actions: t.actions }}
+          />
         )}
       </Section>
     </>

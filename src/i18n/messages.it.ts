@@ -5,6 +5,7 @@
  */
 import {
   pantryIt,
+  bodyIt,
   trashIt,
   energyIt,
   assistantIt,
@@ -547,17 +548,7 @@ export const it: Messages = {
     delete: "Elimina scheda",
     itemsCount: "{n} esercizi",
   },
-  body: {
-    title: "Peso corporeo",
-    hint: "Serve alla stima del consumo degli allenamenti; vale l'ultima misura fino a quel giorno.",
-    day: "Giorno",
-    weight: "Peso (kg)",
-    fat: "Grasso (%)",
-    waist: "Vita (cm)",
-    add: "Aggiungi misura",
-    none: "Nessuna misura ancora.",
-    delete: "Elimina misura",
-  },
+  body: bodyIt,
   dayScore: {
     title: "Qualità della giornata",
     outOf: "/100",

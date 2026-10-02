@@ -1,7 +1,9 @@
 /**
  * features/training/body/MeasurementForm.tsx — add a body measurement
  * (ADR-0005): day, weight, optionally body fat and waist. The weight feeds
- * the burn estimates of the sessions from that day on.
+ * the burn estimates of the sessions from that day on. ADR-0027: also when
+ * and how it was taken — the time (now) and three toggles; before 11:00
+ * "fasted" and "after the toilet" start ticked (the usual morning weigh-in).
  */
 "use client";
 
@@ -15,15 +17,29 @@ import { SubmitButton } from "@/ui/SubmitButton";
 type Props = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   today: string;
+  /** "HH:MM" now, in the user's zone. */
+  now: string;
   /** How many measurements exist: grows after each save, remounting an empty form. */
   count: number;
   t: Pick<Messages, "body" | "errors">;
 };
 
-export function MeasurementForm({ action, today, count, t }: Props) {
+export function MeasurementForm({ action, today, now, count, t }: Props) {
   const [state, formAction] = useActionState(action, IDLE);
   const err = (f: string) => fieldError(state, f, t.errors);
   const b = t.body;
+  const morning = Number(now.slice(0, 2)) < 11;
+  const toggle = (name: string, label: string, on: boolean) => (
+    <label className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        name={name}
+        defaultChecked={state.status === "error" ? valueOf(state, name, "") === "on" : on}
+        className="h-4 w-4 accent-herb"
+      />
+      {label}
+    </label>
+  );
   return (
     // key: the count grows after each save, so an empty form comes back
     <form key={count} action={formAction} className="flex flex-wrap items-end gap-2">
@@ -35,6 +51,14 @@ export function MeasurementForm({ action, today, count, t }: Props) {
         error={err("day")}
         className="flex w-40 flex-col gap-1"
         required
+      />
+      <Field
+        label={b.time}
+        name="time"
+        type="time"
+        defaultValue={valueOf(state, "time", now)}
+        error={err("time")}
+        className="flex w-28 flex-col gap-1"
       />
       <Field
         label={b.weight}
@@ -61,6 +85,13 @@ export function MeasurementForm({ action, today, count, t }: Props) {
         error={err("waistCm")}
         className="flex w-24 flex-col gap-1"
       />
+      <input type="hidden" name="context" value="1" />
+      <fieldset className="flex basis-full flex-wrap gap-x-4 gap-y-2 text-meta">
+        <legend className="mb-1 font-semibold">{b.how}</legend>
+        {toggle("fasted", b.fasted, morning)}
+        {toggle("afterToilet", b.afterToilet, morning)}
+        {toggle("afterTraining", b.afterTraining, false)}
+      </fieldset>
       <SubmitButton
         variant="subtle"
         size="sm"

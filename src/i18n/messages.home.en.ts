@@ -423,3 +423,45 @@ export const outlookEn = {
   noEnergy: "energy: body data missing",
   targets: "{kcal} kcal · P {p} · C {c} · F {f}",
 };
+
+/** Body weight (ADR-0005, read with its context ADR-0027). */
+export const bodyEn = {
+  title: "Body weight",
+  hint: "Weigh in in the morning, fasted and after the toilet: that is the most reliable reading. Others count less in the trend and the calibration.",
+  day: "Day",
+  time: "Time",
+  weight: "Weight (kg)",
+  fat: "Body fat (%)",
+  waist: "Waist (cm)",
+  how: "How you were",
+  fasted: "Fasted",
+  afterToilet: "After the toilet",
+  afterTraining: "After training",
+  add: "Add measurement",
+  none: "No measurements yet.",
+  delete: "Delete measurement",
+  trend: "Trend {v} kg",
+  bmi: "BMI {v} ({c})",
+  bmiCategories: {
+    under: "underweight",
+    normal: "normal",
+    over: "overweight",
+    obese: "obese",
+  },
+  waistToHeight: "Waist/height {v}",
+  ffmi: "FFMI {v}",
+  indicesNote:
+    "Screening indices, not a diagnosis: BMI overrates very muscular people; waist/height under 0.5 is the usual line.",
+  noHeight: "Add your height in Settings to see your BMI.",
+  standard: "standard reading",
+  countsLess: "counts {p} %",
+  clues: {
+    after_food: "after eating",
+    after_training: "after training",
+    before_toilet: "before the toilet",
+    late: "in the afternoon or evening",
+    carbs_up: "more carbs than usual yesterday: likely water",
+    carbs_down: "fewer carbs than usual yesterday: likely water lost",
+    salt_up: "more salt than usual yesterday: likely water",
+  },
+};
