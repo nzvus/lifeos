@@ -63,7 +63,7 @@ export function Sheet({
       style={{ maxHeight: "88dvh" }}
     >
       <div
-        className="flex flex-col gap-4 p-4"
+        className="@container flex flex-col gap-4 p-4"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
       >
         <div className="flex items-center gap-2">

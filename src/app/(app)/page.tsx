@@ -33,7 +33,7 @@ import { withAutoTargets } from "@/core/nutrition/targets";
 import { sessionMinutes } from "@/core/training/analysis";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, startOfWeek, timeIn, todayIn } from "@/core/shared/dates";
-import { Bell, Copy, Dumbbell } from "lucide-react";
+import { Bell, Copy, Dumbbell, Scale } from "lucide-react";
 import Link from "next/link";
 import { listBatches } from "@/core/nutrition/repositories/batches";
 import { derivedReminders, listReminders } from "@/core/pantry/repositories/reminders";
@@ -50,6 +50,8 @@ import { fill } from "@/i18n";
 import { EntryList } from "@/features/nutrition/log/EntryList";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { AddFab } from "@/features/nutrition/log/AddFab";
+import { MeasurementForm } from "@/features/training/body/MeasurementForm";
+import { Sheet } from "@/ui/Sheet";
 import { DayChips } from "@/features/nutrition/log/DayChips";
 import { SleepCard } from "@/features/training/body/SleepCard";
 import { listSleep } from "@/core/training/repositories/sleep";
@@ -68,6 +70,7 @@ import { listMeasurements } from "@/core/training/repositories/measurements";
 import { listSessions } from "@/core/training/repositories/sessions";
 import { listExercises } from "@/core/training/repositories/exercises";
 import {
+  addMeasurementAction,
   createEstimateAction,
   deleteSessionAction,
   restoreSessionAction,
@@ -623,6 +626,24 @@ export default async function DayPage({ searchParams }: Props) {
         )}
       </div>
       {/* Design review S1: adding is one tap away, wherever you are on the page. */}
+      {/* A weigh-in from the "+" (2026-10-02); the trend stays in Progress. */}
+      <Sheet
+        id="day-weigh"
+        title={t.body.title}
+        icon={<Scale size={20} aria-hidden="true" />}
+        closeLabel={t.actions.close}
+      >
+        <MeasurementForm
+          action={addMeasurementAction}
+          today={day}
+          now={timeIn(new Date(), settings.timezone)}
+          count={measurements.length}
+          t={{ body: t.body, errors: t.errors }}
+        />
+        <Link href="/profiles?view=weight" className={`text-meta ${TEXT_LINK}`}>
+          {t.body.seeTrend}
+        </Link>
+      </Sheet>
       <AddFab training late={canAdd ? null : `/?day=${day}&late=1`} t={t} />
     </div>
   );

@@ -1,15 +1,18 @@
 /**
- * ui/ListToolbar.tsx — the top of the food lists: a search box, "sort by"
- * with "relative to" (ui/SortControl), the direction, and the "N of M"
- * count (announced to screen readers). Labels come from the `search`
+ * ui/ListToolbar.tsx — the top of the food lists: a search box and, beside
+ * it, a button with the current sort that opens "sort by", "relative to"
+ * and the direction (ui/SortControl) in a sheet (2026-10-02: they took half
+ * a phone screen above the list); then the "N of M" count (announced to
+ * screen readers). Labels come from the `search`
  * dictionary; which sorts exist and their natural direction from the caller
  * (core/nutrition/metrics.ts sortChoices). Matching and ordering are core's
  * (browseFoods).
  */
 "use client";
 
-import { Search } from "lucide-react";
+import { ArrowDownUp, Search } from "lucide-react";
 import { fill, type Messages } from "@/i18n";
+import { Sheet } from "./Sheet";
 import { SortControl, type SortDirection } from "./SortControl";
 
 type Props<S extends string, P extends string> = {
@@ -26,6 +29,8 @@ type Props<S extends string, P extends string> = {
   perDisabled: boolean;
   shown: number;
   total: number;
+  /** Unique on the page: the sort sheet's #id. */
+  sheetId: string;
   t: Messages["search"];
 };
 
@@ -45,13 +50,13 @@ export function ListToolbar<
   perDisabled,
   shown,
   total,
+  sheetId,
   t,
 }: Props<S, P>) {
   return (
     <div className="flex flex-col gap-3">
-      {/* Search grows, sort stays compact; stacks on narrow phones. */}
-      <div className="flex flex-col gap-3 @2xl:flex-row @2xl:items-end">
-        <label className="relative flex flex-1 flex-col gap-1">
+      <div className="flex items-end gap-2">
+        <label className="relative flex min-w-0 flex-1 flex-col gap-1">
           <span className="sr-only">{t.placeholder}</span>
           <Search
             size={18}
@@ -66,6 +71,21 @@ export function ListToolbar<
             className="w-full rounded-control rule-b-medium border-ink bg-sheet py-2 pr-2 pl-8 text-body outline-none focus-visible:border-focus"
           />
         </label>
+        <a
+          href={`#${sheetId}`}
+          aria-label={fill(t.sortButton, { sort: t.sorts[sort] })}
+          className="tile inline-flex shrink-0 items-center gap-1.5 rounded-control px-3 py-2 text-meta font-semibold"
+        >
+          <ArrowDownUp size={16} aria-hidden="true" />
+          <span className="max-w-28 truncate">{t.sorts[sort]}</span>
+        </a>
+      </div>
+      <Sheet
+        id={sheetId}
+        title={t.sortTitle}
+        icon={<ArrowDownUp size={20} aria-hidden="true" />}
+        closeLabel={t.close}
+      >
         <SortControl
           options={choices.map((c) => ({ ...c, label: t.sorts[c.value] }))}
           sort={sort}
@@ -80,7 +100,7 @@ export function ListToolbar<
             disabled: perDisabled,
           }}
         />
-      </div>
+      </Sheet>
       <p className="text-meta text-muted" aria-live="polite">
         {shown === 0 && query
           ? fill(t.noResults, { q: query })

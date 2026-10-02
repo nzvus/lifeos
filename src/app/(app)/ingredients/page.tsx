@@ -6,6 +6,7 @@
 import { requireContext } from "@/app/_server/owner";
 import { PageHeader } from "@/ui/PageHeader";
 import { FoodNav } from "@/features/nutrition/nav/FoodNav";
+import { QuickIngredient } from "@/features/nutrition/ingredients/QuickIngredient";
 import { getDb } from "@/app/_server/runtime";
 import {
   listIngredients,
@@ -13,7 +14,11 @@ import {
 } from "@/core/nutrition/repositories/ingredients";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, todayIn } from "@/core/shared/dates";
-import { deleteIngredientAction, restoreIngredientAction } from "./actions";
+import {
+  createIngredientAction,
+  deleteIngredientAction,
+  restoreIngredientAction,
+} from "./actions";
 import { IngredientBrowser } from "@/features/nutrition/ingredients/IngredientBrowser";
 
 export default async function IngredientsPage() {
@@ -30,8 +35,10 @@ export default async function IngredientsPage() {
       <FoodNav current="ingredients" t={t} />
       <PageHeader
         title={t.ingredients.title}
-        action={{ href: "/ingredients/new", label: t.ingredients.newTitle }}
+        // A sheet first (name, unit, the label); the full form is one link away.
+        action={{ href: "#new-ingredient", label: t.ingredients.newTitle }}
       />
+      <QuickIngredient id="new-ingredient" action={createIngredientAction} t={t} />
       <IngredientBrowser
         // Only the fields the list shows are sent to the browser.
         ingredients={ingredients.map((i) => ({

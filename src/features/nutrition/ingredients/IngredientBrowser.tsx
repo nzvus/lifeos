@@ -146,6 +146,7 @@ export function IngredientBrowser({
     // The search, the order and the list share one card (S20 audit: nothing floats).
     <div className={CARD}>
       <ListToolbar
+        sheetId="sort-ingredients"
         {...list.toolbar}
         choices={sortChoices()}
         perChoices={PER}

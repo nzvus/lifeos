@@ -465,6 +465,7 @@ export const bodyIt: Messages["body"] = {
   afterTraining: "Dopo l'allenamento",
   add: "Aggiungi misura",
   none: "Nessuna misura ancora.",
+  seeTrend: "Tendenza e storico in Progressi → Peso",
   delete: "Elimina misura",
   trend: "Tendenza {v} kg",
   bmi: "BMI {v} ({c})",
