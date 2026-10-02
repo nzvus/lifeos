@@ -1,14 +1,20 @@
 /**
  * app/(app)/training/programs/page.tsx — URL /training/programs: my training
  * programs (ADR-0024) and, for the active one, the coming days as the cycle
- * lays them out (a missed session stays due, marked late).
+ * lays them out (a missed session stays due, marked late), changeable one
+ * day at a time (ADR-0029).
  */
 import { CalendarRange } from "lucide-react";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { todayIn } from "@/core/shared/dates";
 import { isRest } from "@/core/training/program";
-import { getActivePlan, listPrograms } from "@/core/training/repositories/programs";
+import {
+  getActivePlan,
+  listPrograms,
+  programOverrideDays,
+} from "@/core/training/repositories/programs";
+import { ProgramDays } from "@/features/training/programs/ProgramDays";
 import { fill } from "@/i18n";
 import { Badge } from "@/ui/Badge";
 import { CARD } from "@/ui/Card";
@@ -16,7 +22,12 @@ import { ListItem } from "@/ui/ListItem";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
 import { TrashMenu } from "@/ui/TrashMenu";
-import { deleteProgramAction, restoreProgramAction } from "./actions";
+import {
+  deleteProgramAction,
+  restoreProgramAction,
+  setProgramDayAction,
+  swapProgramDaysAction,
+} from "./actions";
 
 const INTL = { it: "it-IT", en: "en-GB" } as const;
 
@@ -29,6 +40,10 @@ export default async function ProgramsPage() {
     listPrograms(db, owner),
     getActivePlan(db, owner, today, 7),
   ]);
+  // ADR-0029: the coming days changed by hand, to mark them.
+  const changed = active
+    ? await programOverrideDays(db, owner, active.program.id, today)
+    : new Set<string>();
   const date = new Intl.DateTimeFormat(INTL[settings.locale], {
     weekday: "short",
     day: "numeric",
@@ -48,25 +63,26 @@ export default async function ProgramsPage() {
           title={fill(p.coming, { name: active.program.name })}
           icon={<CalendarRange size={20} aria-hidden="true" />}
         >
-          <ol className="grid grid-cols-2 gap-2 @lg:grid-cols-7">
-            {active.plan.map((d) => (
-              <li
-                key={d.day}
-                className="tile flex flex-col items-center gap-1 px-2 py-2 text-center"
-              >
-                <span className="text-meta text-muted">
-                  {date.format(new Date(`${d.day}T12:00:00Z`))}
-                </span>
-                <span className="font-display text-item font-semibold">
-                  {isRest(d.slot)
-                    ? d.slot.label || p.rest
-                    : (active.program.slots.find((s) => s.position === d.slot.position)
-                        ?.name ?? "")}
-                </span>
-                {d.late && <Badge tone="planned">{p.late}</Badge>}
-              </li>
-            ))}
-          </ol>
+          <p className="text-meta text-muted">{p.changeHint}</p>
+          <ProgramDays
+            days={active.plan.map((d) => ({
+              day: d.day,
+              date: date.format(new Date(`${d.day}T12:00:00Z`)),
+              name: isRest(d.slot)
+                ? d.slot.label || p.rest
+                : (active.program.slots.find((s) => s.position === d.slot.position)
+                    ?.name ?? ""),
+              position: isRest(d.slot) ? null : d.slot.position,
+              late: d.late,
+              changed: changed.has(d.day),
+            }))}
+            slots={active.program.slots
+              .filter((s) => !isRest(s))
+              .map((s) => ({ position: s.position, name: s.name }))}
+            setDay={setProgramDayAction}
+            swap={swapProgramDaysAction}
+            t={t}
+          />
         </Section>
       )}
       {programs.length === 0 ? (

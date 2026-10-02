@@ -17,6 +17,7 @@ import {
   index,
   integer,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   unique,
@@ -101,4 +102,31 @@ export const programSlotExercises = pgTable(
       .references(() => exercises.id, { onDelete: "cascade" }),
   },
   (t) => [unique("program_slot_exercises_slot_uq").on(t.slotId)],
+);
+
+/**
+ * ADR-0029: a change to one coming day of a program — "on this day, this
+ * slot" (by position), or rest (null). The plan is still derived (ADR-0024);
+ * overrides are placed first. A table of its own: safe before or after the
+ * migration. Saving the program's slots clears them (positions change).
+ */
+export const programOverrides = pgTable(
+  "program_overrides",
+  {
+    userId: ownerColumn(),
+    programId: uuid("program_id").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    /** The slot to do that day; null = rest. */
+    slotPosition: integer("slot_position"),
+    createdAt: tstz("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.programId, t.day] }),
+    foreignKey({
+      name: "program_overrides_program_fk",
+      columns: [t.programId, t.userId],
+      foreignColumns: [programs.id, programs.userId],
+    }).onDelete("cascade"),
+    check("program_overrides_position_ck", sql`${t.slotPosition} >= 0`),
+  ],
 );
