@@ -13,6 +13,7 @@
  * Leaf module: imports nothing. Keys that must match core/ (nutrients, error
  * codes, locales) are checked in src/app/_server/i18n.ts, where both meet.
  */
+import { guidesEn } from "./messages.guides.en";
 import {
   pantryEn,
   bodyEn,
@@ -215,6 +216,7 @@ export const en = {
     back: "Back to meals",
     needIngredients: "Add some ingredients first: a meal is made of them.",
   },
+  guides: guidesEn,
   pantry: pantryEn,
   trash: trashEn,
   energy: energyEn,

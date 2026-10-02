@@ -14,6 +14,7 @@ import type { Theme } from "@/core/shared/themes";
 import type { Moment } from "@/core/nutrition/moments";
 import type { MovementPattern, MuscleGroup, MuscleRegion } from "@/core/training/anatomy";
 import type { ExerciseKind, Intensity, SessionStatus } from "@/core/training/kinds";
+import type { GuideKey } from "@/core/training/guides";
 import type { FiberType, Nova, Origin, TagIcon } from "@/core/nutrition/quality";
 import type { NutrientKey } from "@/core/nutrition/nutrients";
 import { dictionaries, type Messages } from "@/i18n";
@@ -38,6 +39,7 @@ const _intensities: Exact<Messages["training"]["estimate"]["intensities"], Inten
 const _regions: Exact<Messages["exercises"]["regions"], MuscleRegion> = true;
 const _groups: Exact<Messages["exercises"]["groups"], MuscleGroup> = true;
 const _patterns: Exact<Messages["exercises"]["patterns"], MovementPattern> = true;
+const _guides: Exact<Messages["guides"]["patterns"], GuideKey> = true;
 void [
   _nutrients,
   _errors,
@@ -51,6 +53,7 @@ void [
   _regions,
   _groups,
   _patterns,
+  _guides,
   _intensities,
 ]; // "used", so the linter doesn't complain
 

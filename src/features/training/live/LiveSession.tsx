@@ -60,6 +60,9 @@ import { pickerSearch } from "@/core/shared/search";
 import { fill, type Messages } from "@/i18n";
 import { Change } from "@/ui/Change";
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
+import { GUIDES, guideKeyOf } from "@/core/training/guides";
+import { nextTarget } from "@/core/training/targets";
+import { ExerciseGuide } from "./ExerciseGuide";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { Stepper } from "./Stepper";
 import { buttonClass } from "@/ui/button";
@@ -89,6 +92,8 @@ type Props = {
   save: (id: string, live: Live) => Promise<{ ok: boolean }>;
   finish: (id: string, live: Live) => Promise<{ ok: boolean }>;
   t: Messages["training"]["live"];
+  /** ADR-0028: the exercise guides' words. */
+  guides: Messages["guides"];
 };
 
 const clock = (ms: number) => {
@@ -137,6 +142,7 @@ export function LiveSession({
   save,
   finish,
   t,
+  guides,
 }: Props) {
   const [s, setS] = useState(initial);
   const [open, setOpen] = useState(() => nextSet(initial.exercises)?.exercise ?? 0);
@@ -467,6 +473,21 @@ export function LiveSession({
             {isOpen && (
               <>
                 {x?.last && <p className="text-meta text-muted">{x.last}</p>}
+                {x &&
+                  (() => {
+                    // ADR-0028: today's target from last time, and how to do it.
+                    const key = guideKeyOf(x);
+                    return (
+                      <ExerciseGuide
+                        guideKey={key}
+                        target={
+                          key ? nextTarget(GUIDES[key], baseline[e.exerciseId]) : null
+                        }
+                        locale={locale}
+                        t={guides}
+                      />
+                    );
+                  })()}
                 {x?.kind !== "cardio" && (
                   <details className="text-meta">
                     <summary className="cursor-pointer text-muted">{t.warmupHow}</summary>

@@ -166,8 +166,13 @@
 - [x] Week strip: each day's bar coloured by state like the Energy row (core bandFor / bandState, shared with the day panel), and the kcal against the target under the date ("−340"), a number instead of a hover
 - [x] Installed app: dark splash (the manifest can't read the user's mode); the status bar follows the mode in Settings
 - [x] Training rows on the day back to icons: status, time, name, kcal; then the exercises as icons (tap: sets), the numbers and a short "Start", on one line
-- [ ] Smarter weigh-ins: read each weight with what came before it (meals, training, time of day) to tell water from tissue; BMI and more (needs an ADR)
-- [ ] Whole-app design review on the phone: overlapping text, padding, where each function sits and how clear it is, conventions of well-made apps, one look across pages (plan first)
+- [x] Smarter weigh-ins (ADR-0027, #116): time and three tags at weigh-in, clues derived from food and training before it, a reliability that weights the trend and the calibration; BMI, waist/height, FFMI
+- [x] After a real gym session (#117): the clock starts at the first set; "rest over" names the next set; warm-up sets in gym mode with a how-to; delete = a bin that asks first; the week strip colours dynamic days; the goal line shows the balance wanted / with the plan / so far and edits the deficit; dynamic day types show today's numbers; servings −/+ on day entries
+- [x] Design review, part 1 (#118): nothing past a 360 px screen with text at 120 % (grid base columns + a lint rule, short day heading, wrapping rows)
+- [x] Program days changeable (ADR-0029, #119): swap, move, rest, back to the cycle; drag on a computer
+- [x] Exercise guides (ADR-0028): a guide per movement pattern (numbers, warm-up, cues, common mistakes) and today's target by double progression, in gym mode and on the exercise page
+- [ ] Steps from a device include a run's steps: don't count them twice (needs the cardio's kind: run, walk, bike)
+- [ ] Design review, part 2 (delegated to the agent): S1 "+" on the day page, S2 navigation (Cibo, Progressi), S3 settings that save themselves, S4 compact lists, S5 Progressi page, S6 colour = state everywhere, S7 theme pass
 
 ## Next sprint: S11 — The day as a plan, honest energy, smarter targets (requested 2026-10-01)
 - **Goal:** plan and start training from the day like food; energy and targets that make sense for the developer's real data; a day score about zones, not reaching numbers.

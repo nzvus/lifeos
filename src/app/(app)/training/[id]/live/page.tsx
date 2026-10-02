@@ -79,6 +79,7 @@ export default async function LivePage({ params }: Props) {
         save={saveLiveAction}
         finish={finishLiveAction}
         t={t.training.live}
+        guides={t.guides}
       />
     </div>
   );
