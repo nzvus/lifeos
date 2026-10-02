@@ -26,6 +26,7 @@ import {
   appIt,
   errorsIt,
   entryEditIt,
+  routinesIt,
 } from "./messages.home.it";
 import type { Messages } from "./index";
 
@@ -335,6 +336,12 @@ export const it: Messages = {
     sortValue: "{what}: {v}",
   },
   training: {
+    tabs: {
+      sessions: "Sessioni",
+      exercises: "Esercizi",
+      routines: "Schede",
+      programs: "Programmi",
+    },
     chips: {
       duration: "Durata",
       sets: "Serie di lavoro",
@@ -440,6 +447,7 @@ export const it: Messages = {
         "Serve al primo esercizio multiarticolare di ogni gruppo muscolare (panca, squat, stacco, lat machine…), non a ogni esercizio: dopo, i muscoli sono già caldi. Di solito 2–3 serie in salita, con pause brevi (circa 1 minuto): ~50 % del carico per 8–10 ripetizioni, ~70 % per 4–6, ~85 % per 1–3. Non devono stancare. Le serie di riscaldamento non contano nel tonnellaggio né nei confronti.",
     },
     chart: {
+      period: "Ultime 4 settimane",
       title: "Allenamento",
       label: "tonnellaggio per giorno, tocca un giorno per aprirlo",
       sessions: "{n} sessioni",
@@ -496,25 +504,7 @@ export const it: Messages = {
     kinds: { strength: "forza", bodyweight: "corpo libero", cardio: "cardio" },
   },
   exercises: exercisesIt,
-  routines: {
-    title: "Schede",
-    new: "Nuova scheda",
-    back: "← Schede",
-    empty: "Nessuna scheda.",
-    name: "Nome",
-    notes: "Note",
-    items: "Esercizi della scheda",
-    sets: "Serie",
-    reps: "Ripetizioni",
-    load: "Kg",
-    rest: "Pausa (s)",
-    addItem: "Aggiungi esercizio",
-    removeItem: "Togli",
-    save: "Salva scheda",
-    create: "Crea scheda",
-    delete: "Elimina scheda",
-    itemsCount: "{n} esercizi",
-  },
+  routines: routinesIt,
   body: bodyIt,
   dayScore: dayScoreIt,
   ratings: {

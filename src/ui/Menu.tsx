@@ -1,13 +1,14 @@
 /**
  * ui/Menu.tsx — the "⋯" of a page or an item (ADR-0015): actions that are
- * not the main one (duplicate, delete) live here, away from Save. Opens a
- * small list under the button; closes on a choice, Escape or a tap outside.
+ * not the main one (duplicate, make default…) live here, away from Save.
+ * Opens a centred dialog of big rows; closes on a choice, Escape or a tap
+ * outside.
  */
 "use client";
 
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { buttonClass } from "./button";
 
 export type MenuItem = {
@@ -19,71 +20,79 @@ export type MenuItem = {
   tone?: "danger";
 };
 
-export function Menu({ label, items }: { label: string; items: readonly MenuItem[] }) {
-  const [open, setOpen] = useState(false);
-  const box = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: Event) => {
-      if (
-        e instanceof KeyboardEvent
-          ? e.key === "Escape"
-          : !box.current?.contains(e.target as Node)
-      )
-        setOpen(false);
-    };
-    document.addEventListener("pointerdown", close);
-    document.addEventListener("keydown", close);
-    return () => {
-      document.removeEventListener("pointerdown", close);
-      document.removeEventListener("keydown", close);
-    };
-  }, [open]);
+export function Menu({
+  label,
+  items,
+  closeLabel = label,
+}: {
+  label: string;
+  items: readonly MenuItem[];
+  closeLabel?: string;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const close = () => dialog.current?.close();
   const row = (tone?: "danger") =>
-    `flex w-full items-center gap-2 px-3 py-2.5 text-left hover:bg-paper ${tone === "danger" ? "text-tomato" : ""}`;
+    `flex w-full items-center gap-3 rounded-control px-3 py-3 text-left font-semibold hover:bg-paper ${tone === "danger" ? "text-tomato" : ""}`;
   return (
-    <div ref={box} className="relative">
+    <>
       <button
         type="button"
         aria-label={label}
         title={label}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="dialog"
+        onClick={() => dialog.current?.showModal()}
         className={buttonClass({ variant: "subtle", iconOnly: true })}
       >
         <MoreVertical size={20} aria-hidden="true" />
       </button>
-      {open && (
-        <ul
-          role="menu"
-          className="panel absolute right-0 z-40 mt-1 flex min-w-48 flex-col overflow-hidden py-1"
-        >
-          {items.map((it) => (
-            <li key={it.label} role="none">
-              {it.href ? (
-                <Link role="menuitem" href={it.href} className={row(it.tone)}>
-                  {it.icon}
-                  {it.label}
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    setOpen(false);
-                    it.onSelect?.();
-                  }}
-                  className={row(it.tone)}
-                >
-                  {it.icon}
-                  {it.label}
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+      {/* A centred dialog like every other (2026-10-02: the small drop-down
+          was cut by its card and hard to tap). Escape or a tap outside close it. */}
+      <dialog
+        ref={dialog}
+        aria-label={label}
+        onClick={(e) => e.target === dialog.current && close()}
+        className="m-auto w-11/12 max-w-sm rounded-surface border border-hairline bg-sheet p-0 text-ink backdrop:bg-scrim"
+      >
+        <div className="flex flex-col gap-1 p-3">
+          <div className="flex items-center justify-between px-3 py-1">
+            <span className="font-display text-section font-bold">{label}</span>
+            <button
+              type="button"
+              onClick={close}
+              aria-label={closeLabel}
+              className={buttonClass({ variant: "quiet", iconOnly: true })}
+            >
+              <X size={20} aria-hidden="true" />
+            </button>
+          </div>
+          {items.map((it) =>
+            it.href ? (
+              <Link
+                key={it.label}
+                href={it.href}
+                onClick={close}
+                className={row(it.tone)}
+              >
+                {it.icon}
+                {it.label}
+              </Link>
+            ) : (
+              <button
+                key={it.label}
+                type="button"
+                onClick={() => {
+                  close();
+                  it.onSelect?.();
+                }}
+                className={row(it.tone)}
+              >
+                {it.icon}
+                {it.label}
+              </button>
+            ),
+          )}
+        </div>
+      </dialog>
+    </>
   );
 }

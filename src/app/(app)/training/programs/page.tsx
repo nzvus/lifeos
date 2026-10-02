@@ -20,6 +20,7 @@ import { Badge } from "@/ui/Badge";
 import { CARD } from "@/ui/Card";
 import { ListItem } from "@/ui/ListItem";
 import { PageHeader } from "@/ui/PageHeader";
+import { TrainingNav } from "@/features/training/nav/TrainingNav";
 import { Section } from "@/ui/Section";
 import { TrashMenu } from "@/ui/TrashMenu";
 import {
@@ -52,11 +53,9 @@ export default async function ProgramsPage() {
   });
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader
-        title={p.title}
-        subtitle={p.subtitle}
-        back={{ href: "/training", label: t.training.back }}
-      />
+      <PageHeader title={t.training.title} />
+      <TrainingNav current="programs" t={t} />
+      <p className="text-meta text-muted">{p.subtitle}</p>
       {active && (
         <Section
           title={fill(p.coming, { name: active.program.name })}

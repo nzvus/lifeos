@@ -685,3 +685,23 @@ export const exercisesIt: Messages["exercises"] = {
   mergeInto: "Unisci in",
   merge: "Unisci",
 };
+
+export const routinesIt: Messages["routines"] = {
+  title: "Schede",
+  new: "Nuova scheda",
+  back: "← Schede",
+  empty: "Nessuna scheda.",
+  name: "Nome",
+  notes: "Note",
+  items: "Esercizi della scheda",
+  sets: "Serie",
+  reps: "Ripetizioni",
+  load: "Kg",
+  rest: "Pausa (s)",
+  addItem: "Aggiungi esercizio",
+  removeItem: "Togli",
+  save: "Salva scheda",
+  create: "Crea scheda",
+  delete: "Elimina scheda",
+  itemsCount: "{n} esercizi",
+};

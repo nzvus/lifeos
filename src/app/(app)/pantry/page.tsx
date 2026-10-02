@@ -81,8 +81,8 @@ export default async function PantryPage() {
 
   return (
     <div className="flex flex-col gap-4">
+      <PageHeader title={t.nav.food} subtitle={p.hint} />
       <FoodNav current="pantry" t={t} />
-      <PageHeader title={p.title} subtitle={p.hint} />
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-4">
           <Section title={p.reminders} icon={<Bell size={20} aria-hidden="true" />}>

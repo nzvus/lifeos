@@ -32,8 +32,8 @@ export default async function IngredientsPage() {
   return (
     <>
       {/* The pantry (ADR-0017) is a view of the Food tab, beside these. */}
+      <PageHeader title={t.nav.food} />
       <FoodNav current="ingredients" t={t} />
-      <PageHeader title={t.ingredients.title} />
       <QuickIngredient id="new-ingredient" action={createIngredientAction} t={t} />
       <IngredientBrowser
         // Only the fields the list shows are sent to the browser.

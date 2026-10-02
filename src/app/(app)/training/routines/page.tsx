@@ -1,8 +1,19 @@
-/** app/(app)/training/routines/page.tsx — URL /training/routines: my routines. */
+/**
+ * app/(app)/training/routines/page.tsx — URL /training/routines, Training →
+ * Routines (ADR-0033): how each routine is going (runs, kg per run, change,
+ * sparkline), then every routine with its items.
+ */
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { setsText } from "@/core/training/display";
 import { listRoutines } from "@/core/training/repositories/routines";
+import { listSessions } from "@/core/training/repositories/sessions";
+import { routineProgress } from "@/core/training/progress";
+import { todayIn } from "@/core/shared/dates";
+import { TrendingUp } from "lucide-react";
+import { RoutineProgressList } from "@/features/training/progress/RoutineProgressList";
+import { TrainingNav } from "@/features/training/nav/TrainingNav";
+import { Section } from "@/ui/Section";
 import { fill } from "@/i18n";
 import { ListItem } from "@/ui/ListItem";
 import { PageHeader } from "@/ui/PageHeader";
@@ -12,11 +23,31 @@ import { CARD } from "@/ui/Card";
 
 export default async function RoutinesPage() {
   const { owner, settings, t } = await requireContext();
-  const routines = await listRoutines(getDb(), owner);
+  const db = getDb();
+  const [routines, sessions] = await Promise.all([
+    listRoutines(db, owner),
+    listSessions(db, owner, "2000-01-01", todayIn(settings.timezone)),
+  ]);
+  const progress = routineProgress(routines, sessions).sort((a, b) =>
+    (b.last?.day ?? "").localeCompare(a.last?.day ?? ""),
+  );
   const r = t.routines;
   return (
     <>
-      <PageHeader title={r.title} back={{ href: "/training", label: t.training.back }} />
+      <PageHeader title={t.training.title} />
+      <TrainingNav current="routines" t={t} />
+      {progress.some((p) => p.last) && (
+        <Section
+          title={t.training.progress.routines}
+          icon={<TrendingUp size={20} aria-hidden="true" />}
+        >
+          <RoutineProgressList
+            routines={progress}
+            locale={settings.locale}
+            t={t.training.progress}
+          />
+        </Section>
+      )}
       {routines.length === 0 ? (
         <p className="text-muted">{r.empty}</p>
       ) : (
