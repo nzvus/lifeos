@@ -61,7 +61,7 @@ export function AddFab({
         ref={sheet}
         onClick={(e) => e.target === sheet.current && close()}
         aria-label={a.open}
-        className="mx-auto mt-auto mb-0 w-full max-w-md rounded-t-surface border border-hairline bg-sheet p-0 text-ink backdrop:bg-ink/50 md:mb-auto md:rounded-surface"
+        className="m-auto w-11/12 max-w-md rounded-surface border border-hairline bg-sheet p-0 text-ink backdrop:bg-scrim"
       >
         <div
           className="flex flex-col gap-1 p-3"

@@ -39,7 +39,7 @@ export function DeleteButton({
         ref={dialog}
         // Tapping the backdrop (the dialog element itself) closes it.
         onClick={(e) => e.target === dialog.current && dialog.current?.close()}
-        className="m-auto w-11/12 max-w-sm rounded-surface border border-hairline bg-sheet p-0 text-ink backdrop:bg-ink/50"
+        className="m-auto w-11/12 max-w-sm rounded-surface border border-hairline bg-sheet p-0 text-ink backdrop:bg-scrim"
       >
         <div className="flex flex-col gap-3 p-5">
           <p className="font-display text-section font-bold">{title}</p>
