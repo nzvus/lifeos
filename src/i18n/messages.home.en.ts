@@ -481,3 +481,10 @@ export const bodyEn = {
     salt_up: "more salt than usual yesterday: likely water",
   },
 };
+
+export const progressEn = {
+  title: "Progress",
+  trends: "Trends",
+  weight: "Weight",
+  coming: "Coming",
+};

@@ -4,6 +4,7 @@
  */
 import { requireContext } from "@/app/_server/owner";
 import { PageHeader } from "@/ui/PageHeader";
+import { FoodNav } from "@/features/nutrition/nav/FoodNav";
 import { getDb } from "@/app/_server/runtime";
 import { mealTags } from "@/core/nutrition/quality-summary";
 import { tagsByIngredient } from "@/core/nutrition/repositories/ingredients";
@@ -25,6 +26,7 @@ export default async function MealsPage() {
   ]);
   return (
     <>
+      <FoodNav current="meals" t={t} />
       <PageHeader
         title={t.meals.title}
         action={{ href: "/meals/new", label: t.meals.new }}

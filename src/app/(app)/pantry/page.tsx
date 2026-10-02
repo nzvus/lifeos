@@ -26,6 +26,7 @@ import { Badge } from "@/ui/Badge";
 import { Disclosure } from "@/ui/Disclosure";
 import { ListItem } from "@/ui/ListItem";
 import { PageHeader } from "@/ui/PageHeader";
+import { FoodNav } from "@/features/nutrition/nav/FoodNav";
 import { Section } from "@/ui/Section";
 import { TrashMenu } from "@/ui/TrashMenu";
 import {
@@ -79,6 +80,7 @@ export default async function PantryPage() {
 
   return (
     <div className="flex flex-col gap-4">
+      <FoodNav current="pantry" t={t} />
       <PageHeader
         title={p.title}
         action={{ href: "/pantry/products/new?from=/pantry", label: p.newProduct }}

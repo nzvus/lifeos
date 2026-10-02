@@ -1,7 +1,7 @@
 /**
  * app/(app)/layout.tsx — frame for every SIGNED-IN page, adapted to the
  * screen:
- *   - phones: slim header (name, settings, sign out) and a bottom tab bar (ui/NavBar)
+ *   - phones: slim header (name, settings) and a bottom tab bar (ui/NavBar)
  *     where the thumb reaches; extra bottom padding so content never hides
  *     behind the bar;
  *   - md and up: navigation in the header, no bottom bar.
@@ -16,18 +16,23 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { requireContext } from "@/app/_server/owner";
-import { SignOutButton } from "@/features/account/auth/SignOutButton";
 import { NavBar, NavIconLink } from "@/ui/NavBar";
 import { ToastHost } from "@/ui/Toast";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const { t, settings } = await requireContext();
+  // Design review S2 (2026-10-02): tabs by what the person does.
   const links = [
     { href: "/", label: t.nav.today, icon: "today" },
     { href: "/training", label: t.nav.training, icon: "training" },
-    { href: "/meals", label: t.nav.meals, icon: "meals" },
-    { href: "/ingredients", label: t.nav.ingredients, icon: "ingredients" },
-    { href: "/profiles", label: t.nav.profiles, icon: "targets" },
+    {
+      href: "/meals",
+      label: t.nav.food,
+      icon: "meals",
+      match: ["/ingredients", "/pantry"],
+    },
+    { href: "/profiles", label: t.nav.progress, icon: "progress" },
+    { href: "/assistant", label: t.assistant.title, icon: "assistant" },
   ] as const;
   return (
     <div
@@ -39,11 +44,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           {t.app.name}
         </Link>
         <NavBar links={[...links]} label={t.nav.menu} />
-        <div className="flex items-center gap-1">
-          <NavIconLink href="/assistant" label={t.assistant.title} icon="assistant" />
-          <NavIconLink href="/settings" label={t.nav.settings} icon="settings" />
-          <SignOutButton label={t.nav.signOut} />
-        </div>
+        {/* Sign out lives at the bottom of Settings (S3): rare, and easy to tap by mistake. */}
+        <NavIconLink href="/settings" label={t.nav.settings} icon="settings" />
       </header>
       <main className="@container flex flex-col gap-4">{children}</main>
       <ToastHost closeLabel={t.actions.close} />

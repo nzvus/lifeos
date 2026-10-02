@@ -9,7 +9,7 @@ type Props = { searchParams: Promise<{ from?: string }> };
 
 export default async function NewProfilePage({ searchParams }: Props) {
   const { t } = await requireContext();
-  const from = safeFrom((await searchParams).from, "/profiles");
+  const from = safeFrom((await searchParams).from, "/settings#day-types");
   return (
     // Forms read best narrow: cap the width even on wide screens.
     <div className="mx-auto flex w-full max-w-page flex-col gap-8">
@@ -17,7 +17,7 @@ export default async function NewProfilePage({ searchParams }: Props) {
         title={t.profiles.newTitle}
         back={{
           href: from,
-          label: from === "/profiles" ? t.profiles.back : t.actions.back,
+          label: from === "/settings#day-types" ? t.profiles.back : t.actions.back,
         }}
       />
       <ProfileForm

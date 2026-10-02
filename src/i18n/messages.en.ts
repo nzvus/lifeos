@@ -16,6 +16,7 @@
 import { guidesEn } from "./messages.guides.en";
 import {
   pantryEn,
+  progressEn,
   bodyEn,
   trashEn,
   energyEn,
@@ -63,6 +64,8 @@ export const en = {
     meals: "Meals",
     settings: "Settings",
     profiles: "Targets",
+    food: "Food",
+    progress: "Progress",
     training: "Training",
     signOut: "Sign out",
     menu: "Main navigation",
@@ -217,6 +220,7 @@ export const en = {
     needIngredients: "Add some ingredients first: a meal is made of them.",
   },
   guides: guidesEn,
+  progress: progressEn,
   pantry: pantryEn,
   trash: trashEn,
   energy: energyEn,
@@ -225,6 +229,7 @@ export const en = {
   programs: programsEn,
   outlook: outlookEn,
   settings: {
+    account: "Account",
     title: "Settings",
     timezone: "Time zone",
     timezoneHint: "Decides when your day starts and ends, e.g. Europe/Rome.",

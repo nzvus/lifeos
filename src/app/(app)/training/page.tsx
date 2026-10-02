@@ -3,7 +3,8 @@
  * progress (S07). Start a session (a routine at its latest version), then the
  * week (numbers against the week before, sets per muscle group), routines
  * and exercises with their trends, the sessions of the last 90 days
- * (compact), body weight. Progress uses all done history.
+ * (compact). Progress uses all done history. Body weight moved to
+ * Progress → Weight (design review S5).
  */
 import {
   CalendarDays,
@@ -12,13 +13,12 @@ import {
   Dumbbell,
   History,
   ListOrdered,
-  Scale,
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { addDays, isValidDay, startOfWeek, timeIn, todayIn } from "@/core/shared/dates";
+import { addDays, isValidDay, startOfWeek, todayIn } from "@/core/shared/dates";
 import { listExercises } from "@/core/training/repositories/exercises";
 import { listRoutines } from "@/core/training/repositories/routines";
 import { exerciseTrends, routineProgress, weekSummary } from "@/core/training/progress";
@@ -27,18 +27,9 @@ import { RoutineProgressList } from "@/features/training/progress/RoutineProgres
 import { WeekProgress } from "@/features/training/progress/WeekProgress";
 import { listMeasurements } from "@/core/training/repositories/measurements";
 import { listSessions } from "@/core/training/repositories/sessions";
-import { MeasurementForm } from "@/features/training/body/MeasurementForm";
-import { WeighInList } from "@/features/training/body/WeighInList";
-import { getWeighIns } from "@/core/energy/repositories/energy";
 import { PresetPicker } from "@/features/training/sessions/PresetPicker";
 import { SessionList } from "@/features/training/sessions/SessionList";
-import {
-  addMeasurementAction,
-  deleteMeasurementAction,
-  deleteSessionAction,
-  restoreMeasurementAction,
-  restoreSessionAction,
-} from "./actions";
+import { deleteSessionAction, restoreSessionAction } from "./actions";
 import { startOrPlanAction } from "./live-actions";
 import { presetTiles } from "./preset-tiles";
 import { PageHeader } from "@/ui/PageHeader";
@@ -58,15 +49,13 @@ export default async function TrainingPage({ searchParams }: Props) {
   const monday =
     asked && isValidDay(asked) && asked <= today ? startOfWeek(asked) : thisMonday;
   const db = getDb();
-  const [history, presets, measurements, routines, exercises, weighIns] =
-    await Promise.all([
-      listSessions(db, owner, "2000-01-01", addDays(today, 30)),
-      presetTiles(owner, today),
-      listMeasurements(db, owner),
-      listRoutines(db, owner),
-      listExercises(db, owner),
-      getWeighIns(db, owner), // ADR-0027: each weigh-in read, the trend, BMI
-    ]);
+  const [history, presets, measurements, routines, exercises] = await Promise.all([
+    listSessions(db, owner, "2000-01-01", addDays(today, 30)),
+    presetTiles(owner, today),
+    listMeasurements(db, owner),
+    listRoutines(db, owner),
+    listExercises(db, owner),
+  ]);
   const sessions = history.filter((s) => s.day >= addDays(today, -90));
   const week = weekSummary(history, measurements, monday);
   const prev = weekSummary(history, measurements, addDays(monday, -7));
@@ -177,28 +166,6 @@ export default async function TrainingPage({ searchParams }: Props) {
             trash={deleteSessionAction}
             restore={restoreSessionAction}
             labels={t.actions}
-          />
-        )}
-      </Section>
-      <Section title={t.body.title} icon={<Scale size={20} aria-hidden="true" />}>
-        <p className="text-meta text-muted">{t.body.hint}</p>
-        <MeasurementForm
-          action={addMeasurementAction}
-          today={today}
-          now={timeIn(new Date(), settings.timezone)}
-          count={measurements.length}
-          t={{ body: t.body, errors: t.errors }}
-        />
-        {measurements.length === 0 ? (
-          <p className="text-meta text-muted">{t.body.none}</p>
-        ) : (
-          <WeighInList
-            measurements={measurements}
-            readings={weighIns}
-            locale={settings.locale}
-            trash={deleteMeasurementAction}
-            restore={restoreMeasurementAction}
-            t={{ body: t.body, actions: t.actions }}
           />
         )}
       </Section>

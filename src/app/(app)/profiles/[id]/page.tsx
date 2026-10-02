@@ -28,7 +28,7 @@ export default async function EditProfilePage({ params, searchParams }: Props) {
   const { owner, t } = await requireContext();
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
-  const from = safeFrom((await searchParams).from, "/profiles");
+  const from = safeFrom((await searchParams).from, "/settings#day-types");
   const profile = await getProfile(getDb(), owner, id);
   if (!profile) notFound();
 
@@ -39,7 +39,7 @@ export default async function EditProfilePage({ params, searchParams }: Props) {
         title={t.profiles.editTitle}
         back={{
           href: from,
-          label: from === "/profiles" ? t.profiles.back : t.actions.back,
+          label: from === "/settings#day-types" ? t.profiles.back : t.actions.back,
         }}
         menu={
           <TrashMenu

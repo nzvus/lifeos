@@ -10,7 +10,14 @@ import { authClient } from "./auth-client";
 import { LogOut } from "lucide-react";
 import { buttonClass } from "@/ui/button";
 
-export function SignOutButton({ label }: { label: string }) {
+/** An icon (`compact`) or a labelled button (Settings → Account). */
+export function SignOutButton({
+  label,
+  compact = true,
+}: {
+  label: string;
+  compact?: boolean;
+}) {
   const router = useRouter();
   return (
     <button
@@ -20,11 +27,16 @@ export function SignOutButton({ label }: { label: string }) {
         router.push("/sign-in");
         router.refresh();
       }}
-      aria-label={label}
-      title={label}
-      className={buttonClass({ variant: "quiet", iconOnly: true })}
+      aria-label={compact ? label : undefined}
+      title={compact ? label : undefined}
+      className={
+        compact
+          ? buttonClass({ variant: "quiet", iconOnly: true })
+          : `self-start ${buttonClass({ variant: "secondary" })}`
+      }
     >
       <LogOut size={20} aria-hidden="true" />
+      {!compact && label}
     </button>
   );
 }
