@@ -495,6 +495,7 @@ export const bodyEn = {
 };
 
 export const progressEn = {
+  training: "Training",
   title: "Progress",
   trends: "Trends",
   weight: "Weight",

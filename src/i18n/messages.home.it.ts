@@ -500,6 +500,7 @@ export const bodyIt: Messages["body"] = {
 };
 
 export const progressIt: Messages["progress"] = {
+  training: "Allenamento",
   title: "Progressi",
   trends: "Andamento",
   weight: "Peso",

@@ -6,13 +6,16 @@
  *                     (training's own chart is in Training, ADR-0033);
  *   weight            weigh-ins read with their context, the trend, BMI
  *                     (ADR-0027) — moved here from Training;
+ *   training          the week, 4 weeks per day, exercise and routine trends,
+ *                     the history (ADR-0035; ./training-view.tsx).
  * The coming days are in the Plan tab (ADR-0035); ?view=coming redirects.
  * The day types that define the targets (ADR-0008) moved to Settings.
  *
  * The period is in the URL (?range=30&to=2026-09-30); without it (or when
  * invalid), the user's default period (preferences) up to today.
  */
-import { Scale, TrendingUp } from "lucide-react";
+import { Dumbbell, Scale, TrendingUp } from "lucide-react";
+import { TrainingProgress } from "./training-view";
 import { redirect } from "next/navigation";
 import { getWeighIns } from "@/core/energy/repositories/energy";
 import { requireContext } from "@/app/_server/owner";
@@ -31,11 +34,11 @@ import { Section } from "@/ui/Section";
 import { SubNav } from "@/ui/SubNav";
 import { deleteMeasurementAction, restoreMeasurementAction } from "../training/actions";
 
-const VIEWS = ["trends", "weight"] as const;
+const VIEWS = ["trends", "weight", "training"] as const;
 type View = (typeof VIEWS)[number];
 
 type Props = {
-  searchParams: Promise<{ view?: string; range?: string; to?: string }>;
+  searchParams: Promise<{ view?: string; range?: string; to?: string; week?: string }>;
 };
 
 export default async function ProgressPage({ searchParams }: Props) {
@@ -49,7 +52,18 @@ export default async function ProgressPage({ searchParams }: Props) {
   const g = t.progress;
 
   let body;
-  if (view === "weight") {
+  if (view === "training") {
+    // ADR-0035: how training is going (was Training → Sessions).
+    body = (
+      <TrainingProgress
+        owner={owner}
+        settings={settings}
+        today={today}
+        week={params.week}
+        t={t}
+      />
+    );
+  } else if (view === "weight") {
     const [measurements, readings] = await Promise.all([
       listMeasurements(db, owner),
       getWeighIns(db, owner),
@@ -125,6 +139,12 @@ export default async function ProgressPage({ searchParams }: Props) {
             href: "/profiles?view=weight",
             label: g.weight,
             icon: <Scale size={16} aria-hidden="true" />,
+          },
+          {
+            key: "training",
+            href: "/profiles?view=training",
+            label: g.training,
+            icon: <Dumbbell size={16} aria-hidden="true" />,
           },
         ]}
       />

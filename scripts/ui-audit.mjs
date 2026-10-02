@@ -42,7 +42,7 @@ const STATIC = [
   "/pantry/products/new",
   "/profiles",
   "/profiles?view=weight",
-  "/profiles?view=coming",
+  "/profiles?view=training",
   "/profiles/new",
   "/settings",
   "/settings/trash",

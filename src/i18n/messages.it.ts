@@ -356,7 +356,6 @@ export const it: Messages = {
   },
   training: {
     tabs: {
-      sessions: "Sessioni",
       exercises: "Esercizi",
       routines: "Schede",
       programs: "Programmi",
@@ -375,6 +374,10 @@ export const it: Messages = {
       tabRoutine: "Scheda",
       tabExercise: "Esercizio",
       tabEstimate: "Stima",
+      tabPast: "Passata",
+      pastHint:
+        "Parte da una sessione già fatta, con le sue serie: poi la cambi come vuoi.",
+      pastEmpty: "Ancora nessuna sessione fatta.",
       exerciseHint:
         "Scegli un esercizio: si apre una sessione con le sue serie dell'ultima volta.",
       estimateHint:
@@ -421,7 +424,6 @@ export const it: Messages = {
     live: {
       title: "In palestra",
       start: "In palestra",
-      startHint: "Tocca una scheda per iniziarla subito, come l'ultima volta.",
       open: "Apri in modalità palestra",
       finish: "Termina",
       finishDrop: "Termina ({n} serie non fatte verranno tolte)",
@@ -476,7 +478,6 @@ export const it: Messages = {
     },
     title: "Allenamento",
     new: "Nuova sessione",
-    startFrom: "Inizia da",
     presetFrom: "come l'ultima volta, {day}",
     presetRoutine: "dalla scheda",
     presetEmpty: "Sessione vuota",

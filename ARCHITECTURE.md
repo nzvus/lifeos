@@ -141,8 +141,8 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   **Search:** `core/shared/search.ts` (accent-insensitive, every word, match then 60-day use).
 - **Responsive UI:** tabs by moment (ADR-0035), views as URLs (ADR-0033) — Today (summary |
   food | training, under a fixed day header; gym mode starts here) · Plan (the month: sessions
-  and the program's days) · Training (exercises | routines | programs) · Food (meals |
-  ingredients | pantry) · Progress (trends | weight); the Assistant in the header; a bottom
+  and the program's days) · Training, a library (routines | exercises | programs) · Food (meals |
+  ingredients | pantry) · Progress (trends | weight | training); the Assistant in the header; a bottom
   bar on phones, header on md+, the day's summary in two columns on lg+. `sm:/md:/lg:` obey `data-layout` (ADR-0010); inside cards,
   container queries; every grid has a base column (lint) — checked at 360 px, text 120 %.
 - **Visual language:** colour = state (short / in the zone / over: `bandState`,

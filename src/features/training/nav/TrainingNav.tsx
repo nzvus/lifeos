@@ -1,9 +1,9 @@
 /**
- * features/training/nav/TrainingNav.tsx — the Training tab's four views
- * (ADR-0033): Sessions | Exercises | Routines | Programs, each with the
- * stats of its own items. The same pattern as Food and Progress.
+ * features/training/nav/TrainingNav.tsx — the Training tab's views
+ * (ADR-0035): the library — Routines | Exercises | Programs. How training
+ * goes is in Progress → Training; what is coming is in Plan.
  */
-import { CalendarRange, ClipboardList, Dumbbell, History } from "lucide-react";
+import { CalendarRange, ClipboardList, Dumbbell } from "lucide-react";
 import type { Messages } from "@/i18n";
 import { SubNav } from "@/ui/SubNav";
 
@@ -11,7 +11,7 @@ export function TrainingNav({
   current,
   t,
 }: {
-  current: "sessions" | "exercises" | "routines" | "programs";
+  current: "exercises" | "routines" | "programs";
   t: Pick<Messages, "training">;
 }) {
   const n = t.training.tabs;
@@ -21,22 +21,16 @@ export function TrainingNav({
       current={current}
       items={[
         {
-          key: "sessions",
-          href: "/training",
-          label: n.sessions,
-          icon: <History size={16} aria-hidden="true" />,
+          key: "routines",
+          href: "/training/routines",
+          label: n.routines,
+          icon: <ClipboardList size={16} aria-hidden="true" />,
         },
         {
           key: "exercises",
           href: "/training/exercises",
           label: n.exercises,
           icon: <Dumbbell size={16} aria-hidden="true" />,
-        },
-        {
-          key: "routines",
-          href: "/training/routines",
-          label: n.routines,
-          icon: <ClipboardList size={16} aria-hidden="true" />,
         },
         {
           key: "programs",
