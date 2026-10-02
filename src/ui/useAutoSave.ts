@@ -8,7 +8,11 @@
 
 import type { FocusEvent, FormEvent } from "react";
 
+// A time or date comes from a picker: on a phone the field never loses
+// focus after it (the sleep form never saved, 2026-10-02), and its value is
+// complete or empty, never half-typed. So they save at once too.
 const AT_ONCE = new Set([
+  "time",
   "checkbox",
   "radio",
   "select-one",
