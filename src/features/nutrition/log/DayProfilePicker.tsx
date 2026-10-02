@@ -10,12 +10,13 @@
  */
 "use client";
 
+import { Target } from "lucide-react";
 import { useActionState } from "react";
 import type { DayTargets } from "@/core/nutrition/repositories/profiles";
 import { fieldError, IDLE, type FormState } from "@/core/shared/result";
 import { fill, type Messages } from "@/i18n";
 import { FormAlert } from "@/ui/FormAlert";
-import { SelectField } from "@/ui/SelectField";
+import { Badge } from "@/ui/Badge";
 
 type Props = {
   day: string;
@@ -39,22 +40,53 @@ export function DayProfilePicker({ day, current, profiles, action, t }: Props) {
   const selected = current.source === "none" ? "" : (current.profileId ?? "");
 
   return (
-    <form action={formAction} className="flex flex-col gap-2">
+    // The day type as the card's title (2026-10-02): a coloured disc, the
+    // name as a large select, a short badge for where it comes from. The
+    // long explanation is the badge's tooltip; only "default" keeps a hint,
+    // because it changes at the first food.
+    <form action={formAction} className="flex flex-col gap-1.5">
       <input type="hidden" name="day" value={day} />
       {fieldError(state, "profileId", t.errors) && (
         <FormAlert tone="error">{fieldError(state, "profileId", t.errors)!}</FormAlert>
       )}
-      {/* Applies as soon as it changes: one tap instead of two. */}
-      <SelectField
-        label={t.day.profileLabel}
-        name="profileId"
-        id="day-profile"
-        defaultValue={selected}
-        options={profiles.map((p) => ({ value: p.id, label: p.name }))}
-        onChange={(event) => event.currentTarget.form?.requestSubmit()}
-        disabled={pending}
-      />
-      <p className="text-meta text-muted">{status}</p>
+      <div className="flex items-center gap-3">
+        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-herb text-sheet">
+          <Target size={20} aria-hidden="true" />
+        </span>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <label htmlFor="day-profile" className="text-meta text-muted">
+            {t.day.profileLabel}
+          </label>
+          {/* Applies as soon as it changes: one tap instead of two. Keyed:
+              see ui/SelectField. */}
+          <select
+            key={selected}
+            id="day-profile"
+            name="profileId"
+            defaultValue={selected}
+            onChange={(event) => event.currentTarget.form?.requestSubmit()}
+            disabled={pending}
+            className="w-full min-w-0 truncate rounded-control bg-transparent py-0.5 font-display text-section font-bold outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          >
+            {current.source === "none" && <option value="">—</option>}
+            {profiles.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        {current.source !== "none" && (
+          <Badge tone={current.source === "fixed" ? "done" : "planned"} title={status}>
+            {current.source === "fixed" ? t.day.sourceFixed : t.day.sourceDefault}
+          </Badge>
+        )}
+      </div>
+      {current.source !== "fixed" && (
+        <p className="text-meta text-muted">
+          {current.source === "default" ? t.day.defaultHint : status}
+        </p>
+      )}
     </form>
   );
 }

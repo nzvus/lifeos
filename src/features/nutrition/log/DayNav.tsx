@@ -14,11 +14,18 @@ import type { Messages } from "@/i18n";
 import { buttonClass, TEXT_LINK } from "@/ui/button";
 import { DayPicker } from "./DayPicker";
 
-type Props = { day: string; today: string; locale: Locale; t: Messages["day"] };
+type Props = {
+  day: string;
+  today: string;
+  locale: Locale;
+  t: Messages["day"];
+  /** The open view as a query suffix ("&tab=food", or ""), kept across days (ADR-0033). */
+  tabQuery?: string;
+};
 
 const INTL: Record<Locale, string> = { it: "it-IT", en: "en-GB" };
 
-export function DayNav({ day, today, locale, t }: Props) {
+export function DayNav({ day, today, locale, t, tabQuery = "" }: Props) {
   // Noon UTC avoids the date shifting when formatted in a far-away time zone.
   const heading = new Intl.DateTimeFormat(INTL[locale], {
     weekday: "long",
@@ -37,7 +44,7 @@ export function DayNav({ day, today, locale, t }: Props) {
   return (
     <nav aria-label={t.backToToday} className="flex items-center justify-between gap-2">
       <Link
-        href={`/?day=${addDays(day, -1)}`}
+        href={`/?day=${addDays(day, -1)}${tabQuery}`}
         aria-label={t.previous}
         className={buttonClass({ variant: "quiet", iconOnly: true })}
       >
@@ -49,16 +56,19 @@ export function DayNav({ day, today, locale, t }: Props) {
             <span className="hidden @xs:inline">{heading}</span>
             <span className="@xs:hidden">{short}</span>
           </h1>
-          <DayPicker day={day} label={t.goTo} />
+          <DayPicker day={day} label={t.goTo} tabQuery={tabQuery} />
         </div>
         {day !== today && (
-          <Link href="/" className={`text-meta ${TEXT_LINK}`}>
+          <Link
+            href={tabQuery ? `/?${tabQuery.slice(1)}` : "/"}
+            className={`text-meta ${TEXT_LINK}`}
+          >
             {t.backToToday}
           </Link>
         )}
       </div>
       <Link
-        href={`/?day=${addDays(day, 1)}`}
+        href={`/?day=${addDays(day, 1)}${tabQuery}`}
         aria-label={t.next}
         className={buttonClass({ variant: "quiet", iconOnly: true })}
       >
