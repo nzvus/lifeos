@@ -3,7 +3,8 @@
  * (ADR-0014), gathered for one day and one owner: body data (settings),
  * the weight on that day (latest measurement up to it), the declared
  * activity (day_activity, default "mixed") and the day's sessions with
- * their burn ranges (ADR-0005). Also saves body data and activity.
+ * their burn ranges (ADR-0005). Also saves body data and activity, and
+ * reads each weigh-in with what came before it (ADR-0027).
  *
  * Tested in: energy.test.ts.
  */
@@ -21,7 +22,10 @@ import {
   type SetLike,
 } from "../../training/analysis";
 import type { ExerciseKind } from "../../training/kinds";
-import { listMeasurements } from "../../training/repositories/measurements";
+import {
+  listMeasurements,
+  type Measurement,
+} from "../../training/repositories/measurements";
 import { listExercises } from "../../training/repositories/exercises";
 import { listRoutines } from "../../training/repositories/routines";
 import { listSessions } from "../../training/repositories/sessions";
@@ -41,6 +45,13 @@ import {
   type CalibrationDay,
 } from "../calibration";
 import type { ActivityInput, BodyInput } from "../validation";
+import {
+  bodyIndices,
+  readWeighIn,
+  weightTrend,
+  type WeighInReading,
+} from "../../training/weighIns";
+import { USUAL_DAYS, weighInFacts } from "../weighInFacts";
 
 export type DayEnergyView = {
   body: Body;
@@ -292,10 +303,85 @@ export async function getCalibration(
       energy: dayEnergy({ ...body, weightKg: kg }, facts),
     };
   });
-  const weighIns = measurements
-    .filter((m) => m.weightKg !== null && m.day >= from && m.day <= to)
-    .map((m) => ({ day: m.day, kg: Number(m.weightKg) }));
+  const readings = await weighInReadings(db, owner, measurements, from, to);
+  const weighIns = readings.map((r) => ({
+    day: r.m.day,
+    kg: Number(r.m.weightKg),
+    weight: r.reliability,
+  }));
   return calibrate(days, weighIns, body.correction ?? 1);
+}
+
+/** Each weigh-in with a weight in [from, to], read with what came before it. */
+async function weighInReadings(
+  db: Db,
+  owner: Owner,
+  measurements: Measurement[],
+  from: string,
+  to: string,
+): Promise<(WeighInReading & { m: Measurement })[]> {
+  const weighed = measurements.filter(
+    (m) => m.weightKg !== null && m.day >= from && m.day <= to,
+  );
+  if (!weighed.length) return [];
+  const first = addDays(weighed[0]!.day, -1 - USUAL_DAYS);
+  const last = weighed[weighed.length - 1]!.day;
+  const [[s], history, sessions] = await Promise.all([
+    db
+      .select({ timezone: userSettings.timezone })
+      .from(userSettings)
+      .where(ownedBy(userSettings, owner)),
+    getHistory(db, owner, first, last),
+    listSessions(db, owner, first, last),
+  ]);
+  const byDay = new Map(history.map((h) => [h.day, h]));
+  const zone = s?.timezone ?? "UTC";
+  return weighed.map((m) => ({
+    m,
+    ...readWeighIn(weighInFacts(m, byDay, sessions, zone)),
+  }));
+}
+
+export type WeighInView = WeighInReading & {
+  id: string;
+  day: string;
+  kg: number;
+  /** The smoothed weight after this weigh-in (ADR-0027). */
+  trend: number;
+  indices: ReturnType<typeof bodyIndices>;
+};
+
+/** Every weigh-in, oldest first, with its clues, reliability, trend and indices. */
+export async function getWeighIns(db: Db, owner: Owner): Promise<WeighInView[]> {
+  const [measurements, [s]] = await Promise.all([
+    listMeasurements(db, owner),
+    db
+      .select({ heightCm: userSettings.heightCm })
+      .from(userSettings)
+      .where(ownedBy(userSettings, owner)),
+  ]);
+  const read = await weighInReadings(db, owner, measurements, "0000-01-01", "9999-12-31");
+  const trend = weightTrend(
+    read.map((r) => ({
+      day: r.m.day,
+      kg: Number(r.m.weightKg),
+      reliability: r.reliability,
+    })),
+  );
+  return read.map((r, i) => ({
+    id: r.m.id,
+    day: r.m.day,
+    kg: Number(r.m.weightKg),
+    clues: r.clues,
+    reliability: r.reliability,
+    trend: trend[i]!,
+    indices: bodyIndices({
+      kg: Number(r.m.weightKg),
+      heightCm: s?.heightCm ?? null,
+      waistCm: r.m.waistCm === null ? null : Number(r.m.waistCm),
+      bodyFatPct: r.m.bodyFatPct === null ? null : Number(r.m.bodyFatPct),
+    }),
+  }));
 }
 
 /**

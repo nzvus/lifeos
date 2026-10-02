@@ -10,6 +10,7 @@ import {
   getBody,
   getCalibration,
   getDayEnergy,
+  getWeighIns,
   saveBody,
   setDayActivity,
   setEnergyCorrection,
@@ -127,5 +128,68 @@ describe("energy repository", () => {
 
   it("the database refuses a factor outside 0.80–1.20", async () => {
     await expect(setEnergyCorrection(db, me, 1.5, DAY)).rejects.toThrow();
+  });
+});
+
+describe("weigh-ins read with what came before them (ADR-0027)", () => {
+  it("a weigh-in after dinner counts less; the trend and BMI come with it", async () => {
+    await saveBody(db, me, { sex: "male", birthYear: 1996, heightCm: 180 });
+    const estimate = (day: string, at: string, carbs: string) =>
+      logEstimate(db, me, {
+        day,
+        label: "Food",
+        kcal: "900",
+        protein: "0",
+        carbs,
+        fat: "0",
+        fiber: "0",
+        cost: null,
+        at: new Date(at),
+      });
+    // A usual week of 250 g carbs, then 400 g the day before the 2nd weigh-in.
+    for (let i = 2; i <= 8; i++)
+      await estimate(addDays(DAY, -i), `${addDays(DAY, -i)}T10:00:00Z`, "250");
+    await estimate(addDays(DAY, -1), `${addDays(DAY, -1)}T10:00:00Z`, "400");
+    await estimate(DAY, `${DAY}T17:00:00Z`, "100"); // dinner, 19:00 in Rome
+    const said = { fasted: true, afterToilet: true, afterTraining: false };
+    await addMeasurement(
+      db,
+      me,
+      {
+        day: addDays(DAY, -1),
+        weightKg: "75",
+        bodyFatPct: null,
+        waistCm: null,
+        notes: "",
+        context: { ...said, time: "07:00" },
+      },
+      "Europe/Rome",
+    );
+    await addMeasurement(
+      db,
+      me,
+      {
+        day: DAY,
+        weightKg: "77",
+        bodyFatPct: null,
+        waistCm: null,
+        notes: "",
+        context: {
+          time: "21:00",
+          fasted: false,
+          afterToilet: true,
+          afterTraining: false,
+        },
+      },
+      "Europe/Rome",
+    );
+
+    const [a, b] = await getWeighIns(db, me);
+    expect(a).toMatchObject({ clues: [], reliability: 1, trend: 75 });
+    expect(b!.clues).toEqual(["after_food", "late", "carbs_up"]);
+    expect(b!.reliability).toBe(0.25);
+    expect(b!.trend).toBe(75.05); // +2 kg on the scale, +50 g in the trend
+    expect(b!.indices.bmi).toEqual({ value: 23.8, category: "normal" });
+    expect(await getWeighIns(db, other)).toEqual([]);
   });
 });
