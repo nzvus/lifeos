@@ -141,3 +141,30 @@ describe("live mode", () => {
     expect(newExercise(id(3), null, undefined).sets).toHaveLength(1);
   });
 });
+
+describe("warm-up (gym mode)", () => {
+  it("a warm-up set is half the first working load, rounded to its step, 10 reps", async () => {
+    const { warmupSet } = await import("./live");
+    const base = {
+      reps: 8,
+      loadKg: "62.5",
+      loadText: null,
+      loadApprox: false,
+      durationS: null,
+      distanceM: null,
+      speedKmh: null,
+      inclinePct: null,
+      restS: null,
+      warmup: false,
+      done: false,
+    };
+    const e = { exerciseId: "x", restS: 90, notes: "", sets: [base, base] };
+    expect(warmupSet(e)).toMatchObject({
+      reps: 10,
+      loadKg: "30",
+      warmup: true,
+      done: false,
+    });
+    expect(warmupSet({ ...e, sets: [{ ...base, loadKg: null }] }).loadKg).toBeNull();
+  });
+});

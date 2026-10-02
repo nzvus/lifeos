@@ -387,6 +387,16 @@ export const it: Messages = {
       removeExercise: "Togli esercizio",
       before: "ultima volta {v}",
       restore: "Torna all'ultima volta",
+      notStarted: "parte alla prima serie",
+      restOver: "Pausa finita",
+      restNext: "ora: {name}, serie {n}",
+      skipRest: "Salta pausa",
+      close: "OK",
+      warmup: "Riscaldamento",
+      addWarmup: "Riscaldamento",
+      warmupHow: "Come scaldarsi",
+      warmupHint:
+        "Serve al primo esercizio multiarticolare di ogni gruppo muscolare (panca, squat, stacco, lat machine…), non a ogni esercizio: dopo, i muscoli sono già caldi. Di solito 2–3 serie in salita, con pause brevi (circa 1 minuto): ~50 % del carico per 8–10 ripetizioni, ~70 % per 4–6, ~85 % per 1–3. Non devono stancare. Le serie di riscaldamento non contano nel tonnellaggio né nei confronti.",
     },
     chart: {
       title: "Allenamento",

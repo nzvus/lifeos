@@ -41,6 +41,8 @@ export type LiveSession = {
 
 /** Rest when the exercise has none of its own (seconds). */
 export const DEFAULT_REST_S = 90;
+/** Rest after a warm-up set: short, it should not tire (seconds). */
+export const WARMUP_REST_S = 60;
 
 /** The first set not done yet, in order; null when everything is done. */
 export function nextSet(
@@ -84,6 +86,24 @@ export function copyLastSet(e: LiveExercise): LiveSet {
         warmup: false,
         done: false,
       };
+}
+
+/**
+ * A warm-up set to put first: about half the first working set's load
+ * (rounded down to its step), 10 reps; not done. The usual ramp is
+ * ~50 % × 8–10, ~70 % × 4–6, ~85 % × 1–3 (i18n warmupHint).
+ */
+export function warmupSet(e: LiveExercise): LiveSet {
+  const work = e.sets.find((x) => !x.warmup) ?? e.sets[0];
+  const kg = work?.loadKg ? Number(work.loadKg) : null;
+  const half = kg === null ? null : kg / 2;
+  const step = half === null ? 1 : loadStep(half);
+  return {
+    ...copyLastSet({ ...e, sets: [] }),
+    reps: 10,
+    loadKg: half === null ? null : String(Math.floor(half / step) * step),
+    warmup: true,
+  };
 }
 
 /** The form-shaped values core/training/validation sessionInput parses. */
