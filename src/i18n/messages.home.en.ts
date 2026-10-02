@@ -481,3 +481,19 @@ export const bodyEn = {
     salt_up: "more salt than usual yesterday: likely water",
   },
 };
+
+export const progressEn = {
+  title: "Progress",
+  trends: "Trends",
+  weight: "Weight",
+  coming: "Coming",
+};
+
+export const addFabEn = {
+  open: "Add",
+  title: "Add to the day",
+  close: "Close",
+  food: "Food",
+  training: "Training",
+  weight: "Weight",
+};

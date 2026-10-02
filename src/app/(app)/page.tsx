@@ -49,6 +49,7 @@ import { dayBurn } from "@/core/training/progress";
 import { fill } from "@/i18n";
 import { EntryList } from "@/features/nutrition/log/EntryList";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
+import { AddFab } from "@/features/nutrition/log/AddFab";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { GoalLine } from "@/features/nutrition/log/GoalLine";
@@ -583,6 +584,8 @@ export default async function DayPage({ searchParams }: Props) {
           />
         )}
       </div>
+      {/* Design review S1: adding is one tap away, wherever you are on the page. */}
+      {canAdd && <AddFab training t={t} />}
     </div>
   );
 }

@@ -172,7 +172,7 @@
 - [x] Program days changeable (ADR-0029, #119): swap, move, rest, back to the cycle; drag on a computer
 - [x] Exercise guides (ADR-0028): a guide per movement pattern (numbers, warm-up, cues, common mistakes) and today's target by double progression, in gym mode and on the exercise page
 - [ ] Steps from a device include a run's steps: don't count them twice (needs the cardio's kind: run, walk, bike)
-- [ ] Design review, part 2 (delegated to the agent): S1 "+" on the day page, S2 navigation (Cibo, Progressi), S3 settings that save themselves, S4 compact lists, S5 Progressi page, S6 colour = state everywhere, S7 theme pass
+- [x] Design review, part 2 (delegated to the agent): S1 "+" on the day page; S2 tabs Today · Training · Food (meals | ingredients | pantry) · Progress · Assistant; S3 settings save themselves, theme beside light/dark, sign out in Settings; S4 compact food rows; S5 Progress = Trends | Weight | Coming, day types in Settings; S6 colour = state (macro numbers in ink, prices grey); S7 every theme light and dark at 360 px, text 120 %
 
 ## Next sprint: S11 — The day as a plan, honest energy, smarter targets (requested 2026-10-01)
 - **Goal:** plan and start training from the day like food; energy and targets that make sense for the developer's real data; a day score about zones, not reaching numbers.

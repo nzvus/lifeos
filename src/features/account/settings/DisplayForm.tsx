@@ -11,21 +11,21 @@ import { useActionState } from "react";
 import { IDLE, type FormState } from "@/core/shared/result";
 import type { Display } from "@/core/shared/display";
 import type { Messages } from "@/i18n";
-import { FormAlert } from "@/ui/FormAlert";
 import { SelectField } from "@/ui/SelectField";
-import { SubmitButton } from "@/ui/SubmitButton";
+import { SaveStatus } from "@/ui/SaveStatus";
+import { useAutoSave } from "@/ui/useAutoSave";
 
 type Props = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   initial: Display;
-  t: Messages["settings"]["display"] & { saved: string };
+  t: Messages["settings"]["display"] & { saved: string; saving: string };
 };
 
 export function DisplayForm({ action, initial, t }: Props) {
   const [state, formAction] = useActionState(action, IDLE);
+  const autoSave = useAutoSave(); // design review S3: saves itself
   return (
-    <form action={formAction} className="flex flex-col gap-6">
-      {state.status === "saved" && <FormAlert tone="success">{t.saved}</FormAlert>}
+    <form action={formAction} {...autoSave} className="flex flex-col gap-6">
       <SelectField
         label={t.mode}
         icon={<SunMoon size={16} aria-hidden="true" />}
@@ -48,9 +48,10 @@ export function DisplayForm({ action, initial, t }: Props) {
           { value: "phone", label: t.layouts.phone },
         ]}
       />
-      <div>
-        <SubmitButton>{t.save}</SubmitButton>
-      </div>
+      <SaveStatus
+        saved={state.status === "saved"}
+        labels={{ saving: t.saving, saved: t.saved }}
+      />
     </form>
   );
 }

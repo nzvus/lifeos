@@ -10,7 +10,6 @@
  */
 "use client";
 
-import { Tag } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   browseFoods,
@@ -21,19 +20,15 @@ import {
   type SortKey,
 } from "@/core/nutrition/metrics";
 import { MOMENTS, type Moment } from "@/core/nutrition/moments";
-import { qualitySummary } from "@/core/nutrition/quality-summary";
 import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
-import { detailLines, stripValues } from "@/core/nutrition/display";
+import { stripValues } from "@/core/nutrition/display";
 import type { MealWithLines } from "@/core/nutrition/repositories/meals";
 import type { UsageMap } from "@/core/nutrition/repositories/usage";
-import { formatCents, formatNumber } from "@/core/shared/format";
+import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, macroLabels, type Messages } from "@/i18n";
-import { FoodDetails } from "@/ui/FoodDetails";
-import { MealQuality } from "./MealQuality";
-import { FoodCardMeta } from "@/ui/FoodCardMeta";
 import { ListItem } from "@/ui/ListItem";
-import { MacroStrip } from "@/ui/MacroStrip";
+import { MacroStrip, mainMacros } from "@/ui/MacroStrip";
 import { MomentIcon } from "@/ui/MomentIcon";
 import { ListToolbar } from "@/ui/ListToolbar";
 import { SortNote } from "@/ui/SortNote";
@@ -45,10 +40,6 @@ type Props = {
   meals: MealWithLines[];
   usage: UsageMap;
   locale: Locale;
-  /** ADR-0012: average score by meal id (rated meals only). */
-  ratings: Record<string, number>;
-  /** ADR-0012: the union of each meal's ingredients' tags, by meal id. */
-  tags: Record<string, { name: string; icon: string }[]>;
   /** The sort the list opens with (preferences). */
   initialSort: { sort: SortKey; per: Per };
   t: Pick<
@@ -72,8 +63,6 @@ type Props = {
 export function MealBrowser({
   meals,
   usage,
-  ratings,
-  tags,
   locale,
   initialSort,
   t,
@@ -189,53 +178,26 @@ export function MealBrowser({
                   </span>
                 ) : undefined
               }
-              aside={
-                <span className="inline-flex items-center gap-1 text-price">
-                  <Tag size={14} aria-hidden="true" />
-                  {m.totals.costComplete
-                    ? formatCents(m.totals.costCents, locale)
-                    : fill(t.label.costPartialShort, {
-                        v: formatCents(m.totals.costCents, locale),
-                      })}
-                </span>
+              // Compact rows (design review S4): energy aside, one line of
+              // macros; cost, quality and the ingredients on the meal's page,
+              // or here as the sort's value.
+              aside={`${formatNumber(m.totals.nutrients.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}
+              footer={
+                m.uses > 0
+                  ? fill(t.search.uses, { n: String(m.uses) })
+                  : t.search.neverUsed
               }
             >
-              <FoodCardMeta
-                energy={`${formatNumber(m.totals.nutrients.kcal, locale, 0)} ${NUTRIENT_UNIT.kcal}`}
-                basis={t.meals.perServing}
-                uses={
-                  m.uses > 0
-                    ? fill(t.search.uses, { n: String(m.uses) })
-                    : t.search.neverUsed
-                }
-              />
               <MacroStrip
-                values={stripValues(m.totals.nutrients, locale)}
+                values={mainMacros(stripValues(m.totals.nutrients, locale))}
                 labels={labels}
                 withEnergy={false}
-              />
-              <MealQuality
-                summary={qualitySummary(m.lines)}
-                rating={ratings[m.id] ?? null}
-                tags={tags[m.id] ?? []}
-                locale={locale}
-                t={t}
               />
               <SortNote
                 value={sortNote(m.metrics, list.sort, list.per, locale)}
                 sort={list.sort}
                 per={list.per}
                 t={t.search}
-              />
-              {/* The same details as a logged entry: one serving's lines. */}
-              <FoodDetails
-                summary={fill(t.macro.ingredientsCount, { n: String(m.lines.length) })}
-                lines={detailLines(
-                  m.lines.map((l) => ({ ...l, name: l.ingredientName })),
-                  "1",
-                  locale,
-                )}
-                labels={labels}
               />
             </ListItem>
           );

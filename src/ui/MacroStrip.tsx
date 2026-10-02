@@ -6,8 +6,9 @@
  *
  *   🥩 25 g   🌾 30 g 🍬 3   💧 10 g 💧💧 2   🍃 5 g
  *
- * The colour is the key: raspberry = protein, amber = carbs, blue = fat,
- * green = fibre (design/theme.css), the same as in the bar and the charts.
+ * The icon's colour is the key: raspberry = protein, amber = carbs, blue =
+ * fat, green = fibre (design/theme.css), the same as in the bar and the
+ * charts; the numbers are ink (design review S6: colour = state).
  * Sugars and saturated fat, when given, follow their macro in the same
  * colour, lighter in weight ("of which"). Each value carries its full name
  * for screen readers and as a tooltip.
@@ -17,7 +18,7 @@
  * (macroLabels).
  */
 import { MacroBar, type MacroBarSplit } from "./MacroBar";
-import { NUTRIENT_TEXT, NutrientIcon } from "./NutrientIcon";
+import { NutrientIcon } from "./NutrientIcon";
 
 export type MacroStripValues = {
   /** Energy with its unit ("372 kcal"), optional. */
@@ -59,17 +60,23 @@ function Value({
   part?: boolean;
 }) {
   return (
+    // Design review S6 (colour = state): the icon carries the nutrient's
+    // colour; the number is ink, so the colours left on screen mean a state.
     <span
       title={label}
-      className={`inline-flex items-center gap-0.5 ${NUTRIENT_TEXT[name] ?? ""} ${
-        part ? "font-normal" : "font-semibold"
-      }`}
+      className={`inline-flex items-center gap-0.5 ${part ? "font-normal text-muted" : "font-semibold"}`}
     >
       <NutrientIcon name={name} size={part ? 12 : 14} />
       <span className="sr-only">{label}</span>
       {part ? value : `${value} g`}
     </span>
   );
+}
+
+/** The four main macros and the split only: compact list rows (design review S4). */
+export function mainMacros(v: MacroStripValues): MacroStripValues {
+  const { protein, carbs, fat, fiber, split } = v;
+  return { protein, carbs, fat, fiber, split };
 }
 
 export function MacroStrip({

@@ -15,6 +15,10 @@
  *
  * Settings is not a tab (2026-10-01: too many tabs for a phone): it is an
  * icon button in the header on every screen (`NavIconLink`).
+ *
+ * Tabs group what the person does, not data types (design review S2,
+ * 2026-10-02): Today · Training · Food (meals, ingredients, pantry) ·
+ * Progress · Assistant. `match` lists the other paths a tab owns.
  */
 "use client";
 
@@ -25,6 +29,7 @@ import {
   Settings,
   Sparkles,
   Target,
+  TrendingUp,
   UtensilsCrossed,
   type LucideIcon,
 } from "lucide-react";
@@ -37,17 +42,24 @@ const ICONS = {
   meals: UtensilsCrossed,
   ingredients: Carrot,
   targets: Target,
+  progress: TrendingUp,
   training: Dumbbell,
   settings: Settings,
   assistant: Sparkles,
 } satisfies Record<string, LucideIcon>;
 
-type NavLink = { href: string; label: string; icon: keyof typeof ICONS };
+type NavLink = {
+  href: string;
+  label: string;
+  icon: keyof typeof ICONS;
+  /** Other paths this tab owns (Food: /ingredients, /pantry). */
+  match?: readonly string[];
+};
 
-function isActive(pathname: string, href: string) {
-  return href === "/"
-    ? pathname === "/"
-    : pathname === href || pathname.startsWith(`${href}/`);
+function isActive(pathname: string, href: string, match: readonly string[] = []) {
+  return [href, ...match].some((h) =>
+    h === "/" ? pathname === "/" : pathname === h || pathname.startsWith(`${h}/`),
+  );
 }
 
 export function NavBar({ links, label }: { links: NavLink[]; label: string }) {
@@ -57,7 +69,7 @@ export function NavBar({ links, label }: { links: NavLink[]; label: string }) {
       <nav aria-label={label} className="hidden items-center gap-x-5 md:flex">
         {links.map((l) => {
           const Icon = ICONS[l.icon];
-          const active = isActive(pathname, l.href);
+          const active = isActive(pathname, l.href, l.match);
           return (
             <Link
               key={l.href}
@@ -80,7 +92,7 @@ export function NavBar({ links, label }: { links: NavLink[]; label: string }) {
       >
         {links.map((l) => {
           const Icon = ICONS[l.icon];
-          const active = isActive(pathname, l.href);
+          const active = isActive(pathname, l.href, l.match);
           return (
             <Link
               key={l.href}

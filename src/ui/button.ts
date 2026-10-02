@@ -49,7 +49,9 @@ export function buttonClass({
     BASE,
     VARIANT[variant],
     iconOnly ? SIZE[size].icon : SIZE[size].text,
-    block ? "w-full" : "",
+    // A full-width button may carry a sentence ("Finish (1 set will be
+    // dropped)"): it wraps instead of pushing the page wider.
+    block ? "w-full whitespace-normal! text-center" : "",
   ]
     .filter(Boolean)
     .join(" ");

@@ -6,6 +6,8 @@
 import { guidesIt } from "./messages.guides.it";
 import {
   pantryIt,
+  progressIt,
+  addFabIt,
   bodyIt,
   trashIt,
   energyIt,
@@ -54,6 +56,8 @@ export const it: Messages = {
     meals: "Pasti",
     settings: "Impostazioni",
     profiles: "Obiettivi",
+    food: "Cibo",
+    progress: "Progressi",
     training: "Allenamento",
     signOut: "Esci",
     menu: "Navigazione principale",
@@ -212,6 +216,8 @@ export const it: Messages = {
       "Aggiungi prima qualche ingrediente: un pasto è fatto di ingredienti.",
   },
   guides: guidesIt,
+  addFab: addFabIt,
+  progress: progressIt,
   pantry: pantryIt,
   trash: trashIt,
   energy: energyIt,
@@ -220,6 +226,8 @@ export const it: Messages = {
   programs: programsIt,
   outlook: outlookIt,
   settings: {
+    autoSaving: "Salvataggio…",
+    account: "Account",
     title: "Impostazioni",
     timezone: "Fuso orario",
     timezoneHint: "Decide quando inizia e finisce la tua giornata, es. Europe/Rome.",

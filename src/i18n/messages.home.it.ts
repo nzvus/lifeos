@@ -485,3 +485,19 @@ export const bodyIt: Messages["body"] = {
     salt_up: "ieri più sale del solito: probabile acqua",
   },
 };
+
+export const progressIt: Messages["progress"] = {
+  title: "Progressi",
+  trends: "Andamento",
+  weight: "Peso",
+  coming: "Prossimi",
+};
+
+export const addFabIt: Messages["addFab"] = {
+  open: "Aggiungi",
+  title: "Aggiungi alla giornata",
+  close: "Chiudi",
+  food: "Cibo",
+  training: "Allenamento",
+  weight: "Peso",
+};

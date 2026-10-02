@@ -4,8 +4,10 @@
  * and the way to the trash (/settings/trash).
  */
 import {
+  CalendarRange,
   Download,
   Eye,
+  LogOut,
   PersonStanding,
   SlidersHorizontal,
   Sparkles,
@@ -27,6 +29,7 @@ import { listFactors } from "@/core/nutrition/repositories/ratings";
 import { requireContext } from "@/app/_server/owner";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
+import { SignOutButton } from "@/features/account/auth/SignOutButton";
 import { preferencesFormValues } from "@/core/nutrition/preferences";
 import { settingsFormValues } from "@/core/nutrition/validation";
 import { DisplayForm } from "@/features/account/settings/DisplayForm";
@@ -41,16 +44,22 @@ import {
   savePreferencesAction,
   saveSettingsAction,
 } from "./actions";
-import { buttonClass } from "@/ui/button";
+import { buttonClass, TEXT_LINK } from "@/ui/button";
+import { dynamicTargetsToday } from "@/core/energy/repositories/outlook";
+import { listProfiles } from "@/core/nutrition/repositories/profiles";
+import { ProfileList } from "@/features/nutrition/profiles/ProfileList";
 
 export default async function SettingsPage() {
   const { owner, settings, t } = await requireContext();
   const display = await getDisplay();
-  const [factors, body, assistantStatus] = await Promise.all([
+  const today = todayIn(settings.timezone);
+  const [factors, body, assistantStatus, profiles] = await Promise.all([
     listFactors(getDb(), owner),
-    getBody(getDb(), owner, todayIn(settings.timezone)),
+    getBody(getDb(), owner, today),
     getKeyStatus(getDb(), owner),
+    listProfiles(getDb(), owner),
   ]);
+  const dynamicToday = await dynamicTargetsToday(getDb(), owner, today, profiles);
   // Every IANA time zone the server's runtime knows, for suggestions.
   const timeZones = Intl.supportedValuesOf("timeZone");
   return (
@@ -66,6 +75,28 @@ export default async function SettingsPage() {
         />
       </Section>
       <Section
+        title={t.settings.display.title}
+        icon={<Eye size={20} aria-hidden="true" />}
+      >
+        <p className="text-muted">{t.settings.display.hint}</p>
+        <SettingsForm
+          part="theme"
+          action={saveSettingsAction}
+          initial={settingsFormValues(settings)}
+          timeZones={timeZones}
+          t={{ settings: t.settings, errors: t.errors }}
+        />
+        <DisplayForm
+          action={saveDisplayAction}
+          initial={display}
+          t={{
+            ...t.settings.display,
+            saved: t.settings.saved,
+            saving: t.settings.autoSaving,
+          }}
+        />
+      </Section>
+      <Section
         title={t.energy.body}
         icon={<PersonStanding size={20} aria-hidden="true" />}
         subtitle={t.energy.bodyHint}
@@ -78,6 +109,25 @@ export default async function SettingsPage() {
             heightCm: body.heightCm ? String(body.heightCm) : "",
           }}
           t={{ energy: t.energy, errors: t.errors, settings: t.settings }}
+        />
+      </Section>
+      {/* Design review S5: the day types are set up here; Progress shows how it goes. */}
+      <Section
+        id="day-types"
+        title={t.trends.dayTypes}
+        icon={<CalendarRange size={20} aria-hidden="true" />}
+        aside={
+          <Link href="/profiles/new?from=/settings%23day-types" className={TEXT_LINK}>
+            {t.profiles.newTitle}
+          </Link>
+        }
+      >
+        <p className="text-meta text-muted">{t.profiles.intro}</p>
+        <ProfileList
+          profiles={profiles}
+          today={dynamicToday}
+          locale={settings.locale}
+          t={t}
         />
       </Section>
       <Section
@@ -125,17 +175,6 @@ export default async function SettingsPage() {
         />
       </Section>
       <Section
-        title={t.settings.display.title}
-        icon={<Eye size={20} aria-hidden="true" />}
-      >
-        <p className="text-muted">{t.settings.display.hint}</p>
-        <DisplayForm
-          action={saveDisplayAction}
-          initial={display}
-          t={{ ...t.settings.display, saved: t.settings.saved }}
-        />
-      </Section>
-      <Section
         title={t.settings.exportTitle}
         icon={<Download size={20} aria-hidden="true" />}
       >
@@ -150,6 +189,10 @@ export default async function SettingsPage() {
         <Link href="/settings/trash" className={`self-start ${buttonClass()}`}>
           {t.trash.open}
         </Link>
+      </Section>
+      {/* Design review S3: sign out here, at the end — rare, and not one tap away. */}
+      <Section title={t.settings.account} icon={<LogOut size={20} aria-hidden="true" />}>
+        <SignOutButton label={t.nav.signOut} compact={false} />
       </Section>
     </div>
   );

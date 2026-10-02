@@ -14,10 +14,10 @@ import { TREND_RANGES } from "@/core/nutrition/preferences";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import { fill, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
-import { FormAlert } from "@/ui/FormAlert";
 import { MomentIcon } from "@/ui/MomentIcon";
 import { SelectField } from "@/ui/SelectField";
-import { SubmitButton } from "@/ui/SubmitButton";
+import { SaveStatus } from "@/ui/SaveStatus";
+import { useAutoSave } from "@/ui/useAutoSave";
 
 type Props = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
@@ -30,15 +30,12 @@ type Props = {
 
 export function PreferencesForm({ action, initial, t }: Props) {
   const [state, formAction] = useActionState(action, IDLE);
+  const autoSave = useAutoSave(); // design review S3: saves itself
   const err = (f: string) => fieldError(state, f, t.errors);
   const val = (f: string) => valueOf(state, f, initial[f] ?? "");
   const p = t.preferences;
   return (
-    <form action={formAction} className="flex flex-col gap-6">
-      {state.status === "saved" && (
-        <FormAlert tone="success">{t.settings.saved}</FormAlert>
-      )}
-
+    <form action={formAction} {...autoSave} className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <label className="flex items-center gap-2 text-meta font-semibold">
           <input
@@ -111,9 +108,10 @@ export function PreferencesForm({ action, initial, t }: Props) {
         />
       </div>
 
-      <div>
-        <SubmitButton>{p.save}</SubmitButton>
-      </div>
+      <SaveStatus
+        saved={state.status === "saved"}
+        labels={{ saving: t.settings.autoSaving, saved: t.settings.saved }}
+      />
     </form>
   );
 }

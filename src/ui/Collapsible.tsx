@@ -7,11 +7,14 @@
  *
  * Open / closed is remembered on this device (localStorage, per `id`): a
  * viewer convenience, so a failed read just means "use the default".
+ *
+ * A link to `#<id>` (the day page's "+", design review S1) opens it and
+ * scrolls to it.
  */
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { CARD } from "./Card";
 
 const KEY = (id: string) => `lifeos:open:${id}`;
@@ -69,12 +72,24 @@ export function Collapsible({
   );
   const [session, setSession] = useState<boolean | null>(null);
   const open = session ?? (saved === null ? defaultOpen : saved === "1");
+  const box = useRef<HTMLElement>(null);
+  // Opened by a link to #id: on load and whenever the hash changes.
+  useEffect(() => {
+    const check = () => {
+      if (window.location.hash !== `#${id}`) return;
+      setSession(true);
+      requestAnimationFrame(() => box.current?.scrollIntoView({ block: "start" }));
+    };
+    check();
+    window.addEventListener("hashchange", check);
+    return () => window.removeEventListener("hashchange", check);
+  }, [id]);
   const toggle = () => {
     setSession(!open); // works even when storage is blocked
     remember(id, !open);
   };
   return (
-    <section className={CARD}>
+    <section ref={box} id={id} className={`${CARD} scroll-mt-4`}>
       <h2
         className="section-heading"
         // Closed with nothing under it, the heading's rule would just underline
