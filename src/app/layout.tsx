@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 const DESKTOP_VIEWPORT_WIDTH = 1200;
 
 export async function generateViewport(): Promise<Viewport> {
-  const { layout } = await getDisplay();
+  const { mode, layout } = await getDisplay();
   return {
     // "desktop" on a phone: lay the page out as wide as a desktop and let the
     // browser zoom out to fit, like "request desktop site".
@@ -52,11 +52,15 @@ export async function generateViewport(): Promise<Viewport> {
     // Lets the page use the full screen on phones with a notch/home indicator;
     // the bottom tab bar pads itself with env(safe-area-inset-bottom).
     viewportFit: "cover",
-    // The phone's status bar: the default theme's paper, light or dark.
-    themeColor: [
-      { media: "(prefers-color-scheme: light)", color: BROWSER_COLORS.light },
-      { media: "(prefers-color-scheme: dark)", color: BROWSER_COLORS.dark },
-    ],
+    // The phone's status bar: the default theme's paper, in the mode chosen
+    // in Settings, else the system's.
+    themeColor:
+      mode === "system"
+        ? [
+            { media: "(prefers-color-scheme: light)", color: BROWSER_COLORS.light },
+            { media: "(prefers-color-scheme: dark)", color: BROWSER_COLORS.dark },
+          ]
+        : BROWSER_COLORS[mode],
   };
 }
 
