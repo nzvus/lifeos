@@ -103,7 +103,7 @@ export default async function AssistantPage({ searchParams }: Props) {
           </Link>
         </p>
       )}
-      <div className="grid items-start gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
         {/* Phone: the list folded above the chat; wide: open, on the left. */}
         <div className="min-w-0">
           <Collapsible

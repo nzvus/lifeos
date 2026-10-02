@@ -201,7 +201,7 @@ function DynamicFields({
           options={GOALS.map((g) => ({ value: g, label: e.goals[g] }))}
         />
         <p className="font-semibold">{balanceText(Number(v.deficitKcal), e)}</p>
-        <div className="grid items-start gap-4 @lg:grid-cols-3">
+        <div className="grid grid-cols-1 items-start gap-4 @lg:grid-cols-3">
           <Field
             label={e.deficit}
             hint={e.deficitHint}

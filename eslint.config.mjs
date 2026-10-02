@@ -176,6 +176,16 @@ const config = [
             "No Tailwind arbitrary values; add a token in src/design/theme.css (ADR-0002 rule 3).",
         },
         {
+          // A grid whose columns appear only at a breakpoint has an implicit
+          // column as wide as its widest row on phones: it pushes the page
+          // past the screen (design review B1, 2026-10-02). grid-cols-1 is
+          // minmax(0, 1fr), which shrinks.
+          selector:
+            "Literal[value=/(^|\\s)grid\\s(?!(.*\\s)?grid-cols-\\d)(?=.*[:@][a-z0-9]*:?grid-cols-)/]",
+          message:
+            "Give the grid a base column (grid-cols-1) before its responsive columns.",
+        },
+        {
           // Type scale (ADR-0010): only the five named sizes of theme.css.
           selector: "Literal[value=/(^|[\\s:])text-(xs|sm|base|lg|xl|[2-9]xl)(\\s|$)/]",
           message: "Use text-title/section/item/body/meta (src/design/theme.css).",

@@ -19,10 +19,12 @@ export function FoodCardMeta({
   uses: string;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 text-meta">
-      <span>
+    // Wraps instead of squeezing: a large energy figure on a narrow line
+    // overlapped its basis (design review B5).
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-meta">
+      <span className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
         <span className="font-display text-body font-bold tabular-nums">{energy}</span>
-        <span className="pl-1.5 text-muted">{basis}</span>
+        <span className="text-muted">{basis}</span>
       </span>
       <span className="inline-flex shrink-0 items-center gap-1 text-muted tabular-nums">
         <History size={14} aria-hidden="true" />

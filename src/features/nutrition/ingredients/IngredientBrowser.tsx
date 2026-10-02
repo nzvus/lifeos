@@ -159,7 +159,7 @@ export function IngredientBrowser({
 
       {/* One layout on every screen, the same as the meals list: cards,
           two columns from md up. */}
-      <ul className="grid gap-x-8 @3xl:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-x-8 @3xl:grid-cols-2">
         {shown.map((r) => (
           <ListItem
             key={r.id}
