@@ -31,12 +31,14 @@ import {
   logPortion,
   refreshLogEntry,
   setEntryStatus,
+  setEntryServings,
   setEntryTime,
 } from "@/core/nutrition/repositories/log";
 import { setDayProfile, setGoalDeficit } from "@/core/nutrition/repositories/profiles";
 import {
   dayProfileInput,
   goalDeficitInput,
+  entryServingsInput,
   entryTimeInput,
   estimateInput,
   logIngredientInput,
@@ -254,6 +256,18 @@ export async function setEntryTimeAction(
   if (!result.ok) return { status: "error", errors: result.errors, values };
   revalidatePath("/");
   return { status: "saved" };
+}
+
+/** An entry's −/+ multiplier (a plain form: works without JavaScript). */
+export async function setEntryServingsAction(
+  id: string,
+  formData: FormData,
+): Promise<void> {
+  const { owner } = await requireContext();
+  const input = parseInput(entryServingsInput, formToObject(formData));
+  if (!input.ok) return;
+  await setEntryServings(getDb(), owner, id, input.value.servings);
+  revalidatePath("/");
 }
 
 /** The day's movement besides training (ADR-0014), bound to the day. */

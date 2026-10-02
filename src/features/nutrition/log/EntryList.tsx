@@ -12,7 +12,8 @@
  * refreshLogEntry) — and delete with Undo; then a "Details" disclosure
  * (native <details>) with what the entry contained and its time.
  */
-import { Pencil, Tag } from "lucide-react";
+import { Minus, Pencil, Plus, Tag } from "lucide-react";
+import { servingsText, stepServings } from "@/core/nutrition/servings";
 import { detailLines, stripValues } from "@/core/nutrition/display";
 import { groupByMoment, type MomentBounds } from "@/core/nutrition/moments";
 import { entriesTotals } from "@/core/nutrition/totals";
@@ -54,6 +55,8 @@ type Props = {
   ) => (prev: ActionButtonState, formData: FormData) => Promise<ActionButtonState>;
   /** Edit the time, bound per entry. */
   timeAction: (id: string) => (prev: FormState, formData: FormData) => Promise<FormState>;
+  /** The −/+ multiplier of an entry (a plain form). */
+  servingsAction: (id: string) => (formData: FormData) => Promise<void>;
   /**
    * What the entry is made of (NOVA, origin, fibre, tags, rating): the same
    * block as the meal cards, composed by the page (another slice's component).
@@ -82,6 +85,7 @@ export function EntryList({
   refresh,
   statusAction,
   timeAction,
+  servingsAction,
   quality,
   t,
 }: Props) {
@@ -147,7 +151,7 @@ export function EntryList({
                       {e.servings !== "1.00" && (
                         <span className="pl-2 font-display text-muted">
                           {fill(t.day.servingsTimes, {
-                            n: formatNumber(e.servings, locale, 2),
+                            n: servingsText(Number(e.servings), locale),
                           })}
                         </span>
                       )}
@@ -195,10 +199,63 @@ export function EntryList({
                     />
                   }
                 >
-                  <MacroStrip
-                    values={stripValues(e.totals.nutrients, locale)}
-                    labels={labels}
-                  />
+                  <div className="flex items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                      <MacroStrip
+                        values={stripValues(e.totals.nutrients, locale)}
+                        labels={labels}
+                      />
+                    </div>
+                    {!e.batchId && (
+                      // The multiplier, one tap at a time (core/nutrition/servings).
+                      <form
+                        action={servingsAction(e.id)}
+                        className="relative z-2 flex shrink-0 items-center gap-1"
+                      >
+                        {([-1, 1] as const).map((dir) => {
+                          const next = stepServings(Number(e.servings), dir);
+                          const button = (
+                            <button
+                              key={dir}
+                              type="submit"
+                              name="servings"
+                              value={next ?? ""}
+                              disabled={next === null}
+                              aria-label={fill(
+                                dir === 1 ? t.day.servingsMore : t.day.servingsLess,
+                                {
+                                  n:
+                                    next === null
+                                      ? ""
+                                      : formatNumber(String(next), locale, 2),
+                                },
+                              )}
+                              className="tile inline-flex h-9 w-9 items-center justify-center rounded-control disabled:opacity-40"
+                            >
+                              {dir === 1 ? (
+                                <Plus size={16} aria-hidden="true" />
+                              ) : (
+                                <Minus size={16} aria-hidden="true" />
+                              )}
+                            </button>
+                          );
+                          return dir === 1
+                            ? [
+                                <span
+                                  key="n"
+                                  className="min-w-10 text-center font-display font-semibold tabular-nums"
+                                >
+                                  {fill(t.day.servingsTimes, {
+                                    n: servingsText(Number(e.servings), locale),
+                                  })}
+                                </span>,
+                                button,
+                              ]
+                            : button;
+                        })}
+                      </form>
+                    )}
+                  </div>
                   {quality?.(e)}
                   <FoodDetails
                     summary={

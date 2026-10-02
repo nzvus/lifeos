@@ -520,6 +520,21 @@ export async function setEntryStatus(
   return updated.length ? ok(null) : fail({ _form: "not_found" });
 }
 
+/** Sets an entry's multiplier (its lines stay as logged; totals scale). */
+export async function setEntryServings(
+  db: Db,
+  owner: Owner,
+  id: string,
+  servings: number,
+): Promise<Result<null>> {
+  const updated = await db
+    .update(logEntries)
+    .set({ servings: servings.toFixed(2) })
+    .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)))
+    .returning({ id: logEntries.id });
+  return updated.length ? ok(null) : fail({ _form: "not_found" });
+}
+
 /** Sets (or clears) the time of an entry. */
 export async function setEntryTime(
   db: Db,

@@ -119,6 +119,8 @@ export const en = {
     noIngredients: "No ingredients yet. Add them first in Ingredients.",
     remove: "Remove",
     servingsTimes: "× {n}",
+    servingsMore: "Servings: × {n}",
+    servingsLess: "Servings: × {n}",
     copyYesterday: "Repeat yesterday's meals",
     planned: "Planned (not eaten yet)",
     when: "When",

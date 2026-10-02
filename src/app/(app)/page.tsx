@@ -86,6 +86,7 @@ import {
   refreshLogEntryAction,
   setDayProfileAction,
   setGoalDeficitAction,
+  setEntryServingsAction,
   setEntryStatusAction,
   setEntryTimeAction,
 } from "./actions";
@@ -421,6 +422,7 @@ export default async function DayPage({ searchParams }: Props) {
             statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
             future={day > today}
             timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
+            servingsAction={(id) => setEntryServingsAction.bind(null, id)}
             timeZone={settings.timezone}
             bounds={settings.preferences.bounds}
             // The same quality block as the meal cards, from the entry's

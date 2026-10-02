@@ -112,6 +112,8 @@ export const it: Messages = {
     noIngredients: "Nessun ingrediente. Aggiungili prima in Ingredienti.",
     remove: "Rimuovi",
     servingsTimes: "× {n}",
+    servingsMore: "Porzioni: × {n}",
+    servingsLess: "Porzioni: × {n}",
     copyYesterday: "Ripeti i pasti di ieri",
     planned: "Pianificato (non ancora mangiato)",
     when: "Quando",

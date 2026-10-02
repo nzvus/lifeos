@@ -280,6 +280,10 @@ export type EstimateInput = z.output<typeof estimateInput>;
 
 /** Editing an entry's time (the entry id is bound by the page). */
 export const entryTimeInput = z.object({ time });
+/** An entry's multiplier from the day's −/+ (0.25 to 10). */
+export const entryServingsInput = z.object({
+  servings: z.coerce.number("invalid_number").min(0.25, "too_small").max(10, "too_large"),
+});
 export type LogIngredientInput = z.output<typeof logIngredientInput>;
 
 /** Settings form: time zone and language (targets moved to profiles, ADR-0008). */
