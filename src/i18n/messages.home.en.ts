@@ -575,4 +575,19 @@ export const addMenuEn = {
   product: "Pantry product",
   weight: "Weigh-in",
   dayType: "Day type",
+  batch: "Batch (portions)",
+  reminder: "Reminder",
+};
+
+export const weightChartEn = {
+  title: "Weight",
+  label: "weight per weigh-in (dots, fainter when they count less) and trend (line)",
+  summary: "{n} weigh-ins",
+  legend:
+    "Dots: the weigh-ins, fainter when they count less (after eating, in the evening…). Line: the trend.",
+  few: "The chart needs at least two weigh-ins: weigh in from the + on Today.",
+  trendNow: "Trend",
+  change7: "7 days",
+  change30: "30 days",
+  perWeek: "a week",
 };

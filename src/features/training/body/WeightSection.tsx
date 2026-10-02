@@ -1,17 +1,16 @@
 /**
- * features/training/body/WeightSection.tsx — body weight (ADR-0005/0027):
- * the weigh-in form, then the readings (trend, indices, each weigh-in
- * explained). Lives in Progress → Weight (design review S5): weight is
- * progress, not a training detail.
+ * features/training/body/WeightSection.tsx — body weight (ADR-0005/0027)
+ * in Progress → Weight: the chart (dots and trend, changes over 7 and 30
+ * days), then the readings (indices, each weigh-in explained). Adding a
+ * weigh-in is the day's "+" (2026-10-02: no add forms on Progress).
  */
 import { Scale } from "lucide-react";
 import type { WeighInView } from "@/core/energy/repositories/energy";
-import type { FormState } from "@/core/shared/result";
 import type { Locale } from "@/core/shared/locales";
 import type { Measurement } from "@/core/training/repositories/measurements";
 import type { Messages } from "@/i18n";
 import { Section } from "@/ui/Section";
-import { MeasurementForm } from "./MeasurementForm";
+import { WeightChart } from "./WeightChart";
 import { WeighInList } from "./WeighInList";
 
 type Outcome = { ok: boolean; message?: string };
@@ -19,34 +18,21 @@ type Outcome = { ok: boolean; message?: string };
 export function WeightSection({
   measurements,
   readings,
-  today,
-  now,
   locale,
-  add,
   trash,
   restore,
   t,
 }: {
   measurements: Measurement[];
   readings: WeighInView[];
-  today: string;
-  now: string;
   locale: Locale;
-  add: (prev: FormState, formData: FormData) => Promise<FormState>;
   trash: (id: string) => Promise<Outcome>;
   restore: (id: string) => Promise<Outcome>;
-  t: Pick<Messages, "body" | "errors" | "actions">;
+  t: Pick<Messages, "body" | "actions" | "weightChart">;
 }) {
   return (
     <Section title={t.body.title} icon={<Scale size={20} aria-hidden="true" />}>
-      <p className="text-meta text-muted">{t.body.hint}</p>
-      <MeasurementForm
-        action={add}
-        today={today}
-        now={now}
-        count={measurements.length}
-        t={{ body: t.body, errors: t.errors }}
-      />
+      <WeightChart readings={readings} locale={locale} t={t} />
       {measurements.length === 0 ? (
         <p className="text-meta text-muted">{t.body.none}</p>
       ) : (

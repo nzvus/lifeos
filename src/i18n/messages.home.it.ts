@@ -581,4 +581,19 @@ export const addMenuIt: Messages["addMenu"] = {
   product: "Prodotto in dispensa",
   weight: "Pesata",
   dayType: "Tipo di giornata",
+  batch: "Cucinata (porzioni)",
+  reminder: "Promemoria",
+};
+
+export const weightChartIt: Messages["weightChart"] = {
+  title: "Peso",
+  label: "peso per pesata (punti, più tenui quando contano meno) e tendenza (linea)",
+  summary: "{n} pesate",
+  legend:
+    "Punti: le pesate, più tenui quando contano meno (dopo mangiato, di sera…). Linea: la tendenza.",
+  few: "Servono almeno due pesate per il grafico: pesati dal + nella pagina Oggi.",
+  trendNow: "Tendenza",
+  change7: "7 giorni",
+  change30: "30 giorni",
+  perWeek: "a settimana",
 };

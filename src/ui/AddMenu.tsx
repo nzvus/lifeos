@@ -13,7 +13,9 @@
 "use client";
 
 import {
+  Bell,
   CalendarClock,
+  CookingPot,
   CalendarRange,
   ClipboardList,
   Dumbbell,
@@ -39,6 +41,8 @@ const ICONS = {
   product: Package,
   weight: Scale,
   dayType: CalendarClock,
+  batch: CookingPot,
+  reminder: Bell,
 } satisfies Record<string, LucideIcon>;
 
 export type AddItem = { href: string; label: string; icon: keyof typeof ICONS };

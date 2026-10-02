@@ -20,7 +20,7 @@ import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { getHistory } from "@/core/nutrition/repositories/history";
 import { TREND_RANGES, type TrendRange } from "@/core/nutrition/preferences";
-import { daysEnding, isValidDay, timeIn, todayIn } from "@/core/shared/dates";
+import { daysEnding, isValidDay, todayIn } from "@/core/shared/dates";
 import { trainingByDay } from "@/core/training/analysis";
 import { listMeasurements } from "@/core/training/repositories/measurements";
 import { listSessions } from "@/core/training/repositories/sessions";
@@ -35,11 +35,7 @@ import { TEXT_LINK } from "@/ui/button";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
 import { SubNav } from "@/ui/SubNav";
-import {
-  addMeasurementAction,
-  deleteMeasurementAction,
-  restoreMeasurementAction,
-} from "../training/actions";
+import { deleteMeasurementAction, restoreMeasurementAction } from "../training/actions";
 
 const VIEWS = ["trends", "weight", "coming"] as const;
 type View = (typeof VIEWS)[number];
@@ -66,10 +62,7 @@ export default async function ProgressPage({ searchParams }: Props) {
       <WeightSection
         measurements={measurements}
         readings={readings}
-        today={today}
-        now={timeIn(new Date(), settings.timezone)}
         locale={settings.locale}
-        add={addMeasurementAction}
         trash={deleteMeasurementAction}
         restore={restoreMeasurementAction}
         t={t}

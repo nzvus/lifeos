@@ -33,11 +33,7 @@ export default async function IngredientsPage() {
     <>
       {/* The pantry (ADR-0017) is a view of the Food tab, beside these. */}
       <FoodNav current="ingredients" t={t} />
-      <PageHeader
-        title={t.ingredients.title}
-        // A sheet first (name, unit, the label); the full form is one link away.
-        action={{ href: "#new-ingredient", label: t.ingredients.newTitle }}
-      />
+      <PageHeader title={t.ingredients.title} />
       <QuickIngredient id="new-ingredient" action={createIngredientAction} t={t} />
       <IngredientBrowser
         // Only the fields the list shows are sent to the browser.

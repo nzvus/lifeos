@@ -22,10 +22,7 @@ export default async function MealsPage() {
   return (
     <>
       <FoodNav current="meals" t={t} />
-      <PageHeader
-        title={t.meals.title}
-        action={{ href: "/meals/new", label: t.meals.new }}
-      />
+      <PageHeader title={t.meals.title} />
       <MealBrowser
         meals={meals}
         usage={usage.meals}
