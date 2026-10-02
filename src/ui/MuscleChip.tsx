@@ -25,6 +25,16 @@ export const REGION_BG: Record<string, string> = {
   legs: "bg-muscle-legs",
 };
 
+/** The region's colour as a border: a planned item, outlined; a done one is filled. */
+export const REGION_BORDER: Record<string, string> = {
+  chest: "border-muscle-chest",
+  back: "border-muscle-back",
+  shoulders: "border-muscle-shoulders",
+  arms: "border-muscle-arms",
+  core: "border-muscle-core",
+  legs: "border-muscle-legs",
+};
+
 export function MuscleChip({
   label,
   region,

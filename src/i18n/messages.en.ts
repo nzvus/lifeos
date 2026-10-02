@@ -30,7 +30,6 @@ import {
   assistantEn,
   barcodeEn,
   programsEn,
-  outlookEn,
   trainingWhenEn,
   panelRowsEn,
   appEn,
@@ -39,6 +38,7 @@ import {
   routinesEn,
   packsEn,
   invitesEn,
+  planEn,
 } from "./messages.home.en";
 
 export const en = {
@@ -69,6 +69,7 @@ export const en = {
     copyOf: "{name} (copy)",
   },
   nav: {
+    plan: "Plan",
     today: "Today",
     ingredients: "Ingredients",
     meals: "Meals",
@@ -263,7 +264,6 @@ export const en = {
   assistant: assistantEn,
   barcode: barcodeEn,
   programs: programsEn,
-  outlook: outlookEn,
   settings: {
     autoSaving: "Saving…",
     account: "Account",
@@ -528,6 +528,7 @@ export const en = {
   routines: routinesEn,
   packs: packsEn,
   invites: invitesEn,
+  plan: planEn,
   body: bodyEn,
   dayScore: dayScoreEn,
   ratings: {

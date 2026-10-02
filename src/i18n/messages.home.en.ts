@@ -445,20 +445,9 @@ export const programsEn = {
   asCycle: "As the cycle says",
   swapWith: "Swap with {day}",
   dayChoice: "What to do on {day}",
+  seePlan: "See the coming days in Plan",
   changeHint:
     "Move a day with ↑/↓ (or drag it, on a computer) or choose what to do that day: the rest of the cycle adapts.",
-};
-
-export const outlookEn = {
-  title: "Next 7 days",
-  subtitle:
-    "Training planned or from the program, estimated energy and the targets that follow.",
-  noDayType: "no day type",
-  rest: "Rest",
-  editProgram: "Edit program",
-  energy: "spends {lo}–{hi} kcal",
-  noEnergy: "energy: body data missing",
-  targets: "{kcal} kcal · P {p} · C {c} · F {f}",
 };
 
 /** Body weight (ADR-0005, read with its context ADR-0027). */
@@ -750,4 +739,23 @@ export const invitesEn = {
   remove: "Withdraw invitation",
   created: "created {day} · expires {until}",
   states: { pending: "waiting", used: "used", expired: "expired" },
+};
+
+export const planEn = {
+  title: "Plan",
+  calendar: "Calendar",
+  prev: "Previous month",
+  next: "Next month",
+  thisMonth: "Back to this month",
+  agenda: "Day by day",
+  nothing: "Nothing planned this month.",
+  late: "late",
+  changed: "changed",
+  legendDone: "done",
+  legendPlanned: "planned",
+  legendRest: "rest",
+  coming: "Coming days · {name}",
+  noProgram:
+    "No active program: create one in Training → Programs to see the coming days here.",
+  rest: "Rest",
 };

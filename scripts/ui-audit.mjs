@@ -32,6 +32,7 @@ const STATIC = [
   "/",
   "/?tab=food",
   "/?tab=training",
+  "/plan",
   "/assistant",
   "/meals",
   "/meals/new",

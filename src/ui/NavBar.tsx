@@ -17,13 +17,15 @@
  * icon button in the header on every screen (`NavIconLink`).
  *
  * Tabs group what the person does, not data types (design review S2,
- * 2026-10-02): Today · Training · Food (meals, ingredients, pantry) ·
- * Progress · Assistant. `match` lists the other paths a tab owns.
+ * 2026-10-02), by moment since ADR-0035: Today · Plan · Training · Food
+ * (meals, ingredients, pantry) · Progress; the Assistant is a header icon.
+ * `match` lists the other paths a tab owns.
  */
 "use client";
 
 import {
   CalendarDays,
+  CalendarRange,
   Carrot,
   Dumbbell,
   Settings,
@@ -39,6 +41,7 @@ import { buttonClass } from "./button";
 
 const ICONS = {
   today: CalendarDays,
+  plan: CalendarRange,
   meals: UtensilsCrossed,
   ingredients: Carrot,
   targets: Target,

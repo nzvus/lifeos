@@ -20,7 +20,6 @@ import {
   assistantIt,
   barcodeIt,
   programsIt,
-  outlookIt,
   trainingWhenIt,
   panelRowsIt,
   appIt,
@@ -29,6 +28,7 @@ import {
   routinesIt,
   packsIt,
   invitesIt,
+  planIt,
 } from "./messages.home.it";
 import type { Messages } from "./index";
 
@@ -60,6 +60,7 @@ export const it: Messages = {
     copyOf: "{name} (copia)",
   },
   nav: {
+    plan: "Piano",
     today: "Oggi",
     ingredients: "Ingredienti",
     meals: "Pasti",
@@ -258,7 +259,6 @@ export const it: Messages = {
   assistant: assistantIt,
   barcode: barcodeIt,
   programs: programsIt,
-  outlook: outlookIt,
   settings: {
     autoSaving: "Salvataggio…",
     account: "Account",
@@ -526,6 +526,7 @@ export const it: Messages = {
   routines: routinesIt,
   packs: packsIt,
   invites: invitesIt,
+  plan: planIt,
   body: bodyIt,
   dayScore: dayScoreIt,
   ratings: {

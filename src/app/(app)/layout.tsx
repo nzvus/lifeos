@@ -22,9 +22,10 @@ import { ToastHost } from "@/ui/Toast";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const { t, settings } = await requireContext();
-  // Design review S2 (2026-10-02): tabs by what the person does.
+  // ADR-0035: tabs by moment — do, plan, build (two libraries), review.
   const links = [
     { href: "/", label: t.nav.today, icon: "today" },
+    { href: "/plan", label: t.nav.plan, icon: "plan" },
     { href: "/training", label: t.nav.training, icon: "training" },
     {
       href: "/meals",
@@ -33,7 +34,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       match: ["/ingredients", "/pantry"],
     },
     { href: "/profiles", label: t.nav.progress, icon: "progress" },
-    { href: "/assistant", label: t.assistant.title, icon: "assistant" },
   ] as const;
   return (
     <div
@@ -45,8 +45,12 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           {t.app.name}
         </Link>
         <NavBar links={[...links]} label={t.nav.menu} />
-        {/* Sign out lives at the bottom of Settings (S3): rare, and easy to tap by mistake. */}
-        <NavIconLink href="/settings" label={t.nav.settings} icon="settings" />
+        {/* ADR-0035: the Assistant from every page, next to Settings. Sign out
+            lives at the bottom of Settings (S3): rare, and easy to tap by mistake. */}
+        <div className="flex items-center gap-1">
+          <NavIconLink href="/assistant" label={t.assistant.title} icon="assistant" />
+          <NavIconLink href="/settings" label={t.nav.settings} icon="settings" />
+        </div>
       </header>
       <main className="@container flex flex-col gap-4">{children}</main>
       {/* The "+" of each section (the day page has its own). */}
@@ -67,6 +71,18 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
                 label: t.addMenu.exercise,
                 icon: "exercise",
               },
+              {
+                href: "/training/programs/new",
+                label: t.addMenu.program,
+                icon: "program",
+              },
+            ],
+          },
+          {
+            // ADR-0035: plan a session on a date, or a new program.
+            prefix: "/plan",
+            items: [
+              { href: "/training/new", label: t.addMenu.session, icon: "session" },
               {
                 href: "/training/programs/new",
                 label: t.addMenu.program,

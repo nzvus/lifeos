@@ -8,6 +8,7 @@ import type { Db } from "../../db/client";
 import { exercises, routineItems, routines } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { live } from "../../shared/trash";
+import type { ExerciseKind } from "../kinds";
 import {
   fail,
   ok,
@@ -27,6 +28,7 @@ export type RoutineView = {
     /** The exercise's, for its drawing (ui/ExerciseIcon). */
     pattern: string | null;
     muscleGroups: string[];
+    kind: ExerciseKind;
   })[];
 };
 
@@ -44,6 +46,7 @@ export async function listRoutines(db: Db, owner: Owner): Promise<RoutineView[]>
           name: exercises.name,
           pattern: exercises.pattern,
           muscleGroups: exercises.muscleGroups,
+          kind: exercises.kind,
         })
         .from(routineItems)
         .innerJoin(exercises, eq(routineItems.exerciseId, exercises.id))

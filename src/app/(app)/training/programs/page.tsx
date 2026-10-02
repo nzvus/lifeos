@@ -1,34 +1,21 @@
 /**
  * app/(app)/training/programs/page.tsx — URL /training/programs: my training
- * programs (ADR-0024) and, for the active one, the coming days as the cycle
- * lays them out (a missed session stays due, marked late), changeable one
- * day at a time (ADR-0029).
+ * programs (ADR-0024). The days they lay out, changeable one at a time
+ * (ADR-0029), are in the Plan tab (ADR-0035).
  */
-import { CalendarRange } from "lucide-react";
+import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { todayIn } from "@/core/shared/dates";
-import { isRest } from "@/core/training/program";
-import {
-  getActivePlan,
-  listPrograms,
-  programOverrideDays,
-} from "@/core/training/repositories/programs";
-import { ProgramDays } from "@/features/training/programs/ProgramDays";
+import { listPrograms } from "@/core/training/repositories/programs";
 import { fill } from "@/i18n";
+import { TEXT_LINK } from "@/ui/button";
 import { Badge } from "@/ui/Badge";
 import { CARD } from "@/ui/Card";
 import { ListItem } from "@/ui/ListItem";
 import { PageHeader } from "@/ui/PageHeader";
 import { TrainingNav } from "@/features/training/nav/TrainingNav";
-import { Section } from "@/ui/Section";
 import { TrashMenu } from "@/ui/TrashMenu";
-import {
-  deleteProgramAction,
-  restoreProgramAction,
-  setProgramDayAction,
-  swapProgramDaysAction,
-} from "./actions";
+import { deleteProgramAction, restoreProgramAction } from "./actions";
 
 const INTL = { it: "it-IT", en: "en-GB" } as const;
 
@@ -36,15 +23,7 @@ export default async function ProgramsPage() {
   const { owner, settings, t } = await requireContext();
   const p = t.programs;
   const db = getDb();
-  const today = todayIn(settings.timezone);
-  const [programs, active] = await Promise.all([
-    listPrograms(db, owner),
-    getActivePlan(db, owner, today, 7),
-  ]);
-  // ADR-0029: the coming days changed by hand, to mark them.
-  const changed = active
-    ? await programOverrideDays(db, owner, active.program.id, today)
-    : new Set<string>();
+  const programs = await listPrograms(db, owner);
   const date = new Intl.DateTimeFormat(INTL[settings.locale], {
     weekday: "short",
     day: "numeric",
@@ -56,33 +35,10 @@ export default async function ProgramsPage() {
       <PageHeader title={t.training.title} />
       <TrainingNav current="programs" t={t} />
       <p className="text-meta text-muted">{p.subtitle}</p>
-      {active && (
-        <Section
-          title={fill(p.coming, { name: active.program.name })}
-          icon={<CalendarRange size={20} aria-hidden="true" />}
-        >
-          <p className="text-meta text-muted">{p.changeHint}</p>
-          <ProgramDays
-            days={active.plan.map((d) => ({
-              day: d.day,
-              date: date.format(new Date(`${d.day}T12:00:00Z`)),
-              name: isRest(d.slot)
-                ? d.slot.label || p.rest
-                : (active.program.slots.find((s) => s.position === d.slot.position)
-                    ?.name ?? ""),
-              position: isRest(d.slot) ? null : d.slot.position,
-              late: d.late,
-              changed: changed.has(d.day),
-            }))}
-            slots={active.program.slots
-              .filter((s) => !isRest(s))
-              .map((s) => ({ position: s.position, name: s.name }))}
-            setDay={setProgramDayAction}
-            swap={swapProgramDaysAction}
-            t={t}
-          />
-        </Section>
-      )}
+      {/* ADR-0035: the coming days live in the Plan tab, as a calendar. */}
+      <Link href="/plan" className={`self-start text-meta ${TEXT_LINK}`}>
+        {p.seePlan}
+      </Link>
       {programs.length === 0 ? (
         <p className={`${CARD} text-muted`}>{p.empty}</p>
       ) : (
