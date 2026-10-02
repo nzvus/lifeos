@@ -23,7 +23,6 @@ import {
   assistantMessages,
   batches,
   batchLines,
-  bodyMeasurements,
   dayActivity,
   dayPlans,
   exercises,
@@ -54,6 +53,7 @@ import {
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
 import { live } from "../shared/trash";
+import { listMeasurements } from "../training/repositories/measurements";
 
 export const EXPORT_FORMAT = "lifeos-export";
 /** 2: adds dayProfiles and dayPlans (ADR-0008). 3: log status/at/estimated (ADR-0009). */
@@ -63,8 +63,9 @@ export const EXPORT_FORMAT = "lifeos-export";
 // purchases, stock counts, batches with lines, reminders (ADR-0017);
 // 8: the assistant's conversations with their messages (ADR-0018);
 // 9: training programs with their ordered slots (ADR-0024; a slot's
-// exerciseId when it holds one exercise instead of a routine).
-export const EXPORT_VERSION = 9;
+// exerciseId when it holds one exercise instead of a routine);
+// 10: each measurement's `context` (ADR-0027; null = not said).
+export const EXPORT_VERSION = 10;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -172,11 +173,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       .where(ownedBy(sessionExercises, owner))
       .orderBy(asc(sessionExercises.position)),
     db.select().from(sets).where(ownedBy(sets, owner)).orderBy(asc(sets.position)),
-    db
-      .select()
-      .from(bodyMeasurements)
-      .where(and(ownedBy(bodyMeasurements, owner), live(bodyMeasurements)))
-      .orderBy(asc(bodyMeasurements.day)),
+    listMeasurements(db, owner), // with how each weigh-in was taken (ADR-0027)
     db
       .select()
       .from(dayActivity)

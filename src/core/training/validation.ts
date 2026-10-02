@@ -160,15 +160,40 @@ export type SessionInput = Omit<
 > &
   Partial<Pick<SessionOutput, "intensity" | "kcalEstimate" | "muscleGroups">>;
 
-/** A body measurement (weight required; the rest optional). */
-export const measurementInput = z.object({
-  day,
-  weightKg: decimalString({ scale: 2, max: "999", positive: true }),
-  bodyFatPct: optionalDecimalString(TENTH),
-  waistCm: optionalDecimalString(TENTH),
-  notes: z.string().trim().max(500, "too_long").optional().default(""),
-});
-export type MeasurementInput = z.output<typeof measurementInput>;
+const checkbox = z
+  .string()
+  .optional()
+  .transform((v) => v === "on");
+
+/**
+ * A body measurement (weight required; the rest optional). The weigh-in
+ * form also says how it was taken (ADR-0027), marked by `context` = "1";
+ * without it (imports, older forms) the context stays unknown.
+ */
+export const measurementInput = z
+  .object({
+    day,
+    weightKg: decimalString({ scale: 2, max: "999", positive: true }),
+    bodyFatPct: optionalDecimalString(TENTH),
+    waistCm: optionalDecimalString(TENTH),
+    notes: z.string().trim().max(500, "too_long").optional().default(""),
+    context: z.literal("1").optional(),
+    time,
+    fasted: checkbox,
+    afterToilet: checkbox,
+    afterTraining: checkbox,
+  })
+  .transform(({ context, time, fasted, afterToilet, afterTraining, ...m }) => ({
+    ...m,
+    context: context ? { time, fasted, afterToilet, afterTraining } : undefined,
+  }));
+export type WeighInContextInput = NonNullable<
+  z.output<typeof measurementInput>["context"]
+>;
+/** `context` absent = not said (imports, the assistant). */
+export type MeasurementInput = Omit<z.output<typeof measurementInput>, "context"> & {
+  context?: WeighInContextInput;
+};
 
 /**
  * The rules a set's kind imposes: strength needs reps and a load;

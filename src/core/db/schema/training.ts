@@ -259,6 +259,32 @@ export const bodyMeasurements = pgTable(
     check("body_measurements_weight_ck", sql`${t.weightKg} > 0`),
     check("body_measurements_fat_ck", sql`${t.bodyFatPct} between 0 and 70`),
     index("body_measurements_user_day_idx").on(t.userId, t.day),
+    unique("body_measurements_id_user_uq").on(t.id, t.userId),
+  ],
+);
+
+/**
+ * How a weigh-in was taken (ADR-0027): when, and what only the user knows.
+ * A table of its own, not columns on body_measurements, so the code before
+ * this migration keeps working (#103). No row = unknown (every older one).
+ */
+export const weighInContext = pgTable(
+  "weigh_in_context",
+  {
+    measurementId: uuid("measurement_id").primaryKey(),
+    userId: ownerColumn(),
+    /** When the user stepped on the scale; null = not said. */
+    measuredAt: timestamp("measured_at", { withTimezone: true }),
+    fasted: boolean("fasted"),
+    afterToilet: boolean("after_toilet"),
+    afterTraining: boolean("after_training"),
+  },
+  (t) => [
+    foreignKey({
+      name: "weigh_in_context_measurement_fk",
+      columns: [t.measurementId, t.userId],
+      foreignColumns: [bodyMeasurements.id, bodyMeasurements.userId],
+    }).onDelete("cascade"),
   ],
 );
 
