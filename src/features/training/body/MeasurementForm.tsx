@@ -12,6 +12,7 @@ import { useActionState } from "react";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import type { Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
+import { TimeField } from "@/ui/TimeField";
 import { SubmitButton } from "@/ui/SubmitButton";
 
 type Props = {
@@ -52,10 +53,9 @@ export function MeasurementForm({ action, today, now, count, t }: Props) {
         className="flex w-40 flex-col gap-1"
         required
       />
-      <Field
+      <TimeField
         label={b.time}
         name="time"
-        type="time"
         defaultValue={valueOf(state, "time", now)}
         error={err("time")}
         className="flex w-28 flex-col gap-1"

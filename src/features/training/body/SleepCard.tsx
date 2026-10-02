@@ -12,7 +12,7 @@ import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result"
 import type { Messages } from "@/i18n";
 import { buttonClass } from "@/ui/button";
 import { Sheet } from "@/ui/Sheet";
-import { Field } from "@/ui/Field";
+import { TimeField } from "@/ui/TimeField";
 import { SaveStatus } from "@/ui/SaveStatus";
 import { SelectField } from "@/ui/SelectField";
 import { useAutoSave } from "@/ui/useAutoSave";
@@ -49,17 +49,15 @@ export function SleepCard({
         className="grid grid-cols-2 items-end gap-3"
       >
         <input type="hidden" name="day" value={day} />
-        <Field
+        <TimeField
           label={s.bed}
           name="bed"
-          type="time"
           defaultValue={valueOf(state, "bed", night?.bed ?? "")}
           error={err("bed")}
         />
-        <Field
+        <TimeField
           label={s.wake}
           name="wake"
-          type="time"
           defaultValue={valueOf(state, "wake", night?.wake ?? "")}
           error={err("wake")}
         />

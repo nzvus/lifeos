@@ -28,11 +28,9 @@ export function SubNav({
             key={it.key}
             href={it.href}
             aria-current={on ? "page" : undefined}
-            // Four or more views (Training): the icon over a smaller label, as
-            // in the tab bar, so no label is cut on a phone.
-            className={`flex min-w-0 flex-1 items-center justify-center rounded-control px-1 py-2 font-display font-semibold ${
-              items.length >= 4 ? "flex-col gap-0.5 text-meta" : "gap-1.5 text-item"
-            } ${on ? "bg-sheet text-herb shadow-sm" : "text-muted hover:text-ink"}`}
+            // The icon over the label, as in the tab bar: no label is cut on
+            // a phone, in any theme's font (2026-10-02).
+            className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-control px-1 py-2 font-display text-meta font-semibold ${on ? "bg-sheet text-herb shadow-sm" : "text-muted hover:text-ink"}`}
           >
             {it.icon}
             <span className="truncate">{it.label}</span>

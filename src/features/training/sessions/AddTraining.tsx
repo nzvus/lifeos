@@ -26,7 +26,7 @@ import type { ExerciseKind } from "@/core/training/kinds";
 import type { Messages } from "@/i18n";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { Sheet } from "@/ui/Sheet";
-import { Field } from "@/ui/Field";
+import { TimeField } from "@/ui/TimeField";
 import { Segmented } from "@/ui/Segmented";
 import { Tabs } from "@/ui/Tabs";
 import { EstimateAdd } from "./EstimateForm";
@@ -121,12 +121,11 @@ export function AddTraining({
         )}
         {mode !== "start" && (
           <div className="grid grid-cols-2 items-end gap-3">
-            <Field
+            <TimeField
               label={w.time}
               name="add-training-time"
-              type="time"
               value={time}
-              onChange={(ev) => setTime(ev.target.value)}
+              onChange={setTime}
             />
           </div>
         )}

@@ -29,6 +29,7 @@ import { fill, type Messages } from "@/i18n";
 import { ActionBar } from "@/ui/ActionBar";
 import { DraftNotice } from "@/ui/DraftNotice";
 import { Field } from "@/ui/Field";
+import { TimeField } from "@/ui/TimeField";
 import { FormAlert } from "@/ui/FormAlert";
 import { SearchSelect } from "@/ui/SearchSelect";
 import { Section } from "@/ui/Section";
@@ -302,10 +303,9 @@ function SessionFields({
             error={err("status")}
           />
           <div className="grid grid-cols-2 gap-3">
-            <Field
+            <TimeField
               label={tr.time}
               name="time"
-              type="time"
               defaultValue={valueOf(state, "time", initial.time)}
               error={err("time")}
             />

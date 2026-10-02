@@ -66,7 +66,9 @@ export function DayProfilePicker({ day, current, profiles, action, t }: Props) {
             defaultValue={selected}
             onChange={(event) => event.currentTarget.form?.requestSubmit()}
             disabled={pending}
-            className="w-full min-w-0 truncate rounded-control bg-transparent py-0.5 font-display text-section font-bold outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            // A plain select, like every other (developer, 2026-10-02): the
+            // theme's sheet and ink, so the open list keeps its contrast.
+            className="mt-0.5 w-full min-w-0 rounded-control rule-b-medium border-ink bg-sheet px-2 py-1.5 font-display text-item font-semibold text-ink outline-none focus-visible:border-focus"
           >
             {current.source === "none" && <option value="">—</option>}
             {profiles.map((p) => (

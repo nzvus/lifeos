@@ -102,7 +102,20 @@ export const trashIt: Messages["trash"] = {
 
 export const energyIt: Messages["energy"] = {
   title: "Energia",
-  closed: "Speso finora {spent} · bilancio con il piano {balance}",
+  bars: {
+    spent: "Consumi",
+    eaten: "Mangiato",
+    everyday: "Giornata",
+    steps: "Passi",
+    done: "Allenamento",
+    planned: "Previsto",
+    plannedFood: "+{kcal} kcal previste",
+    result: "A fine giornata, col piano",
+    deficit: "deficit di {kcal} kcal",
+    surplus: "surplus di {kcal} kcal",
+    even: "in pari",
+    goal: "obiettivo {v}",
+  },
   subtitle: "Stime, sempre come intervalli: ogni parte è qui sotto.",
   bmr: "Metabolismo basale",
   baseline: "Attività di tutti i giorni (basale e digestione inclusi)",

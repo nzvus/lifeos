@@ -42,6 +42,7 @@ import { fieldError, IDLE, type FormState } from "@/core/shared/result";
 import { pickerSearch, type Pickable as SearchItem } from "@/core/shared/search";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
+import { TimeField } from "@/ui/TimeField";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
 import { MomentIcon } from "@/ui/MomentIcon";
@@ -478,13 +479,12 @@ function Timing({
         ]}
       />
       <div className="grid grid-cols-2 items-end gap-3">
-        <Field
+        <TimeField
           label={t.day.time}
           name="time"
           id="add-time"
-          type="time"
           value={time}
-          onChange={(e) => setTime(e.target.value)}
+          onChange={setTime}
         />
         <SelectField
           label={t.moments.label}

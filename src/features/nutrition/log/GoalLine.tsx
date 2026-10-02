@@ -14,6 +14,7 @@
 
 import { Pencil } from "lucide-react";
 import { useActionState, useState } from "react";
+import { ON_TARGET_KCAL } from "@/core/energy/energy";
 import { fieldError, IDLE, type FormState } from "@/core/shared/result";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
@@ -21,9 +22,6 @@ import { fill, type Messages } from "@/i18n";
 import { buttonClass } from "@/ui/button";
 import { Field } from "@/ui/Field";
 import { SubmitButton } from "@/ui/SubmitButton";
-
-/** kcal from the wanted balance that still count as on target. */
-const NEAR = 150;
 
 type Props = {
   day: string;
@@ -113,7 +111,7 @@ export function GoalLine(p: Props) {
             [
               e.balanceWithPlan,
               p.balance.withPlan,
-              Math.abs(p.balance.withPlan - p.balance.wanted) <= NEAR
+              Math.abs(p.balance.withPlan - p.balance.wanted) <= ON_TARGET_KCAL
                 ? "border-l-herb"
                 : "border-l-warn",
             ],

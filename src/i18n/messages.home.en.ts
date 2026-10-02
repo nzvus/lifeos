@@ -100,7 +100,20 @@ export const trashEn = {
 
 export const energyEn = {
   title: "Energy",
-  closed: "Spent so far {spent} · balance with the plan {balance}",
+  bars: {
+    spent: "Spending",
+    eaten: "Eaten",
+    everyday: "Everyday",
+    steps: "Steps",
+    done: "Training",
+    planned: "Planned",
+    plannedFood: "+{kcal} kcal planned",
+    result: "End of day, with the plan",
+    deficit: "{kcal} kcal deficit",
+    surplus: "{kcal} kcal surplus",
+    even: "even",
+    goal: "goal {v}",
+  },
   subtitle: "Estimates, always as ranges: every part is below.",
   bmr: "Basal metabolism",
   baseline: "Everyday activity (basal and digestion included)",
