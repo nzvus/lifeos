@@ -33,6 +33,8 @@ import {
   type PlanEntry,
 } from "@/features/training/plan/MonthCalendar";
 import { ProgramDays } from "@/features/training/programs/ProgramDays";
+import { PlanDaySheet, type PlanDayInfo } from "@/features/training/plan/PlanDaySheet";
+import { startOrPlanAction } from "../training/live-actions";
 import { fill } from "@/i18n";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
@@ -103,33 +105,43 @@ export default async function PlanPage({ searchParams }: Props) {
       state: s.status === "done" ? "done" : "planned",
     });
   }
-  // From today on, the program's days, unless a session already stands for them.
+  // From today on, the program's days: each item (ADR-0035), unless a
+  // session of the day already stands for it; a rest; or skipped.
   for (const d of active?.plan ?? []) {
     if (d.day > to) break;
     const slot = d.slot;
-    const name = isRest(slot)
-      ? slot.label || p.rest
-      : (active!.program.slots.find((x) => x.position === slot.position)?.name ?? "");
-    const covered = sessions.some(
-      (s) =>
-        s.day === d.day &&
-        ((slot.routineId && s.routineId === slot.routineId) ||
-          (slot.exerciseId && s.exercises.some((e) => e.exerciseId === slot.exerciseId))),
-    );
-    if (covered) continue;
-    if (isRest(slot) && (byDay.get(d.day)?.length ?? 0) > 0) continue;
-    add(d.day, {
-      key: `program-${d.day}`,
-      name,
-      look: slot.routineId
-        ? (routineLook.get(slot.routineId) ?? NONE)
-        : slot.exerciseId
-          ? (exerciseLook.get(slot.exerciseId) ?? NONE)
-          : NONE,
-      state: isRest(slot) ? "rest" : "program",
-      late: d.late,
-      changed: changed.has(d.day),
-    });
+    const view = active!.program.slots.find((x) => x.position === slot.position);
+    if (isRest(slot)) {
+      if ((byDay.get(d.day)?.length ?? 0) > 0) continue;
+      add(d.day, {
+        key: `program-${d.day}`,
+        name: slot.label || p.rest,
+        look: NONE,
+        state: "rest",
+        changed: changed.has(d.day),
+      });
+      continue;
+    }
+    for (const [i, it] of (view?.items ?? []).entries()) {
+      const covered = sessions.some(
+        (s) =>
+          s.day === d.day &&
+          (it.routineId
+            ? s.routineId === it.routineId
+            : s.exercises.some((e) => e.exerciseId === it.exerciseId)),
+      );
+      if (covered) continue;
+      add(d.day, {
+        key: `program-${d.day}-${i}`,
+        name: it.name,
+        look: it.routineId
+          ? (routineLook.get(it.routineId) ?? NONE)
+          : (exerciseLook.get(it.exerciseId!) ?? NONE),
+        state: d.skipped ? "skipped" : "program",
+        late: d.late,
+        changed: changed.has(d.day) && !d.skipped,
+      });
+    }
   }
 
   const intl = INTL[settings.locale];
@@ -148,6 +160,29 @@ export default async function PlanPage({ searchParams }: Props) {
       entries: byDay.get(day) ?? [],
       note: notes.get(day) || undefined,
     })),
+  );
+  // The day sheet (ADR-0035): what each day of the grid allows.
+  const planOn = new Map((active?.plan ?? []).map((d) => [d.day, d]));
+  const sheetDays: Record<string, PlanDayInfo> = Object.fromEntries(
+    views.flat().map((v) => {
+      const pd = planOn.get(v.day);
+      return [
+        v.day,
+        {
+          label: v.label,
+          entries: v.entries.map(({ key, name, look, state }) => ({
+            key,
+            name,
+            look,
+            state,
+          })),
+          editable: Boolean(active && pd && v.day >= today),
+          training: Boolean(pd && !isRest(pd.slot) && !pd.skipped),
+          changed: changed.has(v.day),
+          coming: v.day >= today,
+        },
+      ];
+    }),
   );
   const weekdays = weeks[0]!.map((day) =>
     new Intl.DateTimeFormat(intl, { weekday: "narrow", timeZone: "UTC" }).format(
@@ -183,6 +218,20 @@ export default async function PlanPage({ searchParams }: Props) {
           t={p}
         />
       </Section>
+      <PlanDaySheet
+        days={sheetDays}
+        slots={(active?.program.slots ?? [])
+          .filter((x) => !isRest(x))
+          .map((x) => ({ position: x.position, name: x.name }))}
+        routines={routines.map((r) => ({
+          id: r.id,
+          name: r.name,
+          look: routineLook.get(r.id) ?? NONE,
+        }))}
+        setDay={setProgramDayAction}
+        startOrPlan={startOrPlanAction}
+        t={p}
+      />
       {/* The coming days, changeable one at a time (moved from Programs). */}
       <Section
         title={active ? fill(p.coming, { name: active.program.name }) : p.title}

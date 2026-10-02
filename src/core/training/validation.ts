@@ -262,12 +262,34 @@ export const programInput = z.object({
   slots: jsonField(
     z
       .array(
-        z.object({
-          routineId: id.nullable(),
-          /** One exercise instead of a routine (then routineId is null). */
-          exerciseId: id.nullable().optional().default(null),
-          label: z.string().trim().max(40, "too_long").optional().default(""),
-        }),
+        z
+          .object({
+            /** ADR-0035: the day's items in order; none is a rest day. */
+            items: z
+              .array(
+                z
+                  .object({ routineId: id.nullable(), exerciseId: id.nullable() })
+                  .refine((x) => (x.routineId === null) !== (x.exerciseId === null), {
+                    message: "invalid_choice",
+                  }),
+              )
+              .max(6, "too_long")
+              .optional(),
+            /** Before ADR-0035: one routine, or one exercise instead. */
+            routineId: id.nullable().optional().default(null),
+            exerciseId: id.nullable().optional().default(null),
+            label: z.string().trim().max(40, "too_long").optional().default(""),
+          })
+          .transform(({ items, routineId, exerciseId, label }) => ({
+            label,
+            items:
+              items ??
+              (exerciseId
+                ? [{ routineId: null, exerciseId }]
+                : routineId
+                  ? [{ routineId, exerciseId: null }]
+                  : []),
+          })),
       )
       .min(1, "required")
       .max(28, "too_long"),

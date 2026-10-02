@@ -162,6 +162,13 @@
       "when": 1790980044801,
       "tag": "0022_invites",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1790981733454,
+      "tag": "0023_program_day_items",
+      "breakpoints": true
     }
   ]
 }

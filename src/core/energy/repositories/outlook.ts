@@ -55,11 +55,14 @@ export async function weekOutlook(
     const covered =
       slot &&
       own.some((s) =>
-        slot.slot.routineId
-          ? s.routineId === slot.slot.routineId
-          : s.exercises.some((e) => e.exerciseId === slot.slot.exerciseId),
+        slot.slot.items.some((it) =>
+          it.routineId
+            ? s.routineId === it.routineId
+            : s.exercises.some((e) => e.exerciseId === it.exerciseId),
+        ),
       );
-    const fromProgram = slot && !covered && (slot.slot.routineId || slot.slot.exerciseId);
+    // ADR-0035: a skipped day has nothing from the program.
+    const fromProgram = slot && !covered && !slot.skipped && slot.slot.items.length > 0;
     const [t, e] = await Promise.all([
       getDayTargets(db, owner, day),
       getDayEnergy(db, owner, day, fromProgram ? slot.slot : null),
@@ -168,7 +171,12 @@ export async function dynamicTargetsToday(
   if (!dynamic.length) return out;
   // With the program's slot, like the day page, so both say the same.
   const slot = await programSlotOn(db, owner, today, today);
-  const e = await getDayEnergy(db, owner, today, slot?.slot ?? null);
+  const e = await getDayEnergy(
+    db,
+    owner,
+    today,
+    slot && !slot.skipped ? slot.slot : null,
+  );
   if (!e.energy || !e.body.weightKg) return out;
   const inputs = e.energy.inputs.sessions;
   const load = trainingLoad(

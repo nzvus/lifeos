@@ -77,11 +77,14 @@ const exportFile = z.object({
     z.literal(7),
     // 8 adds `assistant` (ADR-0018); 9 adds training `programs` (ADR-0024);
     // 10 adds each measurement's `context` (ADR-0027); 11 the nights of
-    // sleep (ADR-0031); all ignored here.
+    // sleep (ADR-0031); 12 program day items and skips (ADR-0035); all
+    // ignored here.
     z.literal(8),
     z.literal(9),
     z.literal(10),
     z.literal(11),
+    // 12: program day items and skips (ADR-0035); ignored here like `training`.
+    z.literal(12),
   ]),
   settings: z
     .object({

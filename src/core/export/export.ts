@@ -41,7 +41,9 @@ import {
   routines,
   programs,
   programSlots,
+  programSkips,
   programSlotExercises,
+  programSlotItems,
   sessionExercises,
   sets,
   sleepLogs,
@@ -66,8 +68,10 @@ export const EXPORT_FORMAT = "lifeos-export";
 // 9: training programs with their ordered slots (ADR-0024; a slot's
 // exerciseId when it holds one exercise instead of a routine);
 // 10: each measurement's `context` (ADR-0027; null = not said);
-// 11: `training.sleep`, the nights (ADR-0031).
-export const EXPORT_VERSION = 11;
+// 11: `training.sleep`, the nights (ADR-0031);
+// 12: each program slot's `items` (routines and/or exercises, ADR-0035) and
+// each program's `skips` (days skipped on purpose).
+export const EXPORT_VERSION = 12;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -238,19 +242,27 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       .orderBy(asc(assistantMessages.createdAt)),
   ]);
 
-  const [programRows, slotRows, slotExerciseRows] = await Promise.all([
-    db
-      .select()
-      .from(programs)
-      .where(and(ownedBy(programs, owner), live(programs)))
-      .orderBy(asc(programs.name)),
-    db
-      .select()
-      .from(programSlots)
-      .where(ownedBy(programSlots, owner))
-      .orderBy(asc(programSlots.position)),
-    db.select().from(programSlotExercises).where(ownedBy(programSlotExercises, owner)),
-  ]);
+  const [programRows, slotRows, slotExerciseRows, itemRows, skipRows] = await Promise.all(
+    [
+      db
+        .select()
+        .from(programs)
+        .where(and(ownedBy(programs, owner), live(programs)))
+        .orderBy(asc(programs.name)),
+      db
+        .select()
+        .from(programSlots)
+        .where(ownedBy(programSlots, owner))
+        .orderBy(asc(programSlots.position)),
+      db.select().from(programSlotExercises).where(ownedBy(programSlotExercises, owner)),
+      db
+        .select()
+        .from(programSlotItems)
+        .where(ownedBy(programSlotItems, owner))
+        .orderBy(asc(programSlotItems.position)),
+      db.select().from(programSkips).where(ownedBy(programSkips, owner)),
+    ],
+  );
   return {
     format: EXPORT_FORMAT,
     version: EXPORT_VERSION,
@@ -305,7 +317,9 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
         slots: stripOwner(slotRows.filter((x) => x.programId === p.id)).map((x) => ({
           ...x,
           exerciseId: slotExerciseRows.find((e) => e.slotId === x.id)?.exerciseId ?? null,
+          items: stripOwner(itemRows.filter((i) => i.slotId === x.id)),
         })),
+        skips: stripOwner(skipRows.filter((k) => k.programId === p.id)),
       })),
     },
     pantry: {

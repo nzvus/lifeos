@@ -20,6 +20,7 @@ import {
   setProgramDay,
   swapProgramDays,
   updateProgram,
+  skipProgramDay,
 } from "@/core/training/repositories/programs";
 import { programInput } from "@/core/training/validation";
 
@@ -72,8 +73,9 @@ export async function restoreProgramAction(id: string) {
 type Outcome = { ok: boolean; message?: string };
 
 /**
- * A coming day of the active program: a slot's position, "rest", or
- * "cycle" (back to what the cycle says).
+ * A coming day of the active program: a slot's position, "rest", "skip"
+ * (ADR-0035: the slot due passes, not done), or "cycle" (back to what the
+ * cycle says).
  */
 export async function setProgramDayAction(day: string, value: string): Promise<Outcome> {
   const { owner, settings, t } = await requireContext();
@@ -83,11 +85,13 @@ export async function setProgramDayAction(day: string, value: string): Promise<O
   const r =
     value === "cycle"
       ? await resetProgramDay(db, owner, day)
-      : value === "rest"
-        ? await setProgramDay(db, owner, today, day, null)
-        : /^\d+$/.test(value)
-          ? await setProgramDay(db, owner, today, day, Number(value))
-          : null;
+      : value === "skip"
+        ? await skipProgramDay(db, owner, today, day)
+        : value === "rest"
+          ? await setProgramDay(db, owner, today, day, null)
+          : /^\d+$/.test(value)
+            ? await setProgramDay(db, owner, today, day, Number(value))
+            : null;
   if (!r) return { ok: false, message: t.errors.invalid_choice };
   if (!r.ok) {
     const code = Object.values(r.errors)[0] as keyof typeof t.errors;

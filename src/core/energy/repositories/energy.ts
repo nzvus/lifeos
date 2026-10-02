@@ -10,6 +10,7 @@
  */
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import type { Db } from "../../db/client";
+import type { SlotItem } from "../../training/program";
 import { dayActivity, energyCorrections, userSettings } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { getHistory } from "../../nutrition/repositories/history";
@@ -234,9 +235,9 @@ export async function getDayEnergy(
   db: Db,
   owner: Owner,
   day: string,
-  /** ADR-0024: the routine or exercise a program puts on this day, counted
-   *  as planned when the day has no session of it yet. */
-  programSlot?: { routineId?: string | null; exerciseId?: string | null } | null,
+  /** ADR-0024/0035: what a program puts on this day (its items), each
+   *  counted as planned when the day has no session of it yet. */
+  programSlot?: { items: readonly SlotItem[] } | null,
 ): Promise<DayEnergyView> {
   const [body, [act], sessions, measurements] = await Promise.all([
     getBody(db, owner, day),
@@ -249,16 +250,16 @@ export async function getDayEnergy(
   ]);
   const kg = weightAt(measurements, day);
   const all: SessionRow[] = [...sessions];
-  const rId = programSlot?.routineId;
-  const eId = programSlot?.exerciseId;
-  if (rId && !sessions.some((x) => x.routineId === rId)) {
-    const pseudo = await routineAsPlanned(db, owner, rId);
-    if (pseudo) all.push(pseudo);
-  } else if (
-    eId &&
-    !sessions.some((x) => x.exercises.some((e) => e.exerciseId === eId))
-  ) {
-    const pseudo = await exerciseAsPlanned(db, owner, day, eId);
+  for (const it of programSlot?.items ?? []) {
+    const done = it.routineId
+      ? sessions.some((x) => x.routineId === it.routineId)
+      : sessions.some((x) => x.exercises.some((e) => e.exerciseId === it.exerciseId));
+    if (done) continue;
+    const pseudo = it.routineId
+      ? await routineAsPlanned(db, owner, it.routineId)
+      : it.exerciseId
+        ? await exerciseAsPlanned(db, owner, day, it.exerciseId)
+        : null;
     if (pseudo) all.push(pseudo);
   }
   const { activity, facts } = factsOf(day, act, all, kg);

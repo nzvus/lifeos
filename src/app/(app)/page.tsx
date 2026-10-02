@@ -174,7 +174,13 @@ export default async function DayPage({ searchParams }: Props) {
     listBatches(db, owner), // ADR-0017: portions to log, and their reminders
     getPantry(db, owner),
     listReminders(db, owner),
-    getDayEnergy(db, owner, day, programSlot?.slot), // ADR-0014: what the day costs
+    // ADR-0014: what the day costs (a skipped program day adds nothing).
+    getDayEnergy(
+      db,
+      owner,
+      day,
+      programSlot && !programSlot.skipped ? programSlot.slot : null,
+    ),
     day === today ? getCalibration(db, owner, today) : null, // ADR-0020
     listSleep(db, owner, day, day), // ADR-0031: the night that ended today
     listSessions(db, owner, addDays(today, -60), today), // "like a past session" (ADR-0035)
@@ -293,10 +299,19 @@ export default async function DayPage({ searchParams }: Props) {
     ? `~${formatNumber(String(burn.withPlanned.low), locale, 0)}–${formatNumber(String(burn.withPlanned.high), locale, 0)} kcal`
     : null;
   const programName = programSlot
-    ? programSlot.slot.routineId || programSlot.slot.exerciseId
+    ? programSlot.items.length
       ? programSlot.name
       : programSlot.slot.label || t.programs.rest
     : null;
+  // ADR-0035: each of the program's items, done when a session stands for it.
+  const programItems = (programSlot?.items ?? []).map((it) => ({
+    ...it,
+    done: sessions.some((x) =>
+      it.routineId
+        ? x.routineId === it.routineId
+        : x.exercises.some((e) => e.exerciseId === it.exerciseId),
+    ),
+  }));
 
   return (
     // ADR-0033: the day's header (date, week, day type, night and movement)
@@ -605,24 +620,13 @@ export default async function DayPage({ searchParams }: Props) {
       {tab === "training" && (
         <>
           {programSlot &&
-            !sessions.some((x) =>
-              programSlot.slot.routineId
-                ? x.routineId === programSlot.slot.routineId
-                : programSlot.slot.exerciseId
-                  ? x.exercises.some((e) => e.exerciseId === programSlot.slot.exerciseId)
-                  : false,
-            ) && (
+            !(programItems.length > 0 && programItems.every((x) => x.done)) && (
               <ProgramDay
                 program={programSlot.program}
-                routineName={
-                  programSlot.slot.routineId || programSlot.slot.exerciseId
-                    ? programSlot.name
-                    : null
-                }
+                items={programItems}
                 restLabel={programSlot.slot.label || t.programs.rest}
                 late={programSlot.late}
-                routineId={programSlot.slot.routineId}
-                exerciseId={programSlot.slot.exerciseId ?? null}
+                skipped={programSlot.skipped ?? false}
                 day={day}
                 isToday={day === today}
                 action={startOrPlanAction}
