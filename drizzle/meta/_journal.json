@@ -155,6 +155,13 @@
       "when": 1790938427907,
       "tag": "0021_sleep_logs",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1790980044801,
+      "tag": "0022_invites",
+      "breakpoints": true
     }
   ]
 }

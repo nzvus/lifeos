@@ -24,6 +24,7 @@ import { getSettings, type Settings } from "@/core/nutrition/repositories/settin
 import { DEFAULT_THEME, type Theme } from "@/core/shared/themes";
 import type { Messages } from "@/i18n";
 import { getMessages } from "./i18n";
+import { env } from "./env";
 import { getAuth, getDb } from "./runtime";
 
 /** The verified session, or null. Never throws for "not logged in". */
@@ -73,4 +74,15 @@ export const getTheme = cache(async (): Promise<Theme> => {
   const session = await getSession();
   if (!session) return DEFAULT_THEME;
   return (await settingsOf(session.user.id)).theme;
+});
+
+/**
+ * ADR-0034: the signed-in user may create invitations (their email is in
+ * ADMIN_EMAILS). Checked on the server, in the page and in every action.
+ */
+export const isAdmin = cache(async (): Promise<boolean> => {
+  const session = await getSession();
+  return Boolean(
+    session && env().ADMIN_EMAILS.includes(session.user.email.toLowerCase()),
+  );
 });

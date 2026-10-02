@@ -24,6 +24,18 @@ const schema = z.object({
     .min(32, "must be at least 32 characters (openssl rand -base64 32)"),
   BETTER_AUTH_URL: z.url().optional(),
   ALLOW_SIGNUP: z.enum(["true", "false"]).default("false"),
+  // ADR-0034: with sign-up open, an invitation is still required (default).
+  SIGNUP_INVITES: z.enum(["true", "false"]).default("true"),
+  // ADR-0034: who may create invitations (comma-separated emails).
+  ADMIN_EMAILS: z
+    .string()
+    .default("")
+    .transform((v) =>
+      v
+        .split(",")
+        .map((x) => x.trim().toLowerCase())
+        .filter(Boolean),
+    ),
   // ADR-0018: encrypts users' assistant keys at rest. Optional: without it
   // the assistant is off (Settings says so); with it, at least 32 chars.
   ASSISTANT_KEY_SECRET: z.preprocess(

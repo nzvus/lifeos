@@ -117,6 +117,11 @@ Settings -> Branches: protect `main`, require the status check `check`
    `{"status":"ok","database":"ok","commit":"(git sha)"}`.
 4. Create your account: set `ALLOW_SIGNUP=true` in Production, redeploy, sign
    up, set it back to `false`, redeploy. Check: `/sign-up` now fails.
+5. Invite friends (ADR-0034): in Production set `ALLOW_SIGNUP=true`,
+   `SIGNUP_INVITES=true` (the default) and `ADMIN_EMAILS=<your email>`, then
+   redeploy. Settings → Invitations creates a link that works once, for 14
+   days. Check: `/sign-up` with no code or a used one says the invitation is
+   not valid. Every new account starts from the starter pack.
 
 ## 9. Restore drill
 

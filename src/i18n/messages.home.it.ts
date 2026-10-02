@@ -742,3 +742,19 @@ export const packsIt: Messages["packs"] = {
     meals: "pasti: {n}",
   },
 };
+
+export const invitesIt: Messages["invites"] = {
+  title: "Inviti",
+  hint: "Per far entrare un amico: crea un invito e mandagli il link. Vale per una persona sola, per 14 giorni.",
+  create: "Crea invito",
+  link: "Link d'invito",
+  copy: "Copia",
+  copied: "Copiato",
+  share: "Condividi",
+  shareTitle: "Unisciti a Lifeos",
+  onlyOnce: "Il link si vede solo adesso: copialo o condividilo subito.",
+  empty: "Nessun invito ancora.",
+  remove: "Ritira invito",
+  created: "creato il {day} · scade il {until}",
+  states: { pending: "in attesa", used: "usato", expired: "scaduto" },
+};

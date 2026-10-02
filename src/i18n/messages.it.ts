@@ -28,6 +28,7 @@ import {
   entryEditIt,
   routinesIt,
   packsIt,
+  invitesIt,
 } from "./messages.home.it";
 import type { Messages } from "./index";
 
@@ -83,6 +84,9 @@ export const it: Messages = {
   errors: errorsIt,
   entryEdit: entryEditIt,
   auth: {
+    invite: "Codice d'invito",
+    inviteHint: "Arriva nel link che ti hanno mandato.",
+    inviteInvalid: "Invito non valido, già usato o scaduto: chiedine un altro.",
     signInTitle: "Accedi",
     signUpTitle: "Crea il tuo account",
     name: "Nome",
@@ -521,6 +525,7 @@ export const it: Messages = {
   exercises: exercisesIt,
   routines: routinesIt,
   packs: packsIt,
+  invites: invitesIt,
   body: bodyIt,
   dayScore: dayScoreIt,
   ratings: {
