@@ -13,7 +13,7 @@ import { PER, sortChoices } from "@/core/nutrition/metrics";
 import { TREND_RANGES } from "@/core/nutrition/preferences";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import { fill, type Messages } from "@/i18n";
-import { Field } from "@/ui/Field";
+import { TimeField } from "@/ui/TimeField";
 import { MomentIcon } from "@/ui/MomentIcon";
 import { SelectField } from "@/ui/SelectField";
 import { SaveStatus } from "@/ui/SaveStatus";
@@ -52,7 +52,7 @@ export function PreferencesForm({ action, initial, t }: Props) {
 
       <fieldset className="flex flex-col gap-2">
         <legend className="pb-1 text-meta font-semibold">{p.momentsTitle}</legend>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 @xl:grid-cols-3">
           {(
             [
               ["lunchFrom", "lunch"],
@@ -60,9 +60,8 @@ export function PreferencesForm({ action, initial, t }: Props) {
               ["dinnerFrom", "dinner"],
             ] as const
           ).map(([field, moment]) => (
-            <Field
+            <TimeField
               key={field}
-              type="time"
               label={fill(p.from, { moment: t.moments.names[moment] })}
               icon={<MomentIcon moment={moment} />}
               name={field}
