@@ -314,6 +314,7 @@ export const barcodeIt: Messages["barcode"] = {
 };
 
 export const trainingWhenIt: Messages["training"]["when"] = {
+  startShort: "Inizia",
   startThis: "Inizia in palestra",
   pastDay: "Giorno passato: non si aggiunge più niente.",
   addAnyway: "Ho dimenticato qualcosa",
