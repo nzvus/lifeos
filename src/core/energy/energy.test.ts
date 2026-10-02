@@ -44,37 +44,47 @@ describe("dayEnergy", () => {
     expect(e.total.withPlan).toEqual(e.total.done);
   });
 
-  it("ADR-0030: steps win — they set the everyday factor and walk beyond 10 000", () => {
-    // 11 000 steps, whatever the declared level: "on my feet" + 10 min walking.
+  it("ADR-0032: the day type keeps its factor; steps correct it at one cost per step", () => {
+    // Sitting includes ~5000 steps; 11 000 is 6000 more = 60 min of walking:
+    // (3.0−1)×75×1 = 150, (3.8−1)×75×1 = 210.
     const e = dayEnergy(body, { ...quiet, level: "sitting", steps: 11000 })!;
-    expect(e.inputs.factor).toEqual([1.5, 1.65]);
-    expect(e.inputs.level).toBe("on_feet");
+    expect(e.inputs.factor).toEqual([1.15, 1.25]);
+    expect(e.inputs.level).toBe("sitting");
     expect(e.inputs.walk.source).toBe("steps");
-    expect(e.walking).toEqual({ low: 25, high: 35 });
-    // 6000 steps: 40 % of the way from sitting (5000) to mixed (7500); a
-    // declared walk is already inside the steps.
-    const mid = dayEnergy(body, { ...quiet, walkingMin: 30, steps: 6000 })!;
-    expect(mid.inputs.factor).toEqual([1.21, 1.33]);
-    expect(mid.walking).toEqual({ low: 0, high: 0 });
-    // Under 5000: sitting.
-    expect(dayEnergy(body, { ...quiet, steps: 4000 })!.inputs.factor).toEqual([
-      1.15, 1.25,
-    ]);
+    expect(e.walking).toEqual({ low: 150, high: 210 });
+    // On my feet includes ~10 000: 6000 steps is 4000 fewer, the day goes down.
+    const quietFeet = dayEnergy(body, { ...quiet, level: "on_feet", steps: 6000 })!;
+    expect(quietFeet.inputs.factor).toEqual([1.5, 1.65]);
+    expect(quietFeet.walking).toEqual({ low: -140, high: -100 });
+    // Every step costs the same: 2500 more is the same wherever it falls.
+    const at = (level: "sitting" | "mixed", steps: number) =>
+      dayEnergy(body, { ...quiet, level, steps })!.walking.high;
+    expect(at("sitting", 7500) - at("sitting", 5000)).toBe(
+      at("mixed", 15000) - at("mixed", 12500),
+    );
   });
 
-  it("ADR-0030: a run's steps are taken out of the device's steps", () => {
-    const e = dayEnergy(body, { ...quiet, steps: 14000, sessionSteps: 4000 })!;
+  it("ADR-0032: a run's steps are taken out; a declared walk is inside the steps", () => {
+    const e = dayEnergy(body, {
+      ...quiet,
+      level: "mixed",
+      steps: 14000,
+      sessionSteps: 4000,
+      walkingMin: 90,
+    })!;
     expect(e.inputs.walk.sessionSteps).toBe(4000);
-    expect(e.walking).toEqual({ low: 0, high: 0 }); // 10 000 left: no walking beyond
+    // 10 000 left − 7500 usual = 2500 = 25 min (the 90 declared minutes don't add).
+    expect(e.walking).toEqual({ low: 63, high: 88 });
   });
 
-  it("ADR-0030: without steps, a declared walk counts whole on the declared level", () => {
+  it("ADR-0032: without steps, the walk's minutes add on the day type", () => {
     const e = dayEnergy(body, { ...quiet, walkingMin: 30 })!;
     // (3.0−1)×75×0.5 = 75, (3.8−1)×75×0.5 = 105
     expect(e.walking).toEqual({ low: 75, high: 105 });
     expect(e.inputs.walk.source).toBe("walk");
-    // What the level and the walk imply, filled in: sitting 5000 + 30 × 100.
+    // What the day type and the walk imply: sitting's 5000 + 30 × 100.
     expect(e.inputs.walk.estimatedSteps).toBe(8000);
+    expect(dayEnergy(body, quiet)!.walking).toEqual({ low: 0, high: 0 });
   });
 
   it("training done vs planned: the plan only moves the 'with the plan' total", () => {

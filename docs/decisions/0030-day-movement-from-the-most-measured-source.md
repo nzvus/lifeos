@@ -1,6 +1,6 @@
 # ADR-0030: The day's movement comes from the most measured source; the others are filled in
 
-**Status:** accepted (the developer accepted the recommended option, 2026-10-02)
+**Status:** superseded by ADR-0032 (accepted 2026-10-02; replaced the same day: one step was worth four different amounts)
 **Date:** 2026-10-02
 
 ## Context

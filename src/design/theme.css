@@ -24,6 +24,8 @@
   --color-paper: #f4f6f3; /* page background: a cool, faintly green white */
   --color-sheet: #ffffff; /* the "label" surface: inputs, tables */
   --color-ink: #17201c; /* text and heavy rules */
+  /* Behind a dialog: always a dark veil (an ink veil turned white in dark mode). */
+  --color-scrim: color-mix(in srgb, black 55%, transparent);
   --color-muted: #5c6862; /* secondary text, hints */
   --color-hairline: #c9d0cc; /* thin separators between rows */
   --color-herb: #2d6a4c; /* within target, primary actions */

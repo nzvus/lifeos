@@ -1,20 +1,22 @@
 /**
- * ui/Sheet.tsx — a panel that slides up from the bottom for a short task
+ * ui/Sheet.tsx — a centred panel for a short task
  * (2026-10-02, the developer: "show those widgets only when needed"):
  * add food, training, a night, the day's movement. The page stays about
- * what happened; the forms come when asked. The convention of phone apps
- * (bottom sheets); a centred dialog on wide screens.
+ * what happened; the forms come when asked. Centred, on a dark veil (the
+ * developer's choice over a bottom sheet, 2026-10-02).
  *
  * Opened by a link to `#<id>` (the day page's "+", a chip), on load and on
  * every hash change; closing (✕, Escape, a tap outside) drops the hash so
  * the same link opens it again. A real modal <dialog>: opaque, focus kept
  * inside. Children stay mounted while closed, so a half-filled form
- * survives closing it.
+ * survives closing it. Rendered into <body> (a portal): inside a closed
+ * section the open modal was invisible and froze the page (2026-10-02).
  */
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { buttonClass } from "./button";
 
 export function Sheet({
@@ -31,6 +33,12 @@ export function Sheet({
   children: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  // In the browser only (the server has no <body> to portal into).
+  const client = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   useEffect(() => {
     const check = () => {
       const d = dialog.current;
@@ -42,9 +50,10 @@ export function Sheet({
     check();
     window.addEventListener("hashchange", check);
     return () => window.removeEventListener("hashchange", check);
-  }, [id]);
+  }, [id, client]);
   const close = () => dialog.current?.close();
-  return (
+  if (!client) return null;
+  return createPortal(
     <dialog
       ref={dialog}
       id={id}
@@ -59,7 +68,7 @@ export function Sheet({
           );
       }}
       onClick={(e) => e.target === dialog.current && close()}
-      className="mx-auto mt-auto mb-0 w-full max-w-xl rounded-t-surface border border-hairline bg-paper p-0 text-ink backdrop:bg-ink/50 md:mb-auto md:rounded-surface"
+      className="m-auto w-11/12 max-w-xl rounded-surface border border-hairline bg-paper p-0 text-ink backdrop:bg-scrim"
       style={{ maxHeight: "88dvh" }}
     >
       <div
@@ -86,6 +95,7 @@ export function Sheet({
         </div>
         {children}
       </div>
-    </dialog>
+    </dialog>,
+    document.body,
   );
 }

@@ -7,7 +7,7 @@
  * page the calibration against the scale (ADR-0020) is proposed.
  * Server component; the movement form is a client island.
  */
-import { Flame, Footprints } from "lucide-react";
+import { Flame } from "lucide-react";
 import Link from "next/link";
 import type { Calibration } from "@/core/energy/calibration";
 import type { Energy, MissingBody, Range } from "@/core/energy/energy";
@@ -17,21 +17,16 @@ import { fill, type Messages } from "@/i18n";
 import { TEXT_LINK } from "@/ui/button";
 import { Disclosure } from "@/ui/Disclosure";
 import { Collapsible } from "@/ui/Collapsible";
-import { Sheet } from "@/ui/Sheet";
-import { ActivityForm } from "./ActivityForm";
 import { CalibrationBox } from "./CalibrationBox";
 import { EnergyFormulas } from "./EnergyFormulas";
 import type { ComponentProps } from "react";
-import type { FormState } from "@/core/shared/result";
 
 type Props = {
   energy: Energy | null;
   missing: MissingBody;
-  activity: { level: string; walkingMin: number | null; steps: number | null };
   /** kcal eaten, and eaten + planned (exact strings). */
   eaten: string;
   withPlanned: string;
-  action: (prev: FormState, formData: FormData) => Promise<FormState>;
   /** A dynamic day's parameters and targets, for the formulas. */
   dynamic: ComponentProps<typeof EnergyFormulas>["dynamic"];
   /** ADR-0020: the accepted factor on the baseline (1 = none). */
@@ -46,10 +41,8 @@ type Props = {
 export function EnergySection({
   energy,
   missing,
-  activity,
   eaten,
   withPlanned,
-  action,
   dynamic,
   correction,
   calibration,
@@ -136,38 +129,14 @@ export function EnergySection({
           <EnergyFormulas energy={energy} dynamic={dynamic} locale={locale} t={e} />
         </Disclosure>
       )}
-      {/* The day's movement: one line here, the form in a sheet (#day-move),
-          opened from here, the "+" or the day's chips (2026-10-02). */}
+      {/* The day's movement: one line here; the form is the page's sheet
+          (#day-move, MovementSheet) — not inside this section, which hides
+          its content when closed and would hide an open sheet with it. */}
       <p className="text-meta">
         <a href="#day-move" className={TEXT_LINK}>
           {e.activity}
         </a>
       </p>
-      <Sheet
-        id="day-move"
-        title={e.activity}
-        icon={<Footprints size={20} aria-hidden="true" />}
-        closeLabel={t.actions.close}
-      >
-        <ActivityForm
-          action={action}
-          initial={activity}
-          estimate={
-            energy
-              ? {
-                  // ADR-0030: what the model filled in from the other fields.
-                  steps:
-                    activity.steps === null ? energy.inputs.walk.estimatedSteps : null,
-                  walkingMin:
-                    activity.walkingMin === null && energy.inputs.walk.source === "steps"
-                      ? energy.inputs.walk.minutes
-                      : null,
-                }
-              : undefined
-          }
-          t={t}
-        />
-      </Sheet>
       {calibration && calibration.verdict !== "no_body" && (
         <Disclosure
           summary={e.calibration.title}

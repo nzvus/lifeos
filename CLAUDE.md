@@ -43,10 +43,14 @@ for code quality, then for speed. Never for speed first.
 5. **Teach through review.** When the human writes code, review it like a
    thoughtful senior: what's good, what's risky, one thing to learn. Don't
    rewrite it unless asked.
-6. **Agent writes, human reviews before commit** (S00 retro, 2026-09-29).
-   The agent may write code, but never commits. It delivers small diffs; the
-   developer reads each one and must be able to explain it before committing.
-   After each diff: say what to look at first, and ask one check question.
+6. **Agent ships PRs, human merges** (S00 retro 2026-09-29; changed
+   2026-09-30 and written down at the S01–S12 retro, 2026-10-02). The agent
+   commits, pushes and opens PRs (one branch per step, `--base main`); the
+   developer merges. Each PR says what to look at first. Reviewing and being
+   able to explain each diff is deferred, not dropped: list the PRs awaiting
+   review, and ask check questions again when the developer asks for them.
+   UI changes are checked before the PR with `npm run audit:ui` and a phone
+   emulation (docs/runbooks/ui-audit.md).
 
 ## Workflow cadence
 

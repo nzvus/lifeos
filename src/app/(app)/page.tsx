@@ -53,6 +53,7 @@ import { AddFab } from "@/features/nutrition/log/AddFab";
 import { MeasurementForm } from "@/features/training/body/MeasurementForm";
 import { Sheet } from "@/ui/Sheet";
 import { DayChips } from "@/features/nutrition/log/DayChips";
+import { MovementSheet } from "@/features/nutrition/log/MovementSheet";
 import { SleepCard } from "@/features/training/body/SleepCard";
 import { listSleep } from "@/core/training/repositories/sleep";
 import { sleepScore } from "@/core/training/sleep";
@@ -379,10 +380,8 @@ export default async function DayPage({ searchParams }: Props) {
         <EnergySection
           energy={energyView.energy}
           missing={energyView.missing}
-          activity={energyView.activity}
           eaten={view.totals.nutrients.kcal}
           withPlanned={view.withPlanned.nutrients.kcal}
-          action={setDayActivityAction.bind(null, day)}
           dynamic={
             dynamic && dayTargets.source !== "none" && dayTargets.dynamic
               ? { params: dayTargets.dynamic, ...dynamic }
@@ -392,6 +391,12 @@ export default async function DayPage({ searchParams }: Props) {
           calibration={calibration}
           setCorrection={setEnergyCorrectionAction}
           locale={locale}
+          t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
+        />
+        <MovementSheet
+          action={setDayActivityAction.bind(null, day)}
+          activity={energyView.activity}
+          energy={energyView.energy}
           t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
         />
         <DayScore
@@ -482,7 +487,8 @@ export default async function DayPage({ searchParams }: Props) {
             )}
             t={t}
           />
-          {canAdd ? (
+          {/* A past day adds through the "+" (its late view); no extra line here. */}
+          {canAdd && (
             <>
               {view.entries.length === 0 && (
                 <ActionButtonForm
@@ -545,13 +551,6 @@ export default async function DayPage({ searchParams }: Props) {
                 }}
               />
             </>
-          ) : (
-            <p className="text-meta text-muted">
-              {t.training.when.pastDay}{" "}
-              <Link href={`/?day=${day}&late=1`} className={TEXT_LINK}>
-                {t.training.when.addAnyway}
-              </Link>
-            </p>
           )}
         </div>
         {programSlot &&

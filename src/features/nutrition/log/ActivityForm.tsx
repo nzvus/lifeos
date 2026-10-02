@@ -1,7 +1,7 @@
 /**
  * features/nutrition/log/ActivityForm.tsx — the day's movement besides
  * training (ADR-0014): everyday level, walking minutes, total steps. Fill
- * in what you have (ADR-0030): steps decide when given; the others show
+ * in what you have (ADR-0032): steps decide when given; the others show
  * what the model filled in, as placeholders. Saves itself (ui/useAutoSave).
  */
 "use client";
@@ -25,7 +25,7 @@ export function ActivityForm({
 }: {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   initial: { level: string; walkingMin: number | null; steps: number | null };
-  /** ADR-0030: what the model filled in for the empty fields. */
+  /** ADR-0032: what the model filled in for the empty fields. */
   estimate?: { steps: number | null; walkingMin: number | null };
   t: Pick<Messages, "energy" | "errors">;
 }) {
@@ -40,7 +40,10 @@ export function ActivityForm({
         label={e.level}
         name="level"
         defaultValue={valueOf(state, "level", initial.level)}
-        options={LEVELS.map((l) => ({ value: l, label: e.levels[l] }))}
+        options={LEVELS.map((l) => ({
+          value: l,
+          label: `${e.levels[l]} · ${e.levelSteps[l]}`,
+        }))}
         error={err("level")}
       />
       <div className="grid grid-cols-2 gap-3">
