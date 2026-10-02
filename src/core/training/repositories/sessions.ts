@@ -229,7 +229,8 @@ async function writeChildren(
           inclinePct: s.inclinePct,
           restS: s.restS ?? null,
           warmup: s.warmup,
-          done: s.done ?? true,
+          // Not ticked either way (the editor): a plan is not done yet.
+          done: s.done ?? input.status === "done",
         })),
       );
   }
