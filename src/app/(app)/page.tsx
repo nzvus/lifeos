@@ -51,6 +51,7 @@ import { EntryList } from "@/features/nutrition/log/EntryList";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
+import { GoalLine } from "@/features/nutrition/log/GoalLine";
 import { DayScore } from "@/features/nutrition/log/DayScore";
 import { ProgramDay } from "@/features/training/programs/ProgramDay";
 import { AddTraining } from "@/features/training/sessions/AddTraining";
@@ -84,10 +85,13 @@ import {
   logMealAction,
   refreshLogEntryAction,
   setDayProfileAction,
+  setGoalDeficitAction,
+  setEntryServingsAction,
   setEntryStatusAction,
   setEntryTimeAction,
 } from "./actions";
 import { dynamicTargets, goalOf } from "@/core/energy/energy";
+import { kcalTargets } from "@/core/energy/repositories/outlook";
 import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 
@@ -199,6 +203,17 @@ export default async function DayPage({ searchParams }: Props) {
             fiber: String(dynamic.fiber),
           }
         : dayTargets.targets;
+  // The week strip: each day's energy target, dynamic days included; the
+  // shown day uses the one computed here (with the program's slot).
+  const weekKcal = await kcalTargets(
+    db,
+    owner,
+    week.map((d) => d.day),
+  );
+  const weekWithTargets = week.map((d) => {
+    const kcal = d.day === day ? own.kcal : (weekKcal.get(d.day)?.toString() ?? null);
+    return { ...d, targets: { ...(d.targets ?? emptyTargets()), kcal } };
+  });
   const { targets, auto } = settings.preferences.autoTargets
     ? withAutoTargets(own)
     : { targets: own, auto: [] };
@@ -246,7 +261,13 @@ export default async function DayPage({ searchParams }: Props) {
       <div className="flex min-w-0 flex-col gap-4">
         <Card>
           <DayNav day={day} today={today} locale={locale} t={t.day} />
-          <WeekStrip week={week} day={day} today={today} locale={locale} t={t.day} />
+          <WeekStrip
+            week={weekWithTargets}
+            day={day}
+            today={today}
+            locale={locale}
+            t={t.day}
+          />
           <DayProfilePicker
             day={day}
             current={dayTargets}
@@ -263,39 +284,38 @@ export default async function DayPage({ searchParams }: Props) {
                 dynamic ? (
                   (() => {
                     const g = goalOf(dayTargets.dynamic);
-                    const d = dayTargets.dynamic.deficitKcal;
-                    const w = energyView.energy!.total.withPlan;
+                    const mid = (r: { low: number; high: number }) =>
+                      (r.low + r.high) / 2;
+                    const total = energyView.energy!.total;
                     return (
-                      <>
-                        <span className="font-display text-item font-semibold">
-                          {[
-                            g ? t.energy.goals[g] : t.energy.goalCustom,
-                            d === 0
-                              ? t.energy.goalMaintain
-                              : fill(
-                                  d > 0 ? t.energy.goalDeficit : t.energy.goalSurplus,
-                                  {
-                                    kcal: String(Math.abs(d)),
-                                  },
-                                ),
-                          ].join(" · ")}
-                        </span>
-                        <span className="text-meta tabular-nums">
-                          {fill(t.energy.goalEat, {
-                            kcal: formatNumber(String(dynamic.kcal), locale, 0),
-                            spent: formatNumber(
-                              String(Math.round((w.low + w.high) / 2)),
-                              locale,
-                              0,
-                            ),
-                          })}
-                        </span>
-                        {dynamic.uncapped !== null && (
-                          <span className="text-meta text-muted">
-                            {fill(t.energy.goalCapped, { carbs: String(dynamic.carbs) })}
-                          </span>
-                        )}
-                      </>
+                      <GoalLine
+                        day={day}
+                        profileId={dayTargets.profileId}
+                        title={g ? t.energy.goals[g] : t.energy.goalCustom}
+                        deficitKcal={dayTargets.dynamic.deficitKcal}
+                        eatKcal={dynamic.kcal}
+                        spentKcal={Math.round(mid(total.withPlan))}
+                        balance={{
+                          wanted: -dayTargets.dynamic.deficitKcal,
+                          withPlan: Math.round(
+                            Number(view.withPlanned.nutrients.kcal) - mid(total.withPlan),
+                          ),
+                          soFar:
+                            day <= today
+                              ? Math.round(
+                                  Number(view.totals.nutrients.kcal) - mid(total.done),
+                                )
+                              : null,
+                        }}
+                        capped={
+                          dynamic.uncapped !== null
+                            ? fill(t.energy.goalCapped, { carbs: String(dynamic.carbs) })
+                            : null
+                        }
+                        action={setGoalDeficitAction}
+                        locale={locale}
+                        t={{ energy: t.energy, actions: t.actions, errors: t.errors }}
+                      />
                     );
                   })()
                 ) : (
@@ -402,6 +422,7 @@ export default async function DayPage({ searchParams }: Props) {
             statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
             future={day > today}
             timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
+            servingsAction={(id) => setEntryServingsAction.bind(null, id)}
             timeZone={settings.timezone}
             bounds={settings.preferences.bounds}
             // The same quality block as the meal cards, from the entry's

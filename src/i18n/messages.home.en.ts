@@ -159,6 +159,12 @@ export const energyEn = {
   fatPerKg: "Fat (g per kg)",
   dynamicHint:
     "Calories = the day's estimated energy with the plan − deficit; protein and fat follow your weight; carbs are the rest. Sugars, saturated fat and salt stay limits.",
+  editGoal: "Change deficit or surplus",
+  balanceWanted: "wanted",
+  balanceWithPlan: "with the plan",
+  balanceSoFar: "so far",
+  balanceNote:
+    "Balance = eaten − spent, kcal: negative is a deficit, positive a surplus.",
   goalMaintain: "maintenance",
   goalDeficit: "a {kcal} kcal deficit",
   goalSurplus: "a {kcal} kcal surplus",
@@ -420,6 +426,7 @@ export const outlookEn = {
     "Training planned or from the program, estimated energy and the targets that follow.",
   noDayType: "no day type",
   rest: "Rest",
+  editProgram: "Edit program",
   energy: "spends {lo}–{hi} kcal",
   noEnergy: "energy: body data missing",
   targets: "{kcal} kcal · P {p} · C {c} · F {f}",

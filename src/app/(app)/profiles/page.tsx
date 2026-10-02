@@ -7,8 +7,10 @@
  * The period is in the URL (?range=30&to=2026-09-30); without it (or when
  * invalid), the user's default period (preferences) up to today.
  */
+import Link from "next/link";
+import { TEXT_LINK } from "@/ui/button";
 import { CalendarClock, CalendarRange, TrendingUp } from "lucide-react";
-import { weekOutlook } from "@/core/energy/repositories/outlook";
+import { dynamicTargetsToday, weekOutlook } from "@/core/energy/repositories/outlook";
 import { WeekOutlook } from "@/features/nutrition/trends/WeekOutlook";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -55,6 +57,12 @@ export default async function ProfilesPage({ searchParams }: Props) {
       <Section
         title={t.outlook.title}
         subtitle={t.outlook.subtitle}
+        aside={
+          // ADR-0024: the program lays the training out; change it there.
+          <Link href="/training/programs" className={TEXT_LINK}>
+            {t.outlook.editProgram}
+          </Link>
+        }
         icon={<CalendarClock size={20} aria-hidden="true" />}
       >
         <WeekOutlook
@@ -93,7 +101,12 @@ export default async function ProfilesPage({ searchParams }: Props) {
         icon={<CalendarRange size={20} aria-hidden="true" />}
       >
         <p className="text-muted">{t.profiles.intro}</p>
-        <ProfileList profiles={profiles} locale={settings.locale} t={t} />
+        <ProfileList
+          profiles={profiles}
+          today={await dynamicTargetsToday(db, owner, today, profiles)}
+          locale={settings.locale}
+          t={t}
+        />
       </Section>
     </>
   );

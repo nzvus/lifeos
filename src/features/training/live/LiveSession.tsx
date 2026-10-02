@@ -40,6 +40,8 @@ import {
   baselineSet,
   copyLastSet,
   DEFAULT_REST_S,
+  WARMUP_REST_S,
+  warmupSet,
   move,
   newExercise,
   nextSet,
@@ -139,6 +141,13 @@ export function LiveSession({
   const [s, setS] = useState(initial);
   const [open, setOpen] = useState(() => nextSet(initial.exercises)?.exercise ?? 0);
   const [rest, setRest] = useState<{ ends: number; buzzed: boolean } | null>(null);
+  // When the session really began: its start if a set is already done, else
+  // the first tick (a planned 18:00 opened at 19:00 starts at 19:00).
+  const [start, setStart] = useState<number | null>(() =>
+    startedAt && initial.exercises.some((e) => e.sets.some((x) => x.done))
+      ? Date.parse(startedAt)
+      : null,
+  );
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   // null until the first tick in the browser: the server's clock would not
   // match the browser's, and React would throw the page away (hydration).
@@ -285,10 +294,24 @@ export function LiveSession({
 
   const tick = (ei: number, si: number) => {
     const e = s.exercises[ei]!;
-    const was = e.sets[si]!.done;
-    patch(ei, si, { done: !was });
+    const set = e.sets[si]!;
+    const was = set.done;
+    const first = !was && start === null; // not started yet: this tick starts it
+    const next = {
+      ...s,
+      // The first set done starts the session now (its duration counts from here).
+      ...(first ? { time: new Date(wallClock()).toTimeString().slice(0, 5) } : {}),
+      exercises: s.exercises.map((x, i) =>
+        i === ei
+          ? { ...x, sets: x.sets.map((y, j) => (j === si ? { ...y, done: !was } : y)) }
+          : x,
+      ),
+    };
+    change(next);
+    if (first) setStart(wallClock());
     if (was) return;
-    startRest({ ends: wallClock() + (e.restS ?? DEFAULT_REST_S) * 1000, buzzed: false });
+    const restS = set.warmup ? WARMUP_REST_S : (e.restS ?? DEFAULT_REST_S);
+    startRest({ ends: wallClock() + restS * 1000, buzzed: false });
     if (e.sets.every((x, j) => j === si || x.done) && ei + 1 < s.exercises.length)
       setOpen(ei + 1);
   };
@@ -318,6 +341,13 @@ export function LiveSession({
   };
 
   const left = undoneCount(s);
+  const coming = nextSet(s.exercises);
+  const upNext = coming
+    ? {
+        name: info[s.exercises[coming.exercise]!.exerciseId]?.name ?? "",
+        n: coming.set + 1,
+      }
+    : null;
   const restLeft = rest && now !== null ? rest.ends - now : 0;
 
   return (
@@ -337,25 +367,23 @@ export function LiveSession({
                     ? t.notSaved
                     : ""}
             </span>
-            {startedAt && (
+            {start !== null ? (
               <span className="font-display text-item font-semibold">
-                {now === null ? "–:––" : clock(now - Date.parse(startedAt))}
+                {now === null ? "–:––" : clock(Math.max(0, now - start))}
               </span>
+            ) : (
+              <span className="text-muted">{t.notStarted}</span>
             )}
           </span>
         </div>
-        {rest && (
+        {rest && restLeft > 0 && (
           <div className="flex items-center gap-2">
-            <Timer
-              size={22}
-              aria-hidden="true"
-              className={restLeft > 0 ? "text-herb" : "text-warn"}
-            />
+            <Timer size={22} aria-hidden="true" className="text-herb" />
             <span
-              className={`flex-1 font-display text-title font-bold tabular-nums ${restLeft > 0 ? "" : "text-warn"}`}
+              className="flex-1 font-display text-title font-bold tabular-nums"
               aria-live="polite"
             >
-              {restLeft > 0 ? clock(restLeft) : t.restDone}
+              {clock(restLeft)}
             </span>
             <button
               type="button"
@@ -374,7 +402,31 @@ export function LiveSession({
               onClick={() => startRest(null)}
               className={buttonClass({ variant: "subtle" })}
             >
-              {t.skip}
+              {t.skipRest}
+            </button>
+          </div>
+        )}
+        {rest && restLeft <= 0 && (
+          // Over: say so and what comes next; nothing to skip. The next tick
+          // starts a new rest; OK just hides this.
+          <div className="flex items-center gap-2" aria-live="assertive">
+            <Timer size={22} aria-hidden="true" className="text-warn" />
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="font-display text-section font-bold text-warn">
+                {t.restOver}
+              </span>
+              {upNext && (
+                <span className="truncate text-meta">
+                  {fill(t.restNext, { name: upNext.name, n: String(upNext.n) })}
+                </span>
+              )}
+            </span>
+            <button
+              type="button"
+              onClick={() => startRest(null)}
+              className={buttonClass({ variant: "subtle" })}
+            >
+              {t.close}
             </button>
           </div>
         )}
@@ -415,6 +467,12 @@ export function LiveSession({
             {isOpen && (
               <>
                 {x?.last && <p className="text-meta text-muted">{x.last}</p>}
+                {x?.kind !== "cardio" && (
+                  <details className="text-meta">
+                    <summary className="cursor-pointer text-muted">{t.warmupHow}</summary>
+                    <p className="mt-1">{t.warmupHint}</p>
+                  </details>
+                )}
                 <ol className="flex flex-col gap-2">
                   {e.sets.map((v, si) => (
                     <li
@@ -510,10 +568,28 @@ export function LiveSession({
                               }
                               onType={(r) => patch(ei, si, { reps: whole(r) })}
                             />
+                            <button
+                              type="button"
+                              aria-pressed={v.warmup}
+                              onClick={() => patch(ei, si, { warmup: !v.warmup })}
+                              className={`self-start rounded-badge px-2 py-0.5 text-meta ${
+                                v.warmup
+                                  ? "bg-warn text-sheet"
+                                  : "border border-hairline text-muted"
+                              }`}
+                            >
+                              {t.warmup}
+                            </button>
                           </>
                         )}
                         {(() => {
-                          const b = baselineSet(baseline[e.exerciseId], si);
+                          // Warm-ups aren't compared; working sets by their own order.
+                          const b = v.warmup
+                            ? null
+                            : baselineSet(
+                                baseline[e.exerciseId]?.filter((y) => !y.warmup),
+                                e.sets.slice(0, si).filter((y) => !y.warmup).length,
+                              );
                           if (!b) return null;
                           return (
                             <div className="flex items-center justify-between gap-2 text-meta tabular-nums">
@@ -549,7 +625,7 @@ export function LiveSession({
                     </li>
                   ))}
                 </ol>
-                <div className="flex justify-between gap-2">
+                <div className="flex flex-wrap justify-between gap-2">
                   <button
                     type="button"
                     onClick={() =>
@@ -560,6 +636,18 @@ export function LiveSession({
                     <Plus size={18} aria-hidden="true" />
                     {t.addSet}
                   </button>
+                  {x?.kind !== "cardio" && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        update(ei, (v) => ({ ...v, sets: [warmupSet(v), ...v.sets] }))
+                      }
+                      className={buttonClass({ variant: "subtle" })}
+                    >
+                      <Plus size={18} aria-hidden="true" />
+                      {t.addWarmup}
+                    </button>
+                  )}
                   <span className="flex gap-2">
                     <button
                       type="button"

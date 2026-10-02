@@ -26,7 +26,6 @@
 "use client";
 
 import { ClipboardList, FileText } from "lucide-react";
-import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import { NUTRIENT_KEYS } from "@/core/nutrition/nutrients";
@@ -43,7 +42,7 @@ import { ActionBar } from "@/ui/ActionBar";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
-import { Menu } from "@/ui/Menu";
+import { DeleteButton } from "@/ui/DeleteButton";
 import { PageHeader } from "@/ui/PageHeader";
 import { SelectField } from "@/ui/SelectField";
 import { Section } from "@/ui/Section";
@@ -168,16 +167,13 @@ export function IngredientForm({
         }}
         menu={
           onDelete ? (
-            <Menu
-              label={a.more}
-              items={[
-                {
-                  label: a.delete,
-                  icon: <Trash2 size={16} aria-hidden="true" />,
-                  tone: "danger",
-                  onSelect: () => void onDelete(),
-                },
-              ]}
+            <DeleteButton
+              onConfirm={() => void onDelete()}
+              title={fill(a.confirmDelete, {
+                name: values?.name?.trim() || initial.name || "",
+              })}
+              hint={a.confirmDeleteHint}
+              labels={a}
             />
           ) : undefined
         }

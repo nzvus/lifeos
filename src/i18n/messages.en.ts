@@ -43,6 +43,9 @@ export const en = {
     undo: "Undo",
     duplicate: "Duplicate",
     delete: "Delete",
+    confirmDelete: "Delete «{name}»?",
+    confirmDeleteHint:
+      "It goes to the trash: you can restore it for 30 days from Settings → Trash.",
     saved: "“{name}” saved",
     created: "“{name}” created",
     deleted: "“{name}” moved to the trash",
@@ -116,6 +119,8 @@ export const en = {
     noIngredients: "No ingredients yet. Add them first in Ingredients.",
     remove: "Remove",
     servingsTimes: "× {n}",
+    servingsMore: "Servings: × {n}",
+    servingsLess: "Servings: × {n}",
     copyYesterday: "Repeat yesterday's meals",
     planned: "Planned (not eaten yet)",
     when: "When",
@@ -249,6 +254,7 @@ export const en = {
     },
   },
   profiles: {
+    todayDynamic: "Dynamic: this is what it asks today, from today's energy.",
     title: "Targets",
     intro:
       "Each kind of day (gym, run, rest…) has its own daily targets. Pick one on the day page; the default applies when you don't.",
@@ -389,6 +395,16 @@ export const en = {
       removeExercise: "Remove exercise",
       before: "last time {v}",
       restore: "Back to last time",
+      notStarted: "starts at the first set",
+      restOver: "Rest over",
+      restNext: "now: {name}, set {n}",
+      skipRest: "Skip rest",
+      close: "OK",
+      warmup: "Warm-up",
+      addWarmup: "Warm-up",
+      warmupHow: "How to warm up",
+      warmupHint:
+        "It is for the first compound exercise of each muscle group (bench, squat, deadlift, pulldown…), not every exercise: after it the muscles are warm. Usually 2–3 rising sets with short rests (about a minute): ~50 % of the load for 8–10 reps, ~70 % for 4–6, ~85 % for 1–3. They should not tire you. Warm-up sets don't count in tonnage or comparisons.",
     },
     chart: {
       title: "Training",

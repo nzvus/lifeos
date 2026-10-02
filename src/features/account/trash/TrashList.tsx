@@ -1,18 +1,17 @@
 /**
  * features/account/trash/TrashList.tsx — the rows of the trash page
  * (ADR-0015): what it is, its kind, its day, when it will be deleted for
- * good; "⋯" restores it or deletes it for good. Deleting for good is the
- * one action without Undo, so it asks first, inline under the row.
- * Client component: the menu, the confirmation and the toasts.
+ * good; a restore button, and a bin that deletes it for good after asking
+ * (ui/DeleteButton): the one action without Undo.
+ * Client component: the buttons, the confirmation and the toasts.
  */
 "use client";
 
-import { RotateCcw, Trash2 } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { fill, type Messages } from "@/i18n";
 import { ListItem } from "@/ui/ListItem";
-import { Menu } from "@/ui/Menu";
+import { DeleteButton } from "@/ui/DeleteButton";
 import { toast } from "@/ui/Toast";
 import { buttonClass } from "@/ui/button";
 
@@ -41,7 +40,6 @@ export function TrashList({
   t: Pick<Messages, "trash" | "actions">;
 }) {
   const router = useRouter();
-  const [confirming, setConfirming] = useState<string | null>(null);
   const run = async (
     action: typeof restore,
     row: TrashRow,
@@ -49,7 +47,6 @@ export function TrashList({
   ): Promise<void> => {
     const r = await action(row.kind, row.id);
     toast({ message: r.ok ? fill(done, { name: row.name }) : (r.message ?? "") });
-    setConfirming(null);
     router.refresh();
   };
   if (rows.length === 0) return <p className="text-muted">{t.trash.empty}</p>;
@@ -64,46 +61,24 @@ export function TrashList({
             .filter(Boolean)
             .join(" · ")}
           action={
-            <Menu
-              label={t.actions.more}
-              items={[
-                {
-                  label: t.trash.restore,
-                  icon: <RotateCcw size={16} aria-hidden="true" />,
-                  onSelect: () => void run(restore, row, t.trash.restored),
-                },
-                {
-                  label: t.trash.purge,
-                  icon: <Trash2 size={16} aria-hidden="true" />,
-                  tone: "danger",
-                  onSelect: () => setConfirming(row.id),
-                },
-              ]}
-            />
+            <span className="flex items-center gap-1">
+              <button
+                type="button"
+                aria-label={t.trash.restore}
+                title={t.trash.restore}
+                onClick={() => void run(restore, row, t.trash.restored)}
+                className={buttonClass({ variant: "subtle", iconOnly: true })}
+              >
+                <RotateCcw size={20} aria-hidden="true" />
+              </button>
+              <DeleteButton
+                onConfirm={() => void run(purge, row, t.trash.purged)}
+                title={fill(t.trash.confirm, { name: row.name })}
+                labels={{ delete: t.trash.purge, cancel: t.trash.cancel }}
+              />
+            </span>
           }
-        >
-          {confirming === row.id && (
-            <div role="alert" className="flex flex-col gap-2 pt-1 text-meta">
-              <p>{fill(t.trash.confirm, { name: row.name })}</p>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => void run(purge, row, t.trash.purged)}
-                  className={buttonClass({ variant: "danger", size: "sm" })}
-                >
-                  {t.trash.confirmYes}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirming(null)}
-                  className={buttonClass({ variant: "quiet", size: "sm" })}
-                >
-                  {t.trash.cancel}
-                </button>
-              </div>
-            </div>
-          )}
-        </ListItem>
+        ></ListItem>
       ))}
     </ul>
   );

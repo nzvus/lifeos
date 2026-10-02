@@ -34,6 +34,9 @@ export const it: Messages = {
     undo: "Annulla",
     duplicate: "Duplica",
     delete: "Elimina",
+    confirmDelete: "Eliminare «{name}»?",
+    confirmDeleteHint:
+      "Finisce nel cestino: puoi ripristinarlo per 30 giorni da Impostazioni → Cestino.",
     saved: "«{name}» salvato",
     created: "«{name}» creato",
     deleted: "«{name}» spostato nel cestino",
@@ -109,6 +112,8 @@ export const it: Messages = {
     noIngredients: "Nessun ingrediente. Aggiungili prima in Ingredienti.",
     remove: "Rimuovi",
     servingsTimes: "× {n}",
+    servingsMore: "Porzioni: × {n}",
+    servingsLess: "Porzioni: × {n}",
     copyYesterday: "Ripeti i pasti di ieri",
     planned: "Pianificato (non ancora mangiato)",
     when: "Quando",
@@ -245,6 +250,7 @@ export const it: Messages = {
     },
   },
   profiles: {
+    todayDynamic: "Dinamico: ecco cosa chiede oggi, dal consumo di oggi.",
     title: "Obiettivi",
     intro:
       "Ogni tipo di giornata (palestra, corsa, riposo…) ha i suoi obiettivi. Sceglilo nella pagina del giorno; se non lo scegli vale il predefinito.",
@@ -387,6 +393,16 @@ export const it: Messages = {
       removeExercise: "Togli esercizio",
       before: "ultima volta {v}",
       restore: "Torna all'ultima volta",
+      notStarted: "parte alla prima serie",
+      restOver: "Pausa finita",
+      restNext: "ora: {name}, serie {n}",
+      skipRest: "Salta pausa",
+      close: "OK",
+      warmup: "Riscaldamento",
+      addWarmup: "Riscaldamento",
+      warmupHow: "Come scaldarsi",
+      warmupHint:
+        "Serve al primo esercizio multiarticolare di ogni gruppo muscolare (panca, squat, stacco, lat machine…), non a ogni esercizio: dopo, i muscoli sono già caldi. Di solito 2–3 serie in salita, con pause brevi (circa 1 minuto): ~50 % del carico per 8–10 ripetizioni, ~70 % per 4–6, ~85 % per 1–3. Non devono stancare. Le serie di riscaldamento non contano nel tonnellaggio né nei confronti.",
     },
     chart: {
       title: "Allenamento",

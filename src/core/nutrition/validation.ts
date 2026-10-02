@@ -280,6 +280,10 @@ export type EstimateInput = z.output<typeof estimateInput>;
 
 /** Editing an entry's time (the entry id is bound by the page). */
 export const entryTimeInput = z.object({ time });
+/** An entry's multiplier from the day's −/+ (0.25 to 10). */
+export const entryServingsInput = z.object({
+  servings: z.coerce.number("invalid_number").min(0.25, "too_small").max(10, "too_large"),
+});
 export type LogIngredientInput = z.output<typeof logIngredientInput>;
 
 /** Settings form: time zone and language (targets moved to profiles, ADR-0008). */
@@ -368,6 +372,21 @@ export type ProfileInput = z.output<typeof profileInput>;
 
 /** "This day follows this profile." */
 export const dayProfileInput = z.object({ day, profileId: id });
+
+/**
+ * The day page's goal line (2026-10-02): change a dynamic day type's
+ * deficit there; positive = deficit, negative = surplus, ±1500 at most.
+ */
+export const goalDeficitInput = z.object({
+  day,
+  profileId: id,
+  deficitKcal: z.coerce
+    .number("invalid_number")
+    .int("invalid_number")
+    .min(-1500, "too_large")
+    .max(1500, "too_large"),
+});
+export type GoalDeficitInput = z.output<typeof goalDeficitInput>;
 export type DayProfileInput = z.output<typeof dayProfileInput>;
 
 /** An id coming from a form or URL (delete buttons, edit pages). */

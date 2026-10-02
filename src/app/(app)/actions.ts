@@ -31,11 +31,14 @@ import {
   logPortion,
   refreshLogEntry,
   setEntryStatus,
+  setEntryServings,
   setEntryTime,
 } from "@/core/nutrition/repositories/log";
-import { setDayProfile } from "@/core/nutrition/repositories/profiles";
+import { setDayProfile, setGoalDeficit } from "@/core/nutrition/repositories/profiles";
 import {
   dayProfileInput,
+  goalDeficitInput,
+  entryServingsInput,
   entryTimeInput,
   estimateInput,
   logIngredientInput,
@@ -144,6 +147,27 @@ export async function setDayProfileAction(
   return { status: "saved" };
 }
 
+/** The goal line: a dynamic day type's deficit, changed on the day. */
+export async function setGoalDeficitAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(goalDeficitInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const r = await setGoalDeficit(
+    getDb(),
+    owner,
+    input.value.day,
+    input.value.profileId,
+    input.value.deficitKcal,
+  );
+  if (!r.ok) return { status: "error", errors: r.errors, values };
+  revalidatePath("/", "layout");
+  return { status: "saved" };
+}
+
 /**
  * "Repeat yesterday": copies the previous day's entries into `day`, as
  * logged (core copyDay). Bound per day by the page. Shown only on an empty
@@ -232,6 +256,18 @@ export async function setEntryTimeAction(
   if (!result.ok) return { status: "error", errors: result.errors, values };
   revalidatePath("/");
   return { status: "saved" };
+}
+
+/** An entry's −/+ multiplier (a plain form: works without JavaScript). */
+export async function setEntryServingsAction(
+  id: string,
+  formData: FormData,
+): Promise<void> {
+  const { owner } = await requireContext();
+  const input = parseInput(entryServingsInput, formToObject(formData));
+  if (!input.ok) return;
+  await setEntryServings(getDb(), owner, id, input.value.servings);
+  revalidatePath("/");
 }
 
 /** The day's movement besides training (ADR-0014), bound to the day. */
