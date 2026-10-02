@@ -18,6 +18,7 @@ import {
   burnBasis,
   burnRange,
   sessionMinutes,
+  sessionSteps,
   weightAt,
   type SetLike,
 } from "../../training/analysis";
@@ -215,6 +216,8 @@ function factsOf(
   const facts: DayFacts = {
     day,
     ...activity,
+    // ADR-0030: the device's steps include a run's; taken out there.
+    sessionSteps: sessions.reduce((a, s) => a + sessionSteps(s), 0),
     sessions: sessions.map((s) => ({
       status: s.status,
       burn: burnRange(s, kg),

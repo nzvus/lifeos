@@ -44,28 +44,37 @@ describe("dayEnergy", () => {
     expect(e.total.withPlan).toEqual(e.total.done);
   });
 
-  it("walking: a declared walk whole, steps only beyond the level's own, net of resting", () => {
-    // 11 000 steps sitting: 6000 beyond its 5000 ≈ 60 min; (3.0−1)×75×1 = 150, (3.8−1)×75×1 = 210
-    expect(dayEnergy(body, { ...quiet, steps: 11000 })!.walking).toEqual({
-      low: 150,
-      high: 210,
-    });
-    // The same steps on one's feet all day are already in the level (10 000): 10 min.
-    expect(
-      dayEnergy(body, { ...quiet, level: "on_feet", steps: 11000 })!.walking,
-    ).toEqual({
-      low: 25,
-      high: 35,
-    });
-    // A 30-minute walk beats 6000 steps sitting (10 min beyond); under the level's steps, nothing.
-    expect(dayEnergy(body, { ...quiet, walkingMin: 30, steps: 6000 })!.walking).toEqual({
-      low: 75,
-      high: 105,
-    });
-    expect(dayEnergy(body, { ...quiet, steps: 4000 })!.walking).toEqual({
-      low: 0,
-      high: 0,
-    });
+  it("ADR-0030: steps win — they set the everyday factor and walk beyond 10 000", () => {
+    // 11 000 steps, whatever the declared level: "on my feet" + 10 min walking.
+    const e = dayEnergy(body, { ...quiet, level: "sitting", steps: 11000 })!;
+    expect(e.inputs.factor).toEqual([1.5, 1.65]);
+    expect(e.inputs.level).toBe("on_feet");
+    expect(e.inputs.walk.source).toBe("steps");
+    expect(e.walking).toEqual({ low: 25, high: 35 });
+    // 6000 steps: 40 % of the way from sitting (5000) to mixed (7500); a
+    // declared walk is already inside the steps.
+    const mid = dayEnergy(body, { ...quiet, walkingMin: 30, steps: 6000 })!;
+    expect(mid.inputs.factor).toEqual([1.21, 1.33]);
+    expect(mid.walking).toEqual({ low: 0, high: 0 });
+    // Under 5000: sitting.
+    expect(dayEnergy(body, { ...quiet, steps: 4000 })!.inputs.factor).toEqual([
+      1.15, 1.25,
+    ]);
+  });
+
+  it("ADR-0030: a run's steps are taken out of the device's steps", () => {
+    const e = dayEnergy(body, { ...quiet, steps: 14000, sessionSteps: 4000 })!;
+    expect(e.inputs.walk.sessionSteps).toBe(4000);
+    expect(e.walking).toEqual({ low: 0, high: 0 }); // 10 000 left: no walking beyond
+  });
+
+  it("ADR-0030: without steps, a declared walk counts whole on the declared level", () => {
+    const e = dayEnergy(body, { ...quiet, walkingMin: 30 })!;
+    // (3.0−1)×75×0.5 = 75, (3.8−1)×75×0.5 = 105
+    expect(e.walking).toEqual({ low: 75, high: 105 });
+    expect(e.inputs.walk.source).toBe("walk");
+    // What the level and the walk imply, filled in: sitting 5000 + 30 × 100.
+    expect(e.inputs.walk.estimatedSteps).toBe(8000);
   });
 
   it("training done vs planned: the plan only moves the 'with the plan' total", () => {

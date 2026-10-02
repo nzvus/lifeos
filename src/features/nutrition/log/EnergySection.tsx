@@ -136,7 +136,24 @@ export function EnergySection({
         </Disclosure>
       )}
       <Disclosure summary={e.activity}>
-        <ActivityForm action={action} initial={activity} t={t} />
+        <ActivityForm
+          action={action}
+          initial={activity}
+          estimate={
+            energy
+              ? {
+                  // ADR-0030: what the model filled in from the other fields.
+                  steps:
+                    activity.steps === null ? energy.inputs.walk.estimatedSteps : null,
+                  walkingMin:
+                    activity.walkingMin === null && energy.inputs.walk.source === "steps"
+                      ? energy.inputs.walk.minutes
+                      : null,
+                }
+              : undefined
+          }
+          t={t}
+        />
       </Disclosure>
       {calibration && calibration.verdict !== "no_body" && (
         <Disclosure

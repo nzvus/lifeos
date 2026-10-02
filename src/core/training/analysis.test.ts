@@ -9,6 +9,7 @@ import {
   exerciseHistory,
   records,
   sessionMinutes,
+  sessionSteps,
   sessionTonnage,
   tonnage,
   trainingByDay,
@@ -279,5 +280,44 @@ describe("sessionMinutes", () => {
       }),
     ).toBe(21);
     expect(sessionMinutes({ durationMin: null, exercises: [] })).toBeNull();
+  });
+});
+
+describe("sessionSteps (ADR-0030)", () => {
+  const set = (
+    durationS: number,
+    extra: { speedKmh?: string; distanceM?: number } = {},
+  ) => ({
+    reps: null,
+    loadKg: null,
+    warmup: false,
+    durationS,
+    ...extra,
+  });
+  const run = (sets: ReturnType<typeof set>[], pattern = "run") => ({
+    kind: "cardio" as const,
+    pattern,
+    sets,
+  });
+
+  it("a run about 160 a minute, a slow treadmill 110, a bike none; planned counts none", () => {
+    expect(sessionSteps({ status: "done", exercises: [run([set(1800)])] })).toBe(4800);
+    expect(
+      sessionSteps({
+        status: "done",
+        exercises: [run([set(1800, { speedKmh: "5.5" })])],
+      }),
+    ).toBe(3300);
+    // 5 km in 30 min = 10 km/h: running.
+    expect(
+      sessionSteps({
+        status: "done",
+        exercises: [run([set(1800, { distanceM: 5000 })])],
+      }),
+    ).toBe(4800);
+    expect(sessionSteps({ status: "done", exercises: [run([set(1800)], "bike")] })).toBe(
+      0,
+    );
+    expect(sessionSteps({ status: "planned", exercises: [run([set(1800)])] })).toBe(0);
   });
 });

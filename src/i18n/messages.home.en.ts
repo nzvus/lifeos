@@ -127,10 +127,14 @@ export const energyEn = {
   activity: "Today's movement",
   level: "Besides training",
   levels: { sitting: "Mostly sitting", mixed: "Mixed", on_feet: "Often on my feet" },
-  walkingMin: "A walk (min)",
-  steps: "Steps that day (those beyond the level count)",
+  walkingMin: "Walking (minutes in all)",
+  steps: "Total steps (phone or watch)",
+  activityHint:
+    "Fill in what you have. With steps they decide, the level too, and runs already logged are taken out; without steps the level plus the walk count.",
+  estimated: "estimate: {v}",
   saveActivity: "Save",
   activitySaved: "Movement saved",
+  activitySaving: "Saving…",
   body: "Body",
   bodyHint: "Used to estimate what each day costs. Weight comes from your measurements.",
   sex: "Sex",
@@ -180,10 +184,12 @@ export const energyEn = {
       "top of the good zone: {g} g ({perKg} g/kg); more adds little for energy and recovery",
     title: "How it is computed",
     years: "years",
-    walkNone:
-      "{steps} steps, not beyond the {level} already in the level, and no deliberate walk",
-    walkMinutes:
-      "{min} min = the larger of a deliberate walk ({declared} min) and (steps {steps} − the level's {level}) ÷ 100",
+    walkNone: "no walk declared and no steps",
+    walkDeclared: "a declared walk of {min} min",
+    walkSteps: "({steps} steps{session} − 10,000 already in the level) ÷ 100 = {min} min",
+    walkStepsNone: "{steps} steps{session}: not beyond 10,000, all in the level",
+    sessionSteps: " − {n} in runs",
+    levelFromSteps: "{level}, from the steps",
     noBurn: "no duration nor estimate: not counted",
     fromEstimate: "your estimate {kcal} kcal ±15 %",
     fromSets:

@@ -129,10 +129,14 @@ export const energyIt: Messages["energy"] = {
   activity: "Movimento di oggi",
   level: "Oltre all'allenamento",
   levels: { sitting: "Quasi sempre seduto", mixed: "Misto", on_feet: "Spesso in piedi" },
-  walkingMin: "Camminata apposta (min)",
-  steps: "Passi del giorno (contano quelli oltre il livello)",
+  walkingMin: "Camminata (minuti in tutto)",
+  steps: "Passi totali (telefono o orologio)",
+  activityHint:
+    "Compila quello che hai. Con i passi decidono loro, anche il livello, e le corse già registrate vengono tolte; senza passi conta il livello più la camminata.",
+  estimated: "stima: {v}",
   saveActivity: "Salva",
   activitySaved: "Movimento salvato",
+  activitySaving: "Salvataggio…",
   body: "Corpo",
   bodyHint: "Servono a stimare il consumo di ogni giorno. Il peso arriva dalle misure.",
   sex: "Sesso",
@@ -183,10 +187,12 @@ export const energyIt: Messages["energy"] = {
       "tetto della zona buona: {g} g ({perKg} g/kg); oltre servono poco a energia e recupero",
     title: "Come è calcolato",
     years: "anni",
-    walkNone:
-      "{steps} passi, non oltre i {level} già contati nel livello, e nessuna camminata apposta",
-    walkMinutes:
-      "{min} min = il maggiore fra camminata apposta ({declared} min) e (passi {steps} − {level} del livello) ÷ 100",
+    walkNone: "nessuna camminata dichiarata e nessun passo",
+    walkDeclared: "camminata dichiarata {min} min",
+    walkSteps: "({steps} passi{session} − 10.000 già nel livello) ÷ 100 = {min} min",
+    walkStepsNone: "{steps} passi{session}: non oltre i 10.000, già tutti nel livello",
+    sessionSteps: " − {n} nelle corse",
+    levelFromSteps: "{level}, dai passi",
     noBurn: "senza durata né stima: non contato",
     fromEstimate: "la tua stima {kcal} kcal ±15 %",
     fromSets:
