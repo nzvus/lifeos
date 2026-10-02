@@ -35,6 +35,8 @@ import {
   setEntryTime,
 } from "@/core/nutrition/repositories/log";
 import { setDayProfile, setGoalDeficit } from "@/core/nutrition/repositories/profiles";
+import { clearSleep, setSleep } from "@/core/training/repositories/sleep";
+import { sleepInput } from "@/core/training/validation";
 import {
   dayProfileInput,
   goalDeficitInput,
@@ -46,8 +48,8 @@ import {
   logPortionInput,
   parseInput,
 } from "@/core/nutrition/validation";
-import { addDays, instantFor } from "@/core/shared/dates";
-import type { FormState } from "@/core/shared/result";
+import { addDays, instantFor, isValidDay } from "@/core/shared/dates";
+import { IDLE, type FormState } from "@/core/shared/result";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { setDayActivity, setEnergyCorrection } from "@/core/energy/repositories/energy";
 import { activityInput, correctionInput } from "@/core/energy/validation";
@@ -295,4 +297,29 @@ export async function setEnergyCorrectionAction(
   await setEnergyCorrection(getDb(), owner, parsed.data, todayIn(settings.timezone));
   revalidatePath("/");
   return { ok: true };
+}
+
+// ---- sleep (ADR-0031) -------------------------------------------------------
+
+/** The night that ended on a day; quiet until both times are there (autosave). */
+export async function setSleepAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner, settings } = await requireContext();
+  const values = formToObject(formData);
+  if (!values.bed || !values.wake) return IDLE;
+  const input = parseInput(sleepInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const r = await setSleep(getDb(), owner, input.value, settings.timezone);
+  if (!r.ok) return { status: "error", errors: r.errors, values };
+  revalidatePath("/", "layout");
+  return { status: "saved" };
+}
+
+export async function clearSleepAction(day: string): Promise<void> {
+  const { owner } = await requireContext();
+  if (!isValidDay(day)) return;
+  await clearSleep(getDb(), owner, day);
+  revalidatePath("/", "layout");
 }

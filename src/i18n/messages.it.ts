@@ -7,6 +7,7 @@ import { guidesIt } from "./messages.guides.it";
 import {
   pantryIt,
   progressIt,
+  sleepIt,
   addFabIt,
   bodyIt,
   trashIt,
@@ -217,6 +218,7 @@ export const it: Messages = {
   },
   guides: guidesIt,
   addFab: addFabIt,
+  sleep: sleepIt,
   progress: progressIt,
   pantry: pantryIt,
   trash: trashIt,
@@ -585,7 +587,10 @@ export const it: Messages = {
       targets: "Obiettivi",
       processing: "Trasformazione",
       fiberVariety: "Varietà di fibre",
+      sleep: "Sonno",
     },
+    sleep: "{hours} h dormite (bene tra 7 e 9)",
+    noSleep: "Non conta: nessuna notte registrata (+ → Sonno).",
     weight: "peso {w}%",
     targets: "{on} nutrienti su {of} nell'obiettivo",
     processing:

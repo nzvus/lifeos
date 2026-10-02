@@ -489,6 +489,7 @@ export const bodyIt: Messages["body"] = {
     carbs_up: "ieri più carboidrati del solito: probabile acqua",
     carbs_down: "ieri meno carboidrati del solito: probabile acqua persa",
     salt_up: "ieri più sale del solito: probabile acqua",
+    short_night: "notte corta",
   },
 };
 
@@ -506,4 +507,25 @@ export const addFabIt: Messages["addFab"] = {
   food: "Cibo",
   training: "Allenamento",
   weight: "Peso",
+  sleep: "Sonno",
+};
+
+export const sleepIt: Messages["sleep"] = {
+  title: "Sonno",
+  hint: "La notte finita questa mattina: quando sei andato a letto e quando ti sei svegliato.",
+  none: "Nessuna notte registrata",
+  hours: "{h} h",
+  qualityShort: "{q}/5",
+  bed: "A letto alle",
+  wake: "Sveglia alle",
+  quality: "Com'è andata",
+  qualityNone: "— non dico",
+  qualities: ["1 · pessima", "2 · scarsa", "3 · normale", "4 · buona", "5 · ottima"],
+  saving: "Salvataggio…",
+  saved: "Notte salvata",
+  clear: "Cancella la notte",
+  chartLabel:
+    "ore dormite per notte, la fascia 7–9 h è quella buona; tocca un giorno per aprirlo",
+  chartSummary: "media {avg} h su {n} notti",
+  chartNone: "nessuna notte registrata nel periodo",
 };

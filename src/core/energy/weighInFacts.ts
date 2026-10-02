@@ -18,6 +18,8 @@ export function weighInFacts(
   historyByDay: ReadonlyMap<string, DaySummary>,
   sessions: readonly Pick<SessionView, "day" | "status" | "startedAt">[],
   timeZone: string,
+  /** ADR-0031: hours slept, by wake-up day. */
+  sleptByDay: ReadonlyMap<string, number> = new Map(),
 ): WeighInFacts {
   // When: as said; else when it was typed, if that was on its own day.
   const said = m.context?.measuredAt ?? null;
@@ -69,5 +71,6 @@ export function weighInFacts(
     trainedBefore,
     yesterday: y?.logged ? macros(y) : null,
     usual,
+    sleptHours: sleptByDay.get(m.day) ?? null,
   };
 }

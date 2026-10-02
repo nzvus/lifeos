@@ -485,6 +485,7 @@ export const bodyEn = {
     carbs_up: "more carbs than usual yesterday: likely water",
     carbs_down: "fewer carbs than usual yesterday: likely water lost",
     salt_up: "more salt than usual yesterday: likely water",
+    short_night: "a short night",
   },
 };
 
@@ -502,4 +503,24 @@ export const addFabEn = {
   food: "Food",
   training: "Training",
   weight: "Weight",
+  sleep: "Sleep",
+};
+
+export const sleepEn = {
+  title: "Sleep",
+  hint: "The night that ended this morning: when you went to bed and when you woke up.",
+  none: "No night logged",
+  hours: "{h} h",
+  qualityShort: "{q}/5",
+  bed: "To bed at",
+  wake: "Woke at",
+  quality: "How it went",
+  qualityNone: "— not said",
+  qualities: ["1 · awful", "2 · poor", "3 · normal", "4 · good", "5 · great"],
+  saving: "Saving…",
+  saved: "Night saved",
+  clear: "Clear the night",
+  chartLabel: "hours slept per night, 7–9 h is the good range; tap a day to open it",
+  chartSummary: "average {avg} h over {n} nights",
+  chartNone: "no night logged in the period",
 };

@@ -280,3 +280,20 @@ export const programInput = z.object({
   }),
 });
 export type ProgramInput = z.output<typeof programInput>;
+
+/** ADR-0031: a night, from the day page — bedtime and wake time required. */
+export const sleepInput = z.object({
+  day,
+  bed: time.refine((v) => v !== null, "required"),
+  wake: time.refine((v) => v !== null, "required"),
+  quality: z
+    .string()
+    .optional()
+    .transform((v) => (v ? Number(v) : null))
+    .refine(
+      (v) => v === null || (Number.isInteger(v) && v >= 1 && v <= 5),
+      "invalid_choice",
+    ),
+  notes: z.string().trim().max(500, "too_long").optional().default(""),
+});
+export type SleepInput = z.output<typeof sleepInput>;

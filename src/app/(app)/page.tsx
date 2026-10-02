@@ -32,7 +32,7 @@ import { carbsGoodMax, macroBands, trainingLoad } from "@/core/nutrition/bands";
 import { withAutoTargets } from "@/core/nutrition/targets";
 import { sessionMinutes } from "@/core/training/analysis";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
-import { addDays, isValidDay, startOfWeek, todayIn } from "@/core/shared/dates";
+import { addDays, isValidDay, startOfWeek, timeIn, todayIn } from "@/core/shared/dates";
 import { Bell, Copy, Dumbbell } from "lucide-react";
 import Link from "next/link";
 import { listBatches } from "@/core/nutrition/repositories/batches";
@@ -50,6 +50,9 @@ import { fill } from "@/i18n";
 import { EntryList } from "@/features/nutrition/log/EntryList";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { AddFab } from "@/features/nutrition/log/AddFab";
+import { SleepCard } from "@/features/training/body/SleepCard";
+import { listSleep } from "@/core/training/repositories/sleep";
+import { sleepScore } from "@/core/training/sleep";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { GoalLine } from "@/features/nutrition/log/GoalLine";
@@ -88,6 +91,8 @@ import {
   setDayProfileAction,
   setGoalDeficitAction,
   setEntryServingsAction,
+  setSleepAction,
+  clearSleepAction,
   setEntryStatusAction,
   setEntryTimeAction,
 } from "./actions";
@@ -132,6 +137,7 @@ export default async function DayPage({ searchParams }: Props) {
     manualReminders,
     energyView,
     calibration,
+    nights,
   ] = await Promise.all([
     getDay(db, owner, day),
     listMeals(db, owner),
@@ -151,7 +157,12 @@ export default async function DayPage({ searchParams }: Props) {
     listReminders(db, owner),
     getDayEnergy(db, owner, day, programSlot?.slot), // ADR-0014: what the day costs
     day === today ? getCalibration(db, owner, today) : null, // ADR-0020
+    listSleep(db, owner, day, day), // ADR-0031: the night that ended today
   ]);
+  const night = nights[0] ?? null;
+  const nightScore = night
+    ? { hours: night.hours, score: sleepScore(night.hours) }
+    : null;
   // Today's reminders (ADR-0017): derived from the pantry and the batches,
   // plus the hand-made ones that are due. Worded here, shown only if any.
   const p = t.pantry;
@@ -378,6 +389,7 @@ export default async function DayPage({ searchParams }: Props) {
             targets,
             quality: dayQuality,
             bands,
+            sleep: nightScore,
           })}
           planned={
             view.entries.some((e) => e.status === "planned")
@@ -386,6 +398,7 @@ export default async function DayPage({ searchParams }: Props) {
                   targets,
                   quality: eatenQuality(view.entries, true),
                   bands,
+                  sleep: nightScore,
                 })
               : null
           }
@@ -393,6 +406,22 @@ export default async function DayPage({ searchParams }: Props) {
           empty={view.entries.every((e) => e.status !== "eaten")}
           locale={locale}
           t={{ dayScore: t.dayScore, quality: t.quality }}
+        />
+        <SleepCard
+          day={day}
+          night={
+            night
+              ? {
+                  hours: formatNumber(String(night.hours), locale, 1),
+                  bed: timeIn(night.bedAt, settings.timezone),
+                  wake: timeIn(night.wakeAt, settings.timezone),
+                  quality: night.quality,
+                }
+              : null
+          }
+          action={setSleepAction}
+          clear={clearSleepAction}
+          t={{ sleep: t.sleep, errors: t.errors }}
         />
       </div>
       <div className="flex min-w-0 flex-col gap-4">
