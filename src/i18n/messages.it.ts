@@ -7,6 +7,7 @@ import { guidesIt } from "./messages.guides.it";
 import {
   pantryIt,
   progressIt,
+  addFabIt,
   bodyIt,
   trashIt,
   energyIt,
@@ -215,6 +216,7 @@ export const it: Messages = {
       "Aggiungi prima qualche ingrediente: un pasto è fatto di ingredienti.",
   },
   guides: guidesIt,
+  addFab: addFabIt,
   progress: progressIt,
   pantry: pantryIt,
   trash: trashIt,

@@ -488,3 +488,12 @@ export const progressEn = {
   weight: "Weight",
   coming: "Coming",
 };
+
+export const addFabEn = {
+  open: "Add",
+  title: "Add to the day",
+  close: "Close",
+  food: "Food",
+  training: "Training",
+  weight: "Weight",
+};

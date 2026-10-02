@@ -492,3 +492,12 @@ export const progressIt: Messages["progress"] = {
   weight: "Peso",
   coming: "Prossimi",
 };
+
+export const addFabIt: Messages["addFab"] = {
+  open: "Aggiungi",
+  title: "Aggiungi alla giornata",
+  close: "Chiudi",
+  food: "Cibo",
+  training: "Allenamento",
+  weight: "Peso",
+};

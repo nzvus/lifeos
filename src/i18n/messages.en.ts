@@ -17,6 +17,7 @@ import { guidesEn } from "./messages.guides.en";
 import {
   pantryEn,
   progressEn,
+  addFabEn,
   bodyEn,
   trashEn,
   energyEn,
@@ -220,6 +221,7 @@ export const en = {
     needIngredients: "Add some ingredients first: a meal is made of them.",
   },
   guides: guidesEn,
+  addFab: addFabEn,
   progress: progressEn,
   pantry: pantryEn,
   trash: trashEn,
