@@ -1,8 +1,8 @@
 # Lifeos
 
-A personal nutrition tracker — ingredients from their labels, meals, a daily
-log against targets, with exact totals and costs — built to own its data and
-never lose it. It is also the pilot app for a reusable fullstack kit, and the
+A personal nutrition and training tracker — food against targets with exact
+totals and costs, training with programs and a gym mode, weight, sleep and
+the day's energy as honest ranges — built to own its data and never lose it. It is also the pilot app for a reusable fullstack kit, and the
 first module of a larger personal app (see the backlog in `ROADMAP.md`).
 
 Started from the `ai-native-starter` template; the template itself lives in

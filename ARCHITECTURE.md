@@ -12,8 +12,9 @@ session, call `core/`, and render feature components. All domain and data
 logic lives in `core/`, which imports no framework. Data is Postgres on Neon
 through Drizzle (ADR-0003); identity is Better Auth in the same database
 (ADR-0006). Modules: nutrition (ingredients, meals, daily log with snapshots,
-day types and targets, quality, trends) and training (exercises, routines,
-sessions incl. estimates and live mode, body measurements, progress); pantry
+day types and targets, quality, trends), training (exercises with guides,
+routines, programs, sessions incl. estimates and gym mode, progress), body
+(weigh-ins with context, sleep, the day's movement) and energy; pantry
 (products, purchases, derived stock, batches, reminders); an assistant that
 acts through core tools (ADR-0018); a trash for everything deletable; export.
 
@@ -27,14 +28,15 @@ src/
     (auth)/     /sign-in, /sign-up          (app)/  every signed-in page
     api/        auth/[...all], health, export
   features/     vertical slices (area/slice), components only:
-                account/{auth,settings,trash}, nutrition/{ingredients,meals,log,
-                profiles,trends,pantry}, training/{body,exercises,live,progress,routines,sessions}
+                account/{auth,settings,trash}, nutrition/{ingredients,meals,log,nav,
+                profiles,trends,pantry}, training/{body,exercises,live,programs,progress,
+                routines,sessions}
   core/         db/ (schema: auth, nutrition, training; client), identity/ (Owner,
                 ownedBy), nutrition/, training/, pantry/, energy/, assistant/, trash/,
                 export/, import/, auth/,
                 shared/ (validation, search, browse, sorting, dates, trash…), testing/
-  ui/           one component per repeated thing: button.ts, Badge, Section,
-                Collapsible, ListItem, Menu/TrashMenu, ActionBar, Toast, MacroStrip, …
+  ui/           one component per repeated thing: button.ts, Badge, Section, Sheet,
+                SubNav, Collapsible, ListItem, DeleteButton, ActionBar, Toast, …
   design/       theme.css (Tailwind v4 @theme tokens) + themes/<id>.css
   i18n/         messages.en.ts (reference shape), messages.it.ts, fill()
 drizzle/        committed SQL migrations (generated, reviewed)
@@ -79,17 +81,15 @@ app  →  features  →  core
 - `core/` never reads `process.env` or request state; `app/_server/` passes in
   what it needs (factories `createDb`, `createAuth`; an `Owner` per call).
 - `ui/` is presentation only: translated strings in, no domain types.
-- Local CLI scripts get an `Owner` by email (`core/identity/local-admin.ts`);
-  the web app never imports it. Promotion into `ui/` follows the rule of three.
+- CLI scripts get an `Owner` by email (`core/identity/local-admin.ts`), never the web app.
+  Promotion into `ui/` follows the rule of three.
 
 ## Persistence & durability (ADR-0003, ADR-0007)
 
-Schema: `core/db/schema/*.ts`. Change path: edit schema
-→ `npm run db:generate` → read the SQL in `drizzle/` → commit → the PR preview
-applies it to its own Neon branch (`scripts/vercel-build.mjs`, when
-`PREVIEW_DB_IS_BRANCH=true`) → `migrate.yml` on the PR branch (backup, then
-migrate) → the CI gate passes by itself (it finds that successful run; no label) → merge. No `drizzle-kit
-push`. Schema PRs must be safe to merge in any order (additive first).
+Schema: `core/db/schema/*.ts` → `npm run db:generate` → read the SQL → commit →
+the PR preview applies it to its own Neon branch (`scripts/vercel-build.mjs`) →
+`migrate.yml` on the PR branch (backup, then migrate) → the CI gate finds that run →
+merge. No `drizzle-kit push`. New tables, not columns on old ones: safe in any order.
 
 Backups: `backup.yml` daily → `scripts/backup.sh` (pg_dump -Fc, verified,
 encrypted with age) → workflow artifact, 30 days. Restore:
@@ -98,53 +98,53 @@ encrypted with age) → workflow artifact, 30 days. Restore:
 
 ## Delivery (ADR-0004)
 
-Vercel Hobby from git; production only from protected `main` with green CI
-(`ci.yml`: check.py, typecheck, lint, tests, build). Previews build only for
-schema changes or `*-preview` branches (`scripts/vercel-ignore.sh`; Hobby
-allows 100 deployments a day). Monitoring watches for silence: `backup.yml`
-pings healthchecks.io after each dump, and its `app-health` job calls
-`/api/health` and pings a second check.
+Vercel Hobby; production only from protected `main` with green CI (`ci.yml`: check.py,
+typecheck, lint, tests, build). Previews only for schema changes or `*-preview` branches
+(100 deployments a day). healthchecks.io gets a ping after each dump and from the
+`app-health` job (`/api/health`): silence is the alarm.
 
 ## Cross-cutting concerns
 
-- **Errors:** expected failures are `Result` values with codes (`core/shared/result.ts`,
-  translated by i18n; Postgres 23505/23503/23001 mapped); the rest throw to `error.tsx`.
-- **Config/secrets:** validated once in `app/_server/env.ts` (`.env.example`); Vercel
-  env for the app, GitHub secrets for backup/migrate, age key only on the developer's machine.
-- **Auth/security:** Better Auth, email+password, DB-backed sessions (30 days,
-  5-min signed cookie cache) and rate limiting; sign-up closed unless
-  `ALLOW_SIGNUP=true`. Authorization in every page/action (`requireContext`)
-  and again at the data boundary (`Owner`).
+- **Errors:** expected failures are `Result` codes (`core/shared/result.ts`, translated;
+  Postgres 23505/23503/23001 mapped); the rest throw to `error.tsx`.
+- **Config/secrets:** `app/_server/env.ts` (`.env.example`); Vercel env, GitHub secrets
+  for backup/migrate, the age key only on the developer's machine.
+- **Auth:** Better Auth, email+password, DB sessions (30 days, 5-min cookie cache), rate
+  limits; sign-up only with `ALLOW_SIGNUP=true`; `requireContext` per page/action + `Owner`.
 - **Targets:** per day (ADR-0008) fixed / default profile / none; auto maxima; bands (ADR-0023).
   A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done + planned;
-  no double counts, ADR-0021; the baseline × the accepted calibration, ADR-0020).
-- **Log entries** (ADR-0009/0011): planned or eaten, optional time/moment, maybe an
-  estimate; totals = eaten, and every panel also shows the day with the plan.
+  no double counts, ADR-0021; × the accepted calibration, ADR-0020/0026; movement from
+  steps > walk > level, ADR-0030). Weigh-ins carry a reliability that weights the trend
+  and the calibration (ADR-0027); sleep feeds day quality and trends, not energy (ADR-0031).
+- **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment, servings −/+;
+  totals = eaten, every panel also shows the day with the plan.
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (pinned ↺ / Cancel /
   Save), drafts in the browser, `?from=` for back and after-save, toasts with
-  Undo. Rows open on tap and carry "⋯" (ui/ListItem `href`, ui/TrashMenu).
-  Delete = trash (`deleted_at`, `live()`); `/settings/trash` restores or deletes for
-  good; after 30 days `backup.yml`'s `purge-trash` job deletes it (after the dump).
+  Undo. Rows open on tap; delete is a bin that asks first (ui/DeleteButton), "⋯"
+  only for other actions. Delete = trash (`deleted_at`, `live()`); `/settings/trash`
+  restores or deletes for good; `backup.yml`'s `purge-trash` job empties it after 30 days.
+- **Short tasks in sheets:** add food / training / a night / movement / a weigh-in,
+  a quick ingredient, sorting — ui/Sheet, opened by a `#id` link (the day's "+",
+  chips); long forms stay pages. Settings save themselves (ui/useAutoSave).
 - **Assistant (ADR-0018):** the model runs on the server with the user's key
   (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
   writes come back with Undo, deletes/imports wait for a tap; files are read on
   the phone; a data summary (`assistant/context.ts`) goes with every turn.
 - **Derived, never stored:** pantry stock (ADR-0017, `core/pantry/stock.ts`: purchases −
-  eaten − cooked ± counts) and a program's coming days (ADR-0024, `core/training/program.ts`).
-- **PWA (ADR-0019):** `app/manifest.ts` + `public/sw.js`: pages network-only (offline
-  page as fallback), `/_next/static` cache-first; no user data is ever cached.
+  eaten − cooked ± counts), a program's coming days (ADR-0024, `core/training/program.ts`;
+  only per-day overrides are stored, ADR-0029) and today's exercise target
+  (`core/training/targets.ts`, double progression over the pattern guides, ADR-0028).
+- **PWA (ADR-0019):** `app/manifest.ts` + `public/sw.js`: pages network-only, offline page
+  as fallback, static files cache-first; no user data cached; dark splash.
 - **Time:** `date` strings; "today" from `user_settings.timezone`, never the server's clock.
-- **Search & ordering:** `core/shared/search.ts` (accent-insensitive, every word,
-  ranked by match then 60-day usage); sorts toggle ↑/↓, missing values last.
-- **Responsive UI:** phones get a bottom tab bar, md+ header navigation, lg+
-  the day in two columns. Page layout uses `sm:/md:/lg:`, redefined to obey
-  `data-layout` (auto/desktop/phone, ADR-0010); inside cards and `<main>`,
-  container queries follow the real width.
-- **Visual language:** one colour per nutrient, graded by target kind and distance
-  (`ui/targetTone.ts`); planned = dashed; buttons `ui/button.ts`, statuses `ui/Badge`,
-  every section with its icon; `lucide-react` icons; plain SVG charts.
-- **Theming/i18n:** tokens (ADR-0010: colour, type, frames, radii, surfaces
-  `panel`/`tile`/`item`, headings, icon chips) in `design/`; themes `label`
-  (default) / `quaderno` / `sport` / `minimal` / `notte` override them
-  (`data-theme`, per user) and share the same components.
-- **Performance / testing:** `fra1`, cookie cache, `loading.tsx`; Vitest + PGlite, contrast tests.
+  **Search:** `core/shared/search.ts` (accent-insensitive, every word, match then 60-day use).
+- **Responsive UI:** tabs by task — Today · Training · Food (meals | ingredients | pantry)
+  · Progress (trends | weight | coming) · Assistant; a bottom bar on phones, header on md+,
+  the day in two columns on lg+. `sm:/md:/lg:` obey `data-layout` (ADR-0010); inside cards,
+  container queries; every grid has a base column (lint) — checked at 360 px, text 120 %.
+- **Visual language:** colour = state (short / in the zone / over: `bandState`,
+  ui/NutrientRow); nutrients keep their colour on icons and bars, numbers are ink;
+  planned = dashed; `ui/button.ts`, `ui/Badge`, every section with its icon; plain SVG charts.
+- **Theming:** tokens in `design/` (ADR-0010); themes `label` (default) / `quaderno` /
+  `sport` / `minimal` / `notte` override them (`data-theme`, per user), same components.
+- **Performance / testing:** `fra1`, cookie cache, `loading.tsx`; Vitest + PGlite.
