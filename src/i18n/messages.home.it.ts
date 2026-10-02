@@ -161,6 +161,12 @@ export const energyIt: Messages["energy"] = {
   fatPerKg: "Grassi (g per kg)",
   dynamicHint:
     "Calorie = consumo stimato del giorno con il piano − deficit; proteine e grassi seguono il peso; i carboidrati il resto. Zuccheri, saturi e sale restano limiti.",
+  editGoal: "Cambia deficit o surplus",
+  balanceWanted: "voluto",
+  balanceWithPlan: "col piano",
+  balanceSoFar: "finora",
+  balanceNote:
+    "Bilancio = mangiato − consumato, kcal: negativo è deficit, positivo surplus.",
   goalMaintain: "mantenimento",
   goalDeficit: "deficit di {kcal} kcal",
   goalSurplus: "surplus di {kcal} kcal",
@@ -424,6 +430,7 @@ export const outlookIt: Messages["outlook"] = {
     "Allenamenti pianificati o dal programma, consumo stimato e obiettivi che ne seguono.",
   noDayType: "nessun tipo",
   rest: "Riposo",
+  editProgram: "Modifica programma",
   energy: "consumo {lo}–{hi} kcal",
   noEnergy: "consumo: mancano i dati del corpo",
   targets: "{kcal} kcal · P {p} · C {c} · G {f}",

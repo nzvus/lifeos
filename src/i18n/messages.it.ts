@@ -248,6 +248,7 @@ export const it: Messages = {
     },
   },
   profiles: {
+    todayDynamic: "Dinamico: ecco cosa chiede oggi, dal consumo di oggi.",
     title: "Obiettivi",
     intro:
       "Ogni tipo di giornata (palestra, corsa, riposo…) ha i suoi obiettivi. Sceglilo nella pagina del giorno; se non lo scegli vale il predefinito.",

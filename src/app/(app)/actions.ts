@@ -33,9 +33,10 @@ import {
   setEntryStatus,
   setEntryTime,
 } from "@/core/nutrition/repositories/log";
-import { setDayProfile } from "@/core/nutrition/repositories/profiles";
+import { setDayProfile, setGoalDeficit } from "@/core/nutrition/repositories/profiles";
 import {
   dayProfileInput,
+  goalDeficitInput,
   entryTimeInput,
   estimateInput,
   logIngredientInput,
@@ -141,6 +142,27 @@ export async function setDayProfileAction(
   );
   if (!result.ok) return { status: "error", errors: result.errors, values };
   revalidatePath("/");
+  return { status: "saved" };
+}
+
+/** The goal line: a dynamic day type's deficit, changed on the day. */
+export async function setGoalDeficitAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(goalDeficitInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const r = await setGoalDeficit(
+    getDb(),
+    owner,
+    input.value.day,
+    input.value.profileId,
+    input.value.deficitKcal,
+  );
+  if (!r.ok) return { status: "error", errors: r.errors, values };
+  revalidatePath("/", "layout");
   return { status: "saved" };
 }
 

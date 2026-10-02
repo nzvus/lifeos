@@ -252,6 +252,7 @@ export const en = {
     },
   },
   profiles: {
+    todayDynamic: "Dynamic: this is what it asks today, from today's energy.",
     title: "Targets",
     intro:
       "Each kind of day (gym, run, rest…) has its own daily targets. Pick one on the day page; the default applies when you don't.",

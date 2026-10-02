@@ -315,6 +315,35 @@ export async function setDayProfile(
 }
 
 /**
+ * Changes a DYNAMIC day type's deficit from the day page, and refreshes
+ * that day's copy so the day follows at once. Other days already fixed
+ * keep their copy (ADR-0008); days that follow the default see it.
+ */
+export async function setGoalDeficit(
+  db: Db,
+  owner: Owner,
+  day: string,
+  profileId: string,
+  deficitKcal: number,
+): Promise<Result<null>> {
+  const [row] = await db
+    .update(dayProfiles)
+    .set({ deficitKcal })
+    .where(
+      and(
+        ownedBy(dayProfiles, owner),
+        live(dayProfiles),
+        eq(dayProfiles.id, profileId),
+        eq(dayProfiles.mode, "dynamic"),
+      ),
+    )
+    .returning();
+  if (!row) return fail({ profileId: "not_found" });
+  await writePlan(db, owner, day, row);
+  return ok(null);
+}
+
+/**
  * Called when food is logged: if the day has no plan yet and a default
  * profile exists, fix the day to the default's current targets. Does nothing
  * if the day is already fixed or there are no profiles.

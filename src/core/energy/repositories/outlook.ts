@@ -8,9 +8,9 @@
 import type { Db } from "../../db/client";
 import type { Owner } from "../../identity/owner";
 import { carbsGoodMax, trainingLoad } from "../../nutrition/bands";
-import { getDayTargets } from "../../nutrition/repositories/profiles";
+import { getDayTargets, type DayProfile } from "../../nutrition/repositories/profiles";
 import { addDays } from "../../shared/dates";
-import { getActivePlan } from "../../training/repositories/programs";
+import { getActivePlan, programSlotOn } from "../../training/repositories/programs";
 import { listSessions } from "../../training/repositories/sessions";
 import { dynamicTargets, goalOf, type Goal, type Range } from "../energy";
 import { getDayEnergy, type DayEnergyView } from "./energy";
@@ -133,4 +133,56 @@ export async function kcalTargets(
     }),
   );
   return new Map(rows);
+}
+
+export type TodayTargets = {
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+};
+
+/**
+ * What each DYNAMIC day type would ask today (the day-type list): its
+ * parameters on today's energy. Fixed types show their own numbers.
+ */
+export async function dynamicTargetsToday(
+  db: Db,
+  owner: Owner,
+  today: string,
+  profiles: readonly DayProfile[],
+): Promise<Map<string, TodayTargets>> {
+  const out = new Map<string, TodayTargets>();
+  const dynamic = profiles.filter((p) => p.mode === "dynamic");
+  if (!dynamic.length) return out;
+  // With the program's slot, like the day page, so both say the same.
+  const slot = await programSlotOn(db, owner, today, today);
+  const e = await getDayEnergy(db, owner, today, slot?.slot ?? null);
+  if (!e.energy || !e.body.weightKg) return out;
+  const inputs = e.energy.inputs.sessions;
+  const load = trainingLoad(
+    inputs.reduce((a, x) => a + x.durationMin, 0),
+    inputs.reduce((a, x) => a + (x.basis?.kind === "sets" ? x.basis.cardioMin : 0), 0),
+  );
+  for (const p of dynamic) {
+    const d = dynamicTargets(
+      e.energy,
+      e.body.weightKg,
+      {
+        deficitKcal: p.deficitKcal,
+        proteinGPerKg: p.proteinGPerKg,
+        fatGPerKg: p.fatGPerKg,
+      },
+      carbsGoodMax(Number(e.body.weightKg), load),
+    );
+    out.set(p.id, {
+      kcal: d.kcal,
+      protein: d.protein,
+      carbs: d.carbs,
+      fat: d.fat,
+      fiber: d.fiber,
+    });
+  }
+  return out;
 }

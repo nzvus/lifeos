@@ -16,6 +16,7 @@ import {
   getDayTargets,
   listProfiles,
   setDayProfile,
+  setGoalDeficit,
   setDefaultProfile,
   updateProfile,
   restoreProfile,
@@ -214,5 +215,27 @@ describe("dynamic day types (ADR-0014)", () => {
       source: "fixed",
       dynamic: { deficitKcal: -250, proteinGPerKg: "1.8", fatGPerKg: "0.9" },
     });
+  });
+});
+
+describe("the goal line's deficit (2026-10-02)", () => {
+  it("changes a dynamic type and refreshes the day; a fixed type is refused", async () => {
+    const dyn = await createProfile(db, me, {
+      ...profile("Ricomposizione", null),
+      mode: "dynamic",
+      deficitKcal: 200,
+      proteinGPerKg: "2",
+      fatGPerKg: "0.9",
+    });
+    const fixed = await createProfile(db, me, profile("Fisso", "2500"));
+    if (!dyn.ok || !fixed.ok) throw new Error("setup failed");
+    await setDayProfile(db, me, DAY, dyn.value.id);
+
+    expect((await setGoalDeficit(db, me, DAY, dyn.value.id, -150)).ok).toBe(true);
+    expect(await getDayTargets(db, me, DAY)).toMatchObject({
+      dynamic: { deficitKcal: -150 },
+    });
+    expect((await setGoalDeficit(db, me, DAY, fixed.value.id, 100)).ok).toBe(false);
+    expect((await setGoalDeficit(db, other, DAY, dyn.value.id, 100)).ok).toBe(false);
   });
 });

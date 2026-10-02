@@ -51,6 +51,7 @@ import { EntryList } from "@/features/nutrition/log/EntryList";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
+import { GoalLine } from "@/features/nutrition/log/GoalLine";
 import { DayScore } from "@/features/nutrition/log/DayScore";
 import { ProgramDay } from "@/features/training/programs/ProgramDay";
 import { AddTraining } from "@/features/training/sessions/AddTraining";
@@ -84,6 +85,7 @@ import {
   logMealAction,
   refreshLogEntryAction,
   setDayProfileAction,
+  setGoalDeficitAction,
   setEntryStatusAction,
   setEntryTimeAction,
 } from "./actions";
@@ -281,39 +283,38 @@ export default async function DayPage({ searchParams }: Props) {
                 dynamic ? (
                   (() => {
                     const g = goalOf(dayTargets.dynamic);
-                    const d = dayTargets.dynamic.deficitKcal;
-                    const w = energyView.energy!.total.withPlan;
+                    const mid = (r: { low: number; high: number }) =>
+                      (r.low + r.high) / 2;
+                    const total = energyView.energy!.total;
                     return (
-                      <>
-                        <span className="font-display text-item font-semibold">
-                          {[
-                            g ? t.energy.goals[g] : t.energy.goalCustom,
-                            d === 0
-                              ? t.energy.goalMaintain
-                              : fill(
-                                  d > 0 ? t.energy.goalDeficit : t.energy.goalSurplus,
-                                  {
-                                    kcal: String(Math.abs(d)),
-                                  },
-                                ),
-                          ].join(" · ")}
-                        </span>
-                        <span className="text-meta tabular-nums">
-                          {fill(t.energy.goalEat, {
-                            kcal: formatNumber(String(dynamic.kcal), locale, 0),
-                            spent: formatNumber(
-                              String(Math.round((w.low + w.high) / 2)),
-                              locale,
-                              0,
-                            ),
-                          })}
-                        </span>
-                        {dynamic.uncapped !== null && (
-                          <span className="text-meta text-muted">
-                            {fill(t.energy.goalCapped, { carbs: String(dynamic.carbs) })}
-                          </span>
-                        )}
-                      </>
+                      <GoalLine
+                        day={day}
+                        profileId={dayTargets.profileId}
+                        title={g ? t.energy.goals[g] : t.energy.goalCustom}
+                        deficitKcal={dayTargets.dynamic.deficitKcal}
+                        eatKcal={dynamic.kcal}
+                        spentKcal={Math.round(mid(total.withPlan))}
+                        balance={{
+                          wanted: -dayTargets.dynamic.deficitKcal,
+                          withPlan: Math.round(
+                            Number(view.withPlanned.nutrients.kcal) - mid(total.withPlan),
+                          ),
+                          soFar:
+                            day <= today
+                              ? Math.round(
+                                  Number(view.totals.nutrients.kcal) - mid(total.done),
+                                )
+                              : null,
+                        }}
+                        capped={
+                          dynamic.uncapped !== null
+                            ? fill(t.energy.goalCapped, { carbs: String(dynamic.carbs) })
+                            : null
+                        }
+                        action={setGoalDeficitAction}
+                        locale={locale}
+                        t={{ energy: t.energy, actions: t.actions, errors: t.errors }}
+                      />
                     );
                   })()
                 ) : (

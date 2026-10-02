@@ -368,6 +368,21 @@ export type ProfileInput = z.output<typeof profileInput>;
 
 /** "This day follows this profile." */
 export const dayProfileInput = z.object({ day, profileId: id });
+
+/**
+ * The day page's goal line (2026-10-02): change a dynamic day type's
+ * deficit there; positive = deficit, negative = surplus, ±1500 at most.
+ */
+export const goalDeficitInput = z.object({
+  day,
+  profileId: id,
+  deficitKcal: z.coerce
+    .number("invalid_number")
+    .int("invalid_number")
+    .min(-1500, "too_large")
+    .max(1500, "too_large"),
+});
+export type GoalDeficitInput = z.output<typeof goalDeficitInput>;
 export type DayProfileInput = z.output<typeof dayProfileInput>;
 
 /** An id coming from a form or URL (delete buttons, edit pages). */
