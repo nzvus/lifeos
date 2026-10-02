@@ -1,14 +1,16 @@
 /**
- * features/training/plan/PlanChip.tsx — one training item of a day, as the
- * Plan tab shows it (ADR-0035): its colour is the main muscle region (green
+ * ui/PlanChip.tsx — one training item, as the Plan tab shows it (ADR-0035),
+ * reused by the day's program and the programs list (rule of three): its colour is the main muscle region (green
  * for cardio), its icon the main movement. Done is filled; planned or from
  * the program is outlined; a rest day is a quiet moon; a skipped item is
  * grey and struck through (ADR-0035).
  */
 import { Moon } from "lucide-react";
-import type { Look } from "@/core/training/calendar";
-import { ExerciseIcon } from "@/ui/ExerciseIcon";
-import { REGION_BG, REGION_BORDER, REGION_TEXT } from "@/ui/MuscleChip";
+import { ExerciseIcon } from "./ExerciseIcon";
+import { REGION_BG, REGION_BORDER, REGION_TEXT } from "./MuscleChip";
+
+/** core/training/calendar.ts Look, by shape (ui/ may not import core). */
+type Look = { region: string | null; pattern: string | null };
 
 export type PlanState = "done" | "planned" | "program" | "rest" | "skipped";
 

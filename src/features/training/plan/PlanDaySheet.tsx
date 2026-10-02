@@ -24,7 +24,7 @@ import type { Messages } from "@/i18n";
 import { buttonClass } from "@/ui/button";
 import { Sheet } from "@/ui/Sheet";
 import { toast } from "@/ui/Toast";
-import { PlanChip, type PlanState } from "./PlanChip";
+import { PlanChip, type PlanState } from "@/ui/PlanChip";
 
 export const PLAN_DAY = "plan-day";
 

@@ -11,7 +11,7 @@ import type { Look } from "@/core/training/calendar";
 import type { Messages } from "@/i18n";
 import { Badge } from "@/ui/Badge";
 import { buttonClass, TEXT_LINK } from "@/ui/button";
-import { PlanChip, type PlanState } from "./PlanChip";
+import { PlanChip, type PlanState } from "@/ui/PlanChip";
 
 export type PlanEntry = {
   key: string;

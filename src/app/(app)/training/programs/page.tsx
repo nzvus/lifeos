@@ -6,7 +6,13 @@
 import Link from "next/link";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
+import { lookOf, type Look } from "@/core/training/calendar";
+import { listExercises } from "@/core/training/repositories/exercises";
 import { listPrograms } from "@/core/training/repositories/programs";
+import { listRoutines } from "@/core/training/repositories/routines";
+import { PlanChip } from "@/ui/PlanChip";
+
+const NONE: Look = { region: null, pattern: null, cardio: false };
 import { fill } from "@/i18n";
 import { TEXT_LINK } from "@/ui/button";
 import { Badge } from "@/ui/Badge";
@@ -23,7 +29,15 @@ export default async function ProgramsPage() {
   const { owner, settings, t } = await requireContext();
   const p = t.programs;
   const db = getDb();
-  const programs = await listPrograms(db, owner);
+  const [programs, routines, exercises] = await Promise.all([
+    listPrograms(db, owner),
+    listRoutines(db, owner),
+    listExercises(db, owner),
+  ]);
+  const looks = new Map<string, Look>([
+    ...routines.map((r) => [r.id, lookOf(r.items)] as const),
+    ...exercises.map((e) => [e.id, lookOf([{ ...e, sets: 1 }])] as const),
+  ]);
   const date = new Intl.DateTimeFormat(INTL[settings.locale], {
     weekday: "short",
     day: "numeric",
@@ -63,9 +77,29 @@ export default async function ProgramsPage() {
                   day: date.format(new Date(`${x.startDay}T12:00:00Z`)),
                 })}
               >
-                <p className="text-meta text-muted">
-                  {x.slots.map((s) => s.name || p.rest).join(" → ")}
-                </p>
+                {/* The cycle in order, each item in its colour (ADR-0035). */}
+                <ol className="flex flex-wrap items-center gap-1 text-meta">
+                  {x.slots.map((sl) => (
+                    <li key={sl.position} className="inline-flex flex-wrap gap-1">
+                      {sl.items.length === 0 ? (
+                        <PlanChip look={NONE} state="rest" label={sl.label || p.rest} />
+                      ) : (
+                        sl.items.map((it) => (
+                          <PlanChip
+                            key={`${it.routineId ?? ""}${it.exerciseId ?? ""}`}
+                            look={
+                              (it.routineId
+                                ? looks.get(it.routineId)
+                                : looks.get(it.exerciseId ?? "")) ?? NONE
+                            }
+                            state="done"
+                            label={it.name}
+                          />
+                        ))
+                      )}
+                    </li>
+                  ))}
+                </ol>
               </ListItem>
             ))}
           </ul>

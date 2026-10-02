@@ -8,6 +8,7 @@ import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { setsText } from "@/core/training/display";
 import { regionOf } from "@/core/training/anatomy";
+import { lookOf } from "@/core/training/calendar";
 import Link from "next/link";
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { listRoutines } from "@/core/training/repositories/routines";
@@ -36,6 +37,13 @@ export default async function RoutinesPage() {
             {routines.map((routine) => (
               <ListItem
                 key={routine.id}
+                leading={(() => {
+                  // ADR-0035: the routine's colour and icon, as in Plan.
+                  const look = lookOf(routine.items);
+                  return (
+                    <ExerciseIcon pattern={look.pattern} region={look.region} size={26} />
+                  );
+                })()}
                 href={`/training/routines/${routine.id}`}
                 title={routine.name}
                 action={

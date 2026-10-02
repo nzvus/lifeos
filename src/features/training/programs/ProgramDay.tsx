@@ -7,7 +7,9 @@
  */
 import { CalendarClock, CalendarRange, Check, Play } from "lucide-react";
 import { fill, type Messages } from "@/i18n";
+import type { Look } from "@/core/training/calendar";
 import { Badge } from "@/ui/Badge";
+import { PlanChip } from "@/ui/PlanChip";
 import { buttonClass } from "@/ui/button";
 
 export type ProgramDayItem = {
@@ -16,6 +18,8 @@ export type ProgramDayItem = {
   name: string;
   /** A session of the day already stands for it. */
   done: boolean;
+  /** ADR-0035: its colour and icon. */
+  look: Look;
 };
 
 export function ProgramDay({
@@ -83,7 +87,11 @@ export function ProgramDay({
                 className={`flex items-center gap-2 font-display text-item font-semibold ${skipped ? "text-muted line-through" : ""}`}
               >
                 {it.done && <Check size={16} aria-hidden="true" className="text-herb" />}
-                {it.name}
+                <PlanChip
+                  look={it.look}
+                  state={it.done ? "done" : "program"}
+                  label={it.name}
+                />
               </span>
               {!it.done && !skipped && (
                 <div className="flex gap-2">

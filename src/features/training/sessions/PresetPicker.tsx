@@ -9,6 +9,9 @@
  */
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import type { Look } from "@/core/training/calendar";
+import { ExerciseIcon } from "@/ui/ExerciseIcon";
+import { REGION_BORDER } from "@/ui/MuscleChip";
 import { fill, type Messages } from "@/i18n";
 
 export type PresetTile = {
@@ -17,7 +20,13 @@ export type PresetTile = {
   label: string;
   /** "dd/mm" of the session it repeats, or null when it uses the routine's items. */
   fromDay: string | null;
+  /** ADR-0035: its colour (main muscle region) and icon (main movement). */
+  look: Look;
 };
+
+/** The routine's colour as the tile's outline (cardio: green). */
+const stripe = (look: Look) =>
+  `rule-l-heavy ${look.region ? REGION_BORDER[look.region] : look.cardio ? "border-herb" : ""}`;
 
 const TILE =
   "tile flex min-h-16 flex-col items-center justify-center gap-0.5 px-2 py-2 text-center hover:border-ink";
@@ -49,19 +58,22 @@ export function PresetPicker({
               type="button"
               disabled={disabled}
               onClick={() => onPick(p.routineId)}
-              className={`${TILE} w-full`}
+              className={`${TILE} w-full ${stripe(p.look)}`}
             >
               <Body p={p} t={t} />
             </button>
           ) : start ? (
             <form action={start}>
               <input type="hidden" name="routineId" value={p.routineId} />
-              <button type="submit" className={`${TILE} w-full`}>
+              <button type="submit" className={`${TILE} w-full ${stripe(p.look)}`}>
                 <Body p={p} t={t} />
               </button>
             </form>
           ) : (
-            <Link href={`/training/new?routine=${p.routineId}`} className={TILE}>
+            <Link
+              href={`/training/new?routine=${p.routineId}`}
+              className={`${TILE} ${stripe(p.look)}`}
+            >
               <Body p={p} t={t} />
             </Link>
           )}
@@ -80,7 +92,10 @@ export function PresetPicker({
 function Body({ p, t }: { p: PresetTile; t: Messages["training"] }) {
   return (
     <>
-      <span className="font-display text-item font-semibold">{p.label}</span>
+      <span className="inline-flex items-center gap-1.5 font-display text-item font-semibold">
+        <ExerciseIcon pattern={p.look.pattern} region={p.look.region} size={18} />
+        {p.label}
+      </span>
       <span className="text-meta text-muted">
         {p.fromDay ? fill(t.presetFrom, { day: p.fromDay }) : t.presetRoutine}
       </span>

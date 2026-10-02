@@ -33,6 +33,7 @@ import { getHistory } from "@/core/nutrition/repositories/history";
 import { carbsGoodMax, macroBands, trainingLoad } from "@/core/nutrition/bands";
 import { withAutoTargets } from "@/core/nutrition/targets";
 import { sessionMinutes } from "@/core/training/analysis";
+import { lookOf } from "@/core/training/calendar";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, startOfWeek, timeIn, todayIn } from "@/core/shared/dates";
 import { Bell, Copy, Dumbbell, Gauge, Scale, UtensilsCrossed } from "lucide-react";
@@ -62,7 +63,6 @@ import { listSleep } from "@/core/training/repositories/sleep";
 import { sleepScore } from "@/core/training/sleep";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
-import { GoalLine } from "@/features/nutrition/log/GoalLine";
 import { DayScore } from "@/features/nutrition/log/DayScore";
 import { ProgramDay } from "@/features/training/programs/ProgramDay";
 import { AddTraining } from "@/features/training/sessions/AddTraining";
@@ -99,17 +99,17 @@ import {
   logMealAction,
   refreshLogEntryAction,
   setDayProfileAction,
-  setGoalDeficitAction,
   setEntryServingsAction,
   setSleepAction,
   clearSleepAction,
   setEntryStatusAction,
   setEntryTimeAction,
 } from "./actions";
-import { dynamicTargets, goalOf } from "@/core/energy/energy";
+import { dynamicTargets } from "@/core/energy/energy";
 import { kcalTargets } from "@/core/energy/repositories/outlook";
 import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
+import { DayGoal } from "./day-goal";
 
 type Props = {
   searchParams: Promise<{ day?: string; late?: string; tab?: string }>;
@@ -304,8 +304,17 @@ export default async function DayPage({ searchParams }: Props) {
       : programSlot.slot.label || t.programs.rest
     : null;
   // ADR-0035: each of the program's items, done when a session stands for it.
+  const lookById = new Map([
+    ...presets.map((x) => [x.routineId, x.look] as const),
+    ...exercises.map((e) => [e.id, lookOf([{ ...e, sets: 1 }])] as const),
+  ]);
   const programItems = (programSlot?.items ?? []).map((it) => ({
     ...it,
+    look: lookById.get(it.routineId ?? it.exerciseId ?? "") ?? {
+      region: null,
+      pattern: null,
+      cardio: false,
+    },
     done: sessions.some((x) =>
       it.routineId
         ? x.routineId === it.routineId
@@ -335,67 +344,19 @@ export default async function DayPage({ searchParams }: Props) {
           action={setDayProfileAction}
           t={{ day: t.day, errors: t.errors }}
         />
-        {/* ADR-0014: say where dynamic targets come from, or why they can't. */}
-        {dayTargets.source !== "none" && (
-          // The goal in plain words: what kind of day, how far from what you
-          // spend, and what to eat. The formulas are under Energy.
-          <div className="flex flex-col gap-0.5 rule-t-medium border-hairline pt-3">
-            {dayTargets.dynamic ? (
-              dynamic ? (
-                (() => {
-                  const g = goalOf(dayTargets.dynamic);
-                  const mid = (r: { low: number; high: number }) => (r.low + r.high) / 2;
-                  const total = energyView.energy!.total;
-                  return (
-                    <GoalLine
-                      day={day}
-                      profileId={dayTargets.profileId}
-                      title={g ? t.energy.goals[g] : t.energy.goalCustom}
-                      deficitKcal={dayTargets.dynamic.deficitKcal}
-                      eatKcal={dynamic.kcal}
-                      spentKcal={Math.round(mid(total.withPlan))}
-                      balance={{
-                        wanted: -dayTargets.dynamic.deficitKcal,
-                        withPlan: Math.round(
-                          Number(view.withPlanned.nutrients.kcal) - mid(total.withPlan),
-                        ),
-                        soFar:
-                          day <= today
-                            ? Math.round(
-                                Number(view.totals.nutrients.kcal) - mid(total.done),
-                              )
-                            : null,
-                      }}
-                      capped={
-                        dynamic.uncapped !== null
-                          ? fill(t.energy.goalCapped, { carbs: String(dynamic.carbs) })
-                          : null
-                      }
-                      action={setGoalDeficitAction}
-                      locale={locale}
-                      t={{ energy: t.energy, actions: t.actions, errors: t.errors }}
-                    />
-                  );
-                })()
-              ) : (
-                <span className="text-meta text-muted">{t.energy.dynamicMissing}</span>
-              )
-            ) : (
-              <>
-                <span className="font-display text-item font-semibold">
-                  {dayTargets.name}
-                </span>
-                {targets.kcal !== null && (
-                  <span className="text-meta tabular-nums">
-                    {fill(t.energy.goalFixed, {
-                      kcal: formatNumber(targets.kcal, locale, 0),
-                    })}
-                  </span>
-                )}
-              </>
-            )}
-          </div>
-        )}
+        {/* ADR-0014: the goal in plain words, or why dynamic targets can't be. */}
+        <DayGoal
+          day={day}
+          today={today}
+          dayTargets={dayTargets}
+          dynamic={dynamic}
+          total={energyView.energy?.total ?? null}
+          eatenKcal={view.totals.nutrients.kcal}
+          withPlannedKcal={view.withPlanned.nutrients.kcal}
+          targetKcal={targets.kcal}
+          locale={locale}
+          t={t}
+        />
         {/* The night and the movement at a glance; tap to add or change (sheets). */}
         <DayChips
           sleptHours={night?.hours ?? null}
