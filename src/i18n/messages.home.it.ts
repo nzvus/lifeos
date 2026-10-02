@@ -719,3 +719,25 @@ export const routinesIt: Messages["routines"] = {
   openExercise: "Apri {name} (nuova scheda)",
   itemsCount: "{n} esercizi",
 };
+
+export const packsIt: Messages["packs"] = {
+  title: "Pacchetti",
+  hint: "Un pacchetto aggiunge esercizi, schede, programmi, ingredienti e pasti: solo quelli che non hai già, senza cambiare niente di tuo. I programmi arrivano non attivi.",
+  starter: "Aggiungi il pacchetto iniziale",
+  file: "File del pacchetto (.json)",
+  import: "Importa",
+  working: "Aggiungo…",
+  added: "Aggiunti: {list}.",
+  nothing: "Niente da aggiungere: avevi già tutto.",
+  missing: "Non collegati (manca il riferimento): {list}.",
+  invalid: "Il file non è un pacchetto valido (campo {field}).",
+  notJson: "Il file non è un JSON leggibile.",
+  tooBig: "File troppo grande (massimo 2 MB).",
+  kinds: {
+    exercises: "esercizi: {n}",
+    routines: "schede: {n}",
+    programs: "programmi: {n}",
+    ingredients: "ingredienti: {n}",
+    meals: "pasti: {n}",
+  },
+};

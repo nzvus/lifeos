@@ -37,6 +37,7 @@ import {
   errorsEn,
   entryEditEn,
   routinesEn,
+  packsEn,
 } from "./messages.home.en";
 
 export const en = {
@@ -521,6 +522,7 @@ export const en = {
   },
   exercises: exercisesEn,
   routines: routinesEn,
+  packs: packsEn,
   body: bodyEn,
   dayScore: dayScoreEn,
   ratings: {

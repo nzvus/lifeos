@@ -13,7 +13,12 @@
  */
 import "server-only";
 import { createAuth, type Auth } from "@/core/auth/auth";
+import { applyPack } from "@/core/catalog/apply";
+import { starterPack } from "@/core/catalog/starter";
 import { createDb, type Db } from "@/core/db/client";
+import { ownerFromVerifiedSession } from "@/core/identity/owner";
+import { DEFAULT_TIMEZONE } from "@/core/nutrition/repositories/settings";
+import { todayIn } from "@/core/shared/dates";
 import { env } from "./env";
 
 const store = globalThis as unknown as { __lifeosDb?: Db; __lifeosAuth?: Auth };
@@ -31,6 +36,20 @@ export function getAuth(): Auth {
     baseURL: e.baseURL,
     trustedOrigins: e.trustedOrigins,
     allowSignUp: e.ALLOW_SIGNUP === "true",
+    // ADR-0034: every new account starts from the starter pack. Not fatal:
+    // without it the account works, and the pack can be imported later.
+    onUserCreated: async (userId) => {
+      try {
+        await applyPack(
+          getDb(),
+          ownerFromVerifiedSession(userId), // Better Auth has just created it
+          starterPack(),
+          todayIn(DEFAULT_TIMEZONE),
+        );
+      } catch (err) {
+        console.error("starter pack not applied", userId, err);
+      }
+    },
   });
   return store.__lifeosAuth;
 }

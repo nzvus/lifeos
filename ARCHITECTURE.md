@@ -16,7 +16,8 @@ day types and targets, quality, trends), training (exercises with guides,
 routines, programs, sessions incl. estimates and gym mode, progress), body
 (weigh-ins with context, sleep, the day's movement) and energy; pantry
 (products, purchases, derived stock, batches, reminders); an assistant that
-acts through core tools (ADR-0018); a trash for everything deletable; export.
+acts through core tools (ADR-0018); a trash for everything deletable; export;
+packs that add only what is missing — the starter at sign-up, others from a file (ADR-0034).
 
 ## Component map
 
@@ -33,7 +34,7 @@ src/
                 routines,sessions}
   core/         db/ (schema: auth, nutrition, training; client), identity/ (Owner,
                 ownedBy), nutrition/, training/, pantry/, energy/, assistant/, trash/,
-                export/, import/, auth/,
+                export/, import/, catalog/ (packs), auth/,
                 shared/ (validation, search, browse, sorting, dates, trash…), testing/
   ui/           one component per repeated thing: button.ts, Badge, Section, Sheet,
                 SubNav, Collapsible, ListItem, DeleteButton, ActionBar, Toast, …
