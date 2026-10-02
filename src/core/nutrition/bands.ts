@@ -130,3 +130,45 @@ export function zoneScore(value: number, b: Band): number {
   else s = lerp(value, b.ceiling, b.ceiling + (b.ceiling - b.high), 50, 0);
   return Math.round(Math.max(0, Math.min(100, s)));
 }
+
+/**
+ * A nutrient's band on a day: its own (macros) or one from its target —
+ * energy ±5 % good, −15 % floor, +10 % ceiling; a maximum (sugars, salt) good
+ * up to it; a minimum good from it to +50 %. Null without either.
+ */
+export function bandFor(
+  own: Band | undefined,
+  target: number | null,
+  kind: "min" | "max" | "target",
+): Band | null {
+  if (own) return own;
+  if (target === null || target === 0) return null;
+  if (kind === "max")
+    return { floor: 0, low: 0, high: target, ceiling: target, ceilingKind: "health" };
+  if (kind === "min")
+    return {
+      floor: 0,
+      low: target,
+      high: target * 1.5,
+      ceiling: target * 1.5,
+      ceilingKind: "useful",
+    };
+  return {
+    floor: target * 0.85,
+    low: target * 0.95,
+    high: target * 1.05,
+    ceiling: target * 1.1,
+    ceilingKind: "health",
+  };
+}
+
+/** "colour = state" (ADR-0025 follow-up): what a value's bar says. */
+export type BandState = "none" | "short" | "good" | "high" | "over";
+
+export function bandState(value: number, band: Band | null): BandState {
+  if (!band) return "none";
+  if (value < band.low) return "short";
+  if (value <= band.high) return "good";
+  if (value <= band.ceiling || band.ceilingKind === "useful") return "high";
+  return "over";
+}

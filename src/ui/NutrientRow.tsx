@@ -13,7 +13,7 @@ import { Badge } from "./Badge";
 
 export type RowState = "none" | "short" | "good" | "high" | "over";
 
-const FILL: Record<RowState, string> = {
+export const STATE_FILL: Record<RowState, string> = {
   none: "bg-muted",
   short: "bg-warn",
   good: "bg-herb",
@@ -83,12 +83,12 @@ export function NutrientRow({
           />
           {withPlan !== undefined && withPlan > eaten && (
             <span
-              className={`absolute inset-y-0 left-0 rounded-badge opacity-30 ${FILL[state]}`}
+              className={`absolute inset-y-0 left-0 rounded-badge opacity-30 ${STATE_FILL[state]}`}
               style={{ width: x(withPlan) }}
             />
           )}
           <span
-            className={`absolute inset-y-0 left-0 rounded-badge ${FILL[state]}`}
+            className={`absolute inset-y-0 left-0 rounded-badge ${STATE_FILL[state]}`}
             style={{ width: x(eaten) }}
           />
         </span>

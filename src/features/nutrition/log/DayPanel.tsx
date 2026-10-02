@@ -20,7 +20,7 @@ import {
   NUTRIENT_UNIT,
   type NutrientKey,
 } from "@/core/nutrition/nutrients";
-import type { Bands } from "@/core/nutrition/bands";
+import { bandFor, bandState, type Bands } from "@/core/nutrition/bands";
 import { assessTarget, TARGET_KIND, type Targets } from "@/core/nutrition/targets";
 import type { DisplayTotals } from "@/core/nutrition/totals";
 import { formatCents, formatNumber } from "@/core/shared/format";
@@ -94,36 +94,8 @@ export function DayPanel({
     const g = (n: number) => `${num(String(Math.round(n * 10) / 10), k)} ${u}`;
     const kind = TARGET_KIND[k];
     const real = bands?.[k];
-    const band = real
-      ? { ...real, kind: real.ceilingKind }
-      : target === null || target === 0
-        ? null
-        : kind === "max"
-          ? { floor: 0, low: 0, high: target, ceiling: target, kind: "health" as const }
-          : kind === "min"
-            ? {
-                floor: 0,
-                low: target,
-                high: target * 1.5,
-                ceiling: target * 1.5,
-                kind: "useful" as const,
-              }
-            : {
-                floor: target * 0.85,
-                low: target * 0.95,
-                high: target * 1.05,
-                ceiling: target * 1.1,
-                kind: "health" as const,
-              };
-    const state: RowState = !band
-      ? "none"
-      : v < band.low
-        ? "short"
-        : v <= band.high
-          ? "good"
-          : v <= band.ceiling || band.kind === "useful"
-            ? "high"
-            : "over";
+    const band = bandFor(real, target, kind);
+    const state: RowState = bandState(v, band);
     const status = !band
       ? undefined
       : state === "short"
@@ -133,7 +105,7 @@ export function DayPanel({
             ? fill(t.panel.underLimit, { v: g(band.high - v) })
             : t.panel.inZone
           : state === "high"
-            ? band.kind === "useful" && v > band.ceiling
+            ? band.ceilingKind === "useful" && v > band.ceiling
               ? fill(t.panel.noBenefit, { v: g(band.ceiling) })
               : fill(t.panel.aboveZone, { v: g(band.high) })
             : fill(t.panel.past, { v: g(band.ceiling) });
