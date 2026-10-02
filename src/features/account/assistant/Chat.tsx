@@ -14,6 +14,7 @@
 import {
   Check,
   FileText,
+  Loader2,
   Sparkles,
   Wrench,
   Image as ImageIcon,
@@ -24,13 +25,14 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { fill, type Messages } from "@/i18n";
 import { buttonClass } from "@/ui/button";
 import { CARD } from "@/ui/Card";
 import { FormAlert } from "@/ui/FormAlert";
 import { toast } from "@/ui/Toast";
 import { RichText } from "./RichText";
+import { Thinking } from "./Thinking";
 import {
   ocrImage,
   PDF_FILE,
@@ -98,6 +100,13 @@ export function Chat({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const input = useRef<HTMLInputElement>(null);
+  // The newest message, or the assistant at work, stays in view.
+  const end = useRef<HTMLDivElement>(null);
+  const count = items.length;
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    end.current?.scrollIntoView({ block: "end", behavior: reduce ? "auto" : "smooth" });
+  }, [count, pending]);
 
   const attach = async (list: FileList | null) => {
     if (!list) return;
@@ -149,19 +158,32 @@ export function Chat({
     rec.start();
   };
 
-  const submit = () =>
+  // The message shows at once, as in every chat app, and the composer
+  // empties; if sending fails, the text and files come back. It is drawn
+  // only while pending (until the saved conversation replaces it), so it is
+  // never cleared by hand.
+  const [outgoing, setOutgoing] = useState<{ text: string; names: string[] } | null>(
+    null,
+  );
+  const submit = () => {
+    // Outside the transition: updates inside it show only when it ends.
+    setError(null);
+    const sent = { text, files };
+    setOutgoing({ text, names: files.map((f) => f.name) });
+    setText("");
+    setFiles([]);
     startTransition(async () => {
-      setError(null);
-      const r = await send({ conversationId, text, attachments: files });
+      const r = await send({ conversationId, text: sent.text, attachments: sent.files });
       if (r.message) setError(r.message);
-      if (r.ok || r.conversationId) {
-        setText("");
-        setFiles([]);
+      if (!r.ok && !r.conversationId) {
+        setText(sent.text);
+        setFiles(sent.files);
       }
       if (r.conversationId && r.conversationId !== conversationId)
         router.push(`/assistant?c=${r.conversationId}`);
       else router.refresh();
     });
+  };
 
   const kindName = (k: string) => (t.trash.kinds as Record<string, string>)[k] ?? k;
 
@@ -212,7 +234,7 @@ export function Chat({
               );
             if (it.role === "assistant")
               return (
-                <li key={it.id} className="mr-6 flex gap-2">
+                <li key={it.id} className="mr-6 flex gap-2 motion-safe:animate-rise">
                   <span className="section-icon mt-0.5 shrink-0" aria-label={a.me}>
                     <Sparkles size={16} aria-hidden="true" />
                   </span>
@@ -279,6 +301,7 @@ export function Chat({
                       <button
                         key={String(yes)}
                         type="button"
+                        disabled={pending}
                         className={buttonClass({
                           variant: yes ? "primary" : "quiet",
                           size: "sm",
@@ -303,16 +326,24 @@ export function Chat({
               </li>
             );
           })}
-          {pending && (
-            <li className="flex items-center gap-2 text-meta text-muted">
-              <span className="section-icon shrink-0">
-                <Sparkles size={16} aria-hidden="true" />
-              </span>
-              {a.thinking}
+          {pending && outgoing && (
+            <li className="ml-10 flex flex-col gap-1 self-end rounded-surface bg-paper px-3 py-2 motion-safe:animate-rise">
+              {outgoing.text && <p className="whitespace-pre-wrap">{outgoing.text}</p>}
+              {outgoing.names.map((n) => (
+                <span
+                  key={n}
+                  className="inline-flex items-center gap-1 text-meta text-muted"
+                >
+                  <FileText size={14} aria-hidden="true" />
+                  {fill(a.attached, { name: n })}
+                </span>
+              ))}
             </li>
           )}
+          {pending && <Thinking t={a} />}
         </ol>
       )}
+      <div ref={end} />
 
       {error && <FormAlert tone="error">{error}</FormAlert>}
       <form
@@ -344,7 +375,16 @@ export function Chat({
                 </button>
               </li>
             ))}
-            {reading && <li className="text-muted">{a.reading}</li>}
+            {reading && (
+              <li className="inline-flex items-center gap-1.5 text-muted">
+                <Loader2
+                  size={14}
+                  aria-hidden="true"
+                  className="motion-safe:animate-spin"
+                />
+                {a.reading}
+              </li>
+            )}
           </ul>
         )}
         <textarea
@@ -419,7 +459,15 @@ export function Chat({
             title={a.send}
             className={`ml-auto ${buttonClass({ variant: "primary", size: "sm", iconOnly: true })}`}
           >
-            <Send size={18} aria-hidden="true" />
+            {pending ? (
+              <Loader2
+                size={18}
+                aria-hidden="true"
+                className="motion-safe:animate-spin"
+              />
+            ) : (
+              <Send size={18} aria-hidden="true" />
+            )}
           </button>
         </div>
       </form>
