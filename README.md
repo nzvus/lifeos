@@ -46,6 +46,7 @@ npm run dev           # http://localhost:3000
 | `npm run import:training -- --email EMAIL --logs DIR --fitforge FILE [--apply]` | Import training history (PUSH/PULL text logs, FitForge); dry run without `--apply` |
 | `npm run classify:exercises -- --email EMAIL [--apply]` | Suggest movement pattern and muscle groups for exercises |
 | `npm run tidy:training -- --email EMAIL [--apply]` | Rename hand-numbered sessions to their routine, link them |
+| `npm run audit:ui` | Every page at 360 px, text 120 %: sideways scroll and overlaps (docs/runbooks/ui-audit.md) |
 | `python3 scripts/check.py` | Docs/ADR health check (`--strict` makes warnings fail) |
 
 Production is migrated only by the `migrate` GitHub workflow, by hand, after
