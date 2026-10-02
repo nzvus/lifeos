@@ -148,6 +148,47 @@ describe("training sessions", () => {
     ).toEqual([1]);
   });
 
+  it("a planned session's sets are not done until ticked; a done session's are", async () => {
+    const bike = await mine("Bike", "cardio");
+    const sets20 = (v: Partial<ReturnType<typeof set>> & { done?: boolean } = {}) => [
+      {
+        exerciseId: bike,
+        restS: null,
+        notes: "",
+        sets: [set({ durationS: 1200, ...v })],
+      },
+    ];
+    const ticks = async (id: string) =>
+      (await getSession(db, me, id))?.exercises.flatMap((e) => e.sets.map((x) => x.done));
+
+    // The editor sends no tick: the set follows the session.
+    const planned = await createSession(
+      db,
+      me,
+      session("2026-09-28", sets20(), { status: "planned" }),
+      "Europe/Rome",
+    );
+    const done = await createSession(
+      db,
+      me,
+      session("2026-09-28", sets20()),
+      "Europe/Rome",
+    );
+    if (!planned.ok || !done.ok) throw new Error("setup failed");
+    expect(await ticks(planned.value.id)).toEqual([false]);
+    expect(await ticks(done.value.id)).toEqual([true]);
+
+    // A tick from gym mode is kept as it is.
+    await updateSession(
+      db,
+      me,
+      planned.value.id,
+      session("2026-09-28", sets20({ done: true }), { status: "planned" }),
+      "Europe/Rome",
+    );
+    expect(await ticks(planned.value.id)).toEqual([true]);
+  });
+
   it("applies the per-kind rules and refuses another user's exercise or routine", async () => {
     const lat = await mine("Lat pulldown");
     const bad = await createSession(

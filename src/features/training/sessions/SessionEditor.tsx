@@ -49,7 +49,7 @@ export type EditorSet = {
   km: string;
   speedKmh: string;
   inclinePct: string;
-  /** Gym mode: false while not ticked; kept as is (absent = done). */
+  /** Gym mode's tick, kept as is; absent = as the session (done or planned). */
   done?: boolean;
 };
 export type EditorExercise = {
@@ -174,7 +174,7 @@ function fromValues(v: FormValues): EditorSession {
         km: x.distanceM ? String(Number(x.distanceM) / 1000) : "",
         speedKmh: str(x.speedKmh),
         inclinePct: str(x.inclinePct),
-        ...(x.done === false ? { done: false } : {}),
+        ...(typeof x.done === "boolean" ? { done: x.done } : {}),
       })),
     })),
   };
