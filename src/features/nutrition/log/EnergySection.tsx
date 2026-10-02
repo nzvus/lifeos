@@ -78,14 +78,24 @@ export function EnergySection({
       title={e.title}
       icon={<Flame size={20} aria-hidden="true" />}
       aside={energy ? range(energy.total.withPlan) : undefined}
+      // Closed, still informative (2026-10-02): what is spent, part by part,
+      // against what is eaten, on one scale.
       summary={
         energy ? (
-          <p className="text-meta text-muted tabular-nums">
-            {fill(e.closed, {
-              spent: range(energy.total.done),
-              balance: balance(withPlanned, energy.total.withPlan),
-            })}
-          </p>
+          <div className="flex flex-col gap-2">
+            <EnergyBars
+              energy={energy}
+              eaten={Number(eaten)}
+              withPlanned={Number(withPlanned)}
+              t={e}
+            />
+            <p className="text-meta text-muted tabular-nums">
+              {fill(e.closed, {
+                spent: range(energy.total.done),
+                balance: balance(withPlanned, energy.total.withPlan),
+              })}
+            </p>
+          </div>
         ) : undefined
       }
       defaultOpen={false}
@@ -152,5 +162,59 @@ export function EnergySection({
         </Disclosure>
       )}
     </Collapsible>
+  );
+}
+
+const mid = (r: Range) => (r.low + r.high) / 2;
+
+/** Spent (everyday, steps, training done and planned) against eaten. */
+function EnergyBars({
+  energy,
+  eaten,
+  withPlanned,
+  t,
+}: {
+  energy: Energy;
+  eaten: number;
+  withPlanned: number;
+  t: Messages["energy"];
+}) {
+  // Fewer steps than the day type's usual lower the everyday part (ADR-0032).
+  const everyday = Math.max(0, mid(energy.baseline) + Math.min(0, mid(energy.walking)));
+  const steps = Math.max(0, mid(energy.walking));
+  const done = mid(energy.training.done);
+  const planned = mid(energy.training.planned);
+  const scale = Math.max(everyday + steps + done + planned, withPlanned, 1);
+  const pct = (v: number) => `${(v / scale) * 100}%`;
+  const parts = [
+    { label: t.baseline, v: everyday, cls: "bg-muscle-back" },
+    { label: t.walking, v: steps, cls: "bg-muscle-legs" },
+    { label: t.trainingDone, v: done, cls: "bg-muscle-chest" },
+    { label: t.trainingPlanned, v: planned, cls: "bg-muscle-chest opacity-40" },
+  ].filter((p) => p.v > 0);
+  const bar = "flex h-3 w-full overflow-hidden rounded-badge bg-hairline";
+  return (
+    <div className="flex flex-col gap-1.5 text-meta" aria-hidden="true">
+      <div className={bar}>
+        {parts.map((p) => (
+          <span key={p.label} className={`h-full ${p.cls}`} style={{ width: pct(p.v) }} />
+        ))}
+      </div>
+      <div className={bar}>
+        <span className="h-full bg-macro-carbs" style={{ width: pct(eaten) }} />
+        <span
+          className="h-full bg-macro-carbs opacity-40"
+          style={{ width: pct(Math.max(0, withPlanned - eaten)) }}
+        />
+      </div>
+      <ul className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted">
+        {[...parts, { label: t.eaten, v: eaten, cls: "bg-macro-carbs" }].map((p) => (
+          <li key={p.label} className="inline-flex items-center gap-1">
+            <span className={`inline-block h-2 w-2 rounded-full ${p.cls}`} />
+            {p.label}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

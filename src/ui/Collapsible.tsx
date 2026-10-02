@@ -51,6 +51,7 @@ export function Collapsible({
   aside,
   summary,
   defaultOpen = true,
+  inset = false,
   children,
 }: {
   /** Stable, unique on the page: names the remembered state and the content. */
@@ -63,6 +64,9 @@ export function Collapsible({
   /** Shown under the heading only while closed. */
   summary?: ReactNode;
   defaultOpen?: boolean;
+  /** A part of a larger card (the day's meals inside Food): a light tile
+   *  with a smaller heading, not a card in a card. */
+  inset?: boolean;
   children: ReactNode;
 }) {
   const saved = useSyncExternalStore(
@@ -89,9 +93,13 @@ export function Collapsible({
     remember(id, !open);
   };
   return (
-    <section ref={box} id={id} className={`${CARD} scroll-mt-4`}>
+    <section
+      ref={box}
+      id={id}
+      className={`${inset ? "tile flex min-w-0 flex-col gap-3 p-3" : CARD} scroll-mt-4`}
+    >
       <h2
-        className="section-heading"
+        className={inset ? "font-display text-item font-bold" : "section-heading"}
         // Closed with nothing under it, the heading's rule would just underline
         // the card's own edge: drop it.
         style={!open && !summary ? { borderBottom: "none", paddingBottom: 0 } : undefined}

@@ -11,11 +11,22 @@
  * Used by /training and by the day page.
  * Server component.
  */
-import { Circle, CircleCheck, Play } from "lucide-react";
+import {
+  Circle,
+  CircleCheck,
+  Clock,
+  Flame,
+  Gauge,
+  Layers,
+  Play,
+  Route,
+  Weight,
+} from "lucide-react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { buttonClass } from "@/ui/button";
 import { burnRange, weightAt } from "@/core/training/analysis";
-import { sessionSummary, setsText } from "@/core/training/display";
+import { regionSplit, sessionSummary, setsText } from "@/core/training/display";
 import type { SessionView } from "@/core/training/repositories/sessions";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
@@ -23,7 +34,7 @@ import { fill, type Messages } from "@/i18n";
 import { isMuscleGroup, MUSCLE_GROUP_REGION, regionOf } from "@/core/training/anatomy";
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { ListItem } from "@/ui/ListItem";
-import { MuscleChips } from "@/ui/MuscleChip";
+import { MuscleChips, REGION_BG } from "@/ui/MuscleChip";
 import { TrashMenu } from "@/ui/TrashMenu";
 
 type Props = {
@@ -116,6 +127,60 @@ export function SessionList({
       );
     return parts.filter(Boolean).join(" + ");
   };
+  /**
+   * The session's numbers as chips, like a meal's macro line (2026-10-02:
+   * the training rows as colourful as the food ones): the icon carries the
+   * colour, the number is ink.
+   */
+  const chips = (s: SessionView) => {
+    const x = sessionSummary(s);
+    const minutes = x.cardio?.minutes ?? x.minutes ?? s.durationMin;
+    const out: { icon: ReactNode; text: string; label: string }[] = [];
+    const ic = (Icon: typeof Clock, cls: string) => (
+      <Icon size={14} aria-hidden="true" className={cls} />
+    );
+    if (minutes)
+      out.push({
+        icon: ic(Clock, "text-muscle-core"),
+        text: fill(t.minutesShort, { n: String(minutes) }),
+        label: t.chips.duration,
+      });
+    if (x.strength) {
+      out.push({
+        icon: ic(Layers, "text-muscle-back"),
+        text: fill(t.progress.setsN, { n: String(x.strength.sets) }),
+        label: t.chips.sets,
+      });
+      if (x.strength.tonnage > 0)
+        out.push({
+          icon: ic(Weight, "text-muscle-chest"),
+          text:
+            x.strength.tonnage >= 1000
+              ? `${n(x.strength.tonnage / 1000, 1)} t`
+              : `${n(x.strength.tonnage)} kg`,
+          label: t.chips.tonnage,
+        });
+    }
+    if (x.cardio?.km != null)
+      out.push({
+        icon: ic(Route, "text-muscle-legs"),
+        text: `${n(x.cardio.km, 1)} km`,
+        label: t.chips.distance,
+      });
+    if (x.cardio?.kmh != null)
+      out.push({
+        icon: ic(Gauge, "text-muscle-shoulders"),
+        text: `${n(x.cardio.kmh, 1)} km/h`,
+        label: t.chips.speed,
+      });
+    if (s.exercises.length === 0 && s.intensity)
+      out.push({
+        icon: ic(Flame, "text-warn"),
+        text: t.estimate.intensities[s.intensity],
+        label: t.estimate.badge,
+      });
+    return out;
+  };
   return (
     <ul className="grid grid-cols-1 gap-x-8 @3xl:grid-cols-2">
       {sessions.map((s) => {
@@ -199,10 +264,7 @@ export function SessionList({
                   </ul>
                 </details>
               )}
-              <span className="min-w-0 flex-1 text-muted tabular-nums">
-                {summary(s)}
-                {showDay && kcal ? ` · ${kcal}` : ""}
-              </span>
+              <span className="min-w-0 flex-1" />
               {startable && s.status === "planned" && s.exercises.length > 0 && (
                 <Link
                   href={`/training/${s.id}/live`}
@@ -213,6 +275,58 @@ export function SessionList({
                   {t.when.startShort}
                 </Link>
               )}
+            </div>
+            <div className="flex flex-col gap-1.5 pl-8">
+              <p className="flex flex-wrap items-center gap-x-3 gap-y-0.5 font-display text-meta font-semibold tabular-nums">
+                {chips(s).map((c) => (
+                  <span
+                    key={c.label}
+                    title={c.label}
+                    className="inline-flex items-center gap-1"
+                  >
+                    {c.icon}
+                    <span className="sr-only">{c.label}</span>
+                    {c.text}
+                  </span>
+                ))}
+                {showDay && kcal && (
+                  <span className="font-normal text-muted">{kcal}</span>
+                )}
+                {chips(s).length === 0 && (
+                  <span className="font-normal text-muted">{summary(s)}</span>
+                )}
+              </p>
+              {(() => {
+                // Where the work went, by body region: the macro bar's twin.
+                const split = regionSplit(s);
+                if (!split.length) return null;
+                return (
+                  <>
+                    <span
+                      className="flex h-2 w-full overflow-hidden rounded-badge bg-hairline"
+                      aria-hidden="true"
+                    >
+                      {split.map((r) => (
+                        <span
+                          key={r.region}
+                          className={`h-full ${REGION_BG[r.region]}`}
+                          style={{ width: `${r.share * 100}%` }}
+                        />
+                      ))}
+                    </span>
+                    <span className="flex flex-wrap gap-x-3 text-meta text-muted">
+                      {split.map((r) => (
+                        <span key={r.region} className="inline-flex items-center gap-1">
+                          <span
+                            className={`inline-block h-2 w-2 rounded-full ${REGION_BG[r.region]}`}
+                          />
+                          {`${tx.regions[r.region]} ${Math.round(r.share * 100)} %`}
+                        </span>
+                      ))}
+                    </span>
+                  </>
+                );
+              })()}
             </div>
             {s.exercises.length === 0 && s.muscleGroups.length > 0 && (
               <MuscleChips

@@ -67,3 +67,27 @@ describe("sessionSummary", () => {
     });
   });
 });
+
+describe("regionSplit (the training row's colour bar)", () => {
+  it("working sets by region, primary group 1 and the others ½; cardio on the legs", async () => {
+    const { regionSplit } = await import("./display");
+    const set = (warmup = false) => ({ warmup });
+    const split = regionSplit({
+      exercises: [
+        {
+          kind: "strength",
+          muscleGroups: ["chest", "triceps"],
+          sets: [set(), set(), set(true)],
+        },
+        { kind: "cardio", muscleGroups: [], sets: [set()] },
+      ],
+    });
+    // chest 2, arms 1 (2 × ½), legs 1 → 0.5, 0.25, 0.25
+    expect(split).toEqual([
+      { region: "chest", share: 0.5 },
+      { region: "arms", share: 0.25 },
+      { region: "legs", share: 0.25 },
+    ]);
+    expect(regionSplit({ exercises: [] })).toEqual([]);
+  });
+});

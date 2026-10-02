@@ -338,6 +338,13 @@ export const en = {
     sortValue: "{what}: {v}",
   },
   training: {
+    chips: {
+      duration: "Duration",
+      sets: "Working sets",
+      tonnage: "Tonnage",
+      distance: "Distance",
+      speed: "Average speed",
+    },
     when: trainingWhenEn,
     estimate: {
       addTitle: "Add training",

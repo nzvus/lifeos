@@ -334,6 +334,13 @@ export const it: Messages = {
     sortValue: "{what}: {v}",
   },
   training: {
+    chips: {
+      duration: "Durata",
+      sets: "Serie di lavoro",
+      tonnage: "Tonnellaggio",
+      distance: "Distanza",
+      speed: "Velocità media",
+    },
     when: trainingWhenIt,
     estimate: {
       addTitle: "Aggiungi allenamento",
