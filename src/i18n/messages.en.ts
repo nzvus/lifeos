@@ -18,6 +18,7 @@ import {
   pantryEn,
   dayScoreEn,
   progressEn,
+  weightChartEn,
   addMenuEn,
   dayChipsEn,
   sleepEn,
@@ -233,6 +234,7 @@ export const en = {
   sleep: sleepEn,
   dayChips: dayChipsEn,
   addMenu: addMenuEn,
+  weightChart: weightChartEn,
   progress: progressEn,
   pantry: pantryEn,
   trash: trashEn,
@@ -336,6 +338,13 @@ export const en = {
     sortValue: "{what}: {v}",
   },
   training: {
+    chips: {
+      duration: "Duration",
+      sets: "Working sets",
+      tonnage: "Tonnage",
+      distance: "Distance",
+      speed: "Average speed",
+    },
     when: trainingWhenEn,
     estimate: {
       addTitle: "Add training",

@@ -74,7 +74,23 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
               },
             ],
           },
-          ...["/meals", "/ingredients", "/pantry"].map((prefix) => ({
+          {
+            prefix: "/pantry",
+            items: [
+              {
+                href: "/pantry/products/new?from=/pantry",
+                label: t.addMenu.product,
+                icon: "product",
+              },
+              { href: "/pantry#new-batch", label: t.addMenu.batch, icon: "batch" },
+              {
+                href: "/pantry#new-reminder",
+                label: t.addMenu.reminder,
+                icon: "reminder",
+              },
+            ],
+          },
+          ...["/meals", "/ingredients"].map((prefix) => ({
             prefix,
             items: [
               { href: "/meals/new", label: t.addMenu.meal, icon: "meal" as const },
@@ -94,7 +110,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           {
             prefix: "/profiles",
             items: [
-              { href: "/profiles?view=weight", label: t.addMenu.weight, icon: "weight" },
+              { href: "/#day-weigh", label: t.addMenu.weight, icon: "weight" },
               { href: "/profiles/new", label: t.addMenu.dayType, icon: "dayType" },
             ],
           },

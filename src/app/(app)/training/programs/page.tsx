@@ -56,7 +56,6 @@ export default async function ProgramsPage() {
         title={p.title}
         subtitle={p.subtitle}
         back={{ href: "/training", label: t.training.back }}
-        action={{ href: "/training/programs/new", label: p.new }}
       />
       {active && (
         <Section

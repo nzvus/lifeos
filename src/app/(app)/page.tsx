@@ -33,7 +33,7 @@ import { withAutoTargets } from "@/core/nutrition/targets";
 import { sessionMinutes } from "@/core/training/analysis";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, startOfWeek, timeIn, todayIn } from "@/core/shared/dates";
-import { Bell, Copy, Dumbbell, Scale } from "lucide-react";
+import { Bell, Copy, Dumbbell, Scale, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { listBatches } from "@/core/nutrition/repositories/batches";
 import { derivedReminders, listReminders } from "@/core/pantry/repositories/reminders";
@@ -362,6 +362,31 @@ export default async function DayPage({ searchParams }: Props) {
             t={t}
           />
         </Card>
+        {/* The day's quality first (2026-10-02), then the numbers. */}
+        <DayScore
+          score={dayScore({
+            totals: view.totals.nutrients,
+            targets,
+            quality: dayQuality,
+            bands,
+            sleep: nightScore,
+          })}
+          planned={
+            view.entries.some((e) => e.status === "planned")
+              ? dayScore({
+                  totals: view.withPlanned.nutrients,
+                  targets,
+                  quality: eatenQuality(view.entries, true),
+                  bands,
+                  sleep: nightScore,
+                })
+              : null
+          }
+          quality={dayQuality}
+          empty={view.entries.every((e) => e.status !== "eaten")}
+          locale={locale}
+          t={{ dayScore: t.dayScore, quality: t.quality }}
+        />
         <DayPanel
           totals={view.totals}
           withPlanned={view.withPlanned}
@@ -399,30 +424,6 @@ export default async function DayPage({ searchParams }: Props) {
           energy={energyView.energy}
           t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
         />
-        <DayScore
-          score={dayScore({
-            totals: view.totals.nutrients,
-            targets,
-            quality: dayQuality,
-            bands,
-            sleep: nightScore,
-          })}
-          planned={
-            view.entries.some((e) => e.status === "planned")
-              ? dayScore({
-                  totals: view.withPlanned.nutrients,
-                  targets,
-                  quality: eatenQuality(view.entries, true),
-                  bands,
-                  sleep: nightScore,
-                })
-              : null
-          }
-          quality={dayQuality}
-          empty={view.entries.every((e) => e.status !== "eaten")}
-          locale={locale}
-          t={{ dayScore: t.dayScore, quality: t.quality }}
-        />
         <SleepCard
           day={day}
           night={
@@ -458,7 +459,12 @@ export default async function DayPage({ searchParams }: Props) {
             </ul>
           </Section>
         )}
-        <div className="flex flex-col gap-4">
+        {/* The day's food in one card: the moments inside it (2026-10-02). */}
+        <Section
+          title={t.nav.food}
+          icon={<UtensilsCrossed size={20} aria-hidden="true" />}
+          aside={`${formatNumber(view.totals.nutrients.kcal, locale, 0)} kcal`}
+        >
           <EntryList
             day={view}
             locale={locale}
@@ -552,7 +558,7 @@ export default async function DayPage({ searchParams }: Props) {
               />
             </>
           )}
-        </div>
+        </Section>
         {programSlot &&
           !sessions.some((x) =>
             programSlot.slot.routineId

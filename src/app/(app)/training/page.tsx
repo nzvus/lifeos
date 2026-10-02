@@ -63,10 +63,7 @@ export default async function TrainingPage({ searchParams }: Props) {
   const p = t.training.progress;
   return (
     <>
-      <PageHeader
-        title={t.training.title}
-        action={{ href: "/training/new", label: t.training.new }}
-      />
+      <PageHeader title={t.training.title} />
       <nav className="flex flex-wrap gap-2">
         <Link
           href="/training/exercises"

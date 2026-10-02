@@ -6,6 +6,7 @@
  * as the developer writes them.
  */
 import { formatNumber } from "../shared/format";
+import { MUSCLE_GROUP_REGION, setShares, type MuscleRegion } from "./anatomy";
 import type { Locale } from "../shared/locales";
 
 type SetText = {
@@ -105,4 +106,37 @@ export function sessionSummary(session: {
       : null,
     minutes: session.durationMin,
   };
+}
+
+/**
+ * Where a session's work went, by body region (the training row's colour
+ * bar, like the macro bar of a meal): working sets, the primary muscle
+ * group counting 1 and the others ½ (anatomy setShares); cardio counts its
+ * sets on the legs. Shares sum to 1, largest first; empty without sets.
+ */
+export function regionSplit(session: {
+  exercises: readonly {
+    kind: string;
+    muscleGroups: readonly string[];
+    sets: readonly { warmup: boolean }[];
+  }[];
+}): { region: MuscleRegion; share: number }[] {
+  const sum = new Map<MuscleRegion, number>();
+  for (const e of session.exercises) {
+    const n = e.sets.filter((s) => !s.warmup).length;
+    if (!n) continue;
+    const shares: [string, number][] =
+      e.kind === "cardio" && e.muscleGroups.length === 0
+        ? [["quads", 1]]
+        : setShares(e.muscleGroups);
+    for (const [g, w] of shares) {
+      const region = MUSCLE_GROUP_REGION[g as keyof typeof MUSCLE_GROUP_REGION];
+      if (region) sum.set(region, (sum.get(region) ?? 0) + n * w);
+    }
+  }
+  const total = [...sum.values()].reduce((a, v) => a + v, 0);
+  if (!total) return [];
+  return [...sum.entries()]
+    .map(([region, v]) => ({ region, share: v / total }))
+    .sort((a, b) => b.share - a.share);
 }

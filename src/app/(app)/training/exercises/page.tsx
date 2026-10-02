@@ -38,11 +38,7 @@ export default async function ExercisesPage() {
   const x = t.exercises;
   return (
     <>
-      <PageHeader
-        title={x.title}
-        back={{ href: "/training", label: t.training.back }}
-        action={{ href: "/training/exercises/new", label: x.new }}
-      />
+      <PageHeader title={x.title} back={{ href: "/training", label: t.training.back }} />
       {exercises.length === 0 ? (
         <p className="text-muted">{x.empty}</p>
       ) : (

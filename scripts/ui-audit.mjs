@@ -70,12 +70,21 @@ function findIssues() {
   if (document.documentElement.scrollWidth > vw + 1)
     out.push(`scrolls sideways: ${document.documentElement.scrollWidth}px > ${vw}px`);
   const text = (e) => (e.textContent || "").trim().replace(/\s+/g, " ").slice(0, 40);
+  // Text in a fixed or sticky bar (an editor's Cancel / Save) floats over
+  // the content by design: not an overlap.
+  const pinned = (e) => {
+    for (let x = e; x && x !== document.body; x = x.parentElement) {
+      const p = getComputedStyle(x).position;
+      if (p === "fixed" || p === "sticky") return true;
+    }
+    return false;
+  };
   const leaves = [...document.querySelectorAll("main *")].filter(
     (e) =>
       e.childElementCount === 0 &&
       text(e) &&
       !e.closest("dialog:not([open]), nav, [hidden]") &&
-      getComputedStyle(e).position !== "fixed",
+      !pinned(e),
   );
   const boxes = leaves
     .map((e) => [e, e.getBoundingClientRect()])

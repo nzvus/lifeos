@@ -8,6 +8,7 @@ import {
   pantryIt,
   dayScoreIt,
   progressIt,
+  weightChartIt,
   addMenuIt,
   dayChipsIt,
   sleepIt,
@@ -228,6 +229,7 @@ export const it: Messages = {
   sleep: sleepIt,
   dayChips: dayChipsIt,
   addMenu: addMenuIt,
+  weightChart: weightChartIt,
   progress: progressIt,
   pantry: pantryIt,
   trash: trashIt,
@@ -332,6 +334,13 @@ export const it: Messages = {
     sortValue: "{what}: {v}",
   },
   training: {
+    chips: {
+      duration: "Durata",
+      sets: "Serie di lavoro",
+      tonnage: "Tonnellaggio",
+      distance: "Distanza",
+      speed: "Velocità media",
+    },
     when: trainingWhenIt,
     estimate: {
       addTitle: "Aggiungi allenamento",

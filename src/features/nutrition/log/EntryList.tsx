@@ -93,11 +93,12 @@ export function EntryList({
   const labels = macroLabels(t);
   return (
     // Grouped by moment of the day (ADR-0011), each with its eaten kcal.
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {groupByMoment(day.entries, timeZone, bounds).map((group) => (
         <Collapsible
           key={group.moment ?? "none"}
           id={`day-moment-${group.moment ?? "none"}`}
+          inset
           title={
             <span
               className={`flex items-center gap-1.5 ${

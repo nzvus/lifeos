@@ -54,6 +54,36 @@ export function DayScore({ score, planned, quality, empty, locale, t }: Props) {
           </span>
         ) : undefined
       }
+      // Closed, still informative (2026-10-02): each part as a coloured bar.
+      summary={
+        !empty && score.score !== null ? (
+          <ul className="grid grid-cols-1 gap-x-6 gap-y-1.5 text-meta @md:grid-cols-2">
+            {score.parts
+              .filter((p) => p.value !== null)
+              .map((p) => (
+                <li key={p.key} className="flex items-center gap-2">
+                  <span className="w-28 shrink-0 truncate text-muted">
+                    {d.parts[p.key]}
+                  </span>
+                  <span
+                    className="h-2 flex-1 overflow-hidden rounded-badge bg-hairline"
+                    aria-hidden="true"
+                  >
+                    <span
+                      className={`block h-full ${bar(p.value!)}`}
+                      style={{ width: `${p.value}%` }}
+                    />
+                  </span>
+                  <span
+                    className={`w-8 shrink-0 text-right font-display font-bold tabular-nums ${tone(p.value!)}`}
+                  >
+                    {p.value}
+                  </span>
+                </li>
+              ))}
+          </ul>
+        ) : undefined
+      }
       defaultOpen={false}
     >
       {empty || score.score === null ? (

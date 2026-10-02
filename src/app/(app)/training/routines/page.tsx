@@ -16,11 +16,7 @@ export default async function RoutinesPage() {
   const r = t.routines;
   return (
     <>
-      <PageHeader
-        title={r.title}
-        back={{ href: "/training", label: t.training.back }}
-        action={{ href: "/training/routines/new", label: r.new }}
-      />
+      <PageHeader title={r.title} back={{ href: "/training", label: t.training.back }} />
       {routines.length === 0 ? (
         <p className="text-muted">{r.empty}</p>
       ) : (

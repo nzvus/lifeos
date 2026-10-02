@@ -26,6 +26,7 @@ import { Badge } from "@/ui/Badge";
 import { Disclosure } from "@/ui/Disclosure";
 import { ListItem } from "@/ui/ListItem";
 import { PageHeader } from "@/ui/PageHeader";
+import { Sheet } from "@/ui/Sheet";
 import { FoodNav } from "@/features/nutrition/nav/FoodNav";
 import { Section } from "@/ui/Section";
 import { TrashMenu } from "@/ui/TrashMenu";
@@ -81,11 +82,7 @@ export default async function PantryPage() {
   return (
     <div className="flex flex-col gap-4">
       <FoodNav current="pantry" t={t} />
-      <PageHeader
-        title={p.title}
-        action={{ href: "/pantry/products/new?from=/pantry", label: p.newProduct }}
-        subtitle={p.hint}
-      />
+      <PageHeader title={p.title} subtitle={p.hint} />
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-4">
           <Section title={p.reminders} icon={<Bell size={20} aria-hidden="true" />}>
@@ -128,12 +125,6 @@ export default async function PantryPage() {
                 ))}
               </ul>
             )}
-            <Disclosure summary={p.reminderText}>
-              <ReminderForm
-                action={createReminderAction}
-                t={{ pantry: p, errors: t.errors }}
-              />
-            </Disclosure>
           </Section>
           <Section
             title={p.shopping}
@@ -216,15 +207,6 @@ export default async function PantryPage() {
                 ))}
               </ul>
             )}
-            {meals.length > 0 && (
-              <Disclosure summary={p.cookTitle}>
-                <CookForm
-                  action={cookBatchAction}
-                  meals={meals.map((m) => ({ id: m.id, name: m.name }))}
-                  t={{ pantry: p, errors: t.errors }}
-                />
-              </Disclosure>
-            )}
           </Section>
           <Section title={p.products} icon={<Tag size={20} aria-hidden="true" />}>
             {products.length === 0 ? (
@@ -257,6 +239,31 @@ export default async function PantryPage() {
           </Section>
         </div>
       </div>
+      {/* Adding happens from the "+" (2026-10-02): a reminder, a batch. */}
+      <Sheet
+        id="new-reminder"
+        title={p.reminderText}
+        icon={<Bell size={20} aria-hidden="true" />}
+        closeLabel={t.actions.close}
+      >
+        <ReminderForm action={createReminderAction} t={{ pantry: p, errors: t.errors }} />
+      </Sheet>
+      <Sheet
+        id="new-batch"
+        title={p.cookTitle}
+        icon={<CookingPot size={20} aria-hidden="true" />}
+        closeLabel={t.actions.close}
+      >
+        {meals.length > 0 ? (
+          <CookForm
+            action={cookBatchAction}
+            meals={meals.map((m) => ({ id: m.id, name: m.name }))}
+            t={{ pantry: p, errors: t.errors }}
+          />
+        ) : (
+          <p className="text-muted">{t.meals.needIngredients}</p>
+        )}
+      </Sheet>
     </div>
   );
 }
