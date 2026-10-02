@@ -55,6 +55,7 @@ import { Sheet } from "@/ui/Sheet";
 import { DayChips } from "@/features/nutrition/log/DayChips";
 import { MovementSheet } from "@/features/nutrition/log/MovementSheet";
 import { SleepCard } from "@/features/training/body/SleepCard";
+import { TrainingSummary } from "@/features/training/sessions/TrainingSummary";
 import { listSleep } from "@/core/training/repositories/sleep";
 import { sleepScore } from "@/core/training/sleep";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
@@ -590,10 +591,19 @@ export default async function DayPage({ searchParams }: Props) {
             title={t.training.onThisDay}
             icon={<Dumbbell size={20} aria-hidden="true" />}
             aside={String(sessions.length)}
+            // Closed, still informative (2026-10-02), like Energy and Quality.
             summary={
-              <p className="text-meta text-muted">
-                {sessions.map((x) => x.label).join(" · ")}
-              </p>
+              <TrainingSummary
+                sessions={sessions}
+                burn={
+                  burn.withPlanned
+                    ? `~${formatNumber(String(burn.withPlanned.low), locale, 0)}–${formatNumber(String(burn.withPlanned.high), locale, 0)} kcal`
+                    : null
+                }
+                locale={locale}
+                t={t.training}
+                tx={t.exercises}
+              />
             }
           >
             <p className="text-meta text-muted">{burnText}</p>
