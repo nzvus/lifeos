@@ -140,3 +140,88 @@ describe("programPlan", () => {
     ]);
   });
 });
+
+describe("programPlan with overrides (ADR-0029)", () => {
+  const base = { slots, startDay: "2026-10-01", today: "2026-10-01", done: [], days: 6 };
+
+  it("a swap of two days exchanges them; the rest of the cycle stays", () => {
+    const r = programPlan({
+      ...base,
+      overrides: [
+        { day: "2026-10-01", position: 1 },
+        { day: "2026-10-02", position: 0 },
+      ],
+    });
+    expect(names(r)).toEqual([
+      "01 pull",
+      "02 push",
+      "03 rest",
+      "04 legs",
+      "05 push",
+      "06 pull",
+    ]);
+  });
+
+  it("moving a slot later: the cycle skips it until its day, no double", () => {
+    // Legs (normally on the 4th) moved to the 6th.
+    const r = programPlan({ ...base, overrides: [{ day: "2026-10-06", position: 3 }] });
+    expect(names(r)).toEqual([
+      "01 push",
+      "02 pull",
+      "03 rest",
+      "04 push",
+      "05 pull",
+      "06 legs",
+    ]);
+    expect(names(r).filter((x) => x.endsWith("legs"))).toHaveLength(1);
+  });
+
+  it("moving a slot earlier takes it out of its usual day", () => {
+    const r = programPlan({ ...base, overrides: [{ day: "2026-10-02", position: 3 }] });
+    expect(names(r)).toEqual([
+      "01 push",
+      "02 legs",
+      "03 pull",
+      "04 rest",
+      "05 push",
+      "06 pull",
+    ]);
+  });
+
+  it("a rest override pauses the cycle (a rest due is taken instead)", () => {
+    const r = programPlan({
+      ...base,
+      overrides: [{ day: "2026-10-01", position: null }],
+    });
+    expect(names(r)).toEqual([
+      "01 rest",
+      "02 push",
+      "03 pull",
+      "04 rest",
+      "05 legs",
+      "06 push",
+    ]);
+    const onRest = programPlan({
+      ...base,
+      overrides: [{ day: "2026-10-03", position: null }],
+    });
+    expect(names(onRest)).toEqual(names(programPlan(base)));
+  });
+
+  it("past overrides and unknown slots change nothing", () => {
+    const r = programPlan({
+      ...base,
+      today: "2026-10-03",
+      done: [
+        { day: "2026-10-01", routineId: "push" },
+        { day: "2026-10-02", routineId: "pull" },
+      ],
+      overrides: [
+        { day: "2026-10-01", position: 3 },
+        { day: "2026-10-04", position: 9 },
+      ],
+    });
+    expect(names(r)[0]).toBe("03 rest");
+    expect(names(r)[1]).toBe("04 legs");
+  });
+});

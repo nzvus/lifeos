@@ -2,14 +2,16 @@
  * core/training/repositories/programs.ts — training programs (ADR-0024):
  * ordered slots of routines and rest days, at most one active. What a day
  * holds is derived (core/training/program.ts) from the slots and the
- * sessions done; nothing about the plan is stored.
+ * sessions done; nothing about the plan is stored but the coming days
+ * changed by hand (ADR-0029, program_overrides).
  *
  * Tested in: programs.test.ts.
  */
-import { and, asc, eq, inArray, isNotNull, ne } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNotNull, ne } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import {
   exercises,
+  programOverrides,
   programs,
   programSlotExercises,
   programSlots,
@@ -153,6 +155,28 @@ async function write(db: Db, owner: Owner, id: string | null, input: ProgramInpu
             .returning({ id: programs.id })
         )[0]!.id;
     if (!programId) return null;
+    // ADR-0029: overrides point at positions; if the slots change, they go.
+    const before = await tx
+      .select({ position: programSlots.position, routineId: programSlots.routineId })
+      .from(programSlots)
+      .where(and(ownedBy(programSlots, owner), eq(programSlots.programId, programId)))
+      .orderBy(asc(programSlots.position));
+    const same =
+      before.length === input.slots.length &&
+      before.every(
+        (b, i) =>
+          !input.slots[i]!.exerciseId &&
+          b.routineId === (input.slots[i]!.routineId ?? null),
+      );
+    if (!same)
+      await tx
+        .delete(programOverrides)
+        .where(
+          and(
+            ownedBy(programOverrides, owner),
+            eq(programOverrides.programId, programId),
+          ),
+        );
     await tx
       .delete(programSlots)
       .where(and(ownedBy(programSlots, owner), eq(programSlots.programId, programId)));
@@ -247,7 +271,19 @@ export async function getActivePlan(
 ): Promise<ActivePlan | null> {
   const program = (await listPrograms(db, owner)).find((p) => p.active);
   if (!program) return null;
-  const done = await listSessions(db, owner, program.startDay, today);
+  const [done, overrides] = await Promise.all([
+    listSessions(db, owner, program.startDay, today),
+    db
+      .select({ day: programOverrides.day, position: programOverrides.slotPosition })
+      .from(programOverrides)
+      .where(
+        and(
+          ownedBy(programOverrides, owner),
+          eq(programOverrides.programId, program.id),
+          gte(programOverrides.day, today),
+        ),
+      ),
+  ]);
   const { plan, doneToday } = programPlan({
     slots: program.slots,
     startDay: program.startDay,
@@ -260,6 +296,7 @@ export async function getActivePlan(
         exerciseIds: s.exercises.map((e) => e.exerciseId),
       })),
     days,
+    overrides,
   });
   return { program, plan, doneToday };
 }
@@ -277,4 +314,90 @@ export async function programSlotOn(
   if (!a || !hit) return null;
   const name = a.program.slots.find((x) => x.position === hit.slot.position)?.name ?? "";
   return { ...hit, program: a.program.name, name };
+}
+
+/**
+ * ADR-0029: on `day` (today or later) of the active program, do the slot at
+ * `position`, or rest (null). Replaces any override of that day.
+ */
+export async function setProgramDay(
+  db: Db,
+  owner: Owner,
+  today: string,
+  day: string,
+  position: number | null,
+): Promise<Result<null>> {
+  if (day < today) return fail({ day: "past_day" });
+  const program = (await listPrograms(db, owner)).find((p) => p.active);
+  if (!program) return fail({ _form: "not_found" });
+  if (position !== null && !program.slots.some((s) => s.position === position))
+    return fail({ position: "not_found" });
+  await db
+    .insert(programOverrides)
+    .values({ userId: owner.id, programId: program.id, day, slotPosition: position })
+    .onConflictDoUpdate({
+      target: [programOverrides.programId, programOverrides.day],
+      set: { slotPosition: position },
+    });
+  return ok(null);
+}
+
+/** ADR-0029: the two days exchange what the plan puts on them. */
+export async function swapProgramDays(
+  db: Db,
+  owner: Owner,
+  today: string,
+  a: string,
+  b: string,
+): Promise<Result<null>> {
+  if (a < today || b < today || a === b) return fail({ day: "past_day" });
+  const plan = await getActivePlan(db, owner, today, 28);
+  const on = (d: string) => plan?.plan.find((p) => p.day === d);
+  const pa = on(a);
+  const pb = on(b);
+  if (!plan || !pa || !pb) return fail({ _form: "not_found" });
+  const pos = (p: PlanDay) => (p.slot.position < 0 ? null : p.slot.position);
+  const r1 = await setProgramDay(db, owner, today, a, pos(pb));
+  if (!r1.ok) return r1;
+  return setProgramDay(db, owner, today, b, pos(pa));
+}
+
+/** ADR-0029: the day goes back to what the cycle says. */
+export async function resetProgramDay(
+  db: Db,
+  owner: Owner,
+  day: string,
+): Promise<Result<null>> {
+  const program = (await listPrograms(db, owner)).find((p) => p.active);
+  if (!program) return fail({ _form: "not_found" });
+  await db
+    .delete(programOverrides)
+    .where(
+      and(
+        ownedBy(programOverrides, owner),
+        eq(programOverrides.programId, program.id),
+        eq(programOverrides.day, day),
+      ),
+    );
+  return ok(null);
+}
+
+/** The coming days changed by hand, for the "changed" marks. */
+export async function programOverrideDays(
+  db: Db,
+  owner: Owner,
+  programId: string,
+  today: string,
+): Promise<Set<string>> {
+  const rows = await db
+    .select({ day: programOverrides.day })
+    .from(programOverrides)
+    .where(
+      and(
+        ownedBy(programOverrides, owner),
+        eq(programOverrides.programId, programId),
+        gte(programOverrides.day, today),
+      ),
+    );
+  return new Set(rows.map((r) => r.day));
 }

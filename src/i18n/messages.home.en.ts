@@ -378,6 +378,7 @@ export const errorsEn = {
     "Something else still uses it (even if that is in the trash): delete that first.",
   not_editable: "This entry has no ingredients to edit (an estimate or a portion).",
   future_day: "That day has not come yet: it can only be planned.",
+  past_day: "That day has passed: only today and later can be changed.",
 };
 
 export const entryEditEn = {
@@ -418,6 +419,13 @@ export const programsEn = {
   fromProgram: "From the program «{name}»",
   plan: "Plan",
   start: "Start now",
+  changed: "changed",
+  change: "Change…",
+  asCycle: "As the cycle says",
+  swapWith: "Swap with {day}",
+  dayChoice: "What to do on {day}",
+  changeHint:
+    "Move a day with ↑/↓ (or drag it, on a computer) or choose what to do that day: the rest of the cycle adapts.",
 };
 
 export const outlookEn = {

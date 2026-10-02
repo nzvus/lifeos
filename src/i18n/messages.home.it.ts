@@ -382,6 +382,7 @@ export const errorsIt: Messages["errors"] = {
     "Un altro elemento lo usa ancora (anche se è nel cestino): elimina prima quello.",
   not_editable: "Questa voce non ha ingredienti da modificare (stima o porzione).",
   future_day: "È un giorno che non è ancora arrivato: puoi solo pianificarlo.",
+  past_day: "È un giorno passato: si cambiano solo oggi e i giorni dopo.",
 };
 
 export const entryEditIt: Messages["entryEdit"] = {
@@ -422,6 +423,13 @@ export const programsIt: Messages["programs"] = {
   fromProgram: "Dal programma «{name}»",
   plan: "Pianifica",
   start: "Inizia ora",
+  changed: "cambiato",
+  change: "Cambia…",
+  asCycle: "Come da ciclo",
+  swapWith: "Scambia con {day}",
+  dayChoice: "Cosa fare {day}",
+  changeHint:
+    "Sposta un giorno con ↑/↓ (o trascinalo, sul computer) o scegli cosa fare quel giorno: il resto del ciclo si adatta.",
 };
 
 export const outlookIt: Messages["outlook"] = {

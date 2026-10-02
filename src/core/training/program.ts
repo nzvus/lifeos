@@ -13,6 +13,11 @@
  *   - a session that fits no slot: extra, the cycle ignores it.
  * From today on, the slots still to do are laid on the coming days, one per
  * day; today counts only if nothing was done yet.
+ *
+ * ADR-0029: overrides change single coming days — "this slot" or rest.
+ * They take their days first; the cycle fills the other days in order,
+ * skipping a slot an override has placed later in the same round, so it is
+ * not done twice. A rest override pauses the cycle (a rest due is taken).
  */
 import { addDays } from "../shared/dates";
 
@@ -53,6 +58,8 @@ export function programPlan(input: {
   done: readonly DoneSession[];
   /** How many days to plan from today. */
   days: number;
+  /** ADR-0029: coming days changed by hand (null = rest). */
+  overrides?: readonly { day: string; position: number | null }[];
 }): { plan: PlanDay[]; doneToday: boolean } {
   const slots = [...input.slots].sort((a, b) => a.position - b.position);
   const n = slots.length;
@@ -100,15 +107,59 @@ export function programPlan(input: {
   let d = doneToday ? addDays(input.today, 1) : input.today;
   if (input.today < input.startDay) d = input.startDay;
   const last = addDays(input.today, input.days - 1);
+  const next = () => {
+    p++;
+    while (ahead.has(p)) ahead.delete(p++);
+  };
+  const byPos = new Map(slots.map((s) => [s.position, s]));
+  // Coming overrides of an existing slot, in day order; `taken` once the
+  // cycle has passed over their slot (so the override day doesn't take it again).
+  const placed = (input.overrides ?? [])
+    .filter((o) => o.day >= d && o.day <= last)
+    .filter((o) => o.position === null || byPos.has(o.position))
+    .sort((a, b) => (a.day < b.day ? -1 : 1))
+    .map((o) => ({ ...o, taken: false }));
+  const overrideOn = new Map(placed.map((o) => [o.day, o]));
+  const REST: Slot = { position: -1, routineId: null, label: "" };
+
   for (; d <= last; d = addDays(d, 1)) {
+    const o = overrideOn.get(d);
+    if (o) {
+      if (o.position === null) {
+        if (isRest(slots[p % n]!)) next(); // a rest due is taken; else the cycle waits
+        plan.push({ day: d, slot: REST, late: false });
+        continue;
+      }
+      if (!o.taken) {
+        // Consume its slot from the cycle: the one due, or the next of the round.
+        if (slots[p % n]!.position === o.position) next();
+        else
+          for (let q = p + 1; q < p + n; q++)
+            if (slots[q % n]!.position === o.position && !ahead.has(q)) {
+              ahead.add(q);
+              break;
+            }
+      }
+      plan.push({ day: d, slot: byPos.get(o.position)!, late: false });
+      continue;
+    }
+    // Skip slots an override places on a later day (at most one round).
+    for (let guard = 0; guard < n; guard++) {
+      const due = slots[p % n]!;
+      const later = placed.find(
+        (x) => !x.taken && x.day > d && x.position === due.position,
+      );
+      if (!later || isRest(due)) break;
+      later.taken = true;
+      next();
+    }
     const slot = slots[p % n]!;
     plan.push({
       day: d,
       slot,
       late: plan.length === 0 && !isRest(slot) && since < d,
     });
-    p++;
-    while (ahead.has(p)) ahead.delete(p++);
+    next();
   }
   return { plan, doneToday };
 }

@@ -11,6 +11,9 @@ import {
   getActivePlan,
   listPrograms,
   programSlotOn,
+  resetProgramDay,
+  setProgramDay,
+  swapProgramDays,
   updateProgram,
 } from "./programs";
 import { createRoutine } from "./routines";
@@ -172,5 +175,69 @@ describe("programs", () => {
         slots: [{ routineId: null, exerciseId: theirs.exerciseId, label: "" }],
       }),
     ).toEqual({ ok: false, errors: { "slots.0.exerciseId": "not_found" } });
+  });
+});
+
+describe("changing coming days (ADR-0029)", () => {
+  const TODAY = "2026-10-01";
+  const labels = async (owner: Owner) =>
+    (await getActivePlan(db, owner, TODAY, 4))!.plan.map((d) =>
+      d.slot.position < 0 ? "rest" : String(d.slot.position),
+    );
+
+  it("swap, rest, reset; a past day is refused; editing the slots clears overrides", async () => {
+    const push = await routine(me, "Push");
+    const pull = await routine(me, "Pull");
+    const legs = await routine(me, "Legs");
+    const p = await createProgram(
+      db,
+      me,
+      program([
+        { routineId: push.routineId },
+        { routineId: pull.routineId },
+        { routineId: legs.routineId },
+      ]),
+    );
+    if (!p.ok) throw new Error("setup");
+    expect(await labels(me)).toEqual(["0", "1", "2", "0"]);
+
+    expect((await swapProgramDays(db, me, TODAY, "2026-10-01", "2026-10-03")).ok).toBe(
+      true,
+    );
+    expect(await labels(me)).toEqual(["2", "1", "0", "0"]); // day 4 is Push, as before
+
+    await setProgramDay(db, me, TODAY, "2026-10-02", null);
+    expect((await labels(me))[1]).toBe("rest");
+    await resetProgramDay(db, me, "2026-10-02");
+    expect((await labels(me))[1]).toBe("1");
+
+    expect((await setProgramDay(db, me, TODAY, "2026-09-30", 1)).ok).toBe(false);
+    expect((await setProgramDay(db, me, TODAY, "2026-10-02", 7)).ok).toBe(false);
+    // Another user has no active program: nothing to change.
+    expect((await setProgramDay(db, other, TODAY, "2026-10-02", 0)).ok).toBe(false);
+
+    // Same slots again (a rename): the overrides stay.
+    await updateProgram(
+      db,
+      me,
+      p.value.id,
+      program(
+        [
+          { routineId: push.routineId },
+          { routineId: pull.routineId },
+          { routineId: legs.routineId },
+        ],
+        { name: "PPL 2" },
+      ),
+    );
+    expect((await labels(me))[0]).toBe("2");
+    // Different slots: they go.
+    await updateProgram(
+      db,
+      me,
+      p.value.id,
+      program([{ routineId: legs.routineId }, { routineId: push.routineId }]),
+    );
+    expect(await labels(me)).toEqual(["0", "1", "0", "1"]);
   });
 });
