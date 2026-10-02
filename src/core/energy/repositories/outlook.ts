@@ -13,7 +13,7 @@ import { addDays } from "../../shared/dates";
 import { getActivePlan } from "../../training/repositories/programs";
 import { listSessions } from "../../training/repositories/sessions";
 import { dynamicTargets, goalOf, type Goal, type Range } from "../energy";
-import { getDayEnergy } from "./energy";
+import { getDayEnergy, type DayEnergyView } from "./energy";
 
 export type OutlookDay = {
   day: string;
@@ -69,34 +69,7 @@ export async function weekOutlook(
           ]
         : []),
     ];
-    let targets: OutlookDay["targets"] = null;
-    if (t.source !== "none") {
-      if (t.dynamic && e.energy && e.body.weightKg) {
-        const inputs = e.energy.inputs.sessions;
-        const load = trainingLoad(
-          inputs.reduce((a, x) => a + x.durationMin, 0),
-          inputs.reduce(
-            (a, x) => a + (x.basis?.kind === "sets" ? x.basis.cardioMin : 0),
-            0,
-          ),
-        );
-        const d = dynamicTargets(
-          e.energy,
-          e.body.weightKg,
-          t.dynamic,
-          carbsGoodMax(Number(e.body.weightKg), load),
-        );
-        targets = { kcal: d.kcal, protein: d.protein, carbs: d.carbs, fat: d.fat };
-      } else if (!t.dynamic && t.targets.kcal) {
-        const n = (v: string | null) => (v === null ? 0 : Math.round(Number(v)));
-        targets = {
-          kcal: n(t.targets.kcal),
-          protein: n(t.targets.protein),
-          carbs: n(t.targets.carbs),
-          fat: n(t.targets.fat),
-        };
-      }
-    }
+    const targets = targetsOf(t, e);
     out.push({
       day,
       dayType: t.source === "none" ? null : t.name,
@@ -108,4 +81,56 @@ export async function weekOutlook(
     });
   }
   return out;
+}
+
+type DayTargetsView = Awaited<ReturnType<typeof getDayTargets>>;
+
+/** The day's main targets: its type's own, or computed from its energy (dynamic). */
+function targetsOf(t: DayTargetsView, e: DayEnergyView): OutlookDay["targets"] {
+  if (t.source === "none") return null;
+  if (t.dynamic && e.energy && e.body.weightKg) {
+    const inputs = e.energy.inputs.sessions;
+    const load = trainingLoad(
+      inputs.reduce((a, x) => a + x.durationMin, 0),
+      inputs.reduce((a, x) => a + (x.basis?.kind === "sets" ? x.basis.cardioMin : 0), 0),
+    );
+    const d = dynamicTargets(
+      e.energy,
+      e.body.weightKg,
+      t.dynamic,
+      carbsGoodMax(Number(e.body.weightKg), load),
+    );
+    return { kcal: d.kcal, protein: d.protein, carbs: d.carbs, fat: d.fat };
+  }
+  if (!t.dynamic && t.targets.kcal) {
+    const n = (v: string | null) => (v === null ? 0 : Math.round(Number(v)));
+    return {
+      kcal: n(t.targets.kcal),
+      protein: n(t.targets.protein),
+      carbs: n(t.targets.carbs),
+      fat: n(t.targets.fat),
+    };
+  }
+  return null;
+}
+
+/**
+ * The energy target of each day in a range (the week strip): dynamic days
+ * included, from what was done and planned on them. Null = no target.
+ */
+export async function kcalTargets(
+  db: Db,
+  owner: Owner,
+  days: readonly string[],
+): Promise<Map<string, number | null>> {
+  const rows = await Promise.all(
+    days.map(async (day) => {
+      const [t, e] = await Promise.all([
+        getDayTargets(db, owner, day),
+        getDayEnergy(db, owner, day),
+      ]);
+      return [day, targetsOf(t, e)?.kcal ?? null] as const;
+    }),
+  );
+  return new Map(rows);
 }

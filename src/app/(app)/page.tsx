@@ -88,6 +88,7 @@ import {
   setEntryTimeAction,
 } from "./actions";
 import { dynamicTargets, goalOf } from "@/core/energy/energy";
+import { kcalTargets } from "@/core/energy/repositories/outlook";
 import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 
@@ -199,6 +200,17 @@ export default async function DayPage({ searchParams }: Props) {
             fiber: String(dynamic.fiber),
           }
         : dayTargets.targets;
+  // The week strip: each day's energy target, dynamic days included; the
+  // shown day uses the one computed here (with the program's slot).
+  const weekKcal = await kcalTargets(
+    db,
+    owner,
+    week.map((d) => d.day),
+  );
+  const weekWithTargets = week.map((d) => {
+    const kcal = d.day === day ? own.kcal : (weekKcal.get(d.day)?.toString() ?? null);
+    return { ...d, targets: { ...(d.targets ?? emptyTargets()), kcal } };
+  });
   const { targets, auto } = settings.preferences.autoTargets
     ? withAutoTargets(own)
     : { targets: own, auto: [] };
@@ -246,7 +258,13 @@ export default async function DayPage({ searchParams }: Props) {
       <div className="flex min-w-0 flex-col gap-4">
         <Card>
           <DayNav day={day} today={today} locale={locale} t={t.day} />
-          <WeekStrip week={week} day={day} today={today} locale={locale} t={t.day} />
+          <WeekStrip
+            week={weekWithTargets}
+            day={day}
+            today={today}
+            locale={locale}
+            t={t.day}
+          />
           <DayProfilePicker
             day={day}
             current={dayTargets}
