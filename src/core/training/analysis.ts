@@ -37,7 +37,7 @@ export type SetLike = {
 const working = (sets: readonly SetLike[]) => sets.filter((s) => !s.warmup);
 
 /**
- * ADR-0030: steps a phone or watch counted during a DONE session's cardio,
+ * ADR-0032: steps a phone or watch counted during a DONE session's cardio,
  * so they aren't counted again as walking. A run about 160 a minute
  * (faster than 7 km/h, or a run without a speed), a walk or slow treadmill
  * about 110, a bike none; other exercises none.

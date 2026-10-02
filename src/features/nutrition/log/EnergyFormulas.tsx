@@ -41,21 +41,27 @@ export function EnergyFormulas({ energy, dynamic, locale, t }: Props) {
     },
     {
       label: t.baseline,
-      formula: `${n(energy.bmr)} × ${rng(i.factor[0], i.factor[1], 2)} (${i.walk.source === "steps" ? fill(f.levelFromSteps, { level: t.levels[i.level] }) : t.levels[i.level]})${i.correction !== 1 ? ` × ${n(i.correction, 2)}` : ""}`,
+      formula: `${n(energy.bmr)} × ${rng(i.factor[0], i.factor[1], 2)} (${t.levels[i.level]}, ${t.levelSteps[i.level]})${i.correction !== 1 ? ` × ${n(i.correction, 2)}` : ""}`,
       result: kcal(energy.baseline),
     },
     {
       label: t.walking,
-      // ADR-0030: where the movement came from.
+      // ADR-0032: where the movement came from.
       formula: (() => {
         const w = i.walk;
         const session =
           w.sessionSteps > 0 ? fill(f.sessionSteps, { n: n(w.sessionSteps) }) : "";
         const met = ` · (${rng(w.met[0] - 1, w.met[1] - 1, 1)} MET) × ${n(i.kg, 1)} kg × ${n(w.minutes)}/60 h`;
         if (w.source === "steps")
-          return w.minutes === 0
-            ? fill(f.walkStepsNone, { steps: n(w.steps), session })
-            : fill(f.walkSteps, { steps: n(w.steps), session, min: n(w.minutes) }) + met;
+          return (
+            fill(f.walkSteps, {
+              steps: n(w.steps),
+              session,
+              usual: n(w.levelSteps),
+              level: t.levels[i.level],
+              min: n(w.minutes),
+            }) + met
+          );
         if (w.source === "walk") return fill(f.walkDeclared, { min: n(w.minutes) }) + met;
         return f.walkNone;
       })(),
