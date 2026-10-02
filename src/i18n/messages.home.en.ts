@@ -440,7 +440,7 @@ export const programsEn = {
   plan: "Plan",
   start: "Start now",
   changed: "changed",
-  change: "Change…",
+  change: "Change",
   asCycle: "As the cycle says",
   swapWith: "Swap with {day}",
   dayChoice: "What to do on {day}",
@@ -709,5 +709,6 @@ export const routinesEn = {
   save: "Save routine",
   create: "Create routine",
   delete: "Delete routine",
+  openExercise: "Open {name} (new tab)",
   itemsCount: "{n} exercises",
 };

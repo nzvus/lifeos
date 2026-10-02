@@ -1,6 +1,7 @@
 /**
  * ui/Menu.tsx — the "⋯" of a page or an item (ADR-0015): actions that are
  * not the main one (duplicate, make default…) live here, away from Save.
+ * Also a choice among a few (a program day's routine), with its own button.
  * Opens a centred dialog of big rows; closes on a choice, Escape or a tap
  * outside.
  */
@@ -24,10 +25,13 @@ export function Menu({
   label,
   items,
   closeLabel = label,
+  trigger,
 }: {
   label: string;
   items: readonly MenuItem[];
   closeLabel?: string;
+  /** The button, when not the "⋯": an icon and a short text (e.g. "Change"). */
+  trigger?: { icon: ReactNode; text: string };
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const close = () => dialog.current?.close();
@@ -41,9 +45,20 @@ export function Menu({
         title={label}
         aria-haspopup="dialog"
         onClick={() => dialog.current?.showModal()}
-        className={buttonClass({ variant: "subtle", iconOnly: true })}
+        className={buttonClass({
+          variant: "subtle",
+          size: trigger ? "sm" : undefined,
+          iconOnly: !trigger,
+        })}
       >
-        <MoreVertical size={20} aria-hidden="true" />
+        {trigger ? (
+          <>
+            {trigger.icon}
+            {trigger.text}
+          </>
+        ) : (
+          <MoreVertical size={20} aria-hidden="true" />
+        )}
       </button>
       {/* A centred dialog like every other (2026-10-02: the small drop-down
           was cut by its card and hard to tap). Escape or a tap outside close it. */}

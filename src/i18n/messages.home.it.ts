@@ -445,7 +445,7 @@ export const programsIt: Messages["programs"] = {
   plan: "Pianifica",
   start: "Inizia ora",
   changed: "cambiato",
-  change: "Cambia…",
+  change: "Cambia",
   asCycle: "Come da ciclo",
   swapWith: "Scambia con {day}",
   dayChoice: "Cosa fare {day}",
@@ -716,5 +716,6 @@ export const routinesIt: Messages["routines"] = {
   save: "Salva scheda",
   create: "Crea scheda",
   delete: "Elimina scheda",
+  openExercise: "Apri {name} (nuova scheda)",
   itemsCount: "{n} esercizi",
 };

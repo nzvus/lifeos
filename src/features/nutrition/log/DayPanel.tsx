@@ -223,7 +223,13 @@ export function DayPanel({
             label={t.label.title}
             rings={RINGS.map((k) => {
               const a = assess(k);
-              const { color, opacity } = tone(k);
+              // Over the target the ring keeps the nutrient's colour: the
+              // excess is the red dashed second lap (developer, 2026-10-02:
+              // "diventano tutti rossi").
+              const { color, opacity } =
+                a.status === "over"
+                  ? { color: `var(${NUTRIENT_VAR[k]!})`, opacity: 1 }
+                  : tone(k);
               return {
                 key: k,
                 ratio: a.status === "none" ? 0 : a.ratio,

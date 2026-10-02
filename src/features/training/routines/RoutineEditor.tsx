@@ -16,7 +16,7 @@ import { useMemo, useState } from "react";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
 import { pickerSearch } from "@/core/shared/search";
 import type { ExerciseKind } from "@/core/training/kinds";
-import type { Messages } from "@/i18n";
+import { fill, type Messages } from "@/i18n";
 import { ActionBar } from "@/ui/ActionBar";
 import { DraftNotice } from "@/ui/DraftNotice";
 import { Field } from "@/ui/Field";
@@ -27,6 +27,7 @@ import { toFormData, useEditableForm } from "@/ui/useEditableForm";
 import { useEditFlow } from "@/ui/useEditFlow";
 import type { FormValues } from "@/ui/useFormValues";
 import { buttonClass } from "@/ui/button";
+import { ExerciseIcon } from "@/ui/ExerciseIcon";
 
 export type RoutineRow = {
   exerciseId: string;
@@ -40,7 +41,13 @@ export type RoutineRow = {
 
 type T = Pick<Messages, "routines" | "training" | "errors" | "search" | "actions">;
 type Initial = { name: string; notes: string; items: RoutineRow[] };
-type Exercise = { id: string; name: string; kind: ExerciseKind };
+type Exercise = {
+  id: string;
+  name: string;
+  kind: ExerciseKind;
+  pattern: string | null;
+  region: string | null;
+};
 
 type Props = {
   /** The routine being edited; absent for a new one. */
@@ -197,6 +204,23 @@ function RoutineFields({
       >
         {rows.map((row, i) => (
           <div key={row.key} className="tile flex flex-wrap items-end gap-2 p-2">
+            {/* The exercise's drawing opens its page (guide, numbers) in a new
+                tab, so the routine being edited is not lost. */}
+            {(() => {
+              const ex = exercises.find((e) => e.id === row.exerciseId);
+              return ex ? (
+                <a
+                  href={`/training/exercises/${ex.id}`}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={fill(r.openExercise, { name: ex.name })}
+                  title={fill(r.openExercise, { name: ex.name })}
+                  className="tile inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-control"
+                >
+                  <ExerciseIcon pattern={ex.pattern} region={ex.region} size={24} />
+                </a>
+              ) : null;
+            })()}
             <SearchSelect
               label={t.training.exercise}
               name={`it-${row.key}`} // not read by the server; `items` is

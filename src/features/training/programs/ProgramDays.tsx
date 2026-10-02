@@ -8,11 +8,12 @@
  */
 "use client";
 
-import { ArrowDown, ArrowUp, GripVertical } from "lucide-react";
+import { ArrowDown, ArrowUp, GripVertical, Repeat } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { fill, type Messages } from "@/i18n";
 import { Badge } from "@/ui/Badge";
+import { Menu } from "@/ui/Menu";
 import { toast } from "@/ui/Toast";
 
 export type ProgramDayRow = {
@@ -39,7 +40,7 @@ export function ProgramDays({
   slots: { position: number; name: string }[];
   setDay: (day: string, value: string) => Promise<Outcome>;
   swap: (a: string, b: string) => Promise<Outcome>;
-  t: Pick<Messages, "programs">;
+  t: Pick<Messages, "programs" | "actions">;
 }) {
   const p = t.programs;
   const router = useRouter();
@@ -69,24 +70,29 @@ export function ProgramDays({
             setDragged(null);
           }}
           onDragEnd={() => setDragged(null)}
-          className={`tile flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 ${
+          // Phone: the day and its name on one line, the controls under it
+          // on the right (2026-10-02: they squeezed the name); one line on
+          // wide cards.
+          className={`tile flex flex-col gap-2 px-3 py-2 @lg:flex-row @lg:items-center @lg:gap-3 ${
             dragged === d.day ? "opacity-50" : ""
           }`}
         >
-          <GripVertical
-            size={16}
-            aria-hidden="true"
-            className="hidden text-muted @lg:block"
-          />
-          <span className="w-20 shrink-0 text-meta text-muted first-letter:uppercase">
-            {d.date}
+          <span className="flex min-w-0 flex-1 items-center gap-3">
+            <GripVertical
+              size={16}
+              aria-hidden="true"
+              className="hidden text-muted @lg:block"
+            />
+            <span className="w-20 shrink-0 text-meta text-muted first-letter:uppercase">
+              {d.date}
+            </span>
+            <span className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+              <span className="font-display text-item font-semibold">{d.name}</span>
+              {d.late && <Badge tone="planned">{p.late}</Badge>}
+              {d.changed && <Badge>{p.changed}</Badge>}
+            </span>
           </span>
-          <span className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-            <span className="font-display text-item font-semibold">{d.name}</span>
-            {d.late && <Badge tone="planned">{p.late}</Badge>}
-            {d.changed && <Badge>{p.changed}</Badge>}
-          </span>
-          <span className="flex items-center gap-1">
+          <span className="flex items-center justify-end gap-1">
             <button
               type="button"
               disabled={i === 0 || pending}
@@ -107,25 +113,28 @@ export function ProgramDays({
             >
               <ArrowDown size={16} aria-hidden="true" />
             </button>
-            <label className="sr-only" htmlFor={`program-day-${d.day}`}>
-              {fill(p.dayChoice, { day: d.date })}
-            </label>
-            <select
-              id={`program-day-${d.day}`}
-              value=""
-              disabled={pending}
-              onChange={(e) => e.target.value && run(() => setDay(d.day, e.target.value))}
-              className="rule-b-medium max-w-36 border-ink bg-sheet px-1 py-1 text-meta"
-            >
-              <option value="">{p.change}</option>
-              {slots.map((s) => (
-                <option key={s.position} value={String(s.position)}>
-                  {s.name}
-                </option>
-              ))}
-              <option value="rest">{p.rest}</option>
-              {d.changed && <option value="cycle">{p.asCycle}</option>}
-            </select>
+            {/* The same centred dialog as every "⋯" (2026-10-02: the select
+                was square and changed width from row to row). */}
+            <Menu
+              label={fill(p.dayChoice, { day: d.date })}
+              closeLabel={t.actions.close}
+              trigger={{ icon: <Repeat size={16} aria-hidden="true" />, text: p.change }}
+              items={[
+                ...slots.map((s) => ({
+                  label: s.name,
+                  onSelect: () => run(() => setDay(d.day, String(s.position))),
+                })),
+                { label: p.rest, onSelect: () => run(() => setDay(d.day, "rest")) },
+                ...(d.changed
+                  ? [
+                      {
+                        label: p.asCycle,
+                        onSelect: () => run(() => setDay(d.day, "cycle")),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
           </span>
         </li>
       ))}

@@ -1,11 +1,15 @@
 /**
  * app/(app)/training/routines/page.tsx — URL /training/routines, Training →
  * Routines (ADR-0033): how each routine is going (runs, kg per run, change,
- * sparkline), then every routine with its items.
+ * sparkline), then every routine with its exercises, each with its drawing
+ * and opening its page.
  */
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { setsText } from "@/core/training/display";
+import { regionOf } from "@/core/training/anatomy";
+import Link from "next/link";
+import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { listRoutines } from "@/core/training/repositories/routines";
 import { listSessions } from "@/core/training/repositories/sessions";
 import { routineProgress } from "@/core/training/progress";
@@ -75,20 +79,32 @@ export default async function RoutinesPage() {
                 }
                 footer={fill(r.itemsCount, { n: String(routine.items.length) })}
               >
-                <ul className="flex flex-col text-meta">
+                {/* Each exercise with its drawing, opening its page (guide,
+                    numbers): above the row's own link (ListItem's z-1). */}
+                <ul className="flex flex-col gap-0.5 text-meta">
                   {routine.items.map((it) => (
-                    <li key={it.id} className="flex justify-between gap-3">
-                      <span className="truncate">{it.name}</span>
-                      <span className="shrink-0 font-display text-muted tabular-nums">
-                        {setsText(
-                          Array.from({ length: it.sets }, () => ({
-                            reps: it.reps,
-                            loadKg: it.loadKg,
-                            durationS: it.durationS,
-                          })),
-                          settings.locale,
-                        )}
-                      </span>
+                    <li key={it.id}>
+                      <Link
+                        href={`/training/exercises/${it.exerciseId}`}
+                        className="relative z-2 flex items-center gap-2 rounded-control py-1 hover:bg-paper"
+                      >
+                        <ExerciseIcon
+                          pattern={it.pattern}
+                          region={regionOf(it.muscleGroups)}
+                          size={20}
+                        />
+                        <span className="min-w-0 flex-1 truncate">{it.name}</span>
+                        <span className="shrink-0 font-display text-muted tabular-nums">
+                          {setsText(
+                            Array.from({ length: it.sets }, () => ({
+                              reps: it.reps,
+                              loadKg: it.loadKg,
+                              durationS: it.durationS,
+                            })),
+                            settings.locale,
+                          )}
+                        </span>
+                      </Link>
                     </li>
                   ))}
                 </ul>

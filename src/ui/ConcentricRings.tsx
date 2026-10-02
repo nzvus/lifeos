@@ -4,7 +4,8 @@
  *
  * Each ring: a grey track, and an arc from 12 o'clock for the share reached
  * (stroke-dasharray trick, see the comments in the code). Past 100 % the ring
- * is complete and a thinner second lap shows the excess (up to +100 %).
+ * is complete and a second lap, dashed in red, shows the excess (up to
+ * +100 %): the ring keeps its colour, the excess is what stands out.
  * Colour and opacity come from the caller (ui/targetTone.ts).
  */
 import type { ReactNode } from "react";
@@ -18,6 +19,20 @@ export type RingSpec = {
   /** Eaten + planned (ADR-0009): drawn translucent BEHIND the eaten arc. */
   plannedRatio?: number;
 };
+/**
+ * A dashed arc of `length` from 12 o'clock: short dashes and gaps up to the
+ * length, then a gap the size of the circle (the same trick as the arc).
+ */
+export function dashes(length: number, circ: number): string {
+  const dash = 5;
+  const gap = 3;
+  const out: number[] = [];
+  for (let at = 0; at < length; at += dash + gap)
+    out.push(Math.min(dash, length - at), gap);
+  out[out.length - 1] = circ; // the last gap hides the rest of the lap
+  return out.join(" ");
+}
+
 type Props = { rings: RingSpec[]; size?: number; label: string; children?: ReactNode };
 
 export function ConcentricRings({ rings, size = 200, label, children }: Props) {
@@ -81,11 +96,9 @@ export function ConcentricRings({ rings, size = 200, label, children }: Props) {
                   cy={c}
                   r={r}
                   fill="none"
-                  strokeWidth={stroke * 0.45}
-                  strokeLinecap="round"
-                  strokeDasharray={arc(ring.ratio - 1)}
-                  className="stroke-ink"
-                  style={{ opacity: 0.55 }}
+                  strokeWidth={stroke * 0.6}
+                  strokeDasharray={dashes(Math.min(1, ring.ratio - 1) * circ, circ)}
+                  className="stroke-tomato"
                 />
               )}
             </g>
