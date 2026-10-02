@@ -173,7 +173,9 @@ describe("exportUserData", () => {
       [10, "40.00"],
     ]);
     // The trash is not exported, like every other kind.
-    expect(data.training.measurements.map((m) => m.weightKg)).toEqual(["75.00"]);
+    expect(data.training.measurements.map((m) => [m.weightKg, m.context])).toEqual([
+      ["75.00", null], // version 10: how it was taken, null = not said
+    ]);
     expect(JSON.stringify(data)).not.toContain("Bob's squat");
   });
 
@@ -212,7 +214,7 @@ describe("exportUserData", () => {
     });
     if (!r.ok) throw new Error("setup failed");
     const data = await exportUserData(db, alice);
-    expect(data.version).toBe(9);
+    expect(data.version).toBe(EXPORT_VERSION);
     expect(
       data.training.programs.map((x) => [x.name, x.slots.map((y) => y.label)]),
     ).toEqual([["Rest only", ["Rest"]]]);

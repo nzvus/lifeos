@@ -6,7 +6,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "../../db/client";
-import { sessionExercises, sets } from "../../db/schema";
+import { sessionExercises, sets, weighInContext } from "../../db/schema";
 import type { Owner } from "../../identity/owner";
 import { createTestDb, createTestUser } from "../../testing/test-db";
 import type { ExerciseInput, SessionInput } from "../validation";
@@ -479,5 +479,53 @@ describe("measurements in the trash (ADR-0015)", () => {
     expect((await restoreMeasurement(db, other, id)).ok).toBe(false);
     expect((await restoreMeasurement(db, me, id)).ok).toBe(true);
     expect(await weightOn(db, me, "2026-09-28")).toBe("74.50");
+  });
+});
+
+describe("how a weigh-in was taken (ADR-0027)", () => {
+  const weighIn = {
+    day: "2026-10-02",
+    weightKg: "76.4",
+    bodyFatPct: null,
+    waistCm: null,
+    notes: "",
+  };
+
+  it("is saved with the weigh-in, its time in the user's zone; absent = not said", async () => {
+    const tagged = await addMeasurement(
+      db,
+      me,
+      {
+        ...weighIn,
+        context: { time: "07:15", fasted: true, afterToilet: true, afterTraining: false },
+      },
+      "Europe/Rome",
+    );
+    await addMeasurement(db, me, { ...weighIn, day: "2026-10-01" });
+    if (!tagged.ok) throw new Error("setup failed");
+
+    const list = await listMeasurements(db, me);
+    expect(list.map((m) => [m.day, m.context])).toEqual([
+      ["2026-10-01", null],
+      [
+        "2026-10-02",
+        {
+          measurementId: tagged.value.id,
+          measuredAt: new Date("2026-10-02T05:15:00.000Z"), // 07:15 in Rome
+          fasted: true,
+          afterToilet: true,
+          afterTraining: false,
+        },
+      ],
+    ]);
+  });
+
+  it("can't hang on another user's weigh-in (the database refuses it)", async () => {
+    const theirs = await addMeasurement(db, other, weighIn);
+    if (!theirs.ok) throw new Error("setup failed");
+    await expect(
+      db.insert(weighInContext).values({ measurementId: theirs.value.id, userId: me.id }),
+    ).rejects.toThrow();
+    expect((await listMeasurements(db, me)).length).toBe(0);
   });
 });

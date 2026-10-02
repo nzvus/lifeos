@@ -15,6 +15,7 @@
  */
 import {
   pantryEn,
+  bodyEn,
   trashEn,
   energyEn,
   assistantEn,
@@ -550,17 +551,7 @@ export const en = {
     delete: "Delete routine",
     itemsCount: "{n} exercises",
   },
-  body: {
-    title: "Body weight",
-    hint: "Used to estimate training burn; the latest measurement up to that day applies.",
-    day: "Day",
-    weight: "Weight (kg)",
-    fat: "Body fat (%)",
-    waist: "Waist (cm)",
-    add: "Add measurement",
-    none: "No measurements yet.",
-    delete: "Delete measurement",
-  },
+  body: bodyEn,
   dayScore: {
     title: "Day quality",
     outOf: "/100",

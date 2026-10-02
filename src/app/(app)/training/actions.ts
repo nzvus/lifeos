@@ -273,11 +273,11 @@ export async function addMeasurementAction(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const { owner } = await requireContext();
+  const { owner, settings } = await requireContext();
   const values = formToObject(formData);
   const input = parseInput(measurementInput, values);
   if (!input.ok) return { status: "error", errors: input.errors, values };
-  await addMeasurement(getDb(), owner, input.value);
+  await addMeasurement(getDb(), owner, input.value, settings.timezone);
   revalidatePath("/", "layout"); // burn estimates everywhere
   return { status: "saved" };
 }

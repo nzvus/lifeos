@@ -8,7 +8,8 @@
  *   observed = average eaten (logged days) − weight trend × 7700 kcal/kg
  *
  * The trend is the least-squares slope of every weigh-in, not two single
- * weigh-ins (water swings a kilo a day). The model's estimate for the same
+ * weigh-ins (water swings a kilo a day), each weighted by its reliability
+ * (ADR-0027: a weigh-in after dinner counts less than a fasted one). The model's estimate for the same
  * days (what was done, midpoint) is compared with it; the gap becomes a
  * proposed factor on the everyday baseline — the most uncertain part — that
  * the user accepts or not. Never applied silently.
@@ -56,25 +57,35 @@ export type Calibration = {
 const mean = (xs: number[]) => xs.reduce((a, x) => a + x, 0) / xs.length;
 const dayIndex = (day: string) => Date.parse(`${day}T00:00:00Z`) / 86_400_000;
 
-/** Least-squares slope, kg per day; null with fewer than 2 points or one day. */
-export function weightSlope(
-  points: readonly { day: string; kg: number }[],
-): number | null {
+export type WeighInPoint = {
+  day: string;
+  kg: number;
+  /** 0.25–1 (ADR-0027); absent = 1. */
+  weight?: number;
+};
+
+/**
+ * Weighted least-squares slope, kg per day; null with fewer than 2 points
+ * or one day.
+ */
+export function weightSlope(points: readonly WeighInPoint[]): number | null {
   if (points.length < 2) return null;
+  const ws = points.map((p) => p.weight ?? 1);
+  const sw = ws.reduce((a, w) => a + w, 0);
   const xs = points.map((p) => dayIndex(p.day));
   const ys = points.map((p) => p.kg);
-  const mx = mean(xs);
-  const my = mean(ys);
-  const sxx = xs.reduce((a, x) => a + (x - mx) ** 2, 0);
+  const mx = xs.reduce((a, x, i) => a + ws[i]! * x, 0) / sw;
+  const my = ys.reduce((a, y, i) => a + ws[i]! * y, 0) / sw;
+  const sxx = xs.reduce((a, x, i) => a + ws[i]! * (x - mx) ** 2, 0);
   if (sxx === 0) return null;
-  return xs.reduce((a, x, i) => a + (x - mx) * (ys[i]! - my), 0) / sxx;
+  return xs.reduce((a, x, i) => a + ws[i]! * (x - mx) * (ys[i]! - my), 0) / sxx;
 }
 
 const round = (x: number | null) => (x === null ? null : Math.round(x));
 
 export function calibrate(
   days: readonly CalibrationDay[],
-  weighIns: readonly { day: string; kg: number }[],
+  weighIns: readonly WeighInPoint[],
   current: number,
 ): Calibration {
   const logged = days.filter((d) => d.eatenKcal !== null && d.energy !== null);

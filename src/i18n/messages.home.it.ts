@@ -428,3 +428,45 @@ export const outlookIt: Messages["outlook"] = {
   noEnergy: "consumo: mancano i dati del corpo",
   targets: "{kcal} kcal · P {p} · C {c} · G {f}",
 };
+
+/** Body weight (ADR-0005, read with its context ADR-0027). */
+export const bodyIt: Messages["body"] = {
+  title: "Peso corporeo",
+  hint: "Pesati al mattino, a digiuno e dopo il bagno: è la misura più affidabile. Le altre contano meno nella tendenza e nella calibrazione.",
+  day: "Giorno",
+  time: "Ora",
+  weight: "Peso (kg)",
+  fat: "Grasso (%)",
+  waist: "Vita (cm)",
+  how: "Com'eri",
+  fasted: "A digiuno",
+  afterToilet: "Dopo il bagno",
+  afterTraining: "Dopo l'allenamento",
+  add: "Aggiungi misura",
+  none: "Nessuna misura ancora.",
+  delete: "Elimina misura",
+  trend: "Tendenza {v} kg",
+  bmi: "BMI {v} ({c})",
+  bmiCategories: {
+    under: "sottopeso",
+    normal: "normopeso",
+    over: "sovrappeso",
+    obese: "obesità",
+  },
+  waistToHeight: "Vita/altezza {v}",
+  ffmi: "FFMI {v}",
+  indicesNote:
+    "Indici di screening, non diagnosi: il BMI sovrastima chi ha molta massa muscolare; vita/altezza sotto 0,5 è la soglia usuale.",
+  noHeight: "Aggiungi l'altezza nelle Impostazioni per vedere il BMI.",
+  standard: "misura standard",
+  countsLess: "conta {p} %",
+  clues: {
+    after_food: "dopo aver mangiato",
+    after_training: "dopo l'allenamento",
+    before_toilet: "prima del bagno",
+    late: "di pomeriggio o sera",
+    carbs_up: "ieri più carboidrati del solito: probabile acqua",
+    carbs_down: "ieri meno carboidrati del solito: probabile acqua persa",
+    salt_up: "ieri più sale del solito: probabile acqua",
+  },
+};
