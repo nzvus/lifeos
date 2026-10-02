@@ -122,6 +122,7 @@ export function MealBrowser({
     // The search, the order and the list share one card (S20 audit: nothing floats).
     <div className={CARD}>
       <ListToolbar
+        sheetId="sort-meals"
         {...list.toolbar}
         choices={sortChoices()}
         perChoices={PER}

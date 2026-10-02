@@ -461,6 +461,7 @@ export const bodyEn = {
   afterTraining: "After training",
   add: "Add measurement",
   none: "No measurements yet.",
+  seeTrend: "Trend and history in Progress → Weight",
   delete: "Delete measurement",
   trend: "Trend {v} kg",
   bmi: "BMI {v} ({c})",

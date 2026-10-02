@@ -183,3 +183,42 @@ describe("mealFormData", () => {
     ]);
   });
 });
+
+describe("the quick ingredient sheet's fields (2026-10-02)", () => {
+  it("name, unit, the eight values and empty price fields are a valid ingredient", () => {
+    const r = parseInput(ingredientInput, {
+      name: "Yogurt",
+      description: "",
+      unit: "g",
+      packagePrice: "",
+      packageSize: "",
+      kcal: "61",
+      protein: "3.5",
+      carbs: "4.7",
+      sugars: "4.7",
+      fat: "3.3",
+      saturatedFat: "2.1",
+      fiber: "0",
+      salt: "0.1",
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("without the price fields it fails — the sheet must send them empty", () => {
+    expect(
+      parseInput(ingredientInput, {
+        name: "Yogurt",
+        description: "",
+        unit: "g",
+        kcal: "61",
+        protein: "3.5",
+        carbs: "4.7",
+        sugars: "4.7",
+        fat: "3.3",
+        saturatedFat: "2.1",
+        fiber: "0",
+        salt: "0.1",
+      }).ok,
+    ).toBe(false);
+  });
+});

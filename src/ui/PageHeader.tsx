@@ -33,11 +33,18 @@ export function PageHeader({
       )}
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <h1 className="font-heading text-title font-bold">{title}</h1>
-        {action && (
-          <Link href={action.href} className={buttonClass({ variant: "primary" })}>
-            {action.label}
-          </Link>
-        )}
+        {action &&
+          (action.href.startsWith("#") ? (
+            // A sheet on this page (ui/Sheet): a plain link, so the browser
+            // fires the hashchange the sheet listens for.
+            <a href={action.href} className={buttonClass({ variant: "primary" })}>
+              {action.label}
+            </a>
+          ) : (
+            <Link href={action.href} className={buttonClass({ variant: "primary" })}>
+              {action.label}
+            </Link>
+          ))}
         {menu}
       </div>
       {subtitle && <p className="text-muted">{subtitle}</p>}
