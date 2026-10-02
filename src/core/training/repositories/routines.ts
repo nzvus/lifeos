@@ -24,6 +24,9 @@ export type RoutineView = {
   notes: string;
   items: (Omit<typeof routineItems.$inferSelect, "userId" | "routineId"> & {
     name: string;
+    /** The exercise's, for its drawing (ui/ExerciseIcon). */
+    pattern: string | null;
+    muscleGroups: string[];
   })[];
 };
 
@@ -36,7 +39,12 @@ export async function listRoutines(db: Db, owner: Owner): Promise<RoutineView[]>
   const ids = rows.map((r) => r.id);
   const items = ids.length
     ? await db
-        .select({ item: routineItems, name: exercises.name })
+        .select({
+          item: routineItems,
+          name: exercises.name,
+          pattern: exercises.pattern,
+          muscleGroups: exercises.muscleGroups,
+        })
         .from(routineItems)
         .innerJoin(exercises, eq(routineItems.exerciseId, exercises.id))
         .where(and(ownedBy(routineItems, owner), inArray(routineItems.routineId, ids)))
@@ -48,9 +56,9 @@ export async function listRoutines(db: Db, owner: Owner): Promise<RoutineView[]>
     notes: r.notes,
     items: items
       .filter((i) => i.item.routineId === r.id)
-      .map(({ item: { userId: _u, routineId: _r, ...rest }, name }) => ({
+      .map(({ item: { userId: _u, routineId: _r, ...rest }, ...exercise }) => ({
         ...rest,
-        name,
+        ...exercise,
       })),
   }));
 }

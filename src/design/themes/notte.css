@@ -1,7 +1,8 @@
 /*
- * design/themes/notte.css — "Notte" (night): made for the evening — deep night blue,
- * warm amber accents, soft contrasts that do not glare; its light version
- * is a cool dusk.
+ * design/themes/notte.css — "Notte" (night): made for the evening — a near
+ * black with a hint of indigo, warm white text and amber accents, soft
+ * contrasts that do not glare; its light version is a quiet dusk. (The
+ * first, saturated night blue looked washed out: developer, 2026-10-02.)
  * Same meaning of colour as every theme: herb = within target, tomato = over;
  * nutrient, moment and muscle colours keep their hue. Text colours reach
  * 4.5:1 on paper and sheet in light and dark (design/theme.test.ts).
@@ -21,11 +22,11 @@
   --header-rule: 1px solid var(--color-hairline);
   --radius-control: 0.5rem;
   --radius-surface: 1rem;
-  --color-paper: #eceff5;
-  --color-sheet: #fbfcfe;
-  --color-ink: #1a2133;
-  --color-muted: #555e76;
-  --color-hairline: #d2d8e4;
+  --color-paper: #efedf0;
+  --color-sheet: #fcfbfa;
+  --color-ink: #1c1b24;
+  --color-muted: #5a5866;
+  --color-hairline: #dbd8de;
   --color-herb: #2a7658;
   --color-tomato: #b1352a;
   --color-warn: #965000;
@@ -34,7 +35,7 @@
   --color-macro-carbs: #906104;
   --color-macro-fat: #3a67a3;
   --color-macro-fiber: #497626;
-  --color-kcal: #1a2133;
+  --color-kcal: #1c1b24;
   --color-moment-breakfast: #8a5a3c;
   --color-moment-lunch: #0e6e66;
   --color-moment-snack: #63680a;
@@ -53,11 +54,11 @@
 /* Dark: more specific than the default dark block, so it wins. */
 @media (prefers-color-scheme: dark) {
   :root[data-theme="notte"]:not([data-mode="light"]) {
-    --color-paper: #0c1222;
-    --color-sheet: #141c31;
-    --color-ink: #e4e7f1;
-    --color-muted: #a2aac2;
-    --color-hairline: #28324d;
+    --color-paper: #08090e;
+    --color-sheet: #11131b;
+    --color-ink: #efe9df;
+    --color-muted: #a8a39a;
+    --color-hairline: #262833;
     --color-herb: #6fd3a5;
     --color-tomato: #ff8d7d;
     --color-warn: #ffb454;
@@ -66,7 +67,7 @@
     --color-macro-carbs: #f0bd4f;
     --color-macro-fat: #86aee6;
     --color-macro-fiber: #9ccd6c;
-    --color-kcal: #e4e7f1;
+    --color-kcal: #efe9df;
     --color-moment-breakfast: #dcaa85;
     --color-moment-lunch: #6fd0c4;
     --color-moment-snack: #c6cc5a;
@@ -83,11 +84,11 @@
   }
 }
 :root[data-theme="notte"][data-mode="dark"] {
-  --color-paper: #0c1222;
-  --color-sheet: #141c31;
-  --color-ink: #e4e7f1;
-  --color-muted: #a2aac2;
-  --color-hairline: #28324d;
+  --color-paper: #08090e;
+  --color-sheet: #11131b;
+  --color-ink: #efe9df;
+  --color-muted: #a8a39a;
+  --color-hairline: #262833;
   --color-herb: #6fd3a5;
   --color-tomato: #ff8d7d;
   --color-warn: #ffb454;
@@ -96,7 +97,7 @@
   --color-macro-carbs: #f0bd4f;
   --color-macro-fat: #86aee6;
   --color-macro-fiber: #9ccd6c;
-  --color-kcal: #e4e7f1;
+  --color-kcal: #efe9df;
   --color-moment-breakfast: #dcaa85;
   --color-moment-lunch: #6fd0c4;
   --color-moment-snack: #c6cc5a;
