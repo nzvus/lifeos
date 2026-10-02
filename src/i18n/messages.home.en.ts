@@ -504,6 +504,7 @@ export const addFabEn = {
   training: "Training",
   weight: "Weight",
   sleep: "Sleep",
+  move: "Movement",
 };
 
 export const sleepEn = {
@@ -550,4 +551,12 @@ export const dayScoreEn = {
   fiberUnknown: "without a type: {v} g",
   howTo:
     "How it's computed: weighted average of the parts available; missing parts don't count.",
+};
+
+export const dayChipsEn = {
+  sleep: "{h} h of sleep",
+  sleepNone: "Sleep?",
+  steps: "{n} steps",
+  walk: "{n} min on foot",
+  moveNone: "Movement?",
 };

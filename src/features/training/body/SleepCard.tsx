@@ -1,18 +1,17 @@
 /**
  * features/training/body/SleepCard.tsx — the night that ended on this day
- * (ADR-0031): bedtime, wake time, an optional quality 1–5. Closed, it shows
- * "7.3 h · 23:40–07:00 · 4/5"; open, the form, which saves itself
- * (ui/useAutoSave) once both times are there. The day page's "+" → Sleep
- * opens it (#day-sleep).
+ * (ADR-0031): bedtime, wake time, an optional quality 1–5, in a sheet
+ * (ui/Sheet, #day-sleep) opened by the "+" or the day's chips; the form
+ * saves itself (ui/useAutoSave) once both times are there.
  */
 "use client";
 
 import { Moon, Trash2 } from "lucide-react";
 import { useActionState } from "react";
 import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result";
-import { fill, type Messages } from "@/i18n";
+import type { Messages } from "@/i18n";
 import { buttonClass } from "@/ui/button";
-import { Collapsible } from "@/ui/Collapsible";
+import { Sheet } from "@/ui/Sheet";
 import { Field } from "@/ui/Field";
 import { SaveStatus } from "@/ui/SaveStatus";
 import { SelectField } from "@/ui/SelectField";
@@ -30,29 +29,18 @@ export function SleepCard({
   night: { hours: string; bed: string; wake: string; quality: number | null } | null;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   clear: (day: string) => Promise<void>;
-  t: Pick<Messages, "sleep" | "errors">;
+  t: Pick<Messages, "sleep" | "errors" | "actions">;
 }) {
   const [state, formAction] = useActionState(action, IDLE);
   const autoSave = useAutoSave();
   const s = t.sleep;
   const err = (f: string) => fieldError(state, f, t.errors);
-  const summary = night
-    ? [
-        fill(s.hours, { h: night.hours }),
-        `${night.bed}–${night.wake}`,
-        night.quality ? fill(s.qualityShort, { q: String(night.quality) }) : null,
-      ]
-        .filter(Boolean)
-        .join(" · ")
-    : s.none;
   return (
-    <Collapsible
+    <Sheet
       id="day-sleep"
       title={s.title}
       icon={<Moon size={20} aria-hidden="true" />}
-      aside={night ? fill(s.hours, { h: night.hours }) : undefined}
-      summary={<p className="text-meta text-muted">{summary}</p>}
-      defaultOpen={false}
+      closeLabel={t.actions.close}
     >
       <p className="text-meta text-muted">{s.hint}</p>
       <form
@@ -110,6 +98,6 @@ export function SleepCard({
           )}
         </div>
       </form>
-    </Collapsible>
+    </Sheet>
   );
 }

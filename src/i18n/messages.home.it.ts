@@ -508,6 +508,7 @@ export const addFabIt: Messages["addFab"] = {
   training: "Allenamento",
   weight: "Peso",
   sleep: "Sonno",
+  move: "Movimento",
 };
 
 export const sleepIt: Messages["sleep"] = {
@@ -555,4 +556,12 @@ export const dayScoreIt: Messages["dayScore"] = {
   fiberUnknown: "senza tipo: {v} g",
   howTo:
     "Come si calcola: media pesata delle parti disponibili; le parti mancanti non contano.",
+};
+
+export const dayChipsIt: Messages["dayChips"] = {
+  sleep: "{h} h di sonno",
+  sleepNone: "Sonno?",
+  steps: "{n} passi",
+  walk: "{n} min a piedi",
+  moveNone: "Movimento?",
 };
