@@ -26,9 +26,11 @@ export type Db = PgDatabase<PgQueryResultHKT, Schema>;
 /**
  * Creates a Drizzle database on a connection pool.
  *
- * `max: 5`: on Vercel each function instance gets its own pool; Neon's pooled
+ * `max: 10`: on Vercel each function instance gets its own pool; Neon's pooled
  * endpoint (hostname containing "-pooler") multiplexes them, so small pools
- * are right. Use the pooled URL for the app, the direct one for pg_dump.
+ * are right. Not smaller: the day page asks ~20 queries at once, and 5
+ * connections made them queue (2026-10-03).
+ * Use the pooled URL for the app, the direct one for pg_dump.
  */
 export function createDb(connectionString: string): Db {
   return openDb(connectionString).db;
@@ -40,6 +42,6 @@ export function createDb(connectionString: string): Db {
  * and the script never exits (scripts/import-fitforge.ts).
  */
 export function openDb(connectionString: string): { db: Db; close: () => Promise<void> } {
-  const pool = new Pool({ connectionString, max: 5 });
+  const pool = new Pool({ connectionString, max: 10 });
   return { db: drizzle(pool, { schema }), close: () => pool.end() };
 }

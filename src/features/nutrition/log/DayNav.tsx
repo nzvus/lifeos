@@ -4,14 +4,15 @@
  *
  * Days travel in the URL (/?day=2026-09-29), not in hidden state: every day
  * has its own address, so back/forward and bookmarks work, and a reload never
- * silently jumps to "today". Server component: plain links.
+ * silently jumps to "today". The open view (ADR-0033) goes along: the links
+ * are ui/ViewAwareLink, which add it in the browser.
  */
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
 import { addDays } from "@/core/shared/dates";
 import type { Locale } from "@/core/shared/locales";
 import type { Messages } from "@/i18n";
 import { buttonClass, TEXT_LINK } from "@/ui/button";
+import { ViewAwareLink } from "@/ui/ViewSwitch";
 import { DayPicker } from "./DayPicker";
 
 type Props = {
@@ -19,13 +20,11 @@ type Props = {
   today: string;
   locale: Locale;
   t: Messages["day"];
-  /** The open view as a query suffix ("&tab=food", or ""), kept across days (ADR-0033). */
-  tabQuery?: string;
 };
 
 const INTL: Record<Locale, string> = { it: "it-IT", en: "en-GB" };
 
-export function DayNav({ day, today, locale, t, tabQuery = "" }: Props) {
+export function DayNav({ day, today, locale, t }: Props) {
   // Noon UTC avoids the date shifting when formatted in a far-away time zone.
   const heading = new Intl.DateTimeFormat(INTL[locale], {
     weekday: "long",
@@ -43,37 +42,34 @@ export function DayNav({ day, today, locale, t, tabQuery = "" }: Props) {
   }).format(new Date(`${day}T12:00:00Z`));
   return (
     <nav aria-label={t.backToToday} className="flex items-center justify-between gap-2">
-      <Link
-        href={`/?day=${addDays(day, -1)}${tabQuery}`}
+      <ViewAwareLink
+        href={`/?day=${addDays(day, -1)}`}
         aria-label={t.previous}
         className={buttonClass({ variant: "quiet", iconOnly: true })}
       >
         <ChevronLeft size={24} aria-hidden="true" />
-      </Link>
+      </ViewAwareLink>
       <div className="flex min-w-0 flex-col items-center">
         <div className="flex min-w-0 items-center gap-1">
           <h1 className="font-heading text-section font-bold whitespace-nowrap first-letter:uppercase">
             <span className="hidden @xs:inline">{heading}</span>
             <span className="@xs:hidden">{short}</span>
           </h1>
-          <DayPicker day={day} label={t.goTo} tabQuery={tabQuery} />
+          <DayPicker day={day} label={t.goTo} />
         </div>
         {day !== today && (
-          <Link
-            href={tabQuery ? `/?${tabQuery.slice(1)}` : "/"}
-            className={`text-meta ${TEXT_LINK}`}
-          >
+          <ViewAwareLink href="/" className={`text-meta ${TEXT_LINK}`}>
             {t.backToToday}
-          </Link>
+          </ViewAwareLink>
         )}
       </div>
-      <Link
-        href={`/?day=${addDays(day, 1)}${tabQuery}`}
+      <ViewAwareLink
+        href={`/?day=${addDays(day, 1)}`}
         aria-label={t.next}
         className={buttonClass({ variant: "quiet", iconOnly: true })}
       >
         <ChevronRight size={24} aria-hidden="true" />
-      </Link>
+      </ViewAwareLink>
     </nav>
   );
 }

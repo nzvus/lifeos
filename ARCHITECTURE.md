@@ -118,7 +118,8 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   steps > walk > level, ADR-0030). Weigh-ins carry a reliability that weights the trend
   and the calibration (ADR-0027); sleep feeds day quality and trends, not energy (ADR-0031).
 - **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment, servings −/+;
-  totals = eaten, every panel also shows the day with the plan.
+  totals = eaten, every panel also shows the day with the plan. The tick and −/+ are
+  optimistic (`log/LiveDay`, useOptimistic + core totals): numbers redraw at once.
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (pinned ↺ / Cancel /
   Save), drafts in the browser, `?from=` for back and after-save, toasts with
   Undo. Rows open on tap; delete is a bin that asks first (ui/DeleteButton), "⋯"
@@ -139,6 +140,8 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   as fallback, static files cache-first; no user data cached; dark splash.
 - **Time:** `date` strings; "today" from `user_settings.timezone`, never the server's clock.
   **Search:** `core/shared/search.ts` (accent-insensitive, every word, match then 60-day use).
+- **Speed:** one parallel round of queries per page; Today's views all rendered and
+  switched in the browser (`ui/ViewSwitch`, URL via replaceState); router cache 30 s.
 - **Responsive UI:** tabs by moment (ADR-0035), views as URLs (ADR-0033) — Today (summary |
   food | training, under a fixed day header; gym mode starts here) · Plan (the month: sessions
   and the program's days) · Training, a library (routines | exercises | programs) · Food (meals |

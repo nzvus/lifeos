@@ -18,6 +18,13 @@ export type RingSpec = {
   label: string;
   /** Eaten + planned (ADR-0009): drawn translucent BEHIND the eaten arc. */
   plannedRatio?: number;
+  /**
+   * The planned arc's colour and opacity: the caller's tone for where the
+   * plan ends. Strong enough to read on a day that is all plan (2026-10-03:
+   * "the rings don't fill today" — they did, at 25 %).
+   */
+  plannedColor?: string;
+  plannedOpacity?: number;
 };
 /**
  * A dashed arc of `length` from 12 o'clock: short dashes and gaps up to the
@@ -77,7 +84,10 @@ export function ConcentricRings({ rings, size = 200, label, children }: Props) {
                   strokeWidth={stroke}
                   strokeLinecap="round"
                   strokeDasharray={arc(ring.plannedRatio)}
-                  style={{ stroke: ring.color, opacity: 0.25 }}
+                  style={{
+                    stroke: ring.plannedColor ?? ring.color,
+                    opacity: ring.plannedOpacity ?? 0.5,
+                  }}
                 />
               )}
               <circle

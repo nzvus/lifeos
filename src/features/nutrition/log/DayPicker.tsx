@@ -11,18 +11,12 @@ import { CalendarDays } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { buttonClass } from "@/ui/button";
+import { useViewHref } from "@/ui/ViewSwitch";
 
-export function DayPicker({
-  day,
-  label,
-  tabQuery = "",
-}: {
-  day: string;
-  label: string;
-  /** The open view as a query suffix ("&tab=food", or ""), kept across days (ADR-0033). */
-  tabQuery?: string;
-}) {
+export function DayPicker({ day, label }: { day: string; label: string }) {
   const router = useRouter();
+  // The open view goes along to the chosen day (ADR-0033).
+  const withView = useViewHref();
   const input = useRef<HTMLInputElement>(null);
   return (
     <span className="relative inline-flex">
@@ -48,7 +42,7 @@ export function DayPicker({
         aria-hidden="true"
         defaultValue={day}
         onChange={(e) => {
-          if (e.target.value) router.push(`/?day=${e.target.value}${tabQuery}`);
+          if (e.target.value) router.push(withView(`/?day=${e.target.value}`));
         }}
         // Invisible, under the button: the picker opens anchored here.
         className="pointer-events-none absolute inset-0 opacity-0"

@@ -366,6 +366,8 @@ export const panelRowsEn = {
   maxUseful: "useful max",
   targetLine: "target {v}",
   planLine: "with the plan {v}",
+  liveTitle: "The day with the plan",
+  liveEaten: "eaten {v}",
 };
 
 export const appEn = {
