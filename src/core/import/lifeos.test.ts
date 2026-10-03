@@ -7,6 +7,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "../db/client";
 import type { Owner } from "../identity/owner";
+import { saveBody } from "../energy/repositories/energy";
 import { exportUserData } from "../export/export";
 import { createIngredient } from "../nutrition/repositories/ingredients";
 import { logMeal } from "../nutrition/repositories/log";
@@ -65,6 +66,8 @@ async function seed(owner: Owner) {
     listSort: "fiber",
     listPer: "kcal",
   });
+  // ADR-0014: the energy model's body data survives too.
+  await saveBody(db, owner, { sex: "female", birthYear: 1990, heightCm: 168 });
   const factor = await createFactor(db, owner, "Gusto");
   if (!factor.ok) throw new Error("setup failed");
   const oats = await createIngredient(db, owner, {
@@ -98,6 +101,24 @@ async function seed(owner: Owner) {
   });
   if (!profile.ok) throw new Error("setup failed");
   await setDayProfile(db, owner, "2026-09-29", profile.value.id);
+  // ADR-0014: a dynamic type and a day copied from it keep their parameters.
+  const dynamic = await createProfile(db, owner, {
+    name: "Ricomposizione",
+    kcal: null,
+    protein: null,
+    carbs: null,
+    sugars: null,
+    fat: null,
+    saturatedFat: null,
+    fiber: null,
+    salt: null,
+    mode: "dynamic",
+    deficitKcal: 200,
+    proteinGPerKg: "2.2",
+    fatGPerKg: "0.8",
+  });
+  if (!dynamic.ok) throw new Error("setup failed");
+  await setDayProfile(db, owner, "2026-09-30", dynamic.value.id);
   await logMeal(db, owner, {
     day: "2026-09-29",
     mealId: meal.value.id,
