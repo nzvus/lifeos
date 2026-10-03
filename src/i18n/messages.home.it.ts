@@ -371,6 +371,8 @@ export const panelRowsIt = {
   maxUseful: "massimo utile",
   targetLine: "obiettivo {v}",
   planLine: "con il pianificato {v}",
+  liveTitle: "La giornata col piano",
+  liveEaten: "mangiati {v}",
 };
 
 export const appIt: Messages["app"] = {

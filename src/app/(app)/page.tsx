@@ -6,9 +6,11 @@
  *
  * `?tab=food|training` picks the view (ADR-0033): the header (date, week,
  * day type and goal, night and movement) is always there; below it Summary
- * (quality, totals, food per moment, training, energy), Food (the day's
- * entries) or Training (the program's day and the sessions). The sheets
- * the "+" and the chips open are rendered outside the views.
+ * (quality, totals, food per moment, training, energy), Food (the day as
+ * planned, live, and the day's entries) or Training (the program's day and
+ * the sessions). All three are rendered at once and switched in the browser
+ * (ui/ViewSwitch): no server round trip per tab. The sheets the "+" and the
+ * chips open are rendered outside the views.
  *
  * This page only LOADS and COMPOSES: it fetches the day, meals, ingredients,
  * the day's targets, the day types and usage counts through core
@@ -80,7 +82,8 @@ import {
   restoreSessionAction,
 } from "./training/actions";
 import { Card, CARD } from "@/ui/Card";
-import { SubNav } from "@/ui/SubNav";
+import { ViewLink, ViewNav, ViewPanel, ViewSwitch } from "@/ui/ViewSwitch";
+import { LiveDay, LiveTotals } from "@/features/nutrition/log/LiveDay";
 import { FoodSummary } from "@/features/nutrition/log/FoodSummary";
 import { groupByMoment } from "@/core/nutrition/moments";
 import { Section } from "@/ui/Section";
@@ -129,14 +132,17 @@ export default async function DayPage({ searchParams }: Props) {
   const canAdd = day >= today || query.late === "1";
   const tab: View =
     query.tab === "food" || query.tab === "training" ? query.tab : "summary";
-  const tabQuery = tab === "summary" ? "" : `&tab=${tab}`;
 
   const db = getDb();
-  // ADR-0024: what the active program puts on this day (from today on).
-  const programSlot = await programSlotOn(db, owner, today, day);
-  // Promise.all: independent queries at once instead of one after another.
   const monday = startOfWeek(day);
+  // ADR-0024: what the active program puts on this day (from today on). The
+  // day's energy needs it, so that one query waits for it; nothing else does.
+  const slotLoad = programSlotOn(db, owner, today, day);
+  // Promise.all: independent queries at once instead of one after another —
+  // one round of waiting per page, not four (2026-10-03, "feels slow").
   const [
+    programSlot,
+    weekKcal,
     view,
     meals,
     ingredients,
@@ -158,6 +164,13 @@ export default async function DayPage({ searchParams }: Props) {
     nights,
     recent,
   ] = await Promise.all([
+    slotLoad,
+    // The week strip: each day's energy target, dynamic days included.
+    kcalTargets(
+      db,
+      owner,
+      Array.from({ length: 7 }, (_, i) => addDays(monday, i)),
+    ),
     getDay(db, owner, day),
     listMeals(db, owner),
     listIngredients(db, owner),
@@ -175,11 +188,8 @@ export default async function DayPage({ searchParams }: Props) {
     getPantry(db, owner),
     listReminders(db, owner),
     // ADR-0014: what the day costs (a skipped program day adds nothing).
-    getDayEnergy(
-      db,
-      owner,
-      day,
-      programSlot && !programSlot.skipped ? programSlot.slot : null,
+    slotLoad.then((slot) =>
+      getDayEnergy(db, owner, day, slot && !slot.skipped ? slot.slot : null),
     ),
     day === today ? getCalibration(db, owner, today) : null, // ADR-0020
     listSleep(db, owner, day, day), // ADR-0031: the night that ended today
@@ -241,13 +251,7 @@ export default async function DayPage({ searchParams }: Props) {
             fiber: String(dynamic.fiber),
           }
         : dayTargets.targets;
-  // The week strip: each day's energy target, dynamic days included; the
-  // shown day uses the one computed here (with the program's slot).
-  const weekKcal = await kcalTargets(
-    db,
-    owner,
-    week.map((d) => d.day),
-  );
+  // The shown day's target is the one computed here (with the program's slot).
   const weekWithTargets = week.map((d) => {
     const kcal = d.day === day ? own.kcal : (weekKcal.get(d.day)?.toString() ?? null);
     return { ...d, targets: { ...(d.targets ?? emptyTargets()), kcal } };
@@ -293,6 +297,7 @@ export default async function DayPage({ searchParams }: Props) {
   });
 
   const v = t.day.views;
+  const num = (x: string | null) => (x === null ? null : Number(x));
   const late = query.late === "1" ? "&late=1" : "";
   const tabHref = (k: View) => `/?day=${day}${late}${k === "summary" ? "" : `&tab=${k}`}`;
   const burnRange = burn.withPlanned
@@ -326,116 +331,209 @@ export default async function DayPage({ searchParams }: Props) {
     // ADR-0033: the day's header (date, week, day type, night and movement)
     // always on top; below it one view at a time. The sheets the "+" opens
     // are outside the views, so adding works from any of them.
-    <div className="flex min-w-0 flex-col gap-4">
-      <Card>
-        <DayNav day={day} today={today} locale={locale} t={t.day} tabQuery={tabQuery} />
-        <WeekStrip
-          week={weekWithTargets}
-          day={day}
-          today={today}
-          locale={locale}
-          t={t.day}
-          tabQuery={tabQuery}
-        />
-        <DayProfilePicker
-          day={day}
-          current={dayTargets}
-          profiles={profiles.map((p) => ({ id: p.id, name: p.name }))}
-          action={setDayProfileAction}
-          t={{ day: t.day, errors: t.errors }}
-        />
-        {/* ADR-0014: the goal in plain words, or why dynamic targets can't be. */}
-        <DayGoal
-          day={day}
-          today={today}
-          dayTargets={dayTargets}
-          dynamic={dynamic}
-          total={energyView.energy?.total ?? null}
-          eatenKcal={view.totals.nutrients.kcal}
-          withPlannedKcal={view.withPlanned.nutrients.kcal}
-          targetKcal={targets.kcal}
-          locale={locale}
-          t={t}
-        />
-        {/* The night and the movement at a glance; tap to add or change (sheets). */}
-        <DayChips
-          sleptHours={night?.hours ?? null}
-          activity={energyView.activity}
-          locale={locale}
-          t={t}
-        />
-      </Card>
-      <SubNav
-        label={v.label}
-        current={tab}
-        items={[
-          {
-            key: "summary",
-            href: tabHref("summary"),
-            label: v.summary,
-            icon: <Gauge size={18} aria-hidden="true" />,
-          },
-          {
-            key: "food",
-            href: tabHref("food"),
-            label: v.food,
-            icon: <UtensilsCrossed size={18} aria-hidden="true" />,
-          },
-          {
-            key: "training",
-            href: tabHref("training"),
-            label: v.training,
-            icon: <Dumbbell size={18} aria-hidden="true" />,
-          },
-        ]}
-      />
-      {tab === "summary" && (
-        // Phone: one column. Wide screens: the numbers left, food, training
-        // and energy right (S20).
-        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
-          <div className="flex min-w-0 flex-col gap-4">
-            {/* The day's quality first (2026-10-02), then the numbers. */}
-            <DayScore
-              score={dayScore({
-                totals: view.totals.nutrients,
-                targets,
-                quality: dayQuality,
-                bands,
-                sleep: nightScore,
-              })}
-              planned={
-                view.entries.some((e) => e.status === "planned")
-                  ? dayScore({
-                      totals: view.withPlanned.nutrients,
-                      targets,
-                      quality: eatenQuality(view.entries, true),
-                      bands,
-                      sleep: nightScore,
-                    })
-                  : null
-              }
-              quality={dayQuality}
-              empty={view.entries.every((e) => e.status !== "eaten")}
+    <ViewSwitch initial={tab} fallback="summary" param="tab">
+      <LiveDay
+        entries={view.entries.map((e) => ({
+          id: e.id,
+          status: e.status,
+          servings: e.servings,
+          lines: e.lines,
+        }))}
+      >
+        <div className="flex min-w-0 flex-col gap-4">
+          <Card>
+            <DayNav day={day} today={today} locale={locale} t={t.day} />
+            <WeekStrip
+              week={weekWithTargets}
+              day={day}
+              today={today}
               locale={locale}
-              t={{ dayScore: t.dayScore, quality: t.quality }}
+              t={t.day}
             />
-            <DayPanel
-              totals={view.totals}
-              withPlanned={view.withPlanned}
-              targets={targets}
-              bands={bands}
-              auto={auto}
+            <DayProfilePicker
+              day={day}
+              current={dayTargets}
+              profiles={profiles.map((p) => ({ id: p.id, name: p.name }))}
+              action={setDayProfileAction}
+              t={{ day: t.day, errors: t.errors }}
+            />
+            {/* ADR-0014: the goal in plain words, or why dynamic targets can't be. */}
+            <DayGoal
+              day={day}
+              today={today}
+              dayTargets={dayTargets}
+              dynamic={dynamic}
+              total={energyView.energy?.total ?? null}
+              eatenKcal={view.totals.nutrients.kcal}
+              withPlannedKcal={view.withPlanned.nutrients.kcal}
+              targetKcal={targets.kcal}
               locale={locale}
-              t={{
-                label: t.label,
-                nutrients: t.nutrients,
-                macro: t.macro,
-                panel: t.panel,
-                day: t.day,
-              }}
+              t={t}
             />
-          </div>
-          <div className="flex min-w-0 flex-col gap-4">
+            {/* The night and the movement at a glance; tap to add or change (sheets). */}
+            <DayChips
+              sleptHours={night?.hours ?? null}
+              activity={energyView.activity}
+              locale={locale}
+              t={t}
+            />
+          </Card>
+          <ViewNav
+            label={v.label}
+            items={[
+              {
+                key: "summary",
+                href: tabHref("summary"),
+                label: v.summary,
+                icon: <Gauge size={18} aria-hidden="true" />,
+              },
+              {
+                key: "food",
+                href: tabHref("food"),
+                label: v.food,
+                icon: <UtensilsCrossed size={18} aria-hidden="true" />,
+              },
+              {
+                key: "training",
+                href: tabHref("training"),
+                label: v.training,
+                icon: <Dumbbell size={18} aria-hidden="true" />,
+              },
+            ]}
+          />
+          <ViewPanel view="summary">
+            {/* Phone: one column. */}
+            {/* Wide screens: the numbers left, food, training
+        and energy right (S20). */}
+            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+              <div className="flex min-w-0 flex-col gap-4">
+                {/* The day's quality first (2026-10-02), then the numbers. */}
+                <DayScore
+                  score={dayScore({
+                    totals: view.totals.nutrients,
+                    targets,
+                    quality: dayQuality,
+                    bands,
+                    sleep: nightScore,
+                  })}
+                  planned={
+                    view.entries.some((e) => e.status === "planned")
+                      ? dayScore({
+                          totals: view.withPlanned.nutrients,
+                          targets,
+                          quality: eatenQuality(view.entries, true),
+                          bands,
+                          sleep: nightScore,
+                        })
+                      : null
+                  }
+                  quality={dayQuality}
+                  empty={view.entries.every((e) => e.status !== "eaten")}
+                  locale={locale}
+                  t={{ dayScore: t.dayScore, quality: t.quality }}
+                />
+                <DayPanel
+                  totals={view.totals}
+                  withPlanned={view.withPlanned}
+                  targets={targets}
+                  bands={bands}
+                  auto={auto}
+                  locale={locale}
+                  t={{
+                    label: t.label,
+                    nutrients: t.nutrients,
+                    macro: t.macro,
+                    panel: t.panel,
+                    day: t.day,
+                  }}
+                />
+              </div>
+              <div className="flex min-w-0 flex-col gap-4">
+                {day === today && reminderLines.length > 0 && (
+                  <Section
+                    title={p.reminders}
+                    icon={<Bell size={20} aria-hidden="true" />}
+                    aside={
+                      <Link href="/pantry" className={TEXT_LINK}>
+                        {p.open}
+                      </Link>
+                    }
+                  >
+                    <ul className="flex flex-col gap-1">
+                      {reminderLines.map((line) => (
+                        <li key={line}>{line}</li>
+                      ))}
+                    </ul>
+                  </Section>
+                )}
+                <Section
+                  title={t.nav.food}
+                  icon={<UtensilsCrossed size={20} aria-hidden="true" />}
+                  aside={
+                    <ViewLink view="food" href={tabHref("food")} className={TEXT_LINK}>
+                      {v.open}
+                    </ViewLink>
+                  }
+                >
+                  <FoodSummary
+                    groups={groupByMoment(
+                      view.entries,
+                      settings.timezone,
+                      settings.preferences.bounds,
+                    )}
+                    locale={locale}
+                    t={t}
+                  />
+                </Section>
+                <Section
+                  title={t.training.onThisDay}
+                  icon={<Dumbbell size={20} aria-hidden="true" />}
+                  aside={
+                    <ViewLink
+                      view="training"
+                      href={tabHref("training")}
+                      className={TEXT_LINK}
+                    >
+                      {v.open}
+                    </ViewLink>
+                  }
+                >
+                  {sessions.length > 0 ? (
+                    <TrainingSummary
+                      sessions={sessions}
+                      burn={burnRange}
+                      locale={locale}
+                      t={t.training}
+                      tx={t.exercises}
+                    />
+                  ) : (
+                    <p className="text-muted">
+                      {programName
+                        ? fill(v.inProgram, { name: programName })
+                        : v.noTraining}
+                    </p>
+                  )}
+                </Section>
+                <EnergySection
+                  energy={energyView.energy}
+                  missing={energyView.missing}
+                  eaten={view.totals.nutrients.kcal}
+                  withPlanned={view.withPlanned.nutrients.kcal}
+                  dynamic={
+                    dynamic && dayTargets.source !== "none" && dayTargets.dynamic
+                      ? { params: dayTargets.dynamic, ...dynamic }
+                      : null
+                  }
+                  correction={energyView.body.correction ?? 1}
+                  calibration={calibration}
+                  setCorrection={setEnergyCorrectionAction}
+                  locale={locale}
+                  t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
+                />
+              </div>
+            </div>
+          </ViewPanel>
+          <ViewPanel view="food">
             {day === today && reminderLines.length > 0 && (
               <Section
                 title={p.reminders}
@@ -453,35 +551,85 @@ export default async function DayPage({ searchParams }: Props) {
                 </ul>
               </Section>
             )}
+            {/* The day as planned, redrawn on every −/+ and tick (2026-10-03). */}
+            {view.entries.length > 0 && (
+              <LiveTotals
+                targets={{
+                  kcal: num(targets.kcal),
+                  protein: num(targets.protein),
+                  carbs: num(targets.carbs),
+                  fat: num(targets.fat),
+                  fiber: num(targets.fiber),
+                }}
+                bands={bands}
+                locale={locale}
+                t={{ nutrients: t.nutrients, panel: t.panel }}
+              />
+            )}
+            {/* The day's food in one card: the moments inside it (2026-10-02). */}
             <Section
               title={t.nav.food}
               icon={<UtensilsCrossed size={20} aria-hidden="true" />}
-              aside={
-                <Link href={tabHref("food")} className={TEXT_LINK}>
-                  {v.open}
-                </Link>
-              }
             >
-              <FoodSummary
-                groups={groupByMoment(
-                  view.entries,
-                  settings.timezone,
-                  settings.preferences.bounds,
-                )}
+              <EntryList
+                day={view}
                 locale={locale}
+                trash={deleteLogEntryAction}
+                restore={restoreLogEntryAction}
+                refresh={refreshLogEntryAction}
+                statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
+                future={day > today}
+                timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
+                servingsAction={(id) => setEntryServingsAction.bind(null, id)}
+                timeZone={settings.timezone}
+                bounds={settings.preferences.bounds}
+                // The same quality block as the meal cards, from the entry's
+                // snapshot lines (ADR-0007) and the current tags and ratings.
+                quality={(e) => (
+                  <MealQuality
+                    summary={qualitySummary(e.lines, e.servings)}
+                    rating={e.mealId ? (mealRatings[e.mealId] ?? null) : null}
+                    tags={mealTags(
+                      e.lines.flatMap((l) => (l.ingredientId ? [l.ingredientId] : [])),
+                      tagMap,
+                    ).map(({ name, icon }) => ({ name, icon }))}
+                    locale={locale}
+                    t={t}
+                  />
+                )}
                 t={t}
               />
+              {canAdd && view.entries.length === 0 && (
+                <ActionButtonForm
+                  action={copyPreviousDayAction.bind(null, day)}
+                  label={t.day.copyYesterday}
+                  icon={<Copy size={18} aria-hidden="true" />}
+                  variant="secondary"
+                />
+              )}
             </Section>
-            <Section
-              title={t.training.onThisDay}
-              icon={<Dumbbell size={20} aria-hidden="true" />}
-              aside={
-                <Link href={tabHref("training")} className={TEXT_LINK}>
-                  {v.open}
-                </Link>
-              }
-            >
-              {sessions.length > 0 ? (
+          </ViewPanel>
+          <ViewPanel view="training">
+            {programSlot &&
+              !(programItems.length > 0 && programItems.every((x) => x.done)) && (
+                <ProgramDay
+                  program={programSlot.program}
+                  items={programItems}
+                  restLabel={programSlot.slot.label || t.programs.rest}
+                  late={programSlot.late}
+                  skipped={programSlot.skipped ?? false}
+                  day={day}
+                  isToday={day === today}
+                  action={startOrPlanAction}
+                  t={t.programs}
+                />
+              )}
+            {sessions.length > 0 ? (
+              <Section
+                title={t.training.onThisDay}
+                icon={<Dumbbell size={20} aria-hidden="true" />}
+                aside={String(sessions.length)}
+              >
                 <TrainingSummary
                   sessions={sessions}
                   burn={burnRange}
@@ -489,273 +637,160 @@ export default async function DayPage({ searchParams }: Props) {
                   t={t.training}
                   tx={t.exercises}
                 />
-              ) : (
-                <p className="text-muted">
-                  {programName ? fill(v.inProgram, { name: programName }) : v.noTraining}
-                </p>
-              )}
-            </Section>
-            <EnergySection
-              energy={energyView.energy}
-              missing={energyView.missing}
-              eaten={view.totals.nutrients.kcal}
-              withPlanned={view.withPlanned.nutrients.kcal}
-              dynamic={
-                dynamic && dayTargets.source !== "none" && dayTargets.dynamic
-                  ? { params: dayTargets.dynamic, ...dynamic }
-                  : null
-              }
-              correction={energyView.body.correction ?? 1}
-              calibration={calibration}
-              setCorrection={setEnergyCorrectionAction}
-              locale={locale}
-              t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
-            />
-          </div>
-        </div>
-      )}
-      {tab === "food" && (
-        <>
-          {day === today && reminderLines.length > 0 && (
-            <Section
-              title={p.reminders}
-              icon={<Bell size={20} aria-hidden="true" />}
-              aside={
-                <Link href="/pantry" className={TEXT_LINK}>
-                  {p.open}
-                </Link>
-              }
-            >
-              <ul className="flex flex-col gap-1">
-                {reminderLines.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
-            </Section>
-          )}
-          {/* The day's food in one card: the moments inside it (2026-10-02). */}
-          <Section
-            title={t.nav.food}
-            icon={<UtensilsCrossed size={20} aria-hidden="true" />}
-            aside={`${formatNumber(view.totals.nutrients.kcal, locale, 0)} kcal`}
-          >
-            <EntryList
-              day={view}
-              locale={locale}
-              trash={deleteLogEntryAction}
-              restore={restoreLogEntryAction}
-              refresh={refreshLogEntryAction}
-              statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
-              future={day > today}
-              timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
-              servingsAction={(id) => setEntryServingsAction.bind(null, id)}
-              timeZone={settings.timezone}
-              bounds={settings.preferences.bounds}
-              // The same quality block as the meal cards, from the entry's
-              // snapshot lines (ADR-0007) and the current tags and ratings.
-              quality={(e) => (
-                <MealQuality
-                  summary={qualitySummary(e.lines, e.servings)}
-                  rating={e.mealId ? (mealRatings[e.mealId] ?? null) : null}
-                  tags={mealTags(
-                    e.lines.flatMap((l) => (l.ingredientId ? [l.ingredientId] : [])),
-                    tagMap,
-                  ).map(({ name, icon }) => ({ name, icon }))}
+                {/* Done vs with the planned; the summary above has the total only. */}
+                {burn.done && <p className="text-meta text-muted">{burnText}</p>}
+                <SessionList
+                  sessions={sessions}
+                  measurements={measurements}
+                  showDay={false}
                   locale={locale}
-                  t={t}
+                  t={t.training}
+                  tx={t.exercises}
+                  trash={deleteSessionAction}
+                  restore={restoreSessionAction}
+                  labels={t.actions}
+                  startable={day === today}
+                  timeZone={settings.timezone}
                 />
-              )}
-              t={t}
+              </Section>
+            ) : (
+              !programSlot && <p className={`${CARD} text-muted`}>{v.noTraining}</p>
+            )}
+          </ViewPanel>
+          {/* The sheets: opened by the "+" and the header's chips, from any view. */}
+          {canAdd && (
+            <AddToDay
+              day={day}
+              locale={locale}
+              bounds={settings.preferences.bounds}
+              meals={meals.map((m) => ({
+                id: m.id,
+                name: m.name,
+                notes: m.notes,
+                category: m.category, // suggests the moment (ADR-0011)
+                values: pick(m.totals.nutrients), // per serving
+                uses: usage.meals[m.id]?.uses ?? 0,
+                lastUsed: usage.meals[m.id]?.lastUsed ?? null,
+              }))}
+              ingredients={ingredients.map((i) => ({
+                id: i.id,
+                name: i.name,
+                notes: i.description,
+                unit: i.unit,
+                values: pick(i), // per 100 g/ml
+                uses: usage.ingredients[i.id]?.uses ?? 0,
+                lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
+              }))}
+              logMealAction={logMealAction}
+              logIngredientAction={logIngredientAction}
+              logEstimateAction={logEstimateAction}
+              portions={batchList
+                .filter((b) => Number(b.portionsLeft) > 0)
+                .map((b) => ({
+                  id: b.id,
+                  name: b.label,
+                  notes: fill(p.portionsLeft, {
+                    n: formatNumber(b.portionsLeft, locale, 0),
+                  }),
+                  values: pick(b.perPortion.nutrients), // per portion
+                  uses: 0,
+                  lastUsed: null,
+                }))}
+              logPortionAction={logPortionAction}
+              // Only the dictionary parts the client component uses travel to
+              // the browser (smaller page, faster load).
+              t={{
+                day: t.day,
+                errors: t.errors,
+                meals: t.meals,
+                search: t.search,
+                macro: t.macro,
+                ingredients: t.ingredients,
+                nutrients: t.nutrients,
+                moments: t.moments,
+                actions: t.actions,
+              }}
             />
-            {canAdd && view.entries.length === 0 && (
-              <ActionButtonForm
-                action={copyPreviousDayAction.bind(null, day)}
-                label={t.day.copyYesterday}
-                icon={<Copy size={18} aria-hidden="true" />}
-                variant="secondary"
-              />
-            )}
-          </Section>
-        </>
-      )}
-      {tab === "training" && (
-        <>
-          {programSlot &&
-            !(programItems.length > 0 && programItems.every((x) => x.done)) && (
-              <ProgramDay
-                program={programSlot.program}
-                items={programItems}
-                restLabel={programSlot.slot.label || t.programs.rest}
-                late={programSlot.late}
-                skipped={programSlot.skipped ?? false}
-                day={day}
-                isToday={day === today}
-                action={startOrPlanAction}
-                t={t.programs}
-              />
-            )}
-          {sessions.length > 0 ? (
-            <Section
-              title={t.training.onThisDay}
-              icon={<Dumbbell size={20} aria-hidden="true" />}
-              aside={String(sessions.length)}
-            >
-              <TrainingSummary
-                sessions={sessions}
-                burn={burnRange}
-                locale={locale}
-                t={t.training}
-                tx={t.exercises}
-              />
-              {/* Done vs with the planned; the summary above has the total only. */}
-              {burn.done && <p className="text-meta text-muted">{burnText}</p>}
-              <SessionList
-                sessions={sessions}
-                measurements={measurements}
-                showDay={false}
-                locale={locale}
-                t={t.training}
-                tx={t.exercises}
-                trash={deleteSessionAction}
-                restore={restoreSessionAction}
-                labels={t.actions}
-                startable={day === today}
-                timeZone={settings.timezone}
-              />
-            </Section>
-          ) : (
-            !programSlot && <p className={`${CARD} text-muted`}>{v.noTraining}</p>
           )}
-        </>
-      )}
-      {/* The sheets: opened by the "+" and the header's chips, from any view. */}
-      {canAdd && (
-        <AddToDay
-          day={day}
-          locale={locale}
-          bounds={settings.preferences.bounds}
-          meals={meals.map((m) => ({
-            id: m.id,
-            name: m.name,
-            notes: m.notes,
-            category: m.category, // suggests the moment (ADR-0011)
-            values: pick(m.totals.nutrients), // per serving
-            uses: usage.meals[m.id]?.uses ?? 0,
-            lastUsed: usage.meals[m.id]?.lastUsed ?? null,
-          }))}
-          ingredients={ingredients.map((i) => ({
-            id: i.id,
-            name: i.name,
-            notes: i.description,
-            unit: i.unit,
-            values: pick(i), // per 100 g/ml
-            uses: usage.ingredients[i.id]?.uses ?? 0,
-            lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
-          }))}
-          logMealAction={logMealAction}
-          logIngredientAction={logIngredientAction}
-          logEstimateAction={logEstimateAction}
-          portions={batchList
-            .filter((b) => Number(b.portionsLeft) > 0)
-            .map((b) => ({
-              id: b.id,
-              name: b.label,
-              notes: fill(p.portionsLeft, {
-                n: formatNumber(b.portionsLeft, locale, 0),
-              }),
-              values: pick(b.perPortion.nutrients), // per portion
-              uses: 0,
-              lastUsed: null,
-            }))}
-          logPortionAction={logPortionAction}
-          // Only the dictionary parts the client component uses travel to
-          // the browser (smaller page, faster load).
-          t={{
-            day: t.day,
-            errors: t.errors,
-            meals: t.meals,
-            search: t.search,
-            macro: t.macro,
-            ingredients: t.ingredients,
-            nutrients: t.nutrients,
-            moments: t.moments,
-            actions: t.actions,
-          }}
-        />
-      )}
-      {canAdd && (
-        <AddTraining
-          day={day}
-          today={today}
-          startOrPlan={startOrPlanAction}
-          presets={presets}
-          exercises={exercises.map(({ id, name, kind }) => ({ id, name, kind }))}
-          past={recent
-            .filter((x) => x.status === "done" && x.exercises.length > 0)
-            .reverse()
-            .slice(0, 12)
-            .map((x) => ({
-              id: x.id,
-              label: x.label,
-              when: new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-GB", {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-                timeZone: "UTC",
-              }).format(new Date(`${x.day}T12:00:00Z`)),
-            }))}
-          estimate={createEstimateAction}
-          t={{
-            training: t.training,
-            exercises: t.exercises,
-            errors: t.errors,
-            actions: t.actions,
-            search: t.search,
-          }}
-        />
-      )}
-      <MovementSheet
-        action={setDayActivityAction.bind(null, day)}
-        activity={energyView.activity}
-        energy={energyView.energy}
-        t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
-      />
-      <SleepCard
-        day={day}
-        night={
-          night
-            ? {
-                hours: formatNumber(String(night.hours), locale, 1),
-                bed: timeIn(night.bedAt, settings.timezone),
-                wake: timeIn(night.wakeAt, settings.timezone),
-                quality: night.quality,
-              }
-            : null
-        }
-        action={setSleepAction}
-        clear={clearSleepAction}
-        t={{ sleep: t.sleep, errors: t.errors, actions: t.actions }}
-      />
-      {/* Design review S1: adding is one tap away, wherever you are on the page. */}
-      {/* A weigh-in from the "+" (2026-10-02); the trend stays in Progress. */}
-      <Sheet
-        id="day-weigh"
-        title={t.body.title}
-        icon={<Scale size={20} aria-hidden="true" />}
-        closeLabel={t.actions.close}
-      >
-        <MeasurementForm
-          action={addMeasurementAction}
-          today={day}
-          now={timeIn(new Date(), settings.timezone)}
-          count={measurements.length}
-          t={{ body: t.body, errors: t.errors }}
-        />
-        <Link href="/profiles?view=weight" className={`text-meta ${TEXT_LINK}`}>
-          {t.body.seeTrend}
-        </Link>
-      </Sheet>
-      <AddFab training late={canAdd ? null : `/?day=${day}&late=1${tabQuery}`} t={t} />
-    </div>
+          {canAdd && (
+            <AddTraining
+              day={day}
+              today={today}
+              startOrPlan={startOrPlanAction}
+              presets={presets}
+              exercises={exercises.map(({ id, name, kind }) => ({ id, name, kind }))}
+              past={recent
+                .filter((x) => x.status === "done" && x.exercises.length > 0)
+                .reverse()
+                .slice(0, 12)
+                .map((x) => ({
+                  id: x.id,
+                  label: x.label,
+                  when: new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-GB", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short",
+                    timeZone: "UTC",
+                  }).format(new Date(`${x.day}T12:00:00Z`)),
+                }))}
+              estimate={createEstimateAction}
+              t={{
+                training: t.training,
+                exercises: t.exercises,
+                errors: t.errors,
+                actions: t.actions,
+                search: t.search,
+              }}
+            />
+          )}
+          <MovementSheet
+            action={setDayActivityAction.bind(null, day)}
+            activity={energyView.activity}
+            energy={energyView.energy}
+            t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
+          />
+          <SleepCard
+            day={day}
+            night={
+              night
+                ? {
+                    hours: formatNumber(String(night.hours), locale, 1),
+                    bed: timeIn(night.bedAt, settings.timezone),
+                    wake: timeIn(night.wakeAt, settings.timezone),
+                    quality: night.quality,
+                  }
+                : null
+            }
+            action={setSleepAction}
+            clear={clearSleepAction}
+            t={{ sleep: t.sleep, errors: t.errors, actions: t.actions }}
+          />
+          {/* Design review S1: adding is one tap away, wherever you are on the page. */}
+          {/* A weigh-in from the "+" (2026-10-02); the trend stays in Progress. */}
+          <Sheet
+            id="day-weigh"
+            title={t.body.title}
+            icon={<Scale size={20} aria-hidden="true" />}
+            closeLabel={t.actions.close}
+          >
+            <MeasurementForm
+              action={addMeasurementAction}
+              today={day}
+              now={timeIn(new Date(), settings.timezone)}
+              count={measurements.length}
+              t={{ body: t.body, errors: t.errors }}
+            />
+            <Link href="/profiles?view=weight" className={`text-meta ${TEXT_LINK}`}>
+              {t.body.seeTrend}
+            </Link>
+          </Sheet>
+          <AddFab
+            training
+            late={canAdd ? null : tabHref(tab).replace("?", "?late=1&")}
+            t={t}
+          />
+        </div>
+      </LiveDay>
+    </ViewSwitch>
   );
 }

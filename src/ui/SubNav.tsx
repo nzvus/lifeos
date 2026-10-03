@@ -9,6 +9,13 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+/** The bar and its segments; ui/ViewSwitch draws the same. */
+export const SUBNAV_CLASS = "tile flex gap-1 rounded-control p-1";
+// The icon over the label, as in the tab bar: no label is cut on a phone, in
+// any theme's font (2026-10-02).
+export const segmentClass = (on: boolean) =>
+  `flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-control px-1 py-2 font-display text-meta font-semibold ${on ? "bg-sheet text-herb shadow-sm" : "text-muted hover:text-ink"}`;
+
 export function SubNav({
   label,
   current,
@@ -20,7 +27,7 @@ export function SubNav({
   items: { key: string; href: string; label: string; icon?: ReactNode }[];
 }) {
   return (
-    <nav aria-label={label} className="tile flex gap-1 rounded-control p-1">
+    <nav aria-label={label} className={SUBNAV_CLASS}>
       {items.map((it) => {
         const on = it.key === current;
         return (
@@ -28,9 +35,7 @@ export function SubNav({
             key={it.key}
             href={it.href}
             aria-current={on ? "page" : undefined}
-            // The icon over the label, as in the tab bar: no label is cut on
-            // a phone, in any theme's font (2026-10-02).
-            className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-control px-1 py-2 font-display text-meta font-semibold ${on ? "bg-sheet text-herb shadow-sm" : "text-muted hover:text-ink"}`}
+            className={segmentClass(on)}
           >
             {it.icon}
             <span className="truncate">{it.label}</span>

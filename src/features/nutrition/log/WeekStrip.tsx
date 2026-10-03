@@ -8,15 +8,15 @@
  * so the strip is just the seven days (S20: one row of controls). Charts over longer
  * ranges live on the Targets page (features/nutrition/trends).
  *
- * Server component: links and a form, nothing interactive in the browser.
+ * Server component; the links (ui/ViewAwareLink) keep the open view (ADR-0033).
  */
-import Link from "next/link";
 import { bandFor, bandState } from "@/core/nutrition/bands";
 import type { DaySummary } from "@/core/nutrition/repositories/history";
 import { TARGET_KIND } from "@/core/nutrition/targets";
 import type { Locale } from "@/core/shared/locales";
 import { fill as format, type Messages } from "@/i18n";
 import { STATE_FILL } from "@/ui/NutrientRow";
+import { ViewAwareLink } from "@/ui/ViewSwitch";
 
 type Props = {
   week: DaySummary[]; // Monday … Sunday
@@ -24,13 +24,11 @@ type Props = {
   today: string;
   locale: Locale;
   t: Pick<Messages["day"], "weekBalance">;
-  /** The open view as a query suffix ("&tab=food", or ""), kept across days (ADR-0033). */
-  tabQuery?: string;
 };
 
 const INTL: Record<Locale, string> = { it: "it-IT", en: "en-GB" };
 
-export function WeekStrip({ week, day, today, locale, t, tabQuery = "" }: Props) {
+export function WeekStrip({ week, day, today, locale, t }: Props) {
   const weekday = new Intl.DateTimeFormat(INTL[locale], {
     weekday: "short",
     timeZone: "UTC",
@@ -52,8 +50,8 @@ export function WeekStrip({ week, day, today, locale, t, tabQuery = "" }: Props)
             const date = new Date(`${d.day}T12:00:00Z`);
             return (
               <li key={d.day}>
-                <Link
-                  href={`/?day=${d.day}${tabQuery}`}
+                <ViewAwareLink
+                  href={`/?day=${d.day}`}
                   title={
                     delta === null
                       ? undefined
@@ -90,7 +88,7 @@ export function WeekStrip({ week, day, today, locale, t, tabQuery = "" }: Props)
                   <span className="text-meta leading-none tabular-nums text-muted">
                     {delta === null ? "\u00a0" : signed.format(delta)}
                   </span>
-                </Link>
+                </ViewAwareLink>
               </li>
             );
           })}

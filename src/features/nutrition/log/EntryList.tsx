@@ -11,15 +11,17 @@
  * way to apply later corrections, e.g. a price added after logging (core
  * refreshLogEntry) — and delete with Undo; then a "Details" disclosure
  * (native <details>) with what the entry contained and its time.
+ *
+ * The tick, the −/+ and the numbers they change are live (./LiveDay.tsx):
+ * they answer at once and the server follows. The page wraps the list in
+ * <LiveDay>.
  */
-import { Minus, Pencil, Plus, Tag } from "lucide-react";
-import { servingsText, stepServings } from "@/core/nutrition/servings";
-import { detailLines, stripValues } from "@/core/nutrition/display";
+import { Pencil, Tag } from "lucide-react";
+import { detailLines } from "@/core/nutrition/display";
 import { groupByMoment, type MomentBounds } from "@/core/nutrition/moments";
-import { entriesTotals } from "@/core/nutrition/totals";
 import type { DayView, LogEntryView } from "@/core/nutrition/repositories/log";
 import type { ReactNode } from "react";
-import { formatCents, formatNumber } from "@/core/shared/format";
+import { formatCents } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
@@ -27,11 +29,17 @@ import { FoodDetails } from "@/ui/FoodDetails";
 import { Collapsible } from "@/ui/Collapsible";
 import { ListItem } from "@/ui/ListItem";
 import { MOMENT_TEXT, MomentIcon } from "@/ui/MomentIcon";
-import { MacroStrip } from "@/ui/MacroStrip";
 import { TrashMenu } from "@/ui/TrashMenu";
 import { timeIn } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
-import { StatusToggle } from "./StatusToggle";
+import {
+  LiveEntryStrip,
+  LiveGroupKcal,
+  LiveGroupStrip,
+  LiveServings,
+  LiveStatusToggle,
+  LiveTimes,
+} from "./LiveDay";
 import { TimeEditor } from "./TimeEditor";
 import { Badge } from "@/ui/Badge";
 type Props = {
@@ -109,12 +117,17 @@ export function EntryList({
               {group.moment ? t.moments.names[group.moment] : t.moments.none}
             </span>
           }
-          aside={fill(t.moments.subtotal, {
-            v: formatNumber(group.eatenKcal, locale, 0),
-          })}
+          aside={
+            <LiveGroupKcal
+              ids={group.entries.map((e) => e.id)}
+              locale={locale}
+              text={t.moments.subtotal}
+            />
+          }
           summary={
-            <MacroStrip
-              values={stripValues(entriesTotals(group.entries).nutrients, locale)}
+            <LiveGroupStrip
+              ids={group.entries.map((e) => e.id)}
+              locale={locale}
               labels={labels}
             />
           }
@@ -126,12 +139,10 @@ export function EntryList({
                   key={e.id}
                   muted={e.status === "planned"}
                   leading={
-                    <StatusToggle
-                      eaten={e.status === "eaten"}
-                      action={statusAction(
-                        e.id,
-                        e.status === "eaten" ? "planned" : "eaten",
-                      )}
+                    <LiveStatusToggle
+                      id={e.id}
+                      toEaten={statusAction(e.id, "eaten")}
+                      toPlanned={statusAction(e.id, "planned")}
                       future={future}
                       labels={{
                         markEaten: t.day.markEaten,
@@ -149,13 +160,7 @@ export function EntryList({
                       )}
                       {e.estimated && <span aria-hidden="true">~</span>}
                       {e.label}
-                      {e.servings !== "1.00" && (
-                        <span className="pl-2 font-display text-muted">
-                          {fill(t.day.servingsTimes, {
-                            n: servingsText(Number(e.servings), locale),
-                          })}
-                        </span>
-                      )}
+                      <LiveTimes id={e.id} locale={locale} t={t.day} />
                       {e.estimated && (
                         <span className="ml-2 inline-flex align-middle">
                           <Badge>{t.day.estimated}</Badge>
@@ -202,59 +207,15 @@ export function EntryList({
                 >
                   <div className="flex items-center gap-3">
                     <div className="min-w-0 flex-1">
-                      <MacroStrip
-                        values={stripValues(e.totals.nutrients, locale)}
-                        labels={labels}
-                      />
+                      <LiveEntryStrip id={e.id} locale={locale} labels={labels} />
                     </div>
                     {!e.batchId && (
-                      // The multiplier, one tap at a time (core/nutrition/servings).
-                      <form
+                      <LiveServings
+                        id={e.id}
                         action={servingsAction(e.id)}
-                        className="relative z-2 flex shrink-0 items-center gap-1"
-                      >
-                        {([-1, 1] as const).map((dir) => {
-                          const next = stepServings(Number(e.servings), dir);
-                          const button = (
-                            <button
-                              key={dir}
-                              type="submit"
-                              name="servings"
-                              value={next ?? ""}
-                              disabled={next === null}
-                              aria-label={fill(
-                                dir === 1 ? t.day.servingsMore : t.day.servingsLess,
-                                {
-                                  n:
-                                    next === null
-                                      ? ""
-                                      : formatNumber(String(next), locale, 2),
-                                },
-                              )}
-                              className="tile inline-flex h-9 w-9 items-center justify-center rounded-control disabled:opacity-40"
-                            >
-                              {dir === 1 ? (
-                                <Plus size={16} aria-hidden="true" />
-                              ) : (
-                                <Minus size={16} aria-hidden="true" />
-                              )}
-                            </button>
-                          );
-                          return dir === 1
-                            ? [
-                                <span
-                                  key="n"
-                                  className="min-w-10 text-center font-display font-semibold tabular-nums"
-                                >
-                                  {fill(t.day.servingsTimes, {
-                                    n: servingsText(Number(e.servings), locale),
-                                  })}
-                                </span>,
-                                button,
-                              ]
-                            : button;
-                        })}
-                      </form>
+                        locale={locale}
+                        t={t.day}
+                      />
                     )}
                   </div>
                   {quality?.(e)}
