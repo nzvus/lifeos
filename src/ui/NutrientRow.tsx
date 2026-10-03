@@ -83,7 +83,7 @@ export function NutrientRow({
           />
           {withPlan !== undefined && withPlan > eaten && (
             <span
-              className={`absolute inset-y-0 left-0 rounded-badge opacity-30 ${STATE_FILL[state]}`}
+              className={`absolute inset-y-0 left-0 rounded-badge opacity-50 ${STATE_FILL[state]}`}
               style={{ width: x(withPlan) }}
             />
           )}

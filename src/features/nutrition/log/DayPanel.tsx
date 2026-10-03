@@ -71,8 +71,7 @@ export function DayPanel({
     return a.status === "none" ? undefined : a.ratio;
   };
   const plannedKcal = Number(withPlanned.nutrients.kcal) - Number(totals.nutrients.kcal);
-  const tone = (k: NutrientKey) => {
-    const a = assess(k);
+  const tone = (k: NutrientKey, a = assess(k)) => {
     return targetTone({
       kind: TARGET_KIND[k],
       status: a.status,
@@ -230,10 +229,23 @@ export function DayPanel({
                 a.status === "over"
                   ? { color: `var(${NUTRIENT_VAR[k]!})`, opacity: 1 }
                   : tone(k);
+              // The plan in the colour the ring takes if it is followed,
+              // a little lighter than what is eaten.
+              const p = assessTarget(
+                withPlanned.nutrients[k],
+                targets[k],
+                TARGET_KIND[k],
+              );
+              const planned =
+                p.status === "over"
+                  ? { color: `var(${NUTRIENT_VAR[k]!})`, opacity: 1 }
+                  : tone(k, p);
               return {
                 key: k,
                 ratio: a.status === "none" ? 0 : a.ratio,
                 plannedRatio: plannedRatio(k),
+                plannedColor: planned.color,
+                plannedOpacity: planned.opacity * 0.55,
                 color,
                 opacity,
                 label: `${t.nutrients[k]}: ${num(totals.nutrients[k], k)} ${NUTRIENT_UNIT[k]}`,
