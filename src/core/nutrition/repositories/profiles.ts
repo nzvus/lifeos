@@ -279,8 +279,19 @@ export async function getDayTargets(
   return { source: "none" };
 }
 
-/** Writes (or overwrites) a day's plan as a copy of `profile`. */
-async function writePlan(db: Db, owner: Owner, day: string, profile: DayProfile) {
+/**
+ * Writes a day's plan as a copy of `profile`: overwrites, or with `keep`
+ * leaves a plan already there alone. The ONE place that copies a profile, so
+ * every copy carries the dynamic parameters (2026-10-03: the first-food copy
+ * left them out and fixed dynamic days as "fixed, no targets").
+ */
+async function writePlan(
+  db: Db,
+  owner: Owner,
+  day: string,
+  profile: DayProfile,
+  keep = false,
+) {
   const values = {
     profileId: profile.id,
     profileName: profile.name,
@@ -291,10 +302,13 @@ async function writePlan(db: Db, owner: Owner, day: string, profile: DayProfile)
     proteinGPerKg: profile.proteinGPerKg,
     fatGPerKg: profile.fatGPerKg,
   };
-  await db
-    .insert(dayPlans)
-    .values({ userId: owner.id, day, ...values })
-    .onConflictDoUpdate({ target: [dayPlans.userId, dayPlans.day], set: values });
+  const insert = db.insert(dayPlans).values({ userId: owner.id, day, ...values });
+  await (keep
+    ? insert.onConflictDoNothing() // someone fixed it in between: keep theirs
+    : insert.onConflictDoUpdate({
+        target: [dayPlans.userId, dayPlans.day],
+        set: values,
+      }));
 }
 
 /**
@@ -353,14 +367,5 @@ export async function ensureDayPlan(db: Db, owner: Owner, day: string): Promise<
   if (current.source !== "default") return;
   const def = await getProfile(db, owner, current.profileId);
   if (!def) return;
-  await db
-    .insert(dayPlans)
-    .values({
-      userId: owner.id,
-      day,
-      profileId: def.id,
-      profileName: def.name,
-      ...targetsOf(def),
-    })
-    .onConflictDoNothing(); // someone fixed it in between: keep theirs
+  await writePlan(db, owner, day, def, true);
 }

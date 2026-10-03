@@ -216,6 +216,27 @@ describe("dynamic day types (ADR-0014)", () => {
       dynamic: { deficitKcal: -250, proteinGPerKg: "1.8", fatGPerKg: "0.9" },
     });
   });
+
+  it("stay dynamic when the first food fixes a day that follows them (2026-10-03)", async () => {
+    // The bug: the day was fixed as "fixed, no targets" — no energy bar, empty rings.
+    const r = await createProfile(db, me, {
+      ...profile("Rec", null),
+      mode: "dynamic",
+      deficitKcal: 200,
+      proteinGPerKg: "2.2",
+      fatGPerKg: "0.8",
+    });
+    if (!r.ok) throw new Error("setup failed");
+    await setDefaultProfile(db, me, r.value.id);
+    const ing = await createIngredient(db, me, ingredientFixture());
+    if (!ing.ok) throw new Error("setup failed");
+    await logIngredient(db, me, { day: DAY, ingredientId: ing.value.id, quantity: "10" });
+    expect(await getDayTargets(db, me, DAY)).toMatchObject({
+      source: "fixed",
+      name: "Rec",
+      dynamic: { deficitKcal: 200, proteinGPerKg: "2.2", fatGPerKg: "0.8" },
+    });
+  });
 });
 
 describe("the goal line's deficit (2026-10-02)", () => {
