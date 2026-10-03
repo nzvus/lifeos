@@ -4,6 +4,7 @@ import { getDb } from "@/app/_server/runtime";
 import { todayIn } from "@/core/shared/dates";
 import { listExercises } from "@/core/training/repositories/exercises";
 import { listRoutines } from "@/core/training/repositories/routines";
+import { lookOf } from "@/core/training/calendar";
 import { ProgramEditor } from "@/features/training/programs/ProgramEditor";
 import { PageHeader } from "@/ui/PageHeader";
 import { createProgramAction } from "../actions";
@@ -23,8 +24,16 @@ export default async function NewProgramPage() {
       <ProgramEditor
         from="/training/programs"
         action={createProgramAction}
-        routines={routines.map(({ id, name }) => ({ id, name }))}
-        exercises={exercises.map(({ id, name }) => ({ id, name }))}
+        routines={routines.map((r) => ({
+          id: r.id,
+          name: r.name,
+          look: lookOf(r.items),
+        }))}
+        exercises={exercises.map((e) => ({
+          id: e.id,
+          name: e.name,
+          look: lookOf([{ ...e, sets: 1 }]),
+        }))}
         initial={{
           name: "",
           notes: "",
@@ -32,8 +41,11 @@ export default async function NewProgramPage() {
           active: true,
           // A start: the routines in their order, then a rest day.
           slots: [
-            ...routines.map((r) => ({ routineId: r.id, exerciseId: null, label: "" })),
-            { routineId: null, exerciseId: null, label: t.programs.rest },
+            ...routines.map((r) => ({
+              label: "",
+              items: [{ routineId: r.id, exerciseId: null }],
+            })),
+            { label: t.programs.rest, items: [] },
           ],
         }}
         t={{ programs: t.programs, errors: t.errors, actions: t.actions }}

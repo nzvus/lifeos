@@ -14,6 +14,11 @@
  * From today on, the slots still to do are laid on the coming days, one per
  * day; today counts only if nothing was done yet.
  *
+ * ADR-0035: a slot is a LIST of items (routines and/or exercises); empty is
+ * rest. A session counts for a slot when it matches any of its items.
+ * A skipped day (program_skips) passes the training slot due without doing
+ * it: the cycle moves on, nothing is late.
+ *
  * ADR-0029: overrides change single coming days — "this slot" or rest.
  * They take their days first; the cycle fills the other days in order,
  * skipping a slot an override has placed later in the same round, so it is
@@ -21,11 +26,12 @@
  */
 import { addDays } from "../shared/dates";
 
-/** A routine, or one exercise (a run), or neither: a rest day. */
+/** One thing to do on a program day: a routine, or one exercise (a run). */
+export type SlotItem = { routineId: string | null; exerciseId: string | null };
+/** A program day: its items in order; none is a rest day (named by `label`). */
 export type Slot = {
   position: number;
-  routineId: string | null;
-  exerciseId?: string | null;
+  items: readonly SlotItem[];
   label: string;
 };
 export type DoneSession = {
@@ -35,19 +41,24 @@ export type DoneSession = {
   exerciseIds?: readonly string[];
 };
 
-export const isRest = (s: Slot) => !s.routineId && !s.exerciseId;
-const matches = (slot: Slot, s: DoneSession) =>
-  slot.routineId
-    ? s.routineId === slot.routineId
-    : slot.exerciseId
-      ? (s.exerciseIds ?? []).includes(slot.exerciseId)
+export const isRest = (s: Slot) => s.items.length === 0;
+/** Does a session count for this item? */
+export const itemMatches = (it: SlotItem, s: DoneSession) =>
+  it.routineId
+    ? s.routineId === it.routineId
+    : it.exerciseId
+      ? (s.exerciseIds ?? []).includes(it.exerciseId)
       : false;
+const matches = (slot: Slot, s: DoneSession) =>
+  slot.items.some((it) => itemMatches(it, s));
 export type PlanDay = {
   day: string;
   /** The slot due; rest when routineId is null. */
   slot: Slot;
   /** The cycle slipped: this slot was due earlier and was not done. */
   late: boolean;
+  /** ADR-0035: skipped on purpose — shown, not to do. */
+  skipped?: boolean;
 };
 
 export function programPlan(input: {
@@ -60,7 +71,10 @@ export function programPlan(input: {
   days: number;
   /** ADR-0029: coming days changed by hand (null = rest). */
   overrides?: readonly { day: string; position: number | null }[];
+  /** ADR-0035: days skipped on purpose. */
+  skips?: readonly string[];
 }): { plan: PlanDay[]; doneToday: boolean } {
+  const skips = new Set(input.skips ?? []);
   const slots = [...input.slots].sort((a, b) => a.position - b.position);
   const n = slots.length;
   if (n === 0) return { plan: [], doneToday: false };
@@ -97,8 +111,16 @@ export function programPlan(input: {
     }
   };
 
-  for (let d = input.startDay; d < input.today; d = addDays(d, 1))
-    apply(d, byDay.get(d) ?? []);
+  for (let d = input.startDay; d < input.today; d = addDays(d, 1)) {
+    const sessions = byDay.get(d) ?? [];
+    // A skipped day passes its training slot; it does not also take a rest.
+    if (skips.has(d) && !isRest(slots[p % n]!)) {
+      advance(addDays(d, 1));
+      if (sessions.length) apply(d, sessions);
+      continue;
+    }
+    apply(d, sessions);
+  }
   const todaySessions = byDay.get(input.today) ?? [];
   const doneToday = todaySessions.length > 0;
   if (doneToday) apply(input.today, todaySessions);
@@ -120,9 +142,14 @@ export function programPlan(input: {
     .sort((a, b) => (a.day < b.day ? -1 : 1))
     .map((o) => ({ ...o, taken: false }));
   const overrideOn = new Map(placed.map((o) => [o.day, o]));
-  const REST: Slot = { position: -1, routineId: null, label: "" };
+  const REST: Slot = { position: -1, items: [], label: "" };
 
   for (; d <= last; d = addDays(d, 1)) {
+    if (skips.has(d) && !isRest(slots[p % n]!)) {
+      plan.push({ day: d, slot: slots[p % n]!, late: false, skipped: true });
+      next();
+      continue;
+    }
     const o = overrideOn.get(d);
     if (o) {
       if (o.position === null) {

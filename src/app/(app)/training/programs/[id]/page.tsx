@@ -5,6 +5,7 @@ import { getDb } from "@/app/_server/runtime";
 import { getProgram } from "@/core/training/repositories/programs";
 import { listExercises } from "@/core/training/repositories/exercises";
 import { listRoutines } from "@/core/training/repositories/routines";
+import { lookOf } from "@/core/training/calendar";
 import { ProgramEditor } from "@/features/training/programs/ProgramEditor";
 import { PageHeader } from "@/ui/PageHeader";
 import { updateProgramAction } from "../actions";
@@ -31,17 +32,27 @@ export default async function ProgramPage({ params }: Props) {
         id={program.id}
         from="/training/programs"
         action={updateProgramAction.bind(null, program.id)}
-        routines={routines.map(({ id: rid, name }) => ({ id: rid, name }))}
-        exercises={exercises.map(({ id: xid, name }) => ({ id: xid, name }))}
+        routines={routines.map((r) => ({
+          id: r.id,
+          name: r.name,
+          look: lookOf(r.items),
+        }))}
+        exercises={exercises.map((e) => ({
+          id: e.id,
+          name: e.name,
+          look: lookOf([{ ...e, sets: 1 }]),
+        }))}
         initial={{
           name: program.name,
           notes: program.notes,
           startDay: program.startDay,
           active: program.active,
           slots: program.slots.map((s) => ({
-            routineId: s.routineId,
-            exerciseId: s.exerciseId ?? null,
             label: s.label,
+            items: s.items.map(({ routineId, exerciseId }) => ({
+              routineId,
+              exerciseId,
+            })),
           })),
         }}
         t={{ programs: t.programs, errors: t.errors, actions: t.actions }}

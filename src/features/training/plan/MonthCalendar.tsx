@@ -3,7 +3,7 @@
  * (ADR-0035): a grid of weeks, each day with its training as coloured
  * icons (filled = done, outlined = planned or from the program, a moon =
  * rest); below it the same days as an agenda, with names. Every day opens
- * its page on the Training view. Server component: links only.
+ * its sheet (PlanDaySheet). Server component: links only.
  */
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -11,7 +11,7 @@ import type { Look } from "@/core/training/calendar";
 import type { Messages } from "@/i18n";
 import { Badge } from "@/ui/Badge";
 import { buttonClass, TEXT_LINK } from "@/ui/button";
-import { PlanChip, type PlanState } from "./PlanChip";
+import { PlanChip, type PlanState } from "@/ui/PlanChip";
 
 export type PlanEntry = {
   key: string;
@@ -33,7 +33,8 @@ export type PlanDayView = {
 };
 
 const SAMPLE: Look = { region: "chest", pattern: "horizontal_press", cardio: false };
-const href = (day: string) => `/?day=${day}&tab=training`;
+/** A day opens the Plan's day sheet (PlanDaySheet), which leads to the day. */
+const href = (day: string) => `#plan-day:${day}`;
 
 export function MonthCalendar({
   title,
@@ -101,7 +102,7 @@ export function MonthCalendar({
           </span>
         ))}
         {weeks.flat().map((d) => (
-          <Link
+          <a
             key={d.day}
             href={href(d.day)}
             aria-label={[d.label, ...d.entries.map((e) => e.name)].join(", ")}
@@ -119,7 +120,7 @@ export function MonthCalendar({
                 <PlanChip key={e.key} look={e.look} state={e.state} size={14} />
               ))}
             </span>
-          </Link>
+          </a>
         ))}
       </div>
 
@@ -131,7 +132,7 @@ export function MonthCalendar({
           <ul className="flex flex-col">
             {agenda.map((d) => (
               <li key={d.day}>
-                <Link
+                <a
                   href={href(d.day)}
                   className={`flex items-start gap-3 rounded-control px-2 py-2 hover:bg-paper ${
                     d.isToday ? "bg-paper" : ""
@@ -157,7 +158,7 @@ export function MonthCalendar({
                       </span>
                     ))}
                   </span>
-                </Link>
+                </a>
               </li>
             ))}
           </ul>

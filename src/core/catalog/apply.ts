@@ -20,6 +20,7 @@ import {
   meals,
   programs,
   programSlotExercises,
+  programSlotItems,
   programSlots,
   routineItems,
   routines,
@@ -154,6 +155,15 @@ export async function applyPack(
           await tx
             .insert(programSlotExercises)
             .values({ userId: owner.id, slotId: slot!.id, exerciseId: s.exerciseId });
+        // ADR-0035: the day's item list (one item from a pack).
+        if (s.routineId || s.exerciseId)
+          await tx.insert(programSlotItems).values({
+            userId: owner.id,
+            slotId: slot!.id,
+            position: 0,
+            routineId: s.routineId ?? null,
+            exerciseId: s.routineId ? null : (s.exerciseId ?? null),
+          });
       }
       programNames.add(nameKey(p.name));
       report.added.programs++;

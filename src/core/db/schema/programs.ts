@@ -5,8 +5,10 @@
  * sessions actually done — never stored — so skipping a day just moves
  * the cycle forward, like stock in the pantry (ADR-0017).
  *
- *   programs ──< program_slots ──> routines (null = rest)
- *                       └── program_slot_exercises ──> exercises (one, instead)
+ *   programs ──< program_slots ──< program_slot_items ──> routine | exercise
+ *            └─< program_overrides, program_skips (single coming days)
+ * (ADR-0035: a day is a list; program_slots.routine_id and
+ * program_slot_exercises keep the first item until they are dropped.)
  */
 import { sql } from "drizzle-orm";
 import {
@@ -128,5 +130,57 @@ export const programOverrides = pgTable(
       foreignColumns: [programs.id, programs.userId],
     }).onDelete("cascade"),
     check("program_overrides_position_ck", sql`${t.slotPosition} >= 0`),
+  ],
+);
+
+/**
+ * ADR-0035: a program day is a LIST — routines and/or exercises in order;
+ * none means rest. Expand and contract: program_slots.routine_id and
+ * program_slot_exercises still hold the first item, so code that reads
+ * them keeps working; they go in a later release.
+ */
+export const programSlotItems = pgTable(
+  "program_slot_items",
+  {
+    id: idColumn(),
+    userId: uuid("user_id").notNull(),
+    slotId: uuid("slot_id")
+      .notNull()
+      .references(() => programSlots.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    routineId: uuid("routine_id").references(() => routines.id, { onDelete: "cascade" }),
+    exerciseId: uuid("exercise_id").references(() => exercises.id, {
+      onDelete: "cascade",
+    }),
+  },
+  (t) => [
+    unique("program_slot_items_position_uq").on(t.slotId, t.position),
+    check(
+      "program_slot_items_one_ck",
+      sql`(${t.routineId} is null) <> (${t.exerciseId} is null)`,
+    ),
+    index("program_slot_items_slot_idx").on(t.slotId),
+  ],
+);
+
+/**
+ * ADR-0035: a day of the active program skipped on purpose — the slot due
+ * that day counts as passed and the cycle moves on, nothing is done.
+ */
+export const programSkips = pgTable(
+  "program_skips",
+  {
+    userId: ownerColumn(),
+    programId: uuid("program_id").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    createdAt: tstz("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.programId, t.day] }),
+    foreignKey({
+      name: "program_skips_program_fk",
+      columns: [t.programId, t.userId],
+      foreignColumns: [programs.id, programs.userId],
+    }).onDelete("cascade"),
   ],
 );

@@ -2,15 +2,23 @@
 import { describe, expect, it } from "vitest";
 import { programPlan, type Slot } from "./program";
 
+/** A day with one routine (null: rest), as most tests need. */
+const slot = (position: number, routineId: string | null, label = ""): Slot => ({
+  position,
+  items: routineId ? [{ routineId, exerciseId: null }] : [],
+  label,
+});
+const first = (s: Slot) => s.items[0]?.routineId ?? s.items[0]?.exerciseId ?? null;
 const slots: Slot[] = [
-  { position: 0, routineId: "push", label: "" },
-  { position: 1, routineId: "pull", label: "" },
-  { position: 2, routineId: null, label: "Rest" },
-  { position: 3, routineId: "legs", label: "" },
+  slot(0, "push"),
+  slot(1, "pull"),
+  slot(2, null, "Rest"),
+  slot(3, "legs"),
 ];
 const names = (r: ReturnType<typeof programPlan>) =>
   r.plan.map(
-    (d) => `${d.day.slice(8)} ${d.slot.routineId ?? "rest"}${d.late ? "!" : ""}`,
+    (d) =>
+      `${d.day.slice(8)} ${first(d.slot) ?? "rest"}${d.late ? "!" : ""}${d.skipped ? " skipped" : ""}`,
   );
 
 describe("programPlan", () => {
@@ -121,8 +129,8 @@ describe("programPlan", () => {
 
   it("an exercise slot counts any session with that exercise", () => {
     const run: Slot[] = [
-      { position: 0, routineId: "push", label: "" },
-      { position: 1, routineId: null, exerciseId: "run", label: "" },
+      slot(0, "push"),
+      { position: 1, items: [{ routineId: null, exerciseId: "run" }], label: "" },
     ];
     const r = programPlan({
       slots: run,
@@ -134,10 +142,7 @@ describe("programPlan", () => {
       ],
       days: 2,
     });
-    expect(r.plan.map((d) => d.slot.routineId ?? d.slot.exerciseId)).toEqual([
-      "push",
-      "run",
-    ]);
+    expect(r.plan.map((d) => first(d.slot))).toEqual(["push", "run"]);
   });
 });
 
@@ -223,5 +228,59 @@ describe("programPlan with overrides (ADR-0029)", () => {
     });
     expect(names(r)[0]).toBe("03 rest");
     expect(names(r)[1]).toBe("04 legs");
+  });
+
+  it("ADR-0035: a day with several items counts when any of them is done", () => {
+    const both: Slot[] = [
+      {
+        position: 0,
+        items: [
+          { routineId: "push", exerciseId: null },
+          { routineId: null, exerciseId: "run" },
+        ],
+        label: "",
+      },
+      slot(1, "legs"),
+    ];
+    const r = programPlan({
+      slots: both,
+      startDay: "2026-10-01",
+      today: "2026-10-02",
+      done: [{ day: "2026-10-01", routineId: null, exerciseIds: ["run"] }],
+      days: 1,
+    });
+    expect(names(r)).toEqual(["02 legs"]);
+  });
+
+  it("ADR-0035: a skipped day passes the slot due, and nothing is late", () => {
+    // Coming: 03 is skipped — pull passes, rest and legs follow.
+    const coming = programPlan({
+      slots,
+      startDay: "2026-10-01",
+      today: "2026-10-02",
+      done: [{ day: "2026-10-01", routineId: "push" }],
+      days: 4,
+      skips: ["2026-10-03"],
+    });
+    expect(names(coming)).toEqual(["02 pull", "03 rest", "04 legs", "05 push"]);
+    const today = programPlan({
+      slots,
+      startDay: "2026-10-01",
+      today: "2026-10-02",
+      done: [{ day: "2026-10-01", routineId: "push" }],
+      days: 3,
+      skips: ["2026-10-02"],
+    });
+    expect(names(today)).toEqual(["02 pull skipped", "03 rest", "04 legs"]);
+    // Past: pull was skipped on 02, so on 04 nothing is late.
+    const past = programPlan({
+      slots,
+      startDay: "2026-10-01",
+      today: "2026-10-04",
+      done: [{ day: "2026-10-01", routineId: "push" }],
+      days: 1,
+      skips: ["2026-10-02"],
+    });
+    expect(names(past)).toEqual(["04 legs"]);
   });
 });

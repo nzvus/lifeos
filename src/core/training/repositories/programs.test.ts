@@ -10,8 +10,10 @@ import {
   deleteProgram,
   getActivePlan,
   listPrograms,
+  programOverrideDays,
   programSlotOn,
   resetProgramDay,
+  skipProgramDay,
   setProgramDay,
   swapProgramDays,
   updateProgram,
@@ -66,9 +68,8 @@ const program = (slots: { routineId: string | null; label?: string }[], v = {}) 
   startDay: "2026-10-01",
   active: true,
   slots: slots.map((s) => ({
-    routineId: s.routineId,
-    exerciseId: null,
     label: s.label ?? "",
+    items: s.routineId ? [{ routineId: s.routineId, exerciseId: null }] : [],
   })),
   ...v,
 });
@@ -97,7 +98,7 @@ describe("programs", () => {
     ]);
     expect(await createProgram(db, me, program([push, theirs]))).toEqual({
       ok: false,
-      errors: { "slots.1.routineId": "not_found" },
+      errors: { "slots.1.items.0": "not_found" },
     });
     expect(await listPrograms(db, other)).toEqual([]);
     expect(await updateProgram(db, other, a.value.id, program([theirs]))).toEqual({
@@ -135,13 +136,15 @@ describe("programs", () => {
     );
     const plan = await getActivePlan(db, me, "2026-10-03", 3);
     // 2 Oct: pull missed → still due on the 3rd, late.
-    expect(plan?.plan.map((d) => [d.day, d.slot.routineId, d.late])).toEqual([
+    expect(
+      plan?.plan.map((d) => [d.day, d.slot.items[0]?.routineId ?? null, d.late]),
+    ).toEqual([
       ["2026-10-03", pull.routineId, true],
       ["2026-10-04", null, false],
       ["2026-10-05", push.routineId, false],
     ]);
     expect(
-      (await programSlotOn(db, me, "2026-10-03", "2026-10-05"))?.slot.routineId,
+      (await programSlotOn(db, me, "2026-10-03", "2026-10-05"))?.slot.items[0]?.routineId,
     ).toBe(push.routineId);
     expect(await programSlotOn(db, me, "2026-10-03", "2026-10-01")).toBeNull();
     expect(await getActivePlan(db, other, "2026-10-03")).toBeNull();
@@ -153,28 +156,62 @@ describe("programs", () => {
     expect((await listPrograms(db, me)).length).toBe(1);
   });
 
-  it("a slot can hold one exercise; another user's exercise is refused", async () => {
+  it("ADR-0035: a day holds a list (routine and exercise); another user's exercise is refused", async () => {
     const push = await routine(me, "Push");
     const theirs = await routine(other, "Theirs");
     const p = await createProgram(db, me, {
       ...program([push]),
       slots: [
-        { routineId: push.routineId, exerciseId: null, label: "" },
-        { routineId: null, exerciseId: push.exerciseId, label: "" },
+        {
+          label: "",
+          items: [
+            { routineId: push.routineId, exerciseId: null },
+            { routineId: null, exerciseId: push.exerciseId },
+          ],
+        },
+        { label: "Riposo", items: [] },
       ],
     });
     if (!p.ok) throw new Error("setup");
     const [prog] = await listPrograms(db, me);
-    expect(prog!.slots.map((s) => [s.name, s.exerciseId])).toEqual([
-      ["Push", null],
-      ["Push lift", push.exerciseId],
+    expect(prog!.slots.map((s) => [s.name, s.items.length])).toEqual([
+      ["Push + Push lift", 2],
+      ["Riposo", 0],
     ]);
     expect(
       await createProgram(db, me, {
         ...program([]),
-        slots: [{ routineId: null, exerciseId: theirs.exerciseId, label: "" }],
+        slots: [
+          { label: "", items: [{ routineId: null, exerciseId: theirs.exerciseId }] },
+        ],
       }),
-    ).toEqual({ ok: false, errors: { "slots.0.exerciseId": "not_found" } });
+    ).toEqual({ ok: false, errors: { "slots.0.items.0": "not_found" } });
+  });
+
+  it("ADR-0035: skipping a day passes its slot; a change of the day replaces the skip", async () => {
+    const push = await routine(me, "Push");
+    const pull = await routine(me, "Pull");
+    const p = await createProgram(db, me, program([push, pull]));
+    if (!p.ok) throw new Error("setup");
+    const names = async () =>
+      (await getActivePlan(db, me, "2026-10-01", 3))!.plan.map((d) =>
+        d.skipped
+          ? "skip"
+          : d.slot.items[0]?.routineId === push.routineId
+            ? "push"
+            : "pull",
+      );
+    expect(await skipProgramDay(db, me, "2026-10-01", "2026-09-30")).toEqual({
+      ok: false,
+      errors: { day: "past_day" },
+    });
+    await skipProgramDay(db, me, "2026-10-01", "2026-10-01");
+    expect(await names()).toEqual(["skip", "pull", "push"]);
+    expect([...(await programOverrideDays(db, me, p.value.id, "2026-10-01"))]).toEqual([
+      "2026-10-01",
+    ]);
+    await resetProgramDay(db, me, "2026-10-01");
+    expect(await names()).toEqual(["push", "pull", "push"]);
   });
 });
 

@@ -5,8 +5,9 @@
  * what happened; the forms come when asked. Centred, on a dark veil (the
  * developer's choice over a bottom sheet, 2026-10-02).
  *
- * Opened by a link to `#<id>` (the day page's "+", a chip), on load and on
- * every hash change; closing (✕, Escape, a tap outside) drops the hash so
+ * Opened by a link to `#<id>` (the day page's "+", a chip), or `#<id>:<value>`
+ * for one sheet shared by many items (the Plan's days; the value is the
+ * caller's to read), on load and on every hash change; closing (✕, Escape, a tap outside) drops the hash so
  * the same link opens it again. A real modal <dialog>: opaque, focus kept
  * inside. Children stay mounted while closed, so a half-filled form
  * survives closing it. Rendered into <body> (a portal): inside a closed
@@ -43,7 +44,8 @@ export function Sheet({
     const check = () => {
       const d = dialog.current;
       if (!d) return;
-      if (window.location.hash === `#${id}`) {
+      const h = window.location.hash;
+      if (h === `#${id}` || h.startsWith(`#${id}:`)) {
         if (!d.open) d.showModal();
       } else if (d.open) d.close();
     };
@@ -60,7 +62,8 @@ export function Sheet({
       aria-labelledby={`${id}-title`}
       // Closing in any way drops the hash, so the same link opens it again.
       onClose={() => {
-        if (window.location.hash === `#${id}`)
+        const h = window.location.hash;
+        if (h === `#${id}` || h.startsWith(`#${id}:`))
           history.replaceState(
             null,
             "",
