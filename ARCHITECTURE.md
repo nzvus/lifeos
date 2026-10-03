@@ -6,18 +6,14 @@
 
 ## System overview
 
-A single Next.js 16 (App Router) application in TypeScript, deployed as one
-unit to Vercel (ADR-0004). Routes under `src/app/` are thin: they resolve the
-session, call `core/`, and render feature components. All domain and data
-logic lives in `core/`, which imports no framework. Data is Postgres on Neon
-through Drizzle (ADR-0003); identity is Better Auth in the same database
-(ADR-0006). Modules: nutrition (ingredients, meals, daily log with snapshots,
-day types and targets, quality, trends), training (exercises with guides,
-routines, programs, sessions incl. estimates and gym mode, progress), body
-(weigh-ins with context, sleep, the day's movement) and energy; pantry
-(products, purchases, derived stock, batches, reminders); an assistant that
-acts through core tools (ADR-0018); a trash for everything deletable; export;
-packs that add only what is missing — the starter at sign-up, others from a file (ADR-0034).
+One Next.js 16 (App Router) app in TypeScript, deployed as one unit to Vercel (ADR-0004).
+Routes in `src/app/` are thin: session, `core/`, feature components. Domain and data logic
+live in `core/`, which imports no framework. Postgres on Neon through Drizzle (ADR-0003);
+Better Auth in the same database (ADR-0006). Modules: nutrition (ingredients, meals, log
+with snapshots, day types and targets, quality, trends), training (exercises with guides,
+routines, programs, sessions, gym mode, progress), body (weigh-ins, sleep, movement) and
+energy; pantry (products, purchases, derived stock, batches, reminders); an assistant over
+core tools (ADR-0018); trash; export; packs that add only what is missing (ADR-0034).
 
 ## Component map
 
@@ -81,9 +77,8 @@ app  →  features  →  core
   Every action: `requireContext()` → core validation → repository → revalidate.
 - `core/` never reads `process.env` or request state; `app/_server/` passes in
   what it needs (factories `createDb`, `createAuth`; an `Owner` per call).
-- `ui/` is presentation only: translated strings in, no domain types.
+- `ui/` is presentation only: translated strings in, no domain types; rule of three.
 - CLI scripts get an `Owner` by email (`core/identity/local-admin.ts`), never the web app.
-  Promotion into `ui/` follows the rule of three.
 
 ## Persistence & durability (ADR-0003, ADR-0007)
 
@@ -92,10 +87,9 @@ the PR preview applies it to its own Neon branch (`scripts/vercel-build.mjs`) �
 `migrate.yml` on the PR branch (backup, then migrate) → the CI gate finds that run →
 merge. No `drizzle-kit push`. New tables, not columns on old ones: safe in any order.
 
-Backups: `backup.yml` daily → `scripts/backup.sh` (pg_dump -Fc, verified,
-encrypted with age) → workflow artifact, 30 days. Restore:
-`scripts/restore-drill.sh` into an empty database only. Export: `GET
-/api/export` (versioned JSON, live records only, no secrets).
+Backups: `backup.yml` daily → `scripts/backup.sh` (pg_dump -Fc, verified, encrypted with
+age) → workflow artifact, 30 days. Restore: `scripts/restore-drill.sh` into an empty
+database only. Export: `GET /api/export` (versioned JSON, live records, no secrets).
 
 ## Delivery (ADR-0004)
 
@@ -111,23 +105,23 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
 - **Config/secrets:** `app/_server/env.ts` (`.env.example`); Vercel env, GitHub secrets
   for backup/migrate, the age key only on the developer's machine.
 - **Auth:** Better Auth, email+password, DB sessions (30 days, 5-min cookie cache), rate
-  limits; sign-up only with `ALLOW_SIGNUP=true`; `requireContext` per page/action + `Owner`.
+  limits; sign-up with `ALLOW_SIGNUP=true`, by one-use invitation if `SIGNUP_INVITES=true`
+  (ADR-0034); `requireContext` per page/action + `Owner`.
 - **Targets:** per day (ADR-0008) fixed / default profile / none; auto maxima; bands (ADR-0023).
-  A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done + planned;
-  no double counts, ADR-0021; × the accepted calibration, ADR-0020/0026; movement from
-  steps > walk > level, ADR-0030). Weigh-ins carry a reliability that weights the trend
-  and the calibration (ADR-0027); sleep feeds day quality and trends, not energy (ADR-0031).
-- **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment, servings −/+;
-  totals = eaten, every panel also shows the day with the plan. The tick and −/+ are
-  optimistic (`log/LiveDay`, useOptimistic + core totals): numbers redraw at once.
+  A day's copy of its type is made only by `writePlan` (profiles.ts), with a dynamic type's
+  parameters. A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done +
+  planned; no double counts, ADR-0021; × the accepted calibration, ADR-0020/0026; steps at
+  one cost per step, ADR-0032). Weigh-ins carry a reliability (ADR-0027); sleep feeds day
+  quality and trends, not energy (ADR-0031).
+- **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment, servings −/+; totals =
+  eaten, every panel also shows the day with the plan; tick and −/+ optimistic (`log/LiveDay`).
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (pinned ↺ / Cancel /
   Save), drafts in the browser, `?from=` for back and after-save, toasts with
   Undo. Rows open on tap; delete is a bin that asks first (ui/DeleteButton), "⋯"
   only for other actions. Delete = trash (`deleted_at`, `live()`); `/settings/trash`
   restores or deletes for good; `backup.yml`'s `purge-trash` job empties it after 30 days.
-- **Short tasks in sheets:** add food / training / a night / movement / a weigh-in,
-  a quick ingredient, sorting — ui/Sheet, opened by a `#id` link (the day's "+",
-  chips); long forms stay pages. Settings save themselves (ui/useAutoSave).
+- **Short tasks in sheets:** adding food, training, a night, movement, a weigh-in, sorting —
+  ui/Sheet via a `#id` link; long forms stay pages. Settings save themselves (ui/useAutoSave).
 - **Assistant (ADR-0018):** the model runs on the server with the user's key
   (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
   writes come back with Undo, deletes/imports wait for a tap; files are read on
@@ -140,17 +134,17 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   as fallback, static files cache-first; no user data cached; dark splash.
 - **Time:** `date` strings; "today" from `user_settings.timezone`, never the server's clock.
   **Search:** `core/shared/search.ts` (accent-insensitive, every word, match then 60-day use).
-- **Speed:** one parallel round of queries per page; Today's views all rendered and
-  switched in the browser (`ui/ViewSwitch`, URL via replaceState); router cache 30 s.
 - **Responsive UI:** tabs by moment (ADR-0035), views as URLs (ADR-0033) — Today (summary |
   food | training, under a fixed day header; gym mode starts here) · Plan (the month: sessions
   and the program's days) · Training, a library (routines | exercises | programs) · Food (meals |
   ingredients | pantry) · Progress (trends | weight | training); the Assistant in the header; a bottom
-  bar on phones, header on md+, the day's summary in two columns on lg+. `sm:/md:/lg:` obey `data-layout` (ADR-0010); inside cards,
-  container queries; every grid has a base column (lint) — checked at 360 px, text 120 %.
+  bar on phones, header on md+, the day's summary in two columns on lg+. `sm:/md:/lg:` obey
+  `data-layout` (ADR-0010); container queries in cards; checked at 360 px, text 120 %.
 - **Visual language:** colour = state (short / in the zone / over: `bandState`,
-  ui/NutrientRow); nutrients keep their colour on icons and bars, numbers are ink;
-  planned = dashed; `ui/button.ts`, `ui/Badge`, every section with its icon; plain SVG charts.
+  ui/NutrientRow); nutrients keep their colour on icons and bars, numbers are ink; planned =
+  lighter on rings and bars, dashed on chips; `ui/button.ts`, `ui/Badge`; plain SVG charts.
 - **Theming:** tokens in `design/` (ADR-0010); themes `label` (default) / `quaderno` /
   `sport` / `minimal` / `notte` override them (`data-theme`, per user), same components.
-- **Performance / testing:** `fra1`, cookie cache, `loading.tsx`; Vitest + PGlite.
+- **Speed / testing:** `fra1`, cookie cache, `loading.tsx`, one parallel round of queries per
+  page, pool of 10, router cache 30 s; Today's views switched in the browser (`ui/ViewSwitch`,
+  URL by replaceState). Vitest + PGlite with the real migrations.
