@@ -62,6 +62,18 @@ const quality = {
   fiberTypes: z.array(z.enum(FIBER_TYPES)).default([]),
 };
 
+/**
+ * ADR-0014: a dynamic day type (and a day copied from one) carries its
+ * parameters, not numbers. Older files have none: fixed, the defaults. Left
+ * out before 2026-10-03, which turned dynamic types into empty fixed ones.
+ */
+const dynamicParams = {
+  mode: z.enum(["fixed", "dynamic"]).default("fixed"),
+  deficitKcal: z.number().int().min(-1500).max(1500).default(0),
+  proteinGPerKg: dec(1).default("1.8"),
+  fatGPerKg: dec(1).default("0.8"),
+};
+
 const exportFile = z.object({
   format: z.literal("lifeos-export"),
   version: z.union([
@@ -100,6 +112,13 @@ const exportFile = z.object({
       trendsRange: z.number().int().default(7),
       listSort: z.string().default("used"),
       listPer: z.string().default("none"),
+      // ADR-0014/0020: the body data the energy model needs, and its
+      // accepted correction. Left out before 2026-10-03: a restore made
+      // every dynamic day "body data missing".
+      sex: z.enum(["male", "female"]).nullable().default(null),
+      birthYear: z.number().int().min(1900).max(2100).nullable().default(null),
+      heightCm: z.number().int().min(100).max(250).nullable().default(null),
+      energyCorrection: dec(2).default("1.00"),
     })
     .nullable(),
   ingredients: z.array(
@@ -152,6 +171,7 @@ const exportFile = z.object({
         name: z.string().min(1),
         isDefault: z.boolean(),
         ...targets,
+        ...dynamicParams,
       }),
     )
     .default([]),
@@ -162,6 +182,7 @@ const exportFile = z.object({
         profileId: z.string().nullable(),
         profileName: z.string(),
         ...targets,
+        ...dynamicParams,
       }),
     )
     .default([]),

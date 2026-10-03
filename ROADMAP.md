@@ -20,6 +20,9 @@
 - Template meta-loop: reset `ai-native-starter` to a clean template; record what S00–S12 taught in its TEMPLATE-CHANGELOG
 
 ## Open items owned by the developer
+- **#141 (has a migration, data only):** `gh workflow run migrate.yml --ref s60-dynamic-days -f confirm="migrate production"`, then merge. Until it runs, 2026-10-03 has no targets (no energy bar, empty rings).
+- **Check on the phone after #140:** do Today's tabs and the food's −/+ and tick feel instant? The numbers (30–80 ms tabs, ~50 ms edits) are from a local build, not Vercel.
+- **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#141.
 - **Use it for real, every day:** weigh-ins with the tags, steps or walk, sleep, food, the real training program (Training → Programs). Calibration, dynamic targets and the trends need two to four weeks of it.
 - **Assistant:** `ASSISTANT_KEY_SECRET` on Vercel (if not done), the OpenRouter key in Settings, a first try on the phone — never tested with a real key.
 - **Security:** rotate the production DB password pasted into a chat on 2026-09-30 (`neondb_owner`; GitHub `DATABASE_URL_DIRECT`, Vercel `DATABASE_URL`; redeploy; run `backup`) — unless already done.
@@ -32,6 +35,9 @@
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
+
+### After the S11–S12 retro — slices s45–s60 (2026-10-02 → 10-03, no retro yet)
+Shipped: steps at one cost per step (ADR-0032); a "+" in every section, adding only from it; where things live — sub-tabs everywhere, Today in Summary · Food · Training (ADR-0033); 24-hour times, energy as spending / eaten / verdict; the assistant shown at work; packs — a starter for every new account, import from Settings — and sign-up by one-use invitation (ADR-0034); tabs by moment: the Plan tab (the month as a calendar), Training as a library, program days as lists with skip (ADR-0035); speed — Today's views switched in the browser, food edits optimistic with "The day with the plan" live, one parallel round of queries; the dynamic-day fix and migration 0024 (#141). PRs #126–#141, migrations 0022–0024, 438 tests | Decisions: ADR-0032–0035 (0035 delegated) | Lesson: the developer's export loaded into the preview account found in minutes what a day of screenshots on test data hid — the first-food copy without a dynamic type's mode (no targets: no energy bar, empty rings) and an importer that silently dropped the same fields; the round-trip test now seeds them | Carried over: retro for these slices; developer review on the phone; "What I learned".
 
 ### S11–S12 — The day as a plan, design review, body and sleep (2026-10-01 → 10-02, retro 2026-10-02)
 Shipped: day page as a plan (plan / start / record training, goal line with the balance wanted / with the plan / so far, NutrientRow "colour = state", macro bands); training programs as a cycle with per-day overrides; gym mode fixes (clock, rest, warm-ups) and exercise guides with double-progression targets; smarter weigh-ins (context, trend, BMI); movement from the most measured source; sleep; the whole design review — 360 px at 120 % text in every theme, tabs by task (Today · Training · Food · Progress · Assistant), the "+" and sheets, autosaving settings, compact lists, delete with confirmation. PRs #105–#125, ~400 tests | Decisions: ADR-0021–0031; design choices S1–S7 delegated to the agent | Lesson: real use found what tests missed — the gym clock that never started, sets planned as already done, sleep that a phone's time picker never saved, a client constant rendered as a function; each is now a test, a lint rule or a note in the agent's memory. The phone emulation and the 360 px / 120 % audit caught every overflow the developer saw | Carried over: developer review on the phone, "What I learned", the movement extras and sleep import (backlog).

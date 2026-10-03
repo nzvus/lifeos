@@ -169,6 +169,13 @@
       "when": 1790981733454,
       "tag": "0023_program_day_items",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791043407045,
+      "tag": "0024_repair_dynamic_day_plans",
+      "breakpoints": true
     }
   ]
 }

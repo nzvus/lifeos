@@ -69,5 +69,12 @@ default it from the previous day.
 - Export gains the profile data and day activity (next export version).
 - Energy estimates are always labelled as estimates, with their parts.
 
+## Update 2026-10-03 — a day copied from a dynamic type stays dynamic
+The copy made when the first food is logged (`ensureDayPlan`) left out the mode
+and parameters: days following a dynamic default were fixed as "fixed, no
+targets" (no energy bar, empty rings). Every copy now goes through `writePlan`;
+migration 0024 (data only) repaired the copies already made. The lifeos importer
+had the same gap and now restores the parameters and the body data.
+
 ## What I learned
 <!-- developer: write 1–3 sentences in your own words -->
