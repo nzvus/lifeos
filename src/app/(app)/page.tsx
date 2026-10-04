@@ -538,10 +538,13 @@ export default async function DayPage({ searchParams }: Props) {
                   carbs: num(targets.carbs),
                   fat: num(targets.fat),
                   fiber: num(targets.fiber),
+                  sugars: num(targets.sugars),
+                  saturatedFat: num(targets.saturatedFat),
+                  salt: num(targets.salt),
                 }}
                 bands={bands}
                 locale={locale}
-                t={{ nutrients: t.nutrients, panel: t.panel }}
+                t={{ nutrients: t.nutrients, panel: t.panel, macro: t.macro }}
               />
             )}
             {/* The day's food in one card: the moments inside it (2026-10-02). */}
