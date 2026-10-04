@@ -67,7 +67,6 @@ export function GoalLine(p: Props) {
           {/* How the balance reads, and any cap: on request (ADR-0038). */}
           <InfoTip label={e.balanceInfo}>
             <p>{e.balanceNote}</p>
-            {p.capped && <p className="mt-1">{p.capped}</p>}
           </InfoTip>
           {p.profileId && !editing && (
             <button
@@ -109,6 +108,10 @@ export function GoalLine(p: Props) {
       <span className="text-meta tabular-nums">
         {fill(e.goalEat, { kcal: n(p.eatKcal), spent: n(p.spentKcal) })}
       </span>
+      {/* When the target had to be lowered, say so where the numbers are. */}
+      {p.capped && <span className="text-meta text-warn">{p.capped}</span>}
+      {/* What the three tiles measure (2026-10-04: "the numbers don't add up"). */}
+      <span className="pt-1 text-meta text-muted">{e.balanceHead}</span>
       {/* Coloured by meaning: the goal in green; the plan green when it
           lands near the goal, amber when not; "so far" neutral, as the day
           is not over. */}

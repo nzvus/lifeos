@@ -131,7 +131,7 @@ export const en = {
     defaultHint: "It is fixed at the first food: if today is different, change it now.",
     previousWeek: "Previous week",
     nextWeek: "Next week",
-    weekBalance: "Energy: {kcal} of {target} kcal ({delta})",
+    weekBalance: "Eaten {kcal} kcal · target {target} → {delta} against the target",
     goTo: "Go to",
     go: "Go",
     thisWeek: "This week",

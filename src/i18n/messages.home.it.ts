@@ -189,6 +189,7 @@ export const energyIt: Messages["energy"] = {
   balanceWanted: "voluto",
   balanceWithPlan: "col piano",
   balanceSoFar: "finora",
+  balanceHead: "Bilancio = mangiato − consumo",
   balanceInfo: "Come leggerlo",
   balanceNote:
     "Bilancio = mangiato − consumato, kcal: negativo è deficit, positivo surplus.",
@@ -197,7 +198,7 @@ export const energyIt: Messages["energy"] = {
   goalSurplus: "surplus di {kcal} kcal",
   goalEat: "Mangia {kcal} kcal · consumi ~{spent} kcal",
   goalFixed: "Obiettivo {kcal} kcal (fisso)",
-  goalCapped: "Carboidrati fermati a {carbs} g: oltre non servono.",
+  goalCapped: "Carboidrati fermi a {carbs} g e grassi al 35 % dell'energia: il target si abbassa, quindi il deficit è più grande del voluto.",
   goalCustom: "Obiettivo personalizzato",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
   formulas: {
