@@ -15,7 +15,14 @@
  */
 import { and, asc, eq, inArray, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
-import { ingredients, ingredientTags, mealItems, meals, tags } from "../../db/schema";
+import {
+  ingredientCompounds,
+  ingredients,
+  ingredientTags,
+  mealItems,
+  meals,
+  tags,
+} from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { fail, ok, pgErrorCode, type Result } from "../../shared/result";
 import { live } from "../../shared/trash";
@@ -87,9 +94,14 @@ export async function getIngredientsByIds(
  */
 export type IngredientWrite = Omit<
   IngredientInput,
-  "nova" | "origin" | "fiberTypes" | "tags"
+  "nova" | "origin" | "fiberTypes" | "tags" | "caffeineMg" | "creatineG"
 > &
-  Partial<Pick<IngredientInput, "nova" | "origin" | "fiberTypes" | "tags">>;
+  Partial<
+    Pick<
+      IngredientInput,
+      "nova" | "origin" | "fiberTypes" | "tags" | "caffeineMg" | "creatineG"
+    >
+  >;
 
 type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
@@ -122,12 +134,70 @@ async function setTags(
   }
 }
 
+/**
+ * ADR-0039: an ingredient's active compounds, replaced as given. Absent
+ * (undefined) = leave them; null or empty = none.
+ */
+async function setCompounds(
+  tx: Tx,
+  owner: Owner,
+  ingredientId: string,
+  c: { caffeineMg?: string | null; creatineG?: string | null },
+) {
+  const pairs = [
+    ["caffeine", c.caffeineMg],
+    ["creatine", c.creatineG],
+  ] as const;
+  for (const [compound, amount] of pairs) {
+    if (amount === undefined) continue;
+    await tx
+      .delete(ingredientCompounds)
+      .where(
+        and(
+          ownedBy(ingredientCompounds, owner),
+          eq(ingredientCompounds.ingredientId, ingredientId),
+          eq(ingredientCompounds.compound, compound),
+        ),
+      );
+    if (amount && Number(amount) > 0)
+      await tx
+        .insert(ingredientCompounds)
+        .values({ ingredientId, userId: owner.id, compound, amount });
+  }
+}
+
+/** Active compounds per 100 g/ml of my ingredients (ADR-0039), by id. */
+export async function compoundsOf(
+  db: Db,
+  owner: Owner,
+  ids: readonly string[],
+): Promise<Map<string, { caffeineMg: string | null; creatineG: string | null }>> {
+  const out = new Map<string, { caffeineMg: string | null; creatineG: string | null }>();
+  if (!ids.length) return out;
+  const rows = await db
+    .select()
+    .from(ingredientCompounds)
+    .where(
+      and(
+        ownedBy(ingredientCompounds, owner),
+        inArray(ingredientCompounds.ingredientId, [...ids]),
+      ),
+    );
+  for (const r of rows) {
+    const c = out.get(r.ingredientId) ?? { caffeineMg: null, creatineG: null };
+    if (r.compound === "caffeine") c.caffeineMg = r.amount;
+    else c.creatineG = r.amount;
+    out.set(r.ingredientId, c);
+  }
+  return out;
+}
+
 export async function createIngredient(
   db: Db,
   owner: Owner,
   input: IngredientWrite,
 ): Promise<Result<Ingredient>> {
-  const { tags: tagList, ...fields } = input;
+  const { tags: tagList, caffeineMg, creatineG, ...fields } = input;
   try {
     const row = await db.transaction(async (tx) => {
       const [created] = await tx
@@ -135,6 +205,7 @@ export async function createIngredient(
         .values({ ...fields, userId: owner.id }) // owner always from the Owner, never from input
         .returning();
       if (tagList) await setTags(tx, owner, created!.id, tagList);
+      await setCompounds(tx, owner, created!.id, { caffeineMg, creatineG });
       return created!; // insert ... returning always yields the inserted row
     });
     return ok(row);
@@ -150,7 +221,7 @@ export async function updateIngredient(
   id: string,
   input: IngredientWrite,
 ): Promise<Result<Ingredient>> {
-  const { tags: tagList, ...fields } = input;
+  const { tags: tagList, caffeineMg, creatineG, ...fields } = input;
   try {
     const row = await db.transaction(async (tx) => {
       const [updated] = await tx
@@ -161,6 +232,7 @@ export async function updateIngredient(
         )
         .returning();
       if (updated && tagList) await setTags(tx, owner, id, tagList);
+      if (updated) await setCompounds(tx, owner, id, { caffeineMg, creatineG });
       return updated;
     });
     // No row updated = not mine or not existing. Same answer for both.

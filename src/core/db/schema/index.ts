@@ -16,3 +16,4 @@ export * from "./programs";
 export * from "./invites";
 export * from "./money";
 export * from "./mind";
+export * from "./supplements";

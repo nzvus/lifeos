@@ -29,6 +29,7 @@ import {
   packsIt,
   invitesIt,
 } from "./messages.home.it";
+import { supplementsIt } from "./messages.supplements.it";
 import { mindIt } from "./messages.mind.it";
 import { planIt } from "./messages.plan.it";
 import { moneyIt } from "./messages.money.it";
@@ -223,6 +224,12 @@ export const it: Messages = {
     per100Short: "/100 {unit}",
     price: "Prezzo confezione (€)",
     packageSize: "Contenuto confezione ({unit})",
+    compounds: "Principi attivi",
+    caffeine: "Caffeina (mg/100 {unit})",
+    creatine: "Creatina (g/100 {unit})",
+    compoundsInfoLabel: "A cosa servono",
+    compoundsInfo:
+      "Una bevanda o un integratore è un ingrediente con questi. Caffè ~40–60 mg/100 ml (espresso ~200), energy drink ~32 mg/100 ml, cola ~10; creatina monoidrato in polvere 100 g/100 g. Alimentano i livelli su Oggi e nelle sessioni.",
     priceHint: "Facoltativo. Serve a calcolare quanto costano pasti e giornate.",
     create: "Aggiungi ingrediente",
     save: "Salva modifiche",
@@ -493,7 +500,8 @@ export const it: Messages = {
       undo: "Annulla",
       setTime: "{t} di serie",
       unilateral: "Un lato alla volta",
-      unilateralHint: "Ogni serie si fa un braccio/una gamba alla volta, con mezza pausa tra i lati.",
+      unilateralHint:
+        "Ogni serie si fa un braccio/una gamba alla volta, con mezza pausa tra i lati.",
       restOf: "Pausa {s} s",
       restLess: "Pausa più corta",
       restMore: "Pausa più lunga",
@@ -503,7 +511,8 @@ export const it: Messages = {
       savedRoutine: "Scheda salvata: la prossima volta parte da qui",
       startNow: "Inizia ora",
       planToday: "Pianifica oggi",
-      routineMode: "Stai modificando la scheda: qui niente si spunta né si cronometra. Salvala, o iniziala.",
+      routineMode:
+        "Stai modificando la scheda: qui niente si spunta né si cronometra. Salvala, o iniziala.",
       resume: "Riprendi",
     },
     chart: {
@@ -569,6 +578,7 @@ export const it: Messages = {
   plan: planIt,
   money: moneyIt,
   mind: mindIt,
+  supplements: supplementsIt,
   body: bodyIt,
   dayScore: dayScoreIt,
   ratings: {

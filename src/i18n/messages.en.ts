@@ -39,6 +39,7 @@ import {
   packsEn,
   invitesEn,
 } from "./messages.home.en";
+import { supplementsEn } from "./messages.supplements.en";
 import { mindEn } from "./messages.mind.en";
 import { planEn } from "./messages.plan.en";
 import { moneyEn } from "./messages.money.en";
@@ -229,6 +230,12 @@ export const en = {
     per100Short: "/100 {unit}",
     price: "Package price (€)",
     packageSize: "Package size ({unit})",
+    compounds: "Active compounds",
+    caffeine: "Caffeine (mg/100 {unit})",
+    creatine: "Creatine (g/100 {unit})",
+    compoundsInfoLabel: "What they are for",
+    compoundsInfo:
+      "A drink or supplement is an ingredient with these. Coffee ~40–60 mg/100 ml (espresso ~200), energy drinks ~32 mg/100 ml, cola ~10; creatine monohydrate powder 100 g/100 g. They feed the levels on Today and in sessions.",
     priceHint: "Optional. Used to compute what meals and days cost.",
     create: "Add ingredient",
     save: "Save changes",
@@ -495,7 +502,8 @@ export const en = {
       undo: "Undo",
       setTime: "{t} in the set",
       unilateral: "One side at a time",
-      unilateralHint: "Each set is done one arm/leg at a time, with half the rest between the sides.",
+      unilateralHint:
+        "Each set is done one arm/leg at a time, with half the rest between the sides.",
       restOf: "Rest {s} s",
       restLess: "Shorter rest",
       restMore: "Longer rest",
@@ -505,7 +513,8 @@ export const en = {
       savedRoutine: "Routine saved: next time starts from here",
       startNow: "Start now",
       planToday: "Plan today",
-      routineMode: "Editing the routine: nothing is done or timed here. Save it, or start it.",
+      routineMode:
+        "Editing the routine: nothing is done or timed here. Save it, or start it.",
       resume: "Resume",
     },
     chart: {
@@ -571,6 +580,7 @@ export const en = {
   plan: planEn,
   money: moneyEn,
   mind: mindEn,
+  supplements: supplementsEn,
   body: bodyEn,
   dayScore: dayScoreEn,
   ratings: {

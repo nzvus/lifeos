@@ -376,7 +376,8 @@ export const panelRowsIt = {
   targetLine: "obiettivo {v}",
   planLine: "con il pianificato {v}",
   liveTitle: "La giornata col piano",
-  ringsLegend: "Anelli, da fuori a dentro: energia, proteine, carboidrati, grassi, fibre. Pieno = il target; un secondo giro tratteggiato rosso = oltre; più chiaro = con il piano.",
+  ringsLegend:
+    "Anelli, da fuori a dentro: energia, proteine, carboidrati, grassi, fibre. Pieno = il target; un secondo giro tratteggiato rosso = oltre; più chiaro = con il piano.",
   legend: "Legenda",
   liveLegend:
     "Pieno = mangiato · chiaro = pianificato · riquadro = zona buona · tacca rossa = limite",

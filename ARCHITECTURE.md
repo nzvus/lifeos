@@ -127,6 +127,8 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
   writes come back with Undo, deletes/imports wait for a tap; files are read on
   the phone; a data summary (`assistant/context.ts`) goes with every turn.
+- **Compounds (ADR-0039):** caffeine and creatine per ingredient; levels estimated (caffeine
+  half-life 5 h, creatine stores 4 weeks) on Today, in sessions and in Food → Trends.
 - **Gym mode (ADR-0037):** one screen for sessions and routines; each set saves its start and
   end, the clock (rest, overtime, set) and resuming are derived from them.
 - **Derived, never stored:** pantry stock (ADR-0017, `core/pantry/stock.ts`: purchases −

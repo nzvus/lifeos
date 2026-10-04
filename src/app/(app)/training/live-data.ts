@@ -7,11 +7,7 @@
 import type { Owner } from "@/core/identity/owner";
 import type { Locale } from "@/core/shared/locales";
 import { regionOf } from "@/core/training/anatomy";
-import {
-  fromStoredSet,
-  type LiveExercise,
-  type LiveSet,
-} from "@/core/training/live";
+import { fromStoredSet, type LiveExercise, type LiveSet } from "@/core/training/live";
 import { latestPreset, type PresetSet } from "@/core/training/presets";
 import type { RoutineView } from "@/core/training/repositories/routines";
 import type { SessionView } from "@/core/training/repositories/sessions";
@@ -19,6 +15,9 @@ import { listExercises } from "@/core/training/repositories/exercises";
 import type { LiveExerciseInfo } from "@/features/training/live/LiveSession";
 import type { Messages } from "@/i18n";
 import { getDb } from "@/app/_server/runtime";
+import { addDays } from "@/core/shared/dates";
+import { supplementsDay } from "@/core/supplements/day";
+import { dosesBetween } from "@/core/supplements/repositories/doses";
 import { editorData } from "./editor-data";
 
 export async function liveData(
@@ -80,4 +79,21 @@ export function routineExercisesNow(
       endedAt: null,
     })),
   }));
+}
+
+/**
+ * ADR-0039: the compounds a session was done with — caffeine in the body
+ * at its start and creatine's stores that day; null when neither was taken.
+ */
+export async function sessionCompounds(
+  owner: Owner,
+  day: string,
+  at: Date,
+): Promise<{ caffeineMg: number; creatinePct: number } | null> {
+  const doses = await dosesBetween(getDb(), owner, addDays(day, -89), day);
+  if (!doses.length) return null;
+  const s = supplementsDay({ doses, day, now: at.getTime(), bedtime: null });
+  const caffeineMg = s.caffeine.nowMg;
+  const creatinePct = Math.round(s.creatine.saturation * 100);
+  return caffeineMg || creatinePct ? { caffeineMg, creatinePct } : null;
 }

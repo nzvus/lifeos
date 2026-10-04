@@ -116,6 +116,10 @@ export const ingredientInput = z
     origin: optionalOrigin,
     fiberTypes: fiberTypesField,
     tags: tagsField,
+    // ADR-0039: active compounds per 100 g/ml. Empty = none; absent (a form
+    // without these fields) = leave them as they are.
+    caffeineMg: z.string().pipe(optionalDecimalString(NUTRIENT)).optional(),
+    creatineG: z.string().pipe(optionalDecimalString(NUTRIENT)).optional(),
   })
   .transform((v, ctx) => {
     // Price needs both parts: "1.89 €" alone doesn't say for how much.
@@ -412,6 +416,9 @@ export function ingredientFormValues(
     nova?: number | null;
     origin?: string | null;
     fiberTypes?: readonly string[];
+    /** ADR-0039: active compounds per 100. */
+    caffeineMg?: string | null;
+    creatineG?: string | null;
   } & Record<NutrientKey, string>,
 ): Record<string, string> {
   const values: Record<string, string> = {
@@ -427,6 +434,8 @@ export function ingredientFormValues(
     nova: row.nova == null ? "" : String(row.nova),
     origin: row.origin ?? "",
     fiberTypes: (row.fiberTypes ?? []).join(","),
+    caffeineMg: row.caffeineMg ? new Big(row.caffeineMg).toString() : "",
+    creatineG: row.creatineG ? new Big(row.creatineG).toString() : "",
   };
   for (const k of NUTRIENT_KEYS) values[k] = new Big(row[k]).toString();
   return values;

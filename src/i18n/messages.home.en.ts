@@ -371,7 +371,8 @@ export const panelRowsEn = {
   targetLine: "target {v}",
   planLine: "with the plan {v}",
   liveTitle: "The day with the plan",
-  ringsLegend: "Rings, outside in: energy, protein, carbohydrate, fat, fibre. Full = the target; a red dashed second lap = over it; lighter = with the plan.",
+  ringsLegend:
+    "Rings, outside in: energy, protein, carbohydrate, fat, fibre. Full = the target; a red dashed second lap = over it; lighter = with the plan.",
   legend: "Legend",
   liveLegend: "Solid = eaten · light = planned · outline = good zone · red tick = limit",
   liveEaten: "eaten {v}",

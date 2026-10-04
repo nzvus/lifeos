@@ -22,7 +22,7 @@ import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { getHistory } from "@/core/nutrition/repositories/history";
 import { TREND_RANGES, type TrendRange } from "@/core/nutrition/preferences";
-import { daysEnding, isValidDay, todayIn } from "@/core/shared/dates";
+import { daysEnding, isValidDay, todayIn, addDays } from "@/core/shared/dates";
 import { listMeasurements } from "@/core/training/repositories/measurements";
 import { RangeNav } from "@/features/nutrition/trends/RangeNav";
 import { Trends } from "@/features/nutrition/trends/Trends";
@@ -33,6 +33,9 @@ import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
 import { SubNav } from "@/ui/SubNav";
 import { FoodNav } from "@/features/nutrition/nav/FoodNav";
+import { CaffeineChart } from "@/features/supplements/CaffeineChart";
+import { dosesBetween } from "@/core/supplements/repositories/doses";
+import { supplementsPeriod } from "@/core/supplements/period";
 import { TrainingNav } from "@/features/training/nav/TrainingNav";
 import { deleteMeasurementAction, restoreMeasurementAction } from "../training/actions";
 
@@ -88,10 +91,13 @@ export default async function ProgressPage({ searchParams }: Props) {
     const to =
       params.to && isValidDay(params.to) && params.to <= today ? params.to : today;
     const days = daysEnding(to, range);
-    const [history, nights] = await Promise.all([
+    const [history, nights, doses] = await Promise.all([
       getHistory(db, owner, days[0]!, to),
       listSleep(db, owner, days[0]!, to), // ADR-0031
+      // ADR-0039: 90 days before the period too (creatine's stores remember).
+      dosesBetween(db, owner, addDays(days[0]!, -90), to),
     ]);
+    const compounds = supplementsPeriod(doses, days);
     body = (
       <Section title={t.trends.title} icon={<TrendingUp size={20} aria-hidden="true" />}>
         <RangeNav
@@ -110,12 +116,22 @@ export default async function ProgressPage({ searchParams }: Props) {
           locale={settings.locale}
           beside={
             // Training's chart lives in Training → Sessions (ADR-0033).
-            <SleepChart
-              days={days}
-              hours={new Map(nights.map((n) => [n.day, n.hours]))}
-              locale={settings.locale}
-              t={t}
-            />
+            <>
+              <SleepChart
+                days={days}
+                hours={new Map(nights.map((n) => [n.day, n.hours]))}
+                locale={settings.locale}
+                t={t}
+              />
+              {doses.length > 0 && (
+                <CaffeineChart
+                  days={days}
+                  p={compounds}
+                  locale={settings.locale}
+                  t={t.supplements}
+                />
+              )}
+            </>
           }
           t={t}
         />

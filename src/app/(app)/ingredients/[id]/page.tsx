@@ -12,6 +12,7 @@ import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { mealsUsing } from "@/core/nutrition/preview";
 import {
+  compoundsOf,
   getIngredient,
   listTags,
   tagsByIngredient,
@@ -37,11 +38,12 @@ export default async function EditIngredientPage({ params, searchParams }: Props
   if (!idInput.safeParse(id).success) notFound();
   const from = safeFrom((await searchParams).from, "/ingredients");
   const db = getDb();
-  const [ingredient, meals, knownTags, tagMap] = await Promise.all([
+  const [ingredient, meals, knownTags, tagMap, compounds] = await Promise.all([
     getIngredient(db, owner, id),
     listMeals(db, owner),
     listTags(db, owner),
     tagsByIngredient(db, owner),
+    compoundsOf(db, owner, [id]),
   ]);
   if (!ingredient) notFound();
 
@@ -55,7 +57,7 @@ export default async function EditIngredientPage({ params, searchParams }: Props
         action={updateIngredientAction.bind(null, id)}
         trash={deleteIngredientAction}
         restore={restoreIngredientAction}
-        initial={ingredientFormValues(ingredient)}
+        initial={ingredientFormValues({ ...ingredient, ...compounds.get(id) })}
         locale={settings.locale}
         usedIn={mealsUsing(meals, id)}
         tags={(tagMap.get(id) ?? []).map(({ name, icon }) => ({ name, icon }))}

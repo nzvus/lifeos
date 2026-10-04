@@ -43,7 +43,110 @@ const f = (
   };
 };
 
+/** ADR-0039: a drink or supplement, with its compounds per 100 g/ml. */
+const drink = (
+  name: string,
+  description: string,
+  v: Values,
+  nova: 1 | 2 | 3 | 4,
+  compounds: { caffeineMg?: number; creatineG?: number },
+  unit: "g" | "ml" = "ml",
+): Ingredient => ({
+  ...f(name, description, v, nova, "plant", unit),
+  caffeineMg: compounds.caffeineMg === undefined ? null : String(compounds.caffeineMg),
+  creatineG: compounds.creatineG === undefined ? null : String(compounds.creatineG),
+});
+
 export const STARTER_INGREDIENTS: Ingredient[] = [
+  // Drinks and supplements (ADR-0039). Caffeine: EFSA and typical labels;
+  // an espresso is ~30 ml with ~60–65 mg, a moka cup ~50 ml with ~65 mg.
+  drink(
+    "Caffè espresso",
+    "Bevanda · ~63 mg di caffeina in una tazzina da 30 ml",
+    [2, 0.1, 0, 0, 0.2, 0.1, 0, 0.04],
+    1,
+    { caffeineMg: 212 },
+  ),
+  drink(
+    "Caffè moka",
+    "Bevanda · ~65 mg di caffeina in una tazzina da 50 ml",
+    [2, 0.1, 0, 0, 0.1, 0, 0, 0.01],
+    1,
+    { caffeineMg: 130 },
+  ),
+  drink(
+    "Caffè americano",
+    "Bevanda · ~95 mg di caffeina in una tazza da 240 ml",
+    [1, 0.1, 0, 0, 0, 0, 0, 0.01],
+    1,
+    { caffeineMg: 40 },
+  ),
+  drink(
+    "Tè nero",
+    "Bevanda · ~50 mg di caffeina in una tazza da 250 ml",
+    [1, 0, 0.3, 0, 0, 0, 0, 0.01],
+    1,
+    { caffeineMg: 20 },
+  ),
+  drink(
+    "Tè verde",
+    "Bevanda · ~30 mg di caffeina in una tazza da 250 ml",
+    [1, 0.2, 0, 0, 0, 0, 0, 0],
+    1,
+    { caffeineMg: 12 },
+  ),
+  drink(
+    "Red Bull",
+    "Energy drink · 80 mg di caffeina in una lattina da 250 ml",
+    [45, 0, 11, 11, 0, 0, 0, 0.1],
+    4,
+    { caffeineMg: 32 },
+  ),
+  drink(
+    "Red Bull Sugarfree",
+    "Energy drink · 80 mg di caffeina in una lattina da 250 ml",
+    [3, 0, 0, 0, 0, 0, 0, 0.1],
+    4,
+    { caffeineMg: 32 },
+  ),
+  drink(
+    "Monster Energy",
+    "Energy drink · 160 mg di caffeina in una lattina da 500 ml",
+    [47, 0, 11, 11, 0, 0, 0, 0.19],
+    4,
+    { caffeineMg: 32 },
+  ),
+  drink(
+    "Coca-Cola",
+    "Bibita · ~35 mg di caffeina in una lattina da 330 ml",
+    [42, 0, 10.6, 10.6, 0, 0, 0, 0],
+    4,
+    { caffeineMg: 10 },
+  ),
+  drink(
+    "Coca-Cola Zero",
+    "Bibita · ~40 mg di caffeina in una lattina da 330 ml",
+    [0.2, 0, 0, 0, 0, 0, 0, 0.02],
+    4,
+    { caffeineMg: 12 },
+  ),
+  drink(
+    "Creatina monoidrato",
+    "Integratore · 3–5 g al giorno",
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    3,
+    { creatineG: 100 },
+    "g",
+  ),
+  drink(
+    "Pre-workout (caffeina)",
+    "Integratore · ~200 mg di caffeina in un misurino da 10 g (controlla l'etichetta)",
+    [20, 0, 4, 0, 0, 0, 0, 0.5],
+    4,
+    { caffeineMg: 2000 },
+    "g",
+  ),
+
   // Salt, oil, vinegar: the culinary basics.
   f("Sale fino", "Condimento", [0, 0, 0, 0, 0, 0, 0, 99.8], 2),
   f("Olio extravergine d'oliva", "Condimento", [899, 0, 0, 0, 99.9, 15, 0, 0], 2),

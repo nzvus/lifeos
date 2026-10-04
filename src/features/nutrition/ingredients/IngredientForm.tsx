@@ -40,6 +40,7 @@ import { fieldError, IDLE, valueOf, type FormState } from "@/core/shared/result"
 import { fill, macroLabels, type Messages } from "@/i18n";
 import { ActionBar } from "@/ui/ActionBar";
 import { Field } from "@/ui/Field";
+import { InfoTip } from "@/ui/InfoTip";
 import { FormAlert } from "@/ui/FormAlert";
 import { MacroPreview } from "@/ui/MacroPreview";
 import { DeleteButton } from "@/ui/DeleteButton";
@@ -276,6 +277,33 @@ export function IngredientForm({
               inputMode="decimal"
               defaultValue={val("packageSize")}
               error={err("packageSize")}
+            />
+          </div>
+        </fieldset>
+
+        {/* ADR-0039: what makes a drink or a supplement one. */}
+        <fieldset className="rule-t-medium border-ink pt-3">
+          <legend className="sr-only">{t.ingredients.compounds}</legend>
+          <p className="flex items-center justify-between pb-2 text-meta font-semibold">
+            {t.ingredients.compounds}
+            <InfoTip label={t.ingredients.compoundsInfoLabel}>
+              {t.ingredients.compoundsInfo}
+            </InfoTip>
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <Field
+              label={fill(t.ingredients.caffeine, { unit })}
+              name="caffeineMg"
+              inputMode="decimal"
+              defaultValue={val("caffeineMg")}
+              error={err("caffeineMg")}
+            />
+            <Field
+              label={fill(t.ingredients.creatine, { unit })}
+              name="creatineG"
+              inputMode="decimal"
+              defaultValue={val("creatineG")}
+              error={err("creatineG")}
             />
           </div>
         </fieldset>

@@ -17,6 +17,7 @@ import { EstimateEditor } from "@/features/training/sessions/EstimateForm";
 import { EMPTY_SET, SessionEditor } from "@/features/training/sessions/SessionEditor";
 import { PageHeader } from "@/ui/PageHeader";
 import { fromStoredSet, timing } from "@/core/training/live";
+import { sessionCompounds } from "../live-data";
 import { fill } from "@/i18n";
 import { TrashMenu } from "@/ui/TrashMenu";
 import {
@@ -40,6 +41,9 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
   const session = await getSession(getDb(), owner, id);
   if (!session) notFound();
   const from = safeFrom((await searchParams).from, "/profiles?view=training");
+  const compounds = session.startedAt
+    ? await sessionCompounds(owner, session.day, new Date(session.startedAt))
+    : null;
   const time = session.startedAt
     ? timeIn(new Date(session.startedAt), settings.timezone)
     : "";
@@ -112,6 +116,15 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
           <Dumbbell size={20} aria-hidden="true" />
           {t.training.live.open}
         </Link>
+      )}
+      {/* ADR-0039: what it was done with. */}
+      {compounds && (
+        <p className="text-meta text-muted tabular-nums">
+          {fill(t.supplements.session, {
+            caffeine: String(compounds.caffeineMg),
+            pct: String(compounds.creatinePct),
+          })}
+        </p>
       )}
       {/* Gym mode's clock: time in sets, resting, the long breaks. */}
       {(() => {

@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "../db/client";
 import type { Owner } from "../identity/owner";
-import { listIngredients } from "../nutrition/repositories/ingredients";
+import { compoundsOf, listIngredients } from "../nutrition/repositories/ingredients";
 import { getDay } from "../nutrition/repositories/log";
 import { listMeals } from "../nutrition/repositories/meals";
 import { createTestDb, createTestUser } from "../testing/test-db";
@@ -227,6 +227,15 @@ describe("the starter pack", () => {
     expect(r.added.routines).toBe(STARTER.routines!.length);
     expect(r.added.programs).toBe(STARTER.programs!.length);
     expect(r.added.meals).toBe(STARTER.meals!.length);
+    // ADR-0039: drinks and supplements keep their compounds.
+    const all = await listIngredients(db, me);
+    const byName = (n: string) => all.find((i) => i.name === n)!.id;
+    const c = await compoundsOf(db, me, [
+      byName("Red Bull"),
+      byName("Creatina monoidrato"),
+    ]);
+    expect(c.get(byName("Red Bull"))?.caffeineMg).toBe("32.000");
+    expect(c.get(byName("Creatina monoidrato"))?.creatineG).toBe("100.000");
   });
 
   it("has energy that matches its macros (4/4/9 kcal per g, fibre 2)", () => {
