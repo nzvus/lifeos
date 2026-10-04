@@ -3,6 +3,7 @@
  * entry edited as a LOCAL COPY (ADR-0022): grams, swaps, added or removed
  * ingredients, servings. The meal it came from does not change.
  */
+import { macroValues } from "@/core/nutrition/preview";
 import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -41,13 +42,7 @@ export default async function EditEntryPage({ params, searchParams }: Props) {
             quantity: String(Number(l.quantity)),
             name: l.name,
             unit: l.unit,
-            values: {
-              kcal: l.per100.kcal,
-              protein: l.per100.protein,
-              carbs: l.per100.carbs,
-              fat: l.per100.fat,
-              fiber: l.per100.fiber,
-            },
+            values: macroValues(l.per100),
           })),
         }}
         locale={settings.locale}

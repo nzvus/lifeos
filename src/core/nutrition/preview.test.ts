@@ -9,7 +9,16 @@ import {
   sumMacros,
 } from "./preview";
 
-const per100 = { kcal: "42", protein: "0.5", carbs: "10.5", fat: "0.1", fiber: "1.4" };
+const per100 = {
+  kcal: "42",
+  protein: "0.5",
+  carbs: "10.5",
+  fat: "0.1",
+  fiber: "1.4",
+  sugars: "0",
+  saturatedFat: "0",
+  salt: "0",
+};
 
 describe("scaleMacros", () => {
   it("scales per-100 values by a quantity, exactly", () => {
@@ -19,6 +28,9 @@ describe("scaleMacros", () => {
       carbs: "5.25",
       fat: "0.05",
       fiber: "0.7",
+      sugars: "0",
+      saturatedFat: "0",
+      salt: "0",
     });
   });
 
@@ -34,7 +46,16 @@ describe("scaleMacros", () => {
 });
 
 describe("estimateValues", () => {
-  const typed = { kcal: "", protein: "", carbs: "", fat: "", fiber: "" };
+  const typed = {
+    kcal: "",
+    protein: "",
+    carbs: "",
+    fat: "",
+    fiber: "",
+    sugars: "0",
+    saturatedFat: "0",
+    salt: "0",
+  };
 
   it("needs kcal; empty macros count as zero", () => {
     expect(estimateValues(typed)).toBeNull();
@@ -44,6 +65,9 @@ describe("estimateValues", () => {
       carbs: "0",
       fat: "0",
       fiber: "0",
+      sugars: "0",
+      saturatedFat: "0",
+      salt: "0",
     });
   });
 
@@ -53,8 +77,26 @@ describe("estimateValues", () => {
 });
 
 describe("meal previews", () => {
-  const skyr = { kcal: "62", protein: "11", carbs: "4", fat: "0.2", fiber: "0" };
-  const oats = { kcal: "370", protein: "13", carbs: "60", fat: "7", fiber: "10" };
+  const skyr = {
+    kcal: "62",
+    protein: "11",
+    carbs: "4",
+    fat: "0.2",
+    fiber: "0",
+    sugars: "0",
+    saturatedFat: "0",
+    salt: "0",
+  };
+  const oats = {
+    kcal: "370",
+    protein: "13",
+    carbs: "60",
+    fat: "7",
+    fiber: "10",
+    sugars: "0",
+    saturatedFat: "0",
+    salt: "0",
+  };
 
   it("sums the lines of a meal", () => {
     const lines = [scaleMacros(skyr, "200", "100")!, scaleMacros(oats, "50", "100")!];
@@ -64,6 +106,9 @@ describe("meal previews", () => {
       carbs: "38",
       fat: "3.9",
       fiber: "5",
+      sugars: "0",
+      saturatedFat: "0",
+      salt: "0",
     });
     expect(sumMacros([]).kcal).toBe("0");
   });
@@ -88,7 +133,16 @@ describe("meal previews", () => {
 
 describe("mealsUsing", () => {
   const totals = {
-    nutrients: { kcal: "300", protein: "20", carbs: "30", fat: "10", fiber: "5" },
+    nutrients: {
+      kcal: "300",
+      protein: "20",
+      carbs: "30",
+      fat: "10",
+      fiber: "5",
+      sugars: "0",
+      saturatedFat: "0",
+      salt: "0",
+    },
   };
   const meals = [
     {

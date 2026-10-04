@@ -25,7 +25,7 @@ import {
 } from "@/core/nutrition/repositories/ingredients";
 import { getDay } from "@/core/nutrition/repositories/log";
 import { listMeals } from "@/core/nutrition/repositories/meals";
-import type { MacroValues } from "@/core/nutrition/preview";
+import { macroValues } from "@/core/nutrition/preview";
 import {
   emptyTargets,
   getDayTargets,
@@ -280,14 +280,8 @@ export default async function DayPage({ searchParams }: Props) {
     .join(" · ");
   // What the eaten food is made of (ADR-0012), for the score and fibre types.
   const dayQuality = eatenQuality(view.entries);
-  /** The five values the add-to-day preview scales (core/nutrition/preview.ts). */
-  const pick = (v: MacroValues): MacroValues => ({
-    kcal: v.kcal,
-    protein: v.protein,
-    carbs: v.carbs,
-    fat: v.fat,
-    fiber: v.fiber,
-  });
+  /** The values the add-to-day preview scales (core/nutrition/preview.ts). */
+  const pick = macroValues;
 
   const v = t.day.views;
   const num = (x: string | null) => (x === null ? null : Number(x));

@@ -29,6 +29,7 @@ export function macroLabels(t: Pick<Messages, "nutrients" | "macro">) {
     saturatedFat: t.nutrients.saturatedFat,
     salt: t.nutrients.salt,
     split: t.macro.splitTitle,
+    short: t.macro.short,
   };
 }
 

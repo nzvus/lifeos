@@ -19,14 +19,7 @@
 "use client";
 
 import { Calculator, Carrot, CookingPot, Plus, UtensilsCrossed } from "lucide-react";
-import {
-  useActionState,
-  useCallback,
-  useMemo,
-  useState,
-  type ChangeEvent,
-  type ReactNode,
-} from "react";
+import { useActionState, useCallback, useMemo, useState, type ReactNode } from "react";
 import { stripValues } from "@/core/nutrition/display";
 import {
   isMoment,
@@ -35,7 +28,7 @@ import {
   type Moment,
   type MomentBounds,
 } from "@/core/nutrition/moments";
-import { NUTRIENT_KEYS, NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
+import { NUTRIENT_UNIT } from "@/core/nutrition/nutrients";
 import {
   estimateValues,
   PREVIEW_KEYS,
@@ -364,9 +357,6 @@ type EstimateProps = {
   action: (formData: FormData) => void;
 };
 
-const isPreviewKey = (k: string): k is PreviewKey =>
-  (PREVIEW_KEYS as readonly string[]).includes(k);
-
 /** An estimated meal (ADR-0009): a name and approximate totals. */
 function EstimateForm({ day, locale, bounds, t, state, action }: EstimateProps) {
   const err = (f: string) => fieldError(state, f, t.errors);
@@ -391,21 +381,16 @@ function EstimateForm({ day, locale, bounds, t, state, action }: EstimateProps) 
         required
       />
       <div className="grid grid-cols-2 gap-3 @lg:grid-cols-3">
-        {/* Every nutrient of a label; the preview's ones are followed live. */}
-        {NUTRIENT_KEYS.map((k) => (
+        {/* Every nutrient of a label, followed live by the preview. */}
+        {PREVIEW_KEYS.map((k) => (
           <Field
             key={k}
             label={`${t.nutrients[k]} (${NUTRIENT_UNIT[k]})`}
             name={k}
             id={`add-${k}`}
             inputMode="decimal"
-            {...(isPreviewKey(k)
-              ? {
-                  value: typed[k],
-                  onChange: (e: ChangeEvent<HTMLInputElement>) =>
-                    setTyped((prev) => ({ ...prev, [k]: e.target.value })),
-                }
-              : { defaultValue: kept(k) ?? "" })}
+            value={typed[k]}
+            onChange={(e) => setTyped((prev) => ({ ...prev, [k]: e.target.value }))}
             error={err(k)}
             required={k === "kcal"}
           />

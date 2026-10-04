@@ -14,6 +14,7 @@ import { fill, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { FormAlert } from "@/ui/FormAlert";
 import { SelectField } from "@/ui/SelectField";
+import { buttonClass } from "@/ui/button";
 import { SubmitButton } from "@/ui/SubmitButton";
 import { toast } from "@/ui/Toast";
 
@@ -77,6 +78,18 @@ export function CountForm({ action, unit, t }: { action: Action; unit: string; t
       >
         {p.count}
       </SubmitButton>
+      {/* "It ran out earlier than expected": a count of zero, one tap. */}
+      <button
+        type="button"
+        onClick={() => {
+          const input = form.current?.elements.namedItem("quantity");
+          if (input instanceof HTMLInputElement) input.value = "0";
+          form.current?.requestSubmit();
+        }}
+        className={buttonClass({ variant: "quiet", size: "sm" })}
+      >
+        {p.finished}
+      </button>
     </form>
   );
 }

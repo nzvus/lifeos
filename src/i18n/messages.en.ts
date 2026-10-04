@@ -658,6 +658,16 @@ export const en = {
     saturatedOf: "saturated {v}%",
     fiberOf: "fibre {v}%",
     perKg: "/kg",
+    short: {
+      kcal: "Energy",
+      protein: "Prot.",
+      carbs: "Carbs",
+      sugars: "sugars",
+      fat: "Fat",
+      saturatedFat: "sat.",
+      fiber: "Fibre",
+      salt: "Salt",
+    },
     ingredientsCount: "{n} ingredients",
   },
   analysis: {

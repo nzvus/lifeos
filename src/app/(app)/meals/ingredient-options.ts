@@ -6,6 +6,7 @@
  * special, so this file is just a module colocated with the pages using it.
  * Server-only: it queries through core repositories.
  */
+import { macroValues } from "@/core/nutrition/preview";
 import "server-only";
 import type { Owner } from "@/core/identity/owner";
 import { listIngredients } from "@/core/nutrition/repositories/ingredients";
@@ -29,13 +30,7 @@ export async function mealEditorIngredients(owner: Owner, settings: Settings) {
     kcal: formatNumber(i.kcal, settings.locale, 0),
     protein: formatNumber(i.protein, settings.locale, 0),
     // Exact per-100 values for the live serving preview.
-    values: {
-      kcal: i.kcal,
-      protein: i.protein,
-      carbs: i.carbs,
-      fat: i.fat,
-      fiber: i.fiber,
-    },
+    values: macroValues(i),
     uses: usage.ingredients[i.id]?.uses ?? 0,
     lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
   }));

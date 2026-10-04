@@ -9,8 +9,10 @@
  *   estimate    the typed values themselves          (estimateValues)
  */
 import { Big, parseDecimalInput } from "../shared/decimal";
+import { NUTRIENT_KEYS } from "./nutrients";
 
-export const PREVIEW_KEYS = ["kcal", "protein", "carbs", "fat", "fiber"] as const;
+// Every nutrient of a label: the preview shows them all, compactly (2026-10-04).
+export const PREVIEW_KEYS = NUTRIENT_KEYS;
 export type PreviewKey = (typeof PREVIEW_KEYS)[number];
 export type MacroValues = Record<PreviewKey, string>;
 
@@ -115,4 +117,9 @@ export function mealsUsing(
     for (const k of PREVIEW_KEYS) serving[k] = m.totals.nutrients[k];
     return [{ id: m.id, name: m.name, quantity: quantity.toString(), serving }];
   });
+}
+
+/** Every preview value of something that has all the nutrients (a label, totals). */
+export function macroValues(n: MacroValues): MacroValues {
+  return Object.fromEntries(PREVIEW_KEYS.map((k) => [k, n[k]])) as MacroValues;
 }
