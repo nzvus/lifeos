@@ -183,6 +183,13 @@
       "when": 1791093754740,
       "tag": "0025_money_ledger_and_left_out",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791095922312,
+      "tag": "0026_receipt_line_weights",
+      "breakpoints": true
     }
   ]
 }

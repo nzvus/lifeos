@@ -1,8 +1,8 @@
 /**
  * features/money/MoneyNav.tsx — the Money tab's views (ADR-0036): the
- * month at a glance | every movement. Links, one URL per view.
+ * month at a glance | every movement | receipts. Links, one URL per view.
  */
-import { ChartPie, List } from "lucide-react";
+import { ChartPie, List, Receipt } from "lucide-react";
 import type { Messages } from "@/i18n";
 import { SubNav } from "@/ui/SubNav";
 
@@ -11,7 +11,7 @@ export function MoneyNav({
   month,
   t,
 }: {
-  current: "overview" | "movements";
+  current: "overview" | "movements" | "receipts";
   month: string;
   t: Messages["money"];
 }) {
@@ -31,6 +31,12 @@ export function MoneyNav({
           href: `/money/movements?month=${month}`,
           label: t.movements,
           icon: <List size={16} aria-hidden="true" />,
+        },
+        {
+          key: "receipts",
+          href: "/money/receipts",
+          label: t.receipts,
+          icon: <Receipt size={16} aria-hidden="true" />,
         },
       ]}
     />

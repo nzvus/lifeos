@@ -159,7 +159,7 @@ export const moneyLines = pgTable(
     position: integer("position").notNull(),
     /** As on the receipt ("PASSATA MUTTI 700G"). */
     description: text("description").notNull(),
-    quantity: numeric("quantity", { precision: 8, scale: 2, mode: "string" }),
+    quantity: numeric("quantity", { precision: 9, scale: 3, mode: "string" }),
     /** What the line cost, discounts included, ≥ 0. */
     amountCents: integer("amount_cents").notNull(),
     productId: uuid("product_id"),
