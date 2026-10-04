@@ -38,8 +38,9 @@ import {
   routinesEn,
   packsEn,
   invitesEn,
-  planEn,
 } from "./messages.home.en";
+import { planEn } from "./messages.plan.en";
+import { moneyEn } from "./messages.money.en";
 
 export const en = {
   app: appEn,
@@ -70,6 +71,7 @@ export const en = {
   },
   nav: {
     today: "Today",
+    money: "Money",
     ingredients: "Ingredients",
     meals: "Meals",
     settings: "Settings",
@@ -153,6 +155,8 @@ export const en = {
     servingsMore: "Servings: × {n}",
     servingsLess: "Servings: × {n}",
     copyYesterday: "Repeat yesterday's meals",
+    inTotal: "In the plan's total: tap to leave it out",
+    outOfTotal: "Left out of the total: tap to count it",
     clearPlanned: "Remove what's still planned ({n})",
     clearPlannedAsk: "Remove the {n} entries still planned?",
     clearPlannedHint:
@@ -534,6 +538,7 @@ export const en = {
   packs: packsEn,
   invites: invitesEn,
   plan: planEn,
+  money: moneyEn,
   body: bodyEn,
   dayScore: dayScoreEn,
   ratings: {

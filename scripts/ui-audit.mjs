@@ -33,6 +33,8 @@ const STATIC = [
   "/?tab=food",
   "/?tab=training",
   "/training/plan",
+  "/money",
+  "/money/movements",
   "/assistant",
   "/meals",
   "/meals/new",
@@ -63,6 +65,7 @@ const DETAILS = [
   ["/training/exercises", /^\/training\/exercises\/[0-9a-f-]{36}$/],
   ["/training/routines", /^\/training\/routines\/[0-9a-f-]{36}$/],
   ["/training/plan", /^\/training\/programs\/[0-9a-f-]{36}$/],
+  ["/money/movements", /^\/money\/[0-9a-f-]{36}/],
 ];
 
 /** Runs in the page: sideways scroll and overlapping text leaves. */

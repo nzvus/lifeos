@@ -25,7 +25,6 @@
 
 import {
   CalendarDays,
-  CalendarRange,
   Carrot,
   Dumbbell,
   Settings,
@@ -33,6 +32,7 @@ import {
   Target,
   TrendingUp,
   UtensilsCrossed,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -41,7 +41,6 @@ import { buttonClass } from "./button";
 
 const ICONS = {
   today: CalendarDays,
-  plan: CalendarRange,
   meals: UtensilsCrossed,
   ingredients: Carrot,
   targets: Target,
@@ -49,6 +48,7 @@ const ICONS = {
   training: Dumbbell,
   settings: Settings,
   assistant: Sparkles,
+  money: Wallet,
 } satisfies Record<string, LucideIcon>;
 
 type NavLink = {

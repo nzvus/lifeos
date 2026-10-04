@@ -28,6 +28,7 @@ import {
   logEntries,
   mealItems,
   meals,
+  moneyMovements,
   products,
   purchases,
   reminders,
@@ -66,6 +67,7 @@ import { deleteRoutine, restoreRoutine } from "../training/repositories/routines
 import { deleteSession, restoreSession } from "../training/repositories/sessions";
 import { fail, ok, pgErrorCode, type Result } from "../shared/result";
 import { TRASH_DAYS } from "../shared/trash";
+import { deleteMovement, restoreMovement } from "../money/repositories/money";
 
 export const TRASH_KINDS = [
   "meal",
@@ -85,6 +87,8 @@ export const TRASH_KINDS = [
   "conversation",
   // ADR-0024: training programs.
   "program",
+  // ADR-0036: the ledger's movements.
+  "movement",
 ] as const;
 export type TrashKind = (typeof TRASH_KINDS)[number];
 
@@ -114,7 +118,7 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
       .select({ id: t.id, name: t.name, deletedAt: t.deletedAt })
       .from(t)
       .where(and(ownedBy(t, owner), isNotNull(t.deletedAt)));
-  const [m, i, p, r, x, e, s, b, pr, pu, ba, re, co, pg] = await Promise.all([
+  const [m, i, p, r, x, e, s, b, pr, pu, ba, re, co, pg, mo] = await Promise.all([
     named(meals),
     named(ingredients),
     named(dayProfiles),
@@ -201,6 +205,17 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
       .select({ id: programs.id, name: programs.name, deletedAt: programs.deletedAt })
       .from(programs)
       .where(and(ownedBy(programs, owner), isNotNull(programs.deletedAt))),
+    db
+      .select({
+        id: moneyMovements.id,
+        description: moneyMovements.description,
+        shop: moneyMovements.shop,
+        cents: moneyMovements.amountCents,
+        day: moneyMovements.day,
+        deletedAt: moneyMovements.deletedAt,
+      })
+      .from(moneyMovements)
+      .where(and(ownedBy(moneyMovements, owner), isNotNull(moneyMovements.deletedAt))),
   ]);
   const item =
     (kind: TrashKind) =>
@@ -230,6 +245,13 @@ export async function listTrash(db: Db, owner: Owner): Promise<TrashItem[]> {
     ...re.map(item("reminder")),
     ...co.map(item("conversation")),
     ...pg.map(item("program")),
+    // A movement is named by what it was, else where, else its amount.
+    ...mo.map((x) =>
+      item("movement")({
+        ...x,
+        name: x.description || x.shop || `${(x.cents / 100).toFixed(2)} €`,
+      }),
+    ),
   ].sort((a, b) => b.deletedAt.localeCompare(a.deletedAt));
 }
 
@@ -273,6 +295,8 @@ export function moveToTrash(
       return deleteConversation(db, owner, id);
     case "program":
       return deleteProgram(db, owner, id);
+    case "movement":
+      return deleteMovement(db, owner, id);
   }
 }
 
@@ -312,6 +336,8 @@ export function restoreFromTrash(
       return restoreConversation(db, owner, id);
     case "program":
       return restoreProgram(db, owner, id);
+    case "movement":
+      return restoreMovement(db, owner, id);
   }
 }
 
@@ -330,7 +356,8 @@ type TrashTable =
   | typeof batches
   | typeof reminders
   | typeof assistantConversations
-  | typeof programs;
+  | typeof programs
+  | typeof moneyMovements;
 
 /**
  * Deletes one of my records in the trash for good (only from the trash:
@@ -413,6 +440,11 @@ export async function purgeFromTrash(
             .delete(programs)
             .where(where(programs))
             .returning({ id: programs.id });
+        case "movement":
+          return db
+            .delete(moneyMovements)
+            .where(where(moneyMovements))
+            .returning({ id: moneyMovements.id });
       }
     })();
     return gone.length ? ok(null) : fail({ _form: "not_found" });
@@ -493,6 +525,12 @@ export async function purgeExpiredTrash(
         .where(expired(assistantConversations))
         .returning({ id: assistantConversations.id }),
     );
+    const movement = count(
+      await tx
+        .delete(moneyMovements)
+        .where(expired(moneyMovements))
+        .returning({ id: moneyMovements.id }),
+    );
     const dayProfile = count(
       await tx
         .delete(dayProfiles)
@@ -559,6 +597,7 @@ export async function purgeExpiredTrash(
       reminder,
       conversation,
       program,
+      movement,
     };
   });
 }

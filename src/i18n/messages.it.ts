@@ -28,8 +28,9 @@ import {
   routinesIt,
   packsIt,
   invitesIt,
-  planIt,
 } from "./messages.home.it";
+import { planIt } from "./messages.plan.it";
+import { moneyIt } from "./messages.money.it";
 import type { Messages } from "./index";
 
 export const it: Messages = {
@@ -61,6 +62,7 @@ export const it: Messages = {
   },
   nav: {
     today: "Oggi",
+    money: "Soldi",
     ingredients: "Ingredienti",
     meals: "Pasti",
     settings: "Impostazioni",
@@ -146,6 +148,8 @@ export const it: Messages = {
     servingsMore: "Porzioni: × {n}",
     servingsLess: "Porzioni: × {n}",
     copyYesterday: "Ripeti i pasti di ieri",
+    inTotal: "Nel totale del piano: tocca per escluderla",
+    outOfTotal: "Esclusa dal totale: tocca per contarla",
     clearPlanned: "Togli i pianificati ({n})",
     clearPlannedAsk: "Togliere le {n} voci ancora pianificate?",
     clearPlannedHint:
@@ -532,6 +536,7 @@ export const it: Messages = {
   packs: packsIt,
   invites: invitesIt,
   plan: planIt,
+  money: moneyIt,
   body: bodyIt,
   dayScore: dayScoreIt,
   ratings: {

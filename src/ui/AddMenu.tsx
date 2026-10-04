@@ -24,6 +24,7 @@ import {
   Scale,
   Carrot,
   UtensilsCrossed,
+  Wallet,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -43,6 +44,7 @@ const ICONS = {
   dayType: CalendarClock,
   batch: CookingPot,
   reminder: Bell,
+  movement: Wallet,
 } satisfies Record<string, LucideIcon>;
 
 export type AddItem = { href: string; label: string; icon: keyof typeof ICONS };

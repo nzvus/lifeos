@@ -85,5 +85,21 @@ Tripwires:
   4. budgets, recurring charges, insights, the barcode in the pantry, with
      a fallback reader for browsers without BarcodeDetector.
 
+Update 2026-10-04 (v1 shipped, migration 0025):
+- tables `money_categories` (with a stable `key` for groceries and eating
+  out), `money_movements`, `money_receipts`, `money_lines`,
+  `receipt_aliases`; their links to products, purchases, categories and
+  receipts are `ON DELETE SET NULL (<column>)`, so the trash purge never
+  blocks on them;
+- the Money tab: overview (spent, income, balance, per day and projection,
+  pace against last month, categories, shops, food spent vs eaten, latest)
+  and movements (by day, search, category); a movement is added from a
+  sheet, also from Today's "+";
+- **food money is two numbers, never added**: what was spent (the ledger)
+  and what the food eaten cost at its ingredients' prices (the log's
+  snapshots). Receipts will update an ingredient's price from what was
+  paid (slice 3), so the second number follows the first; the gap is stock
+  bought or wasted, and food without a price.
+
 ## What I learned
 Not written yet: this section is the developer's own.

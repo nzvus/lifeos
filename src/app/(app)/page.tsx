@@ -35,7 +35,6 @@ import { getHistory } from "@/core/nutrition/repositories/history";
 import { carbsGoodMax, macroBands, trainingLoad } from "@/core/nutrition/bands";
 import { withAutoTargets } from "@/core/nutrition/targets";
 import { sessionMinutes } from "@/core/training/analysis";
-import { lookOf } from "@/core/training/calendar";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, startOfWeek, timeIn, todayIn } from "@/core/shared/dates";
 import { Bell, Copy, Dumbbell, Gauge, Scale, UtensilsCrossed } from "lucide-react";
@@ -94,6 +93,7 @@ import { ActionButtonForm } from "@/ui/ActionButtonForm";
 import {
   copyPreviousDayAction,
   restoreLogEntriesAction,
+  setEntryLeftOutAction,
   trashPlannedAction,
   deleteLogEntryAction,
   restoreLogEntryAction,
@@ -116,6 +116,7 @@ import { kcalTargets } from "@/core/energy/repositories/outlook";
 import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 import { DayGoal } from "./day-goal";
+import { programItemsOf } from "./day-program";
 import { reminderLines } from "./day-reminders";
 
 type Props = {
@@ -296,23 +297,12 @@ export default async function DayPage({ searchParams }: Props) {
       : programSlot.slot.label || t.programs.rest
     : null;
   // ADR-0035: each of the program's items, done when a session stands for it.
-  const lookById = new Map([
-    ...presets.map((x) => [x.routineId, x.look] as const),
-    ...exercises.map((e) => [e.id, lookOf([{ ...e, sets: 1 }])] as const),
-  ]);
-  const programItems = (programSlot?.items ?? []).map((it) => ({
-    ...it,
-    look: lookById.get(it.routineId ?? it.exerciseId ?? "") ?? {
-      region: null,
-      pattern: null,
-      cardio: false,
-    },
-    done: sessions.some((x) =>
-      it.routineId
-        ? x.routineId === it.routineId
-        : x.exercises.some((e) => e.exerciseId === it.exerciseId),
-    ),
-  }));
+  const programItems = programItemsOf(
+    programSlot?.items ?? [],
+    presets,
+    exercises,
+    sessions,
+  );
 
   return (
     // ADR-0033: the day's header (date, week, day type, night and movement)
@@ -323,6 +313,7 @@ export default async function DayPage({ searchParams }: Props) {
         entries={view.entries.map((e) => ({
           id: e.id,
           status: e.status,
+          leftOut: e.leftOut,
           servings: e.servings,
           lines: e.lines,
         }))}
@@ -565,6 +556,7 @@ export default async function DayPage({ searchParams }: Props) {
                 restore={restoreLogEntryAction}
                 refresh={refreshLogEntryAction}
                 statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
+                leftOutAction={setEntryLeftOutAction}
                 future={day > today}
                 timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
                 servingsAction={(id) => setEntryServingsAction.bind(null, id)}
@@ -782,6 +774,7 @@ export default async function DayPage({ searchParams }: Props) {
             </Link>
           </Sheet>
           <AddFab
+            day={day}
             training
             late={canAdd ? null : tabHref(tab).replace("?", "?late=1&")}
             t={t}

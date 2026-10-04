@@ -319,6 +319,29 @@ export const logEntries = pgTable(
 );
 
 /**
+ * A planned entry left out of the plan's total (2026-10-04: "a checkbox on
+ * each planned entry: do I want it in the total? all are, by default"), e.g.
+ * the dishes of a menu still to choose from. A row = left out; no row =
+ * counted. Eaten food always counts. Its own table, so the change is safe
+ * in any merge order (ADR-0003).
+ */
+export const logEntryLeftOut = pgTable(
+  "log_entry_left_out",
+  {
+    entryId: uuid("entry_id").primaryKey(),
+    userId: ownerColumn(),
+    createdAt: tstz("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    foreignKey({
+      name: "log_entry_left_out_entry_fk",
+      columns: [t.entryId, t.userId],
+      foreignColumns: [logEntries.id, logEntries.userId],
+    }).onDelete("cascade"),
+  ],
+);
+
+/**
  * The snapshot (ADR-0007): a frozen copy of each ingredient line as it was
  * when the entry was logged — name, unit, nutrients, price. `ingredient_id` is
  * kept only as a link for "show me the current ingredient"; it becomes null if
