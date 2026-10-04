@@ -14,13 +14,14 @@
  * Inside it:
  *   - LiveTotals: the day as planned — the five macros, eaten + planned
  *     against the day's zones (core/nutrition/bands), as ui/NutrientRow;
- *   - LiveStatusToggle, LiveServings: the tick and the −/+ of an entry;
+ *   - LiveStatusToggle, LiveCountToggle, LiveServings: the tick, "in the
+ *     total" (planned only) and the −/+ of an entry;
  *   - LiveEntryStrip, LiveTimes, LiveGroupStrip, LiveGroupKcal: the numbers
  *     those change.
  */
 "use client";
 
-import { Circle, CircleCheck, ListChecks, Minus, Plus } from "lucide-react";
+import { Circle, CircleCheck, Eye, EyeOff, ListChecks, Minus, Plus } from "lucide-react";
 import {
   createContext,
   useContext,
@@ -45,11 +46,21 @@ import { NutrientRow } from "@/ui/NutrientRow";
 export type LiveEntry = {
   id: string;
   status: "planned" | "eaten";
+  /** Planned but left out of the plan's total (2026-10-04). */
+  leftOut?: boolean;
   servings: string;
   lines: TotalsLine[];
 };
 
-type Patch = { id: string; status?: LiveEntry["status"]; servings?: string };
+type Patch = {
+  id: string;
+  status?: LiveEntry["status"];
+  servings?: string;
+  leftOut?: boolean;
+};
+
+/** What the plan's totals count: eaten food, and the planned not left out. */
+const counted = (e: LiveEntry) => e.status === "eaten" || !e.leftOut;
 
 const LiveContext = createContext<{
   entries: LiveEntry[];
@@ -124,6 +135,53 @@ export function LiveStatusToggle({
           <CircleCheck size={24} aria-hidden="true" />
         ) : (
           <Circle size={24} aria-hidden="true" />
+        )}
+      </button>
+    </form>
+  );
+}
+
+/**
+ * In the total or not (2026-10-04): a planned entry can be left out of the
+ * plan's totals, e.g. the dishes of a menu still to choose from. Shown only
+ * while the entry is planned; flipped at once, saved behind.
+ */
+export function LiveCountToggle({
+  id,
+  action,
+  labels,
+}: {
+  id: string;
+  /** Server action: (entry id, left out?). */
+  action: (id: string, out: boolean) => Promise<{ ok: boolean; message?: string }>;
+  labels: { counted: string; leftOut: string };
+}) {
+  const { patch } = useLive();
+  const entry = useEntry(id);
+  const [error, setError] = useState<string | null>(null);
+  if (!entry || entry.status !== "planned") return null;
+  const out = Boolean(entry.leftOut);
+  const label = out ? labels.leftOut : labels.counted;
+  return (
+    <form
+      action={async () => {
+        setError(null);
+        patch({ id, leftOut: !out });
+        const r = await action(id, !out);
+        if (!r.ok) setError(r.message ?? "");
+      }}
+    >
+      <button
+        type="submit"
+        aria-pressed={!out}
+        aria-label={label}
+        title={error ?? label}
+        className={`p-1 ${out ? "text-muted" : "text-ink"}`}
+      >
+        {out ? (
+          <EyeOff size={20} aria-hidden="true" />
+        ) : (
+          <Eye size={20} aria-hidden="true" />
         )}
       </button>
     </form>
@@ -234,7 +292,7 @@ export function LiveGroupStrip({
   locale: Locale;
   labels: MacroStripLabels;
 }) {
-  const entries = useLive().entries.filter((e) => ids.includes(e.id));
+  const entries = useLive().entries.filter((e) => ids.includes(e.id) && counted(e));
   return (
     <MacroStrip
       values={stripValues(entriesTotals(entries).nutrients, locale)}
@@ -283,7 +341,7 @@ export function LiveTotals({
 }) {
   const { entries } = useLive();
   const eaten = entriesTotals(entries.filter((e) => e.status === "eaten")).nutrients;
-  const plan = entriesTotals(entries).nutrients;
+  const plan = entriesTotals(entries.filter(counted)).nutrients;
   return (
     <section
       aria-labelledby="live-totals-title"

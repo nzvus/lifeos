@@ -15,6 +15,7 @@ import {
   Plus,
   Scale,
   UtensilsCrossed,
+  Wallet,
   X,
 } from "lucide-react";
 import { useRef } from "react";
@@ -22,10 +23,13 @@ import type { Messages } from "@/i18n";
 import { buttonClass } from "@/ui/button";
 
 export function AddFab({
+  day,
   training,
   late = null,
   t,
 }: {
+  /** The day shown: a spending added from here goes on it (ADR-0036). */
+  day: string;
   /** False when the day can't take training (none today). */
   training: boolean;
   /** A past day: food and training first open its "late" view (?late=1). */
@@ -107,6 +111,11 @@ export function AddFab({
           <a href="#day-weigh" onClick={(e) => go(e, "day-weigh")} className={item}>
             <Scale size={22} aria-hidden="true" className="text-herb" />
             {a.weight}
+          </a>
+          {/* Money lives in its tab: its sheet opens there, on this day. */}
+          <a href={`/money#money-add:${day}`} className={item}>
+            <Wallet size={22} aria-hidden="true" className="text-herb" />
+            {a.spending}
           </a>
         </div>
       </dialog>

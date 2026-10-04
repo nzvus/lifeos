@@ -26,6 +26,7 @@ import {
   deleteLogEntry,
   restoreLogEntry,
   restoreLogEntries,
+  setEntryLeftOut,
   trashPlanned,
   logIngredient,
   entryTiming,
@@ -153,6 +154,18 @@ export async function restoreLogEntriesAction(ids: string[]): Promise<void> {
   if (!valid.success) return;
   await restoreLogEntries(getDb(), owner, valid.data);
   revalidatePath("/");
+}
+
+/** A planned entry in or out of the plan's total (core setEntryLeftOut). */
+export async function setEntryLeftOutAction(
+  id: string,
+  out: boolean,
+): Promise<{ ok: boolean; message?: string }> {
+  const { owner, t } = await requireContext();
+  const r = await setEntryLeftOut(getDb(), owner, id, out === true);
+  if (!r.ok) return { ok: false, message: t.errors.not_found };
+  revalidatePath("/");
+  return { ok: true };
 }
 
 /** "Today is a gym day": copies that profile's targets onto the day (ADR-0008). */

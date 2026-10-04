@@ -12,7 +12,8 @@ live in `core/`, which imports no framework. Postgres on Neon through Drizzle (A
 Better Auth in the same database (ADR-0006). Modules: nutrition (ingredients, meals, log
 with snapshots, day types and targets, quality, trends), training (exercises with guides,
 routines, programs, sessions, gym mode, progress), body (weigh-ins, sleep, movement) and
-energy; pantry (products, purchases, derived stock, batches, reminders); an assistant over
+energy; pantry (products, purchases, derived stock, batches, reminders); money (one ledger of
+movements, categories, receipts; ADR-0036); an assistant over
 core tools (ADR-0018); trash; export; packs that add only what is missing, or plan estimates on a day (ADR-0034).
 
 ## Component map
@@ -27,9 +28,9 @@ src/
   features/     vertical slices (area/slice), components only:
                 account/{auth,settings,trash}, nutrition/{ingredients,meals,log,nav,
                 profiles,trends,pantry}, training/{body,exercises,live,programs,progress,
-                routines,sessions}
+                routines,sessions,plan}, money
   core/         db/ (schema: auth, nutrition, training; client), identity/ (Owner,
-                ownedBy), nutrition/, training/, pantry/, energy/, assistant/, trash/,
+                ownedBy), nutrition/, training/, pantry/, money/, energy/, assistant/, trash/,
                 export/, import/, catalog/ (packs), auth/,
                 shared/ (validation, search, browse, sorting, dates, trash…), testing/
   ui/           one component per repeated thing: button.ts, Badge, Section, Sheet,
@@ -137,8 +138,8 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
 - **Responsive UI:** tabs by moment (ADR-0035), views as URLs (ADR-0033) — Today (summary |
   food | training, under a fixed day header; gym mode starts here) · Training (plan: a week or
   month swiped sideways, the programs | routines | exercises; ADR-0036) · Food (meals |
-  ingredients | pantry) · Progress (trends | weight | training); the Assistant in the header; a bottom
-  bar on phones, header on md+, the day's summary in two columns on lg+. `sm:/md:/lg:` obey
+  ingredients | pantry) · Money (overview | movements) · Progress (trends | weight | training);
+  the Assistant in the header; a bottom bar on phones, header on md+. `sm:/md:/lg:` obey
   `data-layout` (ADR-0010); container queries in cards; checked at 360 px, text 120 %.
 - **Visual language:** colour = state (short / in the zone / over: `bandState`,
   ui/NutrientRow); nutrients keep their colour on icons and bars, numbers are ink; planned =

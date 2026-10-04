@@ -12,7 +12,13 @@
  */
 import { and, asc, eq, inArray, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
-import { batches, batchLines, logEntries, logEntryItems } from "../../db/schema";
+import {
+  batches,
+  batchLines,
+  logEntries,
+  logEntryItems,
+  logEntryLeftOut,
+} from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { live } from "../../shared/trash";
 import { fail, ok, type Result } from "../../shared/result";
@@ -67,6 +73,8 @@ export type LogEntryView = {
   estimated: boolean;
   /** ADR-0017: a portion of a batch. */
   batchId: string | null;
+  /** Planned but left out of the plan's total (log_entry_left_out). */
+  leftOut: boolean;
   lines: LoggedLine[];
   totals: DisplayTotals; // already multiplied by servings
 };
@@ -76,9 +84,9 @@ export type DayView = {
   entries: LogEntryView[];
   /** What was EATEN: the day's real totals (exact sum, rounded once). */
   totals: DisplayTotals;
-  /** Only the planned entries. */
+  /** Only the planned entries that count (not left out). */
   planned: DisplayTotals;
-  /** Eaten + planned: where the day ends if the plan is followed. */
+  /** Eaten + the planned that count: where the day ends if the plan is followed. */
   withPlanned: DisplayTotals;
 };
 
@@ -91,6 +99,21 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
     .orderBy(asc(logEntries.createdAt));
 
   const entryIds = entries.map((e) => e.id);
+  const leftOut = new Set(
+    entryIds.length === 0
+      ? []
+      : (
+          await db
+            .select({ id: logEntryLeftOut.entryId })
+            .from(logEntryLeftOut)
+            .where(
+              and(
+                ownedBy(logEntryLeftOut, owner),
+                inArray(logEntryLeftOut.entryId, entryIds),
+              ),
+            )
+        ).map((r) => r.id),
+  );
   const items =
     entryIds.length === 0
       ? []
@@ -125,8 +148,11 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
 
   // Keep EXACT totals per entry, add them exactly, and round only at the end.
   const exact = entries.map((e) => sumLines(linesByEntry.get(e.id) ?? [], e.servings));
+  // A planned entry left out counts nowhere; eaten food always counts.
+  const counts = (i: number) =>
+    entries[i]!.status === "eaten" || !leftOut.has(entries[i]!.id);
   const sumWhere = (keep: (status: EntryStatus) => boolean) =>
-    toDisplay(addTotals(exact.filter((_, i) => keep(entries[i]!.status))));
+    toDisplay(addTotals(exact.filter((_, i) => keep(entries[i]!.status) && counts(i))));
   return {
     day,
     entries: entries.map((e, i) => ({
@@ -140,6 +166,7 @@ export async function getDay(db: Db, owner: Owner, day: string): Promise<DayView
       moment: e.moment,
       estimated: e.estimated,
       batchId: e.batchId,
+      leftOut: e.status === "planned" && leftOut.has(e.id),
       lines: linesByEntry.get(e.id) ?? [],
       totals: toDisplay(exact[i]!),
     })),
@@ -323,6 +350,33 @@ export async function restoreLogEntry(
     )
     .returning({ id: logEntries.id });
   return restored.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/**
+ * A planned entry in or out of the plan's total (2026-10-04): out = a row
+ * in log_entry_left_out, in = none. Only my live entries; idempotent.
+ */
+export async function setEntryLeftOut(
+  db: Db,
+  owner: Owner,
+  id: string,
+  out: boolean,
+): Promise<Result<null>> {
+  const [entry] = await db
+    .select({ id: logEntries.id })
+    .from(logEntries)
+    .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)));
+  if (!entry) return fail({ _form: "not_found" });
+  if (out)
+    await db
+      .insert(logEntryLeftOut)
+      .values({ entryId: id, userId: owner.id })
+      .onConflictDoNothing();
+  else
+    await db
+      .delete(logEntryLeftOut)
+      .where(and(ownedBy(logEntryLeftOut, owner), eq(logEntryLeftOut.entryId, id)));
+  return ok(null);
 }
 
 /**

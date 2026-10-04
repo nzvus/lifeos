@@ -53,6 +53,12 @@ import {
   trainingSessions,
   user,
   userSettings,
+  logEntryLeftOut,
+  moneyCategories,
+  moneyLines,
+  moneyMovements,
+  moneyReceipts,
+  receiptAliases,
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
 import { live } from "../shared/trash";
@@ -71,7 +77,9 @@ export const EXPORT_FORMAT = "lifeos-export";
 // 11: `training.sleep`, the nights (ADR-0031);
 // 12: each program slot's `items` (routines and/or exercises, ADR-0035) and
 // each program's `skips` (days skipped on purpose).
-export const EXPORT_VERSION = 12;
+// 13: a log entry's `leftOut` (planned, out of the plan's total) and `money`
+// — categories, movements with their lines, receipts, aliases (ADR-0036).
+export const EXPORT_VERSION = 13;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -263,6 +271,33 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       db.select().from(programSkips).where(ownedBy(programSkips, owner)),
     ],
   );
+  // Money (ADR-0036), live records; lines nest in their movement.
+  const [leftOutRows, categoryRows, movementRows, lineRows, receiptRows, aliasRows] =
+    await Promise.all([
+      db.select().from(logEntryLeftOut).where(ownedBy(logEntryLeftOut, owner)),
+      db
+        .select()
+        .from(moneyCategories)
+        .where(and(ownedBy(moneyCategories, owner), live(moneyCategories)))
+        .orderBy(asc(moneyCategories.position)),
+      db
+        .select()
+        .from(moneyMovements)
+        .where(and(ownedBy(moneyMovements, owner), live(moneyMovements)))
+        .orderBy(asc(moneyMovements.day), asc(moneyMovements.createdAt)),
+      db
+        .select()
+        .from(moneyLines)
+        .where(ownedBy(moneyLines, owner))
+        .orderBy(asc(moneyLines.position)),
+      db
+        .select()
+        .from(moneyReceipts)
+        .where(and(ownedBy(moneyReceipts, owner), live(moneyReceipts))),
+      db.select().from(receiptAliases).where(ownedBy(receiptAliases, owner)),
+    ]);
+  const leftOut = new Set(leftOutRows.map((r) => r.entryId));
+
   return {
     format: EXPORT_FORMAT,
     version: EXPORT_VERSION,
@@ -292,6 +327,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     dayPlans: stripOwner(planRows),
     log: stripOwner(entryRows).map((e) => ({
       ...e,
+      leftOut: leftOut.has(e.id),
       items: stripOwner(entryItemRows.filter((i) => i.entryId === e.id)),
     })),
     training: {
@@ -339,6 +375,15 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
         ...c,
         messages: stripOwner(messageRows.filter((m) => m.conversationId === c.id)),
       })),
+    },
+    money: {
+      categories: stripOwner(categoryRows),
+      movements: stripOwner(movementRows).map((m) => ({
+        ...m,
+        lines: stripOwner(lineRows.filter((l) => l.movementId === m.id)),
+      })),
+      receipts: stripOwner(receiptRows),
+      aliases: stripOwner(aliasRows),
     },
   };
 }

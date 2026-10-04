@@ -22,6 +22,7 @@ import {
   refreshLogEntry,
   restoreLogEntries,
   restoreLogEntry,
+  setEntryLeftOut,
   setEntryStatus,
   setEntryTime,
   trashPlanned,
@@ -478,6 +479,53 @@ describe("removing what is still planned (a menu planned whole)", () => {
     expect(await restoreLogEntries(db, bob, ids)).toBe(0); // not Bob's to restore
     expect(await restoreLogEntries(db, alice, ids)).toBe(2);
     expect((await getDay(db, alice, "2026-10-04")).entries).toHaveLength(3);
+  });
+});
+
+describe("a planned entry left out of the total", () => {
+  it("counts in no total while left out; eaten food always counts; mine only", async () => {
+    const est = (label: string, kcal: string, status: "planned" | "eaten") =>
+      logEstimate(db, alice, {
+        day: "2026-10-04",
+        label,
+        kcal,
+        protein: "0",
+        carbs: "0",
+        sugars: "0",
+        fat: "0",
+        saturatedFat: "0",
+        fiber: "0",
+        salt: "0",
+        cost: null,
+        status,
+        at: status === "eaten" ? new Date() : null,
+      });
+    const naan = await est("Naan", "450", "planned");
+    const curry = await est("Curry", "700", "planned");
+    if (!naan.ok || !curry.ok) throw new Error("setup failed");
+    expect((await getDay(db, alice, "2026-10-04")).withPlanned.nutrients.kcal).toBe(
+      "1150.0",
+    );
+
+    expect((await setEntryLeftOut(db, bob, curry.value.id, true)).ok).toBe(false);
+    expect((await setEntryLeftOut(db, alice, curry.value.id, true)).ok).toBe(true);
+    expect((await setEntryLeftOut(db, alice, curry.value.id, true)).ok).toBe(true); // idempotent
+    let day = await getDay(db, alice, "2026-10-04");
+    expect(day.withPlanned.nutrients.kcal).toBe("450.0");
+    expect(day.planned.nutrients.kcal).toBe("450.0");
+    expect(day.entries.find((e) => e.label === "Curry")?.leftOut).toBe(true);
+
+    // Eaten, it counts whatever the flag says.
+    await setEntryStatus(db, alice, curry.value.id, "eaten", new Date());
+    day = await getDay(db, alice, "2026-10-04");
+    expect(day.totals.nutrients.kcal).toBe("700.0");
+    expect(day.entries.find((e) => e.label === "Curry")?.leftOut).toBe(false);
+
+    await setEntryStatus(db, alice, curry.value.id, "planned");
+    await setEntryLeftOut(db, alice, curry.value.id, false);
+    expect((await getDay(db, alice, "2026-10-04")).withPlanned.nutrients.kcal).toBe(
+      "1150.0",
+    );
   });
 });
 
