@@ -36,6 +36,7 @@ import {
   LiveEntryStrip,
   LiveGroupKcal,
   LiveGroupStrip,
+  LiveCountToggle,
   LiveServings,
   LiveStatusToggle,
   LiveTimes,
@@ -57,6 +58,8 @@ type Props = {
   /** "Update with current values" (core refreshLogEntry): a server action. */
   refresh: (id: string) => Promise<{ ok: boolean; message?: string }>;
   /** Tick / untick (ADR-0009), bound per entry and target status. */
+  /** In or out of the plan's total (a planned entry). */
+  leftOutAction: (id: string, out: boolean) => Promise<{ ok: boolean; message?: string }>;
   statusAction: (
     id: string,
     status: "planned" | "eaten",
@@ -92,6 +95,7 @@ export function EntryList({
   restore,
   refresh,
   statusAction,
+  leftOutAction,
   timeAction,
   servingsAction,
   quality,
@@ -139,17 +143,24 @@ export function EntryList({
                   key={e.id}
                   muted={e.status === "planned"}
                   leading={
-                    <LiveStatusToggle
-                      id={e.id}
-                      toEaten={statusAction(e.id, "eaten")}
-                      toPlanned={statusAction(e.id, "planned")}
-                      future={future}
-                      labels={{
-                        markEaten: t.day.markEaten,
-                        markPlanned: t.day.markPlanned,
-                        future: t.errors.future_day,
-                      }}
-                    />
+                    <span className="flex flex-col items-center">
+                      <LiveStatusToggle
+                        id={e.id}
+                        toEaten={statusAction(e.id, "eaten")}
+                        toPlanned={statusAction(e.id, "planned")}
+                        future={future}
+                        labels={{
+                          markEaten: t.day.markEaten,
+                          markPlanned: t.day.markPlanned,
+                          future: t.errors.future_day,
+                        }}
+                      />
+                      <LiveCountToggle
+                        id={e.id}
+                        action={leftOutAction}
+                        labels={{ counted: t.day.inTotal, leftOut: t.day.outOfTotal }}
+                      />
+                    </span>
                   }
                   title={
                     <>

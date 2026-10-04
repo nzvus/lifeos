@@ -37,6 +37,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       icon: "meals",
       match: ["/ingredients", "/pantry"],
     },
+    { href: "/money", label: t.nav.money, icon: "money" },
     { href: "/profiles", label: t.nav.progress, icon: "progress" },
   ] as const;
   return (
@@ -81,6 +82,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
                 icon: "program",
               },
             ],
+          },
+          {
+            // ADR-0036: the movement sheet lives on the Money pages.
+            prefix: "/money",
+            items: [{ href: "#money-add", label: t.money.add, icon: "movement" }],
           },
           {
             prefix: "/pantry",

@@ -100,6 +100,8 @@ export function mealTags<T extends { name: string }>(
 export function eatenQuality(
   entries: readonly {
     status: "planned" | "eaten";
+    /** Planned but left out of the plan's total. */
+    leftOut?: boolean;
     servings: string;
     lines: readonly QualityLine[];
   }[],
@@ -107,7 +109,7 @@ export function eatenQuality(
 ): QualitySummary {
   return qualitySummary(
     entries
-      .filter((e) => withPlanned || e.status === "eaten")
+      .filter((e) => e.status === "eaten" || (withPlanned && !e.leftOut))
       .flatMap((e) =>
         e.lines.map((l) => ({
           ...l,
