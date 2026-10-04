@@ -60,4 +60,32 @@ describe("latestPreset", () => {
     expect(p.from).toEqual({ kind: "session", day: "2026-09-30", label: "PUSH 5" });
     expect(p.exercises).toEqual([{ exerciseId: "b", restS: 80, sets: [set(10, "60")] }]);
   });
+
+  it("uses the routine again when it was saved by hand after its last session", () => {
+    const done = {
+      day: "2026-09-30",
+      label: "Push",
+      status: "done",
+      routineId: "r1",
+      exercises: [{ exerciseId: "b", restS: 80, sets: [set(10, "60")] }],
+    };
+    expect(
+      latestPreset(
+        { ...push, itemsSavedAt: "2026-10-04T08:00:00.000Z" },
+        [done],
+        fromItem,
+      ).from,
+    ).toEqual({
+      kind: "routine",
+    });
+    expect(
+      latestPreset(
+        { ...push, itemsSavedAt: "2026-09-20T08:00:00.000Z" },
+        [done],
+        fromItem,
+      ).from,
+    ).toMatchObject({
+      kind: "session",
+    });
+  });
 });

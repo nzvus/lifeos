@@ -8,18 +8,17 @@ import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { addDays, timeIn } from "@/core/shared/dates";
 import { idInput } from "@/core/nutrition/validation";
-import { regionOf } from "@/core/training/anatomy";
-import {
-  fromStoredSet,
-  type LiveSession as Live,
-  type LiveSet,
-} from "@/core/training/live";
+import { fromStoredSet, type LiveSession as Live } from "@/core/training/live";
 import { getSession } from "@/core/training/repositories/sessions";
-import { LiveSession, type LiveExerciseInfo } from "@/features/training/live/LiveSession";
+import { LiveSession } from "@/features/training/live/LiveSession";
 import { PageHeader } from "@/ui/PageHeader";
-import { editorData } from "../../editor-data";
-import { finishLiveAction, saveLiveAction } from "../../live-actions";
-import { listExercises } from "@/core/training/repositories/exercises";
+import {
+  finishLiveAction,
+  saveLiveAction,
+  saveToRoutineAction,
+  setUnilateralAction,
+} from "../../live-actions";
+import { liveData } from "../../live-data";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -27,29 +26,17 @@ export default async function LivePage({ params }: Props) {
   const { owner, settings, t } = await requireContext();
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
-  const db = getDb();
-  const session = await getSession(db, owner, id);
+  const session = await getSession(getDb(), owner, id);
   if (!session) notFound();
   if (session.status === "done") redirect(`/training/${id}`);
-  const [{ last, previous }, exercises] = await Promise.all([
-    editorData(owner, addDays(session.day, -1), settings.locale, t.training),
-    listExercises(db, owner),
-  ]);
   // Every exercise (the session's and any that can be added), and last
   // time's working sets: the "default" each set is compared with.
-  const info: Record<string, LiveExerciseInfo> = {};
-  const baseline: Record<string, LiveSet[]> = {};
-  for (const x of exercises) {
-    info[x.id] = {
-      name: x.name,
-      kind: x.kind,
-      pattern: x.pattern,
-      region: regionOf(x.muscleGroups),
-      last: last[x.id] ?? null,
-    };
-    const p = previous.get(x.id);
-    if (p) baseline[x.id] = p.sets.filter((s) => !s.warmup).map(fromStoredSet);
-  }
+  const { info, baseline } = await liveData(
+    owner,
+    addDays(session.day, -1),
+    settings.locale,
+    t.training,
+  );
   const initial: Live = {
     day: session.day,
     label: session.label,
@@ -78,6 +65,8 @@ export default async function LivePage({ params }: Props) {
         locale={settings.locale}
         save={saveLiveAction}
         finish={finishLiveAction}
+        saveToRoutine={saveToRoutineAction}
+        setUnilateral={setUnilateralAction}
         t={t.training.live}
         guides={t.guides}
       />

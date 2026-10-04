@@ -1,9 +1,10 @@
 /**
  * ui/ActionBar.tsx — the bar pinned to the bottom of every edit page
  * (ADR-0015): ↺ restore (only when something changed), Cancel, and the
- * primary action (Save) on the right, where the thumb is. Save is enabled
- * once something changed (always on a new record). It lives inside the
- * <form>, so Save is its submit button.
+ * primary action (Save) on the right, where the thumb is. It lives inside
+ * the <form>, so Save is its submit button. With nothing changed (2026-10-04:
+ * "I can't save without changing something, I have to press Cancel"), Save
+ * is not a dead button: it simply goes back, and Cancel is not needed.
  *
  * While mounted it marks <html data-editing>, so the phone's tab bar steps
  * aside (design/theme.css `editing:`); the page keeps its bottom padding,
@@ -58,10 +59,19 @@ export function ActionBar({
           </button>
         )}
         <span className="flex-1" />
-        <Link href={cancelHref} className={buttonClass({ variant: "quiet" })}>
-          {labels.cancel}
-        </Link>
-        <Save enabled={dirty || isNew} labels={labels} />
+        {dirty || isNew ? (
+          <>
+            <Link href={cancelHref} className={buttonClass({ variant: "quiet" })}>
+              {labels.cancel}
+            </Link>
+            <Save enabled labels={labels} />
+          </>
+        ) : (
+          // Nothing to save: done, back where it came from.
+          <Link href={cancelHref} className={buttonClass({ variant: "primary" })}>
+            {labels.save}
+          </Link>
+        )}
       </div>
     </div>
   );

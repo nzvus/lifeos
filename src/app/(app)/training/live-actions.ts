@@ -14,10 +14,14 @@ import { isValidDay, timeIn, todayIn } from "@/core/shared/dates";
 import { parseInput } from "@/core/shared/validation";
 import {
   finished,
+  routineItemsOf,
   toSessionValues,
   type LiveExercise,
   type LiveSession,
 } from "@/core/training/live";
+import { setExerciseUnilateral } from "@/core/training/repositories/exercises";
+import { updateRoutine } from "@/core/training/repositories/routines";
+import { routineInput } from "@/core/training/validation";
 import { latestPreset, type PresetSet } from "@/core/training/presets";
 import { listExercises } from "@/core/training/repositories/exercises";
 import { listRoutines } from "@/core/training/repositories/routines";
@@ -106,6 +110,8 @@ export async function startOrPlanAction(formData: FormData): Promise<void> {
       restS: null,
       warmup: false,
       done: false,
+      startedAt: null,
+      endedAt: null,
     })),
   }));
   const input = parseInput(
@@ -162,4 +168,68 @@ export async function finishLiveAction(
   const r = await updateSession(getDb(), owner, id, input.value, settings.timezone);
   if (r.ok) revalidatePath("/", "layout");
   return { ok: r.ok };
+}
+
+/**
+ * "Save to the routine" (2026-10-04): the exercises and working sets as they
+ * are now become the routine's items, and the next start uses them
+ * (presets.ts: saved after its last session). Name and notes stay.
+ */
+export async function saveToRoutineAction(
+  routineId: string,
+  live: LiveSession,
+): Promise<{ ok: boolean; message?: string }> {
+  const { owner, t } = await requireContext();
+  const db = getDb();
+  const routine = (await listRoutines(db, owner)).find((r) => r.id === routineId);
+  if (!routine) return { ok: false, message: t.errors.not_found };
+  const input = parseInput(routineInput, {
+    name: routine.name,
+    notes: routine.notes,
+    items: JSON.stringify(routineItemsOf(live)),
+  });
+  if (!input.ok) return { ok: false, message: t.errors.invalid_choice };
+  const r = await updateRoutine(db, owner, routineId, input.value);
+  if (!r.ok) return { ok: false, message: t.errors.not_found };
+  revalidatePath("/training", "layout");
+  return { ok: true };
+}
+
+/** One arm/leg at a time, switched from the gym mode. */
+export async function setUnilateralAction(
+  exerciseId: string,
+  unilateral: boolean,
+): Promise<{ ok: boolean }> {
+  const { owner } = await requireContext();
+  const r = await setExerciseUnilateral(getDb(), owner, exerciseId, unilateral === true);
+  revalidatePath("/training", "layout");
+  return { ok: r.ok };
+}
+
+/**
+ * From the routine's editor (nothing saved as a session yet): the edited
+ * exercises become a session, started now ("live") or planned today
+ * ("plan").
+ */
+export async function startEditedAction(
+  live: LiveSession,
+  mode: "live" | "plan",
+): Promise<{ ok: boolean }> {
+  const { owner, settings } = await requireContext();
+  const today = todayIn(settings.timezone);
+  const plan: LiveSession = {
+    ...live,
+    day: today,
+    time: mode === "live" ? timeIn(new Date(), settings.timezone) : "",
+    exercises: live.exercises.map((e) => ({
+      ...e,
+      sets: e.sets.map((x) => ({ ...x, done: false, startedAt: null, endedAt: null })),
+    })),
+  };
+  const input = parseInput(sessionInput, toSessionValues(plan, "planned", null));
+  if (!input.ok) return { ok: false };
+  const r = await createSession(getDb(), owner, input.value, settings.timezone);
+  if (!r.ok) return { ok: false };
+  revalidatePath("/", "layout");
+  redirect(mode === "live" ? `/training/${r.value.id}/live` : `/?tab=training`);
 }

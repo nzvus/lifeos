@@ -231,6 +231,8 @@ async function writeChildren(
           warmup: s.warmup,
           // Not ticked either way (the editor): a plan is not done yet.
           done: s.done ?? input.status === "done",
+          startedAt: s.startedAt ?? null,
+          endedAt: s.endedAt ?? null,
         })),
       );
   }

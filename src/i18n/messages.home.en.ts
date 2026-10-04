@@ -699,6 +699,7 @@ export const routinesEn = {
   title: "Routines",
   new: "New routine",
   back: "← Routines",
+  details: "Name, notes and the routine as a form",
   empty: "No routines.",
   name: "Name",
   notes: "Notes",

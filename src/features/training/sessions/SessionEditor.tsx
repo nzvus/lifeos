@@ -52,6 +52,9 @@ export type EditorSet = {
   inclinePct: string;
   /** Gym mode's tick, kept as is; absent = as the session (done or planned). */
   done?: boolean;
+  /** Gym mode's clock (ISO instants), kept as is. */
+  startedAt?: string | null;
+  endedAt?: string | null;
 };
 export type EditorExercise = {
   exerciseId: string;
@@ -128,6 +131,8 @@ function serialize(list: EditorExercise[]) {
         inclinePct: s.inclinePct,
         warmup: s.warmup,
         done: s.done,
+        startedAt: s.startedAt ?? null,
+        endedAt: s.endedAt ?? null,
       })),
     })),
   );
@@ -176,6 +181,8 @@ function fromValues(v: FormValues): EditorSession {
         speedKmh: str(x.speedKmh),
         inclinePct: str(x.inclinePct),
         ...(typeof x.done === "boolean" ? { done: x.done } : {}),
+        startedAt: typeof x.startedAt === "string" ? x.startedAt : null,
+        endedAt: typeof x.endedAt === "string" ? x.endedAt : null,
       })),
     })),
   };

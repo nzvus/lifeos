@@ -2,8 +2,9 @@
  * core/training/presets.ts — a routine as a preset that is always at its
  * LATEST version: starting "Push" repeats what the last Push session actually
  * was (its exercises, in order, with their working sets), not what the
- * routine said when it was written. The routine's own items are used only
- * until a session of it exists.
+ * routine said when it was written. The routine's own items are used until
+ * a session of it exists, and again whenever the routine is saved by hand
+ * after its last session (2026-10-04: "edit it for next time").
  *
  * A session belongs to a routine when it was started from it (routineId) or
  * when its label is the routine's name plus an optional number ("PUSH 5" is
@@ -47,6 +48,8 @@ export function latestPreset<S extends PresetSet>(
   routine: {
     id: string;
     name: string;
+    /** ISO instant the items were last saved by hand; null = never. */
+    itemsSavedAt?: string | null;
     items: readonly {
       exerciseId: string;
       sets: number;
@@ -82,7 +85,9 @@ export function latestPreset<S extends PresetSet>(
   );
   const last = [...mine].sort((a, b) => a.day.localeCompare(b.day)).at(-1);
   const label = routine.name;
-  if (!last)
+  // Saved by hand on or after the last session's day: the routine wins.
+  const saved = routine.itemsSavedAt?.slice(0, 10);
+  if (!last || (saved && saved >= last.day))
     return {
       label,
       from: { kind: "routine" },

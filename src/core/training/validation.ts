@@ -76,6 +76,14 @@ export type ExerciseInput = z.output<typeof exerciseInput>;
 /** Optional positive whole number (reps, seconds, metres). */
 const optionalCount = z.number().int().positive().max(100000).nullable().optional();
 
+/** An ISO instant from the browser ("2026-10-04T18:02:11.000Z"); empty = none. */
+const instant = z
+  .string()
+  .nullable()
+  .optional()
+  .transform((v) => (v ? new Date(v) : null))
+  .refine((d) => d === null || !Number.isNaN(d.getTime()), "invalid_time");
+
 /** One set, as the session editor sends it (numbers as numbers, decimals as strings). */
 const setInput = z.object({
   reps: optionalCount,
@@ -95,6 +103,9 @@ const setInput = z.object({
   warmup: z.boolean().optional().default(false),
   /** Live mode: false while a planned set is not ticked yet; absent = as the session's status. */
   done: z.boolean().optional(),
+  /** Live mode's clock: when the set began and ended (ISO instants); absent = not timed. */
+  startedAt: instant.optional(),
+  endedAt: instant.optional(),
 });
 export type SetInput = z.output<typeof setInput>;
 
