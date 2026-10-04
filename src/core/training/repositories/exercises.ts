@@ -77,6 +77,21 @@ export async function updateExercise(
   }
 }
 
+/** One arm/leg at a time, or not (the gym mode's switch, 2026-10-04). */
+export async function setExerciseUnilateral(
+  db: Db,
+  owner: Owner,
+  id: string,
+  unilateral: boolean,
+): Promise<Result<null>> {
+  const done = await db
+    .update(exercises)
+    .set({ unilateral })
+    .where(and(ownedBy(exercises, owner), live(exercises), eq(exercises.id, id)))
+    .returning({ id: exercises.id });
+  return done.length ? ok(null) : fail({ _form: "not_found" });
+}
+
 /**
  * Moves an unused exercise to the trash (ADR-0015); one with history or in
  * a routine: "in_use" — merge it into another instead, which moves the

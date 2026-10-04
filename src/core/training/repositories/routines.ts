@@ -23,6 +23,8 @@ export type RoutineView = {
   id: string;
   name: string;
   notes: string;
+  /** ISO instant of the last save by hand, or null (presets.ts). */
+  itemsSavedAt: string | null;
   items: (Omit<typeof routineItems.$inferSelect, "userId" | "routineId"> & {
     name: string;
     /** The exercise's, for its drawing (ui/ExerciseIcon). */
@@ -57,6 +59,7 @@ export async function listRoutines(db: Db, owner: Owner): Promise<RoutineView[]>
     id: r.id,
     name: r.name,
     notes: r.notes,
+    itemsSavedAt: r.itemsSavedAt ? r.itemsSavedAt.toISOString() : null,
     items: items
       .filter((i) => i.item.routineId === r.id)
       .map(({ item: { userId: _u, routineId: _r, ...rest }, ...exercise }) => ({
@@ -141,7 +144,8 @@ export async function updateRoutine(
     const found = await db.transaction(async (tx) => {
       const updated = await tx
         .update(routines)
-        .set({ name: input.name, notes: input.notes })
+        // Saved by hand: the next start uses these items (presets.ts).
+        .set({ name: input.name, notes: input.notes, itemsSavedAt: new Date() })
         .where(and(ownedBy(routines, owner), live(routines), eq(routines.id, id)))
         .returning({ id: routines.id });
       if (!updated.length) return false;

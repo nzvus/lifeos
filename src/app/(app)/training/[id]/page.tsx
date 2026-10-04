@@ -16,6 +16,8 @@ import { getSession } from "@/core/training/repositories/sessions";
 import { EstimateEditor } from "@/features/training/sessions/EstimateForm";
 import { EMPTY_SET, SessionEditor } from "@/features/training/sessions/SessionEditor";
 import { PageHeader } from "@/ui/PageHeader";
+import { fromStoredSet, timing } from "@/core/training/live";
+import { fill } from "@/i18n";
 import { TrashMenu } from "@/ui/TrashMenu";
 import {
   deleteSessionAction,
@@ -111,6 +113,41 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
           {t.training.live.open}
         </Link>
       )}
+      {/* Gym mode's clock: time in sets, resting, the long breaks. */}
+      {(() => {
+        const k = timing({
+          day: session.day,
+          label: session.label,
+          time,
+          routineId: session.routineId,
+          notes: session.notes,
+          exercises: session.exercises.map((e) => ({
+            exerciseId: e.exerciseId,
+            restS: e.restS,
+            notes: e.notes,
+            sets: e.sets.map(fromStoredSet),
+          })),
+        });
+        if (k.sets < 2) return null;
+        const mmss = (sec: number) =>
+          `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
+        return (
+          <div className="flex flex-col gap-1 text-meta text-muted tabular-nums">
+            <p>
+              {fill(t.training.live.timing, {
+                work: mmss(k.workS),
+                rest: mmss(k.restS),
+                avg: k.avgRestS === null ? "—" : mmss(k.avgRestS),
+              })}
+            </p>
+            {k.longBreaks.map((b, i) => (
+              <p key={i} className="text-warn">
+                {fill(t.training.live.longBreak, { min: String(Math.round(b / 60)) })}
+              </p>
+            ))}
+          </div>
+        );
+      })()}
       <SessionEditor
         id={id}
         from={from}
@@ -141,6 +178,8 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
               speedKmh: str(s.speedKmh),
               inclinePct: str(s.inclinePct),
               done: s.done,
+              startedAt: s.startedAt ? s.startedAt.toISOString() : null,
+              endedAt: s.endedAt ? s.endedAt.toISOString() : null,
             })),
           })),
         }}

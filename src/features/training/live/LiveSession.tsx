@@ -1,86 +1,91 @@
 /**
- * features/training/live/LiveSession.tsx — the gym mode (core/training/live.ts):
- * one exercise open at a time, its sets prefilled from last time, each with a
- * big tick and −/+ steppers; ticking a set starts the rest timer (the
- * exercise's rest, else 90 s; it vibrates at zero) and, after the last set,
- * opens the next exercise. A header pinned to the top shows the time since
- * the start, the save state and the rest countdown, so nothing hides under
- * the phone's tab bar.
+ * features/training/live/LiveSession.tsx — the gym mode (core/training/live.ts),
+ * and the same screen to edit a routine without starting it (mode
+ * "routine", 2026-10-04: one editor instead of two).
  *
- * Each set shows its change against the same set of last time (reps × kg,
- * core/training/live.ts setChange) as you edit, and ↺ puts last time's
- * numbers back. Exercises can be added (prefilled from last time), moved
- * and removed (while none of their sets is done).
+ * The clock, pinned to the top (2026-10-04): rest counts down, passes zero
+ * and keeps counting ("+0:12") until Go; then the set counts up until ✓;
+ * then the rest… An exercise done one side at a time splits each set: side
+ * 1, half the rest, side 2. Everything comes from the sets' saved instants
+ * (core clockOf), so leaving the page or closing the app resumes where it
+ * was, and the time away is simply rest. The round tick on a set still
+ * marks it by hand.
  *
- * Saving: every change is saved whole, 0.5 s after the last edit, in order
- * (one promise chain), so the database always has what was done. Until the
- * server confirms it, the change is also kept in this browser (a draft in
- * localStorage) and saved at once when the page is hidden or left; a
- * reload restores the draft and saves it. Finishing waits for pending
- * saves, then the server keeps only the done sets.
- * The screen is kept awake while the page is open (Wake Lock, where the
- * browser has it).
+ * Exercises can be added, moved, removed; sets added, deleted one by one
+ * (with Undo), warmed up (the ramp 50/70/85 %); an exercise's rest and its
+ * "one side at a time" change here. With a routine behind the session,
+ * "Save to the routine" makes this the next start.
+ *
+ * Saving (session mode): every change is saved whole, 0.5 s after the last
+ * edit, in order; until confirmed it is also kept in this browser (a draft)
+ * and saved at once when the page is hidden. Finishing keeps the done sets.
+ * The screen stays awake while the page is open (Wake Lock).
  */
 "use client";
 
 import {
   ArrowDown,
   ArrowUp,
-  Check,
   ChevronDown,
+  Minus,
+  Play,
   Plus,
-  RotateCcw,
-  Timer,
-  Trash2,
+  Save,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import {
-  baselineSet,
+  addWarmup,
+  clockOf,
+  completeRunning,
   copyLastSet,
-  DEFAULT_REST_S,
-  WARMUP_REST_S,
-  warmupSet,
   move,
   newExercise,
-  nextSet,
-  restoreSet,
-  setChange,
-  stepLoad,
+  startNext,
+  timing,
+  toggleDone,
   undoneCount,
+  nextSet,
   type LiveExercise,
   type LiveSession as Live,
   type LiveSet,
 } from "@/core/training/live";
-import { setText } from "@/core/training/display";
 import type { ExerciseKind } from "@/core/training/kinds";
 import type { Locale } from "@/core/shared/locales";
 import { pickerSearch } from "@/core/shared/search";
 import { fill, type Messages } from "@/i18n";
-import { Change } from "@/ui/Change";
 import { ExerciseIcon } from "@/ui/ExerciseIcon";
 import { GUIDES, guideKeyOf } from "@/core/training/guides";
 import { nextTarget } from "@/core/training/targets";
 import { ExerciseGuide } from "./ExerciseGuide";
 import { SearchSelect } from "@/ui/SearchSelect";
-import { Stepper } from "./Stepper";
+import { ClockBar } from "./ClockBar";
+import { SetRow } from "./SetRow";
 import { buttonClass } from "@/ui/button";
+import { toast } from "@/ui/Toast";
 
 /** The time now, for event handlers (taps): never called while rendering. */
 const wallClock = () => Date.now();
+const iso = () => new Date(wallClock()).toISOString();
 
 export type LiveExerciseInfo = {
   name: string;
   kind: ExerciseKind;
   pattern: string | null;
   region: string | null;
+  /** One arm/leg at a time. */
+  unilateral: boolean;
   /** "Last time (28/09): 3×10 @ 35" or null. */
   last: string | null;
 };
 
+type Outcome = { ok: boolean; message?: string };
+
 type Props = {
-  id: string;
+  /** The session's id; null in routine mode (nothing saved as a session). */
+  id: string | null;
+  mode?: "session" | "routine";
   initial: Live;
   /** ISO instant of the start, for the elapsed time; null when unknown. */
   startedAt: string | null;
@@ -91,6 +96,10 @@ type Props = {
   locale: Locale;
   save: (id: string, live: Live) => Promise<{ ok: boolean }>;
   finish: (id: string, live: Live) => Promise<{ ok: boolean }>;
+  saveToRoutine: (routineId: string, live: Live) => Promise<Outcome>;
+  setUnilateral: (exerciseId: string, on: boolean) => Promise<{ ok: boolean }>;
+  /** Routine mode: the edited routine as a session, now or today. */
+  startEdited?: (live: Live, mode: "live" | "plan") => Promise<{ ok: boolean }>;
   t: Messages["training"]["live"];
   /** ADR-0028: the exercise guides' words. */
   guides: Messages["guides"];
@@ -103,11 +112,6 @@ const clock = (ms: number) => {
   const two = (n: number) => String(n).padStart(2, "0");
   return h ? `${h}:${two(m)}:${two(s % 60)}` : `${m}:${two(s % 60)}`;
 };
-
-/** "37,5" or "37.5" typed -> "37.5"; "" stays empty (null). */
-const decimal = (raw: string) => raw.replace(",", ".").trim() || null;
-const whole = (raw: string) => (/^\d+$/.test(raw.trim()) ? Number(raw.trim()) : null);
-const shown = (v: string | null) => (v === null ? "" : v.replace(".", ","));
 
 const draftKey = (id: string) => `lifeos.live.${id}`;
 /** Browser storage can be missing or refuse (private mode): never fatal. */
@@ -134,34 +138,35 @@ const draft = {
 
 export function LiveSession({
   id,
+  mode = "session",
   initial,
   startedAt,
-  info,
+  info: initialInfo,
   baseline,
   locale,
   save,
   finish,
+  saveToRoutine,
+  setUnilateral,
+  startEdited,
   t,
   guides,
 }: Props) {
+  const routineMode = mode === "routine" || id === null;
   const [s, setS] = useState(initial);
+  const [info, setInfo] = useState(initialInfo);
   const [open, setOpen] = useState(() => nextSet(initial.exercises)?.exercise ?? 0);
-  const [rest, setRest] = useState<{ ends: number; buzzed: boolean } | null>(null);
-  // When the session really began: its start if a set is already done, else
-  // the first tick (a planned 18:00 opened at 19:00 starts at 19:00).
-  const [start, setStart] = useState<number | null>(() =>
-    startedAt && initial.exercises.some((e) => e.sets.some((x) => x.done))
-      ? Date.parse(startedAt)
-      : null,
-  );
+  // Extra rest asked with +15 s, for the rest that began at `since`.
+  const [bonus, setBonus] = useState<{ since: string; s: number } | null>(null);
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   // null until the first tick in the browser: the server's clock would not
   // match the browser's, and React would throw the page away (hydration).
   const [now, setNow] = useState<number | null>(null);
   const [finishing, setFinishing] = useState(false);
+  const [pending, startTransition] = useTransition();
   const chain = useRef<Promise<unknown>>(Promise.resolve());
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const restRef = useRef<{ ends: number; buzzed: boolean } | null>(null);
+  const buzzed = useRef<string | null>(null);
   const finishingRef = useRef(false);
   /** The newest state, for saving from timers and page events. */
   const latest = useRef(initial);
@@ -176,19 +181,27 @@ export function LiveSession({
     })),
     () => "",
   );
+  const unilateral = (eid: string) => info[eid]?.unilateral ?? false;
 
-  // The clock of the timers; buzzes once when the rest is over.
+  const c = clockOf(s);
+  const restS =
+    c.phase === "rest" ? c.restS + (bonus?.since === c.since ? bonus.s : 0) : 0;
+
+  // The clock; buzzes once when a rest passes zero.
   useEffect(() => {
+    if (routineMode) return;
     const tick = () => {
       const t = Date.now();
       setNow(t);
-      const r = restRef.current;
-      if (r && !r.buzzed && t >= r.ends) {
-        try {
-          navigator.vibrate?.([200, 100, 200]);
-        } catch {}
-        restRef.current = { ...r, buzzed: true };
-        setRest(restRef.current);
+      const k = clockOf(latest.current);
+      if (k.phase === "rest" && buzzed.current !== k.since) {
+        const left = Date.parse(k.since) + k.restS * 1000 - t;
+        if (left <= 0 && left > -2000) {
+          try {
+            navigator.vibrate?.([200, 100, 200]);
+          } catch {}
+          buzzed.current = k.since;
+        }
       }
     };
     const first = setTimeout(tick, 0);
@@ -197,10 +210,11 @@ export function LiveSession({
       clearTimeout(first);
       clearInterval(h);
     };
-  }, []);
+  }, [routineMode]);
 
   // Keep the screen on while training (not every browser has it).
   useEffect(() => {
+    if (routineMode) return;
     let lock: { release: () => Promise<void> } | null = null;
     const request = async () => {
       try {
@@ -221,15 +235,11 @@ export function LiveSession({
       document.removeEventListener("visibilitychange", request);
       void lock?.release().catch(() => {});
     };
-  }, []);
-
-  const startRest = (r: { ends: number; buzzed: boolean } | null) => {
-    restRef.current = r;
-    setRest(r);
-  };
+  }, [routineMode]);
 
   /** Saves a state now, after any save already running; clears the draft if it is still the newest. */
   const saveNow = (snapshot: Live) => {
+    if (!id) return;
     chain.current = chain.current.then(async () => {
       try {
         const ok = (await save(id, snapshot)).ok;
@@ -241,11 +251,11 @@ export function LiveSession({
     });
   };
 
-  /** Every edit: show it, keep it in the browser, save it 0.5 s later. */
+  /** Every edit: show it; in a session also keep it in the browser and save it 0.5 s later. */
   const change = (next: Live) => {
     setS(next);
     latest.current = next;
-    if (finishingRef.current) return;
+    if (routineMode || !id || finishingRef.current) return;
     draft.write(id, next);
     setState("saving");
     if (timer.current) clearTimeout(timer.current);
@@ -258,6 +268,7 @@ export function LiveSession({
   // A reload restores what the server had not confirmed yet, and saves it.
   // (After mount: the server render cannot read this browser's storage.)
   useEffect(() => {
+    if (!id || routineMode) return;
     const h = setTimeout(() => {
       const d = draft.read(id);
       if (!d || JSON.stringify(d) === JSON.stringify(initial)) return draft.clear(id);
@@ -274,6 +285,7 @@ export function LiveSession({
 
   // Leaving or hiding the page: save the pending change at once.
   useEffect(() => {
+    if (!id || routineMode) return;
     const flush = () => {
       if (!timer.current || finishingRef.current) return;
       clearTimeout(timer.current);
@@ -298,31 +310,53 @@ export function LiveSession({
       sets: e.sets.map((x, j) => (j === si ? { ...x, ...v } : x)),
     }));
 
-  const tick = (ei: number, si: number) => {
-    const e = s.exercises[ei]!;
-    const set = e.sets[si]!;
-    const was = set.done;
-    const first = !was && start === null; // not started yet: this tick starts it
-    const next = {
-      ...s,
-      // The first set done starts the session now (its duration counts from here).
-      ...(first ? { time: new Date(wallClock()).toTimeString().slice(0, 5) } : {}),
-      exercises: s.exercises.map((x, i) =>
-        i === ei
-          ? { ...x, sets: x.sets.map((y, j) => (j === si ? { ...y, done: !was } : y)) }
-          : x,
-      ),
-    };
+  /** The session starts with its first set: its time is "now" then. */
+  const begun = (next: Live): Live =>
+    next.time
+      ? next
+      : { ...next, time: new Date(wallClock()).toTimeString().slice(0, 5) };
+
+  const go = () => change(begun(startNext(s, iso())));
+  const complete = () => {
+    const before = clockOf(s);
+    const next = completeRunning(s, iso(), unilateral);
     change(next);
-    if (first) setStart(wallClock());
-    if (was) return;
-    const restS = set.warmup ? WARMUP_REST_S : (e.restS ?? DEFAULT_REST_S);
-    startRest({ ends: wallClock() + restS * 1000, buzzed: false });
-    if (e.sets.every((x, j) => j === si || x.done) && ei + 1 < s.exercises.length)
-      setOpen(ei + 1);
+    // The last set of an exercise done: open the next exercise.
+    if (before.phase === "set") {
+      const e = next.exercises[before.exercise]!;
+      if (e.sets.every((x) => x.done) && before.exercise + 1 < next.exercises.length)
+        setOpen(before.exercise + 1);
+    }
+  };
+  const tick = (ei: number, si: number) => change(begun(toggleDone(s, ei, si, iso())));
+
+  const deleteSet = (ei: number, si: number) => {
+    const before = s;
+    update(ei, (e) => ({ ...e, sets: e.sets.filter((_, j) => j !== si) }));
+    toast({
+      message: t.setDeleted,
+      action: { label: t.undo, run: () => change(before) },
+    });
   };
 
+  const switchUnilateral = (eid: string) => {
+    const on = !unilateral(eid);
+    setInfo((x) => ({ ...x, [eid]: { ...x[eid]!, unilateral: on } }));
+    startTransition(async () => {
+      const r = await setUnilateral(eid, on);
+      if (!r.ok) setInfo((x) => ({ ...x, [eid]: { ...x[eid]!, unilateral: !on } }));
+    });
+  };
+
+  const toRoutine = () =>
+    startTransition(async () => {
+      if (!s.routineId) return;
+      const r = await saveToRoutine(s.routineId, s);
+      toast({ message: r.ok ? t.savedRoutine : (r.message ?? t.notSaved) });
+    });
+
   const onFinish = () => {
+    if (!id) return;
     finishingRef.current = true;
     setFinishing(true);
     if (timer.current) clearTimeout(timer.current);
@@ -348,95 +382,75 @@ export function LiveSession({
 
   const left = undoneCount(s);
   const coming = nextSet(s.exercises);
-  const upNext = coming
-    ? {
-        name: info[s.exercises[coming.exercise]!.exerciseId]?.name ?? "",
-        n: coming.set + 1,
-      }
-    : null;
-  const restLeft = rest && now !== null ? rest.ends - now : 0;
+  const nameOf = (ei: number) => info[s.exercises[ei]?.exerciseId ?? ""]?.name ?? "";
+  const elapsed = (since: string) => (now === null ? 0 : now - Date.parse(since));
+  const restLeft = c.phase === "rest" ? restS * 1000 - elapsed(c.since) : 0;
+  const firstStart = s.exercises
+    .flatMap((e) => e.sets.map((x) => x.startedAt))
+    .filter(Boolean)
+    .sort()[0];
+  const sessionStart = firstStart
+    ? Date.parse(firstStart)
+    : startedAt && s.time
+      ? Date.parse(startedAt)
+      : null;
+  const times = timing(s);
+  const mmss = (sec: number) => clock(sec * 1000);
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="panel sticky top-0 z-10 flex flex-col gap-2 p-3">
-        <div className="flex items-center justify-between gap-3">
-          <span className="font-display text-section font-bold">{s.label}</span>
-          <span className="flex items-center gap-3 text-meta tabular-nums">
-            <span
-              className={state === "error" ? "font-semibold text-tomato" : "text-muted"}
-            >
-              {state === "saving"
-                ? t.saving
-                : state === "saved"
-                  ? t.saved
-                  : state === "error"
-                    ? t.notSaved
-                    : ""}
+      {routineMode ? (
+        <p className="tile p-3 text-meta text-muted">{t.routineMode}</p>
+      ) : (
+        <div className="panel sticky top-0 z-10 flex flex-col gap-2 p-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="min-w-0 truncate font-display text-section font-bold">
+              {s.label}
             </span>
-            {start !== null ? (
-              <span className="font-display text-item font-semibold">
-                {now === null ? "–:––" : clock(Math.max(0, now - start))}
+            <span className="flex shrink-0 items-center gap-3 text-meta tabular-nums">
+              <span
+                className={state === "error" ? "font-semibold text-tomato" : "text-muted"}
+              >
+                {state === "saving"
+                  ? t.saving
+                  : state === "saved"
+                    ? t.saved
+                    : state === "error"
+                      ? t.notSaved
+                      : ""}
               </span>
-            ) : (
-              <span className="text-muted">{t.notStarted}</span>
-            )}
-          </span>
-        </div>
-        {rest && restLeft > 0 && (
-          <div className="flex items-center gap-2">
-            <Timer size={22} aria-hidden="true" className="text-herb" />
-            <span
-              className="flex-1 font-display text-title font-bold tabular-nums"
-              aria-live="polite"
-            >
-              {clock(restLeft)}
-            </span>
-            <button
-              type="button"
-              onClick={() =>
-                startRest({
-                  ends: Math.max(rest.ends, wallClock()) + 15000,
-                  buzzed: false,
-                })
-              }
-              className={buttonClass({ variant: "subtle" })}
-            >
-              {t.plus15}
-            </button>
-            <button
-              type="button"
-              onClick={() => startRest(null)}
-              className={buttonClass({ variant: "subtle" })}
-            >
-              {t.skipRest}
-            </button>
-          </div>
-        )}
-        {rest && restLeft <= 0 && (
-          // Over: say so and what comes next; nothing to skip. The next tick
-          // starts a new rest; OK just hides this.
-          <div className="flex items-center gap-2" aria-live="assertive">
-            <Timer size={22} aria-hidden="true" className="text-warn" />
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="font-display text-section font-bold text-warn">
-                {t.restOver}
-              </span>
-              {upNext && (
-                <span className="truncate text-meta">
-                  {fill(t.restNext, { name: upNext.name, n: String(upNext.n) })}
+              {sessionStart !== null ? (
+                <span className="font-display text-item font-semibold">
+                  {now === null ? "–:––" : clock(Math.max(0, now - sessionStart))}
                 </span>
+              ) : (
+                <span className="text-muted">{t.notStarted}</span>
               )}
             </span>
-            <button
-              type="button"
-              onClick={() => startRest(null)}
-              className={buttonClass({ variant: "subtle" })}
-            >
-              {t.close}
-            </button>
           </div>
-        )}
-      </div>
+
+          <ClockBar
+            c={c}
+            now={now}
+            restLeft={restLeft}
+            sideNext={
+              c.phase === "set" && unilateral(s.exercises[c.exercise]!.exerciseId)
+            }
+            current={c.phase === "set" ? nameOf(c.exercise) : ""}
+            coming={coming ? { name: nameOf(coming.exercise), n: coming.set + 1 } : null}
+            onMore={() =>
+              c.phase === "rest" &&
+              setBonus({
+                since: c.since,
+                s: (bonus?.since === c.since ? bonus.s : 0) + 15,
+              })
+            }
+            onGo={go}
+            onDone={complete}
+            t={t}
+          />
+        </div>
+      )}
 
       {s.exercises.length === 0 && <p className="text-muted">{t.empty}</p>}
 
@@ -444,6 +458,7 @@ export function LiveSession({
         const x = info[e.exerciseId];
         const done = e.sets.filter((v) => v.done).length;
         const isOpen = open === ei;
+        const uni = unilateral(e.exerciseId);
         return (
           <section key={`${e.exerciseId}-${ei}`} className="tile flex flex-col gap-3 p-3">
             <button
@@ -460,9 +475,13 @@ export function LiveSession({
                 className={`font-display text-item tabular-nums ${done === e.sets.length && done > 0 ? "text-herb" : "text-muted"}`}
               >
                 {x?.kind === "cardio"
-                  ? // Cardio is time, not sets: its minutes so far.
-                    `${Math.round(e.sets.reduce((a, v) => a + (v.durationS ?? 0), 0) / 60)} ${t.min}`
-                  : fill(t.progress, { done: String(done), all: String(e.sets.length) })}
+                  ? `${Math.round(e.sets.reduce((a, v) => a + (v.durationS ?? 0), 0) / 60)} ${t.min}`
+                  : routineMode
+                    ? String(e.sets.length)
+                    : fill(t.progress, {
+                        done: String(done),
+                        all: String(e.sets.length),
+                      })}
               </span>
               <ChevronDown
                 size={18}
@@ -474,6 +493,7 @@ export function LiveSession({
               <>
                 {x?.last && <p className="text-meta text-muted">{x.last}</p>}
                 {x &&
+                  !routineMode &&
                   (() => {
                     // ADR-0028: today's target from last time, and how to do it.
                     const key = guideKeyOf(x);
@@ -488,187 +508,104 @@ export function LiveSession({
                       />
                     );
                   })()}
+                {/* The exercise's rest and its "one side at a time", in one row. */}
                 {x?.kind !== "cardio" && (
-                  <details className="text-meta">
-                    <summary className="cursor-pointer text-muted">{t.warmupHow}</summary>
-                    <p className="mt-1">{t.warmupHint}</p>
-                  </details>
-                )}
-                <ol className="flex flex-col gap-2">
-                  {e.sets.map((v, si) => (
-                    <li
-                      key={si}
-                      className={`tile flex items-stretch gap-2 p-2 ${v.done ? "border-herb" : ""}`}
-                    >
+                  <div className="flex flex-wrap items-center gap-2 text-meta">
+                    <span className="inline-flex items-center gap-1">
                       <button
                         type="button"
-                        onClick={() => tick(ei, si)}
-                        aria-pressed={v.done}
-                        aria-label={fill(v.done ? t.untick : t.tick, {
-                          n: String(si + 1),
-                        })}
-                        className={`flex w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-control ${
-                          v.done ? "bg-herb text-sheet" : "border border-hairline"
+                        aria-label={t.restLess}
+                        onClick={() =>
+                          update(ei, (v) => ({
+                            ...v,
+                            restS: Math.max(15, (v.restS ?? 90) - 15),
+                          }))
+                        }
+                        className="tile inline-flex h-9 w-9 items-center justify-center rounded-control"
+                      >
+                        <Minus size={14} aria-hidden="true" />
+                      </button>
+                      <span className="tabular-nums">
+                        {fill(t.restOf, { s: String(e.restS ?? 90) })}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={t.restMore}
+                        onClick={() =>
+                          update(ei, (v) => ({
+                            ...v,
+                            restS: Math.min(900, (v.restS ?? 90) + 15),
+                          }))
+                        }
+                        className="tile inline-flex h-9 w-9 items-center justify-center rounded-control"
+                      >
+                        <Plus size={14} aria-hidden="true" />
+                      </button>
+                    </span>
+                    {
+                      <button
+                        type="button"
+                        aria-pressed={uni}
+                        disabled={pending}
+                        title={t.unilateralHint}
+                        onClick={() => switchUnilateral(e.exerciseId)}
+                        className={`rounded-badge px-2 py-1 ${
+                          uni ? "bg-ink text-sheet" : "border border-hairline text-muted"
                         }`}
                       >
-                        <Check size={24} aria-hidden="true" />
-                        {x?.kind !== "cardio" && (
-                          <span className="font-display text-meta tabular-nums">
-                            {si + 1}
-                          </span>
-                        )}
+                        {t.unilateral}
                       </button>
-                      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                        {x?.kind === "cardio" ? (
-                          <>
-                            <Stepper
-                              value={
-                                v.durationS === null
-                                  ? ""
-                                  : String(Math.round(v.durationS / 60))
-                              }
-                              unit={t.min}
-                              less={fill(t.less, { what: t.min })}
-                              more={fill(t.more, { what: t.min })}
-                              onStep={(d) =>
-                                patch(ei, si, {
-                                  durationS: Math.max(60, (v.durationS ?? 0) + d * 60),
-                                })
-                              }
-                              onType={(r) => {
-                                const m = whole(r);
-                                patch(ei, si, { durationS: m === null ? null : m * 60 });
-                              }}
-                            />
-                            <Stepper
-                              decimal
-                              value={
-                                v.distanceM === null
-                                  ? ""
-                                  : shown(String(v.distanceM / 1000))
-                              }
-                              unit={t.km}
-                              less={fill(t.less, { what: t.km })}
-                              more={fill(t.more, { what: t.km })}
-                              onStep={(d) =>
-                                patch(ei, si, {
-                                  distanceM: Math.max(0, (v.distanceM ?? 0) + d * 500),
-                                })
-                              }
-                              onType={(r) => {
-                                const km = decimal(r);
-                                patch(ei, si, {
-                                  distanceM:
-                                    km === null ? null : Math.round(Number(km) * 1000),
-                                });
-                              }}
-                            />
-                          </>
-                        ) : (
-                          <>
-                            {(x?.kind === "strength" || v.loadKg !== null) && (
-                              <Stepper
-                                decimal
-                                value={shown(v.loadKg)}
-                                unit={t.kg}
-                                less={fill(t.less, { what: t.kg })}
-                                more={fill(t.more, { what: t.kg })}
-                                onStep={(d) =>
-                                  patch(ei, si, { loadKg: stepLoad(v.loadKg, d) })
-                                }
-                                onType={(r) => patch(ei, si, { loadKg: decimal(r) })}
-                              />
-                            )}
-                            <Stepper
-                              value={v.reps === null ? "" : String(v.reps)}
-                              unit={t.reps}
-                              less={fill(t.less, { what: t.reps })}
-                              more={fill(t.more, { what: t.reps })}
-                              onStep={(d) =>
-                                patch(ei, si, { reps: Math.max(1, (v.reps ?? 0) + d) })
-                              }
-                              onType={(r) => patch(ei, si, { reps: whole(r) })}
-                            />
-                            <button
-                              type="button"
-                              aria-pressed={v.warmup}
-                              onClick={() => patch(ei, si, { warmup: !v.warmup })}
-                              className={`self-start rounded-badge px-2 py-0.5 text-meta ${
-                                v.warmup
-                                  ? "bg-warn text-sheet"
-                                  : "border border-hairline text-muted"
-                              }`}
-                            >
-                              {t.warmup}
-                            </button>
-                          </>
-                        )}
-                        {(() => {
-                          // Warm-ups aren't compared; working sets by their own order.
-                          const b = v.warmup
-                            ? null
-                            : baselineSet(
-                                baseline[e.exerciseId]?.filter((y) => !y.warmup),
-                                e.sets.slice(0, si).filter((y) => !y.warmup).length,
-                              );
-                          if (!b) return null;
-                          return (
-                            <div className="flex items-center justify-between gap-2 text-meta tabular-nums">
-                              <span className="truncate text-muted">
-                                {fill(t.before, { v: setText(b, locale) })}
-                              </span>
-                              <span className="flex shrink-0 items-center gap-2">
-                                <Change pct={setChange(x?.kind ?? "strength", v, b)} />
-                                {JSON.stringify(restoreSet(v, b)) !==
-                                  JSON.stringify(v) && (
-                                  <button
-                                    type="button"
-                                    aria-label={t.restore}
-                                    title={t.restore}
-                                    onClick={() =>
-                                      update(ei, (ex) => ({
-                                        ...ex,
-                                        sets: ex.sets.map((y, j) =>
-                                          j === si ? restoreSet(y, b) : y,
-                                        ),
-                                      }))
-                                    }
-                                    className="tile inline-flex h-8 w-8 items-center justify-center rounded-control text-muted"
-                                  >
-                                    <RotateCcw size={16} aria-hidden="true" />
-                                  </button>
-                                )}
-                              </span>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </li>
-                  ))}
+                    }
+                  </div>
+                )}
+                <ol className="flex flex-col gap-2">
+                  {e.sets.map((v, si) => {
+                    const running =
+                      c.phase === "set" && c.exercise === ei && c.set === si;
+                    const half = Boolean(v.halfAt) && !v.done;
+                    return (
+                      <SetRow
+                        key={si}
+                        v={v}
+                        si={si}
+                        kind={x?.kind}
+                        running={running}
+                        half={half}
+                        routineMode={routineMode}
+                        base={baseline[e.exerciseId]}
+                        before={e.sets.slice(0, si).filter((y) => !y.warmup).length}
+                        locale={locale}
+                        t={t}
+                        onTick={() => tick(ei, si)}
+                        onPatch={(p) => patch(ei, si, p)}
+                        onDelete={() => deleteSet(ei, si)}
+                      />
+                    );
+                  })}
                 </ol>
                 <div className="flex flex-wrap justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      update(ei, (v) => ({ ...v, sets: [...v.sets, copyLastSet(v)] }))
-                    }
-                    className={buttonClass({ variant: "subtle" })}
-                  >
-                    <Plus size={18} aria-hidden="true" />
-                    {t.addSet}
-                  </button>
-                  {x?.kind !== "cardio" && (
+                  <span className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() =>
-                        update(ei, (v) => ({ ...v, sets: [warmupSet(v), ...v.sets] }))
+                        update(ei, (v) => ({ ...v, sets: [...v.sets, copyLastSet(v)] }))
                       }
                       className={buttonClass({ variant: "subtle" })}
                     >
                       <Plus size={18} aria-hidden="true" />
-                      {t.addWarmup}
+                      {t.addSet}
                     </button>
-                  )}
+                    {x?.kind !== "cardio" && (
+                      <button
+                        type="button"
+                        onClick={() => update(ei, addWarmup)}
+                        className={buttonClass({ variant: "subtle" })}
+                      >
+                        <Plus size={18} aria-hidden="true" />
+                        {t.addWarmup}
+                      </button>
+                    )}
+                  </span>
                   <span className="flex gap-2">
                     <button
                       type="button"
@@ -713,20 +650,6 @@ export function LiveSession({
                     )}
                   </span>
                 </div>
-                <div className="flex justify-end">
-                  {e.sets.length > 0 && !e.sets.at(-1)!.done && (
-                    <button
-                      type="button"
-                      aria-label={t.removeSet}
-                      onClick={() =>
-                        update(ei, (v) => ({ ...v, sets: v.sets.slice(0, -1) }))
-                      }
-                      className="tile inline-flex h-11 w-11 items-center justify-center rounded-control text-muted"
-                    >
-                      <Trash2 size={18} aria-hidden="true" />
-                    </button>
-                  )}
-                </div>
               </>
             )}
           </section>
@@ -740,10 +663,10 @@ export function LiveSession({
           value=""
           onChange={(eid) => {
             if (!eid || !info[eid]) return;
-            const restS = s.exercises.find((x) => x.exerciseId === eid)?.restS ?? null;
+            const rest = s.exercises.find((x) => x.exerciseId === eid)?.restS ?? null;
             change({
               ...s,
-              exercises: [...s.exercises, newExercise(eid, restS, baseline[eid])],
+              exercises: [...s.exercises, newExercise(eid, rest, baseline[eid])],
             });
             setOpen(s.exercises.length);
           }}
@@ -754,17 +677,79 @@ export function LiveSession({
         />
       </div>
 
-      {s.exercises.length > 0 && left === 0 && (
-        <p className="text-center font-semibold text-herb">{t.allDone}</p>
+      {!routineMode && times.sets > 1 && (
+        <div className="flex flex-col gap-1 text-meta text-muted tabular-nums">
+          <p>
+            {fill(t.timing, {
+              work: mmss(times.workS),
+              rest: mmss(times.restS),
+              avg: times.avgRestS === null ? "—" : mmss(times.avgRestS),
+            })}
+          </p>
+          {times.longBreaks.map((b, i) => (
+            <p key={i} className="text-warn">
+              {fill(t.longBreak, { min: String(Math.round(b / 60)) })}
+            </p>
+          ))}
+        </div>
       )}
-      <button
-        type="button"
-        onClick={onFinish}
-        disabled={finishing}
-        className={buttonClass({ variant: "primary", block: true })}
-      >
-        {left > 0 ? fill(t.finishDrop, { n: String(left) }) : t.finish}
-      </button>
+
+      {s.routineId && (
+        <button
+          type="button"
+          onClick={toRoutine}
+          disabled={pending}
+          className={buttonClass({
+            variant: routineMode ? "primary" : "secondary",
+            block: true,
+          })}
+        >
+          <Save size={18} aria-hidden="true" />
+          {t.saveRoutine}
+        </button>
+      )}
+      {routineMode && startEdited ? (
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() =>
+              startTransition(async () => void (await startEdited(s, "live")))
+            }
+            className={buttonClass({ variant: "secondary" })}
+          >
+            <Play size={18} aria-hidden="true" />
+            {t.startNow}
+          </button>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() =>
+              startTransition(async () => void (await startEdited(s, "plan")))
+            }
+            className={buttonClass({ variant: "secondary" })}
+          >
+            <Plus size={18} aria-hidden="true" />
+            {t.planToday}
+          </button>
+        </div>
+      ) : (
+        !routineMode && (
+          <>
+            {s.exercises.length > 0 && left === 0 && (
+              <p className="text-center font-semibold text-herb">{t.allDone}</p>
+            )}
+            <button
+              type="button"
+              onClick={onFinish}
+              disabled={finishing}
+              className={buttonClass({ variant: "primary", block: true })}
+            >
+              {left > 0 ? fill(t.finishDrop, { n: String(left) }) : t.finish}
+            </button>
+          </>
+        )
+      )}
     </div>
   );
 }

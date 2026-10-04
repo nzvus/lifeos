@@ -14,6 +14,16 @@ import {
   stepLoad,
   toSessionValues,
   undoneCount,
+  addWarmup,
+  warmupSet,
+  clockOf,
+  startNext,
+  completeRunning,
+  timing,
+  activeMinutes,
+  toggleDone,
+  routineItemsOf,
+  type LiveExercise,
   type LiveSession,
   type LiveSet,
 } from "./live";
@@ -31,6 +41,8 @@ const set = (reps: number, loadKg: string, done = false): LiveSet => ({
   restS: null,
   warmup: false,
   done,
+  startedAt: null,
+  endedAt: null,
 });
 const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;
 const session = (sets1: LiveSet[], sets2: LiveSet[]): LiveSession => ({
@@ -143,28 +155,125 @@ describe("live mode", () => {
 });
 
 describe("warm-up (gym mode)", () => {
-  it("a warm-up set is half the first working load, rounded to its step, 10 reps", async () => {
-    const { warmupSet } = await import("./live");
-    const base = {
-      reps: 8,
-      loadKg: "62.5",
-      loadText: null,
-      loadApprox: false,
-      durationS: null,
-      distanceM: null,
-      speedKmh: null,
-      inclinePct: null,
-      restS: null,
-      warmup: false,
-      done: false,
+  it("adds the ramp 50 % × 8, 70 % × 5, 85 % × 3 of the first working load, before the working sets", () => {
+    let e: LiveExercise = {
+      exerciseId: "x",
+      restS: 90,
+      notes: "",
+      sets: [set(8, "62.5"), set(8, "62.5")],
     };
-    const e = { exerciseId: "x", restS: 90, notes: "", sets: [base, base] };
+    e = addWarmup(e);
+    e = addWarmup(e);
+    e = addWarmup(e);
+    expect(e.sets.map((x) => [x.warmup, x.reps, x.loadKg])).toEqual([
+      [true, 8, "30"], // 31.25 down to its 2.5 step
+      [true, 5, "42.5"],
+      [true, 3, "52.5"],
+      [false, 8, "62.5"],
+      [false, 8, "62.5"],
+    ]);
+  });
+
+  it("without a load, half the working reps", () => {
+    const e = {
+      exerciseId: "x",
+      restS: 90,
+      notes: "",
+      sets: [{ ...set(12, "0"), loadKg: null }],
+    };
     expect(warmupSet(e)).toMatchObject({
-      reps: 10,
-      loadKg: "30",
+      reps: 6,
+      loadKg: null,
       warmup: true,
       done: false,
     });
-    expect(warmupSet({ ...e, sets: [{ ...base, loadKg: null }] }).loadKg).toBeNull();
+  });
+});
+
+describe("the clock (rest → Go → set → ✓)", () => {
+  const T = (m: number, s = 0) =>
+    `2026-10-04T18:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.000Z`;
+  const two = () => session([set(10, "35"), set(10, "35")], [set(8, "20")]);
+  const never = () => false;
+
+  it("is idle before anything, then follows Go and ✓, resting the exercise's rest", () => {
+    let s = two();
+    expect(clockOf(s)).toEqual({ phase: "idle" });
+    s = startNext(s, T(0));
+    expect(clockOf(s)).toMatchObject({ phase: "set", since: T(0), exercise: 0, set: 0 });
+    s = completeRunning(s, T(0, 40), never);
+    expect(s.exercises[0]!.sets[0]).toMatchObject({
+      done: true,
+      startedAt: T(0),
+      endedAt: T(0, 40),
+    });
+    expect(clockOf(s)).toEqual({
+      phase: "rest",
+      since: T(0, 40),
+      restS: 110,
+      half: false,
+    });
+    s = startNext(s, T(3));
+    expect(clockOf(s)).toMatchObject({ phase: "set", exercise: 0, set: 1 });
+  });
+
+  it("splits a set of an exercise done one side at a time, with half the rest between", () => {
+    const uni = () => true;
+    let s = startNext(two(), T(0));
+    s = completeRunning(s, T(0, 30), uni);
+    expect(clockOf(s)).toEqual({ phase: "rest", since: T(0, 30), restS: 55, half: true });
+    s = startNext(s, T(1, 30));
+    expect(clockOf(s)).toMatchObject({ phase: "set", since: T(1, 30), side: 2 });
+    s = completeRunning(s, T(2), uni);
+    expect(s.exercises[0]!.sets[0]).toMatchObject({
+      done: true,
+      startedAt: T(0),
+      endedAt: T(2),
+    });
+    expect(clockOf(s)).toMatchObject({ phase: "rest", restS: 110, half: false });
+  });
+
+  it("measures work, rest and the long breaks (the app closed), and the active minutes", () => {
+    let s = startNext(two(), T(0));
+    s = completeRunning(s, T(1), never);
+    s = startNext(s, T(3));
+    s = completeRunning(s, T(4), never);
+    s = startNext(s, T(30)); // 26 minutes away
+    s = completeRunning(s, T(31), never);
+    expect(timing(s)).toEqual({
+      workS: 180,
+      restS: 1680,
+      sets: 3,
+      avgRestS: 840,
+      longBreaks: [1560],
+    });
+    expect(activeMinutes(s)).toBe(31);
+    const r = parseInput(sessionInput, finished(s, "23:59"));
+    expect(r.ok && r.value.durationMin).toBe(31);
+  });
+
+  it("a tick by hand marks the end, and unticking clears it", () => {
+    const s = toggleDone(two(), 0, 0, T(5));
+    expect(s.exercises[0]!.sets[0]).toMatchObject({
+      done: true,
+      startedAt: null,
+      endedAt: T(5),
+    });
+    expect(toggleDone(s, 0, 0, T(6)).exercises[0]!.sets[0]).toMatchObject({
+      done: false,
+      endedAt: null,
+    });
+  });
+});
+
+describe("routineItemsOf", () => {
+  it("keeps each exercise's working sets as a count with the first set's numbers", () => {
+    const s = session(
+      [{ ...set(8, "20"), warmup: true }, set(10, "35"), set(8, "37.5")],
+      [],
+    );
+    expect(routineItemsOf(s)).toEqual([
+      { exerciseId: id(1), sets: 2, reps: 10, loadKg: "35", durationS: null, restS: 110 },
+    ]);
   });
 });

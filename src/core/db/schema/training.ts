@@ -83,6 +83,10 @@ export const routines = pgTable(
     name: text("name").notNull(),
     notes: text("notes").notNull().default(""),
     position: integer("position").notNull().default(0),
+    // 2026-10-04: when its exercises were last saved by hand. Starting it
+    // repeats the last session (presets.ts) unless the routine was saved
+    // after that session: then its own items win. Null = never.
+    itemsSavedAt: timestamp("items_saved_at", { withTimezone: true }),
     // ADR-0015: in the trash since then (null = live); purged after 30 days.
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
@@ -220,6 +224,10 @@ export const sets = pgTable(
     // Ticked in the gym (live mode): a planned set not done yet is false.
     // Everything logged before live mode was done (default true).
     done: boolean("done").notNull().default(true),
+    // 2026-10-04: when the set began ("Go") and ended (✓) in gym mode; null
+    // when not timed. Rest = the gap between one set's end and the next start.
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    endedAt: timestamp("ended_at", { withTimezone: true }),
   },
   (t) => [
     foreignKey({

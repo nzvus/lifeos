@@ -707,6 +707,7 @@ export const routinesIt: Messages["routines"] = {
   title: "Schede",
   new: "Nuova scheda",
   back: "← Schede",
+  details: "Nome, note e scheda come modulo",
   empty: "Nessuna scheda.",
   name: "Nome",
   notes: "Note",

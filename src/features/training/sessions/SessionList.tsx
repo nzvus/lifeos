@@ -272,7 +272,10 @@ export function SessionList({
                   className={`relative z-2 ${buttonClass({ variant: "primary", size: "sm" })}`}
                 >
                   <Play size={14} aria-hidden="true" />
-                  {t.when.startShort}
+                  {/* Already begun (a set ticked or timed): it resumes. */}
+                  {s.exercises.some((e) => e.sets.some((x) => x.done || x.startedAt))
+                    ? t.live.resume
+                    : t.when.startShort}
                 </Link>
               )}
             </div>
