@@ -9,6 +9,7 @@
 "use client";
 
 import {
+  Brain,
   Dumbbell,
   Footprints,
   Moon,
@@ -107,6 +108,10 @@ export function AddFab({
           <a href="#day-sleep" onClick={(e) => go(e, "day-sleep")} className={item}>
             <Moon size={22} aria-hidden="true" className="text-herb" />
             {a.sleep}
+          </a>
+          <a href="#day-mind" onClick={(e) => go(e, "day-mind")} className={item}>
+            <Brain size={22} aria-hidden="true" className="text-herb" />
+            {a.mind}
           </a>
           <a href="#day-weigh" onClick={(e) => go(e, "day-weigh")} className={item}>
             <Scale size={22} aria-hidden="true" className="text-herb" />

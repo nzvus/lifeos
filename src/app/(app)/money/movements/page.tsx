@@ -67,7 +67,7 @@ export default async function MovementsPage({ searchParams }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader title={m.title} />
+      <PageHeader title={m.title} quiet />
       <MoneyNav current="movements" month={month} t={m} />
       <div className="flex items-center justify-between gap-2">
         <Link

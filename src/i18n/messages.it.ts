@@ -29,6 +29,7 @@ import {
   packsIt,
   invitesIt,
 } from "./messages.home.it";
+import { mindIt } from "./messages.mind.it";
 import { planIt } from "./messages.plan.it";
 import { moneyIt } from "./messages.money.it";
 import type { Messages } from "./index";
@@ -62,6 +63,8 @@ export const it: Messages = {
   },
   nav: {
     today: "Oggi",
+    mind: "Mente",
+    body: "Corpo",
     money: "Soldi",
     ingredients: "Ingredienti",
     meals: "Pasti",
@@ -298,6 +301,8 @@ export const it: Messages = {
       modes: { system: "Come il dispositivo", light: "Chiaro", dark: "Scuro" },
       layout: "Impaginazione",
       layouts: { auto: "Automatica", desktop: "Desktop", phone: "Telefono" },
+      density: "Densità",
+      densities: { compact: "Compatta", comfortable: "Comoda (più grande)" },
       save: "Salva aspetto",
     },
   },
@@ -563,6 +568,7 @@ export const it: Messages = {
   invites: invitesIt,
   plan: planIt,
   money: moneyIt,
+  mind: mindIt,
   body: bodyIt,
   dayScore: dayScoreIt,
   ratings: {
@@ -701,6 +707,7 @@ export const it: Messages = {
   },
   analysis: {
     adherenceTitle: "Obiettivi raggiunti",
+    howTo: "Come si calcola",
     adherenceHint:
       "Giorni in cui eri nell'obiettivo, sui giorni registrati che ne avevano uno. Minimi (proteine, fibre): raggiunti; massimi (zuccheri, saturi, sale): non superati; obiettivi: entro ±5 %.",
     noTargets: "Nessun obiettivo nei giorni registrati del periodo.",

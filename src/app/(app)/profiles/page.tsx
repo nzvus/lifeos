@@ -32,6 +32,8 @@ import { listSleep } from "@/core/training/repositories/sleep";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
 import { SubNav } from "@/ui/SubNav";
+import { FoodNav } from "@/features/nutrition/nav/FoodNav";
+import { TrainingNav } from "@/features/training/nav/TrainingNav";
 import { deleteMeasurementAction, restoreMeasurementAction } from "../training/actions";
 
 const VIEWS = ["trends", "weight", "training"] as const;
@@ -123,31 +125,33 @@ export default async function ProgressPage({ searchParams }: Props) {
 
   return (
     <>
-      <PageHeader title={g.title} />
-      <SubNav
-        label={g.title}
-        current={view}
-        items={[
-          {
-            key: "trends",
-            href: "/profiles",
-            label: g.trends,
-            icon: <TrendingUp size={16} aria-hidden="true" />,
-          },
-          {
-            key: "weight",
-            href: "/profiles?view=weight",
-            label: g.weight,
-            icon: <Scale size={16} aria-hidden="true" />,
-          },
-          {
-            key: "training",
-            href: "/profiles?view=training",
-            label: g.training,
-            icon: <Dumbbell size={16} aria-hidden="true" />,
-          },
-        ]}
-      />
+      <PageHeader title={g.title} quiet />
+      {/* ADR-0038: trends are Food's; weight and training are Body's. */}
+      {view === "trends" ? (
+        <FoodNav current="trends" t={t} />
+      ) : (
+        <>
+          <TrainingNav current="progress" t={t} />
+          <SubNav
+            label={g.title}
+            current={view}
+            items={[
+              {
+                key: "training",
+                href: "/profiles?view=training",
+                label: g.training,
+                icon: <Dumbbell size={16} aria-hidden="true" />,
+              },
+              {
+                key: "weight",
+                href: "/profiles?view=weight",
+                label: g.weight,
+                icon: <Scale size={16} aria-hidden="true" />,
+              },
+            ]}
+          />
+        </>
+      )}
       {body}
     </>
   );

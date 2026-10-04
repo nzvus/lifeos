@@ -34,6 +34,7 @@ const STATIC = [
   "/?tab=training",
   "/training/plan",
   "/money",
+  "/mind",
   "/money/movements",
   "/assistant",
   "/meals",
@@ -88,7 +89,8 @@ function findIssues() {
     (e) =>
       e.childElementCount === 0 &&
       text(e) &&
-      !e.closest("dialog:not([open]), nav, [hidden]") &&
+      // A popover (ui/InfoTip) floats over the content by design.
+      !e.closest("dialog:not([open]), nav, [hidden], [data-popover]") &&
       !pinned(e),
   );
   const boxes = leaves

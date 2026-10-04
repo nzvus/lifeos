@@ -77,7 +77,7 @@ export function NutrientBar({
           />
         )}
       </span>
-      <span className="flex w-24 shrink-0 items-center justify-end gap-1 font-display text-meta tabular-nums">
+      <span className="flex min-w-24 shrink-0 items-center justify-end gap-1 font-display text-meta whitespace-nowrap tabular-nums">
         {amount}
         {state === "good" && <Check size={12} aria-hidden="true" className="text-herb" />}
         {state === "over" && (

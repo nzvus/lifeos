@@ -29,7 +29,9 @@ import { fill, type Messages } from "@/i18n";
 import { ConcentricRings } from "@/ui/ConcentricRings";
 import { MacroBar } from "@/ui/MacroBar";
 import { NutrientIcon, NUTRIENT_VAR } from "@/ui/NutrientIcon";
-import { NutrientRow, type RowState } from "@/ui/NutrientRow";
+import { InfoTip } from "@/ui/InfoTip";
+import { NutrientBar } from "@/ui/NutrientBar";
+import type { RowState } from "@/ui/NutrientRow";
 import { targetTone } from "@/ui/targetTone";
 
 /** The same heading as every ui/Section. */
@@ -108,44 +110,39 @@ export function DayPanel({
               ? fill(t.panel.noBenefit, { v: g(band.ceiling) })
               : fill(t.panel.aboveZone, { v: g(band.high) })
             : fill(t.panel.past, { v: g(band.ceiling) });
-    const details = (
-      <>
-        {real && (
-          <span>
-            {fill(t.panel.bandLine, {
-              floor: g(real.floor),
-              low: num(String(real.low), k),
-              high: g(real.high),
-              ceiling: g(real.ceiling),
-              kind: real.ceilingKind === "health" ? t.panel.maxHealth : t.panel.maxUseful,
-            })}
-          </span>
-        )}
-        {target !== null && <span>{fill(t.panel.targetLine, { v: g(target) })}</span>}
-        {vp !== v && <span>{fill(t.panel.planLine, { v: g(vp) })}</span>}
-      </>
-    );
+    // Floors, ceilings, the target and the plan in words: the tooltip and
+    // screen readers (the bar already draws them).
+    const words = [
+      `${t.nutrients[k]}: ${g(v)}`,
+      status,
+      real &&
+        fill(t.panel.bandLine, {
+          floor: g(real.floor),
+          low: num(String(real.low), k),
+          high: g(real.high),
+          ceiling: g(real.ceiling),
+          kind: real.ceilingKind === "health" ? t.panel.maxHealth : t.panel.maxUseful,
+        }),
+      target !== null && fill(t.panel.targetLine, { v: g(target) }),
+      vp !== v && fill(t.panel.planLine, { v: g(vp) }),
+      auto.includes(k) && t.panel.auto,
+    ]
+      .filter(Boolean)
+      .join(" · ");
     return (
-      <NutrientRow
+      <NutrientBar
         key={k}
-        icon={SUB.has(k) ? undefined : <NutrientIcon name={k} />}
-        label={t.nutrients[k]}
+        icon={<NutrientIcon name={k} size={SUB.has(k) ? 12 : 14} />}
+        label={t.macro.short[k]}
         sub={SUB.has(k)}
-        amount={g(v)}
-        status={status}
+        amount={target === null ? g(v) : `${num(String(v), k)} / ${g(target)}`}
+        status={words}
         state={state}
         eaten={v}
         withPlan={vp}
-        zone={
-          band && kind !== "max"
-            ? { low: band.low, high: band.high }
-            : band
-              ? { low: 0, high: band.high }
-              : null
-        }
+        zone={band && kind !== "max" ? { low: band.low, high: band.high } : null}
+        limit={band && band.ceilingKind === "health" ? band.ceiling : null}
         max={band ? Math.max(band.ceiling * 1.15, v, vp, target ?? 0) || 1 : 1}
-        details={real || target !== null || vp !== v ? details : undefined}
-        autoLabel={auto.includes(k) ? t.panel.auto : undefined}
       />
     );
   };
@@ -153,18 +150,10 @@ export function DayPanel({
   const kcal = assess("kcal");
   const split = macroSplit(totals.nutrients);
   const unit = NUTRIENT_UNIT.kcal;
-  /** Where the energy comes from: the bar and its words. */
+  /** Where the energy comes from: the bar (its words in its tooltip). */
   const splitLine = split && (
     <div className="w-full">
       <MacroBar split={split} label={t.macro.splitTitle} />
-      <p className="pt-1 text-center font-display text-meta text-muted tabular-nums">
-        {[
-          `${t.macro.protein} ${split.protein}%`,
-          `${t.macro.carbs} ${split.carbs}% (${fill(t.macro.sugarsOf, { v: String(split.sugars) })})`,
-          `${t.macro.fat} ${split.fat}% (${fill(t.macro.saturatedOf, { v: String(split.saturatedFat) })})`,
-          fill(t.macro.fiberOf, { v: String(split.fiber) }),
-        ].join(" · ")}
-      </p>
     </div>
   );
   const cost = (
@@ -206,6 +195,12 @@ export function DayPanel({
         <PieChart size={20} aria-hidden="true" />
       </span>
       {t.label.title}
+      <span className="ml-auto font-sans text-meta font-normal normal-case">
+        <InfoTip label={t.panel.legend}>
+          <p>{t.panel.ringsLegend}</p>
+          <p className="mt-1">{t.panel.liveLegend}</p>
+        </InfoTip>
+      </span>
     </h2>
   );
 
@@ -218,7 +213,7 @@ export function DayPanel({
       <div className="flex flex-col items-center gap-6 @2xl:flex-row @2xl:items-start">
         <div className="flex flex-col items-center gap-2">
           <ConcentricRings
-            size={220}
+            size={180}
             label={t.label.title}
             rings={RINGS.map((k) => {
               const a = assess(k);
@@ -269,19 +264,10 @@ export function DayPanel({
               })}
             </span>
           )}
-          {/* Legend: ring order, outside -> inside. */}
-          <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-meta text-muted">
-            {RINGS.map((k) => (
-              <li key={k} className="inline-flex items-center gap-1">
-                <NutrientIcon name={k} size={12} />
-                {t.nutrients[k]}
-              </li>
-            ))}
-          </ul>
           {splitLine}
         </div>
 
-        <div className="flex w-full flex-1 flex-col gap-3">
+        <div className="flex w-full flex-1 flex-col gap-2">
           {NUTRIENT_KEYS.map((k) => bar(k))}
         </div>
       </div>

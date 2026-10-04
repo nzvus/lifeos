@@ -153,7 +153,7 @@ export function PlanDaySheet({
                       aria-label={fill(t.remove, { name: e.name })}
                       title={fill(t.remove, { name: e.name })}
                       onClick={() => drop(e.sessionId!, e.name)}
-                      className={`${buttonClass({ variant: "subtle", iconOnly: true })} text-tomato`}
+                      className={`${buttonClass({ variant: "ghost", iconOnly: true })} hover:text-tomato`}
                     >
                       <Trash2 size={18} aria-hidden="true" />
                     </button>

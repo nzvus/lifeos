@@ -10,11 +10,17 @@
 import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { parseColorMode, parseLayout, type Display } from "@/core/shared/display";
+import {
+  parseColorMode,
+  parseDensity,
+  parseLayout,
+  type Display,
+} from "@/core/shared/display";
 import { env } from "./env";
 
 const MODE_COOKIE = "lifeos-mode";
 const LAYOUT_COOKIE = "lifeos-layout";
+const DENSITY_COOKIE = "lifeos-density";
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
 export const getDisplay = cache(async (): Promise<Display> => {
@@ -22,6 +28,7 @@ export const getDisplay = cache(async (): Promise<Display> => {
   return {
     mode: parseColorMode(jar.get(MODE_COOKIE)?.value),
     layout: parseLayout(jar.get(LAYOUT_COOKIE)?.value),
+    density: parseDensity(jar.get(DENSITY_COOKIE)?.value),
   };
 });
 
@@ -38,4 +45,5 @@ export async function saveDisplay(display: Display): Promise<void> {
   } as const;
   jar.set(MODE_COOKIE, display.mode, options);
   jar.set(LAYOUT_COOKIE, display.layout, options);
+  jar.set(DENSITY_COOKIE, display.density, options);
 }

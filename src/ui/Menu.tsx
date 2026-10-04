@@ -46,7 +46,8 @@ export function Menu({
         aria-haspopup="dialog"
         onClick={() => dialog.current?.showModal()}
         className={buttonClass({
-          variant: "subtle",
+          // The bare ⋯ on a row: quiet; a labelled trigger keeps its outline.
+          variant: trigger ? "subtle" : "ghost",
           size: trigger ? "sm" : undefined,
           iconOnly: !trigger,
         })}

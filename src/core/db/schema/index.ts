@@ -15,3 +15,4 @@ export * from "./assistant";
 export * from "./programs";
 export * from "./invites";
 export * from "./money";
+export * from "./mind";

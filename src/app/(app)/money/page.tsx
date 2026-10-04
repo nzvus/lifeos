@@ -92,7 +92,7 @@ export default async function MoneyPage({ searchParams }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader title={m.title} />
+      <PageHeader title={m.title} quiet />
       <MoneyNav current="overview" month={month} t={m} />
       <div className="flex items-center justify-between gap-2">
         <Link

@@ -20,6 +20,7 @@ import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 import { buttonClass } from "@/ui/button";
+import { InfoTip } from "@/ui/InfoTip";
 import { Field } from "@/ui/Field";
 import { SubmitButton } from "@/ui/SubmitButton";
 
@@ -62,17 +63,24 @@ export function GoalLine(p: Props) {
                 }),
           ].join(" · ")}
         </span>
-        {p.profileId && !editing && (
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            aria-label={e.editGoal}
-            title={e.editGoal}
-            className={buttonClass({ variant: "quiet", size: "sm", iconOnly: true })}
-          >
-            <Pencil size={16} aria-hidden="true" />
-          </button>
-        )}
+        <span className="flex items-center">
+          {/* How the balance reads, and any cap: on request (ADR-0038). */}
+          <InfoTip label={e.balanceInfo}>
+            <p>{e.balanceNote}</p>
+            {p.capped && <p className="mt-1">{p.capped}</p>}
+          </InfoTip>
+          {p.profileId && !editing && (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              aria-label={e.editGoal}
+              title={e.editGoal}
+              className={buttonClass({ variant: "quiet", size: "sm", iconOnly: true })}
+            >
+              <Pencil size={16} aria-hidden="true" />
+            </button>
+          )}
+        </span>
       </div>
       {editing && p.profileId && (
         <form action={formAction} className="flex flex-wrap items-end gap-2 py-1">
@@ -132,8 +140,6 @@ export function GoalLine(p: Props) {
           </div>
         ))}
       </dl>
-      <span className="text-meta text-muted">{e.balanceNote}</span>
-      {p.capped && <span className="text-meta text-muted">{p.capped}</span>}
     </div>
   );
 }

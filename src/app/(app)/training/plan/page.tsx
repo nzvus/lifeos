@@ -247,7 +247,7 @@ export default async function PlanPage({ searchParams }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader title={t.training.title} />
+      <PageHeader title={t.training.title} quiet />
       <TrainingNav current="plan" t={t} />
       <Section title={p.calendar} icon={<CalendarDays size={20} aria-hidden="true" />}>
         <PlanCalendar

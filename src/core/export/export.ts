@@ -53,6 +53,7 @@ import {
   trainingSessions,
   user,
   userSettings,
+  dayCheckins,
   logEntryLeftOut,
   moneyCategories,
   moneyLines,
@@ -78,8 +79,10 @@ export const EXPORT_FORMAT = "lifeos-export";
 // 12: each program slot's `items` (routines and/or exercises, ADR-0035) and
 // each program's `skips` (days skipped on purpose).
 // 13: a log entry's `leftOut` (planned, out of the plan's total) and `money`
-// — categories, movements with their lines, receipts, aliases (ADR-0036).
-export const EXPORT_VERSION = 13;
+// — categories, movements with their lines, receipts, aliases (ADR-0036);
+// 14: `mind.checkins`, the days as they felt (ADR-0038); each set's
+// startedAt / endedAt and a routine's itemsSavedAt (ADR-0037).
+export const EXPORT_VERSION = 14;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -296,6 +299,11 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
         .where(and(ownedBy(moneyReceipts, owner), live(moneyReceipts))),
       db.select().from(receiptAliases).where(ownedBy(receiptAliases, owner)),
     ]);
+  const checkinRows = await db
+    .select()
+    .from(dayCheckins)
+    .where(ownedBy(dayCheckins, owner))
+    .orderBy(asc(dayCheckins.day));
   const leftOut = new Set(leftOutRows.map((r) => r.entryId));
 
   return {
@@ -385,6 +393,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
       receipts: stripOwner(receiptRows),
       aliases: stripOwner(aliasRows),
     },
+    mind: { checkins: stripOwner(checkinRows) },
   };
 }
 

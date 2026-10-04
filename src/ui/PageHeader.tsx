@@ -16,14 +16,22 @@ export function PageHeader({
   action,
   menu,
   subtitle,
+  quiet = false,
 }: {
   title: string;
+  /**
+   * A tab's own page (Food, Training, Money, Progress): the tab bar and the
+   * view switch already say where you are, so the title is for screen
+   * readers only (ADR-0038: no chrome before the content).
+   */
+  quiet?: boolean;
   back?: LinkSpec;
   action?: LinkSpec;
   menu?: ReactNode;
   /** A line under the title saying what the page is for. */
   subtitle?: string;
 }) {
+  if (quiet) return <h1 className="sr-only">{title}</h1>;
   return (
     <div className="flex flex-col gap-2">
       {back && (

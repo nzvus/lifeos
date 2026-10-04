@@ -3,7 +3,7 @@
  * screen:
  *   - phones: slim header (name, settings) and a bottom tab bar (ui/NavBar)
  *     where the thumb reaches; extra bottom padding so content never hides
- *     behind the bar;
+ *     behind the bar or under the "+" (2026-10-04: it covered the last row);
  *   - md and up: navigation in the header, no bottom bar.
  * Width: up to --container-wide (72rem); pages that are forms narrow
  * themselves to --container-page for readable line lengths.
@@ -22,31 +22,32 @@ import { ToastHost } from "@/ui/Toast";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const { t, settings } = await requireContext();
-  // ADR-0035/0036: tabs by moment; the plan is Training's first view.
+  // ADR-0038: four areas around the day, Today in the middle. Progress is
+  // shared: nutrition trends belong to Food, weight and training to Body.
   const links = [
-    { href: "/", label: t.nav.today, icon: "today" },
     {
       href: "/training/plan",
-      label: t.nav.training,
-      icon: "training",
-      match: ["/training"],
+      label: t.nav.body,
+      icon: "body",
+      match: ["/training", "/profiles?view=weight", "/profiles?view=training"],
     },
     {
       href: "/meals",
       label: t.nav.food,
       icon: "meals",
-      match: ["/ingredients", "/pantry"],
+      match: ["/ingredients", "/pantry", "/profiles?view=trends"],
     },
+    { href: "/", label: t.nav.today, icon: "today", center: true },
     { href: "/money", label: t.nav.money, icon: "money" },
-    { href: "/profiles", label: t.nav.progress, icon: "progress" },
+    { href: "/mind", label: t.nav.mind, icon: "mind" },
   ] as const;
   return (
     <div
       lang={settings.locale}
-      className="mx-auto flex max-w-wide flex-col gap-6 px-4 pb-24 md:pb-16"
+      className="mx-auto flex max-w-wide flex-col gap-4 px-4 pb-40 md:pb-16"
     >
-      <header className="flex items-center justify-between gap-x-6 gap-y-2 app-header-rule pt-4 pb-2">
-        <Link href="/" className="font-heading text-title font-extrabold">
+      <header className="flex items-center justify-between gap-x-6 gap-y-2 app-header-rule pt-2 pb-1">
+        <Link href="/" className="font-heading text-section font-extrabold">
           {t.app.name}
         </Link>
         <NavBar links={[...links]} label={t.nav.menu} />

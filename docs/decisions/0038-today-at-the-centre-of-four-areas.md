@@ -79,5 +79,23 @@ Tripwires:
 - Old URLs redirect (as /plan did). Each step ships with its own ADR when it
   adds tables.
 
+Update 2026-10-04 (step 1, the foundations):
+- density is a per-device cookie (`data-density`); compact = a 14 px root,
+  which scales every rem in every theme;
+- lighter chrome: the app header is smaller, tab pages have no visible
+  title (the tab and the view switch say it), cards have 1 px frames and
+  headings a 2 px rule;
+- row actions (⋯, bin) are `ghost` buttons;
+- explanations sit behind ui/InfoTip;
+- "Day totals" uses the same one-line bars as "The day with the plan".
+
+Update 2026-10-04 (step 2, the areas):
+- the bar is Body · Food · (Today) · Money · Mind;
+- /profiles is shared: its trends are Food's view, weight and training are
+  Body's (ui/NavBar matches `?view=`);
+- Mind starts with the day's check-in: mood, energy and stress on 1–5 and
+  a line of diary (`day_checkins`, migration 0028), from Today's chip and
+  "+", or /mind with the last 30 days.
+
 ## What I learned
 Not written yet: this section is the developer's own.

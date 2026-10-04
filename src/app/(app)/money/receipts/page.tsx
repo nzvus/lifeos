@@ -26,7 +26,7 @@ export default async function ReceiptsPage() {
   });
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader title={m.title} />
+      <PageHeader title={m.title} quiet />
       <MoneyNav current="receipts" month={todayIn(settings.timezone).slice(0, 7)} t={m} />
       <Link href="/money/receipts/new" className={`self-start ${buttonClass()}`}>
         <Plus size={18} aria-hidden="true" />
