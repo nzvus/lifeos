@@ -454,7 +454,6 @@ export const programsEn = {
   asCycle: "As the cycle says",
   swapWith: "Swap with {day}",
   dayChoice: "What to do on {day}",
-  seePlan: "See the coming days in Plan",
   changeHint:
     "Move a day with ↑/↓ (or drag it, on a computer) or choose what to do that day: the rest of the cycle adapts.",
 };
@@ -753,6 +752,7 @@ export const invitesEn = {
 
 export const planEn = {
   title: "Plan",
+  tab: "Plan and programs",
   close: "Close",
   openDay: "Open the day",
   program: "Program",
@@ -764,11 +764,20 @@ export const planEn = {
   added: "Routine added to the day",
   nothingThatDay: "Nothing planned.",
   calendar: "Calendar",
+  week: "Week",
+  month: "Month",
   prev: "Previous month",
   next: "Next month",
-  thisMonth: "Back to this month",
-  agenda: "Day by day",
-  nothing: "Nothing planned this month.",
+  prevWeek: "Previous week",
+  nextWeek: "Next week",
+  backToToday: "Back to today",
+  free: "—",
+  remove: "Take «{name}» off the day",
+  removed: "«{name}» taken off the day",
+  undo: "Undo",
+  programItemHint:
+    "The program's routines aren't deleted from a day: skip the day, or do another day of the cycle instead.",
+  programs: "Programs",
   late: "late",
   changed: "changed",
   legendDone: "done",
@@ -776,6 +785,6 @@ export const planEn = {
   legendRest: "rest",
   coming: "Coming days · {name}",
   noProgram:
-    "No active program: create one in Training → Programs to see the coming days here.",
+    "No active program: create one below (or with the +) to see the coming days.",
   rest: "Rest",
 };

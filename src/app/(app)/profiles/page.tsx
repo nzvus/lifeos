@@ -45,7 +45,7 @@ export default async function ProgressPage({ searchParams }: Props) {
   const { owner, settings, t } = await requireContext();
   const params = await searchParams;
   // ADR-0035: the coming days moved to the Plan tab; old links still work.
-  if (params.view === "coming") redirect("/plan");
+  if (params.view === "coming") redirect("/training/plan");
   const view: View = VIEWS.find((v) => v === params.view) ?? "trends";
   const today = todayIn(settings.timezone);
   const db = getDb();

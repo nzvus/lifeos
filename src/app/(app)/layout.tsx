@@ -22,11 +22,15 @@ import { ToastHost } from "@/ui/Toast";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const { t, settings } = await requireContext();
-  // ADR-0035: tabs by moment — do, plan, build (two libraries), review.
+  // ADR-0035/0036: tabs by moment; the plan is Training's first view.
   const links = [
     { href: "/", label: t.nav.today, icon: "today" },
-    { href: "/plan", label: t.nav.plan, icon: "plan" },
-    { href: "/training", label: t.nav.training, icon: "training" },
+    {
+      href: "/training/plan",
+      label: t.nav.training,
+      icon: "training",
+      match: ["/training"],
+    },
     {
       href: "/meals",
       label: t.nav.food,
@@ -71,18 +75,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
                 label: t.addMenu.exercise,
                 icon: "exercise",
               },
-              {
-                href: "/training/programs/new",
-                label: t.addMenu.program,
-                icon: "program",
-              },
-            ],
-          },
-          {
-            // ADR-0035: plan a session on a date, or a new program.
-            prefix: "/plan",
-            items: [
-              { href: "/training/new", label: t.addMenu.session, icon: "session" },
               {
                 href: "/training/programs/new",
                 label: t.addMenu.program,

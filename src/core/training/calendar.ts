@@ -65,3 +65,38 @@ export function shiftMonth(month: string, by: number): string {
 }
 
 export const isMonth = (s: string) => /^\d{4}-(0[1-9]|1[0-2])$/.test(s);
+
+export const PLAN_VIEWS = ["week", "month"] as const;
+export type PlanView = (typeof PLAN_VIEWS)[number];
+
+/** How many panels the Plan shows before and after the one with its day. */
+const AROUND: Record<PlanView, { before: number; after: number }> = {
+  week: { before: 4, after: 8 },
+  month: { before: 2, after: 3 },
+};
+
+/**
+ * The panels the Plan scrolls through around a day (ADR-0036): weeks or
+ * months, each as whole weeks (Monday first). `at` is the index of the panel
+ * that holds the day. Moving past the last panel reloads around a new day.
+ */
+export function planPanels(
+  view: PlanView,
+  day: string,
+): { panels: { key: string; weeks: string[][] }[]; at: number } {
+  const { before, after } = AROUND[view];
+  const panels = [];
+  for (let i = -before; i <= after; i++) {
+    if (view === "month") {
+      const month = shiftMonth(day.slice(0, 7), i);
+      panels.push({ key: month, weeks: monthGrid(month) });
+    } else {
+      const monday = addDays(startOfWeek(day), 7 * i);
+      panels.push({
+        key: monday,
+        weeks: [Array.from({ length: 7 }, (_, d) => addDays(monday, d))],
+      });
+    }
+  }
+  return { panels, at: before };
+}

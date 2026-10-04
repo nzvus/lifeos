@@ -459,7 +459,6 @@ export const programsIt: Messages["programs"] = {
   asCycle: "Come da ciclo",
   swapWith: "Scambia con {day}",
   dayChoice: "Cosa fare {day}",
-  seePlan: "Vedi i prossimi giorni nel Piano",
   changeHint:
     "Sposta un giorno con ↑/↓ (o trascinalo, sul computer) o scegli cosa fare quel giorno: il resto del ciclo si adatta.",
 };
@@ -760,6 +759,7 @@ export const invitesIt: Messages["invites"] = {
 
 export const planIt: Messages["plan"] = {
   title: "Piano",
+  tab: "Piano e programmi",
   close: "Chiudi",
   openDay: "Apri il giorno",
   program: "Programma",
@@ -772,11 +772,20 @@ export const planIt: Messages["plan"] = {
   added: "Scheda aggiunta al giorno",
   nothingThatDay: "Niente in programma.",
   calendar: "Calendario",
+  week: "Settimana",
+  month: "Mese",
   prev: "Mese precedente",
   next: "Mese successivo",
-  thisMonth: "Torna a questo mese",
-  agenda: "Giorno per giorno",
-  nothing: "Niente in programma questo mese.",
+  prevWeek: "Settimana precedente",
+  nextWeek: "Settimana successiva",
+  backToToday: "Torna a oggi",
+  free: "—",
+  remove: "Togli «{name}» dal giorno",
+  removed: "«{name}» tolta dal giorno",
+  undo: "Annulla",
+  programItemHint:
+    "Le schede del programma non si cancellano dal giorno: salta il giorno, o fai invece un altro giorno del ciclo.",
+  programs: "Programmi",
   late: "in ritardo",
   changed: "cambiato",
   legendDone: "fatto",
@@ -784,6 +793,6 @@ export const planIt: Messages["plan"] = {
   legendRest: "riposo",
   coming: "Prossimi giorni · {name}",
   noProgram:
-    "Nessun programma attivo: creane uno in Allenamento → Programmi per vedere qui i prossimi giorni.",
+    "Nessun programma attivo: creane uno qui sotto (o con il +) per vedere i prossimi giorni.",
   rest: "Riposo",
 };
