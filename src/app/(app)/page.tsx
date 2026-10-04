@@ -41,7 +41,7 @@ import { addDays, isValidDay, startOfWeek, timeIn, todayIn } from "@/core/shared
 import { Bell, Copy, Dumbbell, Gauge, Scale, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { listBatches } from "@/core/nutrition/repositories/batches";
-import { derivedReminders, listReminders } from "@/core/pantry/repositories/reminders";
+import { listReminders } from "@/core/pantry/repositories/reminders";
 import { getPantry } from "@/core/pantry/repositories/stock";
 import { TEXT_LINK } from "@/ui/button";
 import { formatNumber } from "@/core/shared/format";
@@ -53,6 +53,7 @@ import { MealQuality } from "@/features/nutrition/meals/MealQuality";
 import { dayBurn } from "@/core/training/progress";
 import { fill } from "@/i18n";
 import { EntryList } from "@/features/nutrition/log/EntryList";
+import { ClearPlanned } from "@/features/nutrition/log/ClearPlanned";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { AddFab } from "@/features/nutrition/log/AddFab";
 import { MeasurementForm } from "@/features/training/body/MeasurementForm";
@@ -92,6 +93,8 @@ import { eatenQuality } from "@/core/nutrition/quality-summary";
 import { ActionButtonForm } from "@/ui/ActionButtonForm";
 import {
   copyPreviousDayAction,
+  restoreLogEntriesAction,
+  trashPlannedAction,
   deleteLogEntryAction,
   restoreLogEntryAction,
   logEstimateAction,
@@ -113,6 +116,7 @@ import { kcalTargets } from "@/core/energy/repositories/outlook";
 import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 import { DayGoal } from "./day-goal";
+import { reminderLines } from "./day-reminders";
 
 type Props = {
   searchParams: Promise<{ day?: string; late?: string; tab?: string }>;
@@ -195,25 +199,14 @@ export default async function DayPage({ searchParams }: Props) {
     listSleep(db, owner, day, day), // ADR-0031: the night that ended today
     listSessions(db, owner, addDays(today, -60), today), // "like a past session" (ADR-0035)
   ]);
+  const plannedCount = view.entries.filter((e) => e.status === "planned").length;
   const night = nights[0] ?? null;
   const nightScore = night
     ? { hours: night.hours, score: sleepScore(night.hours) }
     : null;
-  // Today's reminders (ADR-0017): derived from the pantry and the batches,
-  // plus the hand-made ones that are due. Worded here, shown only if any.
   const p = t.pantry;
-  const reminderLines = [
-    ...derivedReminders(pantry, batchList).map((d) =>
-      d.kind === "gone"
-        ? fill(p.gone, { name: d.name })
-        : d.kind === "runOut"
-          ? d.daysLeft === 0
-            ? fill(p.runOutToday, { name: d.name })
-            : fill(p.runOut, { name: d.name, n: String(d.daysLeft) })
-          : fill(p.lastPortion, { name: d.name }),
-    ),
-    ...manualReminders.filter((r) => !r.dueDay || r.dueDay <= today).map((r) => r.text),
-  ];
+  // Today's reminders (ADR-0017), worded.
+  const reminders = reminderLines(pantry, batchList, manualReminders, today, p);
   const mealRatings = averageScores(ratings);
   // The day's own targets, plus recommended maxima where none is set
   // (sugars, saturated fat, salt — core/nutrition/targets.ts), unless the
@@ -449,7 +442,7 @@ export default async function DayPage({ searchParams }: Props) {
                 />
               </div>
               <div className="flex min-w-0 flex-col gap-4">
-                {day === today && reminderLines.length > 0 && (
+                {day === today && reminders.length > 0 && (
                   <Section
                     title={p.reminders}
                     icon={<Bell size={20} aria-hidden="true" />}
@@ -460,7 +453,7 @@ export default async function DayPage({ searchParams }: Props) {
                     }
                   >
                     <ul className="flex flex-col gap-1">
-                      {reminderLines.map((line) => (
+                      {reminders.map((line) => (
                         <li key={line}>{line}</li>
                       ))}
                     </ul>
@@ -534,7 +527,7 @@ export default async function DayPage({ searchParams }: Props) {
             </div>
           </ViewPanel>
           <ViewPanel view="food">
-            {day === today && reminderLines.length > 0 && (
+            {day === today && reminders.length > 0 && (
               <Section
                 title={p.reminders}
                 icon={<Bell size={20} aria-hidden="true" />}
@@ -545,7 +538,7 @@ export default async function DayPage({ searchParams }: Props) {
                 }
               >
                 <ul className="flex flex-col gap-1">
-                  {reminderLines.map((line) => (
+                  {reminders.map((line) => (
                     <li key={line}>{line}</li>
                   ))}
                 </ul>
@@ -599,6 +592,16 @@ export default async function DayPage({ searchParams }: Props) {
                 )}
                 t={t}
               />
+              {/* A menu planned whole: drop what was not chosen in one go. */}
+              {plannedCount >= 2 && (
+                <ClearPlanned
+                  day={day}
+                  count={plannedCount}
+                  trash={trashPlannedAction}
+                  restore={restoreLogEntriesAction}
+                  t={t}
+                />
+              )}
               {canAdd && view.entries.length === 0 && (
                 <ActionButtonForm
                   action={copyPreviousDayAction.bind(null, day)}

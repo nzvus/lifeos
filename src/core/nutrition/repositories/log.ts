@@ -326,6 +326,48 @@ export async function restoreLogEntry(
 }
 
 /**
+ * "Remove what's still planned": every live planned entry of a day goes to
+ * the trash (ADR-0015), e.g. the dishes of a menu that were not chosen.
+ * Eaten entries are never touched. Returns the ids, for one Undo.
+ */
+export async function trashPlanned(db: Db, owner: Owner, day: string): Promise<string[]> {
+  const trashed = await db
+    .update(logEntries)
+    .set({ deletedAt: new Date() })
+    .where(
+      and(
+        ownedBy(logEntries, owner),
+        live(logEntries),
+        eq(logEntries.day, day),
+        eq(logEntries.status, "planned"),
+      ),
+    )
+    .returning({ id: logEntries.id });
+  return trashed.map((r) => r.id);
+}
+
+/** Takes several log entries out of the trash (trashPlanned's Undo). */
+export async function restoreLogEntries(
+  db: Db,
+  owner: Owner,
+  ids: string[],
+): Promise<number> {
+  if (ids.length === 0) return 0;
+  const restored = await db
+    .update(logEntries)
+    .set({ deletedAt: null })
+    .where(
+      and(
+        ownedBy(logEntries, owner),
+        isNotNull(logEntries.deletedAt),
+        inArray(logEntries.id, ids),
+      ),
+    )
+    .returning({ id: logEntries.id });
+  return restored.length;
+}
+
+/**
  * Copies every entry of one day into another ("repeat yesterday's meals").
  *
  * What is copied is the SNAPSHOT (ADR-0007): the lines exactly as they were
@@ -553,9 +595,8 @@ export async function setEntryTime(
 /**
  * An "estimated meal" (ADR-0009): approximate totals typed by hand. Stored
  * like any entry, so totals stay "computed from lines" (ADR-0003): one line
- * of 100 g whose per-100 values ARE the typed totals. Sugars, saturated fat
- * and salt are unknown and stored as 0; the entry is flagged `estimated` so
- * the UI shows it as "~". A typed cost becomes a 100 g "package" at that
+ * of 100 g whose per-100 values ARE the typed totals; what is left empty is
+ * stored as 0. The entry is flagged `estimated` so the UI shows it as "~". A typed cost becomes a 100 g "package" at that
  * price, so the cost adds up exactly.
  */
 export async function logEstimate(
@@ -586,11 +627,11 @@ export async function logEstimate(
       kcal: input.kcal,
       protein: input.protein,
       carbs: input.carbs,
-      sugars: "0",
+      sugars: input.sugars,
       fat: input.fat,
-      saturatedFat: "0",
+      saturatedFat: input.saturatedFat,
       fiber: input.fiber,
-      salt: "0",
+      salt: input.salt,
       packagePriceCents:
         input.cost === null ? null : new Big(input.cost).times(100).toNumber(),
       packageSize: input.cost === null ? null : "100",

@@ -67,6 +67,12 @@ still reads 1 and 2, with the defaults).
 
 Follow-up work: tags and ratings (ADR-0010).
 
+Update 2026-10-04: an estimate takes every nutrient of a label (sugars,
+saturated fat and salt were stored as 0). A pack's `estimates` plan dishes
+on a day (a restaurant's menu, ADR-0034) without adding anything to the
+catalog, and "Remove what's still planned" trashes what was not chosen,
+with one Undo.
+
 ## What I learned
 
 Not written yet: this section is the developer's own.

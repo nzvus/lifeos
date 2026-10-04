@@ -10,12 +10,16 @@
  *     program with a hole, or a meal with wrong nutrition, would mislead).
  * Programs arrive INACTIVE, starting today: the account's active program
  * stays the one in use.
+ * Estimates arrive PLANNED on the pack's day (or today), as estimated
+ * entries: nothing is eaten until it is ticked. One whose name that day
+ * already has (any status) is kept, so importing twice adds nothing.
  */
-import { and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Db } from "../db/client";
 import {
   exercises,
   ingredients,
+  logEntries,
   mealItems,
   meals,
   programs,
@@ -26,6 +30,7 @@ import {
   routines,
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
+import { logEstimate } from "../nutrition/repositories/log";
 import { live } from "../shared/trash";
 import { nameKey, PACK_KINDS, type ApplyReport, type Pack, type PackKind } from "./pack";
 
@@ -215,6 +220,34 @@ export async function applyPack(
       );
       mealIds.set(key, row!.id);
       report.added.meals++;
+    }
+
+    const day = pack.day ?? today;
+    const onDay = new Set(
+      (
+        await tx
+          .select({ label: logEntries.label })
+          .from(logEntries)
+          .where(
+            and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.day, day)),
+          )
+      ).map((r) => nameKey(r.label)),
+    );
+    for (const { name, ...e } of pack.estimates) {
+      if (onDay.has(nameKey(name))) {
+        report.kept.estimates++;
+        continue;
+      }
+      const r = await logEstimate(tx, owner, {
+        ...e,
+        day,
+        label: name,
+        status: "planned",
+        at: null,
+      });
+      if (!r.ok) throw new Error("estimate not added"); // validated: unreachable
+      onDay.add(nameKey(name));
+      report.added.estimates++;
     }
   });
   return report;

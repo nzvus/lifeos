@@ -147,6 +147,11 @@ export const it: Messages = {
     servingsMore: "Porzioni: × {n}",
     servingsLess: "Porzioni: × {n}",
     copyYesterday: "Ripeti i pasti di ieri",
+    clearPlanned: "Togli i pianificati ({n})",
+    clearPlannedAsk: "Togliere le {n} voci ancora pianificate?",
+    clearPlannedHint:
+      "Quello che hai spuntato come mangiato resta. Le altre vanno nel cestino: Annulla subito, o Impostazioni → Cestino per 30 giorni.",
+    clearedPlanned: "{n} voci pianificate nel cestino",
     planned: "Pianificato (non ancora mangiato)",
     when: "Quando",
     eaten: "Mangiato",
