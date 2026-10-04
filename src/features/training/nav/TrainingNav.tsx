@@ -1,7 +1,7 @@
 /**
  * features/training/nav/TrainingNav.tsx — the Training tab's views
- * (ADR-0035): the library — Routines | Exercises | Programs. How training
- * goes is in Progress → Training; what is coming is in Plan.
+ * (ADR-0036): Plan (the calendar and the programs) | Routines | Exercises.
+ * How training goes is in Progress → Training.
  */
 import { CalendarRange, ClipboardList, Dumbbell } from "lucide-react";
 import type { Messages } from "@/i18n";
@@ -11,7 +11,7 @@ export function TrainingNav({
   current,
   t,
 }: {
-  current: "exercises" | "routines" | "programs";
+  current: "plan" | "exercises" | "routines";
   t: Pick<Messages, "training">;
 }) {
   const n = t.training.tabs;
@@ -20,6 +20,12 @@ export function TrainingNav({
       label={t.training.title}
       current={current}
       items={[
+        {
+          key: "plan",
+          href: "/training/plan",
+          label: n.plan,
+          icon: <CalendarRange size={16} aria-hidden="true" />,
+        },
         {
           key: "routines",
           href: "/training/routines",
@@ -31,12 +37,6 @@ export function TrainingNav({
           href: "/training/exercises",
           label: n.exercises,
           icon: <Dumbbell size={16} aria-hidden="true" />,
-        },
-        {
-          key: "programs",
-          href: "/training/programs",
-          label: n.programs,
-          icon: <CalendarRange size={16} aria-hidden="true" />,
         },
       ]}
     />

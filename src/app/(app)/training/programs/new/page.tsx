@@ -19,10 +19,10 @@ export default async function NewProgramPage() {
     <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader
         title={t.programs.new}
-        back={{ href: "/training/programs", label: t.programs.back }}
+        back={{ href: "/training/plan", label: t.programs.back }}
       />
       <ProgramEditor
-        from="/training/programs"
+        from="/training/plan"
         action={createProgramAction}
         routines={routines.map((r) => ({
           id: r.id,

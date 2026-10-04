@@ -26,11 +26,11 @@ export default async function ProgramPage({ params }: Props) {
     <div className="mx-auto flex w-full max-w-page flex-col gap-8">
       <PageHeader
         title={program.name}
-        back={{ href: "/training/programs", label: t.programs.back }}
+        back={{ href: "/training/plan", label: t.programs.back }}
       />
       <ProgramEditor
         id={program.id}
-        from="/training/programs"
+        from="/training/plan"
         action={updateProgramAction.bind(null, program.id)}
         routines={routines.map((r) => ({
           id: r.id,

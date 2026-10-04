@@ -3,8 +3,9 @@
  * (ADR-0035) opens this sheet: what is on the day, then what can be done
  * with it — open it; for a coming day of the program, skip it (the cycle
  * moves on), rest, do another of its days instead, or go back to the
- * cycle; and add a routine to the day (a planned session). One sheet for
- * every day: the day comes in the hash, `#plan-day:YYYY-MM-DD`.
+ * cycle; add a routine to the day (a planned session), or take a planned
+ * session away again (trash, with Undo). One sheet for every day: the day
+ * comes in the hash, `#plan-day:YYYY-MM-DD`.
  */
 "use client";
 
@@ -15,12 +16,13 @@ import {
   Plus,
   RotateCcw,
   SkipForward,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore, useTransition } from "react";
 import type { Look } from "@/core/training/calendar";
-import type { Messages } from "@/i18n";
+import { fill, type Messages } from "@/i18n";
 import { buttonClass } from "@/ui/button";
 import { Sheet } from "@/ui/Sheet";
 import { toast } from "@/ui/Toast";
@@ -30,7 +32,14 @@ export const PLAN_DAY = "plan-day";
 
 export type PlanDayInfo = {
   label: string;
-  entries: { key: string; name: string; look: Look; state: PlanState }[];
+  entries: {
+    key: string;
+    name: string;
+    look: Look;
+    state: PlanState;
+    /** A planned session's id: it can be taken away. */
+    sessionId?: string;
+  }[];
   /** Today or later, with an active program: the program's day can change. */
   editable: boolean;
   /** The program puts training on it (so it can be skipped or rested). */
@@ -52,6 +61,8 @@ export function PlanDaySheet({
   routines,
   setDay,
   startOrPlan,
+  remove,
+  restore,
   t,
 }: {
   days: Record<string, PlanDayInfo>;
@@ -60,6 +71,8 @@ export function PlanDaySheet({
   routines: { id: string; name: string; look: Look }[];
   setDay: (day: string, value: string) => Promise<{ ok: boolean; message?: string }>;
   startOrPlan: (formData: FormData) => Promise<void>;
+  remove: (id: string) => Promise<{ ok: boolean; message?: string }>;
+  restore: (id: string) => Promise<{ ok: boolean; message?: string }>;
   t: Messages["plan"];
 }) {
   const router = useRouter();
@@ -94,6 +107,25 @@ export function PlanDaySheet({
       toast({ message: t.added });
       done();
     });
+  const drop = (id: string, name: string) =>
+    start(async () => {
+      const r = await remove(id);
+      if (!r.ok) {
+        toast({ message: r.message ?? "" });
+        return;
+      }
+      toast({
+        message: fill(t.removed, { name }),
+        action: {
+          label: t.undo,
+          run: async () => {
+            await restore(id);
+            router.refresh();
+          },
+        },
+      });
+      router.refresh();
+    });
   const btn = buttonClass({ variant: "subtle", size: "sm" });
   return (
     <Sheet
@@ -107,13 +139,31 @@ export function PlanDaySheet({
           {info.entries.length === 0 ? (
             <p className="text-muted">{t.nothingThatDay}</p>
           ) : (
-            <ul className="flex flex-wrap gap-1.5 text-meta">
+            <ul className="flex flex-col gap-1 text-meta">
               {info.entries.map((e) => (
-                <li key={e.key}>
+                <li
+                  key={e.key}
+                  className="flex min-h-11 items-center justify-between gap-2"
+                >
                   <PlanChip look={e.look} state={e.state} label={e.name} />
+                  {e.sessionId && (
+                    <button
+                      type="button"
+                      disabled={pending}
+                      aria-label={fill(t.remove, { name: e.name })}
+                      title={fill(t.remove, { name: e.name })}
+                      onClick={() => drop(e.sessionId!, e.name)}
+                      className={`${buttonClass({ variant: "subtle", iconOnly: true })} text-tomato`}
+                    >
+                      <Trash2 size={18} aria-hidden="true" />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
+          )}
+          {info.entries.some((e) => e.state === "program") && (
+            <p className="text-meta text-muted">{t.programItemHint}</p>
           )}
           <Link
             href={`/?day=${day}&tab=training`}

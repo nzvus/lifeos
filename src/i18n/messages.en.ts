@@ -69,7 +69,6 @@ export const en = {
     copyOf: "{name} (copy)",
   },
   nav: {
-    plan: "Plan",
     today: "Today",
     ingredients: "Ingredients",
     meals: "Meals",
@@ -367,7 +366,7 @@ export const en = {
     tabs: {
       exercises: "Exercises",
       routines: "Routines",
-      programs: "Programs",
+      plan: "Plan",
     },
     chips: {
       duration: "Duration",

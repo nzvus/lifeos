@@ -210,6 +210,17 @@
   padding: var(--icon-chip-pad);
   border-radius: var(--icon-chip-radius);
 }
+/* A row of panels swiped sideways, one at a time (the Plan's weeks/months). */
+@utility snap-row {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
 @utility app-header-rule {
   border-bottom: var(--header-rule);
 }

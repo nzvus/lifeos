@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isMonth, lookOf, monthGrid, shiftMonth } from "./calendar";
+import { isMonth, lookOf, monthGrid, planPanels, shiftMonth } from "./calendar";
 
 describe("monthGrid", () => {
   it("covers the month in whole weeks from Monday", () => {
@@ -42,5 +42,38 @@ describe("lookOf", () => {
       pattern: "run",
       cardio: true,
     });
+  });
+});
+
+describe("planPanels", () => {
+  it("weeks: 4 before and 8 after the week of the day, Monday first", () => {
+    const { panels, at } = planPanels("week", "2026-10-04"); // a Sunday
+    expect(panels).toHaveLength(13);
+    expect(panels[at]!.weeks).toEqual([
+      [
+        "2026-09-28",
+        "2026-09-29",
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-03",
+        "2026-10-04",
+      ],
+    ]);
+    expect(panels[0]!.key).toBe("2026-08-31");
+    expect(panels.at(-1)!.key).toBe("2026-11-23");
+  });
+
+  it("months: 2 before and 3 after, across the year", () => {
+    const { panels, at } = planPanels("month", "2026-11-15");
+    expect(panels.map((p) => p.key)).toEqual([
+      "2026-09",
+      "2026-10",
+      "2026-11",
+      "2026-12",
+      "2027-01",
+      "2027-02",
+    ]);
+    expect(panels[at]!.weeks).toEqual(monthGrid("2026-11"));
   });
 });

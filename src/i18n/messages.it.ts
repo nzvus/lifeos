@@ -60,7 +60,6 @@ export const it: Messages = {
     copyOf: "{name} (copia)",
   },
   nav: {
-    plan: "Piano",
     today: "Oggi",
     ingredients: "Ingredienti",
     meals: "Pasti",
@@ -363,7 +362,7 @@ export const it: Messages = {
     tabs: {
       exercises: "Esercizi",
       routines: "Schede",
-      programs: "Programmi",
+      plan: "Piano",
     },
     chips: {
       duration: "Durata",
