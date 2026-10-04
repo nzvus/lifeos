@@ -16,7 +16,13 @@ import {
   restoreMovement,
   updateMovement,
 } from "@/core/money/repositories/money";
-import { movementInput } from "@/core/money/validation";
+import { movementInput, receiptInput } from "@/core/money/validation";
+import { getApiKey, getKeyStatus } from "@/core/assistant/repositories/assistant";
+import { ModelError, openRouterComplete } from "@/core/assistant/model";
+import { readWithModel, type ModelReceipt } from "@/core/money/receipts";
+import { saveReceipt } from "@/core/money/repositories/receipts";
+import { listProducts } from "@/core/pantry/repositories/products";
+import { env } from "@/app/_server/env";
 import type { FormState } from "@/core/shared/result";
 import { parseInput } from "@/core/shared/validation";
 
@@ -67,4 +73,58 @@ export async function restoreMovementAction(
   const r = await restoreMovement(getDb(), owner, id);
   revalidatePath("/money", "layout");
   return r.ok ? { ok: true } : { ok: false, message: t.errors.not_found };
+}
+
+/**
+ * A reviewed receipt (core saveReceipt): one transaction; then the movement
+ * it became, with its lines.
+ */
+export async function saveReceiptAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(receiptInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const r = await saveReceipt(getDb(), owner, input.value);
+  if (!r.ok) return { status: "error", errors: r.errors, values };
+  revalidatePath("/", "layout");
+  redirect(`/money/${r.value.movementId}?from=/money/receipts`);
+}
+
+/**
+ * The optional model pass (ADR-0018 key, the model chosen in Settings): the
+ * receipt's text and my product names go out, lines come back to review.
+ * Nothing is saved here.
+ */
+export async function readReceiptAction(
+  text: string,
+): Promise<{ ok: true; receipt: ModelReceipt } | { ok: false; message: string }> {
+  const { owner, t } = await requireContext();
+  const a = t.assistant;
+  const secret = env().ASSISTANT_KEY_SECRET;
+  if (!secret) return { ok: false, message: a.noSecret };
+  const db = getDb();
+  const [apiKey, status, products] = await Promise.all([
+    getApiKey(db, owner, secret),
+    getKeyStatus(db, owner),
+    listProducts(db, owner),
+  ]);
+  if (!apiKey) return { ok: false, message: a.noKey };
+  try {
+    const receipt = await readWithModel(
+      openRouterComplete(apiKey, env().baseURL),
+      status.model,
+      String(text).slice(0, 20000),
+      products.map((p) => p.name),
+    );
+    return receipt
+      ? { ok: true, receipt }
+      : { ok: false, message: t.money.modelUnreadable };
+  } catch (e) {
+    if (e instanceof ModelError && e.code !== "model_failed")
+      return { ok: false, message: a.errors[e.code] };
+    return { ok: false, message: t.money.modelUnreadable };
+  }
 }

@@ -25,7 +25,7 @@ CREATE TABLE "money_lines" (
 	"movement_id" uuid NOT NULL,
 	"position" integer NOT NULL,
 	"description" text NOT NULL,
-	"quantity" numeric(8, 2),
+	"quantity" numeric(9, 3),
 	"amount_cents" integer NOT NULL,
 	"product_id" uuid,
 	"purchase_id" uuid,

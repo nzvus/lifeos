@@ -5409,7 +5409,7 @@
         },
         "quantity": {
           "name": "quantity",
-          "type": "numeric(8, 2)",
+          "type": "numeric(9, 3)",
           "primaryKey": false,
           "notNull": false
         },

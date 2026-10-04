@@ -59,7 +59,12 @@ export function openRouterComplete(apiKey: string, appUrl: string): Complete {
         "HTTP-Referer": appUrl,
         "X-Title": "Lifeos",
       },
-      body: JSON.stringify({ model, messages, tools, tool_choice: "auto" }),
+      // No tools = a plain answer (e.g. a receipt read as JSON).
+      body: JSON.stringify(
+        tools.length
+          ? { model, messages, tools, tool_choice: "auto" }
+          : { model, messages },
+      ),
     });
     if (res.status === 429) throw new ModelError("rate_limited", await res.text());
     if (res.status === 401 || res.status === 403)

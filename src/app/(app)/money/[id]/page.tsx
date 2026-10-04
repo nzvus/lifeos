@@ -7,6 +7,9 @@ import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { ensureCategories, getMovement } from "@/core/money/repositories/money";
+import { movementLines } from "@/core/money/repositories/receipts";
+import { formatCents } from "@/core/shared/format";
+import { Badge } from "@/ui/Badge";
 import { safeFrom } from "@/core/shared/navigation";
 import { MovementDelete } from "@/features/money/MovementDelete";
 import { MovementForm } from "@/features/money/MovementForm";
@@ -27,9 +30,10 @@ export default async function MovementPage({ params, searchParams }: Props) {
   const { owner, settings, t } = await requireContext();
   const { id } = await params;
   const db = getDb();
-  const [movement, categories] = await Promise.all([
+  const [movement, categories, lines] = await Promise.all([
     getMovement(db, owner, id),
     ensureCategories(db, owner, settings.locale),
+    movementLines(db, owner, id),
   ]);
   if (!movement) notFound();
   const back = safeFrom((await searchParams).from, "/money");
@@ -65,6 +69,31 @@ export default async function MovementPage({ params, searchParams }: Props) {
         submitLabel={t.actions.save}
         t={t}
       />
+      {lines.length > 0 && (
+        <section className="flex flex-col gap-1" aria-label={t.money.receiptLines}>
+          <h2 className="font-display text-item font-semibold">{t.money.receiptLines}</h2>
+          <ul className="flex flex-col">
+            {lines.map((l, i) => (
+              <li
+                key={i}
+                className="flex items-baseline justify-between gap-2 rule-b-medium border-hairline py-2"
+              >
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate">{l.description}</span>
+                  {l.productName && (
+                    <span className="text-meta text-muted">
+                      {l.productName} {l.inPantry && <Badge>{t.money.inPantry}</Badge>}
+                    </span>
+                  )}
+                </span>
+                <span className="font-display tabular-nums">
+                  {formatCents(l.amountCents, settings.locale)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

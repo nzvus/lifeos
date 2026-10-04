@@ -7,7 +7,7 @@
 import { z } from "zod";
 import { MONEY_KINDS, PAY_METHODS } from "../db/schema/money";
 import { Big } from "../shared/decimal";
-import { day, decimalString, id } from "../shared/validation";
+import { day, decimalString, id, jsonField } from "../shared/validation";
 
 const text = (max: number) => z.string().trim().max(max, "too_long");
 
@@ -48,3 +48,41 @@ export const movementInput = z
     return { ...rest, amountCents: kind === "expense" ? -cents : cents };
   });
 export type MovementInput = z.output<typeof movementInput>;
+
+/** A reviewed receipt (core/money/repositories/receipts.ts saveReceipt). */
+const optionalId = z
+  .string()
+  .optional()
+  .transform((v) => (v ? v : null))
+  .pipe(id.nullable());
+
+export const receiptInput = z.object({
+  day,
+  shop: z.string().trim().max(80, "too_long").default(""),
+  text: z.string().trim().min(1, "required").max(20000, "too_long"),
+  categoryId: optionalId,
+  method: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : null))
+    .pipe(z.enum(PAY_METHODS, "invalid_choice").nullable()),
+  lines: jsonField(
+    z
+      .array(
+        z.object({
+          description: z.string().trim().min(1, "required").max(120, "too_long"),
+          quantity: z
+            .string()
+            .nullable()
+            .transform((q) => (q && q.trim() ? q : null))
+            .pipe(decimalString({ scale: 3, max: "999999" }).nullable()),
+          amountCents: z.number().int().min(0).max(10_000_000),
+          productId: z.string().nullable().pipe(id.nullable()),
+          toPantry: z.boolean(),
+        }),
+      )
+      .min(1, "required")
+      .max(200),
+  ),
+});
+export type ReceiptInput = z.output<typeof receiptInput>;
