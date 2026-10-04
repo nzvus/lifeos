@@ -187,6 +187,7 @@ export const energyEn = {
   balanceWanted: "wanted",
   balanceWithPlan: "with the plan",
   balanceSoFar: "so far",
+  balanceHead: "Balance = eaten − spent",
   balanceInfo: "How to read it",
   balanceNote:
     "Balance = eaten − spent, kcal: negative is a deficit, positive a surplus.",
@@ -195,7 +196,8 @@ export const energyEn = {
   goalSurplus: "a {kcal} kcal surplus",
   goalEat: "Eat {kcal} kcal · you spend ~{spent} kcal",
   goalFixed: "Target {kcal} kcal (fixed)",
-  goalCapped: "Carbs stop at {carbs} g: more adds nothing.",
+  goalCapped:
+    "Carbs stop at {carbs} g and fat at 35 % of the energy: the target is lowered, so the deficit is larger than asked.",
   goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
@@ -370,7 +372,8 @@ export const panelRowsEn = {
   targetLine: "target {v}",
   planLine: "with the plan {v}",
   liveTitle: "The day with the plan",
-  ringsLegend: "Rings, outside in: energy, protein, carbohydrate, fat, fibre. Full = the target; a red dashed second lap = over it; lighter = with the plan.",
+  ringsLegend:
+    "Rings, outside in: energy, protein, carbohydrate, fat, fibre. Full = the target; a red dashed second lap = over it; lighter = with the plan.",
   legend: "Legend",
   liveLegend: "Solid = eaten · light = planned · outline = good zone · red tick = limit",
   liveEaten: "eaten {v}",

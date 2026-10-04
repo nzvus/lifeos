@@ -122,7 +122,7 @@ describe("dynamicTargets", () => {
     expect(dynamicTargets(e, "75", GOAL_PRESETS.gain).kcal).toBe(2326);
   });
 
-  it("carbs stop at the top of their good zone, and the energy target with them", () => {
+  it("carbs stop at the top of their good zone; fat takes the rest, so the deficit holds", () => {
     const e = dayEnergy(body, quiet)!; // midpoint 2076
     // Maintenance: carbs (2076 − 135×4 − 60×9) ÷ 4 = 249 > a 225 g cap.
     const t = dynamicTargets(
@@ -131,11 +131,20 @@ describe("dynamicTargets", () => {
       { deficitKcal: 0, proteinGPerKg: "1.8", fatGPerKg: "0.8" },
       225,
     );
-    expect(t).toMatchObject({
-      carbs: 225,
-      kcal: 135 * 4 + 60 * 9 + 225 * 4,
-      uncapped: 2076,
-    });
+    // (2076 − 540 − 900) ÷ 9 = 71 g of fat (31 % of the energy): no energy lost.
+    expect(t).toMatchObject({ carbs: 225, fat: 71, kcal: 2076, uncapped: null });
+  });
+
+  it("lowers the energy only when fat would pass 35 % of it", () => {
+    const e = dayEnergy(body, quiet)!; // midpoint 2076
+    const t = dynamicTargets(
+      e,
+      "75",
+      { deficitKcal: 0, proteinGPerKg: "1.8", fatGPerKg: "0.8" },
+      100,
+    );
+    // Fat stops at 35 % of 2076 = 80 g; 540 + 720 + 400 = 1660.
+    expect(t).toMatchObject({ carbs: 100, fat: 80, kcal: 1660, uncapped: 2076 });
   });
 
   it("fat never under 25 % of the energy (the health minimum is 20 %)", () => {

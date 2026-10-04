@@ -118,6 +118,7 @@ import { kcalTargets } from "@/core/energy/repositories/outlook";
 import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 import { DayGoal } from "./day-goal";
+import { DaySupplements } from "./day-supplements";
 import { programItemsOf } from "./day-program";
 import { reminderLines } from "./day-reminders";
 
@@ -429,6 +430,15 @@ export default async function DayPage({ searchParams }: Props) {
                     panel: t.panel,
                     day: t.day,
                   }}
+                />
+                <DaySupplements
+                  owner={owner}
+                  day={day}
+                  today={today}
+                  timeZone={settings.timezone}
+                  lastBed={night?.bedAt ?? null}
+                  locale={locale}
+                  t={t.supplements}
                 />
               </div>
               <div className="flex min-w-0 flex-col gap-4">

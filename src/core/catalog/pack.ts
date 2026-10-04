@@ -101,6 +101,9 @@ const ingredient = z.object({
     .default(null),
   origin: z.enum(ORIGINS).nullable().default(null),
   fiberTypes: z.array(z.enum(FIBER_TYPES)).default([]),
+  /** ADR-0039: active compounds per 100 g/ml (mg caffeine, g creatine). */
+  caffeineMg: nutrient.nullable().default(null),
+  creatineG: nutrient.nullable().default(null),
 });
 
 const meal = z.object({

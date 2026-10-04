@@ -18,6 +18,7 @@ import { and, eq } from "drizzle-orm";
 import type { Db } from "../db/client";
 import {
   exercises,
+  ingredientCompounds,
   ingredients,
   logEntries,
   mealItems,
@@ -181,10 +182,20 @@ export async function applyPack(
         report.kept.ingredients++;
         continue;
       }
+      const { caffeineMg, creatineG, ...fields } = i;
       const [row] = await tx
         .insert(ingredients)
-        .values({ ...i, userId: owner.id })
+        .values({ ...fields, userId: owner.id })
         .returning({ id: ingredients.id });
+      // ADR-0039: what makes a drink or a supplement one.
+      for (const [compound, amount] of [
+        ["caffeine", caffeineMg],
+        ["creatine", creatineG],
+      ] as const)
+        if (amount && Number(amount) > 0)
+          await tx
+            .insert(ingredientCompounds)
+            .values({ ingredientId: row!.id, userId: owner.id, compound, amount });
       ingredientIds.set(key, row!.id);
       report.added.ingredients++;
     }

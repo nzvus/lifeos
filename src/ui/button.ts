@@ -16,12 +16,7 @@
  * A function, not a component: <button>, <Link> and <a> all take it.
  */
 export type ButtonVariant =
-  | "primary"
-  | "secondary"
-  | "subtle"
-  | "quiet"
-  | "ghost"
-  | "danger";
+  "primary" | "secondary" | "subtle" | "quiet" | "ghost" | "danger";
 export type ButtonSize = "md" | "sm";
 
 const BASE =
