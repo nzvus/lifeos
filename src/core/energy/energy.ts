@@ -304,12 +304,30 @@ export function dynamicTargets(
   );
   let carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
   let uncapped: number | null = null;
+  let fatG = fat;
   if (carbsMax !== undefined && carbs > carbsMax) {
-    uncapped = kcal;
+    // Carbs beyond their good zone add little (ADR-0023), but the deficit
+    // asked for still holds (2026-10-04: "the numbers don't add up" — a
+    // 200 kcal deficit became 358): the energy carbs can't take goes to fat,
+    // up to 35 % of the energy (the top of its healthy range). Only beyond
+    // that is the energy target lowered.
     carbs = Math.round(carbsMax);
-    kcal = protein * 4 + fat * 9 + carbs * 4;
+    const room = kcal - protein * 4 - carbs * 4;
+    fatG = Math.min(Math.round(room / 9), Math.floor((kcal * 0.35) / 9));
+    const reached = protein * 4 + fatG * 9 + carbs * 4;
+    if (kcal - reached > 9) {
+      uncapped = kcal;
+      kcal = reached;
+    }
   }
-  return { kcal, protein, fat, carbs, fiber: Math.round((kcal / 1000) * 14), uncapped };
+  return {
+    kcal,
+    protein,
+    fat: fatG,
+    carbs,
+    fiber: Math.round((kcal / 1000) * 14),
+    uncapped,
+  };
 }
 
 /** Goal presets (the day type editor fills the three fields from one). */

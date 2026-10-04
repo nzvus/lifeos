@@ -123,7 +123,7 @@ export const it: Messages = {
     defaultHint: "Si fissa al primo alimento: se oggi è diverso, cambialo ora.",
     previousWeek: "Settimana precedente",
     nextWeek: "Settimana successiva",
-    weekBalance: "Energia: {kcal} di {target} kcal ({delta})",
+    weekBalance: "Mangiato {kcal} kcal · target {target} → {delta} rispetto al target",
     goTo: "Vai al",
     go: "Vai",
     thisWeek: "Questa settimana",
