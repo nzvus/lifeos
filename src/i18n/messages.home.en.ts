@@ -369,6 +369,7 @@ export const panelRowsEn = {
   targetLine: "target {v}",
   planLine: "with the plan {v}",
   liveTitle: "The day with the plan",
+  liveLegend: "Solid = eaten · light = planned · outline = good zone · red tick = limit",
   liveEaten: "eaten {v}",
 };
 

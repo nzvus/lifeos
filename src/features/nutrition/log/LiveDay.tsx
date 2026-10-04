@@ -41,7 +41,7 @@ import { fill, type Messages } from "@/i18n";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { MacroStrip, type MacroStripLabels } from "@/ui/MacroStrip";
 import { NutrientIcon } from "@/ui/NutrientIcon";
-import { NutrientRow } from "@/ui/NutrientRow";
+import { NutrientBar } from "@/ui/NutrientBar";
 
 export type LiveEntry = {
   id: string;
@@ -320,12 +320,24 @@ export function LiveGroupKcal({
   );
 }
 
-const MACROS = ["kcal", "protein", "carbs", "fat", "fiber"] as const;
+/** Every nutrient, in label order: the macros, then the limits after their macro. */
+const ROWS = [
+  "kcal",
+  "protein",
+  "carbs",
+  "sugars",
+  "fat",
+  "saturatedFat",
+  "fiber",
+  "salt",
+] as const satisfies readonly NutrientKey[];
+const SUB = new Set<NutrientKey>(["sugars", "saturatedFat"]);
 
 /**
- * The day as planned, live: per macro the whole plan (eaten + planned) as
- * the amount and the state, what is already eaten as the solid bar, the plan
- * as its shadow (ui/NutrientRow) — the same zones as the Summary's panel.
+ * The day as planned, live and compact (2026-10-04: "almost only bars"): per
+ * nutrient one line — the whole plan (eaten + planned) against the zone and
+ * the limit, eaten solid, the plan lighter (ui/NutrientBar); the words of
+ * the state stay for screen readers and the tooltip.
  */
 export function LiveTotals({
   targets,
@@ -334,10 +346,10 @@ export function LiveTotals({
   t,
 }: {
   /** The day's targets (with auto ones), null where none. */
-  targets: Record<(typeof MACROS)[number], number | null>;
+  targets: Record<(typeof ROWS)[number], number | null>;
   bands?: Partial<Record<NutrientKey, Band>>;
   locale: Locale;
-  t: Pick<Messages, "nutrients" | "panel">;
+  t: Pick<Messages, "nutrients" | "panel" | "macro">;
 }) {
   const { entries } = useLive();
   const eaten = entriesTotals(entries.filter((e) => e.status === "eaten")).nutrients;
@@ -345,7 +357,7 @@ export function LiveTotals({
   return (
     <section
       aria-labelledby="live-totals-title"
-      className="panel flex flex-col gap-3 p-4"
+      className="panel flex flex-col gap-2 p-4"
     >
       <h2 id="live-totals-title" className="section-heading">
         <span className="section-icon">
@@ -353,16 +365,16 @@ export function LiveTotals({
         </span>
         {t.panel.liveTitle}
       </h2>
-      <div className="flex flex-col gap-3">
-        {MACROS.map((k) => {
+      <div className="flex flex-col gap-2">
+        {ROWS.map((k) => {
           const v = Number(plan[k]);
           const done = Number(eaten[k]);
           const target = targets[k];
           const band = bandFor(bands?.[k], target, TARGET_KIND[k]);
           const state = bandState(v, band);
           const u = NUTRIENT_UNIT[k];
-          const g = (n: number) =>
-            `${formatNumber(String(Math.round(n)), locale, 0)} ${u}`;
+          const d = k === "salt" ? 1 : 0;
+          const g = (n: number) => `${formatNumber(String(n), locale, d)} ${u}`;
           const status = !band
             ? undefined
             : state === "short"
@@ -374,32 +386,42 @@ export function LiveTotals({
                 : state === "high"
                   ? fill(t.panel.aboveZone, { v: g(band.high) })
                   : fill(t.panel.past, { v: g(band.ceiling) });
+          // A limit is drawn where it is a health maximum.
+          const limit = band && band.ceilingKind === "health" ? band.ceiling : null;
           return (
-            <NutrientRow
+            <NutrientBar
               key={k}
-              icon={<NutrientIcon name={k} />}
-              label={t.nutrients[k]}
+              icon={<NutrientIcon name={k} size={SUB.has(k) ? 12 : 14} />}
+              label={t.macro.short[k]}
+              sub={SUB.has(k)}
               amount={
                 target === null
                   ? g(v)
-                  : `${formatNumber(String(Math.round(v)), locale, 0)} / ${g(target)}`
+                  : `${formatNumber(String(v), locale, d)} / ${g(target)}`
               }
-              status={
-                done !== v
-                  ? [status, fill(t.panel.liveEaten, { v: g(done) })]
-                      .filter(Boolean)
-                      .join(" · ")
-                  : status
-              }
+              status={[
+                `${t.nutrients[k]}: ${g(v)}`,
+                status,
+                done !== v && fill(t.panel.liveEaten, { v: g(done) }),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
               state={state}
               eaten={done}
               withPlan={v}
-              zone={band ? { low: band.low, high: band.high } : null}
-              max={band ? Math.max(band.ceiling * 1.15, v, target ?? 0) || 1 : 1}
+              // A limit (sugars, saturated fat, salt) has no zone to reach: its tick.
+              zone={
+                band && TARGET_KIND[k] !== "max"
+                  ? { low: band.low, high: band.high }
+                  : null
+              }
+              limit={limit}
+              max={Math.max(band ? band.ceiling * 1.15 : 0, v, target ?? 0) || 1}
             />
           );
         })}
       </div>
+      <p className="text-meta text-muted">{t.panel.liveLegend}</p>
     </section>
   );
 }

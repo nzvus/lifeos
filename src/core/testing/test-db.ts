@@ -3,14 +3,19 @@
  *
  * PGlite is Postgres compiled to WebAssembly, running inside the test process:
  * no server, no Docker, no network. Each call to `createTestDb()` gives a fresh
- * empty database, then applies THE SAME committed migration files
- * (drizzle/*.sql) that production gets. So every test run also proves the
- * migrations apply cleanly from zero — ADR-0003's pipeline, exercised on
- * every `npm test`.
+ * database with THE SAME committed migration files (drizzle/*.sql) applied
+ * that production gets. So every test run also proves the migrations apply
+ * cleanly from zero — ADR-0003's pipeline, exercised on every `npm test`.
+ *
+ * Speed (2026-10-04, CI took 4 minutes): the migrations run ONCE per
+ * `npm test` (global-setup.ts writes the migrated data directory to a temp
+ * file); every database is a copy of it (loadDataDir). Run alone (no global
+ * setup), the first call migrates in this process instead.
  *
  * Also provides `createTestUser()` — inserts a user row directly and returns
  * an Owner, bypassing Better Auth (tests of the data layer don't need login).
  */
+import { readFileSync } from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
@@ -18,10 +23,23 @@ import type { Db } from "../db/client";
 import * as schema from "../db/schema";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 
-export async function createTestDb(): Promise<{ db: Db; close: () => Promise<void> }> {
+/** The migrated empty database of this test process, as a data directory dump. */
+let template: Promise<File | Blob> | null = null;
+
+async function migratedTemplate(): Promise<File | Blob> {
+  const file = process.env.LIFEOS_TEST_TEMPLATE;
+  if (file) return new Blob([readFileSync(file)]);
   const client = new PGlite(); // in-memory database
+  await migrate(drizzle(client, { schema }), { migrationsFolder: "drizzle" });
+  const dump = await client.dumpDataDir("none");
+  await client.close();
+  return dump;
+}
+
+export async function createTestDb(): Promise<{ db: Db; close: () => Promise<void> }> {
+  template ??= migratedTemplate();
+  const client = new PGlite({ loadDataDir: await template });
   const pgliteDb = drizzle(client, { schema });
-  await migrate(pgliteDb, { migrationsFolder: "drizzle" });
   // PgliteDatabase and NodePgDatabase share the PgDatabase base type (Db).
   return { db: pgliteDb as unknown as Db, close: () => client.close() };
 }

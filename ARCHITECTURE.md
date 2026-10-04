@@ -138,7 +138,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
 - **Responsive UI:** tabs by moment (ADR-0035), views as URLs (ADR-0033) — Today (summary |
   food | training, under a fixed day header; gym mode starts here) · Training (plan: a week or
   month swiped sideways, the programs | routines | exercises; ADR-0036) · Food (meals |
-  ingredients | pantry) · Money (overview | movements) · Progress (trends | weight | training);
+  ingredients | pantry) · Money (overview | movements | receipts) · Progress (trends | weight | training);
   the Assistant in the header; a bottom bar on phones, header on md+. `sm:/md:/lg:` obey
   `data-layout` (ADR-0010); container queries in cards; checked at 360 px, text 120 %.
 - **Visual language:** colour = state (short / in the zone / over: `bandState`,
@@ -146,6 +146,6 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   lighter on rings and bars, dashed on chips; `ui/button.ts`, `ui/Badge`; plain SVG charts.
 - **Theming:** tokens in `design/` (ADR-0010); themes `label` (default) / `quaderno` /
   `sport` / `minimal` / `notte` override them (`data-theme`, per user), same components.
-- **Speed / testing:** `fra1`, cookie cache, `loading.tsx`, one parallel round of queries per
-  page, pool of 10, router cache 30 s; Today's views switched in the browser (`ui/ViewSwitch`,
-  URL by replaceState). Vitest + PGlite with the real migrations.
+- **Speed / testing:** `fra1`, cookie cache, one round of queries per page, pool 10, router cache
+  30 s, Today's views switched in the browser (`ui/ViewSwitch`). Vitest + PGlite: the migrations
+  run once, each test copies the result; CI: static checks, tests, build in parallel.

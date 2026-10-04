@@ -374,6 +374,8 @@ export const panelRowsIt = {
   targetLine: "obiettivo {v}",
   planLine: "con il pianificato {v}",
   liveTitle: "La giornata col piano",
+  liveLegend:
+    "Pieno = mangiato · chiaro = pianificato · riquadro = zona buona · tacca rossa = limite",
   liveEaten: "mangiati {v}",
 };
 

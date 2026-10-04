@@ -17,6 +17,8 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts"],
+    // The migrations run once; each test database copies the result.
+    globalSetup: ["src/core/testing/global-setup.ts"],
     // Each DB test file boots its own PGlite instance and applies every
     // migration: a few seconds, so give it room on slow machines / CI.
     testTimeout: 30_000,
