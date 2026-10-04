@@ -656,6 +656,16 @@ export const it: Messages = {
     saturatedOf: "saturi {v}%",
     fiberOf: "fibre {v}%",
     perKg: "/kg",
+    short: {
+      kcal: "Energia",
+      protein: "Prot.",
+      carbs: "Carbo",
+      sugars: "zucch.",
+      fat: "Grassi",
+      saturatedFat: "saturi",
+      fiber: "Fibre",
+      salt: "Sale",
+    },
     ingredientsCount: "{n} ingredienti",
   },
   analysis: {

@@ -30,6 +30,7 @@ export const pantryIt: Messages["pantry"] = {
   daysLeft: "{n} giorni",
   noUse: "consumo non noto",
   count: "Conta",
+  finished: "È finito",
   countLabel: "Ne ho adesso ({unit})",
   counted: "Conteggio salvato",
   batches: "Cucinate",

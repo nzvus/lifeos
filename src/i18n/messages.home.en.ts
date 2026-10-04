@@ -28,6 +28,7 @@ export const pantryEn = {
   daysLeft: "{n} days",
   noUse: "use unknown",
   count: "Count",
+  finished: "It ran out",
   countLabel: "I have now ({unit})",
   counted: "Count saved",
   batches: "Batches",

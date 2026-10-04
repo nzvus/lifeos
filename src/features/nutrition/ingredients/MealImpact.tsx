@@ -37,6 +37,9 @@ export function MealImpact({ usedIn, before, after, unit, locale, t }: Props) {
     carbs: t.macro.carbs,
     fat: t.macro.fat,
     fiber: t.nutrients.fiber,
+    sugars: t.nutrients.sugars,
+    saturatedFat: t.nutrients.saturatedFat,
+    salt: t.nutrients.salt,
   };
   return (
     <div className="flex flex-col gap-2 pt-2">
