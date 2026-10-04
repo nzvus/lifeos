@@ -27,7 +27,7 @@ export default async function RoutinesPage() {
   const r = t.routines;
   return (
     <>
-      <PageHeader title={t.training.title} />
+      <PageHeader title={t.training.title} quiet />
       <TrainingNav current="routines" t={t} />
       {routines.length === 0 ? (
         <p className="text-muted">{r.empty}</p>

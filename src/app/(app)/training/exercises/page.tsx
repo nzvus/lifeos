@@ -43,7 +43,7 @@ export default async function ExercisesPage() {
   const x = t.exercises;
   return (
     <>
-      <PageHeader title={t.training.title} />
+      <PageHeader title={t.training.title} quiet />
       <TrainingNav current="exercises" t={t} />
       {exercises.length === 0 ? (
         <p className="text-muted">{x.empty}</p>

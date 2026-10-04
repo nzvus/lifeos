@@ -298,6 +298,8 @@ export const it: Messages = {
       modes: { system: "Come il dispositivo", light: "Chiaro", dark: "Scuro" },
       layout: "Impaginazione",
       layouts: { auto: "Automatica", desktop: "Desktop", phone: "Telefono" },
+      density: "Densità",
+      densities: { compact: "Compatta", comfortable: "Comoda (più grande)" },
       save: "Salva aspetto",
     },
   },
@@ -701,6 +703,7 @@ export const it: Messages = {
   },
   analysis: {
     adherenceTitle: "Obiettivi raggiunti",
+    howTo: "Come si calcola",
     adherenceHint:
       "Giorni in cui eri nell'obiettivo, sui giorni registrati che ne avevano uno. Minimi (proteine, fibre): raggiunti; massimi (zuccheri, saturi, sale): non superati; obiettivi: entro ±5 %.",
     noTargets: "Nessun obiettivo nei giorni registrati del periodo.",

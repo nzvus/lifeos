@@ -123,7 +123,7 @@ export default async function ProgressPage({ searchParams }: Props) {
 
   return (
     <>
-      <PageHeader title={g.title} />
+      <PageHeader title={g.title} quiet />
       <SubNav
         label={g.title}
         current={view}

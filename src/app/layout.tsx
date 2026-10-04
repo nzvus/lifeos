@@ -68,7 +68,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   // Per-device display settings (ADR-0010), from cookies, rendered on the
   // server so the first paint already has the right palette and layout.
   // The defaults ("system", "auto") are the absence of the attribute.
-  const { mode, layout } = await getDisplay();
+  const { mode, layout, density } = await getDisplay();
   // The user's theme (ADR-0010); the default one needs no attribute.
   const theme = await getTheme();
   // `lang` is the default locale; signed-in pages set their own on their wrapper.
@@ -78,6 +78,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       data-theme={theme === DEFAULT_THEME ? undefined : theme}
       data-mode={mode === "system" ? undefined : mode}
       data-layout={layout === "auto" ? undefined : layout}
+      data-density={density}
     >
       <body className="min-h-dvh">
         {children}

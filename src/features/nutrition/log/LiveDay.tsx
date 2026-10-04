@@ -41,6 +41,7 @@ import { fill, type Messages } from "@/i18n";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { MacroStrip, type MacroStripLabels } from "@/ui/MacroStrip";
 import { NutrientIcon } from "@/ui/NutrientIcon";
+import { InfoTip } from "@/ui/InfoTip";
 import { NutrientBar } from "@/ui/NutrientBar";
 
 export type LiveEntry = {
@@ -176,12 +177,12 @@ export function LiveCountToggle({
         aria-pressed={!out}
         aria-label={label}
         title={error ?? label}
-        className={`p-1 ${out ? "text-muted" : "text-ink"}`}
+        className={`p-0.5 ${out ? "text-muted" : "text-muted hover:text-ink"}`}
       >
         {out ? (
-          <EyeOff size={20} aria-hidden="true" />
+          <EyeOff size={16} aria-hidden="true" />
         ) : (
-          <Eye size={20} aria-hidden="true" />
+          <Eye size={16} aria-hidden="true" />
         )}
       </button>
     </form>
@@ -364,6 +365,9 @@ export function LiveTotals({
           <ListChecks size={20} aria-hidden="true" />
         </span>
         {t.panel.liveTitle}
+        <span className="ml-auto font-sans text-meta normal-case">
+          <InfoTip label={t.panel.legend}>{t.panel.liveLegend}</InfoTip>
+        </span>
       </h2>
       <div className="flex flex-col gap-2">
         {ROWS.map((k) => {
@@ -421,7 +425,6 @@ export function LiveTotals({
           );
         })}
       </div>
-      <p className="text-meta text-muted">{t.panel.liveLegend}</p>
     </section>
   );
 }

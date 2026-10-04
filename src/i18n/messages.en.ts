@@ -302,6 +302,8 @@ export const en = {
       modes: { system: "Like the device", light: "Light", dark: "Dark" },
       layout: "Layout",
       layouts: { auto: "Automatic", desktop: "Desktop", phone: "Phone" },
+      density: "Density",
+      densities: { compact: "Compact", comfortable: "Comfortable (larger)" },
       save: "Save display",
     },
   },
@@ -703,6 +705,7 @@ export const en = {
   },
   analysis: {
     adherenceTitle: "Targets met",
+    howTo: "How it is computed",
     adherenceHint:
       "Days you were on target, out of the logged days that had one. Minimums (protein, fibre): reached; maximums (sugars, saturated fat, salt): not exceeded; targets: within ±5 %.",
     noTargets: "No targets on the logged days of this period.",

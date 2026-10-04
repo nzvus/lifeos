@@ -256,7 +256,7 @@ export function ReceiptEditor({
                   aria-label={m.removeLine}
                   title={m.removeLine}
                   onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))}
-                  className={`${buttonClass({ variant: "subtle", iconOnly: true })} text-tomato`}
+                  className={`${buttonClass({ variant: "ghost", iconOnly: true })} hover:text-tomato`}
                 >
                   <Trash2 size={18} aria-hidden="true" />
                 </button>

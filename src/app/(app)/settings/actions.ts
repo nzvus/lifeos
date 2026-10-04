@@ -18,7 +18,7 @@ import {
 } from "@/core/nutrition/validation";
 import { createFactor, deleteFactor } from "@/core/nutrition/repositories/ratings";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
-import { parseColorMode, parseLayout } from "@/core/shared/display";
+import { parseColorMode, parseDensity, parseLayout } from "@/core/shared/display";
 import { saveBody } from "@/core/energy/repositories/energy";
 import { bodyInput } from "@/core/energy/validation";
 import type { FormState } from "@/core/shared/result";
@@ -50,6 +50,7 @@ export async function saveDisplayAction(
   await saveDisplay({
     mode: parseColorMode(value("mode")),
     layout: parseLayout(value("layout")),
+    density: parseDensity(value("density")),
   });
   // The attributes live on <html>, in the root layout.
   revalidatePath("/", "layout");

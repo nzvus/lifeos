@@ -1,6 +1,7 @@
 /**
  * core/shared/display.ts — the per-device display settings (ADR-0010):
- * light / dark / system, and the layout auto / desktop / phone.
+ * light / dark / system, the layout auto / desktop / phone, and the density
+ * compact / comfortable (ADR-0038; compact by default: "compactness").
  *
  * They are stored in cookies, not in the database, because they describe a
  * device rather than a user. Cookies can hold anything, so every value read
@@ -13,8 +14,15 @@ export type ColorMode = (typeof COLOR_MODES)[number];
 export const LAYOUTS = ["auto", "desktop", "phone"] as const;
 export type Layout = (typeof LAYOUTS)[number];
 
-export type Display = { mode: ColorMode; layout: Layout };
-export const DEFAULT_DISPLAY: Display = { mode: "system", layout: "auto" };
+export const DENSITIES = ["compact", "comfortable"] as const;
+export type Density = (typeof DENSITIES)[number];
+
+export type Display = { mode: ColorMode; layout: Layout; density: Density };
+export const DEFAULT_DISPLAY: Display = {
+  mode: "system",
+  layout: "auto",
+  density: "compact",
+};
 
 export function parseColorMode(value: string | undefined): ColorMode {
   return (COLOR_MODES as readonly string[]).includes(value ?? "")
@@ -26,4 +34,10 @@ export function parseLayout(value: string | undefined): Layout {
   return (LAYOUTS as readonly string[]).includes(value ?? "")
     ? (value as Layout)
     : DEFAULT_DISPLAY.layout;
+}
+
+export function parseDensity(value: string | undefined): Density {
+  return (DENSITIES as readonly string[]).includes(value ?? "")
+    ? (value as Density)
+    : DEFAULT_DISPLAY.density;
 }

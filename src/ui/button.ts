@@ -8,12 +8,20 @@
  *   secondary outlined in ink: other real actions (Export, Add series)
  *   subtle    outlined hairline: small actions inside rows and cards (⋯, bin)
  *   quiet     no outline: header icons, Cancel next to Save
+ *   ghost     no outline, muted: the actions on every row (⋯, bin): present
+ *             but not shouting, so a list reads as its content (2026-10-04)
  *   danger    outlined tomato: destructive confirmations
  *
  * Sizes: md (44 px, the touch target) and sm (36 px, inside dense rows).
  * A function, not a component: <button>, <Link> and <a> all take it.
  */
-export type ButtonVariant = "primary" | "secondary" | "subtle" | "quiet" | "danger";
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "subtle"
+  | "quiet"
+  | "ghost"
+  | "danger";
 export type ButtonSize = "md" | "sm";
 
 const BASE =
@@ -24,6 +32,7 @@ const VARIANT: Record<ButtonVariant, string> = {
   secondary: "rule-medium border-ink text-ink hover:bg-paper",
   subtle: "rule-medium border-hairline text-ink hover:border-ink",
   quiet: "text-ink hover:bg-paper",
+  ghost: "text-muted hover:bg-paper hover:text-ink",
   danger: "rule-medium border-tomato text-tomato hover:bg-paper",
 };
 

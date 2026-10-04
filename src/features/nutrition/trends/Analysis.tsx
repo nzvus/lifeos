@@ -6,6 +6,7 @@
  */
 import { CalendarDays, Clock, ListChecks, Target } from "lucide-react";
 import type { ReactNode } from "react";
+import { InfoTip } from "@/ui/InfoTip";
 import type { DaySummary } from "@/core/nutrition/repositories/history";
 import {
   adherence,
@@ -48,10 +49,13 @@ const PART_SHADE = [
 function Block({
   title,
   icon,
+  info,
   children,
 }: {
   title: string;
   icon: ReactNode;
+  /** How it is computed: behind an ⓘ (ADR-0038). */
+  info?: { label: string; text: string };
   children: ReactNode;
 }) {
   return (
@@ -59,6 +63,11 @@ function Block({
       <h3 className="flex items-center gap-1.5 font-display text-item font-bold">
         {icon}
         {title}
+        {info && (
+          <span className="ml-auto">
+            <InfoTip label={info.label}>{info.text}</InfoTip>
+          </span>
+        )}
       </h3>
       {children}
     </div>
@@ -75,7 +84,11 @@ export function Analysis({ history, targets, today, timeZone, locale, t }: Props
 
   return (
     <div className="grid grid-cols-1 gap-x-8 gap-y-6 @3xl:grid-cols-2">
-      <Block title={a.adherenceTitle} icon={<Target size={16} aria-hidden="true" />}>
+      <Block
+        title={a.adherenceTitle}
+        icon={<Target size={16} aria-hidden="true" />}
+        info={{ label: a.howTo, text: a.adherenceHint }}
+      >
         {adh.length === 0 ? (
           <p className="text-meta text-muted">{a.noTargets}</p>
         ) : (
@@ -102,7 +115,6 @@ export function Analysis({ history, targets, today, timeZone, locale, t }: Props
             ))}
           </ul>
         )}
-        <p className="text-meta text-muted">{a.adherenceHint}</p>
       </Block>
 
       <Block title={a.dayTypesTitle} icon={<CalendarDays size={16} aria-hidden="true" />}>

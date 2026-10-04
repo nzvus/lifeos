@@ -36,8 +36,8 @@ export function DeleteButton({
         onClick={() => dialog.current?.showModal()}
         className={
           text
-            ? `self-start ${buttonClass({ variant: "secondary", size: "sm" })}`
-            : `${buttonClass({ variant: "subtle", iconOnly: true })} text-tomato`
+            ? `self-start ${buttonClass({ variant: "secondary", size: "sm" })} h-auto min-h-9 max-w-full py-1 whitespace-normal! text-left`
+            : `${buttonClass({ variant: "ghost", iconOnly: true })} hover:text-tomato`
         }
       >
         <Trash2 size={text ? 16 : 20} aria-hidden="true" />

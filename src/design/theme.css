@@ -158,8 +158,8 @@
 :root {
   --panel-bg: var(--color-sheet);
   /* Label (S20): every card is a label box framed in ink, with rounded
-     corners. */
-  --panel-border: var(--rule-strong) solid var(--color-ink);
+     corners; 1 px since 2026-10-04 (ADR-0038: lighter chrome). */
+  --panel-border: var(--rule-medium) solid var(--color-ink);
   --panel-radius: var(--radius-surface);
   --panel-shadow: none;
   --tile-bg: var(--color-paper);
@@ -172,20 +172,20 @@
   --item-pad: 0rem;
   --item-gap: 0rem;
   /* Section headings (S20): what makes a theme recognisable at a glance.
-     Label: the heavy rule under every heading, like a nutrition label. */
+     Label: the rule under every heading, like a nutrition label (2 px). */
   --heading-case: none;
   --heading-tracking: normal;
   --heading-size: var(--text-section);
   --heading-weight: 700;
   --heading-color: var(--color-ink);
-  --heading-rule: var(--rule-heavy) solid var(--color-ink);
+  --heading-rule: var(--rule-strong) solid var(--color-ink);
   --heading-pad: 0.375rem;
   /* The icon before a heading: bare (label), a tinted disc (orto)… */
   --icon-chip-bg: transparent;
   --icon-chip-pad: 0;
   --icon-chip-radius: 0;
-  /* The rule under the app header. */
-  --header-rule: var(--rule-heavy) solid var(--color-ink);
+  /* The rule under the app header: thin (2026-10-04), the content leads. */
+  --header-rule: var(--rule-medium) solid var(--color-ink);
 }
 @utility section-heading {
   display: flex;
@@ -397,4 +397,18 @@
   --color-muscle-arms: #c9a2f2;
   --color-muscle-core: #6fd3cf;
   --color-muscle-legs: #9fd27a;
+}
+
+/*
+ * Density (ADR-0038, per device, compact by default): the whole interface is
+ * in rem, so the root size scales spacing, type, radii and controls at once,
+ * in every theme. Icons are in px and keep their size (still easy to tap).
+ */
+html[data-density="compact"] {
+  font-size: 87.5%;
+}
+
+/* A small card hanging from an icon (ui/InfoTip): never wider than the phone. */
+@utility popover-card {
+  width: min(18rem, 80vw);
 }

@@ -147,7 +147,8 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   ui/NutrientRow); nutrients keep their colour on icons and bars, numbers are ink; planned =
   lighter on rings and bars, dashed on chips; `ui/button.ts`, `ui/Badge`; plain SVG charts.
 - **Theming:** tokens in `design/` (ADR-0010); themes `label` (default) / `quaderno` /
-  `sport` / `minimal` / `notte` override them (`data-theme`, per user), same components.
+  `sport` / `minimal` / `notte` override them (`data-theme`, per user), same components. Density compact (default) /
+  comfortable per device (cookie, `data-density`: the root size scales every rem, ADR-0038).
 - **Speed / testing:** `fra1`, cookie cache, one round of queries per page, pool 10, router cache
   30 s, Today's views switched in the browser (`ui/ViewSwitch`). Vitest + PGlite: the migrations
   run once, each test copies the result; CI: static checks, tests, build in parallel.

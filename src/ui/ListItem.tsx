@@ -46,7 +46,7 @@ export function ListItem({
 }: Props) {
   return (
     <li
-      className={`item relative flex flex-col gap-2 py-3 has-aria-expanded:z-30 ${
+      className={`item relative flex flex-col gap-1.5 py-2 has-aria-expanded:z-30 ${
         muted ? "item-planned" : ""
       }`}
     >

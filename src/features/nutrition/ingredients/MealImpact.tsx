@@ -60,9 +60,10 @@ export function MealImpact({ usedIn, before, after, unit, locale, t }: Props) {
             : [];
           return (
             <li key={m.id} className="flex flex-col">
-              <span>
-                <span className="font-semibold">{m.name}</span>
-                <span className="pl-2 font-display text-muted tabular-nums">
+              {/* Name and quantity side by side: a long name wraps on its own. */}
+              <span className="flex items-baseline justify-between gap-2">
+                <span className="min-w-0 font-semibold">{m.name}</span>
+                <span className="shrink-0 font-display whitespace-nowrap text-muted tabular-nums">
                   {fill(t.ingredients.impactQuantity, {
                     q: formatNumber(m.quantity, locale, 0),
                     unit,

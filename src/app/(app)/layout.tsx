@@ -3,7 +3,7 @@
  * screen:
  *   - phones: slim header (name, settings) and a bottom tab bar (ui/NavBar)
  *     where the thumb reaches; extra bottom padding so content never hides
- *     behind the bar;
+ *     behind the bar or under the "+" (2026-10-04: it covered the last row);
  *   - md and up: navigation in the header, no bottom bar.
  * Width: up to --container-wide (72rem); pages that are forms narrow
  * themselves to --container-page for readable line lengths.
@@ -43,10 +43,10 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div
       lang={settings.locale}
-      className="mx-auto flex max-w-wide flex-col gap-6 px-4 pb-24 md:pb-16"
+      className="mx-auto flex max-w-wide flex-col gap-4 px-4 pb-40 md:pb-16"
     >
-      <header className="flex items-center justify-between gap-x-6 gap-y-2 app-header-rule pt-4 pb-2">
-        <Link href="/" className="font-heading text-title font-extrabold">
+      <header className="flex items-center justify-between gap-x-6 gap-y-2 app-header-rule pt-2 pb-1">
+        <Link href="/" className="font-heading text-section font-extrabold">
           {t.app.name}
         </Link>
         <NavBar links={[...links]} label={t.nav.menu} />

@@ -32,7 +32,7 @@ export default async function IngredientsPage() {
   return (
     <>
       {/* The pantry (ADR-0017) is a view of the Food tab, beside these. */}
-      <PageHeader title={t.nav.food} />
+      <PageHeader title={t.nav.food} quiet />
       <FoodNav current="ingredients" t={t} />
       <QuickIngredient id="new-ingredient" action={createIngredientAction} t={t} />
       <IngredientBrowser

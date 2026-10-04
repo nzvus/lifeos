@@ -1,12 +1,12 @@
 /**
- * features/account/settings/DisplayForm.tsx — light / dark / system and the
- * layout (ADR-0010). Per device: the action stores them in cookies, not in
+ * features/account/settings/DisplayForm.tsx — light / dark / system, the
+ * layout (ADR-0010) and the density (ADR-0038). Per device: the action stores them in cookies, not in
  * the user's settings row. Every option is valid, so there are no field
  * errors; the page re-renders with the new attributes on <html>.
  */
 "use client";
 
-import { MonitorSmartphone, SunMoon } from "lucide-react";
+import { MonitorSmartphone, Rows3, SunMoon } from "lucide-react";
 import { useActionState } from "react";
 import { IDLE, type FormState } from "@/core/shared/result";
 import type { Display } from "@/core/shared/display";
@@ -46,6 +46,16 @@ export function DisplayForm({ action, initial, t }: Props) {
           { value: "auto", label: t.layouts.auto },
           { value: "desktop", label: t.layouts.desktop },
           { value: "phone", label: t.layouts.phone },
+        ]}
+      />
+      <SelectField
+        label={t.density}
+        icon={<Rows3 size={16} aria-hidden="true" />}
+        name="density"
+        defaultValue={initial.density}
+        options={[
+          { value: "compact", label: t.densities.compact },
+          { value: "comfortable", label: t.densities.comfortable },
         ]}
       />
       <SaveStatus
