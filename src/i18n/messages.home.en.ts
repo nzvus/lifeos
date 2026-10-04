@@ -196,8 +196,7 @@ export const energyEn = {
   goalSurplus: "a {kcal} kcal surplus",
   goalEat: "Eat {kcal} kcal · you spend ~{spent} kcal",
   goalFixed: "Target {kcal} kcal (fixed)",
-  goalCapped:
-    "Carbs stop at {carbs} g and fat at 35 % of the energy: the target is lowered, so the deficit is larger than asked.",
+  goalCapped: "Carbs stop at {carbs} g and fat at 35 % of the energy: the target is lowered, so the deficit is larger than asked.",
   goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
