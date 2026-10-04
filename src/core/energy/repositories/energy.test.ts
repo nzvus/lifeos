@@ -88,6 +88,9 @@ describe("energy repository", () => {
         carbs: "0",
         fat: "0",
         fiber: "0",
+        sugars: "0",
+        saturatedFat: "0",
+        salt: "0",
         cost: null,
       });
       if (i % 4 === 0)
@@ -143,6 +146,9 @@ describe("weigh-ins read with what came before them (ADR-0027)", () => {
         carbs,
         fat: "0",
         fiber: "0",
+        sugars: "0",
+        saturatedFat: "0",
+        salt: "0",
         cost: null,
         at: new Date(at),
       });

@@ -13,7 +13,7 @@ Better Auth in the same database (ADR-0006). Modules: nutrition (ingredients, me
 with snapshots, day types and targets, quality, trends), training (exercises with guides,
 routines, programs, sessions, gym mode, progress), body (weigh-ins, sleep, movement) and
 energy; pantry (products, purchases, derived stock, batches, reminders); an assistant over
-core tools (ADR-0018); trash; export; packs that add only what is missing (ADR-0034).
+core tools (ADR-0018); trash; export; packs that add only what is missing, or plan estimates on a day (ADR-0034).
 
 ## Component map
 

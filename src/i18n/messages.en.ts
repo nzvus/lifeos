@@ -154,6 +154,11 @@ export const en = {
     servingsMore: "Servings: × {n}",
     servingsLess: "Servings: × {n}",
     copyYesterday: "Repeat yesterday's meals",
+    clearPlanned: "Remove what's still planned ({n})",
+    clearPlannedAsk: "Remove the {n} entries still planned?",
+    clearPlannedHint:
+      "What you ticked as eaten stays. The others go to the trash: Undo right after, or Settings → Trash for 30 days.",
+    clearedPlanned: "{n} planned entries moved to the trash",
     planned: "Planned (not eaten yet)",
     when: "When",
     eaten: "Eaten",

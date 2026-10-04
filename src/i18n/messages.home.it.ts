@@ -722,7 +722,7 @@ export const routinesIt: Messages["routines"] = {
 
 export const packsIt: Messages["packs"] = {
   title: "Pacchetti",
-  hint: "Un pacchetto aggiunge esercizi, schede, programmi, ingredienti e pasti: solo quelli che non hai già, senza cambiare niente di tuo. I programmi arrivano non attivi.",
+  hint: "Un pacchetto aggiunge esercizi, schede, programmi, ingredienti e pasti: solo quelli che non hai già, senza cambiare niente di tuo. I programmi arrivano non attivi. Le stime (per esempio il menù di un ristorante) finiscono come pianificate sul giorno del pacchetto, o su oggi: spunti quello che mangi.",
   starter: "Aggiungi il pacchetto iniziale",
   file: "File del pacchetto (.json)",
   import: "Importa",
@@ -739,6 +739,7 @@ export const packsIt: Messages["packs"] = {
     programs: "programmi: {n}",
     ingredients: "ingredienti: {n}",
     meals: "pasti: {n}",
+    estimates: "stime pianificate sul giorno: {n}",
   },
 };
 

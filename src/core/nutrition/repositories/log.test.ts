@@ -20,9 +20,11 @@ import {
   logIngredient,
   logMeal,
   refreshLogEntry,
+  restoreLogEntries,
   restoreLogEntry,
   setEntryStatus,
   setEntryTime,
+  trashPlanned,
 } from "./log";
 import {
   createMeal,
@@ -294,6 +296,9 @@ describe("daily log", () => {
       carbs: "95",
       fat: "32",
       fiber: "0",
+      sugars: "6",
+      saturatedFat: "12.5",
+      salt: "4.2",
       cost: "8.50",
     });
     if (!est.ok) throw new Error("setup failed");
@@ -303,6 +308,10 @@ describe("daily log", () => {
       kcal: "850.0",
       protein: "35.0",
       fat: "32.0",
+      // Every nutrient typed is kept, not only the main ones.
+      sugars: "6.0",
+      saturatedFat: "12.5",
+      salt: "4.2",
     });
     expect(view.totals).toMatchObject({ costCents: 850, costComplete: true });
 
@@ -419,6 +428,59 @@ describe("log entries in the trash (ADR-0015)", () => {
   });
 });
 
+describe("removing what is still planned (a menu planned whole)", () => {
+  it("trashes only the day's planned entries, mine only, and one Undo brings them back", async () => {
+    const dish = (label: string, status: "planned" | "eaten", who = alice) =>
+      logEstimate(db, who, {
+        day: "2026-10-04",
+        label,
+        kcal: "500",
+        protein: "0",
+        carbs: "0",
+        sugars: "0",
+        fat: "0",
+        saturatedFat: "0",
+        fiber: "0",
+        salt: "0",
+        cost: null,
+        status,
+        at: status === "eaten" ? new Date() : null,
+      });
+    await dish("Naan", "eaten");
+    await dish("Samosa", "planned");
+    await dish("Lamb curry", "planned");
+    await dish("Bob's", "planned", bob);
+    const other = await logEstimate(db, alice, {
+      day: "2026-10-05",
+      label: "Tomorrow",
+      kcal: "1",
+      protein: "0",
+      carbs: "0",
+      sugars: "0",
+      fat: "0",
+      saturatedFat: "0",
+      fiber: "0",
+      salt: "0",
+      cost: null,
+      status: "planned",
+      at: null,
+    });
+    if (!other.ok) throw new Error("setup failed");
+
+    const ids = await trashPlanned(db, alice, "2026-10-04");
+    expect(ids).toHaveLength(2);
+    expect((await getDay(db, alice, "2026-10-04")).entries.map((e) => e.label)).toEqual([
+      "Naan",
+    ]);
+    expect((await getDay(db, bob, "2026-10-04")).entries).toHaveLength(1);
+    expect((await getDay(db, alice, "2026-10-05")).entries).toHaveLength(1);
+
+    expect(await restoreLogEntries(db, bob, ids)).toBe(0); // not Bob's to restore
+    expect(await restoreLogEntries(db, alice, ids)).toBe(2);
+    expect((await getDay(db, alice, "2026-10-04")).entries).toHaveLength(3);
+  });
+});
+
 describe("editing a day's entry as a local copy (ADR-0022)", () => {
   it("grams, swaps and additions change the entry, never the meal", async () => {
     const mealId = await porridge();
@@ -476,6 +538,9 @@ describe("editing a day's entry as a local copy (ADR-0022)", () => {
       carbs: "0",
       fat: "0",
       fiber: "0",
+      sugars: "0",
+      saturatedFat: "0",
+      salt: "0",
       cost: null,
     });
     if (!est.ok) throw new Error("setup failed");

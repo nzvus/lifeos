@@ -16,6 +16,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { formToObject } from "@/app/_server/forms";
 import { requireContext } from "@/app/_server/owner";
 import { todayIn } from "@/core/shared/dates";
@@ -24,6 +25,8 @@ import {
   copyDay,
   deleteLogEntry,
   restoreLogEntry,
+  restoreLogEntries,
+  trashPlanned,
   logIngredient,
   entryTiming,
   logEstimate,
@@ -49,6 +52,7 @@ import {
   parseInput,
 } from "@/core/nutrition/validation";
 import { addDays, instantFor, isValidDay } from "@/core/shared/dates";
+import { id as entryId } from "@/core/shared/validation";
 import { IDLE, type FormState } from "@/core/shared/result";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { setDayActivity, setEnergyCorrection } from "@/core/energy/repositories/energy";
@@ -127,6 +131,28 @@ export async function restoreLogEntryAction(
   if (!result.ok) return { ok: false, message: t.errors.not_found };
   revalidatePath("/");
   return { ok: true };
+}
+
+/**
+ * "Remove what's still planned" on a day (core trashPlanned): the ids come
+ * back for the toast's Undo. The day is checked; ids from the browser are
+ * used only through the owner-checked repository.
+ */
+export async function trashPlannedAction(day: string): Promise<string[]> {
+  const { owner } = await requireContext();
+  if (!isValidDay(day)) return [];
+  const ids = await trashPlanned(getDb(), owner, day);
+  revalidatePath("/");
+  return ids;
+}
+
+/** trashPlannedAction's Undo. */
+export async function restoreLogEntriesAction(ids: string[]): Promise<void> {
+  const { owner } = await requireContext();
+  const valid = z.array(entryId).max(200).safeParse(ids);
+  if (!valid.success) return;
+  await restoreLogEntries(getDb(), owner, valid.data);
+  revalidatePath("/");
 }
 
 /** "Today is a gym day": copies that profile's targets onto the day (ADR-0008). */

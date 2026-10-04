@@ -715,7 +715,7 @@ export const routinesEn = {
 
 export const packsEn = {
   title: "Packs",
-  hint: "A pack adds exercises, routines, programs, ingredients and meals: only those you don't have yet, changing nothing of yours. Programs arrive inactive.",
+  hint: "A pack adds exercises, routines, programs, ingredients and meals: only those you don't have yet, changing nothing of yours. Programs arrive inactive. Estimates (a restaurant's menu, say) arrive planned on the pack's day, or today: tick what you eat.",
   starter: "Add the starter pack",
   file: "Pack file (.json)",
   import: "Import",
@@ -732,6 +732,7 @@ export const packsEn = {
     programs: "programs: {n}",
     ingredients: "ingredients: {n}",
     meals: "meals: {n}",
+    estimates: "estimates planned on the day: {n}",
   },
 };
 

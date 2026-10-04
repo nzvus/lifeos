@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "../db/client";
 import type { Owner } from "../identity/owner";
 import { listIngredients } from "../nutrition/repositories/ingredients";
+import { getDay } from "../nutrition/repositories/log";
 import { listMeals } from "../nutrition/repositories/meals";
 import { createTestDb, createTestUser } from "../testing/test-db";
 import { createExercise, listExercises } from "../training/repositories/exercises";
@@ -115,6 +116,7 @@ describe("applyPack", () => {
       programs: 1,
       ingredients: 2,
       meals: 1,
+      estimates: 0,
     });
     expect(r.missing.sort()).toEqual([
       "Push → Nowhere",
@@ -153,10 +155,67 @@ describe("applyPack", () => {
       programs: 0,
       ingredients: 0,
       meals: 0,
+      estimates: 0,
     });
     const names = (await listExercises(db, me)).map((e) => [e.name, e.notes]);
     expect(names).toContainEqual(["panca PIANA", "mine"]);
     expect(await listIngredients(db, me)).toHaveLength(2);
+  });
+});
+
+describe("estimates in a pack", () => {
+  const MENU: PackInput = {
+    format: "lifeos-pack",
+    version: 1,
+    name: "Menu",
+    day: "2026-10-04",
+    estimates: [
+      { name: "Chicken tikka masala", moment: "dinner", ...food, kcal: "820" },
+      { name: "Garlic naan", kcal: "450", carbs: "70", cost: "3.50" },
+    ],
+  };
+
+  it("plans them on the pack's day as estimates, adding nothing to the catalog", async () => {
+    const r = await applyPack(db, me, parsed(MENU), "2026-10-03");
+    expect(r.added.estimates).toBe(2);
+    const day = await getDay(db, me, "2026-10-04");
+    expect(day.entries.map((e) => [e.label, e.status, e.estimated, e.moment])).toEqual(
+      expect.arrayContaining([
+        ["Chicken tikka masala", "planned", true, "dinner"],
+        ["Garlic naan", "planned", true, null],
+      ]),
+    );
+    expect(day.totals.nutrients.kcal).toBe("0.0"); // nothing eaten yet
+    expect(day.withPlanned.nutrients).toMatchObject({
+      kcal: "1270.0",
+      saturatedFat: "0.2", // every nutrient kept; the naan's missing ones are 0
+    });
+    expect(day.withPlanned.costCents).toBe(350);
+    expect(await listIngredients(db, me)).toEqual([]);
+    expect(await listMeals(db, me)).toEqual([]);
+    expect((await getDay(db, other, "2026-10-04")).entries).toEqual([]);
+  });
+
+  it("goes on today without a day, and a second import adds nothing", async () => {
+    const today = parsed({ ...MENU, day: undefined });
+    await applyPack(db, me, today, "2026-10-03");
+    const again = await applyPack(db, me, today, "2026-10-03");
+    expect(again.added.estimates).toBe(0);
+    expect(again.kept.estimates).toBe(2);
+    expect((await getDay(db, me, "2026-10-03")).entries).toHaveLength(2);
+  });
+
+  it("refuses a dish without energy and two dishes with one name", () => {
+    expect(parsePack({ ...MENU, estimates: [{ name: "X" }] }).ok).toBe(false);
+    expect(
+      parsePack({
+        ...MENU,
+        estimates: [
+          { name: "Naan", kcal: "1" },
+          { name: "naan", kcal: "2" },
+        ],
+      }),
+    ).toEqual({ ok: false, errors: { "estimates.1.name": "duplicate_name" } });
   });
 });
 

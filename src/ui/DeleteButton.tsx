@@ -15,6 +15,7 @@ export function DeleteButton({
   title,
   hint,
   labels,
+  text,
 }: {
   onConfirm: () => void;
   /** The question, e.g. "Delete «Porridge»?". */
@@ -22,18 +23,25 @@ export function DeleteButton({
   /** What happens, e.g. "It goes to the trash for 30 days." */
   hint?: string;
   labels: { delete: string; cancel: string };
+  /** A labelled button instead of the bare bin, e.g. "Remove what's still planned". */
+  text?: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   return (
     <>
       <button
         type="button"
-        aria-label={labels.delete}
-        title={labels.delete}
+        aria-label={text ? undefined : labels.delete}
+        title={text ? undefined : labels.delete}
         onClick={() => dialog.current?.showModal()}
-        className={`${buttonClass({ variant: "subtle", iconOnly: true })} text-tomato`}
+        className={
+          text
+            ? `self-start ${buttonClass({ variant: "secondary", size: "sm" })}`
+            : `${buttonClass({ variant: "subtle", iconOnly: true })} text-tomato`
+        }
       >
-        <Trash2 size={20} aria-hidden="true" />
+        <Trash2 size={text ? 16 : 20} aria-hidden="true" />
+        {text}
       </button>
       <dialog
         ref={dialog}

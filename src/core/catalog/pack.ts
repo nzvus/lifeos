@@ -1,6 +1,8 @@
 /**
  * core/catalog/pack.ts — a PACK (ADR-0034): exercises, routines, programs,
- * ingredients and meals to ADD to an account. The starter pack every new
+ * ingredients and meals to ADD to an account; and ESTIMATES, which add no
+ * record to the catalog: they become planned estimated entries (ADR-0009)
+ * on one day, e.g. a restaurant's menu to choose from tonight. The starter pack every new
  * account gets is one (./starter.ts); a file imported from Settings is
  * another (e.g. the developer's personal expansion, made from their export
  * and never committed).
@@ -13,6 +15,7 @@
  */
 import { z } from "zod";
 import { MOMENTS } from "../nutrition/moments";
+import { day } from "../shared/validation";
 import { FIBER_TYPES, ORIGINS } from "../nutrition/quality";
 import { ERROR_CODES, fail, ok, type ErrorCode, type Result } from "../shared/result";
 import { EXERCISE_KINDS } from "../training/kinds";
@@ -110,6 +113,22 @@ const meal = z.object({
     .max(60),
 });
 
+/** One dish as a whole portion: totals, not per 100 g. Empty nutrients are 0. */
+const estimate = z.object({
+  name,
+  moment: z.enum(MOMENTS).nullable().default(null),
+  kcal: nutrient,
+  protein: nutrient.default("0"),
+  carbs: nutrient.default("0"),
+  sugars: nutrient.default("0"),
+  fat: nutrient.default("0"),
+  saturatedFat: nutrient.default("0"),
+  fiber: nutrient.default("0"),
+  salt: nutrient.default("0"),
+  /** What it costs, in euros ("12.50"). */
+  cost: dec(2).nullable().default(null),
+});
+
 export const packSchema = z.object({
   format: z.literal("lifeos-pack"),
   version: z.literal(PACK_VERSION),
@@ -122,6 +141,9 @@ export const packSchema = z.object({
   programs: z.array(program).default([]),
   ingredients: z.array(ingredient).default([]),
   meals: z.array(meal).default([]),
+  /** The day the estimates go on; null = the importer's today. */
+  day: day.nullable().default(null),
+  estimates: z.array(estimate).max(100).default([]),
 });
 export type Pack = z.output<typeof packSchema>;
 /** What a pack is written as (defaults may be left out). */
@@ -149,6 +171,7 @@ export function parsePack(json: unknown): Result<Pack> {
     "programs",
     "ingredients",
     "meals",
+    "estimates",
   ] as const) {
     const seen = new Set<string>();
     for (const [i, x] of p[kind].entries()) {
@@ -176,6 +199,7 @@ export const PACK_KINDS = [
   "programs",
   "ingredients",
   "meals",
+  "estimates",
 ] as const;
 export type PackKind = (typeof PACK_KINDS)[number];
 
