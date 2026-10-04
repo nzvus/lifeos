@@ -22,23 +22,24 @@ import { ToastHost } from "@/ui/Toast";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const { t, settings } = await requireContext();
-  // ADR-0035/0036: tabs by moment; the plan is Training's first view.
+  // ADR-0038: four areas around the day, Today in the middle. Progress is
+  // shared: nutrition trends belong to Food, weight and training to Body.
   const links = [
-    { href: "/", label: t.nav.today, icon: "today" },
     {
       href: "/training/plan",
-      label: t.nav.training,
-      icon: "training",
-      match: ["/training"],
+      label: t.nav.body,
+      icon: "body",
+      match: ["/training", "/profiles?view=weight", "/profiles?view=training"],
     },
     {
       href: "/meals",
       label: t.nav.food,
       icon: "meals",
-      match: ["/ingredients", "/pantry"],
+      match: ["/ingredients", "/pantry", "/profiles?view=trends"],
     },
+    { href: "/", label: t.nav.today, icon: "today", center: true },
     { href: "/money", label: t.nav.money, icon: "money" },
-    { href: "/profiles", label: t.nav.progress, icon: "progress" },
+    { href: "/mind", label: t.nav.mind, icon: "mind" },
   ] as const;
   return (
     <div

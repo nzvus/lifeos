@@ -532,6 +532,7 @@ export const addFabIt: Messages["addFab"] = {
   sleep: "Sonno",
   move: "Movimento",
   spending: "Spesa",
+  mind: "Com'è la giornata",
 };
 
 export const sleepIt: Messages["sleep"] = {

@@ -526,6 +526,7 @@ export const addFabEn = {
   sleep: "Sleep",
   move: "Movement",
   spending: "Spending",
+  mind: "How the day feels",
 };
 
 export const sleepEn = {

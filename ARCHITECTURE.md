@@ -137,12 +137,11 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   as fallback, static files cache-first; no user data cached; dark splash.
 - **Time:** `date` strings; "today" from `user_settings.timezone`, never the server's clock.
   **Search:** `core/shared/search.ts` (accent-insensitive, every word, match then 60-day use).
-- **Responsive UI:** tabs by moment (ADR-0035), views as URLs (ADR-0033) — Today (summary |
-  food | training, under a fixed day header; gym mode starts here) · Training (plan: a week or
-  month swiped sideways, the programs | routines | exercises; ADR-0036) · Food (meals |
-  ingredients | pantry) · Money (overview | movements | receipts) · Progress (trends | weight | training);
-  the Assistant in the header; a bottom bar on phones, header on md+. `sm:/md:/lg:` obey
-  `data-layout` (ADR-0010); container queries in cards; checked at 360 px, text 120 %.
+- **Responsive UI (ADR-0038):** four areas around the day, views as URLs (ADR-0033) — Body (plan |
+  routines | exercises | progress: training, weight) · Food (meals | ingredients | pantry | trends)
+  · **Today** (a raised circle in the middle: summary | food | training under the day header) ·
+  Money (overview | movements | receipts) · Mind (the day's check-in, the last 30 days); Assistant
+  and Settings in the header; bottom bar on phones, header on md+; checked at 360 px, text 120 %.
 - **Visual language:** colour = state (short / in the zone / over: `bandState`,
   ui/NutrientRow); nutrients keep their colour on icons and bars, numbers are ink; planned =
   lighter on rings and bars, dashed on chips; `ui/button.ts`, `ui/Badge`; plain SVG charts.

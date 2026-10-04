@@ -89,5 +89,13 @@ Update 2026-10-04 (step 1, the foundations):
 - explanations sit behind ui/InfoTip;
 - "Day totals" uses the same one-line bars as "The day with the plan".
 
+Update 2026-10-04 (step 2, the areas):
+- the bar is Body · Food · (Today) · Money · Mind;
+- /profiles is shared: its trends are Food's view, weight and training are
+  Body's (ui/NavBar matches `?view=`);
+- Mind starts with the day's check-in: mood, energy and stress on 1–5 and
+  a line of diary (`day_checkins`, migration 0028), from Today's chip and
+  "+", or /mind with the last 30 days.
+
 ## What I learned
 Not written yet: this section is the developer's own.

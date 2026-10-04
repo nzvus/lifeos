@@ -1,25 +1,29 @@
 /**
  * features/nutrition/log/DayChips.tsx — the day's quick facts as chips
- * under the goal (2026-10-02): the night's sleep and the day's movement.
+ * under the goal (2026-10-02): the night's sleep, the day's movement and
+ * how the day feels (ADR-0038).
  * Each says its value, or invites to add it, and opens its sheet
  * (#day-sleep, #day-move) — the forms live there, not on the page.
  */
-import { Footprints, Moon } from "lucide-react";
+import { Brain, Footprints, Moon } from "lucide-react";
 import type { ReactNode } from "react";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 
 export function DayChips({
+  mood,
   sleptHours,
   activity,
   locale,
   t,
 }: {
+  /** The day's mood (ADR-0038), 1–5; null = not said. */
+  mood: number | null;
   sleptHours: number | null;
   activity: { level: string; walkingMin: number | null; steps: number | null } | null;
   locale: Locale;
-  t: Pick<Messages, "dayChips" | "energy">;
+  t: Pick<Messages, "dayChips" | "energy" | "mind">;
 }) {
   const c = t.dayChips;
   const n = (v: number, d = 0) => formatNumber(String(v), locale, d);
@@ -54,6 +58,12 @@ export function DayChips({
         <Footprints size={16} aria-hidden="true" />,
         move ?? c.moveNone,
         !activity || (!activity.steps && !activity.walkingMin),
+      )}
+      {chip(
+        "#day-mind",
+        <Brain size={16} aria-hidden="true" />,
+        mood === null ? t.mind.chipNone : fill(t.mind.chip, { n: String(mood) }),
+        mood === null,
       )}
     </div>
   );

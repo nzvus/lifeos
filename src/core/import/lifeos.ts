@@ -98,6 +98,8 @@ const exportFile = z.object({
     // 12: program day items and skips (ADR-0035); ignored here like `training`.
     z.literal(12),
     z.literal(13),
+    // 14: mind check-ins and set times; ignored here.
+    z.literal(14),
   ]),
   settings: z
     .object({

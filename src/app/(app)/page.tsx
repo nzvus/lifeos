@@ -37,7 +37,7 @@ import { withAutoTargets } from "@/core/nutrition/targets";
 import { sessionMinutes } from "@/core/training/analysis";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, startOfWeek, timeIn, todayIn } from "@/core/shared/dates";
-import { Bell, Copy, Dumbbell, Gauge, Scale, UtensilsCrossed } from "lucide-react";
+import { Bell, Copy, Dumbbell, Gauge, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { listBatches } from "@/core/nutrition/repositories/batches";
 import { listReminders } from "@/core/pantry/repositories/reminders";
@@ -55,8 +55,10 @@ import { EntryList } from "@/features/nutrition/log/EntryList";
 import { ClearPlanned } from "@/features/nutrition/log/ClearPlanned";
 import { AddToDay } from "@/features/nutrition/log/AddToDay";
 import { AddFab } from "@/features/nutrition/log/AddFab";
-import { MeasurementForm } from "@/features/training/body/MeasurementForm";
-import { Sheet } from "@/ui/Sheet";
+import { WeighSheet } from "@/features/training/body/WeighSheet";
+import { MindSheet } from "@/features/mind/MindSheet";
+import { getCheckin } from "@/core/mind/repositories/checkins";
+import { saveCheckinAction } from "./mind/actions";
 import { DayChips } from "@/features/nutrition/log/DayChips";
 import { MovementSheet } from "@/features/nutrition/log/MovementSheet";
 import { SleepCard } from "@/features/training/body/SleepCard";
@@ -168,6 +170,7 @@ export default async function DayPage({ searchParams }: Props) {
     calibration,
     nights,
     recent,
+    checkin,
   ] = await Promise.all([
     slotLoad,
     // The week strip: each day's energy target, dynamic days included.
@@ -199,6 +202,7 @@ export default async function DayPage({ searchParams }: Props) {
     day === today ? getCalibration(db, owner, today) : null, // ADR-0020
     listSleep(db, owner, day, day), // ADR-0031: the night that ended today
     listSessions(db, owner, addDays(today, -60), today), // "like a past session" (ADR-0035)
+    getCheckin(db, owner, day), // ADR-0038: how the day felt
   ]);
   const plannedCount = view.entries.filter((e) => e.status === "planned").length;
   const night = nights[0] ?? null;
@@ -350,6 +354,7 @@ export default async function DayPage({ searchParams }: Props) {
             />
             {/* The night and the movement at a glance; tap to add or change (sheets). */}
             <DayChips
+              mood={checkin?.mood ?? null}
               sleptHours={night?.hours ?? null}
               activity={energyView.activity}
               locale={locale}
@@ -757,25 +762,14 @@ export default async function DayPage({ searchParams }: Props) {
             clear={clearSleepAction}
             t={{ sleep: t.sleep, errors: t.errors, actions: t.actions }}
           />
-          {/* Design review S1: adding is one tap away, wherever you are on the page. */}
-          {/* A weigh-in from the "+" (2026-10-02); the trend stays in Progress. */}
-          <Sheet
-            id="day-weigh"
-            title={t.body.title}
-            icon={<Scale size={20} aria-hidden="true" />}
-            closeLabel={t.actions.close}
-          >
-            <MeasurementForm
-              action={addMeasurementAction}
-              today={day}
-              now={timeIn(new Date(), settings.timezone)}
-              count={measurements.length}
-              t={{ body: t.body, errors: t.errors }}
-            />
-            <Link href="/profiles?view=weight" className={`text-meta ${TEXT_LINK}`}>
-              {t.body.seeTrend}
-            </Link>
-          </Sheet>
+          <WeighSheet
+            action={addMeasurementAction}
+            day={day}
+            now={timeIn(new Date(), settings.timezone)}
+            count={measurements.length}
+            t={t}
+          />
+          <MindSheet day={day} checkin={checkin} action={saveCheckinAction} t={t} />
           <AddFab
             day={day}
             training

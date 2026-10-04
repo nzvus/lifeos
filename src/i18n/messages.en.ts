@@ -39,6 +39,7 @@ import {
   packsEn,
   invitesEn,
 } from "./messages.home.en";
+import { mindEn } from "./messages.mind.en";
 import { planEn } from "./messages.plan.en";
 import { moneyEn } from "./messages.money.en";
 
@@ -71,6 +72,8 @@ export const en = {
   },
   nav: {
     today: "Today",
+    mind: "Mind",
+    body: "Body",
     money: "Money",
     ingredients: "Ingredients",
     meals: "Meals",
@@ -567,6 +570,7 @@ export const en = {
   invites: invitesEn,
   plan: planEn,
   money: moneyEn,
+  mind: mindEn,
   body: bodyEn,
   dayScore: dayScoreEn,
   ratings: {

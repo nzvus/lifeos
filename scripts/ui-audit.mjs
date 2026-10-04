@@ -34,6 +34,7 @@ const STATIC = [
   "/?tab=training",
   "/training/plan",
   "/money",
+  "/mind",
   "/money/movements",
   "/assistant",
   "/meals",
