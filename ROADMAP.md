@@ -20,18 +20,21 @@
 - Template meta-loop: reset `ai-native-starter` to a clean template; record what S00–S12 taught in its TEMPLATE-CHANGELOG
 
 ## Open items owned by the developer
-- **#141 (has a migration, data only):** `gh workflow run migrate.yml --ref s60-dynamic-days -f confirm="migrate production"`, then merge. Until it runs, 2026-10-03 has no targets (no energy bar, empty rings).
-- **Check on the phone after #140:** do Today's tabs and the food's −/+ and tick feel instant? The numbers (30–80 ms tabs, ~50 ms edits) are from a local build, not Vercel.
-- **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#141.
-- **Use it for real, every day:** weigh-ins with the tags, steps or walk, sleep, food, the real training program (Training → Programs). Calibration, dynamic targets and the trends need two to four weeks of it.
-- **Assistant:** `ASSISTANT_KEY_SECRET` on Vercel (if not done), the OpenRouter key in Settings, a first try on the phone — never tested with a real key.
-- **Security:** rotate the production DB password pasted into a chat on 2026-09-30 (`neondb_owner`; GitHub `DATABASE_URL_DIRECT`, Vercel `DATABASE_URL`; redeploy; run `backup`) — unless already done.
-- **Decisions:** ADR-0007 is still `proposed` (accept or reject). "What I learned", in your words, is missing in ADR-0005 and 0010–0031 (0001–0004, 0006–0009 have agent drafts to rewrite).
-- **Review on the phone** of what was built since S01: most sprints closed with this box open (see Done).
-- Data confirmations from 2026-09-30: "SALSA DI POMODORO CI" 0,89 € (a separate product?); "CIOCC. FONDENTE" 0,85 € (70 % or 50 %?); "CREMA DI ARACHIDI" 2,09 € (100 % peanut butter?); package weights of protein mozzarella (100 g) and cod fillets (1 kg).
+- **#147 (migration 0027):** `gh workflow run migrate.yml --ref s66-gym-mode-timing -f confirm="migrate production"`, then merge.
+- **Try on the phone:** the gym clock (rest → overtime → Go → set → Done), resuming after closing the app, one side at a time, the warm-up ramp; Money (a movement from Today's "+", a receipt pasted or photographed); the eye that takes a planned dish out of the total.
+- **Assistant:** `ASSISTANT_KEY_SECRET` on Vercel, the OpenRouter key in Settings; "Read with the AI" on a receipt is untested with a real key.
+- **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#147.
+- **Security:** rotate the production DB password pasted on 2026-09-30, unless already done.
+- **Decisions:** ADR-0007 still `proposed`; "What I learned" missing in most ADRs.
 
-## Next sprint: S13 — draft, to discuss (not started)
-- **Goal (proposal):** live with the app for two weeks and let the data correct it — the first real calibration, targets checked against the scale, the guides and the program against real sessions; fix what daily use breaks, before adding features.
+## Next sprint: S13 — Cleanup and the shape of the app (ADR-0038)
+1. A map of every page, widget and feature; unify what repeats (UI pieces and whole features).
+2. Navigation: Body · Food · (Today) · Money · Mind; Today as the hub with per-area scores; old URLs redirect.
+3. Density setting (compact / comfortable) and icon-first widgets with one ⓘ legend; bars full width.
+4. Drinks and supplements as food with active compounds; caffeine and creatine levels in sessions and trends.
+5. Mind: diary, mood of the day, goals (short/long), habits, hobbies, time planning.
+6. Scores and gamification over bands (floor / good / ceiling), day → week → month.
+Also open from ADR-0037: the done-session editor folds into the gym screen; per-exercise rest and density in Progress.
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
