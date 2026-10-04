@@ -2,7 +2,9 @@
 # (ADR-0004). Branch protection on `main` requires this workflow to be green,
 # so nothing reaches production without it (docs/runbooks/setup.md step 6).
 #
-# Order: cheapest checks first, so a failure is reported as early as possible.
+# Three jobs side by side (2026-10-04: one job in a row took 5 minutes):
+# static checks, tests, build. `check` waits for them and holds the migration
+# gate; it is the status branch protection requires, so its name stays.
 # No secrets are used: tests run on PGlite (in-process Postgres), and the build
 # doesn't need DATABASE_URL because every page is rendered per request.
 name: ci
@@ -20,9 +22,64 @@ permissions:
   actions: read # the migration gate reads migrate.yml's runs
 
 jobs:
-  check:
+  static:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm # reuse downloaded packages between runs
+      # `npm ci` installs EXACTLY what package-lock.json says (never updates it).
+      - run: npm ci
+      - name: Docs guardrail (template health check)
+        run: python3 scripts/check.py
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint (includes ADR-0002 boundary rules)
+        run: npm run lint
+
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # The migrations run once (core/testing/global-setup.ts); each test
+      # database is a copy of that one.
+      - name: Tests (includes cross-user isolation and snapshot tests)
+        run: npm test
+
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Next's build cache between runs: only what changed is compiled again.
+      - uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: next-${{ hashFiles('package-lock.json') }}-
+      - name: Production build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+
+  check:
+    needs: [static, test, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
         with:
@@ -61,28 +118,3 @@ jobs:
           done
           echo "::error::This PR adds a migration production doesn't have. Run: gh workflow run migrate.yml --ref ${{ github.head_ref }} -f confirm=\"migrate production\" — this check re-runs by itself when it succeeds."
           exit 1
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm # reuse downloaded packages between runs
-
-      # `npm ci` installs EXACTLY what package-lock.json says (never updates it).
-      - run: npm ci
-
-      - name: Docs guardrail (template health check)
-        run: python3 scripts/check.py
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Lint (includes ADR-0002 boundary rules)
-        run: npm run lint
-
-      - name: Tests (includes cross-user isolation and snapshot tests)
-        run: npm test
-
-      - name: Production build
-        run: npm run build
-        env:
-          NEXT_TELEMETRY_DISABLED: "1"
