@@ -32,3 +32,33 @@ AUDIT_THEMES=label,quaderno,sport,minimal,notte AUDIT_MODES=light,dark npm run a
 Also open the changed screens in a phone emulation (Playwright
 `devices["Pixel 7"]`). Pickers (time, date) and touch behave differently
 there: the sleep form that never saved on a phone was found this way.
+
+## A page that needs a migration not yet on the dev database
+
+Previews are behind Vercel Authentication, and the dev database gets a
+migration only through its PR's branch. To render such a page locally,
+serve a throwaway PGlite with every migration and point the app at it:
+
+```js
+// pgserve.mjs — in a scratch folder with @electric-sql/pglite@0.5.8,
+// @electric-sql/pglite-socket@0.2.11 and drizzle-orm@0.45.3 installed
+import { PGlite } from "@electric-sql/pglite";
+import { PGLiteSocketServer } from "@electric-sql/pglite-socket";
+import { drizzle } from "drizzle-orm/pglite";
+import { migrate } from "drizzle-orm/pglite/migrator";
+const db = new PGlite();
+await migrate(drizzle(db), { migrationsFolder: "<repo>/drizzle" });
+// The app's pool opens several connections: let the server multiplex them.
+await new PGLiteSocketServer({ db, port: 5433, host: "127.0.0.1", maxConnections: 12 }).start();
+```
+
+```sh
+npx next build
+DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:5433/postgres?sslmode=disable" \
+  BETTER_AUTH_URL=http://localhost:3124 ALLOW_SIGNUP=true SIGNUP_INVITES=false \
+  npx next start -p 3124
+```
+
+Sign up a throwaway user (the invite field is required by the form: type
+anything; the server ignores it with `SIGNUP_INVITES=false`). Everything
+is in memory and disappears with the server.

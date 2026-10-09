@@ -119,7 +119,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   plausible weigh-in asks to be confirmed and counts 0.02); sleep feeds day
   quality and trends, not energy (ADR-0031).
 - **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment (groups in time order,
-  snacks placed by their time), servings −/+; totals =
+  snacks placed by their time), servings −/+; a day closed complete / partial (ADR-0042); totals =
   eaten, every panel also shows the day with the plan; tick and −/+ optimistic (`log/LiveDay`).
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (pinned ↺ / Cancel /
   Save), drafts in the browser, `?from=` for back and after-save, toasts with
