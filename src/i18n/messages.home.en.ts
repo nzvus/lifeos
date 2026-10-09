@@ -738,6 +738,8 @@ export const packsEn = {
   invalid: "The file is not a valid pack (field {field}).",
   notJson: "The file is not readable JSON.",
   tooBig: "File too large (2 MB at most).",
+  isExport:
+    "This is a full export, not a pack: an export replaces your data and is restored with the replace procedure (docs/runbooks/replace-data.md), not from here.",
   kinds: {
     exercises: "exercises: {n}",
     routines: "routines: {n}",

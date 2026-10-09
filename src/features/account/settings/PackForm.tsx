@@ -14,7 +14,11 @@ import { FormAlert } from "@/ui/FormAlert";
 
 type State =
   | { status: "idle" }
-  | { status: "error"; problem: "notJson" | "tooBig" | "invalid"; field?: string }
+  | {
+      status: "error";
+      problem: "notJson" | "tooBig" | "invalid" | "isExport";
+      field?: string;
+    }
   | { status: "done"; report: ApplyReport };
 
 export function PackForm({

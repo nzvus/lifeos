@@ -16,7 +16,11 @@ import { todayIn } from "@/core/shared/dates";
 
 export type PackState =
   | { status: "idle" }
-  | { status: "error"; problem: "notJson" | "tooBig" | "invalid"; field?: string }
+  | {
+      status: "error";
+      problem: "notJson" | "tooBig" | "invalid" | "isExport";
+      field?: string;
+    }
   | { status: "done"; report: ApplyReport };
 
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -47,6 +51,10 @@ export async function importPackAction(
   } catch {
     return { status: "error", problem: "notJson" };
   }
+  // 2026-10-09: an export loaded here only said "not a valid pack (field
+  // format)". It is restored by the replace runbook, not by Settings.
+  if ((json as { format?: unknown } | null)?.format === "lifeos-export")
+    return { status: "error", problem: "isExport" };
   const pack = parsePack(json);
   if (!pack.ok)
     return { status: "error", problem: "invalid", field: Object.keys(pack.errors)[0] };
