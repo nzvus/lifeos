@@ -103,6 +103,7 @@ export async function readReceiptAction(
 ): Promise<{ ok: true; receipt: ModelReceipt } | { ok: false; message: string }> {
   const { owner, t } = await requireContext();
   const a = t.assistant;
+  if (env().ASSISTANT_ENABLED !== "true") return { ok: false, message: a.noSecret };
   const secret = env().ASSISTANT_KEY_SECRET;
   if (!secret) return { ok: false, message: a.noSecret };
   const db = getDb();

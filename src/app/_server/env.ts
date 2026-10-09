@@ -45,6 +45,9 @@ const schema = z.object({
       .min(32, "must be at least 32 characters (openssl rand -base64 32)")
       .optional(),
   ),
+  // 2026-10-09: the assistant and every "read with the AI" button are off
+  // unless this is "true" ("the free models are poor; no AI for now").
+  ASSISTANT_ENABLED: z.enum(["true", "false"]).default("false"),
   // Set automatically by Vercel (https://vercel.com/docs/environment-variables/system-environment-variables).
   VERCEL_URL: z.string().optional(), // this deployment, e.g. lifeos-abc123.vercel.app
   VERCEL_BRANCH_URL: z.string().optional(), // stable URL of a git branch's previews

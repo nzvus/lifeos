@@ -157,22 +157,24 @@ export default async function SettingsPage() {
           t={t}
         />
       </Section>
-      <Section
-        title={t.assistant.keyTitle}
-        icon={<Sparkles size={20} aria-hidden="true" />}
-      >
-        <p className="text-muted">{t.assistant.keyHint}</p>
-        {env().ASSISTANT_KEY_SECRET ? (
-          <AssistantKeyForm
-            action={saveAssistantKeyAction}
-            clear={clearAssistantKeyAction}
-            status={assistantStatus}
-            t={{ assistant: t.assistant, errors: t.errors, settings: t.settings }}
-          />
-        ) : (
-          <p className="text-meta">{t.assistant.noSecret}</p>
-        )}
-      </Section>
+      {env().ASSISTANT_ENABLED === "true" && (
+        <Section
+          title={t.assistant.keyTitle}
+          icon={<Sparkles size={20} aria-hidden="true" />}
+        >
+          <p className="text-muted">{t.assistant.keyHint}</p>
+          {env().ASSISTANT_KEY_SECRET ? (
+            <AssistantKeyForm
+              action={saveAssistantKeyAction}
+              clear={clearAssistantKeyAction}
+              status={assistantStatus}
+              t={{ assistant: t.assistant, errors: t.errors, settings: t.settings }}
+            />
+          ) : (
+            <p className="text-meta">{t.assistant.noSecret}</p>
+          )}
+        </Section>
+      )}
       <Section
         title={t.preferences.title}
         icon={<SlidersHorizontal size={20} aria-hidden="true" />}

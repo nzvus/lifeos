@@ -13,6 +13,7 @@
  * re-running its layout, so each page checks for itself. `cache()` in
  * _server/owner.ts makes the repeated calls free.
  */
+import { env } from "@/app/_server/env";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { requireContext } from "@/app/_server/owner";
@@ -54,7 +55,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         {/* ADR-0035: the Assistant from every page, next to Settings. Sign out
             lives at the bottom of Settings (S3): rare, and easy to tap by mistake. */}
         <div className="flex items-center gap-1">
-          <NavIconLink href="/assistant" label={t.assistant.title} icon="assistant" />
+          {env().ASSISTANT_ENABLED === "true" && (
+            <NavIconLink href="/assistant" label={t.assistant.title} icon="assistant" />
+          )}
           <NavIconLink href="/settings" label={t.nav.settings} icon="settings" />
         </div>
       </header>

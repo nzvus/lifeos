@@ -61,7 +61,8 @@ export function ReceiptEditor({
   t,
 }: {
   save: (prev: FormState, formData: FormData) => Promise<FormState>;
-  read: (
+  /** The model pass; absent while the assistant is off (ASSISTANT_ENABLED). */
+  read?: (
     text: string,
   ) => Promise<{ ok: true; receipt: ModelReceipt } | { ok: false; message: string }>;
   categories: CategoryOption[];
@@ -180,24 +181,26 @@ export function ReceiptEditor({
             }}
           />
         </label>
-        <button
-          type="button"
-          disabled={busy || !text.trim()}
-          onClick={() =>
-            start(async () => {
-              setProblem(null);
-              const r = await read(text);
-              if (r.ok) fillFrom(r.receipt);
-              else setProblem(r.message);
-            })
-          }
-          className={small}
-        >
-          <Sparkles size={16} aria-hidden="true" />
-          {busy ? m.reading : m.withModel}
-        </button>
+        {read && (
+          <button
+            type="button"
+            disabled={busy || !text.trim()}
+            onClick={() =>
+              start(async () => {
+                setProblem(null);
+                const r = await read(text);
+                if (r.ok) fillFrom(r.receipt);
+                else setProblem(r.message);
+              })
+            }
+            className={small}
+          >
+            <Sparkles size={16} aria-hidden="true" />
+            {busy ? m.reading : m.withModel}
+          </button>
+        )}
       </div>
-      <p className="text-meta text-muted">{m.modelHint}</p>
+      {read && <p className="text-meta text-muted">{m.modelHint}</p>}
       {problem && <FormAlert tone="info">{problem}</FormAlert>}
 
       <div className="grid grid-cols-2 gap-3">
