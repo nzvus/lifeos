@@ -198,7 +198,8 @@ export const energyIt: Messages["energy"] = {
   goalSurplus: "surplus di {kcal} kcal",
   goalEat: "Mangia {kcal} kcal · consumi ~{spent} kcal",
   goalFixed: "Obiettivo {kcal} kcal (fisso)",
-  goalCapped: "Carboidrati fermi a {carbs} g e grassi al 35 % dell'energia: il target si abbassa, quindi il deficit è più grande del voluto.",
+  goalCapped:
+    "Carboidrati fermi a {carbs} g e grassi al 35 % dell'energia: il target si abbassa, quindi il deficit è più grande del voluto.",
   goalCustom: "Obiettivo personalizzato",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
   formulas: {
@@ -342,7 +343,8 @@ export const barcodeIt: Messages["barcode"] = {
   lookup: "Cerca il codice",
   found: "Valori presi da Open Food Facts: controllali con l'etichetta prima di salvare.",
   missing: "Il codice {code} non è su Open Food Facts: compila a mano.",
-  invalid: "Un codice a barre ha da 6 a 14 cifre.",
+  invalid:
+    "Codice non valido: 8, 12, 13 o 14 cifre, con l'ultima di controllo giusta. Ricontrolla le cifre.",
   noCamera: "Questo browser non legge i codici dalla fotocamera: scrivi le cifre.",
   hint: "Open Food Facts è un archivio libero e gratuito di prodotti alimentari.",
 };

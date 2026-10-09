@@ -196,7 +196,8 @@ export const energyEn = {
   goalSurplus: "a {kcal} kcal surplus",
   goalEat: "Eat {kcal} kcal · you spend ~{spent} kcal",
   goalFixed: "Target {kcal} kcal (fixed)",
-  goalCapped: "Carbs stop at {carbs} g and fat at 35 % of the energy: the target is lowered, so the deficit is larger than asked.",
+  goalCapped:
+    "Carbs stop at {carbs} g and fat at 35 % of the energy: the target is lowered, so the deficit is larger than asked.",
   goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
@@ -337,7 +338,8 @@ export const barcodeEn = {
   lookup: "Look up the code",
   found: "Values from Open Food Facts: check them against the label before saving.",
   missing: "Code {code} is not on Open Food Facts: fill it in by hand.",
-  invalid: "A barcode has 6 to 14 digits.",
+  invalid:
+    "Not a valid barcode: 8, 12, 13 or 14 digits, and the last one must check out. Check the digits.",
   noCamera: "This browser can't read codes from the camera: type the digits.",
   hint: "Open Food Facts is a free, open database of food products.",
 };
