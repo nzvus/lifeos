@@ -7,13 +7,13 @@
  * still call them for exact data. Built on read, never stored.
  */
 import type { Db } from "../db/client";
-import { getCalibration, getDayEnergy } from "../energy/repositories/energy";
+import { getCalibration } from "../energy/repositories/energy";
 import { goalOf } from "../energy/energy";
 import type { Owner } from "../identity/owner";
 import { getHistory } from "../nutrition/repositories/history";
 import { listIngredients } from "../nutrition/repositories/ingredients";
 import { listMeals } from "../nutrition/repositories/meals";
-import { getDayTargets } from "../nutrition/repositories/profiles";
+import { readDay } from "../day/repositories/days";
 import { getUsage } from "../nutrition/repositories/usage";
 import { getPantry } from "../pantry/repositories/stock";
 import { addDays } from "../shared/dates";
@@ -40,8 +40,7 @@ export async function userContext(db: Db, owner: Owner, today: string): Promise<
     usage,
     routines,
     pantry,
-    targets,
-    energy,
+    resolved,
     calibration,
   ] = await Promise.all([
     getHistory(db, owner, from, today),
@@ -52,10 +51,12 @@ export async function userContext(db: Db, owner: Owner, today: string): Promise<
     getUsage(db, owner, addDays(today, -60)),
     listRoutines(db, owner),
     getPantry(db, owner),
-    getDayTargets(db, owner, today),
-    getDayEnergy(db, owner, today),
+    // ADR-0040: today as the day page shows it (the program's slot included).
+    readDay(db, owner, today, { today, autoTargets: false }),
     getCalibration(db, owner, today),
   ]);
+  const targets = resolved.plan;
+  const energy = resolved.energy;
   const out: string[] = [
     "# The user's data (read-only summary; use tools for exact values or other days)",
   ];
@@ -83,7 +84,10 @@ export async function userContext(db: Db, owner: Owner, today: string): Promise<
     out.push(
       `## Today's day type: ${targets.name}` +
         (d
-          ? ` (dynamic, goal ${goal}: ${d.deficitKcal >= 0 ? `deficit ${d.deficitKcal}` : `surplus ${-d.deficitKcal}`} kcal, protein ${d.proteinGPerKg} g/kg, fat ${d.fatGPerKg} g/kg)`
+          ? ` (dynamic, goal ${goal}: ${d.deficitKcal >= 0 ? `deficit ${d.deficitKcal}` : `surplus ${-d.deficitKcal}`} kcal, protein ${d.proteinGPerKg} g/kg, fat ${d.fatGPerKg} g/kg` +
+            (resolved.computed
+              ? `; today ${resolved.computed.kcal} kcal, P ${resolved.computed.protein} C ${resolved.computed.carbs} F ${resolved.computed.fat})`
+              : ")")
           : ` (fixed: ${r(targets.targets.kcal)} kcal, P ${r(targets.targets.protein)} C ${r(targets.targets.carbs)} F ${r(targets.targets.fat)})`),
     );
   }

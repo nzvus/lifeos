@@ -198,16 +198,10 @@ export const energyIt: Messages["energy"] = {
   goalSurplus: "surplus di {kcal} kcal",
   goalEat: "Mangia {kcal} kcal · consumi ~{spent} kcal",
   goalFixed: "Obiettivo {kcal} kcal (fisso)",
-  goalCapped:
-    "Carboidrati fermi a {carbs} g e grassi al 35 % dell'energia: il target si abbassa, quindi il deficit è più grande del voluto.",
   goalCustom: "Obiettivo personalizzato",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
   formulas: {
     fatRule: "il maggiore fra {perKg} e 25 % di {kcal} kcal ÷ 9",
-    capped:
-      "i carboidrati si fermano a {carbs} g, quindi le kcal sono proteine + grassi + carboidrati",
-    carbsCap:
-      "tetto della zona buona: {g} g ({perKg} g/kg); oltre servono poco a energia e recupero",
     title: "Come è calcolato",
     years: "anni",
     walkNone: "nessun passo e nessuna camminata: vale il tipo di giornata",

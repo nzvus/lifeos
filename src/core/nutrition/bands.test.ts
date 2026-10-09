@@ -123,3 +123,27 @@ describe("bandFor and bandState (colour = state)", () => {
     expect(bandState(100, bandFor(undefined, 0, "target"))).toBe("none");
   });
 });
+
+describe("macroBands with the day's carbs target (ADR-0040)", () => {
+  it("draws the carbs' good zone up to the target, so a target is never past it", () => {
+    const rest = macroBands({ kg: 76, kcal: 2687, load: "rest", cutting: true });
+    expect(rest.carbs!.high).toBe(228); // 3 g/kg
+    const withTarget = macroBands({
+      kg: 76,
+      kcal: 2687,
+      load: "rest",
+      cutting: true,
+      carbsTarget: 337,
+    });
+    expect(withTarget.carbs).toMatchObject({
+      high: 337,
+      ceiling: 337,
+      ceilingKind: "useful",
+    });
+    // A smaller target leaves the training band as it is.
+    expect(
+      macroBands({ kg: 76, kcal: 2000, load: "rest", cutting: false, carbsTarget: 180 })
+        .carbs!.high,
+    ).toBe(228);
+  });
+});

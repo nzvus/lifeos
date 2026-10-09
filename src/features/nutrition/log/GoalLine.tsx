@@ -33,7 +33,6 @@ type Props = {
   eatKcal: number;
   spentKcal: number;
   balance: { wanted: number; withPlan: number; soFar: number | null };
-  capped: string | null;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   locale: Locale;
   t: Pick<Messages, "energy" | "actions" | "errors">;
@@ -108,8 +107,6 @@ export function GoalLine(p: Props) {
       <span className="text-meta tabular-nums">
         {fill(e.goalEat, { kcal: n(p.eatKcal), spent: n(p.spentKcal) })}
       </span>
-      {/* When the target had to be lowered, say so where the numbers are. */}
-      {p.capped && <span className="text-meta text-warn">{p.capped}</span>}
       {/* What the three tiles measure (2026-10-04: "the numbers don't add up"). */}
       <span className="pt-1 text-meta text-muted">{e.balanceHead}</span>
       {/* Coloured by meaning: the goal in green; the plan green when it

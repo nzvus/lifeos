@@ -20,10 +20,11 @@
  *
  * Tested in profiles.test.ts (including the cross-user test).
  */
-import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNotNull, lte } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { dayPlans, dayProfiles } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { addDays } from "../../shared/dates";
 import { live } from "../../shared/trash";
 import { fail, ok, pgErrorCode, type Result } from "../../shared/result";
 import { NUTRIENT_KEYS, type NutrientKey } from "../nutrients";
@@ -253,30 +254,50 @@ export async function getDayTargets(
   owner: Owner,
   day: string,
 ): Promise<DayTargets> {
-  const [plan] = await db
-    .select()
-    .from(dayPlans)
-    .where(and(ownedBy(dayPlans, owner), eq(dayPlans.day, day)));
-  if (plan) {
-    return {
-      source: "fixed",
-      profileId: plan.profileId,
-      name: plan.profileName,
-      targets: targetsOf(plan),
-      dynamic: dynamicOf(plan),
-    };
+  return (await getDayTargetsRange(db, owner, day, day)).get(day)!;
+}
+
+/** getDayTargets for every day of [from, to], with two queries. */
+export async function getDayTargetsRange(
+  db: Db,
+  owner: Owner,
+  from: string,
+  to: string,
+): Promise<Map<string, DayTargets>> {
+  const [plans, def] = await Promise.all([
+    db
+      .select()
+      .from(dayPlans)
+      .where(
+        and(ownedBy(dayPlans, owner), gte(dayPlans.day, from), lte(dayPlans.day, to)),
+      ),
+    getDefaultProfile(db, owner),
+  ]);
+  const out = new Map<string, DayTargets>();
+  for (let day = from; day <= to; day = addDays(day, 1)) {
+    const plan = plans.find((x) => x.day === day);
+    out.set(
+      day,
+      plan
+        ? {
+            source: "fixed",
+            profileId: plan.profileId,
+            name: plan.profileName,
+            targets: targetsOf(plan),
+            dynamic: dynamicOf(plan),
+          }
+        : def
+          ? {
+              source: "default",
+              profileId: def.id,
+              name: def.name,
+              targets: targetsOf(def),
+              dynamic: dynamicOf(def),
+            }
+          : { source: "none" },
+    );
   }
-  const def = await getDefaultProfile(db, owner);
-  if (def) {
-    return {
-      source: "default",
-      profileId: def.id,
-      name: def.name,
-      targets: targetsOf(def),
-      dynamic: dynamicOf(def),
-    };
-  }
-  return { source: "none" };
+  return out;
 }
 
 /**

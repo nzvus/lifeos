@@ -14,6 +14,7 @@
  * The period is in the URL (?range=30&to=2026-09-30); without it (or when
  * invalid), the user's default period (preferences) up to today.
  */
+import { readDays } from "@/core/day/repositories/days";
 import { Dumbbell, Scale, TrendingUp } from "lucide-react";
 import { TrainingProgress } from "./training-view";
 import { redirect } from "next/navigation";
@@ -91,12 +92,19 @@ export default async function ProgressPage({ searchParams }: Props) {
     const to =
       params.to && isValidDay(params.to) && params.to <= today ? params.to : today;
     const days = daysEnding(to, range);
-    const [history, nights, doses] = await Promise.all([
+    const [stored, resolved, nights, doses] = await Promise.all([
       getHistory(db, owner, days[0]!, to),
+      // ADR-0040: each day's targets from the one engine — a dynamic day's
+      // stored copy holds parameters, not numbers.
+      readDays(db, owner, days[0]!, to, { today, autoTargets: false }),
       listSleep(db, owner, days[0]!, to), // ADR-0031
       // ADR-0039: 90 days before the period too (creatine's stores remember).
       dosesBetween(db, owner, addDays(days[0]!, -90), to),
     ]);
+    const history = stored.map((d) => {
+      const r = resolved.get(d.day);
+      return r && r.plan.source !== "none" ? { ...d, targets: r.own } : d;
+    });
     const compounds = supplementsPeriod(doses, days);
     body = (
       <Section title={t.trends.title} icon={<TrendingUp size={20} aria-hidden="true" />}>

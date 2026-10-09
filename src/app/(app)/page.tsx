@@ -26,15 +26,8 @@ import {
 import { getDay } from "@/core/nutrition/repositories/log";
 import { listMeals } from "@/core/nutrition/repositories/meals";
 import { macroValues } from "@/core/nutrition/preview";
-import {
-  emptyTargets,
-  getDayTargets,
-  listProfiles,
-} from "@/core/nutrition/repositories/profiles";
+import { emptyTargets, listProfiles } from "@/core/nutrition/repositories/profiles";
 import { getHistory } from "@/core/nutrition/repositories/history";
-import { carbsGoodMax, macroBands, trainingLoad } from "@/core/nutrition/bands";
-import { withAutoTargets } from "@/core/nutrition/targets";
-import { sessionMinutes } from "@/core/training/analysis";
 import { getUsage, USAGE_WINDOW_DAYS } from "@/core/nutrition/repositories/usage";
 import { addDays, isValidDay, startOfWeek, timeIn, todayIn } from "@/core/shared/dates";
 import { Bell, Copy, Dumbbell, Gauge, UtensilsCrossed } from "lucide-react";
@@ -113,9 +106,8 @@ import {
   setEntryStatusAction,
   setEntryTimeAction,
 } from "./actions";
-import { dynamicTargets } from "@/core/energy/energy";
-import { kcalTargets } from "@/core/energy/repositories/outlook";
-import { getCalibration, getDayEnergy } from "@/core/energy/repositories/energy";
+import { readDays } from "@/core/day/repositories/days";
+import { getCalibration } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 import { DayGoal } from "./day-goal";
 import { DaySupplements } from "./day-supplements";
@@ -150,11 +142,10 @@ export default async function DayPage({ searchParams }: Props) {
   // one round of waiting per page, not four (2026-10-03, "feels slow").
   const [
     programSlot,
-    weekKcal,
+    days,
     view,
     meals,
     ingredients,
-    dayTargets,
     profiles,
     usage,
     week,
@@ -167,23 +158,21 @@ export default async function DayPage({ searchParams }: Props) {
     batchList,
     pantry,
     manualReminders,
-    energyView,
     calibration,
     nights,
     recent,
     checkin,
   ] = await Promise.all([
     slotLoad,
-    // The week strip: each day's energy target, dynamic days included.
-    kcalTargets(
-      db,
-      owner,
-      Array.from({ length: 7 }, (_, i) => addDays(monday, i)),
-    ),
+    // ADR-0040: the shown day's week through the one engine — the day's
+    // targets, bands and energy, and the week strip's targets, all alike.
+    readDays(db, owner, monday, addDays(monday, 6), {
+      today,
+      autoTargets: settings.preferences.autoTargets,
+    }),
     getDay(db, owner, day),
     listMeals(db, owner),
     listIngredients(db, owner),
-    getDayTargets(db, owner, day), // fixed copy, default profile, or none (ADR-0008)
     listProfiles(db, owner),
     getUsage(db, owner, addDays(today, -USAGE_WINDOW_DAYS)),
     getHistory(db, owner, monday, addDays(monday, 6)), // the shown day's week, for WeekStrip
@@ -196,10 +185,6 @@ export default async function DayPage({ searchParams }: Props) {
     listBatches(db, owner), // ADR-0017: portions to log, and their reminders
     getPantry(db, owner),
     listReminders(db, owner),
-    // ADR-0014: what the day costs (a skipped program day adds nothing).
-    slotLoad.then((slot) =>
-      getDayEnergy(db, owner, day, slot && !slot.skipped ? slot.slot : null),
-    ),
     day === today ? getCalibration(db, owner, today) : null, // ADR-0020
     listSleep(db, owner, day, day), // ADR-0031: the night that ended today
     listSessions(db, owner, addDays(today, -60), today), // "like a past session" (ADR-0035)
@@ -214,62 +199,22 @@ export default async function DayPage({ searchParams }: Props) {
   // Today's reminders (ADR-0017), worded.
   const reminders = reminderLines(pantry, batchList, manualReminders, today, p);
   const mealRatings = averageScores(ratings);
-  // The day's own targets, plus recommended maxima where none is set
-  // (sugars, saturated fat, salt — core/nutrition/targets.ts), unless the
-  // user turned them off (preferences).
-  // A dynamic day type (ADR-0014): energy, protein, fat, carbs and fibre
-  // come from what the day costs with the plan; the limits stay automatic.
-  // ADR-0023: the day's training load (done + planned) sets the carbs' zone.
-  const minutes = sessions.reduce((a, x) => a + (sessionMinutes(x) ?? 0), 0);
-  const cardio = sessions
-    .flatMap((x) => x.exercises)
-    .filter((e) => e.kind === "cardio")
-    .flatMap((e) => e.sets)
-    .reduce((a, x) => a + (x.durationS ?? 0) / 60, 0);
-  const load = trainingLoad(minutes, cardio);
-  const kg = energyView.body.weightKg ? Number(energyView.body.weightKg) : null;
-  const dynamic =
-    dayTargets.source !== "none" && dayTargets.dynamic && energyView.energy
-      ? dynamicTargets(
-          energyView.energy,
-          energyView.body.weightKg!,
-          dayTargets.dynamic,
-          carbsGoodMax(kg!, load),
-        )
-      : null;
-  const own =
-    dayTargets.source === "none"
-      ? emptyTargets()
-      : dynamic
-        ? {
-            ...emptyTargets(),
-            kcal: String(dynamic.kcal),
-            protein: String(dynamic.protein),
-            fat: String(dynamic.fat),
-            carbs: String(dynamic.carbs),
-            fiber: String(dynamic.fiber),
-          }
-        : dayTargets.targets;
-  // The shown day's target is the one computed here (with the program's slot).
-  const weekWithTargets = week.map((d) => {
-    const kcal = d.day === day ? own.kcal : (weekKcal.get(d.day)?.toString() ?? null);
-    return { ...d, targets: { ...(d.targets ?? emptyTargets()), kcal } };
-  });
-  const { targets, auto } = settings.preferences.autoTargets
-    ? withAutoTargets(own)
-    : { targets: own, auto: [] };
-  // Floor / good zone / ceiling per macro, from the weight, the training and
-  // the goal (ADR-0023). Needs a weight.
-  const bands =
-    kg === null
-      ? undefined
-      : macroBands({
-          kg,
-          kcal: targets.kcal === null ? null : Number(targets.kcal),
-          load,
-          cutting:
-            dayTargets.source !== "none" && (dayTargets.dynamic?.deficitKcal ?? 0) > 0,
-        });
+  // ADR-0040: the day as the one engine resolves it — its type (fixed copy,
+  // default or none, ADR-0008), targets (dynamic ones from what the day
+  // costs with the plan, ADR-0014; automatic maxima unless turned off),
+  // bands (ADR-0023) and energy. The week strip reads the same days.
+  const resolved = days.get(day)!;
+  const { targets, auto, bands } = resolved;
+  const dayTargets = resolved.plan;
+  const energyView = resolved.energy;
+  const dynamic = resolved.computed;
+  const weekWithTargets = week.map((d) => ({
+    ...d,
+    targets: {
+      ...(d.targets ?? emptyTargets()),
+      kcal: days.get(d.day)?.own.kcal ?? null,
+    },
+  }));
   // The day's training burn as ranges: done, then with the planned sessions.
   const burn = dayBurn(sessions, measurements);
   const range = (r: { low: number; high: number }) => ({

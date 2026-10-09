@@ -7,17 +7,13 @@
  */
 import type { Db } from "../../db/client";
 import type { Owner } from "../../identity/owner";
-import { carbsGoodMax, trainingLoad } from "../../nutrition/bands";
-import { getDayTargets, type DayProfile } from "../../nutrition/repositories/profiles";
+import { readDays } from "../../day/repositories/days";
+import { resolveDay } from "../../day/resolve";
+import type { DayProfile } from "../../nutrition/repositories/profiles";
 import { addDays } from "../../shared/dates";
-import {
-  getActivePlan,
-  programOverrideDays,
-  programSlotOn,
-} from "../../training/repositories/programs";
+import { getActivePlan, programOverrideDays } from "../../training/repositories/programs";
 import { listSessions } from "../../training/repositories/sessions";
-import { dynamicTargets, goalOf, type Goal, type Range } from "../energy";
-import { getDayEnergy, type DayEnergyView } from "./energy";
+import type { Goal, Range } from "../energy";
 
 export type OutlookDay = {
   day: string;
@@ -39,9 +35,11 @@ export async function weekOutlook(
   days = 7,
 ): Promise<OutlookDay[]> {
   const last = addDays(today, days - 1);
-  const [sessions, active] = await Promise.all([
+  const [sessions, active, resolved] = await Promise.all([
     listSessions(db, owner, today, last),
     getActivePlan(db, owner, today, days),
+    // ADR-0040: the same engine as the day page (targets only: no maxima).
+    readDays(db, owner, today, last, { today, autoTargets: false }),
   ]);
   const changed = active
     ? await programOverrideDays(db, owner, active.program.id, today)
@@ -63,10 +61,7 @@ export async function weekOutlook(
       );
     // ADR-0035: a skipped day has nothing from the program.
     const fromProgram = slot && !covered && !slot.skipped && slot.slot.items.length > 0;
-    const [t, e] = await Promise.all([
-      getDayTargets(db, owner, day),
-      getDayEnergy(db, owner, day, fromProgram ? slot.slot : null),
-    ]);
+    const r = resolved.get(day)!;
     const training = [
       ...own.map((s) => ({ label: s.label, fromProgram: false, late: false })),
       ...(fromProgram
@@ -81,71 +76,30 @@ export async function weekOutlook(
           ]
         : []),
     ];
-    const targets = targetsOf(t, e);
     out.push({
       day,
-      dayType: t.source === "none" ? null : t.name,
-      goal: t.source !== "none" && t.dynamic ? (goalOf(t.dynamic) ?? "custom") : null,
+      dayType: r.plan.source === "none" ? null : r.plan.name,
+      goal: r.goal,
       training,
       rest: training.length === 0,
       changed: changed.has(day),
-      energy: e.energy?.total.withPlan ?? null,
-      targets,
+      energy: r.energy.energy?.total.withPlan ?? null,
+      targets: mainTargets(r.own),
     });
   }
   return out;
 }
 
-type DayTargetsView = Awaited<ReturnType<typeof getDayTargets>>;
-
-/** The day's main targets: its type's own, or computed from its energy (dynamic). */
-function targetsOf(t: DayTargetsView, e: DayEnergyView): OutlookDay["targets"] {
-  if (t.source === "none") return null;
-  if (t.dynamic && e.energy && e.body.weightKg) {
-    const inputs = e.energy.inputs.sessions;
-    const load = trainingLoad(
-      inputs.reduce((a, x) => a + x.durationMin, 0),
-      inputs.reduce((a, x) => a + (x.basis?.kind === "sets" ? x.basis.cardioMin : 0), 0),
-    );
-    const d = dynamicTargets(
-      e.energy,
-      e.body.weightKg,
-      t.dynamic,
-      carbsGoodMax(Number(e.body.weightKg), load),
-    );
-    return { kcal: d.kcal, protein: d.protein, carbs: d.carbs, fat: d.fat };
-  }
-  if (!t.dynamic && t.targets.kcal) {
-    const n = (v: string | null) => (v === null ? 0 : Math.round(Number(v)));
-    return {
-      kcal: n(t.targets.kcal),
-      protein: n(t.targets.protein),
-      carbs: n(t.targets.carbs),
-      fat: n(t.targets.fat),
-    };
-  }
-  return null;
-}
-
-/**
- * The energy target of each day in a range (the week strip): dynamic days
- * included, from what was done and planned on them. Null = no target.
- */
-export async function kcalTargets(
-  db: Db,
-  owner: Owner,
-  days: readonly string[],
-): Promise<Map<string, number | null>> {
-  const rows = await Promise.all(
-    days.map(async (day) => {
-      const [t, e] = await Promise.all([
-        getDayTargets(db, owner, day),
-        getDayEnergy(db, owner, day),
-      ]);
-      return [day, targetsOf(t, e)?.kcal ?? null] as const;
-    }),
-  );
-  return new Map(rows);
+/** The four main targets, rounded; null without an energy target. */
+function mainTargets(own: Record<"kcal" | "protein" | "carbs" | "fat", string | null>) {
+  if (own.kcal === null) return null;
+  const n = (v: string | null) => (v === null ? 0 : Math.round(Number(v)));
+  return {
+    kcal: n(own.kcal),
+    protein: n(own.protein),
+    carbs: n(own.carbs),
+    fat: n(own.fat),
+  };
 }
 
 export type TodayTargets = {
@@ -158,7 +112,8 @@ export type TodayTargets = {
 
 /**
  * What each DYNAMIC day type would ask today (the day-type list): its
- * parameters on today's energy. Fixed types show their own numbers.
+ * parameters on today's energy, through the same engine as the day page
+ * (ADR-0040). Fixed types show their own numbers.
  */
 export async function dynamicTargetsToday(
   db: Db,
@@ -169,38 +124,27 @@ export async function dynamicTargetsToday(
   const out = new Map<string, TodayTargets>();
   const dynamic = profiles.filter((p) => p.mode === "dynamic");
   if (!dynamic.length) return out;
-  // With the program's slot, like the day page, so both say the same.
-  const slot = await programSlotOn(db, owner, today, today);
-  const e = await getDayEnergy(
-    db,
-    owner,
-    today,
-    slot && !slot.skipped ? slot.slot : null,
-  );
-  if (!e.energy || !e.body.weightKg) return out;
-  const inputs = e.energy.inputs.sessions;
-  const load = trainingLoad(
-    inputs.reduce((a, x) => a + x.durationMin, 0),
-    inputs.reduce((a, x) => a + (x.basis?.kind === "sets" ? x.basis.cardioMin : 0), 0),
-  );
+  const day = (
+    await readDays(db, owner, today, today, { today, autoTargets: false })
+  ).get(today)!;
   for (const p of dynamic) {
-    const d = dynamicTargets(
-      e.energy,
-      e.body.weightKg,
+    const r = resolveDay(
+      today,
       {
-        deficitKcal: p.deficitKcal,
-        proteinGPerKg: p.proteinGPerKg,
-        fatGPerKg: p.fatGPerKg,
+        source: "default",
+        profileId: p.id,
+        name: p.name,
+        targets: day.own,
+        dynamic: {
+          deficitKcal: p.deficitKcal,
+          proteinGPerKg: p.proteinGPerKg,
+          fatGPerKg: p.fatGPerKg,
+        },
       },
-      carbsGoodMax(Number(e.body.weightKg), load),
+      day.energy,
+      { autoTargets: false },
     );
-    out.set(p.id, {
-      kcal: d.kcal,
-      protein: d.protein,
-      carbs: d.carbs,
-      fat: d.fat,
-      fiber: d.fiber,
-    });
+    if (r.computed) out.set(p.id, r.computed);
   }
   return out;
 }
