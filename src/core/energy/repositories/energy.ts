@@ -348,9 +348,9 @@ export async function getEnergyRange(
 }
 
 /**
- * ADR-0020: the window ending yesterday (today is not over), each day with
- * what was eaten and the model's estimate, and the weigh-ins in it.
- * A handful of range queries, not four per day.
+ * ADR-0041: the 84 days ending yesterday (today is not over), each day with
+ * what was eaten and the model's uncorrected estimate, and the weigh-ins
+ * in it. A handful of range queries, not four per day.
  */
 export async function getCalibration(
   db: Db,
@@ -383,10 +383,14 @@ export async function getCalibration(
       sessions.filter((s) => s.day === h.day),
       kg,
     );
+    // ADR-0041: the model WITHOUT any correction — the factor is what is learnt.
+    const e = dayEnergy({ ...body, weightKg: kg, correction: 1 }, facts);
+    const mid = (r: { low: number; high: number }) => (r.low + r.high) / 2;
     return {
       day: h.day,
-      eatenKcal: h.eaten.length ? h.eaten.reduce((a, e) => a + Number(e.kcal), 0) : null,
-      energy: dayEnergy({ ...body, weightKg: kg }, facts),
+      eatenKcal: h.eaten.length ? h.eaten.reduce((a, x) => a + Number(x.kcal), 0) : null,
+      baseline: e ? mid(e.baseline) : null,
+      other: e ? mid(e.walking) + mid(e.training.done) : null,
     };
   });
   const readings = await weighInReadings(db, owner, measurements, from, to);

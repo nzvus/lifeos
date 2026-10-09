@@ -65,4 +65,3 @@ above ~8 g/kg in practice, revisit the split for those days.
   to the day's target.
 
 ## What I learned
-<to be written by the developer>
