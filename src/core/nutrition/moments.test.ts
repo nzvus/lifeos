@@ -108,7 +108,11 @@ describe("groupByMoment", () => {
 
   it("keeps an untimed snack between lunch and dinner, as before", () => {
     const groups = groupByMoment(
-      [e("dinner", "2026-10-07T18:00:00Z", "500"), e("snack", null, "100"), e("lunch", null, "600")],
+      [
+        e("dinner", "2026-10-07T18:00:00Z", "500"),
+        e("snack", null, "100"),
+        e("lunch", null, "600"),
+      ],
       "Europe/Rome",
     );
     expect(groups.map((g) => g.key)).toEqual(["lunch", "snack-0", "dinner"]);

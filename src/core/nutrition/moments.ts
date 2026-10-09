@@ -148,7 +148,8 @@ export function groupByMoment<
   const blocks: Block[] = [];
   for (const m of ["breakfast", "lunch", "dinner"] as const) {
     const items = placed.filter((p) => p.moment === m);
-    if (items.length) blocks.push({ minutes: Math.min(...items.map(when)), moment: m, items });
+    if (items.length)
+      blocks.push({ minutes: Math.min(...items.map(when)), moment: m, items });
   }
   // Snacks: each one its own block at its own time.
   for (const p of placed.filter((x) => x.moment === "snack"))
