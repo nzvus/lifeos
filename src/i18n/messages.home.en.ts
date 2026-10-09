@@ -225,9 +225,16 @@ export const energyEn = {
   },
   calibration: {
     title: "Calibration",
-    how: "Compares the last {days} days: what you ate and how your weight moved tell what you really spent.",
-    fewWeighIns: "Needs at least 6 weigh-ins over 3 weeks (now {n}).",
-    fewLogged: "Needs at least 80 % of days logged (now {n} of {of}).",
+    how: "Learns from the last {days} days at once: what you ate and how your weight moved tell what you really spend. Recent weeks count more.",
+    fewWeighIns: "Needs at least 6 weigh-ins over 2 weeks (now {n}).",
+    fewLogged: "Needs at least 14 complete days, and half of the days (now {n} of {of}).",
+    expenditure: "You spend",
+    expenditureValue: "{mid} kcal a day ({low}–{high})",
+    learnt: "Learnt from {weeks} weeks · everyday activity {factor} ± {sigma}",
+    unsure:
+      "Not sure enough yet to propose a change (± {sigma}); more weigh-ins and logged days narrow it.",
+    incomplete:
+      "{n} days logged under 60 % of what they cost were taken as half-logged and filled in from the days around them.",
     intake: "Eaten on average",
     trend: "Weight trend",
     trendValue: "{kg} kg a week",

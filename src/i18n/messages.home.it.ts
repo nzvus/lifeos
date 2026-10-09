@@ -228,9 +228,16 @@ export const energyIt: Messages["energy"] = {
   },
   calibration: {
     title: "Calibrazione",
-    how: "Confronta gli ultimi {days} giorni: quanto hai mangiato e come è cambiato il peso dicono quanto hai speso davvero.",
-    fewWeighIns: "Servono almeno 6 pesate in 3 settimane (ora {n}).",
-    fewLogged: "Servono almeno l'80 % dei giorni registrati (ora {n} su {of}).",
+    how: "Impara dagli ultimi {days} giorni insieme: quanto hai mangiato e come è cambiato il peso dicono quanto spendi davvero. Le settimane recenti contano di più.",
+    fewWeighIns: "Servono almeno 6 pesate in 2 settimane (ora {n}).",
+    fewLogged: "Servono almeno 14 giorni completi, e metà dei giorni (ora {n} su {of}).",
+    expenditure: "Spendi",
+    expenditureValue: "{mid} kcal al giorno ({low}–{high})",
+    learnt: "Imparato da {weeks} settimane · attività quotidiana {factor} ± {sigma}",
+    unsure:
+      "Non ancora abbastanza sicuro per proporre un cambio (± {sigma}): più pesate e giorni registrati lo restringono.",
+    incomplete:
+      "{n} giorni registrati sotto il 60 % di quanto costano sono stati presi come registrati a metà e riempiti con i giorni vicini.",
     intake: "Mangiato in media",
     trend: "Andamento del peso",
     trendValue: "{kg} kg a settimana",

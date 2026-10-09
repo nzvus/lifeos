@@ -582,7 +582,7 @@ export const TOOLS: Record<string, Tool> = {
     effect: "read",
     spec: fn(
       "get_calibration",
-      "The last 28 days against the energy model: average eaten, weight trend (kg/week), spent by the scale vs by the model, a verdict on the data and the proposed factor on everyday activity. Only the user can accept it (day page → Energy → Calibration).",
+      "What the user really spends, learnt from the last 84 days of log and weigh-ins (ADR-0041): the factor on everyday activity with its uncertainty, the expenditure, the last 14 days (eaten, trend, spent by the scale vs the model), a verdict on the data and a proposal. Only the user can accept it (day page → Energy → Calibration).",
       {},
     ),
     async run({ db, owner, today }) {

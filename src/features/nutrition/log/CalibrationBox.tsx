@@ -1,8 +1,8 @@
 /**
- * features/nutrition/log/CalibrationBox.tsx — does the energy model fit you?
- * (ADR-0020). What the scale and the log say over the last 28 days, the
- * model's estimate for the same days, and — when the data is good enough —
- * a proposed factor on the everyday baseline, applied only on Accept.
+ * features/nutrition/log/CalibrationBox.tsx — what you really spend
+ * (ADR-0041): learnt from the scale and the log, with how sure it is; the
+ * last two weeks' numbers; and — when known well enough — a proposed
+ * factor on the everyday baseline, applied only on Accept.
  * Client component (the buttons).
  */
 "use client";
@@ -10,7 +10,7 @@
 import { Check, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import type { Calibration } from "@/core/energy/calibration";
+import { CONFIDENT, type Calibration } from "@/core/energy/calibration";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
@@ -48,22 +48,48 @@ export function CalibrationBox({
         <p>{fill(t.fewWeighIns, { n: String(c.weighIns) })}</p>
       )}
       {c.verdict === "few_logged" && (
-        <p>{fill(t.fewLogged, { n: String(c.loggedDays), of: String(c.days) })}</p>
+        <p>
+          {fill(t.fewLogged, {
+            n: String(c.loggedDays - c.incompleteDays),
+            of: String(c.days),
+          })}
+        </p>
       )}
       {c.verdict === "ok" && (
         <>
+          {c.expenditure && (
+            <p className="flex items-baseline justify-between gap-3">
+              <span className="font-semibold">{t.expenditure}</span>
+              <span className="font-display whitespace-nowrap tabular-nums">
+                {fill(t.expenditureValue, {
+                  mid: n(c.expenditure.mid),
+                  low: n(c.expenditure.low),
+                  high: n(c.expenditure.high),
+                })}
+              </span>
+            </p>
+          )}
+          <p className="text-muted">
+            {fill(t.learnt, {
+              weeks: String(c.weeks),
+              factor: factor(c.factor),
+              sigma: n(c.sigma, 2),
+            })}
+          </p>
           <ul className="flex flex-col gap-1">
-            {[
-              [t.intake, `${n(c.intake!)} kcal`],
+            {(
               [
-                t.trend,
-                fill(t.trendValue, {
-                  kg: `${c.trendKgPerWeek! > 0 ? "+" : ""}${n(c.trendKgPerWeek!, 2)}`,
-                }),
-              ],
-              [t.observed, `${n(c.observed!)} kcal`],
-              [t.estimated, `${n(c.estimated!)} kcal`],
-            ].map(([label, value]) => (
+                c.intake !== null && [t.intake, `${n(c.intake)} kcal`],
+                c.trendKgPerWeek !== null && [
+                  t.trend,
+                  fill(t.trendValue, {
+                    kg: `${c.trendKgPerWeek > 0 ? "+" : ""}${n(c.trendKgPerWeek, 2)}`,
+                  }),
+                ],
+                c.observed !== null && [t.observed, `${n(c.observed)} kcal`],
+                c.estimated !== null && [t.estimated, `${n(c.estimated)} kcal`],
+              ].filter(Boolean) as [string, string][]
+            ).map(([label, value]) => (
               <li key={label} className="flex items-baseline justify-between gap-3">
                 <span className="text-muted">{label}</span>
                 <span className="font-display whitespace-nowrap tabular-nums">
@@ -72,10 +98,17 @@ export function CalibrationBox({
               </li>
             ))}
           </ul>
+          {c.incompleteDays > 0 && (
+            <p className="text-muted">
+              {fill(t.incomplete, { n: String(c.incompleteDays) })}
+            </p>
+          )}
           <p className="font-semibold">
-            {c.proposed === null
-              ? fill(t.fits, { now: factor(c.current) })
-              : fill(t.proposal, { factor: factor(c.proposed), now: factor(c.current) })}
+            {c.proposed !== null
+              ? fill(t.proposal, { factor: factor(c.proposed), now: factor(c.current) })
+              : c.sigma > CONFIDENT
+                ? fill(t.unsure, { sigma: n(c.sigma, 2) })
+                : fill(t.fits, { now: factor(c.current) })}
           </p>
         </>
       )}

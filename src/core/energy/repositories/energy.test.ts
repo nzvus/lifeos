@@ -74,11 +74,11 @@ describe("energy repository", () => {
     expect((await getDayEnergy(db, other, DAY)).activity.level).toBe("mixed");
   });
 
-  it("calibration: a proposal from the last 28 days; accepting it moves the estimate", async () => {
+  it("calibration: a proposal learnt from 8 weeks; accepting it moves the estimate", async () => {
     await saveBody(db, me, { sex: "male", birthYear: 1996, heightCm: 180 });
     const before = (await getDayEnergy(db, me, DAY)).energy;
     expect(before).toBeNull(); // no weight yet
-    for (let i = 1; i <= 28; i++) {
+    for (let i = 1; i <= 56; i++) {
       const day = addDays(DAY, -i);
       await logEstimate(db, me, {
         day,
@@ -93,7 +93,7 @@ describe("energy repository", () => {
         salt: "0",
         cost: null,
       });
-      if (i % 4 === 0)
+      if (i % 2 === 0)
         // −0.5 kg a week, going back in time: heavier in the past.
         await addMeasurement(db, me, {
           day,
@@ -106,8 +106,8 @@ describe("energy repository", () => {
     const c = await getCalibration(db, me, DAY);
     expect(c).toMatchObject({
       verdict: "ok",
-      loggedDays: 28,
-      weighIns: 7,
+      loggedDays: 56,
+      weighIns: 28,
       intake: 2600,
       current: 1,
     });
