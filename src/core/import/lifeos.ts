@@ -100,6 +100,8 @@ const exportFile = z.object({
     z.literal(13),
     // 14: mind check-ins and set times; ignored here.
     z.literal(14),
+    // 15: day closures (ADR-0042); ignored here.
+    z.literal(15),
   ]),
   settings: z
     .object({

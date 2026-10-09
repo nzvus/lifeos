@@ -74,7 +74,7 @@ describe("energy repository", () => {
     expect((await getDayEnergy(db, other, DAY)).activity.level).toBe("mixed");
   });
 
-  it("calibration: a proposal learnt from 8 weeks; accepting it moves the estimate", async () => {
+  it("calibration: learnt from 8 weeks; accepting the factor moves the estimate", async () => {
     await saveBody(db, me, { sex: "male", birthYear: 1996, heightCm: 180 });
     const before = (await getDayEnergy(db, me, DAY)).energy;
     expect(before).toBeNull(); // no weight yet
@@ -93,30 +93,34 @@ describe("energy repository", () => {
         salt: "0",
         cost: null,
       });
-      if (i % 2 === 0)
-        // −0.5 kg a week, going back in time: heavier in the past.
-        await addMeasurement(db, me, {
-          day,
-          weightKg: (80 + (0.5 / 7) * i).toFixed(2),
-          bodyFatPct: null,
-          waistCm: null,
-          notes: "",
-        });
+      // A weigh-in every morning; −0.5 kg a week, going back in time: heavier in the past.
+      await addMeasurement(db, me, {
+        day,
+        weightKg: (80 + (0.5 / 7) * i).toFixed(2),
+        bodyFatPct: null,
+        waistCm: null,
+        notes: "",
+      });
     }
     const c = await getCalibration(db, me, DAY);
     expect(c).toMatchObject({
       verdict: "ok",
       loggedDays: 56,
-      weighIns: 28,
+      weighIns: 56,
       intake: 2600,
       current: 1,
     });
     expect(c.trendKgPerWeek).toBeCloseTo(-0.5, 2);
-    expect(c.proposed).not.toBeNull();
+    // Every day here is an estimate (logEstimate): ±30 % a day keeps it
+    // unsure (ADR-0042), so nothing is proposed yet — but the learnt factor
+    // points up (it spends more than the model) and can be accepted.
+    expect(c.estimatedShare).toBe(1);
+    expect(c.proposed).toBeNull();
+    expect(c.factor).toBeGreaterThan(1.1);
 
     const plain = (await getDayEnergy(db, me, DAY)).energy!;
-    await setEnergyCorrection(db, me, c.proposed!, DAY);
-    expect((await getBody(db, me, DAY)).correction).toBe(c.proposed);
+    await setEnergyCorrection(db, me, c.factor, DAY);
+    expect((await getBody(db, me, DAY)).correction).toBe(c.factor);
     // ADR-0026: from that day on; the day before keeps 1.
     expect((await getBody(db, me, addDays(DAY, -1))).correction).toBe(1);
     const fixed = (await getDayEnergy(db, me, DAY)).energy!;
@@ -126,7 +130,7 @@ describe("energy repository", () => {
     expect((await getCalibration(db, other, DAY)).verdict).toBe("no_body");
     await setEnergyCorrection(db, me, 1, addDays(DAY, 3));
     expect((await getBody(db, me, addDays(DAY, 3))).correction).toBe(1);
-    expect((await getBody(db, me, addDays(DAY, 2))).correction).toBe(c.proposed);
+    expect((await getBody(db, me, addDays(DAY, 2))).correction).toBe(c.factor);
   });
 
   it("the database refuses a factor outside 0.80–1.20", async () => {

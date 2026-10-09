@@ -238,6 +238,11 @@ export const energyIt: Messages["energy"] = {
       "Non ancora abbastanza sicuro per proporre un cambio (± {sigma}): più pesate e giorni registrati lo restringono.",
     incomplete:
       "{n} giorni registrati sotto il 60 % di quanto costano sono stati presi come registrati a metà e riempiti con i giorni vicini.",
+    closed:
+      "{n} giorni chiusi da te: contano pienamente (completi) o non vengono letti come un deficit (manca qualcosa). Chiudi la giornata dal suo chip in Oggi.",
+    estimates:
+      "Il {share} % di quanto hai registrato erano stime (pasti fuori, totali scritti a mano): contano meno.",
+    estimateFactor: "Le tue stime sembrano × {k} (± {sigma}) di quanto mangi davvero.",
     intake: "Mangiato in media",
     trend: "Andamento del peso",
     trendValue: "{kg} kg a settimana",
@@ -597,6 +602,20 @@ export const dayChipsIt: Messages["dayChips"] = {
   steps: "{n} passi",
   walk: "{n} min a piedi",
   moveNone: "Movimento?",
+  closed: "Registro completo",
+  partial: "Registro: manca qualcosa",
+  closeNone: "Chiudi la giornata?",
+  /** ADR-0042: the sheet that closes the day (CloseDaySheet). */
+  close: {
+    title: "Chiudi la giornata",
+    why: "Quello che hai registrato è quello che hai mangiato? Serve a capire quanto spendi davvero: una giornata completa conta pienamente, una dove manca qualcosa non viene letta come un deficit.",
+    complete: "Sì, c'è tutto",
+    completeHint: "Più o meno: stime comprese.",
+    partial: "Manca qualcosa",
+    partialHint: "Uno spuntino, una bevanda, un pasto non inserito.",
+    reopen: "Riapri la giornata",
+    reopened: "Giornata riaperta",
+  },
 };
 
 export const addMenuIt: Messages["addMenu"] = {

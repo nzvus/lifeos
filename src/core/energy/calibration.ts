@@ -1,34 +1,43 @@
 /**
  * core/energy/calibration.ts — what you really spend, learnt from the scale
- * and the log (ADR-0041, replacing ADR-0020's 28-day average). Pure: the
- * repository gathers the days.
+ * and the log (ADR-0041, refined by ADR-0042). Pure: the repository
+ * gathers the days.
  *
  * The model (core/energy/energy.ts) is the prior: each day it estimates the
  * everyday baseline B (BMR × activity) and the rest O (walking, training).
  * The body is taken to spend c × B + O, and c — the factor on the baseline,
- * the least certain part — is learnt from ALL the window at once:
+ * the least certain part — is learnt with a Kalman filter over three
+ * things: the body's weight W (without water), c, and k, how far your
+ * ESTIMATES are from what you really ate (ADR-0042):
  *
- *   each weigh-in = the starting weight
- *                   + (everything eaten − everything spent before it) ÷ 7,700
- *   so  W_t − (ΣI − ΣO)/7,700  =  W0  −  c × ΣB/7,700
+ *   each day     W moves by (weighed food + k × estimates − O − c × B)
+ *                ÷ 7,700, give or take what the day's intake is unsure of
+ *   each weigh-in pulls W toward the scale by its reliability (ADR-0027;
+ *                an implausible one counts ~0), and through W, c and k
+ *   c            starts at 1 ± 0.12 (the model) and may drift ±0.015 a week
+ *   k            starts at 1.15 ± 0.15: big meals and meals out are
+ *                usually underestimated (Wansink & Chandon 2006; Urban
+ *                2011); learnt apart from c because estimates come on
+ *                some days only — so only while they are at most half of
+ *                the logged kcal; beyond that k is 1 (the log is the
+ *                estimates) and they just count as less sure
  *
- * a straight line in c, fitted by weighted least squares: each weigh-in by
- * its reliability (ADR-0027; an implausible one counts ~0) and by how
- * recent it is (half-weight after 60 days, so a changing body is followed).
- * One long fit uses the data far better than slopes of short windows: the
- * error of a trend falls with the length of the period to the power 1.5.
+ * How sure each day's intake is (ADR-0042, the developer: "the estimates
+ * weigh the most: imprecise, and big, because you eat out"):
  *
- *   intake  logged days; a day logged under 60 % of what it should cost is
- *           taken as half-logged (a dinner not entered yet). Those and the
- *           unlogged days count as the average of the complete days around
- *           them (± 7 days), as MacroFactor does.
- *   prior   c = 1 ± 0.12: with little data the answer stays near the model;
- *           the uncertainty shrinks as data comes in.
+ *   closed complete   what was logged: ±10 % on weighed food, ±30 % on
+ *                     estimates (typed totals)
+ *   closed partial    at least what was logged, else the days around it; ±30 %
+ *   not closed        logged ≥ 60 % of what the day costs: as complete,
+ *                     plus ±10 %; under 60 %: as partial (a dinner not
+ *                     entered yet is not a deficit)
+ *   not logged        the average of the trusted days within ± 7 days; ±35 %
  *
- * A factor is PROPOSED only when it is known within ± 0.04 and differs from
- * the accepted one; it applies from the day it is accepted (ADR-0026).
- * Never applied silently. A steady under-logging is not corrected for: the
- * targets are met in logged numbers, so it cancels out.
+ * So a dinner out estimated at 1,400 kcal moves c little, and the scale on
+ * the following days more. A factor is PROPOSED only when known within
+ * ± 0.05 and different from the accepted one; it applies from the day it
+ * is accepted (ADR-0026). Never applied silently. A steady under-logging is
+ * not corrected for: the targets are met in logged numbers, so it cancels.
  */
 
 export const WINDOW_DAYS = 84;
@@ -36,19 +45,29 @@ export const WINDOW_DAYS = 84;
 const KCAL_PER_KG = 7700;
 const MIN_WEIGH_INS = 6;
 const MIN_WEIGH_SPAN = 14;
-const MIN_COMPLETE = 14;
-const MIN_COMPLETE_SHARE = 0.5;
+const MIN_TRUSTED = 14;
+const MIN_TRUSTED_SHARE = 0.5;
 /** Logged below this share of the day's cost: probably half-logged. */
 const COMPLETE_SHARE = 0.6;
 const FILL_DAYS = 7;
-const HALF_LIFE_DAYS = 60;
 const PRIOR_SIGMA = 0.12;
-/** Day-to-day water is correlated over a few days: the fit is less sure than it looks. */
+const ESTIMATE_PRIOR = 1.15;
+const ESTIMATE_PRIOR_SIGMA = 0.15;
+/** Above this share of estimated kcal, c and k can't be told apart. */
+const MAX_ESTIMATED_SHARE = 0.5;
+const DRIFT_PER_DAY = 0.015 ** 2 / 7;
+/** The scale's day-to-day water, kg; doubled in variance: it lasts a few days. */
+const SCALE_SIGMA = 0.6;
 const CORRELATION = 2;
-/** Scale noise when the residuals can't say (too few weigh-ins), kg. */
-const SCALE_NOISE_KG = 0.4;
+const START_SIGMA_KG = 1;
+/** Relative uncertainty of intake (ADR-0042). */
+const WEIGHED_ERROR = 0.1;
+const ESTIMATE_ERROR = 0.3;
+const PARTIAL_ERROR = 0.3;
+const UNCLOSED_EXTRA = 0.1;
+const UNLOGGED_ERROR = 0.35;
 /** Uncertainty under which a factor is proposed. */
-export const CONFIDENT = 0.04;
+export const CONFIDENT = 0.05;
 /** What `energy_corrections` accepts (its check constraint). */
 export const CORRECTION_RANGE = [0.8, 1.2] as const;
 /** Below this change the accepted factor already fits: nothing to propose. */
@@ -56,8 +75,12 @@ const NOTICEABLE = 0.02;
 
 export type CalibrationDay = {
   day: string;
-  /** kcal eaten, or null when nothing eaten was logged (the day is skipped). */
+  /** kcal eaten, or null when nothing eaten was logged. */
   eatenKcal: number | null;
+  /** Of which from estimates (typed totals rather than weighed food), kcal. */
+  estimatedKcal: number;
+  /** ADR-0042: the user closed the day (complete / partial), or not. */
+  closed: "complete" | "partial" | null;
   /** The model's everyday baseline (midpoint, WITHOUT any correction), kcal. */
   baseline: number | null;
   /** The model's walking and done training (midpoints), kcal. */
@@ -70,14 +93,18 @@ export type Calibration = {
   verdict: Verdict;
   days: number;
   loggedDays: number;
-  /** Logged days left out as probably half-logged. */
+  /** Days closed by the user (complete or partial). */
+  closedDays: number;
+  /** Logged days not closed and under 60 % of their cost: taken as half-logged. */
   incompleteDays: number;
+  /** Share of the logged kcal that came from estimates, 0–1. */
+  estimatedShare: number;
   weighIns: number;
   /** Weeks of data the factor was learnt from (0 = not enough yet). */
   weeks: number;
   /** kg per week over the last 14 days, + gaining; null without data. */
   trendKgPerWeek: number | null;
-  /** Average eaten on complete logged days of the last 14 days, kcal. */
+  /** Average eaten on trusted days of the last 14 days, kcal. */
   intake: number | null;
   /** What the scale says was spent over the same days, kcal/day. */
   observed: number | null;
@@ -86,6 +113,8 @@ export type Calibration = {
   /** The learnt factor on the baseline and its uncertainty (one σ). */
   factor: number;
   sigma: number;
+  /** ADR-0042: what your estimates really are, × logged (± σ); null without estimates. */
+  estimateFactor: { k: number; sigma: number } | null;
   /** Average daily expenditure of the last 7 days with the learnt factor, ± 1 σ. */
   expenditure: { mid: number; low: number; high: number } | null;
   current: number;
@@ -123,6 +152,23 @@ export function weightSlope(points: readonly WeighInPoint[]): number | null {
 const round = (x: number | null, d = 0) =>
   x === null ? null : Math.round(x * 10 ** d) / 10 ** d;
 
+type Kind = "complete" | "partial" | "likely" | "half" | "none";
+
+/** How a day's log is read (see the header). */
+function kindOf(d: CalibrationDay, cost: number): Kind {
+  if (d.closed === "complete") return d.eatenKcal === null ? "partial" : "complete";
+  if (d.closed === "partial") return "partial";
+  if (d.eatenKcal === null) return "none";
+  return d.eatenKcal >= COMPLETE_SHARE * cost ? "likely" : "half";
+}
+
+type Mat = number[][];
+const zero3 = (): Mat => [
+  [0, 0, 0],
+  [0, 0, 0],
+  [0, 0, 0],
+];
+
 export function calibrate(
   days: readonly CalibrationDay[],
   weighIns: readonly WeighInPoint[],
@@ -130,25 +176,24 @@ export function calibrate(
 ): Calibration {
   const cost = (d: CalibrationDay, c: number) => c * d.baseline! + d.other!;
   const modelled = days.filter((d) => d.baseline !== null && d.other !== null);
-  // From the first logged day: the days before it say nothing yet.
-  const start = modelled.find((d) => d.eatenKcal !== null)?.day;
+  // From the first logged (or closed) day: the days before it say nothing.
+  const start = modelled.find((d) => d.eatenKcal !== null || d.closed)?.day;
   const usable = start ? modelled.filter((d) => d.day >= start) : [];
-  // Complete = logged and at least 60 % of what the day should cost (at the
-  // accepted factor: the learnt one isn't known yet).
-  const complete = new Set(
-    usable
-      .filter(
-        (d) => d.eatenKcal !== null && d.eatenKcal >= COMPLETE_SHARE * cost(d, current),
-      )
-      .map((d) => d.day),
-  );
-  const loggedDays = usable.filter((d) => d.eatenKcal !== null).length;
-  const incompleteDays = loggedDays - complete.size;
+  const kinds = new Map(usable.map((d) => [d.day, kindOf(d, cost(d, current))]));
+  const trusted = usable.filter((d) => {
+    const k = kinds.get(d.day);
+    return k === "complete" || k === "likely";
+  });
   const points = weighIns.filter(
-    (w) => (w.weight ?? 1) >= 0.1 && usable.some((d) => d.day <= w.day),
+    (w) => (w.weight ?? 1) >= 0.1 && start !== undefined && w.day >= start,
   );
   const span = points.length
     ? dayIndex(points.at(-1)!.day) - dayIndex(points[0]!.day)
+    : 0;
+  const loggedKcal = usable.reduce((a, d) => a + (d.eatenKcal ?? 0), 0);
+  const share = loggedKcal
+    ? usable.reduce((a, d) => a + Math.min(d.estimatedKcal, d.eatenKcal ?? 0), 0) /
+      loggedKcal
     : 0;
 
   const verdict: Verdict = !modelled.length
@@ -157,71 +202,97 @@ export function calibrate(
       ? "few_logged"
       : points.length < MIN_WEIGH_INS || span < MIN_WEIGH_SPAN
         ? "few_weigh_ins"
-        : complete.size < MIN_COMPLETE ||
-            complete.size < MIN_COMPLETE_SHARE * usable.length
+        : trusted.length < MIN_TRUSTED ||
+            trusted.length < MIN_TRUSTED_SHARE * usable.length
           ? "few_logged"
           : "ok";
 
   let c = 1;
   let sigma = PRIOR_SIGMA;
+  let estimateK: { k: number; sigma: number } | null = null;
   if (verdict === "ok") {
-    // Each day's intake: logged if complete, else the average of the
-    // complete days within ± 7 days (else of all complete days).
-    const all = usable.filter((d) => complete.has(d.day)).map((d) => d.eatenKcal!);
-    const intakeOf = (d: CalibrationDay) => {
-      if (complete.has(d.day)) return d.eatenKcal!;
-      const near = usable.filter(
-        (x) =>
-          complete.has(x.day) && Math.abs(dayIndex(x.day) - dayIndex(d.day)) <= FILL_DAYS,
+    const all = trusted.map((d) => d.eatenKcal!);
+    const nearby = (d: CalibrationDay) => {
+      const near = trusted.filter(
+        (x) => Math.abs(dayIndex(x.day) - dayIndex(d.day)) <= FILL_DAYS,
       );
       return mean(near.length ? near.map((x) => x.eatenKcal!) : all);
     };
-    // Running sums BEFORE each day (a morning weigh-in sees the days before).
-    const sums = new Map<string, { io: number; b: number }>();
-    let io = 0;
-    let b = 0;
-    for (const d of usable) {
-      sums.set(d.day, { io, b });
-      io += intakeOf(d) - d.other!;
-      b += d.baseline!;
+    /**
+     * The day's intake as [weighed part, estimated part, sd]: estimates are
+     * multiplied by k in the filter; filled-in days count as weighed.
+     */
+    const intakeOf = (d: CalibrationDay): [number, number, number] => {
+      const eaten = d.eatenKcal ?? 0;
+      const est = Math.min(d.estimatedKcal, eaten);
+      const logged = Math.hypot(WEIGHED_ERROR * (eaten - est), ESTIMATE_ERROR * est);
+      switch (kinds.get(d.day)!) {
+        case "complete":
+          return [eaten - est, est, logged];
+        case "likely":
+          return [eaten - est, est, Math.hypot(logged, UNCLOSED_EXTRA * eaten)];
+        case "partial":
+        case "half": {
+          const i = Math.max(eaten, nearby(d));
+          return [i, 0, PARTIAL_ERROR * i];
+        }
+        case "none": {
+          const i = nearby(d);
+          return [i, 0, UNLOGGED_ERROR * i];
+        }
+      }
+    };
+
+    // The filter starts on the first weigh-in. State x = [W, c, k].
+    const byDay = new Map<string, WeighInPoint[]>();
+    for (const p of points) byDay.set(p.day, [...(byDay.get(p.day) ?? []), p]);
+    const learnK = share <= MAX_ESTIMATED_SHARE;
+    const x = [points[0]!.kg, 1, learnK ? ESTIMATE_PRIOR : 1];
+    let P = zero3();
+    P[0]![0] = START_SIGMA_KG ** 2;
+    P[1]![1] = PRIOR_SIGMA ** 2;
+    P[2]![2] = learnK ? ESTIMATE_PRIOR_SIGMA ** 2 : 0;
+    for (const d of usable.filter((y) => y.day >= points[0]!.day)) {
+      // Morning: the weigh-ins of the day (before its food). H = [1, 0, 0].
+      for (const p of byDay.get(d.day) ?? []) {
+        const r = (SCALE_SIGMA ** 2 * CORRELATION) / (p.weight ?? 1);
+        const s0 = P[0]![0]! + r;
+        const gain = [P[0]![0]! / s0, P[1]![0]! / s0, P[2]![0]! / s0];
+        const innovation = p.kg - x[0]!;
+        for (let a = 0; a < 3; a++) x[a]! += gain[a]! * innovation;
+        const row0 = [...P[0]!];
+        P = P.map((row, a) => row.map((v, b) => v - gain[a]! * row0[b]!));
+      }
+      // The day: W += (weighed + k·est − O − c·B)/ρ. Linear in (c, k) with
+      // the day's numbers as coefficients: F = [[1, −B/ρ, est/ρ], I].
+      const [weighed, est, sd] = intakeOf(d);
+      const fc = -d.baseline! / KCAL_PER_KG;
+      const fk = est / KCAL_PER_KG;
+      x[0] = x[0]! + (weighed - d.other!) / KCAL_PER_KG + fc * x[1]! + fk * x[2]!;
+      const F: Mat = [
+        [1, fc, fk],
+        [0, 1, 0],
+        [0, 0, 1],
+      ];
+      const FP = F.map((row) =>
+        [0, 1, 2].map((b) => row.reduce((a, v, m) => a + v * P[m]![b]!, 0)),
+      );
+      P = FP.map((row) =>
+        [0, 1, 2].map((b) => row.reduce((a, v, m) => a + v * F[b]![m]!, 0)),
+      );
+      P[0]![0]! += (sd / KCAL_PER_KG) ** 2;
+      P[1]![1]! += DRIFT_PER_DAY;
     }
-    const lastDay = dayIndex(usable.at(-1)!.day);
-    const rows = points
-      .filter((p) => sums.has(p.day))
-      .map((p) => {
-        const s = sums.get(p.day)!;
-        return {
-          x: -s.b / KCAL_PER_KG,
-          y: p.kg - s.io / KCAL_PER_KG,
-          w: (p.weight ?? 1) * 0.5 ** ((lastDay - dayIndex(p.day)) / HALF_LIFE_DAYS),
-        };
-      });
-    const sw = rows.reduce((a, r) => a + r.w, 0);
-    const mx = rows.reduce((a, r) => a + r.w * r.x, 0) / sw;
-    const my = rows.reduce((a, r) => a + r.w * r.y, 0) / sw;
-    const sxx = rows.reduce((a, r) => a + r.w * (r.x - mx) ** 2, 0);
-    if (sxx > 0) {
-      const cFit = rows.reduce((a, r) => a + r.w * (r.x - mx) * (r.y - my), 0) / sxx;
-      const resid =
-        rows.length > 2
-          ? rows.reduce((a, r) => a + r.w * (r.y - my - cFit * (r.x - mx)) ** 2, 0) /
-            (sw * (1 - 2 / rows.length))
-          : 0;
-      // Weights are relative precisions: the scatter of a weight-1 weigh-in.
-      const noise = Math.max(Math.sqrt(resid), SCALE_NOISE_KG);
-      const varFit = (noise ** 2 / sxx) * CORRELATION;
-      // With the prior (the model, c = 1).
-      const prec = 1 / varFit + 1 / PRIOR_SIGMA ** 2;
-      c = (cFit / varFit + 1 / PRIOR_SIGMA ** 2) / prec;
-      sigma = Math.sqrt(1 / prec);
-    }
+    c = x[1]!;
+    if (learnK) estimateK = { k: x[2]!, sigma: Math.sqrt(P[2]![2]!) };
+    sigma = Math.sqrt(P[1]![1]!);
   }
   c = Math.min(CORRECTION_RANGE[1], Math.max(CORRECTION_RANGE[0], c));
 
   // The last 14 days, for display: intake, trend, what the scale says.
   const end = usable.at(-1)?.day;
   const recentDays = end
-    ? usable.filter((d) => dayIndex(end) - dayIndex(d.day) < 14 && complete.has(d.day))
+    ? trusted.filter((d) => dayIndex(end) - dayIndex(d.day) < 14)
     : [];
   const recentPoints = end
     ? points.filter((p) => dayIndex(end) - dayIndex(p.day) < 14)
@@ -241,8 +312,10 @@ export function calibrate(
   return {
     verdict,
     days: days.length,
-    loggedDays,
-    incompleteDays,
+    loggedDays: usable.filter((d) => d.eatenKcal !== null).length,
+    closedDays: usable.filter((d) => d.closed !== null).length,
+    incompleteDays: usable.filter((d) => kinds.get(d.day) === "half").length,
+    estimatedShare: Math.round(share * 100) / 100,
     weighIns: weighIns.length,
     weeks: verdict === "ok" ? Math.floor(span / 7) : 0,
     trendKgPerWeek: round(slope === null ? null : slope * 7, 2),
@@ -255,6 +328,14 @@ export function calibrate(
       : null,
     factor,
     sigma: Math.round(sigma * 1000) / 1000,
+    // Only when estimates were logged: else k is just its prior.
+    estimateFactor:
+      estimateK && usable.some((d) => d.estimatedKcal > 0)
+        ? {
+            k: Math.round(estimateK.k * 100) / 100,
+            sigma: Math.round(estimateK.sigma * 100) / 100,
+          }
+        : null,
     expenditure,
     current,
     proposed:

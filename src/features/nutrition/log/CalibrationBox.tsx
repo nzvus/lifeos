@@ -98,6 +98,19 @@ export function CalibrationBox({
               </li>
             ))}
           </ul>
+          {c.closedDays > 0 && (
+            <p className="text-muted">{fill(t.closed, { n: String(c.closedDays) })}</p>
+          )}
+          {c.estimatedShare >= 0.05 && (
+            <p className="text-muted">
+              {fill(t.estimates, { share: n(c.estimatedShare * 100) })}
+              {c.estimateFactor &&
+                ` ${fill(t.estimateFactor, {
+                  k: n(c.estimateFactor.k, 2),
+                  sigma: n(c.estimateFactor.sigma, 2),
+                })}`}
+            </p>
+          )}
           {c.incompleteDays > 0 && (
             <p className="text-muted">
               {fill(t.incomplete, { n: String(c.incompleteDays) })}

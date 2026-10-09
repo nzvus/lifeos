@@ -14,6 +14,7 @@ import { addPurchase, createProduct } from "../pantry/repositories/products";
 import { createExercise } from "../training/repositories/exercises";
 import { addMeasurement, deleteMeasurement } from "../training/repositories/measurements";
 import { createSession } from "../training/repositories/sessions";
+import { setDayClosure } from "../nutrition/repositories/closures";
 import { EXPORT_FORMAT, EXPORT_VERSION, exportUserData } from "./export";
 
 let db: Db;
@@ -219,5 +220,18 @@ describe("exportUserData", () => {
       data.training.programs.map((x) => [x.name, x.slots.map((y) => y.label)]),
     ).toEqual([["Rest only", ["Rest"]]]);
     expect((await exportUserData(db, bob)).training.programs).toEqual([]);
+  });
+
+  it("contains my closed days (version 15), nobody else's", async () => {
+    await setDayClosure(db, alice, "2026-10-08", "partial");
+    await setDayClosure(db, alice, "2026-10-09", "complete");
+    await setDayClosure(db, bob, "2026-10-08", "complete");
+    const data = await exportUserData(db, alice);
+    expect(data.version).toBe(15);
+    expect(data.dayClosures.map((x) => [x.day, x.state])).toEqual([
+      ["2026-10-08", "partial"],
+      ["2026-10-09", "complete"],
+    ]);
+    expect(JSON.stringify(data.dayClosures)).not.toContain("userId");
   });
 });
