@@ -692,6 +692,12 @@ export const it: Messages = {
       snack: "Spuntino",
       dinner: "Cena",
     },
+    snackParts: {
+      night: "Spuntino notturno",
+      morning: "Spuntino di metà mattina",
+      afternoon: "Merenda",
+      evening: "Spuntino serale",
+    },
   },
   macro: {
     protein: "P",

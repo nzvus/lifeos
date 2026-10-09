@@ -694,6 +694,13 @@ export const en = {
       snack: "Snack",
       dinner: "Dinner",
     },
+    /** A snack's group, by when it falls (core/nutrition/moments snackPart). */
+    snackParts: {
+      night: "Night snack",
+      morning: "Mid-morning snack",
+      afternoon: "Afternoon snack",
+      evening: "Evening snack",
+    },
   },
   macro: {
     protein: "P",

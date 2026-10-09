@@ -1,6 +1,13 @@
 /** Tests for core/nutrition/moments.ts (ADR-0011). */
 import { describe, expect, it } from "vitest";
-import { entryMoment, groupByMoment, isMoment, momentAt, suggestMoment } from "./moments";
+import {
+  entryMoment,
+  groupByMoment,
+  isMoment,
+  momentAt,
+  snackPart,
+  suggestMoment,
+} from "./moments";
 
 const at = (hhmm: string) => {
   const [h, m] = hhmm.split(":").map(Number);
@@ -46,7 +53,7 @@ describe("moments", () => {
 
 describe("groupByMoment", () => {
   const e = (
-    moment: "lunch" | null,
+    moment: "breakfast" | "lunch" | "snack" | "dinner" | null,
     at: string | null,
     kcal: string,
     status: "planned" | "eaten" = "eaten",
@@ -72,5 +79,47 @@ describe("groupByMoment", () => {
       ["lunch", 2, "600"],
       [null, 1, "50"],
     ]);
+  });
+
+  // Times are UTC; Rome is UTC+2 in October.
+  it("places snacks by their time: before lunch, after dinner, apart (2026-10-07)", () => {
+    const groups = groupByMoment(
+      [
+        e("breakfast", "2026-10-07T05:52:00Z", "450"), // 07:52
+        e("snack", "2026-10-07T10:19:00Z", "677"), // 12:19, before lunch
+        e("snack", "2026-10-07T10:19:00Z", "120"),
+        e("lunch", "2026-10-07T10:28:00Z", "376"), // 12:28
+        e("snack", "2026-10-07T14:37:00Z", "48"), // 16:37
+        e("snack", "2026-10-07T16:04:00Z", "117"), // 18:04
+        e("dinner", "2026-10-07T16:21:00Z", "274"), // 18:21
+        e("snack", "2026-10-07T21:00:00Z", "306"), // 23:00, after dinner
+      ],
+      "Europe/Rome",
+    );
+    expect(groups.map((g) => [g.key, g.part, g.entries.length, g.eatenKcal])).toEqual([
+      ["breakfast", null, 1, "450"],
+      ["snack-0", "morning", 2, "797"],
+      ["lunch", null, 1, "376"],
+      ["snack-1", "afternoon", 2, "165"],
+      ["dinner", null, 1, "274"],
+      ["snack-2", "evening", 1, "306"],
+    ]);
+  });
+
+  it("keeps an untimed snack between lunch and dinner, as before", () => {
+    const groups = groupByMoment(
+      [e("dinner", "2026-10-07T18:00:00Z", "500"), e("snack", null, "100"), e("lunch", null, "600")],
+      "Europe/Rome",
+    );
+    expect(groups.map((g) => g.key)).toEqual(["lunch", "snack-0", "dinner"]);
+  });
+
+  it("names a snack by its part of the day", () => {
+    expect(snackPart(at("01:30"))).toBe("night");
+    expect(snackPart(at("10:30"))).toBe("morning");
+    expect(snackPart(at("16:00"))).toBe("afternoon");
+    expect(snackPart(at("22:00"))).toBe("evening");
+    expect(snackPart(at("12:19"), "breakfast")).toBe("morning"); // before lunch
+    expect(snackPart(at("17:00"), "dinner")).toBe("evening");
   });
 });

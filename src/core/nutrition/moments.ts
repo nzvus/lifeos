@@ -69,9 +69,52 @@ export function entryMoment(
   return localTime ? momentAt(minutesOf(localTime), bounds) : null;
 }
 
-/** A day's entries grouped by moment, in day order; "not set" last. */
+/**
+ * When in the day a snack falls, for its group's name (2026-10-09: "snacks
+ * should show before or after the other meals, by their time").
+ */
+export const SNACK_PARTS = ["night", "morning", "afternoon", "evening"] as const;
+export type SnackPart = (typeof SNACK_PARTS)[number];
+
+/**
+ * A snack's part of the day: after which main meal it comes (breakfast →
+ * morning, lunch → afternoon, dinner → evening); with none before it, by
+ * its time.
+ */
+export function snackPart(minutes: number, after: Moment | null = null): SnackPart {
+  if (after === "breakfast") return "morning";
+  if (after === "lunch") return "afternoon";
+  if (after === "dinner") return "evening";
+  if (minutes < NIGHT_END) return "night";
+  if (minutes < 12 * 60) return "morning";
+  if (minutes < 18 * 60) return "afternoon";
+  return "evening";
+}
+
+/**
+ * Where an entry without a time sits in the day: a main meal at its usual
+ * hour; a snack between lunch and dinner (as before 2026-10-09).
+ */
+const ANCHOR: Record<Moment, number> = {
+  breakfast: 8 * 60,
+  lunch: 13 * 60,
+  snack: 16 * 60 + 30,
+  dinner: 20 * 60,
+};
+
+/**
+ * A day's entries grouped by moment, in TIME order; "not set" last.
+ * Breakfast, lunch and dinner are one group each, placed at their first
+ * entry's time. Snacks are placed by their own time, so a 10:30 snack comes
+ * before lunch and a 23:30 one after dinner: snacks next to each other (no
+ * main meal between them) form one group, named by its part of the day.
+ */
 export type MomentGroup<E> = {
+  /** Unique within the day: the moment, or "snack-<n>", or "none". */
+  key: string;
   moment: Moment | null;
+  /** Snacks only: when in the day the group falls. */
+  part: SnackPart | null;
   entries: E[];
   /** kcal of the EATEN entries of the group (ADR-0009), exact. */
   eatenKcal: string;
@@ -89,26 +132,55 @@ export function groupByMoment<
   timeZone: string,
   bounds: MomentBounds = DEFAULT_BOUNDS,
 ): MomentGroup<E>[] {
-  const byMoment = new Map<Moment | null, E[]>();
-  for (const e of entries) {
-    const m = entryMoment(
-      e.moment,
-      e.at ? timeIn(new Date(e.at), timeZone) : null,
-      bounds,
-    );
-    byMoment.set(m, [...(byMoment.get(m) ?? []), e]);
+  type Placed = { e: E; moment: Moment | null; minutes: number | null };
+  const placed: Placed[] = entries.map((e) => {
+    const local = e.at ? timeIn(new Date(e.at), timeZone) : null;
+    return {
+      e,
+      moment: entryMoment(e.moment, local, bounds),
+      minutes: local ? minutesOf(local) : null,
+    };
+  });
+  const when = (p: Placed) => p.minutes ?? ANCHOR[p.moment!];
+
+  // Main meals: one block each, at the earliest time among its entries.
+  type Block = { minutes: number; moment: Moment; items: Placed[] };
+  const blocks: Block[] = [];
+  for (const m of ["breakfast", "lunch", "dinner"] as const) {
+    const items = placed.filter((p) => p.moment === m);
+    if (items.length) blocks.push({ minutes: Math.min(...items.map(when)), moment: m, items });
   }
-  return [...MOMENTS, null]
-    .filter((m) => byMoment.has(m))
-    .map((moment) => {
-      const list = byMoment.get(moment)!;
-      return {
-        moment,
-        entries: list,
-        eatenKcal: list
-          .filter((e) => e.status === "eaten")
-          .reduce((sum, e) => sum.plus(e.totals.nutrients.kcal), new Big(0))
-          .toString(),
-      };
+  // Snacks: each one its own block at its own time.
+  for (const p of placed.filter((x) => x.moment === "snack"))
+    blocks.push({ minutes: when(p), moment: "snack", items: [p] });
+  // Stable sort: equal times keep breakfast/lunch/dinner before snacks.
+  blocks.sort((a, b) => a.minutes - b.minutes);
+
+  const groups: MomentGroup<E>[] = [];
+  const sum = (list: E[]) =>
+    list
+      .filter((e) => e.status === "eaten")
+      .reduce((total, e) => total.plus(e.totals.nutrients.kcal), new Big(0))
+      .toString();
+  let snacks = 0;
+  let lastMeal: Moment | null = null;
+  for (const b of blocks) {
+    if (b.moment !== "snack") lastMeal = b.moment;
+    const last = groups[groups.length - 1];
+    if (b.moment === "snack" && last?.moment === "snack") {
+      last.entries.push(...b.items.map((p) => p.e));
+      continue;
+    }
+    groups.push({
+      key: b.moment === "snack" ? `snack-${snacks++}` : b.moment,
+      moment: b.moment,
+      part: b.moment === "snack" ? snackPart(b.minutes, lastMeal) : null,
+      entries: b.items.map((p) => p.e),
+      eatenKcal: "0",
     });
+  }
+  const none = placed.filter((p) => p.moment === null).map((p) => p.e);
+  if (none.length)
+    groups.push({ key: "none", moment: null, part: null, entries: none, eatenKcal: "0" });
+  return groups.map((g) => ({ ...g, eatenKcal: sum(g.entries) }));
 }
