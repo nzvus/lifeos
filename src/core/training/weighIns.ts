@@ -11,6 +11,9 @@
  *   standard   fasted, after the toilet, in the morning: reliability 1
  *   unknown    nothing said and nothing derived against it: 0.75
  *   each clue  multiplies it (below), never under 0.25
+ *   implausible  too far from the last plausible weigh-in to be water
+ *              (2026-10-08: 86.00 typed for 76.00): 0.02, so the trend
+ *              and the calibration all but ignore it until it is fixed
  *
  * The trend is an exponentially smoothed weight (Hacker's Diet: 10 % a
  * day), each weigh-in pulling by its reliability and the days since the
@@ -27,7 +30,8 @@ export type WeighInClue =
   | "carbs_up"
   | "carbs_down"
   | "salt_up"
-  | "short_night";
+  | "short_night"
+  | "implausible";
 
 /** What lowers a weigh-in's reliability, as a factor. */
 const CLUE_FACTOR: Record<WeighInClue, number> = {
@@ -39,7 +43,9 @@ const CLUE_FACTOR: Record<WeighInClue, number> = {
   carbs_down: 0.8,
   salt_up: 0.85,
   short_night: 0.9,
+  implausible: 1, // not a factor: sets the reliability to IMPLAUSIBLE
 };
+const IMPLAUSIBLE = 0.02;
 const UNKNOWN = 0.75;
 const FLOOR = 0.25;
 /** kcal eaten before the scale that count as "after food" (a coffee doesn't). */
@@ -67,6 +73,8 @@ export type WeighInFacts = {
   usual: { carbs: number; salt: number } | null;
   /** ADR-0031: hours slept the night before the weigh-in, if logged. */
   sleptHours?: number | null;
+  /** Too far from the last plausible weigh-in (implausibleWeighIns). */
+  implausible?: boolean;
 };
 
 export type WeighInReading = { clues: WeighInClue[]; reliability: number };
@@ -84,6 +92,8 @@ export function readWeighIn(f: WeighInFacts): WeighInReading {
   if (f.yesterday && f.usual && f.usual.salt > 0)
     if (f.yesterday.salt > f.usual.salt * (1 + SWING)) clues.push("salt_up");
   if (f.sleptHours != null && f.sleptHours < SHORT_NIGHT_H) clues.push("short_night");
+  if (f.implausible)
+    return { clues: ["implausible", ...clues], reliability: IMPLAUSIBLE };
 
   // Standard only when the user said so; otherwise "unknown" is the start.
   const standard =
@@ -91,6 +101,35 @@ export function readWeighIn(f: WeighInFacts): WeighInReading {
   const start = standard ? 1 : UNKNOWN;
   const reliability = clues.reduce((r, c) => r * CLUE_FACTOR[c], start);
   return { clues, reliability: Math.max(FLOOR, Math.round(reliability * 100) / 100) };
+}
+
+/**
+ * How far a weigh-in may be from the last plausible one: water moves the
+ * scale 1–2 kg a day, so 2.5 kg (or 3 % of the weight, if more), plus
+ * 0.2 kg for each further day between them (real change over time).
+ */
+export function plausibleGap(lastKg: number, days: number): number {
+  return Math.max(2.5, lastKg * 0.03) + 0.2 * Math.max(0, days - 1);
+}
+
+/**
+ * The weigh-ins (oldest first) that are too far from the last plausible
+ * one before them. The first is the reference; a flagged one never becomes
+ * the reference, so the weigh-in after a typo is compared with the one
+ * before it.
+ */
+export function implausibleWeighIns(
+  points: readonly { day: string; kg: number }[],
+): boolean[] {
+  let ref: { day: string; kg: number } | null = null;
+  return points.map((p) => {
+    if (ref) {
+      const days = Math.max(1, dayIndex(p.day) - dayIndex(ref.day));
+      if (Math.abs(p.kg - ref.kg) > plausibleGap(ref.kg, days)) return true;
+    }
+    ref = p;
+    return false;
+  });
 }
 
 const DAILY = 0.1;

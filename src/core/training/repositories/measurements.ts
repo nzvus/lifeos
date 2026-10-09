@@ -11,6 +11,7 @@ import { instantFor } from "../../shared/dates";
 import { live } from "../../shared/trash";
 import { fail, ok, type Result } from "../../shared/result";
 import type { MeasurementInput } from "../validation";
+import { implausibleWeighIns } from "../weighIns";
 
 export type WeighInContext = Omit<typeof weighInContext.$inferSelect, "userId">;
 export type Measurement = typeof bodyMeasurements.$inferSelect & {
@@ -123,4 +124,21 @@ export async function weightOn(
     .orderBy(desc(bodyMeasurements.day), desc(bodyMeasurements.createdAt))
     .limit(1);
   return row?.weightKg ?? null;
+}
+
+/**
+ * Whether `kg` on `day` is too far from the last plausible weigh-in up to
+ * that day (core/training/weighIns implausibleWeighIns): the form asks to
+ * confirm before saving it (2026-10-08: 86.00 typed for 76.00).
+ */
+export async function isImplausibleWeight(
+  db: Db,
+  owner: Owner,
+  day: string,
+  kg: number,
+): Promise<boolean> {
+  const before = (await listMeasurements(db, owner))
+    .filter((m) => m.weightKg !== null && m.day <= day)
+    .map((m) => ({ day: m.day, kg: Number(m.weightKg) }));
+  return implausibleWeighIns([...before, { day, kg }]).at(-1)!;
 }

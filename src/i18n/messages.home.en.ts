@@ -412,6 +412,8 @@ export const errorsEn = {
   not_editable: "This entry has no ingredients to edit (an estimate or a portion).",
   future_day: "That day has not come yet: it can only be planned.",
   past_day: "That day has passed: only today and later can be changed.",
+  implausible_weight:
+    "Far from your last weigh-ins: water moves the scale 1–2 kg a day. Check the number; if it is right, press Add again.",
 };
 
 export const entryEditEn = {
@@ -509,6 +511,8 @@ export const bodyEn = {
     carbs_down: "fewer carbs than usual yesterday: likely water lost",
     salt_up: "more salt than usual yesterday: likely water",
     short_night: "a short night",
+    implausible:
+      "too far from your last weigh-ins to be water — a typo? Ignored by the trend until you fix it",
   },
 };
 

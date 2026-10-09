@@ -35,6 +35,7 @@ export const ERROR_CODES = [
   "not_editable",
   "future_day",
   "past_day",
+  "implausible_weight",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 

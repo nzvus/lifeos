@@ -21,6 +21,7 @@ import {
 } from "@/core/training/repositories/exercises";
 import {
   addMeasurement,
+  isImplausibleWeight,
   deleteMeasurement,
   restoreMeasurement,
 } from "@/core/training/repositories/measurements";
@@ -277,6 +278,14 @@ export async function addMeasurementAction(
   const values = formToObject(formData);
   const input = parseInput(measurementInput, values);
   if (!input.ok) return { status: "error", errors: input.errors, values };
+  // A weight far from the last ones is saved only when sent again unchanged.
+  const kg = input.value.weightKg;
+  if (
+    kg !== null &&
+    values.confirmWeight !== values.weightKg &&
+    (await isImplausibleWeight(getDb(), owner, input.value.day, Number(kg)))
+  )
+    return { status: "error", errors: { weightKg: "implausible_weight" }, values };
   await addMeasurement(getDb(), owner, input.value, settings.timezone);
   revalidatePath("/", "layout"); // burn estimates everywhere
   return { status: "saved" };

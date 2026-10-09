@@ -418,6 +418,8 @@ export const errorsIt: Messages["errors"] = {
   not_editable: "Questa voce non ha ingredienti da modificare (stima o porzione).",
   future_day: "È un giorno che non è ancora arrivato: puoi solo pianificarlo.",
   past_day: "È un giorno passato: si cambiano solo oggi e i giorni dopo.",
+  implausible_weight:
+    "Molto lontano dalle ultime pesate: l'acqua sposta la bilancia di 1–2 kg al giorno. Controlla il numero; se è giusto, premi di nuovo Aggiungi.",
 };
 
 export const entryEditIt: Messages["entryEdit"] = {
@@ -515,6 +517,8 @@ export const bodyIt: Messages["body"] = {
     carbs_down: "ieri meno carboidrati del solito: probabile acqua persa",
     salt_up: "ieri più sale del solito: probabile acqua",
     short_night: "notte corta",
+    implausible:
+      "troppo lontana dalle ultime pesate per essere acqua — un errore di battitura? Ignorata dalla tendenza finché non la correggi",
   },
 };
 
