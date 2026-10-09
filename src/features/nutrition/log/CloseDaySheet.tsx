@@ -40,20 +40,21 @@ export function CloseDaySheet({
       toast({ message: r.ok ? done : (r.message ?? "") });
       router.refresh();
     });
+  // The hint sits under its button: buttons have a fixed height.
   const option = (state: State, icon: React.ReactNode, label: string, hint: string) => (
-    <button
-      type="button"
-      disabled={pending}
-      aria-pressed={closure === state}
-      onClick={() => set(state, label)}
-      className={`${buttonClass({ variant: closure === state ? "primary" : "secondary" })} flex-col items-start text-left`}
-    >
-      <span className="inline-flex items-center gap-1.5">
+    <div className="flex flex-col items-start gap-1">
+      <button
+        type="button"
+        disabled={pending}
+        aria-pressed={closure === state}
+        onClick={() => set(state, label)}
+        className={buttonClass({ variant: closure === state ? "primary" : "secondary" })}
+      >
         {icon}
         {label}
-      </span>
-      <span className="text-meta font-normal">{hint}</span>
-    </button>
+      </button>
+      <span className="text-meta text-muted">{hint}</span>
+    </div>
   );
   return (
     <Sheet
@@ -63,7 +64,7 @@ export function CloseDaySheet({
       closeLabel={t.actions.close}
     >
       <p className="text-meta text-muted">{c.why}</p>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         {option(
           "complete",
           <ClipboardCheck size={18} aria-hidden="true" />,
