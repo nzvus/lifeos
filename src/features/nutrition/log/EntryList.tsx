@@ -108,8 +108,8 @@ export function EntryList({
     <div className="flex flex-col gap-3">
       {groupByMoment(day.entries, timeZone, bounds).map((group) => (
         <Collapsible
-          key={group.moment ?? "none"}
-          id={`day-moment-${group.moment ?? "none"}`}
+          key={group.key}
+          id={`day-moment-${group.key}`}
           inset
           title={
             <span
@@ -118,7 +118,11 @@ export function EntryList({
               }`}
             >
               <MomentIcon moment={group.moment} />
-              {group.moment ? t.moments.names[group.moment] : t.moments.none}
+              {group.part
+                ? t.moments.snackParts[group.part]
+                : group.moment
+                  ? t.moments.names[group.moment]
+                  : t.moments.none}
             </span>
           }
           aside={

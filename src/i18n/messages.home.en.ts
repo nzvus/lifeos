@@ -196,7 +196,8 @@ export const energyEn = {
   goalSurplus: "a {kcal} kcal surplus",
   goalEat: "Eat {kcal} kcal · you spend ~{spent} kcal",
   goalFixed: "Target {kcal} kcal (fixed)",
-  goalCapped: "Carbs stop at {carbs} g and fat at 35 % of the energy: the target is lowered, so the deficit is larger than asked.",
+  goalCapped:
+    "Carbs stop at {carbs} g and fat at 35 % of the energy: the target is lowered, so the deficit is larger than asked.",
   goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
@@ -337,7 +338,8 @@ export const barcodeEn = {
   lookup: "Look up the code",
   found: "Values from Open Food Facts: check them against the label before saving.",
   missing: "Code {code} is not on Open Food Facts: fill it in by hand.",
-  invalid: "A barcode has 6 to 14 digits.",
+  invalid:
+    "Not a valid barcode: 8, 12, 13 or 14 digits, and the last one must check out. Check the digits.",
   noCamera: "This browser can't read codes from the camera: type the digits.",
   hint: "Open Food Facts is a free, open database of food products.",
 };
@@ -410,6 +412,8 @@ export const errorsEn = {
   not_editable: "This entry has no ingredients to edit (an estimate or a portion).",
   future_day: "That day has not come yet: it can only be planned.",
   past_day: "That day has passed: only today and later can be changed.",
+  implausible_weight:
+    "Far from your last weigh-ins: water moves the scale 1–2 kg a day. Check the number; if it is right, press Add again.",
 };
 
 export const entryEditEn = {
@@ -507,6 +511,8 @@ export const bodyEn = {
     carbs_down: "fewer carbs than usual yesterday: likely water lost",
     salt_up: "more salt than usual yesterday: likely water",
     short_night: "a short night",
+    implausible:
+      "too far from your last weigh-ins to be water — a typo? Ignored by the trend until you fix it",
   },
 };
 
@@ -736,6 +742,8 @@ export const packsEn = {
   invalid: "The file is not a valid pack (field {field}).",
   notJson: "The file is not readable JSON.",
   tooBig: "File too large (2 MB at most).",
+  isExport:
+    "This is a full export, not a pack: an export replaces your data and is restored with the replace procedure (docs/runbooks/replace-data.md), not from here.",
   kinds: {
     exercises: "exercises: {n}",
     routines: "routines: {n}",

@@ -198,7 +198,8 @@ export const energyIt: Messages["energy"] = {
   goalSurplus: "surplus di {kcal} kcal",
   goalEat: "Mangia {kcal} kcal · consumi ~{spent} kcal",
   goalFixed: "Obiettivo {kcal} kcal (fisso)",
-  goalCapped: "Carboidrati fermi a {carbs} g e grassi al 35 % dell'energia: il target si abbassa, quindi il deficit è più grande del voluto.",
+  goalCapped:
+    "Carboidrati fermi a {carbs} g e grassi al 35 % dell'energia: il target si abbassa, quindi il deficit è più grande del voluto.",
   goalCustom: "Obiettivo personalizzato",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
   formulas: {
@@ -342,7 +343,8 @@ export const barcodeIt: Messages["barcode"] = {
   lookup: "Cerca il codice",
   found: "Valori presi da Open Food Facts: controllali con l'etichetta prima di salvare.",
   missing: "Il codice {code} non è su Open Food Facts: compila a mano.",
-  invalid: "Un codice a barre ha da 6 a 14 cifre.",
+  invalid:
+    "Codice non valido: 8, 12, 13 o 14 cifre, con l'ultima di controllo giusta. Ricontrolla le cifre.",
   noCamera: "Questo browser non legge i codici dalla fotocamera: scrivi le cifre.",
   hint: "Open Food Facts è un archivio libero e gratuito di prodotti alimentari.",
 };
@@ -416,6 +418,8 @@ export const errorsIt: Messages["errors"] = {
   not_editable: "Questa voce non ha ingredienti da modificare (stima o porzione).",
   future_day: "È un giorno che non è ancora arrivato: puoi solo pianificarlo.",
   past_day: "È un giorno passato: si cambiano solo oggi e i giorni dopo.",
+  implausible_weight:
+    "Molto lontano dalle ultime pesate: l'acqua sposta la bilancia di 1–2 kg al giorno. Controlla il numero; se è giusto, premi di nuovo Aggiungi.",
 };
 
 export const entryEditIt: Messages["entryEdit"] = {
@@ -513,6 +517,8 @@ export const bodyIt: Messages["body"] = {
     carbs_down: "ieri meno carboidrati del solito: probabile acqua persa",
     salt_up: "ieri più sale del solito: probabile acqua",
     short_night: "notte corta",
+    implausible:
+      "troppo lontana dalle ultime pesate per essere acqua — un errore di battitura? Ignorata dalla tendenza finché non la correggi",
   },
 };
 
@@ -744,6 +750,8 @@ export const packsIt: Messages["packs"] = {
   invalid: "Il file non è un pacchetto valido (campo {field}).",
   notJson: "Il file non è un JSON leggibile.",
   tooBig: "File troppo grande (massimo 2 MB).",
+  isExport:
+    "Questo è un export completo, non un pacchetto: un export sostituisce i tuoi dati e si ripristina con la procedura di sostituzione (docs/runbooks/replace-data.md), non da qui.",
   kinds: {
     exercises: "esercizi: {n}",
     routines: "schede: {n}",

@@ -28,13 +28,17 @@ export function FoodSummary({
       {groups.map((g) => {
         const eaten = g.entries.some((e) => e.status === "eaten");
         return (
-          <li key={g.moment ?? "none"} className="flex items-center gap-3">
+          <li key={g.key} className="flex items-center gap-3">
             <MomentIcon moment={g.moment} size={20} />
             <div className="flex min-w-0 flex-1 flex-col">
               <span
                 className={`font-display text-item font-semibold ${(g.moment && MOMENT_TEXT[g.moment]) || ""}`}
               >
-                {g.moment ? t.moments.names[g.moment] : t.moments.none}
+                {g.part
+                  ? t.moments.snackParts[g.part]
+                  : g.moment
+                    ? t.moments.names[g.moment]
+                    : t.moments.none}
               </span>
               <span className="truncate text-meta text-muted">
                 {g.entries.map((e) => e.label).join(", ")}

@@ -3,6 +3,7 @@
  * receipt from its text or a photo, reviewed line by line, then saved as
  * one movement with its lines (ADR-0036).
  */
+import { env } from "@/app/_server/env";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { ensureCategories } from "@/core/money/repositories/money";
@@ -33,7 +34,7 @@ export default async function NewReceiptPage() {
       />
       <ReceiptEditor
         save={saveReceiptAction}
-        read={readReceiptAction}
+        read={env().ASSISTANT_ENABLED === "true" ? readReceiptAction : undefined}
         categories={categoryOptions(categories)}
         products={products.map((p) => ({ id: p.id, name: p.name }))}
         aliases={aliases}

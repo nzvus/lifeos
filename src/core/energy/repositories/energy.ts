@@ -50,6 +50,7 @@ import {
 import type { ActivityInput, BodyInput } from "../validation";
 import {
   bodyIndices,
+  implausibleWeighIns,
   readWeighIn,
   weightTrend,
   type WeighInReading,
@@ -343,9 +344,20 @@ async function weighInReadings(
   const slept = new Map(nights.map((n) => [n.day, n.hours]));
   const byDay = new Map(history.map((h) => [h.day, h]));
   const zone = s?.timezone ?? "UTC";
+  // Plausibility is judged over every weigh-in, not just the window's.
+  const all = measurements
+    .filter((m) => m.weightKg !== null)
+    .sort((a, b) => a.day.localeCompare(b.day));
+  const flags = implausibleWeighIns(
+    all.map((m) => ({ day: m.day, kg: Number(m.weightKg) })),
+  );
+  const implausible = new Set(all.filter((_, i) => flags[i]).map((m) => m.id));
   return weighed.map((m) => ({
     m,
-    ...readWeighIn(weighInFacts(m, byDay, sessions, zone, slept)),
+    ...readWeighIn({
+      ...weighInFacts(m, byDay, sessions, zone, slept),
+      implausible: implausible.has(m.id),
+    }),
   }));
 }
 

@@ -3,9 +3,11 @@
  * (ADR-0036). PURE.
  *
  *   parseReceipt   reads Italian receipts without a model: "DESCRIPTION
- *                  1,29", quantity rows ("2 x 1,29"), weights ("0,512 kg x
- *                  2,99"), discounts (a negative amount, or SCONTO…) that
- *                  lower the line above, the TOTAL, the date, the shop
+ *                  1,29", quantity rows before the item ("2 x 1,29"),
+ *                  weights ("0,512 kg x 2,99"), Lidl's quantity row AFTER
+ *                  the item ("Cad 1,59 Pz. 5"), discounts (a negative
+ *                  amount, or SCONTO…) that lower the line above, the
+ *                  TOTAL, the date, the shop (a known chain's name first)
  *   aliasKey       how a receipt description is remembered for a product
  *   receiptPrompt / parseModelReceipt
  *                  the optional model pass (the user's key, ADR-0018): the
@@ -36,7 +38,35 @@ const AMOUNT = /(-?\d{1,5}[.,]\d{2})\s*(?:€|EUR)?\s*[A-Z*]{0,2}\s*$/i;
 const QTY =
   /^\s*(\d+(?:[.,]\d{1,3})?)\s*(?:kg|pz|n\.?)?\s*[xX*]\s*(\d{1,5}[.,]\d{2,3})(?:\s*(?:€|EUR))?(?:\s*\/\s*kg)?\s*$/i;
 const SKIP =
-  /\b(sub\s*totale|totale|resto|contant[ei]|pagamento|bancomat|carta di credito|carta di debito|pagato|iva|imponibile|articoli|documento|commerciale|scontrino|cassiere|operatore|transazione|grazie|arrivederci|p\.?\s*iva|tel\.?|www\.|matricola|non riscosso)\b/i;
+  /\b(sub\s*totale|totale|resto|contant[ei]|pagamento|bancomat|carta di credito|carta di debito|pagato|iva|imponibile|articoli|documento|commerciale|scontrino|cassiere|operatore|transazione|grazie|arrivederci|p\.?\s*iva|tel\.?|www\.|matricola|non riscosso|valore sconti|totale sconti|riepilogo|descrizione)\b/i;
+/** Lidl: "Cad 1,59 Pz. 5" under its item (the unit price and the pieces). */
+const QTY_AFTER = /^\s*cad\.?\s*\d{1,5}[.,]\d{2}\s*pz\.?\s*(\d+(?:[.,]\d{1,3})?)\s*$/i;
+/** Chains whose name may appear anywhere in the header (not on the first row). */
+const CHAINS = [
+  "Lidl",
+  "Esselunga",
+  "Coop",
+  "Conad",
+  "Carrefour",
+  "Eurospin",
+  "Aldi",
+  "Penny",
+  "Pam",
+  "Despar",
+  "Interspar",
+  "Eurospar",
+  "Bennet",
+  "Tigros",
+  "Iper",
+  "Unes",
+  "Il Gigante",
+  "Crai",
+  "Sigma",
+  "NaturaSì",
+  "Famila",
+  "Todis",
+  "MD",
+] as const;
 const DISCOUNT = /\b(sconto|sc\.|promo|offerta|buono|coupon|risparmio)\b/i;
 const TOTAL = /\btotale(?:\s+complessivo|\s+euro)?\b/i;
 const DATE = /\b(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})\b/;
@@ -68,6 +98,12 @@ export function parseReceipt(text: string): ParsedReceipt {
       const iso = `${year}-${m!.padStart(2, "0")}-${d!.padStart(2, "0")}`;
       if (isValidDay(iso)) day = iso;
     }
+    const after = row.match(QTY_AFTER);
+    if (after) {
+      const last = lines.at(-1);
+      if (last) last.quantity = parseDecimalInput(after[1]!);
+      continue;
+    }
     const qty = row.match(QTY);
     if (qty) {
       pendingQty = parseDecimalInput(qty[1]!);
@@ -97,10 +133,15 @@ export function parseReceipt(text: string): ParsedReceipt {
     lines.push({ description, quantity: pendingQty, amountCents: value });
     pendingQty = null;
   }
+  const chain = CHAINS.find((c) =>
+    rows.some((r) => new RegExp(`(^|[^\\p{L}])${c}([^\\p{L}]|$)`, "iu").test(r)),
+  );
   const shop =
+    chain ??
     rows.find(
       (r) => /[a-z]{3}/i.test(r) && !AMOUNT.test(r) && !SKIP.test(r) && !DATE.test(r),
-    ) ?? "";
+    ) ??
+    "";
   return { shop: shop.slice(0, 80), day, lines, totalCents };
 }
 

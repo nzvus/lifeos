@@ -86,6 +86,14 @@ export function MeasurementForm({ action, today, now, count, t }: Props) {
         className="flex w-24 flex-col gap-1"
       />
       <input type="hidden" name="context" value="1" />
+      {/* Sent again unchanged, a weight far from the last ones is saved. */}
+      {state.status === "error" && state.errors.weightKg === "implausible_weight" && (
+        <input
+          type="hidden"
+          name="confirmWeight"
+          value={valueOf(state, "weightKg", "")}
+        />
+      )}
       <fieldset className="flex basis-full flex-wrap gap-x-4 gap-y-2 text-meta">
         <legend className="mb-1 font-semibold">{b.how}</legend>
         {toggle("fasted", b.fasted, morning)}

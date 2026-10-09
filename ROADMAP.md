@@ -20,6 +20,7 @@
 - Template meta-loop: reset `ai-native-starter` to a clean template; record what S00–S12 taught in its TEMPLATE-CHANGELOG
 
 ## Open items owned by the developer
+- **Your data (2026-10-09):** in the app, weigh-in 10-08 → 76.00 kg, delete the duplicate Push of 09-19, import `sweetburger-2026-10-08.lifeos-pack.json` from Settings and tick it, tick the gelato of 10-08; or the full replace (`lifeos-export-2026-10-09-aligned.CHANGES.md`).
 - **#147 (migration 0027):** `gh workflow run migrate.yml --ref s66-gym-mode-timing -f confirm="migrate production"`, then merge.
 - **Try on the phone:** the gym clock (rest → overtime → Go → set → Done), resuming after closing the app, one side at a time, the warm-up ramp; Money (a movement from Today's "+", a receipt pasted or photographed); the eye that takes a planned dish out of the total.
 - **Assistant:** `ASSISTANT_KEY_SECRET` on Vercel, the OpenRouter key in Settings; "Read with the AI" on a receipt is untested with a real key.
@@ -27,14 +28,15 @@
 - **Security:** rotate the production DB password pasted on 2026-09-30, unless already done.
 - **Decisions:** ADR-0007 still `proposed`; "What I learned" missing in most ADRs.
 
-## Next sprint: S13 — Cleanup and the shape of the app (ADR-0038)
-1. A map of every page, widget and feature; unify what repeats (UI pieces and whole features).
-2. Navigation: Body · Food · (Today) · Money · Mind; Today as the hub with per-area scores; old URLs redirect.
-3. Density setting (compact / comfortable) and icon-first widgets with one ⓘ legend; bars full width.
-4. Drinks and supplements as food with active compounds; caffeine and creatine levels in sessions and trends.
-5. Mind: diary, mood of the day, goals (short/long), habits, hobbies, time planning.
-6. Scores and gamification over bands (floor / good / ceiling), day → week → month.
-Also open from ADR-0037: the done-session editor folds into the gym screen; per-exercise rest and density in Progress.
+## Next: the refactor (plan of 2026-10-09; replaces S13)
+The developer asked for the app to be reviewed as a whole (`Projects-artifacts/LIFEOS/considerations.txt`); the analysis and plan are in `Projects-artifacts/LIFEOS/PLAN-lifeos-refactor-2026-10-09.md` (Syncthing, outside the repo). Recommendations D1–D5 accepted on 2026-10-09 ("procediamo"): refactor in phases, no new areas until Phase 6, adaptive expenditure, a weekly budget, phases in this order. D6 (which PRs to walk through) is the developer's.
+0. **Phase 0 — measured bugs (this PR):** snacks by time; Lidl receipts; barcode in every browser; implausible weigh-ins; assistant off (`ASSISTANT_ENABLED`).
+1. One target engine in `core/` (`dayView`): one number per day everywhere; computed targets frozen as numbers.
+2. Adaptive expenditure from intake + trend weight; goal as % of body weight a week; calorie floor; weekly check-in.
+3. Day programs: timed meal slots (pre/post-workout, pre-sleep), the week's calorie distribution, scores in time context (§2.2b), fat from a floor and carbs the rest (E10–E12).
+4. Training: RIR per set, RIR-gated progression, volume per muscle (indirect ½), rest guidance, readiness.
+5. Food identity: food ↔ product (brand, barcode) ↔ purchase ↔ receipt line; one price history; pantry locations and best-before; micronutrients and fibre types with amounts (decision pending).
+6. UI: one `NutrientMeter`, one timeline for Today.
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

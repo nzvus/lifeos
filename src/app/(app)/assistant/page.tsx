@@ -4,6 +4,7 @@
  * chat shows: texts, which tools were used, the changes with Undo, and a
  * pending confirmation (until a later note answers it).
  */
+import { notFound } from "next/navigation";
 import { MessagesSquare, Plus } from "lucide-react";
 import Link from "next/link";
 import { env } from "@/app/_server/env";
@@ -36,6 +37,7 @@ type Props = { searchParams: Promise<{ c?: string }> };
 
 export default async function AssistantPage({ searchParams }: Props) {
   const { owner, settings, t } = await requireContext();
+  if (env().ASSISTANT_ENABLED !== "true") notFound();
   const a = t.assistant;
   const db = getDb();
   const { c } = await searchParams;

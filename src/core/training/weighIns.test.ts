@@ -1,6 +1,13 @@
 /** Tests for core/training/weighIns.ts (ADR-0027). */
 import { describe, expect, it } from "vitest";
-import { bodyIndices, readWeighIn, weightTrend, type WeighInFacts } from "./weighIns";
+import {
+  bodyIndices,
+  implausibleWeighIns,
+  plausibleGap,
+  readWeighIn,
+  type WeighInFacts,
+  weightTrend,
+} from "./weighIns";
 
 const facts = (f: Partial<WeighInFacts> = {}): WeighInFacts => ({
   said: null,
@@ -110,5 +117,40 @@ describe("bodyIndices", () => {
     expect(
       bodyIndices({ kg: 96, heightCm: 178, waistCm: null, bodyFatPct: null }).bmi,
     ).toEqual({ value: 30.3, category: "obese" });
+  });
+});
+
+describe("implausibleWeighIns", () => {
+  it("flags the 2026-10-08 typo, and compares the next weigh-in with the one before it", () => {
+    const flags = implausibleWeighIns([
+      { day: "2026-10-06", kg: 75.4 },
+      { day: "2026-10-07", kg: 76.4 },
+      { day: "2026-10-08", kg: 86.0 }, // typed for 76.00
+      { day: "2026-10-09", kg: 76.2 },
+    ]);
+    expect(flags).toEqual([false, false, true, false]);
+  });
+
+  it("accepts real change over a longer gap", () => {
+    expect(
+      implausibleWeighIns([
+        { day: "2026-01-01", kg: 80 },
+        { day: "2026-02-15", kg: 74 },
+      ]),
+    ).toEqual([false, false]);
+    expect(plausibleGap(76, 1)).toBe(2.5);
+  });
+
+  it("reads a flagged weigh-in as all but ignored", () => {
+    const r = readWeighIn({
+      said: { fasted: true, afterToilet: true, afterTraining: false },
+      hour: 8,
+      ateBeforeKcal: 0,
+      trainedBefore: false,
+      yesterday: null,
+      usual: null,
+      implausible: true,
+    });
+    expect(r).toEqual({ clues: ["implausible"], reliability: 0.02 });
   });
 });
