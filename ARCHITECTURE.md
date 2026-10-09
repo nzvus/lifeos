@@ -30,8 +30,8 @@ src/
                 profiles,trends,pantry}, training/{body,exercises,live,programs,progress,
                 routines,sessions,plan}, money
   core/         db/ (schema: auth, nutrition, training; client), identity/ (Owner,
-                ownedBy), nutrition/, training/, pantry/, money/, energy/, assistant/, trash/,
-                export/, import/, catalog/ (packs), auth/,
+                ownedBy), day/ (a day's targets), nutrition/, training/, pantry/, money/, energy/,
+                assistant/, trash/, export/, import/, catalog/ (packs), auth/,
                 shared/ (validation, search, browse, sorting, dates, trash…), testing/
   ui/           one component per repeated thing: button.ts, Badge, Section, Sheet,
                 SubNav, Collapsible, ListItem, DeleteButton, ActionBar, Toast, …
@@ -108,9 +108,12 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
 - **Auth:** Better Auth, email+password, DB sessions (30 days, 5-min cookie cache), rate
   limits; sign-up with `ALLOW_SIGNUP=true`, by one-use invitation if `SIGNUP_INVITES=true`
   (ADR-0034); `requireContext` per page/action + `Owner`.
-- **Targets:** per day (ADR-0008) fixed / default profile / none; auto maxima; bands (ADR-0023).
+- **Targets:** one engine, `core/day` (ADR-0040): `readDays(from, to)` → `resolveDay` per day,
+  used by Today, the week strip, the Plan, Settings, Trends and the assistant; a day alone is
+  the range [day, day]. Per day (ADR-0008) fixed / default profile / none; auto maxima; bands
+  (ADR-0023; carbs take the rest of the energy, their band reaches the target).
   A day's copy of its type is made only by `writePlan` (profiles.ts), with a dynamic type's
-  parameters. A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done +
+  parameters. A dynamic day (ADR-0014) computes them from `core/energy` (`getEnergyRange`; ranges, done +
   planned; no double counts, ADR-0021; × the accepted calibration, ADR-0020/0026; steps at
   one cost per step, ADR-0032). Weigh-ins carry a reliability (ADR-0027; one far from the last
   plausible weigh-in asks to be confirmed and counts 0.02); sleep feeds day
