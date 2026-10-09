@@ -114,7 +114,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   (ADR-0023; carbs take the rest of the energy, their band reaches the target).
   A day's copy of its type is made only by `writePlan` (profiles.ts), with a dynamic type's
   parameters. A dynamic day (ADR-0014) computes them from `core/energy` (`getEnergyRange`; ranges, done +
-  planned; no double counts, ADR-0021; × the accepted factor, learnt from the whole log and scale, ADR-0041/0026; steps at
+  planned; no double counts, ADR-0021; × the accepted factor, learnt by a Kalman filter over log, closed days and scale, ADR-0041/0042/0026; steps at
   one cost per step, ADR-0032). Weigh-ins carry a reliability (ADR-0027; one far from the last
   plausible weigh-in asks to be confirmed and counts 0.02); sleep feeds day
   quality and trends, not energy (ADR-0031).
