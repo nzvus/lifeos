@@ -116,35 +116,22 @@ describe("dynamicTargets", () => {
       fat: 60,
       carbs: 94,
       fiber: 22,
-      uncapped: null,
     });
     // A surplus for muscle gain.
     expect(dynamicTargets(e, "75", GOAL_PRESETS.gain).kcal).toBe(2326);
   });
 
-  it("carbs stop at the top of their good zone; fat takes the rest, so the deficit holds", () => {
+  it("carbs take the rest, however much: fat is not raised to absorb it (ADR-0040)", () => {
     const e = dayEnergy(body, quiet)!; // midpoint 2076
-    // Maintenance: carbs (2076 − 135×4 − 60×9) ÷ 4 = 249 > a 225 g cap.
-    const t = dynamicTargets(
-      e,
-      "75",
-      { deficitKcal: 0, proteinGPerKg: "1.8", fatGPerKg: "0.8" },
-      225,
-    );
-    // (2076 − 540 − 900) ÷ 9 = 71 g of fat (31 % of the energy): no energy lost.
-    expect(t).toMatchObject({ carbs: 225, fat: 71, kcal: 2076, uncapped: null });
-  });
-
-  it("lowers the energy only when fat would pass 35 % of it", () => {
-    const e = dayEnergy(body, quiet)!; // midpoint 2076
-    const t = dynamicTargets(
-      e,
-      "75",
-      { deficitKcal: 0, proteinGPerKg: "1.8", fatGPerKg: "0.8" },
-      100,
-    );
-    // Fat stops at 35 % of 2076 = 80 g; 540 + 720 + 400 = 1660.
-    expect(t).toMatchObject({ carbs: 100, fat: 80, kcal: 1660, uncapped: 2076 });
+    const t = dynamicTargets(e, "75", {
+      deficitKcal: 0,
+      proteinGPerKg: "1.8",
+      fatGPerKg: "0.8",
+    });
+    // fat = max(0.8 × 75 = 60, 25 % of 2076 ÷ 9 = 58) = 60; carbs = (2076 − 540 − 540) ÷ 4 = 249,
+    // above a rest day's 3 g/kg (225): before ADR-0040 fat rose to 71 g instead.
+    expect(t).toMatchObject({ kcal: 2076, protein: 135, fat: 60, carbs: 249 });
+    expect(t.protein * 4 + t.fat * 9 + t.carbs * 4).toBeCloseTo(t.kcal, -1);
   });
 
   it("fat never under 25 % of the energy (the health minimum is 20 %)", () => {

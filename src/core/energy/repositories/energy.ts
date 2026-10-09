@@ -8,7 +8,7 @@
  *
  * Tested in: energy.test.ts.
  */
-import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { and, desc, gte, lte } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import type { SlotItem } from "../../training/program";
 import { dayActivity, energyCorrections, userSettings } from "../../db/schema";
@@ -71,11 +71,26 @@ export type DayEnergyView = {
  * ADR-0026), the one in settings, as before.
  */
 async function correctionOn(db: Db, owner: Owner, day: string, legacy: string | null) {
-  const rows = await db
+  return correctionFrom(await listCorrections(db, owner), day, legacy);
+}
+
+type CorrectionRow = { day: string; factor: string };
+
+/** Accepted corrections, newest first. */
+function listCorrections(db: Db, owner: Owner): Promise<CorrectionRow[]> {
+  return db
     .select({ day: energyCorrections.sinceDay, factor: energyCorrections.factor })
     .from(energyCorrections)
     .where(ownedBy(energyCorrections, owner))
     .orderBy(desc(energyCorrections.sinceDay));
+}
+
+/** correctionOn, over rows already read. */
+function correctionFrom(
+  rows: readonly CorrectionRow[],
+  day: string,
+  legacy: string | null,
+) {
   if (!rows.length) return Number(legacy ?? 1);
   return Number(rows.find((r) => r.day <= day)?.factor ?? 1);
 }
@@ -124,17 +139,19 @@ export async function setDayActivity(
 
 type ActivityRow = typeof dayActivity.$inferSelect;
 
-/** One exercise as a planned session, with its sets of the last time it was done. */
-async function exerciseAsPlanned(
-  db: Db,
-  owner: Owner,
-  day: string,
+type Exercises = Awaited<ReturnType<typeof listExercises>>;
+type Routines = Awaited<ReturnType<typeof listRoutines>>;
+type Sessions = Awaited<ReturnType<typeof listSessions>>;
+
+/**
+ * One exercise as a planned session, with its sets of the last time it was
+ * done (`history`: the sessions of the year before, oldest first).
+ */
+function exerciseAsPlanned(
+  exercises: Exercises,
+  history: Sessions,
   exerciseId: string,
-): Promise<SessionRow | null> {
-  const [exercises, history] = await Promise.all([
-    listExercises(db, owner),
-    listSessions(db, owner, addDays(day, -365), addDays(day, -1)),
-  ]);
+): SessionRow | null {
   const exercise = exercises.find((e) => e.id === exerciseId);
   if (!exercise) return null;
   const last = [...history]
@@ -161,15 +178,11 @@ async function exerciseAsPlanned(
 }
 
 /** A routine as a planned session with its default sets (for the energy only). */
-async function routineAsPlanned(
-  db: Db,
-  owner: Owner,
+function routineAsPlanned(
+  routines: Routines,
+  exercises: Exercises,
   routineId: string,
-): Promise<SessionRow | null> {
-  const [routines, exercises] = await Promise.all([
-    listRoutines(db, owner),
-    listExercises(db, owner),
-  ]);
+): SessionRow | null {
   const routine = routines.find((r) => r.id === routineId);
   if (!routine) return null;
   const kindOf = new Map(exercises.map((e) => [e.id, e.kind]));
@@ -240,31 +253,98 @@ export async function getDayEnergy(
    *  counted as planned when the day has no session of it yet. */
   programSlot?: { items: readonly SlotItem[] } | null,
 ): Promise<DayEnergyView> {
-  const [body, [act], sessions, measurements] = await Promise.all([
-    getBody(db, owner, day),
-    db
-      .select()
-      .from(dayActivity)
-      .where(and(ownedBy(dayActivity, owner), eq(dayActivity.day, day))),
-    listSessions(db, owner, day, day),
-    listMeasurements(db, owner),
-  ]);
-  const kg = weightAt(measurements, day);
-  const all: SessionRow[] = [...sessions];
-  for (const it of programSlot?.items ?? []) {
-    const done = it.routineId
-      ? sessions.some((x) => x.routineId === it.routineId)
-      : sessions.some((x) => x.exercises.some((e) => e.exerciseId === it.exerciseId));
-    if (done) continue;
-    const pseudo = it.routineId
-      ? await routineAsPlanned(db, owner, it.routineId)
-      : it.exerciseId
-        ? await exerciseAsPlanned(db, owner, day, it.exerciseId)
-        : null;
-    if (pseudo) all.push(pseudo);
+  const slots = programSlot ? new Map([[day, programSlot]]) : undefined;
+  return (await getEnergyRange(db, owner, day, day, slots)).get(day)!;
+}
+
+/** What a program puts on each day (from today on), by day. */
+export type SlotsByDay = ReadonlyMap<string, { items: readonly SlotItem[] }>;
+
+/**
+ * Every day of [from, to] as getDayEnergy reads it, with a handful of range
+ * queries instead of several per day (ADR-0040: a day computed alone or in
+ * its week is the same day — getDayEnergy is this, for one day).
+ */
+export async function getEnergyRange(
+  db: Db,
+  owner: Owner,
+  from: string,
+  to: string,
+  slots: SlotsByDay = new Map(),
+): Promise<Map<string, DayEnergyView>> {
+  const items = [...slots.values()].flatMap((s) => s.items);
+  const needRoutines = items.some((it) => it.routineId);
+  const needExercises = items.length > 0;
+  const needHistory = items.some((it) => !it.routineId && it.exerciseId);
+  const [[s], measurements, corrections, acts, sessions, routines, exercises, history] =
+    await Promise.all([
+      db
+        .select({
+          sex: userSettings.sex,
+          birthYear: userSettings.birthYear,
+          heightCm: userSettings.heightCm,
+          correction: userSettings.energyCorrection,
+        })
+        .from(userSettings)
+        .where(ownedBy(userSettings, owner)),
+      listMeasurements(db, owner),
+      listCorrections(db, owner),
+      db
+        .select()
+        .from(dayActivity)
+        .where(
+          and(
+            ownedBy(dayActivity, owner),
+            gte(dayActivity.day, from),
+            lte(dayActivity.day, to),
+          ),
+        ),
+      listSessions(db, owner, from, to),
+      needRoutines ? listRoutines(db, owner) : Promise.resolve([] as Routines),
+      needExercises ? listExercises(db, owner) : Promise.resolve([] as Exercises),
+      needHistory
+        ? listSessions(db, owner, addDays(from, -365), addDays(to, -1))
+        : Promise.resolve([] as Sessions),
+    ]);
+  const out = new Map<string, DayEnergyView>();
+  for (let day = from; day <= to; day = addDays(day, 1)) {
+    const kg = weightAt(measurements, day);
+    const body: Body = {
+      sex: s?.sex === "male" || s?.sex === "female" ? s.sex : null,
+      birthYear: s?.birthYear ?? null,
+      heightCm: s?.heightCm ?? null,
+      weightKg: kg,
+      correction: correctionFrom(corrections, day, s?.correction ?? null),
+    };
+    const own = sessions.filter((x) => x.day === day);
+    const all: SessionRow[] = [...own];
+    for (const it of slots.get(day)?.items ?? []) {
+      const done = it.routineId
+        ? own.some((x) => x.routineId === it.routineId)
+        : own.some((x) => x.exercises.some((e) => e.exerciseId === it.exerciseId));
+      if (done) continue;
+      const before = history.filter((h) => h.day < day && h.day >= addDays(day, -365));
+      const pseudo = it.routineId
+        ? routineAsPlanned(routines, exercises, it.routineId)
+        : it.exerciseId
+          ? exerciseAsPlanned(exercises, before, it.exerciseId)
+          : null;
+      if (pseudo) all.push(pseudo);
+    }
+    const { activity, facts } = factsOf(
+      day,
+      acts.find((a) => a.day === day),
+      all,
+      kg,
+    );
+    out.set(day, {
+      body,
+      missing: missingBody(body),
+      activity,
+      energy: dayEnergy(body, facts),
+    });
   }
-  const { activity, facts } = factsOf(day, act, all, kg);
-  return { body, missing: missingBody(body), activity, energy: dayEnergy(body, facts) };
+  return out;
 }
 
 /**

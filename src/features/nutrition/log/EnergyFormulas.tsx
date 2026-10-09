@@ -19,7 +19,6 @@ type Props = {
     fat: number;
     carbs: number;
     fiber: number;
-    uncapped: number | null;
   } | null;
   locale: Locale;
   t: Messages["energy"];
@@ -107,11 +106,7 @@ export function EnergyFormulas({ energy, dynamic, locale, t }: Props) {
     lines.push(
       {
         label: d > 0 ? f.deficit : d < 0 ? f.surplus : f.maintenance,
-        formula:
-          `${f.midpoint} ${n(Math.round(mid))} ${d >= 0 ? "−" : "+"} ${n(Math.abs(d))}${dynamic.kcal === 1200 ? ` (${f.floor})` : ""}` +
-          (dynamic.uncapped !== null
-            ? ` = ${n(dynamic.uncapped)}; ${fill(f.capped, { carbs: n(dynamic.carbs) })}`
-            : ""),
+        formula: `${f.midpoint} ${n(Math.round(mid))} ${d >= 0 ? "−" : "+"} ${n(Math.abs(d))}${dynamic.kcal === 1200 ? ` (${f.floor})` : ""}`,
         result: `${n(dynamic.kcal)} kcal`,
       },
       {
@@ -123,16 +118,14 @@ export function EnergyFormulas({ energy, dynamic, locale, t }: Props) {
         label: f.fat,
         formula: fill(f.fatRule, {
           perKg: `${n(Number(dynamic.params.fatGPerKg), 1)} g/kg × ${n(i.kg, 1)} kg`,
-          kcal: n(dynamic.uncapped ?? dynamic.kcal),
+          kcal: n(dynamic.kcal),
         }),
         result: `${n(dynamic.fat)} g (${n(dynamic.fat * 9)} kcal)`,
       },
       {
         label: f.carbs,
-        formula:
-          dynamic.uncapped !== null
-            ? fill(f.carbsCap, { g: n(dynamic.carbs), perKg: n(dynamic.carbs / i.kg, 1) })
-            : `(${n(dynamic.kcal)} − ${n(dynamic.protein * 4)} − ${n(dynamic.fat * 9)}) ÷ 4`,
+        // ADR-0040: carbs take the rest of the energy.
+        formula: `(${n(dynamic.kcal)} − ${n(dynamic.protein * 4)} − ${n(dynamic.fat * 9)}) ÷ 4`,
         result: `${n(dynamic.carbs)} g`,
       },
       {

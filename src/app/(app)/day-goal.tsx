@@ -30,7 +30,7 @@ export function DayGoal({
   today: string;
   dayTargets: DayTargets;
   /** The dynamic targets computed for the day, or null. */
-  dynamic: { kcal: number; carbs: number; uncapped: number | null } | null;
+  dynamic: { kcal: number } | null;
   /** What the day costs, done and with the plan, or null without body data. */
   total: { done: Range; withPlan: Range } | null;
   eatenKcal: string;
@@ -60,11 +60,6 @@ export function DayGoal({
               soFar:
                 day <= today ? Math.round(Number(eatenKcal) - mid(total.done)) : null,
             }}
-            capped={
-              dynamic.uncapped !== null
-                ? fill(t.energy.goalCapped, { carbs: String(dynamic.carbs) })
-                : null
-            }
             action={setGoalDeficitAction}
             locale={locale}
             t={{ energy: t.energy, actions: t.actions, errors: t.errors }}

@@ -39,10 +39,8 @@ import {
 import { createReminder } from "../pantry/repositories/reminders";
 import { getPantry } from "../pantry/repositories/stock";
 import { productInput, purchaseInput, reminderInput } from "../pantry/validation";
-import { getDayTargets } from "../nutrition/repositories/profiles";
-import { dynamicTargets } from "../energy/energy";
-import { carbsGoodMax, trainingLoad } from "../nutrition/bands";
-import { getCalibration, getDayEnergy } from "../energy/repositories/energy";
+import { readDay } from "../day/repositories/days";
+import { getCalibration } from "../energy/repositories/energy";
 import { addDays } from "../shared/dates";
 import { rank } from "../shared/search";
 import { parseInput } from "../shared/validation";
@@ -600,36 +598,17 @@ export const TOOLS: Record<string, Tool> = {
     ),
     async run({ db, owner, today }, a) {
       const day = str(a.day) || today;
-      const [t, e] = await Promise.all([
-        getDayTargets(db, owner, day),
-        getDayEnergy(db, owner, day),
-      ]);
-      if (t.source === "none")
+      // ADR-0040: the same engine as the day page (the program's slot included).
+      const d = await readDay(db, owner, day, { today, autoTargets: false });
+      const e = d.energy;
+      if (d.plan.source === "none")
         return { ok: true, data: { targets: null, energy: e.energy } };
-      const dynamic =
-        t.dynamic && e.energy && e.body.weightKg
-          ? dynamicTargets(
-              e.energy,
-              e.body.weightKg,
-              t.dynamic,
-              carbsGoodMax(
-                Number(e.body.weightKg),
-                trainingLoad(
-                  e.energy.inputs.sessions.reduce((a, x) => a + x.durationMin, 0),
-                  e.energy.inputs.sessions.reduce(
-                    (a, x) => a + (x.basis?.kind === "sets" ? x.basis.cardioMin : 0),
-                    0,
-                  ),
-                ),
-              ),
-            )
-          : null;
       return {
         ok: true,
         data: {
-          dayType: t.name,
-          targets: dynamic ?? t.targets,
-          dynamic: Boolean(dynamic),
+          dayType: d.plan.name,
+          targets: d.computed ?? d.plan.targets,
+          dynamic: Boolean(d.computed),
           energy: e.energy,
           missingBody: e.missing,
         },

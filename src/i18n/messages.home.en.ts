@@ -196,15 +196,10 @@ export const energyEn = {
   goalSurplus: "a {kcal} kcal surplus",
   goalEat: "Eat {kcal} kcal · you spend ~{spent} kcal",
   goalFixed: "Target {kcal} kcal (fixed)",
-  goalCapped:
-    "Carbs stop at {carbs} g and fat at 35 % of the energy: the target is lowered, so the deficit is larger than asked.",
   goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {
     fatRule: "the larger of {perKg} and 25 % of {kcal} kcal ÷ 9",
-    capped: "carbs stop at {carbs} g, so kcal = protein + fat + carbs",
-    carbsCap:
-      "top of the good zone: {g} g ({perKg} g/kg); more adds little for energy and recovery",
     title: "How it is computed",
     years: "years",
     walkNone: "no steps and no walk: the day type alone",

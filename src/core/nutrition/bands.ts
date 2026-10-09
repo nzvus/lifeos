@@ -13,7 +13,8 @@
  *            (Morton 2018 meta-analysis; ISSN 2017)
  *   carbs    floor 130 g (RDA: the brain's glucose) · good by training:
  *            rest 2–3, training 3–5, long 5–7 g/kg (ACSM 2016) · useful max
- *            = top of good: more is only energy
+ *            = top of good: more is only energy (ADR-0040: drawn up to
+ *            the day's carbs target, which takes the rest of the energy)
  *   fat      floor 20 % of kcal (AMDR) · good 25–30 % of kcal, at least
  *            0.6 g/kg · health max 35 % of kcal (AMDR; EFSA RI 20–35 %)
  *   fibre    floor 25 g (EFSA adequate intake) · good 14 g/1000 kcal (at
@@ -52,11 +53,6 @@ const CARBS: Record<TrainingLoad, [number, number]> = {
 
 const r = (x: number) => Math.round(x);
 
-/** The top of the carbs' good zone, g: where a dynamic target stops. */
-export function carbsGoodMax(kg: number, load: TrainingLoad): number {
-  return r(CARBS[load][1] * kg);
-}
-
 export function macroBands(input: {
   kg: number;
   /** The day's energy target, kcal (2000 when there is none). */
@@ -64,6 +60,11 @@ export function macroBands(input: {
   load: TrainingLoad;
   /** A deficit keeps protein higher. */
   cutting: boolean;
+  /**
+   * ADR-0040: the day's carbs target, g. The good zone reaches it: carbs
+   * above the training band are energy, not a problem.
+   */
+  carbsTarget?: number | null;
 }): Bands {
   const { kg, load, cutting } = input;
   const kcal = input.kcal ?? 2000;
@@ -82,8 +83,8 @@ export function macroBands(input: {
     carbs: {
       floor: 130,
       low: r(Math.max(130, cLo * kg)),
-      high: r(Math.max(130, cHi * kg)),
-      ceiling: r(Math.max(130, cHi * kg)),
+      high: r(Math.max(130, cHi * kg, input.carbsTarget ?? 0)),
+      ceiling: r(Math.max(130, cHi * kg, input.carbsTarget ?? 0)),
       ceilingKind: "useful",
     },
     fat: {
