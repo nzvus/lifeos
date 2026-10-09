@@ -34,8 +34,12 @@ export type DaySummary = {
   targets: Targets | null;
   /** The day type the targets come from (name at the time), or null. */
   dayType: string | null;
-  /** Each EATEN entry: when (ISO instant, or null if no time) and its kcal. */
-  eaten: { at: string | null; kcal: string }[];
+  /**
+   * Each EATEN entry: when (ISO instant, or null if no time), its kcal, and
+   * whether it was an estimate (typed totals, ADR-0009) rather than weighed
+   * ingredients — ADR-0042 trusts estimates less.
+   */
+  eaten: { at: string | null; kcal: string; estimated: boolean }[];
   /** Entries still "planned" (ADR-0009): planned but never confirmed. */
   plannedLeft: number;
 };
@@ -101,7 +105,11 @@ export async function getHistory(
     exactByDay.set(e.day, [...(exactByDay.get(e.day) ?? []), exact]);
     eatenByDay.set(e.day, [
       ...(eatenByDay.get(e.day) ?? []),
-      { at: e.at ? e.at.toISOString() : null, kcal: exact.nutrients.kcal.toString() },
+      {
+        at: e.at ? e.at.toISOString() : null,
+        kcal: exact.nutrients.kcal.toString(),
+        estimated: e.estimated,
+      },
     ]);
   }
   const planByDay = new Map(plans.map((p) => [p.day, p]));

@@ -13,6 +13,7 @@ import type { Db } from "../../db/client";
 import type { SlotItem } from "../../training/program";
 import { dayActivity, energyCorrections, userSettings } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { listClosures } from "../../nutrition/repositories/closures";
 import { getHistory } from "../../nutrition/repositories/history";
 import { addDays } from "../../shared/dates";
 import {
@@ -359,7 +360,7 @@ export async function getCalibration(
 ): Promise<Calibration> {
   const from = addDays(today, -WINDOW_DAYS);
   const to = addDays(today, -1);
-  const [body, acts, sessions, measurements, history] = await Promise.all([
+  const [body, acts, sessions, measurements, history, closures] = await Promise.all([
     getBody(db, owner, to),
     db
       .select()
@@ -374,6 +375,7 @@ export async function getCalibration(
     listSessions(db, owner, from, to),
     listMeasurements(db, owner),
     getHistory(db, owner, from, to),
+    listClosures(db, owner, from, to), // ADR-0042
   ]);
   const days: CalibrationDay[] = history.map((h) => {
     const kg = weightAt(measurements, h.day);
@@ -389,6 +391,10 @@ export async function getCalibration(
     return {
       day: h.day,
       eatenKcal: h.eaten.length ? h.eaten.reduce((a, x) => a + Number(x.kcal), 0) : null,
+      estimatedKcal: h.eaten
+        .filter((x) => x.estimated)
+        .reduce((a, x) => a + Number(x.kcal), 0),
+      closed: closures.get(h.day) ?? null,
       baseline: e ? mid(e.baseline) : null,
       other: e ? mid(e.walking) + mid(e.training.done) : null,
     };

@@ -39,6 +39,7 @@ import {
   setEntryTime,
 } from "@/core/nutrition/repositories/log";
 import { setDayProfile, setGoalDeficit } from "@/core/nutrition/repositories/profiles";
+import { setDayClosure } from "@/core/nutrition/repositories/closures";
 import { clearSleep, setSleep } from "@/core/training/repositories/sleep";
 import { sleepInput } from "@/core/training/validation";
 import {
@@ -324,6 +325,21 @@ export async function setDayActivityAction(
   await setDayActivity(getDb(), owner, day, input.value);
   revalidatePath("/");
   return { status: "saved" };
+}
+
+/** ADR-0042: close a day (complete / partial), or reopen it with null. */
+export async function setDayClosureAction(
+  day: string,
+  state: "complete" | "partial" | null,
+): Promise<{ ok: boolean; message?: string }> {
+  const { owner, settings, t } = await requireContext();
+  if (!isValidDay(day) || day > todayIn(settings.timezone))
+    return { ok: false, message: t.errors.future_day };
+  if (state !== null && state !== "complete" && state !== "partial")
+    return { ok: false, message: t.errors.invalid_choice };
+  await setDayClosure(getDb(), owner, day, state);
+  revalidatePath("/");
+  return { ok: true };
 }
 
 /** ADR-0020: accept a calibration proposal, or reset it with 1. */

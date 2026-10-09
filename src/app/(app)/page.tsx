@@ -53,6 +53,8 @@ import { MindSheet } from "@/features/mind/MindSheet";
 import { getCheckin } from "@/core/mind/repositories/checkins";
 import { saveCheckinAction } from "./mind/actions";
 import { DayChips } from "@/features/nutrition/log/DayChips";
+import { CloseDaySheet } from "@/features/nutrition/log/CloseDaySheet";
+import { listClosures } from "@/core/nutrition/repositories/closures";
 import { MovementSheet } from "@/features/nutrition/log/MovementSheet";
 import { SleepCard } from "@/features/training/body/SleepCard";
 import { TrainingSummary } from "@/features/training/sessions/TrainingSummary";
@@ -100,6 +102,7 @@ import {
   logMealAction,
   refreshLogEntryAction,
   setDayProfileAction,
+  setDayClosureAction,
   setEntryServingsAction,
   setSleepAction,
   clearSleepAction,
@@ -162,6 +165,7 @@ export default async function DayPage({ searchParams }: Props) {
     nights,
     recent,
     checkin,
+    closures,
   ] = await Promise.all([
     slotLoad,
     // ADR-0040: the shown day's week through the one engine — the day's
@@ -189,6 +193,7 @@ export default async function DayPage({ searchParams }: Props) {
     listSleep(db, owner, day, day), // ADR-0031: the night that ended today
     listSessions(db, owner, addDays(today, -60), today), // "like a past session" (ADR-0035)
     getCheckin(db, owner, day), // ADR-0038: how the day felt
+    listClosures(db, owner, day, day), // ADR-0042: closed?
   ]);
   const plannedCount = view.entries.filter((e) => e.status === "planned").length;
   const night = nights[0] ?? null;
@@ -204,6 +209,7 @@ export default async function DayPage({ searchParams }: Props) {
   // costs with the plan, ADR-0014; automatic maxima unless turned off),
   // bands (ADR-0023) and energy. The week strip reads the same days.
   const resolved = days.get(day)!;
+  const closure = closures.get(day) ?? null;
   const { targets, auto, bands } = resolved;
   const dayTargets = resolved.plan;
   const energyView = resolved.energy;
@@ -300,6 +306,8 @@ export default async function DayPage({ searchParams }: Props) {
             />
             {/* The night and the movement at a glance; tap to add or change (sheets). */}
             <DayChips
+              // ADR-0042: today and past days can be closed.
+              closure={day <= today ? closure : undefined}
               mood={checkin?.mood ?? null}
               sleptHours={night?.hours ?? null}
               activity={energyView.activity}
@@ -725,6 +733,15 @@ export default async function DayPage({ searchParams }: Props) {
             t={t}
           />
           <MindSheet day={day} checkin={checkin} action={saveCheckinAction} t={t} />
+          {day <= today && (
+            <CloseDaySheet
+              key={day}
+              day={day}
+              closure={closure}
+              action={setDayClosureAction}
+              t={{ dayChips: t.dayChips, actions: t.actions }}
+            />
+          )}
           <AddFab
             day={day}
             training

@@ -79,12 +79,12 @@ describe("eatingTimes", () => {
     const h = [
       day("2026-09-28", "900", {
         eaten: [
-          { at: "2026-09-28T06:00:00Z", kcal: "300" }, // 08:00 Rome (morning)
-          { at: "2026-09-28T18:00:00Z", kcal: "600" }, // 20:00 Rome (evening)
-          { at: null, kcal: "100" },
+          { at: "2026-09-28T06:00:00Z", kcal: "300", estimated: false }, // 08:00 Rome (morning)
+          { at: "2026-09-28T18:00:00Z", kcal: "600", estimated: false }, // 20:00 Rome (evening)
+          { at: null, kcal: "100", estimated: false },
         ],
       }),
-      day("2026-09-29", "400", { eaten: [{ at: "2026-09-29T08:00:00Z", kcal: "400" }] }), // 10:00
+      day("2026-09-29", "400", { eaten: [{ at: "2026-09-29T08:00:00Z", kcal: "400", estimated: false }] }), // 10:00
     ];
     const r = eatingTimes(h, "Europe/Rome");
     expect(r.days).toBe(2);
@@ -102,7 +102,7 @@ describe("eatingTimes", () => {
 
   it("puts late snacks in the night part", () => {
     const h = [
-      day("2026-09-28", "200", { eaten: [{ at: "2026-09-28T21:30:00Z", kcal: "200" }] }),
+      day("2026-09-28", "200", { eaten: [{ at: "2026-09-28T21:30:00Z", kcal: "200", estimated: false }] }),
     ]; // 23:30
     expect(
       eatingTimes(h, "Europe/Rome").parts.find((p) => p.part === "night")?.share,

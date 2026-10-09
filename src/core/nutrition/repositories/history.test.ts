@@ -98,7 +98,7 @@ describe("getHistory", () => {
 
     const [d] = await getHistory(db, me, "2026-09-28", "2026-09-28");
     expect(d!.dayType).toBe("Palestra"); // the default profile
-    expect(d!.eaten).toEqual([{ at: at.toISOString(), kcal: "372" }]);
+    expect(d!.eaten).toEqual([{ at: at.toISOString(), kcal: "372", estimated: false }]);
     expect(d!.plannedLeft).toBe(1);
     expect(d!.totals.nutrients.kcal).toBe("372.0"); // plans are not eaten
   });

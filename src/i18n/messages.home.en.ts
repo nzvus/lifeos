@@ -235,6 +235,11 @@ export const energyEn = {
       "Not sure enough yet to propose a change (± {sigma}); more weigh-ins and logged days narrow it.",
     incomplete:
       "{n} days logged under 60 % of what they cost were taken as half-logged and filled in from the days around them.",
+    closed:
+      "{n} days closed by you: they count fully (complete) or are not read as a deficit (something missing). Close the day from its chip on Today.",
+    estimates:
+      "{share} % of what you logged was estimates (meals out, typed totals): they count less.",
+    estimateFactor: "Your estimates look like × {k} (± {sigma}) of what you really eat.",
     intake: "Eaten on average",
     trend: "Weight trend",
     trendValue: "{kg} kg a week",
@@ -591,6 +596,20 @@ export const dayChipsEn = {
   steps: "{n} steps",
   walk: "{n} min on foot",
   moveNone: "Movement?",
+  closed: "Log complete",
+  partial: "Log: something missing",
+  closeNone: "Close the day?",
+  /** ADR-0042: the sheet that closes the day (CloseDaySheet). */
+  close: {
+    title: "Close the day",
+    why: "Is what you logged what you ate? It tells what you really spend: a complete day is trusted, a day with something missing is not read as a deficit.",
+    complete: "Yes, it's all there",
+    completeHint: "More or less: estimates included.",
+    partial: "Something is missing",
+    partialHint: "A snack, a drink, a meal not entered.",
+    reopen: "Reopen the day",
+    reopened: "Day reopened",
+  },
 };
 
 export const addMenuEn = {

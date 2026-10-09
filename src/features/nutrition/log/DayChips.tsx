@@ -5,19 +5,22 @@
  * Each says its value, or invites to add it, and opens its sheet
  * (#day-sleep, #day-move) — the forms live there, not on the page.
  */
-import { Brain, Footprints, Moon } from "lucide-react";
+import { Brain, ClipboardCheck, ClipboardX, Footprints, Moon } from "lucide-react";
 import type { ReactNode } from "react";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 
 export function DayChips({
+  closure,
   mood,
   sleptHours,
   activity,
   locale,
   t,
 }: {
+  /** ADR-0042: the day closed as complete / partial; undefined = can't be closed yet (a future day). */
+  closure?: "complete" | "partial" | null;
   /** The day's mood (ADR-0038), 1–5; null = not said. */
   mood: number | null;
   sleptHours: number | null;
@@ -65,6 +68,21 @@ export function DayChips({
         mood === null ? t.mind.chipNone : fill(t.mind.chip, { n: String(mood) }),
         mood === null,
       )}
+      {closure !== undefined &&
+        chip(
+          "#day-close",
+          closure === "partial" ? (
+            <ClipboardX size={16} aria-hidden="true" />
+          ) : (
+            <ClipboardCheck size={16} aria-hidden="true" />
+          ),
+          closure === "complete"
+            ? c.closed
+            : closure === "partial"
+              ? c.partial
+              : c.closeNone,
+          closure === null,
+        )}
     </div>
   );
 }

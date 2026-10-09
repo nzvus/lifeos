@@ -1,7 +1,8 @@
 /**
- * Tests for core/energy/calibration.ts (ADR-0041): the slope, and the
- * adaptive factor checked on simulated people whose real expenditure is
- * known — noisy scale, days not logged, days half-logged.
+ * Tests for core/energy/calibration.ts (ADR-0041/0042): the slope, and the
+ * learnt factor checked on simulated people whose real expenditure is
+ * known — noisy scale, days not logged or half-logged, closed days, meals
+ * out logged as estimates that fall short.
  */
 import { describe, expect, it } from "vitest";
 import { addDays } from "../shared/dates";
@@ -35,9 +36,10 @@ const gauss = (r: () => number) =>
 
 /**
  * A person over `n` days: the model says baseline B and other O; really
- * they spend c × B + O. They eat around `eat`; the body changes by the
- * balance ÷ 7,700; the scale adds ±`noise` kg of water. Some days are not
- * logged, some only half.
+ * they spend c × B + O. They eat around `eat`, sometimes a dinner out
+ * (+1,000 kcal, logged as an estimate × `estimates`); the body changes by
+ * the balance ÷ 7,700; the scale adds ±`noise` kg of water. Some days are
+ * not logged, some only partly; the user closes a share of the days.
  */
 function simulate(o: {
   n: number;
@@ -48,6 +50,12 @@ function simulate(o: {
   noise?: number;
   unlogged?: number;
   halfLogged?: number;
+  /** How much of a half-logged day is logged (0.4: the 60 % rule sees it). */
+  halfShare?: number;
+  /** Share of days the user closes (complete, or partial when half-logged). */
+  closes?: number;
+  eatOut?: number;
+  estimates?: number;
   weighEvery?: number;
   seed?: number;
 }): { days: CalibrationDay[]; weighIns: WeighInPoint[] } {
@@ -59,16 +67,23 @@ function simulate(o: {
   const weighIns: WeighInPoint[] = [];
   for (let i = 0; i < o.n; i++) {
     const day = addDays(FROM, i);
-    const eaten = o.eat + 250 * gauss(r);
-    kg += (eaten - (o.c * B + O)) / 7700;
+    const home = o.eat + 250 * gauss(r);
+    const out = r() < (o.eatOut ?? 0) ? 1000 + 300 * gauss(r) : 0;
+    const estimated = out ? Math.max(0, out * (o.estimates ?? 1) + 150 * gauss(r)) : 0;
+    kg += (home + out - (o.c * B + O)) / 7700;
     const u = r();
-    const logged =
-      u < (o.unlogged ?? 0.1)
-        ? null
-        : u < (o.unlogged ?? 0.1) + (o.halfLogged ?? 0.05)
-          ? eaten * 0.4
-          : eaten;
-    days.push({ day, eatenKcal: logged, baseline: B, other: O });
+    const unlogged = u < (o.unlogged ?? 0.1);
+    const half = !unlogged && u < (o.unlogged ?? 0.1) + (o.halfLogged ?? 0.05);
+    const logged = home + estimated;
+    const closes = r() < (o.closes ?? 0);
+    days.push({
+      day,
+      eatenKcal: unlogged ? null : half ? logged * (o.halfShare ?? 0.4) : logged,
+      estimatedKcal: unlogged || half ? 0 : estimated,
+      closed: closes && !unlogged ? (half ? "partial" : "complete") : null,
+      baseline: B,
+      other: O,
+    });
     if (i % (o.weighEvery ?? 1) === 0)
       weighIns.push({
         day,
@@ -104,7 +119,7 @@ describe("calibrate (adaptive, ADR-0041)", () => {
     expect(r.verdict).toBe("ok");
     expect(r.factor).toBeGreaterThan(1.05);
     expect(r.factor).toBeLessThan(1.15);
-    expect(r.sigma).toBeLessThan(0.04);
+    expect(r.sigma).toBeLessThan(0.05);
     expect(r.proposed).toBe(r.factor);
     expect(r.weeks).toBe(7);
     // 1.1 × 2000 + 300 = 2500 a day, roughly.
@@ -132,7 +147,7 @@ describe("calibrate (adaptive, ADR-0041)", () => {
     const r = calibrate(days, weighIns, 1);
     expect(r.verdict).toBe("ok");
     expect(r.factor).toBeGreaterThan(1.02); // pulled toward 1.2, held by the prior
-    expect(r.sigma).toBeGreaterThan(0.04);
+    expect(r.sigma).toBeGreaterThan(0.05);
     expect(r.proposed).toBeNull();
   });
 
@@ -153,6 +168,45 @@ describe("calibrate (adaptive, ADR-0041)", () => {
     );
   });
 
+  it("closing the days that miss something keeps them from reading as a deficit (ADR-0042)", () => {
+    // 20 % of days logged at 75 %: the 60 % rule can't see them.
+    const base = { n: 84, c: 1.1, eat: 2100, halfLogged: 0.17, halfShare: 0.75 };
+    const err = (closes: number) =>
+      Math.max(
+        ...[3, 7, 11, 21].map((seed) => {
+          const sim = simulate({ ...base, closes, seed });
+          return Math.abs(calibrate(sim.days, sim.weighIns, 1).factor - 1.1);
+        }),
+      );
+    expect(err(0.95)).toBeLessThanOrEqual(0.03);
+    expect(err(0.95)).toBeLessThan(err(0));
+  });
+
+  it("learns that meals out are underestimated, and c comes out closer for it (ADR-0042)", () => {
+    // Twice a week out, logged at 85 % of what it was.
+    const sim = simulate({
+      n: 84,
+      c: 1.1,
+      eat: 1900,
+      eatOut: 0.3,
+      estimates: 0.85,
+      seed: 42,
+    });
+    const r = calibrate(sim.days, sim.weighIns, 1);
+    expect(r.estimateFactor!.k).toBeGreaterThan(1.05); // logged short: × more than 1
+    expect(r.estimatedShare).toBeGreaterThan(0.1);
+    expect(Math.abs(r.factor - 1.1)).toBeLessThanOrEqual(0.04);
+  });
+
+  it("when most of the log is estimates, it can't learn them apart: k stays 1", () => {
+    const sim = simulate({ n: 84, c: 1.1, eat: 2100, seed: 9 });
+    const allEstimated = sim.days.map((d) => ({ ...d, estimatedKcal: d.eatenKcal ?? 0 }));
+    const r = calibrate(allEstimated, sim.weighIns, 1);
+    expect(r.estimatedShare).toBe(1);
+    expect(r.estimateFactor).toBeNull();
+    expect(Math.abs(r.factor - 1.1)).toBeLessThanOrEqual(0.05);
+  });
+
   it("not enough data → a verdict and no proposal", () => {
     const few = simulate({ n: 56, c: 1.1, eat: 2100, weighEvery: 20 });
     expect(calibrate(few.days, few.weighIns, 1)).toMatchObject({
@@ -163,6 +217,7 @@ describe("calibrate (adaptive, ADR-0041)", () => {
     const unlogged = simulate({ n: 56, c: 1.1, eat: 2100, unlogged: 0.8 });
     expect(calibrate(unlogged.days, unlogged.weighIns, 1).verdict).toBe("few_logged");
     const noBody = few.days.map((d) => ({ ...d, baseline: null, other: null }));
+    expect(calibrate(few.days, few.weighIns, 1).estimateFactor).toBeNull();
     expect(calibrate(noBody, few.weighIns, 1).verdict).toBe("no_body");
   });
 });

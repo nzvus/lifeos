@@ -54,6 +54,7 @@ import {
   user,
   userSettings,
   dayCheckins,
+  dayClosures,
   logEntryLeftOut,
   moneyCategories,
   moneyLines,
@@ -81,8 +82,9 @@ export const EXPORT_FORMAT = "lifeos-export";
 // 13: a log entry's `leftOut` (planned, out of the plan's total) and `money`
 // — categories, movements with their lines, receipts, aliases (ADR-0036);
 // 14: `mind.checkins`, the days as they felt (ADR-0038); each set's
-// startedAt / endedAt and a routine's itemsSavedAt (ADR-0037).
-export const EXPORT_VERSION = 14;
+// startedAt / endedAt and a routine's itemsSavedAt (ADR-0037);
+// 15: `dayClosures`, the days closed as complete or partial (ADR-0042).
+export const EXPORT_VERSION = 15;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -304,6 +306,11 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     .from(dayCheckins)
     .where(ownedBy(dayCheckins, owner))
     .orderBy(asc(dayCheckins.day));
+  const closureRows = await db
+    .select()
+    .from(dayClosures)
+    .where(ownedBy(dayClosures, owner))
+    .orderBy(asc(dayClosures.day));
   const leftOut = new Set(leftOutRows.map((r) => r.entryId));
 
   return {
@@ -333,6 +340,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     ratingFactors: stripOwner(factorRows),
     dayProfiles: stripOwner(profileRows),
     dayPlans: stripOwner(planRows),
+    dayClosures: stripOwner(closureRows),
     log: stripOwner(entryRows).map((e) => ({
       ...e,
       leftOut: leftOut.has(e.id),
