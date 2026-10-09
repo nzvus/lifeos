@@ -112,9 +112,11 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   A day's copy of its type is made only by `writePlan` (profiles.ts), with a dynamic type's
   parameters. A dynamic day (ADR-0014) computes them from `core/energy` (ranges, done +
   planned; no double counts, ADR-0021; × the accepted calibration, ADR-0020/0026; steps at
-  one cost per step, ADR-0032). Weigh-ins carry a reliability (ADR-0027); sleep feeds day
+  one cost per step, ADR-0032). Weigh-ins carry a reliability (ADR-0027; one far from the last
+  plausible weigh-in asks to be confirmed and counts 0.02); sleep feeds day
   quality and trends, not energy (ADR-0031).
-- **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment, servings −/+; totals =
+- **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment (groups in time order,
+  snacks placed by their time), servings −/+; totals =
   eaten, every panel also shows the day with the plan; tick and −/+ optimistic (`log/LiveDay`).
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (pinned ↺ / Cancel /
   Save), drafts in the browser, `?from=` for back and after-save, toasts with
@@ -123,7 +125,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   restores or deletes for good; `backup.yml`'s `purge-trash` job empties it after 30 days.
 - **Short tasks in sheets:** adding food, training, a night, movement, a weigh-in, sorting —
   ui/Sheet via a `#id` link; long forms stay pages. Settings save themselves (ui/useAutoSave).
-- **Assistant (ADR-0018):** the model runs on the server with the user's key
+- **Assistant (ADR-0018):** off unless `ASSISTANT_ENABLED=true` (2026-10-09). The model runs on the server with the user's key
   (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
   writes come back with Undo, deletes/imports wait for a tap; files are read on
   the phone; a data summary (`assistant/context.ts`) goes with every turn.
