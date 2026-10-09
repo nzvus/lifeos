@@ -20,11 +20,12 @@
 - Template meta-loop: reset `ai-native-starter` to a clean template; record what S00–S12 taught in its TEMPLATE-CHANGELOG
 
 ## Open items owned by the developer
-- **Your data (2026-10-09):** in the app, weigh-in 10-08 → 76.00 kg, delete the duplicate Push of 09-19, import `sweetburger-2026-10-08.lifeos-pack.json` from Settings and tick it, tick the gelato of 10-08; or the full replace (`lifeos-export-2026-10-09-aligned.CHANGES.md`).
-- **#147 (migration 0027):** `gh workflow run migrate.yml --ref s66-gym-mode-timing -f confirm="migrate production"`, then merge.
+- **#155 (no migration):** the close-day sheet's hints under their buttons; merge.
+- **Habits the learnt expenditure needs (ADR-0041/0042):** weigh in every morning; close each day from its chip on Today (complete / something missing). Proposals start after about 8 weeks.
 - **Try on the phone:** the gym clock (rest → overtime → Go → set → Done), resuming after closing the app, one side at a time, the warm-up ramp; Money (a movement from Today's "+", a receipt pasted or photographed); the eye that takes a planned dish out of the total.
-- **Assistant:** `ASSISTANT_KEY_SECRET` on Vercel, the OpenRouter key in Settings; "Read with the AI" on a receipt is untested with a real key.
-- **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#147.
+- **Assistant:** off unless `ASSISTANT_ENABLED=true` on Vercel (2026-10-09, "no AI for now"); when turned on: `ASSISTANT_KEY_SECRET`, the OpenRouter key in Settings; "Read with the AI" is untested with a real key.
+- **Try on the phone (refactor):** a barcode scan in Firefox and Chrome; a Lidl receipt photographed; snacks placed by their time; Trends' targets on dynamic days; closing a day.
+- **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#155. D6 of the plan: pick 3 to walk through.
 - **Security:** rotate the production DB password pasted on 2026-09-30, unless already done.
 - **Decisions:** ADR-0007 still `proposed`; "What I learned" missing in most ADRs.
 
@@ -32,7 +33,7 @@
 The developer asked for the app to be reviewed as a whole (`Projects-artifacts/LIFEOS/considerations.txt`); the analysis and plan are in `Projects-artifacts/LIFEOS/PLAN-lifeos-refactor-2026-10-09.md` (Syncthing, outside the repo). Recommendations D1–D5 accepted on 2026-10-09 ("procediamo"): refactor in phases, no new areas until Phase 6, adaptive expenditure, a weekly budget, phases in this order. D6 (which PRs to walk through) is the developer's.
 0. **Phase 0 — measured bugs (#151, merged):** snacks by time; Lidl receipts; barcode in every browser; implausible weigh-ins; assistant off (`ASSISTANT_ENABLED`).
 1. **Phase 1 — one day engine (ADR-0040, #152 merged):** `core/day` `readDays` for Today, the week strip, Plan, Settings, Trends, the assistant; carbs take the rest (fat no longer pushed to 35 %); Trends shows dynamic days' targets. Freezing computed numbers moves to Phase 2 (the weekly check-in).
-2. **Phase 2a — expenditure learnt (ADR-0041, #153 merged; ADR-0042 closed days and estimates, migration 0030):** one weighted fit over 84 days (reliability, recency, half-logged days filled), uncertainty, a proposal only within ±0.04. **2b:** goal as % of body weight a week, calorie floor, protein preference (new table), weekly check-in.
+2. **Phase 2a — expenditure learnt (ADR-0041 #153, ADR-0042 #154, merged; migration 0030 applied):** a Kalman filter over weight, the baseline factor c and the estimates' factor k, each day with its own uncertainty; closed days; a proposal at σ ≤ 0.05. **2b (next):** goal as % of body weight a week, calorie floor, protein preference (a new table), the weekly check-in that freezes a week's targets.
 3. Day programs: timed meal slots (pre/post-workout, pre-sleep), the week's calorie distribution, scores in time context (§2.2b), fat from a floor and carbs the rest (E10–E12).
 4. Training: RIR per set, RIR-gated progression, volume per muscle (indirect ½), rest guidance, readiness.
 5. Food identity: food ↔ product (brand, barcode) ↔ purchase ↔ receipt line; one price history; pantry locations and best-before; micronutrients and fibre types with amounts (D7 = one row per nutrient, delegated 2026-10-09).
@@ -40,6 +41,9 @@ The developer asked for the app to be reviewed as a whole (`Projects-artifacts/L
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
+
+### Refactor, phases 0–2a — s71–s75 (2026-10-09, no retro yet)
+Shipped: Phase 0 — snacks placed by their time, Lidl receipts (quantity under the item, no discount summary, shop from the chain), barcode in every browser (ZXing ponyfill, HD, check digit), implausible weigh-ins confirmed and all but ignored, assistant behind `ASSISTANT_ENABLED`, an export uploaded as a pack explained, a hydration bug on /ingredients/new (#151); Phase 1 — one day engine `core/day` for every screen, carbs take the rest, Trends shows dynamic days' targets (#152, ADR-0040); Phase 2a — expenditure learnt from the whole log and scale (#153, ADR-0041), closed days and a learnt factor on estimates (#154, ADR-0042, migration 0030). 505 tests | Decisions: plan D1–D5 accepted ("procediamo"), D7 and the details delegated | Lesson: simulation with a known truth chose the estimator — 14-day Kalman windows wasted the data (±0.065 after 12 weeks) and "estimates are less sure" alone changed nothing; a learnt bias did. A push after a merge happened again (#154 → #155): check the PR state in its own call | Carried over: retro; the developer's review on the phone; "What I learned" for ADR-0040–0042.
 
 ### After the S11–S12 retro — slices s45–s60 (2026-10-02 → 10-03, no retro yet)
 Shipped: steps at one cost per step (ADR-0032); a "+" in every section, adding only from it; where things live — sub-tabs everywhere, Today in Summary · Food · Training (ADR-0033); 24-hour times, energy as spending / eaten / verdict; the assistant shown at work; packs — a starter for every new account, import from Settings — and sign-up by one-use invitation (ADR-0034); tabs by moment: the Plan tab (the month as a calendar), Training as a library, program days as lists with skip (ADR-0035); speed — Today's views switched in the browser, food edits optimistic with "The day with the plan" live, one parallel round of queries; the dynamic-day fix and migration 0024 (#141). PRs #126–#141, migrations 0022–0024, 438 tests | Decisions: ADR-0032–0035 (0035 delegated) | Lesson: the developer's export loaded into the preview account found in minutes what a day of screenshots on test data hid — the first-food copy without a dynamic type's mode (no targets: no energy bar, empty rings) and an importer that silently dropped the same fields; the round-trip test now seeds them | Carried over: retro for these slices; developer review on the phone; "What I learned".
