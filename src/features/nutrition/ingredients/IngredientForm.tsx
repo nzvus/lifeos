@@ -284,12 +284,14 @@ export function IngredientForm({
         {/* ADR-0039: what makes a drink or a supplement one. */}
         <fieldset className="rule-t-medium border-ink pt-3">
           <legend className="sr-only">{t.ingredients.compounds}</legend>
-          <p className="flex items-center justify-between pb-2 text-meta font-semibold">
+          {/* A div, not a <p>: the tip's popover is a div (invalid inside a p,
+              which broke hydration of the whole form). */}
+          <div className="flex items-center justify-between pb-2 text-meta font-semibold">
             {t.ingredients.compounds}
             <InfoTip label={t.ingredients.compoundsInfoLabel}>
               {t.ingredients.compoundsInfo}
             </InfoTip>
-          </p>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <Field
               label={fill(t.ingredients.caffeine, { unit })}
