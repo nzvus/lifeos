@@ -121,7 +121,7 @@ import { getCheckinProposal } from "@/core/energy/repositories/checkin";
 import { CheckinCard } from "@/features/nutrition/log/CheckinCard";
 import { DaySupplements } from "./day-supplements";
 import { programItemsOf } from "./day-program";
-import { burnWords, weekOf } from "./day-week";
+import { burnWords, daySlots, weekOf } from "./day-week";
 import { reminderLines } from "./day-reminders";
 
 type Props = {
@@ -229,11 +229,13 @@ export default async function DayPage({ searchParams }: Props) {
   const dynamic = resolved.computed;
   const num = (x: string | null) => (x === null ? null : Number(x));
   // ADR-0044: the slots of the day's type, against the day's targets.
-  const slots =
-    (dayTargets.source !== "none" &&
-      dayTargets.profileId &&
-      programs.get(dayTargets.profileId)?.slots) ||
-    [];
+  const slots = daySlots(
+    dayTargets.source !== "none" && dayTargets.profileId
+      ? programs.get(dayTargets.profileId)
+      : undefined,
+    sessions,
+    settings.timezone,
+  );
   const slotDay = {
     kcal: num(targets.kcal),
     protein: num(targets.protein),

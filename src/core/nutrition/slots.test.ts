@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { groupByMoment, type Moment } from "./moments";
 import { STARTERS } from "./programs";
-import { withSlots } from "./slots";
+import { moveWithSession, withSlots } from "./slots";
 
 // Times are UTC; Rome is UTC+2 in October.
 const e = (moment: Moment, at: string, kcal: string, protein: string) => ({
@@ -77,5 +77,27 @@ describe("withSlots", () => {
     expect(withSlots(groups, [], day)).toEqual([
       { type: "group", group: groups[0], slot: null, eatenProtein: 40 },
     ]);
+  });
+});
+
+describe("moveWithSession", () => {
+  it("moves the slots around training with the session's real start", () => {
+    // Planned at 18:00, started at 19:30: +90 minutes.
+    const moved = moveWithSession(STARTERS.gymEvening.slots, 18 * 60, 19 * 60 + 30);
+    expect(moved.map((s) => [s.kind, s.at])).toEqual([
+      ["breakfast", 8 * 60],
+      ["lunch", 13 * 60],
+      ["pre_workout", 18 * 60], // 16:30 → 18:00
+      ["post_workout", 21 * 60 + 15], // 19:45 → 21:15
+      ["pre_sleep", 22 * 60 + 30],
+    ]);
+  });
+  it("leaves them without a planned time or a start", () => {
+    expect(moveWithSession(STARTERS.gymEvening.slots, null, 19 * 60)).toEqual(
+      STARTERS.gymEvening.slots,
+    );
+    expect(moveWithSession(STARTERS.gymEvening.slots, 18 * 60, null)).toEqual(
+      STARTERS.gymEvening.slots,
+    );
   });
 });

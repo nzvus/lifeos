@@ -111,3 +111,25 @@ export function withSlots<E extends Entry>(
     x.type === "empty" ? x.slot.at : (x.slot?.at ?? x.group.minutes ?? Infinity);
   return items.sort((a, b) => when(a) - when(b));
 }
+
+/**
+ * Slots around training follow the session's real start (ADR-0044: "pre/
+ * post-workout slots move with the session's time"): when today's session
+ * started at another time than the program's, pre- and post-workout slots
+ * move by the difference. Other slots stay. Minutes after midnight.
+ */
+export function moveWithSession(
+  slots: readonly ProgramSlot[],
+  plannedAt: number | null,
+  startedAt: number | null,
+): ProgramSlot[] {
+  if (plannedAt === null || startedAt === null || plannedAt === startedAt)
+    return [...slots];
+  const by = startedAt - plannedAt;
+  const clamp = (m: number) => Math.min(23 * 60 + 59, Math.max(0, m));
+  return slots.map((s) =>
+    s.kind === "pre_workout" || s.kind === "post_workout"
+      ? { ...s, at: clamp(s.at + by) }
+      : s,
+  );
+}

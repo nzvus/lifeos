@@ -1,11 +1,16 @@
 /**
- * app/(app)/day-week.ts — the day page's words for its training burn, and
- * its week read for the week panel (ADR-0047). Split out of page.tsx
+ * app/(app)/day-week.ts — the day page's words for its training burn, its
+ * week read for the week panel (ADR-0047) and its slots (ADR-0044). Split
+ * out of page.tsx
  * (800-line limit).
  */
 import type { ResolvedDay } from "@/core/day/resolve";
 import type { DaySummary } from "@/core/nutrition/repositories/history";
 import { weekContext, type WeekContext } from "@/core/nutrition/week";
+import { minutesOf } from "@/core/nutrition/moments";
+import type { DayProgram, ProgramSlot } from "@/core/nutrition/programs";
+import { moveWithSession } from "@/core/nutrition/slots";
+import { timeIn } from "@/core/shared/dates";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { dayBurn } from "@/core/training/progress";
@@ -55,5 +60,25 @@ export function weekOf(
     }),
     day,
     days.get(day)?.energy.energy?.bmr ?? null, // the floor holds here too
+  );
+}
+
+/**
+ * The day's program slots, the ones around training moved to the session's
+ * real start when one started at another time (ADR-0044).
+ */
+export function daySlots(
+  program: DayProgram | undefined,
+  sessions: readonly { startedAt: string | null }[],
+  timeZone: string,
+): ProgramSlot[] {
+  if (!program) return [];
+  const starts = sessions
+    .filter((x) => x.startedAt)
+    .map((x) => minutesOf(timeIn(new Date(x.startedAt!), timeZone)));
+  return moveWithSession(
+    program.slots,
+    program.trainingAt,
+    starts.length ? Math.min(...starts) : null,
   );
 }
