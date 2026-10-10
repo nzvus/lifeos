@@ -111,13 +111,14 @@ import {
   setSleepAction,
   clearSleepAction,
   setEntryStatusAction,
-  setEntryTimeAction,
+  setEntryWhenAction,
 } from "./actions";
 import { readDays } from "@/core/day/repositories/days";
 import { explainDay } from "@/core/day/explain";
 import { getCalibration } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 import { DayGoal } from "./day-goal";
+import { ScrollMemory } from "@/ui/ScrollMemory";
 import { getCheckinProposal } from "@/core/energy/repositories/checkin";
 import { CheckinCard } from "@/features/nutrition/log/CheckinCard";
 import { DaySupplements } from "./day-supplements";
@@ -280,6 +281,7 @@ export default async function DayPage({ searchParams }: Props) {
     // always on top; below it one view at a time. The sheets the "+" opens
     // are outside the views, so adding works from any of them.
     <ViewSwitch initial={tab} fallback="summary" param="tab">
+      <ScrollMemory />
       <LiveDay
         entries={view.entries.map((e) => ({
           id: e.id,
@@ -564,7 +566,7 @@ export default async function DayPage({ searchParams }: Props) {
                 statusAction={(id, status) => setEntryStatusAction.bind(null, id, status)}
                 leftOutAction={setEntryLeftOutAction}
                 future={day > today}
-                timeAction={(id) => setEntryTimeAction.bind(null, id, day)}
+                timeAction={(id) => setEntryWhenAction.bind(null, id, day)}
                 servingsAction={(id) => setEntryServingsAction.bind(null, id)}
                 timeZone={settings.timezone}
                 bounds={settings.preferences.bounds}
@@ -658,6 +660,7 @@ export default async function DayPage({ searchParams }: Props) {
           {canAdd && (
             <AddToDay
               day={day}
+              future={day > today}
               locale={locale}
               bounds={settings.preferences.bounds}
               meals={meals.map((m) => ({

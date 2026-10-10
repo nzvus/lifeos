@@ -38,7 +38,6 @@ import type {
   LogMealInput,
 } from "../validation";
 import type { EntryStatus } from "../../db/schema";
-import { instantFor } from "../../shared/dates";
 import { Big } from "../../shared/decimal";
 import { getIngredient, per100Of, type Ingredient } from "./ingredients";
 import { getMeal } from "./meals";
@@ -556,7 +555,9 @@ export async function refreshLogEntry(
 }
 
 /** When and whether an entry was eaten (ADR-0009). */
-export type EntryTiming = { status: EntryStatus; at: Date | null };
+// The type and the form's timing live in ../timing.ts (800-line limit).
+export { entryTiming, type EntryTiming } from "../timing";
+import type { EntryTiming } from "../timing";
 
 /**
  * Defaults for entries created without explicit timing: eaten, now.
@@ -566,23 +567,6 @@ function timingOf(input: Partial<EntryTiming>): EntryTiming {
   const status = input.status ?? "eaten";
   const at = input.at !== undefined ? input.at : status === "eaten" ? new Date() : null;
   return { status, at };
-}
-
-/**
- * From a form's "Planned" checkbox and optional "HH:MM" to status + instant,
- * in the user's time zone. Eaten without a time = now; planned without a
- * time = no time. Pure; used by the server actions.
- */
-export function entryTiming(
-  day: string,
-  planned: boolean,
-  time: string | null,
-  timeZone: string,
-  now: Date = new Date(),
-): EntryTiming {
-  const status: EntryStatus = planned ? "planned" : "eaten";
-  if (time) return { status, at: instantFor(day, time, timeZone) };
-  return { status, at: planned ? null : now };
 }
 
 /**
@@ -626,6 +610,25 @@ export async function setEntryServings(
   const updated = await db
     .update(logEntries)
     .set({ servings: servings.toFixed(2) })
+    .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)))
+    .returning({ id: logEntries.id });
+  return updated.length ? ok(null) : fail({ _form: "not_found" });
+}
+
+/**
+ * Sets an entry's time and moment together (2026-10-10: edited in place on
+ * the day, not on a page of its own). Null time clears it.
+ */
+export async function setEntryWhen(
+  db: Db,
+  owner: Owner,
+  id: string,
+  at: Date | null,
+  moment: Moment,
+): Promise<Result<null>> {
+  const updated = await db
+    .update(logEntries)
+    .set({ at, moment })
     .where(and(ownedBy(logEntries, owner), live(logEntries), eq(logEntries.id, id)))
     .returning({ id: logEntries.id });
   return updated.length ? ok(null) : fail({ _form: "not_found" });

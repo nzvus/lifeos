@@ -19,7 +19,15 @@
 "use client";
 
 import { Calculator, Carrot, CookingPot, Plus, UtensilsCrossed } from "lucide-react";
-import { useActionState, useCallback, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useActionState,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { stripValues } from "@/core/nutrition/display";
 import {
   isMoment,
@@ -89,8 +97,13 @@ type Props = {
   logPortionAction: Action;
   logIngredientAction: Action;
   logEstimateAction: Action;
+  /** A day still to come: food can only be planned (2026-10-10). */
+  future?: boolean;
   t: T;
 };
+
+/** Whether the day is still to come, for the forms' timing (no prop chain). */
+const FutureDay = createContext(false);
 
 /**
  * Counts successful submissions. Changing a component's `key` makes React
@@ -120,6 +133,7 @@ export function AddToDay({
   logPortionAction,
   logIngredientAction,
   logEstimateAction,
+  future = false,
   t,
 }: Props) {
   const [kind, setKind] = useState<Kind>("meal");
@@ -164,93 +178,95 @@ export function AddToDay({
 
   return (
     // Shown only when asked (the "+"; 2026-10-02): a sheet, not a section.
-    <Sheet
-      id="day-add-food"
-      title={t.day.addTitle}
-      icon={<Plus size={20} aria-hidden="true" />}
-      closeLabel={t.actions.close}
-    >
-      <div role="tablist" aria-label={t.day.addTitle} className="flex">
-        {tabs.map((tab) => {
-          const selected = tab.kind === kind;
-          return (
-            <button
-              key={tab.kind}
-              type="button"
-              role="tab"
-              id={`add-tab-${tab.kind}`}
-              aria-selected={selected}
-              aria-controls="add-panel"
-              onClick={() => setKind(tab.kind)}
-              // Icon over label: four tabs fit a phone (like the bottom tab bar).
-              className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-control px-1 py-2 font-display text-meta ${
-                selected
-                  ? "rule-b-heavy border-ink bg-sheet font-bold text-ink"
-                  : "rule-b-medium border-hairline text-muted hover:text-ink"
-              }`}
-            >
-              {tab.icon}
-              <span className="w-full truncate text-center">{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
-      <div id="add-panel" role="tabpanel" aria-labelledby={`add-tab-${kind}`}>
-        {kind === "meal" && (
-          <PickForm
-            key={`m${mealKey}`}
-            {...common}
-            items={meals}
-            per="1"
-            idField="mealId"
-            amountField="servings"
-            amountLabel={t.day.servings}
-            defaultAmount="1"
-            empty={t.day.noMeals}
-            state={mealState}
-            action={mealAction}
-          />
-        )}
-        {kind === "ingredient" && (
-          <PickForm
-            key={`i${ingKey}`}
-            {...common}
-            items={ingredients}
-            per="100"
-            idField="ingredientId"
-            amountField="quantity"
-            amountLabel={t.day.quantity}
-            defaultAmount=""
-            empty={t.day.noIngredients}
-            state={ingState}
-            action={ingAction}
-          />
-        )}
-        {kind === "portion" && (
-          <PickForm
-            key={`p${porKey}`}
-            {...common}
-            items={portions}
-            per="1"
-            idField="batchId"
-            amountField="servings"
-            amountLabel={t.day.portions}
-            defaultAmount="1"
-            empty={t.day.noPortions}
-            state={porState}
-            action={porAction}
-          />
-        )}
-        {kind === "estimate" && (
-          <EstimateForm
-            key={`e${estKey}`}
-            {...common}
-            state={estState}
-            action={estAction}
-          />
-        )}
-      </div>
-    </Sheet>
+    <FutureDay.Provider value={future}>
+      <Sheet
+        id="day-add-food"
+        title={t.day.addTitle}
+        icon={<Plus size={20} aria-hidden="true" />}
+        closeLabel={t.actions.close}
+      >
+        <div role="tablist" aria-label={t.day.addTitle} className="flex">
+          {tabs.map((tab) => {
+            const selected = tab.kind === kind;
+            return (
+              <button
+                key={tab.kind}
+                type="button"
+                role="tab"
+                id={`add-tab-${tab.kind}`}
+                aria-selected={selected}
+                aria-controls="add-panel"
+                onClick={() => setKind(tab.kind)}
+                // Icon over label: four tabs fit a phone (like the bottom tab bar).
+                className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-control px-1 py-2 font-display text-meta ${
+                  selected
+                    ? "rule-b-heavy border-ink bg-sheet font-bold text-ink"
+                    : "rule-b-medium border-hairline text-muted hover:text-ink"
+                }`}
+              >
+                {tab.icon}
+                <span className="w-full truncate text-center">{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div id="add-panel" role="tabpanel" aria-labelledby={`add-tab-${kind}`}>
+          {kind === "meal" && (
+            <PickForm
+              key={`m${mealKey}`}
+              {...common}
+              items={meals}
+              per="1"
+              idField="mealId"
+              amountField="servings"
+              amountLabel={t.day.servings}
+              defaultAmount="1"
+              empty={t.day.noMeals}
+              state={mealState}
+              action={mealAction}
+            />
+          )}
+          {kind === "ingredient" && (
+            <PickForm
+              key={`i${ingKey}`}
+              {...common}
+              items={ingredients}
+              per="100"
+              idField="ingredientId"
+              amountField="quantity"
+              amountLabel={t.day.quantity}
+              defaultAmount=""
+              empty={t.day.noIngredients}
+              state={ingState}
+              action={ingAction}
+            />
+          )}
+          {kind === "portion" && (
+            <PickForm
+              key={`p${porKey}`}
+              {...common}
+              items={portions}
+              per="1"
+              idField="batchId"
+              amountField="servings"
+              amountLabel={t.day.portions}
+              defaultAmount="1"
+              empty={t.day.noPortions}
+              state={porState}
+              action={porAction}
+            />
+          )}
+          {kind === "estimate" && (
+            <EstimateForm
+              key={`e${estKey}`}
+              {...common}
+              state={estState}
+              action={estAction}
+            />
+          )}
+        </div>
+      </Sheet>
+    </FutureDay.Provider>
   );
 }
 
@@ -466,19 +482,26 @@ function Timing({
     bounds,
   );
   const moment = picked ?? suggested;
-  const [planned, setPlanned] = useState(kept("planned") === "on");
+  const future = useContext(FutureDay);
+  const [chosen, setPlanned] = useState(kept("planned") === "on");
+  // A day still to come: planned only, the switch is not offered.
+  const planned = future || chosen;
   return (
     <div className="flex flex-col gap-3">
       {planned && <input type="hidden" name="planned" value="on" />}
-      <Segmented
-        label={t.day.when}
-        value={planned ? "planned" : "eaten"}
-        onChange={(v) => setPlanned(v === "planned")}
-        options={[
-          { value: "eaten", label: t.day.eaten },
-          { value: "planned", label: t.day.plannedShort },
-        ]}
-      />
+      {future ? (
+        <p className="text-meta text-muted">{t.day.futurePlanned}</p>
+      ) : (
+        <Segmented
+          label={t.day.when}
+          value={planned ? "planned" : "eaten"}
+          onChange={(v) => setPlanned(v === "planned")}
+          options={[
+            { value: "eaten", label: t.day.eaten },
+            { value: "planned", label: t.day.plannedShort },
+          ]}
+        />
+      )}
       <div className="grid grid-cols-2 items-end gap-3">
         <TimeField
           label={t.day.time}

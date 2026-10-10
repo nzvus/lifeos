@@ -362,6 +362,7 @@ export const panelRowsIt = {
   bandLine: "minimo salute {floor} · zona buona {low}–{high} · {kind} {ceiling}",
   maxHealth: "massimo consigliato",
   maxUseful: "massimo utile",
+  noMax: "nessun massimo",
   targetLine: "obiettivo {v}",
   planLine: "con il pianificato {v}",
   liveTitle: "La giornata col piano",
