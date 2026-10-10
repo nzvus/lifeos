@@ -114,6 +114,7 @@ import {
   setEntryTimeAction,
 } from "./actions";
 import { readDays } from "@/core/day/repositories/days";
+import { explainDay } from "@/core/day/explain";
 import { getCalibration } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 import { DayGoal } from "./day-goal";
@@ -313,6 +314,7 @@ export default async function DayPage({ searchParams }: Props) {
               params={resolved.params}
               basis={resolved.basis}
               weightGoal={resolved.weightGoal}
+              explained={explainDay(resolved)}
               total={energyView.energy?.total ?? null}
               eatenKcal={view.totals.nutrients.kcal}
               withPlannedKcal={view.withPlanned.nutrients.kcal}

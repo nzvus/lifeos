@@ -99,6 +99,25 @@ export const weightGoalIt: Messages["energy"]["weightGoal"] = {
     "Spento: ogni giorno segue l'obiettivo da solo, giorno per giorno. Acceso: una volta a settimana l'app propone i 7 giorni dopo da quanto hai speso davvero, e tu accetti o salti; una settimana accettata resta fissata.",
   undo: "Annulla il check-in",
   undone: "Check-in annullato: i giorni seguono di nuovo l'obiettivo",
+  explain: {
+    title: "Come nasce questo numero",
+    spend:
+      "Oggi spendi ~{total} kcal: il corpo a riposo {bmr}, l'attività quotidiana {everyday}, i passi {steps}, l'allenamento {training}.",
+    goalTakes:
+      "Il tuo obiettivo ({kind}, {rate} % a settimana) toglie {kcal} kcal al giorno.",
+    goalAdds:
+      "Il tuo obiettivo ({kind}, {rate} % a settimana) aggiunge {kcal} kcal al giorno.",
+    goalSteady: "Il tuo obiettivo ({kind}) ti tiene a quanto spendi.",
+    checkin:
+      "Il check-in del {day} ha fissato questa settimana a {kcal} kcal al giorno, da una spesa media di {exp} kcal.",
+    checkinShift: "Il programma di questo giorno lo sposta di {shift} kcal.",
+    typeTakes: "Il tipo di giornata toglie {kcal} kcal.",
+    typeAdds: "Il tipo di giornata aggiunge {kcal} kcal.",
+    floor: "La tua soglia minima lo alza di {kcal} kcal.",
+    result: "= {kcal} kcal da mangiare.",
+    split:
+      "Proteine {protein} g ({perKg} g × {kg} kg) · grassi {fat} g ({share} % delle kcal) · carboidrati {carbs} g, il resto.",
+  },
   weekday: "Giorno del check-in",
   weekdays: [
     "Domenica",
