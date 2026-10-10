@@ -38,6 +38,17 @@ export const MOMENT_TEXT: Record<string, string> = {
   pre_sleep: "text-moment-dinner",
 };
 
+/** Background colour per moment: the timeline's dots (ADR-0050). */
+export const MOMENT_BG: Record<string, string> = {
+  breakfast: "bg-moment-breakfast",
+  lunch: "bg-moment-lunch",
+  snack: "bg-moment-snack",
+  dinner: "bg-moment-dinner",
+  pre_workout: "bg-macro-carbs",
+  post_workout: "bg-macro-protein",
+  pre_sleep: "bg-moment-dinner",
+};
+
 export function MomentIcon({
   moment,
   size = 16,

@@ -16,7 +16,7 @@
  * they answer at once and the server follows. The page wraps the list in
  * <LiveDay>.
  */
-import { Pencil, Tag } from "lucide-react";
+import { Pencil, Plus, Tag } from "lucide-react";
 import { detailLines } from "@/core/nutrition/display";
 import { groupByMoment, MOMENTS, type MomentBounds } from "@/core/nutrition/moments";
 import type { ProgramSlot } from "@/core/nutrition/programs";
@@ -30,16 +30,16 @@ import type { Locale } from "@/core/shared/locales";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { FoodDetails } from "@/ui/FoodDetails";
-import { Collapsible } from "@/ui/Collapsible";
 import { ListItem } from "@/ui/ListItem";
-import { MOMENT_TEXT, MomentIcon } from "@/ui/MomentIcon";
+import { MOMENT_BG, MOMENT_TEXT } from "@/ui/MomentIcon";
+import { buttonClass } from "@/ui/button";
+import { timeline, type TimelineSession } from "@/core/day/timeline";
 import { TrashMenu } from "@/ui/TrashMenu";
 import { timeIn } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
 import {
   LiveEntryStrip,
   LiveGroupKcal,
-  LiveGroupStrip,
   LiveCountToggle,
   LiveServings,
   LiveStatusToggle,
@@ -83,6 +83,12 @@ type Props = {
    */
   slots?: readonly ProgramSlot[];
   slotDay?: { kcal: number | null; protein: number | null; kg: number | null };
+  /** ADR-0050: the day's training sessions, on the timeline. */
+  sessions?: readonly TimelineSession[];
+  /** Minutes after midnight on today (the "now" line); null on other days. */
+  now?: number | null;
+  /** A past day: every empty slot is past. */
+  over?: boolean;
   t: Pick<
     Messages,
     | "dayProgram"
@@ -115,66 +121,57 @@ export function EntryList({
   quality,
   slots = [],
   slotDay = { kcal: null, protein: null, kg: null },
+  sessions = [],
+  now = null,
+  over = false,
   t,
 }: Props) {
-  if (day.entries.length === 0 && slots.length === 0)
+  if (day.entries.length === 0 && slots.length === 0 && sessions.length === 0)
     return <p className="text-muted">{t.day.empty}</p>;
   const labels = macroLabels(t);
   const items = withSlots(groupByMoment(day.entries, timeZone, bounds), slots, slotDay);
   /** A moment's group, with its slot when the program has one. */
   const renderGroup = ({ group, slot, eatenProtein }: GroupItem) => (
-    <Collapsible
-      key={group.key}
-      id={`day-moment-${group.key}`}
-      inset
-      title={
+    <div id={`day-moment-${group.key}`} className="flex scroll-mt-24 flex-col gap-2">
+      <div className="flex items-baseline justify-between gap-2">
         <span
-          className={`flex items-center gap-1.5 ${
-            (group.moment && MOMENT_TEXT[group.moment]) || ""
-          }`}
+          className={`font-semibold ${(group.moment && MOMENT_TEXT[group.moment]) || ""}`}
         >
-          <MomentIcon moment={group.moment} />
           {group.part
             ? t.moments.snackParts[group.part]
             : group.moment
               ? t.moments.names[group.moment]
               : t.moments.none}
         </span>
-      }
-      aside={
-        <span className="flex items-baseline gap-1">
+        <span className="flex items-baseline gap-1 text-meta text-muted tabular-nums">
           <LiveGroupKcal
             ids={group.entries.map((e) => e.id)}
             locale={locale}
             text={t.moments.subtotal}
           />
           {slot?.target.kcal != null && (
-            <span className="text-meta font-normal text-muted tabular-nums">
+            // Its own element: as bare text it ran into the live kcal ("kcalsu").
+            <span>
               {fill(t.dayProgram.slotKcal, {
                 kcal: formatNumber(String(slot.target.kcal), locale, 0),
               })}
             </span>
           )}
         </span>
-      }
-      summary={
-        <>
-          <LiveGroupStrip
-            ids={group.entries.map((e) => e.id)}
-            locale={locale}
-            labels={labels}
+      </div>
+      {/* Eaten against the slot's share (ADR-0050): over by 5 % turns amber. */}
+      {slot?.target.kcal != null && slot.target.kcal > 0 && (
+        <span className="block h-1 rounded-badge bg-hairline" aria-hidden="true">
+          <span
+            className={`block h-1 rounded-badge ${
+              Number(group.eatenKcal) > slot.target.kcal * 1.05 ? "bg-warn" : "bg-herb"
+            }`}
+            style={{
+              width: `${Math.min(100, (Number(group.eatenKcal) / slot.target.kcal) * 100)}%`,
+            }}
           />
-          {slot && (
-            <SlotLine
-              slot={slot}
-              eatenProtein={eatenProtein}
-              locale={locale}
-              t={t.dayProgram}
-            />
-          )}
-        </>
-      }
-    >
+        </span>
+      )}
       {slot && (
         <SlotLine
           slot={slot}
@@ -302,37 +299,135 @@ export function EntryList({
           );
         })}
       </ol>
-    </Collapsible>
-  );
-  return (
-    // Grouped by moment of the day (ADR-0011), each with its eaten kcal; with
-    // a program, in its slots (ADR-0044).
-    <div className="flex flex-col gap-3">
-      {items.map((item) =>
-        item.type === "empty" ? (
-          <div
-            key={item.key}
-            className="flex items-start gap-2 rounded-control border border-dashed border-hairline p-3"
-          >
-            <span className={`pt-0.5 ${MOMENT_TEXT[item.moment] ?? ""}`}>
-              <MomentIcon moment={item.moment} />
-            </span>
-            <div className="flex min-w-0 flex-col">
-              <span className="font-display text-item font-bold">
-                {t.moments.names[item.moment]}
-              </span>
-              <SlotLine
-                slot={item.slot}
-                eatenProtein={null}
-                locale={locale}
-                t={t.dayProgram}
-              />
-            </div>
-          </div>
-        ) : (
-          renderGroup(item)
-        ),
-      )}
     </div>
+  );
+  const rows = timeline(items, sessions, now, over);
+  const hhmm = (m: number | null) =>
+    m === null
+      ? "—"
+      : `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+  const tl = t.dayProgram.timeline;
+  return (
+    // ADR-0050: the day as one timeline — time, a rail with a dot, the content.
+    <ol className="flex flex-col">
+      {rows.map((row) => {
+        const key =
+          row.type === "group"
+            ? row.item.group.key
+            : row.type === "empty"
+              ? row.item.key
+              : row.type === "session"
+                ? `session-${row.session.id}`
+                : "now";
+        if (row.type === "now")
+          return (
+            <li key={key} className="flex items-center gap-2 py-1 text-tomato">
+              <span className="w-12 shrink-0 font-display font-bold tabular-nums">
+                {hhmm(row.at)}
+              </span>
+              <span className="flex w-3.5 shrink-0 justify-center" aria-hidden="true">
+                <span className="h-2.5 w-2.5 rounded-full bg-tomato" />
+              </span>
+              <span className="h-0.5 flex-1 bg-tomato" aria-hidden="true" />
+              <span className="text-meta font-semibold">{tl.now}</span>
+            </li>
+          );
+        const moment =
+          row.type === "group"
+            ? row.item.group.moment
+            : row.type === "empty"
+              ? row.item.moment
+              : null;
+        const dot =
+          row.type === "session"
+            ? "h-3 w-3 rounded-sm bg-ink"
+            : row.type === "empty"
+              ? `h-3 w-3 rounded-full rule-strong border-current bg-paper ${
+                  row.past
+                    ? "text-hairline"
+                    : (moment && MOMENT_TEXT[moment]) || "text-muted"
+                }`
+              : `h-3 w-3 rounded-full ${(moment && MOMENT_BG[moment]) || "bg-muted"}`;
+        return (
+          <li key={key} className="flex gap-2">
+            <span
+              className={`w-12 shrink-0 pt-3 font-display text-item font-bold tabular-nums ${
+                row.type === "empty" && row.past ? "text-muted" : ""
+              }`}
+            >
+              {hhmm(row.at)}
+            </span>
+            <span
+              className="flex w-3.5 shrink-0 flex-col items-center"
+              aria-hidden="true"
+            >
+              <span className="h-4 w-0.5 bg-hairline" />
+              <span className={dot} />
+              <span className="w-0.5 flex-1 bg-hairline" />
+            </span>
+            <div className="min-w-0 flex-1 pt-2 pb-4">
+              {row.type === "group" ? (
+                renderGroup(row.item)
+              ) : row.type === "empty" ? (
+                <div
+                  className={`flex items-start justify-between gap-2 ${row.past ? "text-muted" : ""}`}
+                >
+                  <div className="flex min-w-0 flex-col">
+                    <span
+                      className={`font-semibold ${row.past ? "" : (MOMENT_TEXT[row.item.moment] ?? "")}`}
+                    >
+                      {t.moments.names[row.item.moment]}
+                      {row.past && ` · ${tl.skipped}`}
+                    </span>
+                    {!row.past && (
+                      <SlotLine
+                        slot={row.item.slot}
+                        eatenProtein={null}
+                        locale={locale}
+                        t={t.dayProgram}
+                      />
+                    )}
+                  </div>
+                  <a
+                    href="#day-add-food"
+                    aria-label={fill(tl.addTo, {
+                      slot: t.moments.names[row.item.moment],
+                    })}
+                    className={buttonClass({
+                      variant: row.past ? "quiet" : "secondary",
+                      size: "sm",
+                    })}
+                  >
+                    <Plus size={16} aria-hidden="true" />
+                    {!row.past && tl.add}
+                  </a>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between gap-2 rounded-surface bg-ink p-3 text-paper">
+                  <span className="flex min-w-0 flex-col">
+                    <span className="font-display text-item font-bold">
+                      {row.session.label}
+                    </span>
+                    <span className="text-meta">
+                      {row.session.status === "done" ? tl.sessionDone : tl.sessionPlanned}
+                    </span>
+                  </span>
+                  <a
+                    href={
+                      row.session.status === "done"
+                        ? `/training/${row.session.id}`
+                        : `/training/${row.session.id}/live`
+                    }
+                    className="inline-flex min-h-11 items-center rounded-control bg-paper px-4 font-semibold text-ink"
+                  >
+                    {row.session.status === "done" ? tl.open : tl.gym}
+                  </a>
+                </div>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ol>
   );
 }

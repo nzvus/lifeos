@@ -7,7 +7,8 @@
 import type { ResolvedDay } from "@/core/day/resolve";
 import type { DaySummary } from "@/core/nutrition/repositories/history";
 import { weekContext, type WeekContext } from "@/core/nutrition/week";
-import { minutesOf } from "@/core/nutrition/moments";
+import { minutesOf, type MomentBounds } from "@/core/nutrition/moments";
+import { defaultSlots, type TimelineSession } from "@/core/day/timeline";
 import type { DayProgram, ProgramSlot } from "@/core/nutrition/programs";
 import { moveWithSession } from "@/core/nutrition/slots";
 import { timeIn } from "@/core/shared/dates";
@@ -71,8 +72,10 @@ export function daySlots(
   program: DayProgram | undefined,
   sessions: readonly { startedAt: string | null }[],
   timeZone: string,
+  bounds: MomentBounds,
 ): ProgramSlot[] {
-  if (!program) return [];
+  // ADR-0050: without a program, the main meals at their usual times.
+  if (!program || !program.slots.length) return defaultSlots(bounds);
   const starts = sessions
     .filter((x) => x.startedAt)
     .map((x) => minutesOf(timeIn(new Date(x.startedAt!), timeZone)));
@@ -81,4 +84,60 @@ export function daySlots(
     program.trainingAt,
     starts.length ? Math.min(...starts) : null,
   );
+}
+
+/** The day's sessions for the timeline: their real start, else the program's time. */
+export function timelineSessions(
+  sessions: readonly {
+    id: string;
+    label: string;
+    status: string;
+    startedAt: string | null;
+  }[],
+  program: DayProgram | undefined,
+  timeZone: string,
+): TimelineSession[] {
+  return sessions.map((x) => ({
+    id: x.id,
+    label: x.label,
+    status: x.status === "done" ? "done" : "planned",
+    at: x.startedAt
+      ? minutesOf(timeIn(new Date(x.startedAt), timeZone))
+      : (program?.trainingAt ?? null),
+  }));
+}
+
+/**
+ * Everything the day's timeline needs (ADR-0050), in one place: the
+ * slots (the program's, moved with the session, or the usual meals), the
+ * day's targets for their shares, the sessions, now and whether the day is
+ * over. Split out of page.tsx (800-line limit).
+ */
+export function timelineOf(input: {
+  program: DayProgram | undefined;
+  sessions: readonly {
+    id: string;
+    label: string;
+    status: string;
+    startedAt: string | null;
+  }[];
+  day: string;
+  today: string;
+  timeZone: string;
+  bounds: MomentBounds;
+  targets: { kcal: string | null; protein: string | null };
+  weightKg: string | null;
+}) {
+  const num = (x: string | null) => (x === null ? null : Number(x));
+  return {
+    slots: daySlots(input.program, input.sessions, input.timeZone, input.bounds),
+    slotDay: {
+      kcal: num(input.targets.kcal),
+      protein: num(input.targets.protein),
+      kg: num(input.weightKg),
+    },
+    sessions: timelineSessions(input.sessions, input.program, input.timeZone),
+    now: input.day === input.today ? minutesOf(timeIn(new Date(), input.timeZone)) : null,
+    over: input.day < input.today,
+  };
 }
