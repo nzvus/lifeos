@@ -133,3 +133,40 @@ export function moveWithSession(
       : s,
   );
 }
+
+type Fit = { kcal: string; protein: string; carbs: string; fat: string };
+
+/**
+ * The user's own meals that fit a slot around training or sleep (ADR-0050),
+ * best first, at most `n`; other slots suggest nothing (the usual search
+ * by use is already there). Per serving:
+ *   pre_workout   80–600 kcal, most energy from carbs, little fat
+ *   post_workout  at least 20 g protein, then protein and carbs share
+ *   pre_sleep     at least 15 g protein, at most 450 kcal, protein share
+ * Ties go to the meal used more.
+ */
+export function suggestForSlot<T extends { values: Fit; uses: number }>(
+  kind: Moment,
+  items: readonly T[],
+  n = 3,
+): T[] {
+  const score = (v: Fit): number | null => {
+    const kcal = Number(v.kcal);
+    if (!(kcal > 0)) return null;
+    const share = (g: string, per: number) => (Number(g) * per) / kcal;
+    const protein = Number(v.protein);
+    if (kind === "pre_workout")
+      return kcal >= 80 && kcal <= 600 ? share(v.carbs, 4) - share(v.fat, 9) : null;
+    if (kind === "post_workout")
+      return protein >= 20 ? share(v.protein, 4) + 0.3 * share(v.carbs, 4) : null;
+    if (kind === "pre_sleep")
+      return protein >= 15 && kcal <= 450 ? share(v.protein, 4) : null;
+    return null;
+  };
+  return items
+    .map((item) => ({ item, s: score(item.values) }))
+    .filter((x): x is { item: T; s: number } => x.s !== null && x.s > 0)
+    .sort((a, b) => b.s - a.s || b.item.uses - a.item.uses)
+    .slice(0, n)
+    .map((x) => x.item);
+}

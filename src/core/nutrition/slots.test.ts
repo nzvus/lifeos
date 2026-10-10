@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { groupByMoment, type Moment } from "./moments";
 import { STARTERS } from "./programs";
-import { moveWithSession, withSlots } from "./slots";
+import { moveWithSession, suggestForSlot, withSlots } from "./slots";
 
 // Times are UTC; Rome is UTC+2 in October.
 const e = (moment: Moment, at: string, kcal: string, protein: string) => ({
@@ -99,5 +99,54 @@ describe("moveWithSession", () => {
     expect(moveWithSession(STARTERS.gymEvening.slots, 18 * 60, null)).toEqual(
       STARTERS.gymEvening.slots,
     );
+  });
+});
+
+describe("suggestForSlot", () => {
+  const meal = (
+    name: string,
+    kcal: number,
+    protein: number,
+    carbs: number,
+    fat: number,
+    uses = 1,
+  ) => ({
+    name,
+    uses,
+    values: {
+      kcal: String(kcal),
+      protein: String(protein),
+      carbs: String(carbs),
+      fat: String(fat),
+    },
+  });
+  const meals = [
+    meal("Gallette e marmellata", 210, 4, 46, 1),
+    meal("Banana e caffè", 120, 1, 27, 0, 5),
+    meal("Pasta al tonno", 720, 38, 96, 21),
+    meal("Shake proteico", 180, 32, 8, 2),
+    meal("Skyr e noci", 320, 22, 12, 18),
+    meal("Burger", 1100, 55, 80, 60),
+  ];
+  const names = (xs: { name: string }[]) => xs.map((x) => x.name);
+
+  it("before training: carbs-heavy, light, low in fat", () => {
+    expect(names(suggestForSlot("pre_workout", meals))).toEqual([
+      "Banana e caffè",
+      "Gallette e marmellata",
+      "Shake proteico",
+    ]);
+  });
+  it("after training: protein first", () => {
+    expect(names(suggestForSlot("post_workout", meals))[0]).toBe("Shake proteico");
+  });
+  it("before sleep: protein, not too much energy", () => {
+    expect(names(suggestForSlot("pre_sleep", meals))).toEqual([
+      "Shake proteico",
+      "Skyr e noci",
+    ]);
+  });
+  it("other slots suggest nothing", () => {
+    expect(suggestForSlot("lunch", meals)).toEqual([]);
   });
 });

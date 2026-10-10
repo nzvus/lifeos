@@ -185,6 +185,7 @@ export const it: Messages = {
     refreshGone: "Il pasto o l'ingrediente da cui viene non esiste più.",
     nothingYesterday: "Il giorno prima non hai registrato niente.",
     profileLabel: "Tipo di giornata",
+    slotSuggestions: "Adatti a questo slot, dai tuoi pasti",
     entryDetails: "Dettagli di {name}",
     futurePlanned:
       "È un giorno che deve ancora venire: quello che aggiungi è pianificato.",
