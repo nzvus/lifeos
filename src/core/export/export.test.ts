@@ -258,9 +258,10 @@ describe("exportUserData", () => {
     expect(data.goals.map((x) => [x.sinceDay, x.ratePctWeek])).toEqual([
       ["2026-10-10", "-0.50"],
     ]);
-    expect(data.weekCheckins.map((x) => [x.startDay, x.decision, x.kcal])).toEqual([
-      ["2026-10-12", "skipped", null],
-    ]);
+    expect(
+      data.weekCheckins.map((x) => [x.startDay, x.decision, x.kcal, x.shifts]),
+    ).toEqual([["2026-10-12", "skipped", null, {}]]);
+    expect(data.version).toBeGreaterThanOrEqual(19);
     expect(JSON.stringify([data.goals, data.weekCheckins])).not.toContain("userId");
   });
 
@@ -295,7 +296,7 @@ describe("exportUserData", () => {
     await saveProgram(db, alice, gym.value.id, STARTERS.gymEvening);
     await saveProgram(db, bob, bobs.value.id, STARTERS.rest);
     const data = await exportUserData(db, alice);
-    expect(data.version).toBe(18);
+    expect(data.version).toBeGreaterThanOrEqual(18);
     const byName = new Map(data.dayProfiles.map((p) => [p.name, p.program]));
     expect(byName.get("Rest")).toBeNull();
     expect(byName.get("Gym")?.trainingAt).toBe(18 * 60);

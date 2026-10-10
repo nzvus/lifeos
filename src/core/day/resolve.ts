@@ -21,6 +21,7 @@ import {
   type Goal,
 } from "../energy/energy";
 import { goalOnDay, goalTargets, isCutting } from "../energy/goal";
+import { shiftDay } from "../energy/shift";
 import type { AcceptedCheckin, WeightGoal } from "../energy/repositories/goals";
 import type { DayEnergyView } from "../energy/repositories/energy";
 import {
@@ -105,13 +106,17 @@ export function resolveDay(
     ? [null, null]
     : checkin
       ? [
-          {
-            kcal: checkin.kcal,
-            protein: checkin.protein,
-            fat: checkin.fat,
-            carbs: checkin.carbs,
-            fiber: checkin.fiber,
-          },
+          // ADR-0044: the week's numbers with this day's shift (carbs take it).
+          shiftDay(
+            {
+              kcal: checkin.kcal,
+              protein: checkin.protein,
+              fat: checkin.fat,
+              carbs: checkin.carbs,
+              fiber: checkin.fiber,
+            },
+            checkin.shifts?.[day] ?? 0,
+          ),
           "checkin",
         ]
       : goal && e && kg

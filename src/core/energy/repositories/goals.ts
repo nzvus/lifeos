@@ -8,6 +8,7 @@ import { desc, eq } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import {
   goals,
+  weekCheckinDays,
   weekCheckins,
   type DietSplit,
   type GoalKind,
@@ -88,6 +89,8 @@ export type WeekCheckin =
       fat: number;
       carbs: number;
       fiber: number;
+      /** ADR-0044: kcal per day above or below these (carbs take them); absent = 0. */
+      shifts?: Record<string, number>;
     }
   | { startDay: string; decision: "skipped" };
 
@@ -95,11 +98,18 @@ export type AcceptedCheckin = Extract<WeekCheckin, { decision: "accepted" }>;
 
 /** Check-ins, newest first. */
 export async function listWeekCheckins(db: Db, owner: Owner): Promise<WeekCheckin[]> {
-  const rows = await db
-    .select()
-    .from(weekCheckins)
-    .where(ownedBy(weekCheckins, owner))
-    .orderBy(desc(weekCheckins.startDay));
+  const [rows, days] = await Promise.all([
+    db
+      .select()
+      .from(weekCheckins)
+      .where(ownedBy(weekCheckins, owner))
+      .orderBy(desc(weekCheckins.startDay)),
+    db.select().from(weekCheckinDays).where(ownedBy(weekCheckinDays, owner)),
+  ]);
+  const shiftsOf = (startDay: string) =>
+    Object.fromEntries(
+      days.filter((d) => d.startDay === startDay).map((d) => [d.day, d.shiftKcal]),
+    );
   return rows.map((r) =>
     r.decision === "accepted"
       ? {
@@ -114,6 +124,7 @@ export async function listWeekCheckins(db: Db, owner: Owner): Promise<WeekChecki
           fat: r.fat!,
           carbs: r.carbs!,
           fiber: r.fiber!,
+          shifts: shiftsOf(r.startDay),
         }
       : { startDay: r.startDay, decision: "skipped" },
   );
@@ -144,7 +155,7 @@ export async function recordWeekCheckin(
 ): Promise<Result<null>> {
   const numbers =
     checkin.decision === "accepted"
-      ? (({ startDay: _day, decision: _decision, ...n }) => n)(checkin)
+      ? (({ startDay: _day, decision: _decision, shifts: _shifts, ...n }) => n)(checkin)
       : {
           expenditureKcal: null,
           factor: null,
@@ -156,14 +167,29 @@ export async function recordWeekCheckin(
           fiber: null,
         };
   const set = { decision: checkin.decision, ...numbers };
-  const written = await db
-    .insert(weekCheckins)
-    .values({ userId: owner.id, startDay: checkin.startDay, ...set })
-    .onConflictDoUpdate({
-      target: [weekCheckins.userId, weekCheckins.startDay],
-      set,
-      setWhere: eq(weekCheckins.decision, "skipped"),
-    })
-    .returning({ startDay: weekCheckins.startDay });
-  return written.length ? ok(null) : fail({ _form: "not_editable" });
+  const shifts = Object.entries(
+    (checkin.decision === "accepted" && checkin.shifts) || {},
+  ).filter(([, kcal]) => kcal !== 0);
+  return db.transaction(async (tx) => {
+    const written = await tx
+      .insert(weekCheckins)
+      .values({ userId: owner.id, startDay: checkin.startDay, ...set })
+      .onConflictDoUpdate({
+        target: [weekCheckins.userId, weekCheckins.startDay],
+        set,
+        setWhere: eq(weekCheckins.decision, "skipped"),
+      })
+      .returning({ startDay: weekCheckins.startDay });
+    if (!written.length) return fail({ _form: "not_editable" });
+    if (shifts.length)
+      await tx.insert(weekCheckinDays).values(
+        shifts.map(([day, shiftKcal]) => ({
+          userId: owner.id,
+          startDay: checkin.startDay,
+          day,
+          shiftKcal,
+        })),
+      );
+    return ok(null);
+  });
 }

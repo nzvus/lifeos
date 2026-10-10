@@ -107,6 +107,8 @@ export const weightGoalIt: Messages["energy"]["weightGoal"] = {
   checkinLearnt: "Imparato dal tuo diario e dalla bilancia.",
   checkinModel: "Stimato dal modello: non ancora imparato dai tuoi dati.",
   checkinTarget: "Prossimi 7 giorni, ogni giorno: {kcal} kcal",
+  checkinShifted:
+    "Prossimi 7 giorni, in media {kcal} kcal; i programmi dei giorni la spostano:",
   checkinMacros: "proteine {protein} g · grassi {fat} g · carboidrati {carbs} g",
   checkinFloored: "Fermato alla tua soglia minima.",
   checkinFactor: "Accettando, l'attività quotidiana diventa {factor}.",

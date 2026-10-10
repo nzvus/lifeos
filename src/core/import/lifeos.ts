@@ -108,6 +108,8 @@ const exportFile = z.object({
     z.literal(17),
     // 18: day types' programs (ADR-0044); ignored here.
     z.literal(18),
+    // 19: week check-ins' shifts (ADR-0044); ignored here.
+    z.literal(19),
   ]),
   settings: z
     .object({
