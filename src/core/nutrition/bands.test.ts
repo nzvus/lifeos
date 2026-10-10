@@ -1,14 +1,14 @@
 /** Tests for core/nutrition/bands.ts (ADR-0023, amended by ADR-0025). */
 import { describe, expect, it } from "vitest";
 import {
-  toGoFrom,
   bandFor,
   bandState,
   macroBands,
+  toGoFrom,
   trainingLoad,
+  type Band,
   zoneOf,
   zoneScore,
-  type Band,
 } from "./bands";
 
 describe("macroBands", () => {
@@ -42,8 +42,8 @@ describe("macroBands", () => {
       floor: 25,
       low: 35,
       high: 50,
-      ceiling: 70,
-      ceilingKind: "useful",
+      ceiling: 70, // the bar's scale only
+      ceilingKind: "open", // 2026-10-10: total fibre has no maximum
     });
     expect(b.kcal).toBeUndefined();
 
@@ -155,5 +155,15 @@ describe("toGoFrom", () => {
     expect(toGoFrom("189", 155) - 151).toBe(38);
     expect(toGoFrom(null, 155)).toBe(155);
     expect(toGoFrom(120, 155)).toBe(155);
+  });
+});
+
+describe("an open band (total fibre, 2026-10-10)", () => {
+  it("above the good zone is still good: no penalty, no 'over'", () => {
+    const b = macroBands({ kg: 76, kcal: 2500, load: "rest", cutting: false }).fiber!;
+    expect(zoneOf(80, b)).toBe("good");
+    expect(zoneScore(80, b)).toBe(100);
+    expect(bandState(80, b)).toBe("good");
+    expect(bandState(20, b)).toBe("short");
   });
 });

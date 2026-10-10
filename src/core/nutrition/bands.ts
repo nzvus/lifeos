@@ -17,8 +17,9 @@
  *            the day's carbs target, which takes the rest of the energy)
  *   fat      floor 20 % of kcal (AMDR) · good 25–30 % of kcal, at least
  *            0.6 g/kg · health max 35 % of kcal (AMDR; EFSA RI 20–35 %)
- *   fibre    floor 25 g (EFSA adequate intake) · good 14 g/1000 kcal (at
- *            least 25) to 50 g · useful max 70 g (tolerance; no UL)
+ *   fibre    floor 25 g (EFSA adequate intake) · good from 14 g/1000 kcal
+ *            (at least 25) up, with no maximum: total fibre has no upper
+ *            limit (no UL); tolerance is about fermentable types (Phase 5)
  *
  * Energy has no band: it has its own target. Sugars, saturated fat and salt
  * keep their health maxima (targets.ts).
@@ -32,8 +33,13 @@ export type Band = {
   low: number;
   high: number;
   ceiling: number;
-  /** "health": a recommended maximum; "useful": no benefit beyond it. */
-  ceilingKind: "health" | "useful";
+  /**
+   * "health": a recommended maximum; "useful": no benefit beyond it;
+   * "open": no maximum at all — above the good zone is still good
+   * (fibre, 2026-10-10: a limit belongs to fermentable types only, and it
+   * grows with tolerance; `ceiling` then only scales the bar).
+   */
+  ceilingKind: "health" | "useful" | "open";
 };
 export type Bands = Partial<Record<NutrientKey, Band>>;
 
@@ -98,8 +104,8 @@ export function macroBands(input: {
       floor: 25,
       low: r(Math.max(25, (14 * kcal) / 1000)),
       high: 50,
-      ceiling: 70,
-      ceilingKind: "useful",
+      ceiling: 70, // the bar's scale only
+      ceilingKind: "open",
     },
   };
 }
@@ -109,6 +115,7 @@ export type Zone = "below_floor" | "low" | "good" | "high" | "above_ceiling";
 export function zoneOf(value: number, b: Band): Zone {
   if (value < b.floor) return "below_floor";
   if (value < b.low) return "low";
+  if (b.ceilingKind === "open") return "good";
   if (value <= b.high) return "good";
   if (value <= b.ceiling) return "high";
   return "above_ceiling";
@@ -123,7 +130,7 @@ export function zoneScore(value: number, b: Band): number {
   const lerp = (x: number, from: number, to: number, a: number, z: number) =>
     to === from ? z : a + ((x - from) / (to - from)) * (z - a);
   let s: number;
-  if (value >= b.low && value <= b.high) s = 100;
+  if (value >= b.low && (value <= b.high || b.ceilingKind === "open")) s = 100;
   else if (value < b.low && value >= b.floor) s = lerp(value, b.floor, b.low, 50, 100);
   else if (value < b.floor) s = lerp(value, b.floor - (b.low - b.floor), b.floor, 0, 50);
   else if (b.ceilingKind === "useful") s = 70;
@@ -185,7 +192,7 @@ export type BandState = "none" | "short" | "good" | "high" | "over";
 export function bandState(value: number, band: Band | null): BandState {
   if (!band) return "none";
   if (value < band.low) return "short";
-  if (value <= band.high) return "good";
+  if (value <= band.high || band.ceilingKind === "open") return "good";
   if (value <= band.ceiling || band.ceilingKind === "useful") return "high";
   return "over";
 }
