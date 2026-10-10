@@ -104,6 +104,8 @@ const exportFile = z.object({
     z.literal(15),
     // 16: goals and week check-ins (ADR-0043); ignored here.
     z.literal(16),
+    // 17: accepted calibration factors (ADR-0026); ignored here.
+    z.literal(17),
   ]),
   settings: z
     .object({

@@ -56,6 +56,7 @@ import {
   dayCheckins,
   dayClosures,
   goals,
+  energyCorrections,
   weekCheckins,
   logEntryLeftOut,
   moneyCategories,
@@ -86,8 +87,9 @@ export const EXPORT_FORMAT = "lifeos-export";
 // 14: `mind.checkins`, the days as they felt (ADR-0038); each set's
 // startedAt / endedAt and a routine's itemsSavedAt (ADR-0037);
 // 15: `dayClosures`, the days closed as complete or partial (ADR-0042);
-// 16: `goals` (their history) and `weekCheckins` (ADR-0043).
-export const EXPORT_VERSION = 16;
+// 16: `goals` (their history) and `weekCheckins` (ADR-0043);
+// 17: `energyCorrections`, the accepted calibration factors (ADR-0026).
+export const EXPORT_VERSION = 17;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -314,6 +316,11 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     .from(dayClosures)
     .where(ownedBy(dayClosures, owner))
     .orderBy(asc(dayClosures.day));
+  const correctionRows = await db
+    .select()
+    .from(energyCorrections)
+    .where(ownedBy(energyCorrections, owner))
+    .orderBy(asc(energyCorrections.sinceDay));
   const goalRows = await db
     .select()
     .from(goals)
@@ -354,6 +361,7 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     dayProfiles: stripOwner(profileRows),
     dayPlans: stripOwner(planRows),
     dayClosures: stripOwner(closureRows),
+    energyCorrections: stripOwner(correctionRows),
     goals: stripOwner(goalRows),
     weekCheckins: stripOwner(weekCheckinRows),
     log: stripOwner(entryRows).map((e) => ({
