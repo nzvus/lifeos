@@ -14,6 +14,7 @@ import { addPurchase, createProduct } from "../pantry/repositories/products";
 import { createExercise } from "../training/repositories/exercises";
 import { addMeasurement, deleteMeasurement } from "../training/repositories/measurements";
 import { createSession } from "../training/repositories/sessions";
+import { setEnergyCorrection } from "../energy/repositories/energy";
 import { recordWeekCheckin, setGoal } from "../energy/repositories/goals";
 import { setDayClosure } from "../nutrition/repositories/closures";
 import { EXPORT_FORMAT, EXPORT_VERSION, exportUserData } from "./export";
@@ -249,7 +250,7 @@ describe("exportUserData", () => {
     await setGoal(db, bob, "2026-10-01", { ...goal, ratePctWeek: "0.25" });
     await recordWeekCheckin(db, alice, { startDay: "2026-10-12", decision: "skipped" });
     const data = await exportUserData(db, alice);
-    expect(data.version).toBe(16);
+    expect(data.version).toBeGreaterThanOrEqual(16);
     expect(data.goals.map((x) => [x.sinceDay, x.ratePctWeek])).toEqual([
       ["2026-10-10", "-0.50"],
     ]);
@@ -257,5 +258,18 @@ describe("exportUserData", () => {
       ["2026-10-12", "skipped", null],
     ]);
     expect(JSON.stringify([data.goals, data.weekCheckins])).not.toContain("userId");
+  });
+
+  it("contains my accepted calibration factors (version 17), nobody else's", async () => {
+    await setEnergyCorrection(db, alice, 1.04, "2026-09-20");
+    await setEnergyCorrection(db, alice, 1.07, "2026-10-10");
+    await setEnergyCorrection(db, bob, 0.95, "2026-10-01");
+    const data = await exportUserData(db, alice);
+    expect(data.version).toBe(17);
+    expect(data.energyCorrections.map((x) => [x.sinceDay, x.factor])).toEqual([
+      ["2026-09-20", "1.04"],
+      ["2026-10-10", "1.07"],
+    ]);
+    expect(JSON.stringify(data.energyCorrections)).not.toContain("userId");
   });
 });
