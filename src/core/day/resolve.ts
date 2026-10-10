@@ -61,6 +61,8 @@ export type ResolvedDay = {
   params: DynamicParams | null;
   /** The goal in force on the day (ADR-0043), dynamic or not. */
   weightGoal: WeightGoal | null;
+  /** The accepted check-in covering the day (ADR-0043), or null. */
+  checkin: AcceptedCheckin | null;
   /** The day's own targets (fixed copy, or computed). */
   own: Targets;
   /** `own` plus the automatic maxima, unless turned off. */
@@ -183,6 +185,7 @@ export function resolveDay(
     basis,
     params,
     weightGoal: goal,
+    checkin,
     own,
     targets,
     auto,

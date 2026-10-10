@@ -143,6 +143,9 @@ export async function dynamicTargetsToday(
       },
       day.energy,
       { autoTargets: false },
+      // The goal and the check-in in force today, as on Today (2026-10-10
+      // audit: without them the list showed the type's old deficit).
+      { goal: day.weightGoal, checkin: day.checkin },
     );
     if (r.computed) out.set(p.id, r.computed);
   }
