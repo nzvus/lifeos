@@ -8,6 +8,13 @@
  * again from the bottom. Bodyweight moves by reps; planks and cardio by
  * time (+10 %, the usual cap on weekly increases). With no history, the
  * range and "a load you could lift 2–3 more times" (RIR 2–3).
+ *
+ * ADR-0049, gated by effort (reps left, RIR): a working set at RIR 0 is
+ * "too hard" — except the last set of an isolation exercise, which may
+ * go there. Too hard at the heaviest load: same load (hold_effort); too
+ * hard the session before as well: one load step down (reduce). Reaching
+ * the top of the range adds load only when no set there was too hard.
+ * Sets without RIR progress as before.
  */
 import type { Guide } from "./guides";
 import { loadStep } from "./live";
@@ -17,12 +24,14 @@ export type LastSet = {
   loadKg: string | null;
   durationS: number | null;
   warmup: boolean;
+  /** ADR-0049: reps left (0–4); null/absent = not said. */
+  rir?: number | null;
 };
 
 export type Target =
   | { reason: "start"; sets: number; reps: [number, number] }
   | {
-      reason: "add_load" | "add_reps" | "hold";
+      reason: "add_load" | "add_reps" | "hold" | "hold_effort" | "reduce";
       sets: number;
       reps: [number, number];
       /** Kg as text (exact), null for bodyweight. */
@@ -49,7 +58,19 @@ export function bestSet(
   return best;
 }
 
-export function nextTarget(guide: Guide, last: readonly LastSet[] | undefined): Target {
+/** Some working set went to failure where it shouldn't (ADR-0049). */
+function tooHard(guide: Guide, work: readonly LastSet[]): boolean {
+  return work.some(
+    (s, i) => s.rir === 0 && !(guide.role === "isolation" && i === work.length - 1),
+  );
+}
+
+export function nextTarget(
+  guide: Guide,
+  last: readonly LastSet[] | undefined,
+  /** The session before `last`, for "too hard twice in a row" (ADR-0049). */
+  before?: readonly LastSet[],
+): Target {
   const work = (last ?? []).filter((s) => !s.warmup);
   const [lo, hi] = guide.reps;
   const sets = work.length || guide.sets[0];
@@ -88,6 +109,23 @@ export function nextTarget(guide: Guide, last: readonly LastSet[] | undefined): 
     };
   }
   const n = Number(kg);
+  if (tooHard(guide, atTop)) {
+    const prior = (before ?? []).filter((s) => !s.warmup);
+    if (prior.length && tooHard(guide, prior)) {
+      const down = Math.max(
+        0,
+        Math.round((n - loadStep(Math.max(0, n - 0.01))) * 100) / 100,
+      );
+      return { reason: "reduce", sets, reps: [lo, hi], loadKg: String(down) };
+    }
+    const weakest = Math.min(...reps);
+    return {
+      reason: "hold_effort",
+      sets,
+      reps: [Math.min(hi, Math.max(lo, weakest)), hi],
+      loadKg: kg,
+    };
+  }
   if (reps.every((r) => r >= hi)) {
     const up = Math.round((n + loadStep(n)) * 100) / 100;
     return { reason: "add_load", sets, reps: [lo, hi], loadKg: String(up) };

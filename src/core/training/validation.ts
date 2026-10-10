@@ -101,6 +101,8 @@ const setInput = z.object({
   inclinePct: z.string().optional().default("").pipe(optionalDecimalString(TENTH)),
   restS: optionalCount,
   warmup: z.boolean().optional().default(false),
+  /** ADR-0049: reps left in the tank, 0–4 (4 = "4 or more"); absent = not said. */
+  rir: z.number().int("invalid_number").min(0).max(4).nullable().optional(),
   /** Live mode: false while a planned set is not ticked yet; absent = as the session's status. */
   done: z.boolean().optional(),
   /** Live mode's clock: when the set began and ended (ISO instants); absent = not timed. */

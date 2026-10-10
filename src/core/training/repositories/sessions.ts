@@ -229,6 +229,7 @@ async function writeChildren(
           inclinePct: s.inclinePct,
           restS: s.restS ?? null,
           warmup: s.warmup,
+          rir: s.rir ?? null,
           // Not ticked either way (the editor): a plan is not done yet.
           done: s.done ?? input.status === "done",
           startedAt: s.startedAt ?? null,
