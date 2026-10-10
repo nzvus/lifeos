@@ -232,6 +232,13 @@
       "when": 1791628158623,
       "tag": "0032_day_programs_moments_goal_targets",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1791629272028,
+      "tag": "0033_week_checkin_days",
+      "breakpoints": true
     }
   ]
 }

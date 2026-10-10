@@ -11,12 +11,18 @@
  *                  "skipped" holds no numbers. Accepted rows are never
  *                  updated: a check-in done again starts a new row.
  *
+ *   week_checkin_days  ADR-0044: an accepted check-in's per-day shift (kcal
+ *                  above or below the week's average, from each day's
+ *                  program; the week's total unchanged). Frozen with it:
+ *                  editing a program later changes no fixed week.
+ *
  * New tables: safe in any merge order (ADR-0003).
  */
 import { sql } from "drizzle-orm";
 import {
   check,
   date,
+  foreignKey,
   integer,
   numeric,
   pgTable,
@@ -116,5 +122,25 @@ export const weekCheckins = pgTable(
     ),
     check("week_checkins_kcal_ck", sql`${t.kcal} between 800 and 6000`),
     check("week_checkins_factor_ck", sql`${t.factor} between 0.80 and 1.20`),
+  ],
+);
+
+export const weekCheckinDays = pgTable(
+  "week_checkin_days",
+  {
+    userId: uuid("user_id").notNull(),
+    startDay: date("start_day", { mode: "string" }).notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    /** kcal added to (or taken from) the week's average on this day. */
+    shiftKcal: integer("shift_kcal").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.startDay, t.day] }),
+    foreignKey({
+      name: "week_checkin_days_checkin_fk",
+      columns: [t.userId, t.startDay],
+      foreignColumns: [weekCheckins.userId, weekCheckins.startDay],
+    }).onDelete("cascade"),
+    check("week_checkin_days_shift_ck", sql`${t.shiftKcal} between -2000 and 2000`),
   ],
 );
