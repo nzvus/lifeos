@@ -11,14 +11,17 @@ export function Card({
   children,
   as: Tag = "div",
   label,
+  id,
 }: {
   children: ReactNode;
   as?: "div" | "section";
   /** Accessible name when `as="section"`. */
   label?: string;
+  /** To be found on the page (an anchor, or watched while scrolling). */
+  id?: string;
 }) {
   return (
-    <Tag aria-label={label} className={CARD}>
+    <Tag id={id} aria-label={label} className={CARD}>
       {children}
     </Tag>
   );

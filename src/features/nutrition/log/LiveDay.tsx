@@ -25,6 +25,7 @@ import { Circle, CircleCheck, Eye, EyeOff, ListChecks, Minus, Plus } from "lucid
 import {
   createContext,
   useContext,
+  useEffect,
   useOptimistic,
   useState,
   type ReactNode,
@@ -426,5 +427,83 @@ export function LiveTotals({
         })}
       </div>
     </section>
+  );
+}
+
+/**
+ * ADR-0050: the compact header that stays on top while the day scrolls
+ * (phones only; wide screens keep the app's header). It shows once the
+ * element `watch` (the day's card) has left the screen: the date, the kcal
+ * left and protein / carbs / fat against their targets, live (eaten).
+ */
+export function LiveDayBar({
+  watch,
+  title,
+  targets,
+  locale,
+  t,
+}: {
+  watch: string;
+  title: string;
+  targets: {
+    kcal: number | null;
+    protein: number | null;
+    carbs: number | null;
+    fat: number | null;
+  };
+  locale: Locale;
+  t: { left: string; over: string; protein: string; carbs: string; fat: string };
+}) {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = document.getElementById(watch);
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setShown(!e!.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, [watch]);
+  const eaten = entriesTotals(
+    useLive().entries.filter((e) => e.status === "eaten"),
+  ).nutrients;
+  const n = (v: number) => formatNumber(String(Math.round(v)), locale, 0);
+  const left = targets.kcal === null ? null : targets.kcal - Number(eaten.kcal);
+  const macro = (key: "protein" | "carbs" | "fat", label: string, colour: string) => {
+    const target = targets[key];
+    const v = Number(eaten[key]);
+    return (
+      <span className="flex min-w-0 flex-col gap-0.5">
+        <span className="truncate tabular-nums">
+          {label} {n(v)}
+          {target !== null && `/${n(target)}`}
+        </span>
+        <span className="block h-1 rounded-badge bg-hairline">
+          <span
+            className={`block h-1 rounded-badge ${colour}`}
+            style={{ width: `${target ? Math.min(100, (v / target) * 100) : 0}%` }}
+          />
+        </span>
+      </span>
+    );
+  };
+  if (!shown) return null;
+  return (
+    <div className="fixed inset-x-0 top-0 z-40 flex flex-col gap-1 rule-b-strong border-ink bg-sheet px-4 py-2 md:hidden">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="font-display text-item font-bold">{title}</span>
+        {left !== null && (
+          <span className="font-display text-item font-bold tabular-nums">
+            {n(Math.abs(left))}{" "}
+            <span className="font-body text-meta font-normal text-muted">
+              {left >= 0 ? t.left : t.over}
+            </span>
+          </span>
+        )}
+      </div>
+      <div className="grid grid-cols-3 gap-2 text-meta text-muted">
+        {macro("protein", t.protein, "bg-macro-protein")}
+        {macro("carbs", t.carbs, "bg-macro-carbs")}
+        {macro("fat", t.fat, "bg-macro-fat")}
+      </div>
+    </div>
   );
 }
