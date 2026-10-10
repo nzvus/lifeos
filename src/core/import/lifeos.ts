@@ -106,6 +106,8 @@ const exportFile = z.object({
     z.literal(16),
     // 17: accepted calibration factors (ADR-0026); ignored here.
     z.literal(17),
+    // 18: day types' programs (ADR-0044); ignored here.
+    z.literal(18),
   ]),
   settings: z
     .object({

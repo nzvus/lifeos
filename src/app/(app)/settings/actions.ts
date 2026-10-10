@@ -20,7 +20,8 @@ import {
 import { createFactor, deleteFactor } from "@/core/nutrition/repositories/ratings";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { parseColorMode, parseDensity, parseLayout } from "@/core/shared/display";
-import { saveBody } from "@/core/energy/repositories/energy";
+import { getBody, saveBody } from "@/core/energy/repositories/energy";
+import { goalToStore } from "@/core/energy/goal";
 import { setGoal } from "@/core/energy/repositories/goals";
 import { bodyInput, goalInput } from "@/core/energy/validation";
 import { todayIn } from "@/core/shared/dates";
@@ -117,7 +118,7 @@ export async function saveBodyAction(
   return { status: "saved" };
 }
 
-/** The goal from today on (ADR-0043): past days keep theirs. */
+/** The goal from today on (ADR-0043/0045): past days keep theirs; the rate is planned. */
 export async function saveGoalAction(
   _prev: FormState,
   formData: FormData,
@@ -126,7 +127,15 @@ export async function saveGoalAction(
   const values = formToObject(formData);
   const input = parseInput(goalInput, values);
   if (!input.ok) return { status: "error", errors: input.errors, values };
-  await setGoal(getDb(), owner, todayIn(settings.timezone), input.value);
+  const today = todayIn(settings.timezone);
+  const body = await getBody(getDb(), owner, today);
+  const goal = goalToStore(
+    input.value,
+    body.weightKg ? Number(body.weightKg) : null,
+    today,
+  );
+  if (!goal.ok) return { status: "error", errors: { [goal.field]: goal.code }, values };
+  await setGoal(getDb(), owner, today, goal.value);
   revalidatePath("/", "layout"); // dynamic days' targets
   return { status: "saved" };
 }

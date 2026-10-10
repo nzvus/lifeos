@@ -4,7 +4,13 @@
  * Empty fields mean "not given" (null), never a guess.
  */
 import { z } from "zod";
-import { DIET_SPLITS, KCAL_FLOORS, PROTEIN_PREFERENCES } from "../db/schema/goals";
+import {
+  DIET_SPLITS,
+  GOAL_KINDS,
+  KCAL_FLOORS,
+  PROTEIN_PREFERENCES,
+} from "../db/schema/goals";
+import { day } from "../shared/validation";
 import { CORRECTION_RANGE } from "./calibration";
 import { LEVELS } from "./energy";
 
@@ -68,14 +74,23 @@ const signedDecimal = (min: number, max: number) =>
     return n.toFixed(2);
   });
 
-/** ADR-0043: the goal, from Settings. */
+/**
+ * The goal, from Settings (ADR-0043, ADR-0045): what it is for, and
+ * optionally a target weight and a day. The rate is not asked: it is
+ * planned from them (core/energy/goal.ts planGoal).
+ */
 export const goalInput = z.object({
-  ratePctWeek: signedDecimal(-1.5, 1),
+  kind: z.enum(GOAL_KINDS, "invalid_choice"),
   targetKg: z
     .string()
     .optional()
     .transform((v) => ((v ?? "").trim() === "" ? null : v!))
     .pipe(signedDecimal(30, 300).nullable()),
+  targetDay: z
+    .string()
+    .optional()
+    .transform((v) => ((v ?? "").trim() === "" ? null : v!.trim()))
+    .pipe(day.nullable()),
   kcalFloor: z.enum(KCAL_FLOORS, "invalid_choice"),
   protein: z.enum(PROTEIN_PREFERENCES, "invalid_choice"),
   split: z.enum(DIET_SPLITS, "invalid_choice"),

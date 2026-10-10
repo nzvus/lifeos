@@ -32,6 +32,8 @@ afterEach(() => close());
 
 const goal = {
   ratePctWeek: "-0.50",
+  kind: null,
+  targetDay: null,
   targetKg: null,
   kcalFloor: "standard",
   protein: "high",

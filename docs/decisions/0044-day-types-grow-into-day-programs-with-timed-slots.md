@@ -1,6 +1,6 @@
 # ADR-0044: Day types grow into day programs: timed meal slots, a training time, a share of the week
 
-**Status:** proposed (written by the agent on 2026-10-10 while the developer was away; four questions wait for the developer)
+**Status:** accepted (the developer: "procedi" on the recommendations, 2026-10-10; details decided by the agent)
 **Date:** 2026-10-10
 **Would amend:** ADR-0008 (day types), ADR-0011 (moments), ADR-0043 (the uniform week)
 
@@ -89,16 +89,31 @@ mean shift. Programs without a shift stay uniform.
 #### B. Day-only scores, as now, plus distribution
 
 ## Decision
-*Pending.* Recommended: **A, A, A, A**.
+**A, A, A, A.** The details:
+- **Two new tables:**
+  - `day_programs` is 1:1 with a day type. It holds the usual training time
+    (minutes after midnight, optional) and the shift (± kcal, −1,000 to
+    +1,000, default 0). One table instead of a table per field: both are
+    per type, with nothing per day.
+  - `day_program_slots` holds the type's slots: position, kind (a moment),
+    time, and optional shares of kcal and protein (0–1).
+- **Slots are a template, read live.** They give empty places, times and
+  hints; they are not a record. What happened stays on the entries
+  (moment and time, ADR-0011), so editing a type rewrites no past day.
+  A type without slots shows the day as now.
+- **Moments** gain `pre_workout`, `post_workout` and `pre_sleep`, on
+  `log_entries.moment` and `meals.category`. Widening a CHECK is safe
+  only if migrate runs first, and the CI gate enforces that. `momentAt`
+  never derives them from a time: only a slot or the user picks them.
+- **The shift (PR 3):** a check-in gives each of its 7 days the week's
+  average + the day's shift − the mean shift of those 7 days. The days'
+  types come from their copies, the program and overrides. The total stays
+  the same.
 
-## Consequences (if accepted as recommended)
-- Migrations, each a new table except one:
-  - `day_profile_slots` and `day_profile_training`;
-  - `day_profile_shifts` (± kcal per type), a table rather than a column;
-  - the CHECK on `log_entries.moment` and `meals.category`, widened. That
-    one is safe only if migrate runs before the merge. The CI gate enforces it.
+## Consequences
+- One migration (0032): the two new tables and the two CHECKs widened.
 - About 3 PRs:
-  1. slots and training time, with the editor;
+  1. slots, training time and shift, with the editor (migration 0032);
   2. Today grouped by slots, with peri-workout hints;
   3. the shift in the check-in, and scores in time context.
 - Starter programs: rest day, gym day (morning), gym day (evening), long

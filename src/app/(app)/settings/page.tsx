@@ -26,7 +26,13 @@ import { AssistantKeyForm } from "@/features/account/settings/AssistantKeyForm";
 import { BodyForm } from "@/features/account/settings/BodyForm";
 import { GoalForm } from "@/features/account/settings/GoalForm";
 import { goalFrom, listGoals } from "@/core/energy/repositories/goals";
-import { DIET_SPLITS, KCAL_FLOORS, PROTEIN_PREFERENCES } from "@/core/db/schema/goals";
+import {
+  DIET_SPLITS,
+  GOAL_KINDS,
+  KCAL_FLOORS,
+  PROTEIN_PREFERENCES,
+} from "@/core/db/schema/goals";
+import { describeGoal, KIND_PROTEIN } from "@/core/energy/goal";
 import { clearAssistantKeyAction, saveAssistantKeyAction } from "../assistant/actions";
 import Link from "next/link";
 import { getDisplay } from "@/app/_server/display";
@@ -146,7 +152,7 @@ export default async function SettingsPage() {
           t={{ energy: t.energy, errors: t.errors, settings: t.settings }}
         />
       </Section>
-      {/* ADR-0043: the goal owns the rate; dynamic day types follow it. */}
+      {/* ADR-0043/0045: the goal owns the rate, planned from target and day. */}
       <Section
         id="goal"
         title={t.energy.weightGoal.title}
@@ -157,19 +163,35 @@ export default async function SettingsPage() {
         <GoalForm
           action={saveGoalAction}
           initial={{
+            // A goal from before ADR-0045 has no kind: read it from its rate's sign.
+            kind:
+              goal?.kind ??
+              (!goal || Number(goal.ratePctWeek) === 0
+                ? "maintain"
+                : Number(goal.ratePctWeek) < 0
+                  ? "lose"
+                  : "gain"),
             // The form reads a comma or a point; show the locale's.
-            ratePctWeek: decimalIn(goal?.ratePctWeek ?? "0.00"),
             targetKg: decimalIn(goal?.targetKg ?? ""),
+            targetDay: goal?.targetDay ?? "",
             kcalFloor: goal?.kcalFloor ?? "standard",
             protein: goal?.protein ?? "moderate",
             split: goal?.split ?? "balanced",
             checkInWeekday: String(goal?.checkInWeekday ?? 1),
           }}
           choices={{
+            kind: GOAL_KINDS,
             kcalFloor: KCAL_FLOORS,
             protein: PROTEIN_PREFERENCES,
             split: DIET_SPLITS,
           }}
+          kindProtein={KIND_PROTEIN}
+          plan={
+            goal && body.weightKg
+              ? describeGoal(goal, Number(body.weightKg), today)
+              : null
+          }
+          locale={settings.locale}
           t={{ energy: t.energy, errors: t.errors, settings: t.settings }}
         />
       </Section>

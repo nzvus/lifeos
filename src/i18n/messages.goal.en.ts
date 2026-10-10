@@ -35,13 +35,38 @@ export const calibrationEn = {
 
 export const weightGoalEn = {
   title: "Goal",
-  hint: "How fast your weight should change, as % of it a week. Dynamic day types follow it; a weekly check-in proposes the next 7 days and fixes them, the same each day.",
+  hint: "Say what you want and, if you like, a target weight and a day. The app plans how fast, within the ranges that keep muscle; dynamic day types follow it, and a weekly check-in fixes the next 7 days.",
   none: "No goal yet: dynamic day types use their own deficit.",
-  rate: "Rate (% of weight a week)",
-  rateHint:
-    "Negative = lose, positive = gain. Fat loss −0.5 to −1; recomposition 0; lean gain +0.1 to +0.25.",
+  kind: "What for",
+  kinds: {
+    lose: "Lose fat",
+    gain: "Build muscle",
+    recomp: "Recomposition (less fat, more muscle, same weight)",
+    maintain: "Maintain",
+  },
   targetKg: "Target weight (kg, optional)",
   targetKgHint: "Protein is per kg of it; empty = your current weight.",
+  targetDay: "By (optional)",
+  targetDayHint: "Empty = at the recommended pace.",
+  planTitle: "The plan",
+  planNoWeight: "Add a weigh-in to see the plan.",
+  planRate:
+    "{rate} % of your weight a week: about {kg} kg a week, {kcal} kcal a day {dir} what you spend.",
+  planBelow: "below",
+  planAbove: "above",
+  planOptimal: "Within the recommended range ({low}–{high} % a week).",
+  planFastLose:
+    "Too fast for that day: the most that keeps muscle is {high} % a week. At that pace you get there around {day}.",
+  planFastGain:
+    "Too fast for that day: above {high} % a week the gain is mostly fat. At that pace you get there around {day}.",
+  planSlow:
+    "Slower than it could be, which is fine: the recommended range is {low}–{high} % a week.",
+  planWhen: "At this pace you reach {kg} kg around {day}.",
+  planReached: "Target reached: eat at maintenance, or set a new goal.",
+  planRecomp:
+    "Eat what you spend, with protein high: fat goes down and muscle up slowly, the scale barely moves. Training is what drives it.",
+  planMaintain: "Eat what you spend.",
+  planUpdates: "Each weekly check-in plans the pace again from your weight trend.",
   floor: "Calorie floor",
   floors: { standard: "Standard (your BMR)", low: "Low (1,200 kcal)" },
   protein: "Protein",

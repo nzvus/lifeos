@@ -224,7 +224,7 @@ export const meals = pgTable(
   (t) => [
     check(
       "meals_category_ck",
-      sql`${t.category} in ('breakfast', 'lunch', 'snack', 'dinner')`,
+      sql`${t.category} in ('breakfast', 'lunch', 'snack', 'dinner', 'pre_workout', 'post_workout', 'pre_sleep')`,
     ),
     // Names are unique among live rows only (ADR-0015: the trash may hold a namesake).
     uniqueIndex("meals_user_name_uq")
@@ -311,7 +311,7 @@ export const logEntries = pgTable(
     check("log_entries_status_ck", sql`${t.status} in ('planned', 'eaten')`),
     check(
       "log_entries_moment_ck",
-      sql`${t.moment} in ('breakfast', 'lunch', 'snack', 'dinner')`,
+      sql`${t.moment} in ('breakfast', 'lunch', 'snack', 'dinner', 'pre_workout', 'post_workout', 'pre_sleep')`,
     ),
     check("log_entries_servings_ck", sql`${t.servings} > 0`),
     index("log_entries_user_day_idx").on(t.userId, t.day), // "my day" queries

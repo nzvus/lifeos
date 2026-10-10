@@ -37,13 +37,38 @@ export const calibrationIt: Messages["energy"]["calibration"] = {
 
 export const weightGoalIt: Messages["energy"]["weightGoal"] = {
   title: "Obiettivo",
-  hint: "Quanto deve cambiare il peso, in % a settimana. I tipi di giornata dinamici lo seguono; un check-in settimanale propone i prossimi 7 giorni e li fissa, uguali ogni giorno.",
+  hint: "Di' cosa vuoi e, se vuoi, un peso obiettivo e una data. L'app pianifica quanto in fretta, nei range che salvano i muscoli; i tipi di giornata dinamici lo seguono e un check-in settimanale fissa i 7 giorni dopo.",
   none: "Nessun obiettivo: i tipi di giornata dinamici usano il loro deficit.",
-  rate: "Ritmo (% del peso a settimana)",
-  rateHint:
-    "Negativo = perdere, positivo = aumentare. Dimagrimento da −0,5 a −1; ricomposizione 0; massa pulita da +0,1 a +0,25.",
+  kind: "Per cosa",
+  kinds: {
+    lose: "Perdere grasso",
+    gain: "Aumentare i muscoli",
+    recomp: "Ricomposizione (meno grasso, più muscoli, stesso peso)",
+    maintain: "Mantenere",
+  },
   targetKg: "Peso obiettivo (kg, facoltativo)",
   targetKgHint: "Le proteine sono per kg di questo; vuoto = il peso attuale.",
+  targetDay: "Entro il (facoltativo)",
+  targetDayHint: "Vuoto = al ritmo consigliato.",
+  planTitle: "Il piano",
+  planNoWeight: "Aggiungi una pesata per vedere il piano.",
+  planRate:
+    "{rate} % del peso a settimana: circa {kg} kg a settimana, {kcal} kcal al giorno {dir} quanto spendi.",
+  planBelow: "sotto",
+  planAbove: "sopra",
+  planOptimal: "Nel range consigliato ({low}–{high} % a settimana).",
+  planFastLose:
+    "Troppo in fretta per quella data: il massimo che salva i muscoli è {high} % a settimana. A quel ritmo ci arrivi verso il {day}.",
+  planFastGain:
+    "Troppo in fretta per quella data: oltre {high} % a settimana si prende soprattutto grasso. A quel ritmo ci arrivi verso il {day}.",
+  planSlow:
+    "Più lento di quanto potrebbe, e va bene: il range consigliato è {low}–{high} % a settimana.",
+  planWhen: "A questo ritmo arrivi a {kg} kg verso il {day}.",
+  planReached: "Obiettivo raggiunto: mangia quanto spendi, o imposta un nuovo obiettivo.",
+  planRecomp:
+    "Mangia quanto spendi, con proteine alte: il grasso scende e i muscoli salgono piano, la bilancia si muove poco. A guidarla è l'allenamento.",
+  planMaintain: "Mangia quanto spendi.",
+  planUpdates: "Ogni check-in settimanale ripianifica il ritmo dall'andamento del peso.",
   floor: "Soglia minima di calorie",
   floors: {
     standard: "Standard (il tuo metabolismo basale)",

@@ -17,7 +17,14 @@ import type { Owner } from "../../identity/owner";
 import { addDays } from "../../shared/dates";
 import { fail, type Result } from "../../shared/result";
 import { CONFIDENT, type Calibration } from "../calibration";
-import { goalTargets, lastCheckinDay, type GoalTargets } from "../goal";
+import {
+  goalOnDay,
+  goalTargets,
+  lastCheckinDay,
+  planGoal,
+  type GoalPlan,
+  type GoalTargets,
+} from "../goal";
 import { getCalibration, getEnergyRange, setEnergyCorrection } from "./energy";
 import {
   goalFrom,
@@ -43,6 +50,8 @@ export type CheckinProposal = {
   /** A factor accepted with the check-in (ADR-0026), if any. */
   proposedFactor: number | null;
   weightKg: number | null;
+  /** ADR-0045: the rate planned from the target, for goals with a kind. */
+  plan: GoalPlan | null;
   targets: (GoalTargets & { floored: boolean }) | null;
 };
 
@@ -92,9 +101,18 @@ export async function getCheckinProposal(
     factor: learnt ? cal.factor : cal.current,
     proposedFactor: cal.proposed,
     weightKg,
+    plan:
+      goal.kind !== null && weightKg !== null
+        ? planGoal({ ...goal, kind: goal.kind }, weightKg, today)
+        : null,
     targets:
       expenditure !== null && weightKg !== null && last?.energy
-        ? goalTargets(expenditure, goal, weightKg, last.energy.bmr)
+        ? goalTargets(
+            expenditure,
+            goalOnDay(goal, weightKg, today),
+            weightKg,
+            last.energy.bmr,
+          )
         : null,
   };
 }

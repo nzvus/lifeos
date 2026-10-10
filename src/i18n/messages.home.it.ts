@@ -400,6 +400,8 @@ export const errorsIt: Messages["errors"] = {
   past_day: "È un giorno passato: si cambiano solo oggi e i giorni dopo.",
   implausible_weight:
     "Molto lontano dalle ultime pesate: l'acqua sposta la bilancia di 1–2 kg al giorno. Controlla il numero; se è giusto, premi di nuovo Aggiungi.",
+  target_direction:
+    "Quel peso va nella direzione opposta: per perdere, sotto il tuo peso; per aumentare, sopra.",
 };
 
 export const entryEditIt: Messages["entryEdit"] = {

@@ -1,42 +1,46 @@
-/** The goal form's input (ADR-0043). */
+/** The goal form's input (ADR-0043, ADR-0045). */
 import { describe, expect, it } from "vitest";
 import { parseInput } from "../shared/validation";
 import { goalInput } from "./validation";
 
 const form = {
-  ratePctWeek: "-0,5",
+  kind: "lose",
   targetKg: "",
+  targetDay: "",
   kcalFloor: "standard",
-  protein: "high",
+  protein: "extra",
   split: "balanced",
   checkInWeekday: "1",
 };
 
 describe("goalInput", () => {
-  it("reads a comma, keeps two decimals, an empty target is none", () => {
+  it("reads a comma; an empty target weight or day is none", () => {
     expect(parseInput(goalInput, form)).toEqual({
       ok: true,
-      value: { ...form, ratePctWeek: "-0.50", targetKg: null, checkInWeekday: 1 },
+      value: { ...form, targetKg: null, targetDay: null, checkInWeekday: 1 },
     });
-    const r = parseInput(goalInput, { ...form, targetKg: "72.4" });
-    expect(r.ok && r.value.targetKg).toBe("72.40");
+    const r = parseInput(goalInput, {
+      ...form,
+      targetKg: "72,4",
+      targetDay: "2026-12-01",
+    });
+    expect(r.ok && [r.value.targetKg, r.value.targetDay]).toEqual([
+      "72.40",
+      "2026-12-01",
+    ]);
   });
 
-  it("refuses a rate or a target out of range, and unknown choices", () => {
-    expect(parseInput(goalInput, { ...form, ratePctWeek: "-2" })).toMatchObject({
-      ok: false,
-      errors: { ratePctWeek: "not_positive" },
-    });
-    expect(parseInput(goalInput, { ...form, ratePctWeek: "x" })).toMatchObject({
-      ok: false,
-      errors: { ratePctWeek: "invalid_number" },
-    });
+  it("refuses a target out of range, a bad day and unknown choices", () => {
     expect(parseInput(goalInput, { ...form, targetKg: "10" })).toMatchObject({
       ok: false,
     });
-    expect(parseInput(goalInput, { ...form, split: "keto" })).toMatchObject({
+    expect(parseInput(goalInput, { ...form, targetDay: "2026-13-01" })).toMatchObject({
       ok: false,
-      errors: { split: "invalid_choice" },
+      errors: { targetDay: "invalid_day" },
+    });
+    expect(parseInput(goalInput, { ...form, kind: "bulk" })).toMatchObject({
+      ok: false,
+      errors: { kind: "invalid_choice" },
     });
   });
 });

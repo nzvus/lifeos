@@ -28,6 +28,8 @@ afterEach(() => close());
 
 const cut: WeightGoalInput = {
   ratePctWeek: "-0.50",
+  kind: null,
+  targetDay: null,
   targetKg: "72.00",
   kcalFloor: "standard",
   protein: "high",

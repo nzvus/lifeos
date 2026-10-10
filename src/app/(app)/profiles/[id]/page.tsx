@@ -1,12 +1,20 @@
 /**
  * app/(app)/profiles/[id]/page.tsx — URL /profiles/<id>[?from=PATH]: edit a
- * day type; "⋯" makes it the default or moves it to the trash (ADR-0015).
+ * day type and its program (ADR-0044); "⋯" makes it the default or moves
+ * it to the trash (ADR-0015).
  * Untrusted id: validated, owner-checked.
  */
 import { notFound } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { getProfile } from "@/core/nutrition/repositories/profiles";
+import { getProgram } from "@/core/nutrition/repositories/programs";
+import { listGoals } from "@/core/energy/repositories/goals";
+import { MOMENTS } from "@/core/nutrition/moments";
+import { STARTERS } from "@/core/nutrition/programs";
+import { ProgramForm } from "@/features/nutrition/profiles/ProgramForm";
+import { Section } from "@/ui/Section";
+import { CalendarClock } from "lucide-react";
 import { idInput, profileFormValues } from "@/core/nutrition/validation";
 import { safeFrom } from "@/core/shared/navigation";
 import { ProfileForm } from "@/features/nutrition/profiles/ProfileForm";
@@ -16,6 +24,7 @@ import {
   deleteProfileAction,
   makeDefaultProfileAction,
   restoreProfileAction,
+  saveProgramAction,
   updateProfileAction,
 } from "../actions";
 
@@ -29,7 +38,11 @@ export default async function EditProfilePage({ params, searchParams }: Props) {
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
   const from = safeFrom((await searchParams).from, "/settings#day-types");
-  const profile = await getProfile(getDb(), owner, id);
+  const [profile, program, goals] = await Promise.all([
+    getProfile(getDb(), owner, id),
+    getProgram(getDb(), owner, id),
+    listGoals(getDb(), owner),
+  ]);
   if (!profile) notFound();
 
   return (
@@ -64,6 +77,10 @@ export default async function EditProfilePage({ params, searchParams }: Props) {
         }
       />
       <p className="text-meta text-muted">{t.profiles.editNote}</p>
+      {/* ADR-0043: a goal owns the rate; a dynamic type's own numbers wait. */}
+      {profile.mode === "dynamic" && goals.length > 0 && (
+        <p className="text-meta font-semibold">{t.dayProgram.goalOverrides}</p>
+      )}
       <ProfileForm
         id={id}
         from={from}
@@ -77,6 +94,25 @@ export default async function EditProfilePage({ params, searchParams }: Props) {
           energy: t.energy,
         }}
       />
+      <Section
+        id="program"
+        title={t.dayProgram.title}
+        icon={<CalendarClock size={20} aria-hidden="true" />}
+        subtitle={t.dayProgram.hint}
+      >
+        <ProgramForm
+          action={saveProgramAction.bind(null, id)}
+          initial={program ?? { trainingAt: null, shiftKcal: 0, slots: [] }}
+          moments={MOMENTS}
+          starters={STARTERS}
+          t={{
+            dayProgram: t.dayProgram,
+            moments: t.moments,
+            errors: t.errors,
+            settings: t.settings,
+          }}
+        />
+      </Section>
     </div>
   );
 }

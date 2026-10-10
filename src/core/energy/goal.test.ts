@@ -1,6 +1,13 @@
 /** Targets from a goal (ADR-0043). Numbers checked by hand in the comments. */
 import { describe, expect, it } from "vitest";
-import { goalDeficit, goalTargets, lastCheckinDay, type GoalParams } from "./goal";
+import {
+  goalDeficit,
+  goalTargets,
+  goalToStore,
+  lastCheckinDay,
+  planGoal,
+  type GoalParams,
+} from "./goal";
 
 const goal: GoalParams = {
   ratePctWeek: "-0.50",
@@ -62,5 +69,98 @@ describe("lastCheckinDay", () => {
     expect(lastCheckinDay("2026-10-12", 1)).toBe("2026-10-12");
     expect(lastCheckinDay("2026-10-10", 6)).toBe("2026-10-10");
     expect(lastCheckinDay("2026-10-10", 0)).toBe("2026-10-04");
+  });
+});
+
+describe("planGoal (ADR-0045)", () => {
+  const lose = (targetDay: string | null, targetKg: string | null = "72") => ({
+    kind: "lose" as const,
+    targetKg,
+    targetDay,
+  });
+  // Today 2026-10-10, 76 kg, 4 kg to lose.
+
+  it("a date within the optimal range: the rate it needs", () => {
+    // 8 weeks: 4 ÷ 76 ÷ 8 = 0.66 % a week.
+    expect(planGoal(lose("2026-12-05"), 76, "2026-10-10")).toMatchObject({
+      ratePctWeek: -0.66,
+      status: "optimal",
+      expectedDay: "2026-12-05",
+      range: { low: -0.5, high: -1 },
+    });
+  });
+
+  it("too soon: the maximum, and the day it really takes", () => {
+    // 4 weeks would need 1.32 %; at 1 % (0.76 kg a week) it takes 37 days.
+    expect(planGoal(lose("2026-11-07"), 76, "2026-10-10")).toMatchObject({
+      ratePctWeek: -1,
+      status: "fast",
+      expectedDay: "2026-11-16",
+    });
+  });
+
+  it("far away: slower than optimal, but no slower than the scale can show", () => {
+    // 12 weeks: 0.44 % a week.
+    expect(planGoal(lose("2027-01-02"), 76, "2026-10-10")).toMatchObject({
+      ratePctWeek: -0.44,
+      status: "slow",
+    });
+    // A year to gain 2 kg at 70 kg: 0.055 %, kept at the 0.05 minimum.
+    expect(
+      planGoal(
+        { kind: "gain", targetKg: "72", targetDay: "2027-10-10" },
+        70,
+        "2026-10-10",
+      ),
+    ).toMatchObject({ ratePctWeek: 0.05, status: "slow" });
+  });
+
+  it("without a day: the usual rate, and when it gets there", () => {
+    // 0.7 % of 76 = 0.53 kg a week: 4 kg in 53 days.
+    expect(planGoal(lose(null), 76, "2026-10-10")).toMatchObject({
+      ratePctWeek: -0.7,
+      expectedDay: "2026-12-02",
+    });
+    expect(
+      planGoal({ kind: "gain", targetKg: null, targetDay: null }, 76, "2026-10-10"),
+    ).toMatchObject({ ratePctWeek: 0.15, expectedDay: null });
+  });
+
+  it("reached: maintenance; recomposition and maintenance: steady", () => {
+    expect(planGoal(lose("2026-12-05"), 72.2, "2026-10-10")).toMatchObject({
+      ratePctWeek: 0,
+      status: "reached",
+    });
+    expect(
+      planGoal({ kind: "recomp", targetKg: null, targetDay: null }, 76, "2026-10-10"),
+    ).toMatchObject({ ratePctWeek: 0, status: "steady" });
+  });
+});
+
+describe("goalToStore", () => {
+  const g = { kind: "lose" as const, targetKg: "72", targetDay: "2026-12-05" };
+  it("stores the rate planned today", () => {
+    expect(goalToStore(g, 76, "2026-10-10")).toEqual({
+      ok: true,
+      value: { ...g, ratePctWeek: "-0.66" },
+    });
+    expect(goalToStore(g, null, "2026-10-10")).toMatchObject({
+      value: { ratePctWeek: "-0.70" },
+    });
+  });
+  it("refuses a target the wrong way and a day already past", () => {
+    expect(goalToStore({ ...g, targetKg: "80" }, 76, "2026-10-10")).toEqual({
+      ok: false,
+      field: "targetKg",
+      code: "target_direction",
+    });
+    expect(goalToStore({ ...g, kind: "gain" }, 76, "2026-10-10")).toMatchObject({
+      ok: false,
+    });
+    expect(goalToStore({ ...g, targetDay: "2026-10-10" }, 76, "2026-10-10")).toEqual({
+      ok: false,
+      field: "targetDay",
+      code: "past_day",
+    });
   });
 });

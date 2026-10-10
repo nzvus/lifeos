@@ -395,6 +395,8 @@ export const errorsEn = {
   past_day: "That day has passed: only today and later can be changed.",
   implausible_weight:
     "Far from your last weigh-ins: water moves the scale 1–2 kg a day. Check the number; if it is right, press Add again.",
+  target_direction:
+    "That target is the other way: to lose, aim below your weight; to gain, above it.",
 };
 
 export const entryEditEn = {

@@ -10,6 +10,7 @@ import {
   goals,
   weekCheckins,
   type DietSplit,
+  type GoalKind,
   type KcalFloor,
   type ProteinPreference,
 } from "../../db/schema";
@@ -19,6 +20,10 @@ import { fail, ok, type Result } from "../../shared/result";
 
 export type WeightGoal = {
   sinceDay: string;
+  /** ADR-0045: null on goals set before it (their stored rate applies). */
+  kind: GoalKind | null;
+  /** By when the target weight should be reached; optional. */
+  targetDay: string | null;
   /** % of body weight a week, signed (−0.5 = lose 0.5 % a week). */
   ratePctWeek: string;
   targetKg: string | null;
@@ -36,6 +41,8 @@ export function listGoals(db: Db, owner: Owner): Promise<WeightGoal[]> {
   return db
     .select({
       sinceDay: goals.sinceDay,
+      kind: goals.kind,
+      targetDay: goals.targetDay,
       ratePctWeek: goals.ratePctWeek,
       targetKg: goals.targetKg,
       kcalFloor: goals.kcalFloor,

@@ -20,7 +20,7 @@ import {
   type Energy,
   type Goal,
 } from "../energy/energy";
-import { goalTargets, isCutting } from "../energy/goal";
+import { goalOnDay, goalTargets, isCutting } from "../energy/goal";
 import type { AcceptedCheckin, WeightGoal } from "../energy/repositories/goals";
 import type { DayEnergyView } from "../energy/repositories/energy";
 import {
@@ -115,7 +115,16 @@ export function resolveDay(
           "checkin",
         ]
       : goal && e && kg
-        ? [goalTargets(mid(e.total.withPlan), goal, Number(kg), e.bmr), "goal"]
+        ? [
+            // ADR-0045: the rate planned from the target at this day's weight.
+            goalTargets(
+              mid(e.total.withPlan),
+              goalOnDay(goal, Number(kg), day),
+              Number(kg),
+              e.bmr,
+            ),
+            "goal",
+          ]
         : e && kg
           ? [dynamicTargets(e, kg, dynamic), "type"]
           : [null, goal ? "goal" : "type"];
@@ -153,7 +162,9 @@ export function resolveDay(
           kg: Number(kg),
           kcal: targets.kcal === null ? null : Number(targets.kcal),
           load,
-          cutting: goal ? isCutting(goal) : (dynamic?.deficitKcal ?? 0) > 0,
+          cutting: goal
+            ? goal.kind === "lose" || (goal.kind === null && isCutting(goal))
+            : (dynamic?.deficitKcal ?? 0) > 0,
           carbsTarget: targets.carbs === null ? null : Number(targets.carbs),
         });
   return {
