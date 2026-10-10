@@ -3,6 +3,7 @@
  * messages.it.ts to keep each dictionary file under 800 lines
  * (scripts/check.py). Same shape rules: plain strings only.
  */
+import { calibrationIt, weightGoalIt } from "./messages.goal.it";
 import type { Messages } from "./index";
 
 export const pantryIt: Messages["pantry"] = {
@@ -226,35 +227,8 @@ export const energyIt: Messages["energy"] = {
     carbs: "Carboidrati (il resto)",
     fiber: "Fibre",
   },
-  calibration: {
-    title: "Calibrazione",
-    how: "Impara dagli ultimi {days} giorni insieme: quanto hai mangiato e come è cambiato il peso dicono quanto spendi davvero. Le settimane recenti contano di più.",
-    fewWeighIns: "Servono almeno 6 pesate in 2 settimane (ora {n}).",
-    fewLogged: "Servono almeno 14 giorni completi, e metà dei giorni (ora {n} su {of}).",
-    expenditure: "Spendi",
-    expenditureValue: "{mid} kcal al giorno ({low}–{high})",
-    learnt: "Imparato da {weeks} settimane · attività quotidiana {factor} ± {sigma}",
-    unsure:
-      "Non ancora abbastanza sicuro per proporre un cambio (± {sigma}): più pesate e giorni registrati lo restringono.",
-    incomplete:
-      "{n} giorni registrati sotto il 60 % di quanto costano sono stati presi come registrati a metà e riempiti con i giorni vicini.",
-    closed:
-      "{n} giorni chiusi da te: contano pienamente (completi) o non vengono letti come un deficit (manca qualcosa). Chiudi la giornata dal suo chip in Oggi.",
-    estimates:
-      "Il {share} % di quanto hai registrato erano stime (pasti fuori, totali scritti a mano): contano meno.",
-    estimateFactor: "Le tue stime sembrano × {k} (± {sigma}) di quanto mangi davvero.",
-    intake: "Mangiato in media",
-    trend: "Andamento del peso",
-    trendValue: "{kg} kg a settimana",
-    observed: "Speso secondo la bilancia",
-    estimated: "Speso secondo il modello",
-    fits: "Il modello è in linea con i tuoi dati (attività quotidiana {now}).",
-    proposal: "Proposta: attività quotidiana {factor} (ora {now}).",
-    accept: "Accetta",
-    accepted: "Attività quotidiana ora {factor}",
-    reset: "Torna a ×1,00 (ora {now})",
-    wasReset: "Calibrazione azzerata",
-  },
+  calibration: calibrationIt,
+  weightGoal: weightGoalIt,
 };
 
 export const assistantIt: Messages["assistant"] = {

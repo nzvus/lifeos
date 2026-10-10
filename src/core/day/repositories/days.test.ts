@@ -14,6 +14,7 @@ import { createExercise } from "../../training/repositories/exercises";
 import { addMeasurement } from "../../training/repositories/measurements";
 import { createProgram } from "../../training/repositories/programs";
 import { createRoutine } from "../../training/repositories/routines";
+import { recordWeekCheckin, setGoal } from "../../energy/repositories/goals";
 import { readDay, readDays } from "./days";
 
 let db: Db;
@@ -149,5 +150,74 @@ describe("readDays", () => {
     expect(Number(legsDay.own.kcal)).toBeGreaterThan(Number(restDay.own.kcal));
     expect(legsDay.load).toBe("training");
     expect((await readDay(db, me, "2026-10-01", opts)).own).toEqual(legsDay.own);
+  });
+
+  describe("with a goal and weekly check-ins (ADR-0043)", () => {
+    const goal = {
+      ratePctWeek: "-0.50",
+      targetKg: null,
+      kcalFloor: "standard",
+      protein: "high",
+      split: "balanced",
+      checkInWeekday: 1,
+    } as const;
+
+    it("a goal replaces the day type's deficit and macros, from its day on", async () => {
+      const dyn = await dynamicProfile();
+      for (const day of ["2026-10-01", "2026-10-02"])
+        await setDayProfile(db, me, day, dyn.id);
+      await setGoal(db, me, "2026-10-02", goal);
+      const days = await readDays(db, me, "2026-10-01", "2026-10-02", opts);
+      const before = days.get("2026-10-01")!;
+      const after = days.get("2026-10-02")!;
+      expect(before.basis).toBe("type");
+      expect(after.basis).toBe("goal");
+      expect(after.weightGoal?.ratePctWeek).toBe("-0.50");
+      // The same cost: the type takes 200, the goal 418 (−0.5 % of 76 kg a week).
+      expect(Number(before.own.kcal) - Number(after.own.kcal)).toBe(218);
+      expect(after.own.protein).toBe("152"); // 2.0 × 76
+      expect(after.bands?.protein?.low).toBe(137); // cutting: 1.8 × 76
+    });
+
+    it("an accepted check-in freezes the same numbers on each of its 7 days", async () => {
+      const dyn = await dynamicProfile();
+      for (let d = 5; d <= 12; d++)
+        await setDayProfile(db, me, `2026-10-${String(d).padStart(2, "0")}`, dyn.id);
+      await setGoal(db, me, "2026-10-01", goal);
+      await recordWeekCheckin(db, me, {
+        startDay: "2026-10-05",
+        decision: "accepted",
+        expenditureKcal: 2700,
+        factor: "1.00",
+        trendKg: "76.00",
+        kcal: 2282,
+        protein: 152,
+        fat: 63,
+        carbs: 252,
+        fiber: 32,
+      });
+      const days = await readDays(db, me, "2026-10-05", "2026-10-12", opts);
+      for (let d = 5; d <= 11; d++) {
+        const day = days.get(`2026-10-${String(d).padStart(2, "0")}`)!;
+        expect(day.basis).toBe("checkin");
+        expect(day.own.kcal).toBe("2282");
+        expect(day.own.carbs).toBe("252");
+      }
+      expect(days.get("2026-10-12")!.basis).toBe("goal"); // the week is over
+    });
+
+    it("a fixed day keeps its own numbers", async () => {
+      const fixed = await createProfile(db, me, {
+        name: "Fisso",
+        kcal: "2500",
+        ...blank,
+      });
+      if (!fixed.ok) throw new Error("setup");
+      await setDayProfile(db, me, "2026-10-05", fixed.value.id);
+      await setGoal(db, me, "2026-10-01", goal);
+      const d = await readDay(db, me, "2026-10-05", opts);
+      expect(d.basis).toBeNull();
+      expect(Number(d.own.kcal)).toBe(2500);
+    });
   });
 });

@@ -10,7 +10,7 @@ import {
   listWeekCheckins,
   recordWeekCheckin,
   setGoal,
-  type GoalInput,
+  type WeightGoalInput,
   type WeekCheckin,
 } from "./goals";
 
@@ -26,7 +26,7 @@ beforeEach(async () => {
 });
 afterEach(() => close());
 
-const cut: GoalInput = {
+const cut: WeightGoalInput = {
   ratePctWeek: "-0.50",
   targetKg: "72.00",
   kcalFloor: "standard",

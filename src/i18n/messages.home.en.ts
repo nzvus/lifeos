@@ -3,6 +3,7 @@
  * messages.en.ts to keep each dictionary file under 800 lines
  * (scripts/check.py). Same shape rules: plain strings only.
  */
+import { calibrationEn, weightGoalEn } from "./messages.goal.en";
 export const pantryEn = {
   title: "Pantry",
   hint: "What is at home: derived from purchases, meals, batches and counts.",
@@ -223,35 +224,8 @@ export const energyEn = {
     carbs: "Carbs (the rest)",
     fiber: "Fibre",
   },
-  calibration: {
-    title: "Calibration",
-    how: "Learns from the last {days} days at once: what you ate and how your weight moved tell what you really spend. Recent weeks count more.",
-    fewWeighIns: "Needs at least 6 weigh-ins over 2 weeks (now {n}).",
-    fewLogged: "Needs at least 14 complete days, and half of the days (now {n} of {of}).",
-    expenditure: "You spend",
-    expenditureValue: "{mid} kcal a day ({low}–{high})",
-    learnt: "Learnt from {weeks} weeks · everyday activity {factor} ± {sigma}",
-    unsure:
-      "Not sure enough yet to propose a change (± {sigma}); more weigh-ins and logged days narrow it.",
-    incomplete:
-      "{n} days logged under 60 % of what they cost were taken as half-logged and filled in from the days around them.",
-    closed:
-      "{n} days closed by you: they count fully (complete) or are not read as a deficit (something missing). Close the day from its chip on Today.",
-    estimates:
-      "{share} % of what you logged was estimates (meals out, typed totals): they count less.",
-    estimateFactor: "Your estimates look like × {k} (± {sigma}) of what you really eat.",
-    intake: "Eaten on average",
-    trend: "Weight trend",
-    trendValue: "{kg} kg a week",
-    observed: "Spent, by the scale",
-    estimated: "Spent, by the model",
-    fits: "The model fits your data (everyday activity {now}).",
-    proposal: "Proposal: everyday activity {factor} (now {now}).",
-    accept: "Accept",
-    accepted: "Everyday activity now {factor}",
-    reset: "Back to ×1.00 (now {now})",
-    wasReset: "Calibration reset",
-  },
+  calibration: calibrationEn,
+  weightGoal: weightGoalEn,
 };
 
 export const assistantEn = {

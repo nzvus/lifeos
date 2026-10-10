@@ -2,7 +2,8 @@
  * features/nutrition/log/CalibrationBox.tsx — what you really spend
  * (ADR-0041): learnt from the scale and the log, with how sure it is; the
  * last two weeks' numbers; and — when known well enough — a proposed
- * factor on the everyday baseline, applied only on Accept.
+ * factor on the everyday baseline, applied only on Accept (with a goal,
+ * at the weekly check-in instead: ADR-0043).
  * Client component (the buttons).
  */
 "use client";
@@ -22,11 +23,14 @@ type Outcome = { ok: boolean; message?: string };
 export function CalibrationBox({
   c,
   accept,
+  viaCheckin = false,
   locale,
   t,
 }: {
   c: Calibration;
   accept: (factor: number) => Promise<Outcome>;
+  /** ADR-0043: with a goal, the proposal is accepted with the weekly check-in. */
+  viaCheckin?: boolean;
   locale: Locale;
   t: Messages["energy"]["calibration"];
 }) {
@@ -125,8 +129,9 @@ export function CalibrationBox({
           </p>
         </>
       )}
+      {viaCheckin && c.proposed !== null && <p className="text-muted">{t.withCheckin}</p>}
       <div className="flex flex-wrap gap-2">
-        {c.proposed !== null && (
+        {c.proposed !== null && !viaCheckin && (
           <button
             type="button"
             disabled={pending}

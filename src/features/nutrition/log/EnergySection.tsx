@@ -39,6 +39,8 @@ type Props = {
   /** ADR-0020: the last 28 days against the model (today's page only). */
   calibration: Calibration | null;
   setCorrection: (factor: number) => Promise<{ ok: boolean; message?: string }>;
+  /** ADR-0043: with a goal, a new factor is accepted at the weekly check-in. */
+  viaCheckin?: boolean;
   locale: Locale;
   t: Pick<Messages, "energy" | "errors" | "actions">;
 };
@@ -52,6 +54,7 @@ export function EnergySection({
   correction,
   calibration,
   setCorrection,
+  viaCheckin = false,
   locale,
   t,
 }: Props) {
@@ -154,6 +157,7 @@ export function EnergySection({
           <CalibrationBox
             c={calibration}
             accept={setCorrection}
+            viaCheckin={viaCheckin}
             locale={locale}
             t={e.calibration}
           />

@@ -11,6 +11,7 @@ import {
   PersonStanding,
   SlidersHorizontal,
   Sparkles,
+  Target,
   Star,
   Trash2,
   UserCog,
@@ -23,6 +24,9 @@ import { getBody } from "@/core/energy/repositories/energy";
 import { todayIn } from "@/core/shared/dates";
 import { AssistantKeyForm } from "@/features/account/settings/AssistantKeyForm";
 import { BodyForm } from "@/features/account/settings/BodyForm";
+import { GoalForm } from "@/features/account/settings/GoalForm";
+import { goalFrom, listGoals } from "@/core/energy/repositories/goals";
+import { DIET_SPLITS, KCAL_FLOORS, PROTEIN_PREFERENCES } from "@/core/db/schema/goals";
 import { clearAssistantKeyAction, saveAssistantKeyAction } from "../assistant/actions";
 import Link from "next/link";
 import { getDisplay } from "@/app/_server/display";
@@ -48,6 +52,7 @@ import {
   createFactorAction,
   deleteFactorAction,
   saveBodyAction,
+  saveGoalAction,
   saveDisplayAction,
   savePreferencesAction,
   saveSettingsAction,
@@ -61,12 +66,15 @@ export default async function SettingsPage() {
   const { owner, settings, t } = await requireContext();
   const display = await getDisplay();
   const today = todayIn(settings.timezone);
-  const [factors, body, assistantStatus, profiles] = await Promise.all([
+  const [factors, body, assistantStatus, profiles, goals] = await Promise.all([
     listFactors(getDb(), owner),
     getBody(getDb(), owner, today),
     getKeyStatus(getDb(), owner),
     listProfiles(getDb(), owner),
+    listGoals(getDb(), owner),
   ]);
+  const goal = goalFrom(goals, today);
+  const decimalIn = (v: string) => (settings.locale === "it" ? v.replace(".", ",") : v);
   const dynamicToday = await dynamicTargetsToday(getDb(), owner, today, profiles);
   // ADR-0034: invitations, for admins only.
   const admin = await isAdmin();
@@ -134,6 +142,33 @@ export default async function SettingsPage() {
             sex: body.sex ?? "",
             birthYear: body.birthYear ? String(body.birthYear) : "",
             heightCm: body.heightCm ? String(body.heightCm) : "",
+          }}
+          t={{ energy: t.energy, errors: t.errors, settings: t.settings }}
+        />
+      </Section>
+      {/* ADR-0043: the goal owns the rate; dynamic day types follow it. */}
+      <Section
+        id="goal"
+        title={t.energy.weightGoal.title}
+        icon={<Target size={20} aria-hidden="true" />}
+        subtitle={t.energy.weightGoal.hint}
+      >
+        {!goal && <p className="text-meta text-muted">{t.energy.weightGoal.none}</p>}
+        <GoalForm
+          action={saveGoalAction}
+          initial={{
+            // The form reads a comma or a point; show the locale's.
+            ratePctWeek: decimalIn(goal?.ratePctWeek ?? "0.00"),
+            targetKg: decimalIn(goal?.targetKg ?? ""),
+            kcalFloor: goal?.kcalFloor ?? "standard",
+            protein: goal?.protein ?? "moderate",
+            split: goal?.split ?? "balanced",
+            checkInWeekday: String(goal?.checkInWeekday ?? 1),
+          }}
+          choices={{
+            kcalFloor: KCAL_FLOORS,
+            protein: PROTEIN_PREFERENCES,
+            split: DIET_SPLITS,
           }}
           t={{ energy: t.energy, errors: t.errors, settings: t.settings }}
         />

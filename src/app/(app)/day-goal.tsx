@@ -3,8 +3,11 @@
  * a dynamic day's goal in plain words (GoalLine: what kind of day, how far
  * from what you spend, what to eat), or why its targets can't be computed;
  * a fixed day's name and energy. Split out of page.tsx (800-line limit).
+ * With a goal or a check-in (ADR-0043) the line shows their deficit and
+ * has no pencil: the goal is changed in Settings.
  */
 import type { DayTargets } from "@/core/nutrition/repositories/profiles";
+import type { ResolvedDay } from "@/core/day/resolve";
 import { goalOf, type Range } from "@/core/energy/energy";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
@@ -19,6 +22,9 @@ export function DayGoal({
   today,
   dayTargets,
   dynamic,
+  params,
+  basis,
+  weightGoal,
   total,
   eatenKcal,
   withPlannedKcal,
@@ -31,6 +37,10 @@ export function DayGoal({
   dayTargets: DayTargets;
   /** The dynamic targets computed for the day, or null. */
   dynamic: { kcal: number } | null;
+  /** What the day's numbers amount to (ResolvedDay.params), and their source. */
+  params: ResolvedDay["params"];
+  basis: ResolvedDay["basis"];
+  weightGoal: ResolvedDay["weightGoal"];
   /** What the day costs, done and with the plan, or null without body data. */
   total: { done: Range; withPlan: Range } | null;
   eatenKcal: string;
@@ -46,16 +56,24 @@ export function DayGoal({
         dynamic && total ? (
           <GoalLine
             day={day}
-            profileId={dayTargets.profileId}
-            title={(() => {
-              const g = goalOf(dayTargets.dynamic);
-              return g ? t.energy.goals[g] : t.energy.goalCustom;
-            })()}
-            deficitKcal={dayTargets.dynamic.deficitKcal}
+            profileId={basis === "type" ? dayTargets.profileId : null}
+            title={
+              basis === "checkin"
+                ? t.energy.weightGoal.lineCheckin
+                : basis === "goal" && weightGoal
+                  ? fill(t.energy.weightGoal.lineGoal, {
+                      rate: `${Number(weightGoal.ratePctWeek) > 0 ? "+" : ""}${formatNumber(weightGoal.ratePctWeek, locale, 2)}`,
+                    })
+                  : (() => {
+                      const g = goalOf(dayTargets.dynamic);
+                      return g ? t.energy.goals[g] : t.energy.goalCustom;
+                    })()
+            }
+            deficitKcal={(params ?? dayTargets.dynamic).deficitKcal}
             eatKcal={dynamic.kcal}
             spentKcal={Math.round(mid(total.withPlan))}
             balance={{
-              wanted: -dayTargets.dynamic.deficitKcal,
+              wanted: -(params ?? dayTargets.dynamic).deficitKcal,
               withPlan: Math.round(Number(withPlannedKcal) - mid(total.withPlan)),
               soFar:
                 day <= today ? Math.round(Number(eatenKcal) - mid(total.done)) : null,
