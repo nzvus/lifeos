@@ -24,6 +24,7 @@ import {
   useActionState,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -106,6 +107,36 @@ type Props = {
 const FutureDay = createContext(false);
 
 /**
+ * ADR-0050: a slot's "+" opens the sheet as `#day-add-food:moment=…&time=…`
+ * (and `&planned=1` when its time is still to come); the timing starts
+ * from those values.
+ */
+type Preset = { moment: string | null; time: string | null; planned: boolean };
+const NO_PRESET: Preset = { moment: null, time: null, planned: false };
+const SlotPreset = createContext<Preset>(NO_PRESET);
+
+function usePreset(id: string): Preset {
+  const [preset, setPreset] = useState<Preset>(NO_PRESET);
+  useEffect(() => {
+    const read = () => {
+      const h = window.location.hash;
+      if (h.startsWith(`#${id}:`)) {
+        const q = new URLSearchParams(h.slice(id.length + 2));
+        setPreset({
+          moment: q.get("moment"),
+          time: q.get("time"),
+          planned: q.get("planned") === "1",
+        });
+      } else if (h === `#${id}`) setPreset(NO_PRESET);
+    };
+    read();
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
+  }, [id]);
+  return preset;
+}
+
+/**
  * Counts successful submissions. Changing a component's `key` makes React
  * throw it away and mount a fresh one, which is the simplest reliable way to
  * reset a form's internal state after "saved". (Updating state while
@@ -137,6 +168,7 @@ export function AddToDay({
   t,
 }: Props) {
   const [kind, setKind] = useState<Kind>("meal");
+  const preset = usePreset("day-add-food");
   // One action state per tab, kept while switching tabs.
   const [mealState, mealAction] = useActionState(logMealAction, IDLE);
   const [ingState, ingAction] = useActionState(logIngredientAction, IDLE);
@@ -179,93 +211,95 @@ export function AddToDay({
   return (
     // Shown only when asked (the "+"; 2026-10-02): a sheet, not a section.
     <FutureDay.Provider value={future}>
-      <Sheet
-        id="day-add-food"
-        title={t.day.addTitle}
-        icon={<Plus size={20} aria-hidden="true" />}
-        closeLabel={t.actions.close}
-      >
-        <div role="tablist" aria-label={t.day.addTitle} className="flex">
-          {tabs.map((tab) => {
-            const selected = tab.kind === kind;
-            return (
-              <button
-                key={tab.kind}
-                type="button"
-                role="tab"
-                id={`add-tab-${tab.kind}`}
-                aria-selected={selected}
-                aria-controls="add-panel"
-                onClick={() => setKind(tab.kind)}
-                // Icon over label: four tabs fit a phone (like the bottom tab bar).
-                className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-control px-1 py-2 font-display text-meta ${
-                  selected
-                    ? "rule-b-heavy border-ink bg-sheet font-bold text-ink"
-                    : "rule-b-medium border-hairline text-muted hover:text-ink"
-                }`}
-              >
-                {tab.icon}
-                <span className="w-full truncate text-center">{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-        <div id="add-panel" role="tabpanel" aria-labelledby={`add-tab-${kind}`}>
-          {kind === "meal" && (
-            <PickForm
-              key={`m${mealKey}`}
-              {...common}
-              items={meals}
-              per="1"
-              idField="mealId"
-              amountField="servings"
-              amountLabel={t.day.servings}
-              defaultAmount="1"
-              empty={t.day.noMeals}
-              state={mealState}
-              action={mealAction}
-            />
-          )}
-          {kind === "ingredient" && (
-            <PickForm
-              key={`i${ingKey}`}
-              {...common}
-              items={ingredients}
-              per="100"
-              idField="ingredientId"
-              amountField="quantity"
-              amountLabel={t.day.quantity}
-              defaultAmount=""
-              empty={t.day.noIngredients}
-              state={ingState}
-              action={ingAction}
-            />
-          )}
-          {kind === "portion" && (
-            <PickForm
-              key={`p${porKey}`}
-              {...common}
-              items={portions}
-              per="1"
-              idField="batchId"
-              amountField="servings"
-              amountLabel={t.day.portions}
-              defaultAmount="1"
-              empty={t.day.noPortions}
-              state={porState}
-              action={porAction}
-            />
-          )}
-          {kind === "estimate" && (
-            <EstimateForm
-              key={`e${estKey}`}
-              {...common}
-              state={estState}
-              action={estAction}
-            />
-          )}
-        </div>
-      </Sheet>
+      <SlotPreset.Provider value={preset}>
+        <Sheet
+          id="day-add-food"
+          title={t.day.addTitle}
+          icon={<Plus size={20} aria-hidden="true" />}
+          closeLabel={t.actions.close}
+        >
+          <div role="tablist" aria-label={t.day.addTitle} className="flex">
+            {tabs.map((tab) => {
+              const selected = tab.kind === kind;
+              return (
+                <button
+                  key={tab.kind}
+                  type="button"
+                  role="tab"
+                  id={`add-tab-${tab.kind}`}
+                  aria-selected={selected}
+                  aria-controls="add-panel"
+                  onClick={() => setKind(tab.kind)}
+                  // Icon over label: four tabs fit a phone (like the bottom tab bar).
+                  className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-control px-1 py-2 font-display text-meta ${
+                    selected
+                      ? "rule-b-heavy border-ink bg-sheet font-bold text-ink"
+                      : "rule-b-medium border-hairline text-muted hover:text-ink"
+                  }`}
+                >
+                  {tab.icon}
+                  <span className="w-full truncate text-center">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div id="add-panel" role="tabpanel" aria-labelledby={`add-tab-${kind}`}>
+            {kind === "meal" && (
+              <PickForm
+                key={`m${mealKey}`}
+                {...common}
+                items={meals}
+                per="1"
+                idField="mealId"
+                amountField="servings"
+                amountLabel={t.day.servings}
+                defaultAmount="1"
+                empty={t.day.noMeals}
+                state={mealState}
+                action={mealAction}
+              />
+            )}
+            {kind === "ingredient" && (
+              <PickForm
+                key={`i${ingKey}`}
+                {...common}
+                items={ingredients}
+                per="100"
+                idField="ingredientId"
+                amountField="quantity"
+                amountLabel={t.day.quantity}
+                defaultAmount=""
+                empty={t.day.noIngredients}
+                state={ingState}
+                action={ingAction}
+              />
+            )}
+            {kind === "portion" && (
+              <PickForm
+                key={`p${porKey}`}
+                {...common}
+                items={portions}
+                per="1"
+                idField="batchId"
+                amountField="servings"
+                amountLabel={t.day.portions}
+                defaultAmount="1"
+                empty={t.day.noPortions}
+                state={porState}
+                action={porAction}
+              />
+            )}
+            {kind === "estimate" && (
+              <EstimateForm
+                key={`e${estKey}`}
+                {...common}
+                state={estState}
+                action={estAction}
+              />
+            )}
+          </div>
+        </Sheet>
+      </SlotPreset.Provider>
     </FutureDay.Provider>
   );
 }
@@ -456,7 +490,15 @@ function Preview({
  * (ADR-0011). The moment follows the suggestion — the meal's category, else
  * the time typed, else the current time — until the user picks one.
  */
-function Timing({
+/** A new slot preset starts the timing afresh (its fields' first values). */
+function Timing(props: Parameters<typeof TimingFields>[0]) {
+  const preset = useContext(SlotPreset);
+  return (
+    <TimingFields key={`${preset.moment}|${preset.time}|${preset.planned}`} {...props} />
+  );
+}
+
+function TimingFields({
   t,
   kept,
   category,
@@ -469,9 +511,10 @@ function Timing({
   category: Moment | null;
   bounds: MomentBounds;
 }) {
-  const [time, setTime] = useState(kept("time") ?? "");
+  const preset = useContext(SlotPreset);
+  const [time, setTime] = useState(kept("time") ?? preset.time ?? "");
   const [picked, setPicked] = useState<Moment | null>(() => {
-    const m = kept("moment");
+    const m = kept("moment") ?? preset.moment;
     return m && isMoment(m) ? m : null;
   });
   const now = new Date();
@@ -483,7 +526,7 @@ function Timing({
   );
   const moment = picked ?? suggested;
   const future = useContext(FutureDay);
-  const [chosen, setPlanned] = useState(kept("planned") === "on");
+  const [chosen, setPlanned] = useState(kept("planned") === "on" || preset.planned);
   // A day still to come: planned only, the switch is not offered.
   const planned = future || chosen;
   return (
