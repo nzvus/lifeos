@@ -49,6 +49,7 @@ import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fieldError, IDLE, type FormState } from "@/core/shared/result";
 import { pickerSearch, type Pickable as SearchItem } from "@/core/shared/search";
+import { suggestForSlot } from "@/core/nutrition/slots";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import { Field } from "@/ui/Field";
 import { TimeField } from "@/ui/TimeField";
@@ -357,6 +358,12 @@ function PickForm({
     [t, locale],
   );
   const picker = useMemo(() => pickerSearch(items, hint), [items, hint]);
+  // ADR-0050: from a slot's "+", the user's meals that fit it, one tap away.
+  const preset = useContext(SlotPreset);
+  const fits =
+    per === "1" && preset.moment && isMoment(preset.moment)
+      ? suggestForSlot(preset.moment, items)
+      : [];
 
   if (items.length === 0) return <p className="text-meta text-muted">{empty}</p>;
   const chosen = items.find((i) => i.id === id);
@@ -366,6 +373,29 @@ function PickForm({
     <form action={action} className="flex flex-col gap-3">
       <input type="hidden" name="day" value={day} />
       {err("_form") && <FormAlert tone="error">{err("_form")!}</FormAlert>}
+      {fits.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <span className="text-meta font-semibold text-muted">
+            {t.day.slotSuggestions}
+          </span>
+          {fits.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              aria-pressed={id === m.id}
+              onClick={() => setId(m.id)}
+              className={`flex min-h-14 flex-col items-start justify-center rounded-control px-3 py-2 text-left ${
+                id === m.id
+                  ? "rule-strong border-ink bg-sheet"
+                  : "rule-medium border-hairline bg-sheet"
+              }`}
+            >
+              <span className="font-semibold">{m.name}</span>
+              <span className="text-meta text-muted tabular-nums">{hint(m)}</span>
+            </button>
+          ))}
+        </div>
+      )}
       <SearchSelect
         label={per === "1" ? t.day.meal : t.day.ingredient}
         name={idField}

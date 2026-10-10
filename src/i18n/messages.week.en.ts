@@ -17,4 +17,6 @@ export const weekEn = {
   average: "{name}: {avg} on average (target {target})",
   irregular: "The days swing a lot this week: steadier days are easier to keep.",
   nothing: "Nothing logged before this day this week.",
+  watchOver: "This week: {name} above target",
+  watchUnder: "This week: {name} below target",
 };

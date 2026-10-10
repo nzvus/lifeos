@@ -131,3 +131,15 @@ export function weekContext(
     irregular: kcals.length >= 3 && meanKcal > 0 && spread / meanKcal > IRREGULAR,
   };
 }
+
+/** The average furthest off its target, relative to it; null when all are fine. */
+export function weekWatch(w: WeekContext): WeekContext["averages"][number] | null {
+  const off = w.averages
+    .filter(
+      (a) =>
+        a.target > 0 && (a.kind === "max" ? a.average > a.target : a.average < a.target),
+    )
+    .map((a) => ({ a, by: Math.abs(a.average - a.target) / a.target }));
+  off.sort((x, y) => y.by - x.by);
+  return off[0]?.a ?? null;
+}

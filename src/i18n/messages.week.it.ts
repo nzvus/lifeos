@@ -20,4 +20,6 @@ export const weekIt: Messages["week"] = {
   irregular:
     "Questa settimana i giorni cambiano molto: giorni più regolari sono più facili da mantenere.",
   nothing: "Niente registrato prima di questo giorno, questa settimana.",
+  watchOver: "Questa settimana: {name} sopra il target",
+  watchUnder: "Questa settimana: {name} sotto il target",
 };

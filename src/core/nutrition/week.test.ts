@@ -1,7 +1,7 @@
 /** A day read in its week (ADR-0047). Numbers checked by hand in the comments. */
 import { describe, expect, it } from "vitest";
 import type { NutrientKey } from "./nutrients";
-import { weekContext, type WeekDayInput } from "./week";
+import { weekContext, weekWatch, type WeekContext, type WeekDayInput } from "./week";
 
 const zero: Record<NutrientKey, string> = {
   kcal: "0",
@@ -105,5 +105,39 @@ describe("weekContext", () => {
       adjusted: 1795,
       capped: true,
     });
+  });
+});
+
+describe("weekWatch", () => {
+  const w = (averages: WeekContext["averages"]): WeekContext => ({
+    pastDays: 3,
+    pastBalance: 0,
+    daysLeft: 4,
+    today: null,
+    protein: null,
+    averages,
+    irregular: false,
+  });
+
+  it("names the average furthest off its target, relative to it", () => {
+    const got = weekWatch(
+      w([
+        { key: "fiber", average: 25, target: 30, kind: "min" }, // 17 % short
+        { key: "salt", average: 7.5, target: 5, kind: "max" }, // 50 % over
+        { key: "sugars", average: 40, target: 50, kind: "max" }, // fine
+      ]),
+    );
+    expect(got?.key).toBe("salt");
+  });
+
+  it("nothing when every average is on the right side", () => {
+    expect(
+      weekWatch(
+        w([
+          { key: "fiber", average: 40, target: 30, kind: "min" },
+          { key: "salt", average: 4, target: 5, kind: "max" },
+        ]),
+      ),
+    ).toBeNull();
   });
 });
