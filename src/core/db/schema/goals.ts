@@ -20,6 +20,7 @@
  */
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   check,
   date,
   foreignKey,
@@ -75,6 +76,12 @@ export const goals = pgTable(
     split: text("split").$type<DietSplit>().notNull().default("balanced"),
     /** 0 = Sunday … 6 = Saturday (Date.getUTCDay); Monday by default. */
     checkInWeekday: integer("check_in_weekday").notNull().default(1),
+    /**
+     * ADR-0048: the weekly check-in is optional, off unless chosen. Off:
+     * no card, and days follow the goal live (accepted check-ins are kept
+     * but not read).
+     */
+    weeklyCheckIn: boolean("weekly_check_in").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
