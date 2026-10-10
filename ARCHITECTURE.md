@@ -51,7 +51,7 @@ docs/runbooks/  setup, restore drill, replace data, lint-rule proof
 | --- | --- |
 | Logged data is never lost or silently corrupted | Daily encrypted `pg_dump` outside Neon + drilled restore; migrations only via committed SQL, rehearsed on preview branches, applied to production by `migrate.yml` after a backup; log entries are snapshots (ADR-0007); decimals exact (`numeric` + big.js), money in integer cents; deletes go to a 30-day trash (ADR-0015) |
 | A user can never read another user's data | Every repository takes an `Owner` (branded, only from a verified session) and filters with `ownedBy()`; composite foreign keys `(id, user_id)`; cross-user tests per entity. Never middleware (CVE-2025-29927) |
-| A past day's targets never change | `day_plans` holds a copy of the profile's targets, fixed when the day is chosen or its first food is logged (ADR-0008) |
+| A past day's targets never change | `day_plans` holds a copy of the profile's targets, fixed when the day is chosen or its first food is logged (ADR-0008); dynamic days under an accepted check-in are frozen numbers (ADR-0043) |
 | A day/meal's totals equal the sum of its entries | `core/nutrition/totals.ts` only; computed on read, exact, rounded once at display; no stored aggregates |
 
 Structural invariants, enforced by ESLint (proof: `docs/runbooks/lint-boundaries.md`):
@@ -115,7 +115,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   A day's copy of its type is made only by `writePlan` (profiles.ts), with a dynamic type's
   parameters. A dynamic day (ADR-0014) computes them from `core/energy` (`getEnergyRange`; ranges, done +
   planned; no double counts, ADR-0021; × the accepted factor, learnt by a Kalman filter over log, closed days and scale, ADR-0041/0042/0026; steps at
-  one cost per step, ADR-0032). `goals`, `week_checkins` (ADR-0043): stored, not read yet. Weigh-ins carry a reliability (ADR-0027; one far from the last
+  one cost per step, ADR-0032). A goal (ADR-0043, `goals`, history) owns the rate; a dynamic day takes an accepted weekly check-in's frozen numbers (`week_checkins`, 7 days), else the goal live, else its type's. Weigh-ins carry a reliability (ADR-0027; one far from the last
   plausible weigh-in asks to be confirmed and counts 0.02); sleep feeds day
   quality and trends, not energy (ADR-0031).
 - **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment (groups in time order,
