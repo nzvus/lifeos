@@ -218,6 +218,13 @@
       "when": 1791576033645,
       "tag": "0030_day_closures",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1791617511143,
+      "tag": "0031_goals_and_week_checkins",
+      "breakpoints": true
     }
   ]
 }

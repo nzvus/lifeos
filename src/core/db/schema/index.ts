@@ -18,3 +18,4 @@ export * from "./money";
 export * from "./mind";
 export * from "./supplements";
 export * from "./closures";
+export * from "./goals";
