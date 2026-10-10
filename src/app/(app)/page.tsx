@@ -83,6 +83,8 @@ import { ViewLink, ViewNav, ViewPanel, ViewSwitch } from "@/ui/ViewSwitch";
 import { LiveDay, LiveTotals } from "@/features/nutrition/log/LiveDay";
 import { FoodSummary } from "@/features/nutrition/log/FoodSummary";
 import { groupByMoment } from "@/core/nutrition/moments";
+import { withSlots } from "@/core/nutrition/slots";
+import { listPrograms } from "@/core/nutrition/repositories/programs";
 import { Section } from "@/ui/Section";
 import { dayScore } from "@/core/nutrition/day-score";
 import { eatenQuality } from "@/core/nutrition/quality-summary";
@@ -172,6 +174,7 @@ export default async function DayPage({ searchParams }: Props) {
     checkin,
     closures,
     weekCheckin,
+    programs,
   ] = await Promise.all([
     slotLoad,
     // ADR-0040: the shown day's week through the one engine — the day's
@@ -201,6 +204,7 @@ export default async function DayPage({ searchParams }: Props) {
     getCheckin(db, owner, day), // ADR-0038: how the day felt
     listClosures(db, owner, day, day), // ADR-0042: closed?
     calibrationLoad && getCheckinProposal(db, owner, today, calibrationLoad), // ADR-0043
+    listPrograms(db, owner), // ADR-0044: the day type's slots
   ]);
   const plannedCount = view.entries.filter((e) => e.status === "planned").length;
   const night = nights[0] ?? null;
@@ -221,6 +225,18 @@ export default async function DayPage({ searchParams }: Props) {
   const dayTargets = resolved.plan;
   const energyView = resolved.energy;
   const dynamic = resolved.computed;
+  const num = (x: string | null) => (x === null ? null : Number(x));
+  // ADR-0044: the slots of the day's type, against the day's targets.
+  const slots =
+    (dayTargets.source !== "none" &&
+      dayTargets.profileId &&
+      programs.get(dayTargets.profileId)?.slots) ||
+    [];
+  const slotDay = {
+    kcal: num(targets.kcal),
+    protein: num(targets.protein),
+    kg: num(energyView.body.weightKg),
+  };
   const weekWithTargets = week.map((d) => ({
     ...d,
     targets: {
@@ -248,7 +264,6 @@ export default async function DayPage({ searchParams }: Props) {
   const pick = macroValues;
 
   const v = t.day.views;
-  const num = (x: string | null) => (x === null ? null : Number(x));
   const late = query.late === "1" ? "&late=1" : "";
   const tabHref = (k: View) => `/?day=${day}${late}${k === "summary" ? "" : `&tab=${k}`}`;
   const burnRange = burn.withPlanned
@@ -440,10 +455,14 @@ export default async function DayPage({ searchParams }: Props) {
                   }
                 >
                   <FoodSummary
-                    groups={groupByMoment(
-                      view.entries,
-                      settings.timezone,
-                      settings.preferences.bounds,
+                    items={withSlots(
+                      groupByMoment(
+                        view.entries,
+                        settings.timezone,
+                        settings.preferences.bounds,
+                      ),
+                      slots,
+                      slotDay,
                     )}
                     locale={locale}
                     t={t}
@@ -552,6 +571,8 @@ export default async function DayPage({ searchParams }: Props) {
                 servingsAction={(id) => setEntryServingsAction.bind(null, id)}
                 timeZone={settings.timezone}
                 bounds={settings.preferences.bounds}
+                slots={slots}
+                slotDay={slotDay}
                 // The same quality block as the meal cards, from the entry's
                 // snapshot lines (ADR-0007) and the current tags and ratings.
                 quality={(e) => (

@@ -1,31 +1,57 @@
 /**
  * features/nutrition/log/FoodSummary.tsx — the day's food on Today →
  * Summary (ADR-0033): one row per moment with what is in it and its eaten
- * kcal; a moment with only planned food says so. The whole list lives in
+ * kcal; a moment with only planned food says so. With a program (ADR-0044),
+ * a slot with no food yet shows at its time, muted. The whole list lives in
  * Today → Food, one tap away. Server component.
  */
-import type { Moment, MomentGroup } from "@/core/nutrition/moments";
+import type { Moment } from "@/core/nutrition/moments";
+import type { DayItem } from "@/core/nutrition/slots";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 import { Badge } from "@/ui/Badge";
 import { MOMENT_TEXT, MomentIcon } from "@/ui/MomentIcon";
+import { SlotLine } from "./SlotLine";
 
-type Entry = { label: string; status: "planned" | "eaten" };
+type Entry = {
+  label: string;
+  status: "planned" | "eaten";
+  moment: Moment | null;
+  totals: { nutrients: { protein: string } };
+};
 
 export function FoodSummary({
-  groups,
+  items,
   locale,
   t,
 }: {
-  groups: MomentGroup<Entry & { moment: Moment | null }>[];
+  items: DayItem<Entry>[];
   locale: Locale;
-  t: Pick<Messages, "day" | "moments">;
+  t: Pick<Messages, "day" | "moments" | "dayProgram">;
 }) {
-  if (groups.length === 0) return <p className="text-muted">{t.day.views.noFood}</p>;
+  if (items.length === 0) return <p className="text-muted">{t.day.views.noFood}</p>;
   return (
     <ul className="flex flex-col gap-2">
-      {groups.map((g) => {
+      {items.map((item) => {
+        if (item.type === "empty")
+          return (
+            <li key={item.key} className="flex items-center gap-3 opacity-70">
+              <MomentIcon moment={item.moment} size={20} />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="font-display text-item font-semibold">
+                  {t.moments.names[item.moment]}
+                </span>
+                <SlotLine
+                  slot={item.slot}
+                  eatenProtein={null}
+                  locale={locale}
+                  t={t.dayProgram}
+                />
+              </div>
+            </li>
+          );
+        const g = item.group;
         const eaten = g.entries.some((e) => e.status === "eaten");
         return (
           <li key={g.key} className="flex items-center gap-3">
