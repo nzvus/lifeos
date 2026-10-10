@@ -332,6 +332,7 @@ export default async function DayPage({ searchParams }: Props) {
             {weekCheckin?.due && (
               <CheckinCard
                 c={weekCheckin}
+                today={today}
                 decide={decideCheckinAction}
                 locale={locale}
                 t={t.energy.weightGoal}

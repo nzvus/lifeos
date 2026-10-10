@@ -102,6 +102,7 @@ export const weightGoalEn = {
   checkinLearnt: "Learnt from your log and scale.",
   checkinModel: "Estimated by the model: not learnt from your data yet.",
   checkinTarget: "Next 7 days, each day: {kcal} kcal",
+  checkinShifted: "Next 7 days, {kcal} kcal on average; your day programs shift it:",
   checkinMacros: "protein {protein} g · fat {fat} g · carbs {carbs} g",
   checkinFloored: "Held at your calorie floor.",
   checkinFactor: "Accepting also sets everyday activity to {factor}.",

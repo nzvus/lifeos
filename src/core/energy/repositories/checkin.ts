@@ -7,7 +7,9 @@
  *   expenditure  the last 7 days' average: learnt (ADR-0041) when its
  *                factor is known within ± 0.05, else the model with the
  *                accepted factor
- *   targets      goalTargets over it, the same for each of the 7 days
+ *   targets      goalTargets over it, the same for each of the 7 days,
+ *                then shifted by each day's program (ADR-0044: ± kcal,
+ *                the week's total kept; carbs take it)
  *
  * The numbers are computed again on accept, never taken from the form.
  * Accepting also accepts a proposed factor (ADR-0026: from today).
@@ -18,6 +20,7 @@ import { addDays } from "../../shared/dates";
 import { fail, type Result } from "../../shared/result";
 import { CONFIDENT, type Calibration } from "../calibration";
 import {
+  floorKcal,
   goalOnDay,
   goalTargets,
   lastCheckinDay,
@@ -25,6 +28,9 @@ import {
   type GoalPlan,
   type GoalTargets,
 } from "../goal";
+import { getDayTargetsRange } from "../../nutrition/repositories/profiles";
+import { listPrograms } from "../../nutrition/repositories/programs";
+import { floorShifts, weekShifts } from "../shift";
 import { getCalibration, getEnergyRange, setEnergyCorrection } from "./energy";
 import {
   goalFrom,
@@ -53,6 +59,8 @@ export type CheckinProposal = {
   /** ADR-0045: the rate planned from the target, for goals with a kind. */
   plan: GoalPlan | null;
   targets: (GoalTargets & { floored: boolean }) | null;
+  /** ADR-0044: kcal per day of the coming 7 above or below `targets`. */
+  shifts: Record<string, number>;
 };
 
 const mid = (r: { low: number; high: number }) => (r.low + r.high) / 2;
@@ -74,10 +82,20 @@ export async function getCheckinProposal(
   const goal = goalFrom(goals, today);
   if (!goal) return null;
   const periodStart = lastCheckinDay(today, goal.checkInWeekday);
-  const [cal, week] = await Promise.all([
+  const [cal, week, coming, programs] = await Promise.all([
     calibration ?? getCalibration(db, owner, today),
     getEnergyRange(db, owner, addDays(today, -7), addDays(today, -1)),
+    getDayTargetsRange(db, owner, today, addDays(today, 6)),
+    listPrograms(db, owner),
   ]);
+  // Each coming day's type (its copy or the default) and its program's shift.
+  const shifts = weekShifts(
+    [...coming.entries()].map(([day, t]) => ({
+      day,
+      shiftKcal:
+        (t.source !== "none" && t.profileId && programs.get(t.profileId)?.shiftKcal) || 0,
+    })),
+  );
   const modelled = [...week.values()].filter((v) => v.energy);
   const learnt =
     cal.verdict === "ok" && cal.sigma <= CONFIDENT && cal.expenditure !== null;
@@ -91,6 +109,11 @@ export async function getCheckinProposal(
   const last = modelled.at(-1);
   const weightKg = last?.body.weightKg ? Number(last.body.weightKg) : null;
   const previous = checkins.find((c) => c.decision === "accepted");
+  const bmr = last?.energy?.bmr ?? null;
+  const targets =
+    expenditure !== null && weightKg !== null && bmr !== null
+      ? goalTargets(expenditure, goalOnDay(goal, weightKg, today), weightKg, bmr)
+      : null;
   return {
     goal,
     periodStart,
@@ -105,15 +128,13 @@ export async function getCheckinProposal(
       goal.kind !== null && weightKg !== null
         ? planGoal({ ...goal, kind: goal.kind }, weightKg, today)
         : null,
-    targets:
-      expenditure !== null && weightKg !== null && last?.energy
-        ? goalTargets(
-            expenditure,
-            goalOnDay(goal, weightKg, today),
-            weightKg,
-            last.energy.bmr,
-          )
-        : null,
+    targets,
+    // The floor holds each day, not only the average (a lighter day never
+    // goes under it; the week's total then rises by that much).
+    shifts:
+      targets && bmr !== null
+        ? floorShifts(shifts, targets.kcal, floorKcal(goal.kcalFloor, bmr))
+        : Object.fromEntries(shifts),
   };
 }
 
@@ -140,6 +161,7 @@ export async function decideCheckin(
     fat,
     carbs,
     fiber,
+    shifts: p.shifts,
   });
   if (r.ok && p.proposedFactor !== null)
     await setEnergyCorrection(db, owner, p.proposedFactor, today);

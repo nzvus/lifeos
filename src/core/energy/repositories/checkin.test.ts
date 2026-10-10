@@ -3,7 +3,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { readDay } from "../../day/repositories/days";
 import type { Db } from "../../db/client";
 import type { Owner } from "../../identity/owner";
-import { createProfile } from "../../nutrition/repositories/profiles";
+import { createProfile, setDayProfile } from "../../nutrition/repositories/profiles";
+import { saveProgram } from "../../nutrition/repositories/programs";
 import { createTestDb, createTestUser } from "../../testing/test-db";
 import { addMeasurement } from "../../training/repositories/measurements";
 import { decideCheckin, getCheckinProposal } from "./checkin";
@@ -118,5 +119,61 @@ describe("the weekly check-in", () => {
       ok: false,
       errors: { _form: "required" },
     });
+  });
+
+  it("shifts the week by each day's program, keeping its total (ADR-0044)", async () => {
+    const dynamic = {
+      kcal: null,
+      protein: null,
+      carbs: null,
+      sugars: null,
+      fat: null,
+      saturatedFat: null,
+      fiber: null,
+      salt: null,
+      mode: "dynamic",
+      deficitKcal: 200,
+      proteinGPerKg: "2.2",
+      fatGPerKg: "0.8",
+    } as const;
+    const rest = await createProfile(db, me, { name: "Rest", ...dynamic }); // the default
+    const legs = await createProfile(db, me, { name: "Legs", ...dynamic });
+    if (!rest.ok || !legs.ok) throw new Error("setup");
+    await saveProgram(db, me, legs.value.id, {
+      trainingAt: 18 * 60,
+      shiftKcal: 350,
+      slots: [],
+    });
+    // Saturday 10th: legs on Monday 12th and Thursday 15th.
+    await setDayProfile(db, me, "2026-10-12", legs.value.id);
+    await setDayProfile(db, me, "2026-10-15", legs.value.id);
+    await setGoal(db, me, "2026-10-10", goal);
+
+    const p = (await getCheckinProposal(db, me, "2026-10-10"))!;
+    // Mean 700 ÷ 7 = 100: legs +250, the other five −100.
+    expect(p.shifts).toEqual({
+      "2026-10-10": -100,
+      "2026-10-11": -100,
+      "2026-10-12": 250,
+      "2026-10-13": -100,
+      "2026-10-14": -100,
+      "2026-10-15": 250,
+      "2026-10-16": -100,
+    });
+
+    expect((await decideCheckin(db, me, "2026-10-10", "accept")).ok).toBe(true);
+    // Editing the program afterwards changes nothing in the fixed week.
+    await saveProgram(db, me, legs.value.id, {
+      trainingAt: null,
+      shiftKcal: 0,
+      slots: [],
+    });
+    const opts = { today: "2026-10-10", autoTargets: false };
+    const monday = await readDay(db, me, "2026-10-12", opts);
+    const tuesday = await readDay(db, me, "2026-10-13", opts);
+    expect(Number(monday.own.kcal)).toBe(p.targets!.kcal + 250);
+    expect(Number(tuesday.own.kcal)).toBe(p.targets!.kcal - 100);
+    expect(Number(monday.own.carbs) - Number(tuesday.own.carbs)).toBe(88); // 350 ÷ 4, rounded per day
+    expect(monday.own.protein).toBe(tuesday.own.protein);
   });
 });

@@ -108,7 +108,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
 - **Targets:** one engine, `core/day` (ADR-0040): `readDays(from, to)` → `resolveDay` per day, for
   every screen and the assistant. A day's type (ADR-0008): its copy (`writePlan` only), else the
   default, else none; auto maxima; bands (ADR-0023; carbs take the rest). A dynamic day (ADR-0014):
-  an accepted weekly check-in's frozen numbers (`week_checkins`, 7 days), else the goal live
+  an accepted weekly check-in's frozen numbers (`week_checkins`, 7 days; ± each day's program shift, `week_checkin_days`, carbs take it), else the goal live
   (`goals`, a history: kind, target, day; the pace planned within ranges, ADR-0045), else its
   type's parameters (ADR-0043).
   A type may carry a program (ADR-0044): training time, a ± kcal shift, timed meal slots.

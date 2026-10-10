@@ -9,6 +9,7 @@
 import { CalendarCheck, Check, SkipForward } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { addDays } from "@/core/shared/dates";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
@@ -22,6 +23,8 @@ export type CheckinView = {
   weightKg: number | null;
   /** ADR-0045: the pace planned from the target, when the goal has a kind. */
   plan: { ratePctWeek: number; status: string } | null;
+  /** ADR-0044: kcal per coming day above or below the average. */
+  shifts: Record<string, number>;
   learnt: boolean;
   previous: number | null;
   proposedFactor: number | null;
@@ -36,11 +39,13 @@ export type CheckinView = {
 
 export function CheckinCard({
   c,
+  today,
   decide,
   locale,
   t,
 }: {
   c: CheckinView;
+  today: string;
   decide: (decision: "accept" | "skip") => Promise<Outcome>;
   locale: Locale;
   t: Messages["energy"]["weightGoal"];
@@ -48,6 +53,14 @@ export function CheckinCard({
   const router = useRouter();
   const [pending, start] = useTransition();
   const n = (v: number, d = 0) => formatNumber(String(v), locale, d);
+  // The coming 7 days from today (the shifts' keys are among them).
+  const week = Array.from({ length: 7 }, (_, i) => addDays(today, i));
+  const weekday = (d: string) =>
+    new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-GB", {
+      weekday: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    }).format(new Date(`${d}T00:00:00Z`));
   const run = (decision: "accept" | "skip", done: string) =>
     start(async () => {
       const r = await decide(decision);
@@ -73,9 +86,27 @@ export function CheckinCard({
             {c.previous !== null && ` ${fill(t.checkinWas, { kcal: n(c.previous) })}`}
           </p>
           <p className="text-muted">{c.learnt ? t.checkinLearnt : t.checkinModel}</p>
-          <p className="font-semibold tabular-nums">
-            {fill(t.checkinTarget, { kcal: n(c.targets.kcal) })}
-          </p>
+          {Object.keys(c.shifts).length === 0 ? (
+            <p className="font-semibold tabular-nums">
+              {fill(t.checkinTarget, { kcal: n(c.targets.kcal) })}
+            </p>
+          ) : (
+            <>
+              <p className="font-semibold tabular-nums">
+                {fill(t.checkinShifted, { kcal: n(c.targets.kcal) })}
+              </p>
+              <ul className="grid grid-cols-4 gap-1 tabular-nums">
+                {week.map((day) => (
+                  <li key={day} className="flex flex-col">
+                    <span className="text-muted">{weekday(day)}</span>
+                    <span className={c.shifts[day] ? "font-semibold" : ""}>
+                      {n(c.targets!.kcal + (c.shifts[day] ?? 0))}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
           <p className="tabular-nums">
             {fill(t.checkinMacros, {
               protein: n(c.targets.protein),

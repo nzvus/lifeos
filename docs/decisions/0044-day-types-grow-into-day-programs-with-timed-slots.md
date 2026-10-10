@@ -108,7 +108,12 @@ mean shift. Programs without a shift stay uniform.
 - **The shift (PR 3):** a check-in gives each of its 7 days the week's
   average + the day's shift − the mean shift of those 7 days. The days'
   types come from their copies, the program and overrides. The total stays
-  the same.
+  the same. The carbs take each day's delta; protein and fat stay the
+  week's. The deltas are frozen with the check-in in `week_checkin_days`
+  (a new table, migration 0033), so editing a program later changes no
+  fixed week. The calorie floor holds on each day, not only on the
+  average: a lighter day is never pushed under it, and the week's total
+  rises by that much.
 
 ## Consequences
 - One migration (0032): the two new tables and the two CHECKs widened.
