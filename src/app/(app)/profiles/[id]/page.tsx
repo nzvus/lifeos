@@ -9,6 +9,7 @@ import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { getProfile } from "@/core/nutrition/repositories/profiles";
 import { getProgram } from "@/core/nutrition/repositories/programs";
+import { listGoals } from "@/core/energy/repositories/goals";
 import { MOMENTS } from "@/core/nutrition/moments";
 import { STARTERS } from "@/core/nutrition/programs";
 import { ProgramForm } from "@/features/nutrition/profiles/ProgramForm";
@@ -37,9 +38,10 @@ export default async function EditProfilePage({ params, searchParams }: Props) {
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
   const from = safeFrom((await searchParams).from, "/settings#day-types");
-  const [profile, program] = await Promise.all([
+  const [profile, program, goals] = await Promise.all([
     getProfile(getDb(), owner, id),
     getProgram(getDb(), owner, id),
+    listGoals(getDb(), owner),
   ]);
   if (!profile) notFound();
 
@@ -75,6 +77,10 @@ export default async function EditProfilePage({ params, searchParams }: Props) {
         }
       />
       <p className="text-meta text-muted">{t.profiles.editNote}</p>
+      {/* ADR-0043: a goal owns the rate; a dynamic type's own numbers wait. */}
+      {profile.mode === "dynamic" && goals.length > 0 && (
+        <p className="text-meta font-semibold">{t.dayProgram.goalOverrides}</p>
+      )}
       <ProfileForm
         id={id}
         from={from}

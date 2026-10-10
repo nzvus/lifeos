@@ -19,6 +19,9 @@ type Outcome = { ok: boolean; message?: string };
 
 export type CheckinView = {
   expenditure: number | null;
+  weightKg: number | null;
+  /** ADR-0045: the pace planned from the target, when the goal has a kind. */
+  plan: { ratePctWeek: number; status: string } | null;
   learnt: boolean;
   previous: number | null;
   proposedFactor: number | null;
@@ -80,6 +83,23 @@ export function CheckinCard({
               carbs: n(c.targets.carbs),
             })}
           </p>
+          {c.plan && c.plan.ratePctWeek !== 0 && c.weightKg !== null && (
+            // What the week's kcal really give (the floor may hold them up):
+            // 7,700 kcal a kilo, as in core/energy/goal.ts.
+            <p className="text-muted tabular-nums">
+              {(() => {
+                const balance = c.targets.kcal - c.expenditure;
+                const kg = (balance * 7) / 7700;
+                return fill(t.planRate, {
+                  rate: n(Math.abs((kg / c.weightKg) * 100), 2),
+                  kg: n(Math.abs(kg), 2),
+                  kcal: n(Math.abs(balance)),
+                  dir: balance < 0 ? t.planBelow : t.planAbove,
+                });
+              })()}
+            </p>
+          )}
+          {c.plan?.status === "reached" && <p>{t.planReached}</p>}
           {c.targets.floored && <p className="text-muted">{t.checkinFloored}</p>}
           {c.proposedFactor !== null && (
             <p className="text-muted">

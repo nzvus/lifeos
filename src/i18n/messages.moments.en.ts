@@ -54,4 +54,6 @@ export const dayProgramEn = {
   total: "Total: {kcal} % of kcal · {protein} % of protein",
   empty: "No slots: the day shows as before.",
   save: "Save program",
+  goalOverrides:
+    "You have a goal in Settings: the deficit, protein and fat here apply only without one.",
 };

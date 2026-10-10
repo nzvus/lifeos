@@ -56,4 +56,6 @@ export const dayProgramIt: Messages["dayProgram"] = {
   total: "Totale: {kcal} % delle kcal · {protein} % delle proteine",
   empty: "Nessuno slot: la giornata appare come prima.",
   save: "Salva il programma",
+  goalOverrides:
+    "Hai un obiettivo nelle Impostazioni: deficit, proteine e grassi qui valgono solo senza obiettivo.",
 };
