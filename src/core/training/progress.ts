@@ -216,3 +216,19 @@ export function exerciseTrends(sessions: readonly Session[]): ExerciseTrend[] {
     })
     .sort((a, b) => b.lastDay.localeCompare(a.lastDay));
 }
+
+/**
+ * ADR-0049: what the week's volume suggests, per muscle group with sets.
+ * Under 10 weighted sets: add 2–4 next week. Over 20: returns diminish
+ * (Pelland 2024), fewer sets cost little. A note, never a rule.
+ */
+export function volumeAdvice(byGroup: ReadonlyMap<MuscleGroup, number>): {
+  low: MuscleGroup[];
+  high: MuscleGroup[];
+} {
+  const groups = [...byGroup.entries()].filter(([, v]) => v > 0);
+  return {
+    low: groups.filter(([, v]) => v < VOLUME_RANGE.low).map(([g]) => g),
+    high: groups.filter(([, v]) => v > VOLUME_RANGE.high).map(([g]) => g),
+  };
+}
