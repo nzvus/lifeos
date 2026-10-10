@@ -6,7 +6,20 @@
  */
 import { timeIn } from "../shared/dates";
 import { Big } from "../shared/decimal";
-export const MOMENTS = ["breakfast", "lunch", "snack", "dinner"] as const;
+/**
+ * ADR-0044 added the last three: a slot or the user picks them, a time
+ * never derives them (momentAt returns only the first four). Keep in step
+ * with the CHECKs on meals.category and log_entries.moment.
+ */
+export const MOMENTS = [
+  "breakfast",
+  "lunch",
+  "snack",
+  "dinner",
+  "pre_workout",
+  "post_workout",
+  "pre_sleep",
+] as const;
 export type Moment = (typeof MOMENTS)[number];
 
 export function isMoment(s: string): s is Moment {
@@ -100,6 +113,9 @@ const ANCHOR: Record<Moment, number> = {
   lunch: 13 * 60,
   snack: 16 * 60 + 30,
   dinner: 20 * 60,
+  pre_workout: 17 * 60,
+  post_workout: 19 * 60,
+  pre_sleep: 23 * 60,
 };
 
 /**
@@ -143,10 +159,11 @@ export function groupByMoment<
   });
   const when = (p: Placed) => p.minutes ?? ANCHOR[p.moment!];
 
-  // Main meals: one block each, at the earliest time among its entries.
+  // Main meals, and the moments around training and sleep (ADR-0044): one
+  // block each, at the earliest time among its entries.
   type Block = { minutes: number; moment: Moment; items: Placed[] };
   const blocks: Block[] = [];
-  for (const m of ["breakfast", "lunch", "dinner"] as const) {
+  for (const m of MOMENTS.filter((x) => x !== "snack")) {
     const items = placed.filter((p) => p.moment === m);
     if (items.length)
       blocks.push({ minutes: Math.min(...items.map(when)), moment: m, items });

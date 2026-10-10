@@ -43,6 +43,7 @@ import { supplementsEn } from "./messages.supplements.en";
 import { mindEn } from "./messages.mind.en";
 import { planEn } from "./messages.plan.en";
 import { moneyEn } from "./messages.money.en";
+import { dayProgramEn, momentsEn } from "./messages.moments.en";
 
 export const en = {
   app: appEn,
@@ -679,29 +680,8 @@ export const en = {
     listSort: "List order when opening",
     save: "Save preferences",
   },
-  moments: {
-    label: "Moment",
-    hint: "Prefilled from the meal's category or the time; you can change it.",
-    none: "No moment",
-    categoryLabel: "Category",
-    categoryNone: "— none",
-    categoryHint: "Optional: suggests the moment when you add it to a day.",
-    all: "All",
-    subtotal: "{v} kcal",
-    names: {
-      breakfast: "Breakfast",
-      lunch: "Lunch",
-      snack: "Snack",
-      dinner: "Dinner",
-    },
-    /** A snack's group, by when it falls (core/nutrition/moments snackPart). */
-    snackParts: {
-      night: "Night snack",
-      morning: "Mid-morning snack",
-      afternoon: "Afternoon snack",
-      evening: "Evening snack",
-    },
-  },
+  moments: momentsEn,
+  dayProgram: dayProgramEn,
   macro: {
     protein: "P",
     carbs: "C",

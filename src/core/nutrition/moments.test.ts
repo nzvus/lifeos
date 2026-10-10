@@ -8,6 +8,7 @@ import {
   snackPart,
   suggestMoment,
 } from "./moments";
+import type { Moment } from "./moments";
 
 const at = (hhmm: string) => {
   const [h, m] = hhmm.split(":").map(Number);
@@ -53,7 +54,7 @@ describe("moments", () => {
 
 describe("groupByMoment", () => {
   const e = (
-    moment: "breakfast" | "lunch" | "snack" | "dinner" | null,
+    moment: Moment | null,
     at: string | null,
     kcal: string,
     status: "planned" | "eaten" = "eaten",
@@ -62,6 +63,26 @@ describe("groupByMoment", () => {
     at,
     status,
     totals: { nutrients: { kcal } },
+  });
+
+  it("places the moments around training and sleep by their time (ADR-0044)", () => {
+    const groups = groupByMoment(
+      [
+        e("dinner", "2026-10-10T18:30:00Z", "700"), // 20:30
+        e("post_workout", "2026-10-10T17:00:00Z", "300"), // 19:00
+        e("pre_workout", null, "150"), // no time: 17:00
+        e("lunch", "2026-10-10T11:00:00Z", "600"), // 13:00
+        e("pre_sleep", "2026-10-10T21:30:00Z", "200"), // 23:30
+      ],
+      "Europe/Rome",
+    );
+    expect(groups.map((g) => g.moment)).toEqual([
+      "lunch",
+      "pre_workout",
+      "post_workout",
+      "dinner",
+      "pre_sleep",
+    ]);
   });
 
   it("groups in day order, derives from the time, sums eaten kcal, 'not set' last", () => {

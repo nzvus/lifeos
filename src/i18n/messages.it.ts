@@ -34,6 +34,7 @@ import { mindIt } from "./messages.mind.it";
 import { planIt } from "./messages.plan.it";
 import { moneyIt } from "./messages.money.it";
 import type { Messages } from "./index";
+import { dayProgramIt, momentsIt } from "./messages.moments.it";
 
 export const it: Messages = {
   app: appIt,
@@ -677,28 +678,8 @@ export const it: Messages = {
     listSort: "Ordine delle liste all'apertura",
     save: "Salva preferenze",
   },
-  moments: {
-    label: "Momento",
-    hint: "Precompilato dalla categoria del pasto o dall'ora; puoi cambiarlo.",
-    none: "Senza momento",
-    categoryLabel: "Categoria",
-    categoryNone: "— nessuna",
-    categoryHint: "Facoltativa: suggerisce il momento quando lo aggiungi alla giornata.",
-    all: "Tutti",
-    subtotal: "{v} kcal",
-    names: {
-      breakfast: "Colazione",
-      lunch: "Pranzo",
-      snack: "Spuntino",
-      dinner: "Cena",
-    },
-    snackParts: {
-      night: "Spuntino notturno",
-      morning: "Spuntino di metà mattina",
-      afternoon: "Merenda",
-      evening: "Spuntino serale",
-    },
-  },
+  moments: momentsIt,
+  dayProgram: dayProgramIt,
   macro: {
     protein: "P",
     carbs: "C",
