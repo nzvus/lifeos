@@ -39,7 +39,7 @@ import {
   type Nova,
   type Origin,
 } from "./quality";
-import { isMoment, minutesOf, type Moment } from "./moments";
+import { isMoment, minutesOf, MOMENTS, type Moment } from "./moments";
 import type { TrendRange } from "./preferences";
 
 // Column limits, mirrored from core/db/schema/nutrition.ts.
@@ -286,7 +286,11 @@ export const estimateInput = z.object({
 export type EstimateInput = z.output<typeof estimateInput>;
 
 /** Editing an entry's time (the entry id is bound by the page). */
-export const entryTimeInput = z.object({ time });
+/** An entry's time and moment, edited in place (2026-10-10). */
+export const entryWhenInput = z.object({
+  time,
+  moment: z.enum(MOMENTS, "invalid_choice"),
+});
 /** An entry's multiplier from the day's −/+ (0.25 to 10). */
 export const entryServingsInput = z.object({
   servings: z.coerce.number("invalid_number").min(0.25, "too_small").max(10, "too_large"),
