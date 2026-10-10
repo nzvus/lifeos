@@ -36,7 +36,7 @@ import {
   refreshLogEntry,
   setEntryStatus,
   setEntryServings,
-  setEntryTime,
+  setEntryWhen,
 } from "@/core/nutrition/repositories/log";
 import { setDayProfile, setGoalDeficit } from "@/core/nutrition/repositories/profiles";
 import { setDayClosure } from "@/core/nutrition/repositories/closures";
@@ -46,7 +46,7 @@ import {
   dayProfileInput,
   goalDeficitInput,
   entryServingsInput,
-  entryTimeInput,
+  entryWhenInput,
   estimateInput,
   logIngredientInput,
   logMealInput,
@@ -281,8 +281,11 @@ export async function setEntryStatusAction(
   return { status: "idle" };
 }
 
-/** Edits an entry's time ("HH:MM" on the entry's day, user's time zone). Bound per entry. */
-export async function setEntryTimeAction(
+/**
+ * An entry's time ("HH:MM" on its day, in the user's zone) and moment,
+ * edited in place on the day (2026-10-10). Bound per entry.
+ */
+export async function setEntryWhenAction(
   id: string,
   day: string,
   _prev: FormState,
@@ -290,13 +293,13 @@ export async function setEntryTimeAction(
 ): Promise<FormState> {
   const { owner, settings } = await requireContext();
   const values = formToObject(formData);
-  const input = parseInput(entryTimeInput, values);
+  const input = parseInput(entryWhenInput, values);
   if (!input.ok) return { status: "error", errors: input.errors, values };
   const at =
     input.value.time === null
       ? null
       : instantFor(day, input.value.time, settings.timezone);
-  const result = await setEntryTime(getDb(), owner, id, at);
+  const result = await setEntryWhen(getDb(), owner, id, at, input.value.moment);
   if (!result.ok) return { status: "error", errors: result.errors, values };
   revalidatePath("/");
   return { status: "saved" };

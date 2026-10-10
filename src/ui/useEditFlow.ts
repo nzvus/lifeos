@@ -7,10 +7,11 @@
  *   - Delete: move to the trash, go back to `from`, "«name» moved to the
  *     trash · Undo" (Undo restores it).
  * Generic: the form state type and its idle value come from the caller
- * (ui/ may not import core types).
+ * (ui/ may import core types).
  */
 "use client";
 
+import { noteReturn } from "./ScrollMemory";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { fill } from "@/i18n";
@@ -70,6 +71,7 @@ export function useEditFlow<S extends { status: string }>(opts: {
             }
           : undefined,
       });
+      noteReturn(from); // back where the user was (ui/ScrollMemory)
       router.push(from);
       return r;
     },
@@ -123,7 +125,9 @@ export function useTrash(opts: {
         },
       },
     });
-    if (from) router.push(from);
-    else router.refresh();
+    if (from) {
+      noteReturn(from);
+      router.push(from);
+    } else router.refresh();
   };
 }

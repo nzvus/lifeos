@@ -358,6 +358,7 @@ export const panelRowsEn = {
   bandLine: "health minimum {floor} · good zone {low}–{high} · {kind} {ceiling}",
   maxHealth: "recommended max",
   maxUseful: "useful max",
+  noMax: "no maximum",
   targetLine: "target {v}",
   planLine: "with the plan {v}",
   liveTitle: "The day with the plan",

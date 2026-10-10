@@ -288,6 +288,18 @@ describe("daily log", () => {
     );
   });
 
+  it("entryTiming: a day still to come is always planned (2026-10-10)", () => {
+    const now = new Date("2026-09-29T08:00:00Z"); // 29 September in Rome
+    expect(entryTiming("2026-09-30", false, null, "Europe/Rome", now)).toEqual({
+      status: "planned",
+      at: null,
+    });
+    expect(entryTiming("2026-09-30", false, "13:00", "Europe/Rome", now).status).toBe(
+      "planned",
+    );
+    expect(entryTiming("2026-09-29", false, null, "Europe/Rome", now).status).toBe("eaten");
+  });
+
   it("estimated meal: typed totals and cost add up exactly; copyDay makes plans", async () => {
     const est = await logEstimate(db, alice, {
       day,

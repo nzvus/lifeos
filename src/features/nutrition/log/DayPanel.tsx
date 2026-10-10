@@ -120,8 +120,13 @@ export function DayPanel({
           floor: g(real.floor),
           low: num(String(real.low), k),
           high: g(real.high),
-          ceiling: g(real.ceiling),
-          kind: real.ceilingKind === "health" ? t.panel.maxHealth : t.panel.maxUseful,
+          ceiling: real.ceilingKind === "open" ? "" : g(real.ceiling),
+          kind:
+            real.ceilingKind === "health"
+              ? t.panel.maxHealth
+              : real.ceilingKind === "open"
+                ? t.panel.noMax
+                : t.panel.maxUseful,
         }),
       target !== null && fill(t.panel.targetLine, { v: g(target) }),
       vp !== v && fill(t.panel.planLine, { v: g(vp) }),

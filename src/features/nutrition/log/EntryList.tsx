@@ -18,7 +18,7 @@
  */
 import { Pencil, Tag } from "lucide-react";
 import { detailLines } from "@/core/nutrition/display";
-import { groupByMoment, type MomentBounds } from "@/core/nutrition/moments";
+import { groupByMoment, MOMENTS, type MomentBounds } from "@/core/nutrition/moments";
 import type { ProgramSlot } from "@/core/nutrition/programs";
 import { withSlots, type DayItem } from "@/core/nutrition/slots";
 import { formatNumber } from "@/core/shared/format";
@@ -45,7 +45,7 @@ import {
   LiveStatusToggle,
   LiveTimes,
 } from "./LiveDay";
-import { TimeEditor } from "./TimeEditor";
+import { WhenEditor } from "./WhenEditor";
 import { Badge } from "@/ui/Badge";
 type Props = {
   day: DayView;
@@ -68,7 +68,7 @@ type Props = {
     id: string,
     status: "planned" | "eaten",
   ) => (prev: ActionButtonState, formData: FormData) => Promise<ActionButtonState>;
-  /** Edit the time, bound per entry. */
+  /** Edit the time and moment, bound per entry (2026-10-10). */
   timeAction: (id: string) => (prev: FormState, formData: FormData) => Promise<FormState>;
   /** The −/+ multiplier of an entry (a plain form). */
   servingsAction: (id: string) => (formData: FormData) => Promise<void>;
@@ -94,6 +94,7 @@ type Props = {
     | "actions"
     | "label"
     | "entryEdit"
+    | "settings"
   >;
 };
 type GroupItem = Extract<DayItem<LogEntryView>, { type: "group" }>;
@@ -251,7 +252,8 @@ export function EntryList({
                           {
                             label: t.entryEdit.edit,
                             icon: <Pencil size={16} aria-hidden="true" />,
-                            href: `/log/${e.id}?from=${encodeURIComponent(`/?day=${e.day}`)}`,
+                            // Back to this list, in the Food view (ui/ScrollMemory keeps the place).
+                            href: `/log/${e.id}?from=${encodeURIComponent(`/?day=${e.day}&tab=food`)}`,
                           },
                         ]
                   }
@@ -287,9 +289,12 @@ export function EntryList({
                 lines={detailLines(e.lines, e.servings, locale)}
                 labels={labels}
               >
-                <TimeEditor
+                {/* 2026-10-10: time and moment edited here, not on a page. */}
+                <WhenEditor
                   action={timeAction(e.id)}
-                  initial={e.at ? timeIn(new Date(e.at), timeZone) : ""}
+                  time={e.at ? timeIn(new Date(e.at), timeZone) : ""}
+                  moment={e.moment ?? group.moment ?? "snack"}
+                  moments={MOMENTS}
                   t={t}
                 />
               </FoodDetails>

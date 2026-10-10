@@ -192,6 +192,7 @@ export const en = {
     refreshGone: "The meal or ingredient this came from no longer exists.",
     nothingYesterday: "Nothing was logged the day before.",
     profileLabel: "Day type",
+    futurePlanned: "A day still to come: what you add is planned.",
     programLabel: "Day program",
     profileFixed: "Targets fixed for this day: {name}",
     profileDefault:
