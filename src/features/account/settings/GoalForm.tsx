@@ -73,22 +73,20 @@ export function GoalForm({
         options={options(choices.protein, g.proteins)}
         error={err("protein")}
       />
-      <div className="grid grid-cols-2 gap-4">
-        <SelectField
-          label={g.split}
-          name="split"
-          defaultValue={val("split")}
-          options={options(choices.split, g.splits)}
-          error={err("split")}
-        />
-        <SelectField
-          label={g.floor}
-          name="kcalFloor"
-          defaultValue={val("kcalFloor")}
-          options={options(choices.kcalFloor, g.floors)}
-          error={err("kcalFloor")}
-        />
-      </div>
+      <SelectField
+        label={g.split}
+        name="split"
+        defaultValue={val("split")}
+        options={options(choices.split, g.splits)}
+        error={err("split")}
+      />
+      <SelectField
+        label={g.floor}
+        name="kcalFloor"
+        defaultValue={val("kcalFloor")}
+        options={options(choices.kcalFloor, g.floors)}
+        error={err("kcalFloor")}
+      />
       <SelectField
         label={g.weekday}
         name="checkInWeekday"

@@ -74,6 +74,7 @@ export default async function SettingsPage() {
     listGoals(getDb(), owner),
   ]);
   const goal = goalFrom(goals, today);
+  const decimalIn = (v: string) => (settings.locale === "it" ? v.replace(".", ",") : v);
   const dynamicToday = await dynamicTargetsToday(getDb(), owner, today, profiles);
   // ADR-0034: invitations, for admins only.
   const admin = await isAdmin();
@@ -156,8 +157,9 @@ export default async function SettingsPage() {
         <GoalForm
           action={saveGoalAction}
           initial={{
-            ratePctWeek: goal?.ratePctWeek ?? "0.00",
-            targetKg: goal?.targetKg ?? "",
+            // The form reads a comma or a point; show the locale's.
+            ratePctWeek: decimalIn(goal?.ratePctWeek ?? "0.00"),
+            targetKg: decimalIn(goal?.targetKg ?? ""),
             kcalFloor: goal?.kcalFloor ?? "standard",
             protein: goal?.protein ?? "moderate",
             split: goal?.split ?? "balanced",
