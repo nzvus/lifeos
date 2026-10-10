@@ -512,7 +512,7 @@ export default async function DayPage({ searchParams }: Props) {
                   correction={energyView.body.correction ?? 1}
                   calibration={calibration}
                   setCorrection={setEnergyCorrectionAction}
-                  viaCheckin={weekCheckin !== null}
+                  viaCheckin={weekCheckin?.goal.weeklyCheckIn ?? false}
                   locale={locale}
                   t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
                 />

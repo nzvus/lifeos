@@ -249,6 +249,7 @@ describe("exportUserData", () => {
       protein: "high",
       split: "balanced",
       checkInWeekday: 1,
+      weeklyCheckIn: true,
     } as const;
     await setGoal(db, alice, "2026-10-10", goal);
     await setGoal(db, bob, "2026-10-01", { ...goal, ratePctWeek: "0.25" });

@@ -95,5 +95,10 @@ export const goalInput = z.object({
   protein: z.enum(PROTEIN_PREFERENCES, "invalid_choice"),
   split: z.enum(DIET_SPLITS, "invalid_choice"),
   checkInWeekday: z.coerce.number().int("invalid_choice").min(0).max(6),
+  /** A checkbox: "on" when ticked, absent when not (ADR-0048). */
+  weeklyCheckIn: z
+    .string()
+    .optional()
+    .transform((v) => v === "on"),
 });
 export type GoalInput = z.infer<typeof goalInput>;

@@ -164,6 +164,7 @@ describe("readDays", () => {
       protein: "high",
       split: "balanced",
       checkInWeekday: 1,
+      weeklyCheckIn: true,
     } as const;
 
     it("a goal replaces the day type's deficit and macros, from its day on", async () => {
@@ -266,6 +267,7 @@ describe("readDays", () => {
       protein: "extra",
       split: "balanced",
       checkInWeekday: 1,
+      weeklyCheckIn: true,
     });
     const today = await readDay(db, me, "2026-10-01", opts);
     const list = await dynamicTargetsToday(

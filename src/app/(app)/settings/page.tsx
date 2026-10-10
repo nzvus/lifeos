@@ -171,6 +171,7 @@ export default async function SettingsPage() {
             protein: goal?.protein ?? "moderate",
             split: goal?.split ?? "balanced",
             checkInWeekday: String(goal?.checkInWeekday ?? 1),
+            weeklyCheckIn: goal?.weeklyCheckIn ? "on" : "",
           }}
           choices={{
             kind: GOAL_KINDS,

@@ -117,7 +117,7 @@ export async function getCheckinProposal(
   return {
     goal,
     periodStart,
-    due: !checkins.some((c) => c.startDay >= periodStart),
+    due: goal.weeklyCheckIn && !checkins.some((c) => c.startDay >= periodStart),
     expenditure,
     learnt,
     previous: previous?.decision === "accepted" ? previous.expenditureKcal : null,

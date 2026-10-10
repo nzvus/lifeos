@@ -35,6 +35,7 @@ const cut: WeightGoalInput = {
   protein: "high",
   split: "balanced",
   checkInWeekday: 1,
+  weeklyCheckIn: true,
 };
 
 const accepted = (

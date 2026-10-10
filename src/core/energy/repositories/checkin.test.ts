@@ -9,7 +9,7 @@ import { createTestDb, createTestUser } from "../../testing/test-db";
 import { addMeasurement } from "../../training/repositories/measurements";
 import { decideCheckin, getCheckinProposal } from "./checkin";
 import { saveBody } from "./energy";
-import { listWeekCheckins, setGoal } from "./goals";
+import { listWeekCheckins, setGoal, undoWeekCheckin } from "./goals";
 
 let db: Db;
 let close: () => Promise<void>;
@@ -40,6 +40,7 @@ const goal = {
   protein: "high",
   split: "balanced",
   checkInWeekday: 1, // Monday
+  weeklyCheckIn: true,
 } as const;
 
 // 2026-10-10 is a Saturday.
@@ -175,5 +176,47 @@ describe("the weekly check-in", () => {
     expect(Number(tuesday.own.kcal)).toBe(p.targets!.kcal - 100);
     expect(Number(monday.own.carbs) - Number(tuesday.own.carbs)).toBe(88); // 350 ÷ 4, rounded per day
     expect(monday.own.protein).toBe(tuesday.own.protein);
+  });
+
+  it("off (the default): no card, and an accepted week stops counting (ADR-0048)", async () => {
+    const dyn = await createProfile(db, me, {
+      name: "Rec",
+      kcal: null,
+      protein: null,
+      carbs: null,
+      sugars: null,
+      fat: null,
+      saturatedFat: null,
+      fiber: null,
+      salt: null,
+      mode: "dynamic",
+      deficitKcal: 200,
+      proteinGPerKg: "2.2",
+      fatGPerKg: "0.8",
+    });
+    if (!dyn.ok) throw new Error("setup");
+    await setGoal(db, me, "2026-10-10", goal);
+    expect((await decideCheckin(db, me, "2026-10-10", "accept")).ok).toBe(true);
+    const opts = { today: "2026-10-10", autoTargets: false };
+    expect((await readDay(db, me, "2026-10-12", opts)).basis).toBe("checkin");
+
+    await setGoal(db, me, "2026-10-10", { ...goal, weeklyCheckIn: false });
+    expect((await getCheckinProposal(db, me, "2026-10-10"))!.due).toBe(false);
+    expect((await readDay(db, me, "2026-10-12", opts)).basis).toBe("goal");
+  });
+
+  it("an accepted week can be undone: its days follow the goal again", async () => {
+    await setGoal(db, me, "2026-10-10", goal);
+    await decideCheckin(db, me, "2026-10-10", "accept");
+    expect(await undoWeekCheckin(db, me, "2026-10-12")).toEqual({
+      ok: true,
+      value: null,
+    });
+    expect(await listWeekCheckins(db, me)).toEqual([]);
+    expect(await undoWeekCheckin(db, me, "2026-10-12")).toEqual({
+      ok: false,
+      errors: { _form: "not_found" },
+    });
+    expect((await getCheckinProposal(db, me, "2026-10-12"))!.due).toBe(true);
   });
 });

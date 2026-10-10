@@ -25,6 +25,8 @@ type Initial = {
   protein: string;
   split: string;
   checkInWeekday: string;
+  /** ADR-0048: "on" or "". */
+  weeklyCheckIn: string;
 };
 
 /** The plan as the server computed it (GoalPlan, plus what it means in kg and kcal). */
@@ -191,6 +193,18 @@ export function GoalForm({
         options={options(choices.kcalFloor, g.floors)}
         error={err("kcalFloor")}
       />
+      <label className="flex items-start gap-3">
+        <input
+          type="checkbox"
+          name="weeklyCheckIn"
+          defaultChecked={val("weeklyCheckIn") === "on"}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-herb"
+        />
+        <span className="flex flex-col">
+          <span className="font-semibold">{g.weeklyCheckIn}</span>
+          <span className="text-meta text-muted">{g.weeklyCheckInHint}</span>
+        </span>
+      </label>
       <SelectField
         label={g.weekday}
         name="checkInWeekday"
