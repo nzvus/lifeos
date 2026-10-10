@@ -36,6 +36,7 @@ export const ERROR_CODES = [
   "future_day",
   "past_day",
   "implausible_weight",
+  "target_direction",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 

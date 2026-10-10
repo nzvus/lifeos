@@ -242,6 +242,8 @@ describe("exportUserData", () => {
   it("contains my goals and week check-ins (version 16), nobody else's", async () => {
     const goal = {
       ratePctWeek: "-0.50",
+      kind: null,
+      targetDay: null,
       targetKg: null,
       kcalFloor: "standard",
       protein: "high",

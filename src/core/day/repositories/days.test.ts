@@ -155,6 +155,8 @@ describe("readDays", () => {
   describe("with a goal and weekly check-ins (ADR-0043)", () => {
     const goal = {
       ratePctWeek: "-0.50",
+      kind: null,
+      targetDay: null,
       targetKg: null,
       kcalFloor: "standard",
       protein: "high",
@@ -204,6 +206,21 @@ describe("readDays", () => {
         expect(day.own.carbs).toBe("252");
       }
       expect(days.get("2026-10-12")!.basis).toBe("goal"); // the week is over
+    });
+
+    it("a goal with a target and a day plans its own rate (ADR-0045)", async () => {
+      const dyn = await dynamicProfile();
+      await setDayProfile(db, me, "2026-10-10", dyn.id);
+      await setGoal(db, me, "2026-10-01", {
+        ...goal,
+        kind: "lose",
+        targetKg: "72.00",
+        targetDay: "2026-12-05",
+      });
+      const d = await readDay(db, me, "2026-10-10", opts);
+      // 4 kg in 8 weeks at 76 kg: 0.66 % a week, 0.0066 × 76 × 7,700 ÷ 7 = 552 kcal a day.
+      expect(d.params?.deficitKcal).toBe(552);
+      expect(d.own.protein).toBe("144"); // "high" per kg of the target: 2.0 × 72
     });
 
     it("a fixed day keeps its own numbers", async () => {
