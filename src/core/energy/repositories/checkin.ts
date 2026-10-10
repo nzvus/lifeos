@@ -16,7 +16,7 @@ import type { Db } from "../../db/client";
 import type { Owner } from "../../identity/owner";
 import { addDays } from "../../shared/dates";
 import { fail, type Result } from "../../shared/result";
-import { CONFIDENT } from "../calibration";
+import { CONFIDENT, type Calibration } from "../calibration";
 import { goalTargets, lastCheckinDay, type GoalTargets } from "../goal";
 import { getCalibration, getEnergyRange, setEnergyCorrection } from "./energy";
 import {
@@ -48,11 +48,15 @@ export type CheckinProposal = {
 
 const mid = (r: { low: number; high: number }) => (r.low + r.high) / 2;
 
-/** The check-in as of `today`; null without a goal. */
+/**
+ * The check-in as of `today`; null without a goal. A page that already
+ * reads the calibration passes it in (it reads 84 days).
+ */
 export async function getCheckinProposal(
   db: Db,
   owner: Owner,
   today: string,
+  calibration?: Promise<Calibration>,
 ): Promise<CheckinProposal | null> {
   const [goals, checkins] = await Promise.all([
     listGoals(db, owner),
@@ -62,7 +66,7 @@ export async function getCheckinProposal(
   if (!goal) return null;
   const periodStart = lastCheckinDay(today, goal.checkInWeekday);
   const [cal, week] = await Promise.all([
-    getCalibration(db, owner, today),
+    calibration ?? getCalibration(db, owner, today),
     getEnergyRange(db, owner, addDays(today, -7), addDays(today, -1)),
   ]);
   const modelled = [...week.values()].filter((v) => v.energy);

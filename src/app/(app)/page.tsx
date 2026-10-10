@@ -98,6 +98,7 @@ import {
   logPortionAction,
   setDayActivityAction,
   setEnergyCorrectionAction,
+  decideCheckinAction,
   logIngredientAction,
   logMealAction,
   refreshLogEntryAction,
@@ -113,6 +114,8 @@ import { readDays } from "@/core/day/repositories/days";
 import { getCalibration } from "@/core/energy/repositories/energy";
 import { EnergySection } from "@/features/nutrition/log/EnergySection";
 import { DayGoal } from "./day-goal";
+import { getCheckinProposal } from "@/core/energy/repositories/checkin";
+import { CheckinCard } from "@/features/nutrition/log/CheckinCard";
 import { DaySupplements } from "./day-supplements";
 import { programItemsOf } from "./day-program";
 import { reminderLines } from "./day-reminders";
@@ -141,6 +144,8 @@ export default async function DayPage({ searchParams }: Props) {
   // ADR-0024: what the active program puts on this day (from today on). The
   // day's energy needs it, so that one query waits for it; nothing else does.
   const slotLoad = programSlotOn(db, owner, today, day);
+  // Read once: the calibration box and the weekly check-in (ADR-0043) share it.
+  const calibrationLoad = day === today ? getCalibration(db, owner, today) : null;
   // Promise.all: independent queries at once instead of one after another —
   // one round of waiting per page, not four (2026-10-03, "feels slow").
   const [
@@ -166,6 +171,7 @@ export default async function DayPage({ searchParams }: Props) {
     recent,
     checkin,
     closures,
+    weekCheckin,
   ] = await Promise.all([
     slotLoad,
     // ADR-0040: the shown day's week through the one engine — the day's
@@ -189,11 +195,12 @@ export default async function DayPage({ searchParams }: Props) {
     listBatches(db, owner), // ADR-0017: portions to log, and their reminders
     getPantry(db, owner),
     listReminders(db, owner),
-    day === today ? getCalibration(db, owner, today) : null, // ADR-0020
+    calibrationLoad, // ADR-0020
     listSleep(db, owner, day, day), // ADR-0031: the night that ended today
     listSessions(db, owner, addDays(today, -60), today), // "like a past session" (ADR-0035)
     getCheckin(db, owner, day), // ADR-0038: how the day felt
     listClosures(db, owner, day, day), // ADR-0042: closed?
+    calibrationLoad && getCheckinProposal(db, owner, today, calibrationLoad), // ADR-0043
   ]);
   const plannedCount = view.entries.filter((e) => e.status === "planned").length;
   const night = nights[0] ?? null;
@@ -297,6 +304,9 @@ export default async function DayPage({ searchParams }: Props) {
               today={today}
               dayTargets={dayTargets}
               dynamic={dynamic}
+              params={resolved.params}
+              basis={resolved.basis}
+              weightGoal={resolved.weightGoal}
               total={energyView.energy?.total ?? null}
               eatenKcal={view.totals.nutrients.kcal}
               withPlannedKcal={view.withPlanned.nutrients.kcal}
@@ -304,6 +314,14 @@ export default async function DayPage({ searchParams }: Props) {
               locale={locale}
               t={t}
             />
+            {weekCheckin?.due && (
+              <CheckinCard
+                c={weekCheckin}
+                decide={decideCheckinAction}
+                locale={locale}
+                t={t.energy.weightGoal}
+              />
+            )}
             {/* The night and the movement at a glance; tap to add or change (sheets). */}
             <DayChips
               // ADR-0042: today and past days can be closed.
@@ -466,13 +484,14 @@ export default async function DayPage({ searchParams }: Props) {
                   eaten={view.totals.nutrients.kcal}
                   withPlanned={view.withPlanned.nutrients.kcal}
                   dynamic={
-                    dynamic && dayTargets.source !== "none" && dayTargets.dynamic
-                      ? { params: dayTargets.dynamic, ...dynamic }
+                    dynamic && resolved.params
+                      ? { params: resolved.params, ...dynamic }
                       : null
                   }
                   correction={energyView.body.correction ?? 1}
                   calibration={calibration}
                   setCorrection={setEnergyCorrectionAction}
+                  viaCheckin={weekCheckin !== null}
                   locale={locale}
                   t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
                 />

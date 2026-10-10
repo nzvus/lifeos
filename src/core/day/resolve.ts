@@ -13,7 +13,13 @@
  *   3. else → the day type's own parameters (ADR-0014).
  * The data for any range of days comes from ./repositories/days.ts.
  */
-import { dynamicTargets, goalOf, type Energy, type Goal } from "../energy/energy";
+import {
+  dynamicTargets,
+  goalOf,
+  type DynamicParams,
+  type Energy,
+  type Goal,
+} from "../energy/energy";
 import { goalTargets, isCutting } from "../energy/goal";
 import type { AcceptedCheckin, WeightGoal } from "../energy/repositories/goals";
 import type { DayEnergyView } from "../energy/repositories/energy";
@@ -46,6 +52,12 @@ export type ResolvedDay = {
   computed: ReturnType<typeof dynamicTargets> | null;
   /** Where a dynamic day's numbers come from (ADR-0043); null otherwise. */
   basis: "checkin" | "goal" | "type" | null;
+  /**
+   * The parameters the day's numbers amount to: the type's own, or — from
+   * a goal or a check-in — the deficit against the day's cost and protein
+   * and fat per kg (ADR-0043). For the goal line and the formulas.
+   */
+  params: DynamicParams | null;
   /** The goal in force on the day (ADR-0043), dynamic or not. */
   weightGoal: WeightGoal | null;
   /** The day's own targets (fixed copy, or computed). */
@@ -122,6 +134,14 @@ export function resolveDay(
         : dynamic
           ? emptyTargets() // dynamic, but body data is missing: no numbers
           : plan.targets;
+  const params: DynamicParams | null =
+    !dynamic || basis === "type" || !computed || !e || !kg
+      ? dynamic
+      : {
+          deficitKcal: Math.round(mid(e.total.withPlan) - computed.kcal),
+          proteinGPerKg: (computed.protein / Number(kg)).toFixed(1),
+          fatGPerKg: (computed.fat / Number(kg)).toFixed(1),
+        };
   const { targets, auto } = options.autoTargets
     ? withAutoTargets(own)
     : { targets: own, auto: [] as NutrientKey[] };
@@ -145,6 +165,7 @@ export function resolveDay(
     load,
     computed,
     basis,
+    params,
     weightGoal: goal,
     own,
     targets,

@@ -59,6 +59,7 @@ import { IDLE, type FormState } from "@/core/shared/result";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { setDayActivity, setEnergyCorrection } from "@/core/energy/repositories/energy";
 import { activityInput, correctionInput } from "@/core/energy/validation";
+import { decideCheckin } from "@/core/energy/repositories/checkin";
 
 export async function logMealAction(
   _prev: FormState,
@@ -351,6 +352,19 @@ export async function setEnergyCorrectionAction(
   if (!parsed.success) return { ok: false, message: t.errors.invalid_number };
   await setEnergyCorrection(getDb(), owner, parsed.data, todayIn(settings.timezone));
   revalidatePath("/");
+  return { ok: true };
+}
+
+/** ADR-0043: accept (fix the next 7 days) or skip the weekly check-in. */
+export async function decideCheckinAction(
+  decision: "accept" | "skip",
+): Promise<{ ok: boolean; message?: string }> {
+  const { owner, settings, t } = await requireContext();
+  if (decision !== "accept" && decision !== "skip")
+    return { ok: false, message: t.errors.invalid_choice };
+  const r = await decideCheckin(getDb(), owner, todayIn(settings.timezone), decision);
+  if (!r.ok) return { ok: false, message: t.errors[Object.values(r.errors)[0]!] };
+  revalidatePath("/", "layout"); // every screen reads the week's targets
   return { ok: true };
 }
 

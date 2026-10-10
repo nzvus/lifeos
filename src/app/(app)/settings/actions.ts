@@ -1,6 +1,7 @@
 /**
  * app/(app)/settings/actions.ts — saves time zone and language (database),
- * and the per-device display settings (cookies, ADR-0010).
+ * the per-device display settings (cookies, ADR-0010), body data and the
+ * goal (ADR-0014, ADR-0043).
  */
 "use server";
 
@@ -20,7 +21,9 @@ import { createFactor, deleteFactor } from "@/core/nutrition/repositories/rating
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { parseColorMode, parseDensity, parseLayout } from "@/core/shared/display";
 import { saveBody } from "@/core/energy/repositories/energy";
-import { bodyInput } from "@/core/energy/validation";
+import { setGoal } from "@/core/energy/repositories/goals";
+import { bodyInput, goalInput } from "@/core/energy/validation";
+import { todayIn } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
 
 export async function saveSettingsAction(
@@ -111,5 +114,19 @@ export async function saveBodyAction(
   if (!input.ok) return { status: "error", errors: input.errors, values };
   await saveBody(getDb(), owner, input.value);
   revalidatePath("/", "layout"); // the day's energy and dynamic targets
+  return { status: "saved" };
+}
+
+/** The goal from today on (ADR-0043): past days keep theirs. */
+export async function saveGoalAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner, settings } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(goalInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  await setGoal(getDb(), owner, todayIn(settings.timezone), input.value);
+  revalidatePath("/", "layout"); // dynamic days' targets
   return { status: "saved" };
 }
