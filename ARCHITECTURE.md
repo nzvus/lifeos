@@ -6,15 +6,12 @@
 
 ## System overview
 
-One Next.js 16 (App Router) app in TypeScript, deployed as one unit to Vercel (ADR-0004).
-Routes in `src/app/` are thin: session, `core/`, feature components. Domain and data logic
-live in `core/`, which imports no framework. Postgres on Neon through Drizzle (ADR-0003);
-Better Auth in the same database (ADR-0006). Modules: nutrition (ingredients, meals, log
-with snapshots, day types and targets, quality, trends), training (exercises with guides,
-routines, programs, sessions, gym mode, progress), body (weigh-ins, sleep, movement) and
-energy; pantry (products, purchases, derived stock, batches, reminders); money (one ledger of
-movements, categories, receipts; ADR-0036); an assistant over
-core tools (ADR-0018); trash; export; packs that add only what is missing, or plan estimates on a day (ADR-0034).
+One Next.js 16 (App Router) app in TypeScript, one unit on Vercel (ADR-0004). Routes in
+`src/app/` are thin; domain and data logic live in `core/`, which imports no framework.
+Postgres on Neon via Drizzle (ADR-0003), Better Auth in the same database (ADR-0006).
+Modules: nutrition (ingredients, meals, log, day types, quality, trends), training (exercises,
+routines, programs, sessions, gym mode, progress), body (weigh-ins, sleep, movement), energy and
+goals, pantry, money (ADR-0036), an assistant (ADR-0018), trash, export, packs (ADR-0034).
 
 ## Component map
 
@@ -108,34 +105,28 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
 - **Auth:** Better Auth, email+password, DB sessions (30 days, 5-min cookie cache), rate
   limits; sign-up with `ALLOW_SIGNUP=true`, by one-use invitation if `SIGNUP_INVITES=true`
   (ADR-0034); `requireContext` per page/action + `Owner`.
-- **Targets:** one engine, `core/day` (ADR-0040): `readDays(from, to)` → `resolveDay` per day,
-  used by Today, the week strip, the Plan, Settings, Trends and the assistant; a day alone is
-  the range [day, day]. Per day (ADR-0008) fixed / default profile / none; auto maxima; bands
-  (ADR-0023; carbs take the rest of the energy, their band reaches the target).
-  A day's copy of its type is made only by `writePlan` (profiles.ts), with a dynamic type's
-  parameters. A dynamic day (ADR-0014) computes them from `core/energy` (`getEnergyRange`; ranges, done +
-  planned; no double counts, ADR-0021; × the accepted factor, learnt by a Kalman filter over log, closed days and scale, ADR-0041/0042/0026; steps at
-  one cost per step, ADR-0032). A goal (ADR-0043, `goals`, history) owns the rate; a dynamic day takes an accepted weekly check-in's frozen numbers (`week_checkins`, 7 days), else the goal live, else its type's. Weigh-ins carry a reliability (ADR-0027; one far from the last
-  plausible weigh-in asks to be confirmed and counts 0.02); sleep feeds day
-  quality and trends, not energy (ADR-0031).
+- **Targets:** one engine, `core/day` (ADR-0040): `readDays(from, to)` → `resolveDay` per day, for
+  every screen and the assistant. A day's type (ADR-0008): its copy (`writePlan` only), else the
+  default, else none; auto maxima; bands (ADR-0023; carbs take the rest). A dynamic day (ADR-0014):
+  an accepted weekly check-in's frozen numbers (`week_checkins`, 7 days), else the goal live
+  (`goals`, a history: rate as % of weight a week), else its type's parameters (ADR-0043).
+  A type may carry a program (ADR-0044): training time, a ± kcal shift, timed meal slots.
+- **Energy:** `core/energy` `getEnergyRange` (ranges, done + planned, no double counts ADR-0021,
+  steps at one cost each ADR-0032) × the accepted factor, learnt by a Kalman filter over log,
+  closed days and scale (ADR-0041/0042/0026). Weigh-ins carry a reliability (ADR-0027; an
+  implausible one asks first, counts 0.02); sleep feeds quality and trends, not energy (ADR-0031).
 - **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment (groups in time order,
   snacks placed by their time), servings −/+; a day closed complete / partial (ADR-0042); totals =
   eaten, every panel also shows the day with the plan; tick and −/+ optimistic (`log/LiveDay`).
-- **Editing (ADR-0015):** edit pages share ui/ActionBar (pinned ↺ / Cancel /
-  Save), drafts in the browser, `?from=` for back and after-save, toasts with
-  Undo. Rows open on tap; delete is a bin that asks first (ui/DeleteButton), "⋯"
-  only for other actions. Delete = trash (`deleted_at`, `live()`); `/settings/trash`
-  restores or deletes for good; `backup.yml`'s `purge-trash` job empties it after 30 days.
-- **Short tasks in sheets:** adding food, training, a night, movement, a weigh-in, sorting —
-  ui/Sheet via a `#id` link; long forms stay pages. Settings save themselves (ui/useAutoSave).
-- **Assistant (ADR-0018):** off unless `ASSISTANT_ENABLED=true` (2026-10-09). The model runs on the server with the user's key
-  (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the session's Owner;
-  writes come back with Undo, deletes/imports wait for a tap; files are read on
-  the phone; a data summary (`assistant/context.ts`) goes with every turn.
-- **Compounds (ADR-0039):** caffeine and creatine per ingredient; levels estimated (caffeine
-  half-life 5 h, creatine stores 4 weeks) on Today, in sessions and in Food → Trends.
-- **Gym mode (ADR-0037):** one screen for sessions and routines; each set saves its start and
-  end, the clock (rest, overtime, set) and resuming are derived from them.
+- **Editing (ADR-0015):** edit pages share ui/ActionBar (↺ / Cancel / Save), browser drafts,
+  `?from=`, toasts with Undo; rows open on tap; delete = a bin that asks, then the 30-day trash
+  (`deleted_at`, `live()`, `/settings/trash`, purged by `backup.yml`). Short tasks in ui/Sheet
+  via `#id`; settings save themselves (ui/useAutoSave).
+- **Assistant (ADR-0018):** off unless `ASSISTANT_ENABLED=true`. Server-side with the user's
+  key (AES-GCM, `ASSISTANT_KEY_SECRET`); tools wrap core with the Owner; writes come back with
+  Undo, deletes/imports wait for a tap; a data summary (`assistant/context.ts`) goes along.
+- **Compounds (ADR-0039):** caffeine and creatine levels estimated per ingredient. **Gym mode
+  (ADR-0037):** one screen; each set saves start and end, the clock and resuming derive from them.
 - **Derived, never stored:** pantry stock (ADR-0017, `core/pantry/stock.ts`: purchases −
   eaten − cooked ± counts), a program's coming days (ADR-0024, `core/training/program.ts`;
   only per-day overrides are stored, ADR-0029) and today's exercise target
