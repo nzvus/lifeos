@@ -30,7 +30,7 @@ import type { Locale } from "@/core/shared/locales";
 import { fill, macroLabels, type Messages } from "@/i18n";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { FoodDetails } from "@/ui/FoodDetails";
-import { ListItem } from "@/ui/ListItem";
+import { OneOpen, OpenRow } from "@/ui/OneOpen";
 import { MOMENT_BG, MOMENT_TEXT } from "@/ui/MomentIcon";
 import { buttonClass } from "@/ui/button";
 import { timeline, type TimelineSession } from "@/core/day/timeline";
@@ -46,7 +46,6 @@ import {
   LiveTimes,
 } from "./LiveDay";
 import { WhenEditor } from "./WhenEditor";
-import { Badge } from "@/ui/Badge";
 type Props = {
   day: DayView;
   /** A day still to come: planned entries can't be ticked as eaten. */
@@ -180,85 +179,48 @@ export function EntryList({
           t={t.dayProgram}
         />
       )}
-      <ol className="flex flex-col">
-        {group.entries.map((e) => {
-          return (
-            <ListItem
-              key={e.id}
-              muted={e.status === "planned"}
+      {/* ADR-0050: compact rows, one open at a time, everything edited here. */}
+      <ol className="flex flex-col gap-2">
+        {group.entries.map((e) => (
+          <li key={e.id} className={e.status === "planned" ? "item-planned" : ""}>
+            <OpenRow
+              id={e.id}
+              label={fill(t.day.entryDetails, { name: e.label })}
               leading={
-                <span className="flex flex-col items-center">
-                  <LiveStatusToggle
-                    id={e.id}
-                    toEaten={statusAction(e.id, "eaten")}
-                    toPlanned={statusAction(e.id, "planned")}
-                    future={future}
-                    labels={{
-                      markEaten: t.day.markEaten,
-                      markPlanned: t.day.markPlanned,
-                      future: t.errors.future_day,
-                    }}
-                  />
-                  <LiveCountToggle
-                    id={e.id}
-                    action={leftOutAction}
-                    labels={{ counted: t.day.inTotal, leftOut: t.day.outOfTotal }}
-                  />
-                </span>
-              }
-              title={
-                <>
-                  {e.at && (
-                    <span className="pr-2 font-display text-muted tabular-nums">
-                      {timeIn(new Date(e.at), timeZone)}
-                    </span>
-                  )}
-                  {e.estimated && <span aria-hidden="true">~</span>}
-                  {e.label}
-                  <LiveTimes id={e.id} locale={locale} t={t.day} />
-                  {e.estimated && (
-                    <span className="ml-2 inline-flex align-middle">
-                      <Badge>{t.day.estimated}</Badge>
-                    </span>
-                  )}
-                </>
-              }
-              aside={
-                // Cost as on the meal cards; nothing when no price is known.
-                e.totals.costCents > 0 && (
-                  <span className="inline-flex items-center gap-1 text-price">
-                    <Tag size={14} aria-hidden="true" />
-                    {e.totals.costComplete
-                      ? formatCents(e.totals.costCents, locale)
-                      : fill(t.label.costPartialShort, {
-                          v: formatCents(e.totals.costCents, locale),
-                        })}
-                  </span>
-                )
-              }
-              action={
-                <TrashMenu
+                <LiveStatusToggle
                   id={e.id}
-                  name={e.label}
-                  trash={trash}
-                  restore={restore}
-                  items={
-                    e.estimated || e.batchId
-                      ? []
-                      : [
-                          {
-                            label: t.entryEdit.edit,
-                            icon: <Pencil size={16} aria-hidden="true" />,
-                            // Back to this list, in the Food view (ui/ScrollMemory keeps the place).
-                            href: `/log/${e.id}?from=${encodeURIComponent(`/?day=${e.day}&tab=food`)}`,
-                          },
-                        ]
-                  }
-                  actions={[
-                    { label: t.day.refresh, run: refresh, done: t.day.refreshed },
-                  ]}
-                  labels={t.actions}
+                  toEaten={statusAction(e.id, "eaten")}
+                  toPlanned={statusAction(e.id, "planned")}
+                  future={future}
+                  labels={{
+                    markEaten: t.day.markEaten,
+                    markPlanned: t.day.markPlanned,
+                    future: t.errors.future_day,
+                  }}
                 />
+              }
+              head={
+                <span className="flex flex-col leading-tight">
+                  <span
+                    className={`font-semibold wrap-break-word ${
+                      e.status === "planned" ? "text-muted" : ""
+                    }`}
+                  >
+                    {e.estimated && <span aria-hidden="true">~</span>}
+                    {e.label}
+                  </span>
+                  <span className="flex flex-wrap items-baseline gap-x-1.5 text-meta text-muted tabular-nums">
+                    {e.at && <span>{timeIn(new Date(e.at), timeZone)}</span>}
+                    {e.at && <span aria-hidden="true">{"·"}</span>}
+                    <LiveGroupKcal
+                      ids={[e.id]}
+                      locale={locale}
+                      text={t.moments.subtotal}
+                    />
+                    {e.estimated && <span aria-hidden="true">{"·"}</span>}
+                    {e.estimated && <span>{t.day.estimated}</span>}
+                  </span>
+                </span>
               }
             >
               <div className="flex items-center gap-3">
@@ -274,30 +236,70 @@ export function EntryList({
                   />
                 )}
               </div>
+              {/* 2026-10-10: time and moment edited here, not on a page. */}
+              <WhenEditor
+                action={timeAction(e.id)}
+                time={e.at ? timeIn(new Date(e.at), timeZone) : ""}
+                moment={e.moment ?? group.moment ?? "snack"}
+                moments={MOMENTS}
+                t={t}
+              />
               {quality?.(e)}
               <FoodDetails
                 summary={
                   e.lines.length > 1
-                    ? fill(t.macro.ingredientsCount, {
-                        n: String(e.lines.length),
-                      })
+                    ? fill(t.macro.ingredientsCount, { n: String(e.lines.length) })
                     : t.day.details
                 }
                 lines={detailLines(e.lines, e.servings, locale)}
                 labels={labels}
-              >
-                {/* 2026-10-10: time and moment edited here, not on a page. */}
-                <WhenEditor
-                  action={timeAction(e.id)}
-                  time={e.at ? timeIn(new Date(e.at), timeZone) : ""}
-                  moment={e.moment ?? group.moment ?? "snack"}
-                  moments={MOMENTS}
-                  t={t}
+              />
+              <div className="flex items-center justify-between gap-2">
+                <span className="flex items-center gap-3">
+                  <LiveCountToggle
+                    id={e.id}
+                    action={leftOutAction}
+                    labels={{ counted: t.day.inTotal, leftOut: t.day.outOfTotal }}
+                  />
+                  <LiveTimes id={e.id} locale={locale} t={t.day} />
+                  {/* Cost as on the meal cards; nothing when no price is known. */}
+                  {e.totals.costCents > 0 && (
+                    <span className="inline-flex items-center gap-1 text-meta text-price">
+                      <Tag size={14} aria-hidden="true" />
+                      {e.totals.costComplete
+                        ? formatCents(e.totals.costCents, locale)
+                        : fill(t.label.costPartialShort, {
+                            v: formatCents(e.totals.costCents, locale),
+                          })}
+                    </span>
+                  )}
+                </span>
+                <TrashMenu
+                  id={e.id}
+                  name={e.label}
+                  trash={trash}
+                  restore={restore}
+                  items={
+                    e.estimated || e.batchId
+                      ? []
+                      : [
+                          {
+                            label: t.entryEdit.edit,
+                            icon: <Pencil size={16} aria-hidden="true" />,
+                            // Back to this list (ui/ScrollMemory keeps the place).
+                            href: `/log/${e.id}?from=${encodeURIComponent(`/?day=${e.day}&tab=food`)}`,
+                          },
+                        ]
+                  }
+                  actions={[
+                    { label: t.day.refresh, run: refresh, done: t.day.refreshed },
+                  ]}
+                  labels={t.actions}
                 />
-              </FoodDetails>
-            </ListItem>
-          );
-        })}
+              </div>
+            </OpenRow>
+          </li>
+        ))}
       </ol>
     </div>
   );
@@ -309,125 +311,132 @@ export function EntryList({
   const tl = t.dayProgram.timeline;
   return (
     // ADR-0050: the day as one timeline — time, a rail with a dot, the content.
-    <ol className="flex flex-col">
-      {rows.map((row) => {
-        const key =
-          row.type === "group"
-            ? row.item.group.key
-            : row.type === "empty"
-              ? row.item.key
-              : row.type === "session"
-                ? `session-${row.session.id}`
-                : "now";
-        if (row.type === "now")
+    <OneOpen>
+      <ol className="flex flex-col">
+        {rows.map((row) => {
+          const key =
+            row.type === "group"
+              ? row.item.group.key
+              : row.type === "empty"
+                ? row.item.key
+                : row.type === "session"
+                  ? `session-${row.session.id}`
+                  : "now";
+          if (row.type === "now")
+            return (
+              <li key={key} className="flex items-center gap-2 py-1 text-tomato">
+                <span className="w-12 shrink-0 font-display font-bold tabular-nums">
+                  {hhmm(row.at)}
+                </span>
+                <span className="flex w-3.5 shrink-0 justify-center" aria-hidden="true">
+                  <span className="h-2.5 w-2.5 rounded-full bg-tomato" />
+                </span>
+                <span className="h-0.5 flex-1 bg-tomato" aria-hidden="true" />
+                <span className="text-meta font-semibold">{tl.now}</span>
+              </li>
+            );
+          const moment =
+            row.type === "group"
+              ? row.item.group.moment
+              : row.type === "empty"
+                ? row.item.moment
+                : null;
+          const dot =
+            row.type === "session"
+              ? "h-3 w-3 rounded-sm bg-ink"
+              : row.type === "empty"
+                ? `h-3 w-3 rounded-full rule-strong border-current bg-paper ${
+                    row.past
+                      ? "text-hairline"
+                      : (moment && MOMENT_TEXT[moment]) || "text-muted"
+                  }`
+                : `h-3 w-3 rounded-full ${(moment && MOMENT_BG[moment]) || "bg-muted"}`;
           return (
-            <li key={key} className="flex items-center gap-2 py-1 text-tomato">
-              <span className="w-12 shrink-0 font-display font-bold tabular-nums">
+            <li key={key} className="flex gap-2">
+              <span
+                className={`w-12 shrink-0 pt-3 font-display text-item font-bold tabular-nums ${
+                  row.type === "empty" && row.past ? "text-muted" : ""
+                }`}
+              >
                 {hhmm(row.at)}
               </span>
-              <span className="flex w-3.5 shrink-0 justify-center" aria-hidden="true">
-                <span className="h-2.5 w-2.5 rounded-full bg-tomato" />
+              <span
+                className="flex w-3.5 shrink-0 flex-col items-center"
+                aria-hidden="true"
+              >
+                <span className="h-4 w-0.5 bg-hairline" />
+                <span className={dot} />
+                <span className="w-0.5 flex-1 bg-hairline" />
               </span>
-              <span className="h-0.5 flex-1 bg-tomato" aria-hidden="true" />
-              <span className="text-meta font-semibold">{tl.now}</span>
+              <div className="min-w-0 flex-1 pt-2 pb-4">
+                {row.type === "group" ? (
+                  renderGroup(row.item)
+                ) : row.type === "empty" ? (
+                  <div
+                    className={`flex items-start justify-between gap-2 ${row.past ? "text-muted" : ""}`}
+                  >
+                    <div className="flex min-w-0 flex-col">
+                      <span
+                        className={`font-semibold ${row.past ? "" : (MOMENT_TEXT[row.item.moment] ?? "")}`}
+                      >
+                        {t.moments.names[row.item.moment]}
+                        {row.past && ` · ${tl.skipped}`}
+                      </span>
+                      {!row.past && (
+                        <SlotLine
+                          slot={row.item.slot}
+                          eatenProtein={null}
+                          locale={locale}
+                          t={t.dayProgram}
+                        />
+                      )}
+                    </div>
+                    <a
+                      // ADR-0050: the sheet opens with this slot's moment and time.
+                      href={`#day-add-food:moment=${row.item.moment}&time=${hhmm(row.at)}${
+                        row.past ? "" : "&planned=1"
+                      }`}
+                      aria-label={fill(tl.addTo, {
+                        slot: t.moments.names[row.item.moment],
+                      })}
+                      className={buttonClass({
+                        variant: row.past ? "quiet" : "secondary",
+                        size: "sm",
+                      })}
+                    >
+                      <Plus size={16} aria-hidden="true" />
+                      {!row.past && tl.add}
+                    </a>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-2 rounded-surface bg-ink p-3 text-paper">
+                    <span className="flex min-w-0 flex-col">
+                      <span className="font-display text-item font-bold">
+                        {row.session.label}
+                      </span>
+                      <span className="text-meta">
+                        {row.session.status === "done"
+                          ? tl.sessionDone
+                          : tl.sessionPlanned}
+                      </span>
+                    </span>
+                    <a
+                      href={
+                        row.session.status === "done"
+                          ? `/training/${row.session.id}`
+                          : `/training/${row.session.id}/live`
+                      }
+                      className="inline-flex min-h-11 items-center rounded-control bg-paper px-4 font-semibold text-ink"
+                    >
+                      {row.session.status === "done" ? tl.open : tl.gym}
+                    </a>
+                  </div>
+                )}
+              </div>
             </li>
           );
-        const moment =
-          row.type === "group"
-            ? row.item.group.moment
-            : row.type === "empty"
-              ? row.item.moment
-              : null;
-        const dot =
-          row.type === "session"
-            ? "h-3 w-3 rounded-sm bg-ink"
-            : row.type === "empty"
-              ? `h-3 w-3 rounded-full rule-strong border-current bg-paper ${
-                  row.past
-                    ? "text-hairline"
-                    : (moment && MOMENT_TEXT[moment]) || "text-muted"
-                }`
-              : `h-3 w-3 rounded-full ${(moment && MOMENT_BG[moment]) || "bg-muted"}`;
-        return (
-          <li key={key} className="flex gap-2">
-            <span
-              className={`w-12 shrink-0 pt-3 font-display text-item font-bold tabular-nums ${
-                row.type === "empty" && row.past ? "text-muted" : ""
-              }`}
-            >
-              {hhmm(row.at)}
-            </span>
-            <span
-              className="flex w-3.5 shrink-0 flex-col items-center"
-              aria-hidden="true"
-            >
-              <span className="h-4 w-0.5 bg-hairline" />
-              <span className={dot} />
-              <span className="w-0.5 flex-1 bg-hairline" />
-            </span>
-            <div className="min-w-0 flex-1 pt-2 pb-4">
-              {row.type === "group" ? (
-                renderGroup(row.item)
-              ) : row.type === "empty" ? (
-                <div
-                  className={`flex items-start justify-between gap-2 ${row.past ? "text-muted" : ""}`}
-                >
-                  <div className="flex min-w-0 flex-col">
-                    <span
-                      className={`font-semibold ${row.past ? "" : (MOMENT_TEXT[row.item.moment] ?? "")}`}
-                    >
-                      {t.moments.names[row.item.moment]}
-                      {row.past && ` · ${tl.skipped}`}
-                    </span>
-                    {!row.past && (
-                      <SlotLine
-                        slot={row.item.slot}
-                        eatenProtein={null}
-                        locale={locale}
-                        t={t.dayProgram}
-                      />
-                    )}
-                  </div>
-                  <a
-                    href="#day-add-food"
-                    aria-label={fill(tl.addTo, {
-                      slot: t.moments.names[row.item.moment],
-                    })}
-                    className={buttonClass({
-                      variant: row.past ? "quiet" : "secondary",
-                      size: "sm",
-                    })}
-                  >
-                    <Plus size={16} aria-hidden="true" />
-                    {!row.past && tl.add}
-                  </a>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between gap-2 rounded-surface bg-ink p-3 text-paper">
-                  <span className="flex min-w-0 flex-col">
-                    <span className="font-display text-item font-bold">
-                      {row.session.label}
-                    </span>
-                    <span className="text-meta">
-                      {row.session.status === "done" ? tl.sessionDone : tl.sessionPlanned}
-                    </span>
-                  </span>
-                  <a
-                    href={
-                      row.session.status === "done"
-                        ? `/training/${row.session.id}`
-                        : `/training/${row.session.id}/live`
-                    }
-                    className="inline-flex min-h-11 items-center rounded-control bg-paper px-4 font-semibold text-ink"
-                  >
-                    {row.session.status === "done" ? tl.open : tl.gym}
-                  </a>
-                </div>
-              )}
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+        })}
+      </ol>
+    </OneOpen>
   );
 }
