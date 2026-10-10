@@ -60,6 +60,7 @@ import { SleepCard } from "@/features/training/body/SleepCard";
 import { TrainingSummary } from "@/features/training/sessions/TrainingSummary";
 import { listSleep } from "@/core/training/repositories/sleep";
 import { sleepScore } from "@/core/training/sleep";
+import { ScoreRow } from "@/features/nutrition/log/ScoreRow";
 import { WeekContextCard } from "@/features/nutrition/log/WeekContextCard";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { DayScore } from "@/features/nutrition/log/DayScore";
@@ -255,6 +256,13 @@ export default async function DayPage({ searchParams }: Props) {
   const weekRead = weekOf(week, days, day);
   // What the eaten food is made of (ADR-0012), for the score and fibre types.
   const dayQuality = eatenQuality(view.entries);
+  const score = dayScore({
+    totals: view.totals.nutrients,
+    targets,
+    quality: dayQuality,
+    bands,
+    sleep: nightScore,
+  });
   /** The values the add-to-day preview scales (core/nutrition/preview.ts). */
   const pick = macroValues;
 
@@ -334,6 +342,8 @@ export default async function DayPage({ searchParams }: Props) {
                 t={t.energy.weightGoal}
               />
             )}
+            {/* ADR-0050: the day's quality and the week's point to watch. */}
+            <ScoreRow score={score} week={day <= today ? weekRead : null} t={t} />
             {/* The night and the movement at a glance; tap to add or change (sheets). */}
             <DayChips
               // ADR-0042: today and past days can be closed.
@@ -469,13 +479,7 @@ export default async function DayPage({ searchParams }: Props) {
                 </Section>
               )}
               <DayScore
-                score={dayScore({
-                  totals: view.totals.nutrients,
-                  targets,
-                  quality: dayQuality,
-                  bands,
-                  sleep: nightScore,
-                })}
+                score={score}
                 planned={
                   view.entries.some((e) => e.status === "planned")
                     ? dayScore({

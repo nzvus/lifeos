@@ -552,6 +552,7 @@ export const dayScoreEn = {
   title: "Day quality",
   outOf: "/100",
   withPlanned: "With the plan: {v}/100",
+  row: "Day quality {v}/100",
   none: "No data yet: log something eaten.",
   parts: {
     targets: "Targets",

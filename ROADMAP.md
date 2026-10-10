@@ -38,7 +38,7 @@ The developer asked for the app to be reviewed as a whole (`Projects-artifacts/L
 3. **Phase 3 — day programs (ADR-0044, 0046, 0047; #161–#163, #165, #166):** a day type is the day's program with timed slots, training time and a shift; Today in its slots with peri-workout hints; the goal is the one source of the numbers; recomposition with a target; "This week" (balance, an optional catch-up within ±30 % and the BMR, protein daily, salt/fibre as averages). Pre/post-workout slots follow the session's real start (#168). The fibre-quality view (E12, inulin/FOS g a day) moves to Phase 5: it needs fibre types with amounts.
 4. **Phase 4 — training (ADR-0049, A×4 on 2026-10-10):** PR 1 = reps left per set (0–4+, one tap in gym mode and in the session editor; migration 0035) and progression gated by it (hold at failure, a step lighter after two sessions at failure). Next: volume per muscle (indirect ½, 10–20 band) and readiness hints.
 5. Food identity: food ↔ product (brand, barcode) ↔ purchase ↔ receipt line; one price history; pantry locations and best-before; micronutrients and fibre types with amounts (D7 = one row per nutrient, delegated 2026-10-09).
-6. UI: one `NutrientMeter`, one timeline for Today.
+6. **UI — Today is one timeline (ADR-0050, direction A; #174–#176 and PR 4):** slots on a timeline with the now line and training as a block; entries edited in place; one page with a compact header; one nutrient bar for the day and the week's averages; the score row (day quality + the week's average furthest off); meal suggestions per slot. Next: the score page (C), after Phase 5.
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->

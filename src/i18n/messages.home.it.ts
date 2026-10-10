@@ -558,6 +558,7 @@ export const dayScoreIt: Messages["dayScore"] = {
   title: "Qualità della giornata",
   outOf: "/100",
   withPlanned: "Con i pianificati: {v}/100",
+  row: "Qualità del giorno {v}/100",
   none: "Ancora nessun dato: registra qualcosa di mangiato.",
   parts: {
     targets: "Obiettivi",
