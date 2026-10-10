@@ -74,9 +74,15 @@ export function DayGoal({
             spentKcal={Math.round(mid(total.withPlan))}
             balance={{
               wanted: -(params ?? dayTargets.dynamic).deficitKcal,
-              withPlan: Math.round(Number(withPlannedKcal) - mid(total.withPlan)),
+              // Nothing logged or planned: no balance yet (2026-10-10 audit).
+              withPlan:
+                Number(withPlannedKcal) === 0
+                  ? null
+                  : Math.round(Number(withPlannedKcal) - mid(total.withPlan)),
               soFar:
-                day <= today ? Math.round(Number(eatenKcal) - mid(total.done)) : null,
+                day <= today && Number(withPlannedKcal) !== 0
+                  ? Math.round(Number(eatenKcal) - mid(total.done))
+                  : null,
             }}
             action={setGoalDeficitAction}
             locale={locale}

@@ -1,6 +1,7 @@
 /** Tests for core/training/weighIns.ts (ADR-0027). */
 import { describe, expect, it } from "vitest";
 import {
+  plausibleMeasurements,
   bodyIndices,
   implausibleWeighIns,
   plausibleGap,
@@ -152,5 +153,21 @@ describe("implausibleWeighIns", () => {
       implausible: true,
     });
     expect(r).toEqual({ clues: ["implausible"], reliability: 0.02 });
+  });
+});
+
+describe("plausibleMeasurements", () => {
+  it("leaves out a typo far from the weigh-ins before it (2026-10-08: 86 for 76)", () => {
+    const m = [
+      { day: "2026-10-07", weightKg: "76.40" },
+      { day: "2026-10-08", weightKg: "86.00" },
+      { day: "2026-10-06", weightKg: "75.40" },
+      { day: "2026-10-09", weightKg: null },
+    ];
+    expect(plausibleMeasurements(m).map((x) => x.day)).toEqual([
+      "2026-10-07",
+      "2026-10-06",
+      "2026-10-09",
+    ]);
   });
 });

@@ -20,7 +20,7 @@ import {
   NUTRIENT_UNIT,
   type NutrientKey,
 } from "@/core/nutrition/nutrients";
-import { bandFor, bandState, type Bands } from "@/core/nutrition/bands";
+import { bandFor, bandState, toGoFrom, type Bands } from "@/core/nutrition/bands";
 import { assessTarget, TARGET_KIND, type Targets } from "@/core/nutrition/targets";
 import type { DisplayTotals } from "@/core/nutrition/totals";
 import { formatCents, formatNumber } from "@/core/shared/format";
@@ -100,7 +100,7 @@ export function DayPanel({
     const status = !band
       ? undefined
       : state === "short"
-        ? fill(t.panel.toGo, { v: g((k === "kcal" && target ? target : band.low) - v) })
+        ? fill(t.panel.toGo, { v: g(toGoFrom(target, band.low) - v) })
         : state === "good"
           ? kind === "max"
             ? fill(t.panel.underLimit, { v: g(band.high - v) })

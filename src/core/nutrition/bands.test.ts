@@ -1,6 +1,7 @@
 /** Tests for core/nutrition/bands.ts (ADR-0023, amended by ADR-0025). */
 import { describe, expect, it } from "vitest";
 import {
+  toGoFrom,
   bandFor,
   bandState,
   macroBands,
@@ -145,5 +146,14 @@ describe("macroBands with the day's carbs target (ADR-0040)", () => {
       macroBands({ kg: 76, kcal: 2000, load: "rest", cutting: false, carbsTarget: 180 })
         .carbs!.high,
     ).toBe(228);
+  });
+});
+
+describe("toGoFrom", () => {
+  it("counts to the target when there is one, never short of the zone", () => {
+    // 2026-10-10 audit: protein 151 eaten, zone from 155, target 189 → 38 to go.
+    expect(toGoFrom("189", 155) - 151).toBe(38);
+    expect(toGoFrom(null, 155)).toBe(155);
+    expect(toGoFrom(120, 155)).toBe(155);
   });
 });

@@ -112,6 +112,7 @@ export const energyEn = {
     planned: "Planned",
     plannedFood: "+{kcal} kcal planned",
     result: "End of day, with the plan",
+    nothingYet: "nothing logged yet",
     deficit: "{kcal} kcal deficit",
     surplus: "{kcal} kcal surplus",
     even: "even",

@@ -97,7 +97,8 @@ export const weightGoalEn = {
   lineGoal: "Goal {rate} % a week",
   lineCheckin: "Week fixed at the check-in",
   checkinTitle: "Weekly check-in",
-  checkinSpend: "You spend ~{kcal} kcal a day",
+  checkinSpend:
+    "You spend ~{kcal} kcal a day on average (the last 7 days, training included)",
   checkinWas: "(last check-in {kcal})",
   checkinLearnt: "Learnt from your log and scale.",
   checkinModel: "Estimated by the model: not learnt from your data yet.",

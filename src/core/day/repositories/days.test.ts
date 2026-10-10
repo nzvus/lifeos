@@ -15,6 +15,8 @@ import { addMeasurement } from "../../training/repositories/measurements";
 import { createProgram } from "../../training/repositories/programs";
 import { createRoutine } from "../../training/repositories/routines";
 import { recordWeekCheckin, setGoal } from "../../energy/repositories/goals";
+import { dynamicTargetsToday } from "../../energy/repositories/outlook";
+import { listProfiles } from "../../nutrition/repositories/profiles";
 import { readDay, readDays } from "./days";
 
 let db: Db;
@@ -236,5 +238,42 @@ describe("readDays", () => {
       expect(d.basis).toBeNull();
       expect(Number(d.own.kcal)).toBe(2500);
     });
+  });
+
+  it("a typo far from the last weigh-ins does not move the targets (2026-10-10 audit)", async () => {
+    const dyn = await dynamicProfile();
+    await setDayProfile(db, me, "2026-10-09", dyn.id);
+    await addMeasurement(db, me, {
+      day: "2026-10-08",
+      weightKg: "86",
+      bodyFatPct: null,
+      waistCm: null,
+      notes: "",
+    });
+    const d = await readDay(db, me, "2026-10-09", opts);
+    expect(d.energy.body.weightKg).toBe("76.00");
+    expect(d.own.protein).toBe("167"); // 2.2 × 76, not × 86
+  });
+
+  it("Settings' day-type list shows what Today shows, goal included (2026-10-10 audit)", async () => {
+    const dyn = await dynamicProfile(); // its own deficit: 200
+    await setGoal(db, me, "2026-10-01", {
+      ratePctWeek: "0.00",
+      kind: "recomp",
+      targetKg: null,
+      targetDay: null,
+      kcalFloor: "standard",
+      protein: "extra",
+      split: "balanced",
+      checkInWeekday: 1,
+    });
+    const today = await readDay(db, me, "2026-10-01", opts);
+    const list = await dynamicTargetsToday(
+      db,
+      me,
+      "2026-10-01",
+      await listProfiles(db, me),
+    );
+    expect(list.get(dyn.id)?.kcal).toBe(Number(today.own.kcal));
   });
 });

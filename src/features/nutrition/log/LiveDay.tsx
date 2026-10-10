@@ -29,7 +29,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { bandFor, bandState, type Band } from "@/core/nutrition/bands";
+import { bandFor, bandState, toGoFrom, type Band } from "@/core/nutrition/bands";
 import { stripValues } from "@/core/nutrition/display";
 import { NUTRIENT_UNIT, type NutrientKey } from "@/core/nutrition/nutrients";
 import { servingsText, stepServings } from "@/core/nutrition/servings";
@@ -383,7 +383,7 @@ export function LiveTotals({
             ? undefined
             : state === "short"
               ? fill(t.panel.toGo, {
-                  v: g((k === "kcal" && target ? target : band.low) - v),
+                  v: g(toGoFrom(target, band.low) - v),
                 })
               : state === "good"
                 ? t.panel.inZone

@@ -197,3 +197,22 @@ export function bodyIndices(input: {
         : null,
   };
 }
+
+/**
+ * Measurements without the implausible weigh-ins (2026-10-10 audit: a
+ * single 86 kg typo raised protein and the BMR on the days after it).
+ * The weight a day's targets use comes from these; the reading itself
+ * stays, flagged, for the trend and the calibration.
+ */
+export function plausibleMeasurements<M extends { day: string; weightKg: string | null }>(
+  measurements: readonly M[],
+): M[] {
+  const weighed = measurements
+    .filter((m) => m.weightKg !== null)
+    .sort((a, b) => a.day.localeCompare(b.day));
+  const flags = implausibleWeighIns(
+    weighed.map((m) => ({ day: m.day, kg: Number(m.weightKg) })),
+  );
+  const out = new Set(weighed.filter((_, i) => flags[i]));
+  return measurements.filter((m) => !out.has(m));
+}

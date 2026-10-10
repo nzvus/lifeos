@@ -114,6 +114,7 @@ export const energyIt: Messages["energy"] = {
     planned: "Previsto",
     plannedFood: "+{kcal} kcal previste",
     result: "A fine giornata, col piano",
+    nothingYet: "ancora niente registrato",
     deficit: "deficit di {kcal} kcal",
     surplus: "surplus di {kcal} kcal",
     even: "in pari",

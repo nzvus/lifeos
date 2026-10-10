@@ -32,7 +32,8 @@ type Props = {
   deficitKcal: number;
   eatKcal: number;
   spentKcal: number;
-  balance: { wanted: number; withPlan: number; soFar: number | null };
+  /** withPlan / soFar: null while nothing is logged (no balance yet). */
+  balance: { wanted: number; withPlan: number | null; soFar: number | null };
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   locale: Locale;
   t: Pick<Messages, "energy" | "actions" | "errors">;
@@ -119,9 +120,11 @@ export function GoalLine(p: Props) {
             [
               e.balanceWithPlan,
               p.balance.withPlan,
-              Math.abs(p.balance.withPlan - p.balance.wanted) <= ON_TARGET_KCAL
-                ? "border-l-herb"
-                : "border-l-warn",
+              p.balance.withPlan === null
+                ? "border-l-muted"
+                : Math.abs(p.balance.withPlan - p.balance.wanted) <= ON_TARGET_KCAL
+                  ? "border-l-herb"
+                  : "border-l-warn",
             ],
             [e.balanceSoFar, p.balance.soFar, "border-l-muted"],
           ] as const
