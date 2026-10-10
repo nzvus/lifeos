@@ -59,7 +59,9 @@ export const dayProgramEn = {
   slotNothing: "Nothing yet",
   slotTarget: "~{kcal} kcal",
   slotTargetProtein: "{protein} g protein",
+  bar: { left: "kcal left", over: "kcal over", protein: "P", carbs: "C", fat: "F" },
   timeline: {
+    title: "The day",
     now: "now",
     skipped: "skipped?",
     add: "Add",

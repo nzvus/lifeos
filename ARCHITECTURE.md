@@ -138,7 +138,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   **Search:** `core/shared/search.ts` (accent-insensitive, every word, match then 60-day use).
 - **Responsive UI (ADR-0038):** four areas around the day, views as URLs (ADR-0033) — Body (plan |
   routines | exercises | progress: training, weight) · Food (meals | ingredients | pantry | trends)
-  · **Today** (a raised circle in the middle: summary | food | training under the day header) ·
+  · **Today** (a raised circle in the middle: one page — totals, the day's timeline, detail panels; ADR-0050) ·
   Money (overview | movements | receipts) · Mind (the day's check-in, the last 30 days); Assistant
   and Settings in the header; bottom bar on phones, header on md+; checked at 360 px, text 120 %.
 - **Visual language:** colour = state (short / in the zone / over: `bandState`,

@@ -61,7 +61,9 @@ export const dayProgramIt: Messages["dayProgram"] = {
   slotNothing: "Ancora niente",
   slotTarget: "~{kcal} kcal",
   slotTargetProtein: "{protein} g di proteine",
+  bar: { left: "kcal rimaste", over: "kcal in più", protein: "P", carbs: "C", fat: "G" },
   timeline: {
+    title: "La giornata",
     now: "ora",
     skipped: "saltato?",
     add: "Aggiungi",
