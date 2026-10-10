@@ -9,6 +9,7 @@
 import type { DayTargets } from "@/core/nutrition/repositories/profiles";
 import type { ResolvedDay } from "@/core/day/resolve";
 import { goalOf, type Range } from "@/core/energy/energy";
+import { goalKind } from "@/core/energy/goal";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { GoalLine } from "@/features/nutrition/log/GoalLine";
@@ -58,16 +59,23 @@ export function DayGoal({
             day={day}
             profileId={basis === "type" ? dayTargets.profileId : null}
             title={
-              basis === "checkin"
-                ? t.energy.weightGoal.lineCheckin
-                : basis === "goal" && weightGoal
-                  ? fill(t.energy.weightGoal.lineGoal, {
-                      rate: `${Number(weightGoal.ratePctWeek) > 0 ? "+" : ""}${formatNumber(weightGoal.ratePctWeek, locale, 2)}`,
-                    })
-                  : (() => {
-                      const g = goalOf(dayTargets.dynamic);
-                      return g ? t.energy.goals[g] : t.energy.goalCustom;
-                    })()
+              // ADR-0046: with a goal, the goal's name; the rate when it moves.
+              weightGoal && basis !== "type"
+                ? [
+                    t.energy.weightGoal.kindsShort[goalKind(weightGoal)],
+                    basis === "checkin"
+                      ? t.energy.weightGoal.lineCheckin
+                      : Number(weightGoal.ratePctWeek) !== 0 &&
+                        fill(t.energy.weightGoal.lineGoal, {
+                          rate: `${Number(weightGoal.ratePctWeek) > 0 ? "+" : "−"}${formatNumber(String(Math.abs(Number(weightGoal.ratePctWeek))), locale, 2)}`,
+                        }),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")
+                : (() => {
+                    const g = goalOf(dayTargets.dynamic);
+                    return g ? t.energy.goals[g] : t.energy.goalCustom;
+                  })()
             }
             deficitKcal={(params ?? dayTargets.dynamic).deficitKcal}
             eatKcal={dynamic.kcal}

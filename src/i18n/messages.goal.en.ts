@@ -41,11 +41,18 @@ export const weightGoalEn = {
   kinds: {
     lose: "Lose fat",
     gain: "Build muscle",
-    recomp: "Recomposition (less fat, more muscle, same weight)",
+    recomp: "Recomposition (less fat, more muscle)",
     maintain: "Maintain",
   },
+  kindsShort: {
+    lose: "Fat loss",
+    gain: "Muscle gain",
+    recomp: "Recomposition",
+    maintain: "Maintenance",
+  },
   targetKg: "Target weight (kg, optional)",
-  targetKgHint: "Protein is per kg of it; empty = your current weight.",
+  targetKgHint:
+    "Optional. To lose 3 kg of fat, your weight minus 3. Protein is per kg of it.",
   targetDay: "By (optional)",
   targetDayHint: "Empty = at the recommended pace.",
   planTitle: "The plan",
@@ -64,7 +71,7 @@ export const weightGoalEn = {
   planWhen: "At this pace you reach {kg} kg around {day}.",
   planReached: "Target reached: eat at maintenance, or set a new goal.",
   planRecomp:
-    "Eat what you spend, with protein high: fat goes down and muscle up slowly, the scale barely moves. Training is what drives it.",
+    "Eat what you spend, with protein high: fat goes down and muscle up slowly, the scale barely moves. Training is what drives it. Give a lower target weight to lose fat slowly as well (0.25–0.5 % a week).",
   planMaintain: "Eat what you spend.",
   planUpdates: "Each weekly check-in plans the pace again from your weight trend.",
   floor: "Calorie floor",
@@ -94,8 +101,8 @@ export const weightGoalEn = {
   ],
   changed:
     "A change applies to days not fixed by a check-in; the week already fixed keeps its numbers.",
-  lineGoal: "Goal {rate} % a week",
-  lineCheckin: "Week fixed at the check-in",
+  lineGoal: "{rate} % a week",
+  lineCheckin: "week fixed at the check-in",
   checkinTitle: "Weekly check-in",
   checkinSpend: "You spend ~{kcal} kcal a day",
   checkinWas: "(last check-in {kcal})",

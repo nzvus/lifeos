@@ -43,11 +43,18 @@ export const weightGoalIt: Messages["energy"]["weightGoal"] = {
   kinds: {
     lose: "Perdere grasso",
     gain: "Aumentare i muscoli",
-    recomp: "Ricomposizione (meno grasso, più muscoli, stesso peso)",
+    recomp: "Ricomposizione (meno grasso, più muscoli)",
     maintain: "Mantenere",
   },
+  kindsShort: {
+    lose: "Dimagrimento",
+    gain: "Aumento muscolare",
+    recomp: "Ricomposizione",
+    maintain: "Mantenimento",
+  },
   targetKg: "Peso obiettivo (kg, facoltativo)",
-  targetKgHint: "Le proteine sono per kg di questo; vuoto = il peso attuale.",
+  targetKgHint:
+    "Facoltativo. Per perdere 3 kg di grasso, il tuo peso meno 3. Le proteine sono per kg di questo.",
   targetDay: "Entro il (facoltativo)",
   targetDayHint: "Vuoto = al ritmo consigliato.",
   planTitle: "Il piano",
@@ -66,7 +73,7 @@ export const weightGoalIt: Messages["energy"]["weightGoal"] = {
   planWhen: "A questo ritmo arrivi a {kg} kg verso il {day}.",
   planReached: "Obiettivo raggiunto: mangia quanto spendi, o imposta un nuovo obiettivo.",
   planRecomp:
-    "Mangia quanto spendi, con proteine alte: il grasso scende e i muscoli salgono piano, la bilancia si muove poco. A guidarla è l'allenamento.",
+    "Mangia quanto spendi, con proteine alte: il grasso scende e i muscoli salgono piano, la bilancia si muove poco. A guidarla è l'allenamento. Con un peso obiettivo più basso perdi anche grasso, lentamente (0,25–0,5 % a settimana).",
   planMaintain: "Mangia quanto spendi.",
   planUpdates: "Ogni check-in settimanale ripianifica il ritmo dall'andamento del peso.",
   floor: "Soglia minima di calorie",
@@ -99,8 +106,8 @@ export const weightGoalIt: Messages["energy"]["weightGoal"] = {
   ],
   changed:
     "Un cambio vale per i giorni non fissati da un check-in; la settimana già fissata tiene i suoi numeri.",
-  lineGoal: "Obiettivo {rate} % a settimana",
-  lineCheckin: "Settimana fissata al check-in",
+  lineGoal: "{rate} % a settimana",
+  lineCheckin: "settimana fissata al check-in",
   checkinTitle: "Check-in settimanale",
   checkinSpend: "Spendi ~{kcal} kcal al giorno",
   checkinWas: "(ultimo check-in {kcal})",

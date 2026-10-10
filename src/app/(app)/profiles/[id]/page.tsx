@@ -9,7 +9,9 @@ import { requireContext } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { getProfile } from "@/core/nutrition/repositories/profiles";
 import { getProgram } from "@/core/nutrition/repositories/programs";
-import { listGoals } from "@/core/energy/repositories/goals";
+import { goalFrom, listGoals } from "@/core/energy/repositories/goals";
+import { goalKind } from "@/core/energy/goal";
+import { todayIn } from "@/core/shared/dates";
 import { MOMENTS } from "@/core/nutrition/moments";
 import { STARTERS } from "@/core/nutrition/programs";
 import { ProgramForm } from "@/features/nutrition/profiles/ProgramForm";
@@ -34,7 +36,7 @@ type Props = {
 };
 
 export default async function EditProfilePage({ params, searchParams }: Props) {
-  const { owner, t } = await requireContext();
+  const { owner, settings, t } = await requireContext();
   const { id } = await params;
   if (!idInput.safeParse(id).success) notFound();
   const from = safeFrom((await searchParams).from, "/settings#day-types");
@@ -44,6 +46,7 @@ export default async function EditProfilePage({ params, searchParams }: Props) {
     listGoals(getDb(), owner),
   ]);
   if (!profile) notFound();
+  const goal = goalFrom(goals, todayIn(settings.timezone)); // ADR-0046
 
   return (
     // Forms read best narrow: cap the width even on wide screens.
@@ -77,15 +80,12 @@ export default async function EditProfilePage({ params, searchParams }: Props) {
         }
       />
       <p className="text-meta text-muted">{t.profiles.editNote}</p>
-      {/* ADR-0043: a goal owns the rate; a dynamic type's own numbers wait. */}
-      {profile.mode === "dynamic" && goals.length > 0 && (
-        <p className="text-meta font-semibold">{t.dayProgram.goalOverrides}</p>
-      )}
       <ProfileForm
         id={id}
         from={from}
         action={updateProfileAction.bind(null, id)}
         initial={profileFormValues(profile)}
+        followsGoal={goal ? t.energy.weightGoal.kindsShort[goalKind(goal)] : null}
         t={{
           profiles: t.profiles,
           nutrients: t.nutrients,

@@ -64,9 +64,8 @@ export const dayProgramIt: Messages["dayProgram"] = {
   hints: {
     pre_workout:
       "1–3 h prima dell'allenamento: carboidrati {low}–{high} g (meno se manca poco), poche proteine, pochi grassi e fibre.",
-    post_workout: "Entro ~2 h dall'allenamento: almeno ~{protein} g di proteine, con carboidrati.",
+    post_workout:
+      "Entro ~2 h dall'allenamento: almeno ~{protein} g di proteine, con carboidrati.",
     pre_sleep: "Almeno ~{protein} g di proteine lente: yogurt greco, skyr, ricotta.",
   },
-  goalOverrides:
-    "Hai un obiettivo nelle Impostazioni: deficit, proteine e grassi qui valgono solo senza obiettivo.",
 };

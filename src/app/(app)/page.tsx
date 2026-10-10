@@ -308,6 +308,7 @@ export default async function DayPage({ searchParams }: Props) {
             />
             <DayProfilePicker
               day={day}
+              followsGoal={resolved.weightGoal !== null}
               current={dayTargets}
               profiles={profiles.map((p) => ({ id: p.id, name: p.name }))}
               action={setDayProfileAction}

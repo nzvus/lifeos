@@ -7,6 +7,10 @@
  * as the select changes (no separate "Apply" button). The
  * explanation texts matter: the difference between "default" (follows the
  * profile, still changeable) and "fixed" (a frozen copy) must be visible.
+ *
+ * ADR-0046: with a goal, the numbers come from the goal; the type only
+ * picks the day's program. Then it is "the day's program", without the
+ * fixed / default badge, and not shown at all with a single type.
  */
 "use client";
 
@@ -23,11 +27,21 @@ type Props = {
   current: DayTargets;
   profiles: { id: string; name: string }[];
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
+  /** A goal is in force on the day (ADR-0046). */
+  followsGoal?: boolean;
   t: Pick<Messages, "day" | "errors">;
 };
 
-export function DayProfilePicker({ day, current, profiles, action, t }: Props) {
+export function DayProfilePicker({
+  day,
+  current,
+  profiles,
+  action,
+  followsGoal = false,
+  t,
+}: Props) {
   const [state, formAction, pending] = useActionState(action, IDLE);
+  if (followsGoal && profiles.length <= 1) return null; // nothing to choose
   if (profiles.length === 0)
     return <p className="text-meta text-muted">{t.day.noProfiles}</p>;
 
@@ -55,7 +69,7 @@ export function DayProfilePicker({ day, current, profiles, action, t }: Props) {
         </span>
         <div className="flex min-w-0 flex-1 flex-col">
           <label htmlFor="day-profile" className="text-meta text-muted">
-            {t.day.profileLabel}
+            {followsGoal ? t.day.programLabel : t.day.profileLabel}
           </label>
           {/* Applies as soon as it changes: one tap instead of two. Keyed:
               see ui/SelectField. */}
@@ -78,13 +92,13 @@ export function DayProfilePicker({ day, current, profiles, action, t }: Props) {
             ))}
           </select>
         </div>
-        {current.source !== "none" && (
+        {current.source !== "none" && !followsGoal && (
           <Badge tone={current.source === "fixed" ? "done" : "planned"} title={status}>
             {current.source === "fixed" ? t.day.sourceFixed : t.day.sourceDefault}
           </Badge>
         )}
       </div>
-      {current.source !== "fixed" && (
+      {current.source !== "fixed" && !followsGoal && (
         <p className="text-meta text-muted">
           {current.source === "default" ? t.day.defaultHint : status}
         </p>

@@ -10,6 +10,8 @@
 "use client";
 
 import { FileText, Gauge, Target } from "lucide-react";
+import Link from "next/link";
+import { TEXT_LINK } from "@/ui/button";
 import { useState } from "react";
 import { GOAL_PRESETS, goalOf } from "@/core/energy/energy";
 import { SelectField } from "@/ui/SelectField";
@@ -34,10 +36,16 @@ type Props = {
   from: string;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   initial: Record<string, string>;
+  /**
+   * ADR-0046: the goal in force, by name ("Recomposition"), when there is
+   * one. A dynamic type then follows it: its own deficit, protein and fat
+   * are not asked (kept, hidden, for days without a goal).
+   */
+  followsGoal?: string | null;
   t: T;
 };
 
-export function ProfileForm({ id, from, action, initial, t }: Props) {
+export function ProfileForm({ id, from, action, initial, followsGoal = null, t }: Props) {
   const a = t.actions;
   const { form, base, version, values, saved, dirty, draft, offer, load } =
     useEditableForm(`profile:${id ?? "new"}`, initial);
@@ -63,7 +71,13 @@ export function ProfileForm({ id, from, action, initial, t }: Props) {
           labels={a}
         />
       )}
-      <ProfileFields key={version} state={state} initial={base} t={t} />
+      <ProfileFields
+        key={version}
+        state={state}
+        initial={base}
+        followsGoal={followsGoal}
+        t={t}
+      />
       <ActionBar
         dirty={dirty}
         isNew={!id}
@@ -78,10 +92,12 @@ export function ProfileForm({ id, from, action, initial, t }: Props) {
 function ProfileFields({
   state,
   initial,
+  followsGoal,
   t,
 }: {
   state: FormState;
   initial: Record<string, string>;
+  followsGoal: string | null;
   t: T;
 }) {
   const err = (f: string) => fieldError(state, f, t.errors);
@@ -103,8 +119,14 @@ function ProfileFields({
           required
         />
       </Section>
-      <DynamicFields state={state} initial={initial} t={t} onMode={setMode} />
-      {mode === "dynamic" && (
+      <DynamicFields
+        state={state}
+        initial={initial}
+        followsGoal={followsGoal}
+        t={t}
+        onMode={setMode}
+      />
+      {mode === "dynamic" && !followsGoal && (
         <p className="text-meta text-muted">{t.energy.dynamicHint}</p>
       )}
       {/* Dynamic: the written targets are not used; hidden, not lost. */}
@@ -150,11 +172,13 @@ export function balanceText(deficit: number, e: T["energy"]): string {
 function DynamicFields({
   state,
   initial,
+  followsGoal,
   t,
   onMode,
 }: {
   state: FormState;
   initial: Record<string, string>;
+  followsGoal: string | null;
   t: T;
   onMode: (mode: string) => void;
 }) {
@@ -184,8 +208,20 @@ function DynamicFields({
         }))}
         error={err("mode")}
       />
-      {/* Hidden, not removed, when fixed: the values are kept for later. */}
-      <div className={dynamic ? "flex flex-col gap-4" : "hidden"}>
+      {dynamic && followsGoal && (
+        <div className="flex flex-col gap-1 rounded-control bg-paper p-3 text-meta">
+          <span className="font-semibold">
+            {fill(e.followsGoal, { goal: followsGoal })}
+          </span>
+          <span className="text-muted">{e.followsGoalHint}</span>
+          <Link href="/settings#goal" className={TEXT_LINK}>
+            {e.openGoal}
+          </Link>
+        </div>
+      )}
+      {/* Hidden, not removed, when fixed or following the goal: the values
+          are kept for later (ADR-0046). */}
+      <div className={dynamic && !followsGoal ? "flex flex-col gap-4" : "hidden"}>
         <Segmented<string>
           label={e.goal}
           value={goalOf({ ...v, deficitKcal: Number(v.deficitKcal) }) ?? "custom"}

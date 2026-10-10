@@ -62,9 +62,8 @@ export const dayProgramEn = {
   hints: {
     pre_workout:
       "1–3 h before training: carbs {low}–{high} g (less the closer you are), a little protein, little fat and fibre.",
-    post_workout: "Within ~2 h after training: at least ~{protein} g of protein, with carbs.",
+    post_workout:
+      "Within ~2 h after training: at least ~{protein} g of protein, with carbs.",
     pre_sleep: "At least ~{protein} g of slow protein: Greek yogurt, skyr, ricotta.",
   },
-  goalOverrides:
-    "You have a goal in Settings: the deficit, protein and fat here apply only without one.",
 };

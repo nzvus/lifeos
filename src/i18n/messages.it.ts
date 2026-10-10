@@ -184,6 +184,7 @@ export const it: Messages = {
     refreshGone: "Il pasto o l'ingrediente da cui viene non esiste più.",
     nothingYesterday: "Il giorno prima non hai registrato niente.",
     profileLabel: "Tipo di giornata",
+    programLabel: "Programma del giorno",
     profileFixed: "Obiettivi fissati per questo giorno: {name}",
     profileDefault:
       "Predefinito: {name}. Si fissa al primo alimento registrato; se oggi è diverso, scegline un altro ora.",
