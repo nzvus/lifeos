@@ -9,8 +9,12 @@
  */
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { MUSCLE_GROUP_REGION, MUSCLE_GROUPS } from "@/core/training/anatomy";
-import { VOLUME_RANGE, type WeekSummary } from "@/core/training/progress";
+import {
+  MUSCLE_GROUP_REGION,
+  MUSCLE_GROUPS,
+  type MuscleGroup,
+} from "@/core/training/anatomy";
+import { VOLUME_RANGE, volumeAdvice, type WeekSummary } from "@/core/training/progress";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
@@ -127,6 +131,24 @@ export function WeekProgress({
           </ul>
         )}
         <p className="text-meta text-muted">{p.volumeHint}</p>
+        {/* ADR-0049: a note per band, never a rule. */}
+        {(() => {
+          const a = volumeAdvice(week.byGroup);
+          const names = (gs: readonly MuscleGroup[]) =>
+            gs.map((g) => t.groups[g]).join(", ");
+          return (
+            <>
+              {a.low.length > 0 && (
+                <p className="text-meta">{fill(p.volumeLow, { groups: names(a.low) })}</p>
+              )}
+              {a.high.length > 0 && (
+                <p className="text-meta">
+                  {fill(p.volumeHigh, { groups: names(a.high) })}
+                </p>
+              )}
+            </>
+          );
+        })()}
       </div>
     </div>
   );
