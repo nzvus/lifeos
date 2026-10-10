@@ -14,6 +14,8 @@ import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { fill, type Messages } from "@/i18n";
 import { InfoTip } from "@/ui/InfoTip";
+import { NutrientBar } from "@/ui/NutrientBar";
+import { NutrientIcon } from "@/ui/NutrientIcon";
 import { Section } from "@/ui/Section";
 
 /** Within this many kcal the days before are "on target". */
@@ -26,7 +28,7 @@ export function WeekContextCard({
 }: {
   w: WeekContext;
   locale: Locale;
-  t: Pick<Messages, "week" | "nutrients">;
+  t: Pick<Messages, "week" | "nutrients" | "macro">;
 }) {
   const k = t.week;
   const n = (v: number, d = 0) =>
@@ -73,18 +75,39 @@ export function WeekContextCard({
             {fill(k.protein, { in: String(w.protein.inZone), of: String(w.protein.of) })}
           </li>
         )}
-        {w.averages.map((a) => {
-          const off = a.kind === "max" ? a.average > a.target : a.average < a.target;
-          return (
-            <li key={a.key} className={off ? "font-semibold" : ""}>
-              {fill(k.average, {
-                name: t.nutrients[a.key],
-                avg: unit(a.key, a.average),
-                target: unit(a.key, a.target),
-              })}
-            </li>
-          );
-        })}
+        {/* The same row as the day's totals (ui/NutrientBar): one meter everywhere. */}
+        {w.averages.length > 0 && (
+          <li className="flex flex-col gap-1.5 pt-1">
+            {w.averages.map((a) => {
+              const over = a.kind === "max" ? a.average > a.target : a.average < a.target;
+              return (
+                <NutrientBar
+                  key={a.key}
+                  icon={<NutrientIcon name={a.key} size={14} />}
+                  label={t.macro.short[a.key]}
+                  amount={`${unit(a.key, a.average)} / ${unit(a.key, a.target)}`}
+                  status={fill(k.average, {
+                    name: t.nutrients[a.key],
+                    avg: unit(a.key, a.average),
+                    target: unit(a.key, a.target),
+                  })}
+                  state={
+                    a.kind === "max" ? (over ? "over" : "good") : over ? "short" : "good"
+                  }
+                  eaten={a.average}
+                  withPlan={a.average}
+                  zone={
+                    a.kind === "min"
+                      ? { low: a.target, high: Math.max(a.target, a.average) * 1.5 }
+                      : null
+                  }
+                  limit={a.kind === "max" ? a.target : null}
+                  max={Math.max(a.target * 1.5, a.average * 1.1)}
+                />
+              );
+            })}
+          </li>
+        )}
         {w.irregular && <li className="text-muted">{k.irregular}</li>}
       </ul>
     </Section>
