@@ -221,6 +221,8 @@ export const sets = pgTable(
     inclinePct: numeric("incline_pct", { precision: 4, scale: 1, mode: "string" }),
     restS: integer("rest_s"),
     warmup: boolean("warmup").notNull().default(false),
+    // ADR-0049: reps left in the tank (0–4, 4 = "4 or more"); null = not said.
+    rir: integer("rir"),
     // Ticked in the gym (live mode): a planned set not done yet is false.
     // Everything logged before live mode was done (default true).
     done: boolean("done").notNull().default(true),
@@ -241,6 +243,7 @@ export const sets = pgTable(
       "sets_positive_ck",
       sql`coalesce(${t.reps}, 1) > 0 and coalesce(${t.loadKg}, 0) >= 0 and coalesce(${t.durationS}, 1) > 0 and coalesce(${t.distanceM}, 0) >= 0`,
     ),
+    check("sets_rir_ck", sql`${t.rir} between 0 and 4`),
     index("sets_session_exercise_idx").on(t.sessionExerciseId),
   ],
 );
