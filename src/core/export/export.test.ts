@@ -7,7 +7,6 @@ import { createProgram } from "../training/repositories/programs";
 import type { Owner } from "../identity/owner";
 import { createIngredient } from "../nutrition/repositories/ingredients";
 import { logIngredient } from "../nutrition/repositories/log";
-import { createProfile } from "../nutrition/repositories/profiles";
 import { saveSettings } from "../nutrition/repositories/settings";
 import { createTestDb, createTestUser, ingredientFixture } from "../testing/test-db";
 import { addPurchase, createProduct } from "../pantry/repositories/products";
@@ -15,6 +14,9 @@ import { createExercise } from "../training/repositories/exercises";
 import { addMeasurement, deleteMeasurement } from "../training/repositories/measurements";
 import { createSession } from "../training/repositories/sessions";
 import { setEnergyCorrection } from "../energy/repositories/energy";
+import { STARTERS } from "../nutrition/programs";
+import { createProfile } from "../nutrition/repositories/profiles";
+import { saveProgram } from "../nutrition/repositories/programs";
 import { recordWeekCheckin, setGoal } from "../energy/repositories/goals";
 import { setDayClosure } from "../nutrition/repositories/closures";
 import { EXPORT_FORMAT, EXPORT_VERSION, exportUserData } from "./export";
@@ -265,11 +267,39 @@ describe("exportUserData", () => {
     await setEnergyCorrection(db, alice, 1.07, "2026-10-10");
     await setEnergyCorrection(db, bob, 0.95, "2026-10-01");
     const data = await exportUserData(db, alice);
-    expect(data.version).toBe(17);
+    expect(data.version).toBeGreaterThanOrEqual(17);
     expect(data.energyCorrections.map((x) => [x.sinceDay, x.factor])).toEqual([
       ["2026-09-20", "1.04"],
       ["2026-10-10", "1.07"],
     ]);
     expect(JSON.stringify(data.energyCorrections)).not.toContain("userId");
+  });
+
+  it("contains each day type's program (version 18), nobody else's", async () => {
+    const blank = {
+      kcal: "2500",
+      protein: null,
+      carbs: null,
+      sugars: null,
+      fat: null,
+      saturatedFat: null,
+      fiber: null,
+      salt: null,
+    };
+    const gym = await createProfile(db, alice, { name: "Gym", ...blank });
+    const rest = await createProfile(db, alice, { name: "Rest", ...blank });
+    const bobs = await createProfile(db, bob, { name: "Gym", ...blank });
+    if (!gym.ok || !rest.ok || !bobs.ok) throw new Error("setup");
+    await saveProgram(db, alice, gym.value.id, STARTERS.gymEvening);
+    await saveProgram(db, bob, bobs.value.id, STARTERS.rest);
+    const data = await exportUserData(db, alice);
+    expect(data.version).toBe(18);
+    const byName = new Map(data.dayProfiles.map((p) => [p.name, p.program]));
+    expect(byName.get("Rest")).toBeNull();
+    expect(byName.get("Gym")?.trainingAt).toBe(18 * 60);
+    expect(byName.get("Gym")?.slots.map((s) => s.kind)).toEqual(
+      STARTERS.gymEvening.slots.map((s) => s.kind),
+    );
+    expect(JSON.stringify(data.dayProfiles)).not.toContain("userId");
   });
 });

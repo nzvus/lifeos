@@ -225,6 +225,13 @@
       "when": 1791617511143,
       "tag": "0031_goals_and_week_checkins",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1791627836279,
+      "tag": "0032_day_programs_and_moments",
+      "breakpoints": true
     }
   ]
 }

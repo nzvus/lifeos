@@ -57,6 +57,8 @@ import {
   dayClosures,
   goals,
   energyCorrections,
+  dayPrograms,
+  dayProgramSlots,
   weekCheckins,
   logEntryLeftOut,
   moneyCategories,
@@ -88,8 +90,9 @@ export const EXPORT_FORMAT = "lifeos-export";
 // startedAt / endedAt and a routine's itemsSavedAt (ADR-0037);
 // 15: `dayClosures`, the days closed as complete or partial (ADR-0042);
 // 16: `goals` (their history) and `weekCheckins` (ADR-0043);
-// 17: `energyCorrections`, the accepted calibration factors (ADR-0026).
-export const EXPORT_VERSION = 17;
+// 17: `energyCorrections`, the accepted calibration factors (ADR-0026);
+// 18: each day type's `program` (training time, shift, slots; ADR-0044).
+export const EXPORT_VERSION = 18;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
@@ -316,6 +319,14 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
     .from(dayClosures)
     .where(ownedBy(dayClosures, owner))
     .orderBy(asc(dayClosures.day));
+  const [dayProgramRows, daySlotRows] = await Promise.all([
+    db.select().from(dayPrograms).where(ownedBy(dayPrograms, owner)),
+    db
+      .select()
+      .from(dayProgramSlots)
+      .where(ownedBy(dayProgramSlots, owner))
+      .orderBy(asc(dayProgramSlots.position)),
+  ]);
   const correctionRows = await db
     .select()
     .from(energyCorrections)
@@ -358,7 +369,26 @@ export async function exportUserData(db: Db, owner: Owner, now: Date = new Date(
         .map(({ factorId, score }) => ({ factorId, score })),
     })),
     ratingFactors: stripOwner(factorRows),
-    dayProfiles: stripOwner(profileRows),
+    dayProfiles: stripOwner(profileRows).map((p) => {
+      const program = dayProgramRows.find((x) => x.profileId === p.id);
+      const slots = daySlotRows.filter((x) => x.profileId === p.id);
+      return {
+        ...p,
+        program:
+          program || slots.length
+            ? {
+                trainingAt: program?.trainingAt ?? null,
+                shiftKcal: program?.shiftKcal ?? 0,
+                slots: slots.map(({ kind, at, kcalShare, proteinShare }) => ({
+                  kind,
+                  at,
+                  kcalShare,
+                  proteinShare,
+                })),
+              }
+            : null,
+      };
+    }),
     dayPlans: stripOwner(planRows),
     dayClosures: stripOwner(closureRows),
     energyCorrections: stripOwner(correctionRows),

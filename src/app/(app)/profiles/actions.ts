@@ -18,6 +18,8 @@ import {
   updateProfile,
 } from "@/core/nutrition/repositories/profiles";
 import { parseInput, profileInput } from "@/core/nutrition/validation";
+import { programInput } from "@/core/nutrition/programs";
+import { saveProgram } from "@/core/nutrition/repositories/programs";
 import type { FormState } from "@/core/shared/result";
 
 export async function createProfileAction(
@@ -80,4 +82,20 @@ export async function restoreProfileAction(
   if (!r.ok) return { ok: false, message: t.errors[r.errors._form ?? "not_found"] };
   revalidatePath("/", "layout");
   return { ok: true };
+}
+
+/** ADR-0044: a day type's program, replaced as a whole. */
+export async function saveProgramAction(
+  id: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const { owner } = await requireContext();
+  const values = formToObject(formData);
+  const input = parseInput(programInput, values);
+  if (!input.ok) return { status: "error", errors: input.errors, values };
+  const result = await saveProgram(getDb(), owner, id, input.value);
+  if (!result.ok) return { status: "error", errors: result.errors, values };
+  revalidatePath("/", "layout"); // the days of this type
+  return { status: "saved" };
 }
