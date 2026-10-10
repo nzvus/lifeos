@@ -35,6 +35,7 @@ import { planIt } from "./messages.plan.it";
 import { moneyIt } from "./messages.money.it";
 import type { Messages } from "./index";
 import { dayProgramIt, momentsIt } from "./messages.moments.it";
+import { weekIt } from "./messages.week.it";
 
 export const it: Messages = {
   app: appIt,
@@ -681,6 +682,7 @@ export const it: Messages = {
   },
   moments: momentsIt,
   dayProgram: dayProgramIt,
+  week: weekIt,
   macro: {
     protein: "P",
     carbs: "C",
