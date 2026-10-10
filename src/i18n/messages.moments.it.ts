@@ -61,6 +61,16 @@ export const dayProgramIt: Messages["dayProgram"] = {
   slotNothing: "Ancora niente",
   slotTarget: "~{kcal} kcal",
   slotTargetProtein: "{protein} g di proteine",
+  timeline: {
+    now: "ora",
+    skipped: "saltato?",
+    add: "Aggiungi",
+    addTo: "Aggiungi a {slot}",
+    sessionPlanned: "pianificata",
+    sessionDone: "fatta",
+    gym: "In palestra",
+    open: "Apri",
+  },
   hints: {
     pre_workout:
       "1–3 h prima dell'allenamento: carboidrati {low}–{high} g (meno se manca poco), poche proteine, pochi grassi e fibre.",

@@ -117,7 +117,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   closed days and scale (ADR-0041/0042/0026). Weigh-ins carry a reliability (ADR-0027; an
   implausible one asks first, counts 0.02, never sets a day's weight); sleep feeds quality and trends, not energy (ADR-0031).
 - **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment (groups in time order,
-  snacks placed by their time; with a program, in its slots with targets and hints, `core/nutrition/slots.ts`), servings −/+; a day closed complete / partial (ADR-0042); totals =
+  snacks placed by their time; on Today one timeline of slots, entries, sessions and "now", `core/day/timeline.ts`, ADR-0050), servings −/+; a day closed complete / partial (ADR-0042); totals =
   eaten, every panel also shows the day with the plan; tick and −/+ optimistic (`log/LiveDay`).
 - **Editing (ADR-0015):** edit pages share ui/ActionBar (↺ / Cancel / Save), browser drafts,
   `?from=`, toasts with Undo; rows open on tap; delete = a bin that asks, then the 30-day trash

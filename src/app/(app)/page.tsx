@@ -123,7 +123,7 @@ import { getCheckinProposal } from "@/core/energy/repositories/checkin";
 import { CheckinCard } from "@/features/nutrition/log/CheckinCard";
 import { DaySupplements } from "./day-supplements";
 import { programItemsOf } from "./day-program";
-import { burnWords, daySlots, weekOf } from "./day-week";
+import { burnWords, timelineOf, weekOf } from "./day-week";
 import { reminderLines } from "./day-reminders";
 
 type Props = {
@@ -230,19 +230,21 @@ export default async function DayPage({ searchParams }: Props) {
   const energyView = resolved.energy;
   const dynamic = resolved.computed;
   const num = (x: string | null) => (x === null ? null : Number(x));
-  // ADR-0044: the slots of the day's type, against the day's targets.
-  const slots = daySlots(
+  // ADR-0044/0050: the day's timeline — slots, their targets, sessions, now.
+  const program =
     dayTargets.source !== "none" && dayTargets.profileId
       ? programs.get(dayTargets.profileId)
-      : undefined,
+      : undefined;
+  const line = timelineOf({
+    program,
     sessions,
-    settings.timezone,
-  );
-  const slotDay = {
-    kcal: num(targets.kcal),
-    protein: num(targets.protein),
-    kg: num(energyView.body.weightKg),
-  };
+    day,
+    today,
+    timeZone: settings.timezone,
+    bounds: settings.preferences.bounds,
+    targets,
+    weightKg: energyView.body.weightKg,
+  });
   const weekWithTargets = week.map((d) => ({
     ...d,
     targets: {
@@ -460,8 +462,8 @@ export default async function DayPage({ searchParams }: Props) {
                         settings.timezone,
                         settings.preferences.bounds,
                       ),
-                      slots,
-                      slotDay,
+                      line.slots,
+                      line.slotDay,
                     )}
                     locale={locale}
                     t={t}
@@ -570,8 +572,7 @@ export default async function DayPage({ searchParams }: Props) {
                 servingsAction={(id) => setEntryServingsAction.bind(null, id)}
                 timeZone={settings.timezone}
                 bounds={settings.preferences.bounds}
-                slots={slots}
-                slotDay={slotDay}
+                {...line}
                 // The same quality block as the meal cards, from the entry's
                 // snapshot lines (ADR-0007) and the current tags and ratings.
                 quality={(e) => (

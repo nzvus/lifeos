@@ -59,6 +59,16 @@ export const dayProgramEn = {
   slotNothing: "Nothing yet",
   slotTarget: "~{kcal} kcal",
   slotTargetProtein: "{protein} g protein",
+  timeline: {
+    now: "now",
+    skipped: "skipped?",
+    add: "Add",
+    addTo: "Add to {slot}",
+    sessionPlanned: "planned",
+    sessionDone: "done",
+    gym: "In the gym",
+    open: "Open",
+  },
   hints: {
     pre_workout:
       "1–3 h before training: carbs {low}–{high} g (less the closer you are), a little protein, little fat and fibre.",
