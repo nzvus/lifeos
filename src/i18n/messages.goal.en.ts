@@ -94,6 +94,23 @@ export const weightGoalEn = {
     "Off: each day follows the goal on its own, as it comes. On: once a week the app proposes the next 7 days from what you really spent, and you accept or skip; an accepted week stays fixed.",
   undo: "Undo the check-in",
   undone: "Check-in undone: the days follow the goal again",
+  explain: {
+    title: "How this number is built",
+    spend:
+      "You spend ~{total} kcal today: your body at rest {bmr}, everyday activity {everyday}, steps {steps}, training {training}.",
+    goalTakes: "Your goal ({kind}, {rate} % a week) takes {kcal} kcal a day.",
+    goalAdds: "Your goal ({kind}, {rate} % a week) adds {kcal} kcal a day.",
+    goalSteady: "Your goal ({kind}) keeps you at what you spend.",
+    checkin:
+      "The check-in of {day} fixed this week at {kcal} kcal a day, from an average spend of {exp} kcal.",
+    checkinShift: "This day's program moves it by {shift} kcal.",
+    typeTakes: "The day type takes {kcal} kcal.",
+    typeAdds: "The day type adds {kcal} kcal.",
+    floor: "Your calorie floor holds it up by {kcal} kcal.",
+    result: "= {kcal} kcal to eat.",
+    split:
+      "Protein {protein} g ({perKg} g × {kg} kg) · fat {fat} g ({share} % of the kcal) · carbs {carbs} g, the rest.",
+  },
   weekday: "Check-in day",
   weekdays: [
     "Sunday",

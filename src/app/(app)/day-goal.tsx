@@ -8,6 +8,8 @@
  */
 import type { DayTargets } from "@/core/nutrition/repositories/profiles";
 import type { ResolvedDay } from "@/core/day/resolve";
+import type { DayExplained } from "@/core/day/explain";
+import { ExplainDay } from "@/features/nutrition/log/ExplainDay";
 import { goalOf, type Range } from "@/core/energy/energy";
 import { goalKind } from "@/core/energy/goal";
 import { formatNumber } from "@/core/shared/format";
@@ -27,6 +29,7 @@ export function DayGoal({
   params,
   basis,
   weightGoal,
+  explained,
   total,
   eatenKcal,
   withPlannedKcal,
@@ -43,6 +46,8 @@ export function DayGoal({
   params: ResolvedDay["params"];
   basis: ResolvedDay["basis"];
   weightGoal: ResolvedDay["weightGoal"];
+  /** How the day's numbers were built (core/day/explain.ts), or null. */
+  explained: DayExplained | null;
   /** What the day costs, done and with the plan, or null without body data. */
   total: { done: Range; withPlan: Range } | null;
   eatenKcal: string;
@@ -98,6 +103,9 @@ export function DayGoal({
               locale={locale}
               t={{ energy: t.energy, actions: t.actions, errors: t.errors }}
             />
+            {explained && (
+              <ExplainDay x={explained} locale={locale} t={t.energy.weightGoal} />
+            )}
             {/* ADR-0048: a fixed week can be undone, from today on. */}
             {basis === "checkin" && day >= today && (
               <UndoCheckin undo={undoCheckinAction} t={t.energy.weightGoal} />
