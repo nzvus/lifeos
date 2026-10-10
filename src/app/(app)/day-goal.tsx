@@ -14,7 +14,8 @@ import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { GoalLine } from "@/features/nutrition/log/GoalLine";
 import { fill, type Messages } from "@/i18n";
-import { setGoalDeficitAction } from "./actions";
+import { setGoalDeficitAction, undoCheckinAction } from "./actions";
+import { UndoCheckin } from "@/features/nutrition/log/UndoCheckin";
 
 const mid = (r: Range) => (r.low + r.high) / 2;
 
@@ -55,47 +56,53 @@ export function DayGoal({
     <div className="flex flex-col gap-0.5 rule-t-medium border-hairline pt-3">
       {dayTargets.dynamic ? (
         dynamic && total ? (
-          <GoalLine
-            day={day}
-            profileId={basis === "type" ? dayTargets.profileId : null}
-            title={
-              // ADR-0046: with a goal, the goal's name; the rate when it moves.
-              weightGoal && basis !== "type"
-                ? [
-                    t.energy.weightGoal.kindsShort[goalKind(weightGoal)],
-                    basis === "checkin"
-                      ? t.energy.weightGoal.lineCheckin
-                      : Number(weightGoal.ratePctWeek) !== 0 &&
-                        fill(t.energy.weightGoal.lineGoal, {
-                          rate: `${Number(weightGoal.ratePctWeek) > 0 ? "+" : "−"}${formatNumber(String(Math.abs(Number(weightGoal.ratePctWeek))), locale, 2)}`,
-                        }),
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")
-                : (() => {
-                    const g = goalOf(dayTargets.dynamic);
-                    return g ? t.energy.goals[g] : t.energy.goalCustom;
-                  })()
-            }
-            deficitKcal={(params ?? dayTargets.dynamic).deficitKcal}
-            eatKcal={dynamic.kcal}
-            spentKcal={Math.round(mid(total.withPlan))}
-            balance={{
-              wanted: -(params ?? dayTargets.dynamic).deficitKcal,
-              // Nothing logged or planned: no balance yet (2026-10-10 audit).
-              withPlan:
-                Number(withPlannedKcal) === 0
-                  ? null
-                  : Math.round(Number(withPlannedKcal) - mid(total.withPlan)),
-              soFar:
-                day <= today && Number(withPlannedKcal) !== 0
-                  ? Math.round(Number(eatenKcal) - mid(total.done))
-                  : null,
-            }}
-            action={setGoalDeficitAction}
-            locale={locale}
-            t={{ energy: t.energy, actions: t.actions, errors: t.errors }}
-          />
+          <>
+            <GoalLine
+              day={day}
+              profileId={basis === "type" ? dayTargets.profileId : null}
+              title={
+                // ADR-0046: with a goal, the goal's name; the rate when it moves.
+                weightGoal && basis !== "type"
+                  ? [
+                      t.energy.weightGoal.kindsShort[goalKind(weightGoal)],
+                      basis === "checkin"
+                        ? t.energy.weightGoal.lineCheckin
+                        : Number(weightGoal.ratePctWeek) !== 0 &&
+                          fill(t.energy.weightGoal.lineGoal, {
+                            rate: `${Number(weightGoal.ratePctWeek) > 0 ? "+" : "−"}${formatNumber(String(Math.abs(Number(weightGoal.ratePctWeek))), locale, 2)}`,
+                          }),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")
+                  : (() => {
+                      const g = goalOf(dayTargets.dynamic);
+                      return g ? t.energy.goals[g] : t.energy.goalCustom;
+                    })()
+              }
+              deficitKcal={(params ?? dayTargets.dynamic).deficitKcal}
+              eatKcal={dynamic.kcal}
+              spentKcal={Math.round(mid(total.withPlan))}
+              balance={{
+                wanted: -(params ?? dayTargets.dynamic).deficitKcal,
+                // Nothing logged or planned: no balance yet (2026-10-10 audit).
+                withPlan:
+                  Number(withPlannedKcal) === 0
+                    ? null
+                    : Math.round(Number(withPlannedKcal) - mid(total.withPlan)),
+                soFar:
+                  day <= today && Number(withPlannedKcal) !== 0
+                    ? Math.round(Number(eatenKcal) - mid(total.done))
+                    : null,
+              }}
+              action={setGoalDeficitAction}
+              locale={locale}
+              t={{ energy: t.energy, actions: t.actions, errors: t.errors }}
+            />
+            {/* ADR-0048: a fixed week can be undone, from today on. */}
+            {basis === "checkin" && day >= today && (
+              <UndoCheckin undo={undoCheckinAction} t={t.energy.weightGoal} />
+            )}
+          </>
         ) : (
           <span className="text-meta text-muted">{t.energy.dynamicMissing}</span>
         )

@@ -89,6 +89,11 @@ export const weightGoalEn = {
     low_fat: "Low fat (fat 20 %)",
     low_carb: "Low carb (fat 35 %)",
   },
+  weeklyCheckIn: "Weekly check-in",
+  weeklyCheckInHint:
+    "Off: each day follows the goal on its own, as it comes. On: once a week the app proposes the next 7 days from what you really spent, and you accept or skip; an accepted week stays fixed.",
+  undo: "Undo the check-in",
+  undone: "Check-in undone: the days follow the goal again",
   weekday: "Check-in day",
   weekdays: [
     "Sunday",

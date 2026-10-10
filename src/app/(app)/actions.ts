@@ -60,6 +60,7 @@ import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { setDayActivity, setEnergyCorrection } from "@/core/energy/repositories/energy";
 import { activityInput, correctionInput } from "@/core/energy/validation";
 import { decideCheckin } from "@/core/energy/repositories/checkin";
+import { undoWeekCheckin } from "@/core/energy/repositories/goals";
 
 export async function logMealAction(
   _prev: FormState,
@@ -365,6 +366,15 @@ export async function decideCheckinAction(
   const r = await decideCheckin(getDb(), owner, todayIn(settings.timezone), decision);
   if (!r.ok) return { ok: false, message: t.errors[Object.values(r.errors)[0]!] };
   revalidatePath("/", "layout"); // every screen reads the week's targets
+  return { ok: true };
+}
+
+/** ADR-0048: undo the accepted check-in covering today. */
+export async function undoCheckinAction(): Promise<{ ok: boolean; message?: string }> {
+  const { owner, settings, t } = await requireContext();
+  const r = await undoWeekCheckin(getDb(), owner, todayIn(settings.timezone));
+  if (!r.ok) return { ok: false, message: t.errors.not_found };
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 

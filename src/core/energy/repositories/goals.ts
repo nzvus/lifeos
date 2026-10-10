@@ -4,7 +4,7 @@
  * the row in force on a day is found by the pure helpers below, so a range
  * of days needs one query each.
  */
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import {
   goals,
@@ -33,6 +33,8 @@ export type WeightGoal = {
   split: DietSplit;
   /** 0 = Sunday … 6 = Saturday. */
   checkInWeekday: number;
+  /** ADR-0048: the weekly check-in is on (off by default). */
+  weeklyCheckIn: boolean;
 };
 
 export type WeightGoalInput = Omit<WeightGoal, "sinceDay">;
@@ -50,6 +52,7 @@ export function listGoals(db: Db, owner: Owner): Promise<WeightGoal[]> {
       protein: goals.protein,
       split: goals.split,
       checkInWeekday: goals.checkInWeekday,
+      weeklyCheckIn: goals.weeklyCheckIn,
     })
     .from(goals)
     .where(ownedBy(goals, owner))
@@ -192,4 +195,21 @@ export async function recordWeekCheckin(
       );
     return ok(null);
   });
+}
+
+/**
+ * ADR-0048: undoes the accepted check-in covering `today`; its days go back
+ * to the goal, computed live. Nothing to undo: not_found.
+ */
+export async function undoWeekCheckin(
+  db: Db,
+  owner: Owner,
+  today: string,
+): Promise<Result<null>> {
+  const c = checkinOn(await listWeekCheckins(db, owner), today);
+  if (!c) return fail({ _form: "not_found" });
+  await db
+    .delete(weekCheckins)
+    .where(and(ownedBy(weekCheckins, owner), eq(weekCheckins.startDay, c.startDay)));
+  return ok(null);
 }

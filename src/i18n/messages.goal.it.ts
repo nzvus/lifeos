@@ -94,6 +94,11 @@ export const weightGoalIt: Messages["energy"]["weightGoal"] = {
     low_fat: "Pochi grassi (grassi 20 %)",
     low_carb: "Pochi carboidrati (grassi 35 %)",
   },
+  weeklyCheckIn: "Check-in settimanale",
+  weeklyCheckInHint:
+    "Spento: ogni giorno segue l'obiettivo da solo, giorno per giorno. Acceso: una volta a settimana l'app propone i 7 giorni dopo da quanto hai speso davvero, e tu accetti o salti; una settimana accettata resta fissata.",
+  undo: "Annulla il check-in",
+  undone: "Check-in annullato: i giorni seguono di nuovo l'obiettivo",
   weekday: "Giorno del check-in",
   weekdays: [
     "Domenica",

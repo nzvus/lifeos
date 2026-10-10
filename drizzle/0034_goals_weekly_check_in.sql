@@ -1,0 +1,1 @@
+ALTER TABLE "goals" ADD COLUMN "weekly_check_in" boolean DEFAULT false NOT NULL;

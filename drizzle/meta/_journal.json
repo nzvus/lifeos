@@ -239,6 +239,13 @@
       "when": 1791629272028,
       "tag": "0033_week_checkin_days",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1791632831963,
+      "tag": "0034_goals_weekly_check_in",
+      "breakpoints": true
     }
   ]
 }

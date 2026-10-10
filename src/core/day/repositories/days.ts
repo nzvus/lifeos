@@ -66,7 +66,8 @@ export async function readDays(
       day,
       resolveDay(day, plans.get(day)!, energy.get(day)!, options, {
         goal: goalFrom(goals, day),
-        checkin: checkinOn(checkins, day),
+        // ADR-0048: a check-in counts only while the goal has it on.
+        checkin: goalFrom(goals, day)?.weeklyCheckIn ? checkinOn(checkins, day) : null,
       }),
     );
   return out;

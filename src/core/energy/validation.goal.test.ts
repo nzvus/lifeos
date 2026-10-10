@@ -17,7 +17,14 @@ describe("goalInput", () => {
   it("reads a comma; an empty target weight or day is none", () => {
     expect(parseInput(goalInput, form)).toEqual({
       ok: true,
-      value: { ...form, targetKg: null, targetDay: null, checkInWeekday: 1 },
+      // An unticked checkbox sends nothing: the check-in is off (ADR-0048).
+      value: {
+        ...form,
+        targetKg: null,
+        targetDay: null,
+        checkInWeekday: 1,
+        weeklyCheckIn: false,
+      },
     });
     const r = parseInput(goalInput, {
       ...form,
