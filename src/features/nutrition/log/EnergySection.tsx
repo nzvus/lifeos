@@ -64,6 +64,7 @@ export function EnergySection({
     x.low === x.high ? `${n(x.low)} kcal` : `${n(x.low)}–${n(x.high)} kcal`;
   const balance = (intake: string, out: Range) => {
     const kcal = Number(intake);
+    if (Number(withPlanned) === 0) return "—"; // nothing logged: no balance yet
     const sign = (v: number) => (v > 0 ? `+${n(v)}` : n(v));
     return fill(e.balanceText, {
       lo: sign(Math.round(kcal - out.high)),
@@ -209,12 +210,16 @@ function EnergyBars({
     { label: b.planned, v: planned, cls: "bg-muscle-chest opacity-40" },
   ].filter((p) => p.v > 0);
   const balance = Math.round(withPlanned - spent);
+  // A day with nothing eaten or planned has no balance yet, not a deficit
+  // of everything it costs (2026-10-10 audit).
   const verdict =
-    balance === 0
-      ? b.even
-      : fill(balance < 0 ? b.deficit : b.surplus, { kcal: n(Math.abs(balance)) });
+    withPlanned === 0
+      ? b.nothingYet
+      : balance === 0
+        ? b.even
+        : fill(balance < 0 ? b.deficit : b.surplus, { kcal: n(Math.abs(balance)) });
   const tone =
-    wanted === null
+    wanted === null || withPlanned === 0
       ? ""
       : Math.abs(balance - wanted) <= ON_TARGET_KCAL
         ? "text-herb"

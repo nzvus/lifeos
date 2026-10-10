@@ -133,6 +133,22 @@ export function zoneScore(value: number, b: Band): number {
 }
 
 /**
+ * How far "to go" counts while a nutrient is short: to the day's target
+ * when there is one, since that is the number shown next to it, else to
+ * where the good zone starts. Never less than the zone's start. Before
+ * the 2026-10-10 audit it counted to the zone, so it read "4 g to go,
+ * target 189" with 151 g eaten.
+ */
+export function toGoFrom(
+  target: number | string | null | undefined,
+  zoneLow: number,
+): number {
+  return target === null || target === undefined
+    ? zoneLow
+    : Math.max(Number(target), zoneLow);
+}
+
+/**
  * A nutrient's band on a day: its own (macros) or one from its target —
  * energy ±5 % good, −15 % floor, +10 % ceiling; a maximum (sugars, salt) good
  * up to it; a minimum good from it to +50 %. Null without either.

@@ -102,7 +102,8 @@ export const weightGoalIt: Messages["energy"]["weightGoal"] = {
   lineGoal: "Obiettivo {rate} % a settimana",
   lineCheckin: "Settimana fissata al check-in",
   checkinTitle: "Check-in settimanale",
-  checkinSpend: "Spendi ~{kcal} kcal al giorno",
+  checkinSpend:
+    "Spendi in media ~{kcal} kcal al giorno (ultimi 7 giorni, allenamenti compresi)",
   checkinWas: "(ultimo check-in {kcal})",
   checkinLearnt: "Imparato dal tuo diario e dalla bilancia.",
   checkinModel: "Stimato dal modello: non ancora imparato dai tuoi dati.",
