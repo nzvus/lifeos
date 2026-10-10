@@ -115,7 +115,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
 - **Energy:** `core/energy` `getEnergyRange` (ranges, done + planned, no double counts ADR-0021,
   steps at one cost each ADR-0032) × the accepted factor, learnt by a Kalman filter over log,
   closed days and scale (ADR-0041/0042/0026). Weigh-ins carry a reliability (ADR-0027; an
-  implausible one asks first, counts 0.02); sleep feeds quality and trends, not energy (ADR-0031).
+  implausible one asks first, counts 0.02, never sets a day's weight); sleep feeds quality and trends, not energy (ADR-0031).
 - **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment (groups in time order,
   snacks placed by their time; with a program, in its slots with targets and hints, `core/nutrition/slots.ts`), servings −/+; a day closed complete / partial (ADR-0042); totals =
   eaten, every panel also shows the day with the plan; tick and −/+ optimistic (`log/LiveDay`).
