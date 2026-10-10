@@ -102,6 +102,8 @@ const exportFile = z.object({
     z.literal(14),
     // 15: day closures (ADR-0042); ignored here.
     z.literal(15),
+    // 16: goals and week check-ins (ADR-0043); ignored here.
+    z.literal(16),
   ]),
   settings: z
     .object({
