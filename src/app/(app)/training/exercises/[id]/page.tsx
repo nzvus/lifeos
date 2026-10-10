@@ -58,7 +58,7 @@ export default async function ExercisePage({ params, searchParams }: Props) {
     .filter((s) => s.status === "done")
     .sort((a, b) => (a.day < b.day ? 1 : -1))
     .flatMap((s) => s.exercises.filter((e) => e.exerciseId === id).map((e) => e.sets));
-  const target = guideKey ? nextTarget(GUIDES[guideKey], doneSets[0]) : null;
+  const target = guideKey ? nextTarget(GUIDES[guideKey], doneSets[0], doneSets[1]) : null;
   const best = bestSet(doneSets.flat());
   const locale = settings.locale;
   const x = t.exercises;

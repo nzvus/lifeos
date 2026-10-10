@@ -184,6 +184,30 @@ export function SetRow({
             <Trash2 size={16} aria-hidden="true" />
           </button>
         </div>
+        {/* ADR-0049: after a working set, one tap for the reps left. */}
+        {v.done && !v.warmup && kind !== "cardio" && (
+          <div
+            role="group"
+            aria-label={t.rir}
+            title={t.rirHint}
+            className="flex items-center gap-1.5 text-meta"
+          >
+            <span className="mr-1 text-muted">{t.rir}</span>
+            {[0, 1, 2, 3, 4].map((n) => (
+              <button
+                key={n}
+                type="button"
+                aria-pressed={v.rir === n}
+                onClick={() => onPatch({ rir: v.rir === n ? null : n })}
+                className={`h-8 min-w-8 rounded-badge px-2 tabular-nums ${
+                  v.rir === n ? "bg-herb text-sheet" : "border border-hairline text-muted"
+                }`}
+              >
+                {n === 4 ? "4+" : n}
+              </button>
+            ))}
+          </div>
+        )}
         {(() => {
           // Warm-ups aren't compared; working sets by their own order.
           const b = v.warmup
