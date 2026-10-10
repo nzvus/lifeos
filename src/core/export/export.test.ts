@@ -14,6 +14,7 @@ import { addPurchase, createProduct } from "../pantry/repositories/products";
 import { createExercise } from "../training/repositories/exercises";
 import { addMeasurement, deleteMeasurement } from "../training/repositories/measurements";
 import { createSession } from "../training/repositories/sessions";
+import { recordWeekCheckin, setGoal } from "../energy/repositories/goals";
 import { setDayClosure } from "../nutrition/repositories/closures";
 import { EXPORT_FORMAT, EXPORT_VERSION, exportUserData } from "./export";
 
@@ -227,11 +228,34 @@ describe("exportUserData", () => {
     await setDayClosure(db, alice, "2026-10-09", "complete");
     await setDayClosure(db, bob, "2026-10-08", "complete");
     const data = await exportUserData(db, alice);
-    expect(data.version).toBe(15);
+    expect(data.version).toBeGreaterThanOrEqual(15);
     expect(data.dayClosures.map((x) => [x.day, x.state])).toEqual([
       ["2026-10-08", "partial"],
       ["2026-10-09", "complete"],
     ]);
     expect(JSON.stringify(data.dayClosures)).not.toContain("userId");
+  });
+
+  it("contains my goals and week check-ins (version 16), nobody else's", async () => {
+    const goal = {
+      ratePctWeek: "-0.50",
+      targetKg: null,
+      kcalFloor: "standard",
+      protein: "high",
+      split: "balanced",
+      checkInWeekday: 1,
+    } as const;
+    await setGoal(db, alice, "2026-10-10", goal);
+    await setGoal(db, bob, "2026-10-01", { ...goal, ratePctWeek: "0.25" });
+    await recordWeekCheckin(db, alice, { startDay: "2026-10-12", decision: "skipped" });
+    const data = await exportUserData(db, alice);
+    expect(data.version).toBe(16);
+    expect(data.goals.map((x) => [x.sinceDay, x.ratePctWeek])).toEqual([
+      ["2026-10-10", "-0.50"],
+    ]);
+    expect(data.weekCheckins.map((x) => [x.startDay, x.decision, x.kcal])).toEqual([
+      ["2026-10-12", "skipped", null],
+    ]);
+    expect(JSON.stringify([data.goals, data.weekCheckins])).not.toContain("userId");
   });
 });
