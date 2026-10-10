@@ -52,6 +52,7 @@ import type { ActivityInput, BodyInput } from "../validation";
 import {
   bodyIndices,
   implausibleWeighIns,
+  plausibleMeasurements,
   readWeighIn,
   weightTrend,
   type WeighInReading,
@@ -113,7 +114,7 @@ export async function getBody(db: Db, owner: Owner, day: string): Promise<Body> 
     sex: s?.sex === "male" || s?.sex === "female" ? s.sex : null,
     birthYear: s?.birthYear ?? null,
     heightCm: s?.heightCm ?? null,
-    weightKg: weightAt(measurements, day),
+    weightKg: weightAt(plausibleMeasurements(measurements), day),
     correction: await correctionOn(db, owner, day, s?.correction ?? null),
   };
 }
@@ -308,8 +309,9 @@ export async function getEnergyRange(
         : Promise.resolve([] as Sessions),
     ]);
   const out = new Map<string, DayEnergyView>();
+  const weighed = plausibleMeasurements(measurements); // not a typo's weight
   for (let day = from; day <= to; day = addDays(day, 1)) {
-    const kg = weightAt(measurements, day);
+    const kg = weightAt(weighed, day);
     const body: Body = {
       sex: s?.sex === "male" || s?.sex === "female" ? s.sex : null,
       birthYear: s?.birthYear ?? null,
@@ -377,8 +379,9 @@ export async function getCalibration(
     getHistory(db, owner, from, to),
     listClosures(db, owner, from, to), // ADR-0042
   ]);
+  const weighed = plausibleMeasurements(measurements);
   const days: CalibrationDay[] = history.map((h) => {
-    const kg = weightAt(measurements, h.day);
+    const kg = weightAt(weighed, h.day);
     const { facts } = factsOf(
       h.day,
       acts.find((a) => a.day === h.day),
