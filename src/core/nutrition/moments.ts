@@ -131,6 +131,8 @@ export type MomentGroup<E> = {
   moment: Moment | null;
   /** Snacks only: when in the day the group falls. */
   part: SnackPart | null;
+  /** Where the group sits in the day, minutes after midnight; null for "not set". */
+  minutes: number | null;
   entries: E[];
   /** kcal of the EATEN entries of the group (ADR-0009), exact. */
   eatenKcal: string;
@@ -193,12 +195,20 @@ export function groupByMoment<
       key: b.moment === "snack" ? `snack-${snacks++}` : b.moment,
       moment: b.moment,
       part: b.moment === "snack" ? snackPart(b.minutes, lastMeal) : null,
+      minutes: b.minutes,
       entries: b.items.map((p) => p.e),
       eatenKcal: "0",
     });
   }
   const none = placed.filter((p) => p.moment === null).map((p) => p.e);
   if (none.length)
-    groups.push({ key: "none", moment: null, part: null, entries: none, eatenKcal: "0" });
+    groups.push({
+      key: "none",
+      moment: null,
+      part: null,
+      minutes: null,
+      entries: none,
+      eatenKcal: "0",
+    });
   return groups.map((g) => ({ ...g, eatenKcal: sum(g.entries) }));
 }
