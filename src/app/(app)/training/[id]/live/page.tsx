@@ -1,7 +1,8 @@
 /**
  * app/(app)/training/[id]/live/page.tsx — URL /training/<id>/live: the gym
  * mode of a planned session (features/training/live/LiveSession). A done
- * session opens in the editor instead.
+ * session opens in the editor instead. A short night or a heavy check-in
+ * on the session's day shows a readiness hint above it (ADR-0049).
  */
 import { notFound, redirect } from "next/navigation";
 import { requireContext } from "@/app/_server/owner";
@@ -10,6 +11,11 @@ import { addDays, timeIn } from "@/core/shared/dates";
 import { idInput } from "@/core/nutrition/validation";
 import { fromStoredSet, type LiveSession as Live } from "@/core/training/live";
 import { getSession } from "@/core/training/repositories/sessions";
+import { listSleep } from "@/core/training/repositories/sleep";
+import { getCheckin } from "@/core/mind/repositories/checkins";
+import { readiness } from "@/core/training/readiness";
+import { formatNumber } from "@/core/shared/format";
+import { fill } from "@/i18n";
 import { LiveSession } from "@/features/training/live/LiveSession";
 import { PageHeader } from "@/ui/PageHeader";
 import {
@@ -31,12 +37,17 @@ export default async function LivePage({ params }: Props) {
   if (session.status === "done") redirect(`/training/${id}`);
   // Every exercise (the session's and any that can be added), and last
   // time's working sets: the "default" each set is compared with.
-  const { info, baseline } = await liveData(
-    owner,
-    addDays(session.day, -1),
-    settings.locale,
-    t.training,
-  );
+  const [{ info, baseline }, nights, checkin] = await Promise.all([
+    liveData(owner, addDays(session.day, -1), settings.locale, t.training),
+    listSleep(getDb(), owner, session.day, session.day),
+    getCheckin(getDb(), owner, session.day),
+  ]);
+  const slept = nights[0]?.hours ?? null;
+  const tired = readiness({
+    sleptHours: slept,
+    energy: checkin?.energy ?? null,
+    stress: checkin?.stress ?? null,
+  });
   const initial: Live = {
     day: session.day,
     label: session.label,
@@ -56,6 +67,23 @@ export default async function LivePage({ params }: Props) {
         title={t.training.live.title}
         back={{ href: `/training/${id}`, label: t.training.live.editor }}
       />
+      {tired.length > 0 && (
+        <p className="tile rule-l-heavy border-l-warn px-3 py-2 text-meta">
+          {fill(t.training.live.readiness, {
+            reasons: tired
+              .map((r) =>
+                fill(t.training.live.readinessReasons[r], {
+                  h: formatNumber(
+                    String(Math.round((slept ?? 0) * 10) / 10),
+                    settings.locale,
+                    1,
+                  ),
+                }),
+              )
+              .join(", "),
+          })}
+        </p>
+      )}
       <LiveSession
         id={id}
         initial={initial}

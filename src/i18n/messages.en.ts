@@ -435,6 +435,8 @@ export const en = {
       volume: "Sets per muscle group",
       volumeHint: "Main group 1 set, the others ½. Band: 10–20 sets a week, a reference.",
       volumeEmpty: "No strength sets this week.",
+      volumeLow: "Under 10 sets: {groups}. Next week, 2–4 more each is the usual step.",
+      volumeHigh: "Over 20 sets: {groups}. Past about 20, extra sets add little.",
       routines: "Routines",
       runs: "{n} runs",
       lastRun: "last {day}",
@@ -448,6 +450,12 @@ export const en = {
     },
     live: {
       title: "In the gym",
+      readiness: "Today: {reasons}. Keep the load, one set fewer.",
+      readinessReasons: {
+        short_night: "a short night ({h} h)",
+        low_energy: "low energy",
+        high_stress: "high stress",
+      },
       start: "In the gym",
       open: "Open in gym mode",
       finish: "Finish",

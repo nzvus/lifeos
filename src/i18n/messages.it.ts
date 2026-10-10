@@ -433,6 +433,10 @@ export const it: Messages = {
       volumeHint:
         "Gruppo principale 1 serie, gli altri ½. Fascia: 10–20 serie a settimana, come riferimento.",
       volumeEmpty: "Nessuna serie di forza questa settimana.",
+      volumeLow:
+        "Sotto 10 serie: {groups}. La prossima settimana, 2–4 in più ciascuno è il passo di solito.",
+      volumeHigh:
+        "Oltre 20 serie: {groups}. Oltre circa 20, le serie in più aggiungono poco.",
       routines: "Schede",
       runs: "{n} volte",
       lastRun: "ultima {day}",
@@ -446,6 +450,12 @@ export const it: Messages = {
     },
     live: {
       title: "In palestra",
+      readiness: "Oggi: {reasons}. Stesso carico, una serie in meno.",
+      readinessReasons: {
+        short_night: "una notte corta ({h} h)",
+        low_energy: "poca energia",
+        high_stress: "stress alto",
+      },
       start: "In palestra",
       open: "Apri in modalità palestra",
       finish: "Termina",
