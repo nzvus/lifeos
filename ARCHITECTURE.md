@@ -109,7 +109,8 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   every screen and the assistant. A day's type (ADR-0008): its copy (`writePlan` only), else the
   default, else none; auto maxima; bands (ADR-0023; carbs take the rest). A dynamic day (ADR-0014):
   an accepted weekly check-in's frozen numbers (`week_checkins`, 7 days), else the goal live
-  (`goals`, a history: rate as % of weight a week), else its type's parameters (ADR-0043).
+  (`goals`, a history: kind, target, day; the pace planned within ranges, ADR-0045), else its
+  type's parameters (ADR-0043).
   A type may carry a program (ADR-0044): training time, a ± kcal shift, timed meal slots.
 - **Energy:** `core/energy` `getEnergyRange` (ranges, done + planned, no double counts ADR-0021,
   steps at one cost each ADR-0032) × the accepted factor, learnt by a Kalman filter over log,
