@@ -200,6 +200,12 @@ export const energyIt: Messages["energy"] = {
   goalSurplus: "surplus di {kcal} kcal",
   goalEat: "Mangia {kcal} kcal · consumi ~{spent} kcal",
   goalFixed: "Obiettivo {kcal} kcal (fisso)",
+  dayTypesWithGoal:
+    "Con un obiettivo, i tipi di giornata non decidono più i numeri: sono il programma del giorno (orari, allenamento, spostamento). Se ne hai più di uno, lo scegli sulla pagina del giorno.",
+  followsGoal: "Segue il tuo obiettivo: {goal}",
+  followsGoalHint:
+    "Energia e macro vengono dall'obiettivo e dal check-in settimanale. Qui: il programma del giorno (orari, allenamento, spostamento).",
+  openGoal: "Cambia l'obiettivo",
   goalCustom: "Obiettivo personalizzato",
   dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
   formulas: {

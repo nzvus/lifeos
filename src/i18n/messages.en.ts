@@ -191,6 +191,7 @@ export const en = {
     refreshGone: "The meal or ingredient this came from no longer exists.",
     nothingYesterday: "Nothing was logged the day before.",
     profileLabel: "Day type",
+    programLabel: "Day program",
     profileFixed: "Targets fixed for this day: {name}",
     profileDefault:
       "Default: {name}. Fixed when you log the first food; choose another now if today is different.",

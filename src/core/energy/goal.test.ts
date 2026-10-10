@@ -164,3 +164,38 @@ describe("goalToStore", () => {
     });
   });
 });
+
+describe("planGoal: recomposition with a target (ADR-0046)", () => {
+  const recomp = (targetKg: string | null, targetDay: string | null = null) => ({
+    kind: "recomp" as const,
+    targetKg,
+    targetDay,
+  });
+  it("without a target: maintenance", () => {
+    expect(planGoal(recomp(null), 76, "2026-10-10")).toMatchObject({
+      ratePctWeek: 0,
+      status: "steady",
+    });
+  });
+  it("a lower target: a slow loss, 0.35 % a week without a day", () => {
+    // 3 kg at 0.35 % of 76 (0.266 kg a week): 79 days.
+    expect(planGoal(recomp("73"), 76, "2026-10-10")).toMatchObject({
+      ratePctWeek: -0.35,
+      expectedDay: "2026-12-28",
+      range: { low: -0.25, high: -0.5 },
+    });
+  });
+  it("a day too close: at most 0.5 % a week, slower than a cut", () => {
+    expect(planGoal(recomp("73", "2026-11-07"), 76, "2026-10-10")).toMatchObject({
+      ratePctWeek: -0.5,
+      status: "fast",
+    });
+  });
+  it("a higher target: a slow gain; at the target: maintenance", () => {
+    expect(planGoal(recomp("77"), 76, "2026-10-10").ratePctWeek).toBe(0.1);
+    expect(planGoal(recomp("76.2"), 76, "2026-10-10").status).toBe("steady");
+  });
+  it("any direction is fine for recomposition", () => {
+    expect(goalToStore(recomp("80"), 76, "2026-10-10").ok).toBe(true);
+  });
+});

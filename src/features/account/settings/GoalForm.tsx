@@ -144,7 +144,7 @@ export function GoalForm({
               >
                 {fill(
                   plan.status === "fast"
-                    ? plan.kind === "gain"
+                    ? plan.ratePctWeek > 0
                       ? g.planFastGain
                       : g.planFastLose
                     : plan.status === "slow"

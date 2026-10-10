@@ -105,14 +105,19 @@ export function lastCheckinDay(today: string, weekday: number): string {
  *          lean mass than 1.4 %); max 1.0
  *   gain   0.1–0.25 % optimal, between intermediates (~0.25–0.5 % a
  *          month) and beginners (1–1.5 % a month; Iraki 2019); max 0.5
- *   recomp / maintain: 0 (recomposition = maintenance, protein high)
+ *   recomp without a target: 0 (maintenance, protein high). With one
+ *          (ADR-0046, the developer: "recomposition should let me set a
+ *          target, or how much fat to lose"): a slow loss, 0.25–0.5 %,
+ *          or a slow gain, 0.05–0.15 % — slow enough to keep building
+ *          muscle with high protein and training
+ *   maintain: 0
  */
-export const RATE_RANGES: Record<
-  "lose" | "gain",
-  { min: number; low: number; high: number; max: number; usual: number }
-> = {
+type Range = { min: number; low: number; high: number; max: number; usual: number };
+export const RATE_RANGES: Record<"lose" | "gain" | "recompLose" | "recompGain", Range> = {
   lose: { min: 0.25, low: 0.5, high: 1.0, max: 1.0, usual: 0.7 },
   gain: { min: 0.05, low: 0.1, high: 0.25, max: 0.5, usual: 0.15 },
+  recompLose: { min: 0.1, low: 0.25, high: 0.5, max: 0.5, usual: 0.35 },
+  recompGain: { min: 0.05, low: 0.05, high: 0.15, max: 0.15, usual: 0.1 },
 };
 
 /** The protein each kind suggests (the form prefills it). */
@@ -157,7 +162,15 @@ export function planGoal(
   weightKg: number,
   today: string,
 ): GoalPlan {
-  if (goal.kind === "recomp" || goal.kind === "maintain")
+  const wanted = goal.targetKg === null ? null : Number(goal.targetKg);
+  // Recomposition with a target moves slowly toward it (ADR-0046).
+  const recompWay =
+    goal.kind === "recomp" && wanted !== null && Math.abs(wanted - weightKg) > REACHED_KG
+      ? wanted < weightKg
+        ? "recompLose"
+        : "recompGain"
+      : null;
+  if (goal.kind === "maintain" || (goal.kind === "recomp" && !recompWay))
     return {
       ratePctWeek: 0,
       status: "steady",
@@ -165,8 +178,9 @@ export function planGoal(
       expectedDay: null,
       range: null,
     };
-  const r = RATE_RANGES[goal.kind];
-  const sign = goal.kind === "lose" ? -1 : 1;
+  const key = recompWay ?? (goal.kind as "lose" | "gain");
+  const r = RATE_RANGES[key];
+  const sign = key === "lose" || key === "recompLose" ? -1 : 1;
   const range = { low: sign * r.low, high: sign * r.high };
   const target = goal.targetKg === null ? null : Number(goal.targetKg);
   if (target === null)
@@ -294,4 +308,11 @@ export function describeGoal(
     expectedDay: plan.expectedDay,
     range: plan.range,
   };
+}
+
+/** A goal's kind; a goal from before ADR-0045 is read by its rate's sign. */
+export function goalKind(goal: { kind: GoalKind | null; ratePctWeek: string }): GoalKind {
+  if (goal.kind) return goal.kind;
+  const r = Number(goal.ratePctWeek);
+  return r < 0 ? "lose" : r > 0 ? "gain" : "maintain";
 }

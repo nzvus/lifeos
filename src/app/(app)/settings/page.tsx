@@ -32,7 +32,7 @@ import {
   KCAL_FLOORS,
   PROTEIN_PREFERENCES,
 } from "@/core/db/schema/goals";
-import { describeGoal, KIND_PROTEIN } from "@/core/energy/goal";
+import { describeGoal, goalKind, KIND_PROTEIN } from "@/core/energy/goal";
 import { clearAssistantKeyAction, saveAssistantKeyAction } from "../assistant/actions";
 import Link from "next/link";
 import { getDisplay } from "@/app/_server/display";
@@ -163,14 +163,7 @@ export default async function SettingsPage() {
         <GoalForm
           action={saveGoalAction}
           initial={{
-            // A goal from before ADR-0045 has no kind: read it from its rate's sign.
-            kind:
-              goal?.kind ??
-              (!goal || Number(goal.ratePctWeek) === 0
-                ? "maintain"
-                : Number(goal.ratePctWeek) < 0
-                  ? "lose"
-                  : "gain"),
+            kind: goal ? goalKind(goal) : "maintain",
             // The form reads a comma or a point; show the locale's.
             targetKg: decimalIn(goal?.targetKg ?? ""),
             targetDay: goal?.targetDay ?? "",
@@ -206,7 +199,9 @@ export default async function SettingsPage() {
           </Link>
         }
       >
-        <p className="text-meta text-muted">{t.profiles.intro}</p>
+        <p className="text-meta text-muted">
+          {goal ? t.energy.dayTypesWithGoal : t.profiles.intro}
+        </p>
         <ProfileList
           profiles={profiles}
           today={dynamicToday}

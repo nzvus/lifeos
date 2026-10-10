@@ -198,6 +198,12 @@ export const energyEn = {
   goalSurplus: "a {kcal} kcal surplus",
   goalEat: "Eat {kcal} kcal · you spend ~{spent} kcal",
   goalFixed: "Target {kcal} kcal (fixed)",
+  dayTypesWithGoal:
+    "With a goal, day types no longer set the numbers: they are the day's program (times, training, shift). Pick one on the day page when you have more than one.",
+  followsGoal: "Follows your goal: {goal}",
+  followsGoalHint:
+    "Energy and macros come from the goal and the weekly check-in. Here: the day's program (times, training, shift).",
+  openGoal: "Change the goal",
   goalCustom: "Custom goal",
   dynamicMissing: "Dynamic targets can't be computed: body data missing.",
   formulas: {

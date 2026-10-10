@@ -111,7 +111,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   an accepted weekly check-in's frozen numbers (`week_checkins`, 7 days; ± each day's program shift, `week_checkin_days`, carbs take it), else the goal live
   (`goals`, a history: kind, target, day; the pace planned within ranges, ADR-0045), else its
   type's parameters (ADR-0043).
-  A type may carry a program (ADR-0044): training time, a ± kcal shift, timed meal slots.
+  With a goal a type is only the day's program (ADR-0046): training time, ± kcal shift, timed slots.
 - **Energy:** `core/energy` `getEnergyRange` (ranges, done + planned, no double counts ADR-0021,
   steps at one cost each ADR-0032) × the accepted factor, learnt by a Kalman filter over log,
   closed days and scale (ADR-0041/0042/0026). Weigh-ins carry a reliability (ADR-0027; an
