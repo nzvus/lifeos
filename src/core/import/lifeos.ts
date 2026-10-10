@@ -110,6 +110,8 @@ const exportFile = z.object({
     z.literal(18),
     // 19: week check-ins' shifts (ADR-0044); ignored here.
     z.literal(19),
+    // 20: sets' reps left (ADR-0049); ignored here like `training`.
+    z.literal(20),
   ]),
   settings: z
     .object({

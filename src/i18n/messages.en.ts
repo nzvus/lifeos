@@ -504,6 +504,8 @@ export const en = {
       setDeleted: "Set deleted",
       undo: "Undo",
       setTime: "{t} in the set",
+      rir: "Reps left",
+      rirHint: "How many more you could have done (0 = none)",
       unilateral: "One side at a time",
       unilateralHint:
         "Each set is done one arm/leg at a time, with half the rest between the sides.",
@@ -559,6 +561,7 @@ export const en = {
     loadText: "Load as written",
     approx: "approximate load",
     warmup: "warm-up",
+    rir: "reps left",
     minutes: "Minutes",
     distance: "Km",
     speed: "km/h",

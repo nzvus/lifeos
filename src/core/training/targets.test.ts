@@ -117,3 +117,52 @@ describe("bestSet", () => {
     });
   });
 });
+
+describe("nextTarget: gated by reps left (ADR-0049)", () => {
+  const pull = GUIDES.vertical_pull; // 8–12, a compound
+  const fly = GUIDES.fly; // 10–15, an isolation
+  const at = (reps: number, rir: number | null) => set(reps, "50", { rir });
+
+  it("the top of the range at a sane effort adds load, as before", () => {
+    expect(nextTarget(pull, [at(12, 2), at(12, 1), at(12, 1)])).toMatchObject({
+      reason: "add_load",
+      loadKg: "52.5",
+    });
+  });
+
+  it("the top of the range at failure holds the load", () => {
+    expect(nextTarget(pull, [at(12, 1), at(12, 0), at(12, 0)])).toMatchObject({
+      reason: "hold_effort",
+      loadKg: "50",
+      reps: [12, 12],
+    });
+  });
+
+  it("at failure twice in a row: one step lighter", () => {
+    const hard = [at(9, 0), at(8, 0)];
+    expect(nextTarget(pull, hard, [at(10, 0), at(8, 0)])).toMatchObject({
+      reason: "reduce",
+      loadKg: "47.5",
+      reps: [8, 12],
+    });
+  });
+
+  it("an isolation exercise's last set may go to failure", () => {
+    expect(
+      nextTarget(fly, [
+        set(15, "10", { rir: 2 }),
+        set(15, "10", { rir: 1 }),
+        set(15, "10", { rir: 0 }),
+      ]),
+    ).toMatchObject({ reason: "add_load" });
+  });
+
+  it("without reps left, as before", () => {
+    expect(nextTarget(pull, [at(12, null), at(12, null)])).toMatchObject({
+      reason: "add_load",
+    });
+    expect(nextTarget(pull, [at(10, null), at(9, null)])).toMatchObject({
+      reason: "add_reps",
+    });
+  });
+});

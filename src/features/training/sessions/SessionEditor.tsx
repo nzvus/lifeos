@@ -52,6 +52,8 @@ export type EditorSet = {
   inclinePct: string;
   /** Gym mode's tick, kept as is; absent = as the session (done or planned). */
   done?: boolean;
+  /** ADR-0049: reps left, "0"–"4" ("4" = 4 or more); "" = not said. */
+  rir?: string;
   /** Gym mode's clock (ISO instants), kept as is. */
   startedAt?: string | null;
   endedAt?: string | null;
@@ -130,6 +132,7 @@ function serialize(list: EditorExercise[]) {
         speedKmh: s.speedKmh,
         inclinePct: s.inclinePct,
         warmup: s.warmup,
+        rir: s.rir ? Number(s.rir) : null,
         done: s.done,
         startedAt: s.startedAt ?? null,
         endedAt: s.endedAt ?? null,
@@ -180,6 +183,7 @@ function fromValues(v: FormValues): EditorSession {
         km: x.distanceM ? String(Number(x.distanceM) / 1000) : "",
         speedKmh: str(x.speedKmh),
         inclinePct: str(x.inclinePct),
+        rir: typeof x.rir === "number" ? String(x.rir) : str(x.rir),
         ...(typeof x.done === "boolean" ? { done: x.done } : {}),
         startedAt: typeof x.startedAt === "string" ? x.startedAt : null,
         endedAt: typeof x.endedAt === "string" ? x.endedAt : null,
@@ -483,6 +487,25 @@ function SessionFields({
                           />
                           {tr.warmup}
                         </label>
+                        {!s.warmup && (
+                          <label className="flex items-center gap-1 pb-2 text-meta">
+                            <span className="text-muted">{tr.rir}</span>
+                            <select
+                              value={s.rir ?? ""}
+                              onChange={(ev) =>
+                                updateSet(e.key, j, { rir: ev.target.value })
+                              }
+                              className="rounded-control rule-b-medium border-ink bg-sheet px-1 py-1 tabular-nums"
+                            >
+                              <option value="">—</option>
+                              {["0", "1", "2", "3", "4"].map((n) => (
+                                <option key={n} value={n}>
+                                  {n === "4" ? "4+" : n}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                        )}
                       </>
                     )}
                     <button

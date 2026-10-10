@@ -20,6 +20,8 @@ export type LiveSet = {
   restS: number | null;
   warmup: boolean;
   done: boolean;
+  /** ADR-0049: reps left in the tank (0–4, 4 = "4 or more"); null/absent = not said. */
+  rir?: number | null;
   /** ISO instants: the set's start ("Go") and end (✓); saved with the set. */
   startedAt: string | null;
   endedAt: string | null;
@@ -102,7 +104,8 @@ export function copyLastSet(e: LiveExercise): LiveSet {
 
 /** A set as planned again: not done, no times. */
 export function fresh(s: LiveSet): LiveSet {
-  const { halfAt: _half, resumedAt: _resumed, ...rest } = s;
+  // A copy starts with no effort said (ADR-0049): the reps left are this set's own.
+  const { halfAt: _half, resumedAt: _resumed, rir: _rir, ...rest } = s;
   return { ...rest, done: false, startedAt: null, endedAt: null };
 }
 
@@ -288,6 +291,7 @@ export function fromStoredSet(s: {
   restS: number | null;
   warmup: boolean;
   done?: boolean;
+  rir?: number | null;
   startedAt?: Date | string | null;
   endedAt?: Date | string | null;
 }): LiveSet {
@@ -303,6 +307,7 @@ export function fromStoredSet(s: {
     restS: s.restS,
     warmup: s.warmup,
     done: s.done ?? true,
+    rir: s.rir ?? null,
     startedAt: s.startedAt ? new Date(s.startedAt).toISOString() : null,
     endedAt: s.endedAt ? new Date(s.endedAt).toISOString() : null,
   };

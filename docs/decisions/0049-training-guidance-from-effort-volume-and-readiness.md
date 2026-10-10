@@ -1,6 +1,6 @@
 # ADR-0049: Training guidance from effort, volume per muscle and readiness
 
-**Status:** proposed (written by the agent on 2026-10-10; four questions wait for the developer)
+**Status:** accepted (the developer: "procedi" on the recommendations, 2026-10-10; details decided by the agent)
 **Date:** 2026-10-10
 **Would amend:** ADR-0028 (exercise guides and personal targets)
 
@@ -69,10 +69,21 @@ the actual rest is derived from set times. Rest by the evidence:
 isolation 60–90 s, compound 90–180 s.
 
 ## Decision
-*Pending.* Recommended: **A, A, A, A**.
+**A, A, A, A.** The details:
+- **`sets.rir`:** 0–4, null = not said. 4 means "4 or more"; the tap
+  offers 0, 1, 2, 3, 4+.
+- **Effort targets:** RIR 1–3. On an isolation exercise the last working
+  set may go to 0.
+- **"Too hard":** a working set at RIR 0 outside that allowance.
+  - If the heaviest load's sets were too hard: same load (`hold_effort`).
+  - If the session before was too hard as well: one load step down
+    (`reduce`).
+  - Reaching the top of the range only adds load when no set there was
+    too hard.
+  - Sets without RIR progress as before (reps only).
 
-## Consequences (if accepted as recommended)
-- Migration 0035: `sets.rir` (nullable, 0–5).
+## Consequences
+- Migration 0035: `sets.rir` (nullable, 0–4).
 - About 2 PRs:
   1. the RIR tap in gym mode and on the session page, and progression
      gated by RIR;

@@ -25,6 +25,10 @@ export const guidesEn = {
     add_reps: "{sets} × {lo}–{hi} × {kg} kg: aim for {lo} reps or more on every set",
     add_reps_bw: "{sets} × {lo}–{hi}: aim for {lo} reps or more on every set",
     hold: "{sets} × {lo}–{hi} × {kg} kg: same load, aim to reach {lo}",
+    hold_effort:
+      "{sets} × {lo}–{hi} × {kg} kg: same load — last time a set went to failure (0 left); stop 1–2 reps short",
+    reduce:
+      "{sets} × {lo}–{hi} × {kg} kg: one step lighter — two sessions in a row at failure",
     add_time_min: "{min} minutes (about +10 % on last time)",
     add_time_s: "{sets} × {s} s (about +10 %)",
     hold_time_min: "{min} minutes to start",

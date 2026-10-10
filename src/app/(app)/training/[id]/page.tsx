@@ -186,6 +186,7 @@ export default async function EditSessionPage({ params, searchParams }: Props) {
               loadText: s.loadText ?? "",
               loadApprox: s.loadApprox,
               warmup: s.warmup,
+              rir: s.rir === null ? "" : String(s.rir),
               minutes: s.durationS ? String(Math.round(s.durationS / 60)) : "",
               km: s.distanceM ? String(s.distanceM / 1000) : "",
               speedKmh: str(s.speedKmh),

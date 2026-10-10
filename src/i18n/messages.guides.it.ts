@@ -27,6 +27,10 @@ export const guidesIt: Messages["guides"] = {
     add_reps: "{sets} × {lo}–{hi} × {kg} kg: cerca {lo} ripetizioni o più in ogni serie",
     add_reps_bw: "{sets} × {lo}–{hi}: cerca {lo} ripetizioni o più in ogni serie",
     hold: "{sets} × {lo}–{hi} × {kg} kg: stesso carico, punta ad arrivare a {lo}",
+    hold_effort:
+      "{sets} × {lo}–{hi} × {kg} kg: stesso carico — l'ultima volta una serie è arrivata a cedimento (0 in riserva); fermati 1–2 ripetizioni prima",
+    reduce:
+      "{sets} × {lo}–{hi} × {kg} kg: un gradino più leggero — due sedute di fila a cedimento",
     add_time_min: "{min} minuti (circa +10 % dall'ultima volta)",
     add_time_s: "{sets} × {s} s (circa +10 %)",
     hold_time_min: "{min} minuti per iniziare",

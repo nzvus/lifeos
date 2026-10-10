@@ -502,6 +502,8 @@ export const it: Messages = {
       setDeleted: "Serie eliminata",
       undo: "Annulla",
       setTime: "{t} di serie",
+      rir: "Ripetizioni in riserva",
+      rirHint: "Quante altre ne avresti fatte (0 = nessuna)",
       unilateral: "Un lato alla volta",
       unilateralHint:
         "Ogni serie si fa un braccio/una gamba alla volta, con mezza pausa tra i lati.",
@@ -557,6 +559,7 @@ export const it: Messages = {
     loadText: "Carico come scritto",
     approx: "carico approssimato",
     warmup: "riscaldamento",
+    rir: "in riserva",
     minutes: "Minuti",
     distance: "Km",
     speed: "km/h",

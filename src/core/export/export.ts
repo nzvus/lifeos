@@ -94,7 +94,8 @@ export const EXPORT_FORMAT = "lifeos-export";
 // 17: `energyCorrections`, the accepted calibration factors (ADR-0026);
 // 18: each day type's `program` (training time, shift, slots; ADR-0044);
 // 19: each accepted week check-in's `shifts` by day (ADR-0044).
-export const EXPORT_VERSION = 19;
+// 20: each set's `rir`, the reps left (ADR-0049).
+export const EXPORT_VERSION = 20;
 
 /** Removes `userId` from every row: it's the same everywhere and meaningless outside. */
 function stripOwner<T extends { userId: string }>(rows: T[]): Omit<T, "userId">[] {
