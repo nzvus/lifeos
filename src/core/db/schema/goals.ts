@@ -27,6 +27,13 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 
+/**
+ * ADR-0045: what the goal is for. The rate follows from it, the target
+ * weight and the day (core/energy/goal.ts planGoal), within ranges per kind.
+ * Null = a goal from before ADR-0045: its stored rate applies as it is.
+ */
+export const GOAL_KINDS = ["lose", "gain", "recomp", "maintain"] as const;
+export type GoalKind = (typeof GOAL_KINDS)[number];
 export const KCAL_FLOORS = ["standard", "low"] as const;
 export type KcalFloor = (typeof KCAL_FLOORS)[number];
 export const PROTEIN_PREFERENCES = ["low", "moderate", "high", "extra"] as const;
@@ -52,8 +59,11 @@ export const goals = pgTable(
       scale: 2,
       mode: "string",
     }).notNull(),
+    kind: text("kind").$type<GoalKind>(),
     /** Optional; protein is per kg of it when set. */
     targetKg: numeric("target_kg", { precision: 5, scale: 2, mode: "string" }),
+    /** Optional: by when the target weight should be reached (ADR-0045). */
+    targetDay: date("target_day", { mode: "string" }),
     kcalFloor: text("kcal_floor").$type<KcalFloor>().notNull().default("standard"),
     protein: text("protein").$type<ProteinPreference>().notNull().default("moderate"),
     split: text("split").$type<DietSplit>().notNull().default("balanced"),
@@ -64,6 +74,7 @@ export const goals = pgTable(
   (t) => [
     primaryKey({ columns: [t.userId, t.sinceDay] }),
     check("goals_rate_ck", sql`${t.ratePctWeek} between -1.5 and 1.0`),
+    check("goals_kind_ck", sql`${t.kind} in (${inList(GOAL_KINDS)})`),
     check("goals_target_kg_ck", sql`${t.targetKg} between 30 and 300`),
     check("goals_kcal_floor_ck", sql`${t.kcalFloor} in (${inList(KCAL_FLOORS)})`),
     check("goals_protein_ck", sql`${t.protein} in (${inList(PROTEIN_PREFERENCES)})`),
