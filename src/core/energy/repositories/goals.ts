@@ -17,7 +17,7 @@ import { ownedBy, type Owner } from "../../identity/owner";
 import { addDays } from "../../shared/dates";
 import { fail, ok, type Result } from "../../shared/result";
 
-export type Goal = {
+export type WeightGoal = {
   sinceDay: string;
   /** % of body weight a week, signed (−0.5 = lose 0.5 % a week). */
   ratePctWeek: string;
@@ -29,10 +29,10 @@ export type Goal = {
   checkInWeekday: number;
 };
 
-export type GoalInput = Omit<Goal, "sinceDay">;
+export type WeightGoalInput = Omit<WeightGoal, "sinceDay">;
 
 /** Goals, newest first. */
-export function listGoals(db: Db, owner: Owner): Promise<Goal[]> {
+export function listGoals(db: Db, owner: Owner): Promise<WeightGoal[]> {
   return db
     .select({
       sinceDay: goals.sinceDay,
@@ -49,7 +49,7 @@ export function listGoals(db: Db, owner: Owner): Promise<Goal[]> {
 }
 
 /** The goal in force on `day` (the latest since_day ≤ day), over rows newest first. */
-export function goalFrom(rows: readonly Goal[], day: string): Goal | null {
+export function goalFrom(rows: readonly WeightGoal[], day: string): WeightGoal | null {
   return rows.find((g) => g.sinceDay <= day) ?? null;
 }
 
@@ -61,7 +61,7 @@ export async function setGoal(
   db: Db,
   owner: Owner,
   day: string,
-  input: GoalInput,
+  input: WeightGoalInput,
 ): Promise<void> {
   await db
     .insert(goals)
@@ -83,6 +83,8 @@ export type WeekCheckin =
       fiber: number;
     }
   | { startDay: string; decision: "skipped" };
+
+export type AcceptedCheckin = Extract<WeekCheckin, { decision: "accepted" }>;
 
 /** Check-ins, newest first. */
 export async function listWeekCheckins(db: Db, owner: Owner): Promise<WeekCheckin[]> {
@@ -118,7 +120,7 @@ export async function listWeekCheckins(db: Db, owner: Owner): Promise<WeekChecki
 export function checkinOn(
   rows: readonly WeekCheckin[],
   day: string,
-): Extract<WeekCheckin, { decision: "accepted" }> | null {
+): AcceptedCheckin | null {
   const c = rows.find((r) => r.startDay <= day);
   if (!c || c.decision !== "accepted") return null;
   return day <= addDays(c.startDay, 6) ? c : null;

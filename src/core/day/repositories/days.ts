@@ -2,13 +2,20 @@
  * core/day/repositories/days.ts — gathers what resolveDay needs for any
  * range of days (ADR-0040), with range queries: the days' types, the
  * active program's items on the days from today on (ADR-0024/0035; a
- * skipped day adds nothing), and what each day costs (getEnergyRange).
+ * skipped day adds nothing), what each day costs (getEnergyRange), and
+ * the goal and weekly check-in in force on each day (ADR-0043).
  * One day is the range [day, day]: the same code, the same numbers.
  *
  * Tested in: days.test.ts.
  */
 import type { Db } from "../../db/client";
 import { getEnergyRange, type SlotsByDay } from "../../energy/repositories/energy";
+import {
+  checkinOn,
+  goalFrom,
+  listGoals,
+  listWeekCheckins,
+} from "../../energy/repositories/goals";
 import type { Owner } from "../../identity/owner";
 import { getDayTargetsRange } from "../../nutrition/repositories/profiles";
 import { addDays } from "../../shared/dates";
@@ -46,14 +53,22 @@ export async function readDays(
   to: string,
   options: { today: string; autoTargets: boolean },
 ): Promise<Map<string, ResolvedDay>> {
-  const [plans, slots] = await Promise.all([
+  const [plans, slots, goals, checkins] = await Promise.all([
     getDayTargetsRange(db, owner, from, to),
     programSlots(db, owner, from, to, options.today),
+    listGoals(db, owner),
+    listWeekCheckins(db, owner),
   ]);
   const energy = await getEnergyRange(db, owner, from, to, slots);
   const out = new Map<string, ResolvedDay>();
   for (let day = from; day <= to; day = addDays(day, 1))
-    out.set(day, resolveDay(day, plans.get(day)!, energy.get(day)!, options));
+    out.set(
+      day,
+      resolveDay(day, plans.get(day)!, energy.get(day)!, options, {
+        goal: goalFrom(goals, day),
+        checkin: checkinOn(checkins, day),
+      }),
+    );
   return out;
 }
 

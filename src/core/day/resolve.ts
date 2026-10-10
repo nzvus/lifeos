@@ -6,9 +6,16 @@
  *
  * Every screen (Today, the week strip, the Plan, Settings, Trends) and the
  * assistant read a day through this, so the same day shows the same numbers.
+ *
+ * A dynamic day's numbers (ADR-0043), first that applies:
+ *   1. an accepted weekly check-in covers the day → its frozen numbers;
+ *   2. a goal is in force → computed from the day's cost and the goal;
+ *   3. else → the day type's own parameters (ADR-0014).
  * The data for any range of days comes from ./repositories/days.ts.
  */
 import { dynamicTargets, goalOf, type Energy, type Goal } from "../energy/energy";
+import { goalTargets, isCutting } from "../energy/goal";
+import type { AcceptedCheckin, WeightGoal } from "../energy/repositories/goals";
 import type { DayEnergyView } from "../energy/repositories/energy";
 import {
   macroBands,
@@ -37,6 +44,10 @@ export type ResolvedDay = {
   load: TrainingLoad;
   /** Computed numbers of a dynamic day; null for fixed days or without body data. */
   computed: ReturnType<typeof dynamicTargets> | null;
+  /** Where a dynamic day's numbers come from (ADR-0043); null otherwise. */
+  basis: "checkin" | "goal" | "type" | null;
+  /** The goal in force on the day (ADR-0043), dynamic or not. */
+  weightGoal: WeightGoal | null;
   /** The day's own targets (fixed copy, or computed). */
   own: Targets;
   /** `own` plus the automatic maxima, unless turned off. */
@@ -59,16 +70,43 @@ export function loadOf(energy: Energy | null): TrainingLoad {
   );
 }
 
+const mid = (r: { low: number; high: number }) => (r.low + r.high) / 2;
+
 export function resolveDay(
   day: string,
   plan: DayTargets,
   energy: DayEnergyView,
   options: { autoTargets: boolean },
+  context: { goal: WeightGoal | null; checkin: AcceptedCheckin | null } = {
+    goal: null,
+    checkin: null,
+  },
 ): ResolvedDay {
   const dynamic = plan.source !== "none" ? plan.dynamic : null;
   const kg = energy.body.weightKg;
-  const computed =
-    dynamic && energy.energy && kg ? dynamicTargets(energy.energy, kg, dynamic) : null;
+  const { goal, checkin } = context;
+  const e = energy.energy;
+  const [computed, basis]: [
+    ReturnType<typeof dynamicTargets> | null,
+    ResolvedDay["basis"],
+  ] = !dynamic
+    ? [null, null]
+    : checkin
+      ? [
+          {
+            kcal: checkin.kcal,
+            protein: checkin.protein,
+            fat: checkin.fat,
+            carbs: checkin.carbs,
+            fiber: checkin.fiber,
+          },
+          "checkin",
+        ]
+      : goal && e && kg
+        ? [goalTargets(mid(e.total.withPlan), goal, Number(kg), e.bmr), "goal"]
+        : e && kg
+          ? [dynamicTargets(e, kg, dynamic), "type"]
+          : [null, goal ? "goal" : "type"];
   const own: Targets =
     plan.source === "none"
       ? emptyTargets()
@@ -95,7 +133,7 @@ export function resolveDay(
           kg: Number(kg),
           kcal: targets.kcal === null ? null : Number(targets.kcal),
           load,
-          cutting: (dynamic?.deficitKcal ?? 0) > 0,
+          cutting: goal ? isCutting(goal) : (dynamic?.deficitKcal ?? 0) > 0,
           carbsTarget: targets.carbs === null ? null : Number(targets.carbs),
         });
   return {
@@ -106,6 +144,8 @@ export function resolveDay(
     energy,
     load,
     computed,
+    basis,
+    weightGoal: goal,
     own,
     targets,
     auto,
