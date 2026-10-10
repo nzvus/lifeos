@@ -44,6 +44,7 @@ import { mindEn } from "./messages.mind.en";
 import { planEn } from "./messages.plan.en";
 import { moneyEn } from "./messages.money.en";
 import { dayProgramEn, momentsEn } from "./messages.moments.en";
+import { weekEn } from "./messages.week.en";
 
 export const en = {
   app: appEn,
@@ -683,6 +684,7 @@ export const en = {
   },
   moments: momentsEn,
   dayProgram: dayProgramEn,
+  week: weekEn,
   macro: {
     protein: "P",
     carbs: "C",

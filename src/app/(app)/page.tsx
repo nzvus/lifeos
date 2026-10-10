@@ -61,6 +61,7 @@ import { TrainingSummary } from "@/features/training/sessions/TrainingSummary";
 import { listSleep } from "@/core/training/repositories/sleep";
 import { sleepScore } from "@/core/training/sleep";
 import { DayPanel } from "@/features/nutrition/log/DayPanel";
+import { WeekContextCard } from "@/features/nutrition/log/WeekContextCard";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { DayScore } from "@/features/nutrition/log/DayScore";
 import { ProgramDay } from "@/features/training/programs/ProgramDay";
@@ -120,6 +121,7 @@ import { getCheckinProposal } from "@/core/energy/repositories/checkin";
 import { CheckinCard } from "@/features/nutrition/log/CheckinCard";
 import { DaySupplements } from "./day-supplements";
 import { programItemsOf } from "./day-program";
+import { burnWords, weekOf } from "./day-week";
 import { reminderLines } from "./day-reminders";
 
 type Props = {
@@ -246,18 +248,9 @@ export default async function DayPage({ searchParams }: Props) {
   }));
   // The day's training burn as ranges: done, then with the planned sessions.
   const burn = dayBurn(sessions, measurements);
-  const range = (r: { low: number; high: number }) => ({
-    low: String(r.low),
-    high: String(r.high),
-  });
-  const burnText = [
-    burn.done && fill(t.training.burn, range(burn.done)),
-    burn.withPlanned &&
-      burn.withPlanned.high !== burn.done?.high &&
-      fill(t.training.burnWithPlanned, range(burn.withPlanned)),
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const { text: burnText, range: burnRange } = burnWords(burn, locale, t.training);
+  // ADR-0047: the day read in its week.
+  const weekRead = weekOf(week, days, day);
   // What the eaten food is made of (ADR-0012), for the score and fibre types.
   const dayQuality = eatenQuality(view.entries);
   /** The values the add-to-day preview scales (core/nutrition/preview.ts). */
@@ -266,9 +259,6 @@ export default async function DayPage({ searchParams }: Props) {
   const v = t.day.views;
   const late = query.late === "1" ? "&late=1" : "";
   const tabHref = (k: View) => `/?day=${day}${late}${k === "summary" ? "" : `&tab=${k}`}`;
-  const burnRange = burn.withPlanned
-    ? `~${formatNumber(String(burn.withPlanned.low), locale, 0)}–${formatNumber(String(burn.withPlanned.high), locale, 0)} kcal`
-    : null;
   const programName = programSlot
     ? programSlot.items.length
       ? programSlot.name
@@ -419,6 +409,7 @@ export default async function DayPage({ searchParams }: Props) {
                     day: t.day,
                   }}
                 />
+                {day <= today && <WeekContextCard w={weekRead} locale={locale} t={t} />}
                 <DaySupplements
                   owner={owner}
                   day={day}
