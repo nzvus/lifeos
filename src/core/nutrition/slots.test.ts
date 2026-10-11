@@ -2,7 +2,13 @@
 import { describe, expect, it } from "vitest";
 import { groupByMoment, type Moment } from "./moments";
 import { STARTERS } from "./programs";
-import { moveWithSession, suggestForSlot, withSlots } from "./slots";
+import {
+  groupAt,
+  moveWithSession,
+  suggestForSlot,
+  withoutTraining,
+  withSlots,
+} from "./slots";
 
 // Times are UTC; Rome is UTC+2 in October.
 const e = (moment: Moment, at: string, kcal: string, protein: string) => ({
@@ -148,5 +154,25 @@ describe("suggestForSlot", () => {
   });
   it("other slots suggest nothing", () => {
     expect(suggestForSlot("lunch", meals)).toEqual([]);
+  });
+});
+
+describe("groupAt and withoutTraining (2026-10-11)", () => {
+  it("a lunch eaten late sits at its own time, not the slot's", () => {
+    const groups = groupByMoment([e("lunch", "13:36", "700", "40")], "Europe/Rome"); // 15:36
+    const lunch = withSlots(groups, STARTERS.gymEvening.slots, {
+      kcal: 2400,
+      protein: 160,
+      kg: 76,
+    }).find((x) => x.type === "group")!;
+    expect(lunch.type === "group" && lunch.slot !== null).toBe(true);
+    expect(lunch.type === "group" && groupAt(lunch)).toBe(15 * 60 + 36);
+  });
+
+  it("without training, pre/post-workout slots are snacks", () => {
+    const kinds = withoutTraining(STARTERS.gymEvening.slots).map((s) => s.kind);
+    expect(kinds).not.toContain("pre_workout");
+    expect(kinds).not.toContain("post_workout");
+    expect(kinds).toContain("snack");
   });
 });

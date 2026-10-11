@@ -45,6 +45,7 @@ import {
   LiveStatusToggle,
   LiveTimes,
 } from "./LiveDay";
+import { LinesEditor } from "./LinesEditor";
 import { WhenEditor } from "./WhenEditor";
 type Props = {
   day: DayView;
@@ -69,6 +70,10 @@ type Props = {
   ) => (prev: ActionButtonState, formData: FormData) => Promise<ActionButtonState>;
   /** Edit the time and moment, bound per entry (2026-10-10). */
   timeAction: (id: string) => (prev: FormState, formData: FormData) => Promise<FormState>;
+  /** 2026-10-11: an entry's ingredients edited in place. */
+  linesAction: (
+    id: string,
+  ) => (prev: FormState, formData: FormData) => Promise<FormState>;
   /** The −/+ multiplier of an entry (a plain form). */
   servingsAction: (id: string) => (formData: FormData) => Promise<void>;
   /**
@@ -116,6 +121,7 @@ export function EntryList({
   statusAction,
   leftOutAction,
   timeAction,
+  linesAction,
   servingsAction,
   quality,
   slots = [],
@@ -245,15 +251,24 @@ export function EntryList({
                 t={t}
               />
               {quality?.(e)}
-              <FoodDetails
-                summary={
-                  e.lines.length > 1
-                    ? fill(t.macro.ingredientsCount, { n: String(e.lines.length) })
-                    : t.day.details
-                }
-                lines={detailLines(e.lines, e.servings, locale)}
-                labels={labels}
-              />
+              {e.estimated || e.batchId ? (
+                <FoodDetails
+                  summary={
+                    e.lines.length > 1
+                      ? fill(t.macro.ingredientsCount, { n: String(e.lines.length) })
+                      : t.day.details
+                  }
+                  lines={detailLines(e.lines, e.servings, locale)}
+                  labels={labels}
+                />
+              ) : (
+                <LinesEditor
+                  action={linesAction(e.id)}
+                  servings={e.servings}
+                  lines={e.lines}
+                  t={t}
+                />
+              )}
               <div className="flex items-center justify-between gap-2">
                 <span className="flex items-center gap-3">
                   <LiveCountToggle

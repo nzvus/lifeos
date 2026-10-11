@@ -133,6 +133,9 @@ export type MomentGroup<E> = {
   part: SnackPart | null;
   /** Where the group sits in the day, minutes after midnight; null for "not set". */
   minutes: number | null;
+  /** Some entry has its own time: `minutes` is a real (or planned) time,
+   *  not the moment's usual one (ADR-0050: the timeline shows it). */
+  timed: boolean;
   entries: E[];
   /** kcal of the EATEN entries of the group (ADR-0009), exact. */
   eatenKcal: string;
@@ -196,6 +199,7 @@ export function groupByMoment<
       moment: b.moment,
       part: b.moment === "snack" ? snackPart(b.minutes, lastMeal) : null,
       minutes: b.minutes,
+      timed: b.items.some((p) => p.minutes !== null),
       entries: b.items.map((p) => p.e),
       eatenKcal: "0",
     });
@@ -207,6 +211,7 @@ export function groupByMoment<
       moment: null,
       part: null,
       minutes: null,
+      timed: false,
       entries: none,
       eatenKcal: "0",
     });

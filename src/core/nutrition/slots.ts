@@ -49,6 +49,14 @@ function hintFor(kind: Moment, kg: number | null): SlotHint {
   return null;
 }
 
+/**
+ * Where a group sits (ADR-0050): its entries' own time — planned until
+ * eaten, then the real one — else its slot's, else the moment's usual.
+ */
+export function groupAt<E>(x: Extract<DayItem<E>, { type: "group" }>): number | null {
+  return x.group.timed ? x.group.minutes : (x.slot?.at ?? x.group.minutes);
+}
+
 export function withSlots<E extends Entry>(
   groups: readonly MomentGroup<E>[],
   slots: readonly ProgramSlot[],
@@ -108,7 +116,7 @@ export function withSlots<E extends Entry>(
   ];
   // Day order; "not set" (no time) last, as in groupByMoment.
   const when = (x: DayItem<E>) =>
-    x.type === "empty" ? x.slot.at : (x.slot?.at ?? x.group.minutes ?? Infinity);
+    x.type === "empty" ? x.slot.at : (groupAt(x) ?? Infinity);
   return items.sort((a, b) => when(a) - when(b));
 }
 
@@ -131,6 +139,16 @@ export function moveWithSession(
     s.kind === "pre_workout" || s.kind === "post_workout"
       ? { ...s, at: clamp(s.at + by) }
       : s,
+  );
+}
+
+/**
+ * A day without training — none done, none planned, or the program's day
+ * skipped — has no pre/post-workout: those slots are snacks (2026-10-11).
+ */
+export function withoutTraining(slots: readonly ProgramSlot[]): ProgramSlot[] {
+  return slots.map((s) =>
+    s.kind === "pre_workout" || s.kind === "post_workout" ? { ...s, kind: "snack" } : s,
   );
 }
 

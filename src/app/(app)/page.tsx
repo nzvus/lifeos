@@ -110,6 +110,7 @@ import {
   setEntryStatusAction,
   setEntryWhenAction,
 } from "./actions";
+import { editEntryAction } from "./log/actions";
 import { readDays } from "@/core/day/repositories/days";
 import { explainDay } from "@/core/day/explain";
 import { getCalibration } from "@/core/energy/repositories/energy";
@@ -241,6 +242,8 @@ export default async function DayPage({ searchParams }: Props) {
     bounds: settings.preferences.bounds,
     targets,
     weightKg: energyView.body.weightKg,
+    programTraining:
+      !!programSlot && !programSlot.skipped && programSlot.items.length > 0,
   });
   const weekWithTargets = week.map((d) => ({
     ...d,
@@ -406,6 +409,7 @@ export default async function DayPage({ searchParams }: Props) {
                   leftOutAction={setEntryLeftOutAction}
                   future={day > today}
                   timeAction={(id) => setEntryWhenAction.bind(null, id, day)}
+                  linesAction={(id) => editEntryAction.bind(null, id)}
                   servingsAction={(id) => setEntryServingsAction.bind(null, id)}
                   timeZone={settings.timezone}
                   bounds={settings.preferences.bounds}

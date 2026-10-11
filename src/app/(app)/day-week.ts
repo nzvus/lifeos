@@ -10,7 +10,7 @@ import { weekContext, type WeekContext } from "@/core/nutrition/week";
 import { minutesOf, type MomentBounds } from "@/core/nutrition/moments";
 import { defaultSlots, type TimelineSession } from "@/core/day/timeline";
 import type { DayProgram, ProgramSlot } from "@/core/nutrition/programs";
-import { moveWithSession } from "@/core/nutrition/slots";
+import { moveWithSession, withoutTraining } from "@/core/nutrition/slots";
 import { timeIn } from "@/core/shared/dates";
 import { formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
@@ -73,6 +73,7 @@ export function daySlots(
   sessions: readonly { startedAt: string | null }[],
   timeZone: string,
   bounds: MomentBounds,
+  training: boolean,
 ): ProgramSlot[] {
   // ADR-0050: without a program, the main meals at their usual times.
   if (!program || !program.slots.length) return defaultSlots(bounds);
@@ -80,7 +81,7 @@ export function daySlots(
     .filter((x) => x.startedAt)
     .map((x) => minutesOf(timeIn(new Date(x.startedAt!), timeZone)));
   return moveWithSession(
-    program.slots,
+    training ? program.slots : withoutTraining(program.slots),
     program.trainingAt,
     starts.length ? Math.min(...starts) : null,
   );
@@ -127,10 +128,18 @@ export function timelineOf(input: {
   bounds: MomentBounds;
   targets: { kcal: string | null; protein: string | null };
   weightKg: string | null;
+  /** The program has a session on this day, not skipped. */
+  programTraining: boolean;
 }) {
   const num = (x: string | null) => (x === null ? null : Number(x));
   return {
-    slots: daySlots(input.program, input.sessions, input.timeZone, input.bounds),
+    slots: daySlots(
+      input.program,
+      input.sessions,
+      input.timeZone,
+      input.bounds,
+      input.sessions.length > 0 || input.programTraining,
+    ),
     slotDay: {
       kcal: num(input.targets.kcal),
       protein: num(input.targets.protein),
