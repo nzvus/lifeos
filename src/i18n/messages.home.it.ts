@@ -3,7 +3,6 @@
  * messages.it.ts to keep each dictionary file under 800 lines
  * (scripts/check.py). Same shape rules: plain strings only.
  */
-import { calibrationIt, weightGoalIt } from "./messages.goal.it";
 import type { Messages } from "./index";
 
 export const pantryIt: Messages["pantry"] = {
@@ -101,145 +100,6 @@ export const trashIt: Messages["trash"] = {
   cancel: "Annulla",
   restored: "«{name}» ripristinato",
   purged: "«{name}» eliminato per sempre",
-};
-
-export const energyIt: Messages["energy"] = {
-  title: "Energia",
-  bars: {
-    spent: "Consumi",
-    eaten: "Mangiato",
-    everyday: "Giornata",
-    steps: "Passi",
-    done: "Allenamento",
-    planned: "Previsto",
-    plannedFood: "+{kcal} kcal previste",
-    result: "A fine giornata, col piano",
-    nothingYet: "ancora niente registrato",
-    deficit: "deficit di {kcal} kcal",
-    surplus: "surplus di {kcal} kcal",
-    even: "in pari",
-    goal: "obiettivo {v}",
-  },
-  subtitle: "Stime, sempre come intervalli: ogni parte è qui sotto.",
-  bmr: "Metabolismo basale",
-  baseline: "Attività di tutti i giorni (basale e digestione inclusi)",
-  baselineCorrected:
-    "Attività di tutti i giorni (basale e digestione inclusi, calibrata ×{factor})",
-  walking: "Passi rispetto al tipo di giornata",
-  trainingDone: "Allenamento fatto",
-  trainingPlanned: "Allenamento pianificato",
-  totalDone: "Consumo finora",
-  totalPlan: "Consumo con il piano",
-  intake: "Entrate",
-  eaten: "Mangiato",
-  withPlanned: "Con il pianificato",
-  balance: "Bilancio",
-  balanceText: "{lo} … {hi} kcal",
-  missing: "Per stimare il consumo servono: {list}.",
-  missingNames: {
-    sex: "sesso",
-    birthYear: "anno di nascita",
-    heightCm: "altezza",
-    weight: "peso (Allenamento → Peso corporeo)",
-  },
-  openSettings: "Apri le Impostazioni",
-  activity: "Movimento di oggi",
-  level: "Il resto della giornata (senza camminare né allenarti)",
-  levels: { sitting: "Quasi sempre seduto", mixed: "Misto", on_feet: "Spesso in piedi" },
-  levelHours: {
-    sitting: "~2 h in piedi, passi a parte",
-    mixed: "~5 h in piedi, passi a parte",
-    on_feet: "~8 h in piedi, passi a parte",
-  },
-  levelSteps: {
-    sitting: "~5.000 passi abituali",
-    mixed: "~7.500 passi abituali",
-    on_feet: "~10.000 passi abituali",
-  },
-  walkingMin: "Camminata (minuti), se non hai i passi",
-  steps: "Passi totali (telefono o orologio)",
-  activityHint:
-    "Il tipo di giornata è il resto della tua giornata, con i suoi passi abituali. I passi veri (telefono o orologio) lo correggono in più o in meno, ogni passo allo stesso modo; quelli delle corse registrate vengono tolti. Senza passi, contano i minuti di camminata.",
-  estimated: "stima: {v}",
-  saveActivity: "Salva",
-  activitySaved: "Movimento salvato",
-  activitySaving: "Salvataggio…",
-  body: "Corpo",
-  bodyHint: "Servono a stimare il consumo di ogni giorno. Il peso arriva dalle misure.",
-  sex: "Sesso",
-  sexes: { male: "Uomo", female: "Donna" },
-  sexNone: "— non indicato",
-  birthYear: "Anno di nascita",
-  heightCm: "Altezza (cm)",
-  saveBody: "Salva dati",
-  modeLabel: "Modalità",
-  mode: "Come si decidono gli obiettivi",
-  modes: { fixed: "Fissi: li scrivi tu", dynamic: "Dinamici: dal consumo del giorno" },
-  goal: "Obiettivo",
-  goals: {
-    maintain: "Mantenimento",
-    recomp: "Ricomposizione",
-    gain: "Aumento muscolare",
-    cut: "Dimagrimento",
-  },
-  deficit: "Deficit (kcal al giorno)",
-  deficitHint:
-    "Positivo = deficit (sotto il consumo); negativo = surplus; 0 = mantenimento.",
-  balanceMaintain: "Mantenimento: mangi quanto consumi.",
-  balanceDeficit: "Deficit di {kcal} kcal al giorno sotto il consumo.",
-  balanceSurplus: "Surplus di {kcal} kcal al giorno sopra il consumo.",
-  proteinPerKg: "Proteine (g per kg)",
-  fatPerKg: "Grassi (g per kg)",
-  dynamicHint:
-    "Calorie = consumo stimato del giorno con il piano − deficit; proteine e grassi seguono il peso; i carboidrati il resto. Zuccheri, saturi e sale restano limiti.",
-  editGoal: "Cambia deficit o surplus",
-  balanceWanted: "voluto",
-  balanceWithPlan: "col piano",
-  balanceSoFar: "finora",
-  balanceHead: "Bilancio = mangiato − consumo",
-  balanceInfo: "Come leggerlo",
-  balanceNote:
-    "Bilancio = mangiato − consumato, kcal: negativo è deficit, positivo surplus.",
-  goalMaintain: "mantenimento",
-  goalDeficit: "deficit di {kcal} kcal",
-  goalSurplus: "surplus di {kcal} kcal",
-  goalEat: "Mangia {kcal} kcal · consumi ~{spent} kcal",
-  goalFixed: "Obiettivo {kcal} kcal (fisso)",
-  dayTypesWithGoal:
-    "Con un obiettivo, i tipi di giornata non decidono più i numeri: sono il programma del giorno (orari, allenamento, spostamento). Se ne hai più di uno, lo scegli sulla pagina del giorno.",
-  followsGoal: "Segue il tuo obiettivo: {goal}",
-  followsGoalHint:
-    "Energia e macro vengono dall'obiettivo e dal check-in settimanale. Qui: il programma del giorno (orari, allenamento, spostamento).",
-  openGoal: "Cambia l'obiettivo",
-  goalCustom: "Obiettivo personalizzato",
-  dynamicMissing: "Obiettivi dinamici non calcolabili: mancano dati del corpo.",
-  formulas: {
-    fatRule: "il maggiore fra {perKg} e 25 % di {kcal} kcal ÷ 9",
-    title: "Come è calcolato",
-    years: "anni",
-    walkNone: "passi abituali di «{level}»: {usual} ÷ 100 = {min} min",
-    walkDeclared: "passi abituali di «{level}» ({usual}) ÷ 100 + camminata = {min} min",
-    walkSteps: "({steps} passi{session}) ÷ 100 = {min} min",
-    sessionSteps: " − {n} nelle corse",
-    noBurn: "senza durata né stima: non contato",
-    fromEstimate: "la tua stima {kcal} kcal ±15 %",
-    fromSets:
-      "forza {strength} min × 3,5–5 MET × {kg} kg + cardio {cardio} min a MET dalla velocità",
-    rest: "riposo già nel basale {kcal} kcal ({min} min × 1 MET)",
-    sumDone: "attività quotidiana + camminata + allenamenti fatti",
-    sumPlan: "consumo finora + allenamenti pianificati",
-    deficit: "Obiettivo calorie (deficit)",
-    surplus: "Obiettivo calorie (surplus)",
-    maintenance: "Obiettivo calorie (mantenimento)",
-    midpoint: "metà del consumo con il piano",
-    floor: "minimo 1200",
-    protein: "Proteine",
-    fat: "Grassi",
-    carbs: "Carboidrati (il resto)",
-    fiber: "Fibre",
-  },
-  calibration: calibrationIt,
-  weightGoal: weightGoalIt,
 };
 
 export const assistantIt: Messages["assistant"] = {
@@ -422,6 +282,14 @@ export const entryEditIt: Messages["entryEdit"] = {
   copyMeal: "Cambi solo questa voce del giorno: il pasto da cui viene resta com'è.",
   total: "Totale della voce",
   edit: "Modifica ingredienti",
+  ingredients: "Ingredienti",
+  eatenAmounts: "Quantità mangiate, il × {n} compreso",
+  amountOf: "Quantità di {name}",
+  removeLine: "Togli {name}",
+  add: "Aggiungi un ingrediente",
+  addConfirm: "Aggiungi",
+  amount: "Quantità",
+  lastLine: "Una voce tiene almeno un ingrediente.",
 };
 
 export const programsIt: Messages["programs"] = {

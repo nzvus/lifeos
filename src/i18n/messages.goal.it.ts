@@ -46,6 +46,7 @@ export const weightGoalIt: Messages["energy"]["weightGoal"] = {
     recomp: "Ricomposizione (meno grasso, più muscoli)",
     maintain: "Mantenere",
   },
+  yourGoal: "Il tuo obiettivo",
   kindsShort: {
     lose: "Dimagrimento",
     gain: "Aumento muscolare",
