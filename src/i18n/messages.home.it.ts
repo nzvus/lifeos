@@ -146,6 +146,11 @@ export const energyIt: Messages["energy"] = {
   activity: "Movimento di oggi",
   level: "Il resto della giornata (senza camminare né allenarti)",
   levels: { sitting: "Quasi sempre seduto", mixed: "Misto", on_feet: "Spesso in piedi" },
+  levelHours: {
+    sitting: "~2 h in piedi, passi a parte",
+    mixed: "~5 h in piedi, passi a parte",
+    on_feet: "~8 h in piedi, passi a parte",
+  },
   levelSteps: {
     sitting: "~5.000 passi abituali",
     mixed: "~7.500 passi abituali",
@@ -212,10 +217,9 @@ export const energyIt: Messages["energy"] = {
     fatRule: "il maggiore fra {perKg} e 25 % di {kcal} kcal ÷ 9",
     title: "Come è calcolato",
     years: "anni",
-    walkNone: "nessun passo e nessuna camminata: vale il tipo di giornata",
-    walkDeclared: "camminata {min} min, oltre ai passi abituali",
-    walkSteps:
-      "({steps} passi{session} − {usual} abituali di «{level}») ÷ 100 = {min} min",
+    walkNone: "passi abituali di «{level}»: {usual} ÷ 100 = {min} min",
+    walkDeclared: "passi abituali di «{level}» ({usual}) ÷ 100 + camminata = {min} min",
+    walkSteps: "({steps} passi{session}) ÷ 100 = {min} min",
     sessionSteps: " − {n} nelle corse",
     noBurn: "senza durata né stima: non contato",
     fromEstimate: "la tua stima {kcal} kcal ±15 %",

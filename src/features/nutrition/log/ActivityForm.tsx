@@ -42,7 +42,7 @@ export function ActivityForm({
         defaultValue={valueOf(state, "level", initial.level)}
         options={LEVELS.map((l) => ({
           value: l,
-          label: `${e.levels[l]} · ${e.levelSteps[l]}`,
+          label: `${e.levels[l]} · ${e.levelHours[l]}`,
         }))}
         error={err("level")}
       />

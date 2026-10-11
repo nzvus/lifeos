@@ -113,7 +113,7 @@ typecheck, lint, tests, build). Previews only for schema changes or `*-preview` 
   type's parameters (ADR-0043).
   With a goal a type is only the day's program (ADR-0046): training time, ± kcal shift, timed slots.
 - **Energy:** `core/energy` `getEnergyRange` (ranges, done + planned, no double counts ADR-0021,
-  steps at one cost each ADR-0032) × the accepted factor, learnt by a Kalman filter over log,
+  every step from zero, the level = time on your feet ADR-0051) × the accepted factor, learnt by a Kalman filter over log,
   closed days and scale (ADR-0041/0042/0026). Weigh-ins carry a reliability (ADR-0027; an
   implausible one asks first, counts 0.02, never sets a day's weight); sleep feeds quality and trends, not energy (ADR-0031).
 - **Log entries** (ADR-0009/0011/0022): planned or eaten, time/moment (groups in time order,

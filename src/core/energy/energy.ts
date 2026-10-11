@@ -4,13 +4,13 @@
  * precise burn numbers). Pure: the repository gathers the day's facts.
  *
  *   BMR        Mifflin-St Jeor from sex, age, height and the day's weight
- *   baseline   BMR × the declared everyday level (it includes the BMR),
- *              × the user's accepted calibration (ADR-0020, default 1)
- *   steps      ADR-0032: the day type includes its usual steps (5,000 /
- *              7,500 / 10,000); the real steps (minus a done run's) or a
- *              walk's minutes correct the day up or down from them, at
- *              one cost per step: 100 steps a minute, 3.0–3.8 MET, net of
- *              resting
+ *   baseline   BMR × the declared everyday level — time on your feet,
+ *              steps NOT included (ADR-0051) — × the user's accepted
+ *              calibration (ADR-0020, default 1)
+ *   steps      ADR-0051: every step counts, from zero, at one cost per
+ *              step: 100 steps a minute, 3.0–3.8 MET, net of resting. The
+ *              real steps (minus a done run's); without them the level's
+ *              usual steps (5,000 / 7,500 / 10,000) plus a declared walk
  *   training   each session's burn range, net of resting for its duration
  *
  * No separate digestion term (ADR-0021): activity factors are measured
@@ -27,14 +27,19 @@ export const LEVELS = ["sitting", "mixed", "on_feet"] as const;
 export type ActivityLevel = (typeof LEVELS)[number];
 export type Sex = "male" | "female";
 
-/** Everyday activity factors (BMR × factor), by declared level. */
+/**
+ * Everyday factors (BMR × factor) by declared level, WITHOUT walking
+ * (ADR-0051): sleep, sitting, digestion, and ~2 / ~5 / ~8 hours on your feet
+ * (standing and moving about, ~+0.5 kcal/min over sitting). Steps are
+ * counted apart, so a level never counts them twice.
+ */
 export const LEVEL_FACTOR: Record<ActivityLevel, [number, number]> = {
   sitting: [1.15, 1.25],
-  mixed: [1.3, 1.45],
-  on_feet: [1.5, 1.65],
+  mixed: [1.2, 1.32],
+  on_feet: [1.27, 1.42],
 };
 const WALK_MET: [number, number] = [3.0, 3.8];
-/** Steps a day at each level already includes (Tudor-Locke's bands). */
+/** Steps assumed at each level when none are logged (Tudor-Locke's bands). */
 export const LEVEL_STEPS: Record<ActivityLevel, number> = {
   sitting: 5000,
   mixed: 7500,
@@ -150,13 +155,10 @@ export const STEPS_PER_MIN = 100;
 export const ON_TARGET_KCAL = 150;
 
 /**
- * ADR-0032: the day type (sitting / mixed / on my feet) is the rest of the
- * day and always sets the everyday factor, its usual steps included; the
- * real steps — minus a run's — correct it up or down from those usual
- * steps, at one cost per step. Without steps, the walk's minutes stand for
- * their steps on top of the usual ones; with neither, the day type alone.
- * `minutes` is that difference in walking minutes (negative = fewer steps
- * than usual).
+ * ADR-0051: the day type (sitting / mixed / on my feet) sets the everyday
+ * factor, time on your feet only; walking is counted apart, every step from
+ * zero: the real steps minus a run's, or — without them — the level's usual
+ * steps plus a declared walk. `minutes` is the day's walking in minutes.
  */
 export function movementOf(
   facts: Pick<DayFacts, "level" | "walkingMin" | "steps" | "sessionSteps">,
@@ -177,7 +179,7 @@ export function movementOf(
       source: "steps",
       level: facts.level,
       factor,
-      minutes: (steps - usual) / STEPS_PER_MIN,
+      minutes: steps / STEPS_PER_MIN,
       sessionSteps,
       estimatedSteps: null,
     };
@@ -187,7 +189,7 @@ export function movementOf(
     source: walk > 0 ? "walk" : "level",
     level: facts.level,
     factor,
-    minutes: walk,
+    minutes: usual / STEPS_PER_MIN + walk,
     sessionSteps: 0,
     // What the day type and the walk imply, for the form's placeholder.
     estimatedSteps: usual + walk * STEPS_PER_MIN,

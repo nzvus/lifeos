@@ -40,7 +40,7 @@ export function EnergyFormulas({ energy, dynamic, locale, t }: Props) {
     },
     {
       label: t.baseline,
-      formula: `${n(energy.bmr)} × ${rng(i.factor[0], i.factor[1], 2)} (${t.levels[i.level]}, ${t.levelSteps[i.level]})${i.correction !== 1 ? ` × ${n(i.correction, 2)}` : ""}`,
+      formula: `${n(energy.bmr)} × ${rng(i.factor[0], i.factor[1], 2)} (${t.levels[i.level]}, ${t.levelHours[i.level]})${i.correction !== 1 ? ` × ${n(i.correction, 2)}` : ""}`,
       result: kcal(energy.baseline),
     },
     {
@@ -61,8 +61,12 @@ export function EnergyFormulas({ energy, dynamic, locale, t }: Props) {
               min: n(w.minutes),
             }) + met
           );
-        if (w.source === "walk") return fill(f.walkDeclared, { min: n(w.minutes) }) + met;
-        return f.walkNone;
+        const usual = {
+          usual: n(w.levelSteps),
+          level: t.levels[i.level],
+          min: n(w.minutes),
+        };
+        return fill(w.source === "walk" ? f.walkDeclared : f.walkNone, usual) + met;
       })(),
       result: kcal(energy.walking),
     },
