@@ -145,6 +145,16 @@ export function bmrOf(sex: Sex, weightKg: number, heightCm: number, age: number)
   );
 }
 
+/**
+ * What walking costs over resting (ADR-0051): minutes × (3.0–3.8 MET − 1)
+ * × kg. The movement form shows it as you type the steps.
+ */
+export function walkingKcal(minutes: number, kg: number): Range {
+  const a = (WALK_MET[0] - 1) * kg * (minutes / 60);
+  const b = (WALK_MET[1] - 1) * kg * (minutes / 60);
+  return r(Math.min(a, b), Math.max(a, b));
+}
+
 /** Steps a minute of walking (the conversion between steps and minutes). */
 export const STEPS_PER_MIN = 100;
 
@@ -207,10 +217,7 @@ export function dayEnergy(body: Body, facts: DayFacts): Energy | null {
   const c = body.correction ?? 1;
   const baseline = r(bmr * fLo * c, bmr * fHi * c);
   const minutes = move.minutes;
-  // The same cost per step both ways: fewer steps than usual lower the day.
-  const a = (WALK_MET[0] - 1) * kg * (minutes / 60);
-  const b = (WALK_MET[1] - 1) * kg * (minutes / 60);
-  const walking = r(Math.min(a, b), Math.max(a, b));
+  const walking = walkingKcal(minutes, kg);
 
   // Net of resting: one MET for the session's duration is already in the baseline.
   const restOf = (s: DayFacts["sessions"][number]) => kg * ((s.durationMin ?? 0) / 60);

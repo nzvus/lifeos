@@ -184,7 +184,10 @@ export function resolveDay(
     computed,
     basis,
     params,
-    weightGoal: goal,
+    // The goal with the pace planned for this day at this weight, so every
+    // place that shows the rate shows the one the numbers use (2026-10-11:
+    // the header said the stored −0.49 %, the explanation the planned 0.50 %).
+    weightGoal: goal && kg ? goalOnDay(goal, Number(kg), day) : goal,
     checkin,
     own,
     targets,

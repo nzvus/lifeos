@@ -159,6 +159,29 @@ export function weightTrend(
   return out;
 }
 
+/**
+ * The trend weight on `day` (2026-10-11): the smoothed weight after the
+ * last weigh-in on or before it (weightTrend, every weigh-in counted fully),
+ * as an exact 2-decimal string. The day's energy and the goal's pace read
+ * this, so one heavy or light morning doesn't move the day's numbers. Before
+ * the first weigh-in, the first one; null with none.
+ */
+export function trendWeightAt(
+  measurements: readonly { day: string; weightKg: string | null }[],
+  day: string,
+): string | null {
+  const known = measurements
+    .filter((m) => m.weightKg !== null)
+    .sort((a, b) => a.day.localeCompare(b.day));
+  if (!known.length) return null;
+  const upTo = known.filter((m) => m.day <= day);
+  if (!upTo.length) return Number(known[0]!.weightKg).toFixed(2);
+  const trend = weightTrend(
+    upTo.map((m) => ({ day: m.day, kg: Number(m.weightKg), reliability: 1 })),
+  );
+  return trend.at(-1)!.toFixed(2);
+}
+
 export type BmiCategory = "under" | "normal" | "over" | "obese";
 
 /** Body indices from what is known; each is null without its inputs. */

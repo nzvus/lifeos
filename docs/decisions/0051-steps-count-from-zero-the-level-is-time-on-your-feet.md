@@ -40,6 +40,11 @@ factor outside 0.9–1.1 for several weeks.
 - The accepted calibration factor was learnt on the old model: the next
   proposal is computed on the new one; accept it again.
 - C stays possible later (a standing-hours field would replace the level).
+- 2026-10-11 review: the day's weight in the energy engine (BMR, steps,
+  the goal's pace, calibration) is the trend weight (`trendWeightAt`, the
+  Weigh-ins page's smoothing), not the last weigh-in, so one heavy morning
+  doesn't move the day's deficit. The goal line shows the pace planned for
+  that day, the same the numbers use.
 
 ## What I learned
 <to be written by the developer>
