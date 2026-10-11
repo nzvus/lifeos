@@ -16,7 +16,7 @@
  * they answer at once and the server follows. The page wraps the list in
  * <LiveDay>.
  */
-import { Pencil, Plus, Tag } from "lucide-react";
+import { Pencil, Plus, Scale, Sunrise, Tag, Wallet } from "lucide-react";
 import { detailLines } from "@/core/nutrition/display";
 import { groupByMoment, MOMENTS, type MomentBounds } from "@/core/nutrition/moments";
 import type { ProgramSlot } from "@/core/nutrition/programs";
@@ -33,7 +33,7 @@ import { FoodDetails } from "@/ui/FoodDetails";
 import { OneOpen, OpenRow } from "@/ui/OneOpen";
 import { MOMENT_BG, MOMENT_TEXT } from "@/ui/MomentIcon";
 import { buttonClass } from "@/ui/button";
-import { timeline, type TimelineSession } from "@/core/day/timeline";
+import { timeline, type TimelineEvent, type TimelineSession } from "@/core/day/timeline";
 import { TrashMenu } from "@/ui/TrashMenu";
 import { timeIn } from "@/core/shared/dates";
 import type { FormState } from "@/core/shared/result";
@@ -84,6 +84,8 @@ type Props = {
   slotDay?: { kcal: number | null; protein: number | null; kg: number | null };
   /** ADR-0050: the day's training sessions, on the timeline. */
   sessions?: readonly TimelineSession[];
+  /** 2026-10-11: the rest of the day's log (waking, weigh-in, money). */
+  events?: readonly TimelineEvent[];
   /** Minutes after midnight on today (the "now" line); null on other days. */
   now?: number | null;
   /** A past day: every empty slot is past. */
@@ -102,6 +104,15 @@ type Props = {
     | "settings"
   >;
 };
+// 2026-10-11: each kind of event its own icon and colour.
+const EVENT_ICON = { wake: Sunrise, weigh: Scale, money: Wallet } as const;
+const EVENT_TEXT = {
+  wake: "text-warn",
+  weigh: "text-herb",
+  money: "text-price",
+} as const;
+const EVENT_BG = { wake: "bg-warn", weigh: "bg-herb", money: "bg-price" } as const;
+
 type GroupItem = Extract<DayItem<LogEntryView>, { type: "group" }>;
 
 export function EntryList({
@@ -121,11 +132,17 @@ export function EntryList({
   slots = [],
   slotDay = { kcal: null, protein: null, kg: null },
   sessions = [],
+  events = [],
   now = null,
   over = false,
   t,
 }: Props) {
-  if (day.entries.length === 0 && slots.length === 0 && sessions.length === 0)
+  if (
+    day.entries.length === 0 &&
+    slots.length === 0 &&
+    sessions.length === 0 &&
+    events.length === 0
+  )
     return <p className="text-muted">{t.day.empty}</p>;
   const labels = macroLabels(t);
   const items = withSlots(groupByMoment(day.entries, timeZone, bounds), slots, slotDay);
@@ -303,7 +320,7 @@ export function EntryList({
       </ol>
     </div>
   );
-  const rows = timeline(items, sessions, now, over);
+  const rows = timeline(items, sessions, now, over, events);
   const hhmm = (m: number | null) =>
     m === null
       ? "—"
@@ -321,7 +338,42 @@ export function EntryList({
                 ? row.item.key
                 : row.type === "session"
                   ? `session-${row.session.id}`
-                  : "now";
+                  : row.type === "event"
+                    ? `event-${row.event.id}`
+                    : "now";
+          if (row.type === "event") {
+            const Icon = EVENT_ICON[row.event.kind];
+            const body = (
+              <span
+                className={`flex items-center gap-2 font-semibold ${EVENT_TEXT[row.event.kind]}`}
+              >
+                <Icon size={16} aria-hidden="true" className="shrink-0" />
+                <span className="min-w-0 wrap-break-word">{row.event.text}</span>
+              </span>
+            );
+            return (
+              <li key={key} className="flex items-center gap-2 py-1 text-meta">
+                <span className="w-12 shrink-0 font-display font-bold tabular-nums text-muted">
+                  {hhmm(row.at)}
+                </span>
+                <span className="flex w-3.5 shrink-0 justify-center" aria-hidden="true">
+                  <span className={`h-2 w-2 rotate-45 ${EVENT_BG[row.event.kind]}`} />
+                </span>
+                {row.event.href ? (
+                  <a
+                    href={row.event.href}
+                    className="flex min-h-11 min-w-0 flex-1 items-center"
+                  >
+                    {body}
+                  </a>
+                ) : (
+                  <span className="flex min-h-11 min-w-0 flex-1 items-center">
+                    {body}
+                  </span>
+                )}
+              </li>
+            );
+          }
           if (row.type === "now")
             return (
               <li key={key} className="flex items-center gap-2 py-1 text-tomato">

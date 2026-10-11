@@ -9,6 +9,8 @@
  *   group    food of one moment, at its slot's time or its own
  *   empty    a slot with no food yet; `past` once its time has gone
  *   session  a training session, at its real start or its planned time
+ *   event    something else logged that day (2026-10-11): waking up, a
+ *            weigh-in, money spent or earned — each its own kind
  *   now      the "now" line (today only)
  *
  * Food with no time and no slot ("not set") goes last, as before.
@@ -28,6 +30,15 @@ export type TimelineSession = {
   at: number | null;
 };
 
+/** Not food, not training: the rest of the day's log, on the same line. */
+export type TimelineEvent = {
+  id: string;
+  kind: "wake" | "weigh" | "money";
+  at: number;
+  text: string;
+  href?: string;
+};
+
 export type TimelineRow<E> =
   | { type: "group"; at: number | null; item: Extract<DayItem<E>, { type: "group" }> }
   | {
@@ -37,6 +48,7 @@ export type TimelineRow<E> =
       item: Extract<DayItem<E>, { type: "empty" }>;
     }
   | { type: "session"; at: number; session: TimelineSession }
+  | { type: "event"; at: number; event: TimelineEvent }
   | { type: "now"; at: number };
 
 /**
@@ -65,6 +77,7 @@ export function timeline<E>(
   now: number | null,
   /** The day is over (a past day): every empty slot is past. */
   over: boolean,
+  events: readonly TimelineEvent[] = [],
 ): TimelineRow<E>[] {
   const rows: TimelineRow<E>[] = [];
   for (const item of items) {
@@ -81,6 +94,7 @@ export function timeline<E>(
   }
   for (const s of sessions)
     rows.push({ type: "session", at: s.at ?? SESSION_DEFAULT_AT, session: s });
+  for (const event of events) rows.push({ type: "event", at: event.at, event });
   if (now !== null) rows.push({ type: "now", at: now });
   // Time order; "now" after anything at the same minute; no time last.
   const rank = (r: TimelineRow<E>) => (r.type === "now" ? 1 : 0);

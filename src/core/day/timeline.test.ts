@@ -70,3 +70,16 @@ describe("defaultSlots", () => {
     ]);
   });
 });
+
+describe("events on the timeline (2026-10-11)", () => {
+  it("sit in time order among the rest", () => {
+    const rows = timeline([], [], null, false, [
+      { id: "m", kind: "money", at: 12 * 60, text: "lunch" },
+      { id: "wake", kind: "wake", at: 7 * 60, text: "woke" },
+    ]);
+    expect(rows.map((r) => (r.type === "event" ? r.event.id : r.type))).toEqual([
+      "wake",
+      "m",
+    ]);
+  });
+});
