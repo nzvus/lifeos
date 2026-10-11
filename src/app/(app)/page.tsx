@@ -61,6 +61,9 @@ import { TrainingSummary } from "@/features/training/sessions/TrainingSummary";
 import { listSleep } from "@/core/training/repositories/sleep";
 import { sleepScore } from "@/core/training/sleep";
 import { ScoreRow } from "@/features/nutrition/log/ScoreRow";
+import { AddableIngredients } from "@/features/nutrition/log/LiveLines";
+import { DayGo } from "@/features/nutrition/log/DayGo";
+import { CalendarSheet } from "@/features/nutrition/log/DayPicker";
 import { WeekContextCard } from "@/features/nutrition/log/WeekContextCard";
 import { WeekStrip } from "@/features/nutrition/log/WeekStrip";
 import { DayScore } from "@/features/nutrition/log/DayScore";
@@ -203,7 +206,9 @@ export default async function DayPage({ searchParams }: Props) {
     getPantry(db, owner),
     listReminders(db, owner),
     calibrationLoad, // ADR-0020
-    listSleep(db, owner, day, day), // ADR-0031: the night that ended today
+    // ADR-0031: the night that ended this day, and the one that began on it
+    // (its bedtime goes on this day's timeline, 2026-10-11).
+    listSleep(db, owner, day, addDays(day, 1)),
     listSessions(db, owner, addDays(today, -60), today), // "like a past session" (ADR-0035)
     getCheckin(db, owner, day), // ADR-0038: how the day felt
     listClosures(db, owner, day, day), // ADR-0042: closed?
@@ -212,7 +217,8 @@ export default async function DayPage({ searchParams }: Props) {
     listMovements(db, owner, day, day), // 2026-10-11: money on the timeline
   ]);
   const plannedCount = view.entries.filter((e) => e.status === "planned").length;
-  const night = nights[0] ?? null;
+  const night = nights.find((n) => n.day === day) ?? null;
+  const nextNight = nights.find((n) => n.day === addDays(day, 1)) ?? null;
   const nightScore = night
     ? { hours: night.hours, score: sleepScore(night.hours) }
     : null;
@@ -259,6 +265,7 @@ export default async function DayPage({ searchParams }: Props) {
   const burn = dayBurn(sessions, measurements);
   const { text: burnText, range: burnRange } = burnWords(burn, locale, t.training);
   // ADR-0047: the day read in its week.
+
   const weekRead = weekOf(week, days, day);
   // What the eaten food is made of (ADR-0012), for the score and fibre types.
   const dayQuality = eatenQuality(view.entries);
@@ -271,7 +278,16 @@ export default async function DayPage({ searchParams }: Props) {
   });
   /** The values the add-to-day preview scales (core/nutrition/preview.ts). */
   const pick = macroValues;
-
+  // What can be added to the day, and to an entry (values per 100 g/ml).
+  const addable = ingredients.map((i) => ({
+    id: i.id,
+    name: i.name,
+    notes: i.description,
+    unit: i.unit,
+    values: pick(i),
+    uses: usage.ingredients[i.id]?.uses ?? 0,
+    lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
+  }));
   // The compact header's date (ADR-0050), in the user's language.
   const shortDate = new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-GB", {
     weekday: "short",
@@ -305,62 +321,71 @@ export default async function DayPage({ searchParams }: Props) {
         }))}
       >
         <div className="flex min-w-0 flex-col gap-4">
-          <Card id="day-header">
-            <DayNav day={day} today={today} locale={locale} t={t.day} />
-            <WeekStrip
-              week={weekWithTargets}
-              day={day}
-              today={today}
-              locale={locale}
-              t={t.day}
-            />
-            <DayProfilePicker
-              day={day}
-              followsGoal={resolved.weightGoal !== null}
-              current={dayTargets}
-              profiles={profiles.map((p) => ({ id: p.id, name: p.name }))}
-              action={setDayProfileAction}
-              t={{ day: t.day, errors: t.errors }}
-            />
-            {/* ADR-0014: the goal in plain words, or why dynamic targets can't be. */}
-            <DayGoal
-              day={day}
-              today={today}
-              dayTargets={dayTargets}
-              dynamic={dynamic}
-              params={resolved.params}
-              basis={resolved.basis}
-              weightGoal={resolved.weightGoal}
-              explained={explainDay(resolved)}
-              total={energyView.energy?.total ?? null}
-              eatenKcal={view.totals.nutrients.kcal}
-              withPlannedKcal={view.withPlanned.nutrients.kcal}
-              targetKcal={targets.kcal}
-              locale={locale}
-              t={t}
-            />
-            {weekCheckin?.due && (
-              <CheckinCard
-                c={weekCheckin}
+          <DayGo day={day}>
+            <Card id="day-header">
+              <DayNav day={day} today={today} locale={locale} t={t.day} />
+              <WeekStrip
+                week={weekWithTargets}
+                day={day}
                 today={today}
-                decide={decideCheckinAction}
                 locale={locale}
-                t={t.energy.weightGoal}
+                t={t.day}
               />
-            )}
-            {/* ADR-0050: the day's quality and the week's point to watch. */}
-            <ScoreRow score={score} week={day <= today ? weekRead : null} t={t} />
-            {/* The night and the movement at a glance; tap to add or change (sheets). */}
-            <DayChips
-              // ADR-0042: today and past days can be closed.
-              closure={day <= today ? closure : undefined}
-              mood={checkin?.mood ?? null}
-              sleptHours={night?.hours ?? null}
-              activity={energyView.activity}
+              <DayProfilePicker
+                day={day}
+                followsGoal={resolved.weightGoal !== null}
+                current={dayTargets}
+                profiles={profiles.map((p) => ({ id: p.id, name: p.name }))}
+                action={setDayProfileAction}
+                t={{ day: t.day, errors: t.errors }}
+              />
+              {/* ADR-0014: the goal in plain words, or why dynamic targets can't be. */}
+              <DayGoal
+                day={day}
+                today={today}
+                dayTargets={dayTargets}
+                dynamic={dynamic}
+                params={resolved.params}
+                basis={resolved.basis}
+                weightGoal={resolved.weightGoal}
+                explained={explainDay(resolved)}
+                total={energyView.energy?.total ?? null}
+                eatenKcal={view.totals.nutrients.kcal}
+                withPlannedKcal={view.withPlanned.nutrients.kcal}
+                targetKcal={targets.kcal}
+                locale={locale}
+                t={t}
+              />
+              {weekCheckin?.due && (
+                <CheckinCard
+                  c={weekCheckin}
+                  today={today}
+                  decide={decideCheckinAction}
+                  locale={locale}
+                  t={t.energy.weightGoal}
+                />
+              )}
+              {/* ADR-0050: the day's quality and the week's point to watch. */}
+              <ScoreRow score={score} week={day <= today ? weekRead : null} t={t} />
+              {/* The night and the movement at a glance; tap to add or change (sheets). */}
+              <DayChips
+                // ADR-0042: today and past days can be closed.
+                closure={day <= today ? closure : undefined}
+                mood={checkin?.mood ?? null}
+                sleptHours={night?.hours ?? null}
+                activity={energyView.activity}
+                locale={locale}
+                t={t}
+              />
+            </Card>
+            <CalendarSheet
+              key={day}
+              day={day}
+              today={today}
               locale={locale}
-              t={t}
+              t={{ ...t.day, close: t.actions.close }}
             />
-          </Card>
+          </DayGo>
           {/* ADR-0050: one page — the day's totals, its timeline, then the
               detail panels, closed until asked. Wide screens: the timeline
               left, the panels right. */}
@@ -400,48 +425,54 @@ export default async function DayPage({ searchParams }: Props) {
                 title={t.dayProgram.timeline.title}
                 icon={<UtensilsCrossed size={20} aria-hidden="true" />}
               >
-                <EntryList
-                  day={view}
-                  locale={locale}
-                  trash={deleteLogEntryAction}
-                  restore={restoreLogEntryAction}
-                  refresh={refreshLogEntryAction}
-                  statusAction={(id, status) =>
-                    setEntryStatusAction.bind(null, id, status)
-                  }
-                  leftOutAction={setEntryLeftOutAction}
-                  future={day > today}
-                  timeAction={(id) => setEntryWhenAction.bind(null, id, day)}
-                  linesAction={(id) => editEntryAction.bind(null, id)}
-                  servingsAction={(id) => setEntryServingsAction.bind(null, id)}
-                  timeZone={settings.timezone}
-                  bounds={settings.preferences.bounds}
-                  {...line}
-                  events={timelineEvents({
-                    day,
-                    timeZone: settings.timezone,
-                    locale,
-                    night,
-                    weighIns: measurements,
-                    movements,
-                    t: t.dayProgram.timeline,
-                  })}
-                  // The same quality block as the meal cards, from the entry's
-                  // snapshot lines (ADR-0007) and the current tags and ratings.
-                  quality={(e) => (
-                    <MealQuality
-                      summary={qualitySummary(e.lines, e.servings)}
-                      rating={e.mealId ? (mealRatings[e.mealId] ?? null) : null}
-                      tags={mealTags(
-                        e.lines.flatMap((l) => (l.ingredientId ? [l.ingredientId] : [])),
-                        tagMap,
-                      ).map(({ name, icon }) => ({ name, icon }))}
-                      locale={locale}
-                      t={t}
-                    />
-                  )}
-                  t={t}
-                />
+                <AddableIngredients ingredients={addable}>
+                  <EntryList
+                    day={view}
+                    locale={locale}
+                    trash={deleteLogEntryAction}
+                    restore={restoreLogEntryAction}
+                    refresh={refreshLogEntryAction}
+                    statusAction={(id, status) =>
+                      setEntryStatusAction.bind(null, id, status)
+                    }
+                    leftOutAction={setEntryLeftOutAction}
+                    future={day > today}
+                    timeAction={(id) => setEntryWhenAction.bind(null, id, day)}
+                    linesAction={(id) => editEntryAction.bind(null, id)}
+                    servingsAction={(id) => setEntryServingsAction.bind(null, id)}
+                    timeZone={settings.timezone}
+                    bounds={settings.preferences.bounds}
+                    {...line}
+                    closure={{ state: closure, canClose: day <= today }}
+                    events={timelineEvents({
+                      day,
+                      timeZone: settings.timezone,
+                      locale,
+                      night,
+                      nextBed: nextNight?.bedAt ?? null,
+                      weighIns: measurements,
+                      movements,
+                      t: t.dayProgram.timeline,
+                    })}
+                    // The same quality block as the meal cards, from the entry's
+                    // snapshot lines (ADR-0007) and the current tags and ratings.
+                    quality={(e) => (
+                      <MealQuality
+                        summary={qualitySummary(e.lines, e.servings)}
+                        rating={e.mealId ? (mealRatings[e.mealId] ?? null) : null}
+                        tags={mealTags(
+                          e.lines.flatMap((l) =>
+                            l.ingredientId ? [l.ingredientId] : [],
+                          ),
+                          tagMap,
+                        ).map(({ name, icon }) => ({ name, icon }))}
+                        locale={locale}
+                        t={t}
+                      />
+                    )}
+                    t={t}
+                  />
+                </AddableIngredients>
                 {/* A menu planned whole: drop what was not chosen in one go. */}
                 {plannedCount >= 2 && (
                   <ClearPlanned
@@ -586,15 +617,7 @@ export default async function DayPage({ searchParams }: Props) {
                 uses: usage.meals[m.id]?.uses ?? 0,
                 lastUsed: usage.meals[m.id]?.lastUsed ?? null,
               }))}
-              ingredients={ingredients.map((i) => ({
-                id: i.id,
-                name: i.name,
-                notes: i.description,
-                unit: i.unit,
-                values: pick(i), // per 100 g/ml
-                uses: usage.ingredients[i.id]?.uses ?? 0,
-                lastUsed: usage.ingredients[i.id]?.lastUsed ?? null,
-              }))}
+              ingredients={addable}
               logMealAction={logMealAction}
               logIngredientAction={logIngredientAction}
               logEstimateAction={logEstimateAction}
@@ -661,6 +684,7 @@ export default async function DayPage({ searchParams }: Props) {
             action={setDayActivityAction.bind(null, day)}
             activity={energyView.activity}
             energy={energyView.energy}
+            locale={locale}
             t={{ energy: t.energy, errors: t.errors, actions: t.actions }}
           />
           <SleepCard

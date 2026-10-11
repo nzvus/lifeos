@@ -146,5 +146,7 @@ describe("groupByMoment", () => {
     expect(snackPart(at("22:00"))).toBe("evening");
     expect(snackPart(at("12:19"), "breakfast")).toBe("morning"); // before lunch
     expect(snackPart(at("17:00"), "dinner")).toBe("evening");
+    // 2026-10-11: before a late lunch, the clock wins over breakfast.
+    expect(snackPart(at("15:17"), "breakfast")).toBe("afternoon");
   });
 });

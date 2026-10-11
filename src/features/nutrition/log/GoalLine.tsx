@@ -12,7 +12,7 @@
  */
 "use client";
 
-import { Pencil } from "lucide-react";
+import { Pencil, Target } from "lucide-react";
 import { useActionState, useState } from "react";
 import { ON_TARGET_KCAL } from "@/core/energy/energy";
 import { fieldError, IDLE, type FormState } from "@/core/shared/result";
@@ -29,6 +29,11 @@ type Props = {
   /** Null when the day's copy lost its type (deleted): no editing then. */
   profileId: string | null;
   title: string;
+  /**
+   * A weight goal (2026-10-11): the day type's disc and label, and the
+   * pencil goes to the goal in Settings (it is changed there, not per day).
+   */
+  goal?: { label: string; href: string; detail: string | null };
   deficitKcal: number;
   eatKcal: number;
   spentKcal: number;
@@ -53,21 +58,55 @@ export function GoalLine(p: Props) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between gap-2">
-        <span className="font-display text-item font-semibold">
-          {[
-            p.title,
-            d === 0
-              ? e.goalMaintain
-              : fill(d > 0 ? e.goalDeficit : e.goalSurplus, {
-                  kcal: String(Math.abs(d)),
-                }),
-          ].join(" · ")}
-        </span>
-        <span className="flex items-center">
+        {p.goal ? (
+          <span className="flex min-w-0 items-center gap-3">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-herb text-sheet">
+              <Target size={20} aria-hidden="true" />
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="text-meta text-muted">{p.goal.label}</span>
+              <span className="font-display text-item font-semibold">{p.title}</span>
+              <span className="text-meta tabular-nums">
+                {[
+                  p.goal.detail,
+                  d === 0
+                    ? e.goalMaintain
+                    : fill(d > 0 ? e.goalDeficit : e.goalSurplus, {
+                        kcal: String(Math.abs(d)),
+                      }),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
+            </span>
+          </span>
+        ) : (
+          <span className="font-display text-item font-semibold">
+            {[
+              p.title,
+              d === 0
+                ? e.goalMaintain
+                : fill(d > 0 ? e.goalDeficit : e.goalSurplus, {
+                    kcal: String(Math.abs(d)),
+                  }),
+            ].join(" · ")}
+          </span>
+        )}
+        <span className="flex shrink-0 items-center">
           {/* How the balance reads, and any cap: on request (ADR-0038). */}
           <InfoTip label={e.balanceInfo}>
             <p>{e.balanceNote}</p>
           </InfoTip>
+          {p.goal && (
+            <a
+              href={p.goal.href}
+              aria-label={e.editGoal}
+              title={e.editGoal}
+              className={buttonClass({ variant: "quiet", size: "sm", iconOnly: true })}
+            >
+              <Pencil size={16} aria-hidden="true" />
+            </a>
+          )}
           {p.profileId && !editing && (
             <button
               type="button"

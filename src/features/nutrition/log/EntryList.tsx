@@ -16,7 +16,18 @@
  * they answer at once and the server follows. The page wraps the list in
  * <LiveDay>.
  */
-import { Pencil, Plus, Scale, Sunrise, Tag, Wallet } from "lucide-react";
+import {
+  CircleAlert,
+  CircleCheckBig,
+  ClipboardCheck,
+  Moon,
+  Pencil,
+  Plus,
+  Scale,
+  Sunrise,
+  Tag,
+  Wallet,
+} from "lucide-react";
 import { detailLines } from "@/core/nutrition/display";
 import { groupByMoment, MOMENTS, type MomentBounds } from "@/core/nutrition/moments";
 import type { ProgramSlot } from "@/core/nutrition/programs";
@@ -31,7 +42,7 @@ import { fill, macroLabels, type Messages } from "@/i18n";
 import type { ActionButtonState } from "@/ui/ActionButtonForm";
 import { FoodDetails } from "@/ui/FoodDetails";
 import { OneOpen, OpenRow } from "@/ui/OneOpen";
-import { MOMENT_BG, MOMENT_TEXT } from "@/ui/MomentIcon";
+import { MOMENT_BG, MOMENT_TEXT, MomentIcon } from "@/ui/MomentIcon";
 import { buttonClass } from "@/ui/button";
 import { timeline, type TimelineEvent, type TimelineSession } from "@/core/day/timeline";
 import { TrashMenu } from "@/ui/TrashMenu";
@@ -45,7 +56,7 @@ import {
   LiveStatusToggle,
   LiveTimes,
 } from "./LiveDay";
-import { LinesEditor } from "./LinesEditor";
+import { LiveLines } from "./LiveLines";
 import { WhenEditor } from "./WhenEditor";
 type Props = {
   day: DayView;
@@ -89,6 +100,11 @@ type Props = {
   slotDay?: { kcal: number | null; protein: number | null; kg: number | null };
   /** ADR-0050: the day's training sessions, on the timeline. */
   sessions?: readonly TimelineSession[];
+  /**
+   * 2026-10-11: how the day was closed (ADR-0042), shown where the day
+   * ends; null = not closed. `canClose`: today or a past day.
+   */
+  closure?: { state: "complete" | "partial" | null; canClose: boolean };
   /** 2026-10-11: the rest of the day's log (waking, weigh-in, money). */
   events?: readonly TimelineEvent[];
   /** Minutes after midnight on today (the "now" line); null on other days. */
@@ -107,16 +123,23 @@ type Props = {
     | "label"
     | "entryEdit"
     | "settings"
+    | "search"
   >;
 };
 // 2026-10-11: each kind of event its own icon and colour.
-const EVENT_ICON = { wake: Sunrise, weigh: Scale, money: Wallet } as const;
+const EVENT_ICON = { wake: Sunrise, bed: Moon, weigh: Scale, money: Wallet } as const;
 const EVENT_TEXT = {
   wake: "text-warn",
+  bed: "text-ink",
   weigh: "text-herb",
   money: "text-price",
 } as const;
-const EVENT_BG = { wake: "bg-warn", weigh: "bg-herb", money: "bg-price" } as const;
+const EVENT_BG = {
+  wake: "bg-warn",
+  bed: "bg-ink",
+  weigh: "bg-herb",
+  money: "bg-price",
+} as const;
 
 type GroupItem = Extract<DayItem<LogEntryView>, { type: "group" }>;
 
@@ -139,6 +162,7 @@ export function EntryList({
   slotDay = { kcal: null, protein: null, kg: null },
   sessions = [],
   events = [],
+  closure,
   now = null,
   over = false,
   t,
@@ -157,8 +181,9 @@ export function EntryList({
     <div id={`day-moment-${group.key}`} className="flex scroll-mt-24 flex-col gap-2">
       <div className="flex items-baseline justify-between gap-2">
         <span
-          className={`font-semibold ${(group.moment && MOMENT_TEXT[group.moment]) || ""}`}
+          className={`inline-flex items-center gap-1.5 self-center font-semibold ${(group.moment && MOMENT_TEXT[group.moment]) || ""}`}
         >
+          <MomentIcon moment={group.moment} size={18} />
           {group.part
             ? t.moments.snackParts[group.part]
             : group.moment
@@ -279,10 +304,14 @@ export function EntryList({
                   labels={labels}
                 />
               ) : (
-                <LinesEditor
-                  action={linesAction(e.id)}
-                  servings={e.servings}
+                <LiveLines
+                  // Fresh from the server after each save: start again from it.
+                  key={e.lines.map((l) => `${l.itemId}:${l.quantity}`).join(",")}
+                  id={e.id}
                   lines={e.lines}
+                  action={linesAction(e.id)}
+                  locale={locale}
+                  labels={labels}
                   t={t}
                 />
               )}
@@ -444,8 +473,9 @@ export function EntryList({
                   >
                     <div className="flex min-w-0 flex-col">
                       <span
-                        className={`font-semibold ${row.past ? "" : (MOMENT_TEXT[row.item.moment] ?? "")}`}
+                        className={`inline-flex items-center gap-1.5 font-semibold ${row.past ? "" : (MOMENT_TEXT[row.item.moment] ?? "")}`}
                       >
+                        <MomentIcon moment={row.item.moment} size={18} muted={row.past} />
                         {t.moments.names[row.item.moment]}
                         {row.past && ` · ${tl.skipped}`}
                       </span>
@@ -504,6 +534,38 @@ export function EntryList({
           );
         })}
       </ol>
+      {/* 2026-10-11: where the day ends, whether it is closed. */}
+      {closure?.state ? (
+        <div
+          className={`flex items-center gap-3 rounded-surface p-3 ${
+            closure.state === "complete"
+              ? "bg-herb/15 text-herb-strong"
+              : "bg-warn/15 text-ink"
+          }`}
+        >
+          {closure.state === "complete" ? (
+            <CircleCheckBig size={22} aria-hidden="true" className="shrink-0" />
+          ) : (
+            <CircleAlert size={22} aria-hidden="true" className="shrink-0" />
+          )}
+          <span className="min-w-0 flex-1 font-semibold">
+            {closure.state === "complete" ? tl.closedComplete : tl.closedPartial}
+          </span>
+          <a href="#day-close" className={buttonClass({ variant: "quiet", size: "sm" })}>
+            {tl.closedChange}
+          </a>
+        </div>
+      ) : (
+        closure?.canClose && (
+          <a
+            href="#day-close"
+            className="flex min-h-11 items-center gap-3 rounded-surface rule-medium border-dashed border-hairline p-3 text-muted"
+          >
+            <ClipboardCheck size={20} aria-hidden="true" className="shrink-0" />
+            <span className="font-semibold">{tl.closeAsk}</span>
+          </a>
+        )
+      )}
     </OneOpen>
   );
 }
