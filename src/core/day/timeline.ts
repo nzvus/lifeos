@@ -15,7 +15,7 @@
  */
 import type { Moment, MomentBounds } from "../nutrition/moments";
 import type { ProgramSlot } from "../nutrition/programs";
-import type { DayItem } from "../nutrition/slots";
+import { groupAt, type DayItem } from "../nutrition/slots";
 
 /** A session without any time sits here (late afternoon, the usual gym hour). */
 export const SESSION_DEFAULT_AT = 17 * 60 + 30;
@@ -76,7 +76,7 @@ export function timeline<E>(
         item,
       });
     } else {
-      rows.push({ type: "group", at: item.slot?.at ?? item.group.minutes, item });
+      rows.push({ type: "group", at: groupAt(item), item });
     }
   }
   for (const s of sessions)
