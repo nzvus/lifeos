@@ -1,6 +1,7 @@
 /** Tests for core/training/weighIns.ts (ADR-0027). */
 import { describe, expect, it } from "vitest";
 import {
+  trendWeightAt,
   plausibleMeasurements,
   bodyIndices,
   implausibleWeighIns,
@@ -169,5 +170,19 @@ describe("plausibleMeasurements", () => {
       "2026-10-06",
       "2026-10-09",
     ]);
+  });
+});
+
+describe("trendWeightAt (2026-10-11)", () => {
+  const m = (day: string, kg: string) => ({ day, weightKg: kg });
+  it("one heavy morning moves the day's weight a little, not all the way", () => {
+    const list = [m("2026-10-01", "76.00"), m("2026-10-02", "77.50")];
+    // 76 + (1 − 0.9) × 1.5 = 76.15
+    expect(trendWeightAt(list, "2026-10-02")).toBe("76.15");
+    expect(trendWeightAt(list, "2026-10-01")).toBe("76.00");
+  });
+  it("before the first weigh-in, the first; none, null", () => {
+    expect(trendWeightAt([m("2026-10-05", "75.00")], "2026-10-01")).toBe("75.00");
+    expect(trendWeightAt([], "2026-10-01")).toBeNull();
   });
 });

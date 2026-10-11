@@ -41,7 +41,15 @@ export function SlotLine({
   return (
     <span className="flex flex-col text-meta text-muted">
       <span className="tabular-nums">
-        {[slotTime(slot.at), ...parts].filter(Boolean).join(" · ")}
+        {[
+          // With food in it the row shows the food's time; the slot's is the plan.
+          eatenProtein === null
+            ? slotTime(slot.at)
+            : fill(t.slotPlannedAt, { time: slotTime(slot.at) }),
+          ...parts,
+        ]
+          .filter(Boolean)
+          .join(" · ")}
       </span>
       {hint && (
         <span>

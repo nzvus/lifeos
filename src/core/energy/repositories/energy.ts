@@ -21,7 +21,6 @@ import {
   burnRange,
   sessionMinutes,
   sessionSteps,
-  weightAt,
   type SetLike,
 } from "../../training/analysis";
 import type { ExerciseKind } from "../../training/kinds";
@@ -53,6 +52,7 @@ import {
   bodyIndices,
   implausibleWeighIns,
   plausibleMeasurements,
+  trendWeightAt,
   readWeighIn,
   weightTrend,
   type WeighInReading,
@@ -114,7 +114,7 @@ export async function getBody(db: Db, owner: Owner, day: string): Promise<Body> 
     sex: s?.sex === "male" || s?.sex === "female" ? s.sex : null,
     birthYear: s?.birthYear ?? null,
     heightCm: s?.heightCm ?? null,
-    weightKg: weightAt(plausibleMeasurements(measurements), day),
+    weightKg: trendWeightAt(plausibleMeasurements(measurements), day),
     correction: await correctionOn(db, owner, day, s?.correction ?? null),
   };
 }
@@ -311,7 +311,7 @@ export async function getEnergyRange(
   const out = new Map<string, DayEnergyView>();
   const weighed = plausibleMeasurements(measurements); // not a typo's weight
   for (let day = from; day <= to; day = addDays(day, 1)) {
-    const kg = weightAt(weighed, day);
+    const kg = trendWeightAt(weighed, day); // the trend, not one morning
     const body: Body = {
       sex: s?.sex === "male" || s?.sex === "female" ? s.sex : null,
       birthYear: s?.birthYear ?? null,
@@ -381,7 +381,7 @@ export async function getCalibration(
   ]);
   const weighed = plausibleMeasurements(measurements);
   const days: CalibrationDay[] = history.map((h) => {
-    const kg = weightAt(weighed, h.day);
+    const kg = trendWeightAt(weighed, h.day); // the same weight as the day engine
     const { facts } = factsOf(
       h.day,
       acts.find((a) => a.day === h.day),

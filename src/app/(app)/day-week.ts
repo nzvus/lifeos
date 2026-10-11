@@ -166,6 +166,8 @@ export function timelineEvents(input: {
   timeZone: string;
   locale: Locale;
   night: { wakeAt: Date; hours: number } | null;
+  /** When the next night began, if it began on this day. */
+  nextBed: Date | null;
   weighIns: readonly {
     id: string;
     day: string;
@@ -195,6 +197,8 @@ export function timelineEvents(input: {
       at: wake!,
       text: fill(input.t.woke, { h: n(Math.round(input.night.hours * 10) / 10, 1) }),
     });
+  if (input.nextBed && sameDay(input.nextBed))
+    out.push({ id: "bed", kind: "bed", at: at(input.nextBed), text: input.t.bed });
   for (const w of input.weighIns)
     if (w.day === input.day && w.weightKg)
       out.push({

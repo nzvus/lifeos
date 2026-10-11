@@ -52,11 +52,14 @@ export const MOMENT_BG: Record<string, string> = {
 export function MomentIcon({
   moment,
   size = 16,
+  muted = false,
 }: {
   moment: string | null;
   size?: number;
+  /** Grey instead of the moment's colour (a slot whose time has gone). */
+  muted?: boolean;
 }) {
   const Icon = (moment && ICONS[moment]) || Clock;
-  const colour = (moment && MOMENT_TEXT[moment]) || "";
+  const colour = muted ? "text-muted" : (moment && MOMENT_TEXT[moment]) || "";
   return <Icon size={size} aria-hidden="true" className={colour} />;
 }

@@ -59,6 +59,8 @@ type Patch = {
   status?: LiveEntry["status"];
   servings?: string;
   leftOut?: boolean;
+  /** 2026-10-11: ingredients edited in place (LiveLines). */
+  lines?: TotalsLine[];
 };
 
 /** What the plan's totals count: eaten food, and the planned not left out. */
@@ -88,6 +90,12 @@ export function LiveDay({
 
 function useLive() {
   return useContext(LiveContext)!;
+}
+
+/** One entry as the browser has it now (optimistic), and the way to change it. */
+export function useLiveEntry(id: string) {
+  const { entries, patch } = useLive();
+  return { entry: entries.find((e) => e.id === id), patch };
 }
 
 function useEntry(id: string): LiveEntry | undefined {

@@ -44,6 +44,7 @@ export const weightGoalEn = {
     recomp: "Recomposition (less fat, more muscle)",
     maintain: "Maintain",
   },
+  yourGoal: "Your goal",
   kindsShort: {
     lose: "Fat loss",
     gain: "Muscle gain",

@@ -9,8 +9,8 @@
  *   group    food of one moment, at its slot's time or its own
  *   empty    a slot with no food yet; `past` once its time has gone
  *   session  a training session, at its real start or its planned time
- *   event    something else logged that day (2026-10-11): waking up, a
- *            weigh-in, money spent or earned — each its own kind
+ *   event    something else logged that day (2026-10-11): waking up, going
+ *            to bed, a weigh-in, money spent or earned — each its own kind
  *   now      the "now" line (today only)
  *
  * Food with no time and no slot ("not set") goes last, as before.
@@ -33,7 +33,7 @@ export type TimelineSession = {
 /** Not food, not training: the rest of the day's log, on the same line. */
 export type TimelineEvent = {
   id: string;
-  kind: "wake" | "weigh" | "money";
+  kind: "wake" | "bed" | "weigh" | "money";
   at: number;
   text: string;
   href?: string;

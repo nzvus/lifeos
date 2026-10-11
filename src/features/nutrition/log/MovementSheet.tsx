@@ -8,6 +8,7 @@
 import { Footprints } from "lucide-react";
 import type { Energy } from "@/core/energy/energy";
 import type { FormState } from "@/core/shared/result";
+import type { Locale } from "@/core/shared/locales";
 import type { Messages } from "@/i18n";
 import { Sheet } from "@/ui/Sheet";
 import { ActivityForm } from "./ActivityForm";
@@ -16,11 +17,13 @@ export function MovementSheet({
   action,
   activity,
   energy,
+  locale,
   t,
 }: {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   activity: { level: string; walkingMin: number | null; steps: number | null };
   energy: Energy | null;
+  locale: Locale;
   t: Pick<Messages, "energy" | "errors" | "actions">;
 }) {
   return (
@@ -33,15 +36,8 @@ export function MovementSheet({
       <ActivityForm
         action={action}
         initial={activity}
-        estimate={
-          energy
-            ? {
-                // ADR-0032: what the model filled in from the other fields.
-                steps: activity.steps === null ? energy.inputs.walk.estimatedSteps : null,
-                walkingMin: null,
-              }
-            : undefined
-        }
+        kg={energy?.inputs.kg ?? null}
+        locale={locale}
         t={t}
       />
     </Sheet>

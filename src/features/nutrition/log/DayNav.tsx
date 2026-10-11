@@ -1,6 +1,7 @@
 /**
  * features/nutrition/log/DayNav.tsx — "‹ previous day · date 📅 · next day ›":
- * one row, the calendar (DayPicker) jumps anywhere.
+ * one row, the calendar (DayPicker) jumps anywhere. The links go through
+ * DayGo, so the new day is marked at once while it loads.
  *
  * Days travel in the URL (/?day=2026-09-29), not in hidden state: every day
  * has its own address, so back/forward and bookmarks work, and a reload never
@@ -12,7 +13,7 @@ import { addDays } from "@/core/shared/dates";
 import type { Locale } from "@/core/shared/locales";
 import type { Messages } from "@/i18n";
 import { buttonClass, TEXT_LINK } from "@/ui/button";
-import { ViewAwareLink } from "@/ui/ViewSwitch";
+import { DayLink } from "./DayGo";
 import { DayPicker } from "./DayPicker";
 
 type Props = {
@@ -42,34 +43,34 @@ export function DayNav({ day, today, locale, t }: Props) {
   }).format(new Date(`${day}T12:00:00Z`));
   return (
     <nav aria-label={t.backToToday} className="flex items-center justify-between gap-2">
-      <ViewAwareLink
-        href={`/?day=${addDays(day, -1)}`}
+      <DayLink
+        day={addDays(day, -1)}
         aria-label={t.previous}
         className={buttonClass({ variant: "quiet", iconOnly: true })}
       >
         <ChevronLeft size={24} aria-hidden="true" />
-      </ViewAwareLink>
+      </DayLink>
       <div className="flex min-w-0 flex-col items-center">
         <div className="flex min-w-0 items-center gap-1">
           <h1 className="font-heading text-section font-bold whitespace-nowrap first-letter:uppercase">
             <span className="hidden @xs:inline">{heading}</span>
             <span className="@xs:hidden">{short}</span>
           </h1>
-          <DayPicker day={day} label={t.goTo} />
+          <DayPicker label={t.calendar} />
         </div>
         {day !== today && (
-          <ViewAwareLink href="/" className={`text-meta ${TEXT_LINK}`}>
+          <DayLink day={today} className={`text-meta ${TEXT_LINK}`}>
             {t.backToToday}
-          </ViewAwareLink>
+          </DayLink>
         )}
       </div>
-      <ViewAwareLink
-        href={`/?day=${addDays(day, 1)}`}
+      <DayLink
+        day={addDays(day, 1)}
         aria-label={t.next}
         className={buttonClass({ variant: "quiet", iconOnly: true })}
       >
         <ChevronRight size={24} aria-hidden="true" />
-      </ViewAwareLink>
+      </DayLink>
     </nav>
   );
 }

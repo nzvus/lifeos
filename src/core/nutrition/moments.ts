@@ -90,18 +90,30 @@ export const SNACK_PARTS = ["night", "morning", "afternoon", "evening"] as const
 export type SnackPart = (typeof SNACK_PARTS)[number];
 
 /**
- * A snack's part of the day: after which main meal it comes (breakfast →
- * morning, lunch → afternoon, dinner → evening); with none before it, by
- * its time.
+ * A snack's part of the day: the later of what the clock says and the main
+ * meal before it (breakfast → morning, lunch → afternoon, dinner → evening).
+ * So a 15:17 snack is an afternoon one even when lunch came late after it
+ * (2026-10-11), and a snack after dinner past midnight stays "evening".
  */
 export function snackPart(minutes: number, after: Moment | null = null): SnackPart {
-  if (after === "breakfast") return "morning";
-  if (after === "lunch") return "afternoon";
-  if (after === "dinner") return "evening";
-  if (minutes < NIGHT_END) return "night";
-  if (minutes < 12 * 60) return "morning";
-  if (minutes < 18 * 60) return "afternoon";
-  return "evening";
+  const clock: SnackPart =
+    minutes < NIGHT_END
+      ? "night"
+      : minutes < 14 * 60 // a 12:19 snack before lunch is still the morning's
+        ? "morning"
+        : minutes < 18 * 60
+          ? "afternoon"
+          : "evening";
+  const meal: SnackPart | null =
+    after === "breakfast"
+      ? "morning"
+      : after === "lunch"
+        ? "afternoon"
+        : after === "dinner"
+          ? "evening"
+          : null;
+  if (meal === null) return clock;
+  return SNACK_PARTS.indexOf(clock) > SNACK_PARTS.indexOf(meal) ? clock : meal;
 }
 
 /**
