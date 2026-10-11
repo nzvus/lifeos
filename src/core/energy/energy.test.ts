@@ -35,33 +35,42 @@ describe("dayEnergy", () => {
     ).toEqual(["sex", "birthYear", "weight"]);
   });
 
-  it("a quiet day: BMR × the sitting factor, nothing on top (the factor has digestion in it)", () => {
+  it("a quiet day: BMR × the sitting factor, plus the level's usual steps (ADR-0051)", () => {
     const e = dayEnergy(body, quiet)!;
     expect(e.bmr).toBe(1730);
     expect(e.baseline).toEqual({ low: 1989, high: 2163 }); // ×1.15 / ×1.25 (1989.4999… in floats)
-    expect(e.walking).toEqual({ low: 0, high: 0 });
-    expect(e.total.done).toEqual(e.baseline);
+    // No steps logged: sitting's usual 5000 = 50 min: 2×75×50/60, 2.8×75×50/60.
+    expect(e.walking).toEqual({ low: 125, high: 175 });
+    expect(e.total.done).toEqual({ low: 1989 + 125, high: 2163 + 175 });
     expect(e.total.withPlan).toEqual(e.total.done);
   });
 
-  it("ADR-0032: the day type keeps its factor; steps correct it at one cost per step", () => {
-    // Sitting includes ~5000 steps; 11 000 is 6000 more = 60 min of walking:
-    // (3.0−1)×75×1 = 150, (3.8−1)×75×1 = 210.
+  it("ADR-0051: the day type keeps its factor; every step counts from zero, one cost per step", () => {
+    // 11 000 steps = 110 min of walking: (3.0−1)×75×110/60 = 275, (3.8−1)×… = 385.
     const e = dayEnergy(body, { ...quiet, level: "sitting", steps: 11000 })!;
     expect(e.inputs.factor).toEqual([1.15, 1.25]);
     expect(e.inputs.level).toBe("sitting");
     expect(e.inputs.walk.source).toBe("steps");
-    expect(e.walking).toEqual({ low: 150, high: 210 });
-    // On my feet includes ~10 000: 6000 steps is 4000 fewer, the day goes down.
+    expect(e.walking).toEqual({ low: 275, high: 385 });
     const quietFeet = dayEnergy(body, { ...quiet, level: "on_feet", steps: 6000 })!;
-    expect(quietFeet.inputs.factor).toEqual([1.5, 1.65]);
-    expect(quietFeet.walking).toEqual({ low: -140, high: -100 });
+    expect(quietFeet.inputs.factor).toEqual([1.27, 1.42]);
+    expect(quietFeet.walking).toEqual({ low: 150, high: 210 });
+    // The 2026-10-11 report: sitting with 7500 steps is no longer below mixed with 3000.
+    const total = (level: "sitting" | "mixed", steps: number) => {
+      const t = dayEnergy(body, { ...quiet, level, steps })!.total.done;
+      return t.low + t.high;
+    };
+    expect(total("sitting", 7500)).toBeGreaterThan(total("mixed", 3000));
     // Every step costs the same: 2500 more is the same wherever it falls.
     const at = (level: "sitting" | "mixed", steps: number) =>
       dayEnergy(body, { ...quiet, level, steps })!.walking.high;
-    expect(at("sitting", 7500) - at("sitting", 5000)).toBe(
-      at("mixed", 15000) - at("mixed", 12500),
-    );
+    expect(
+      Math.abs(
+        at("sitting", 7500) -
+          at("sitting", 5000) -
+          (at("mixed", 15000) - at("mixed", 12500)),
+      ),
+    ).toBeLessThanOrEqual(1); // rounding
   });
 
   it("ADR-0032: a run's steps are taken out; a declared walk is inside the steps", () => {
@@ -73,18 +82,17 @@ describe("dayEnergy", () => {
       walkingMin: 90,
     })!;
     expect(e.inputs.walk.sessionSteps).toBe(4000);
-    // 10 000 left − 7500 usual = 2500 = 25 min (the 90 declared minutes don't add).
-    expect(e.walking).toEqual({ low: 63, high: 88 });
+    // 10 000 left = 100 min (the 90 declared minutes don't add).
+    expect(e.walking).toEqual({ low: 250, high: 350 });
   });
 
-  it("ADR-0032: without steps, the walk's minutes add on the day type", () => {
+  it("without steps, the walk's minutes add on the level's usual steps", () => {
     const e = dayEnergy(body, { ...quiet, walkingMin: 30 })!;
-    // (3.0−1)×75×0.5 = 75, (3.8−1)×75×0.5 = 105
-    expect(e.walking).toEqual({ low: 75, high: 105 });
+    // 50 usual + 30 = 80 min: (3.0−1)×75×80/60 = 200, (3.8−1)×… = 280
+    expect(e.walking).toEqual({ low: 200, high: 280 });
     expect(e.inputs.walk.source).toBe("walk");
     // What the day type and the walk imply: sitting's 5000 + 30 × 100.
     expect(e.inputs.walk.estimatedSteps).toBe(8000);
-    expect(dayEnergy(body, quiet)!.walking).toEqual({ low: 0, high: 0 });
   });
 
   it("training done vs planned: the plan only moves the 'with the plan' total", () => {
@@ -99,15 +107,17 @@ describe("dayEnergy", () => {
       done: { low: 225, high: 375 },
       planned: { low: 150, high: 250 },
     });
-    expect(e.total.done).toEqual({ low: 1989 + 225, high: 2163 + 375 });
+    expect(e.total.done).toEqual({ low: 1989 + 125 + 225, high: 2163 + 175 + 375 });
     expect(e.total.withPlan.low - e.total.done.low).toBe(150);
     expect(e.total.withPlan.high).toBeGreaterThan(e.total.done.high);
   });
 });
 
 describe("dynamicTargets", () => {
+  // One step logged: walking rounds to 0, so the numbers are the sitting factor's alone.
+  const still = { ...quiet, steps: 1 };
   it("energy = midpoint with the plan − deficit; protein and fat per kg; carbs the rest", () => {
-    const e = dayEnergy(body, quiet)!; // with plan 1989–2163 → midpoint 2076
+    const e = dayEnergy(body, still)!; // with plan 1989–2163 → midpoint 2076
     const t = dynamicTargets(e, "75", GOAL_PRESETS.cut); // −500, 2.2 g/kg, 0.8 g/kg
     // carbs = (1576 − 165×4 − 60×9) ÷ 4 = 94; fiber 14 per 1000 kcal = 22.1
     expect(t).toEqual({
@@ -122,7 +132,7 @@ describe("dynamicTargets", () => {
   });
 
   it("carbs take the rest, however much: fat is not raised to absorb it (ADR-0040)", () => {
-    const e = dayEnergy(body, quiet)!; // midpoint 2076
+    const e = dayEnergy(body, still)!; // midpoint 2076
     const t = dynamicTargets(e, "75", {
       deficitKcal: 0,
       proteinGPerKg: "1.8",
@@ -135,7 +145,7 @@ describe("dynamicTargets", () => {
   });
 
   it("fat never under 25 % of the energy (the health minimum is 20 %)", () => {
-    const e = dayEnergy(body, quiet)!; // midpoint 2076
+    const e = dayEnergy(body, still)!; // midpoint 2076
     const t = dynamicTargets(e, "75", {
       deficitKcal: -1000,
       proteinGPerKg: "1.8",
@@ -146,7 +156,7 @@ describe("dynamicTargets", () => {
   });
 
   it("never below 1200 kcal", () => {
-    const e = dayEnergy({ ...body, weightKg: "45", heightCm: 150 }, quiet)!;
+    const e = dayEnergy({ ...body, weightKg: "45", heightCm: 150 }, still)!;
     expect(
       dynamicTargets(e, "45", { deficitKcal: 1500, proteinGPerKg: "2", fatGPerKg: "0.8" })
         .kcal,

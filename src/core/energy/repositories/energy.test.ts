@@ -51,7 +51,7 @@ describe("energy repository", () => {
     const v = await getDayEnergy(db, me, DAY);
     expect(v.missing).toEqual([]);
     expect(v.energy?.bmr).toBe(1730);
-    expect(v.energy?.walking).toEqual({ low: 150, high: 210 });
+    expect(v.energy?.walking).toEqual({ low: 275, high: 385 });
     // Saving again updates (one row per day).
     await setDayActivity(db, me, DAY, {
       level: "on_feet",
