@@ -352,7 +352,8 @@ export function clockOf(s: LiveSession): Clock {
         };
       }
       const ends: [string | null | undefined, boolean][] = [
-        [x.endedAt, false],
+        // An unticked set keeps its times (a misclick undone) but ends nothing.
+        [x.done ? x.endedAt : null, false],
         [x.halfAt && !x.resumedAt ? x.halfAt : null, true],
       ];
       for (const [at, half] of ends)
@@ -398,17 +399,42 @@ export function completeRunning(
   return mapSet(s, c.exercise, c.set, (x) => ({ ...x, endedAt: now, done: true }));
 }
 
-/** The round tick on a set, by hand: done now (with its end), or undone. */
+/** Ticks this close together are catching up, not sets just finished. */
+export const CATCH_UP_MS = 20_000;
+
+/**
+ * The round tick on a set, by hand (2026-10-11):
+ * - undone keeps its times, so ticking it again after a misclick gives them
+ *   back instead of a new end "now";
+ * - done ends now, unless another set was ticked by hand in the last 20 s
+ *   without being timed: then it is catching up (the app opened mid-
+ *   session) and its times are unknown, not invented.
+ */
 export function toggleDone(
   s: LiveSession,
   ei: number,
   si: number,
   now: string,
 ): LiveSession {
+  const t = Date.parse(now);
+  const catchingUp = s.exercises.some((e) =>
+    e.sets.some(
+      (x) =>
+        x.done &&
+        !x.startedAt &&
+        x.endedAt &&
+        t - Date.parse(x.endedAt) >= 0 &&
+        t - Date.parse(x.endedAt) < CATCH_UP_MS,
+    ),
+  );
   return mapSet(s, ei, si, (x) =>
     x.done
-      ? { ...x, done: false, endedAt: null }
-      : { ...x, done: true, endedAt: x.endedAt ?? now, startedAt: x.startedAt },
+      ? { ...x, done: false }
+      : {
+          ...x,
+          done: true,
+          endedAt: x.endedAt ?? (catchingUp && !x.startedAt ? null : now),
+        },
   );
 }
 
@@ -433,7 +459,7 @@ export function activeMinutes(s: LiveSession): number | null {
   for (const e of s.exercises)
     for (const x of e.sets) {
       if (x.startedAt && (!first || x.startedAt < first)) first = x.startedAt;
-      last = later(last, x.endedAt);
+      last = later(last, x.done ? x.endedAt : null);
     }
   if (!first || !last || last <= first) return null;
   return Math.min(
@@ -457,7 +483,7 @@ export function timing(s: LiveSession): {
 } {
   const done = s.exercises.flatMap((e) =>
     e.sets
-      .filter((x) => x.startedAt && x.endedAt)
+      .filter((x) => x.done && x.startedAt && x.endedAt)
       .map((x) => ({
         e,
         x,

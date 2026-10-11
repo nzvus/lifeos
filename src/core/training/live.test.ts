@@ -252,17 +252,30 @@ describe("the clock (rest → Go → set → ✓)", () => {
     expect(r.ok && r.value.durationMin).toBe(31);
   });
 
-  it("a tick by hand marks the end, and unticking clears it", () => {
+  it("a tick by hand marks the end; a misclick undone gives the same end back", () => {
     const s = toggleDone(two(), 0, 0, T(5));
     expect(s.exercises[0]!.sets[0]).toMatchObject({
       done: true,
       startedAt: null,
       endedAt: T(5),
     });
-    expect(toggleDone(s, 0, 0, T(6)).exercises[0]!.sets[0]).toMatchObject({
-      done: false,
-      endedAt: null,
+    const undone = toggleDone(s, 0, 0, T(6));
+    expect(undone.exercises[0]!.sets[0]).toMatchObject({ done: false, endedAt: T(5) });
+    expect(toggleDone(undone, 0, 0, T(9)).exercises[0]!.sets[0]).toMatchObject({
+      done: true,
+      endedAt: T(5),
     });
+  });
+
+  it("ticks in a row are catching up: their times stay unknown (2026-10-11)", () => {
+    const first = toggleDone(two(), 0, 0, T(5));
+    const second = toggleDone(
+      first,
+      0,
+      1,
+      new Date(Date.parse(T(5)) + 3000).toISOString(),
+    );
+    expect(second.exercises[0]!.sets[1]).toMatchObject({ done: true, endedAt: null });
   });
 });
 
