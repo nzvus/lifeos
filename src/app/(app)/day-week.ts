@@ -8,11 +8,15 @@ import type { ResolvedDay } from "@/core/day/resolve";
 import type { DaySummary } from "@/core/nutrition/repositories/history";
 import { weekContext, type WeekContext } from "@/core/nutrition/week";
 import { minutesOf, type MomentBounds } from "@/core/nutrition/moments";
-import { defaultSlots, type TimelineSession } from "@/core/day/timeline";
+import {
+  defaultSlots,
+  type TimelineEvent,
+  type TimelineSession,
+} from "@/core/day/timeline";
 import type { DayProgram, ProgramSlot } from "@/core/nutrition/programs";
 import { moveWithSession, withoutTraining } from "@/core/nutrition/slots";
 import { timeIn } from "@/core/shared/dates";
-import { formatNumber } from "@/core/shared/format";
+import { formatCents, formatNumber } from "@/core/shared/format";
 import type { Locale } from "@/core/shared/locales";
 import { dayBurn } from "@/core/training/progress";
 import { fill, type Messages } from "@/i18n";
@@ -149,4 +153,66 @@ export function timelineOf(input: {
     now: input.day === input.today ? minutesOf(timeIn(new Date(), input.timeZone)) : null,
     over: input.day < input.today,
   };
+}
+
+/**
+ * 2026-10-11: the rest of the day's log on the timeline — waking (the night
+ * that ended this day), the day's weigh-in (its own time, else just after
+ * waking, else 07:00) and money moved (when it was entered, if that day,
+ * else midday).
+ */
+export function timelineEvents(input: {
+  day: string;
+  timeZone: string;
+  locale: Locale;
+  night: { wakeAt: Date; hours: number } | null;
+  weighIns: readonly {
+    id: string;
+    day: string;
+    weightKg: string | null;
+    context: { measuredAt: Date | null } | null;
+  }[];
+  movements: readonly {
+    id: string;
+    day: string;
+    amountCents: number;
+    description: string;
+    shop: string;
+    createdAt: Date;
+  }[];
+  t: Messages["dayProgram"]["timeline"];
+}): TimelineEvent[] {
+  const at = (d: Date) => minutesOf(timeIn(d, input.timeZone));
+  const sameDay = (d: Date) =>
+    d.toLocaleDateString("sv-SE", { timeZone: input.timeZone }) === input.day;
+  const n = (v: number, d = 0) => formatNumber(String(v), input.locale, d);
+  const out: TimelineEvent[] = [];
+  const wake = input.night ? at(input.night.wakeAt) : null;
+  if (input.night)
+    out.push({
+      id: "wake",
+      kind: "wake",
+      at: wake!,
+      text: fill(input.t.woke, { h: n(Math.round(input.night.hours * 10) / 10, 1) }),
+    });
+  for (const w of input.weighIns)
+    if (w.day === input.day && w.weightKg)
+      out.push({
+        id: w.id,
+        kind: "weigh",
+        at: w.context?.measuredAt ? at(w.context.measuredAt) : (wake ?? 7 * 60) + 1,
+        text: fill(input.t.weighed, { kg: n(Number(w.weightKg), 1) }),
+      });
+  for (const m of input.movements)
+    out.push({
+      id: m.id,
+      kind: "money",
+      at: sameDay(m.createdAt) ? at(m.createdAt) : 12 * 60,
+      text: fill(m.amountCents < 0 ? input.t.moneyOut : input.t.moneyIn, {
+        what: m.description || m.shop || input.t.moneyNoName,
+        amount: formatCents(Math.abs(m.amountCents), input.locale),
+      }),
+      href: `/money/${m.id}?from=${encodeURIComponent(`/?day=${input.day}`)}`,
+    });
+  return out;
 }

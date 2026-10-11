@@ -121,7 +121,8 @@ import { getCheckinProposal } from "@/core/energy/repositories/checkin";
 import { CheckinCard } from "@/features/nutrition/log/CheckinCard";
 import { DaySupplements } from "./day-supplements";
 import { programItemsOf } from "./day-program";
-import { burnWords, timelineOf, weekOf } from "./day-week";
+import { burnWords, timelineEvents, timelineOf, weekOf } from "./day-week";
+import { listMovements } from "@/core/money/repositories/money";
 import { reminderLines } from "./day-reminders";
 
 type Props = {
@@ -177,6 +178,7 @@ export default async function DayPage({ searchParams }: Props) {
     closures,
     weekCheckin,
     programs,
+    movements,
   ] = await Promise.all([
     slotLoad,
     // ADR-0040: the shown day's week through the one engine — the day's
@@ -207,6 +209,7 @@ export default async function DayPage({ searchParams }: Props) {
     listClosures(db, owner, day, day), // ADR-0042: closed?
     calibrationLoad && getCheckinProposal(db, owner, today, calibrationLoad), // ADR-0043
     listPrograms(db, owner), // ADR-0044: the day type's slots
+    listMovements(db, owner, day, day), // 2026-10-11: money on the timeline
   ]);
   const plannedCount = view.entries.filter((e) => e.status === "planned").length;
   const night = nights[0] ?? null;
@@ -414,6 +417,15 @@ export default async function DayPage({ searchParams }: Props) {
                   timeZone={settings.timezone}
                   bounds={settings.preferences.bounds}
                   {...line}
+                  events={timelineEvents({
+                    day,
+                    timeZone: settings.timezone,
+                    locale,
+                    night,
+                    weighIns: measurements,
+                    movements,
+                    t: t.dayProgram.timeline,
+                  })}
                   // The same quality block as the meal cards, from the entry's
                   // snapshot lines (ADR-0007) and the current tags and ratings.
                   quality={(e) => (
