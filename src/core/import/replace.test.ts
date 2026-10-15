@@ -103,6 +103,20 @@ describe("replaceAll", () => {
     });
   });
 
+  it("keeps the default language of an account that never saved settings", async () => {
+    await seedEverything(db, source);
+    await db
+      .update(userSettings)
+      .set({ locale: "en" })
+      .where(eq(userSettings.userId, source.id));
+    await replaceAll(db, target, read(asFile(await exportUserData(db, source))));
+    const [s] = await db
+      .select()
+      .from(userSettings)
+      .where(eq(userSettings.userId, target.id));
+    expect(s).toMatchObject({ locale: "it", assistantKeyEnc: null, theme: "quaderno" });
+  });
+
   it("plans: rows now and after per table, nothing written", async () => {
     await seedEverything(db, source);
     const file = read(asFile(await exportUserData(db, source)));
