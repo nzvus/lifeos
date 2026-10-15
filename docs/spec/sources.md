@@ -1,0 +1,21 @@
+# Sources
+
+Research gathered for the refactor plan of 2026-10-09 (the plan itself was
+folded into ROADMAP.md and deleted). The spec cites these by name; each
+number a spec file pins must cite the primary paper, not a summary. The
+Pelland work was a preprint when collected.
+
+
+- MacroFactor — [algorithms and philosophy](https://macrofactor.com/macrofactors-algorithms-and-core-philosophy/), [expenditure V3](https://macrofactor.com/expenditure-v3/), [algorithm accuracy](https://macrofactor.com/algorithm-accuracy/), [weight trend](https://help.macrofactorapp.com/dashboard/weight_trend/), [Oct 2025 modifiers](https://macrofactor.com/mm-oct-2025/), [Workouts launch Jan 2026](https://macrofactor.com/mm-jan-2026/), [Apr 2026 update](https://macrofactor.com/mm-april-2026/)
+- 7700 kcal/kg rule and dynamic energy density — [Hall & Chow / Thomas, PMC3810417](https://pmc.ncbi.nlm.nih.gov/articles/PMC3810417/), [PMC3859816](https://pmc.ncbi.nlm.nih.gov/articles/PMC3859816/), [energy content of weight loss, CALERIE (Monash)](https://research.monash.edu/en/publications/energy-content-of-weight-loss-kinetic-features-during-voluntary-c/)
+- PAL / DLW — [Black et al. 1996, 574 DLW measurements](https://pubmed.ncbi.nlm.nih.gov/8641250/), [UNU/FAO energy requirements](https://archive.unu.edu/unupress/food2/UID01E/UID01E08.HTM)
+- Energy compensation — [Careau et al. 2021, Curr Biol](https://pure.eur.nl/en/publications/energy-compensation-and-adiposity-in-humans/), [Pontzer 2015 constrained TEE](https://pmc.ncbi.nlm.nih.gov/articles/PMC4470776)
+- Resistance exercise EE — [Sports Med 2024 scoping review](https://link.springer.com/article/10.1007/s40279-024-02047-8)
+- Nutrient timing — [ISSN position stand 2017](https://pmc.ncbi.nlm.nih.gov/articles/PMC5596471/), [Trommelen 2023, 100 g protein](https://pmc.ncbi.nlm.nih.gov/articles/PMC10772463/), [Impey 2018, fuel for the work required](https://pmc.ncbi.nlm.nih.gov/articles/PMC5889771)
+- Chrononutrition — [Nutrients 2024 overview](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11280377/), [2025 review](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12252119/)
+- Scoring and macros — [Cioffi 2018, intermittent vs continuous restriction](https://pmc.ncbi.nlm.nih.gov/articles/PMC6304782), [2023 meta-analysis (Frontiers in Nutrition)](https://public-pages-files-2025.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2023.1090792/text), [Whittaker & Wu 2021, low-fat diets and testosterone](https://nutrition-evidence.com/article/377532/low-fat-diets-and-testosterone-in-men-systematic-review-and-meta-analysis-of-intervention-studies), [Reynolds 2019, carbohydrate quality](https://discovery.dundee.ac.uk/ws/files/30375889/Final_Lancet_for_John.pdf), [inulin tolerance](https://experts.umn.edu/en/publications/gastrointestinal-tolerance-of-chicory-inulin-products/)
+- Training — [Pelland et al. volume/frequency meta-regressions (preprint)](https://sportrxiv.org/index.php/server/preprint/view/537), [Robinson et al. 2024 proximity to failure](https://rke.abertay.ac.uk/en/publications/exploring-the-dose-response-relationship-between-estimated-resist/), [Singer et al. 2024 rest intervals](https://pubmed.ncbi.nlm.nih.gov/39205815/)
+- Apps and communities — [Reddit calorie-tracker summaries (GummySearch)](https://gummysearch.com/tools/best-products/calorie-tracker/), [RP Hypertrophy](https://rpstrength.com/rphypeapp), [Boostcamp RPE/RIR roundup](https://www.boostcamp.app/best/rpe-rir), [Grocy overview](https://www.linuxlinks.com/grocy-erp-beyond-fridge/)
+- Scanning — [barcode-detector polyfill notes](https://developers.zite.com/recipes/barcode-scanning.md), [mobile_scanner backends (browser support table)](https://pub.dev/documentation/mobile_scanner/latest/), [Tesseract preprocessing tips](https://github.com/gali8/Tesseract-OCR-iOS/wiki/Tips-for-Improving-OCR-Results)
+- Skills — [anthropics/skills webapp-testing](https://vibeindex.ai/skills/anthropics/skills/webapp-testing), [vercel-labs/agent-skills](https://vibeindex.ai/collection/vercel-labs/agent-skills), [obra/superpowers guide](https://mcp.directory/blog/claude-superpowers-skill-guide), [2026 skills roundup](https://www.tella.com/blog/best-claude-code-skills)
+
