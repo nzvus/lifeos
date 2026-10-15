@@ -1,0 +1,196 @@
+# v2 — Engines
+
+Pure functions in `core/engines/*`: entries, catalog items, templates and
+goals in; derived values out. No engine stores what it computes (concepts
+§6). Each constant cites its source; the v1 spec's findings (01–05) are
+referenced as `01 I-1` etc.
+
+## E1 Time
+
+- **Logical day** of an instant: local date of (instant − day boundary).
+- **Windows:** day, ISO week (Monday), month, rolling N days, a session,
+  a custom range. A window over days with no entries returns *unknown*,
+  never zero (v1's "an unlogged day is not a fast").
+- **Relations** (concepts §8): for each entry, the nearest entries of
+  the kinds its kind declares, with the signed gap in minutes. Tags come
+  from the declared bands, e.g. meal → session:
+  - −180…0 min: pre-workout;
+  - 0…+120 min: post-workout.
+  Sources: ISSN 2017 nutrient timing; Kerksick 2017.
+- **Recurrence:** daily, weekdays, every N days, N times a week (flexible
+  days), on dates. "N times a week" plans nothing on fixed days; it counts
+  done entries in the week.
+
+## E2 Metrics
+
+`metric(entries, definition, window) → value | series` per concepts §6.
+- Exact decimals (big.js) for sums of nutrients and money, rounded once
+  at display (v1's invariant "totals = parts").
+- Shares, ratios and "per kg" read the trend weight (E4), not a single
+  weigh-in.
+- **Streak** = consecutive windows meeting the habit's target; a
+  *skipped* entry with a reason (sick, travel) can be set to not break it.
+- **Regularity** = 1 − coefficient of variation over the window (for
+  times of day: circular SD of the minute).
+
+## E3 Planning
+
+- `apply(template, date) → planned entries` with `from-block` links.
+- Relative blocks resolve against the day's actual entries first, then
+  the planned ones ("40 min after the session": the real start, else the
+  planned).
+- `swap(date, template)`: keeps done and skipped entries, replaces planned
+  ones ahead of now, returns an undo.
+- Training blocks take the next item of the active program (v1 ADR-0024
+  semantics: a missed day slips the cycle; overrides and skips kept).
+- Default time of a block without a time: the last time used for that
+  kind on that weekday, else the template's (fixes v1's 17:30, 01 I-9).
+
+## E4 Body state (specialisation: body)
+
+One Kalman filter per person, run over the whole history, for the whole
+app (01 P-1, P-2).
+- **State:** W (weight without water noise), c (factor on the everyday
+  baseline), c_train (factor on training burn), k (factor on estimated
+  intake).
+- **Daily step:** W += (weighed + k·estimated − c·B − c_train·T − S) /
+  ρ(ΔW), where B is the baseline, T training and S steps.
+  - ρ is asymmetric: fat ≈ 9,440 kcal/kg, lean ≈ 1,820 kcal/kg, mixed
+    by the trend (Hall 2008; MacroFactor V3); not a flat 7,700.
+- **Observation:** each weigh-in by its reliability (v1 ADR-0027 clues:
+  fasted, toilet, after training, salt and carbs the day before,
+  implausible = 0.02).
+- **Intake uncertainty by day:** closed complete ±10 % weighed, ±30 %
+  estimates; partial and half-logged days filled from neighbours ±30 %;
+  unlogged ±35 % (ADR-0042, kept).
+- **Outputs:** trend weight W(t) ± σ, used by every screen; expenditure
+  E(t) ± σ, used directly (no "accept a factor" step); the learnt c,
+  c_train, k with σ.
+- **Prior** (01 P-3):
+  - BMR: Mifflin-St Jeor, or Katch-McArdle with a body fat %;
+  - everyday PAL from FAO/WHO bands by time on feet;
+  - steps by cadence band: incidental 2.0–2.5 MET, brisk walks 3.0–3.8;
+  - strength work at MET on work time, rests at ~1.5 MET;
+  - training at 0.75 in the prior (Careau 2021 compensation).
+- **Validation:** known-truth simulations, as for ADR-0041, and a
+  back-test on the developer's export: predicted vs actual 7-day trend
+  change.
+
+## E5 Targets (food)
+
+From the weight goal (a goal with "reach W by date") and E4:
+- pace % BW/week planned within ranges (v1 ADR-0045):
+  - lose 0.5–1.0;
+  - gain 0.10–0.25;
+  - recomposition ±0.05–0.5;
+- deficit = pace × W × ρ / 7;
+- kcal = E(t) − deficit ± template shift, ≥ floor (BMR or 1,200);
+- protein 1.6–2.2 g × reference weight (target weight, or lean mass when
+  body fat is known: 2.3–3.1 g/kg FFM, Helms 2014);
+- fat ≥ 20 % kcal and ≥ 0.6 g/kg, 25 % by default or the split's;
+- carbs the rest; fibre 14 g/1,000 kcal, at least 25 g;
+- maxima: sugars 90 g/2,000 kcal (EU RI), saturated < 10 % (WHO), salt
+  < 5 g (WHO).
+- **Micronutrients:** each from the catalogue's EFSA DRV and UL (spec 02
+  P-1; the research is a task of its own).
+- **Week:** targets read in the week (v1 ADR-0047: carry ±30 %, never
+  under BMR; protein daily; limits as 7-day averages).
+- **Slots:** a meal block's shares × the day's targets; relation hints
+  (pre-workout carbs 0.5–1 g/kg 1–3 h before; post-workout protein
+  0.25–0.4 g/kg within 2 h; pre-sleep protein ~0.4 g/kg).
+
+## E6 Training (specialisation: training)
+
+- **e1RM with effort:** load × (1 + (reps + RIR) / 30) (Epley with RIR;
+  Helms 2016). Without RIR: Epley on reps, 1–12 reps.
+- **Loads typed as lifted:** dumbbells "per dumbbell ×2", unilateral
+  per side; the stored load is always the total (03 T-10).
+- **Context of a set:** order in session, rest before vs planned, sleep
+  vs need, check-in z, intake 24–72 h vs target, caffeine now, creatine
+  saturation. Shown with the % change, never folded into it (03 P-4).
+- **Incoherence flags**, asked before saving, listed in Review:
+  - load or e1RM jump ≥ 60 % vs the exercise's trend ("per dumbbell or
+    total?");
+  - reps beyond a plausible range for the load (e1RM implausible);
+  - an exercise's tonnage out of proportion with exercises for the same
+    muscles in the same session (> 3× the median per set);
+  - duplicated sessions (same day, routine, sets).
+- **Next session (session-wide):** double progression on the pattern
+  guide, gated by RIR (v1 ADR-0049); then the order effect learnt from
+  history, the session volume per muscle (diminishing returns, Pelland
+  2024; band 10–20 weekly sets), readiness lowering the whole session.
+- **Rests:**
+  - heavy compounds (≤ 6 reps or ≥ 85 %) 2–3 min; other compounds
+    90–120 s; isolation 60–90 s (Schoenfeld 2016; Singer 2024);
+  - between sides 0–15 s;
+  - after a warm-up 30 / 45 / 60–90 s by the ramp (practice).
+  All editable per exercise.
+- **Auto mode timing:** a set's expected duration = reps × this exercise's
+  learnt seconds per rep, plus the setup delay.
+- **Deload suggestion:** e1RM falling on several exercises for 2+ weeks
+  with low recovery, or after N weeks of rising volume.
+
+## E7 Judgements: a registry of scoring models
+
+Every score is a declared **scoring model** (concepts §7):
+- its parts, each a metric against a band;
+- weights with an allowed range;
+- locked health limits;
+- the sources;
+- a version and a date.
+The developer can move weights within their range on the score's page
+(V-16 "Come valutiamo"), where each part says why it is there and on
+which evidence. Health limits cannot be switched off. An edit is dated,
+the numbers are recomputed, and the screen says which version made them.
+Missing parts are left out and named. Scores of different domains are
+never mixed.
+
+| Model | Parts (default weight, allowed range) | Sources |
+|---|---|---|
+| Food and meal, per 100 kcal | **density** (40 %, 25–60): protein × DIAAS, fibre, K, Ca, Fe, Mg, vitamins A/C/D, folate, omega-3. **Limits** (25 %, locked ≥ 20): free sugars, sodium, SFA, trans. **Value** (15 %, 0–30): useful nutrients per €. **Fit to its block** (20 %, 0–30): kcal and protein vs the slot's shares | NRF 9.3 (Drewnowski 2009); WHO 2015/2023; EFSA DRVs; FAO 2013 (DIAAS) |
+| Day targets | energy in week context, protein daily, limits as 7-day averages (ADR-0047) | ISSN 2017; WHO |
+| Distribution | protein spread (meals ≥ 0.25–0.4 g/kg), peri-workout coverage, energy after 21:00 | ISSN 2017; chrononutrition reviews |
+| Recovery | sleep vs need and regularity, check-in z-scores, 3-day balance, load trend | Windred 2024; Impellizzeri 2020 |
+| Habits, goals | completion, streaks; pace vs needed | — |
+
+NOVA is shown, not scored. The parts of a score are what the timeline
+box's gradient draws (screens.md).
+
+## E10 Hydration
+- **Need:**
+  - baseline: the EFSA adequate intake (total water 2.5 l a day for men,
+    2.0 for women, ~20 % from food);
+  - plus sweat losses by session duration, intensity and apparent
+    temperature (≈ 0.5–2 l/h, ACSM 2007);
+  - plus a margin for heat above ~25 °C.
+- **Intake:** drinks, plus food water from the catalogue. Habitual
+  caffeine counts as fluid (Maughan & Griffin 2003; Killer 2014).
+- **After training, when weighed before and after:** replace 1.25–1.5 ×
+  the mass lost (ACSM 2007).
+- **Output:** advice with its reason ("+0.4 l: 55 min of training at
+  22 °C"), never a judgement.
+
+## E11 Environment
+- Hourly weather and air quality from Open-Meteo for the day's place (the
+  home city; the phone's position when allowed), stored as imported
+  entries with their source.
+- **Context for:** hydration (E10), sleep (night temperature), mood
+  (daylight), outdoor training, and the correlations (E8: e.g. night
+  temperature → sleep).
+
+## E8 Correlations
+
+Pairs of daily (or per-session) metrics, after n ≥ 21 paired days:
+- Spearman ρ with a bootstrap 95 % interval;
+- lagged pairs (today's caffeine after 14:00 → tonight's sleep);
+- "may be chance" when the interval crosses 0;
+- never advice.
+Default pairs come from the kinds' relations; the user can add their own
+in Review.
+
+## E9 Data quality
+
+For every kind: missing days, implausible values (per field range),
+duplicates, sudden unit-like jumps (×2, ×10, ÷1000), estimated share.
+Shown in Review → Data quality, and before saving where cheap (E6
+flags). The dumbbell loads of 2026-10-15 are its first test case.

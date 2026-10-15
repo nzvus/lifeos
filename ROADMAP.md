@@ -8,56 +8,38 @@
 > 2026-10-09…11 were folded in and deleted; their sources are in
 > `docs/spec/sources.md`.
 
-## Now: the specification first (decided 2026-10-15)
-The developer: "rifare da 0? … pensare prima al design in toto, cosa va dove,
-quali dati raccogliere e dove vengono usati, gerarchie di aggregazione, tutto
-comprovato da formule o standard scientifici". Decision: no rewrite; write
-the complete spec in `docs/spec/` first, from the code and the running app,
-then compare code to spec area by area and rebuild only where the spec asks.
-1. **Spec** (`docs/spec/`): every feature, every collected datum (where
-   entered, where used, how aggregated), every formula with its source, the
-   aggregation hierarchy, and the agent's proposals marked as such. One file
-   per area. The developer reviews it before any code.
-2. **Data out and back in (ADR-0052)**, in parallel (no migration):
-   export v21 with every table + coverage test → Replace (A) → Merge (B,
-   stops on conflicts and offers A) → CSV zip (C).
-
-## Open requests (to place in the spec; 2026-10-11 → 10-15)
-- **Gym mode:** an automatic mode (one toggle: rest → set → rest without
-  touching the phone); in manual mode a per-exercise delay between the tap
-  and the real start; rests between sides (one side at a time) and in the
-  warm-up from evidence and customisable; advice on sets, reps and load
-  coherent across exercises and aware of order and fatigue; progress % that
-  weighs context (rest, order, readiness: sleep, macros, stress, caffeine,
-  creatine).
-- **Today:** compact, modular entry rows with the same information; a slim
-  coloured vertical time rail on phones; multiplier, price and delete at the
-  top of an entry; "⋯" replaced by a reset icon ("update with current
-  values"); the session not always at 17:30 (movable, remembers the last
-  time); timeline filters by kind (food, money, training, weigh-ins, mood…);
-  the Energy, Supplements, Week and Quality panels merged (compounds on the
-  timeline).
-- **Moments:** pre/post-workout as tags on the four main meals, set
-  automatically from timing and macros and evaluated (amends ADR-0044).
-- **Day programs:** preset, composable day templates, swappable mid-day; a
-  routine planner for the whole day, not only the gym, tied to the goal.
-- **Nutrition data:** micronutrients with researched optimal ranges and
-  limits (one row per nutrient, D7); fibre types in grams; macro quality and
-  origin; charts on the day page.
-- **Food, pantry, money:** food ↔ product ↔ purchase ↔ receipt line with one
-  price history; pantry locations and best-before; barcode focus (camera
-  autofocus) and upload from a file; create an ingredient or meal from
-  another one (replaces "duplicate").
+## Now: lifeos v2 (ADR-0053, decided 2026-10-15)
+The developer: "un'app completa per tracciare tutto il mio quotidiano… temporalmente
+intelligente… astrarre e unificare al massimo". The v1 spec (`docs/spec/01–08`)
+describes today's app and its issues; the v2 target is `docs/spec/v2/`: one
+timeline engine (kinds, entries, catalogs, templates, goals, metrics,
+judgements, decisions), a hybrid schema, a parallel app, design boards first.
+v1 gets fixes only; its open requests (gym auto mode, rests, coherent advice,
+compact rows, filters, meal roles, day templates, micronutrients, food identity,
+scanning) are placed in the v2 spec.
+1. **Target approval**: ADR-0053, `docs/spec/v2/*`, the design system and the
+   "lifeos v2" boards (links in `docs/spec/v2/README.md`). The developer
+   comments on the boards; the agent iterates.
+2. **Workspace**: `apps/v1` (moved), `apps/v2`, `packages/kit`; Vercel project
+   and Neon branch for v2.
+3. **Engines** test-first (time, metrics, planning, body state, targets,
+   training, judgements, correlations, data quality).
+4. **v2 schema + converter + parity** on the developer's export in PGlite.
+5. **Slices**: day timeline + generic kinds → food → training → body and mind
+   → habits, activities, goals → money and pantry → review. Each slice checked
+   on the phone against the developer's data.
+6. **Switch** when every v1 screen id is covered and parity is green.
+In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 
 ## Open items owned by the developer
-- **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#182; pick 3 to walk through.
+- **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#186; pick 3 to walk through.
 - **Habits the learnt expenditure needs (ADR-0041/0042):** weigh in every morning; close each day.
-- **Goal (ADR-0045/0046):** set it in Settings → Goal if not done; a fresh export in `Projects-artifacts/LIFEOS/` for the spec's audit.
+- **Data fix (2026-10-15):** load `Projects-artifacts/LIFEOS/lifeos-export-2026-10-15-incline-db-press-x2.json` with Settings → Replace (24 Incline db press sets ×2), before logging more; say whether the lateral raises' 10 kg is per dumbbell.
 - **Assistant:** off unless `ASSISTANT_ENABLED=true` ("no AI for now", 2026-10-09).
 - **Security:** rotate the production DB password pasted on 2026-09-30, unless already done.
 - **Decisions:** ADR-0007 still `proposed`; "What I learned" missing in most ADRs; a retro for s71–s102 never run.
 
-## Backlog (after the spec; unordered, one line each)
+## Backlog (v1 era; each item now lives in docs/spec/v2 or is dropped there)
 - Back-test of the learnt expenditure on the developer's export (refactor plan Phase 2)
 - Training: deload suggestion, one rest field (planned; actual derived) — ADR-0049 leftovers
 - Code: routes ≤ ~150 lines, logic in `core/`; drop `user_settings.target_*` (deprecated by ADR-0008)
