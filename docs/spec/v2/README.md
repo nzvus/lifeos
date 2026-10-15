@@ -13,7 +13,7 @@ approved design board.
 | [schema.md](schema.md) | the v2 tables (hybrid), constraints, what is never stored |
 | [migration.md](migration.md) | every v1 table → its v2 place; parity checks before the switch |
 | [screens.md](screens.md) | the 15 v2 screens; every v1 screen id → its v2 screen |
-| [kit.md](kit.md) | the shared parts every screen is built from: registry, `kit.css`, Box, Skyline, Nutrients, Rail; which screen uses which |
+| [kit.md](kit.md) | the shared parts every screen is built from: registry, `kit.css`, Box (with the time rail), Skyline, Nutrients; which screen uses which |
 
 Design (claude.ai artifacts, private to the developer):
 - design system "lifeos" (tokens, type, fonts from `src/design/`): https://claude.ai/artifact/G56wCe8VdGjWpyi4oTML2D

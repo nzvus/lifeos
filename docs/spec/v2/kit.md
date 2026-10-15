@@ -37,9 +37,10 @@ to one, and so do the design boards.
 | **Box** | entry (family, subcategory, title, value, link), score parts, mode `compact · times · open`, planned | every entry anywhere: the day, lists, plan blocks, a weighing, a session header, a meal header |
 | **Skyline** | model, scores, size `bg · mini · row · big` | behind a Box; a weighing's mini; a Review row; V-16 |
 | **Nutrients** | sources × kinds, targets, level `L0-box · L0-ribbon · L1 · L2`, host family | inside a food Box (L0-box), list rows (L0-ribbon), day header and composer (L1), the window (L2) |
-| **Rail** | time, family, mode | the time rail of every timeline |
 
-A Box chooses what goes inside it from its family: Nutrients L0 for
+The time rail is part of Box (`rail` on or off), so the registry that
+gives a row its colour and icon stays in one place. A Box chooses what
+goes inside it from its family: Nutrients L0 for
 food, the muscle strip for training, the need bar for water. Pages pass
 data, never colours or sizes.
 
@@ -51,12 +52,12 @@ data, never colours or sizes.
   - each macro row opens on the same `--t-box` transition;
   - the kinds and the foods slide in with the row, not after it.
 - **The macro icons behave like drawings:** small when closed; when the
-  row opens they grow and swap to the kind legend.
+  row opens they grow and tilt, on the same transition.
 - **Tapping a food highlights it in every row**, the way a tapped entry
   highlights on the day.
 
 ## 5. Screens → components
-| Screen | Box | Skyline | Nutrients | Rail |
+| Screen | Box | Skyline | Nutrients | Time rail |
 |---|---|---|---|---|
 | V-01 Today | every entry | bg | L0-box, L1 day header | yes |
 | V-02 Add | suggestions (compact) | bg | L0-ribbon | — |
@@ -71,9 +72,11 @@ data, never colours or sizes.
 
 ## 6. Order of work on the boards
 1. `kit.css` with Box, Skyline and Nutrients as components; V-01 rebuilt
-   on them.
+   on them (done 2026-10-15; boards "Kit ·" in their own row).
 2. V-04 Composer and V-02 Add.
 3. V-05 Gym, V-06 Tracker, V-10 Review and V-16 Scores.
 4. V-03 Entry, V-08 Plan and V-09 Goals.
 
-The old `Nutrients` board is removed when the last page stops using it.
+Until a page is converted it reaches Nutrients through the old size
+names (`mini` → L0-box, `row` and `card` → L1), so nothing breaks in
+between.
