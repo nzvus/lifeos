@@ -628,7 +628,7 @@ export const packsIt: Messages["packs"] = {
   notJson: "Il file non è un JSON leggibile.",
   tooBig: "File troppo grande (massimo 2 MB).",
   isExport:
-    "Questo è un export completo, non un pacchetto: un export sostituisce i tuoi dati e si ripristina con la procedura di sostituzione (docs/runbooks/replace-data.md), non da qui.",
+    "Questo è un export completo, non un pacchetto: un export sostituisce i tuoi dati. Usa «Sostituisci con un file» in I tuoi dati, qui sopra.",
   kinds: {
     exercises: "esercizi: {n}",
     routines: "schede: {n}",
