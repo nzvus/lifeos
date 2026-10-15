@@ -32,6 +32,9 @@ header.
     never its tracker page.
   - Goals is reached from Trackers, Plan ("Obiettivi ›") and the day's
     goal line.
+  - Settings (V-14) is the gear in the header of every top-level
+    place; the Catalog (V-07) is reached from the composer's header and
+    from Settings.
 
 ## The screens
 
