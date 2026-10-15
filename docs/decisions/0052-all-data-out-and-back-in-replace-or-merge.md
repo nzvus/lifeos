@@ -45,10 +45,15 @@ A zip with one CSV per table, readable in a spreadsheet. Export only.
 ## Decision
 **A, B and C**, as three features over one file format.
 
-1. **One format, version 21:** `lifeos-export` gains every owned table not yet
-   in it, plus the trash (rows with `deletedAt`, marked as such). The format
-   stays JSON with the row ids, because ids carry the references inside the
-   file. Secrets stay out: password, sessions, and the assistant's key
+1. **One format, version 21:** `lifeos-export` holds every owned table,
+   flat, one section per table (`tables.<sql name>`), the trash included
+   (rows with `deletedAt`). The list, the references and the order come
+   from the schema itself (`core/export/tables.ts`). The file is still JSON
+   with the row ids, because ids carry the references inside the file.
+   Versions 1–20 nested records in their parents. They stay readable, and
+   their links into the trash, which they left out, are cleared as the
+   database would clear them. Flat beats nested here: replace, merge and
+   CSV walk one generic list instead of 50 hand-written shapes. Secrets stay out: password, sessions, and the assistant's key
    (encrypted with the server's secret, useless elsewhere). A test lists
    every table in `core/db/schema` and fails if one is neither exported nor
    on a short, commented exclusion list (auth tables, rate limits). This
