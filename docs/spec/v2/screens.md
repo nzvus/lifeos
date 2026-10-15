@@ -144,11 +144,17 @@ header.
 - **A drawing on the left**: the entry's own icon, large, rotated and at
   ~9 % opacity, so the text stays legible. It is clipped by the box's
   silhouette, never drawn outside it.
-- **The drawing moves with the box's state**, each family its own way:
-  compact → times shown → details open. Plate turns, dumbbell lifts,
-  moon swings and sets, scale needle tips, drop falls. Off with
-  `prefers-reduced-motion`. Every place that reuses the box reuses the
-  motion.
+- **The drawing moves with the box**, in the same transition and with
+  the same timing (≈ 0.5 s, the box's curve), never as a separate
+  animation:
+  - compact: small (~44 px) and whole, so it reads;
+  - times shown: each family shifts its own way (plate turns, dumbbell
+    rises, moon sets, drop sinks);
+  - details open: it grows ~1.9× and cross-fades to a richer cousin
+    (dinner → cutlery, wake → full sun, bed → moon with a star, weight →
+    trend line, water → glass).
+  Off with `prefers-reduced-motion`. Every place that reuses the box
+  reuses the motion.
 - **Planned** entries get a fainter outline and a light hatch.
 - **The score as a criterion skyline** behind the right ~46 % of the box:
   - one column per criterion, in the model's fixed order;
