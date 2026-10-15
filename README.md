@@ -41,7 +41,7 @@ npm run dev           # http://localhost:3000
 | `npm run db:generate` | Schema change -> new SQL migration file in `drizzle/` (read it!) |
 | `npm run db:migrate` | Apply migrations to the `DATABASE_URL` database |
 | `npm run import:fitforge -- FILE --email EMAIL [--apply]` | Import FitForge ingredients + meals (dry run without `--apply`) |
-| `npm run import:lifeos -- FILE --email EMAIL [--apply --replace]` | Replace an account's data with a lifeos export (runbook: `docs/runbooks/replace-data.md`) |
+| `npm run import:lifeos -- FILE --email EMAIL [--apply --replace]` | Replace ALL of an account's data with a lifeos export, any version (runbook: `docs/runbooks/replace-data.md`) |
 | `npm run upsert:ingredients -- FILE --email EMAIL [--apply]` | Create/update ingredients by name (label values, receipt prices); dry run shows every changed field |
 | `npm run import:training -- --email EMAIL --logs DIR --fitforge FILE [--apply]` | Import training history (PUSH/PULL text logs, FitForge); dry run without `--apply` |
 | `npm run classify:exercises -- --email EMAIL [--apply]` | Suggest movement pattern and muscle groups for exercises |

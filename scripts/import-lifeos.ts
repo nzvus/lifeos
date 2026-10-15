@@ -1,22 +1,22 @@
 /**
- * scripts/import-lifeos.ts — REPLACE an account's nutrition data with a
- * lifeos export file (ingredients, meals, day types, day plans, log, settings).
+ * scripts/import-lifeos.ts — REPLACE all of an account's data with a lifeos
+ * export file, any version (ADR-0052; the same core as Settings → Replace).
  *
  *   npm run import:lifeos -- FILE --email you@example.com                     (dry run)
  *   npm run import:lifeos -- FILE --email you@example.com --apply --replace   (writes)
  *
  * Destructive: the account's current data is deleted and replaced, in one
- * transaction (core/import/lifeos-apply.ts). Both --apply and --replace are
+ * transaction (core/import/replace.ts). Both --apply and --replace are
  * required to write, so a copy-paste of the dry run can't do it by accident.
  * Before replacing production, run the `backup` workflow (docs/runbooks).
- * The account itself (login, password, sessions) is not touched.
+ * The account itself (login, password, sessions) is not touched, nor are its
+ * language and assistant key.
  */
 import "dotenv/config";
 import { readFile } from "node:fs/promises";
 import { openDb } from "../src/core/db/client";
 import { ownerByEmailForLocalScript } from "../src/core/identity/local-admin";
-import { parseLifeosExport } from "../src/core/import/lifeos";
-import { countOwned, replaceWithExport } from "../src/core/import/lifeos-apply";
+import { planReplace, readExport, replaceAll } from "../src/core/import/replace";
 
 function usage(message: string): never {
   console.error(
@@ -50,10 +50,10 @@ try {
 } catch (e) {
   usage(`cannot read ${file} as JSON: ${e instanceof Error ? e.message : String(e)}`);
 }
-const parsed = parseLifeosExport(raw);
+const parsed = readExport(raw);
 if (!parsed.ok) {
   console.error(`${file} is not a valid lifeos export:`);
-  for (const p of "problems" in parsed ? parsed.problems : []) console.error(`  ! ${p}`);
+  for (const p of parsed.problems) console.error(`  ! ${JSON.stringify(p)}`);
   process.exit(2);
 }
 
@@ -71,29 +71,32 @@ try {
   );
   if (!owner) usage(`no account with email ${email} in this database`);
 
-  const before = await countOwned(db, owner);
-  const d = parsed.value;
-  const after = {
-    ingredients: d.ingredients.length,
-    meals: d.meals.length,
-    dayProfiles: d.dayProfiles.length,
-    dayPlans: d.dayPlans.length,
-    logEntries: d.log.length,
-  };
+  const plan = await planReplace(db, owner, parsed.file);
   console.log(
     apply
       ? `REPLACING data of ${email} on ${host}`
       : `DRY RUN on ${host} — nothing is written`,
   );
-  console.log(`\n${"".padEnd(14)}${"now".padStart(6)}${"after".padStart(8)}`);
-  for (const k of Object.keys(after) as (keyof typeof after)[]) {
+  console.log(`file: version ${plan.version}, exported ${plan.exportedAt ?? "?"}`);
+  console.log(`\n${"".padEnd(26)}${"now".padStart(6)}${"after".padStart(8)}`);
+  for (const r of plan.replaced)
     console.log(
-      `${k.padEnd(14)}${String(before[k]).padStart(6)}${String(after[k]).padStart(8)}`,
+      `${r.table.padEnd(26)}${String(r.now).padStart(6)}${String(r.after).padStart(8)}`,
     );
-  }
+  for (const r of plan.lost)
+    console.log(
+      `${r.table.padEnd(26)}${String(r.now).padStart(6)}${"0".padStart(8)}  LOST: not in this older file`,
+    );
+  if (plan.kept.length)
+    console.log(`\nkept as they are (not in this file): ${plan.kept.join(", ")}`);
+  if (plan.dropped.length)
+    console.log(`ignored (old fields): ${plan.dropped.join(", ")}`);
   if (apply) {
-    await replaceWithExport(db, owner, d);
-    console.log("\nDone: one transaction, all or nothing.");
+    const done = await replaceAll(db, owner, parsed.file);
+    if (!done.ok) {
+      console.error(`\nNothing written: ${JSON.stringify(done.problems)}`);
+      process.exitCode = 1;
+    } else console.log("\nDone: one transaction, all or nothing.");
   } else {
     console.log("\nTo write: add --apply --replace (after taking a backup).");
   }

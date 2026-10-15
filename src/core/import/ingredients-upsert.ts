@@ -27,7 +27,28 @@ import {
   updateIngredient,
 } from "../nutrition/repositories/ingredients";
 import type { IngredientWrite } from "../nutrition/repositories/ingredients";
-import { ingredientRow } from "./lifeos";
+
+/** "12.300" with at most `scale` decimals (and no sign or exponent). */
+const dec = (scale: number) =>
+  z.string().regex(new RegExp(`^\\d{1,9}(\\.\\d{1,${scale}})?$`), "invalid_number");
+const nutrient = dec(3);
+
+/** One ingredient as stored (no id): every number exact, prices in pairs. */
+const ingredientRow = z.object({
+  name: z.string().min(1),
+  description: z.string(),
+  unit: z.enum(["g", "ml"]),
+  kcal: nutrient,
+  protein: nutrient,
+  carbs: nutrient,
+  sugars: nutrient,
+  fat: nutrient,
+  saturatedFat: nutrient,
+  fiber: nutrient,
+  salt: nutrient,
+  packagePriceCents: z.number().int().nonnegative().nullable(),
+  packageSize: dec(2).nullable(),
+});
 
 const upsertFile = z.object({
   format: z.literal("lifeos-ingredients"),

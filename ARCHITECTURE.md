@@ -87,7 +87,8 @@ merge. No `drizzle-kit push`. New tables, not columns on old ones: safe in any o
 
 Backups: `backup.yml` daily → `scripts/backup.sh` (pg_dump -Fc, verified, encrypted with
 age) → workflow artifact, 30 days. Restore: `scripts/restore-drill.sh` into an empty
-database only. Export: `GET /api/export` (versioned JSON, live records, no secrets).
+database only. Export: `GET /api/export` (JSON v21: every owned table from `core/export/tables.ts`, trash included,
+no secrets; ADR-0052); `core/import/replace.ts` replaces an account with any version (CLI today).
 
 ## Delivery (ADR-0004)
 
