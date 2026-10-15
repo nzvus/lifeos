@@ -14,5 +14,8 @@ approved design board.
 | [migration.md](migration.md) | every v1 table → its v2 place; parity checks before the switch |
 | [screens.md](screens.md) | the 15 v2 screens; every v1 screen id → its v2 screen |
 
-Design: the "lifeos v2" Design System and design boards (claude.ai
-artifacts; links in the PR and in ROADMAP once approved).
+Design (claude.ai artifacts, private to the developer):
+- design system "lifeos" (tokens, type, fonts from `src/design/`): https://claude.ai/artifact/G56wCe8VdGjWpyi4oTML2D
+- boards "lifeos v2" (V-01 day, V-02 capture, V-03 entry, V-04 food composer,
+  V-05 gym auto mode, V-06 tracker, V-08 day template, V-09 goals, V-10 review),
+  drawn on the developer's data of 2026-10-15: https://claude.ai/artifact/Q2fD1qXBKgMJ2N9BuTgHbZ

@@ -17,8 +17,9 @@ judgements, decisions), a hybrid schema, a parallel app, design boards first.
 v1 gets fixes only; its open requests (gym auto mode, rests, coherent advice,
 compact rows, filters, meal roles, day templates, micronutrients, food identity,
 scanning) are placed in the v2 spec.
-1. **Target approval**: ADR-0053, `docs/spec/v2/*`, the Design System and the
-   "lifeos v2" design boards. The developer comments; the agent iterates.
+1. **Target approval**: ADR-0053, `docs/spec/v2/*`, the design system and the
+   "lifeos v2" boards (links in `docs/spec/v2/README.md`). The developer
+   comments on the boards; the agent iterates.
 2. **Workspace**: `apps/v1` (moved), `apps/v2`, `packages/kit`; Vercel project
    and Neon branch for v2.
 3. **Engines** test-first (time, metrics, planning, body state, targets,
