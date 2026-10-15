@@ -15,6 +15,23 @@ header.
 - ⊕ is the one way to add anything.
 - Every view keeps a URL (`/day/2026-10-15?filter=food`,
   `/review?metric=…&range=…`), as in v1.
+- **Top level and sub-pages** (board review, 2026-10-15):
+  - the bar shows on the four places, never on a sub-page;
+  - a sub-page has a back link that names where it goes, and the
+    system back returns to where the person came from:
+
+    | Sub-page | Canonical parent |
+    |---|---|
+    | composer, gym | Today |
+    | a tracker's page, Goals | Trackers |
+    | Come valutiamo (V-16) | the score that opened it, with that score's model selected |
+  - **Trackers opens the list of trackers:** one Box each, with the
+    week's score, grouped by domain, plus Goals and "new tracker". It
+    never opens a single tracker.
+  - From ⊕, a kind without a specialised screen opens the entry sheet,
+    never its tracker page.
+  - Goals is reached from Trackers, Plan ("Obiettivi ›") and the day's
+    goal line.
 
 ## The screens
 

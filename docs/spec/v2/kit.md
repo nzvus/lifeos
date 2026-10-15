@@ -37,6 +37,7 @@ to one, and so do the design boards.
 | **Box** | entry (family, subcategory, title, value, link), score parts, mode `compact · times · open`, planned | every entry anywhere: the day, lists, plan blocks, a weighing, a session header, a meal header |
 | **Skyline** | model, scores, size `bg · mini · row · big` | behind a Box; a weighing's mini; a Review row; V-16 |
 | **Nutrients** | sources × kinds, targets, level `L0-box · L0-ribbon · L1 · L2`, host family | inside a food Box (L0-box), list rows (L0-ribbon), day header and composer (L1), the window (L2) |
+| **NavBar** | active place | the bottom bar of the four top-level places; ⊕ in the middle |
 
 The time rail is part of Box (`rail` on or off), so the registry that
 gives a row its colour and icon stays in one place. A Box chooses what
