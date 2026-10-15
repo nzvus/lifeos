@@ -42,7 +42,9 @@ import { isAdmin, requireContext } from "@/app/_server/owner";
 import { fill } from "@/i18n";
 import { PageHeader } from "@/ui/PageHeader";
 import { Section } from "@/ui/Section";
+import { DataForm } from "@/features/account/settings/DataForm";
 import { PackForm } from "@/features/account/settings/PackForm";
+import { checkReplaceAction, replaceAction } from "./data-actions";
 import { addStarterAction, importPackAction } from "./pack-actions";
 import { createInviteAction, deleteInviteAction } from "./invite-actions";
 import { InviteForm, type InviteRow } from "@/features/account/settings/InviteForm";
@@ -265,6 +267,10 @@ export default async function SettingsPage() {
         <a href="/api/export" className={`self-start ${buttonClass()}`}>
           {t.settings.export}
         </a>
+        {/* ADR-0052 A: the way back in, with a safety copy first. */}
+        <h3 className="pt-2 font-display text-item font-semibold">{t.data.replaceTitle}</h3>
+        <p className="text-muted">{t.data.replaceHint}</p>
+        <DataForm check={checkReplaceAction} replace={replaceAction} t={t.data} />
       </Section>
       {admin && (
         <Section
