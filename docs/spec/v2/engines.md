@@ -152,6 +152,8 @@ never mixed.
 | Distribution | protein spread (meals ≥ 0.25–0.4 g/kg), peri-workout coverage, energy after 21:00 | ISSN 2017; chrononutrition reviews |
 | Recovery | sleep vs need and regularity, check-in z-scores, 3-day balance, load trend | Windred 2024; Impellizzeri 2020 |
 | Habits, goals | completion, streaks; pace vs needed | — |
+| Weighing | **reliable** (30 %, locked ≥ 20): morning, fasted, after the toilet, same scale; lowered by context — salt or carbs high the day before, legs trained in the last 3 days, a meal out. **Pace** (40 %, 25–55): 7-day trend slope vs the goal's, within 0.25–1 %/week. **Consistency** (30 %, 10–40): valid weighings in the last 7 days. The number itself is never judged; reliability also sets the weighing's weight in the trend (E4) | Thomas 2014; Helms 2014; Zheng 2015 |
+| Water | **vs expected now** (50 %, 30–70): the day's need (E10) spread over waking hours. **After training** (30 %, 10–40): 1.25–1.5 × estimated sweat within 2 h. **Spread** (20 %, 0–30): small doses, little in the 2 h before bed | EFSA 2010; ACSM 2007; Shirreffs 1996 |
 
 NOVA is shown, not scored. The parts of a score are what the timeline
 box's gradient draws (screens.md).

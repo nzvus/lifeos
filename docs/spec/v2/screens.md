@@ -137,12 +137,20 @@ header.
   - mind and journal: a speech bubble with a tail;
   - habit: a pill;
   - water: a squashed drop.
+- **The subcategory bends the family's silhouette**, never replaces it:
+  breakfast a bowl (rounded bottom), snack a bitten corner, dinner a
+  double rim; cardio an arrow-ended ticket; waking a rising arc. New
+  subcategories get a variant only when they are told apart often.
+- **A drawing on the left**: the entry's own icon, large, rotated and at
+  ~9 % opacity, so the text stays legible.
 - **Planned** entries get a fainter outline and a light hatch.
 - **The score as a criterion skyline** behind the right ~46 % of the box:
   - one column per criterion, in the model's fixed order;
   - each column as wide as its weight and filled up to its score;
   - hard edges between columns;
   - a dashed line at the "met" threshold (70).
+  The legend says it in words: "colonna larga quanto il peso, piena
+  quanto il voto".
 - **Opened**, each criterion shows ✓ / ◐ / ○, its weight, a bar with the
   same threshold and its number, in the same order as the columns.
 - **Text** stays on the light left side. The aria-label lists every
@@ -150,6 +158,11 @@ header.
 - **The same box** in the compact (time rail) and the extended view, and
   the same numbers as every aggregate. The composer's meal score uses the
   same skyline.
+- **Everywhere a score appears**, the skyline is its picture: each
+  weighing on the tracker page, the session panel in the gym, "Voti
+  della settimana" on Review (one row per family), and V-16, which has
+  one tab per model (meal, weighing, water) and a context panel saying
+  what moved the number.
 
 ### Nutrients and environment on the day
 - The nutrient component's bars use the kinds of `kinds.md`. Opened:
