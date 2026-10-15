@@ -126,24 +126,30 @@ header.
   vertical times. Expanded: 64 px with horizontal times and icons, while
   the secondary details on the right shrink away.
 
-### The timeline box grammar (2026-10-15)
-- **A shape per family**, built from the theme's radii:
-  - food: a plate (soft corners);
-  - training: a ticket (chamfered corner);
-  - sleep and rest: a capsule;
-  - body: a square label with a double border;
-  - money: a receipt (zig-zag bottom edge);
-  - mind and journal: a speech bubble;
-  - habits: a compact pill.
-- **Outline:** solid when done, dashed when planned.
-- **Quality gradient:**
-  - a band fading in from the right, in the family's hue;
-  - one stop per part of the entry's score, each as wide as its weight
-    and as strong as its value;
-  - alpha ≤ 0.35 behind any text; the text stays on the left;
-  - the parts are listed in the aria-label and a tap opens them.
+### The timeline box grammar (2026-10-15, revised)
+- **A silhouette per family**, drawn as a mask that holds at any height,
+  with the outline drawn around the mask:
+  - meal: a plate with an inner rim;
+  - training: a ticket with two side notches;
+  - sleep: a soft box with a crescent bite;
+  - body: a tag with a point and a hole;
+  - money: a receipt, toothed top and bottom;
+  - mind and journal: a speech bubble with a tail;
+  - habit: a pill;
+  - water: a squashed drop.
+- **Planned** entries get a fainter outline and a light hatch.
+- **The score as a criterion skyline** behind the right ~46 % of the box:
+  - one column per criterion, in the model's fixed order;
+  - each column as wide as its weight and filled up to its score;
+  - hard edges between columns;
+  - a dashed line at the "met" threshold (70).
+- **Opened**, each criterion shows ✓ / ◐ / ○, its weight, a bar with the
+  same threshold and its number, in the same order as the columns.
+- **Text** stays on the light left side. The aria-label lists every
+  criterion.
 - **The same box** in the compact (time rail) and the extended view, and
-  the same numbers as every aggregate.
+  the same numbers as every aggregate. The composer's meal score uses the
+  same skyline.
 
 ### Nutrients and environment on the day
 - The nutrient component's bars use the kinds of `kinds.md`. Opened:
