@@ -2,46 +2,80 @@
 
 > One file: future (top), present (middle), past (bottom). Completed sprints
 > are compressed to a few lines by the `retro` skill — never deleted.
+> This is the ONE plan (2026-10-15). The developer's raw feedback goes to
+> `Projects-artifacts/LIFEOS/considerations.txt` (Syncthing); the agent folds
+> it in here. The refactor plan, handoff, audit and feedback files of
+> 2026-10-09…11 were folded in and deleted; their sources are in
+> `docs/spec/sources.md`.
 
-## Backlog (unordered, one line each)
-- Movement extras: stairs/floors, bike commuting, hours on one's feet at work (ADR-0030 left them out)
-- Sleep import from Health Connect / Apple Health, if a native shell or an export becomes available (ADR-0031 tripwire)
-- Offline logging at the gym (ADR-0019 tripwire; the app is already installable)
-- Assistant: more tools (products and purchases, routines, exercises, ratings, tags, day types, batches), advice prompts, streaming
-- Exercise guides: specific guides for common lifts beyond the pattern ones, if the pattern ones prove too general (ADR-0028 tripwire)
-- Training cycle that picks the day type automatically (ADR-0008 option C)
-- Gamification: weekly/monthly roll-ups, objectives
-- Data ownership: FitForge daily logs as snapshots (ADR-0007); "re-snapshot entry" if label fixes become common
-- Drop `user_settings.target_*` (deprecated by ADR-0008) once profiles have run in production for a while
-- Finance: accounts, entries, bank/PayPal importers, categories, monthly report — needs its own ADR on where financial data lives
-- Receipts: photo/OCR → line items → products linked to ingredients; price history
-- Day planner, tasks/habits, rewards over an event stream
-- Notes bridge to the Obsidian vault; home bridge on a LAN device (Home Assistant, Syncthing) — needs its own ADR
-- Template meta-loop: reset `ai-native-starter` to a clean template; record what S00–S12 taught in its TEMPLATE-CHANGELOG
+## Now: the specification first (decided 2026-10-15)
+The developer: "rifare da 0? … pensare prima al design in toto, cosa va dove,
+quali dati raccogliere e dove vengono usati, gerarchie di aggregazione, tutto
+comprovato da formule o standard scientifici". Decision: no rewrite; write
+the complete spec in `docs/spec/` first, from the code and the running app,
+then compare code to spec area by area and rebuild only where the spec asks.
+1. **Spec** (`docs/spec/`): every feature, every collected datum (where
+   entered, where used, how aggregated), every formula with its source, the
+   aggregation hierarchy, and the agent's proposals marked as such. One file
+   per area. The developer reviews it before any code.
+2. **Data out and back in (ADR-0052)**, in parallel (no migration):
+   export v21 with every table + coverage test → Replace (A) → Merge (B,
+   stops on conflicts and offers A) → CSV zip (C).
+
+## Open requests (to place in the spec; 2026-10-11 → 10-15)
+- **Gym mode:** an automatic mode (one toggle: rest → set → rest without
+  touching the phone); in manual mode a per-exercise delay between the tap
+  and the real start; rests between sides (one side at a time) and in the
+  warm-up from evidence and customisable; advice on sets, reps and load
+  coherent across exercises and aware of order and fatigue; progress % that
+  weighs context (rest, order, readiness: sleep, macros, stress, caffeine,
+  creatine).
+- **Today:** compact, modular entry rows with the same information; a slim
+  coloured vertical time rail on phones; multiplier, price and delete at the
+  top of an entry; "⋯" replaced by a reset icon ("update with current
+  values"); the session not always at 17:30 (movable, remembers the last
+  time); timeline filters by kind (food, money, training, weigh-ins, mood…);
+  the Energy, Supplements, Week and Quality panels merged (compounds on the
+  timeline).
+- **Moments:** pre/post-workout as tags on the four main meals, set
+  automatically from timing and macros and evaluated (amends ADR-0044).
+- **Day programs:** preset, composable day templates, swappable mid-day; a
+  routine planner for the whole day, not only the gym, tied to the goal.
+- **Nutrition data:** micronutrients with researched optimal ranges and
+  limits (one row per nutrient, D7); fibre types in grams; macro quality and
+  origin; charts on the day page.
+- **Food, pantry, money:** food ↔ product ↔ purchase ↔ receipt line with one
+  price history; pantry locations and best-before; barcode focus (camera
+  autofocus) and upload from a file; create an ingredient or meal from
+  another one (replaces "duplicate").
 
 ## Open items owned by the developer
-- **#167 (migration 0034):** the check-in becomes a switch, off by default; after migrate, merge.
-- **Goal (ADR-0045/0046):** Settings → Goal: what for, target weight (your weight minus the fat to lose), optionally a date. A fresh export in `Projects-artifacts/LIFEOS/` for a second audit with your real goal.
-- **Habits the learnt expenditure needs (ADR-0041/0042):** weigh in every morning; close each day from its chip on Today (complete / something missing). Proposals start after about 8 weeks.
-- **Try on the phone:** the gym clock (rest → overtime → Go → set → Done), resuming after closing the app, one side at a time, the warm-up ramp; Money (a movement from Today's "+", a receipt pasted or photographed); the eye that takes a planned dish out of the total.
-- **Assistant:** off unless `ASSISTANT_ENABLED=true` on Vercel (2026-10-09, "no AI for now"); when turned on: `ASSISTANT_KEY_SECRET`, the OpenRouter key in Settings; "Read with the AI" is untested with a real key.
-- **Try on the phone (refactor):** a barcode scan in Firefox and Chrome; a Lidl receipt photographed; snacks placed by their time; Trends' targets on dynamic days; closing a day.
-- **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#167. D6 of the plan: pick 3 to walk through.
+- **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#182; pick 3 to walk through.
+- **Habits the learnt expenditure needs (ADR-0041/0042):** weigh in every morning; close each day.
+- **Goal (ADR-0045/0046):** set it in Settings → Goal if not done; a fresh export in `Projects-artifacts/LIFEOS/` for the spec's audit.
+- **Assistant:** off unless `ASSISTANT_ENABLED=true` ("no AI for now", 2026-10-09).
 - **Security:** rotate the production DB password pasted on 2026-09-30, unless already done.
-- **Decisions:** ADR-0007 still `proposed`; "What I learned" missing in most ADRs.
+- **Decisions:** ADR-0007 still `proposed`; "What I learned" missing in most ADRs; a retro for s71–s102 never run.
 
-## Next: the refactor (plan of 2026-10-09; replaces S13)
-The developer asked for the app to be reviewed as a whole (`Projects-artifacts/LIFEOS/considerations.txt`); the analysis and plan are in `Projects-artifacts/LIFEOS/PLAN-lifeos-refactor-2026-10-09.md` (Syncthing, outside the repo). Recommendations D1–D5 accepted on 2026-10-09 ("procediamo"): refactor in phases, no new areas until Phase 6, adaptive expenditure, a weekly budget, phases in this order. D6 (which PRs to walk through) is the developer's.
-0. **Phase 0 — measured bugs (#151, merged):** snacks by time; Lidl receipts; barcode in every browser; implausible weigh-ins; assistant off (`ASSISTANT_ENABLED`).
-1. **Phase 1 — one day engine (ADR-0040, #152 merged):** `core/day` `readDays` for Today, the week strip, Plan, Settings, Trends, the assistant; carbs take the rest (fat no longer pushed to 35 %); Trends shows dynamic days' targets. Freezing computed numbers moves to Phase 2 (the weekly check-in).
-2. **Phase 2 — expenditure and goals (ADR-0041–0043, 0045, 0048; #153–#159, #164, #167):** expenditure learnt by a Kalman filter; closed days; a goal as kind + target + day with the pace planned within ranges; an optional weekly check-in (off by default) that can fix a week. "How this number is built" under the day's goal line (#170). Still open: the back-test on the developer's export.
-3. **Phase 3 — day programs (ADR-0044, 0046, 0047; #161–#163, #165, #166):** a day type is the day's program with timed slots, training time and a shift; Today in its slots with peri-workout hints; the goal is the one source of the numbers; recomposition with a target; "This week" (balance, an optional catch-up within ±30 % and the BMR, protein daily, salt/fibre as averages). Pre/post-workout slots follow the session's real start (#168). The fibre-quality view (E12, inulin/FOS g a day) moves to Phase 5: it needs fibre types with amounts.
-4. **Phase 4 — training (ADR-0049, A×4 on 2026-10-10):** PR 1 = reps left per set (0–4+, one tap in gym mode and in the session editor; migration 0035) and progression gated by it (hold at failure, a step lighter after two sessions at failure). Next: volume per muscle (indirect ½, 10–20 band) and readiness hints.
-5. Food identity: food ↔ product (brand, barcode) ↔ purchase ↔ receipt line; one price history; pantry locations and best-before; micronutrients and fibre types with amounts (D7 = one row per nutrient, delegated 2026-10-09).
-6. **UI — Today is one timeline (ADR-0050, direction A; #174–#176 and PR 4):** slots on a timeline with the now line and training as a block; entries edited in place; one page with a compact header; one nutrient bar for the day and the week's averages; the score row (day quality + the week's average furthest off); meal suggestions per slot. Next: the score page (C), after Phase 5.
+## Backlog (after the spec; unordered, one line each)
+- Back-test of the learnt expenditure on the developer's export (refactor plan Phase 2)
+- Training: deload suggestion, one rest field (planned; actual derived) — ADR-0049 leftovers
+- Code: routes ≤ ~150 lines, logic in `core/`; drop `user_settings.target_*` (deprecated by ADR-0008)
+- Sleep import from Health Connect / Apple Health, if a native shell or an export becomes available (ADR-0031 tripwire)
+- Offline logging at the gym (ADR-0019 tripwire)
+- Movement extras: stairs, bike commuting
+- Finance: accounts and balances, bank/PayPal importers, monthly report
+- Day planner, tasks/habits, rewards over an event stream (the timeline already shows every logged kind)
+- Notes bridge to the Obsidian vault; home bridge on a LAN device — needs its own ADR
+- Assistant: more tools, streaming — only when it is turned back on
+- Template meta-loop: reset `ai-native-starter`; record what this project taught in its TEMPLATE-CHANGELOG
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
+
+### Refactor phases 4 and 6, the movement model, the Today review — s89–s102 (2026-10-10 → 10-11, no retro yet)
+Shipped: reps left per set and progression gated by them, readiness and volume notes (#171–#172, ADR-0049, migration 0035); Today as one page and one timeline of slots, entries, sessions and the day's events, entries edited in place, slot suggestions, one nutrient bar, score row (#173–#178, #180, ADR-0050); steps count from zero and the level is time on your feet, on the trend weight (#179, #182, ADR-0051); set times that survive a misclick (#181); week navigation and a month calendar (#182). Phases 0–3 of the 2026-10-09 plan were done before (see below) | Decisions: ADR-0049 A×4, ADR-0050 A; ADR-0051 delegated | Lesson: #178–#181 shipped in a hurry were sent back ("non volevo un lavoro così frettoloso"): check every touched surface on the phone against the developer's data | Carried over: retro; the spec.
+
 
 ### Refactor, phases 2b–3 and the audit — s77–s88 (2026-10-10, no retro yet)
 Shipped: the goal and the weekly check-in (#157–#158, ADR-0043), export of calibration factors (#159), day programs with slots, shift and new moments (#161–#163, ADR-0044), the goal as kind + target + day with planned pace (ADR-0045), an audit on the developer's data with five display fixes (#164), the goal as the one source and recomposition with a target (#165, ADR-0046), "This week" (#166, ADR-0047), the check-in made optional (#167, ADR-0048). Migrations 0031–0034, 570 tests | Decisions: ADR-0044 A×4 ("procedi"); the rest delegated ("fai tutto quello che ritieni meglio") | Lesson: features shipped faster than the developer could try them, and layering a goal on day types without retiring the old fields made the app look broken ("forse va rifatto tutto da capo"). An audit on the developer's own data showed the engine right and the concepts overlapping. Explain a feature in one plain sentence before shipping it, and retire what it replaces in the same PR | Carried over: retro; second audit on a fresh export; "What I learned" for ADR-0040–0048.
