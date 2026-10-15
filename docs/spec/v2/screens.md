@@ -90,3 +90,37 @@ header.
 | S-S01 S-S02 S-S03 S-S04 S-S05 S-S06 S-S07 S-S08 S-S09 S-S10 settings | V-14 | goal moves to V-09; the assistant key only while it is parked |
 | S-A01 assistant | dropped for now | parked since 2026-10-09; it can come back as a capture mode (V-02) |
 | S-U01 sign-in / sign-up | V-15 | |
+
+## Shared rules of the interface (the developer, 2026-10-15)
+
+- **One nutrient element, everywhere.** Every place that shows nutrients
+  uses the same component (board "Componente · Nutrienti") in one of three
+  sizes:
+  - `card`: the day; kcal, then protein, carbs, fat and fibre as
+    accordions, micronutrients, and the limits;
+  - `row`: four bars with value and target (a meal against its block, a
+    week's averages);
+  - `mini`: four small columns (a food line, a meal on the timeline, a
+    suggestion), each bar a share of the day's target.
+- **The same information in every size.**
+  - Each macro's bar is split by kind:
+    - protein: animal / plant;
+    - carbs: starch and other / sugars (added / natural with the v2
+      catalogue);
+    - fat: unsaturated / saturated (mono / poly / omega-3 with the
+      catalogue);
+    - fibre: insoluble, resistant starch, β-glucan, pectin, inulin/FOS,
+      GOS, untyped.
+  - A kind's shade is fixed by kind, never by position, so β-glucan
+    looks the same in every meal.
+  - Planned amounts are hatched.
+  - The target is a mark that moves with the scale.
+- **Icons over words.** Every row, chip, tile and field leads with its
+  icon (lucide-style strokes, coloured by its identity hue); text is
+  short and secondary.
+- **Motion that explains.** Bars grow on load; accordions and the time
+  rail animate open and closed; everything is off with
+  `prefers-reduced-motion`.
+- **The time rail.** On the day, collapsed: a 20 px coloured rail with
+  vertical times. Expanded: 64 px with horizontal times and icons, while
+  the secondary details on the right shrink away.
