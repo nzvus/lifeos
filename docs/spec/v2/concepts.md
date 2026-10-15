@@ -153,7 +153,12 @@ Goal
   derives the energy target through the expenditure engine
   (`engines.md`).
 - **Judgement**: a score made of declared parts, each part a metric
-  against its band, with its weight and its source. A part that cannot be
+  against its band, with its weight and its source. Each judgement is a
+  **scoring model** in a registry (`engines.md` E7):
+  - versioned and dated;
+  - its weights adjustable by the user within allowed ranges;
+  - health limits locked;
+  - explained on its own page with the science and the sources. A part that cannot be
   computed is left out and said. The scores are kept apart: targets, food
   quality, distribution, recovery, training, habits; each domain's own.
 

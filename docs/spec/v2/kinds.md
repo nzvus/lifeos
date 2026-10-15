@@ -20,6 +20,32 @@ Food catalog: food (nutrients per 100 g/ml as rows with source and
 confidence), recipe (food parts → per serving), product (brand, barcode,
 package → its food).
 
+### What a food carries (so every macro can show its kinds and sources)
+
+Two views of each macro, both derived from the catalogue (decided
+2026-10-15):
+- **kind** (chemistry and quality): the segments of every nutrient bar;
+- **source** (food group, then the food): what opens under each bar.
+
+| Field | Values | Source |
+|---|---|---|
+| food group | ~16 groups folded from EFSA FoodEx2 level 1: meat, fish, eggs, dairy, legumes, soy, cereals whole, cereals refined, tubers, vegetables, fruit, nuts and seeds, oils and fats, sweets, drinks, supplements | EFSA FoodEx2 |
+| protein quality | DIAAS (high ≥ 100, medium 75–99, low < 75); group defaults when unknown | FAO 2013; Herreman 2020 |
+| leucine | g per 100 g (~2.5 g per meal is the usual threshold for muscle protein synthesis) | USDA FDC; Morton 2015 |
+| fatty acids | SFA, MUFA, PUFA n-6, ALA, EPA+DHA, trans | CREA, CIQUAL, USDA FDC |
+| sugars | free/added vs intrinsic and milk sugars (WHO: free sugars < 10 % kcal) | WHO 2015; label |
+| grain | whole / refined (for cereals) | label, FoodEx2 |
+| glycaemic index | when published | Atkinson 2021 tables |
+| water | g per 100 g (feeds hydration) | CREA, CIQUAL |
+| compounds | caffeine, creatine per 100 g (v1 already has them) | label |
+
+Each value keeps its **source** and **confidence** (CREA, CIQUAL, USDA
+FDC, the label, an estimate). Kinds in the bars are fixed per macro:
+- protein by DIAAS band;
+- carbs: whole, refined, intrinsic sugars, free sugars;
+- fat: MUFA, PUFA n-6, omega-3, SFA, trans;
+- fibre: its types.
+
 ## Training and movement (specialisation: training)
 
 | Kind | Shape | Fields | Entry | Metrics · targets | Relations |
@@ -78,6 +104,15 @@ package → its food).
 | stock count | I | product/food, quantity | Q | stock, days left |
 | chore ✚ | I | catalog chore (every N days) | Q from its routine | overdue, streak |
 | plant / pet care ✚ | I | item ref, action | Q | every N days (habit) |
+
+## Environment (imported, read-only)
+
+| Kind | Shape | Fields | Entry | Used by |
+|---|---|---|---|---|
+| place | ∫ | city (home, from Settings) or GPS when allowed, altitude | Settings, phone | every environment kind |
+| weather | hourly | temperature, apparent temperature, humidity, UV, precipitation | Open-Meteo (free, no key) | hydration (E10), sleep (night temperature), training, correlations |
+| air | hourly | PM2.5, ozone, pollen (Europe) | Open-Meteo air quality | correlations, training outdoors |
+| daylight | day | sunrise, sunset, hours of light | computed from place | mood, sleep timing, correlations |
 
 ## Habits and goals (no own kinds: they are built from the others)
 

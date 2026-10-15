@@ -35,6 +35,7 @@ header.
 | V-13 | **Scan** (specialised) | Barcode, receipt, label: camera with focus, torch, from a photo; field-by-field confirmation next to the photo. |
 | V-14 | **Settings** | Account, display, body, day boundary, time zone, language; Trackers (make your own kind); Data: download JSON / CSV, replace, merge (ADR-0052); packs; trash; invitations. |
 | V-15 | **Sign-in / sign-up** | As v1 (Better Auth, invitations). |
+| V-16 | **Come valutiamo** | One page per scoring model (E7): its parts with weight sliders bounded by their allowed range, locked limits with a lock, the "why" and the sources of each part, version and date, and a live preview on a real meal or day. |
 
 ## Every v1 screen id → its v2 screen
 
@@ -124,3 +125,38 @@ header.
 - **The time rail.** On the day, collapsed: a 20 px coloured rail with
   vertical times. Expanded: 64 px with horizontal times and icons, while
   the secondary details on the right shrink away.
+
+### The timeline box grammar (2026-10-15)
+- **A shape per family**, built from the theme's radii:
+  - food: a plate (soft corners);
+  - training: a ticket (chamfered corner);
+  - sleep and rest: a capsule;
+  - body: a square label with a double border;
+  - money: a receipt (zig-zag bottom edge);
+  - mind and journal: a speech bubble;
+  - habits: a compact pill.
+- **Outline:** solid when done, dashed when planned.
+- **Quality gradient:**
+  - a band fading in from the right, in the family's hue;
+  - one stop per part of the entry's score, each as wide as its weight
+    and as strong as its value;
+  - alpha ≤ 0.35 behind any text; the text stays on the left;
+  - the parts are listed in the aria-label and a tap opens them.
+- **The same box** in the compact (time rail) and the extended view, and
+  the same numbers as every aggregate.
+
+### Nutrients and environment on the day
+- The nutrient component's bars use the kinds of `kinds.md`. Opened:
+  - the kinds;
+  - the food groups;
+  - the foods;
+  - leucine per meal, omega-3, glycaemic load.
+- Icons:
+  - protein: a flexed biceps;
+  - fat: a nut;
+  - carbs: wheat;
+  - fibre: a leaf;
+  - water: the drop, and water only.
+- Caffeine and creatine sit in "other".
+- **An environment strip** under the date: temperature, humidity, air
+  quality, daylight, as icons. The water row says the day's need and why.

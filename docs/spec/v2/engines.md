@@ -130,23 +130,53 @@ From the weight goal (a goal with "reach W by date") and E4:
 - **Deload suggestion:** e1RM falling on several exercises for 2+ weeks
   with low recovery, or after N weeks of rising volume.
 
-## E7 Judgements (scores)
+## E7 Judgements: a registry of scoring models
 
-Each score: parts with weights and sources; missing parts left out and
-said; never mixed.
-- **Targets:** E5 in week context.
-- **Food quality:** nutrient density (NRF 9.3, Drewnowski 2009) on
-  snapshots; NOVA shown, not scored.
-- **Distribution:** protein spread (meals ≥ 0.25–0.4 g/kg), peri-workout
-  coverage, share of energy after 21:00.
-- **Recovery:**
-  - sleep vs need and regularity (Windred 2024);
-  - check-in z-scores;
-  - 3-day energy balance;
-  - training load trend (described, not an injury predictor; Impellizzeri
-    2020).
-- **Habits:** completion % and streaks.
-- **Goals:** on track (pace actual vs needed).
+Every score is a declared **scoring model** (concepts §7):
+- its parts, each a metric against a band;
+- weights with an allowed range;
+- locked health limits;
+- the sources;
+- a version and a date.
+The developer can move weights within their range on the score's page
+(V-16 "Come valutiamo"), where each part says why it is there and on
+which evidence. Health limits cannot be switched off. An edit is dated,
+the numbers are recomputed, and the screen says which version made them.
+Missing parts are left out and named. Scores of different domains are
+never mixed.
+
+| Model | Parts (default weight, allowed range) | Sources |
+|---|---|---|
+| Food and meal, per 100 kcal | **density** (40 %, 25–60): protein × DIAAS, fibre, K, Ca, Fe, Mg, vitamins A/C/D, folate, omega-3. **Limits** (25 %, locked ≥ 20): free sugars, sodium, SFA, trans. **Value** (15 %, 0–30): useful nutrients per €. **Fit to its block** (20 %, 0–30): kcal and protein vs the slot's shares | NRF 9.3 (Drewnowski 2009); WHO 2015/2023; EFSA DRVs; FAO 2013 (DIAAS) |
+| Day targets | energy in week context, protein daily, limits as 7-day averages (ADR-0047) | ISSN 2017; WHO |
+| Distribution | protein spread (meals ≥ 0.25–0.4 g/kg), peri-workout coverage, energy after 21:00 | ISSN 2017; chrononutrition reviews |
+| Recovery | sleep vs need and regularity, check-in z-scores, 3-day balance, load trend | Windred 2024; Impellizzeri 2020 |
+| Habits, goals | completion, streaks; pace vs needed | — |
+
+NOVA is shown, not scored. The parts of a score are what the timeline
+box's gradient draws (screens.md).
+
+## E10 Hydration
+- **Need:**
+  - baseline: the EFSA adequate intake (total water 2.5 l a day for men,
+    2.0 for women, ~20 % from food);
+  - plus sweat losses by session duration, intensity and apparent
+    temperature (≈ 0.5–2 l/h, ACSM 2007);
+  - plus a margin for heat above ~25 °C.
+- **Intake:** drinks, plus food water from the catalogue. Habitual
+  caffeine counts as fluid (Maughan & Griffin 2003; Killer 2014).
+- **After training, when weighed before and after:** replace 1.25–1.5 ×
+  the mass lost (ACSM 2007).
+- **Output:** advice with its reason ("+0.4 l: 55 min of training at
+  22 °C"), never a judgement.
+
+## E11 Environment
+- Hourly weather and air quality from Open-Meteo for the day's place (the
+  home city; the phone's position when allowed), stored as imported
+  entries with their source.
+- **Context for:** hydration (E10), sleep (night temperature), mood
+  (daylight), outdoor training, and the correlations (E8: e.g. night
+  temperature → sleep).
 
 ## E8 Correlations
 
