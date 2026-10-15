@@ -15,6 +15,23 @@ header.
 - ⊕ is the one way to add anything.
 - Every view keeps a URL (`/day/2026-10-15?filter=food`,
   `/review?metric=…&range=…`), as in v1.
+- **Top level and sub-pages** (board review, 2026-10-15):
+  - the bar shows on the four places, never on a sub-page;
+  - a sub-page has a back link that names where it goes, and the
+    system back returns to where the person came from:
+
+    | Sub-page | Canonical parent |
+    |---|---|
+    | composer, gym | Today |
+    | a tracker's page, Goals | Trackers |
+    | Come valutiamo (V-16) | the score that opened it, with that score's model selected |
+  - **Trackers opens the list of trackers:** one Box each, with the
+    week's score, grouped by domain, plus Goals and "new tracker". It
+    never opens a single tracker.
+  - From ⊕, a kind without a specialised screen opens the entry sheet,
+    never its tracker page.
+  - Goals is reached from Trackers, Plan ("Obiettivi ›") and the day's
+    goal line.
 
 ## The screens
 
@@ -126,24 +143,55 @@ header.
   vertical times. Expanded: 64 px with horizontal times and icons, while
   the secondary details on the right shrink away.
 
-### The timeline box grammar (2026-10-15)
-- **A shape per family**, built from the theme's radii:
-  - food: a plate (soft corners);
-  - training: a ticket (chamfered corner);
-  - sleep and rest: a capsule;
-  - body: a square label with a double border;
-  - money: a receipt (zig-zag bottom edge);
-  - mind and journal: a speech bubble;
-  - habits: a compact pill.
-- **Outline:** solid when done, dashed when planned.
-- **Quality gradient:**
-  - a band fading in from the right, in the family's hue;
-  - one stop per part of the entry's score, each as wide as its weight
-    and as strong as its value;
-  - alpha ≤ 0.35 behind any text; the text stays on the left;
-  - the parts are listed in the aria-label and a tap opens them.
+### The timeline box grammar (2026-10-15, revised)
+- **A silhouette per family**, drawn as a mask that holds at any height,
+  with the outline drawn around the mask:
+  - meal: a plate with an inner rim;
+  - training: a ticket with two side notches;
+  - sleep: a soft box with a crescent bite;
+  - body: a tag with a point and a hole;
+  - money: a receipt, toothed top and bottom;
+  - mind and journal: a speech bubble with a tail;
+  - habit: a pill;
+  - water: a squashed drop.
+- **The subcategory bends the family's silhouette**, never replaces it:
+  breakfast a bowl (rounded bottom), snack a bitten corner, dinner a
+  double rim; cardio an arrow-ended ticket; waking a rising arc. New
+  subcategories get a variant only when they are told apart often.
+- **A drawing on the left**: the entry's own icon, large, rotated and at
+  ~9 % opacity, so the text stays legible. It is clipped by the box's
+  silhouette, never drawn outside it.
+- **The drawing moves with the box**, in the same transition and with
+  the same timing (≈ 0.5 s, the box's curve), never as a separate
+  animation:
+  - compact: small (~44 px) and whole, so it reads;
+  - times shown: each family shifts its own way (plate turns, dumbbell
+    rises, moon sets, drop sinks);
+  - details open: it grows ~1.9× and cross-fades to a richer cousin
+    (dinner → cutlery, wake → full sun, bed → moon with a star, weight →
+    trend line, water → glass).
+  Off with `prefers-reduced-motion`. Every place that reuses the box
+  reuses the motion.
+- **Planned** entries get a fainter outline and a light hatch.
+- **The score as a criterion skyline** behind the right ~46 % of the box:
+  - one column per criterion, in the model's fixed order;
+  - each column as wide as its weight and filled up to its score;
+  - hard edges between columns;
+  - a dashed line at the "met" threshold (70).
+  The legend says it in words: "colonna larga quanto il peso, piena
+  quanto il voto".
+- **Opened**, each criterion shows ✓ / ◐ / ○, its weight, a bar with the
+  same threshold and its number, in the same order as the columns.
+- **Text** stays on the light left side. The aria-label lists every
+  criterion.
 - **The same box** in the compact (time rail) and the extended view, and
-  the same numbers as every aggregate.
+  the same numbers as every aggregate. The composer's meal score uses the
+  same skyline.
+- **Everywhere a score appears**, the skyline is its picture: each
+  weighing on the tracker page, the session panel in the gym, "Voti
+  della settimana" on Review (one row per family), and V-16, which has
+  one tab per model (meal, weighing, water) and a context panel saying
+  what moved the number.
 
 ### Nutrients and environment on the day
 - The nutrient component's bars use the kinds of `kinds.md`. Opened:

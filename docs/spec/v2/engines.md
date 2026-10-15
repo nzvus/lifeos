@@ -143,7 +143,8 @@ The developer can move weights within their range on the score's page
 which evidence. Health limits cannot be switched off. An edit is dated,
 the numbers are recomputed, and the screen says which version made them.
 Missing parts are left out and named. Scores of different domains are
-never mixed.
+never mixed. Each model has its own parts and weights, chosen from its
+evidence: models never share a weight pattern by default.
 
 | Model | Parts (default weight, allowed range) | Sources |
 |---|---|---|
@@ -152,6 +153,10 @@ never mixed.
 | Distribution | protein spread (meals ≥ 0.25–0.4 g/kg), peri-workout coverage, energy after 21:00 | ISSN 2017; chrononutrition reviews |
 | Recovery | sleep vs need and regularity, check-in z-scores, 3-day balance, load trend | Windred 2024; Impellizzeri 2020 |
 | Habits, goals | completion, streaks; pace vs needed | — |
+| Sleep (a night) | **duration vs need** (40 %, 30–50), **regularity** (40 %, locked ≥ 30): bed and wake times vs the 7-day mean, **how you feel** (20 %, 0–30): the morning check-in | Windred 2024 (regularity ≥ duration for mortality); Hirshkowitz 2015 |
+| Training session | **progression** (40 %, 25–50): e1RM or reps at the same load vs the last sessions, **volume** (30 %, 20–40): hard sets vs the block's plan, **effort** (20 %, 10–30): reps in reserve in the planned band, **rests** (10 %, 0–20) | Schoenfeld 2017; Helms 2016 (RIR); Grgic 2017 |
+| Weighing | **reliable** (30 %, locked ≥ 20): morning, fasted, after the toilet, same scale; lowered by context — salt or carbs high the day before, legs trained in the last 3 days, a meal out. **Pace** (40 %, 25–55): 7-day trend slope vs the goal's, within 0.25–1 %/week. **Consistency** (30 %, 10–40): valid weighings in the last 7 days. The number itself is never judged; reliability also sets the weighing's weight in the trend (E4) | Thomas 2014; Helms 2014; Zheng 2015 |
+| Water | **vs expected now** (50 %, 30–70): the day's need (E10) spread over waking hours. **After training** (30 %, 10–40): 1.25–1.5 × estimated sweat within 2 h. **Spread** (20 %, 0–30): small doses, little in the 2 h before bed | EFSA 2010; ACSM 2007; Shirreffs 1996 |
 
 NOVA is shown, not scored. The parts of a score are what the timeline
 box's gradient draws (screens.md).
