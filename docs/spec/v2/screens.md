@@ -142,7 +142,13 @@ header.
   double rim; cardio an arrow-ended ticket; waking a rising arc. New
   subcategories get a variant only when they are told apart often.
 - **A drawing on the left**: the entry's own icon, large, rotated and at
-  ~9 % opacity, so the text stays legible.
+  ~9 % opacity, so the text stays legible. It is clipped by the box's
+  silhouette, never drawn outside it.
+- **The drawing moves with the box's state**, each family its own way:
+  compact → times shown → details open. Plate turns, dumbbell lifts,
+  moon swings and sets, scale needle tips, drop falls. Off with
+  `prefers-reduced-motion`. Every place that reuses the box reuses the
+  motion.
 - **Planned** entries get a fainter outline and a light hatch.
 - **The score as a criterion skyline** behind the right ~46 % of the box:
   - one column per criterion, in the model's fixed order;
