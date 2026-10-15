@@ -16,6 +16,7 @@ its own repository.
 | `PROJECT.md` | What is being built and why; invariants; non-goals |
 | `ARCHITECTURE.md` | How the code is shaped right now (2-minute read) |
 | `ROADMAP.md` | Backlog, current sprint, what's done |
+| `docs/spec/` | The specification: every feature, datum, formula and source; issues and proposals per area |
 | `docs/decisions/` | ADRs: why each expensive choice was made |
 | `docs/runbooks/` | Setup, restore drill, lint-rule proof |
 
