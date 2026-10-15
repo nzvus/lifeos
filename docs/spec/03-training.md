@@ -82,6 +82,14 @@ training only as three yes/no readiness reasons.
 mid-session, times are unknown (#181 stops inventing them); there is no
 way to set them.
 
+**T-10 Dumbbell loads are ambiguous.** A load is one number; nothing
+says whether it is one dumbbell or both. The tonnage counts the total
+("con 2 da 20" = 40, `analysis.ts`), but the form does not say so. The
+developer logged "Incline db press" per dumbbell (14–17.5 kg) for 8
+sessions and as the total (30 kg) on 2026-10-15: the e1RM trend jumped
++100 %. The 24 sets were corrected by a replace on 2026-10-15. The
+exercise also had no equipment set.
+
 **T-9 The training program is a separate world from the day.** It picks a
 routine; the day's program (01 I-8) picks meals; the session time falls
 back to 17:30 (01 I-9).
@@ -152,6 +160,13 @@ optional). It suggests the session-level adjustment of P-5.
 💡 **P-8 Deload and blocks.** Suggest a lighter week after N weeks of
 rising volume, or when the e1RM trend falls across several exercises
 together with poor readiness (ADR-0049 leftover).
+
+💡 **P-10 Loads typed the way they are lifted.** Equipment decides the
+input: dumbbells and kettlebells ask "kg per dumbbell" with a ×2 shown
+("2 × 15 kg"), unilateral sets ask per side; the stored load stays the
+total, so tonnage and e1RM never mix the two. A jump of ≥ 60 % against
+the e1RM trend asks "per dumbbell or total?" before saving (P-5's
+incoherence flags).
 
 💡 **P-9 The program fills the day template's training block** (01 P-6):
 the session's time and duration come from the block.
