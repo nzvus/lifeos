@@ -26,9 +26,10 @@ One file per area. Each feature is written the same way:
 | [03-training.md](03-training.md) | Exercises, routines, programs, sessions, gym mode, guidance |
 | [04-recovery-mind.md](04-recovery-mind.md) | Sleep, check-ins, readiness, compounds |
 | [05-pantry-money.md](05-pantry-money.md) | Products, purchases, stock, receipts, scanning, money |
-| [06-interface.md](06-interface.md) | Pages, navigation, Today, the shared components |
+| [06-interface.md](06-interface.md) | Navigation, Today, the shared components: issues and proposals |
+| [06-screens.md](06-screens.md) | Every screen and what it does today: the inventory a rebuild checks against |
 | [07-data-platform.md](07-data-platform.md) | Export/import, packs, trash, backups, the assistant |
-| [08-model.md](08-model.md) | The whole picture: the data, the aggregation hierarchy, the plan that follows |
+| [08-model.md](08-model.md) | The whole picture: every table, the aggregation hierarchy, the decisions, the order of work |
 
 ## Principles every area follows
 
