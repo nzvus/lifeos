@@ -31,6 +31,7 @@ import { userSettings } from "../db/schema";
 import { EXPORT_FORMAT, EXPORT_VERSION, type Row } from "../export/export";
 import { EXPORT_TABLE, EXPORT_TABLES, type TableSpec } from "../export/tables";
 import { ownedBy, type Owner } from "../identity/owner";
+import { DEFAULT_LOCALE } from "../shared/locales";
 import { legacyTables } from "./legacy";
 
 export type ImportProblem =
@@ -73,13 +74,16 @@ type Read = { ok: true; file: ImportFile } | { ok: false; problems: ImportProble
 
 const MAX_PROBLEMS = 20;
 
-/** Settings that stay the account's own on a replace (ADR-0052). */
-const KEPT_SETTINGS = [
-  "locale",
-  "assistantKeyEnc",
-  "assistantKeyLast4",
-  "assistantModel",
-];
+/**
+ * Settings that stay the account's own on a replace (ADR-0052). An account
+ * that never saved settings has no row: it keeps what it shows, the defaults.
+ */
+const KEPT_SETTINGS: Row = {
+  locale: DEFAULT_LOCALE,
+  assistantKeyEnc: null,
+  assistantKeyLast4: null,
+  assistantModel: "openrouter/free",
+};
 
 export function readExport(raw: unknown): Read {
   const file = raw as Record<string, unknown> | null;
@@ -373,8 +377,9 @@ export async function replaceAll(
               v[ref.column] = newIds.get(ref.table)!.get(v[ref.column]);
           for (const c of spec.dateColumns)
             if (typeof v[c] === "string") v[c] = new Date(v[c] as string);
-          if (spec.key === "user_settings" && mine)
-            for (const k of KEPT_SETTINGS) v[k] = (mine as Row)[k];
+          if (spec.key === "user_settings")
+            for (const [k, fallback] of Object.entries(KEPT_SETTINGS))
+              v[k] = mine ? (mine as Row)[k] : fallback;
           return v;
         });
         // A self-reference must find its parent already in: one row at a time.
