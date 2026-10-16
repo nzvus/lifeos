@@ -30,6 +30,10 @@ drawing, so the same thing always has the same icon everywhere.
 | Item | derived from the item's data | an exercise from its movement; an ingredient from its food group; a meal from its dish |
 
 The resolver tries, in order:
+0. a control's role (`ui`: back, more, search, close, add, sort, edit,
+   delete, time, settings, done, scan, photo, filter, swap, move, copy,
+   link, lock, theme) or a nutrient (`nutrient`: kcal, protein, carbs,
+   fat, fiber, sugars, sat, salt, micro, in its macro's hue);
 1. the user's own choice (`icon`);
 2. a tag, when the thing is one (`tag`);
 3. the item's data: movement (`pattern`), dish (`dish`), food group (`group`, and `fine` for a finer drawing);
@@ -142,7 +146,9 @@ lunch, snack, dinner) change the hue, never the drawing.
 
 - `Glyph` holds the registry and the resolver. Props: `of` (the data),
   `size`, `tile`, `decorative`.
-- Box (badge, rail, card drawings, pills, parts), PageHeader and the
-  backdrop all render Glyph.
-- Adding a domain, kind, food group, dish or movement is a line in
-  `icons.json`; it is never page code.
+- Box (badge, rail, card drawings, pills, parts), PageHeader (back,
+  settings), NavBar (the places, ⊕), Nutrients (macros, limits, micros),
+  Scores, Settings and the backdrop all render Glyph. No board draws an
+  icon of its own.
+- Adding a domain, kind, food group, dish, movement, control or
+  nutrient is a line in `icons.json`; it is never page code.
