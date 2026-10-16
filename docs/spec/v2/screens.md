@@ -7,31 +7,27 @@ The design boards (Design artifact "lifeos v2") draw them at 360 and
 
 ## Navigation
 
-Bottom bar on phones, header on desktop:
-**Today · Plan · ⊕ Capture · Review · Trackers**. Settings (gear) in the
-header.
-- Navigation is by **time**: Today, Plan, Review. The domains live in
-  Trackers.
-- ⊕ is the one way to add anything.
-- Every view keeps a URL (`/day/2026-10-15?filter=food`,
-  `/review?metric=…&range=…`), as in v1.
-- **Top level and sub-pages** (board review, 2026-10-15):
-  - the bar shows on the four places, never on a sub-page;
-  - a sub-page has a back link that names where it goes, and the
-    system back returns to where the person came from:
+ADR-0054 and `flows.md` (places, every object's five answers, event
+chains, every v1 screen id).
+- **Bottom bar** on phones, header on desktop:
+  **Oggi · Piano · ⊕ · Andamento · Libreria**.
+- **Header:** the gear (Settings) and the assistant icon (when enabled).
+- **DateNav** is the same everywhere time is browsed:
+  - one day on Oggi, week or month on Piano, a range on Andamento;
+  - swipe; week ‹ ›; the title opens the month; "Oggi" when away.
+- **The bar** shows on the four places, never on a sub-page.
+- **A sub-page** names its parent in its back link; the system back
+  returns to the origin.
 
-    | Sub-page | Canonical parent |
-    |---|---|
-    | composer, gym | Today |
-    | a tracker's page, Goals | Trackers |
-    | Come valutiamo (V-16) | the score that opened it, with that score's model selected |
-  - **Trackers opens the list of trackers:** one Box each, with the
-    week's score, grouped by domain, plus Goals and "new tracker". It
-    never opens a single tracker.
-  - From ⊕, a kind without a specialised screen opens the entry sheet,
-    never its tracker page.
-  - Goals is reached from Trackers, Plan ("Obiettivi ›") and the day's
-    goal line.
+  | Sub-page | Canonical parent |
+  |---|---|
+  | composer, gym, entry sheet | Oggi |
+  | model editor, cycle editor | Piano → Modelli |
+  | a tracker page, Soldi, Obiettivi, Come valutiamo | Andamento (V-16 opens on the model of the score that opened it) |
+  | food, meal and exercise editors; Dispensa | Libreria |
+- **⊕:** a kind without a specialised screen opens the entry sheet; a
+  search with no result offers "crea" (barcode, label photo, manual).
+- **Every view keeps a URL**, as in v1.
 
 ## The screens
 
@@ -42,11 +38,11 @@ header.
 | V-03 | **Entry sheet** | The form generated from the kind: fields with steppers, scales, choices, durations and timers; status and time; parent and links; note; relation tags shown read-only; "new from this" for catalog-backed entries. |
 | V-04 | **Food composer** (specialised) | Lines from the food catalog (search ranked by use and fit to the slot); scan (camera with focus, from a photo); estimate (typed totals); servings; live preview against the slot and the day; meal role; the relation tags it will get. |
 | V-05 | **Gym mode** (specialised) | Auto/manual toggle, setup delay, rests by evidence and between sides, loads typed as lifted, RIR after the exercise, e1RM(RIR) % with its context, incoherence flags, session-wide targets, editable times as a chain, wake lock. |
-| V-06 | **Tracker page** (any kind) | This week vs the last, a chart of its main metric with goal lines, the list of its entries, its goals, its routines/recurrence, its relations ("after training", "before bed"), the kind's settings (fields, units, targets). The Body, Sleep, Mind, Water, Habit and Money "pages" are this screen. |
-| V-07 | **Catalog page** (any catalog) | List with instant search, sort by any field alone or per another (v1's metrics), filters; item page and editor ("new from…", merge duplicates); products under their food; recipes with their parts. |
-| V-08 | **Plan** | Calendar (week/month) of planned entries; day templates (blocks with absolute or relative times, shares, extends); week layout; habits (routines with recurrence); training cycles (programs: order, skips, overrides); swap a day's template. |
+| V-06 | **Andamento** and its **tracker pages** (any kind) | Andamento: DateNav range; "Il periodo", the same Box as Oggi's day over the range; one row per domain → its tracker page; Obiettivi; correlations; data quality. Tracker page: This week vs the last, a chart of its main metric with goal lines, the list of its entries, its goals, its routines/recurrence, its relations ("after training", "before bed"), the kind's settings (fields, units, targets). The Body, Sleep, Mind, Water, Habit and Money "pages" are this screen. |
+| V-07 | **Libreria** and its **catalog pages** (foods, meals and recipes, exercises, kinds) | List with instant search, sort by any field alone or per another (v1's metrics), filters; item page and editor ("new from…", merge duplicates); products under their food; recipes with their parts. |
+| V-08 | **Piano** | Calendario (week/month, DateNav) of planned entries; a day's sheet (its template, swap, skip, rest). **Modelli:** blocks of any kind, day types (targets fixed or following the goal, meal shares, `extends`), week layout, **cycles of any models** with an advance rule, bound to a block. **Abitudini.** Model and cycle editors. |
 | V-09 | **Goals** | Every goal with progress, pace needed vs actual, ETA, on track; editor: pick a metric, the target, the date (the app derives the pace and explains, memory: ask-human-inputs). |
-| V-10 | **Review** | A range picker; per domain a generic dashboard of its metrics; any metric vs any other; scores with their parts; correlations (n, effect, interval); data quality (E9: gaps, duplicates, implausible values, flagged loads). |
+| V-10 | *(merged into V-06 Andamento, ADR-0054)* | — |
 | V-11 | **Money** (tracker page + specialised parts) | Month overview: pace vs last month, categories, shops, accounts and balances; movements; receipt review line by line. |
 | V-12 | **Pantry** (catalog page + specialised parts) | Products with stock, best-before, location; use-first; the shopping list from minimums. |
 | V-13 | **Scan** (specialised) | Barcode, receipt, label: camera with focus, torch, from a photo; field-by-field confirmation next to the photo. |

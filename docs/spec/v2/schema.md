@@ -41,7 +41,9 @@ snapshots, training sets, money movements, and templates.
 ## Plans, goals, decisions
 | Table | Columns | Notes |
 |---|---|---|
-| templates | id, user_id, scope (day/week/routine/cycle), name, extends_id, recurrence jsonb, start_day, active, deleted_at | a habit = routine + recurrence; a training program = cycle. |
+| templates | id, user_id, scope (block/day/week/cycle), name, extends_id, recurrence jsonb, targets jsonb (day: fixed or follow-goal parameters), start_day, active, deleted_at | the "Model" of concepts §5 (ADR-0054); a habit = block + recurrence. |
+| cycle_steps | id, cycle_id, position, step_template_id | the steps of a cycle, any models in order |
+| cycles_state | cycle_id, advance (occurrence/date), on_skip (shift/lose), bound_block_id, next_position | one row per cycle; a training program is a cycle bound to a training block |
 | template_blocks | id, template_id, position, kind, item_id, when (absolute / after_block / after_wake / before_bed / cycle_position), at_min, anchor_block_id, offset_min, duration_min, kcal_share, protein_share, defaults jsonb | |
 | week_layouts | user_id, weekday, template_id | PK (user_id, weekday). |
 | goals | id, user_id, metric jsonb, target (at_least/at_most/range/reach), value, low, high, by_date, since_day, until_day | history by since_day (v1's goals carried). |

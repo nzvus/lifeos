@@ -92,28 +92,41 @@ CatalogItem
 A product (brand, barcode, package) is a catalog item linked to its food.
 A purchase is an entry that refers to the product (spec 05 P-1).
 
-## 5. Template, block, recurrence
+## 5. Model: block, day type, week layout, cycle (ADR-0054)
 
 ```
-Template
-  id, scope (day | week | routine), name, extends? (another template)
-  blocks[]
-    kind (+ catalog item or defaults), status planned
-    when: absolute "08:00" | relative "40 min after <block>" | relative "after wake / before bed"
-    duration?, shares? (a meal block's share of the day's kcal and protein)
-  recurrence (for routines and habits): daily | weekdays | every N days | N times a week | on dates
-WeekLayout: weekday → day template; a program (training cycle) fills training blocks in order
+Model
+  id, scope (block | day | week | cycle), name, extends? (a model of the same scope)
+  block    kind (+ catalog item or defaults), status planned
+           when: absolute "08:00" | relative "40 min after <block>" | "after wake / before bed"
+           duration?, shares? (a meal block's share of the day's kcal and protein)
+  day      blocks[]; targets: fixed values | follow the goal (deficit, protein and fat g/kg)
+  week     weekday → day model | cycle
+  cycle    steps[] (any models: day types, blocks, sets of blocks)
+           advance: per occurrence | per date; on skip: shift | lose
+           bound to? a block of a day model ("training takes the next step",
+           "dinner rotates four recipes"); position (the next step)
+  recurrence (habits): daily | weekdays | every N days | N times a week | on dates
 ```
 
-- **Applying a template** to a date writes planned entries linked to
-  their blocks. Moving a block moves the entries relative to it (the
-  pre-workout meal follows the session).
-- **Swapping mid-day:** choose another template; done entries stay;
+- **Made:**
+  - Piano → Modelli → "+";
+  - from a day: "Salva come modello";
+  - from an entry: "Ripeti come abitudine";
+  - "duplica", "estendi".
+- **Extends.** It makes macro-types of day: Lavoro → Lavoro + palestra;
+  Riposo → Viaggio. Editing the base changes every model built on it.
+- **Applying** a model to a date writes planned entries linked to their
+  blocks. Moving a block moves the entries relative to it: the
+  pre-workout meal follows the session.
+- **Cycles:**
+  - a cycle step lands on its bound block or, unbound, on the day itself
+    (a cycle of day types);
+  - a skipped occurrence shifts or loses the step, by the rule.
+- **Swapping mid-day:** choose another day model; done entries stay;
   planned entries ahead are replaced; the swap is undoable.
-- **Extends:** "Gym day" = "Rest day" + a training block + a post-workout
-  share. Editing the base changes every template built on it.
-- **Habits** are templates of scope routine with one block and a
-  recurrence; their entries are planned, done or skipped like any other.
+- **Habits** are block models with a recurrence; their entries are
+  planned, done or skipped like any other.
 
 ## 6. Metric
 

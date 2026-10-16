@@ -11,7 +11,8 @@ it is never new screen code. `packages/kit` in v2 mirrors this file one
 to one, and so do the design boards.
 
 ## 1. The registry (data, one place)
-- **Families** (food, train, sleep, body, drink, money, mind, habit):
+- **Families** (food, train, sleep, body, drink, money, mind, habit, and
+  the non-entry ones: day, week, goal, catalog, settings):
   - identity hue;
   - icon and the richer "open" drawing;
   - silhouette;
@@ -19,7 +20,7 @@ to one, and so do the design boards.
     the box opens.
 - **Subcategories** bend the family's silhouette and may swap the
   drawing (breakfast, lunch, snack, dinner; strength, cardio; wake,
-  bed; weight, measurements; water, coffee).
+  bed; weight, measure; water, coffee; study; steps).
 - **Scoring models** (engines.md E7): parts, weights and ranges, locked
   limits, sources.
 - **Nutrient kinds** (kinds.md) and their fixed shades.
@@ -34,10 +35,19 @@ to one, and so do the design boards.
 ## 3. The components
 | Component | Props | Used for |
 |---|---|---|
-| **Box** | entry (family, subcategory, title, value, link), score parts, mode `compact · times · open`, planned | every entry anywhere: the day, lists, plan blocks, a weighing, a session header, a meal header |
-| **Skyline** | model, scores, size `bg · mini · row · big` | behind a Box; a weighing's mini; a Review row; V-16 |
-| **Nutrients** | sources × kinds, targets, level `L0-box · L0-ribbon · L1 · L2`, host family | inside a food Box (L0-box), list rows (L0-ribbon), day header and composer (L1), the window (L2) |
+| **Box** | entry (family, subcategory, title, value, meta line, link, actions, an inline Field), score parts, density `card · row`, mode `compact · times`, open, planned, faded, rail | every item anywhere: day entries, list rows, plan blocks, weighings, sets, exercises, goals, foods, settings rows, data-quality flags |
+| **Skyline** | parts, size `bg · mini · row · big` | behind a card Box; trailing a row Box; V-16 |
+| **Nutrients** | foods × kinds or totals, targets, limits, micro groups, level `L0-box · L0-ribbon · L1 · L2` | food Box (L0-box), rows (L0-ribbon), day/week Box (L1), composer and catalog item (L2) |
+| **PageHeader** | title, context; `back` (a sub-page: "‹ parent"), `action` | every page; top level shows the gear → Settings |
+| **WeekStrip** | days with score bar or template tag | inside DateNav |
+| **DateNav** | mode `day · week · month · range`, the date, day scores and templates | Oggi (day), Piano (week/month), Andamento (range): swipe, week ‹ ›, the month on the title, "Oggi" when away |
+| **Field** | type `stepper · scale · choice · text · timer · slider`, label, unit, base, allowed range, help | every input: entry sheet, gym, composer lines, goals, filters and ranges |
+| **Chart** | type `trend · bars`, data | the tracker page (trend with band and goal), Review (sleep against 7–9 h) |
 | **NavBar** | active place | the bottom bar of the four top-level places; ⊕ in the middle |
+
+Sections, stats, sheets, search fields and buttons are `kit.css` classes
+(`k-section`, `k-stats`, `k-sheet`, `k-search`, `k-primary`), not
+components.
 
 The time rail is part of Box (`rail` on or off), so the registry that
 gives a row its colour and icon stays in one place. A Box chooses what
@@ -58,26 +68,33 @@ data, never colours or sizes.
   highlights on the day.
 
 ## 5. Screens → components
-| Screen | Box | Skyline | Nutrients | Time rail |
-|---|---|---|---|---|
-| V-01 Today | every entry | bg | L0-box, L1 day header | yes |
-| V-02 Add | suggestions (compact) | bg | L0-ribbon | — |
-| V-03 Entry | live preview of the entry being made | bg | L0-box | — |
-| V-04 Composer | the meal header (open) | bg | L1, L2 on tap | — |
-| V-05 Gym | session header, each exercise | bg, mini | — | yes (sets) |
-| V-06 Tracker | each weighing | mini | — | yes |
-| V-08 Plan | each block (planned) | — | targets as L1 | yes |
-| V-09 Goals | each goal | mini (pace) | — | — |
-| V-10 Review | week rows | row | L1 week | — |
-| V-16 Scores | the subject | big | — | — |
+| Screen | Built from |
+|---|---|
+| V-01 Today | PageHeader, WeekStrip, the day as a Box (L1, micros), timeline of card Boxes with the rail, NavBar |
+| V-02 Add | sheet: search, a `choice` Field (now/planned/earlier), the kinds as row Boxes, "usual at this hour" and "recent" as row Boxes with "+" |
+| V-03 Entry | sheet: the live card Box preview, Fields generated from the kind, relation pills |
+| V-04 Composer | PageHeader, ingredient row Boxes with a stepper Field (recipe base shown when changed), the meal card Box open with Nutrients L2, suggestion rows, servings Field |
+| V-05 Gym | PageHeader, session card Box, timer Field, sets and next exercises as row Boxes, steppers (per dumbbell, total shown), RIR scale |
+| V-06 Trackers | grouped row Boxes with the week's mini skyline, Goals, new tracker, NavBar |
+| V-06 Tracker page | PageHeader, card Box, stats, range Field, Chart trend, weighings as row Boxes with their own score |
+| V-07 Catalog | PageHeader, search, sort and group Fields, the open item as a card Box with Nutrients L2 per 100 g, foods as row Boxes with the food score |
+| V-08 Plan | PageHeader, WeekStrip with templates, cycle row, the template as row Boxes in "times" mode, habits, NavBar |
+| V-09 Goals | PageHeader, goals as row Boxes with progress strip and pace skyline, the new-goal Fields and the derived pace |
+| V-10 Review | PageHeader, range Field, the week as a Box (L1), scores as row Boxes, Chart bars, correlations and data quality as row Boxes, NavBar |
+| V-14 Settings | PageHeader, sections of row Boxes (account, body, day, trackers, data A/B/C, trash), theme Field |
+| V-16 Scores | PageHeader, model Field, subject Box, Skyline big, bounded weight sliders, context |
 
-## 6. Order of work on the boards
-1. `kit.css` with Box, Skyline and Nutrients as components; V-01 rebuilt
-   on them (done 2026-10-15; boards "Kit ·" in their own row).
-2. V-04 Composer and V-02 Add.
-3. V-05 Gym, V-06 Tracker, V-10 Review and V-16 Scores.
-4. V-03 Entry, V-08 Plan and V-09 Goals.
+## 6. One data source
+- The boards read one `DATA` block generated from the developer's export
+  plus a file of marked example values: no page types its own numbers.
+- The v2 app does the same through the engines.
+- The weekday, the week and the 7-day averages are computed, never typed.
+  Typing them made the boards show 15 October 2026 as a Wednesday; it was
+  a Thursday.
 
-Until a page is converted it reaches Nutrients through the old size
-names (`mini` → L0-box, `row` and `card` → L1), so nothing breaks in
-between.
+## 7. Compact by rule
+- One line per row where possible; secondary details only when opened.
+- No card inside a card; 16 px gutters; 44 px targets.
+- Numbers with the Italian thousands dot, units after the number.
+- Every page fits its frame; the boards are checked for overflow, broken
+  links and overlapping frames before each publish.
