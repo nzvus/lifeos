@@ -20,6 +20,10 @@ scanning) are placed in the v2 spec.
 1. **Target approval**: ADR-0053, `docs/spec/v2/*`, the design system and the
    "lifeos v2" boards (links in `docs/spec/v2/README.md`). The developer
    comments on the boards; the agent iterates.
+   - **Data refinement** (2026-10-16, migration.md «Refinement update»):
+     audit of the 16 Oct export (135 items), corrections to approve, a
+     marked estimate layer for every missing catalog field; then the boards
+     run on the refined copy.
 2. **Workspace**: `apps/v1` (moved), `apps/v2`, `packages/kit`; Vercel project
    and Neon branch for v2.
 3. **Engines** test-first (time, metrics, planning, body state, targets,
