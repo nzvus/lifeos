@@ -1,0 +1,16 @@
+{
+  // lifeos v2 (ADR-0053, ADR-0056). Engines first: plain TypeScript, no framework yet.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true, // an optional field is absent, never `undefined` by accident
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true
+  },
+  "include": ["src/**/*.ts", "*.config.ts"]
+}

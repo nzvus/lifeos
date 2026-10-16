@@ -33,5 +33,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "drizzle"]
+  "exclude": ["node_modules", "drizzle", "apps", "packages"] // apps/v2 has its own config (ADR-0056)
 }

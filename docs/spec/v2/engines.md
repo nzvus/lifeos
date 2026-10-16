@@ -17,9 +17,19 @@ referenced as `01 I-1` etc.
   - −180…0 min: pre-workout;
   - 0…+120 min: post-workout.
   Sources: ISSN 2017 nutrient timing; Kerksick 2017.
+  A band's edges count; where two bands meet (a meal at the session's
+  start) the first declared wins. Every related entry is tested, not only
+  the nearest: a meal can be post-workout of one session and pre-workout
+  of the next. Skipped entries relate to nothing; planned ones do (the day
+  with the plan).
 - **Recurrence:** daily, weekdays, every N days, N times a week (flexible
   days), on dates. "N times a week" plans nothing on fixed days; it counts
   done entries in the week.
+  Progress over a window: fixed rules count the planned days done out of
+  the planned days (the steps goal: weekdays over 8.000, out of the
+  weekdays); "N times a week" counts any done day of one ISO week, out
+  of N.
+- **Code:** `apps/v2/src/core/engines/time/` (ADR-0056).
 
 ## E2 Metrics
 

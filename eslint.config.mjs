@@ -47,7 +47,16 @@ const FRAMEWORK = [
 ];
 
 const config = [
-  { ignores: [".next/**", "node_modules/**", "drizzle/**", "next-env.d.ts"] },
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "drizzle/**",
+      "next-env.d.ts",
+      "apps/**",
+      "packages/**",
+    ],
+  }, // apps/v2 lints itself (ADR-0056)
 
   // --- 1. Next.js + TypeScript defaults ------------------------------------
   ...nextVitals,

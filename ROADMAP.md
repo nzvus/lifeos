@@ -17,17 +17,19 @@ judgements, decisions), a hybrid schema, a parallel app, design boards first.
 v1 gets fixes only; its open requests (gym auto mode, rests, coherent advice,
 compact rows, filters, meal roles, day templates, micronutrients, food identity,
 scanning) are placed in the v2 spec.
-1. **Target approval**: ADR-0053, `docs/spec/v2/*`, the design system and the
-   "lifeos v2" boards (links in `docs/spec/v2/README.md`). The developer
-   comments on the boards; the agent iterates.
+1. **Target approval** — **approved 2026-10-16** («target approvato»): ADR-0053, `docs/spec/v2/*`, the design system and the
+   "lifeos v2" boards (links in `docs/spec/v2/README.md`). The boards keep
+   taking the developer's comments while the code is written.
    - **Data refinement** (2026-10-16, migration.md «Refinement update»):
      audit of the 16 Oct export (135 items), corrections to approve, a
      marked estimate layer for every missing catalog field; then the boards
      run on the refined copy.
-2. **Workspace**: `apps/v1` (moved), `apps/v2`, `packages/kit`; Vercel project
-   and Neon branch for v2.
+2. **Workspace** (ADR-0056, option B): v1 stays at the root, `apps/v2` next to it; `packages/kit` with
+   the first slice that has UI; Vercel project and Neon branch for v2 with the first slice that
+   serves pages (the developer creates them).
 3. **Engines** test-first (time, metrics, planning, body state, targets,
-   training, judgements, correlations, data quality).
+   training, judgements, correlations, data quality). E1 Time first: logical day, windows,
+   relations, recurrence.
 4. **v2 schema + converter + parity** on the developer's export in PGlite.
 5. **Slices**: day timeline + generic kinds → food → training → body and mind
    → habits, activities, goals → money and pantry → review. Each slice checked
