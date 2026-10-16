@@ -28,9 +28,10 @@ Added in v2:
   - singular and plural ("uovo" ~ "uova");
   - a short dictionary of the same food under two names ("petto di
     pollo" ~ "pollo", "whey" ~ "proteine del siero").
-- **Every field, the same everywhere:** name, brand, notes, tags,
-  ingredient names (of a meal), muscles (of an exercise), shop (of a
-  movement). v1 searched different fields in different pickers.
+- **Every field, the same everywhere:** name, brand, format names (of a
+  food: «gnocchetti» finds «Gnocchi di patate»), notes, tags, ingredient
+  names (of a meal), muscles (of an exercise), shop (of a movement). v1
+  searched different fields in different pickers.
 - **A quantity in the text** becomes the amount: "avena 60 g", "acqua
   500" (ml by the kind's unit), "panca 3×10 40". The row offers to add it
   as typed.
