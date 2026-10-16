@@ -12,6 +12,10 @@
     "eslint": "9.39.5",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.0",
-    "vitest": "5.0.2"
+    "vitest": "5.0.2",
+    "@types/big.js": "7.0.0"
+  },
+  "dependencies": {
+    "big.js": "7.0.1"
   }
 }
