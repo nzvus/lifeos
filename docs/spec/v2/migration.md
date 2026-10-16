@@ -158,7 +158,7 @@ separate layer of the refined copy.
 | Meals (20) | dish, servings, notes (19), ratings (0), tags | dish from the name (icons.md); totals from the ingredients; ratings never estimated |
 | Exercises (70 → 57) | equipment (36), muscles (10), guide (70) | the exercise review above; muscles from v1's `suggestAnatomy`; a short guide per movement from a standard reference, marked estimate |
 | Days (18) | steps (4 days), sleep quality (3), mood and energy (7), weighings (5), closures | steps from walking minutes and day level (≈ 110 steps/min); weighings not invented (the trend interpolates); quality, mood and energy left empty |
-| Goals (2 versions) | the v2 goals the boards show (steps, study, reading, money) | asked through the goal form (what, how much, by when); never invented |
+| Goals (2 versions) | the v2 goals the boards show (steps, study, reading, money) | given by the developer (16 Oct): 8.000 steps on weekdays first, study 4 h a week, 2 books a month, save 300 € a month; never invented, and with no v1 data the page says so |
 | Pantry, money | 0 purchases, 0 counts, 2 movements | rebuilt only from receipts the developer adds; not invented |
 
 **4. Outputs:**
@@ -169,16 +169,24 @@ separate layer of the refined copy.
 - the boards' DATA rebuilt from the refined copy, so no board shows
   «esempio» where the data can say it.
 
-**Status (16 Oct, evening):**
+**Status (16 Oct, night):**
 - Done:
   - §1 applied (64 changes, `…-refined.report.md`); the totals of all 18 days are unchanged, checked;
   - §2 answered: dumbbells per dumbbell, so the 6 lateral-raise sets become totals; both biscuits eaten; the 8 Oct cod skipped; the Sweetburger on the 8th; the identical oat entries are right;
   - the estimate layer: 110 foods (39 one by one, 71 from their group), 70 exercises (review fields, cardio muscles, a guide per movement), 2 days of steps, 13 dishes;
-  - the boards run on the refined copy (canvas v69): the micros of the day, the dinner and the week, caffeine and omega-3 now come from the foods eaten, one source on every page.
-- Open:
-  - duplicates in the catalog: «Burro d'arachidi 100%» and «Burro di arachidi 100%», the two cocoas, the two passate, «Sale» and «Sale fino», «Gnocchi» and «Gnocchetti» (fibre 1,3 against 4,0);
-  - the 5 exercise questions (shoulder press, preacher curl, chest-supported row, cable lateral raise, Bulgarian split squat);
-  - the goals form.
+  - the exercise questions answered: shoulder press on the machine, preacher curl with the EZ bar, chest-supported row with dumbbells, cable lateral raise one arm at a time, Bulgarian split squat with two dumbbells, goblet squat with one;
+  - food › product › format (ADR-0055) in the refined copy's `_v2` layer (`food_identity.py`):
+    - the 110 live ingredients become 105 foods, 62 products, 64 formats; the 18 deleted ones that history still points at (the Indian dinner, sriracha, ginger) become archived foods;
+    - merged by hand after a pairwise review: peanut butter, cocoa, passata (one food, the brands as products), salt (formats «grosso» and «fino»), potato gnocchi (Nonna Mia, formats «gnocchi» and «gnocchetti»: the gnocchetti keep only what their label says differently, fibre 4,0, saturates and salt);
+    - kept apart: the two dark chocolates (50 and 70 %), fresh and dried onion, the jams, skyr and drinking skyr, the berries, the nut creams;
+    - v1's 63 prices become the first price observations, with the shop and the receipt's date when the description says them (23 have no shop: «negozio non indicato»);
+    - meal parts point at the food with the product as preferred; entries and batch lines at food, product and format;
+    - meals whose parts become the same foods are one: «GNOCCHI» and «GNOCCHETTI alla sorrentina» become «Gnocchi alla sorrentina», keeping the version used last (200 g, gnocchetti); past entries keep their snapshot;
+    - the day totals with and without the layer are identical on all 18 days, checked;
+  - `audit_export.py` flags near-duplicate foods (name tokens, a plural or a diminutive, energy within 25 %): it finds the 5 pairs above and one false pair (chives and onion), as a question;
+  - the goals, in `_v2.goals`, as given;
+  - the boards (canvas v70): the food page with its products, formats and prices per shop, and micros from the data; Scan (a barcode lands on a format); Receipt (a line adds a price observation and says the change); Pantry (stock per format, summed per food); the composer and the meal editor (a line is a food, with brand and format in a pill); Goals (steps on top, from the days); Find (brand and shop facets, a format name finds its food, price per 100 g as the median); 22 Find rules.
+- Open: verifying the agent's micronutrient estimates against the sources, row by row (offered, not asked).
 
 **5. Order:**
 1. the developer answers §2 and approves §1;
