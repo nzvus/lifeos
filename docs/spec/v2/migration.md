@@ -129,6 +129,11 @@ separate layer of the refined copy.
   100 g than any food has (oil ≈ 900): «Ristorante bolivione» 1230 kcal
   (16 Oct) and «Sweetburger · Cheeseburger doppio» 970 (8 Oct). They become
   estimated entries with their kcal, and the name is fixed («boliviano»).
+  The Bolivian dinner has its dishes from the developer (approved): «Salteña»
+  1 piece, «Pique macho» half a portion, «Cuñapé» 1,5 pieces. Their values
+  per piece or portion are the developer's; the grams are a typical weight,
+  marked estimate. The totals stay 1230 kcal (`corrections.json`, next to the
+  export).
 - 2 foods whose kcal and macros disagree beyond ± 20 % and 15 kcal
   (frozen artichoke hearts, balsamic vinegar).
 - A «Corsa» session marked done on 17 October, a day not yet come, with
