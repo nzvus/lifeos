@@ -33,7 +33,10 @@ The resolver tries, in order:
 0. a control's role (`ui`: back, more, search, close, add, sort, edit,
    delete, time, settings, done, scan, photo, filter, swap, move, copy,
    link, lock, theme) or a nutrient (`nutrient`: kcal, protein, carbs,
-   fat, fiber, sugars, sat, salt, micro, in its macro's hue);
+   fat, fiber, sugars, sat, salt, micro, in its macro's hue), or a
+   section header (`section`: identity, values per 100 g, products and
+   formats, macro kinds, micros, sources, preview, used in), which
+   replaces the header's colour bar so sections differ at a glance;
 1. the user's own choice (`icon`);
 2. a tag, when the thing is one (`tag`);
 3. the item's data: movement (`pattern`), dish (`dish`), food group (`group`, and `fine` for a finer drawing);
@@ -99,6 +102,12 @@ lunch, snack, dinner) change the hue, never the drawing.
   screen readers ("Contiene: …").
   - The row keeps its own badge only when the badge says something the
     parts don't (a meal's dish).
+- **On Find's bar, icons instead of words** (the developer, 2026-10-16):
+  the sort chip shows its key's icon (a nutrient, money, time) and the
+  direction; the filters chip its icon and the count of active filters;
+  a quick chip the value's icon (food group, movement) and its count.
+  The words stay in the open panels and in each chip's label for screen
+  readers; a value with no icon keeps its word.
 - **Status is not an icon:** planned, done and skipped are the box's
   shape (dashed, solid, struck).
 
