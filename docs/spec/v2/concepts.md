@@ -116,6 +116,28 @@ Model
   - "duplica", "estendi".
 - **Extends.** It makes macro-types of day: Lavoro → Lavoro + palestra;
   Riposo → Viaggio. Editing the base changes every model built on it.
+  A model can never extend itself or any model built on it: the
+  editor leaves them out of the choice, so no loop can be made.
+- **A model built on a base stores only its differences**, never a copy:
+  - blocks it adds (local);
+  - inherited blocks it removes (hidden here, kept in the base);
+  - fields it changes on an inherited block (a time, a share).
+
+  Everything else follows the base: when the base changes, the model
+  changes too, except where it has its own value. Each block shows
+  where it comes from (from the base, local, changed here, removed
+  here), with a way back.
+- **Removing every inherited block** does not unlink the model. The
+  editor offers "Scollega" (unlink) instead. Unlinking makes the visible
+  blocks local, with today's values.
+- **Changing the base** asks first, listing what changes:
+  - **replace:** the inherited blocks become the new base's; local blocks
+    stay; changes stay where their block still exists, marked as a
+    conflict when the new base has a different value;
+  - **merge:** only the new base's missing blocks are added;
+  - **cancel.**
+
+  Local blocks and changes are never lost without saying so.
 - **Applying** a model to a date writes planned entries linked to their
   blocks. Moving a block moves the entries relative to it: the
   pre-workout meal follows the session.
