@@ -95,6 +95,9 @@ data, never colours or sizes.
 ## 7. Compact by rule
 - One line per row where possible; secondary details only when opened.
 - No card inside a card; 16 px gutters; 44 px targets.
+- A choice that can grow (more than four options, or a list the person
+  extends: day types, groups, categories) is a drop-down, never a row of
+  chips that breaks the layout.
 - Numbers with the Italian thousands dot, units after the number.
 - Every page fits its frame; the boards are checked for overflow, broken
   links and overlapping frames before each publish.

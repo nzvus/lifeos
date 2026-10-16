@@ -116,6 +116,8 @@ Model
   - "duplica", "estendi".
 - **Extends.** It makes macro-types of day: Lavoro → Lavoro + palestra;
   Riposo → Viaggio. Editing the base changes every model built on it.
+  A model can never extend itself or any model built on it: the
+  editor leaves them out of the choice, so no loop can be made.
 - **Applying** a model to a date writes planned entries linked to their
   blocks. Moving a block moves the entries relative to it: the
   pre-workout meal follows the session.
