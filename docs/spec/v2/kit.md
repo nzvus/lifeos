@@ -54,7 +54,10 @@ Sections, stats, sheets, search fields and buttons are `kit.css` classes
 (`k-section`, `k-stats`, `k-sheet`, `k-search`, `k-btn`, `k-choice`,
 `k-tabs`), not components; shapes.md says which to use when. A dense section folds (`k-fold`, a `<details>` whose summary
 says what it holds) and starts closed: an ingredient's macro kinds,
-micros and sources.
+micros and sources. On an editor page with many sections every section
+folds, each with its section icon (`has-icon`, icons.md §2); what you
+edit first starts open (a food: name and codes, values, products and
+formats).
 
 The time rail is part of Box (`rail` on or off), so the registry that
 gives a row its colour and icon stays in one place. A Box chooses what
