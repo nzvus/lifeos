@@ -47,6 +47,48 @@ the developer's export in PGlite before every switch.
 | assistant_conversations, assistant_messages | kept as they are (parked) | |
 | *(not exported)* user, session, account, verification, rate_limit, invites | v2 has its own login | |
 
+## Review of the data before the import (the developer, 2026-10-16)
+
+The converter imports what v1 holds; a **review pass** runs on the
+export first and writes a corrected copy. Every change is listed in a
+report, with the old value, the new one and the reason. The developer
+loads the copy only after reading it (ADR-0052, "replace").
+
+- **Expenditure:**
+  - recomputed with the new priors (engines.md E4a);
+  - for a timed set (start and end in gym mode) the time is kept only
+    when plausible: between ≈ 1.5 and ≈ 8 s per rep;
+  - otherwise reps × the movement's tempo;
+  - rests come from the gaps between sets, capped at 10 min (a longer
+    gap is a pause, not a rest);
+  - sessions without times are estimated from sets, reps and rests by
+    exercise class.
+- **Logged meals are kept as they are.** Their nutrients change only
+  when the ingredient they use was wrong.
+- **Ingredients:**
+  - for each of the ~130, look up average values per 100 g in CREA,
+    CIQUAL or USDA FDC, or on the label via Open Food Facts when there
+    is a brand: the 8 label values plus fibre types, the micros of
+    kinds.md (vitamins A, C, D, B12, folate; Ca, Fe, Mg, K, Na, I, Se),
+    protein quality, fatty acids, sugar kinds, water;
+  - keep the developer's value when it agrees within the source's
+    range; else replace it and say why;
+  - each value records its source and confidence.
+- **Outliers and inconsistencies across the dataset:**
+  - kcal vs the Atwater sum of macros (beyond ± 15 % is flagged);
+  - sugars greater than carbs, saturated greater than fat;
+  - weighings that jump more than 2 % in a day;
+  - loads that double between sessions (per dumbbell vs total);
+  - e1RM outliers on machines with stack numbers;
+  - sleep longer than 14 h or with the bed time after the wake time;
+  - duplicates.
+- **Missing data:**
+  - filled only where it can be derived (a price from a receipt line, a
+    fibre type from the food group);
+  - otherwise left empty and counted by data quality (E9).
+- **Check:** the parity checks below run on the corrected copy; the
+  differences against the raw export are exactly the report's lines.
+
 ## Parity checks (must be equal before a switch)
 
 On the developer's export, v1 computed vs v2 computed, per day or per

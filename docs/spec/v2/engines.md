@@ -76,6 +76,72 @@ app (01 P-1, P-2).
   back-test on the developer's export: predicted vs actual 7-day trend
   change.
 
+### E4a The expenditure prior, piece by piece (2026-10-16)
+Every piece below is a **prior**: the filter's learnt factors (c, c_train)
+correct it from the weight trend. The priors decide how fast the estimate
+is right in the first weeks, and how well a single day is explained.
+- **Training, set by set** (gym mode already records what is needed):
+  - **Work time** per set, measured from the set's start and end in gym
+    mode; when not timed, reps × tempo by movement (≈ 3–4 s per rep for
+    compound lifts, ≈ 2.5–3 s for isolation).
+  - **Exercise class.** MET on work time, scaled by the set's relative
+    intensity (load ÷ e1RM, or RIR when there is no e1RM):
+
+    | Class | MET on work time |
+    |---|---|
+    | lower-body compound | ≈ 6 |
+    | upper-body compound | ≈ 5 |
+    | isolation and machines | ≈ 3.5–4 |
+    | core and bodyweight | ≈ 3.8 |
+  - **Rests:** measured, at ≈ 1.5–2 MET; the setup between exercises
+    counts as rest.
+  - **After the session**, in two parts:
+    - the first 1–2 hours (EPOC): + 5–15 % of the session's net cost,
+      higher with short rests and many hard sets;
+    - a long tail of up to 24–48 h after hard or new work: resting
+      metabolism + ≈ 3–5 % the next day, about 50–90 kcal here. It is
+      smaller for a trained person and for repeated sessions of the
+      same kind.
+  - **Why not one MET for the whole session**, as v1 did: a MET counts
+    the rests as work. Today's session lasted 55 min with 17 min of
+    sets; v1's ≈ 277 kcal becomes ≈ 109 for the session plus the tail
+    the next day.
+  - **What the person does after training** is partly compensated
+    (sitting more, moving less: Careau 2021, ≈ 25 %). The filter's
+    c_train learns the net effect for this person.
+  - **Tonnage** (sets × reps × kg) is a check, not the driver.
+    Mechanical work (load × range of motion × g, at ≈ 20–25 %
+    efficiency) gives a floor for the working sets. A session's kcal
+    should not move by tonnage alone: heavy low-rep work costs less
+    per kg lifted.
+  - **Context:**
+    - frequency and habituation lower the cost of a repeated session;
+    - sleep debt and heat raise the perceived effort but barely the
+      cost; they are shown, not added;
+    - Careau 2021 compensation (≈ 0.75) stays in the prior.
+  - **Shown on the session:** "≈ N kcal: work X min · rests Y min ·
+    after Z", with its range.
+- **Steps by cadence band:**
+  - incidental bouts under 100 steps/min at ≈ 2.0–2.5 MET;
+  - walks of 100 steps/min or more at ≈ 3.0–3.8 MET;
+  - net of 1 MET, by body mass.
+  - The bands come from the phone's minute counts when available, else
+    from the share of steps in bouts of ≥ 10 min.
+- **Sedentary time and time on one's feet:**
+  - The everyday factor comes from the day's blocks: study, work and
+    commute are seated or on one's feet, from the day type.
+  - It is no longer a single "level" chosen once.
+  - Long seated blocks are shown, as context for steps and mood; they
+    are not judged.
+- **Shown in Andamento → Energia:**
+  - the learnt expenditure ± σ next to the sum of its priors (base,
+    everyday, steps, training, food's thermic effect);
+  - the gap between the two, which is what the filter learnt about this
+    person.
+  - Sources: Ainsworth 2011 (Compendium); Careau 2021; Reis 2017 and
+    Vezina 2014 (resistance-exercise energy cost); Tudor-Locke 2018
+    (cadence bands).
+
 ## E5 Targets (food)
 
 From the weight goal (a goal with "reach W by date") and E4:
