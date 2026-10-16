@@ -95,12 +95,98 @@ loads the copy only after reading it (ADR-0052, "replace").
   - what cannot be derived is asked, not guessed (equipment of the
     shoulder press, the preacher curl and the chest-supported row; one
     arm or two on the cable lateral raise).
-- **Missing data:**
-  - filled only where it can be derived (a price from a receipt line, a
-    fibre type from the food group);
-  - otherwise left empty and counted by data quality (E9).
+- **Missing data** (changed 2026-10-16, the developer: «riempire ogni
+  casella … dati di bassa o alta aggregazione plausibili, considerando le
+  loro dipendenze»):
+  - filled when it can be derived (a price from a receipt line, a fibre
+    type from the food group) or estimated plausibly from its
+    dependencies (below);
+  - every filled value carries its provenance: `source` (CREA, CIQUAL,
+    USDA FDC, Open Food Facts, a rule), `confidence` and `estimate: true`.
+    It shows the «stima» pill (content.md §3);
+  - estimates never train anything: the learnt expenditure, the weight
+    trend, the scores, the correlations and the records read measured
+    values only. An estimate fills a box; it never becomes a measurement;
+  - subjective values (mood, energy, sleep quality, ratings) and goals
+    are never estimated. They stay empty or are asked.
 - **Check:** the parity checks below run on the corrected copy; the
   differences against the raw export are exactly the report's lines.
+
+## Refinement update (planned 2026-10-16, export of 2026-10-16)
+
+`boards-tools/audit_export.py` on the export of 2026-10-16 (29 Sep →
+16 Oct, 18 days) found 138 items. Corrections are proposed, never
+applied, until the developer approves them; estimates are added in a
+separate layer of the refined copy.
+
+**1. Corrections (fix, to approve):**
+- 17 restaurant dishes saved as «100 g = the whole portion» («Indiano ·
+  Tandoori misto (400 g)»: 750 kcal "per 100 g"). The fix: true per-100 g
+  values, and quantity = the portion's grams × servings. The day totals
+  do not change. The servings of 0,25 or 0,5 are right: a shared table,
+  a bit of everything (the developer, 2026-10-16).
+- 2 whole meals estimated and saved as one food, with more energy per
+  100 g than any food has (oil ≈ 900): «Ristorante bolivione» 1230 kcal
+  (16 Oct) and «Sweetburger · Cheeseburger doppio» 970 (8 Oct). They become
+  estimated entries with their kcal, and the name is fixed («boliviano»).
+  The Bolivian dinner has its dishes from the developer (approved): «Salteña»
+  1 piece, «Pique macho» half a portion, «Cuñapé» 1,5 pieces. Their values
+  per piece or portion are the developer's; the grams are a typical weight,
+  marked estimate. The totals stay 1230 kcal (`corrections.json`, next to the
+  export).
+- 2 foods whose kcal and macros disagree beyond ± 20 % and 15 kcal
+  (frozen artichoke hearts, balsamic vinegar).
+- A «Corsa» session marked done on 17 October, a day not yet come, with
+  no exercises and no time.
+
+**2. Questions (check, the developer answers):**
+- Dumbbell loads: total or per dumbbell, for «Incline db press» and «Alzate
+  laterali con manubri» (the export of 16 Oct has 10 kg on the lateral
+  raises, the corrected copy of 15 Oct had 20).
+- Soy sauce at 14,5 g of salt per 100 g: plausible (soy sauce is 12–16 g).
+- The entries of the night of 8 → 9 October, logged on the 8th with
+  times of the 9th.
+- «Biscotto Gran Cereale Cioccolato» twice on 16 Oct (200 g = 907 kcal,
+  and 5 × 21 g = 476): a duplicate, or both eaten.
+- «MERLUZZO al sugo» still planned on 8 Oct: eaten or skipped.
+
+**3. Fills (gap), in the refined copy, all with provenance:**
+
+| Entity | Missing | How it is filled |
+|---|---|---|
+| Ingredients (110) | micros (all: v1 holds 2 compounds), macro kinds (protein quality, fatty acids, sugar kinds, fibre types: 73), food group (all), price (47), NOVA (2), origin (6), description (9) | matched to CREA › CIQUAL › USDA FDC by name and group, or to Open Food Facts by brand; the developer's 8 label values are kept when within the source's range; a price from the receipts, else the category's median, marked estimate |
+| Meals (20) | dish, servings, notes (19), ratings (0), tags | dish from the name (icons.md); totals from the ingredients; ratings never estimated |
+| Exercises (70 → 57) | equipment (36), muscles (10), guide (70) | the exercise review above; muscles from v1's `suggestAnatomy`; a short guide per movement from a standard reference, marked estimate |
+| Days (18) | steps (4 days), sleep quality (3), mood and energy (7), weighings (5), closures | steps from walking minutes and day level (≈ 110 steps/min); weighings not invented (the trend interpolates); quality, mood and energy left empty |
+| Goals (2 versions) | the v2 goals the boards show (steps, study, reading, money) | asked through the goal form (what, how much, by when); never invented |
+| Pantry, money | 0 purchases, 0 counts, 2 movements | rebuilt only from receipts the developer adds; not invented |
+
+**4. Outputs:**
+- `lifeos-export-2026-10-16-refined.json`: the export plus the approved
+  corrections plus the estimate layer, with `_provenance` per filled
+  field;
+- the report (every change: old, new, why, source);
+- the boards' DATA rebuilt from the refined copy, so no board shows
+  «esempio» where the data can say it.
+
+**Status (16 Oct, evening):**
+- Done:
+  - §1 applied (64 changes, `…-refined.report.md`); the totals of all 18 days are unchanged, checked;
+  - §2 answered: dumbbells per dumbbell, so the 6 lateral-raise sets become totals; both biscuits eaten; the 8 Oct cod skipped; the Sweetburger on the 8th; the identical oat entries are right;
+  - the estimate layer: 110 foods (39 one by one, 71 from their group), 70 exercises (review fields, cardio muscles, a guide per movement), 2 days of steps, 13 dishes;
+  - the boards run on the refined copy (canvas v69): the micros of the day, the dinner and the week, caffeine and omega-3 now come from the foods eaten, one source on every page.
+- Open:
+  - duplicates in the catalog: «Burro d'arachidi 100%» and «Burro di arachidi 100%», the two cocoas, the two passate, «Sale» and «Sale fino», «Gnocchi» and «Gnocchetti» (fibre 1,3 against 4,0);
+  - the 5 exercise questions (shoulder press, preacher curl, chest-supported row, cable lateral raise, Bulgarian split squat);
+  - the goals form.
+
+**5. Order:**
+1. the developer answers §2 and approves §1;
+2. the catalog (ingredients, meals, exercises);
+3. the days;
+4. the goals, through the form;
+5. the boards rebuilt;
+6. parity re-run.
 
 ## Parity checks (must be equal before a switch)
 
