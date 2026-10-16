@@ -194,6 +194,7 @@ separate layer of the refined copy.
     - not verifiable: psyllium husk, in no table; its estimate stays, marked;
     - 71 foods had at least one value off by more than half. The worst were the group defaults: salt carried 30 mg of vitamin C and 80 µg of folate (it was in the «herbs» group), cocoa 0,5 mg of iron instead of 48, nutritional yeast nothing at all;
     - where a table has no value for a field, the estimate stays, and the food page says so.
+  - data parity (`parity.py`, report `parity.md`): the metrics of «Parity checks» on the raw export against the refined copy; 592 values equal, 23 different, each tied to an approved correction (the 8 Oct cod skipped and the cheeseburger, the 16 Oct dinner, the lateral raises as totals, the 17 Oct run removed), none unexplained. It found one bug in the refinement: the 16 Oct dinner, split into three dishes, reused the price per gram on more grams (18,59 → 85,79 €); the bill is now split by energy (18,60 €). The parity of v1 against v2 *computed* waits for v2 code.
   - Question for the developer: is the salt iodized? It is counted as plain salt, because nothing says so; iodized salt adds ≈ 3.000 µg of iodine per 100 g.
 
 **5. Order:**
