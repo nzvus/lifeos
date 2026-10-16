@@ -29,6 +29,7 @@ same thing is always written the same way.
 | Durations | a clock for timers, h and min otherwise | 1:35 · 1:02:05 · 6 h 02 · 55 min |
 | Dates | always computed from the ISO date, never typed | giovedì 15 · 15 ott · 15 ottobre · sett. 42 · G |
 | Counts | the number and the right form | 1 passo · 4 passi |
+| Periods | one vocabulary (find.md §5) | 7 giorni · 30 giorni · 90 giorni · Mese · Scegli |
 
 `F` lives in one source (`boards-tools/fmt.js`; `packages/kit` in v2)
 and is built into every board that formats, as `Glyph` holds the icon
