@@ -104,7 +104,10 @@ with the sort.
 ## 6. In the kit
 
 - `Find` (a kit component) takes `of` (the collection), `context` (slot,
-  time, plan block) and `items`. It draws:
+  time, plan block), `items` (the library's records as they are; a mixed
+  list, as in ⊕ and Libreria, marks each record with its collection) and
+  `total` (the whole catalog, when the page holds a part). With `limit` 0
+  it is only the field: results appear as you type. It draws:
   - the search field;
   - the first facets, with «Filtri (n)»;
   - the sort, as «Ordina: Proteine per 100 kcal ↓»;
