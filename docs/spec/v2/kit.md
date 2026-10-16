@@ -39,7 +39,8 @@ to one, and so do the design boards.
 | **Skyline** | parts, size `bg · mini · row · big` | behind a card Box; trailing a row Box; V-16 |
 | **Nutrients** | foods × kinds or totals, targets, limits, micro groups, level `L0-box · L0-ribbon · L1 · L2` | food Box (L0-box), rows (L0-ribbon), day/week Box (L1), composer and catalog item (L2) |
 | **PageHeader** | title, context; `back` (a sub-page: "‹ parent"), `action` | every page; top level shows the gear → Settings |
-| **WeekStrip** | days with score bar or template tag | Today, Plan |
+| **WeekStrip** | days with score bar or template tag | inside DateNav |
+| **DateNav** | mode `day · week · month · range`, the date, day scores and templates | Oggi (day), Piano (week/month), Andamento (range): swipe, week ‹ ›, the month on the title, "Oggi" when away |
 | **Field** | type `stepper · scale · choice · text · timer · slider`, label, unit, base, allowed range, help | every input: entry sheet, gym, composer lines, goals, filters and ranges |
 | **Chart** | type `trend · bars`, data | the tracker page (trend with band and goal), Review (sleep against 7–9 h) |
 | **NavBar** | active place | the bottom bar of the four top-level places; ⊕ in the middle |
