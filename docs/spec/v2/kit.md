@@ -59,10 +59,12 @@ data, never colours or sizes.
 
 An item may name its own icon from the registry (`icon`), and it wins
 over the family's drawing wherever the item shows: an exercise has one,
-by default from its movement (press, pulldown, squat, curl…), and the
-user can pick another. A Box of something made of parts lists their
-icons in order (`icons`): a session shows its exercises, a cycle its
-sessions. A session is a block model made of exercises; a cycle puts
+by default from its movement (press, pulldown, squat, curl…) with the
+equipment as a corner mark (`icon: 'pulldown/mcable'`), and the user can
+pick another. Foods, meals and recipes, the pantry and receipts each have
+their own drawing (carrot, bowl, jar, receipt). A Box of something made of parts lists their
+icons in order (`icons`) instead of its own badge: a session shows its
+exercises, a cycle its sessions. A session is a block model made of exercises; a cycle puts
 sessions into days. "Routine" is not a word of the app.
 
 ## 4. Nutrients, conformed to V-01

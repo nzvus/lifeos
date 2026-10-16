@@ -82,6 +82,19 @@ loads the copy only after reading it (ADR-0052, "replace").
   - e1RM outliers on machines with stack numbers;
   - sleep longer than 14 h or with the bed time after the wake time;
   - duplicates.
+- **Exercises** (first pass drafted on the design boards, 70 → 57):
+  - a seed entry that duplicates one the history uses folds into it; the
+    survivor takes the Italian name and the history follows (13, e.g.
+    "Incline db press" → "Panca inclinata con manubri");
+  - names in Italian with the equipment ("Pec deck (croci alla
+    macchina)", "Rematore con petto appoggiato"); equipment filled where
+    it is certain; the movement pattern refined (dip, hip thrust,
+    twist, the cardio kinds);
+  - each exercise gets its icon: the movement, with the equipment as a
+    corner mark; the user can pick another;
+  - what cannot be derived is asked, not guessed (equipment of the
+    shoulder press, the preacher curl and the chest-supported row; one
+    arm or two on the cable lateral raise).
 - **Missing data:**
   - filled only where it can be derived (a price from a receipt line, a
     fibre type from the food group);
