@@ -123,3 +123,47 @@ reason:
 - the energy targets (new estimator);
 - the day quality score (new scores);
 - pre/post-workout tags (now derived).
+
+## Parity of functions (the developer, 2026-10-16)
+
+The numbers above must match; so must what the person can do. Every
+search, sort, filter, suggestion and shortcut v1 has (inventory of
+2026-10-16, `src/core/shared/search.ts` and its callers) has a place in
+v2. **Kept** = same behaviour; **better** = v2 adds to it (find.md);
+**board** = drawn on the v2 boards in the find rollout.
+
+| v1 function (where) | v2 | Status |
+|---|---|---|
+| Search: case and accents ignored, every word in any order, start of text > start of word > inside (`rank`, `matchScore`) | every search (find.md §1) | better: one typo, aliases, quantities, barcodes |
+| Ties: uses in 60 days, then last use, then A–Z (`getUsage`, `rank`) | the ranking (find.md §2) | better: time of day, plan, favourites, the reason shown |
+| Ingredients: 11 sorts × 7 "relative to", each in its natural direction, missing values last, the value on the row (`browseFoods`, `metricValue`, `naturalDirection`, `SortNote`) | Cibi | kept; board |
+| Meals: the same sorts, per serving; cost only when every price is known | Pasti e ricette | kept; board |
+| Meals: filter by moment (7) | Pasti e ricette | better: moment, dish, tags; board |
+| The opening sort remembered (`user_settings.listSort`, `listPer`) | every list | better: per list, with its filters |
+| Meal picker by name and notes; meal list also by ingredient names; ingredient list also by tags (uneven) | every search | better: the same fields everywhere |
+| "Fits this slot": up to 3 meals for pre-/post-workout and pre-sleep (`suggestForSlot`) | the composer, ⊕ | better: every slot, with the reason; board |
+| Moment proposed from the time (`suggestMoment`, moment start times) | ⊕, the entry sheet | kept |
+| Portions from a cooked batch (Portion tab) | ⊕, the composer | board |
+| Repeat yesterday's meals on an empty day (`copyDay`) | Oggi | board |
+| Training: routine tile at its latest version (`latestPreset`, `labelFamily`) | ⊕ → Palestra | board |
+| Training: copy a past session (last 12) | ⊕ → Palestra | board |
+| Training: estimate a session | ⊕ → Palestra | kept |
+| "Last time ({day}): {sets}" per exercise (`lastSets`) | Palestra | board |
+| Gym: copy the last set, the next target (`copyLastSet`, `nextTarget`) | Palestra | kept |
+| Exercise pickers A–Z (no usage) | every exercise search | better: ranked by use |
+| Exercises list: no search, sort or filter | Libreria → Esercizi | better: search, sort, muscle/pattern/equipment; board |
+| Muscles and pattern suggested from the name (`suggestAnatomy`) | the exercise editor | board |
+| Money: search, category, month in the URL; grouped by day (`listMovements`) | Andamento → Soldi | kept, with the day's total; board |
+| Money overview: categories and shops by amount (`monthSummary`) | Andamento → Soldi | kept |
+| Receipt lines: alias, else the model's name (`aliasKey`) | ⊕ → Scontrino | better: alias, then fuzzy name, then new |
+| Barcode: check digit, two equal reads, Open Food Facts (`isValidGtin`, `confirmReads`, `offPrefill`) | ⊕ → Scansiona, and a barcode typed in any search | kept; better |
+| Trends: 7/30/90 days, earlier/later/today; default from preferences | Andamento, trackers: DateNav range | kept; one period vocabulary (find.md §5) |
+| Training progress by week; exercise trends; routine progress | Andamento → Allenamento | kept |
+| Day page grouped by moment, snacks by part of day, slots matched | Oggi | kept |
+| Pantry: shopping list (gone or out within 7 days, soonest first); stock A–Z | Libreria → Dispensa | better: search, sort by days left; board |
+| Duplicate a meal (`?copy=`) | Pasti e ricette; also models | board |
+| Entry row: eye (left out), refresh to current values, servings −/+ | Oggi row | board |
+| Time zone typed with suggestions | Impostazioni | board |
+| Duplicate-name check on import (`nameKey`) | the import review (above) | kept |
+| Assistant `find_*` tools | parked with the assistant | parked |
+| List scroll position kept (`ScrollMemory`) | every list | kept |

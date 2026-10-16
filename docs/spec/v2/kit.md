@@ -48,6 +48,7 @@ to one, and so do the design boards.
 | **Field** | type `stepper · scale · choice · text · timer · slider`, label, unit, base, allowed range, help, error | every input: entry sheet, gym, composer lines, goals, filters and ranges |
 | **Chart** | type `trend · bars`, data | the tracker page (trend with band and goal), Review (sleep against 7–9 h) |
 | **NavBar** | active place | the bottom bar of the four top-level places; ⊕ in the middle |
+| **Find** | collection `of`, items (the library's records as they are), context (slot, time, plan), total | every list and every search: ⊕, Libreria, Cibi, Pasti, Esercizi, Dispensa, Soldi, the composer, Modelli, Oggi's filters (find.md) |
 
 Sections, stats, sheets, search fields and buttons are `kit.css` classes
 (`k-section`, `k-stats`, `k-sheet`, `k-search`, `k-btn`, `k-choice`,
@@ -96,7 +97,7 @@ sessions into days. "Routine" is not a word of the app.
 | V-07 Catalog | PageHeader, search, sort and group Fields, the open item as a card Box with Nutrients L2 per 100 g, foods as row Boxes with the food score |
 | V-08 Plan | PageHeader, WeekStrip with templates, cycle row, the template as row Boxes in "times" mode, habits, NavBar |
 | V-09 Goals | PageHeader, goals as row Boxes with progress strip and pace skyline, the new-goal Fields and the derived pace |
-| V-10 Review | PageHeader, range Field, the week as a Box (L1), scores as row Boxes, Chart bars, correlations and data quality as row Boxes, NavBar |
+| V-06 Andamento, Il periodo | PageHeader, range Field, the week as a Box (L1), scores as row Boxes, Chart bars, correlations and data quality as row Boxes, NavBar |
 | V-14 Settings | PageHeader, sections of row Boxes (account, body, day, trackers, data A/B/C, trash), theme Field |
 | V-16 Scores | PageHeader, model Field, subject Box, Skyline big, bounded weight sliders, context |
 

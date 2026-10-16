@@ -13,6 +13,7 @@ approved design board.
 | [schema.md](schema.md) | the v2 tables (hybrid), constraints, what is never stored |
 | [migration.md](migration.md) | every v1 table → its v2 place; parity checks before the switch |
 | [screens.md](screens.md) | the 15 v2 screens; every v1 screen id → its v2 screen |
+| [find.md](find.md) | search, ranking, sorts, filters, groups and periods: v1's rules plus typos, aliases, quantities, barcodes, the reason on the row; the Find part and its checks |
 | [content.md](content.md) | words, formats and states: the one formatter, the glossary and microcopy, the judgement scale and status colours, provenance, empty/loading/error/undo/confirm, the content audit |
 | [flows.md](flows.md) | the places, every object's create/see/edit/delete and what it sets off, the event chains, every v1 screen → its v2 place |
 | [kit.md](kit.md) | the shared parts every screen is built from: registry, `kit.css`, Box (with the time rail), Skyline, Nutrients; which screen uses which |
@@ -22,5 +23,5 @@ approved design board.
 Design (claude.ai artifacts, private to the developer):
 - design system "lifeos" (tokens, type, fonts from `src/design/`): https://claude.ai/artifact/G56wCe8VdGjWpyi4oTML2D
 - boards "lifeos v2" (V-01 day, V-02 capture, V-03 entry, V-04 food composer,
-  V-05 gym auto mode, V-06 tracker, V-08 day template, V-09 goals, V-10 review),
+  V-05 gym auto mode, V-06 Andamento and trackers, V-08 day template, V-09 goals),
   drawn on the developer's data of 2026-10-15: https://claude.ai/artifact/Q2fD1qXBKgMJ2N9BuTgHbZ

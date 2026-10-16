@@ -111,34 +111,49 @@ redone, a question only for what cannot.
 
 ## 6. Every v1 screen → its v2 place
 
-| v1 | v2 |
-|---|---|
-| S-T01 day navigation | DateNav on Oggi |
-| S-T02 day card, S-T03 score row, S-T07 nutrients, S-T16 day quality, S-T18 energy | Oggi: the day Box (Nutrients L1, micros, limits, day skyline) |
-| S-T04 chips (sleep, movement, mood, closure) | Oggi timeline rows and the day box |
-| S-T05 day type picker | Oggi: swap the day's template (§4) |
-| S-T06 weekly check-in | Oggi card |
-| S-T08, S-T09, S-T10, S-T11 timeline, slots, rows, open rows | Oggi timeline of Boxes (rail, compact/times/open) |
-| S-T12 remove planned, S-T13 copy yesterday, S-T14 future days | Oggi (§4) |
-| S-T15 pantry reminders | Oggi row → Libreria → Dispensa |
-| S-T17 this week | Andamento → Il periodo (7 days) |
-| S-T19 training today, S-T20 program's day | Oggi training Box; the cycle step from Piano |
-| S-T21 supplements | Oggi compact entries |
-| S-T22 add food, S-T23 add training, S-T24 movement, S-T25 sleep, S-T26 weight, S-T27 mood, S-T29 spending | ⊕ → entry sheet or specialised page |
-| S-T28 close the day | Oggi |
-| S-F01 meals, S-F02 meal editor | Libreria → Pasti e ricette |
-| S-F03 ingredients, S-F04 ingredient editor | Libreria → Cibi (V-07) |
-| S-F05 pantry | Libreria → Dispensa (V-12) |
-| S-F06 food trends | Andamento → Cibo |
-| S-F07 day types | Piano → Modelli (day type with targets and shares) |
-| S-B01 training plan, S-B02 program editor | Piano → Calendario, cycles (cycle editor) |
-| S-B03 routines | Piano → Modelli (a block set of exercises) |
-| S-B04 exercises | Libreria → Esercizi |
-| S-B05 session, S-B06 gym mode | Oggi → V-05 |
-| S-B07 progress | Andamento → Allenamento, Peso |
-| S-M01 money overview, S-M02 movements | Andamento → Soldi (V-11) |
-| S-M03 receipts | ⊕ → Scontrino (V-13) |
-| S-N01 mind | Oggi check-in; Andamento → Mente |
-| S-S01…S-S10 settings | Settings (V-14); goal (S-S04) in Andamento → Obiettivi; day types (S-S05) in Piano |
-| S-A01 assistant | header icon (when enabled) |
-| S-U01 sign-in | V-15 |
+The one table (screens.md points here). The functions inside each screen, and
+whether v2 keeps them, are in migration.md §"Parity of functions".
+
+| v1 | v2 place | Board | Notes |
+|---|---|---|---|
+| S-T01 day navigation | Oggi: DateNav | Main |  |
+| S-T02 day card, goal line, "how this number is built" | Oggi: the day Box | Main, Goals | the deficit pencil goes: the goal owns it |
+| S-T03 score row | Oggi: the day Box's skyline | Main | scores split into targets, quality, recovery |
+| S-T04 chips (sleep, movement, mood, closure) | Oggi: timeline rows and the day Box | Main | they become entries; the closure stays as a row |
+| S-T05 day type / program picker | Oggi: swap the day's model (§4) | Main, Plan |  |
+| S-T06 weekly check-in | Oggi card | Main | an optional weekly review of the expenditure |
+| S-T07 the day with the plan totals | Oggi: the day Box (Nutrients L1) | Main | planned shown hatched |
+| S-T08 timeline | Oggi: timeline of Boxes | Main | plus filters by domain and state (find.md) |
+| S-T09 slot rows, suggestions | Oggi: blocks; the composer's suggestions | Main, Food | ranked by fit, use, rating (find.md §2) |
+| S-T10 entry row (tick, −/+, eye, refresh, delete) | Oggi: the row Box | Main | eye, refresh and servings in the row's actions |
+| S-T11 open row (lines in place, time, quality) | Oggi: the open Box; the composer | Main, Food |  |
+| S-T12 remove what's still planned | Oggi (§4) | Main |  |
+| S-T13 copy yesterday | Oggi (§4) | Main | also "apply yesterday's model" |
+| S-T14 future days planned only | Oggi | Main | rule in E1 |
+| S-T15 pantry reminders | Oggi row → Libreria → Dispensa | Main, Pantry |  |
+| S-T16 day quality panel | Oggi: the day Box; Andamento → Come valutiamo | Main, Scores |  |
+| S-T17 this week | Andamento → Il periodo (7 days) | Progress |  |
+| S-T18 energy and calibration | Andamento → Energia; the weight tracker | Progress, Tracker | learnt expenditure, no accept step |
+| S-T19 training on this day | Oggi: the session Box | Main |  |
+| S-T20 the program's day | Oggi: the cycle's step, from Piano | Main, Plan |  |
+| S-T21 supplements | Oggi: compact entries; their tracker | Main | doses on the timeline, curve |
+| S-T22 add food | ⊕ → the composer | Capture, Food | portions from a cooked batch included |
+| S-T23 add training | ⊕ → Palestra | Capture, Gym | routine at its latest version, a past session, estimate |
+| S-T24 movement, S-T25 sleep, S-T26 weight, S-T27 mood, S-T29 spending | ⊕ → the entry sheet | Capture, Entry | sleep also by wake/bed taps; mood with a moment |
+| S-T28 close the day | Oggi | Main |  |
+| S-F01 meals, S-F02 meal editor | Libreria → Pasti e ricette | Meals, MealEditor | duplicate, sort by any nutrient alone or per kcal/€/macro |
+| S-F03 ingredients, S-F04 ingredient editor (label, OFF, OCR, impact) | Libreria → Cibi | Catalog, IngredientEditor, Scan |  |
+| S-F05 pantry | Libreria → Dispensa | Pantry |  |
+| S-F06 food trends | Andamento → Cibo | Progress |  |
+| S-F07 day types and programs | Piano → Modelli | Models, ModelEditor | day types with targets and shares |
+| S-B01 plan calendar, S-B02 program editor | Piano → Calendario; the cycle editor | Plan, CycleEditor |  |
+| S-B03 routines | Piano → Modelli (a session is a block model of exercises) | Models |  |
+| S-B04 exercises, merge, guide | Libreria → Esercizi | Exercises | muscles and pattern suggested from the name |
+| S-B05 session editor, S-B06 gym mode | Oggi → Palestra | Gym | "last time" per exercise |
+| S-B07 progress, weight | Andamento → Allenamento, Peso | Progress, Tracker |  |
+| S-M01 money overview, S-M02 movements | Andamento → Soldi | Money | movements grouped by day with the day's total; search, category, month |
+| S-M03 receipts | ⊕ → Scontrino | Receipt | lines matched by alias, then by name |
+| S-N01 mind | Oggi check-in; Andamento → Mente | Main, Progress |  |
+| S-S01…S-S10 settings | Impostazioni (from any place's gear); goal (S-S04) in Andamento → Obiettivi; day types (S-S05) in Piano | Settings, Goals, Models | time zone typed with suggestions |
+| S-A01 assistant | parked since 2026-10-09; when enabled, an icon in every header and a mode of ⊕ | — |  |
+| S-U01 sign-in | Sign-in / sign-up (V-15) | — |  |
