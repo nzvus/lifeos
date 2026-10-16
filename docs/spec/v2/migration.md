@@ -169,6 +169,17 @@ separate layer of the refined copy.
 - the boards' DATA rebuilt from the refined copy, so no board shows
   «esempio» where the data can say it.
 
+**Status (16 Oct, evening):**
+- Done:
+  - §1 applied (64 changes, `…-refined.report.md`); the totals of all 18 days are unchanged, checked;
+  - §2 answered: dumbbells per dumbbell, so the 6 lateral-raise sets become totals; both biscuits eaten; the 8 Oct cod skipped; the Sweetburger on the 8th; the identical oat entries are right;
+  - the estimate layer: 110 foods (39 one by one, 71 from their group), 70 exercises (review fields, cardio muscles, a guide per movement), 2 days of steps, 13 dishes;
+  - the boards run on the refined copy (canvas v69): the micros of the day, the dinner and the week, caffeine and omega-3 now come from the foods eaten, one source on every page.
+- Open:
+  - duplicates in the catalog: «Burro d'arachidi 100%» and «Burro di arachidi 100%», the two cocoas, the two passate, «Sale» and «Sale fino», «Gnocchi» and «Gnocchetti» (fibre 1,3 against 4,0);
+  - the 5 exercise questions (shoulder press, preacher curl, chest-supported row, cable lateral raise, Bulgarian split squat);
+  - the goals form.
+
 **5. Order:**
 1. the developer answers §2 and approves §1;
 2. the catalog (ingredients, meals, exercises);
