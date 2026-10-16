@@ -13,6 +13,7 @@ approved design board.
 | [schema.md](schema.md) | the v2 tables (hybrid), constraints, what is never stored |
 | [migration.md](migration.md) | every v1 table → its v2 place; parity checks before the switch |
 | [screens.md](screens.md) | the 15 v2 screens; every v1 screen id → its v2 screen |
+| [content.md](content.md) | words, formats and states: the one formatter, the glossary and microcopy, the judgement scale and status colours, provenance, empty/loading/error/undo/confirm, the content audit |
 | [flows.md](flows.md) | the places, every object's create/see/edit/delete and what it sets off, the event chains, every v1 screen → its v2 place |
 | [kit.md](kit.md) | the shared parts every screen is built from: registry, `kit.css`, Box (with the time rail), Skyline, Nutrients; which screen uses which |
 | [icons.md](icons.md) | the icon system: places › domains › kinds › items, the resolver, marks and tags, food groups and dishes, sizes and the text beside them, header and backdrop |
