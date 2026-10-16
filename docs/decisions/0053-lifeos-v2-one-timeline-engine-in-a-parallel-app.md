@@ -2,6 +2,7 @@
 
 **Status:** accepted (the developer chose the recommended option of each question, 2026-10-15: hybrid database, a v2 app in parallel, design system + boards first, every domain from the start "and anything else that comes to mind")
 **Date:** 2026-10-15
+**Amended by:** ADR-0056 (§4: v1 stays at the root, `apps/v2` next to it)
 **Supersedes (when v2 replaces v1):** the domain models of ADR-0005, 0008, 0009, 0011, 0014, 0044, 0046 (their rules carry over into `docs/spec/v2/`, not their tables)
 
 ## Context
