@@ -186,7 +186,15 @@ separate layer of the refined copy.
   - `audit_export.py` flags near-duplicate foods (name tokens, a plural or a diminutive, energy within 25 %): it finds the 5 pairs above and one false pair (chives and onion), as a question;
   - the goals, in `_v2.goals`, as given;
   - the boards (canvas v70): the food page with its products, formats and prices per shop, and micros from the data; Scan (a barcode lands on a format); Receipt (a line adds a price observation and says the change); Pantry (stock per format, summed per food); the composer and the meal editor (a line is a food, with brand and format in a pill); Goals (steps on top, from the days); Find (brand and shop facets, a format name finds its food, price per 100 g as the median); 22 Find rules.
-- Open: verifying the agent's micronutrient estimates against the sources, row by row (offered, not asked).
+  - the micros verified food by food (`micros_verify.py`, report `micros_verified.md` next to the export):
+    - each of the 110 foods is paired by hand with a reference food: CIQUAL 2020 (ANSES, the only table with all ten micros, iodine included) for 102 (the protein milk keeps its label's calcium); USDA FDC SR Legacy for 4 that CIQUAL lacks (defatted peanut flour, corn cakes, whey, pumpkin seeds); the label or the food itself for 3 (ACE drink, creatine, inulin);
+    - a pairing can scale (the peanut cream is 86,8 % peanuts; a 7,2 g capsule makes ≈ 40 ml of espresso; bran sticks ≈ 60 % bran) or average (mixed berries: four berries);
+    - a table's «< x» is a detection limit: it caps the estimate, it does not become a value (olive oil would otherwise get 10 µg of iodine);
+    - selenium is cross-checked: CIQUAL gives cod 136 µg, canned tuna 305, potato 22,9, against USDA 33, 80 and 0,4; where they differ by more than 2× the lower one is kept;
+    - not verifiable: psyllium husk, in no table; its estimate stays, marked;
+    - 71 foods had at least one value off by more than half. The worst were the group defaults: salt carried 30 mg of vitamin C and 80 µg of folate (it was in the «herbs» group), cocoa 0,5 mg of iron instead of 48, nutritional yeast nothing at all;
+    - where a table has no value for a field, the estimate stays, and the food page says so.
+  - Question for the developer: is the salt iodized? It is counted as plain salt, because nothing says so; iodized salt adds ≈ 3.000 µg of iodine per 100 g.
 
 **5. Order:**
 1. the developer answers §2 and approves §1;
