@@ -47,13 +47,23 @@ to one, and so do the design boards.
 
 Sections, stats, sheets, search fields and buttons are `kit.css` classes
 (`k-section`, `k-stats`, `k-sheet`, `k-search`, `k-primary`), not
-components.
+components. A dense section folds (`k-fold`, a `<details>` whose summary
+says what it holds) and starts closed: an ingredient's macro kinds,
+micros and sources.
 
 The time rail is part of Box (`rail` on or off), so the registry that
 gives a row its colour and icon stays in one place. A Box chooses what
 goes inside it from its family: Nutrients L0 for
 food, the muscle strip for training, the need bar for water. Pages pass
 data, never colours or sizes.
+
+An item may name its own icon from the registry (`icon`), and it wins
+over the family's drawing wherever the item shows: an exercise has one,
+by default from its movement (press, pulldown, squat, curl…), and the
+user can pick another. A Box of something made of parts lists their
+icons in order (`icons`): a session shows its exercises, a cycle its
+sessions. A session is a block model made of exercises; a cycle puts
+sessions into days. "Routine" is not a word of the app.
 
 ## 4. Nutrients, conformed to V-01
 - **L0-box:** inside the host Box, left of its skyline.
