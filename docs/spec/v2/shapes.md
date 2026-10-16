@@ -99,7 +99,7 @@ busy (`aria-busy`: the label gives way to a spinner, the size stays).
 - **segmented** (`k-choice`, Field `choice`): up to 4 exclusive
   options with short labels. One frame on `paper`, the chosen option
   raised on `sheet` with an ink ring. More than 4 options, or labels
-  that would not fit a phone (over 14 characters, or 34 in all),
+  that would not fit a phone (over 16 characters, or 34 in all),
   become a drop-down;
 - **filter chips** (`k-chip` in `k-chips`): several at once; separate
   pills, filled with ink when on;
@@ -145,12 +145,19 @@ busy (`aria-busy`: the label gives way to a spinner, the size stays).
 - `kit.css` holds the scale and the classes: `k-sheet`, Box (`k-box`
   sets `--r` per density), `k-btn` with its roles, `k-choice`,
   `k-chips`, `k-tabs`, `k-bar`, `k-track`, `k-field` with `error` and
-  `edited`. The old `k-primary`, `k-secondary`, `k-act` and
-  `k-icon-btn` stay as aliases until the rollout replaces them.
+  `edited`. The old `k-primary`, `k-secondary` and `k-act` remain only
+  as aliases.
+- Layout primitives, so a page sets no `display`, `gap` or `padding`
+  inline: `k-stack` (a column), `k-line` (a row; `wrap`, `base`,
+  `top`, `bottom`, `between`, `end`), `k-grid` (`--cols`), gaps
+  `g0`–`g6` from the space scale, `k-block` (a section without a
+  title), `k-foot` (the bar that holds the primary), `k-nav` (the space
+  above the NavBar). Inline styles keep only widths, columns,
+  positions and values computed from data.
 - The "Forme" board (next to "Icone") shows the levels nested at phone
   width, the silhouettes, every button in every state, the choices, bars,
   fields, the scales and the do/don't pairs.
 - **Audit** (`boards-tools/shapes_audit.mjs`): renders every board and
   lists each corner, padding, gap and font size off the scale, and each
-  inline style in a page that is not layout or data. It fails above a
-  threshold that drops to zero by the end of the rollout.
+  inline style in a page that is not layout or data. Since the rollout
+  (2026-10-16) it is at zero and runs with `max 0`.

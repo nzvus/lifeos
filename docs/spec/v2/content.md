@@ -80,6 +80,9 @@ registry. It also holds the judgement scale (§3).
   `F.judge(score)` returns the level, the mark class, the labels and the
   tone. Box, DateNav, Skyline and Scores call it; nobody else compares a
   score with 70 or 40.
+- **Against a ceiling or a target:** `F.cap(v, max)` (sugars, salt,
+  caffeine: over the max is bad, over 85 % is warn) and `F.reach(v, t)`
+  (a micro, a goal: reached is good, half is warn) return a state.
 - **Status colours mean one thing each:**
   - herb: good, or the primary action;
   - warn: attention;
@@ -117,9 +120,8 @@ flows.md stays the rule. The content audit adds two checks:
 
 ## 6. In the kit and on the boards
 
-- `F` is built into the kit components that format or judge (Box,
-  DateNav, Chart, Field) and into the boards that show the rules. Pages
-  get it in the rollout and pass raw values.
+- `F` is built into every board that formats or judges: the kit
+  components and all the pages. Pages pass raw values.
 - Classes: `k-empty`, `k-skel`, `k-banner`, `k-toast`, and
   `k-btn primary danger` for a destructive confirm.
 - The "Testi e stati" board, next to "Icone" and "Forme", shows the
@@ -132,5 +134,5 @@ flows.md stays the rule. The content audit adds two checks:
   - a weekday that does not match its ISO date;
   - screens no place reaches.
   
-  Like the shapes audit, it has a threshold that drops to zero in the
-  rollout.
+  Since the rollout (2026-10-16) it is at zero and runs with `max 0`,
+  like the shapes audit.
