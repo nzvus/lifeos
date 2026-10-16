@@ -14,7 +14,8 @@ to one, and so do the design boards.
 - **Families** (food, train, sleep, body, drink, money, mind, habit, and
   the non-entry ones: day, week, goal, catalog, settings):
   - identity hue;
-  - icon and the richer "open" drawing;
+  - icon: never named by a page; the `Glyph` resolver derives it from
+    the data (icons.md: places › domains › kinds › items, marks, tags);
   - silhouette;
   - motion: where the drawing goes when the times are shown, and when
     the box opens.

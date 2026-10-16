@@ -15,6 +15,7 @@ approved design board.
 | [screens.md](screens.md) | the 15 v2 screens; every v1 screen id → its v2 screen |
 | [flows.md](flows.md) | the places, every object's create/see/edit/delete and what it sets off, the event chains, every v1 screen → its v2 place |
 | [kit.md](kit.md) | the shared parts every screen is built from: registry, `kit.css`, Box (with the time rail), Skyline, Nutrients; which screen uses which |
+| [icons.md](icons.md) | the icon system: places › domains › kinds › items, the resolver, marks and tags, food groups and dishes, sizes and the text beside them, header and backdrop |
 
 Design (claude.ai artifacts, private to the developer):
 - design system "lifeos" (tokens, type, fonts from `src/design/`): https://claude.ai/artifact/G56wCe8VdGjWpyi4oTML2D
