@@ -23,15 +23,16 @@ snapshots, training sets, money movements, and templates.
 |---|---|---|
 | kinds | id, user_id, key, name, domain, icon, colour, shape (instant/interval), entry_mode, definition jsonb, archived_at | **user-made kinds only**; built-ins live in code. `definition` (fields, metrics, targets, relations) is validated by the same zod type as built-ins. Unique (user_id, key). |
 | catalog_items | id, user_id, catalog, name, parent_id (categories, places), based_on_id, archived_at, deleted_at, timestamps | foods, recipes, products, exercises, routines, habits, projects, books, chores, money categories, accounts… Unique live (user_id, catalog, lower(name)). |
-| catalog_values | item_id, field, num numeric(14,4), text, bool, ref_item_id, unit, source, confidence numeric(3,2) | PK (item_id, field). A food's nutrients per 100 g are rows (D7); a product's `food` is a ref. |
-| catalog_parts | item_id, position, part_item_id, quantity numeric(10,2), unit, defaults jsonb | a recipe's foods, a routine's exercises (with default sets/reps/load/rest). |
+| catalog_values | item_id, field, num numeric(14,4), text, bool, ref_item_id, unit, source, confidence numeric(3,2) | PK (item_id, field). A food's nutrients per 100 g are rows (D7). A product (catalog product, parent_id = its food) and a format (catalog format, parent_id = its product) hold only the values their label changes; values resolve format › product › food (ADR-0055). |
+| price_observations | id, user_id, format_id, shop, day, cents int, package_qty numeric(10,2), unit, source (receipt / manual / import), receipt_line_id null | the price history; price per g = cents / package_qty; latest per (format, shop); median per product and food. |
+| catalog_parts | item_id, position, part_item_id, quantity numeric(10,2), unit, defaults jsonb | a recipe's foods (defaults may name a preferred product), a routine's exercises (with default sets/reps/load/rest). |
 
 ## Facts
 | Table | Columns | Notes |
 |---|---|---|
 | entries | id, user_id, kind, start_at timestamptz null, end_at, day date, status (planned/done/skipped), parent_id, item_id (the catalog item it is "of", if any), source, confidence numeric(3,2), note, timestamps, deleted_at | `day` = logical day, stored for indexing (derived from start_at and the boundary, or set when time is unknown). Indexes (user_id, day), (user_id, kind, day), (parent_id). Check end_at > start_at. |
 | entry_values | entry_id, field, num numeric(14,4), text, bool, ref_item_id | PK (entry_id, field). |
-| entry_lines | id, entry_id, position, item_id null, name (snapshot), quantity numeric(10,2), unit | composite kinds: the meal's foods as eaten. |
+| entry_lines | id, entry_id, position, item_id null (the food), product_id null, format_id null, name (snapshot), quantity numeric(10,2), unit | composite kinds: the meal's foods as eaten, with the product and format used when known (ADR-0055). |
 | entry_line_values | line_id, field, num numeric(14,4) | PK (line_id, field). The snapshot of the item's per-100 values (nutrients, price per g, quality) at logging (ADR-0007). |
 | entry_links | from_id, to_id, relation (fulfils / related / from_block) | PK (from_id, to_id, relation). |
 | training_sets | id, entry_id (the session's exercise entry), position, reps, load_kg numeric(6,2) (total), load_entry (total / per_dumbbell / per_side, how it was typed), rir, warmup, side, started_at, ended_at, done | specialised: timers and effort; e1RM computed on read. |

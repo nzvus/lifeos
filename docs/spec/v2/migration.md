@@ -11,7 +11,7 @@ the developer's export in PGlite before every switch.
 | v1 table | v2 place | Notes |
 |---|---|---|
 | user_settings | settings | `target_*` and `energy_correction` dropped: targets come from goals, the factor is learnt (E4) |
-| ingredients | catalog_items (catalog food) + catalog_values (8 nutrients, price per g, NOVA, origin) | price kept as the item's "last known" until purchases exist; source = "v1" |
+| ingredients | catalog_items food, product or format (ADR-0055) + catalog_values (8 nutrients, NOVA, origin) | a brand-named ingredient becomes a product of its generic food (created only when none exists); two shapes or sizes of one product become formats; v1's price becomes the first price observation (shop from the description, day = created); source = "v1" |
 | tags, ingredient_tags | catalog_items (catalog tag) + catalog_values ref | |
 | ingredient_compounds | catalog_values (caffeine, creatine per 100) | |
 | meals, meal_items | catalog_items (recipe) + catalog_parts | category → the recipe's default meal role |
@@ -36,8 +36,8 @@ the developer's export in PGlite before every switch.
 | day_activity | entries (steps, status done if the day has passed, else planned; on-your-feet from level) | |
 | sleep_logs | entries (sleep, interval bed → wake) + quality | |
 | day_checkins | entries (check-in, moment unknown) + journal entry for the note | |
-| products | catalog_items (product) + values (brand, barcode, package, food ref) | |
-| purchases | entries (purchase, item = product) + values (packages, price) | the price history lives here |
+| products | catalog_items product (parent = its food) and a format for the package (barcode, size) | |
+| purchases | entries (purchase, item = format) + a price_observation | the price history lives in price_observations |
 | stock_counts | entries (stock count) | |
 | batches, batch_lines | entries (kind batch) + entry_lines/values | portions → value |
 | reminders | templates (routine + recurrence) → chores / habits | |
