@@ -39,6 +39,9 @@ and the assistant (when enabled) in the header.
 
 ## 3. Objects and actions
 
+"With Undo" and confirmations follow content.md §4: Undo for what can be
+redone, a question only for what cannot.
+
 | Object | Created | Seen | Edited | Deleted | Sets off |
 |---|---|---|---|---|---|
 | Entry (any kind) | ⊕; a planned block ticked on Oggi; a template applied; gym mode; a receipt line; import | Oggi (its day), its tracker page in Andamento | tap on Oggi → its sheet or specialised page | swipe on Oggi, with Undo → trash | day totals → scores → goal pace; a fulfilled planned entry; cycle advance (§5) |

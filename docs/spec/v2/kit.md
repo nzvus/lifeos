@@ -104,6 +104,8 @@ sessions into days. "Routine" is not a word of the app.
 - The weekday, the week and the 7-day averages are computed, never typed.
   Typing them made the boards show 15 October 2026 as a Wednesday; it was
   a Thursday.
+- Pages pass raw values; one formatter (`F`) writes numbers, units,
+  dates and judgements (content.md).
 
 ## 7. Compact by rule
 - One line per row where possible; secondary details only when opened.
@@ -111,6 +113,6 @@ sessions into days. "Routine" is not a word of the app.
 - A choice that can grow (more than four options, or a list the person
   extends: day types, groups, categories) is a drop-down, never a row of
   chips that breaks the layout.
-- Numbers with the Italian thousands dot, units after the number.
+- Numbers, units, dates and words as content.md says, through `F`.
 - Every page fits its frame; the boards are checked for overflow, broken
   links and overlapping frames before each publish.
