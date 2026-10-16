@@ -148,7 +148,7 @@ whether v2 keeps them, are in migration.md §"Parity of functions".
 | S-F07 day types and programs | Piano → Modelli | Models, ModelEditor | day types with targets and shares |
 | S-B01 plan calendar, S-B02 program editor | Piano → Calendario; the cycle editor | Plan, CycleEditor |  |
 | S-B03 routines | Piano → Modelli (a session is a block model of exercises) | Models |  |
-| S-B04 exercises, merge, guide | Libreria → Esercizi | Exercises | muscles and pattern suggested from the name |
+| S-B04 exercises, merge, guide | Libreria → Esercizi; the exercise editor | Exercises, ExerciseEditor | muscles and pattern suggested from the name |
 | S-B05 session editor, S-B06 gym mode | Oggi → Palestra | Gym | "last time" per exercise |
 | S-B07 progress, weight | Andamento → Allenamento, Peso | Progress, Tracker |  |
 | S-M01 money overview, S-M02 movements | Andamento → Soldi | Money | movements grouped by day with the day's total; search, category, month |

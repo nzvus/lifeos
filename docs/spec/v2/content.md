@@ -20,7 +20,7 @@ same thing is always written the same way.
 | What | Rule | Examples |
 |---|---|---|
 | Numbers | decimal comma, thousands dot, minus sign "−" | 1.738 · 75,6 · −0,4 |
-| Decimals | by unit: kg 1, g 1 under 100 and 0 above, kcal 0, mg 0, % 0, € 2, l 1, ml 0; trailing zeros dropped (not for €) | 37,7 g · 212 g · 0,2 g · 3,50 € |
+| Decimals | by unit: kg 1, kg/sett. 2, g 1 under 100 and 0 above, kcal 0, mg 0, % 0, € 2, l 1, ml 0; trailing zeros dropped (not for €) | 37,7 g · 212 g · 0,2 g · 3,50 € |
 | Units | a non-breaking space before the unit, fixed symbols | 75,6 kg · 30 % · 22 °C |
 | Value of a target | value / target unit | 103 / 159 g |
 | Signs | + only for a change | +262 kcal · −0,4 kg/sett. |
@@ -33,7 +33,11 @@ same thing is always written the same way.
 
 `F` lives in one source (`boards-tools/fmt.js`; `packages/kit` in v2)
 and is built into every board that formats, as `Glyph` holds the icon
-registry. It also holds the judgement scale (§3).
+registry. It also holds the judgement scale (§3), and the numbers several
+pages repeat, computed once so they agree: the weight trend (`F.trend`)
+and the goal's pace (`F.pace`, from the trend, in kg/sett. with 2
+decimals). Names: a name made of words goes in «» inside a sentence
+(«Rec», «Lavoro + palestra»); a code does not (PLPRR); a title never does.
 
 ## 2. Words
 
