@@ -42,6 +42,10 @@ referenced as `01 I-1` etc.
   *skipped* entry with a reason (sick, travel) can be set to not break it.
 - **Regularity** = 1 − coefficient of variation over the window (for
   times of day: circular SD of the minute).
+- A window with no data breaks a streak (it cannot be shown as met);
+  today, still open and not met yet, does not.
+- **Code:** `apps/v2/src/core/engines/metrics/` (exact sums, streak,
+  regularity, circular time so far; `metric()` over entries next).
 
 ## E3 Planning
 
