@@ -115,7 +115,7 @@ lunch, snack, dinner) change the hue, never the drawing.
   floating between the lines.
 - **Gaps:**
   - 8 px badge → title;
-  - 10 px header glyph → title;
+  - 8 px header glyph → title (the space scale, shapes.md §2);
   - 4 px between parts and inside pills.
 - **Sub-line:** the meta line under a badged title indents 40 px (tile + gap).
 - **Mark:** a 14 px circle in the sheet colour with a 1 px ring, 4 px

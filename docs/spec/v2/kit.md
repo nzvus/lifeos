@@ -27,6 +27,9 @@ to one, and so do the design boards.
 - **Nutrient kinds** (kinds.md) and their fixed shades.
 
 ## 2. The stylesheet (`kit.css`)
+- The shape scale and levels (shapes.md): space, corners, type, touch,
+  bars; the buttons, choices, tabs and field states. Pages pick a level,
+  never a size.
 - Family tokens: `--fam`, set by one class (`fam-food`, …).
 - The silhouettes, the drawing layer and its motion variables.
 - The skyline, tracks and segments.
@@ -42,13 +45,13 @@ to one, and so do the design boards.
 | **PageHeader** | title, context; `back` (a sub-page: "‹ parent"), `action` | every page; top level shows the gear → Settings |
 | **WeekStrip** | days with score bar or template tag | inside DateNav |
 | **DateNav** | mode `day · week · month · range`, the date, day scores and templates | Oggi (day), Piano (week/month), Andamento (range): swipe, week ‹ ›, the month on the title, "Oggi" when away |
-| **Field** | type `stepper · scale · choice · text · timer · slider`, label, unit, base, allowed range, help | every input: entry sheet, gym, composer lines, goals, filters and ranges |
+| **Field** | type `stepper · scale · choice · text · timer · slider`, label, unit, base, allowed range, help, error | every input: entry sheet, gym, composer lines, goals, filters and ranges |
 | **Chart** | type `trend · bars`, data | the tracker page (trend with band and goal), Review (sleep against 7–9 h) |
 | **NavBar** | active place | the bottom bar of the four top-level places; ⊕ in the middle |
 
 Sections, stats, sheets, search fields and buttons are `kit.css` classes
-(`k-section`, `k-stats`, `k-sheet`, `k-search`, `k-primary`), not
-components. A dense section folds (`k-fold`, a `<details>` whose summary
+(`k-section`, `k-stats`, `k-sheet`, `k-search`, `k-btn`, `k-choice`,
+`k-tabs`), not components; shapes.md says which to use when. A dense section folds (`k-fold`, a `<details>` whose summary
 says what it holds) and starts closed: an ingredient's macro kinds,
 micros and sources.
 
