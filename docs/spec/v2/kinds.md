@@ -16,9 +16,13 @@ additions beyond v1 and the developer's list are marked ✚.
 | supplement / medication ✚ | I | catalog item (dose, compounds), amount | Q from a routine | caffeine curve, creatine saturation, adherence % | before/after meal; before bed |
 | hunger ✚ | I | scale 1–5, before/after a meal | Q | mean per meal kind; relation to protein/fibre (correlation) | 2 h after a meal |
 
-Food catalog: food (nutrients per 100 g/ml as rows with source and
-confidence), recipe (food parts → per serving), product (brand, barcode,
-package → its food).
+Food catalog (ADR-0055):
+- food (nutrients per 100 g/ml as rows with source and confidence);
+- recipe (food parts → per serving);
+- product (a brand under its food; its label overrides);
+- format (shape, size, barcode, weight under its product; its own values only where the label differs).
+
+Prices are observations on a format.
 
 ### What a food carries (so every macro can show its kinds and sources)
 
@@ -100,8 +104,8 @@ FDC, the label, an estimate). Kinds in the bars are fixed per macro:
 | Kind | Shape | Fields | Entry | Metrics · targets |
 |---|---|---|---|---|
 | movement | I | signed cents, account ✚, category, shop, method, tags, lines | F, receipt scan, import | spent per category per month, pace, balance per account · budget at most |
-| purchase | I | product, packages, price, best-before ✚, location ✚ | from a receipt line, F | price per g per food, stock |
-| stock count | I | product/food, quantity | Q | stock, days left |
+| purchase | I | format, packages, price (a price observation), shop, best-before ✚, location ✚ | from a receipt line, F | price per g per format, product and food; stock |
+| stock count | I | format (or product), quantity | Q | stock per format, summed per food; days left |
 | chore ✚ | I | catalog chore (every N days) | Q from its routine | overdue, streak |
 | plant / pet care ✚ | I | item ref, action | Q | every N days (habit) |
 

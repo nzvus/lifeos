@@ -63,7 +63,7 @@ row, and missing values always last (v1 `sortByValue`, `naturalDirection`).
 
 | Collection | Keys | Relative to | Default |
 |---|---|---|---|
-| Foods, meals | use, name, energy, protein, carbs, sugars, fat, saturated fat, fibre, salt, cost, score | — (value), per 100 kcal, per €, of protein, carbs, fat, fibre | use |
+| Foods, meals | use, name, energy, protein, carbs, sugars, fat, saturated fat, fibre, salt, cost (price per g: the median of the food's products), score | — (value), per 100 kcal, per €, of protein, carbs, fat, fibre | use |
 | Exercises | use, name, e1RM, last done, weekly sets | — | use |
 | Pantry | days left, name, cost | — | days left |
 | Movements | date, amount | — | date (newest) |
@@ -84,7 +84,7 @@ with the sort.
 
 | Collection | Facets |
 |---|---|
-| Foods | food group (FoodEx2, 18), state (frozen, canned, enriched), in the pantry, NOVA, with a price, tags |
+| Foods | food group (FoodEx2, 18), state (frozen, canned, enriched), brand, shop, in the pantry, NOVA, with a price, tags (a result is a food; its products and formats show under it, ADR-0055) |
 | Meals | moment (7, as v1), dish, tags, saved or recipe |
 | Exercises | muscle region, movement pattern, equipment |
 | Pantry | to buy, in stock, cooked batches |

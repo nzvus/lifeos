@@ -89,8 +89,16 @@ CatalogItem
   archived      out of pickers, still in history
 ```
 
-A product (brand, barcode, package) is a catalog item linked to its food.
-A purchase is an entry that refers to the product (spec 05 P-1).
+**Foods have products, products have formats (ADR-0055).**
+- **Food:** what is eaten. Meals, recipes, models, goals and scores use it. It holds typical values per 100 g with their provenance.
+- **Product:** a brand or line, child of its food. Its label values replace the food's, field by field.
+- **Format:** a shape or size, child of its product. It holds the barcode, the package or piece weight, and its own values only where its label differs.
+- **Resolution:** a value is read from the format, else the product, else the food.
+- **Prices are observations** (format, shop, day, cents). A format's price per gram is the latest per shop; a product's and a food's is the median, used by «value per euro».
+- **Pointers:**
+  - a recipe's parts point at foods (with an optional preferred product);
+  - an entry line remembers the product and format used;
+  - a purchase is an entry that points at the format (spec 05 P-1).
 
 ## 5. Model: block, day type, week layout, cycle (ADR-0054)
 
