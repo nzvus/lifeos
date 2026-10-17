@@ -174,6 +174,9 @@ is right in the first weeks, and how well a single day is explained.
   - Sources: Ainsworth 2011 (Compendium); Careau 2021; Reis 2017 and
     Vezina 2014 (resistance-exercise energy cost); Tudor-Locke 2018
     (cadence bands).
+- **Code:** `apps/v2/src/core/engines/expenditure/`. v1's three levels are
+  points of a line in hours on one's feet; without an e1RM a set's
+  intensity comes from reps + RIR (Epley), the MET scaled to 75 % of 1RM.
 
 ## E5 Targets (food)
 
