@@ -30,6 +30,7 @@ export async function createEntry(
         endAt: e.endAt,
         note: e.note,
         itemId: e.itemId ?? null,
+        confidence: e.confidence ?? "1",
         source: "typed",
       })
       .returning({ id: entries.id });
@@ -155,6 +156,7 @@ export async function updateEntry(
         endAt: e.endAt,
         note: e.note,
         ...(e.itemId !== undefined ? { itemId: e.itemId } : {}),
+        ...(e.confidence !== undefined ? { confidence: e.confidence } : {}),
       })
       .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)))
       .returning({ id: entries.id });

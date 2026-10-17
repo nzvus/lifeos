@@ -2,22 +2,37 @@
  * A composer's form as the meal entry's input, and its extras: saved and
  * edited alike. Servings are kept only when not 1, and must be more than
  * none (the kind allows 0). «Salva anche come pasto» needs a new name; it
- * is checked here, before anything is written.
+ * is checked here, before anything is written. An estimate has neither.
  */
 import type { Db } from "@/core/db/db";
 import type { EntryInput } from "@/core/entries";
 import type { IsoDate } from "@/core/engines/time";
+import type { CheckedLine } from "@/core/entries";
+import type { FoodChoice } from "@/core/food/choices";
+import {
+  checkEstimate,
+  checkMealLines,
+  ESTIMATE_FIELDS,
+  type LineInput,
+} from "@/core/food/meal";
 import { recipeName, recipeNameTaken } from "@/core/food/recipes";
 import type { Owner } from "@/core/identity/owner";
-import { clockToDayMin } from "@/features/day/entry-form";
-import { quantityOf, RECIPE_WORDS } from "@/features/food/composer";
+import { clockToDayMin, errorWords } from "@/features/day/entry-form";
+import {
+  ESTIMATE_WORDS,
+  mealErrors,
+  quantityOf,
+  RECIPE_WORDS,
+} from "@/features/food/composer";
 
 export function mealInput(
   day: IsoDate,
   form: Record<string, string>,
   boundaryMin: number,
 ): EntryInput {
-  const servings = quantityOf(form["servings"] ?? "");
+  const estimate = form["estimate"] === "yes";
+  // An estimate's totals are the whole meal: no servings.
+  const servings = estimate ? null : quantityOf(form["servings"] ?? "");
   return {
     day,
     status: form["status"] === "planned" ? "planned" : "done",
@@ -26,6 +41,7 @@ export function mealInput(
     values: {
       role: form["role"] ?? "",
       servings: servings === null || Number(servings) === 1 ? "" : servings,
+      estimated: estimate ? "true" : "",
     },
     note: form["note"] ?? "",
   };
@@ -38,6 +54,7 @@ export async function mealExtras(
   form: Record<string, string>,
 ): Promise<{ errors: Record<string, string>; saveAs: string | null }> {
   const errors: Record<string, string> = {};
+  if (form["estimate"] === "yes") return { errors, saveAs: null };
   const raw = (form["servings"] ?? "").trim();
   if (raw !== "" && quantityOf(raw) === null)
     errors["servings"] = "Scrivi le porzioni, per esempio 1 o 1,5.";
@@ -47,4 +64,32 @@ export async function mealExtras(
   else if (await recipeNameTaken(db, owner, name.name))
     errors["recipeName"] = RECIPE_WORDS.taken;
   return { errors, saveAs: name.ok ? name.name : null };
+}
+
+/**
+ * The meal's lines from the form: the foods composed, or in «Stima a mano»
+ * the typed totals as one line, its confidence 0.60 and marked estimated.
+ */
+export function formLines(
+  form: Record<string, string>,
+  lines: readonly LineInput[],
+  choices: readonly FoodChoice[],
+):
+  | { ok: true; lines: CheckedLine[]; estimate: boolean }
+  | { ok: false; errors: Record<string, string> } {
+  if (form["estimate"] === "yes") {
+    const typed = Object.fromEntries(
+      ESTIMATE_FIELDS.map((f) => [f, form["est." + f] ?? ""]),
+    );
+    const c = checkEstimate(typed, form["estName"] ?? "");
+    if (c.ok) return { ok: true, lines: [c.line], estimate: true };
+    const errors: Record<string, string> = {};
+    for (const [f, code] of Object.entries(c.at))
+      errors["est." + f] = ESTIMATE_WORDS[code];
+    return { ok: false, errors };
+  }
+  const c = checkMealLines(lines, new Map(choices.map((x) => [x.key, x])));
+  return c.ok
+    ? { ok: true, lines: c.lines, estimate: false }
+    : { ok: false, errors: mealErrors(null, c, errorWords) };
 }

@@ -16,7 +16,7 @@ import {
   searchRecipes,
   type FoodChoice,
 } from "./choices";
-import { checkMealLines } from "./meal";
+import { checkEstimate, checkMealLines, typedEstimate } from "./meal";
 import { createRecipe, recipeName, recipeNameTaken } from "./recipes";
 
 const items = [
@@ -141,6 +141,53 @@ describe("saved meals", () => {
     ]);
     expect(searchRecipes(recipes, "")).toHaveLength(1);
     expect(searchRecipes(recipes, "pranzo")).toEqual([]);
+  });
+});
+
+describe("a meal estimated by hand", () => {
+  it("is one line with the typed totals as its values per 100", () => {
+    expect(
+      checkEstimate({ kcal: "650", protein: "30,5", fat: "" }, " Pizza fuori "),
+    ).toEqual({
+      ok: true,
+      line: {
+        itemId: null,
+        productId: null,
+        name: "Pizza fuori",
+        quantity: "100",
+        unit: "g",
+        per100: { kcal: "650", protein: "30.5" },
+      },
+    });
+    expect(checkEstimate({ kcal: "" }, "")).toEqual({
+      ok: false,
+      at: { kcal: "required" },
+    });
+    expect(checkEstimate({ kcal: "abc", carbs: "2000" }, "")).toEqual({
+      ok: false,
+      at: { kcal: "number", carbs: "too_much" },
+    });
+    const named = checkEstimate({ kcal: "100" }, "  ");
+    expect(named.ok && named.line.name).toBe("Stima");
+  });
+
+  it("opens again as typed, but not a converted estimate made of foods", () => {
+    const line = {
+      itemId: null,
+      name: "Pizza",
+      quantity: "100",
+      values: { kcal: "650", protein: "30.5", salt: "2" },
+    };
+    expect(typedEstimate({ estimated: true }, [line])).toEqual({
+      name: "Pizza",
+      totals: { kcal: "650", protein: "30.5" },
+    });
+    expect(
+      typedEstimate({ estimated: true }, [{ ...line, quantity: "200" }])?.totals.kcal,
+    ).toBe("1300");
+    expect(typedEstimate({}, [line])).toBeNull();
+    expect(typedEstimate({ estimated: true }, [{ ...line, itemId: "f1" }])).toBeNull();
+    expect(typedEstimate({ estimated: true }, [line, line])).toBeNull();
   });
 });
 
