@@ -1,5 +1,6 @@
-/** E5 Targets (docs/spec/v2/engines.md): the goal's pace, a day's targets, the week, the slots. */
+/** E5 Targets (docs/spec/v2/engines.md): the goal's pace, a day's targets, the week, the slots, micronutrients. */
 export * from "./pace";
 export * from "./day";
 export * from "./week";
 export * from "./slots";
+export * from "./micros";
