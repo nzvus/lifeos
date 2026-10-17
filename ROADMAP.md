@@ -99,7 +99,11 @@ scanning) are placed in the v2 spec.
      protein, protein per 100 kcal, fibre; a food's page and editor (name,
      values per 100: only changes written, as typed); a saved meal's page
      and editor (name, quantities, take out, archive). Next: new food,
-     products and formats, exercises.
+     products and formats; exercises (sessions, last day, e1RM; an
+     exercise's page with its sets).
+   - Andamento, first part (s158, #236, V-06): «Il periodo», 7 days back
+     from `?fino=`: the day's Nutrients averaged over the days with meals,
+     each day's kcal against its target. Next: ranges, trackers, goals.
 6. **Switch** when every v1 screen id is covered and parity is green.
    Decided 2026-10-17 («voglio utilizzare la nuova versione quanto prima»):
    switch now for food and the day (load the refined 16 Oct export), gym
