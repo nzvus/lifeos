@@ -1,20 +1,19 @@
 /**
- * Andamento (flows.md §1, V-06), first part: «Il periodo», the last 7 or 30
- * days (`?giorni=`) up to `?fino=YYYY-MM-DD` (today when missing): the day's Nutrients
+ * Andamento (flows.md §1, V-06), first part: «Il periodo», the last 7, 30
+ * or 90 days (`?giorni=`) up to `?fino=YYYY-MM-DD` (today when missing): the day's Nutrients
  * averaged over the days with something eaten, and each day's kcal against
  * its target. Trackers, goals and correlations come with their slices.
  */
 import { Box, F, NavBar, Nutrients, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDay, readClock, readDayTargets } from "@/core/day";
+import { loadDays, readClock, readRangeTargets } from "@/core/day";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { presentDay } from "@/features/day/nutrients";
 import { PLACES } from "@/features/places";
-import { period } from "@/features/progress/period";
+import { period, weightChange } from "@/features/progress/period";
 
-// Each day is read on its own: 90 would be 180 queries, until a range reader exists.
-const RANGES = [7, 30] as const;
+const RANGES = [7, 30, 90] as const;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
 export default async function AndamentoPage({
@@ -34,16 +33,26 @@ export default async function AndamentoPage({
   const end =
     typeof asked === "string" && ISO.test(asked) && asked < today ? asked : today;
   const days = Array.from({ length: DAYS }, (_, i) => addDays(end, i - DAYS + 1));
-  const data = await Promise.all(
-    days.map(async (day) => {
-      const [d, t] = await Promise.all([
-        loadDay(db, owner, day),
-        readDayTargets(db, owner, day),
-      ]);
-      return { day, nutrients: presentDay(d, t)?.nutrients ?? null };
-    }),
-  );
+  // The whole range in one set of queries (core/day `loadDays`), not one per day.
+  const [loaded, targets] = await Promise.all([
+    loadDays(db, owner, days[0]!, end),
+    readRangeTargets(db, owner, days[0]!, end),
+  ]);
+  const data = loaded.map((d) => ({
+    day: d.day,
+    nutrients: presentDay(d, targets.get(d.day) ?? null)?.nutrients ?? null,
+  }));
   const p = period(data);
+  const weight = weightChange(
+    loaded.flatMap((d) =>
+      [...d.timed, ...d.untimed]
+        .filter((i) => i.kind.key === "weigh_in" && i.status === "done")
+        .flatMap((i) => {
+          const kg = Number(i.values["weightKg"]);
+          return Number.isFinite(kg) && kg > 0 ? [{ day: d.day, kg }] : [];
+        }),
+    ),
+  );
   const later = addDays(end, DAYS);
   return (
     <main className="k-page has-bd">
@@ -89,6 +98,28 @@ export default async function AndamentoPage({
         >
           {p.nutrients && <Nutrients data={p.nutrients} />}
         </Box>
+      </section>
+      <section className="k-section g3" aria-label="Peso">
+        <h2>Peso</h2>
+        {weight ? (
+          <>
+            <div className="k-line between">
+              <span className="k-body">
+                {F.num(weight.from, "kg")} → {F.num(weight.to, "kg")}
+              </span>
+              <span className="k-num">
+                {(weight.delta > 0 ? "+" : "") + F.num(weight.delta, "kg")}
+              </span>
+            </div>
+            <p className="k-help">
+              Media della prima e dell’ultima settimana con pesate (
+              {F.plural(weight.n, "pesata", "pesate")}): una pesata sola oscilla di un
+              chilo.
+            </p>
+          </>
+        ) : (
+          <p className="k-help">Servono almeno due pesate nel periodo.</p>
+        )}
       </section>
       <section className="k-section g3" aria-label="I giorni">
         <h2>I giorni</h2>

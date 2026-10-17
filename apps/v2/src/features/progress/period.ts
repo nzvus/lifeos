@@ -73,3 +73,30 @@ export function period(days: readonly PeriodDay[]): {
     },
   };
 }
+
+export type Weighing = { day: string; kg: number };
+
+/**
+ * The period's weight: the mean of the first and of the last seven days
+ * that have a weighing (one scale reading swings by a kilo), and their
+ * difference; null with fewer than two weighings.
+ */
+export function weightChange(
+  ws: readonly Weighing[],
+): { from: number; to: number; delta: number; n: number } | null {
+  if (ws.length < 2) return null;
+  const sorted = [...ws].sort((a, b) => (a.day < b.day ? -1 : 1));
+  const mean = (xs: readonly Weighing[]) => xs.reduce((a, w) => a + w.kg, 0) / xs.length;
+  const head = sorted.filter((w) => w.day <= addDays(sorted[0]!.day, 6));
+  const tail = sorted.filter((w) => w.day >= addDays(sorted.at(-1)!.day, -6));
+  const from = mean(head);
+  const to = mean(tail);
+  return { from, to, delta: to - from, n: ws.length };
+}
+
+/** "2026-10-15" + n days (kept here: the page's dates are plain strings). */
+function addDays(d: string, n: number): string {
+  const t = new Date(d + "T00:00:00Z");
+  t.setUTCDate(t.getUTCDate() + n);
+  return t.toISOString().slice(0, 10);
+}
