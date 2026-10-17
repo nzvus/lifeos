@@ -22,15 +22,12 @@ import { saveMeal } from "./actions";
 export default async function MealPage({
   searchParams,
 }: {
-  searchParams: Promise<{ giorno?: string | string[] }>;
+  searchParams: Promise<{ giorno?: string | string[]; pasto?: string | string[] }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
-  const { clock, roleBounds, day, today } = await addContext(
-    db,
-    owner,
-    (await searchParams).giorno,
-  );
+  const { giorno, pasto } = await searchParams;
+  const { clock, roleBounds, day, today } = await addContext(db, owner, giorno);
   const [choices, dayData, targets] = await Promise.all([
     readFoodChoices(db, owner, today),
     loadDay(db, owner, day),
@@ -42,11 +39,22 @@ export default async function MealPage({
     await readFoodEstimates(db, owner, foodIds(dayData)),
   );
   const recipes = await readRecipeChoices(db, owner, today, choices);
+  // `?pasto=<recipe>` (a saved meal's «Registra»): the composer starts with its foods.
+  const from = recipes.find((r) => r.recipeId === pasto);
   const now = F.time(localParts(new Date(), clock.timeZone).minute);
   return (
     <Composer
       choices={choices}
       recipes={recipes}
+      {...(from
+        ? {
+            initialRecipe: from.recipeId,
+            initialLines: from.parts.map((p) => ({
+              key: p.key,
+              quantity: F.n(Number(p.quantity), 2),
+            })),
+          }
+        : {})}
       day={day}
       dayLabel={day === today ? "Oggi" : F.Day(day)}
       dayNutrients={whole?.nutrients ?? null}
