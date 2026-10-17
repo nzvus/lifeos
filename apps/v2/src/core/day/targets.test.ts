@@ -6,7 +6,12 @@ import { loadFile } from "../convert/load";
 import type { Db } from "../db/db";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
-import { readDayTargets, targetsOn, type TargetDecision } from "./targets";
+import {
+  readDayTargets,
+  readRangeTargets,
+  targetsOn,
+  type TargetDecision,
+} from "./targets";
 
 const week: TargetDecision = {
   kind: "week_targets",
@@ -108,6 +113,8 @@ describe("reading the targets (converted v1 decisions)", () => {
       carbs: 318,
     });
     expect(await readDayTargets(db, a, "2026-10-13")).toBeNull();
+    const range = await readRangeTargets(db, a, "2026-10-05", "2026-10-13");
+    for (const [d, t] of range) expect(t).toEqual(await readDayTargets(db, a, d));
   });
 
   it("never reads another user's decisions", async () => {

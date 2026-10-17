@@ -7,6 +7,7 @@ import { readClock } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { FOOD_FIELDS, mealPage } from "@/features/library/library";
+import { duplicateSaved } from "./modifica/actions";
 
 export default async function SavedMealPage({
   params,
@@ -36,6 +37,11 @@ export default async function SavedMealPage({
           <a className="k-btn secondary" href={"/libreria/pasto/" + id + "/modifica"}>
             Modifica
           </a>
+          <form action={duplicateSaved.bind(null, id)}>
+            <button type="submit" className="k-btn secondary">
+              Duplica
+            </button>
+          </form>
         </div>
       </div>
       <section className="k-section g3" aria-label="Cibi">

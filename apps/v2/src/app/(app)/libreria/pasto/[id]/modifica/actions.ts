@@ -4,7 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { archiveRecipe, recipeName, updateRecipe } from "@/core/food/recipes";
+import {
+  archiveRecipe,
+  duplicateRecipe,
+  recipeName,
+  updateRecipe,
+} from "@/core/food/recipes";
 import { quantityOf, RECIPE_WORDS } from "@/features/food/composer";
 import type { RecipeFormState } from "@/features/library/RecipeForm";
 
@@ -49,4 +54,11 @@ export async function archiveSaved(id: string): Promise<void> {
   await archiveRecipe(await getDb(), owner, id);
   revalidatePath("/libreria", "layout");
   redirect("/libreria");
+}
+
+/** «Duplica»: a copy to change, opened in its editor. */
+export async function duplicateSaved(id: string): Promise<void> {
+  const copy = await duplicateRecipe(await getDb(), await requireOwner(), id);
+  revalidatePath("/libreria", "layout");
+  redirect(copy ? "/libreria/pasto/" + copy + "/modifica" : "/libreria");
 }
