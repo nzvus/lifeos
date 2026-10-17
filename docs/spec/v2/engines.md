@@ -198,15 +198,17 @@ From the weight goal (a goal with "reach W by date") and E4:
 - carbs the rest; fibre 14 g/1,000 kcal, at least 25 g;
 - maxima: sugars 90 g/2,000 kcal (EU RI), saturated < 10 % (WHO), salt
   < 5 g (WHO).
-- **Micronutrients:** each from the catalogue's EFSA DRV and UL (spec 02
-  P-1; the research is a task of its own).
+- **Micronutrients:** EFSA's adult PRI or AI by sex and age, with the
+  upper level and its scope (a form- or supplement-only UL never judges
+  food); sodium 2 g as an upper aim (EFSA 2019). Checked 2026-10-17
+  against EFSA's DRV summary (2017) and UL overview (v11, 2025).
 - **Week:** targets read in the week (v1 ADR-0047: carry ±30 %, never
   under BMR; protein daily; limits as 7-day averages).
 - **Slots:** a meal block's shares × the day's targets; relation hints
   (pre-workout carbs 0.5–1 g/kg 1–3 h before; post-workout protein
   0.25–0.4 g/kg within 2 h; pre-sleep protein ~0.4 g/kg).
 - **Code:** `apps/v2/src/core/engines/targets/`; E4's E(t) and ρ come in as
-  numbers. v1's pace and week cases run as parity; micronutrients next.
+  numbers. v1's pace and week cases run as parity.
 
 ## E6 Training (specialisation: training)
 

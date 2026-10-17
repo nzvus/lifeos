@@ -27,10 +27,14 @@ scanning) are placed in the v2 spec.
 2. **Workspace** (ADR-0056, option B): v1 stays at the root, `apps/v2` next to it; `packages/kit` with
    the first slice that has UI; Vercel project and Neon branch for v2 with the first slice that
    serves pages (the developer creates them).
-3. **Engines** test-first (time, metrics, planning, body state, targets,
-   training, judgements, correlations, data quality). E1 Time first: logical day, windows,
-   relations, recurrence.
-4. **v2 schema + converter + parity** on the developer's export in PGlite.
+3. **Engines** test-first — **done 2026-10-17** (#203–#215): E1–E11 in
+   `apps/v2/src/core/engines/`. Open, named on each engine's **Code** line in
+   engines.md: E7's weights for day targets, distribution,
+   recovery and habits (the developer's); each E7 part's scorer with its slice.
+4. **v2 schema + converter + parity** — schema merged (#216, ADR-0057);
+   converter, loader and parity in #217: the developer's refined export loads
+   whole, and 626 numbers of v1 and v2 are equal. The trend weight's parity
+   waits for the body slice.
 5. **Slices**: day timeline + generic kinds → food → training → body and mind
    → habits, activities, goals → money and pantry → review. Each slice checked
    on the phone against the developer's data.
