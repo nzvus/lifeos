@@ -18,6 +18,8 @@ const WORDS: Record<FoodValueError, string> = {
 /** Saves the food's form; `id` null creates a new one («Nuovo cibo»). */
 export async function saveFood(
   id: string | null,
+  /** Where a new food goes once made (the composer), checked by the page. */
+  back: string | null,
   prev: FoodFormState,
   data: FormData,
 ): Promise<FoodFormState> {
@@ -51,7 +53,7 @@ export async function saveFood(
     );
     if (made === "taken") return again({ name: "Hai già un cibo con questo nome." });
     revalidatePath("/libreria", "layout");
-    redirect("/libreria/cibo/" + made.id);
+    redirect(back ?? "/libreria/cibo/" + made.id);
   }
   const done = await updateFood(db, owner, id, checked.name, checked.values);
   if (done === "gone") return again({ form: "Questo cibo non c’è più." });

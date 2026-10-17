@@ -33,7 +33,7 @@ export default async function FoodEditPage({
       }}
       unit={page.unit}
       backHref={"/libreria/cibo/" + id}
-      action={saveFood.bind(null, id)}
+      action={saveFood.bind(null, id, null)}
     />
   );
 }

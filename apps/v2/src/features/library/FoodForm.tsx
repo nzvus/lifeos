@@ -39,7 +39,14 @@ export function FoodForm({
       <PageHeader
         title={isNew ? "Nuovo cibo" : "Modifica cibo"}
         context={initial["name"] ?? ""}
-        back={{ label: isNew ? "Libreria" : "Cibo", href: backHref }}
+        back={{
+          label: !isNew
+            ? "Cibo"
+            : backHref.startsWith("/aggiungi")
+              ? "Pasto"
+              : "Libreria",
+          href: backHref,
+        }}
         of={{ fam: "food" }}
       />
       <section className="k-section g3" aria-label="Nome">
