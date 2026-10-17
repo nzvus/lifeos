@@ -4,7 +4,7 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
-import { checkFood, createFood, updateFood, valueChanges } from "./edit";
+import { checkFood, createFood, createProduct, updateFood, valueChanges } from "./edit";
 import { readFoodChoices } from "./catalog";
 
 describe("a food's editor", () => {
@@ -84,6 +84,20 @@ describe("a food's editor", () => {
       name: "Kefir",
       unit: "ml",
       per100: { kcal: "41.0000", protein: "3.5000" },
+    });
+  });
+
+  it("adds a product under a food, its label's values over the food's", async () => {
+    const made = await createProduct(db, a, oats, "Lidl", { protein: "14" });
+    expect(made).not.toBe("taken");
+    expect(await createProduct(db, a, oats, "lidl", {})).toBe("taken");
+    expect(await createProduct(db, b, oats, "Coop", {})).toBe("gone");
+    const p = (await readFoodChoices(db, a, "2026-10-17")).find(
+      (c) => c.brand === "Lidl",
+    );
+    expect(p).toMatchObject({
+      foodId: oats,
+      per100: { kcal: "372.0000", protein: "14.0000" },
     });
   });
 });

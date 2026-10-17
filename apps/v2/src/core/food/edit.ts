@@ -201,3 +201,58 @@ export async function createFood(
     return { id };
   });
 }
+
+/**
+ * A new product of a food (ADR-0055): its brand as its name, the values its
+ * label gives (the others are the food's); "taken" if the food has a live
+ * product with that name, "gone" if the food is not a live one of the owner.
+ */
+export async function createProduct(
+  db: Db,
+  owner: Owner,
+  foodId: string,
+  brand: string,
+  values: Partial<Record<FoodField, string>>,
+): Promise<{ id: string } | "taken" | "gone"> {
+  return db.transaction(async (tx) => {
+    const [food] = await tx
+      .select({ id: catalogItems.id })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.id, foodId),
+          eq(catalogItems.catalog, "food"),
+          isNull(catalogItems.deletedAt),
+        ),
+      );
+    if (!food) return "gone";
+    const [twin] = await tx
+      .select({ id: catalogItems.id })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.catalog, "product"),
+          eq(catalogItems.parentId, foodId),
+          isNull(catalogItems.deletedAt),
+          sql`lower(${catalogItems.name}) = lower(${brand})`,
+        ),
+      )
+      .limit(1);
+    if (twin) return "taken";
+    const [row] = await tx
+      .insert(catalogItems)
+      .values({ userId: owner.id, catalog: "product", name: brand, parentId: foodId })
+      .returning({ id: catalogItems.id });
+    const id = row!.id;
+    const typed = Object.entries(values);
+    if (typed.length > 0)
+      await tx
+        .insert(catalogValues)
+        .values(
+          typed.map(([field, num]) => ({ userId: owner.id, itemId: id, field, num })),
+        );
+    return { id };
+  });
+}
