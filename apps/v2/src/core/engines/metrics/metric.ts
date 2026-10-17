@@ -29,6 +29,8 @@ export type MetricEntry = {
   item?: string;
   /** Tags from E1 `relate()`, e.g. "post-workout". */
   tags?: readonly string[];
+  /** The entry it belongs to (a set's session), for metrics per session. */
+  parent?: string | undefined;
 };
 
 export type Filter = {
@@ -114,9 +116,9 @@ function buckets(w: Window, per: MetricDefinition["per"]): Window[] {
   return out;
 }
 
-function bucketValue(
+export function bucketValue(
   entries: readonly MetricEntry[],
-  def: MetricDefinition,
+  def: Pick<MetricDefinition, "source" | "filter" | "aggregate">,
   b: Window,
 ): Over<string> {
   if ("metric" in def.source) {

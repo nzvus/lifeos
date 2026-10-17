@@ -54,8 +54,8 @@ referenced as `01 I-1` etc.
   of daily steps). Per kg takes E4's trend weight as an input (the
   bucket's mean) until E4 exists.
 - **Code:** `apps/v2/src/core/engines/metrics/` (exact sums, streak,
-  regularity, circular time, `metric()`; trend, rate per week and the
-  session window next, with E4 and E6).
+  regularity, circular time, `metric()`, per session, trend as an EMA by
+  half-life with σ, rate per week). The body's trend weight is E4's.
 
 ## E3 Planning
 
