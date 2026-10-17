@@ -44,8 +44,18 @@ referenced as `01 I-1` etc.
   times of day: circular SD of the minute).
 - A window with no data breaks a streak (it cannot be shown as met);
   today, still open and not met yet, does not.
+- `metric()` buckets a window per day, ISO week (clipped), month or the
+  whole window. A day has data when it holds an entry of the source kind
+  in a counted status, before the other filters (a logged day with no
+  late snack is 0 kcal after 21:00; an unlogged one is unknown). Filters:
+  status (done; with planned, the day with the plan), catalog item,
+  relation tag, time of day (wrapping past midnight). A metric's source
+  may be a per-day metric (the week's mean daily protein, the regularity
+  of daily steps). Per kg takes E4's trend weight as an input (the
+  bucket's mean) until E4 exists.
 - **Code:** `apps/v2/src/core/engines/metrics/` (exact sums, streak,
-  regularity, circular time so far; `metric()` over entries next).
+  regularity, circular time, `metric()`; trend, rate per week and the
+  session window next, with E4 and E6).
 
 ## E3 Planning
 
