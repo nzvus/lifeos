@@ -2,10 +2,10 @@
  * V-01, Oggi (screens.md): one logical day, `/oggi` for today and
  * `/oggi/2026-10-15` for any other. The server reads and composes the day
  * (core/day), presents each item as a kit Box (features/day) and hands the
- * client plain rows; the timeline only holds the rail's mode.
+ * client plain rows; the client only holds the filters and the rail's mode.
  * So far: the day as a Box (Nutrients L1 against the targets in force), the
- * timeline and the untimed items. The day's scores, filters and the add
- * sheet come with their slices.
+ * filters by domain and state, the timeline and the untimed items. The
+ * day's scores and the add sheet come with their slices.
  */
 import { notFound } from "next/navigation";
 import { DateNav, Box, F, NavBar, Nutrients, PageHeader } from "@lifeos/kit";
@@ -15,7 +15,7 @@ import { loadDay, readClock, readDayTargets, dayMinute } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { presentDay } from "@/features/day/nutrients";
 import { present } from "@/features/day/present";
-import { Timeline } from "@/features/day/Timeline";
+import { DayView } from "@/features/day/DayView";
 import { PLACES } from "@/features/places";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -39,8 +39,12 @@ export default async function OggiPage({
     readDayTargets(db, owner, date),
   ]);
   const whole = presentDay(day, targets);
-  const rows = day.timed.map((i) => ({ ...present(i), minute: i.minute! }));
-  const untimed = day.untimed.map(present);
+  const rows = day.timed.map((i) => ({
+    ...present(i),
+    status: i.status,
+    minute: i.minute!,
+  }));
+  const untimed = day.untimed.map((i) => ({ ...present(i), status: i.status }));
   const nowMinute = date === today ? dayMinute(now, date, clock) : null;
   const empty = rows.length === 0 && untimed.length === 0;
 
@@ -61,22 +65,15 @@ export default async function OggiPage({
         {empty ? (
           <p className="k-empty k-meta">Niente in questa giornata.</p>
         ) : (
-          <Timeline
+          <DayView
             rows={rows}
+            untimed={untimed}
             now={
               nowMinute === null ? null : { minute: nowMinute, label: F.time(nowMinute) }
             }
           />
         )}
       </section>
-      {untimed.length > 0 && (
-        <section className="k-section g3" aria-label="Senza orario">
-          <h2 className="k-cap">Senza orario</h2>
-          {untimed.map((e, i) => (
-            <Box key={i} entry={e} density="row" rail={false} />
-          ))}
-        </section>
-      )}
       <div className="k-nav k-stick">
         <NavBar active="today" hrefs={PLACES} addHref="/aggiungi" />
       </div>

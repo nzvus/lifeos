@@ -51,7 +51,8 @@ scanning) are placed in the v2 spec.
      where from, maxima) against the targets in force: a day's fixed copy,
      else the accepted week with the day's shift, as v1. Days with neither
      show none until E5 runs live on E4 (body slice). The day's scores wait
-     for E7's weights. Next: filters by domain, the add sheet, tick/skip/Undo.
+     for E7's weights. Filters by domain and state (find.md §4), remembered
+     in the browser. Next: the add sheet, tick/skip/Undo.
 6. **Switch** when every v1 screen id is covered and parity is green.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 
