@@ -12,7 +12,7 @@ import { readEntry } from "@/core/entries";
 import { localParts, logicalDay } from "@/core/engines/time";
 import { proposeSets, readExercises, readHistory } from "@/core/training";
 import { Gym, type GymExercise } from "@/features/training/Gym";
-import { lastTimeText } from "@/features/training/present";
+import { lastTimeText, usesDumbbells } from "@/features/training/present";
 import { addGymExercise, finishGym, tickSet, untickSet } from "../actions";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -29,6 +29,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
     readExercises(db, owner),
   ]);
   const pattern = new Map(catalog.map((e) => [e.id, e.pattern]));
+  const equipment = new Map(catalog.map((e) => [e.id, e.equipment]));
   const ids = session.children.flatMap((c) => (c.item ? [c.item.id] : []));
   const history = await readHistory(db, owner, ids, id);
   const exercises: GymExercise[] = session.children.map((c) => {
@@ -38,6 +39,10 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       entryId: c.id,
       name: c.item?.name ?? "Esercizio",
       pattern: p,
+      dumbbells: usesDumbbells(
+        c.item?.name ?? "",
+        c.item ? (equipment.get(c.item.id) ?? null) : null,
+      ),
       proposed: proposeSets(p, h?.last, h?.before).sets,
       last: h ? lastTimeText(h.lastDay, h.last) : "",
       done: c.sets.map((s) => ({
@@ -47,6 +52,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         rir: s.rir,
         durationS: s.durationS,
         warmup: s.warmup,
+        loadEntry: s.loadEntry,
       })),
     };
   });

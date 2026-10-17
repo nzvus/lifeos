@@ -21,11 +21,14 @@ export type DoneSet = {
   rir: number | null;
   durationS: number | null;
   warmup: boolean;
+  loadEntry: string;
 };
 export type GymExercise = {
   entryId: string;
   name: string;
   pattern: string | null;
+  /** Its load is typed per dumbbell unless switched off. */
+  dumbbells: boolean;
   proposed: ProposedSet[];
   last: string;
   done: DoneSet[];
@@ -220,6 +223,7 @@ export function Gym({
           <SetForm
             key={x.entryId + ":" + x.done.length}
             timed={timed(x.pattern)}
+            dumbbells={x.dumbbells}
             start={
               x.proposed[workDone(x)] ??
               x.done.filter((d) => !d.warmup).at(-1) ??
@@ -317,17 +321,30 @@ const workDone = (x: GymExercise) => x.done.filter((d) => !d.warmup).length;
 /** The next set's steppers, filled with E6's proposal; drawn again after each tick. */
 function SetForm({
   timed: isTimed,
+  dumbbells,
   start,
   busy,
   onTick,
 }: {
   timed: boolean;
+  dumbbells: boolean;
   start: { reps: number | null; loadKg: string | null; durationS: number | null } | null;
   busy: boolean;
   onTick: (input: SetInput) => void;
 }) {
   const [reps, setReps] = useState(start?.reps != null ? String(start.reps) : "");
-  const [kg, setKg] = useState(start?.loadKg != null ? F.n(Number(start.loadKg), 2) : "");
+  const [perDb, setPerDb] = useState(dumbbells);
+  const [kg, setKg] = useState(
+    start?.loadKg != null ? F.n(Number(start.loadKg) / (dumbbells ? 2 : 1), 2) : "",
+  );
+  // The stepper is redrawn with the converted load when the chip changes.
+  const [kgKey, setKgKey] = useState(0);
+  const switchPerDb = () => {
+    const n = Number(kg.replace(",", "."));
+    if (kg !== "" && Number.isFinite(n)) setKg(F.n(perDb ? n * 2 : n / 2, 2));
+    setPerDb(!perDb);
+    setKgKey(kgKey + 1);
+  };
   const [dur, setDur] = useState(start?.durationS != null ? String(start.durationS) : "");
   const [rir, setRir] = useState("");
   const [warmup, setWarmup] = useState(false);
@@ -342,6 +359,16 @@ function SetForm({
         >
           Riscaldamento
         </button>
+        {dumbbells && (
+          <button
+            type="button"
+            className="k-chip"
+            aria-pressed={perDb}
+            onClick={switchPerDb}
+          >
+            Per manubrio
+          </button>
+        )}
       </div>
       <div className="k-grid g3">
         {isTimed ? (
@@ -364,8 +391,9 @@ function SetForm({
           />
         )}
         <Field
+          key={kgKey}
           name="loadKg"
-          label="Carico"
+          label={perDb ? "Carico per manubrio" : "Carico"}
           type="stepper"
           unit="kg"
           step={kgStep(kg)}
@@ -396,6 +424,7 @@ function SetForm({
             rir: warmup ? "" : rir,
             durationS: isTimed ? dur : "",
             warmup,
+            perDumbbell: perDb,
           })
         }
       >
