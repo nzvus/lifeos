@@ -2,6 +2,16 @@
 body {
   margin: 0;
   background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+/* Native controls (the time picker, the drop-down) follow the theme. */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  color-scheme: dark;
 }
 .k-page {
   max-width: var(--container-page);

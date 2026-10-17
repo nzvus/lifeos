@@ -7,37 +7,8 @@
 import { F, type BoxEntry, type GlyphOf } from "@lifeos/kit";
 import type { DayItem } from "@/core/day";
 import { lineTotals } from "@/core/food/totals";
+import { ACTIVITY, NAMES } from "./words";
 
-/** Built-in kinds' names on the day (Italian, content.md). */
-const NAMES: Record<string, string> = {
-  meal: "Pasto",
-  batch: "Cucinato",
-  water: "Acqua",
-  session: "Allenamento",
-  steps: "Passi",
-  activity: "Attività",
-  reading: "Lettura",
-  weigh_in: "Peso",
-  measurements: "Misure",
-  sleep: "Sveglia",
-  nap: "Riposo",
-  checkin: "Come stai",
-  journal: "Diario",
-  movement: "Movimento",
-  purchase: "Spesa",
-  stock_count: "Scorta",
-  chore: "Faccenda",
-};
-const ACTIVITY: Record<string, string> = {
-  work: "Lavoro",
-  study: "Studio",
-  commute: "Spostamenti",
-  chores: "Faccende",
-  leisure: "Tempo libero",
-  social: "Amici",
-  family: "Famiglia",
-  screen: "Schermi",
-};
 const TAGS: Record<string, string> = {
   "pre-workout": "prima dell’allenamento",
   "post-workout": "dopo l’allenamento",

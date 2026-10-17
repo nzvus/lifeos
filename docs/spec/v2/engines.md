@@ -29,7 +29,8 @@ referenced as `01 I-1` etc.
   the planned days (the steps goal: weekdays over 8.000, out of the
   weekdays); "N times a week" counts any done day of one ISO week, out
   of N.
-- **Code:** `apps/v2/src/core/engines/time/` (ADR-0056).
+- **Code:** `apps/v2/src/core/engines/time/` (ADR-0056); `instantAt` is the inverse of a
+  day minute (a typed time → its instant, across clock changes).
 
 ## E2 Metrics
 
