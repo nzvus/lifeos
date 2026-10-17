@@ -8,7 +8,8 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
-import { loadDay } from "./index";
+import { addDays } from "../engines/time";
+import { loadDay, loadDays } from "./index";
 import { dayMinute } from "./timeline";
 
 const fixture = (): V1Export =>
@@ -54,6 +55,13 @@ describe("one logical day (V-01)", () => {
     await loadFile(db as never, convert(v1, new Date("2026-10-17T12:00:00Z")), a.id);
   });
   afterAll(() => close());
+
+  it("reads a range as each of its days alone", async () => {
+    const days = await loadDays(db, a, addDays(DAY, -1), addDays(DAY, 1));
+    expect(days.map((d) => d.day)).toEqual([addDays(DAY, -1), DAY, addDays(DAY, 1)]);
+    expect(days[1]).toEqual(await loadDay(db, a, DAY));
+    expect((await loadDays(db, b, DAY, DAY))[0]!.timed).toEqual([]);
+  });
 
   it("sorts the timed entries by their minute of the day; sleep sits at the wake", async () => {
     const day = await loadDay(db, a, DAY);

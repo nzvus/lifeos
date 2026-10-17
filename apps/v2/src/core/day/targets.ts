@@ -9,7 +9,7 @@
  *      body slice.
  * Maxima a decision does not hold come from its kcal (E5 `dayMaxima`).
  */
-import { and, desc, eq, lte } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { decisions, settings } from "../db/schema";
 import { addDays, type IsoDate } from "../engines/time";
@@ -132,4 +132,28 @@ export async function readMicroTargets(
   if (!s?.sex || !s.birthYear) return null;
   const age = Number(day.slice(0, 4)) - s.birthYear;
   return age >= 18 ? microTargets({ sex: s.sex, age }) : null;
+}
+
+/** The owner's targets on each day of a range, from two queries. */
+export async function readRangeTargets(
+  db: Db,
+  owner: Owner,
+  from: IsoDate,
+  to: IsoDate,
+): Promise<Map<IsoDate, FoodTargets | null>> {
+  const rows = await db
+    .select({ kind: decisions.kind, day: decisions.day, payload: decisions.payload })
+    .from(decisions)
+    .where(
+      and(
+        ownedBy(decisions, owner),
+        inArray(decisions.kind, ["day_targets", "week_targets"]),
+        lte(decisions.day, to),
+        gte(decisions.day, addDays(from, -6)),
+      ),
+    );
+  const out = new Map<IsoDate, FoodTargets | null>();
+  for (let d = from; d <= to; d = addDays(d, 1))
+    out.set(d, targetsOn(rows as TargetDecision[], d));
+  return out;
 }

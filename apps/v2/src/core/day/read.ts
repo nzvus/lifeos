@@ -6,8 +6,8 @@
  * Four rounds of queries, each by the ids the one before found: never one
  * query per entry.
  */
-import { and, eq, inArray, isNull } from "drizzle-orm";
-import type { DayClock, IsoDate } from "../engines/time";
+import { and, eq, gte, inArray, isNull, lte } from "drizzle-orm";
+import { addDays, type DayClock, type IsoDate } from "../engines/time";
 import type { Db } from "../db/db";
 import {
   catalogItems,
@@ -106,6 +106,20 @@ export function readUserKinds(db: Db, owner: Owner): Promise<UserKindRow[]> {
 }
 
 export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRows> {
+  return (await readDays(db, owner, day, day))[0]!;
+}
+
+/**
+ * Every day from `from` to `to` (inclusive) with one set of queries, each
+ * day's rows as `readDay` gives them: Andamento's ranges read 30 or 90 days
+ * without 90 round trips.
+ */
+export async function readDays(
+  db: Db,
+  owner: Owner,
+  from: IsoDate,
+  to: IsoDate,
+): Promise<DayRows[]> {
   const { clock, roleBounds } = await readClock(db, owner);
 
   const [dayEntries, userKinds] = await Promise.all([
@@ -113,13 +127,20 @@ export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRo
       .select()
       .from(entries)
       .where(
-        and(ownedBy(entries, owner), eq(entries.day, day), isNull(entries.deletedAt)),
+        and(
+          ownedBy(entries, owner),
+          gte(entries.day, from),
+          lte(entries.day, to),
+          isNull(entries.deletedAt),
+        ),
       ),
     readUserKinds(db, owner),
   ]);
   const ids = dayEntries.map((e) => e.id);
+  const days: IsoDate[] = [];
+  for (let d = from; d <= to; d = addDays(d, 1)) days.push(d);
   const empty: DayRows = {
-    day,
+    day: from,
     clock,
     roleBounds,
     entries: [],
@@ -133,7 +154,7 @@ export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRo
     itemValues: [],
     userKinds,
   };
-  if (ids.length === 0) return empty;
+  if (ids.length === 0) return days.map((day) => ({ ...empty, day }));
 
   const [values, lines, sets, links, money] = await Promise.all([
     db
@@ -209,7 +230,7 @@ export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRo
           ),
   ]);
 
-  return {
+  const all = {
     ...empty,
     entries: dayEntries,
     values,
@@ -220,5 +241,27 @@ export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRo
     money,
     items,
     itemValues,
+  };
+  return days.length === 1
+    ? [{ ...all, day: from }]
+    : days.map((day) => splitDay(all, day));
+}
+
+/** One day's rows out of a range's: its entries and what hangs from them. */
+function splitDay(all: DayRows, day: IsoDate): DayRows {
+  const es = all.entries.filter((e) => e.day === day);
+  const ids = new Set(es.map((e) => e.id));
+  const lines = all.lines.filter((l) => ids.has(l.entryId));
+  const lineIds = new Set(lines.map((l) => l.id));
+  return {
+    ...all,
+    day,
+    entries: es,
+    values: all.values.filter((v) => ids.has(v.entryId)),
+    lines,
+    lineValues: all.lineValues.filter((v) => lineIds.has(v.lineId)),
+    sets: all.sets.filter((x) => ids.has(x.entryId)),
+    links: all.links.filter((x) => ids.has(x.fromId)),
+    money: all.money.filter((x) => ids.has(x.entryId)),
   };
 }
