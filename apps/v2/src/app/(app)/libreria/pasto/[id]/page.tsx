@@ -33,7 +33,13 @@ export default async function SavedMealPage({
         {page.parts.map((p, i) => (
           <div key={i} className="k-line between">
             <span className="k-body">
-              {p.href ? <a className="k-link" href={p.href}>{p.name}</a> : p.name}
+              {p.href ? (
+                <a className="k-link" href={p.href}>
+                  {p.name}
+                </a>
+              ) : (
+                p.name
+              )}
               {p.brand && <span className="k-meta"> · {p.brand}</span>}
             </span>
             <span className="k-num">{F.num(Number(p.quantity), p.unit)}</span>

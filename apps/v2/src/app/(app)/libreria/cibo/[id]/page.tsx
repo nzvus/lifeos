@@ -23,6 +23,11 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
         back={{ label: "Libreria", href: "/libreria" }}
         of={{ fam: "food" }}
       />
+      <div className="k-line">
+        <a className="k-btn secondary" href={"/libreria/cibo/" + id + "/modifica"}>
+          Modifica
+        </a>
+      </div>
       <section className="k-section g3" aria-label="Valori">
         <h2>Per 100 {page.unit}</h2>
         {FOOD_FIELDS.filter(([f]) => page.per100[f] !== undefined).map(
