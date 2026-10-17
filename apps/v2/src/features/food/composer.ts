@@ -10,6 +10,7 @@ import type { MacroKey, NutrientsData } from "@lifeos/kit";
 import type { FoodChoice } from "@/core/food/choices";
 import type { EntryErrors } from "@/core/entries";
 import type { LineError, LineInput, LinesError } from "@/core/food/meal";
+import { macroKinds, type MacroKinds } from "@/core/food/kinds";
 import { lineTotals } from "@/core/food/totals";
 
 export type DraftLine = { key: string; quantity: string };
@@ -53,13 +54,36 @@ export function mealTotals(
   );
 }
 
+/** The meal's macros split into their kinds, from its choices' estimates (core/food/kinds). */
+export function mealKinds(
+  lines: readonly DraftLine[],
+  choices: ReadonlyMap<string, FoodChoice>,
+): MacroKinds {
+  return macroKinds(
+    lines.flatMap((l) => {
+      const c = choices.get(l.key);
+      const q = quantityOf(l.quantity);
+      return c && q
+        ? [{ quantity: q, values: c.per100, ...(c.kinds ? { kinds: c.kinds } : {}) }]
+        : [];
+    }),
+  );
+}
+
 /**
  * The meal by itself: its kcal are the Box's value, its macros on one scale
- * with no ticks (a slot's targets come with the plan).
+ * with no ticks (a slot's targets come with the plan), split into kinds.
  */
-export function mealNutrients(t: Record<string, number>): NutrientsData {
+export function mealNutrients(
+  t: Record<string, number>,
+  kinds?: MacroKinds,
+): NutrientsData {
   return {
-    macros: MACROS.map(([key, f]) => ({ key, v: t[f] ?? 0 })),
+    macros: MACROS.map(([key, f]) => ({
+      key,
+      v: t[f] ?? 0,
+      ...(kinds ? { parts: kinds[f as keyof MacroKinds] } : {}),
+    })),
   };
 }
 

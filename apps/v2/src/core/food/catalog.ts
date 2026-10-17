@@ -25,6 +25,7 @@ import {
   type FoodChoice,
   type RecipeChoice,
 } from "./choices";
+import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
 
 /** The owner's live foods and products as choices, with their use up to `today`. */
 export async function readFoodChoices(
@@ -65,7 +66,12 @@ export async function readFoodChoices(
             catalogValues.itemId,
             items.map((i) => i.id),
           ),
-          inArray(catalogValues.field, [...SNAPSHOT_FIELDS, "unit"]),
+          inArray(catalogValues.field, [
+            ...SNAPSHOT_FIELDS,
+            ...KIND_FIELDS,
+            FIBRE_TYPES,
+            "unit",
+          ]),
         ),
       ),
     db
@@ -153,4 +159,34 @@ export async function readRecipeChoices(
     new Map(uses.flatMap((u) => (u.itemId ? [[u.itemId, u.uses] as const] : []))),
     foods,
   );
+}
+
+/** The kind estimates of these foods (core/food/kinds), by food: for the lines of a day. */
+export async function readFoodKinds(
+  db: Db,
+  owner: Owner,
+  itemIds: readonly string[],
+): Promise<Map<string, Record<string, string>>> {
+  const out = new Map<string, Record<string, string>>();
+  if (itemIds.length === 0) return out;
+  const rows = await db
+    .select({
+      itemId: catalogValues.itemId,
+      field: catalogValues.field,
+      num: catalogValues.num,
+      text: catalogValues.text,
+    })
+    .from(catalogValues)
+    .where(
+      and(
+        ownedBy(catalogValues, owner),
+        inArray(catalogValues.itemId, [...new Set(itemIds)]),
+        inArray(catalogValues.field, [...KIND_FIELDS, FIBRE_TYPES]),
+      ),
+    );
+  for (const r of rows) {
+    const v = r.field === FIBRE_TYPES ? r.text : r.num;
+    if (v) out.set(r.itemId, { ...out.get(r.itemId), [r.field]: v });
+  }
+  return out;
 }

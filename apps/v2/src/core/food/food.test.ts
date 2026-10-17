@@ -277,15 +277,13 @@ describe("a meal from the catalog", () => {
       .insert(s.catalogItems)
       .values({ userId: a.id, catalog: "recipe", name: "Porridge" })
       .returning({ id: s.catalogItems.id })) as [{ id: string }];
-    await db
-      .insert(s.catalogParts)
-      .values({
-        userId: a.id,
-        itemId: recipe,
-        position: 0,
-        partItemId: oats,
-        quantity: "60",
-      });
+    await db.insert(s.catalogParts).values({
+      userId: a.id,
+      itemId: recipe,
+      position: 0,
+      partItemId: oats,
+      quantity: "60",
+    });
     const foods = await readFoodChoices(db, a, "2026-10-17");
     const recipes = await readRecipeChoices(db, a, "2026-10-17", foods);
     expect(recipes).toMatchObject([

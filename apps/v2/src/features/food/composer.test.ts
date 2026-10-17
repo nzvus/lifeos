@@ -5,6 +5,7 @@ import {
   dayWithMeal,
   mealNutrients,
   mealErrors,
+  mealKinds,
   mealTotals,
   parseLines,
   quantityOf,
@@ -73,6 +74,27 @@ describe("the composer's numbers", () => {
       macros: [{ key: "fiber", v: 10, planned: 5, t: 30 }],
       limits: [{ key: "sugars", v: 30.1, t: 110 }],
     });
+  });
+});
+
+describe("the meal's kinds", () => {
+  it("split each macro by its choices' estimates", () => {
+    const withKinds = new Map([
+      [
+        "oats",
+        { ...by.get("oats")!, kinds: { protein_high: "1", fibre_betaglucan: "1" } },
+      ],
+      ["milk", by.get("milk")!],
+    ]);
+    const k = mealKinds(
+      [
+        { key: "oats", quantity: "50" },
+        { key: "milk", quantity: "200" },
+      ],
+      withKinds,
+    );
+    expect(k.protein).toEqual({ high: 6.75, none: 6.8 });
+    expect(k.fibre).toEqual({ betaglucan: 5 });
   });
 });
 

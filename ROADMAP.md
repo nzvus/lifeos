@@ -73,6 +73,11 @@ scanning) are placed in the v2 spec.
    - Saved meals in the composer: the recipes found by the search add all
      their foods (the preferred product when it is one), and the meal is of
      the recipe (`item_id`), as converted meals are.
+   - Macro kinds (s150): the day's Box and the composer split protein,
+     carbs, fat and fibre into kinds; the grams are the lines' snapshot,
+     the catalog's estimates only give the shares (v1's fibre type lists
+     split evenly where no grams were estimated); «senza stima» shows what
+     no estimate covers.
 6. **Switch** when every v1 screen id is covered and parity is green.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 

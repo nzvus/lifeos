@@ -6,7 +6,8 @@
  * L1 is the day (or a meal opened): kcal against its target, one row per
  * macro (eaten, then planned hatched, the target as a tick), the maxima
  * below. A macro with its kinds (`parts`) shades its bar by kind in the
- * fixed order of kinds.md; without them it is one colour. Without a target
+ * fixed order of kinds.md, what no estimate splits last ("senza stima");
+ * without them it is one colour. Without a target
  * there is no tick and no "/ target", and the bars share one scale (a meal
  * on its own: its protein against its carbs).
  */
@@ -54,12 +55,14 @@ const KINDS: Record<MacroKey, [string, string, number][]> = {
     ["high", "qualità alta", 1],
     ["medium", "qualità media", 0.55],
     ["low", "qualità bassa", 0.3],
+    ["none", "senza stima", 0.12],
   ],
   carbs: [
     ["whole", "amidi integrali", 1],
     ["refined", "amidi raffinati e tuberi", 0.66],
     ["intrinsic", "zuccheri di frutta e latte", 0.42],
     ["free", "zuccheri liberi", 0.24],
+    ["none", "senza stima", 0.12],
   ],
   fat: [
     ["mufa", "monoinsaturi", 1],
@@ -67,6 +70,7 @@ const KINDS: Record<MacroKey, [string, string, number][]> = {
     ["n3", "omega-3", 0.46],
     ["sfa", "saturi", 0.3],
     ["trans", "trans", 0.16],
+    ["none", "senza stima", 0.1],
   ],
   fiber: [
     ["insoluble", "insolubili", 1],
@@ -75,7 +79,7 @@ const KINDS: Record<MacroKey, [string, string, number][]> = {
     ["pectin", "pectine", 0.38],
     ["inulin", "inulina/FOS", 0.26],
     ["gos", "GOS", 0.19],
-    ["none", "senza tipo", 0.12],
+    ["none", "senza stima", 0.12],
   ],
 };
 const SOURCES_SHOWN = 5;

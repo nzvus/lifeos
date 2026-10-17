@@ -24,6 +24,7 @@ import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
 import {
   clockMinute,
   dayWithMeal,
+  mealKinds,
   mealNutrients,
   mealTotals,
   quantityOf,
@@ -320,7 +321,7 @@ function Draft({
             ...(recipeName ? { meta: recipeName } : {}),
           }}
         >
-          <Nutrients data={mealNutrients(totals)} />
+          <Nutrients data={mealNutrients(totals, mealKinds(lines, by))} />
         </Box>
       </section>
 
