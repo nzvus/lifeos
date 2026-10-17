@@ -7,6 +7,7 @@
  */
 import type { CatalogMaps } from "./catalog";
 import { NUTRIENTS } from "./catalog";
+import { MEAL_ROLES } from "../kinds/builtins";
 import type { Out, V1Export, V1Row } from "./context";
 import { bool, confidenceOf, dec, idFor, intOf, iso, num, str, text } from "./context";
 
@@ -98,6 +99,7 @@ export function convertFacts(v1: V1Export, out: Out, maps: CatalogMaps): void {
   const items = new Map<string, V1Row[]>();
   for (const i of rows(v1, "log_entry_items"))
     items.set(S(i["entryId"]), [...(items.get(S(i["entryId"])) ?? []), i]);
+  let byTime = 0;
   for (const e of rows(v1, "log_entries")) {
     const id = S(e["id"]);
     const meal = e["mealId"]
@@ -114,7 +116,11 @@ export function convertFacts(v1: V1Export, out: Out, maps: CatalogMaps): void {
       createdAt: iso(e["createdAt"]),
       deletedAt: iso(e["deletedAt"]),
     });
-    out.entryValue(id, "role", text(e["moment"]));
+    // pre/post-workout and pre-sleep are relations in v2: the role comes from the time (migration.md).
+    const moment = S(e["moment"] ?? "");
+    if ((MEAL_ROLES as readonly string[]).includes(moment))
+      out.entryValue(id, "role", { text: moment });
+    else if (moment !== "") byTime++;
     out.entryValue(id, "servings", num(e["servings"]));
     out.entryValue(id, "label", text(e["label"]));
     out.entryValue(id, "estimated", bool(e["estimated"]));
@@ -123,6 +129,12 @@ export function convertFacts(v1: V1Export, out: Out, maps: CatalogMaps): void {
       out.push("entry_links", { fromId: id, toId: S(e["batchId"]), relation: "related" });
     for (const l of items.get(id) ?? []) line(id, l, itemPtr[S(l["id"])]);
   }
+
+  out.drop(
+    "log_entries.moment",
+    byTime,
+    "pre/post-workout and pre-sleep: the role comes from the time, the moment is a relation",
+  );
 
   // Batches cooked ahead: an entry with its lines; portions as a value.
   const batchPtr = v1._v2?.pointers.batch_lines ?? {};
