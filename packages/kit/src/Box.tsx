@@ -8,7 +8,8 @@
  * Score parts come with the slices that compute them.
  *
  * No state: a page that lets the rail switch modes passes `onRail` from a
- * client component (never from a server page: a function cannot cross).
+ * client component (never from a server page: a function cannot cross);
+ * the same for `acts`, the row's actions (tick, skip) in its trail.
  */
 import type { ReactNode } from "react";
 import { Glyph } from "./Glyph";
@@ -36,12 +37,20 @@ export type BoxEntry = {
   hrefLabel?: string;
 };
 
+export type BoxAct = {
+  label: string;
+  aria?: string;
+  onClick: () => void;
+  danger?: boolean;
+};
+
 export function Box({
   entry: e,
   density = "card",
   mode = "compact",
   rail = true,
   onRail,
+  acts = [],
   children,
 }: {
   entry: BoxEntry;
@@ -49,6 +58,7 @@ export function Box({
   mode?: "compact" | "times";
   rail?: boolean;
   onRail?: () => void;
+  acts?: BoxAct[];
   children?: ReactNode;
 }) {
   const dense = density === "row";
@@ -113,11 +123,24 @@ export function Box({
               </span>
               <span className="k-num d4">{e.value}</span>
             </span>
-            {e.href && (
+            {(e.href || acts.length > 0) && (
               <span className="k-trail">
-                <a className="k-go" href={e.href} aria-label={e.hrefLabel ?? e.title}>
-                  ›
-                </a>
+                {acts.map((a) => (
+                  <button
+                    key={a.label}
+                    type="button"
+                    className={"k-btn act" + (a.danger ? " danger" : "")}
+                    aria-label={a.aria ?? a.label}
+                    onClick={a.onClick}
+                  >
+                    {a.label}
+                  </button>
+                ))}
+                {e.href && (
+                  <a className="k-go" href={e.href} aria-label={e.hrefLabel ?? e.title}>
+                    ›
+                  </a>
+                )}
               </span>
             )}
           </div>

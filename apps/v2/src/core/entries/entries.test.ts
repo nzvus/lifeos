@@ -4,7 +4,15 @@ import { createTestDb, createTestUser } from "../db/test-db";
 import { loadDay } from "../day";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { kindRegistry, type KindInput, kindSchema } from "../kinds";
-import { checkEntry, createEntry, enterable, type EntryInput } from "./index";
+import {
+  checkEntry,
+  createEntry,
+  enterable,
+  restoreEntry,
+  setEntryStatus,
+  trashEntry,
+  type EntryInput,
+} from "./index";
 
 const reg = kindRegistry();
 const rome = { timeZone: "Europe/Rome", boundaryMin: 240 };
@@ -159,5 +167,51 @@ describe("writing an entry", () => {
       values: { ml: "500.0000" },
     });
     expect((await loadDay(db, b, "2026-10-15")).timed).toEqual([]);
+  });
+
+  const planned = async (owner: Owner) => {
+    const c = checkEntry(
+      reg.get("water"),
+      input({
+        day: "2026-10-16",
+        status: "planned",
+        startMin: 600,
+        values: { ml: "250" },
+      }),
+      rome,
+    );
+    if (!c.ok) throw new Error("expected a valid entry");
+    return createEntry(db, owner, c.entry);
+  };
+  const statusOn = async (owner: Owner, id: string) =>
+    (await loadDay(db, owner, "2026-10-16")).timed.find((i) => i.id === id)?.status;
+
+  it("ticks a planned entry done, says what it was, and can put it back", async () => {
+    const id = await planned(a);
+    expect(await setEntryStatus(db, a, id, "done")).toBe("planned");
+    expect(await statusOn(a, id)).toBe("done");
+    expect(await setEntryStatus(db, a, id, "planned")).toBe("done");
+    expect(await setEntryStatus(db, a, id, "skipped")).toBe("planned");
+    expect(await statusOn(a, id)).toBe("skipped");
+  });
+
+  it("moves an entry to the trash and back", async () => {
+    const id = await planned(a);
+    expect(await trashEntry(db, a, id)).toBe(true);
+    expect(await statusOn(a, id)).toBeUndefined();
+    expect(await trashEntry(db, a, id)).toBe(false);
+    expect(await setEntryStatus(db, a, id, "done")).toBeNull();
+    expect(await restoreEntry(db, a, id)).toBe(true);
+    expect(await statusOn(a, id)).toBe("planned");
+    expect(await restoreEntry(db, a, id)).toBe(false);
+  });
+
+  it("never changes another person's entry", async () => {
+    const id = await planned(a);
+    expect(await setEntryStatus(db, b, id, "done")).toBeNull();
+    expect(await trashEntry(db, b, id)).toBe(false);
+    expect(await statusOn(a, id)).toBe("planned");
+    await trashEntry(db, a, id);
+    expect(await restoreEntry(db, b, id)).toBe(false);
   });
 });

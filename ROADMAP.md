@@ -57,8 +57,10 @@ scanning) are placed in the v2 spec.
      meals, sessions, money or pantry: their editors come with their
      slices), the sheet generated from the kind's fields, done or planned,
      a time or a span (a night's bed the evening before), saved through
-     `core/entries`. Next: tick planned → done, skip, delete with Undo;
-     then the food slice.
+     `core/entries`. Rows: «Fatto» and «Salta» on planned ones,
+     «Ripristina» on skipped ones, swipe left (or Delete) to the 30-day
+     trash; a toast with «Annulla» for each. Next: the food slice (the
+     composer, meals), then tapping an entry to edit it.
 6. **Switch** when every v1 screen id is covered and parity is green.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 

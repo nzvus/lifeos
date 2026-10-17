@@ -8,7 +8,7 @@ export { addDays, monthOf, weekOf } from "./calendar";
 export { resolveGlyph, type GlyphOf, type IconRegistry } from "./glyph";
 export { ICONS } from "./icons.generated";
 export { Glyph, type GlyphSize } from "./Glyph";
-export { Box, type BoxEntry } from "./Box";
+export { Box, type BoxAct, type BoxEntry } from "./Box";
 export { PageHeader } from "./PageHeader";
 export { NavBar, type Place } from "./NavBar";
 export { DateNav } from "./DateNav";

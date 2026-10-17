@@ -1,20 +1,23 @@
 "use client";
 /**
- * The day's timeline (V-01): the timed Boxes in order, the "now" line when
+ * The day's timeline (V-01): the timed rows in order, the "now" line when
  * the day is today, and the rail's two modes (compact · times) switched by
- * the chip or by tapping any rail. Rows arrive as plain data (BoxEntry):
- * the server composes and presents them, this component only holds the mode.
+ * the chip or by tapping any rail. Rows arrive as plain data; how each is
+ * drawn (its actions) is the day's, through `row`. This component only
+ * holds the mode.
  */
-import { useState } from "react";
-import { Box, Glyph, type BoxEntry } from "@lifeos/kit";
+import { useState, type ReactNode } from "react";
+import { Glyph, type BoxEntry } from "@lifeos/kit";
 
-export function Timeline({
+export function Timeline<R extends BoxEntry & { minute: number }>({
   rows,
   now,
+  row,
 }: {
-  rows: (BoxEntry & { minute: number })[];
+  rows: R[];
   /** The current minute of the logical day, when the day is today. */
   now: { minute: number; label: string } | null;
+  row: (r: R, mode: "compact" | "times", onRail: () => void) => ReactNode;
 }) {
   const [times, setTimes] = useState(false);
   const toggle = () => setTimes(!times);
@@ -36,7 +39,7 @@ export function Timeline({
       {rows.map((r, i) => (
         <div key={i} className="k-stack">
           {i === nowAt && line}
-          <Box entry={r} mode={times ? "times" : "compact"} onRail={toggle} />
+          {row(r, times ? "times" : "compact", toggle)}
         </div>
       ))}
       {now && nowAt === -1 && line}
