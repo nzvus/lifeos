@@ -8,9 +8,11 @@ import {
   checkEntry,
   createEntry,
   enterable,
+  readEntry,
   restoreEntry,
   setEntryStatus,
   trashEntry,
+  updateEntry,
   type EntryInput,
 } from "./index";
 
@@ -217,5 +219,40 @@ describe("writing an entry", () => {
     expect(await statusOn(a, id)).toBe("planned");
     await trashEntry(db, a, id);
     expect(await restoreEntry(db, b, id)).toBe(false);
+  });
+
+  it("edits an entry's managed fields and times; a field the form does not show stays", async () => {
+    const weigh = reg.get("weigh_in");
+    const first = checkEntry(
+      weigh,
+      input({
+        day: "2026-10-16",
+        startMin: 480,
+        values: { weightKg: "75,6", waistCm: "80" },
+      }),
+      rome,
+    );
+    if (!first.ok) throw new Error("expected a valid entry");
+    const id = await createEntry(db, a, first.entry);
+    const edit = checkEntry(
+      weigh,
+      input({
+        day: "2026-10-16",
+        startMin: 500,
+        values: { weightKg: "75,2" },
+        note: "dopo",
+      }),
+      rome,
+    );
+    if (!edit.ok) throw new Error("expected a valid edit");
+    expect(await updateEntry(db, a, id, edit.entry, ["weightKg", "fasted"])).toBe(true);
+    const e = await readEntry(db, a, id);
+    expect(e).toMatchObject({
+      minute: 500,
+      note: "dopo",
+      values: { weightKg: "75.2000", waistCm: "80.0000" },
+    });
+    expect(await updateEntry(db, b, id, edit.entry, ["weightKg"])).toBe(false);
+    expect(await readEntry(db, b, id)).toBeNull();
   });
 });

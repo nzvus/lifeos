@@ -6,6 +6,7 @@
  */
 import { F, type BoxEntry, type GlyphOf } from "@lifeos/kit";
 import type { DayItem } from "@/core/day";
+import { enterable } from "@/core/entries/check";
 import { lineTotals } from "@/core/food/totals";
 import { ACTIVITY, NAMES } from "./words";
 
@@ -135,5 +136,9 @@ export function present(i: DayItem): BoxEntry {
     faded: i.status === "skipped",
     pills,
     members,
+    // A meal opens its composer, a plain kind its sheet; the others' editors come later.
+    ...(i.kind.key === "meal" || enterable(i.kind)
+      ? { href: "/voce/" + i.id, hrefLabel: "Modifica " + title(i) }
+      : {}),
   };
 }

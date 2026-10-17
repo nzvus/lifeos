@@ -23,7 +23,8 @@ export const SNAPSHOT_FIELDS = [
 export type FoodChoice = {
   /** The food's id, or "<food>:<product>". */
   key: string;
-  foodId: string;
+  /** Null only for an already logged line whose food was never known. */
+  foodId: string | null;
   productId: string | null;
   name: string;
   /** The product's name (its brand), when the choice is a product. */
@@ -132,4 +133,33 @@ export function searchFoods(
     })
     .sort((a, b) => b.uses - a.uses || a.name.localeCompare(b.name, "it"))
     .slice(0, limit);
+}
+
+/**
+ * Pure: a logged meal's lines as choices keyed "line:<id>", each with its
+ * own snapshot (ADR-0007): editing a meal changes its quantities, never the
+ * values it was logged with, even after the catalog changed or the food
+ * left it.
+ */
+export function lineChoices(
+  lines: readonly {
+    id: string;
+    name: string;
+    itemId: string | null;
+    productId: string | null;
+    unit: string;
+    values: Record<string, string>;
+  }[],
+): FoodChoice[] {
+  return lines.map((l) => ({
+    key: "line:" + l.id,
+    foodId: l.itemId,
+    productId: l.productId,
+    name: l.name,
+    brand: null,
+    unit: l.unit,
+    per100: l.values,
+    uses: 0,
+    lastQty: null,
+  }));
 }

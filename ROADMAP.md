@@ -66,7 +66,10 @@ scanning) are placed in the v2 spec.
      recomputed live, role from the time unless chosen; the server rereads
      the catalog for each line's snapshot (ADR-0007). Next: Nutrients L0/L2
      and the macro kinds, estimate/scan, recipes, servings; drink-only
-     meals as `drink`; then tapping an entry to edit it.
+     meals as `drink`.
+   - Editing (s147): «›» on a meal or a plain kind opens `/voce/<id>`, its
+     composer or sheet filled with what was logged; a sheet writes only the
+     fields it shows; a meal's old lines keep their snapshot (ADR-0007).
 6. **Switch** when every v1 screen id is covered and parity is green.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 

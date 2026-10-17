@@ -1,0 +1,110 @@
+"use server";
+/**
+ * Editing a logged entry (V-03 and V-04 opened from Oggi's «›»). Each
+ * action is bound to the entry's id by the page; the entry is read again
+ * here (owned, live), checked as when it was made, and changed: a sheet
+ * writes only the fields it shows; a meal's old lines keep the values they
+ * were logged with (ADR-0007) and new ones take today's.
+ */
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { requireOwner } from "@/app/_server/owner";
+import { getDb } from "@/app/_server/runtime";
+import { checkEntry, readEntry, updateEntry } from "@/core/entries";
+import { readFoodChoices } from "@/core/food/catalog";
+import { lineChoices } from "@/core/food/choices";
+import { checkMealLines } from "@/core/food/meal";
+import { kindRegistry } from "@/core/kinds";
+import type { SaveState } from "@/features/day/EntrySheet";
+import { errorWords, managedFields, readEntryForm } from "@/features/day/entry-form";
+import type { MealState } from "@/features/food/Composer";
+import { mealErrors, parseLines } from "@/features/food/composer";
+import { addContext } from "../../aggiungi/kinds";
+import { mealInput } from "../../aggiungi/pasto/meal-input";
+
+const GONE = "Questa voce non c’è più: forse è stata eliminata.";
+
+function formOf(data: FormData): Record<string, string> {
+  const form: Record<string, string> = {};
+  for (const [k, v] of data.entries()) if (typeof v === "string") form[k] = v;
+  return form;
+}
+
+function backTo(day: string, today: string): never {
+  revalidatePath("/oggi", "layout");
+  redirect(day === today ? "/oggi" : "/oggi/" + day);
+}
+
+export async function updateSheet(
+  id: string,
+  prev: SaveState,
+  data: FormData,
+): Promise<SaveState> {
+  const owner = await requireOwner();
+  const db = await getDb();
+  const form = formOf(data);
+  const again = (errors: Record<string, string>) => ({
+    errors,
+    values: form,
+    n: prev.n + 1,
+  });
+  const item = await readEntry(db, owner, id);
+  if (!item) return again({ form: GONE });
+  const ctx = await addContext(db, owner, item.day);
+  const kind = ctx.kinds.find((k) => k.key === item.kind.key);
+  if (!kind) return again({ form: "Questo tipo non si modifica da qui." });
+  const checked = checkEntry(
+    kind,
+    readEntryForm(kind, item.day, form, ctx.clock.boundaryMin),
+    ctx.clock,
+  );
+  if (!checked.ok) return again(errorWords(checked.errors));
+  if (!(await updateEntry(db, owner, id, checked.entry, managedFields(kind))))
+    return again({ form: GONE });
+  backTo(item.day, ctx.today);
+}
+
+export async function updateMeal(
+  id: string,
+  prev: MealState,
+  data: FormData,
+): Promise<MealState> {
+  const owner = await requireOwner();
+  const db = await getDb();
+  const form = formOf(data);
+  const lines = parseLines(form["lines"] ?? "");
+  const again = (errors: Record<string, string>) => ({
+    errors,
+    values: form,
+    lines,
+    n: prev.n + 1,
+  });
+  const item = await readEntry(db, owner, id);
+  if (!item || item.kind.key !== "meal") return again({ form: GONE });
+  const ctx = await addContext(db, owner, item.day);
+  const choices = [
+    ...lineChoices(item.lines),
+    ...(await readFoodChoices(db, owner, ctx.today)),
+  ];
+  const checkedLines = checkMealLines(lines, new Map(choices.map((c) => [c.key, c])));
+  const entry = checkEntry(
+    kindRegistry().get("meal"),
+    mealInput(item.day, form, ctx.clock.boundaryMin),
+    ctx.clock,
+  );
+  if (!checkedLines.ok || !entry.ok)
+    return again(
+      mealErrors(
+        entry.ok ? null : entry.errors,
+        checkedLines.ok ? null : checkedLines,
+        errorWords,
+      ),
+    );
+  if (
+    !(await updateEntry(db, owner, id, { ...entry.entry, lines: checkedLines.lines }, [
+      "role",
+    ]))
+  )
+    return again({ form: GONE });
+  backTo(item.day, ctx.today);
+}

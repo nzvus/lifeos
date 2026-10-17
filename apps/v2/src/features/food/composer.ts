@@ -8,7 +8,8 @@
  */
 import type { MacroKey, NutrientsData } from "@lifeos/kit";
 import type { FoodChoice } from "@/core/food/choices";
-import type { LineError, LinesError } from "@/core/food/meal";
+import type { EntryErrors } from "@/core/entries";
+import type { LineError, LineInput, LinesError } from "@/core/food/meal";
 import { lineTotals } from "@/core/food/totals";
 
 export type DraftLine = { key: string; quantity: string };
@@ -94,3 +95,37 @@ export const LINE_WORDS: Record<LineError | LinesError, string> = {
   empty: "Aggiungi almeno un cibo.",
   too_many: "Al massimo 40 cibi in un pasto.",
 };
+
+/** The lines a composer posted: anything else than a list of { key, quantity } strings is none. */
+export function parseLines(raw: string): LineInput[] {
+  try {
+    const x: unknown = JSON.parse(raw);
+    if (!Array.isArray(x) || x.length > 100) return [];
+    return x.flatMap((l: unknown) => {
+      const o = l as Partial<LineInput> | null;
+      return o !== null &&
+        typeof o === "object" &&
+        typeof o.key === "string" &&
+        typeof o.quantity === "string"
+        ? [{ key: o.key, quantity: o.quantity }]
+        : [];
+    });
+  } catch {
+    return [];
+  }
+}
+
+/** Core's answers → the composer's words, by its names ("role", "line.<i>", "lines"). */
+export function mealErrors(
+  entry: EntryErrors | null,
+  lines: { lines?: LinesError; at: Record<number, LineError> } | null,
+  words: (e: EntryErrors) => Record<string, string>,
+): Record<string, string> {
+  const out = entry ? words(entry) : {};
+  if (out["v.role"]) out["role"] = out["v.role"];
+  if (lines) {
+    if (lines.lines) out["lines"] = LINE_WORDS[lines.lines];
+    for (const [i, code] of Object.entries(lines.at)) out["line." + i] = LINE_WORDS[code];
+  }
+  return out;
+}

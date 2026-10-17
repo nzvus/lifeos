@@ -34,6 +34,7 @@ export type DayLine = {
   id: string;
   name: string;
   itemId: string | null;
+  productId: string | null;
   quantity: string;
   unit: string;
   /** The snapshot per 100 (ADR-0007): field → exact number. */
@@ -140,6 +141,7 @@ export function composeDay(rows: DayRows, registry: KindRegistry): Day {
           id: l.id,
           name: l.name,
           itemId: l.itemId,
+          productId: l.productId,
           quantity: l.quantity,
           unit: l.unit,
           values: Object.fromEntries(
