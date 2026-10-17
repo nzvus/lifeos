@@ -19,10 +19,14 @@ export type SetInput = {
   rir: string;
   durationS: string;
   warmup: boolean;
+  /** The load typed is one dumbbell's: the stored load is twice it (03 T-10). */
+  perDumbbell?: boolean;
 };
 export type CheckedSet = {
   reps: number | null;
+  /** Always the total. */
   loadKg: string | null;
+  loadEntry: "total" | "per_dumbbell";
   rir: number | null;
   durationS: number | null;
   warmup: boolean;
@@ -54,7 +58,8 @@ export function checkSet(
     ok: true,
     set: {
       reps: reps === "" ? null : Number(reps),
-      loadKg: kg === "" ? null : kg,
+      loadKg: kg === "" ? null : s.perDumbbell ? String(Number(kg) * 2) : kg,
+      loadEntry: s.perDumbbell && kg !== "" ? "per_dumbbell" : "total",
       rir: rir === "" ? null : Number(rir),
       durationS: dur === "" ? null : Number(dur),
       warmup: s.warmup,
@@ -193,7 +198,7 @@ export async function saveSet(
   const row = {
     reps: set.reps,
     loadKg: set.loadKg,
-    loadEntry: "total" as const,
+    loadEntry: set.loadEntry,
     rir: set.rir,
     durationS: set.durationS,
     warmup: set.warmup,

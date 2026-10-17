@@ -13,6 +13,8 @@ export type SetView = {
   loadKg: string | null;
   durationS: number | null;
   rir?: number | null | undefined;
+  /** "per_dumbbell": shown as one dumbbell's load × 2. */
+  loadEntry?: string | undefined;
 };
 
 const seconds = (s: number) => (s >= 120 ? F.hm(s / 60) : F.num(s, "") + " s");
@@ -23,7 +25,11 @@ export function setText(s: SetView, withRir = false): string {
     s.durationS !== null && s.reps === null
       ? seconds(s.durationS)
       : (s.reps ?? "–") +
-        (s.loadKg !== null ? " × " + F.num(Number(s.loadKg), "kg") : "");
+        (s.loadKg === null
+          ? ""
+          : s.loadEntry === "per_dumbbell"
+            ? " × 2 × " + F.num(Number(s.loadKg) / 2, "kg")
+            : " × " + F.num(Number(s.loadKg), "kg"));
   return base + (withRir && s.rir != null ? " · RIR " + s.rir : "");
 }
 
@@ -63,4 +69,12 @@ export function kgStep(kg: string): number {
 /** Whether an exercise is timed (a plank, a run): its sets are seconds, not reps. */
 export function timed(pattern: string | null): boolean {
   return guideOf(pattern)?.progression === "time";
+}
+
+/** Whether an exercise is done with dumbbells, from its equipment or its name. */
+export function usesDumbbells(name: string, equipment: string | null): boolean {
+  return (
+    /dumbbell|manubri/i.test(equipment ?? "") ||
+    /\b(db|dumbbells?|manubri\w*)\b/i.test(name)
+  );
 }

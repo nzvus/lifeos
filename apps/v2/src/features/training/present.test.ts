@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { kgStep, lastTimeText, restFor, setText, timed } from "./present";
+import { kgStep, lastTimeText, restFor, setText, timed, usesDumbbells } from "./present";
 
 const nb = (s: string) => s.replace(/ /g, " ");
 const set = (
@@ -37,5 +37,21 @@ describe("gym mode's words", () => {
     expect(restFor(null, 10)).toEqual({ low: 90, high: 120 });
     expect([kgStep("60"), kgStep("12,5"), kgStep("")]).toEqual([2.5, 1, 1]);
     expect([timed("plank"), timed("curl"), timed(null)]).toEqual([true, false, false]);
+  });
+});
+
+describe("dumbbells", () => {
+  it("are known from the equipment or the name, and shown per dumbbell", () => {
+    expect(usesDumbbells("Incline db press", null)).toBe(true);
+    expect(usesDumbbells("Alzate laterali", "dumbbell")).toBe(true);
+    expect(usesDumbbells("Lat pulldown", "cable")).toBe(false);
+    expect(
+      setText({
+        reps: 10,
+        loadKg: "25",
+        durationS: null,
+        loadEntry: "per_dumbbell",
+      }).replace(/\u00a0/g, " "),
+    ).toBe("10 × 2 × 12,5 kg");
   });
 });
