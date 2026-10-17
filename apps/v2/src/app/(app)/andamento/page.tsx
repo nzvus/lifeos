@@ -1,6 +1,6 @@
 /**
- * Andamento (flows.md §1, V-06), first part: «Il periodo», the last 7 days
- * up to `?fino=YYYY-MM-DD` (today when missing): the day's Nutrients
+ * Andamento (flows.md §1, V-06), first part: «Il periodo», the last 7 or 30
+ * days (`?giorni=`) up to `?fino=YYYY-MM-DD` (today when missing): the day's Nutrients
  * averaged over the days with something eaten, and each day's kcal against
  * its target. Trackers, goals and correlations come with their slices.
  */
@@ -13,18 +13,24 @@ import { presentDay } from "@/features/day/nutrients";
 import { PLACES } from "@/features/places";
 import { period } from "@/features/progress/period";
 
-const DAYS = 7;
+// Each day is read on its own: 90 would be 180 queries, until a range reader exists.
+const RANGES = [7, 30] as const;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
 export default async function AndamentoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ fino?: string | string[] }>;
+  searchParams: Promise<{ fino?: string | string[]; giorni?: string | string[] }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
   const today = logicalDay(new Date(), (await readClock(db, owner)).clock);
-  const asked = (await searchParams).fino;
+  const { fino: asked, giorni } = await searchParams;
+  const DAYS = RANGES.find((n) => String(n) === giorni) ?? 7;
+  const link = (fino: string | null, n: number) => {
+    const q = [fino ? "fino=" + fino : "", n !== 7 ? "giorni=" + n : ""].filter(Boolean);
+    return "/andamento" + (q.length ? "?" + q.join("&") : "");
+  };
   const end =
     typeof asked === "string" && ISO.test(asked) && asked < today ? asked : today;
   const days = Array.from({ length: DAYS }, (_, i) => addDays(end, i - DAYS + 1));
@@ -43,18 +49,27 @@ export default async function AndamentoPage({
     <main className="k-page has-bd">
       <PageHeader title="Andamento" of={{ place: "andamento" }} />
       <section className="k-section g3" aria-label="Il periodo">
+        <div className="k-chips">
+          {RANGES.map((n) => (
+            <a
+              key={n}
+              className="k-chip"
+              aria-pressed={n === DAYS}
+              href={link(end === today ? null : end, n)}
+            >
+              {n} giorni
+            </a>
+          ))}
+        </div>
         <div className="k-line between">
-          <a className="k-link" href={"/andamento?fino=" + addDays(end, -DAYS)}>
+          <a className="k-link" href={link(addDays(end, -DAYS), DAYS)}>
             ‹ prima
           </a>
           <span className="k-body">
             {F.date(days[0]!)} – {F.date(end)}
           </span>
           {end < today ? (
-            <a
-              className="k-link"
-              href={later >= today ? "/andamento" : "/andamento?fino=" + later}
-            >
+            <a className="k-link" href={link(later >= today ? null : later, DAYS)}>
               dopo ›
             </a>
           ) : (

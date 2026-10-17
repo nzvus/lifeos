@@ -29,7 +29,7 @@
 .k-num{font-family:var(--font-display);font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
 .k-cap{font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .k-pill{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 8px;border-radius:var(--r-pill);font-family:var(--font-body);font-size:var(--fs-b3);border:1px solid var(--hairline);color:var(--ink);background:var(--sheet)}
-.k-chip{display:inline-flex;align-items:center;gap:4px;height:var(--touch-dense);padding:0 12px;border-radius:var(--r-pill);font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;border:1px solid var(--hairline);color:var(--ink);background:var(--sheet);cursor:pointer}
+.k-chip{display:inline-flex;align-items:center;gap:4px;height:var(--touch-dense);padding:0 12px;border-radius:var(--r-pill);font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;border:1px solid var(--hairline);color:var(--ink);background:var(--sheet);cursor:pointer;text-decoration:none}
 .k-chip[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 
 /* ---------- reveal: every open/close in the kit, one timing ---------- */
