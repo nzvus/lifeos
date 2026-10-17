@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Day, DayItem, FoodTargets } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
-import { presentDay } from "./nutrients";
+import { microTargets } from "@/core/engines/targets";
+import { microsOf, presentDay } from "./nutrients";
 
 const reg = kindRegistry();
 const item = (kind: string, over: Partial<DayItem> = {}): DayItem => ({
@@ -142,5 +143,38 @@ describe("the day as a Box with Nutrients L1", () => {
 
   it("is not there on a day with no meals and no targets", () => {
     expect(presentDay(day([item("water")]), null)).toBeNull();
+  });
+});
+
+describe("the day's vitamins and minerals", () => {
+  const targets = microTargets({ sex: "male", age: 30 });
+
+  it("shows only what some food carried, judged against E5's targets", () => {
+    const m = microsOf({ ca: 1180, fe: 4, vitD: 9, na: 2600 }, targets);
+    expect(m.summary).toBe("1 su 4 coperti · stime");
+    expect(
+      m.groups.map((g) => [g.name, g.items.map((i) => [i.name, i.t, i.state])]),
+    ).toEqual([
+      ["Vitamine", [["D", 15, "warn"]]],
+      [
+        "Minerali",
+        [
+          ["Calcio", 950, "good"],
+          ["Ferro", 11, "bad"],
+          ["Sodio", 2000, "bad"],
+        ],
+      ],
+    ]);
+  });
+
+  it("says what is missing for the targets", () => {
+    const m = microsOf({ k: 3000 }, null);
+    expect(m.summary).toBe("stime · per gli obiettivi servono sesso ed età");
+    expect(m.groups[0]!.items[0]).toEqual({
+      name: "Potassio",
+      v: 3000,
+      t: null,
+      unit: "mg",
+    });
   });
 });

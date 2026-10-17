@@ -78,6 +78,10 @@ scanning) are placed in the v2 spec.
      the catalog's estimates only give the shares (v1's fibre type lists
      split evenly where no grams were estimated); «senza stima» shows what
      no estimate covers.
+   - Micronutrients (s150): the day's Box shows the vitamins and minerals
+     the eaten foods carried (catalog estimates × grams; sodium from the
+     lines' salt) against E5's EFSA targets from the person's sex and birth
+     year; only micros some food carried, «n su m coperti · stime».
 6. **Switch** when every v1 screen id is covered and parity is green.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 

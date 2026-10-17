@@ -64,7 +64,13 @@ export function mealKinds(
       const c = choices.get(l.key);
       const q = quantityOf(l.quantity);
       return c && q
-        ? [{ quantity: q, values: c.per100, ...(c.kinds ? { kinds: c.kinds } : {}) }]
+        ? [
+            {
+              quantity: q,
+              values: c.per100,
+              ...(c.estimates ? { estimates: c.estimates } : {}),
+            },
+          ]
         : [];
     }),
   );
@@ -89,9 +95,11 @@ export function mealNutrients(
 
 /** The day's Nutrients with this meal added to what is planned. */
 export function dayWithMeal(
-  day: NutrientsData,
+  dayData: NutrientsData,
   t: Record<string, number>,
 ): NutrientsData {
+  // The micros are the day's eaten ones: without the meal's they would mislead, so they stay out.
+  const { micros: _micros, ...day } = dayData;
   const add = (planned: number | undefined, f: string) => (planned ?? 0) + (t[f] ?? 0);
   return {
     ...(day.kcal

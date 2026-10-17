@@ -13,7 +13,7 @@ export type FoodEntry = {
   status: "planned" | "done" | "skipped";
   leftOut: boolean;
   servings: string | null;
-  lines: readonly (SnapshotLine & { name: string; kinds?: Record<string, string> })[];
+  lines: readonly (SnapshotLine & { name: string; estimates?: Record<string, string> })[];
 };
 
 export type DayFood = {

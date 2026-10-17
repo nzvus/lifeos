@@ -82,7 +82,7 @@ describe("the meal's kinds", () => {
     const withKinds = new Map([
       [
         "oats",
-        { ...by.get("oats")!, kinds: { protein_high: "1", fibre_betaglucan: "1" } },
+        { ...by.get("oats")!, estimates: { protein_high: "1", fibre_betaglucan: "1" } },
       ],
       ["milk", by.get("milk")!],
     ]);

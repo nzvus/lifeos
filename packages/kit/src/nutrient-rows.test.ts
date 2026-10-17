@@ -92,6 +92,30 @@ describe("Nutrients L1", () => {
     ]);
   });
 
+  it("writes the micros against their targets, coloured by the page's state", () => {
+    const { micros } = nutrientsL1({
+      macros: [],
+      micros: {
+        summary: "1 su 2 coperti",
+        groups: [
+          {
+            name: "Vitamine",
+            items: [
+              { name: "D", v: 4, t: 15, unit: "µg", state: "bad" },
+              { name: "C", v: 120, t: 110, unit: "mg", state: "good" },
+              { name: "K", v: 50, t: null, unit: "µg" },
+            ],
+          },
+        ],
+      },
+    });
+    expect(micros!.groups[0]!.items.map((i) => [i.v, i.w, i.color])).toEqual([
+      ["4 / 15 µg", "27%", "var(--tomato)"],
+      ["120 / 110 mg", "100%", "var(--herb)"],
+      ["50 µg", "0%", "var(--ink)"],
+    ]);
+  });
+
   it("judges the maxima as ceilings", () => {
     const { limits } = nutrientsL1({
       macros: [],

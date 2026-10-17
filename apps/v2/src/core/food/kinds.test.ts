@@ -8,7 +8,7 @@ describe("a macro split into its kinds", () => {
         quantity: "50",
         // logged with 13.5 g of protein per 100: the estimate only splits it
         values: { protein: "13.5", fat: "7" },
-        kinds: { protein_high: "2", protein_low: "6", fat_mufa: "3", fat_sfa: "1" },
+        estimates: { protein_high: "2", protein_low: "6", fat_mufa: "3", fat_sfa: "1" },
       },
     ]);
     expect(k.protein).toEqual({ high: 1.6875, low: 5.0625 });
@@ -21,7 +21,7 @@ describe("a macro split into its kinds", () => {
     const k = macroKinds(
       [
         { quantity: "100", values: { fibre: "4" } },
-        { quantity: "100", values: { fibre: "2" }, kinds: { fibre_pectin: "1" } },
+        { quantity: "100", values: { fibre: "2" }, estimates: { fibre_pectin: "1" } },
       ],
       "2",
     );
@@ -33,14 +33,14 @@ describe("a macro split into its kinds", () => {
       {
         quantity: "100",
         values: { fibre: "6" },
-        kinds: { fibreTypes: "inulin_fos,pectin,psyllium" },
+        estimates: { fibreTypes: "inulin_fos,pectin,psyllium" },
       },
-      { quantity: "100", values: { fibre: "2" }, kinds: { fibreTypes: "psyllium" } },
+      { quantity: "100", values: { fibre: "2" }, estimates: { fibreTypes: "psyllium" } },
       // grams win over the list
       {
         quantity: "100",
         values: { fibre: "1" },
-        kinds: { fibre_gos: "1", fibreTypes: "pectin" },
+        estimates: { fibre_gos: "1", fibreTypes: "pectin" },
       },
     ]);
     expect(k.fibre).toEqual({ inulin: 3, pectin: 3, none: 2, gos: 1 });

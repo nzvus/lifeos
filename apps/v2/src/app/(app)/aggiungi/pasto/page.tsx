@@ -9,7 +9,11 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDay, readDayTargets } from "@/core/day";
 import { localParts } from "@/core/engines/time";
-import { readFoodChoices, readFoodKinds, readRecipeChoices } from "@/core/food/catalog";
+import {
+  readFoodChoices,
+  readFoodEstimates,
+  readRecipeChoices,
+} from "@/core/food/catalog";
 import { foodIds, presentDay } from "@/features/day/nutrients";
 import { Composer } from "@/features/food/Composer";
 import { addContext } from "../kinds";
@@ -35,7 +39,7 @@ export default async function MealPage({
   const whole = presentDay(
     dayData,
     targets,
-    await readFoodKinds(db, owner, foodIds(dayData)),
+    await readFoodEstimates(db, owner, foodIds(dayData)),
   );
   const recipes = await readRecipeChoices(db, owner, today, choices);
   const now = F.time(localParts(new Date(), clock.timeZone).minute);

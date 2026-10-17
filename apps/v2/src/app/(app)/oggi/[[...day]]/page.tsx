@@ -12,9 +12,15 @@ import { notFound } from "next/navigation";
 import { DateNav, Box, F, NavBar, Nutrients, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDay, readClock, readDayTargets, dayMinute } from "@/core/day";
+import {
+  dayMinute,
+  loadDay,
+  readClock,
+  readDayTargets,
+  readMicroTargets,
+} from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
-import { readFoodKinds } from "@/core/food/catalog";
+import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, presentDay } from "@/features/day/nutrients";
 import { present } from "@/features/day/present";
 import { DayView } from "@/features/day/DayView";
@@ -37,12 +43,13 @@ export default async function OggiPage({
   const now = new Date();
   const today = logicalDay(now, clock);
   const date = segments[0] ?? today;
-  const [day, targets] = await Promise.all([
+  const [day, targets, micros] = await Promise.all([
     loadDay(db, owner, date),
     readDayTargets(db, owner, date),
+    readMicroTargets(db, owner, date),
   ]);
-  const kinds = await readFoodKinds(db, owner, foodIds(day));
-  const whole = presentDay(day, targets, kinds);
+  const kinds = await readFoodEstimates(db, owner, foodIds(day));
+  const whole = presentDay(day, targets, kinds, micros);
   const rows = day.timed.map((i) => ({
     ...present(i),
     id: i.id,
