@@ -7,6 +7,7 @@
  * live-name index, ignoring case).
  */
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
+import { archiveItem } from "../catalog/archive";
 import type { Db } from "../db/db";
 import { catalogItems, catalogParts } from "../db/schema";
 import type { CheckedLine } from "../entries";
@@ -180,18 +181,6 @@ export async function updateRecipe(
 }
 
 /** Archives the recipe: out of the lists and the composer; logged meals stay "of" it. */
-export async function archiveRecipe(db: Db, owner: Owner, id: string): Promise<boolean> {
-  const done = await db
-    .update(catalogItems)
-    .set({ archivedAt: new Date() })
-    .where(
-      and(
-        ownedBy(catalogItems, owner),
-        eq(catalogItems.id, id),
-        eq(catalogItems.catalog, "recipe"),
-        isNull(catalogItems.deletedAt),
-      ),
-    )
-    .returning({ id: catalogItems.id });
-  return done.length > 0;
+export function archiveRecipe(db: Db, owner: Owner, id: string): Promise<boolean> {
+  return archiveItem(db, owner, id, "recipe");
 }
