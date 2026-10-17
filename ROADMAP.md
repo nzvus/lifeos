@@ -96,7 +96,10 @@ scanning) are placed in the v2 spec.
      its foods; one line, confidence 0.60, `estimated`; reopens as typed.
    - Libreria, first part (s157, V-07): foods (products counted under
      them) and saved meals, instant search, sort by use, name, kcal,
-     protein, protein per 100 kcal, fibre. Next: item pages and editors.
+     protein, protein per 100 kcal, fibre; a food's page and editor (name,
+     values per 100: only changes written, as typed); a saved meal's page
+     and editor (name, quantities, take out, archive). Next: new food,
+     products and formats, exercises.
 6. **Switch** when every v1 screen id is covered and parity is green.
    Decided 2026-10-17 («voglio utilizzare la nuova versione quanto prima»):
    switch now for food and the day (load the refined 16 Oct export), gym
