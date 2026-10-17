@@ -86,7 +86,16 @@ scanning) are placed in the v2 spec.
      multiply its foods (kept when not 1); a composed meal can be saved as
      a new recipe (a new name, its foods at one serving, the product as
      preferred) and is then of it.
+   - Gym mode, first part (s153): ⊕ → Allenamento starts a session from a
+     routine (most trained first) or none; each exercise's sets are
+     proposed by E6 from its last two sessions, saved when ticked (RIR
+     scale), with the suggested rest; add an exercise, finish (minutes).
+     Oggi's sessions open in it. Next: loads per dumbbell (the developer's
+     answer on v1's lateral raises), warm-ups, auto mode, flags.
 6. **Switch** when every v1 screen id is covered and parity is green.
+   Decided 2026-10-17 («voglio utilizzare la nuova versione quanto prima»):
+   switch now for food and the day (load the refined 16 Oct export), gym
+   in v1 until gym mode is in v2, then bring those sessions over.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 
 ## Open items owned by the developer

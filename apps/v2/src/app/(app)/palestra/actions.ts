@@ -1,0 +1,112 @@
+"use server";
+/**
+ * Gym mode's actions (V-05). Each is a public endpoint: the session's owner,
+ * the arguments checked (ids are UUIDs, a routine or an exercise must be the
+ * person's own), then core/training, which checks the entry it touches.
+ * A set is saved the moment it is ticked.
+ */
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { requireOwner } from "@/app/_server/owner";
+import { getDb } from "@/app/_server/runtime";
+import { readClock } from "@/core/day";
+import { logicalDay } from "@/core/engines/time";
+import {
+  addExercise,
+  checkSet,
+  finishSession,
+  readExercises,
+  readRoutines,
+  removeSet,
+  saveSet,
+  startSession,
+  type SetError,
+  type SetInput,
+} from "@/core/training";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const WORDS: Record<SetError, string> = {
+  reps: "Le ripetizioni sono un numero intero.",
+  loadKg: "Scrivi il carico in kg, per esempio 22,5.",
+  rir: "Da 0 a 10.",
+  durationS: "I secondi sono un numero intero.",
+  empty: "Scrivi le ripetizioni (o i secondi).",
+};
+
+/** Starts a session today, from one of the person's routines or from none. */
+export async function startGym(routineId: string): Promise<void> {
+  const owner = await requireOwner();
+  const db = await getDb();
+  const { clock } = await readClock(db, owner);
+  const now = new Date();
+  const today = logicalDay(now, clock);
+  const routine = routineId
+    ? (await readRoutines(db, owner, today, await readExercises(db, owner))).find(
+        (r) => r.id === routineId,
+      )
+    : undefined;
+  const id = await startSession(db, owner, {
+    day: today,
+    startAt: now,
+    routineId: routine?.id ?? null,
+    exerciseIds: routine?.exercises.map((e) => e.exerciseId) ?? [],
+  });
+  revalidatePath("/oggi", "layout");
+  redirect("/palestra/" + id);
+}
+
+export async function tickSet(
+  entryId: string,
+  position: number,
+  input: SetInput,
+): Promise<string | null> {
+  if (!UUID.test(entryId) || !Number.isInteger(position))
+    return "Questa serie non c’è più.";
+  const checked = checkSet({
+    reps: String(input.reps ?? ""),
+    loadKg: String(input.loadKg ?? ""),
+    rir: String(input.rir ?? ""),
+    durationS: String(input.durationS ?? ""),
+    warmup: input.warmup === true,
+  });
+  if (!checked.ok) return WORDS[checked.error];
+  const saved = await saveSet(
+    await getDb(),
+    await requireOwner(),
+    entryId,
+    position,
+    checked.set,
+    new Date(),
+  );
+  revalidatePath("/palestra", "layout");
+  return saved ? null : "Questa serie non c’è più.";
+}
+
+export async function untickSet(entryId: string, position: number): Promise<boolean> {
+  if (!UUID.test(entryId) || !Number.isInteger(position)) return false;
+  const done = await removeSet(await getDb(), await requireOwner(), entryId, position);
+  revalidatePath("/palestra", "layout");
+  return done;
+}
+
+export async function addGymExercise(
+  sessionId: string,
+  exerciseId: string,
+): Promise<boolean> {
+  if (!UUID.test(sessionId) || !UUID.test(exerciseId)) return false;
+  const owner = await requireOwner();
+  const db = await getDb();
+  if (!(await readExercises(db, owner)).some((e) => e.id === exerciseId)) return false;
+  const id = await addExercise(db, owner, sessionId, exerciseId);
+  revalidatePath("/palestra", "layout");
+  return id !== null;
+}
+
+export async function finishGym(sessionId: string): Promise<void> {
+  if (!UUID.test(sessionId)) return;
+  const owner = await requireOwner();
+  const db = await getDb();
+  await finishSession(db, owner, sessionId, new Date());
+  revalidatePath("/oggi", "layout");
+  redirect("/oggi");
+}
