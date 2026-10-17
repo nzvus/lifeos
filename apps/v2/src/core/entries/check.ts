@@ -67,6 +67,8 @@ export type CheckedEntry = {
   lines?: CheckedLine[];
   /** The catalog item it is "of" (a meal's recipe); an edit leaves it when undefined. */
   itemId?: string | null;
+  /** Below 1 for an estimate (0.60, as v1's estimated meals); typed entries are 1. */
+  confidence?: string;
 };
 
 const TEXT_MAX = 500;

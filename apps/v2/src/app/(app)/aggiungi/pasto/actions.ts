@@ -4,6 +4,7 @@
  * the browser sent, each only a choice's key and a quantity, checked
  * against the catalog read again here (the snapshot comes from the server,
  * ADR-0007); the meal's role, time and status checked as any entry's.
+ * «Stima a mano» saves the typed totals as one line instead (confidence 0.60).
  * On an error the composer gets the words and what was typed; on success
  * the day it was for.
  */
@@ -13,14 +14,14 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { checkEntry, createEntry } from "@/core/entries";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
-import { checkMealLines } from "@/core/food/meal";
+import { ESTIMATE_CONFIDENCE } from "@/core/food/meal";
 import { kindRegistry } from "@/core/kinds";
 import { errorWords } from "@/features/day/entry-form";
 import type { MealState } from "@/features/food/Composer";
 import { mealErrors, parseLines } from "@/features/food/composer";
 import { addContext } from "../kinds";
 import { createRecipe } from "@/core/food/recipes";
-import { mealExtras, mealInput } from "./meal-input";
+import { formLines, mealExtras, mealInput } from "./meal-input";
 
 export async function saveMeal(prev: MealState, data: FormData): Promise<MealState> {
   const owner = await requireOwner();
@@ -33,7 +34,7 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
   const recipes = await readRecipeChoices(db, owner, ctx.today, choices);
   // Only one of the person's own recipes: anything else is no recipe.
   const recipe = recipes.find((r) => r.recipeId === form["recipe"])?.recipeId ?? null;
-  const checkedLines = checkMealLines(lines, new Map(choices.map((c) => [c.key, c])));
+  const checkedLines = formLines(form, lines, choices);
   const entry = checkEntry(
     kindRegistry().get("meal"),
     mealInput(ctx.day, form, ctx.clock.boundaryMin),
@@ -42,11 +43,8 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
   const extras = await mealExtras(db, owner, form);
   if (!checkedLines.ok || !entry.ok || Object.keys(extras.errors).length > 0) {
     const errors = {
-      ...mealErrors(
-        entry.ok ? null : entry.errors,
-        checkedLines.ok ? null : checkedLines,
-        errorWords,
-      ),
+      ...mealErrors(entry.ok ? null : entry.errors, null, errorWords),
+      ...(checkedLines.ok ? {} : checkedLines.errors),
       ...extras.errors,
     };
     return { errors, values: form, lines, n: prev.n + 1 };
@@ -57,7 +55,8 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
   await createEntry(db, owner, {
     ...entry.entry,
     lines: checkedLines.lines,
-    itemId: saved ?? recipe,
+    itemId: checkedLines.estimate ? null : (saved ?? recipe),
+    ...(checkedLines.estimate ? { confidence: ESTIMATE_CONFIDENCE } : {}),
   });
   revalidatePath("/oggi", "layout");
   redirect(ctx.day === ctx.today ? "/oggi" : "/oggi/" + ctx.day);

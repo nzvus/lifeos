@@ -10,7 +10,8 @@
  * Editing a logged meal opens it with its lines, each a choice of its own
  * that keeps the values it was logged with (`extraChoices`, ADR-0007).
  * A saved meal (a recipe) found by the search adds all its foods, and the
- * meal is then "of" it.
+ * meal is then "of" it. «Stima a mano» types the meal's totals instead of
+ * its foods (a meal out, a guess): saved as one line, marked estimated.
  */
 import { useActionState, useMemo, useState } from "react";
 import { Box, F, Field, Nutrients, PageHeader, type NutrientsData } from "@lifeos/kit";
@@ -20,10 +21,12 @@ import {
   type FoodChoice,
   type RecipeChoice,
 } from "@/core/food/choices";
+import { ESTIMATE_FIELDS, type EstimateField } from "@/core/food/meal";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
 import {
   clockMinute,
   dayWithMeal,
+  estimateTotals,
   mealKinds,
   mealNutrients,
   mealTotals,
@@ -46,6 +49,13 @@ const ROLE_WORDS: Record<string, string> = {
   dinner: "Cena",
 };
 const DEFAULT_QTY = "100";
+const ESTIMATE_LABELS: Record<EstimateField, [string, string]> = {
+  kcal: ["Energia", "kcal"],
+  protein: ["Proteine", "g"],
+  carbs: ["Carboidrati", "g"],
+  fat: ["Grassi", "g"],
+  fibre: ["Fibre", "g"],
+};
 
 export function Composer({
   choices,
@@ -152,10 +162,14 @@ function Draft({
   const [recipe, setRecipe] = useState(state.values["recipe"] ?? initialRecipe);
   const [servings, setServings] = useState(state.values["servings"] ?? "1");
   const [saveAs, setSaveAs] = useState(state.values["saveAs"] === "yes");
+  const [estimate, setEstimate] = useState(state.values["estimate"] === "yes");
+  const [typed, setTyped] = useState<Partial<Record<EstimateField, string>>>(() =>
+    Object.fromEntries(ESTIMATE_FIELDS.map((f) => [f, state.values["est." + f] ?? ""])),
+  );
   const recipeName = recipes.find((r) => r.recipeId === recipe)?.name;
   const e = state.errors;
   const v = state.values;
-  const totals = mealTotals(lines, by, servings);
+  const totals = estimate ? estimateTotals(typed) : mealTotals(lines, by, servings);
   // With foods in the meal, a short list of the most eaten leaves room for the preview.
   const found = searchFoods(
     choices.filter((c) => !lines.some((l) => l.key === c.key)),
@@ -199,130 +213,184 @@ function Draft({
         of={{ fam: "food", kind: "meal" }}
       />
       <input type="hidden" name="day" value={day} />
-      <input type="hidden" name="lines" value={JSON.stringify(lines)} />
-      <input type="hidden" name="recipe" value={recipe} />
+      <input type="hidden" name="lines" value={JSON.stringify(estimate ? [] : lines)} />
+      <input type="hidden" name="recipe" value={estimate ? "" : recipe} />
+      <input type="hidden" name="estimate" value={estimate ? "yes" : ""} />
 
       <section className="k-section g3" aria-label="I cibi del pasto">
         <h2>Cibi</h2>
-        {lines.length === 0 && (
+        <div className="k-chips">
+          <button
+            type="button"
+            className="k-chip"
+            aria-pressed={estimate}
+            onClick={() => setEstimate(!estimate)}
+          >
+            Stima a mano
+          </button>
+        </div>
+        {estimate && (
+          <>
+            <p className="k-help">
+              Scrivi i totali del pasto, anche a occhio: conta come stima.
+            </p>
+            <Field
+              name="estName"
+              label="Cosa hai mangiato"
+              type="text"
+              placeholder="per esempio: Pizza fuori"
+              defaultValue={v["estName"] ?? ""}
+            />
+            {ESTIMATE_FIELDS.map((f) => (
+              <Field
+                key={f}
+                name={"est." + f}
+                label={ESTIMATE_LABELS[f][0]}
+                type="stepper"
+                unit={ESTIMATE_LABELS[f][1]}
+                step={f === "kcal" ? 50 : 5}
+                required={f === "kcal"}
+                placeholder={f === "kcal" ? "" : "facoltativo"}
+                defaultValue={typed[f] ?? ""}
+                error={e["est." + f]}
+                onChange={(x) => setTyped((t) => ({ ...t, [f]: x }))}
+              />
+            ))}
+          </>
+        )}
+        {!estimate && lines.length === 0 && (
           <p className="k-help">Cerca qui sotto e tocca un cibo o un pasto salvato.</p>
         )}
-        {lines.map((l, i) => {
-          const c = by.get(l.key);
-          return (
-            <div key={l.key} className="k-cline">
-              <Field
-                name={"line." + i}
-                label={c ? c.name + (c.brand ? " · " + c.brand : "") : "?"}
-                type="stepper"
-                unit={c?.unit ?? "g"}
-                step={c?.unit === "ml" ? 50 : 10}
-                defaultValue={l.quantity}
-                error={e["line." + i]}
-                onChange={(q) =>
-                  setLines((ls) =>
-                    ls.map((x, j) => (j === i ? { ...x, quantity: q } : x)),
-                  )
-                }
-              />
-              <button
-                type="button"
-                className="k-btn icon"
-                aria-label={"Togli " + (c?.name ?? "")}
-                onClick={() => {
-                  const rest = lines.filter((_, j) => j !== i);
-                  setLines(rest);
-                  if (rest.length === 0) setRecipe("");
-                }}
+        {!estimate && (
+          <>
+            {lines.map((l, i) => {
+              const c = by.get(l.key);
+              return (
+                <div key={l.key} className="k-cline">
+                  <Field
+                    name={"line." + i}
+                    label={c ? c.name + (c.brand ? " · " + c.brand : "") : "?"}
+                    type="stepper"
+                    unit={c?.unit ?? "g"}
+                    step={c?.unit === "ml" ? 50 : 10}
+                    defaultValue={l.quantity}
+                    error={e["line." + i]}
+                    onChange={(q) =>
+                      setLines((ls) =>
+                        ls.map((x, j) => (j === i ? { ...x, quantity: q } : x)),
+                      )
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="k-btn icon"
+                    aria-label={"Togli " + (c?.name ?? "")}
+                    onClick={() => {
+                      const rest = lines.filter((_, j) => j !== i);
+                      setLines(rest);
+                      if (rest.length === 0) setRecipe("");
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
+            {e["lines"] && lines.length === 0 && (
+              <p className="k-help" role="alert">
+                {e["lines"]}
+              </p>
+            )}
+            <input
+              className="k-text"
+              type="search"
+              placeholder="Cerca un cibo o un pasto"
+              aria-label="Cerca un cibo o un pasto"
+              value={query}
+              onChange={(x) => setQuery(x.target.value)}
+            />
+            {foundRecipes.length > 0 && (
+              <div className="k-stack g2" aria-label="Pasti salvati">
+                <span className="k-cap">Pasti salvati</span>
+                {foundRecipes.map((r) => (
+                  <button
+                    key={r.key}
+                    type="button"
+                    className="k-pick"
+                    onClick={() => addRecipe(r)}
+                  >
+                    <Box
+                      density="row"
+                      rail={false}
+                      entry={{
+                        fam: "food",
+                        of: { kind: "meal" },
+                        title: r.name,
+                        meta:
+                          F.plural(r.parts.length, "cibo", "cibi") +
+                          " · " +
+                          F.num(
+                            mealTotals(
+                              r.parts.map((p) => ({ key: p.key, quantity: p.quantity })),
+                              by,
+                            )["kcal"] ?? 0,
+                            "kcal",
+                          ),
+                        value: "+",
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+            {found.length > 0 && (
+              <div
+                className="k-stack g2"
+                aria-label={query ? "Risultati" : "I più mangiati"}
               >
-                ✕
-              </button>
-            </div>
-          );
-        })}
-        {e["lines"] && lines.length === 0 && (
-          <p className="k-help" role="alert">
-            {e["lines"]}
-          </p>
-        )}
-        <input
-          className="k-text"
-          type="search"
-          placeholder="Cerca un cibo o un pasto"
-          aria-label="Cerca un cibo o un pasto"
-          value={query}
-          onChange={(x) => setQuery(x.target.value)}
-        />
-        {foundRecipes.length > 0 && (
-          <div className="k-stack g2" aria-label="Pasti salvati">
-            <span className="k-cap">Pasti salvati</span>
-            {foundRecipes.map((r) => (
-              <button
-                key={r.key}
-                type="button"
-                className="k-pick"
-                onClick={() => addRecipe(r)}
-              >
-                <Box
-                  density="row"
-                  rail={false}
-                  entry={{
-                    fam: "food",
-                    of: { kind: "meal" },
-                    title: r.name,
-                    meta:
-                      F.plural(r.parts.length, "cibo", "cibi") +
-                      " · " +
-                      F.num(
-                        mealTotals(
-                          r.parts.map((p) => ({ key: p.key, quantity: p.quantity })),
-                          by,
-                        )["kcal"] ?? 0,
-                        "kcal",
-                      ),
-                    value: "+",
-                  }}
-                />
-              </button>
-            ))}
-          </div>
-        )}
-        {found.length > 0 && (
-          <div className="k-stack g2" aria-label={query ? "Risultati" : "I più mangiati"}>
-            {!query && <span className="k-cap">I cibi più mangiati</span>}
-            {found.map((c) => (
-              <button key={c.key} type="button" className="k-pick" onClick={() => add(c)}>
-                <Box
-                  density="row"
-                  rail={false}
-                  entry={{
-                    fam: "food",
-                    title: c.name,
-                    meta: [c.brand, per100(c)].filter(Boolean).join(" · "),
-                    value: "+",
-                  }}
-                />
-              </button>
-            ))}
-          </div>
-        )}
-        {query && found.length === 0 && (
-          <p className="k-help">Nessun cibo con queste parole nel catalogo.</p>
+                {!query && <span className="k-cap">I cibi più mangiati</span>}
+                {found.map((c) => (
+                  <button
+                    key={c.key}
+                    type="button"
+                    className="k-pick"
+                    onClick={() => add(c)}
+                  >
+                    <Box
+                      density="row"
+                      rail={false}
+                      entry={{
+                        fam: "food",
+                        title: c.name,
+                        meta: [c.brand, per100(c)].filter(Boolean).join(" · "),
+                        value: "+",
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+            {query && found.length === 0 && (
+              <p className="k-help">Nessun cibo con queste parole nel catalogo.</p>
+            )}
+          </>
         )}
       </section>
 
       <section className="k-section g3" aria-label="Il pasto">
         <h2>Il pasto</h2>
-        <Field
-          name="servings"
-          label="Porzioni"
-          type="stepper"
-          step={0.5}
-          defaultValue={servings}
-          error={e["servings"]}
-          help="I cibi qui sopra sono una porzione: il pasto li moltiplica."
-          onChange={setServings}
-        />
+        {!estimate && (
+          <Field
+            name="servings"
+            label="Porzioni"
+            type="stepper"
+            step={0.5}
+            defaultValue={servings}
+            error={e["servings"]}
+            help="I cibi qui sopra sono una porzione: il pasto li moltiplica."
+            onChange={setServings}
+          />
+        )}
         <Box
           rail={false}
           entry={{
@@ -330,10 +398,15 @@ function Draft({
             ...(role || auto ? { sub: role || auto } : {}),
             title: ROLE_WORDS[role || auto] ?? "Pasto",
             value: F.num(totals["kcal"] ?? 0, "kcal"),
-            ...(recipeName ? { meta: recipeName } : {}),
+            ...(estimate ? { meta: "stima" } : recipeName ? { meta: recipeName } : {}),
           }}
         >
-          <Nutrients data={mealNutrients(totals, mealKinds(lines, by, servings))} />
+          <Nutrients
+            data={mealNutrients(
+              totals,
+              estimate ? undefined : mealKinds(lines, by, servings),
+            )}
+          />
         </Box>
       </section>
 
@@ -394,7 +467,7 @@ function Draft({
           defaultValue={v["note"] ?? ""}
           error={e["note"]}
         />
-        {lines.length > 0 && (
+        {!estimate && lines.length > 0 && (
           <div className="k-stack g2">
             <input type="hidden" name="saveAs" value={saveAs ? "yes" : ""} />
             <div className="k-chips">

@@ -9,7 +9,14 @@
 import type { MacroKey, NutrientsData } from "@lifeos/kit";
 import type { FoodChoice } from "@/core/food/choices";
 import type { EntryErrors } from "@/core/entries";
-import type { LineError, LineInput, LinesError } from "@/core/food/meal";
+import {
+  ESTIMATE_FIELDS,
+  type EstimateError,
+  type EstimateField,
+  type LineError,
+  type LineInput,
+  type LinesError,
+} from "@/core/food/meal";
 import type { RecipeNameError } from "@/core/food/recipes";
 import { macroKinds, type MacroKinds } from "@/core/food/kinds";
 import { lineTotals } from "@/core/food/totals";
@@ -140,6 +147,24 @@ export const LINE_WORDS: Record<LineError | LinesError, string> = {
   empty: "Aggiungi almeno un cibo.",
   too_many: "Al massimo 40 cibi in un pasto.",
 };
+
+export const ESTIMATE_WORDS: Record<EstimateError, string> = {
+  required: "Scrivi le kcal, anche a occhio.",
+  number: "Scrivi un numero, per esempio 650 o 30,5.",
+  too_much: "È troppo per un pasto: controlla il numero.",
+};
+
+/** The typed totals of an estimate, as the preview's numbers; what is not a number is left out. */
+export function estimateTotals(
+  typed: Partial<Record<EstimateField, string>>,
+): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const f of ESTIMATE_FIELDS) {
+    const q = quantityOf(typed[f] ?? "");
+    if (q !== null) out[f] = Number(q);
+  }
+  return out;
+}
 
 /** The lines a composer posted: anything else than a list of { key, quantity } strings is none. */
 export function parseLines(raw: string): LineInput[] {
