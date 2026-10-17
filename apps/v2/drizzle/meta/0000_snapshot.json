@@ -1,5 +1,5 @@
 {
-  "id": "4fad48d1-848c-42a1-98d1-8b01d9843828",
+  "id": "92603da7-c3af-4fa0-bb0d-1c0bae1c902c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -2670,6 +2670,37 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "distance_m": {
+          "name": "distance_m",
+          "type": "numeric(8, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "speed_kmh": {
+          "name": "speed_kmh",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "incline_pct": {
+          "name": "incline_pct",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "load_text": {
+          "name": "load_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "load_approx": {
+          "name": "load_approx",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "warmup": {
           "name": "warmup",

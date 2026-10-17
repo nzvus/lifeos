@@ -238,6 +238,14 @@ export const trainingSets = pgTable(
       .default("total"),
     rir: smallint("rir"),
     durationS: integer("duration_s"),
+    /** Cardio on a machine or outdoors (v1 sets keep them: never dropped). */
+    distanceM: numeric("distance_m", { precision: 8, scale: 1, mode: "string" }),
+    speedKmh: numeric("speed_kmh", { precision: 5, scale: 2, mode: "string" }),
+    inclinePct: numeric("incline_pct", { precision: 4, scale: 1, mode: "string" }),
+    /** The load as written when it is not a number ("stack 7", "elastico rosso"). */
+    loadText: text("load_text"),
+    /** The load is approximate (a machine's stack, a guess). */
+    loadApprox: boolean("load_approx").notNull().default(false),
     warmup: boolean("warmup").notNull().default(false),
     side: text("side").$type<"left" | "right">(),
     startedAt: tstz("started_at"),
