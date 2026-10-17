@@ -518,3 +518,14 @@ span.k-head{cursor:default}
 .k-sbody{display:flex;flex-direction:column;gap:var(--sp-4);padding:0 16px 16px;overflow-y:auto;min-height:0}
 .k-sbody>.k-section{padding-left:0;padding-right:0}
 .k-foldin{padding-top:var(--sp-3)}
+/* a row that swipes left to be removed (V-01): the row slides over a tomato layer saying so */
+.k-swipe{position:relative;touch-action:pan-y;border-radius:var(--r-card)}
+.k-swipe:focus-visible{outline:var(--ring) solid var(--focus);outline-offset:2px}
+.k-swipe>.under{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding:0 20px;border-radius:var(--r-card);background:var(--tomato);color:var(--sheet);font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;opacity:0;transition:opacity var(--t-box) var(--ease)}
+.k-swipe.moving>.under{opacity:1}
+.k-swipe>.over{position:relative;transition:transform var(--t-box) var(--ease)}
+.k-swipe.moving>.over{transition:none}
+/* the toast sits above the NavBar, one at a time (content.md §4) */
+.k-toastbar{position:fixed;left:0;right:0;bottom:96px;z-index:4;display:flex;justify-content:center;padding:0 16px;pointer-events:none}
+.k-toastbar>.k-toast{pointer-events:auto;width:100%;max-width:var(--container-page,480px);box-sizing:border-box}
+
