@@ -4,11 +4,13 @@
  * day's timeline needs: the time rail (compact or times), the family's
  * silhouette and drawing, title and value, a meta line, pills, the strip,
  * the icons of what it is made of, and the link to its page.
- * Score parts and Nutrients come with the slices that compute them.
+ * What a Box holds inline (the day's Nutrients L1) comes as `children`.
+ * Score parts come with the slices that compute them.
  *
  * No state: a page that lets the rail switch modes passes `onRail` from a
  * client component (never from a server page: a function cannot cross).
  */
+import type { ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
 import { F, type State } from "./format";
@@ -40,12 +42,14 @@ export function Box({
   mode = "compact",
   rail = true,
   onRail,
+  children,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
   mode?: "compact" | "times";
   rail?: boolean;
   onRail?: () => void;
+  children?: ReactNode;
 }) {
   const dense = density === "row";
   const fam = " fam-" + e.fam + (e.sub ? " sub-" + e.sub : "");
@@ -118,6 +122,7 @@ export function Box({
             )}
           </div>
           {e.meta && <span className="k-meta k-sub">{e.meta}</span>}
+          {children && <div className="k-bin">{children}</div>}
           <div className="k-reveal on k-more">
             <div>
               {e.strip && e.strip.length > 0 && (

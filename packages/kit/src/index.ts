@@ -12,3 +12,10 @@ export { Box, type BoxEntry } from "./Box";
 export { PageHeader } from "./PageHeader";
 export { NavBar, type Place } from "./NavBar";
 export { DateNav } from "./DateNav";
+export { Nutrients } from "./Nutrients";
+export {
+  nutrientsL1,
+  type LimitKey,
+  type MacroKey,
+  type NutrientsData,
+} from "./nutrient-rows";

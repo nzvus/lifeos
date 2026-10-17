@@ -57,6 +57,17 @@ export type DayTargets = {
   floored: boolean;
 };
 
+/** The day's maxima from its kcal: sugars (EU RI), saturated fat (WHO), salt (WHO). */
+export function dayMaxima(
+  kcal: number,
+): Pick<DayTargets, "sugars" | "saturatedFat" | "salt"> {
+  return {
+    sugars: Math.round((kcal / 1000) * SUGARS_PER_1000),
+    saturatedFat: Math.round((kcal * SATURATED_SHARE) / 9),
+    salt: SALT_MAX,
+  };
+}
+
 export function dayTargets(p: {
   /** E4's expenditure for the day (with the plan), kcal. */
   expenditure: number;
@@ -93,9 +104,7 @@ export function dayTargets(p: {
     fat,
     carbs,
     fibre: Math.max(FIBRE_MIN, Math.round((kcal / 1000) * FIBRE_PER_1000)),
-    sugars: Math.round((kcal / 1000) * SUGARS_PER_1000),
-    saturatedFat: Math.round((kcal * SATURATED_SHARE) / 9),
-    salt: SALT_MAX,
+    ...dayMaxima(kcal),
     floored: kcal > wanted,
   };
 }
