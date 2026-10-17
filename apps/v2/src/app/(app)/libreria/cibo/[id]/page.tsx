@@ -39,17 +39,21 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
           ),
         )}
       </section>
-      {page.products.length > 0 && (
-        <section className="k-section g3" aria-label="Prodotti">
-          <h2>Prodotti</h2>
-          {page.products.map((p, i) => (
-            <div key={i} className="k-line between">
-              <span className="k-body">{p.brand}</span>
-              <span className="k-meta">{F.plural(p.uses, "volta", "volte")}</span>
-            </div>
-          ))}
-        </section>
-      )}
+      <section className="k-section g3" aria-label="Prodotti">
+        <h2>Prodotti</h2>
+        {page.products.length === 0 && (
+          <p className="k-help">Nessuna marca: si registra il cibo.</p>
+        )}
+        {page.products.map((p, i) => (
+          <div key={i} className="k-line between">
+            <span className="k-body">{p.brand}</span>
+            <span className="k-meta">{F.plural(p.uses, "volta", "volte")}</span>
+          </div>
+        ))}
+        <a className="k-link" href={"/libreria/cibo/" + id + "/prodotto"}>
+          + Prodotto
+        </a>
+      </section>
       <section className="k-section g3" aria-label="Pasti salvati">
         <h2>Nei pasti salvati</h2>
         {page.meals.length === 0 && <p className="k-help">In nessun pasto salvato.</p>}
