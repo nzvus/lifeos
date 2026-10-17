@@ -271,6 +271,9 @@ evidence: models never share a weight pattern by default.
 
 NOVA is shown, not scored. The parts of a score are what the timeline
 box's gradient draws (screens.md).
+- **Code:** `apps/v2/src/core/engines/judgements/`: the five models with
+  weights above; day targets, distribution, recovery and habits wait for
+  theirs. Each part's scorer comes with its domain's slice.
 
 ## E10 Hydration
 - **Need:**
