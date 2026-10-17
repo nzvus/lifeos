@@ -205,6 +205,8 @@ From the weight goal (a goal with "reach W by date") and E4:
 - **Slots:** a meal block's shares × the day's targets; relation hints
   (pre-workout carbs 0.5–1 g/kg 1–3 h before; post-workout protein
   0.25–0.4 g/kg within 2 h; pre-sleep protein ~0.4 g/kg).
+- **Code:** `apps/v2/src/core/engines/targets/`; E4's E(t) and ρ come in as
+  numbers. v1's pace and week cases run as parity; micronutrients next.
 
 ## E6 Training (specialisation: training)
 
