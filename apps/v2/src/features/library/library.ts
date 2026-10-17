@@ -6,6 +6,7 @@
  */
 import { fold, type FoodChoice, type RecipeChoice } from "@/core/food/choices";
 import { lineTotals } from "@/core/food/totals";
+import type { ExerciseSession } from "@/core/training";
 
 export type LibraryRow = {
   key: string;
@@ -26,6 +27,7 @@ export const SORTS = {
   protein: "Proteine",
   proteinPerKcal: "Proteine per 100 kcal",
   fibre: "Fibre",
+  e1rm: "e1RM",
 } as const;
 export type SortKey = keyof typeof SORTS;
 
@@ -194,4 +196,25 @@ export function mealPage(
     }),
     totals: recipeRows([r], foods)[0]!.values,
   };
+}
+
+/** The exercises, each with its sessions (uses), its last day and the latest e1RM it has. */
+export function exerciseRows(
+  exercises: readonly { id: string; name: string }[],
+  log: ReadonlyMap<string, readonly ExerciseSession[]>,
+  dayWords: (day: string) => string,
+): LibraryRow[] {
+  return exercises.map((x) => {
+    const sessions = log.get(x.id) ?? [];
+    const last = sessions[0];
+    const latest = sessions.find((s) => s.best !== null)?.best;
+    return {
+      key: x.id,
+      href: "/libreria/esercizio/" + x.id,
+      name: x.name,
+      sub: last ? "ultima " + dayWords(last.day) : "mai fatto",
+      uses: sessions.length,
+      values: latest ? { e1rm: latest } : {},
+    };
+  });
 }
