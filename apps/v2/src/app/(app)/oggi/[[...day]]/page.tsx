@@ -3,15 +3,17 @@
  * `/oggi/2026-10-15` for any other. The server reads and composes the day
  * (core/day), presents each item as a kit Box (features/day) and hands the
  * client plain rows; the timeline only holds the rail's mode.
- * First slice: the timeline and the untimed items. The day's Box (scores,
- * nutrients), filters and the add sheet come with their slices.
+ * So far: the day as a Box (Nutrients L1 against the targets in force), the
+ * timeline and the untimed items. The day's scores, filters and the add
+ * sheet come with their slices.
  */
 import { notFound } from "next/navigation";
-import { DateNav, Box, F, NavBar, PageHeader } from "@lifeos/kit";
+import { DateNav, Box, F, NavBar, Nutrients, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDay, readClock, dayMinute } from "@/core/day";
+import { loadDay, readClock, readDayTargets, dayMinute } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
+import { presentDay } from "@/features/day/nutrients";
 import { present } from "@/features/day/present";
 import { Timeline } from "@/features/day/Timeline";
 import { PLACES } from "@/features/places";
@@ -32,7 +34,11 @@ export default async function OggiPage({
   const now = new Date();
   const today = logicalDay(now, clock);
   const date = segments[0] ?? today;
-  const day = await loadDay(db, owner, date);
+  const [day, targets] = await Promise.all([
+    loadDay(db, owner, date),
+    readDayTargets(db, owner, date),
+  ]);
+  const whole = presentDay(day, targets);
   const rows = day.timed.map((i) => ({ ...present(i), minute: i.minute! }));
   const untimed = day.untimed.map(present);
   const nowMinute = date === today ? dayMinute(now, date, clock) : null;
@@ -44,6 +50,13 @@ export default async function OggiPage({
       <section className="k-block g3">
         <DateNav day={date} today={today} hrefBase="/oggi/" />
       </section>
+      {whole && (
+        <section className="k-block g3" aria-label="Il giorno">
+          <Box entry={whole.entry} rail={false}>
+            <Nutrients data={whole.nutrients} />
+          </Box>
+        </section>
+      )}
       <section className="k-section g3" aria-label="La giornata">
         {empty ? (
           <p className="k-empty k-meta">Niente in questa giornata.</p>

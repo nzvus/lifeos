@@ -8,6 +8,7 @@ import { composeDay, type Day } from "./timeline";
 
 export * from "./read";
 export * from "./timeline";
+export * from "./targets";
 
 export async function loadDay(db: Db, owner: Owner, day: IsoDate): Promise<Day> {
   const rows = await readDay(db, owner, day);

@@ -45,8 +45,13 @@ scanning) are placed in the v2 spec.
      and the components the day needs.
    - v2 app + V-01 (s141): Next in `apps/v2`, Better Auth, local PGlite
      loaded from the refined export; Oggi shows the timeline and the untimed
-     items. Next: the developer creates the Vercel project and the Neon
-     branch `v2` for the phone check; then the day's Box and the add sheet.
+     items. Neon branch `v2` migrated (#222); the Vercel project and the
+     phone check on Neon are the developer's (setup.md §10).
+   - The day's Box (s144): Nutrients L1 (kcal, macros eaten + planned,
+     where from, maxima) against the targets in force: a day's fixed copy,
+     else the accepted week with the day's shift, as v1. Days with neither
+     show none until E5 runs live on E4 (body slice). The day's scores wait
+     for E7's weights. Next: filters by domain, the add sheet, tick/skip/Undo.
 6. **Switch** when every v1 screen id is covered and parity is green.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 
