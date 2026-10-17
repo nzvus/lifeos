@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Goal } from "@/core/goals";
-import { goalText, goalTitle } from "./goals";
+import { goalText, goalTitle, neededPace } from "./goals";
 
 const goal = (over: Partial<Goal>): Goal => ({
   id: "g",
@@ -40,5 +40,15 @@ describe("a goal in words", () => {
         ),
       ),
     ).toBe("tra −0,05 e 0,05 % a settimana");
+  });
+});
+
+describe("the pace a weight goal asks", () => {
+  it("is kg and % a week to the date", () => {
+    const p = neededPace(80, "76", "2026-11-14", "2026-10-17")!;
+    expect(p.kgWeek).toBeCloseTo(-1, 5);
+    expect(p.pctWeek).toBeCloseTo(-1.25, 5);
+    expect(neededPace(80, "76", "", "2026-10-17")).toBeNull();
+    expect(neededPace(null, "76", "2026-11-14", "2026-10-17")).toBeNull();
   });
 });

@@ -41,3 +41,18 @@ export function goalText(g: Goal): string {
   const by = g.by ? " entro il " + F.date(g.by) : "";
   return [amount, u, per].filter(Boolean).join(" ") + days + by;
 }
+
+/** The pace a weight goal asks, in kg and % of today's weight a week; null without a date or a value. */
+export function neededPace(
+  nowKg: number | null,
+  value: string,
+  by: string,
+  today: string,
+): { kgWeek: number; pctWeek: number } | null {
+  const target = Number(value.trim().replace(",", "."));
+  if (nowKg === null || !Number.isFinite(target) || target <= 0) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(by) || by <= today) return null;
+  const weeks = (Date.parse(by) - Date.parse(today)) / (7 * 864e5);
+  const kgWeek = (target - nowKg) / weeks;
+  return { kgWeek, pctWeek: (kgWeek / nowKg) * 100 };
+}

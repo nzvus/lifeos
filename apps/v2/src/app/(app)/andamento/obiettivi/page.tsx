@@ -2,7 +2,7 @@
  * Obiettivi (V-09), first part: the goals in force, each in words, and its
  * progress where a tracker already counts it: the weight to reach (now vs
  * start, pace vs needed, ETA, on track), a per-day count (this week's
- * days on target) and a week's hours (study). The editor comes with its slice.
+ * days on target) and a week's hours (study). «+ Nuovo obiettivo» opens the editor.
  */
 import { Box, F, NavBar, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
@@ -119,6 +119,9 @@ export default async function GoalsPage() {
         of={{ place: "andamento" }}
       />
       <section className="k-section g3" aria-label="Obiettivi">
+        <a className="k-btn secondary" href="/andamento/obiettivi/nuovo">
+          + Nuovo obiettivo
+        </a>
         {shown.length === 0 && <p className="k-help">Nessun obiettivo in corso.</p>}
         {shown.map(({ g, p }) => (
           <Box

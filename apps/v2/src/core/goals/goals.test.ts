@@ -5,7 +5,8 @@ import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { addDays } from "../engines/time";
 import { weekDaysOnTarget, weightProgress } from "./progress";
-import { inForce, readMinutes, readNumbers, type GoalRow } from "./read";
+import { inForce, readGoals, readMinutes, readNumbers, type GoalRow } from "./read";
+import { checkGoal, createGoal } from "./write";
 
 describe("a weight goal's progress", () => {
   // 80 kg on 1 Oct, losing 0.1 kg a day (0.7 a week) to the 17th.
@@ -142,6 +143,29 @@ describe("the numbers a goal reads", () => {
     ).toEqual([{ day: "2026-10-15", n: 78.4 }]);
   });
 
+  it("starts a new goal today, in force over the old one of its metric", async () => {
+    await createGoal(
+      db,
+      a,
+      { kind: "steps", value: "6000", by: null, weekdays: false },
+      "2026-10-10",
+    );
+    await createGoal(
+      db,
+      a,
+      { kind: "steps", value: "8000", by: null, weekdays: true },
+      "2026-10-17",
+    );
+    const got = await readGoals(db, a, "2026-10-17");
+    expect(got).toHaveLength(1);
+    expect(got[0]).toMatchObject({
+      source: "steps",
+      value: 8000,
+      metric: { days: "weekdays" },
+    });
+    expect(await readGoals(db, b, "2026-10-17")).toEqual([]);
+  });
+
   it("adds the minutes of the intervals of one category", async () => {
     expect(
       await readMinutes(
@@ -154,5 +178,43 @@ describe("the numbers a goal reads", () => {
         "2026-10-17",
       ),
     ).toBe(120);
+  });
+});
+
+describe("a new goal", () => {
+  it("checks the value by kind and the weight's date", () => {
+    expect(
+      checkGoal(
+        { kind: "weight", value: "72,5", by: "2026-12-20", weekdays: "" },
+        "2026-10-17",
+      ),
+    ).toEqual({
+      ok: true,
+      kind: "weight",
+      value: "72.5",
+      by: "2026-12-20",
+      weekdays: false,
+    });
+    expect(
+      checkGoal(
+        { kind: "steps", value: "8000", by: "2026-12-20", weekdays: "yes" },
+        "2026-10-17",
+      ),
+    ).toMatchObject({
+      by: null,
+      weekdays: true,
+    });
+    expect(
+      checkGoal(
+        { kind: "weight", value: "7", by: "2026-10-01", weekdays: "" },
+        "2026-10-17",
+      ),
+    ).toEqual({
+      ok: false,
+      at: { value: true, by: true },
+    });
+    expect(
+      checkGoal({ kind: "x", value: "1", by: "", weekdays: "" }, "2026-10-17"),
+    ).toEqual({ ok: false, at: { kind: true } });
   });
 });
