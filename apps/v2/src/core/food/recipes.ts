@@ -6,7 +6,7 @@
  * The name must be new among the person's live recipes (the catalog's
  * live-name index, ignoring case).
  */
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { catalogItems, catalogParts } from "../db/schema";
 import type { CheckedLine } from "../entries";
@@ -75,4 +75,123 @@ export async function createRecipe(
       );
     return id;
   });
+}
+
+export type RecipeForEdit = {
+  name: string;
+  parts: {
+    position: number;
+    name: string;
+    quantity: string | null;
+    unit: string | null;
+  }[];
+};
+
+/** A live recipe of this owner with its parts in order and their foods' names; null if none. */
+export async function readRecipe(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<RecipeForEdit | null> {
+  const [r] = await db
+    .select({ name: catalogItems.name })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.id, id),
+        eq(catalogItems.catalog, "recipe"),
+        isNull(catalogItems.deletedAt),
+        isNull(catalogItems.archivedAt),
+      ),
+    );
+  if (!r) return null;
+  const parts = await db
+    .select({
+      position: catalogParts.position,
+      name: catalogItems.name,
+      quantity: catalogParts.quantity,
+      unit: catalogParts.unit,
+    })
+    .from(catalogParts)
+    .innerJoin(
+      catalogItems,
+      and(
+        eq(catalogItems.id, catalogParts.partItemId),
+        eq(catalogItems.userId, catalogParts.userId),
+      ),
+    )
+    .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)))
+    .orderBy(asc(catalogParts.position));
+  return { name: r.name, parts };
+}
+
+/**
+ * Renames the recipe and keeps only the parts named, at their new
+ * quantities (positions renumbered, food and product kept). Meals already
+ * logged keep their lines (ADR-0007). "taken" when another live recipe has
+ * the name; "gone" when it is not a live recipe; "empty" with no part left.
+ */
+export async function updateRecipe(
+  db: Db,
+  owner: Owner,
+  id: string,
+  name: string,
+  keep: readonly { position: number; quantity: string }[],
+): Promise<"ok" | "gone" | "taken" | "empty"> {
+  if (keep.length === 0) return "empty";
+  return db.transaction(async (tx) => {
+    const [r] = await tx
+      .select({ name: catalogItems.name })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.id, id),
+          eq(catalogItems.catalog, "recipe"),
+          isNull(catalogItems.deletedAt),
+        ),
+      );
+    if (!r) return "gone";
+    if (
+      r.name.toLowerCase() !== name.toLowerCase() &&
+      (await recipeNameTaken(tx as unknown as Db, owner, name))
+    )
+      return "taken";
+    const old = await tx
+      .select()
+      .from(catalogParts)
+      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)));
+    const kept = keep.flatMap((k) => {
+      const p = old.find((o) => o.position === k.position);
+      return p ? [{ ...p, quantity: k.quantity }] : [];
+    });
+    if (kept.length === 0) return "empty";
+    await tx
+      .update(catalogItems)
+      .set({ name })
+      .where(and(ownedBy(catalogItems, owner), eq(catalogItems.id, id)));
+    await tx
+      .delete(catalogParts)
+      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)));
+    await tx.insert(catalogParts).values(kept.map((p, position) => ({ ...p, position })));
+    return "ok";
+  });
+}
+
+/** Archives the recipe: out of the lists and the composer; logged meals stay "of" it. */
+export async function archiveRecipe(db: Db, owner: Owner, id: string): Promise<boolean> {
+  const done = await db
+    .update(catalogItems)
+    .set({ archivedAt: new Date() })
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.id, id),
+        eq(catalogItems.catalog, "recipe"),
+        isNull(catalogItems.deletedAt),
+      ),
+    )
+    .returning({ id: catalogItems.id });
+  return done.length > 0;
 }

@@ -28,6 +28,11 @@ export default async function SavedMealPage({
         back={{ label: "Libreria", href: "/libreria" }}
         of={{ fam: "food", kind: "meal" }}
       />
+      <div className="k-line">
+        <a className="k-btn secondary" href={"/libreria/pasto/" + id + "/modifica"}>
+          Modifica
+        </a>
+      </div>
       <section className="k-section g3" aria-label="Cibi">
         <h2>Cibi</h2>
         {page.parts.map((p, i) => (
