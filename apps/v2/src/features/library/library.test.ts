@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { FoodChoice } from "@/core/food/choices";
-import { foodPage, foodRows, listRows, recipeRows, sortValue } from "./library";
+import { foodPage, mealPage, foodRows, listRows, recipeRows, sortValue } from "./library";
 
 const food = (
   key: string,
@@ -100,5 +100,23 @@ describe("Libreria's lists", () => {
       meals: [{ name: "Porridge", quantity: "150" }],
     });
     expect(foodPage(all, [], "nope")).toBeNull();
+  });
+
+  it("gives a saved meal's page its foods and totals", () => {
+    const recipes = [
+      {
+        key: "recipe:1",
+        recipeId: "1",
+        name: "Porridge",
+        parts: [{ key: "oats", quantity: "50" }],
+        uses: 3,
+      },
+    ];
+    expect(mealPage(foods, recipes, "1")).toMatchObject({
+      name: "Porridge",
+      parts: [{ name: "Avena", quantity: "50", href: "/libreria/cibo/oats" }],
+      totals: { kcal: 186 },
+    });
+    expect(mealPage(foods, recipes, "2")).toBeNull();
   });
 });

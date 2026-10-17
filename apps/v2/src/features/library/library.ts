@@ -67,6 +67,7 @@ export function recipeRows(
     });
     return {
       key: r.key,
+      href: "/libreria/pasto/" + r.recipeId,
       name: r.name,
       sub: parts.map((p) => p.name).join(", "),
       uses: r.uses,
@@ -149,5 +150,48 @@ export function foodPage(
       const part = r.parts.find((p) => keys.has(p.key));
       return part ? [{ name: r.name, quantity: part.quantity }] : [];
     }),
+  };
+}
+
+export type MealPage = {
+  name: string;
+  uses: number;
+  parts: {
+    name: string;
+    brand: string;
+    quantity: string;
+    unit: string;
+    href: string | null;
+  }[];
+  totals: Record<string, number>;
+};
+
+/** A saved meal's page (V-07, first part): its foods and quantities, its totals per serving. */
+export function mealPage(
+  foods: readonly FoodChoice[],
+  recipes: readonly RecipeChoice[],
+  recipeId: string,
+): MealPage | null {
+  const r = recipes.find((x) => x.recipeId === recipeId);
+  if (!r) return null;
+  const by = new Map(foods.map((f) => [f.key, f]));
+  return {
+    name: r.name,
+    uses: r.uses,
+    parts: r.parts.flatMap((p) => {
+      const f = by.get(p.key);
+      return f
+        ? [
+            {
+              name: f.name,
+              brand: f.brand ?? "",
+              quantity: p.quantity,
+              unit: f.unit,
+              href: f.foodId ? "/libreria/cibo/" + f.foodId : null,
+            },
+          ]
+        : [];
+    }),
+    totals: recipeRows([r], foods)[0]!.values,
   };
 }
