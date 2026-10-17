@@ -12,6 +12,7 @@ export { Box, type BoxEntry } from "./Box";
 export { PageHeader } from "./PageHeader";
 export { NavBar, type Place } from "./NavBar";
 export { DateNav } from "./DateNav";
+export { Field, type FieldOption, type FieldProps } from "./Field";
 export { Nutrients } from "./Nutrients";
 export {
   nutrientsL1,

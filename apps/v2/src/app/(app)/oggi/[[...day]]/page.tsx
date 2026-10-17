@@ -75,7 +75,7 @@ export default async function OggiPage({
         )}
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="today" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="today" hrefs={PLACES} addHref={"/aggiungi?giorno=" + date} />
       </div>
     </main>
   );
