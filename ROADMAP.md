@@ -94,16 +94,24 @@ scanning) are placed in the v2 spec.
      answer on v1's lateral raises), warm-ups, auto mode, flags.
    - «Stima a mano» (s156): the composer types a meal's totals instead of
      its foods; one line, confidence 0.60, `estimated`; reopens as typed.
-   - Libreria, first part (s157, V-07): foods (products counted under
-     them) and saved meals, instant search, sort by use, name, kcal,
-     protein, protein per 100 kcal, fibre; a food's page and editor (name,
-     values per 100: only changes written, as typed); a saved meal's page
-     and editor (name, quantities, take out, archive). Next: new food,
-     products and formats; exercises (sessions, last day, e1RM; an
-     exercise's page with its sets).
-   - Andamento, first part (s158, #236, V-06): «Il periodo», 7 days back
-     from `?fino=`: the day's Nutrients averaged over the days with meals,
-     each day's kcal against its target. Next: ranges, trackers, goals.
+   - Libreria (s157–s165, V-07): foods (products counted under them),
+     saved meals and exercises; search and sort (use, name, kcal, protein,
+     protein per 100 kcal, fibre, e1RM); pages for each; a food's editor
+     (only changed values written, as typed), «Nuovo cibo» (also from the
+     composer's empty search), «+ Prodotto» (brand, label values over the
+     food's); a saved meal's editor and «Registra»; «Nuovo esercizio»
+     (movement, equipment, one side); «Archivia» for all three.
+   - Gym mode (s160): warm-up sets (not counted towards the proposal);
+     loads per dumbbell, stored as the total.
+   - Piano, first part (s159, V-08): the week's planned entries, «+ previsto».
+   - Andamento (s158, s167, V-06): «Il periodo» over 7, 30 or 90 days (one
+     read for the range): Nutrients averaged over days with meals, the
+     weight (first vs last week's mean), training (sessions, per week,
+     working sets, time), each day's kcal. Next: trackers, goals.
+   - Oggi and Impostazioni (s166): water +250/+500 ml; theme per device;
+     the 30-day trash with «Ripristina»; «Esporta i dati» (JSON).
+   Next: drink kind (touches loaded data: ask first), templates and cycles
+   (Piano), goals (V-09), body/mind trackers.
 6. **Switch** when every v1 screen id is covered and parity is green.
    Decided 2026-10-17 («voglio utilizzare la nuova versione quanto prima»):
    switch now for food and the day (load the refined 16 Oct export), gym
