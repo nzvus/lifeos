@@ -100,3 +100,22 @@ function addDays(d: string, n: number): string {
   t.setUTCDate(t.getUTCDate() + n);
   return t.toISOString().slice(0, 10);
 }
+
+export type TrainingDay = { sessions: number; workSets: number; minutes: number };
+
+/** The period's training: sessions done, working sets (no warm-ups), minutes; per week. */
+export function trainingOf(days: readonly TrainingDay[]): {
+  sessions: number;
+  workSets: number;
+  minutes: number;
+  perWeek: number;
+} {
+  const sum = (k: keyof TrainingDay) => days.reduce((a, d) => a + d[k], 0);
+  const sessions = sum("sessions");
+  return {
+    sessions,
+    workSets: sum("workSets"),
+    minutes: sum("minutes"),
+    perWeek: days.length === 0 ? 0 : (sessions * 7) / days.length,
+  };
+}

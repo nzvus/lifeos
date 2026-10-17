@@ -11,7 +11,7 @@ import { loadDays, readClock, readRangeTargets } from "@/core/day";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { presentDay } from "@/features/day/nutrients";
 import { PLACES } from "@/features/places";
-import { period, weightChange } from "@/features/progress/period";
+import { period, trainingOf, weightChange } from "@/features/progress/period";
 
 const RANGES = [7, 30, 90] as const;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -43,6 +43,23 @@ export default async function AndamentoPage({
     nutrients: presentDay(d, targets.get(d.day) ?? null)?.nutrients ?? null,
   }));
   const p = period(data);
+  const training = trainingOf(
+    loaded.map((d) => {
+      const done = [...d.timed, ...d.untimed].filter(
+        (i) => i.kind.key === "session" && i.status === "done",
+      );
+      return {
+        sessions: done.length,
+        workSets: done.reduce(
+          (n, i) =>
+            n +
+            i.children.reduce((m, c) => m + c.sets.filter((x) => !x.warmup).length, 0),
+          0,
+        ),
+        minutes: done.reduce((n, i) => n + (Number(i.values["durationMin"]) || 0), 0),
+      };
+    }),
+  );
   const weight = weightChange(
     loaded.flatMap((d) =>
       [...d.timed, ...d.untimed]
@@ -119,6 +136,31 @@ export default async function AndamentoPage({
           </>
         ) : (
           <p className="k-help">Servono almeno due pesate nel periodo.</p>
+        )}
+      </section>
+      <section className="k-section g3" aria-label="Allenamento">
+        <h2>Allenamento</h2>
+        {training.sessions === 0 ? (
+          <p className="k-help">Nessun allenamento nel periodo.</p>
+        ) : (
+          <>
+            <div className="k-line between">
+              <span className="k-body">
+                {F.plural(training.sessions, "sessione", "sessioni")}
+              </span>
+              <span className="k-num">{F.n(training.perWeek, 1)} a settimana</span>
+            </div>
+            <div className="k-line between">
+              <span className="k-body">Serie allenanti</span>
+              <span className="k-num">{training.workSets}</span>
+            </div>
+            {training.minutes > 0 && (
+              <div className="k-line between">
+                <span className="k-body">Tempo</span>
+                <span className="k-num">{F.hm(training.minutes)}</span>
+              </div>
+            )}
+          </>
         )}
       </section>
       <section className="k-section g3" aria-label="I giorni">

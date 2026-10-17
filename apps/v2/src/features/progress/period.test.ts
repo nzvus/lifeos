@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NutrientsData } from "@lifeos/kit";
-import { period, weightChange } from "./period";
+import { period, trainingOf, weightChange } from "./period";
 
 const day = (kcal: number, protein: number, t = 2000): NutrientsData => ({
   kcal: { v: kcal, t },
@@ -37,5 +37,21 @@ describe("the period's weight", () => {
     ]);
     expect(w).toEqual({ from: 79.5, to: 77.5, delta: -2, n: 4 });
     expect(weightChange([{ day: "2026-10-16", kg: 77 }])).toBeNull();
+  });
+});
+
+describe("the period's training", () => {
+  it("adds the sessions, sets and minutes, and gives sessions per week", () => {
+    const days = Array.from({ length: 14 }, (_, i) =>
+      i % 2 === 0
+        ? { sessions: 1, workSets: 12, minutes: 60 }
+        : { sessions: 0, workSets: 0, minutes: 0 },
+    );
+    expect(trainingOf(days)).toEqual({
+      sessions: 7,
+      workSets: 84,
+      minutes: 420,
+      perWeek: 3.5,
+    });
   });
 });
