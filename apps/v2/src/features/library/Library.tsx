@@ -74,6 +74,11 @@ export function Library({
           + Nuovo cibo
         </a>
       )}
+      {tab === "exercises" && (
+        <a className="k-btn secondary" href="/libreria/esercizio/nuovo">
+          + Nuovo esercizio
+        </a>
+      )}
       <input
         className="k-text"
         type="search"

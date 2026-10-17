@@ -7,6 +7,7 @@ import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import {
   addExercise,
   checkSet,
+  createExercise,
   finishSession,
   readExercises,
   readHistory,
@@ -204,5 +205,28 @@ describe("a session in gym mode", () => {
       lastDay: "2026-10-16",
     });
     expect((await readHistory(db, b, [bench], next)).size).toBe(0);
+  });
+
+  it("creates an exercise gym mode can read, unless the name is taken", async () => {
+    const made = await createExercise(db, a, "Alzate laterali ai cavi", {
+      pattern: "lateral_raise",
+      equipment: "cable",
+      unilateral: true,
+    });
+    expect(made).not.toBe("taken");
+    expect(
+      await createExercise(db, a, "alzate laterali ai cavi", {
+        pattern: null,
+        equipment: null,
+        unilateral: false,
+      }),
+    ).toBe("taken");
+    expect(
+      (await readExercises(db, a)).find((e) => e.name === "Alzate laterali ai cavi"),
+    ).toMatchObject({
+      pattern: "lateral_raise",
+      equipment: "cable",
+      unilateral: true,
+    });
   });
 });
