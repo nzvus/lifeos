@@ -33,6 +33,17 @@ describe("Nutrients L1", () => {
     ]);
   });
 
+  it("draws the macros without targets on one shared scale", () => {
+    const { macros } = nutrientsL1({
+      macros: [
+        { key: "protein", v: 38 },
+        { key: "carbs", v: 6.3 },
+      ],
+    });
+    // scale = 38 × 1,05 = 39,9
+    expect(macros.map((m) => m.segs[0]!.w)).toEqual(["95.2%", "15.8%"]);
+  });
+
   it("puts the tick at the target on a scale with room past it, planned hatched", () => {
     const [m] = nutrientsL1({
       macros: [{ key: "carbs", v: 100, planned: 20, t: 200 }],

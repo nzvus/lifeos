@@ -24,6 +24,8 @@ export type FieldProps = {
   help?: string;
   /** Replaces the help, in the alert colour. */
   error?: string | undefined;
+  /** Told each new value, for a page that recomputes as it changes (the composer). */
+  onChange?: (value: string) => void;
 };
 
 const asSelect = (opts: FieldOption[]) =>
@@ -40,7 +42,11 @@ export function stepBy(v: string, by: number): string {
 }
 
 export function Field(p: FieldProps) {
-  const [v, setV] = useState(p.defaultValue ?? "");
+  const [v, setValue] = useState(p.defaultValue ?? "");
+  const setV = (x: string) => {
+    setValue(x);
+    p.onChange?.(x);
+  };
   const opts = p.options ?? [];
   const pick = (o: string) => setV(v === o && !p.required ? "" : o);
   const id = "f-" + p.name;

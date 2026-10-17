@@ -1,0 +1,52 @@
+/**
+ * The meal composer (V-04) for a day: `/aggiungi/pasto?giorno=…`. The
+ * server reads the person's foods as choices, the day as it is (its
+ * Nutrients against the targets in force) and the role bounds; the client
+ * composes and posts to `saveMeal`.
+ */
+import { F } from "@lifeos/kit";
+import { requireOwner } from "@/app/_server/owner";
+import { getDb } from "@/app/_server/runtime";
+import { loadDay, readDayTargets } from "@/core/day";
+import { localParts } from "@/core/engines/time";
+import { readFoodChoices } from "@/core/food/catalog";
+import { presentDay } from "@/features/day/nutrients";
+import { Composer } from "@/features/food/Composer";
+import { addContext } from "../kinds";
+import { saveMeal } from "./actions";
+
+export default async function MealPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ giorno?: string | string[] }>;
+}) {
+  const owner = await requireOwner();
+  const db = await getDb();
+  const { clock, roleBounds, day, today } = await addContext(
+    db,
+    owner,
+    (await searchParams).giorno,
+  );
+  const [choices, dayData, targets] = await Promise.all([
+    readFoodChoices(db, owner, today),
+    loadDay(db, owner, day),
+    readDayTargets(db, owner, day),
+  ]);
+  const whole = presentDay(dayData, targets);
+  const now = F.time(localParts(new Date(), clock.timeZone).minute);
+  return (
+    <Composer
+      choices={choices}
+      day={day}
+      dayLabel={day === today ? "Oggi" : F.Day(day)}
+      dayNutrients={whole?.nutrients ?? null}
+      roleBounds={roleBounds}
+      initial={{
+        status: day > today ? "planned" : "done",
+        ...(day === today ? { start: now } : {}),
+      }}
+      backHref={`/aggiungi?giorno=${day}`}
+      action={saveMeal}
+    />
+  );
+}

@@ -8,11 +8,11 @@
  */
 import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { entries, entryValues } from "../db/schema";
+import { entries, entryLines, entryLineValues, entryValues } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
 import type { CheckedEntry } from "./check";
 
-/** Writes a checked entry typed by the person; returns its id. */
+/** Writes a checked entry typed by the person, with its lines and their snapshot; returns its id. */
 export async function createEntry(
   db: Db,
   owner: Owner,
@@ -44,6 +44,33 @@ export async function createEntry(
           bool: v.bool ?? null,
         })),
       );
+    const lines = e.lines ?? [];
+    if (lines.length > 0) {
+      const made = await tx
+        .insert(entryLines)
+        .values(
+          lines.map((l, position) => ({
+            userId: owner.id,
+            entryId: id,
+            position,
+            itemId: l.itemId,
+            productId: l.productId,
+            name: l.name,
+            quantity: l.quantity,
+            unit: l.unit,
+          })),
+        )
+        .returning({ id: entryLines.id, position: entryLines.position });
+      const snapshot = made.flatMap((m) =>
+        Object.entries(lines[m.position]!.per100).map(([field, num]) => ({
+          userId: owner.id,
+          lineId: m.id,
+          field,
+          num,
+        })),
+      );
+      if (snapshot.length > 0) await tx.insert(entryLineValues).values(snapshot);
+    }
     return id;
   });
 }

@@ -56,6 +56,10 @@ describe("an entry typed by hand", () => {
       errors: { weightKg: "number" },
     });
     expect(bad({ weightKg: "500" })).toEqual({ ok: false, errors: { weightKg: "max" } });
+    expect(bad({ weightKg: "75,12345" })).toEqual({
+      ok: false,
+      errors: { weightKg: "number" },
+    });
   });
 
   it("checks scales, integers and choices", () => {

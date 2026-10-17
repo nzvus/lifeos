@@ -1,6 +1,6 @@
 /**
- * ⊕ Aggiungi (V-02), first part: «Cosa», the kinds this person can enter,
- * each opening its entry sheet for the day it came from. Search, "usual at
+ * ⊕ Aggiungi (V-02), first part: «Cosa», the meal composer and the kinds
+ * this person can enter, each opening its sheet for the day it came from. Search, "usual at
  * this hour", recent entries and the meal composer come with their slices.
  */
 import { Box, F } from "@lifeos/kit";
@@ -35,6 +35,13 @@ export default async function AddPage({
           <section className="k-section" aria-label="Cosa aggiungere">
             <h2>Cosa</h2>
             <div className="k-grid">
+              <a href={`/aggiungi/pasto?giorno=${day}`} className="k-plain">
+                <Box
+                  entry={{ fam: "food", of: { kind: "meal" }, title: "Pasto" }}
+                  density="row"
+                  rail={false}
+                />
+              </a>
               {rows.map((r) => (
                 <a key={r.key} href={r.href} className="k-plain">
                   <Box entry={r.entry} density="row" rail={false} />
@@ -42,8 +49,7 @@ export default async function AddPage({
               ))}
             </div>
             <p className="k-help">
-              Pasti, allenamenti e spese hanno i loro editor: arrivano con le prossime
-              parti.
+              Allenamenti e spese hanno i loro editor: arrivano con le prossime parti.
             </p>
           </section>
         </div>
