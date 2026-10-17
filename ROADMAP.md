@@ -110,8 +110,13 @@ scanning) are placed in the v2 spec.
      working sets, time), each day's kcal. Next: trackers, goals.
    - Oggi and Impostazioni (s166): water +250/+500 ml; theme per device;
      the 30-day trash with «Ripristina»; «Esporta i dati» (JSON).
+   - Log again (s168): «Registra di nuovo oggi» from a logged meal (today's
+     values), ⊕ «Di nuovo» (the last meals), «Duplica» a saved meal.
+   - Obiettivi (s169, V-09): the goals in force with their progress (weight:
+     now vs start, pace vs needed, ETA, on track; steps days on target;
+     study hours a week) and «Nuovo obiettivo» (the pace derived and judged).
    Next: drink kind (touches loaded data: ask first), templates and cycles
-   (Piano), goals (V-09), body/mind trackers.
+   (Piano), body/mind trackers.
 6. **Switch** when every v1 screen id is covered and parity is green.
    Decided 2026-10-17 («voglio utilizzare la nuova versione quanto prima»):
    switch now for food and the day (load the refined 16 Oct export), gym
