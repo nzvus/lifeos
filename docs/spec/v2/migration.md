@@ -6,6 +6,12 @@ replace then loads that file (ADR-0052's contract on both sides). It is
 tested on a fixture with every table (`seedEverything`) and rehearsed on
 the developer's export in PGlite before every switch.
 
+**Code:** `apps/v2/src/core/convert/` — `convert()` (v21 + the refined
+layers → v2 file, version 100, with its report) and `loadFile()` (one
+transaction, parents first). A coverage test fails when a v1 column with
+a value is neither read nor named as dropped. On the developer's refined
+export (2026-10-17) every row loads into the schema; parity is next.
+
 ## Mapping (all 50 exported tables)
 
 | v1 table | v2 place | Notes |
