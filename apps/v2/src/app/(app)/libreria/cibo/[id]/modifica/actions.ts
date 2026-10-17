@@ -6,6 +6,7 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { SNAPSHOT_FIELDS } from "@/core/food/choices";
 import { checkFood, createFood, updateFood, type FoodValueError } from "@/core/food/edit";
+import { archiveItem } from "@/core/catalog/archive";
 import { RECIPE_WORDS } from "@/features/food/composer";
 import type { FoodFormState } from "@/features/library/FoodForm";
 
@@ -60,4 +61,11 @@ export async function saveFood(
   if (done === "taken") return again({ name: "Hai già un cibo con questo nome." });
   revalidatePath("/libreria", "layout");
   redirect("/libreria/cibo/" + id);
+}
+
+/** Archives the food (and so its products): out of Libreria and the composer. */
+export async function archiveFood(id: string): Promise<void> {
+  await archiveItem(await getDb(), await requireOwner(), id, "food");
+  revalidatePath("/libreria", "layout");
+  redirect("/libreria");
 }

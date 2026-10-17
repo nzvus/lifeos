@@ -7,6 +7,7 @@ import { readClock } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { FOOD_FIELDS, foodPage } from "@/features/library/library";
+import { archiveFood } from "./modifica/actions";
 
 export default async function FoodPage({ params }: { params: Promise<{ id: string }> }) {
   const owner = await requireOwner();
@@ -60,6 +61,15 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
           </div>
         ))}
       </section>
+      <form action={archiveFood.bind(null, id)} className="k-section g3">
+        <p className="k-help">
+          Archiviato, esce dalla Libreria e dal composer con i suoi prodotti; i pasti
+          registrati restano.
+        </p>
+        <button type="submit" className="k-btn secondary">
+          Archivia
+        </button>
+      </form>
     </main>
   );
 }

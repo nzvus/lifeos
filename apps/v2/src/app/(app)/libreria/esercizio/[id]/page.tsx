@@ -4,6 +4,7 @@ import { F, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { readExerciseLog, readExercises } from "@/core/training";
+import { archiveExercise } from "./actions";
 
 const SHOWN = 20;
 
@@ -57,6 +58,14 @@ export default async function ExercisePage({
           </div>
         ))}
       </section>
+      <form action={archiveExercise.bind(null, id)} className="k-section g3">
+        <p className="k-help">
+          Archiviato, esce dalla Libreria e dalla palestra; le sessioni fatte restano.
+        </p>
+        <button type="submit" className="k-btn secondary">
+          Archivia
+        </button>
+      </form>
     </main>
   );
 }
