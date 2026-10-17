@@ -283,6 +283,9 @@ box's gradient draws (screens.md).
   the mass lost (ACSM 2007).
 - **Output:** advice with its reason ("+0.4 l: 55 min of training at
   22 °C"), never a judgement.
+- **Code:** `apps/v2/src/core/engines/hydration/`, with the water score's
+  parts. Sweat 0.5 / 1 / 1.5 l/h by intensity, + 0.05 per °C over 20;
+  heat + 0.05 l per °C over 25: assumptions within ACSM's range.
 
 ## E11 Environment
 - Hourly weather and air quality from Open-Meteo for the day's place (the
@@ -291,6 +294,8 @@ box's gradient draws (screens.md).
 - **Context for:** hydration (E10), sleep (night temperature), mood
   (daylight), outdoor training, and the correlations (E8: e.g. night
   temperature → sleep).
+- **Code:** `apps/v2/src/core/engines/environment/`: the requests and the
+  reading of answers; the fetch is the server's.
 
 ## E8 Correlations
 
