@@ -44,6 +44,16 @@ export type EntryValue = {
   text?: string;
   bool?: boolean;
 };
+/** A line of a composite entry (a meal's food) with its snapshot per 100 (ADR-0007). */
+export type CheckedLine = {
+  itemId: string;
+  productId: string | null;
+  name: string;
+  quantity: string;
+  unit: string;
+  per100: Record<string, string>;
+};
+
 export type CheckedEntry = {
   kind: string;
   day: IsoDate;
@@ -52,11 +62,14 @@ export type CheckedEntry = {
   endAt: Date | null;
   note: string;
   values: EntryValue[];
+  /** A composite kind's lines (core/food for a meal); none for the others. */
+  lines?: CheckedLine[];
 };
 
 const TEXT_MAX = 500;
 export const NOTE_MAX = 2000;
-const NUMBER = /^-?\d+(\.\d+)?$/;
+/** The `num` column keeps 4 decimals: more would be rounded silently. */
+const NUMBER = /^-?\d+(\.\d{1,4})?$/;
 
 /** Kinds this generic sheet can enter: no lines, no children, no catalog item to pick. */
 export function enterable(kind: Kind): boolean {
