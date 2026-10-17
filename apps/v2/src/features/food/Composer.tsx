@@ -150,10 +150,12 @@ function Draft({
   const [start, setStart] = useState(state.values["start"] ?? "");
   const [role, setRole] = useState(state.values["role"] ?? "");
   const [recipe, setRecipe] = useState(state.values["recipe"] ?? initialRecipe);
+  const [servings, setServings] = useState(state.values["servings"] ?? "1");
+  const [saveAs, setSaveAs] = useState(state.values["saveAs"] === "yes");
   const recipeName = recipes.find((r) => r.recipeId === recipe)?.name;
   const e = state.errors;
   const v = state.values;
-  const totals = mealTotals(lines, by);
+  const totals = mealTotals(lines, by, servings);
   // With foods in the meal, a short list of the most eaten leaves room for the preview.
   const found = searchFoods(
     choices.filter((c) => !lines.some((l) => l.key === c.key)),
@@ -311,6 +313,16 @@ function Draft({
 
       <section className="k-section g3" aria-label="Il pasto">
         <h2>Il pasto</h2>
+        <Field
+          name="servings"
+          label="Porzioni"
+          type="stepper"
+          step={0.5}
+          defaultValue={servings}
+          error={e["servings"]}
+          help="I cibi qui sopra sono una porzione: il pasto li moltiplica."
+          onChange={setServings}
+        />
         <Box
           rail={false}
           entry={{
@@ -321,7 +333,7 @@ function Draft({
             ...(recipeName ? { meta: recipeName } : {}),
           }}
         >
-          <Nutrients data={mealNutrients(totals, mealKinds(lines, by))} />
+          <Nutrients data={mealNutrients(totals, mealKinds(lines, by, servings))} />
         </Box>
       </section>
 
@@ -382,6 +394,32 @@ function Draft({
           defaultValue={v["note"] ?? ""}
           error={e["note"]}
         />
+        {lines.length > 0 && (
+          <div className="k-stack g2">
+            <input type="hidden" name="saveAs" value={saveAs ? "yes" : ""} />
+            <div className="k-chips">
+              <button
+                type="button"
+                className="k-chip"
+                aria-pressed={saveAs}
+                onClick={() => setSaveAs(!saveAs)}
+              >
+                Salva anche come pasto
+              </button>
+            </div>
+            {saveAs && (
+              <Field
+                name="recipeName"
+                label="Nome del pasto"
+                type="text"
+                placeholder="per esempio: Porridge della domenica"
+                defaultValue={v["recipeName"] ?? ""}
+                error={e["recipeName"]}
+                help="Lo ritrovi in «Pasti salvati», con questi cibi e queste quantità."
+              />
+            )}
+          </div>
+        )}
         {e["form"] && (
           <p className="k-help" role="alert">
             {e["form"]}

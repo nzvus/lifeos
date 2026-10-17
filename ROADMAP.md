@@ -82,6 +82,10 @@ scanning) are placed in the v2 spec.
      the eaten foods carried (catalog estimates × grams; sodium from the
      lines' salt) against E5's EFSA targets from the person's sex and birth
      year; only micros some food carried, «n su m coperti · stime».
+   - Servings and «Salva anche come pasto» (s151): a meal's servings
+     multiply its foods (kept when not 1); a composed meal can be saved as
+     a new recipe (a new name, its foods at one serving, the product as
+     preferred) and is then of it.
 6. **Switch** when every v1 screen id is covered and parity is green.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 

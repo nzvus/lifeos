@@ -72,7 +72,14 @@ export default async function EntryEditPage({
         dayLabel={dayLabel}
         dayNutrients={presentDay(others, targets, kinds)?.nutrients ?? null}
         roleBounds={ctx.roleBounds}
-        initial={{ ...initial, role: typeof role === "string" ? role : "" }}
+        initial={{
+          ...initial,
+          role: typeof role === "string" ? role : "",
+          servings:
+            typeof item.values["servings"] === "string"
+              ? F.n(Number(item.values["servings"]), 2)
+              : "1",
+        }}
         backHref={dayHref}
         action={updateMeal.bind(null, id)}
       />
