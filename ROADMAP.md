@@ -70,6 +70,9 @@ scanning) are placed in the v2 spec.
    - Editing (s147): «›» on a meal or a plain kind opens `/voce/<id>`, its
      composer or sheet filled with what was logged; a sheet writes only the
      fields it shows; a meal's old lines keep their snapshot (ADR-0007).
+   - Saved meals in the composer: the recipes found by the search add all
+     their foods (the preferred product when it is one), and the meal is of
+     the recipe (`item_id`), as converted meals are.
 6. **Switch** when every v1 screen id is covered and parity is green.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 

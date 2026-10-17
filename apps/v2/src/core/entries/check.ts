@@ -65,6 +65,8 @@ export type CheckedEntry = {
   values: EntryValue[];
   /** A composite kind's lines (core/food for a meal); none for the others. */
   lines?: CheckedLine[];
+  /** The catalog item it is "of" (a meal's recipe); an edit leaves it when undefined. */
+  itemId?: string | null;
 };
 
 const TEXT_MAX = 500;

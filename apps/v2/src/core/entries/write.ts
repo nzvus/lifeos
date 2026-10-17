@@ -29,6 +29,7 @@ export async function createEntry(
         startAt: e.startAt,
         endAt: e.endAt,
         note: e.note,
+        itemId: e.itemId ?? null,
         source: "typed",
       })
       .returning({ id: entries.id });
@@ -153,6 +154,7 @@ export async function updateEntry(
         startAt: e.startAt,
         endAt: e.endAt,
         note: e.note,
+        ...(e.itemId !== undefined ? { itemId: e.itemId } : {}),
       })
       .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)))
       .returning({ id: entries.id });

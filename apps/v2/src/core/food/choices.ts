@@ -163,3 +163,73 @@ export function lineChoices(
     lastQty: null,
   }));
 }
+
+/** A saved meal (a recipe) the composer can add whole: its foods at their quantities. */
+export type RecipeChoice = {
+  key: string;
+  recipeId: string;
+  name: string;
+  parts: { key: string; quantity: string }[];
+  uses: number;
+};
+
+export type PartRow = {
+  itemId: string;
+  position: number;
+  partItemId: string;
+  quantity: string | null;
+  defaults: Record<string, unknown>;
+};
+
+/**
+ * Pure: the live recipes as choices. Each part names its food's choice, or
+ * its preferred product's when that product is still a choice; a part whose
+ * food left the catalog, or with no quantity, is not added.
+ */
+export function recipeChoices(
+  recipes: readonly { id: string; name: string }[],
+  parts: readonly PartRow[],
+  uses: ReadonlyMap<string, number>,
+  foods: readonly FoodChoice[],
+): RecipeChoice[] {
+  const known = new Set(foods.map((f) => f.key));
+  return recipes
+    .map((r) => ({
+      key: "recipe:" + r.id,
+      recipeId: r.id,
+      name: r.name,
+      parts: parts
+        .filter((p) => p.itemId === r.id && p.quantity !== null)
+        .sort((a, b) => a.position - b.position)
+        .flatMap((p) => {
+          const product = p.defaults["preferredProduct"];
+          const withProduct =
+            typeof product === "string" ? p.partItemId + ":" + product : null;
+          const key =
+            withProduct && known.has(withProduct)
+              ? withProduct
+              : known.has(p.partItemId)
+                ? p.partItemId
+                : null;
+          return key ? [{ key, quantity: p.quantity! }] : [];
+        }),
+      uses: uses.get(r.id) ?? 0,
+    }))
+    .filter((r) => r.parts.length > 0)
+    .sort((a, b) => a.name.localeCompare(b.name, "it"));
+}
+
+/** Pure: the recipes whose name holds every word typed, most used first; none typed, the most used. */
+export function searchRecipes(
+  recipes: readonly RecipeChoice[],
+  query: string,
+  limit = 5,
+): RecipeChoice[] {
+  const words = fold(query).split(/\s+/).filter(Boolean);
+  return recipes
+    .filter((r) =>
+      words.length === 0 ? r.uses > 0 : words.every((w) => fold(r.name).includes(w)),
+    )
+    .sort((a, b) => b.uses - a.uses || a.name.localeCompare(b.name, "it"))
+    .slice(0, limit);
+}

@@ -10,7 +10,7 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDay, readDayTargets } from "@/core/day";
 import { readEntry } from "@/core/entries";
-import { readFoodChoices } from "@/core/food/catalog";
+import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { lineChoices } from "@/core/food/choices";
 import { EntrySheet } from "@/features/day/EntrySheet";
 import { entryForm, formOf } from "@/features/day/entry-form";
@@ -50,9 +50,12 @@ export default async function EntryEditPage({
       untimed: dayData.untimed.filter((i) => i.id !== id),
     };
     const role = item.values["role"];
+    const recipes = await readRecipeChoices(db, owner, ctx.today, choices);
     return (
       <Composer
         choices={choices}
+        recipes={recipes}
+        initialRecipe={item.item?.id ?? ""}
         extraChoices={lineChoices(item.lines)}
         initialLines={item.lines.map((l) => ({
           key: "line:" + l.id,

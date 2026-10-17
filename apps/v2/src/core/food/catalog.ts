@@ -8,10 +8,23 @@
  */
 import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { catalogItems, catalogValues, entries, entryLines } from "../db/schema";
+import {
+  catalogItems,
+  catalogParts,
+  catalogValues,
+  entries,
+  entryLines,
+} from "../db/schema";
 import { addDays, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
-import { foodChoices, SNAPSHOT_FIELDS, USE_DAYS, type FoodChoice } from "./choices";
+import {
+  foodChoices,
+  recipeChoices,
+  SNAPSHOT_FIELDS,
+  USE_DAYS,
+  type FoodChoice,
+  type RecipeChoice,
+} from "./choices";
 
 /** The owner's live foods and products as choices, with their use up to `today`. */
 export async function readFoodChoices(
@@ -85,5 +98,59 @@ export async function readFoodChoices(
     items,
     values,
     uses.flatMap((u) => (u.itemId === null ? [] : [{ ...u, itemId: u.itemId }])),
+  );
+}
+
+/** The owner's live recipes as choices over `foods`, with how often each was logged in 90 days. */
+export async function readRecipeChoices(
+  db: Db,
+  owner: Owner,
+  today: IsoDate,
+  foods: readonly FoodChoice[],
+): Promise<RecipeChoice[]> {
+  const recipes = await db
+    .select({ id: catalogItems.id, name: catalogItems.name })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "recipe"),
+        isNull(catalogItems.deletedAt),
+        isNull(catalogItems.archivedAt),
+      ),
+    );
+  if (recipes.length === 0) return [];
+  const ids = recipes.map((r) => r.id);
+  const [parts, uses] = await Promise.all([
+    db
+      .select({
+        itemId: catalogParts.itemId,
+        position: catalogParts.position,
+        partItemId: catalogParts.partItemId,
+        quantity: catalogParts.quantity,
+        defaults: catalogParts.defaults,
+      })
+      .from(catalogParts)
+      .where(and(ownedBy(catalogParts, owner), inArray(catalogParts.itemId, ids))),
+    db
+      .select({ itemId: entries.itemId, uses: sql<number>`count(*)::int` })
+      .from(entries)
+      .where(
+        and(
+          ownedBy(entries, owner),
+          eq(entries.kind, "meal"),
+          eq(entries.status, "done"),
+          isNull(entries.deletedAt),
+          inArray(entries.itemId, ids),
+          gte(entries.day, addDays(today, -USE_DAYS)),
+        ),
+      )
+      .groupBy(entries.itemId),
+  ]);
+  return recipeChoices(
+    recipes,
+    parts,
+    new Map(uses.flatMap((u) => (u.itemId ? [[u.itemId, u.uses] as const] : []))),
+    foods,
   );
 }
