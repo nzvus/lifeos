@@ -17,6 +17,7 @@ export function FoodForm({
   initial,
   unit,
   isNew = false,
+  productOf,
   backHref,
   action,
 }: {
@@ -24,6 +25,8 @@ export function FoodForm({
   unit: string;
   /** A new food: its unit is chosen here. */
   isNew?: boolean;
+  /** A new product of this food (its name): a brand, and only the label's values. */
+  productOf?: string;
   backHref: string;
   action: (s: FoodFormState, d: FormData) => Promise<FoodFormState>;
 }) {
@@ -37,14 +40,15 @@ export function FoodForm({
   return (
     <form key={state.n} action={submit} className="k-page">
       <PageHeader
-        title={isNew ? "Nuovo cibo" : "Modifica cibo"}
-        context={initial["name"] ?? ""}
+        title={productOf ? "Nuovo prodotto" : isNew ? "Nuovo cibo" : "Modifica cibo"}
+        context={productOf ?? initial["name"] ?? ""}
         back={{
-          label: !isNew
-            ? "Cibo"
-            : backHref.startsWith("/aggiungi")
-              ? "Pasto"
-              : "Libreria",
+          label:
+            !isNew || productOf
+              ? "Cibo"
+              : backHref.startsWith("/aggiungi")
+                ? "Pasto"
+                : "Libreria",
           href: backHref,
         }}
         of={{ fam: "food" }}
@@ -52,13 +56,14 @@ export function FoodForm({
       <section className="k-section g3" aria-label="Nome">
         <Field
           name="name"
-          label="Nome"
+          label={productOf ? "Marca" : "Nome"}
           type="text"
           required
+          {...(productOf ? { placeholder: "per esempio: Lidl" } : {})}
           defaultValue={v["name"] ?? ""}
           error={e["name"]}
         />
-        {isNew && (
+        {isNew && !productOf && (
           <Field
             name="unit"
             label="Si misura in"
@@ -73,11 +78,13 @@ export function FoodForm({
         )}
       </section>
       <section className="k-section g3" aria-label="Valori">
-        <h2>{isNew ? "Per 100 g o ml" : "Per 100 " + unit}</h2>
+        <h2>{isNew && !productOf ? "Per 100 g o ml" : "Per 100 " + unit}</h2>
         <p className="k-help">
-          {isNew
-            ? "Dall’etichetta; quello che non sai lascialo vuoto."
-            : "I pasti già registrati tengono i valori di allora; un valore cambiato qui diventa «modificato»."}
+          {productOf
+            ? "Dall’etichetta, solo quelli diversi: i vuoti restano quelli del cibo."
+            : isNew
+              ? "Dall’etichetta; quello che non sai lascialo vuoto."
+              : "I pasti già registrati tengono i valori di allora; un valore cambiato qui diventa «modificato»."}
         </p>
         {FOOD_FIELDS.map(([f, words, u]) => (
           <Field

@@ -5,7 +5,13 @@ import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { SNAPSHOT_FIELDS } from "@/core/food/choices";
-import { checkFood, createFood, updateFood, type FoodValueError } from "@/core/food/edit";
+import {
+  checkFood,
+  createFood,
+  createProduct,
+  updateFood,
+  type FoodValueError,
+} from "@/core/food/edit";
 import { archiveItem } from "@/core/catalog/archive";
 import { RECIPE_WORDS } from "@/features/food/composer";
 import type { FoodFormState } from "@/features/library/FoodForm";
@@ -68,4 +74,42 @@ export async function archiveFood(id: string): Promise<void> {
   await archiveItem(await getDb(), await requireOwner(), id, "food");
   revalidatePath("/libreria", "layout");
   redirect("/libreria");
+}
+
+/** Saves «Nuovo prodotto» of a food: the brand and the label's values. */
+export async function saveProduct(
+  foodId: string,
+  prev: FoodFormState,
+  data: FormData,
+): Promise<FoodFormState> {
+  const owner = await requireOwner();
+  const form: Record<string, string> = {};
+  for (const [k, v] of data.entries()) if (typeof v === "string") form[k] = v;
+  const again = (errors: Record<string, string>) => ({
+    errors,
+    values: form,
+    n: prev.n + 1,
+  });
+  const checked = checkFood(
+    form["name"] ?? "",
+    Object.fromEntries(SNAPSHOT_FIELDS.map((f) => [f, form[f] ?? ""])),
+  );
+  if (!checked.ok) {
+    const errors: Record<string, string> = {};
+    if (checked.name) errors["name"] = "Scrivi la marca, per esempio Lidl.";
+    for (const [f, code] of Object.entries(checked.at)) errors[f] = WORDS[code];
+    return again(errors);
+  }
+  const made = await createProduct(
+    await getDb(),
+    owner,
+    foodId,
+    checked.name,
+    checked.values,
+  );
+  if (made === "gone") return again({ form: "Questo cibo non c’è più." });
+  if (made === "taken")
+    return again({ name: "Questo cibo ha già un prodotto con questa marca." });
+  revalidatePath("/libreria", "layout");
+  redirect("/libreria/cibo/" + foodId);
 }

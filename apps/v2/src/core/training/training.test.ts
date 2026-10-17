@@ -7,6 +7,7 @@ import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import {
   addExercise,
   checkSet,
+  createExercise,
   finishSession,
   readExercises,
   readHistory,
@@ -28,7 +29,18 @@ describe("a set typed in the gym", () => {
   it("keeps the load exact with a comma, and needs reps or a time", () => {
     expect(checkSet(typed("8", "62,5", "2"))).toEqual({
       ok: true,
-      set: { reps: 8, loadKg: "62.5", rir: 2, durationS: null, warmup: false },
+      set: {
+        reps: 8,
+        loadKg: "62.5",
+        loadEntry: "total",
+        rir: 2,
+        durationS: null,
+        warmup: false,
+      },
+    });
+    expect(checkSet({ ...typed("10", "12,5"), perDumbbell: true })).toMatchObject({
+      ok: true,
+      set: { loadKg: "25", loadEntry: "per_dumbbell" },
     });
     expect(checkSet(typed("", "", "", "45"))).toMatchObject({
       ok: true,
@@ -116,7 +128,14 @@ describe("a session in gym mode", () => {
         a,
         x.id,
         0,
-        { reps: 9, loadKg: "60", rir: 1, durationS: null, warmup: false },
+        {
+          reps: 9,
+          loadKg: "60",
+          rir: 1,
+          durationS: null,
+          warmup: false,
+          loadEntry: "total",
+        },
         start,
       ),
     ).toBe(true);
@@ -125,7 +144,14 @@ describe("a session in gym mode", () => {
       a,
       x.id,
       1,
-      { reps: 8, loadKg: "60", rir: 1, durationS: null, warmup: false },
+      {
+        reps: 8,
+        loadKg: "60",
+        rir: 1,
+        durationS: null,
+        warmup: false,
+        loadEntry: "total",
+      },
       start,
     );
     expect(await removeSet(db, a, x.id, 1)).toBe(true);
@@ -136,7 +162,14 @@ describe("a session in gym mode", () => {
         b,
         x.id,
         2,
-        { reps: 1, loadKg: null, rir: null, durationS: null, warmup: false },
+        {
+          reps: 1,
+          loadKg: null,
+          rir: null,
+          durationS: null,
+          warmup: false,
+          loadEntry: "total",
+        },
         start,
       ),
     ).toBe(false);
@@ -172,5 +205,28 @@ describe("a session in gym mode", () => {
       lastDay: "2026-10-16",
     });
     expect((await readHistory(db, b, [bench], next)).size).toBe(0);
+  });
+
+  it("creates an exercise gym mode can read, unless the name is taken", async () => {
+    const made = await createExercise(db, a, "Alzate laterali ai cavi", {
+      pattern: "lateral_raise",
+      equipment: "cable",
+      unilateral: true,
+    });
+    expect(made).not.toBe("taken");
+    expect(
+      await createExercise(db, a, "alzate laterali ai cavi", {
+        pattern: null,
+        equipment: null,
+        unilateral: false,
+      }),
+    ).toBe("taken");
+    expect(
+      (await readExercises(db, a)).find((e) => e.name === "Alzate laterali ai cavi"),
+    ).toMatchObject({
+      pattern: "lateral_raise",
+      equipment: "cable",
+      unilateral: true,
+    });
   });
 });

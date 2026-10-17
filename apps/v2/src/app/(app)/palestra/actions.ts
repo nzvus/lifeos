@@ -68,6 +68,7 @@ export async function tickSet(
     rir: String(input.rir ?? ""),
     durationS: String(input.durationS ?? ""),
     warmup: input.warmup === true,
+    perDumbbell: input.perDumbbell === true,
   });
   if (!checked.ok) return WORDS[checked.error];
   const saved = await saveSet(
