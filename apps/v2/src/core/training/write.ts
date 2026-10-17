@@ -7,9 +7,16 @@
  * the end and the minutes. Every write is ownedBy the owner and checks the
  * entry it touches is the right kind, live and theirs.
  */
-import { and, count, eq, isNull } from "drizzle-orm";
+import { and, count, eq, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { entries, entryValues, trainingSets } from "../db/schema";
+import {
+  catalogItems,
+  catalogValues,
+  entries,
+  entryValues,
+  trainingSets,
+} from "../db/schema";
+import type { GuideKey } from "../engines/training";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 
@@ -264,5 +271,62 @@ export async function finishSession(
         String(Math.round((endAt.getTime() - start.getTime()) / 60_000)),
       );
     return true;
+  });
+}
+
+export const EQUIPMENT = [
+  "barbell",
+  "dumbbell",
+  "cable",
+  "machine",
+  "bodyweight",
+] as const;
+
+/**
+ * A new exercise (V-07): its name, unique among the owner's live exercises,
+ * and what gym mode reads of it: the movement pattern (E6's guide), the
+ * equipment, whether it is done one side at a time. "taken" if the name is.
+ */
+export async function createExercise(
+  db: Db,
+  owner: Owner,
+  name: string,
+  e: {
+    pattern: GuideKey | null;
+    equipment: (typeof EQUIPMENT)[number] | null;
+    unilateral: boolean;
+  },
+): Promise<{ id: string } | "taken"> {
+  return db.transaction(async (tx) => {
+    const [twin] = await tx
+      .select({ id: catalogItems.id })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.catalog, "exercise"),
+          isNull(catalogItems.deletedAt),
+          sql`lower(${catalogItems.name}) = lower(${name})`,
+        ),
+      )
+      .limit(1);
+    if (twin) return "taken";
+    const [row] = await tx
+      .insert(catalogItems)
+      .values({ userId: owner.id, catalog: "exercise", name })
+      .returning({ id: catalogItems.id });
+    const id = row!.id;
+    await tx
+      .insert(catalogValues)
+      .values([
+        ...(e.pattern
+          ? [{ userId: owner.id, itemId: id, field: "pattern", text: e.pattern }]
+          : []),
+        ...(e.equipment
+          ? [{ userId: owner.id, itemId: id, field: "equipment", text: e.equipment }]
+          : []),
+        { userId: owner.id, itemId: id, field: "unilateral", bool: e.unilateral },
+      ]);
+    return { id };
   });
 }
