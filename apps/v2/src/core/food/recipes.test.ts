@@ -3,7 +3,13 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
-import { archiveRecipe, createRecipe, readRecipe, updateRecipe } from "./recipes";
+import {
+  archiveRecipe,
+  createRecipe,
+  duplicateRecipe,
+  readRecipe,
+  updateRecipe,
+} from "./recipes";
 
 describe("a saved meal's editor", () => {
   let db: Db;
@@ -57,6 +63,17 @@ describe("a saved meal's editor", () => {
       name: "Porridge salato",
       parts: [{ position: 0, name: "Latte", quantity: "250.00", unit: "g" }],
     });
+  });
+
+  it("duplicates it with its parts under the first free name", async () => {
+    const one = await duplicateRecipe(db, a, id);
+    const two = await duplicateRecipe(db, a, id);
+    expect((await readRecipe(db, a, one!))?.name).toBe("Porridge salato (copia)");
+    expect(await readRecipe(db, a, two!)).toMatchObject({
+      name: "Porridge salato (copia 2)",
+      parts: [{ name: "Latte", quantity: "250.00" }],
+    });
+    expect(await duplicateRecipe(db, b, id)).toBeNull();
   });
 
   it("archives it out of reach", async () => {

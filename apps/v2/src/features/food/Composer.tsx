@@ -61,6 +61,7 @@ export function Composer({
   choices,
   recipes = [],
   initialRecipe = "",
+  repeatHref,
   extraChoices = [],
   initialLines = [],
   title = "Pasto",
@@ -77,6 +78,8 @@ export function Composer({
   recipes?: RecipeChoice[];
   /** The recipe a logged meal is of, by its id. */
   initialRecipe?: string;
+  /** A logged meal's «Registra di nuovo»: the composer for today, starting from it. */
+  repeatHref?: string;
   /** A logged meal's own lines as choices (core/food `lineChoices`); not searched. */
   extraChoices?: FoodChoice[];
   initialLines?: DraftLine[];
@@ -107,6 +110,7 @@ export function Composer({
       choices={choices}
       recipes={recipes}
       initialRecipe={initialRecipe}
+      repeatHref={repeatHref}
       extraChoices={extraChoices}
       title={title}
       backLabel={backLabel}
@@ -127,6 +131,7 @@ function Draft({
   choices,
   recipes,
   initialRecipe,
+  repeatHref,
   extraChoices,
   title,
   backLabel,
@@ -142,6 +147,7 @@ function Draft({
   choices: FoodChoice[];
   recipes: RecipeChoice[];
   initialRecipe: string;
+  repeatHref: string | undefined;
   extraChoices: FoodChoice[];
   title: string;
   backLabel: string;
@@ -212,6 +218,13 @@ function Draft({
         back={{ label: backLabel, href: backHref }}
         of={{ fam: "food", kind: "meal" }}
       />
+      {repeatHref && (
+        <div className="k-section">
+          <a className="k-link" href={repeatHref}>
+            Registra di nuovo oggi
+          </a>
+        </div>
+      )}
       <input type="hidden" name="day" value={day} />
       <input type="hidden" name="lines" value={JSON.stringify(estimate ? [] : lines)} />
       <input type="hidden" name="recipe" value={estimate ? "" : recipe} />

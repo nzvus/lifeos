@@ -184,3 +184,36 @@ export async function updateRecipe(
 export function archiveRecipe(db: Db, owner: Owner, id: string): Promise<boolean> {
   return archiveItem(db, owner, id, "recipe");
 }
+
+/**
+ * A copy of a live recipe with its parts ("duplica", flows.md S-F01):
+ * named "<name> (copia)", "(copia 2)"… the first free, based on the
+ * original. Its id, or null if the original is not a live recipe.
+ */
+export async function duplicateRecipe(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<string | null> {
+  const r = await readRecipe(db, owner, id);
+  if (!r) return null;
+  let name = recipeName(r.name + " (copia)");
+  for (let n = 2; name.ok && (await recipeNameTaken(db, owner, name.name)); n++)
+    name = recipeName(`${r.name} (copia ${n})`);
+  if (!name.ok) return null;
+  const copyName = name.name;
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(catalogItems)
+      .values({ userId: owner.id, catalog: "recipe", name: copyName, basedOnId: id })
+      .returning({ id: catalogItems.id });
+    const copy = row!.id;
+    const parts = await tx
+      .select()
+      .from(catalogParts)
+      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)));
+    if (parts.length > 0)
+      await tx.insert(catalogParts).values(parts.map((p) => ({ ...p, itemId: copy })));
+    return copy;
+  });
+}

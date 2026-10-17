@@ -79,6 +79,7 @@ export default async function EntryEditPage({
           quantity: F.n(Number(l.quantity), 2),
         }))}
         title="Modifica pasto"
+        repeatHref={"/aggiungi/pasto?da=" + id}
         backLabel={dayLabel}
         day={item.day}
         dayLabel={dayLabel}
