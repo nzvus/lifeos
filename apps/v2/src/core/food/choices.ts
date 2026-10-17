@@ -7,6 +7,8 @@
  * last 90 days and the quantity of the last time, for the ranking (find.md
  * §2) and the line's starting quantity. `catalog.ts` reads them.
  */
+import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
+
 /** The values a meal line keeps: the nutrients parity compares, and NOVA. */
 export const SNAPSHOT_FIELDS = [
   "kcal",
@@ -31,6 +33,8 @@ export type FoodChoice = {
   brand: string | null;
   unit: string;
   per100: Record<string, string>;
+  /** The food's kind estimates per 100 ("fat_mufa"), for the shares (core/food/kinds). */
+  kinds?: Record<string, string>;
   uses: number;
   lastQty: string | null;
 };
@@ -56,6 +60,7 @@ export type UseRow = {
 
 export const USE_DAYS = 90;
 const FIELDS = new Set<string>(SNAPSHOT_FIELDS);
+const KIND = new Set<string>(KIND_FIELDS);
 
 /** Pure: the choices from the rows, foods first by name, each followed by its products. */
 export function foodChoices(
@@ -64,9 +69,14 @@ export function foodChoices(
   uses: readonly UseRow[],
 ): FoodChoice[] {
   const per = new Map<string, Record<string, string>>();
+  const kinds = new Map<string, Record<string, string>>();
   const unit = new Map<string, string>();
   for (const v of values) {
     if (v.field === "unit" && v.text) unit.set(v.itemId, v.text);
+    if (KIND.has(v.field) && v.num !== null)
+      kinds.set(v.itemId, { ...kinds.get(v.itemId), [v.field]: v.num });
+    if (v.field === FIBRE_TYPES && v.text)
+      kinds.set(v.itemId, { ...kinds.get(v.itemId), [v.field]: v.text });
     if (FIELDS.has(v.field) && v.num !== null)
       per.set(v.itemId, { ...per.get(v.itemId), [v.field]: v.num });
   }
@@ -87,6 +97,7 @@ export function foodChoices(
       brand: null,
       unit: unit.get(f.id) ?? "g",
       per100: base,
+      ...(kinds.has(f.id) ? { kinds: kinds.get(f.id)! } : {}),
       uses: u?.uses ?? 0,
       lastQty: u?.lastQty ?? null,
     });
@@ -100,6 +111,7 @@ export function foodChoices(
         brand: p.name,
         unit: unit.get(p.id) ?? unit.get(f.id) ?? "g",
         per100: { ...base, ...per.get(p.id) },
+        ...(kinds.has(f.id) ? { kinds: kinds.get(f.id)! } : {}),
         uses: pu?.uses ?? 0,
         lastQty: pu?.lastQty ?? null,
       });
@@ -150,6 +162,8 @@ export function lineChoices(
     unit: string;
     values: Record<string, string>;
   }[],
+  /** The foods' kind estimates, so a logged line still splits into kinds. */
+  kinds: ReadonlyMap<string, Record<string, string>> = new Map(),
 ): FoodChoice[] {
   return lines.map((l) => ({
     key: "line:" + l.id,
@@ -159,6 +173,7 @@ export function lineChoices(
     brand: null,
     unit: l.unit,
     per100: l.values,
+    ...(l.itemId && kinds.has(l.itemId) ? { kinds: kinds.get(l.itemId)! } : {}),
     uses: 0,
     lastQty: null,
   }));

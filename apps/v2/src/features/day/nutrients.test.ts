@@ -116,6 +116,30 @@ describe("the day as a Box with Nutrients L1", () => {
     expect(d.nutrients.limits).toEqual([]);
   });
 
+  it("splits the eaten macros into kinds when the foods' estimates are given", () => {
+    const meal = item("meal", {
+      lines: [
+        { ...line("Avena", "100", { protein: "13.5", fibre: "10" }), itemId: "oats" },
+        line("Mela", "100", { fibre: "2" }),
+      ],
+    });
+    const d = presentDay(
+      day([meal]),
+      null,
+      new Map([
+        ["oats", { protein_high: "1", fibre_betaglucan: "4", fibre_insoluble: "6" }],
+      ]),
+    )!;
+    const parts = Object.fromEntries(d.nutrients.macros.map((m) => [m.key, m.parts]));
+    expect(parts).toEqual({
+      protein: { high: 13.5 },
+      carbs: {},
+      fat: {},
+      fiber: { betaglucan: 4, insoluble: 6, none: 2 },
+    });
+    expect(presentDay(day([meal]), null)!.nutrients.macros[0]!.parts).toBeUndefined();
+  });
+
   it("is not there on a day with no meals and no targets", () => {
     expect(presentDay(day([item("water")]), null)).toBeNull();
   });

@@ -14,7 +14,8 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDay, readClock, readDayTargets, dayMinute } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
-import { presentDay } from "@/features/day/nutrients";
+import { readFoodKinds } from "@/core/food/catalog";
+import { foodIds, presentDay } from "@/features/day/nutrients";
 import { present } from "@/features/day/present";
 import { DayView } from "@/features/day/DayView";
 import { bringBack, changeStatus, removeEntry } from "./actions";
@@ -40,7 +41,8 @@ export default async function OggiPage({
     loadDay(db, owner, date),
     readDayTargets(db, owner, date),
   ]);
-  const whole = presentDay(day, targets);
+  const kinds = await readFoodKinds(db, owner, foodIds(day));
+  const whole = presentDay(day, targets, kinds);
   const rows = day.timed.map((i) => ({
     ...present(i),
     id: i.id,

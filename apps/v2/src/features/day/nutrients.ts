@@ -17,20 +17,33 @@ const MACROS: [MacroKey, "protein" | "carbs" | "fat" | "fibre"][] = [
   ["fiber", "fibre"],
 ];
 
-const food = (i: DayItem): FoodEntry => ({
+const food = (
+  i: DayItem,
+  kinds: ReadonlyMap<string, Record<string, string>>,
+): FoodEntry => ({
   status: i.status,
   leftOut: i.values["leftOut"] === true,
   servings: typeof i.values["servings"] === "string" ? i.values["servings"] : null,
-  lines: i.lines,
+  lines: i.lines.map((l) => {
+    const k = l.itemId ? kinds.get(l.itemId) : undefined;
+    return k ? { ...l, kinds: k } : l;
+  }),
 });
 
 export function presentDay(
   day: Day,
   targets: FoodTargets | null,
+  /** Each food's kind estimates (core/food `readFoodKinds`); without them no kinds. */
+  kinds: ReadonlyMap<string, Record<string, string>> = new Map(),
 ): { entry: BoxEntry; nutrients: NutrientsData } | null {
   const meals = [...day.timed, ...day.untimed].filter((i) => i.kind.key === "meal");
   if (meals.length === 0 && targets === null) return null;
-  const { eaten, planned, sources } = dayFood(meals.map(food));
+  const {
+    eaten,
+    planned,
+    sources,
+    kinds: split,
+  } = dayFood(meals.map((m) => food(m, kinds)));
   const v = (r: Record<string, string>, f: string) => Number(r[f] ?? 0);
   return {
     entry: {
@@ -58,6 +71,7 @@ export function presentDay(
           s.name,
           Number(s.amount),
         ]),
+        ...(kinds.size > 0 ? { parts: split[f] } : {}),
       })),
       limits: targets
         ? [
@@ -68,4 +82,11 @@ export function presentDay(
         : [],
     },
   };
+}
+
+/** The foods a day's meals were made of, for their kind estimates. */
+export function foodIds(day: Day): string[] {
+  return [...day.timed, ...day.untimed]
+    .filter((i) => i.kind.key === "meal")
+    .flatMap((i) => i.lines.flatMap((l) => (l.itemId ? [l.itemId] : [])));
 }

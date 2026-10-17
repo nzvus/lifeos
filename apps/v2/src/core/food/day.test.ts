@@ -31,6 +31,11 @@ describe("a day's food", () => {
   });
 
   it("is empty on a day with no meals", () => {
-    expect(dayFood([])).toEqual({ eaten: {}, planned: {}, sources: {} });
+    expect(dayFood([])).toEqual({
+      eaten: {},
+      planned: {},
+      sources: {},
+      kinds: { protein: {}, carbs: {}, fat: {}, fibre: {} },
+    });
   });
 });
