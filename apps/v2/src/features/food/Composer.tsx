@@ -7,6 +7,8 @@
  * meal, recomputed as you type; done or planned, the time, the role (from
  * the time unless chosen), a note. The server action arrives as a prop and
  * rereads every food: what the browser holds is only for drawing.
+ * Editing a logged meal opens it with its lines, each a choice of its own
+ * that keeps the values it was logged with (`extraChoices`, ADR-0007).
  */
 import { useActionState, useMemo, useState } from "react";
 import { Box, F, Field, Nutrients, PageHeader, type NutrientsData } from "@lifeos/kit";
@@ -39,6 +41,10 @@ const DEFAULT_QTY = "100";
 
 export function Composer({
   choices,
+  extraChoices = [],
+  initialLines = [],
+  title = "Pasto",
+  backLabel = "Aggiungi",
   day,
   dayLabel,
   dayNutrients,
@@ -48,6 +54,11 @@ export function Composer({
   action,
 }: {
   choices: FoodChoice[];
+  /** A logged meal's own lines as choices (core/food `lineChoices`); not searched. */
+  extraChoices?: FoodChoice[];
+  initialLines?: DraftLine[];
+  title?: string;
+  backLabel?: string;
   day: string;
   dayLabel: string;
   /** The day as it is (eaten, planned, targets); null on a day with nothing. */
@@ -61,7 +72,7 @@ export function Composer({
   const [state, submit, pending] = useActionState(action, {
     errors: {},
     values: initial,
-    lines: [],
+    lines: initialLines,
     n: 0,
   });
   return (
@@ -71,6 +82,9 @@ export function Composer({
       submit={submit}
       pending={pending}
       choices={choices}
+      extraChoices={extraChoices}
+      title={title}
+      backLabel={backLabel}
       day={day}
       dayLabel={dayLabel}
       dayNutrients={dayNutrients}
@@ -86,6 +100,9 @@ function Draft({
   submit,
   pending,
   choices,
+  extraChoices,
+  title,
+  backLabel,
   day,
   dayLabel,
   dayNutrients,
@@ -96,13 +113,19 @@ function Draft({
   submit: (data: FormData) => void;
   pending: boolean;
   choices: FoodChoice[];
+  extraChoices: FoodChoice[];
+  title: string;
+  backLabel: string;
   day: string;
   dayLabel: string;
   dayNutrients: NutrientsData | null;
   roleBounds: RoleBounds;
   backHref: string;
 }) {
-  const by = useMemo(() => new Map(choices.map((c) => [c.key, c])), [choices]);
+  const by = useMemo(
+    () => new Map([...extraChoices, ...choices].map((c) => [c.key, c])),
+    [choices, extraChoices],
+  );
   const [lines, setLines] = useState<DraftLine[]>(state.lines);
   const [query, setQuery] = useState("");
   const [start, setStart] = useState(state.values["start"] ?? "");
@@ -134,9 +157,9 @@ function Draft({
   return (
     <form action={submit} className="k-page">
       <PageHeader
-        title="Pasto"
+        title={title}
         context={dayLabel}
-        back={{ label: "Aggiungi", href: backHref }}
+        back={{ label: backLabel, href: backHref }}
         of={{ fam: "food", kind: "meal" }}
       />
       <input type="hidden" name="day" value={day} />

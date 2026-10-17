@@ -13,61 +13,34 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { checkEntry, createEntry } from "@/core/entries";
 import { readFoodChoices } from "@/core/food/catalog";
-import { checkMealLines, type LineInput } from "@/core/food/meal";
+import { checkMealLines } from "@/core/food/meal";
 import { kindRegistry } from "@/core/kinds";
-import { clockToDayMin, errorWords } from "@/features/day/entry-form";
+import { errorWords } from "@/features/day/entry-form";
 import type { MealState } from "@/features/food/Composer";
-import { LINE_WORDS } from "@/features/food/composer";
+import { mealErrors, parseLines } from "@/features/food/composer";
 import { addContext } from "../kinds";
-
-/** The lines as sent: anything else than a list of { key, quantity } strings is none. */
-function linesOf(raw: string): LineInput[] {
-  try {
-    const x: unknown = JSON.parse(raw);
-    if (!Array.isArray(x) || x.length > 100) return [];
-    return x.flatMap((l: unknown) =>
-      l !== null &&
-      typeof l === "object" &&
-      typeof (l as LineInput).key === "string" &&
-      typeof (l as LineInput).quantity === "string"
-        ? [{ key: (l as LineInput).key, quantity: (l as LineInput).quantity }]
-        : [],
-    );
-  } catch {
-    return [];
-  }
-}
+import { mealInput } from "./meal-input";
 
 export async function saveMeal(prev: MealState, data: FormData): Promise<MealState> {
   const owner = await requireOwner();
   const db = await getDb();
   const form: Record<string, string> = {};
   for (const [k, v] of data.entries()) if (typeof v === "string") form[k] = v;
-  const lines = linesOf(form["lines"] ?? "");
+  const lines = parseLines(form["lines"] ?? "");
   const ctx = await addContext(db, owner, form["day"]);
   const choices = await readFoodChoices(db, owner, ctx.today);
   const checkedLines = checkMealLines(lines, new Map(choices.map((c) => [c.key, c])));
   const entry = checkEntry(
     kindRegistry().get("meal"),
-    {
-      day: ctx.day,
-      status: form["status"] === "planned" ? "planned" : "done",
-      startMin: clockToDayMin(form["start"] ?? "", ctx.clock.boundaryMin),
-      endMin: null,
-      values: { role: form["role"] ?? "" },
-      note: form["note"] ?? "",
-    },
+    mealInput(ctx.day, form, ctx.clock.boundaryMin),
     ctx.clock,
   );
   if (!checkedLines.ok || !entry.ok) {
-    const errors: Record<string, string> = entry.ok ? {} : errorWords(entry.errors);
-    // A meal's own field is "role" on the composer, not the entry sheet's "v.role".
-    if (errors["v.role"]) errors["role"] = errors["v.role"]!;
-    if (!checkedLines.ok) {
-      if (checkedLines.lines) errors["lines"] = LINE_WORDS[checkedLines.lines];
-      for (const [i, code] of Object.entries(checkedLines.at))
-        errors["line." + i] = LINE_WORDS[code];
-    }
+    const errors = mealErrors(
+      entry.ok ? null : entry.errors,
+      checkedLines.ok ? null : checkedLines,
+      errorWords,
+    );
     return { errors, values: form, lines, n: prev.n + 1 };
   }
   await createEntry(db, owner, { ...entry.entry, lines: checkedLines.lines });

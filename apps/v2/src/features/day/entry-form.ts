@@ -14,8 +14,9 @@
  *   any other ends the morning after.
  */
 import type { BoxEntry, FieldProps } from "@lifeos/kit";
+import type { DayItem } from "@/core/day";
 import type { EntryErrors, EntryInput } from "@/core/entries";
-import type { IsoDate } from "@/core/engines/time";
+import { localParts, type IsoDate } from "@/core/engines/time";
 import type { Field, Kind } from "@/core/kinds";
 import { CHOICES, FIELDS, NAMES } from "./words";
 
@@ -190,4 +191,45 @@ export function kindRows(
       title: NAMES[k.key] ?? words(k.key),
     },
   }));
+}
+
+/** The fields this sheet writes: an edit replaces these and leaves the others. */
+export function managedFields(kind: Kind): string[] {
+  const f = entryForm(kind);
+  return [...f.fields, ...f.more].map((x) => x.name.slice(VALUE.length));
+}
+
+/** "75.6000" → "75,6": a stored number as the person types it. */
+const typed = (n: string) => {
+  const [i, d = ""] = n.split(".");
+  const dec = d.replace(/0+$/, "");
+  return dec ? i + "," + dec : i!;
+};
+const clockOf = (t: Date | null, timeZone: string) => {
+  if (!t) return "";
+  const m = localParts(t, timeZone).minute;
+  return (
+    String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0")
+  );
+};
+
+/** A logged entry as its sheet's starting values (the form's names). */
+export function formOf(item: DayItem, timeZone: string): Record<string, string> {
+  const out: Record<string, string> = {
+    status: item.status,
+    start: clockOf(item.start, timeZone),
+    note: item.note,
+  };
+  if (item.kind.shape === "interval") out["end"] = clockOf(item.end, timeZone);
+  for (const f of item.kind.fields) {
+    const v = item.values[f.key];
+    if (v === undefined) continue;
+    out[VALUE + f.key] =
+      typeof v === "boolean"
+        ? String(v)
+        : ["number", "integer", "duration", "scale"].includes(f.type)
+          ? typed(v)
+          : v;
+  }
+  return out;
 }

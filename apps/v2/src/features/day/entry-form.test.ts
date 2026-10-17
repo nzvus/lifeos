@@ -4,7 +4,9 @@ import {
   clockToDayMin,
   entryForm,
   errorWords,
+  formOf,
   kindRows,
+  managedFields,
   readEntryForm,
 } from "./entry-form";
 
@@ -143,5 +145,56 @@ describe("⊕'s kinds", () => {
         entry: { fam: "habit", of: { kind: "activity" }, title: "Attività" },
       },
     ]);
+  });
+});
+
+describe("editing a logged entry", () => {
+  it("starts from its values as typed, its times in the person's zone", () => {
+    const sleep = reg.get("sleep");
+    const item = {
+      id: "s",
+      kind: sleep,
+      family: sleep.family,
+      subcategory: "wake",
+      status: "done" as const,
+      start: new Date("2026-10-14T21:40:00Z"),
+      end: new Date("2026-10-15T05:10:00Z"),
+      minute: 430,
+      item: null,
+      values: { quality: "4.0000", bedAt: "x" },
+      lines: [],
+      children: [],
+      sets: [],
+      money: null,
+      fulfils: null,
+      tags: [],
+      source: "typed" as const,
+      confidence: "1",
+      note: "ok",
+    };
+    expect(formOf(item, "Europe/Rome")).toEqual({
+      status: "done",
+      start: "23:40",
+      end: "07:10",
+      note: "ok",
+      "v.quality": "4",
+      "v.bedAt": "x",
+    });
+    expect(
+      formOf(
+        {
+          ...item,
+          kind: reg.get("weigh_in"),
+          values: { weightKg: "75.6000", fasted: true },
+        },
+        "Europe/Rome",
+      ),
+    ).toMatchObject({ "v.weightKg": "75,6", "v.fasted": "true" });
+  });
+
+  it("writes only the fields its sheet shows", () => {
+    expect(managedFields(reg.get("sleep"))).toEqual(["quality"]);
+    expect(managedFields(reg.get("weigh_in"))).toContain("waistCm");
+    expect(managedFields(reg.get("activity"))).not.toContain("project");
   });
 });

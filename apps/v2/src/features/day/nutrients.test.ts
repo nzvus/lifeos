@@ -30,6 +30,7 @@ const line = (name: string, quantity: string, values: Record<string, string>) =>
   id: name,
   name,
   itemId: null,
+  productId: null,
   quantity,
   unit: "g",
   values,

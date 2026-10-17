@@ -4,7 +4,9 @@ import {
   clockMinute,
   dayWithMeal,
   mealNutrients,
+  mealErrors,
   mealTotals,
+  parseLines,
   quantityOf,
 } from "./composer";
 
@@ -70,6 +72,28 @@ describe("the composer's numbers", () => {
       kcal: { v: 1000, planned: 378, t: 2500 },
       macros: [{ key: "fiber", v: 10, planned: 5, t: 30 }],
       limits: [{ key: "sugars", v: 30.1, t: 110 }],
+    });
+  });
+});
+
+describe("what a composer posts", () => {
+  it("reads only well-made lines", () => {
+    expect(parseLines('[{"key":"a","quantity":"10"},{"key":1},null,"x"]')).toEqual([
+      { key: "a", quantity: "10" },
+    ]);
+    expect(parseLines("not json")).toEqual([]);
+    expect(parseLines('{"key":"a"}')).toEqual([]);
+  });
+
+  it("words core's errors by the composer's names", () => {
+    expect(
+      mealErrors({ role: "choice" }, { at: { 1: "quantity" } }, () => ({
+        "v.role": "Scegli",
+      })),
+    ).toEqual({
+      "v.role": "Scegli",
+      role: "Scegli",
+      "line.1": "Scrivi una quantità, per esempio 60 o 60,5.",
     });
   });
 });

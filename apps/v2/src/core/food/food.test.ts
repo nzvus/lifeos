@@ -4,11 +4,11 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { loadDay } from "../day";
-import { checkEntry, createEntry } from "../entries";
+import { checkEntry, createEntry, readEntry, updateEntry } from "../entries";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { kindRegistry } from "../kinds";
 import { readFoodChoices } from "./catalog";
-import { foodChoices, searchFoods, type FoodChoice } from "./choices";
+import { foodChoices, lineChoices, searchFoods, type FoodChoice } from "./choices";
 import { checkMealLines } from "./meal";
 
 const items = [
@@ -157,5 +157,48 @@ describe("a meal from the catalog", () => {
       ok: false,
       at: { 0: "unknown" },
     });
+  });
+
+  it("edits a meal: an old line keeps its snapshot, a new one takes today's values", async () => {
+    const choices = await readFoodChoices(db, a, "2026-10-17");
+    const id = await logMeal(a, choices, "50");
+    await db
+      .update(s.catalogValues)
+      .set({ num: "500" })
+      .where(and(eq(s.catalogValues.itemId, oats), eq(s.catalogValues.field, "kcal")));
+    const logged = (await readEntry(db, a, id))!;
+    const old = lineChoices(logged.lines);
+    const now = await readFoodChoices(db, a, "2026-10-17");
+    const lines = checkMealLines(
+      [
+        { key: old[0]!.key, quantity: "70" },
+        { key: now[0]!.key, quantity: "10" },
+      ],
+      new Map([...old, ...now].map((c) => [c.key, c])),
+    );
+    const entry = checkEntry(
+      kindRegistry().get("meal"),
+      {
+        day: "2026-10-15",
+        status: "done",
+        startMin: 9 * 60,
+        endMin: null,
+        values: { role: "" },
+        note: "",
+      },
+      { timeZone: "Europe/Rome", boundaryMin: 240 },
+    );
+    if (!lines.ok || !entry.ok) throw new Error("expected a valid edit");
+    expect(
+      await updateEntry(db, a, id, { ...entry.entry, lines: lines.lines }, ["role"]),
+    ).toBe(true);
+    const edited = (await readEntry(db, a, id))!;
+    expect(edited.values["role"]).toBeUndefined();
+    expect(edited.subcategory).toBe("breakfast");
+    expect(edited.lines.map((l) => [l.quantity, l.values["kcal"], l.itemId])).toEqual([
+      // logged when the catalog said 400 (the test before): kept after it became 500
+      ["70.00", "400.0000", oats],
+      ["10.00", "500.0000", oats],
+    ]);
   });
 });

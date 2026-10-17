@@ -46,7 +46,8 @@ export type EntryValue = {
 };
 /** A line of a composite entry (a meal's food) with its snapshot per 100 (ADR-0007). */
 export type CheckedLine = {
-  itemId: string;
+  /** The food; null on a converted line whose food was never known. */
+  itemId: string | null;
   productId: string | null;
   name: string;
   quantity: string;
