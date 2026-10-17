@@ -9,6 +9,7 @@ import { getDb } from "@/app/_server/runtime";
 import { readSettings } from "@/core/account/settings";
 import { SettingsForm } from "@/features/account/SettingsForm";
 import { SignOut } from "@/features/account/SignOut";
+import { ThemePicker } from "@/features/account/ThemePicker";
 import { saveSettingsForm } from "./actions";
 
 export default async function SettingsPage() {
@@ -41,6 +42,10 @@ export default async function SettingsPage() {
             boundary: F.time(s.boundaryMin),
           }}
         />
+      </section>
+      <section className="k-section g3" aria-label="Aspetto">
+        <h2>Aspetto</h2>
+        <ThemePicker />
       </section>
       <section className="k-section g2" aria-label="Dati">
         <h2>Dati</h2>
