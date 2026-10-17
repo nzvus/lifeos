@@ -318,3 +318,6 @@ For every kind: missing days, implausible values (per field range),
 duplicates, sudden unit-like jumps (×2, ×10, ÷1000), estimated share.
 Shown in Review → Data quality, and before saving where cheap (E6
 flags). The dumbbell loads of 2026-10-15 are its first test case.
+×2 counts only on fields typed per side (loads): steps doubling is real.
+- **Code:** `engines/correlations/` (a seeded bootstrap, so the interval
+  repeats) and `engines/quality/`.
