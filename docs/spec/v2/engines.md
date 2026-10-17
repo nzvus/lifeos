@@ -68,7 +68,16 @@ referenced as `01 I-1` etc.
 - Training blocks take the next item of the active program (v1 ADR-0024
   semantics: a missed day slips the cycle; overrides and skips kept).
 - Default time of a block without a time: the last time used for that
-  kind on that weekday, else the template's (fixes v1's 17:30, 01 I-9).
+  block, else that kind, on that weekday; else the kind's default; else
+  no time, at the end of the day (fixes v1's 17:30, 01 I-9). The same
+  holds for a relative block whose anchor cannot be placed.
+- A model resolves through its bases (concepts §5): each block says base
+  / local / changed; removed ones keep the base's values; differences
+  naming a block the base lost come back as stale.
+- `apply` skips a block already on the day; `swap` replaces only a
+  model's planned entries ahead of now, never ones typed by hand.
+- **Code:** `apps/v2/src/core/engines/planning/` (models, apply, swap,
+  default time; cycles and programs, and changing a model's base, next).
 
 ## E4 Body state (specialisation: body)
 
