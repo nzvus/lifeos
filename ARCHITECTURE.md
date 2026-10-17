@@ -6,7 +6,7 @@
 
 ## System overview
 
-Two apps in one npm workspace (ADR-0056). **v1**, at the root: one Next.js 16 (App Router) app in TypeScript, one unit on Vercel (ADR-0004), in daily use and receiving fixes only. **v2**, in `apps/v2` (ADR-0053, target `docs/spec/v2/`): engines first, pure functions in `apps/v2/src/core/engines/*` with their tests (E1 Time, E2 Metrics, E3 Planning so far); no pages, Vercel project or database yet. The root's `typecheck`, `lint` and `test` run v1's and then v2's, so CI covers both; v1's configs exclude `apps/` and `packages/`. Below, everything describes v1. Routes in
+Two apps in one npm workspace (ADR-0056). **v1**, at the root: one Next.js 16 (App Router) app in TypeScript, one unit on Vercel (ADR-0004), in daily use and receiving fixes only. **v2**, in `apps/v2` (ADR-0053, target `docs/spec/v2/`): engines first, pure functions in `apps/v2/src/core/engines/*` with their tests (each engine's **Code** line in `engines.md` says what exists); no pages, Vercel project or database yet. The root's `typecheck`, `lint` and `test` run v1's and then v2's, so CI covers both; v1's configs exclude `apps/` and `packages/`. Below, everything describes v1. Routes in
 `src/app/` are thin; domain and data logic live in `core/`, which imports no framework.
 Postgres on Neon via Drizzle (ADR-0003), Better Auth in the same database (ADR-0006).
 Modules: nutrition (ingredients, meals, log, day types, quality, trends), training (exercises,
