@@ -20,6 +20,7 @@ export type DoneSet = {
   loadKg: string | null;
   rir: number | null;
   durationS: number | null;
+  warmup: boolean;
 };
 export type GymExercise = {
   entryId: string;
@@ -70,7 +71,7 @@ export function Gym({
   actions: GymActions;
 }) {
   const firstOpen = exercises.findIndex(
-    (x) => x.done.length < Math.max(1, x.proposed.length),
+    (x) => workDone(x) < Math.max(1, x.proposed.length),
   );
   const [at, setAt] = useState(firstOpen === -1 ? 0 : firstOpen);
   const [rest, setRest] = useState<{ from: number; low: number; high: number } | null>(
@@ -123,9 +124,9 @@ export function Gym({
       else {
         const r = restFor(x.pattern, input.reps === "" ? null : Number(input.reps));
         setRest({ from: Date.now(), ...r });
-        if (x.done.length + 1 >= x.proposed.length) {
+        if (!input.warmup && workDone(x) + 1 >= x.proposed.length) {
           const next = exercises.findIndex(
-            (e, i) => i > at && e.done.length < Math.max(1, e.proposed.length),
+            (e, i) => i > at && workDone(e) < Math.max(1, e.proposed.length),
           );
           if (next !== -1) setAt(next);
         }
@@ -188,23 +189,22 @@ export function Gym({
             {x.name}{" "}
             <span className="k-meta">
               {"serie " +
-                Math.min(
-                  x.done.length + 1,
-                  Math.max(x.proposed.length, x.done.length + 1),
-                ) +
+                Math.min(workDone(x) + 1, Math.max(x.proposed.length, workDone(x) + 1)) +
                 " di " +
-                Math.max(x.proposed.length, x.done.length + 1)}
+                Math.max(x.proposed.length, workDone(x) + 1)}
             </span>
           </h2>
           {x.last && <span className="k-body">{x.last}</span>}
-          {x.done.map((d) => (
+          {x.done.map((d, i) => (
             <Box
               key={d.position}
               density="row"
               rail={false}
               entry={{
                 fam: "train",
-                title: "Serie " + (d.position + 1),
+                title: d.warmup
+                  ? "Riscaldamento"
+                  : "Serie " + x.done.slice(0, i + 1).filter((y) => !y.warmup).length,
                 value: setText(d),
                 ...(d.rir != null ? { meta: "RIR " + d.rir } : {}),
               }}
@@ -221,8 +221,8 @@ export function Gym({
             key={x.entryId + ":" + x.done.length}
             timed={timed(x.pattern)}
             start={
-              x.proposed[x.done.length] ??
-              x.done[x.done.length - 1] ??
+              x.proposed[workDone(x)] ??
+              x.done.filter((d) => !d.warmup).at(-1) ??
               x.proposed[0] ??
               null
             }
@@ -311,6 +311,9 @@ export function Gym({
   );
 }
 
+/** The working sets done: warm-ups do not count towards the proposed ones. */
+const workDone = (x: GymExercise) => x.done.filter((d) => !d.warmup).length;
+
 /** The next set's steppers, filled with E6's proposal; drawn again after each tick. */
 function SetForm({
   timed: isTimed,
@@ -327,8 +330,19 @@ function SetForm({
   const [kg, setKg] = useState(start?.loadKg != null ? F.n(Number(start.loadKg), 2) : "");
   const [dur, setDur] = useState(start?.durationS != null ? String(start.durationS) : "");
   const [rir, setRir] = useState("");
+  const [warmup, setWarmup] = useState(false);
   return (
     <div className="k-stack g3">
+      <div className="k-chips">
+        <button
+          type="button"
+          className="k-chip"
+          aria-pressed={warmup}
+          onClick={() => setWarmup(!warmup)}
+        >
+          Riscaldamento
+        </button>
+      </div>
       <div className="k-grid g3">
         {isTimed ? (
           <Field
@@ -359,7 +373,7 @@ function SetForm({
           onChange={setKg}
         />
       </div>
-      {!isTimed && (
+      {!isTimed && !warmup && (
         <Field
           name="rir"
           label="Quante ne avresti fatte ancora?"
@@ -379,13 +393,13 @@ function SetForm({
           onTick({
             reps: isTimed ? "" : reps,
             loadKg: kg,
-            rir,
+            rir: warmup ? "" : rir,
             durationS: isTimed ? dur : "",
-            warmup: false,
+            warmup,
           })
         }
       >
-        Serie fatta ✓
+        {warmup ? "Riscaldamento fatto ✓" : "Serie fatta ✓"}
       </button>
     </div>
   );

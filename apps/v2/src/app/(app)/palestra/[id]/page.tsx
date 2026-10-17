@@ -46,6 +46,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         loadKg: s.loadKg,
         rir: s.rir,
         durationS: s.durationS,
+        warmup: s.warmup,
       })),
     };
   });
