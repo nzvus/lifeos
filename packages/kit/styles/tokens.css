@@ -1,0 +1,86 @@
+/* lifeos — generated from tokens.json */
+:root, [data-theme="light"] {
+  --paper: #f4f6f3;
+  --sheet: #ffffff;
+  --ink: #17201c;
+  --muted: #5c6862;
+  --hairline: #c9d0cc;
+  --herb: #2d6a4c;
+  --tomato: #b23a2a;
+  --warn: #b6500a;
+  --focus: var(--herb);
+  --kcal: var(--ink);
+  --macro-protein: #b53d6f;
+  --macro-carbs: #966504;
+  --macro-fat: #3a67a3;
+  --macro-fiber: #4c7b28;
+  --moment-breakfast: #8a5a3c;
+  --moment-lunch: #0e6e66;
+  --moment-snack: #63680a;
+  --moment-dinner: #3f4aa8;
+  --price: var(--muted);
+  --muscle-chest: #b4441c;
+  --muscle-back: #2c5fa6;
+  --muscle-shoulders: #7f6400;
+  --muscle-arms: #7a43ad;
+  --muscle-core: #0b6f6f;
+  --muscle-legs: #3d7620;
+}
+[data-theme="dark"] {
+  --paper: #111714;
+  --sheet: #19211d;
+  --ink: #e8eee9;
+  --muted: #9aa8a0;
+  --hairline: #34403a;
+  --herb: #7cc39b;
+  --tomato: #f08a76;
+  --warn: #f5a25a;
+  --focus: var(--herb);
+  --kcal: var(--ink);
+  --macro-protein: #ef7fae;
+  --macro-carbs: #f0bd4f;
+  --macro-fat: #86aee6;
+  --macro-fiber: #9ccd6c;
+  --moment-breakfast: #dcaa85;
+  --moment-lunch: #6fd0c4;
+  --moment-snack: #c6cc5a;
+  --moment-dinner: #a8b1f5;
+  --price: var(--muted);
+  --muscle-chest: #f59a6b;
+  --muscle-back: #8fb4ee;
+  --muscle-shoulders: #e0c050;
+  --muscle-arms: #c9a2f2;
+  --muscle-core: #6fd3cf;
+  --muscle-legs: #9fd27a;
+}
+:root {
+  --space-unit: 4px;
+  --space-row: 8px;
+  --space-panel: 16px;
+  --gutter-phone: 16px;
+  --touch: 44px;
+  --touch-dense: 36px;
+  --container-page: 672px;
+  --container-wide: 1152px;
+  --radius-badge: 4px;
+  --radius-control: 6px;
+  --radius-surface: 12px;
+  --rule-heavy: 3px;
+  --rule-strong: 2px;
+  --rule-medium: 1px;
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.title { font-family: var(--font-display); font-size: 30px; line-height: 36px; font-weight: 700; }
+.section { font-family: var(--font-display); font-size: 20px; line-height: 28px; font-weight: 700; }
+.item { font-family: var(--font-display); font-size: 18px; line-height: 28px; font-weight: 600; }
+.number-hero { font-family: var(--font-display); font-size: 30px; line-height: 36px; font-weight: 800; }
+.body { font-family: var(--font-body); font-size: 16px; line-height: 24px; font-weight: 400; }
+.body-strong { font-family: var(--font-body); font-size: 16px; line-height: 24px; font-weight: 600; }
+.meta { font-family: var(--font-body); font-size: 14px; line-height: 20px; font-weight: 400; }
+@font-face { font-family: "Barlow"; src: url("fonts/barlow-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow"; src: url("fonts/barlow-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; src: url("fonts/barlow-condensed-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; src: url("fonts/barlow-condensed-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; src: url("fonts/barlow-condensed-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; src: url("fonts/barlow-condensed-latin-800-normal.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }

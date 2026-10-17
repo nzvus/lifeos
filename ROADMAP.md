@@ -40,7 +40,10 @@ scanning) are placed in the v2 spec.
    on the phone against the developer's data.
    - Day timeline, core (s139): `core/kinds`, `core/identity`, `core/day`
      (`loadDay`); the developer's 14–16 Oct read whole, no unknown kind or
-     field. Next: the app shell, `packages/kit`, V-01 on a local PGlite.
+     field.
+   - `packages/kit` (s140): the boards' kit.css, tokens, fonts, icons, `F`
+     and the components the day needs. Next: the app shell and V-01 on a
+     local PGlite.
 6. **Switch** when every v1 screen id is covered and parity is green.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 

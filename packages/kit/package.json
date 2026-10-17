@@ -1,0 +1,27 @@
+{
+  "name": "@lifeos/kit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "lifeos v2's kit (docs/spec/v2/kit.md): one stylesheet, one icon registry, one formatter, the components every screen is made of.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles/*": "./styles/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "eslint": "9.39.5",
+    "react": "19.3.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vitest": "5.0.2"
+  }
+}
