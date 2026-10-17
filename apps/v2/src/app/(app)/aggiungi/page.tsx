@@ -42,6 +42,13 @@ export default async function AddPage({
                   rail={false}
                 />
               </a>
+              <a href="/palestra" className="k-plain">
+                <Box
+                  entry={{ fam: "train", of: { kind: "session" }, title: "Allenamento" }}
+                  density="row"
+                  rail={false}
+                />
+              </a>
               {rows.map((r) => (
                 <a key={r.key} href={r.href} className="k-plain">
                   <Box entry={r.entry} density="row" rail={false} />
@@ -49,7 +56,7 @@ export default async function AddPage({
               ))}
             </div>
             <p className="k-help">
-              Allenamenti e spese hanno i loro editor: arrivano con le prossime parti.
+              Le spese hanno il loro editor: arriva con la prossima parte.
             </p>
           </section>
         </div>

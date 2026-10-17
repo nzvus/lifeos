@@ -171,6 +171,15 @@ v2 runs without a database server: PGlite in a folder, migrated on start.
    `cd apps/v2 && DATABASE_URL='<direct URL>' npm run load:export --
    <refined export.json> --email <the email you signed up with>`.
    Check: "loaded … rows"; `/oggi/2026-10-15` on the phone shows the day.
+   What you logged in v1 after the refined export (16 Oct, 22:32) is not
+   in it: add today's meals again in v2 (⊕ → Pasto; saved meals make it
+   quick).
+6. **Training logged in v1 meanwhile** (until gym mode is in v2; decided
+   2026-10-17). Export from v1 (Settings → Export), then:
+   `cd apps/v2 && DATABASE_URL='<direct URL>' npm run import:sessions --
+   <new export.json> --email <email> --since 2026-10-17` — a dry run: it
+   lists the sessions, sets and new exercises it would load. Add `--write`
+   to load them. Running it again loads nothing twice.
 
 From then on, a migration reaches `lifeos_v2` only through migrate-v2.
 v2 has no Preview variables yet: a preview (a PR touching v2's schema, or a
