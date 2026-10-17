@@ -1,0 +1,10 @@
+/* The page around the kit: the paper behind every screen, a phone-wide column. */
+body {
+  margin: 0;
+  background: var(--paper);
+}
+.k-page {
+  max-width: var(--container-page);
+  min-height: 100dvh;
+  margin: 0 auto;
+}

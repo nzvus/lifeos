@@ -127,3 +127,51 @@ Settings -> Branches: protect `main`, require the status check `check`
 
 Follow [restore-drill.md](restore-drill.md) with the artifact from step 7. The
 sprint's durability promise is not kept until this is done once and logged.
+
+## 10. lifeos v2 on your machine (ADR-0056)
+
+v2 runs without a database server: PGlite in a folder, migrated on start.
+1. `cp apps/v2/.env.example apps/v2/.env.local`, put a secret in
+   `BETTER_AUTH_SECRET` (`openssl rand -base64 32`), set `ALLOW_SIGNUP=true`.
+2. `npm run dev -w apps/v2` → http://localhost:3200/sign-up: create your
+   account. Stop the server (a PGlite folder has one user at a time).
+3. `npm run load:export -w apps/v2 -- <export.json> --email <your email>`
+   (it reads `apps/v2/.env.local`). Check: it prints the rows loaded and what it
+   did not carry, and why.
+4. `npm run dev -w apps/v2` again; Oggi shows your days. Set
+   `ALLOW_SIGNUP=false`. To start over, delete `apps/v2/.pglite`.
+
+### v2 online (the developer, once; order matters)
+1. **Neon: an empty database for v2.** Neon console → project lifeos →
+   Branches → New branch `v2` (from `main`; v1's tables come along in its
+   `neondb`, untouched and unused). In branch `v2` → Databases → New
+   database `lifeos_v2`, owner `neondb_owner`. v2 uses only `lifeos_v2`:
+   it is empty, so v2's `user`, `session`… never meet v1's. Connect →
+   database `lifeos_v2`: copy the **pooled** URL (host with `-pooler`, for
+   Vercel) and the **direct** one (no `-pooler`, for migrations and loading).
+2. **GitHub: the migration job.** Settings → Environments → New
+   environment `v2` → secret `DATABASE_URL_DIRECT` = the direct URL; if
+   `AGE_RECIPIENT` is a variable of the `production` environment rather
+   than of the repository, add it to `v2` too (same public key). Then add
+   the workflow (the agent's token cannot):
+   `cp docs/runbooks/workflows/migrate-v2.yml .github/workflows/` → commit
+   → push to `main`. Actions → migrate-v2 → Run workflow → `migrate v2`.
+   Check: the last step lists migrations 0000 and 0001.
+3. **Vercel: the project.** Add New → Project → import `nzvus/lifeos` →
+   name `lifeos-v2` → Root Directory `apps/v2` (Next.js is detected;
+   `apps/v2/vercel.json` sets the region, `npm ci` at the root, and the
+   ignore step). Environment variables (Production):
+   `DATABASE_URL` = the pooled URL; `BETTER_AUTH_SECRET` = a NEW one
+   (`openssl rand -base64 32`, not v1's); `ALLOW_SIGNUP` = `true`.
+   Deploy. Check: `https://lifeos-v2….vercel.app/sign-in` opens.
+4. **Your account.** On the phone, `/sign-up`; then set `ALLOW_SIGNUP` =
+   `false` and Redeploy. Check: `/sign-up` is a 404.
+5. **Your data.** On your machine, with the direct URL:
+   `cd apps/v2 && DATABASE_URL='<direct URL>' npm run load:export --
+   <refined export.json> --email <the email you signed up with>`.
+   Check: "loaded … rows"; `/oggi/2026-10-15` on the phone shows the day.
+
+From then on, a migration reaches `lifeos_v2` only through migrate-v2.
+v2 has no Preview variables yet: a preview (a PR touching v2's schema, or a
+`*-preview` branch) builds but has no database. The per-PR rehearsal branch,
+as v1's, comes with v2's next migration.
