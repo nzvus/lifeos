@@ -143,12 +143,13 @@ v2 runs without a database server: PGlite in a folder, migrated on start.
 
 ### v2 online (the developer, once; order matters)
 1. **Neon: an empty database for v2.** Neon console → project lifeos →
-   Branches → New branch `v2` (from `main`; v1's tables come along in its
-   `neondb`, untouched and unused). In branch `v2` → Databases → New
+   Branches → New branch `v2` (parent `production`, **schema only**, no
+   auto-delete: v1's tables come along empty in its `neondb`, unused). In branch `v2` → Databases → New
    database `lifeos_v2`, owner `neondb_owner`. v2 uses only `lifeos_v2`:
    it is empty, so v2's `user`, `session`… never meet v1's. Connect →
    database `lifeos_v2`: copy the **pooled** URL (host with `-pooler`, for
    Vercel) and the **direct** one (no `-pooler`, for migrations and loading).
+   In both, replace `sslmode=require` with `sslmode=verify-full` (§2).
 2. **GitHub: the migration job.** Settings → Environments → New
    environment `v2` → secret `DATABASE_URL_DIRECT` = the direct URL; if
    `AGE_RECIPIENT` is a variable of the `production` environment rather
