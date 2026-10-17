@@ -29,3 +29,6 @@ __pycache__/
 # Local data exports for debugging (never committed)
 /tmp/
 /audit-ui/
+
+# lifeos v2: the local PGlite database (apps/v2/.pglite), real data
+.pglite/

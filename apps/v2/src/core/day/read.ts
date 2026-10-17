@@ -11,6 +11,7 @@ import type { DayClock, IsoDate } from "../engines/time";
 import type { Db } from "../db/db";
 import {
   catalogItems,
+  catalogValues,
   entries,
   entryLines,
   entryLineValues,
@@ -45,8 +46,13 @@ export type DayRows = {
   money: MoneyRow[];
   /** Names of the catalog items the entries, values and lines point at. */
   items: { id: string; catalog: string; name: string }[];
+  /** Those items' values that choose a drawing (icons.md §2): movement, equipment, group, dish. */
+  itemValues: { itemId: string; field: string; text: string | null }[];
   userKinds: UserKindRow[];
 };
+
+/** The catalog fields Glyph reads to pick an item's drawing (icons.md §2). */
+export const DRAWING_FIELDS = ["pattern", "equipment", "group", "dish"] as const;
 
 const DEFAULT_CLOCK: DayClock = { timeZone: "Europe/Rome", boundaryMin: 240 };
 
@@ -65,7 +71,11 @@ export function roleBoundsOf(prefs: Record<string, unknown>): RoleBounds {
   };
 }
 
-export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRows> {
+/** The person's day clock (zone, boundary) and meal-role bounds; defaults when unset. */
+export async function readClock(
+  db: Db,
+  owner: Owner,
+): Promise<{ clock: DayClock; roleBounds: RoleBounds }> {
   const [set] = await db
     .select({
       timeZone: settings.timezone,
@@ -74,10 +84,14 @@ export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRo
     })
     .from(settings)
     .where(ownedBy(settings, owner));
-  const clock = set
-    ? { timeZone: set.timeZone, boundaryMin: set.boundaryMin }
-    : DEFAULT_CLOCK;
-  const roleBounds = roleBoundsOf(set?.prefs ?? {});
+  return {
+    clock: set ? { timeZone: set.timeZone, boundaryMin: set.boundaryMin } : DEFAULT_CLOCK,
+    roleBounds: roleBoundsOf(set?.prefs ?? {}),
+  };
+}
+
+export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRows> {
+  const { clock, roleBounds } = await readClock(db, owner);
 
   const [dayEntries, userKinds] = await Promise.all([
     db
@@ -111,6 +125,7 @@ export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRo
     links: [],
     money: [],
     items: [],
+    itemValues: [],
     userKinds,
   };
   if (ids.length === 0) return empty;
@@ -149,7 +164,7 @@ export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRo
       ].filter((x): x is string => x !== null),
     ),
   ];
-  const [lineValues, items] = await Promise.all([
+  const [lineValues, items, itemValues] = await Promise.all([
     lineIds.length === 0
       ? Promise.resolve([])
       : db
@@ -171,6 +186,22 @@ export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRo
           })
           .from(catalogItems)
           .where(and(ownedBy(catalogItems, owner), inArray(catalogItems.id, itemIds))),
+    itemIds.length === 0
+      ? Promise.resolve([])
+      : db
+          .select({
+            itemId: catalogValues.itemId,
+            field: catalogValues.field,
+            text: catalogValues.text,
+          })
+          .from(catalogValues)
+          .where(
+            and(
+              ownedBy(catalogValues, owner),
+              inArray(catalogValues.itemId, itemIds),
+              inArray(catalogValues.field, [...DRAWING_FIELDS]),
+            ),
+          ),
   ]);
 
   return {
@@ -183,5 +214,6 @@ export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRo
     links,
     money,
     items,
+    itemValues,
   };
 }

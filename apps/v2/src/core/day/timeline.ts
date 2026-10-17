@@ -50,8 +50,8 @@ export type DayItem = {
   end: Date | null;
   /** Where it sits on the day; null when untimed. */
   minute: DayMin | null;
-  /** The catalog item it is "of", with its name. */
-  item: { id: string; name: string } | null;
+  /** The catalog item it is "of", with its name and the values that pick its drawing. */
+  item: { id: string; name: string; drawing: Record<string, string> } | null;
   /** Field → value: numbers as exact strings, a ref as the item's id. */
   values: Record<string, Value>;
   lines: DayLine[];
@@ -94,6 +94,9 @@ export function composeDay(rows: DayRows, registry: KindRegistry): Day {
   const sets = groupBy(rows.sets, (s) => s.entryId);
   const money = new Map(rows.money.map((m) => [m.entryId, m]));
   const names = new Map(rows.items.map((i) => [i.id, i.name]));
+  const drawing = new Map<string, Record<string, string>>();
+  for (const v of rows.itemValues)
+    if (v.text) drawing.set(v.itemId, { ...drawing.get(v.itemId), [v.field]: v.text });
   const live = new Set(rows.entries.map((e) => e.id));
 
   // done → the planned entry it fulfils; the planned one leaves the day.
@@ -123,7 +126,13 @@ export function composeDay(rows: DayRows, registry: KindRegistry): Day {
       start: e.startAt,
       end: e.endAt,
       minute,
-      item: e.itemId ? { id: e.itemId, name: names.get(e.itemId) ?? "" } : null,
+      item: e.itemId
+        ? {
+            id: e.itemId,
+            name: names.get(e.itemId) ?? "",
+            drawing: drawing.get(e.itemId) ?? {},
+          }
+        : null,
       values: vals,
       lines: (lines.get(e.id) ?? [])
         .sort((a, b) => a.position - b.position)

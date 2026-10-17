@@ -127,3 +127,21 @@ Settings -> Branches: protect `main`, require the status check `check`
 
 Follow [restore-drill.md](restore-drill.md) with the artifact from step 7. The
 sprint's durability promise is not kept until this is done once and logged.
+
+## 10. lifeos v2 on your machine (ADR-0056)
+
+v2 runs without a database server: PGlite in a folder, migrated on start.
+1. `cp apps/v2/.env.example apps/v2/.env.local`, put a secret in
+   `BETTER_AUTH_SECRET` (`openssl rand -base64 32`), set `ALLOW_SIGNUP=true`.
+2. `npm run dev -w apps/v2` → http://localhost:3200/sign-up: create your
+   account. Stop the server (a PGlite folder has one user at a time).
+3. `npm run load:export -w apps/v2 -- <export.json> --email <your email>`
+   (it reads `apps/v2/.env.local`). Check: it prints the rows loaded and what it
+   did not carry, and why.
+4. `npm run dev -w apps/v2` again; Oggi shows your days. Set
+   `ALLOW_SIGNUP=false`. To start over, delete `apps/v2/.pglite`.
+
+On Vercel (when the v2 project exists): Root Directory `apps/v2`,
+`DATABASE_URL` = the pooled URL of the Neon branch `v2`, the same secret
+rules as v1. Migrations reach that branch only through the human-triggered
+job, never on deploy.

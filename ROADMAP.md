@@ -42,8 +42,11 @@ scanning) are placed in the v2 spec.
      (`loadDay`); the developer's 14–16 Oct read whole, no unknown kind or
      field.
    - `packages/kit` (s140): the boards' kit.css, tokens, fonts, icons, `F`
-     and the components the day needs. Next: the app shell and V-01 on a
-     local PGlite.
+     and the components the day needs.
+   - v2 app + V-01 (s141): Next in `apps/v2`, Better Auth, local PGlite
+     loaded from the refined export; Oggi shows the timeline and the untimed
+     items. Next: the developer creates the Vercel project and the Neon
+     branch `v2` for the phone check; then the day's Box and the add sheet.
 6. **Switch** when every v1 screen id is covered and parity is green.
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 
