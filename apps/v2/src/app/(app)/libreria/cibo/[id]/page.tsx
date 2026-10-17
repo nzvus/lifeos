@@ -23,7 +23,7 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
         back={{ label: "Libreria", href: "/libreria" }}
         of={{ fam: "food" }}
       />
-      <div className="k-line">
+      <div className="k-section">
         <a className="k-btn secondary" href={"/libreria/cibo/" + id + "/modifica"}>
           Modifica
         </a>

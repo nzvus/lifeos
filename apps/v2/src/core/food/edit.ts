@@ -160,3 +160,44 @@ export async function updateFood(
     return "ok";
   });
 }
+
+/** A new food with its unit (g or ml) and typed values; "taken" if a live food has the name. */
+export async function createFood(
+  db: Db,
+  owner: Owner,
+  name: string,
+  unit: "g" | "ml",
+  values: Partial<Record<FoodField, string>>,
+): Promise<{ id: string } | "taken"> {
+  return db.transaction(async (tx) => {
+    const [twin] = await tx
+      .select({ id: catalogItems.id })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.catalog, "food"),
+          isNull(catalogItems.parentId),
+          isNull(catalogItems.deletedAt),
+          sql`lower(${catalogItems.name}) = lower(${name})`,
+        ),
+      )
+      .limit(1);
+    if (twin) return "taken";
+    const [row] = await tx
+      .insert(catalogItems)
+      .values({ userId: owner.id, catalog: "food", name })
+      .returning({ id: catalogItems.id });
+    const id = row!.id;
+    await tx.insert(catalogValues).values([
+      { userId: owner.id, itemId: id, field: "unit", text: unit },
+      ...Object.entries(values).map(([field, num]) => ({
+        userId: owner.id,
+        itemId: id,
+        field,
+        num,
+      })),
+    ]);
+    return { id };
+  });
+}

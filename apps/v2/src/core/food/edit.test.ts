@@ -4,7 +4,8 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
-import { checkFood, updateFood, valueChanges } from "./edit";
+import { checkFood, createFood, updateFood, valueChanges } from "./edit";
+import { readFoodChoices } from "./catalog";
 
 describe("a food's editor", () => {
   it("checks the name and the values per 100", () => {
@@ -72,5 +73,17 @@ describe("a food's editor", () => {
       { field: "kcal", num: "372.0000", source: "CIQUAL" },
       { field: "protein", num: "13.5000", source: "typed" },
     ]);
+  });
+
+  it("creates a food with its unit and values, unless the name is taken", async () => {
+    expect(await createFood(db, a, "RISO", "g", {})).toBe("taken");
+    const made = await createFood(db, a, "Kefir", "ml", { kcal: "41", protein: "3.5" });
+    const choices = await readFoodChoices(db, a, "2026-10-17");
+    const k = choices.find((c) => typeof made === "object" && c.foodId === made.id);
+    expect(k).toMatchObject({
+      name: "Kefir",
+      unit: "ml",
+      per100: { kcal: "41.0000", protein: "3.5000" },
+    });
   });
 });

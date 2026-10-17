@@ -28,7 +28,7 @@ export default async function SavedMealPage({
         back={{ label: "Libreria", href: "/libreria" }}
         of={{ fam: "food", kind: "meal" }}
       />
-      <div className="k-line">
+      <div className="k-section">
         <a className="k-btn secondary" href={"/libreria/pasto/" + id + "/modifica"}>
           Modifica
         </a>

@@ -16,11 +16,14 @@ export type FoodFormState = {
 export function FoodForm({
   initial,
   unit,
+  isNew = false,
   backHref,
   action,
 }: {
   initial: Record<string, string>;
   unit: string;
+  /** A new food: its unit is chosen here. */
+  isNew?: boolean;
   backHref: string;
   action: (s: FoodFormState, d: FormData) => Promise<FoodFormState>;
 }) {
@@ -34,9 +37,9 @@ export function FoodForm({
   return (
     <form key={state.n} action={submit} className="k-page">
       <PageHeader
-        title="Modifica cibo"
+        title={isNew ? "Nuovo cibo" : "Modifica cibo"}
         context={initial["name"] ?? ""}
-        back={{ label: "Cibo", href: backHref }}
+        back={{ label: isNew ? "Libreria" : "Cibo", href: backHref }}
         of={{ fam: "food" }}
       />
       <section className="k-section g3" aria-label="Nome">
@@ -48,12 +51,26 @@ export function FoodForm({
           defaultValue={v["name"] ?? ""}
           error={e["name"]}
         />
+        {isNew && (
+          <Field
+            name="unit"
+            label="Si misura in"
+            type="choice"
+            required
+            defaultValue={v["unit"] ?? "g"}
+            options={[
+              { value: "g", label: "grammi" },
+              { value: "ml", label: "millilitri" },
+            ]}
+          />
+        )}
       </section>
       <section className="k-section g3" aria-label="Valori">
-        <h2>Per 100 {unit}</h2>
+        <h2>{isNew ? "Per 100 g o ml" : "Per 100 " + unit}</h2>
         <p className="k-help">
-          I pasti già registrati tengono i valori di allora; un valore cambiato qui
-          diventa «modificato».
+          {isNew
+            ? "Dall’etichetta; quello che non sai lascialo vuoto."
+            : "I pasti già registrati tengono i valori di allora; un valore cambiato qui diventa «modificato»."}
         </p>
         {FOOD_FIELDS.map(([f, words, u]) => (
           <Field

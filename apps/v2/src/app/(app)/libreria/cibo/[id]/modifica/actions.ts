@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { SNAPSHOT_FIELDS } from "@/core/food/choices";
-import { checkFood, updateFood, type FoodValueError } from "@/core/food/edit";
+import { checkFood, createFood, updateFood, type FoodValueError } from "@/core/food/edit";
 import { RECIPE_WORDS } from "@/features/food/composer";
 import type { FoodFormState } from "@/features/library/FoodForm";
 
@@ -15,8 +15,9 @@ const WORDS: Record<FoodValueError, string> = {
   nova: "NOVA va da 1 a 4.",
 };
 
+/** Saves the food's form; `id` null creates a new one («Nuovo cibo»). */
 export async function saveFood(
-  id: string,
+  id: string | null,
   prev: FoodFormState,
   data: FormData,
 ): Promise<FoodFormState> {
@@ -39,7 +40,20 @@ export async function saveFood(
     for (const [f, code] of Object.entries(checked.at)) errors[f] = WORDS[code];
     return again(errors);
   }
-  const done = await updateFood(await getDb(), owner, id, checked.name, checked.values);
+  const db = await getDb();
+  if (id === null) {
+    const made = await createFood(
+      db,
+      owner,
+      checked.name,
+      form["unit"] === "ml" ? "ml" : "g",
+      checked.values,
+    );
+    if (made === "taken") return again({ name: "Hai già un cibo con questo nome." });
+    revalidatePath("/libreria", "layout");
+    redirect("/libreria/cibo/" + made.id);
+  }
+  const done = await updateFood(db, owner, id, checked.name, checked.values);
   if (done === "gone") return again({ form: "Questo cibo non c’è più." });
   if (done === "taken") return again({ name: "Hai già un cibo con questo nome." });
   revalidatePath("/libreria", "layout");

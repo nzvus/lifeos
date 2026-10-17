@@ -48,6 +48,11 @@ export function Library({ foods, meals }: { foods: LibraryRow[]; meals: LibraryR
           Pasti salvati · {meals.length}
         </button>
       </div>
+      {tab === "foods" && (
+        <a className="k-btn secondary" href="/libreria/cibo/nuovo">
+          + Nuovo cibo
+        </a>
+      )}
       <input
         className="k-text"
         type="search"
