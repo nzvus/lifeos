@@ -95,7 +95,8 @@ scanning) are placed in the v2 spec.
 6. **Switch** when every v1 screen id is covered and parity is green.
    Decided 2026-10-17 («voglio utilizzare la nuova versione quanto prima»):
    switch now for food and the day (load the refined 16 Oct export), gym
-   in v1 until gym mode is in v2, then bring those sessions over.
+   in v1 until gym mode is in v2, then bring those sessions over. The import
+   is `npm run import:sessions` (setup.md §10 step 6).
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 
 ## Open items owned by the developer
