@@ -9,6 +9,7 @@ import {
   createEntry,
   enterable,
   readEntry,
+  readTrash,
   restoreEntry,
   setEntryStatus,
   trashEntry,
@@ -205,6 +206,11 @@ describe("writing an entry", () => {
     const id = await planned(a);
     expect(await trashEntry(db, a, id)).toBe(true);
     expect(await statusOn(a, id)).toBeUndefined();
+    expect((await readTrash(db, a, new Date())).map((t) => t.id)).toContain(id);
+    expect(await readTrash(db, b, new Date())).toEqual([]);
+    expect(
+      (await readTrash(db, a, new Date(Date.now() + 31 * 86_400_000))).map((t) => t.id),
+    ).not.toContain(id);
     expect(await trashEntry(db, a, id)).toBe(false);
     expect(await setEntryStatus(db, a, id, "done")).toBeNull();
     expect(await restoreEntry(db, a, id)).toBe(true);

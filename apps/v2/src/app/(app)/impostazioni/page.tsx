@@ -9,6 +9,7 @@ import { getDb } from "@/app/_server/runtime";
 import { readSettings } from "@/core/account/settings";
 import { SettingsForm } from "@/features/account/SettingsForm";
 import { SignOut } from "@/features/account/SignOut";
+import { ThemePicker } from "@/features/account/ThemePicker";
 import { saveSettingsForm } from "./actions";
 
 export default async function SettingsPage() {
@@ -42,10 +43,20 @@ export default async function SettingsPage() {
           }}
         />
       </section>
+      <section className="k-section g3" aria-label="Aspetto">
+        <h2>Aspetto</h2>
+        <ThemePicker />
+      </section>
       <section className="k-section g2" aria-label="Dati">
         <h2>Dati</h2>
+        <a className="k-link" href="/impostazioni/cestino">
+          Cestino
+        </a>
+        <a className="k-link" href="/impostazioni/esporta" download>
+          Esporta i dati (JSON)
+        </a>
         <p className="k-help">
-          Esportazione, cestino e tema arrivano con le prossime parti.
+          Una copia di tutto quello che hai inserito, da tenere da parte.
         </p>
       </section>
     </main>

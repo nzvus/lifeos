@@ -4,8 +4,9 @@
  * (core/day), presents each item as a kit Box (features/day) and hands the
  * client plain rows and the row actions (./actions.ts); the client holds the
  * filters, the rail's mode and the toast.
- * So far: the day as a Box (Nutrients L1 against the targets in force), the
- * filters by domain and state, the timeline and the untimed items. The
+ * So far: the day as a Box (Nutrients L1 against the targets in force),
+ * water with +250/+500 ml, the filters by domain and state, the timeline and
+ * the untimed items. The
  * day's scores and the add sheet come with their slices.
  */
 import { notFound } from "next/navigation";
@@ -24,7 +25,7 @@ import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, presentDay } from "@/features/day/nutrients";
 import { present } from "@/features/day/present";
 import { DayView } from "@/features/day/DayView";
-import { bringBack, changeStatus, removeEntry } from "./actions";
+import { addWater, bringBack, changeStatus, removeEntry } from "./actions";
 import { PLACES } from "@/features/places";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -59,6 +60,9 @@ export default async function OggiPage({
   const untimed = day.untimed.map((i) => ({ ...present(i), id: i.id, status: i.status }));
   const nowMinute = date === today ? dayMinute(now, date, clock) : null;
   const empty = rows.length === 0 && untimed.length === 0;
+  const water = [...day.timed, ...day.untimed]
+    .filter((i) => i.kind.key === "water" && i.status === "done")
+    .reduce((ml, i) => ml + Number(i.values["ml"] ?? 0), 0);
 
   return (
     <main className="k-page has-bd">
@@ -71,6 +75,27 @@ export default async function OggiPage({
           <Box entry={whole.entry} rail={false}>
             <Nutrients data={whole.nutrients} />
           </Box>
+        </section>
+      )}
+      {date <= today && (
+        <section className="k-block g3" aria-label="Acqua">
+          <div className="k-line between">
+            <span className="k-body">
+              Acqua <span className="k-num">{F.num(water / 1000, "l")}</span>
+            </span>
+            <div className="k-chips">
+              <form action={addWater.bind(null, date, 250)}>
+                <button type="submit" className="k-chip">
+                  +250 ml
+                </button>
+              </form>
+              <form action={addWater.bind(null, date, 500)}>
+                <button type="submit" className="k-chip">
+                  +500 ml
+                </button>
+              </form>
+            </div>
+          </div>
         </section>
       )}
       <section className="k-section g3" aria-label="La giornata">

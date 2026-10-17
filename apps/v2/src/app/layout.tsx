@@ -2,7 +2,8 @@
  * The root layout: the kit's stylesheet and tokens for every page, Italian,
  * and the theme. The tokens hold light and dark ([data-theme]); a script
  * that runs before the page is interactive picks the system's (next/script,
- * beforeInteractive: React itself never runs a <script> it renders).
+ * beforeInteractive: React itself never runs a <script> it renders), or
+ * the one chosen on this device.
  */
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
@@ -20,7 +21,8 @@ export const viewport: Viewport = {
   ],
 };
 
-const THEME = `document.documentElement.dataset.theme=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"`;
+// The device's choice (Impostazioni → Tema) if any, else the system's.
+const THEME = `(function(){var t;try{t=localStorage.getItem("theme")}catch(e){}document.documentElement.dataset.theme=t==="light"||t==="dark"?t:matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"})()`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
