@@ -29,9 +29,14 @@ export default async function SavedMealPage({
         of={{ fam: "food", kind: "meal" }}
       />
       <div className="k-section">
-        <a className="k-btn secondary" href={"/libreria/pasto/" + id + "/modifica"}>
-          Modifica
-        </a>
+        <div className="k-line g2">
+          <a className="k-btn primary" href={"/aggiungi/pasto?pasto=" + id}>
+            Registra
+          </a>
+          <a className="k-btn secondary" href={"/libreria/pasto/" + id + "/modifica"}>
+            Modifica
+          </a>
+        </div>
       </div>
       <section className="k-section g3" aria-label="Cibi">
         <h2>Cibi</h2>
