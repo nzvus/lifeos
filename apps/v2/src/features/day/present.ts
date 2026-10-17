@@ -55,6 +55,11 @@ function value(i: DayItem): string {
     case "batch": {
       const servings = typeof v["servings"] === "string" ? v["servings"] : null;
       const kcal = lineTotals(i.lines, servings)["kcal"];
+      // Something with no energy (coffee, creatine, water) says how much, not "0".
+      if ((kcal === undefined || Number(kcal) === 0) && i.lines.length === 1) {
+        const l = i.lines[0]!;
+        return F.num(Number(l.quantity) * Number(servings ?? "1"), l.unit);
+      }
       return kcal === undefined ? "" : F.n(Number(kcal), 0);
     }
     case "session": {

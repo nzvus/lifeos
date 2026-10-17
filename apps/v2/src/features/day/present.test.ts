@@ -28,6 +28,27 @@ const item = (kind: string, over: Partial<DayItem> = {}): DayItem => ({
 });
 
 describe("a day item as a Box", () => {
+  it("a meal with no energy and one line says how much: coffee 30 ml, not 0", () => {
+    const coffee = (unit: string, kcal: string) =>
+      present(
+        item("meal", {
+          lines: [
+            {
+              id: "l",
+              name: "CAFFÉ",
+              itemId: null,
+              productId: null,
+              quantity: "30.00",
+              unit,
+              values: { kcal },
+            },
+          ],
+        }),
+      ).value;
+    expect(coffee("ml", "0")?.replace(/\u00a0/g, " ")).toBe("30 ml");
+    expect(coffee("g", "2")).toBe("1");
+  });
+
   it("a meal: its foods, its kcal from the snapshot × servings, its role and tags", () => {
     const b = present(
       item("meal", {
