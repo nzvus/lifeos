@@ -11,7 +11,7 @@ import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { checkEntry, readEntry, updateEntry } from "@/core/entries";
-import { readFoodChoices } from "@/core/food/catalog";
+import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { lineChoices } from "@/core/food/choices";
 import { checkMealLines } from "@/core/food/meal";
 import { kindRegistry } from "@/core/kinds";
@@ -82,10 +82,16 @@ export async function updateMeal(
   const item = await readEntry(db, owner, id);
   if (!item || item.kind.key !== "meal") return again({ form: GONE });
   const ctx = await addContext(db, owner, item.day);
-  const choices = [
-    ...lineChoices(item.lines),
-    ...(await readFoodChoices(db, owner, ctx.today)),
-  ];
+  const foods = await readFoodChoices(db, owner, ctx.today);
+  const choices = [...lineChoices(item.lines), ...foods];
+  // The recipe it was of stays allowed even if archived since; else one of the person's own.
+  const linked = item.item?.id ?? null;
+  const recipe =
+    form["recipe"] === linked
+      ? linked
+      : ((await readRecipeChoices(db, owner, ctx.today, foods)).find(
+          (r) => r.recipeId === form["recipe"],
+        )?.recipeId ?? null);
   const checkedLines = checkMealLines(lines, new Map(choices.map((c) => [c.key, c])));
   const entry = checkEntry(
     kindRegistry().get("meal"),
@@ -101,9 +107,13 @@ export async function updateMeal(
       ),
     );
   if (
-    !(await updateEntry(db, owner, id, { ...entry.entry, lines: checkedLines.lines }, [
-      "role",
-    ]))
+    !(await updateEntry(
+      db,
+      owner,
+      id,
+      { ...entry.entry, lines: checkedLines.lines, itemId: recipe },
+      ["role"],
+    ))
   )
     return again({ form: GONE });
   backTo(item.day, ctx.today);

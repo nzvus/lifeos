@@ -7,8 +7,15 @@ import { loadDay } from "../day";
 import { checkEntry, createEntry, readEntry, updateEntry } from "../entries";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { kindRegistry } from "../kinds";
-import { readFoodChoices } from "./catalog";
-import { foodChoices, lineChoices, searchFoods, type FoodChoice } from "./choices";
+import { readFoodChoices, readRecipeChoices } from "./catalog";
+import {
+  foodChoices,
+  lineChoices,
+  recipeChoices,
+  searchFoods,
+  searchRecipes,
+  type FoodChoice,
+} from "./choices";
 import { checkMealLines } from "./meal";
 
 const items = [
@@ -83,6 +90,59 @@ describe("the composer's choices", () => {
   });
 });
 
+describe("saved meals", () => {
+  const foods = foodChoices(items, values, []);
+  const part = (
+    position: number,
+    partItemId: string,
+    quantity: string | null,
+    defaults = {},
+  ) => ({
+    itemId: "r1",
+    position,
+    partItemId,
+    quantity,
+    defaults,
+  });
+  const recipes = recipeChoices(
+    [
+      { id: "r1", name: "Colazione d’avena" },
+      { id: "r2", name: "Vuota" },
+    ],
+    [
+      part(1, "f1", "100"),
+      part(0, "f2", "60.00", { preferredProduct: "p1" }),
+      part(2, "gone", "10"),
+      part(3, "f2", null),
+    ],
+    new Map([["r1", 4]]),
+    foods,
+  );
+
+  it("are recipes with their parts as choices, the preferred product when it is one", () => {
+    expect(recipes).toEqual([
+      {
+        key: "recipe:r1",
+        recipeId: "r1",
+        name: "Colazione d’avena",
+        parts: [
+          { key: "f2:p1", quantity: "60.00" },
+          { key: "f1", quantity: "100" },
+        ],
+        uses: 4,
+      },
+    ]);
+  });
+
+  it("are searched by name, most used first", () => {
+    expect(searchRecipes(recipes, "colazione avena").map((r) => r.recipeId)).toEqual([
+      "r1",
+    ]);
+    expect(searchRecipes(recipes, "")).toHaveLength(1);
+    expect(searchRecipes(recipes, "pranzo")).toEqual([]);
+  });
+});
+
 describe("a meal from the catalog", () => {
   let db: Db;
   let close: () => Promise<void>;
@@ -106,6 +166,16 @@ describe("a meal from the catalog", () => {
     ]);
   });
   afterAll(() => close());
+
+  const asChecked = async (day: string) => {
+    const e = checkEntry(
+      kindRegistry().get("meal"),
+      { day, status: "done", startMin: 8 * 60, endMin: null, values: {}, note: "" },
+      { timeZone: "Europe/Rome", boundaryMin: 240 },
+    );
+    if (!e.ok) throw new Error("expected a valid meal");
+    return e.entry;
+  };
 
   const logMeal = async (owner: Owner, choices: FoodChoice[], quantity: string) => {
     const lines = checkMealLines(
@@ -200,5 +270,43 @@ describe("a meal from the catalog", () => {
       ["70.00", "400.0000", oats],
       ["10.00", "500.0000", oats],
     ]);
+  });
+
+  it("reads the owner's recipes, and a meal logged from one is of it", async () => {
+    const [{ id: recipe }] = (await db
+      .insert(s.catalogItems)
+      .values({ userId: a.id, catalog: "recipe", name: "Porridge" })
+      .returning({ id: s.catalogItems.id })) as [{ id: string }];
+    await db
+      .insert(s.catalogParts)
+      .values({
+        userId: a.id,
+        itemId: recipe,
+        position: 0,
+        partItemId: oats,
+        quantity: "60",
+      });
+    const foods = await readFoodChoices(db, a, "2026-10-17");
+    const recipes = await readRecipeChoices(db, a, "2026-10-17", foods);
+    expect(recipes).toMatchObject([
+      { name: "Porridge", parts: [{ key: oats, quantity: "60.00" }], uses: 0 },
+    ]);
+    expect(await readRecipeChoices(db, b, "2026-10-17", [])).toEqual([]);
+    const id = await logMeal(a, foods, "60");
+    const meal = (await readEntry(db, a, id))!;
+    expect(
+      await updateEntry(
+        db,
+        a,
+        id,
+        { ...(await asChecked(meal.day)), itemId: recipe },
+        [],
+      ),
+    ).toBe(true);
+    expect((await readEntry(db, a, id))!.item).toMatchObject({
+      id: recipe,
+      name: "Porridge",
+    });
+    expect((await readRecipeChoices(db, a, "2026-10-17", foods))[0]!.uses).toBe(1);
   });
 });

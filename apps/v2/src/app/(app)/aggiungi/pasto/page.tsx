@@ -9,7 +9,7 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDay, readDayTargets } from "@/core/day";
 import { localParts } from "@/core/engines/time";
-import { readFoodChoices } from "@/core/food/catalog";
+import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { presentDay } from "@/features/day/nutrients";
 import { Composer } from "@/features/food/Composer";
 import { addContext } from "../kinds";
@@ -33,10 +33,12 @@ export default async function MealPage({
     readDayTargets(db, owner, day),
   ]);
   const whole = presentDay(dayData, targets);
+  const recipes = await readRecipeChoices(db, owner, today, choices);
   const now = F.time(localParts(new Date(), clock.timeZone).minute);
   return (
     <Composer
       choices={choices}
+      recipes={recipes}
       day={day}
       dayLabel={day === today ? "Oggi" : F.Day(day)}
       dayNutrients={whole?.nutrients ?? null}

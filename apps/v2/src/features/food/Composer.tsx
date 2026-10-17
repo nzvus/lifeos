@@ -9,10 +9,17 @@
  * rereads every food: what the browser holds is only for drawing.
  * Editing a logged meal opens it with its lines, each a choice of its own
  * that keeps the values it was logged with (`extraChoices`, ADR-0007).
+ * A saved meal (a recipe) found by the search adds all its foods, and the
+ * meal is then "of" it.
  */
 import { useActionState, useMemo, useState } from "react";
 import { Box, F, Field, Nutrients, PageHeader, type NutrientsData } from "@lifeos/kit";
-import { searchFoods, type FoodChoice } from "@/core/food/choices";
+import {
+  searchFoods,
+  searchRecipes,
+  type FoodChoice,
+  type RecipeChoice,
+} from "@/core/food/choices";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
 import {
   clockMinute,
@@ -41,6 +48,8 @@ const DEFAULT_QTY = "100";
 
 export function Composer({
   choices,
+  recipes = [],
+  initialRecipe = "",
   extraChoices = [],
   initialLines = [],
   title = "Pasto",
@@ -54,6 +63,9 @@ export function Composer({
   action,
 }: {
   choices: FoodChoice[];
+  recipes?: RecipeChoice[];
+  /** The recipe a logged meal is of, by its id. */
+  initialRecipe?: string;
   /** A logged meal's own lines as choices (core/food `lineChoices`); not searched. */
   extraChoices?: FoodChoice[];
   initialLines?: DraftLine[];
@@ -82,6 +94,8 @@ export function Composer({
       submit={submit}
       pending={pending}
       choices={choices}
+      recipes={recipes}
+      initialRecipe={initialRecipe}
       extraChoices={extraChoices}
       title={title}
       backLabel={backLabel}
@@ -100,6 +114,8 @@ function Draft({
   submit,
   pending,
   choices,
+  recipes,
+  initialRecipe,
   extraChoices,
   title,
   backLabel,
@@ -113,6 +129,8 @@ function Draft({
   submit: (data: FormData) => void;
   pending: boolean;
   choices: FoodChoice[];
+  recipes: RecipeChoice[];
+  initialRecipe: string;
   extraChoices: FoodChoice[];
   title: string;
   backLabel: string;
@@ -130,6 +148,8 @@ function Draft({
   const [query, setQuery] = useState("");
   const [start, setStart] = useState(state.values["start"] ?? "");
   const [role, setRole] = useState(state.values["role"] ?? "");
+  const [recipe, setRecipe] = useState(state.values["recipe"] ?? initialRecipe);
+  const recipeName = recipes.find((r) => r.recipeId === recipe)?.name;
   const e = state.errors;
   const v = state.values;
   const totals = mealTotals(lines, by);
@@ -141,6 +161,19 @@ function Draft({
   );
   const at = clockMinute(start);
   const auto = at === null ? "" : mealRoleAt(at, roleBounds);
+  const foundRecipes = searchRecipes(recipes, query, query ? 5 : lines.length ? 0 : 3);
+  /** A saved meal adds its foods not in the meal yet; the meal is of it unless already of another. */
+  const addRecipe = (r: RecipeChoice) => {
+    const fresh = r.parts.filter(
+      (p) => by.has(p.key) && !lines.some((l) => l.key === p.key),
+    );
+    setLines([
+      ...lines,
+      ...fresh.map((p) => ({ key: p.key, quantity: F.n(Number(p.quantity), 2) })),
+    ]);
+    if (!recipe) setRecipe(r.recipeId);
+    setQuery("");
+  };
   const add = (c: FoodChoice) => {
     const last = c.lastQty === null ? null : quantityOf(c.lastQty);
     setLines([
@@ -164,10 +197,13 @@ function Draft({
       />
       <input type="hidden" name="day" value={day} />
       <input type="hidden" name="lines" value={JSON.stringify(lines)} />
+      <input type="hidden" name="recipe" value={recipe} />
 
       <section className="k-section g3" aria-label="I cibi del pasto">
         <h2>Cibi</h2>
-        {lines.length === 0 && <p className="k-help">Cerca qui sotto e tocca un cibo.</p>}
+        {lines.length === 0 && (
+          <p className="k-help">Cerca qui sotto e tocca un cibo o un pasto salvato.</p>
+        )}
         {lines.map((l, i) => {
           const c = by.get(l.key);
           return (
@@ -190,7 +226,11 @@ function Draft({
                 type="button"
                 className="k-btn icon"
                 aria-label={"Togli " + (c?.name ?? "")}
-                onClick={() => setLines(lines.filter((_, j) => j !== i))}
+                onClick={() => {
+                  const rest = lines.filter((_, j) => j !== i);
+                  setLines(rest);
+                  if (rest.length === 0) setRecipe("");
+                }}
               >
                 ✕
               </button>
@@ -205,14 +245,48 @@ function Draft({
         <input
           className="k-text"
           type="search"
-          placeholder="Cerca un cibo"
-          aria-label="Cerca un cibo"
+          placeholder="Cerca un cibo o un pasto"
+          aria-label="Cerca un cibo o un pasto"
           value={query}
           onChange={(x) => setQuery(x.target.value)}
         />
+        {foundRecipes.length > 0 && (
+          <div className="k-stack g2" aria-label="Pasti salvati">
+            <span className="k-cap">Pasti salvati</span>
+            {foundRecipes.map((r) => (
+              <button
+                key={r.key}
+                type="button"
+                className="k-pick"
+                onClick={() => addRecipe(r)}
+              >
+                <Box
+                  density="row"
+                  rail={false}
+                  entry={{
+                    fam: "food",
+                    of: { kind: "meal" },
+                    title: r.name,
+                    meta:
+                      F.plural(r.parts.length, "cibo", "cibi") +
+                      " · " +
+                      F.num(
+                        mealTotals(
+                          r.parts.map((p) => ({ key: p.key, quantity: p.quantity })),
+                          by,
+                        )["kcal"] ?? 0,
+                        "kcal",
+                      ),
+                    value: "+",
+                  }}
+                />
+              </button>
+            ))}
+          </div>
+        )}
         {found.length > 0 && (
           <div className="k-stack g2" aria-label={query ? "Risultati" : "I più mangiati"}>
-            {!query && <span className="k-cap">I più mangiati</span>}
+            {!query && <span className="k-cap">I cibi più mangiati</span>}
             {found.map((c) => (
               <button key={c.key} type="button" className="k-pick" onClick={() => add(c)}>
                 <Box
@@ -243,6 +317,7 @@ function Draft({
             ...(role || auto ? { sub: role || auto } : {}),
             title: ROLE_WORDS[role || auto] ?? "Pasto",
             value: F.num(totals["kcal"] ?? 0, "kcal"),
+            ...(recipeName ? { meta: recipeName } : {}),
           }}
         >
           <Nutrients data={mealNutrients(totals)} />

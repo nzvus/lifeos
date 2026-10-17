@@ -12,7 +12,7 @@ import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { checkEntry, createEntry } from "@/core/entries";
-import { readFoodChoices } from "@/core/food/catalog";
+import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { checkMealLines } from "@/core/food/meal";
 import { kindRegistry } from "@/core/kinds";
 import { errorWords } from "@/features/day/entry-form";
@@ -29,6 +29,9 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
   const lines = parseLines(form["lines"] ?? "");
   const ctx = await addContext(db, owner, form["day"]);
   const choices = await readFoodChoices(db, owner, ctx.today);
+  const recipes = await readRecipeChoices(db, owner, ctx.today, choices);
+  // Only one of the person's own recipes: anything else is no recipe.
+  const recipe = recipes.find((r) => r.recipeId === form["recipe"])?.recipeId ?? null;
   const checkedLines = checkMealLines(lines, new Map(choices.map((c) => [c.key, c])));
   const entry = checkEntry(
     kindRegistry().get("meal"),
@@ -43,7 +46,11 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
     );
     return { errors, values: form, lines, n: prev.n + 1 };
   }
-  await createEntry(db, owner, { ...entry.entry, lines: checkedLines.lines });
+  await createEntry(db, owner, {
+    ...entry.entry,
+    lines: checkedLines.lines,
+    itemId: recipe,
+  });
   revalidatePath("/oggi", "layout");
   redirect(ctx.day === ctx.today ? "/oggi" : "/oggi/" + ctx.day);
 }
