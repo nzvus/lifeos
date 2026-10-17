@@ -1,0 +1,70 @@
+# migrate-v2.yml — apply v2's committed migrations (apps/v2/drizzle) to the
+# Neon branch `v2`, only when a human presses the button (ADR-0004, ADR-0057).
+# A copy lives in docs/runbooks/workflows/ because the agent's token cannot
+# write .github/workflows: the developer copies it there (setup.md §10).
+#
+# As v1's migrate.yml: 1) encrypted backup first, kept 90 days; 2) migrate.
+# Run it: Actions -> migrate-v2 -> Run workflow -> type "migrate v2".
+name: migrate-v2
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "migrate v2" to confirm'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    if: github.event.inputs.confirm == 'migrate v2'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    # Its own environment: the v2 database's secret is never visible to v1's jobs.
+    environment: v2
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install pg_dump 18 and age
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-18 age
+          echo "/usr/lib/postgresql/18/bin" >> "$GITHUB_PATH"
+
+      - name: 1. Backup before touching anything
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+          AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+          PGSSLROOTCERT: system
+        run: scripts/backup.sh out
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pre-migration-backup-v2-${{ github.run_id }}
+          path: out/*.dump.age
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: 2. Apply committed migrations (apps/v2/drizzle/*.sql)
+        working-directory: apps/v2
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+        run: npx drizzle-kit migrate
+
+      - name: Show applied migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+          PGSSLROOTCERT: system
+        run: psql "$DATABASE_URL" -c "select id, hash, to_timestamp(created_at/1000) as generated from drizzle.__drizzle_migrations order by id"
