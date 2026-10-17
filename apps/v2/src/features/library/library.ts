@@ -9,6 +9,8 @@ import { lineTotals } from "@/core/food/totals";
 
 export type LibraryRow = {
   key: string;
+  /** Its page, when it has one. */
+  href?: string;
   name: string;
   /** A food's products, or a saved meal's foods. */
   sub: string;
@@ -39,6 +41,7 @@ export function foodRows(foods: readonly FoodChoice[]): LibraryRow[] {
       const own = products.filter((p) => p.foodId === f.foodId);
       return {
         key: f.key,
+        ...(f.foodId ? { href: "/libreria/cibo/" + f.foodId } : {}),
         name: f.name,
         sub:
           own.length === 0
@@ -102,4 +105,49 @@ export function listRows(
         return (x === null ? 1 : 0) - (y === null ? 1 : 0) || byName(a, b);
       return y - x || byName(a, b);
     });
+}
+
+/** A food's values per 100, in the label's order: [field, words, unit]. */
+export const FOOD_FIELDS: [string, string, string][] = [
+  ["kcal", "Energia", "kcal"],
+  ["protein", "Proteine", "g"],
+  ["carbs", "Carboidrati", "g"],
+  ["sugars", "di cui zuccheri", "g"],
+  ["fat", "Grassi", "g"],
+  ["saturatedFat", "di cui saturi", "g"],
+  ["fibre", "Fibre", "g"],
+  ["salt", "Sale", "g"],
+  ["nova", "NOVA", ""],
+];
+
+export type FoodPage = {
+  name: string;
+  unit: string;
+  per100: Record<string, string>;
+  products: { brand: string; uses: number }[];
+  /** The saved meals with it, and how much of it each has. */
+  meals: { name: string; quantity: string }[];
+};
+
+/** A food's page (V-07, first part): its values, its products, the saved meals that use it. */
+export function foodPage(
+  foods: readonly FoodChoice[],
+  recipes: readonly RecipeChoice[],
+  foodId: string,
+): FoodPage | null {
+  const food = foods.find((f) => f.foodId === foodId && f.productId === null);
+  if (!food) return null;
+  const keys = new Set(foods.filter((f) => f.foodId === foodId).map((f) => f.key));
+  return {
+    name: food.name,
+    unit: food.unit,
+    per100: food.per100,
+    products: foods
+      .filter((f) => f.foodId === foodId && f.productId !== null)
+      .map((f) => ({ brand: f.brand ?? "", uses: f.uses })),
+    meals: recipes.flatMap((r) => {
+      const part = r.parts.find((p) => keys.has(p.key));
+      return part ? [{ name: r.name, quantity: part.quantity }] : [];
+    }),
+  };
 }

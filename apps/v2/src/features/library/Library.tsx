@@ -77,6 +77,7 @@ export function Library({ foods, meals }: { foods: LibraryRow[]; meals: LibraryR
               title: r.name,
               ...(r.sub ? { meta: r.sub } : {}),
               value: value(r),
+              ...(r.href ? { href: r.href } : {}),
             }}
           />
         ))}
