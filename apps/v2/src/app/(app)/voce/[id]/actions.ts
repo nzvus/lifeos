@@ -13,7 +13,7 @@ import { getDb } from "@/app/_server/runtime";
 import { checkEntry, readEntry, updateEntry } from "@/core/entries";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { lineChoices } from "@/core/food/choices";
-import { checkMealLines } from "@/core/food/meal";
+import { ESTIMATE_CONFIDENCE, typedEstimate } from "@/core/food/meal";
 import { kindRegistry } from "@/core/kinds";
 import type { SaveState } from "@/features/day/EntrySheet";
 import { errorWords, managedFields, readEntryForm } from "@/features/day/entry-form";
@@ -21,7 +21,7 @@ import type { MealState } from "@/features/food/Composer";
 import { mealErrors, parseLines } from "@/features/food/composer";
 import { addContext } from "../../aggiungi/kinds";
 import { createRecipe } from "@/core/food/recipes";
-import { mealExtras, mealInput } from "../../aggiungi/pasto/meal-input";
+import { formLines, mealExtras, mealInput } from "../../aggiungi/pasto/meal-input";
 
 const GONE = "Questa voce non c’è più: forse è stata eliminata.";
 
@@ -93,7 +93,7 @@ export async function updateMeal(
       : ((await readRecipeChoices(db, owner, ctx.today, foods)).find(
           (r) => r.recipeId === form["recipe"],
         )?.recipeId ?? null);
-  const checkedLines = checkMealLines(lines, new Map(choices.map((c) => [c.key, c])));
+  const checkedLines = formLines(form, lines, choices);
   const entry = checkEntry(
     kindRegistry().get("meal"),
     mealInput(item.day, form, ctx.clock.boundaryMin),
@@ -102,13 +102,12 @@ export async function updateMeal(
   const extras = await mealExtras(db, owner, form);
   if (!checkedLines.ok || !entry.ok || Object.keys(extras.errors).length > 0)
     return again({
-      ...mealErrors(
-        entry.ok ? null : entry.errors,
-        checkedLines.ok ? null : checkedLines,
-        errorWords,
-      ),
+      ...mealErrors(entry.ok ? null : entry.errors, null, errorWords),
+      ...(checkedLines.ok ? {} : checkedLines.errors),
       ...extras.errors,
     });
+  // An estimate composed with foods becomes typed food; a converted one with foods keeps its confidence.
+  const wasTyped = typedEstimate(item.values, item.lines) !== null;
   const saved = extras.saveAs
     ? await createRecipe(db, owner, extras.saveAs, checkedLines.lines)
     : null;
@@ -117,8 +116,19 @@ export async function updateMeal(
       db,
       owner,
       id,
-      { ...entry.entry, lines: checkedLines.lines, itemId: saved ?? recipe },
-      ["role", "servings"],
+      {
+        ...entry.entry,
+        lines: checkedLines.lines,
+        itemId: checkedLines.estimate ? null : (saved ?? recipe),
+        ...(checkedLines.estimate
+          ? { confidence: ESTIMATE_CONFIDENCE }
+          : wasTyped
+            ? { confidence: "1" }
+            : {}),
+      },
+      checkedLines.estimate || wasTyped
+        ? ["role", "servings", "estimated"]
+        : ["role", "servings"],
     ))
   )
     return again({ form: GONE });

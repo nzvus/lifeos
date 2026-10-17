@@ -3,6 +3,7 @@ import type { FoodChoice } from "@/core/food/choices";
 import {
   clockMinute,
   dayWithMeal,
+  estimateTotals,
   mealNutrients,
   mealErrors,
   mealKinds,
@@ -28,6 +29,15 @@ const by = new Map([
 ]);
 
 describe("the composer's numbers", () => {
+  it("previews an estimate's typed totals, leaving out what is not a number", () => {
+    expect(
+      estimateTotals({ kcal: "650", protein: "30,5", fat: "", carbs: "tanti" }),
+    ).toEqual({
+      kcal: 650,
+      protein: 30.5,
+    });
+  });
+
   it("reads a clock time for the role", () => {
     expect(clockMinute("07:30")).toBe(450);
     expect(clockMinute("")).toBeNull();

@@ -16,6 +16,7 @@ import {
   readRecipeChoices,
 } from "@/core/food/catalog";
 import { lineChoices } from "@/core/food/choices";
+import { typedEstimate } from "@/core/food/meal";
 import { EntrySheet } from "@/features/day/EntrySheet";
 import { entryForm, formOf } from "@/features/day/entry-form";
 import { foodIds, presentDay } from "@/features/day/nutrients";
@@ -56,13 +57,24 @@ export default async function EntryEditPage({
     const role = item.values["role"];
     const kinds = await readFoodEstimates(db, owner, foodIds(dayData));
     const recipes = await readRecipeChoices(db, owner, ctx.today, choices);
+    // A meal typed as an estimate opens as typed.
+    const est = typedEstimate(item.values, item.lines);
+    const typed = est
+      ? {
+          estimate: "yes",
+          estName: est.name,
+          ...Object.fromEntries(
+            Object.entries(est.totals).map(([f, t]) => ["est." + f, F.n(Number(t), 2)]),
+          ),
+        }
+      : {};
     return (
       <Composer
         choices={choices}
         recipes={recipes}
         initialRecipe={item.item?.id ?? ""}
         extraChoices={lineChoices(item.lines, kinds)}
-        initialLines={item.lines.map((l) => ({
+        initialLines={(est ? [] : item.lines).map((l) => ({
           key: "line:" + l.id,
           quantity: F.n(Number(l.quantity), 2),
         }))}
@@ -79,6 +91,7 @@ export default async function EntryEditPage({
             typeof item.values["servings"] === "string"
               ? F.n(Number(item.values["servings"]), 2)
               : "1",
+          ...typed,
         }}
         backHref={dayHref}
         action={updateMeal.bind(null, id)}
