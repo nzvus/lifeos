@@ -5,9 +5,17 @@
  * Box's line saying where the targets come from. Pure: tested without a
  * browser. The day's scores join it when E7's weights are decided.
  */
-import { F, type BoxEntry, type MacroKey, type NutrientsData } from "@lifeos/kit";
+import {
+  F,
+  type BoxEntry,
+  type MacroKey,
+  type NutrientsData,
+  type State,
+} from "@lifeos/kit";
 import type { Day, DayItem, FoodTargets } from "@/core/day";
+import { microState, type Micro, type MicroTarget } from "@/core/engines/targets";
 import { dayFood, type FoodEntry } from "@/core/food/day";
+import { dayMicros } from "@/core/food/micros";
 
 /** The kit's macro → the field the snapshot and the targets use. */
 const MACROS: [MacroKey, "protein" | "carbs" | "fat" | "fibre"][] = [
@@ -19,22 +27,24 @@ const MACROS: [MacroKey, "protein" | "carbs" | "fat" | "fibre"][] = [
 
 const food = (
   i: DayItem,
-  kinds: ReadonlyMap<string, Record<string, string>>,
+  estimates: ReadonlyMap<string, Record<string, string>>,
 ): FoodEntry => ({
   status: i.status,
   leftOut: i.values["leftOut"] === true,
   servings: typeof i.values["servings"] === "string" ? i.values["servings"] : null,
   lines: i.lines.map((l) => {
-    const k = l.itemId ? kinds.get(l.itemId) : undefined;
-    return k ? { ...l, kinds: k } : l;
+    const k = l.itemId ? estimates.get(l.itemId) : undefined;
+    return k ? { ...l, estimates: k } : l;
   }),
 });
 
 export function presentDay(
   day: Day,
   targets: FoodTargets | null,
-  /** Each food's kind estimates (core/food `readFoodKinds`); without them no kinds. */
-  kinds: ReadonlyMap<string, Record<string, string>> = new Map(),
+  /** Each food's estimates (core/food `readFoodEstimates`); without them no kinds, no micros. */
+  estimates: ReadonlyMap<string, Record<string, string>> = new Map(),
+  /** E5's EFSA targets for this person; null while their sex or age is unknown. */
+  microTargets: readonly MicroTarget[] | null = null,
 ): { entry: BoxEntry; nutrients: NutrientsData } | null {
   const meals = [...day.timed, ...day.untimed].filter((i) => i.kind.key === "meal");
   if (meals.length === 0 && targets === null) return null;
@@ -43,7 +53,10 @@ export function presentDay(
     planned,
     sources,
     kinds: split,
-  } = dayFood(meals.map((m) => food(m, kinds)));
+  } = dayFood(meals.map((m) => food(m, estimates)));
+  const eatenMicros = dayMicros(
+    meals.filter((m) => m.status === "done").map((m) => food(m, estimates)),
+  );
   const v = (r: Record<string, string>, f: string) => Number(r[f] ?? 0);
   return {
     entry: {
@@ -71,8 +84,9 @@ export function presentDay(
           s.name,
           Number(s.amount),
         ]),
-        ...(kinds.size > 0 ? { parts: split[f] } : {}),
+        ...(estimates.size > 0 ? { parts: split[f] } : {}),
       })),
+      ...(estimates.size > 0 ? { micros: microsOf(eatenMicros, microTargets) } : {}),
       limits: targets
         ? [
             { key: "sugars", v: v(eaten, "sugars"), t: targets.sugars },
@@ -89,4 +103,81 @@ export function foodIds(day: Day): string[] {
   return [...day.timed, ...day.untimed]
     .filter((i) => i.kind.key === "meal")
     .flatMap((i) => i.lines.flatMap((l) => (l.itemId ? [l.itemId] : [])));
+}
+
+type MicroItem = NonNullable<NutrientsData["micros"]>["groups"][number]["items"][number];
+
+const MICRO_GROUPS: [string, [Micro, string][]][] = [
+  [
+    "Vitamine",
+    [
+      ["vitA", "A"],
+      ["vitC", "C"],
+      ["vitD", "D"],
+      ["b12", "B12"],
+      ["folate", "Folati"],
+    ],
+  ],
+  [
+    "Minerali",
+    [
+      ["ca", "Calcio"],
+      ["fe", "Ferro"],
+      ["mg", "Magnesio"],
+      ["k", "Potassio"],
+      ["na", "Sodio"],
+      ["i", "Iodio"],
+      ["se", "Selenio"],
+    ],
+  ],
+];
+const MICRO_UNIT: Record<Micro, string> = {
+  vitA: "µg",
+  vitC: "mg",
+  vitD: "µg",
+  b12: "µg",
+  folate: "µg",
+  ca: "mg",
+  fe: "mg",
+  mg: "mg",
+  k: "mg",
+  na: "mg",
+  i: "µg",
+  se: "µg",
+};
+
+/**
+ * The micros the eaten foods carried, against E5's targets: met is good;
+ * short is warn from half the target, bad under it; over an upper level
+ * that judges the whole day (or sodium's safe intake) is bad. Only micros
+ * some food carried an estimate for are shown: no "0 of 750" from no data.
+ */
+export function microsOf(
+  eaten: Partial<Record<Micro, number>>,
+  targets: readonly MicroTarget[] | null,
+): NonNullable<NutrientsData["micros"]> {
+  const by = new Map((targets ?? []).map((t) => [t.micro, t]));
+  let met = 0;
+  let judged = 0;
+  const groups = MICRO_GROUPS.map(([name, list]) => ({
+    name,
+    items: list.flatMap(([m, label]): MicroItem[] => {
+      const v = eaten[m];
+      if (v === undefined) return [];
+      const t = by.get(m);
+      if (!t) return [{ name: label, v, t: null, unit: MICRO_UNIT[m] }];
+      const s = microState(v, t);
+      judged++;
+      if (s === "met") met++;
+      const state: State =
+        s === "met" ? "good" : s === "over" ? "bad" : v >= t.value / 2 ? "warn" : "bad";
+      return [{ name: label, v, t: t.value, unit: t.unit, state }];
+    }),
+  })).filter((g) => g.items.length > 0);
+  return {
+    summary: targets
+      ? met + " su " + judged + " coperti · stime"
+      : "stime · per gli obiettivi servono sesso ed età",
+    groups,
+  };
 }

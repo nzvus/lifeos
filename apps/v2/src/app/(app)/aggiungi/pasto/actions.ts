@@ -19,7 +19,8 @@ import { errorWords } from "@/features/day/entry-form";
 import type { MealState } from "@/features/food/Composer";
 import { mealErrors, parseLines } from "@/features/food/composer";
 import { addContext } from "../kinds";
-import { mealInput } from "./meal-input";
+import { createRecipe } from "@/core/food/recipes";
+import { mealExtras, mealInput } from "./meal-input";
 
 export async function saveMeal(prev: MealState, data: FormData): Promise<MealState> {
   const owner = await requireOwner();
@@ -38,18 +39,25 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
     mealInput(ctx.day, form, ctx.clock.boundaryMin),
     ctx.clock,
   );
-  if (!checkedLines.ok || !entry.ok) {
-    const errors = mealErrors(
-      entry.ok ? null : entry.errors,
-      checkedLines.ok ? null : checkedLines,
-      errorWords,
-    );
+  const extras = await mealExtras(db, owner, form);
+  if (!checkedLines.ok || !entry.ok || Object.keys(extras.errors).length > 0) {
+    const errors = {
+      ...mealErrors(
+        entry.ok ? null : entry.errors,
+        checkedLines.ok ? null : checkedLines,
+        errorWords,
+      ),
+      ...extras.errors,
+    };
     return { errors, values: form, lines, n: prev.n + 1 };
   }
+  const saved = extras.saveAs
+    ? await createRecipe(db, owner, extras.saveAs, checkedLines.lines)
+    : null;
   await createEntry(db, owner, {
     ...entry.entry,
     lines: checkedLines.lines,
-    itemId: recipe,
+    itemId: saved ?? recipe,
   });
   revalidatePath("/oggi", "layout");
   redirect(ctx.day === ctx.today ? "/oggi" : "/oggi/" + ctx.day);

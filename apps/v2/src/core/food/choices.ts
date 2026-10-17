@@ -33,8 +33,8 @@ export type FoodChoice = {
   brand: string | null;
   unit: string;
   per100: Record<string, string>;
-  /** The food's kind estimates per 100 ("fat_mufa"), for the shares (core/food/kinds). */
-  kinds?: Record<string, string>;
+  /** The food's estimates per 100 ("fat_mufa", "vitD"): kinds' shares and micros. */
+  estimates?: Record<string, string>;
   uses: number;
   lastQty: string | null;
 };
@@ -97,7 +97,7 @@ export function foodChoices(
       brand: null,
       unit: unit.get(f.id) ?? "g",
       per100: base,
-      ...(kinds.has(f.id) ? { kinds: kinds.get(f.id)! } : {}),
+      ...(kinds.has(f.id) ? { estimates: kinds.get(f.id)! } : {}),
       uses: u?.uses ?? 0,
       lastQty: u?.lastQty ?? null,
     });
@@ -111,7 +111,7 @@ export function foodChoices(
         brand: p.name,
         unit: unit.get(p.id) ?? unit.get(f.id) ?? "g",
         per100: { ...base, ...per.get(p.id) },
-        ...(kinds.has(f.id) ? { kinds: kinds.get(f.id)! } : {}),
+        ...(kinds.has(f.id) ? { estimates: kinds.get(f.id)! } : {}),
         uses: pu?.uses ?? 0,
         lastQty: pu?.lastQty ?? null,
       });
@@ -173,7 +173,7 @@ export function lineChoices(
     brand: null,
     unit: l.unit,
     per100: l.values,
-    ...(l.itemId && kinds.has(l.itemId) ? { kinds: kinds.get(l.itemId)! } : {}),
+    ...(l.itemId && kinds.has(l.itemId) ? { estimates: kinds.get(l.itemId)! } : {}),
     uses: 0,
     lastQty: null,
   }));

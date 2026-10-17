@@ -11,9 +11,9 @@
  */
 import { and, desc, eq, lte } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { decisions } from "../db/schema";
+import { decisions, settings } from "../db/schema";
 import { addDays, type IsoDate } from "../engines/time";
-import { dayMaxima } from "../engines/targets";
+import { dayMaxima, microTargets, type MicroTarget } from "../engines/targets";
 import { ownedBy, type Owner } from "../identity/owner";
 
 export type FoodTargets = {
@@ -113,4 +113,23 @@ export async function readDayTargets(
       .limit(1),
   ]);
   return targetsOn([...own, ...week] as TargetDecision[], day);
+}
+
+/**
+ * The person's micronutrient targets on `day` (E5, EFSA, adults): from the
+ * sex and the birth year in their settings; none while either is missing.
+ * The age is the day's year minus the birth year (only the year is kept).
+ */
+export async function readMicroTargets(
+  db: Db,
+  owner: Owner,
+  day: IsoDate,
+): Promise<MicroTarget[] | null> {
+  const [s] = await db
+    .select({ sex: settings.sex, birthYear: settings.birthYear })
+    .from(settings)
+    .where(ownedBy(settings, owner));
+  if (!s?.sex || !s.birthYear) return null;
+  const age = Number(day.slice(0, 4)) - s.birthYear;
+  return age >= 18 ? microTargets({ sex: s.sex, age }) : null;
 }

@@ -26,6 +26,7 @@ import {
   type RecipeChoice,
 } from "./choices";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
+import { MICRO_FIELDS } from "./micros";
 
 /** The owner's live foods and products as choices, with their use up to `today`. */
 export async function readFoodChoices(
@@ -161,8 +162,8 @@ export async function readRecipeChoices(
   );
 }
 
-/** The kind estimates of these foods (core/food/kinds), by food: for the lines of a day. */
-export async function readFoodKinds(
+/** The estimates of these foods (core/food/kinds and micros), by food: for the lines of a day. */
+export async function readFoodEstimates(
   db: Db,
   owner: Owner,
   itemIds: readonly string[],
@@ -181,7 +182,7 @@ export async function readFoodKinds(
       and(
         ownedBy(catalogValues, owner),
         inArray(catalogValues.itemId, [...new Set(itemIds)]),
-        inArray(catalogValues.field, [...KIND_FIELDS, FIBRE_TYPES]),
+        inArray(catalogValues.field, [...KIND_FIELDS, FIBRE_TYPES, ...MICRO_FIELDS]),
       ),
     );
   for (const r of rows) {

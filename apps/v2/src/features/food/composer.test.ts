@@ -51,6 +51,16 @@ describe("the composer's numbers", () => {
     expect(t).toEqual({ kcal: 278, protein: 13.55, fibre: 5, sugars: 10.1 });
   });
 
+  it("multiplies the lines by the servings", () => {
+    expect(mealTotals([{ key: "oats", quantity: "50" }], by, "1,5")).toEqual({
+      kcal: 279,
+      protein: 10.125,
+      fibre: 7.5,
+      sugars: 0.75,
+    });
+    expect(mealTotals([{ key: "oats", quantity: "50" }], by, "")["kcal"]).toBe(186);
+  });
+
   it("draws the meal alone, and the day with the meal as planned", () => {
     const t = { kcal: 278, protein: 13.55, fibre: 5, sugars: 10.1 };
     expect(mealNutrients(t)).toEqual({
@@ -82,7 +92,7 @@ describe("the meal's kinds", () => {
     const withKinds = new Map([
       [
         "oats",
-        { ...by.get("oats")!, kinds: { protein_high: "1", fibre_betaglucan: "1" } },
+        { ...by.get("oats")!, estimates: { protein_high: "1", fibre_betaglucan: "1" } },
       ],
       ["milk", by.get("milk")!],
     ]);

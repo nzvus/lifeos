@@ -17,6 +17,7 @@ import {
   type FoodChoice,
 } from "./choices";
 import { checkMealLines } from "./meal";
+import { createRecipe, recipeName, recipeNameTaken } from "./recipes";
 
 const items = [
   { id: "f1", catalog: "food", name: "Caffè", parentId: null },
@@ -140,6 +141,17 @@ describe("saved meals", () => {
     ]);
     expect(searchRecipes(recipes, "")).toHaveLength(1);
     expect(searchRecipes(recipes, "pranzo")).toEqual([]);
+  });
+});
+
+describe("a recipe's name", () => {
+  it("is trimmed, not empty and not too long", () => {
+    expect(recipeName("  Porridge   alla  cannella ")).toEqual({
+      ok: true,
+      name: "Porridge alla cannella",
+    });
+    expect(recipeName("  ")).toEqual({ ok: false, error: "empty" });
+    expect(recipeName("x".repeat(81))).toEqual({ ok: false, error: "too_long" });
   });
 });
 
@@ -306,5 +318,24 @@ describe("a meal from the catalog", () => {
       name: "Porridge",
     });
     expect((await readRecipeChoices(db, a, "2026-10-17", foods))[0]!.uses).toBe(1);
+  });
+
+  it("saves a composed meal as a recipe the composer then offers", async () => {
+    const foods = await readFoodChoices(db, a, "2026-10-17");
+    const lines = checkMealLines(
+      [{ key: foods[0]!.key, quantity: "45" }],
+      new Map(foods.map((c) => [c.key, c])),
+    );
+    if (!lines.ok) throw new Error("expected valid lines");
+    const unknown = { ...lines.lines[0]!, itemId: null, name: "vecchio" };
+    const id = await createRecipe(db, a, "Avena del mattino", [...lines.lines, unknown]);
+    const recipes = await readRecipeChoices(db, a, "2026-10-17", foods);
+    expect(recipes.find((r) => r.recipeId === id)).toMatchObject({
+      name: "Avena del mattino",
+      parts: [{ key: foods[0]!.key, quantity: "45.00" }],
+    });
+    expect(await recipeNameTaken(db, a, "AVENA DEL MATTINO")).toBe(true);
+    expect(await recipeNameTaken(db, a, "Avena della sera")).toBe(false);
+    expect(await recipeNameTaken(db, b, "Avena del mattino")).toBe(false);
   });
 });

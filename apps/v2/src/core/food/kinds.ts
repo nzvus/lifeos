@@ -41,7 +41,7 @@ export type KindLine = {
   /** The line's snapshot per 100. */
   values: Record<string, string>;
   /** The food's estimates per 100, by catalog field ("fat_mufa"); none when unknown. */
-  kinds?: Record<string, string>;
+  estimates?: Record<string, string>;
 };
 
 /** Macro → kind → grams, "none" for what no estimate splits. */
@@ -59,8 +59,10 @@ export function macroKinds(
       if (per === undefined) continue;
       const grams = new Big(per).times(l.quantity).times(times).div(100);
       if (grams.lte(0)) continue;
-      let est = KINDS[m].map((k) => [k, Number(l.kinds?.[m + "_" + k] ?? 0)] as const);
-      const listed = (l.kinds?.[FIBRE_TYPES] ?? "")
+      let est = KINDS[m].map(
+        (k) => [k, Number(l.estimates?.[m + "_" + k] ?? 0)] as const,
+      );
+      const listed = (l.estimates?.[FIBRE_TYPES] ?? "")
         .split(",")
         .flatMap((t) => (V1_FIBRE[t.trim()] ? [V1_FIBRE[t.trim()]!] : []));
       if (m === "fibre" && est.every(([, v]) => v <= 0) && listed.length > 0)

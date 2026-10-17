@@ -10,6 +10,7 @@ import type { MacroKey, NutrientsData } from "@lifeos/kit";
 import type { FoodChoice } from "@/core/food/choices";
 import type { EntryErrors } from "@/core/entries";
 import type { LineError, LineInput, LinesError } from "@/core/food/meal";
+import type { RecipeNameError } from "@/core/food/recipes";
 import { macroKinds, type MacroKinds } from "@/core/food/kinds";
 import { lineTotals } from "@/core/food/totals";
 
@@ -43,6 +44,7 @@ export function quantityOf(q: string): string | null {
 export function mealTotals(
   lines: readonly DraftLine[],
   choices: ReadonlyMap<string, FoodChoice>,
+  servings = "1",
 ): Record<string, number> {
   const snap = lines.flatMap((l) => {
     const c = choices.get(l.key);
@@ -50,7 +52,10 @@ export function mealTotals(
     return c && q ? [{ quantity: q, values: c.per100 }] : [];
   });
   return Object.fromEntries(
-    Object.entries(lineTotals(snap)).map(([f, v]) => [f, Number(v)]),
+    Object.entries(lineTotals(snap, quantityOf(servings) ?? "1")).map(([f, v]) => [
+      f,
+      Number(v),
+    ]),
   );
 }
 
@@ -58,15 +63,23 @@ export function mealTotals(
 export function mealKinds(
   lines: readonly DraftLine[],
   choices: ReadonlyMap<string, FoodChoice>,
+  servings = "1",
 ): MacroKinds {
   return macroKinds(
     lines.flatMap((l) => {
       const c = choices.get(l.key);
       const q = quantityOf(l.quantity);
       return c && q
-        ? [{ quantity: q, values: c.per100, ...(c.kinds ? { kinds: c.kinds } : {}) }]
+        ? [
+            {
+              quantity: q,
+              values: c.per100,
+              ...(c.estimates ? { estimates: c.estimates } : {}),
+            },
+          ]
         : [];
     }),
+    quantityOf(servings) ?? "1",
   );
 }
 
@@ -89,9 +102,11 @@ export function mealNutrients(
 
 /** The day's Nutrients with this meal added to what is planned. */
 export function dayWithMeal(
-  day: NutrientsData,
+  dayData: NutrientsData,
   t: Record<string, number>,
 ): NutrientsData {
+  // The micros are the day's eaten ones: without the meal's they would mislead, so they stay out.
+  const { micros: _micros, ...day } = dayData;
   const add = (planned: number | undefined, f: string) => (planned ?? 0) + (t[f] ?? 0);
   return {
     ...(day.kcal
@@ -111,6 +126,12 @@ export function dayWithMeal(
       : {}),
   };
 }
+
+export const RECIPE_WORDS: Record<RecipeNameError, string> = {
+  empty: "Dai un nome al pasto da salvare.",
+  too_long: "Al massimo 80 caratteri.",
+  taken: "Hai già un pasto salvato con questo nome.",
+};
 
 export const LINE_WORDS: Record<LineError | LinesError, string> = {
   unknown: "Questo cibo non è più nel catalogo.",

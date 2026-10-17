@@ -30,6 +30,14 @@ export type NutrientsData = {
     extras?: { t: string; state?: State }[];
   }[];
   limits?: { key: LimitKey; v: number; t: number }[];
+  /** Vitamins and minerals, grouped; the page judges each (a state), the kit draws it. */
+  micros?: {
+    summary: string;
+    groups: {
+      name: string;
+      items: { name: string; v: number; t: number | null; unit: string; state?: State }[];
+    }[];
+  };
 };
 
 export const MACRO_COLOR: Record<MacroKey, string> = {
@@ -201,5 +209,28 @@ export function nutrientsL1(d: NutrientsData) {
     aria: LIMIT[l.key] + " " + F.num(l.v, "g") + " su un massimo di " + F.num(l.t, "g"),
   }));
 
-  return { kcal, macros, limits };
+  const micros = d.micros
+    ? {
+        summary: d.micros.summary,
+        groups: d.micros.groups.map((g) => ({
+          name: g.name,
+          items: g.items.map((i) => ({
+            name: i.name,
+            v:
+              i.t === null
+                ? F.num(i.v, i.unit)
+                : F.n(i.v, i.v < 10 ? 1 : 0) + " / " + F.num(i.t, i.unit),
+            w: i.t === null ? "0%" : Math.min(100, (i.v / i.t) * 100).toFixed(0) + "%",
+            color: F.tone(i.state),
+            aria:
+              i.name +
+              " " +
+              F.num(i.v, i.unit) +
+              (i.t === null ? "" : " su " + F.num(i.t, i.unit)),
+          })),
+        })),
+      }
+    : null;
+
+  return { kcal, macros, limits, micros };
 }

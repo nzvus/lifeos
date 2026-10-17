@@ -20,7 +20,8 @@ import { errorWords, managedFields, readEntryForm } from "@/features/day/entry-f
 import type { MealState } from "@/features/food/Composer";
 import { mealErrors, parseLines } from "@/features/food/composer";
 import { addContext } from "../../aggiungi/kinds";
-import { mealInput } from "../../aggiungi/pasto/meal-input";
+import { createRecipe } from "@/core/food/recipes";
+import { mealExtras, mealInput } from "../../aggiungi/pasto/meal-input";
 
 const GONE = "Questa voce non c’è più: forse è stata eliminata.";
 
@@ -98,21 +99,26 @@ export async function updateMeal(
     mealInput(item.day, form, ctx.clock.boundaryMin),
     ctx.clock,
   );
-  if (!checkedLines.ok || !entry.ok)
-    return again(
-      mealErrors(
+  const extras = await mealExtras(db, owner, form);
+  if (!checkedLines.ok || !entry.ok || Object.keys(extras.errors).length > 0)
+    return again({
+      ...mealErrors(
         entry.ok ? null : entry.errors,
         checkedLines.ok ? null : checkedLines,
         errorWords,
       ),
-    );
+      ...extras.errors,
+    });
+  const saved = extras.saveAs
+    ? await createRecipe(db, owner, extras.saveAs, checkedLines.lines)
+    : null;
   if (
     !(await updateEntry(
       db,
       owner,
       id,
-      { ...entry.entry, lines: checkedLines.lines, itemId: recipe },
-      ["role"],
+      { ...entry.entry, lines: checkedLines.lines, itemId: saved ?? recipe },
+      ["role", "servings"],
     ))
   )
     return again({ form: GONE });

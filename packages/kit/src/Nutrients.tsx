@@ -11,7 +11,7 @@ import { nutrientsL1, type NutrientsData } from "./nutrient-rows";
 
 export function Nutrients({ data }: { data: NutrientsData }) {
   const [open, setOpen] = useState<string | null>(null);
-  const { kcal, macros, limits } = nutrientsL1(data);
+  const { kcal, macros, limits, micros } = nutrientsL1(data);
   return (
     <div className="k-stack g3">
       {kcal && (
@@ -134,6 +134,51 @@ export function Nutrients({ data }: { data: NutrientsData }) {
               </span>
             </span>
           ))}
+        </div>
+      )}
+      {micros && (
+        <div className="k-nrow">
+          <button
+            type="button"
+            className="k-mrow"
+            onClick={() => setOpen(open === "micro" ? null : "micro")}
+            aria-expanded={open === "micro"}
+          >
+            <span className="k-line between">
+              <span className="k-line">
+                <span className="k-micon">
+                  <Glyph of={{ nutrient: "micro" }} size="m" />
+                </span>
+                <span className="k-label">Vitamine e minerali</span>
+              </span>
+              <span className="k-meta">{micros.summary}</span>
+            </span>
+          </button>
+          <div className={"k-reveal" + (open === "micro" ? " on" : "")}>
+            <div>
+              <div className="k-kinds g3">
+                {micros.groups.map((g) => (
+                  <div key={g.name} className="k-stack">
+                    <span className="k-cap">{g.name}</span>
+                    {g.items.map((i) => (
+                      <div
+                        key={i.name}
+                        className="k-krow k-microw"
+                        role="img"
+                        aria-label={i.aria}
+                      >
+                        <span className="k-body">{i.name}</span>
+                        <span className="k-bar">
+                          <i style={{ width: i.w, background: i.color }} />
+                        </span>
+                        <span className="k-num b3 k-right">{i.v}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
