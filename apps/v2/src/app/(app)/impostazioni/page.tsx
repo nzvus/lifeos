@@ -52,7 +52,12 @@ export default async function SettingsPage() {
         <a className="k-link" href="/impostazioni/cestino">
           Cestino
         </a>
-        <p className="k-help">L’esportazione arriva con la prossima parte.</p>
+        <a className="k-link" href="/impostazioni/esporta" download>
+          Esporta i dati (JSON)
+        </a>
+        <p className="k-help">
+          Una copia di tutto quello che hai inserito, da tenere da parte.
+        </p>
       </section>
     </main>
   );
