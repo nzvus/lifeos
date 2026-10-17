@@ -48,6 +48,11 @@ export default async function AndamentoPage({
   return (
     <main className="k-page has-bd">
       <PageHeader title="Andamento" of={{ place: "andamento" }} />
+      <section className="k-section" aria-label="Obiettivi">
+        <a className="k-link" href="/andamento/obiettivi">
+          Obiettivi ›
+        </a>
+      </section>
       <section className="k-section g3" aria-label="Il periodo">
         <div className="k-chips">
           {RANGES.map((n) => (
