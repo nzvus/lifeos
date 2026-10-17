@@ -371,7 +371,20 @@ function Draft({
               </div>
             )}
             {query && found.length === 0 && (
-              <p className="k-help">Nessun cibo con queste parole nel catalogo.</p>
+              <p className="k-help">
+                Nessun cibo con queste parole nel catalogo.{" "}
+                <a
+                  className="k-link"
+                  href={
+                    "/libreria/cibo/nuovo?nome=" +
+                    encodeURIComponent(query.trim()) +
+                    "&torna=" +
+                    encodeURIComponent(backHref.replace("/aggiungi?", "/aggiungi/pasto?"))
+                  }
+                >
+                  Crea «{query.trim()}»
+                </a>
+              </p>
             )}
           </>
         )}
