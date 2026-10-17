@@ -236,6 +236,8 @@ From the weight goal (a goal with "reach W by date") and E4:
   learnt seconds per rep, plus the setup delay.
 - **Deload suggestion:** e1RM falling on several exercises for 2+ weeks
   with low recovery, or after N weeks of rising volume.
+- **Code:** `apps/v2/src/core/engines/training/`; v1's progression cases run
+  as parity. Per side counts ×2 like per dumbbell; N = 6 weeks.
 
 ## E7 Judgements: a registry of scoring models
 
