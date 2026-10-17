@@ -49,9 +49,10 @@ export default async function SettingsPage() {
       </section>
       <section className="k-section g2" aria-label="Dati">
         <h2>Dati</h2>
-        <p className="k-help">
-          Esportazione, cestino e tema arrivano con le prossime parti.
-        </p>
+        <a className="k-link" href="/impostazioni/cestino">
+          Cestino
+        </a>
+        <p className="k-help">L’esportazione arriva con la prossima parte.</p>
       </section>
     </main>
   );
