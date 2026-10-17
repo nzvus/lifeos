@@ -7,7 +7,8 @@
  * macro (eaten, then planned hatched, the target as a tick), the maxima
  * below. A macro with its kinds (`parts`) shades its bar by kind in the
  * fixed order of kinds.md; without them it is one colour. Without a target
- * there is no tick and no "/ target".
+ * there is no tick and no "/ target", and the bars share one scale (a meal
+ * on its own: its protein against its carbs).
  */
 import { F, type State } from "./format";
 
@@ -117,10 +118,16 @@ export function nutrientsL1(d: NutrientsData) {
       })()
     : null;
 
+  // Macros without a target share one scale, so their bars compare with each other.
+  const shared =
+    Math.max(
+      0,
+      ...d.macros.filter((m) => m.t == null).map((m) => m.v + (m.planned ?? 0)),
+    ) * 1.05;
   const macros = d.macros.map((m) => {
     const planned = m.planned ?? 0;
     const t = m.t ?? null;
-    const scale = Math.max(t === null ? 0 : t * 1.25, (m.v + planned) * 1.05) || 1;
+    const scale = (t === null ? shared : Math.max(t * 1.25, (m.v + planned) * 1.05)) || 1;
     const kinds = KINDS[m.key].filter(([k]) => (m.parts?.[k] ?? 0) > 0);
     const segs: Seg[] = kinds.length
       ? kinds.map(([k, , tone]) => ({

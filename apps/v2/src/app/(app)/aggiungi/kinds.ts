@@ -9,7 +9,7 @@ import { readClock, readUserKinds } from "@/core/day";
 import { enterable } from "@/core/entries";
 import { logicalDay, type DayClock, type IsoDate } from "@/core/engines/time";
 import type { Owner } from "@/core/identity/owner";
-import { kindRegistry, type Kind } from "@/core/kinds";
+import { kindRegistry, type Kind, type RoleBounds } from "@/core/kinds";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -17,8 +17,14 @@ export async function addContext(
   db: Db,
   owner: Owner,
   giorno: string | string[] | undefined,
-): Promise<{ kinds: Kind[]; clock: DayClock; today: IsoDate; day: IsoDate }> {
-  const [{ clock }, rows] = await Promise.all([
+): Promise<{
+  kinds: Kind[];
+  clock: DayClock;
+  roleBounds: RoleBounds;
+  today: IsoDate;
+  day: IsoDate;
+}> {
+  const [{ clock, roleBounds }, rows] = await Promise.all([
     readClock(db, owner),
     readUserKinds(db, owner),
   ]);
@@ -28,5 +34,5 @@ export async function addContext(
   );
   const today = logicalDay(new Date(), clock);
   const day = typeof giorno === "string" && ISO.test(giorno) ? giorno : today;
-  return { kinds, clock, today, day };
+  return { kinds, clock, roleBounds, today, day };
 }
