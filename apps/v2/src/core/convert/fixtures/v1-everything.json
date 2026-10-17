@@ -1,0 +1,694 @@
+{
+  "format": "lifeos-export",
+  "version": 21,
+  "exportedAt": "2026-10-17T10:00:00.000Z",
+  "account": {
+    "name": "fixture",
+    "email": "fixture@example.test",
+    "createdAt": "2026-10-17T08:29:05.530Z"
+  },
+  "tables": {
+    "assistant_conversations": [
+      {
+        "id": "34bbdcdc-3670-4235-9552-1196bfad2ea3",
+        "title": "Hi",
+        "createdAt": "2026-10-17T08:29:05.582Z",
+        "updatedAt": "2026-10-17T08:29:05.582Z",
+        "deletedAt": null
+      }
+    ],
+    "assistant_messages": [
+      {
+        "id": "8e9ff0d0-6ebb-41bd-aefe-d3bf29e85733",
+        "conversationId": "34bbdcdc-3670-4235-9552-1196bfad2ea3",
+        "role": "user",
+        "content": "hello",
+        "toolCalls": null,
+        "toolCallId": null,
+        "attachments": [
+          {
+            "name": "x.png"
+          }
+        ],
+        "createdAt": "2026-10-17T08:29:05.583Z"
+      }
+    ],
+    "ingredients": [
+      {
+        "id": "470725bf-5a90-4e60-a491-ff53ad9924f0",
+        "name": "Oats",
+        "description": "",
+        "unit": "g",
+        "kcal": "389.000",
+        "protein": "16.900",
+        "carbs": "66.300",
+        "sugars": "1.000",
+        "fat": "6.900",
+        "saturatedFat": "1.200",
+        "fiber": "10.600",
+        "salt": "0.010",
+        "packagePriceCents": 199,
+        "packageSize": "500.00",
+        "nova": 1,
+        "origin": "plant",
+        "fiberTypes": ["beta_glucan"],
+        "createdAt": "2026-10-17T08:29:05.541Z",
+        "updatedAt": "2026-10-17T08:29:05.541Z",
+        "deletedAt": null
+      },
+      {
+        "id": "83ad657f-728e-42f4-a543-ef950c5c1198",
+        "name": "Old flour",
+        "description": "",
+        "unit": "g",
+        "kcal": "389.000",
+        "protein": "16.900",
+        "carbs": "66.300",
+        "sugars": "1.000",
+        "fat": "6.900",
+        "saturatedFat": "1.200",
+        "fiber": "10.600",
+        "salt": "0.010",
+        "packagePriceCents": null,
+        "packageSize": null,
+        "nova": null,
+        "origin": null,
+        "fiberTypes": [],
+        "createdAt": "2026-10-17T08:29:05.543Z",
+        "updatedAt": "2026-10-17T08:29:05.543Z",
+        "deletedAt": "2026-10-01T10:00:00.000Z"
+      }
+    ],
+    "meals": [
+      {
+        "id": "6142a43e-3df2-45a5-8cb5-89340ffe307a",
+        "name": "Porridge",
+        "notes": "",
+        "review": "",
+        "category": "breakfast",
+        "createdAt": "2026-10-17T08:29:05.547Z",
+        "updatedAt": "2026-10-17T08:29:05.547Z",
+        "deletedAt": null
+      }
+    ],
+    "batches": [
+      {
+        "id": "9ed61da2-b344-4396-9273-fcfea15c5942",
+        "mealId": "6142a43e-3df2-45a5-8cb5-89340ffe307a",
+        "label": "Porridge ×4",
+        "portions": 4,
+        "cookedAt": "2026-10-10T08:00:00.000Z",
+        "day": "2026-10-10",
+        "notes": "",
+        "createdAt": "2026-10-17T08:29:05.550Z",
+        "deletedAt": null
+      }
+    ],
+    "batch_lines": [
+      {
+        "id": "2e6c688f-fc6e-469e-95e8-dd09b8590103",
+        "batchId": "9ed61da2-b344-4396-9273-fcfea15c5942",
+        "ingredientId": "470725bf-5a90-4e60-a491-ff53ad9924f0",
+        "name": "Oats",
+        "unit": "g",
+        "quantity": "320.00",
+        "kcal": "389.000",
+        "protein": "16.900",
+        "carbs": "66.300",
+        "sugars": "1.000",
+        "fat": "6.900",
+        "saturatedFat": "1.200",
+        "fiber": "10.600",
+        "salt": "0.010",
+        "packagePriceCents": null,
+        "packageSize": null,
+        "nova": null,
+        "origin": null,
+        "fiberTypes": [],
+        "position": 0
+      }
+    ],
+    "body_measurements": [
+      {
+        "id": "81f9217f-208f-420c-8471-253b390cc262",
+        "day": "2026-10-10",
+        "weightKg": "76.40",
+        "bodyFatPct": null,
+        "waistCm": "82.0",
+        "abdomenCm": null,
+        "neckCm": null,
+        "hipCm": null,
+        "notes": "",
+        "createdAt": "2026-10-17T08:29:05.576Z",
+        "deletedAt": null
+      }
+    ],
+    "day_activity": [
+      {
+        "day": "2026-10-10",
+        "level": "mixed",
+        "walkingMin": null,
+        "steps": 9000,
+        "updatedAt": "2026-10-17T08:29:05.577Z"
+      }
+    ],
+    "day_checkins": [
+      {
+        "day": "2026-10-10",
+        "mood": 4,
+        "energy": 3,
+        "stress": 2,
+        "note": "ok",
+        "updatedAt": "2026-10-17T08:29:05.564Z"
+      }
+    ],
+    "day_closures": [
+      {
+        "day": "2026-10-10",
+        "state": "complete",
+        "updatedAt": "2026-10-17T08:29:05.563Z"
+      }
+    ],
+    "day_profiles": [
+      {
+        "id": "3f58f196-fd71-4608-8835-3d818d958088",
+        "name": "Gym day",
+        "isDefault": true,
+        "kcal": "2600.000",
+        "protein": null,
+        "carbs": null,
+        "sugars": null,
+        "fat": null,
+        "saturatedFat": null,
+        "fiber": null,
+        "salt": null,
+        "mode": "dynamic",
+        "deficitKcal": 0,
+        "proteinGPerKg": "1.8",
+        "fatGPerKg": "0.8",
+        "createdAt": "2026-10-17T08:29:05.557Z",
+        "updatedAt": "2026-10-17T08:29:05.557Z",
+        "deletedAt": null
+      }
+    ],
+    "day_plans": [
+      {
+        "day": "2026-10-10",
+        "profileId": "3f58f196-fd71-4608-8835-3d818d958088",
+        "profileName": "Gym day",
+        "kcal": "2600.000",
+        "protein": null,
+        "carbs": null,
+        "sugars": null,
+        "fat": null,
+        "saturatedFat": null,
+        "fiber": null,
+        "salt": null,
+        "mode": "fixed",
+        "deficitKcal": 0,
+        "proteinGPerKg": "1.8",
+        "fatGPerKg": "0.8",
+        "updatedAt": "2026-10-17T08:29:05.558Z"
+      }
+    ],
+    "day_program_slots": [
+      {
+        "profileId": "3f58f196-fd71-4608-8835-3d818d958088",
+        "position": 0,
+        "kind": "breakfast",
+        "at": 480,
+        "kcalShare": "0.25",
+        "proteinShare": "0.25"
+      }
+    ],
+    "day_programs": [
+      {
+        "profileId": "3f58f196-fd71-4608-8835-3d818d958088",
+        "trainingAt": 1080,
+        "shiftKcal": 200,
+        "updatedAt": "2026-10-17T08:29:05.559Z"
+      }
+    ],
+    "energy_corrections": [
+      {
+        "id": "7d9384a6-773c-4789-832a-3ac0e3e1b1e2",
+        "sinceDay": "2026-10-01",
+        "factor": "1.05",
+        "createdAt": "2026-10-17T08:29:05.560Z"
+      }
+    ],
+    "exercises": [
+      {
+        "id": "eb24a179-8aad-4221-a18a-714928acf63e",
+        "name": "Bench press",
+        "kind": "strength",
+        "muscleGroups": ["chest"],
+        "pattern": "push_horizontal",
+        "equipment": null,
+        "unilateral": false,
+        "notes": "",
+        "createdAt": "2026-10-17T08:29:05.564Z",
+        "deletedAt": null
+      }
+    ],
+    "goals": [
+      {
+        "sinceDay": "2026-10-01",
+        "ratePctWeek": "-0.50",
+        "kind": "lose",
+        "targetKg": "73.00",
+        "targetDay": null,
+        "kcalFloor": "standard",
+        "protein": "moderate",
+        "split": "balanced",
+        "checkInWeekday": 1,
+        "weeklyCheckIn": true,
+        "createdAt": "2026-10-17T08:29:05.561Z"
+      }
+    ],
+    "ingredient_compounds": [
+      {
+        "ingredientId": "470725bf-5a90-4e60-a491-ff53ad9924f0",
+        "compound": "caffeine",
+        "amount": "40.000"
+      }
+    ],
+    "tags": [
+      {
+        "id": "34689612-edfe-4acb-8f7a-881d9d981de6",
+        "name": "breakfast",
+        "icon": "sun",
+        "createdAt": "2026-10-17T08:29:05.544Z"
+      }
+    ],
+    "ingredient_tags": [
+      {
+        "ingredientId": "470725bf-5a90-4e60-a491-ff53ad9924f0",
+        "tagId": "34689612-edfe-4acb-8f7a-881d9d981de6"
+      }
+    ],
+    "log_entries": [
+      {
+        "id": "03d16a4d-4386-4fdd-8921-ce4cf3596ac2",
+        "day": "2026-10-10",
+        "mealId": null,
+        "label": "Snack",
+        "servings": "1.00",
+        "status": "planned",
+        "at": null,
+        "estimated": true,
+        "moment": null,
+        "batchId": null,
+        "createdAt": "2026-10-17T08:29:05.555Z",
+        "deletedAt": null
+      },
+      {
+        "id": "8735d0b0-1bc3-4f2d-a7af-7b27cd755b8e",
+        "day": "2026-10-10",
+        "mealId": "6142a43e-3df2-45a5-8cb5-89340ffe307a",
+        "label": "Porridge",
+        "servings": "1.50",
+        "status": "eaten",
+        "at": "2026-10-10T07:30:00.000Z",
+        "estimated": false,
+        "moment": "breakfast",
+        "batchId": "9ed61da2-b344-4396-9273-fcfea15c5942",
+        "createdAt": "2026-10-17T08:29:05.552Z",
+        "deletedAt": null
+      }
+    ],
+    "log_entry_items": [
+      {
+        "id": "db7781ab-d3f4-451f-838e-d3c918a5a593",
+        "entryId": "8735d0b0-1bc3-4f2d-a7af-7b27cd755b8e",
+        "ingredientId": "470725bf-5a90-4e60-a491-ff53ad9924f0",
+        "name": "Oats",
+        "unit": "g",
+        "quantity": "80.00",
+        "kcal": "389.000",
+        "protein": "16.900",
+        "carbs": "66.300",
+        "sugars": "1.000",
+        "fat": "6.900",
+        "saturatedFat": "1.200",
+        "fiber": "10.600",
+        "salt": "0.010",
+        "packagePriceCents": null,
+        "packageSize": null,
+        "nova": null,
+        "origin": null,
+        "fiberTypes": [],
+        "position": 0
+      }
+    ],
+    "log_entry_left_out": [
+      {
+        "entryId": "03d16a4d-4386-4fdd-8921-ce4cf3596ac2",
+        "createdAt": "2026-10-17T08:29:05.556Z"
+      }
+    ],
+    "meal_items": [
+      {
+        "id": "54eda43d-acaf-4370-beac-31b1bda2faa0",
+        "mealId": "6142a43e-3df2-45a5-8cb5-89340ffe307a",
+        "ingredientId": "470725bf-5a90-4e60-a491-ff53ad9924f0",
+        "quantity": "80.00",
+        "position": 0
+      }
+    ],
+    "rating_factors": [
+      {
+        "id": "45eeaef3-5870-4c1a-b0fb-b8ad5518cd5e",
+        "name": "Taste",
+        "position": 0
+      }
+    ],
+    "meal_ratings": [
+      {
+        "mealId": "6142a43e-3df2-45a5-8cb5-89340ffe307a",
+        "factorId": "45eeaef3-5870-4c1a-b0fb-b8ad5518cd5e",
+        "score": 4
+      }
+    ],
+    "money_categories": [
+      {
+        "id": "2ce40199-7182-4636-b99d-8507fdb0111b",
+        "name": "Groceries",
+        "kind": "expense",
+        "parentId": "c818f132-c73e-4d12-803e-c86094f7e716",
+        "key": null,
+        "icon": "",
+        "position": 0,
+        "createdAt": "2026-10-17T08:29:05.585Z",
+        "deletedAt": null
+      },
+      {
+        "id": "c818f132-c73e-4d12-803e-c86094f7e716",
+        "name": "Food",
+        "kind": "expense",
+        "parentId": null,
+        "key": "food",
+        "icon": "",
+        "position": 0,
+        "createdAt": "2026-10-17T08:29:05.584Z",
+        "deletedAt": null
+      }
+    ],
+    "money_receipts": [
+      {
+        "id": "100e40e2-b3f7-45e1-a337-a91d2e6b1bcb",
+        "day": "2026-10-08",
+        "shop": "Lidl",
+        "text": "OATS 3,98",
+        "createdAt": "2026-10-17T08:29:05.586Z",
+        "deletedAt": null
+      }
+    ],
+    "money_movements": [
+      {
+        "id": "08c71f65-c5e6-4874-aae6-6f557a7faa4b",
+        "day": "2026-10-08",
+        "amountCents": -398,
+        "categoryId": "2ce40199-7182-4636-b99d-8507fdb0111b",
+        "description": "",
+        "shop": "",
+        "method": "card",
+        "tags": ["weekly"],
+        "receiptId": "100e40e2-b3f7-45e1-a337-a91d2e6b1bcb",
+        "createdAt": "2026-10-17T08:29:05.587Z",
+        "updatedAt": "2026-10-17T08:29:05.587Z",
+        "deletedAt": null
+      }
+    ],
+    "products": [
+      {
+        "id": "b33d7895-d2ad-4f8e-9fd3-bb20bdb16832",
+        "name": "Oats 500 g",
+        "brand": "Lidl",
+        "unit": "g",
+        "packageSize": "500.00",
+        "ingredientId": "470725bf-5a90-4e60-a491-ff53ad9924f0",
+        "shop": "",
+        "barcode": "4056489000000",
+        "notes": "",
+        "createdAt": "2026-10-17T08:29:05.579Z",
+        "updatedAt": "2026-10-17T08:29:05.579Z",
+        "deletedAt": null
+      }
+    ],
+    "purchases": [
+      {
+        "id": "17002e8e-5b51-4789-bbff-d58d926394d9",
+        "productId": "b33d7895-d2ad-4f8e-9fd3-bb20bdb16832",
+        "day": "2026-10-08",
+        "packages": "2.00",
+        "priceCents": 398,
+        "shop": "",
+        "createdAt": "2026-10-17T08:29:05.580Z",
+        "deletedAt": null
+      }
+    ],
+    "money_lines": [
+      {
+        "id": "ebdad011-ef95-4937-8178-4ffe0c59ff7d",
+        "movementId": "08c71f65-c5e6-4874-aae6-6f557a7faa4b",
+        "position": 0,
+        "description": "OATS",
+        "quantity": "2.000",
+        "amountCents": 398,
+        "productId": "b33d7895-d2ad-4f8e-9fd3-bb20bdb16832",
+        "purchaseId": "17002e8e-5b51-4789-bbff-d58d926394d9",
+        "createdAt": "2026-10-17T08:29:05.588Z"
+      }
+    ],
+    "programs": [
+      {
+        "id": "b84d6428-8ad4-47af-8f47-a717702e66d0",
+        "name": "PPL",
+        "notes": "",
+        "startDay": "2026-10-01",
+        "active": true,
+        "createdAt": "2026-10-17T08:29:05.570Z",
+        "deletedAt": null
+      }
+    ],
+    "program_overrides": [
+      {
+        "programId": "b84d6428-8ad4-47af-8f47-a717702e66d0",
+        "day": "2026-10-06",
+        "slotPosition": 1,
+        "createdAt": "2026-10-17T08:29:05.575Z"
+      }
+    ],
+    "program_skips": [
+      {
+        "programId": "b84d6428-8ad4-47af-8f47-a717702e66d0",
+        "day": "2026-10-05",
+        "createdAt": "2026-10-17T08:29:05.574Z"
+      }
+    ],
+    "routines": [
+      {
+        "id": "7fffcdfa-1200-4e1a-8074-6d0e12837edc",
+        "name": "Push",
+        "notes": "",
+        "position": 0,
+        "itemsSavedAt": "2026-10-01T10:00:00.000Z",
+        "deletedAt": null
+      }
+    ],
+    "program_slots": [
+      {
+        "id": "22460726-335e-41d3-88ee-70797e07c2fa",
+        "programId": "b84d6428-8ad4-47af-8f47-a717702e66d0",
+        "position": 1,
+        "routineId": null,
+        "label": "Bench only"
+      },
+      {
+        "id": "491203af-9e2e-4d71-8207-e0472ef2b40e",
+        "programId": "b84d6428-8ad4-47af-8f47-a717702e66d0",
+        "position": 0,
+        "routineId": "7fffcdfa-1200-4e1a-8074-6d0e12837edc",
+        "label": "Push"
+      }
+    ],
+    "program_slot_exercises": [
+      {
+        "id": "8190169e-04cd-488a-9e5c-37cb8bf2ba0f",
+        "slotId": "22460726-335e-41d3-88ee-70797e07c2fa",
+        "exerciseId": "eb24a179-8aad-4221-a18a-714928acf63e"
+      }
+    ],
+    "program_slot_items": [
+      {
+        "id": "3c1168ec-2a7f-4444-8ad6-dbbcb250cd2d",
+        "slotId": "491203af-9e2e-4d71-8207-e0472ef2b40e",
+        "position": 0,
+        "routineId": "7fffcdfa-1200-4e1a-8074-6d0e12837edc",
+        "exerciseId": null
+      }
+    ],
+    "receipt_aliases": [
+      {
+        "id": "427ab406-ecae-4dff-bc7c-4753840b0aff",
+        "key": "oats",
+        "productId": "b33d7895-d2ad-4f8e-9fd3-bb20bdb16832",
+        "createdAt": "2026-10-17T08:29:05.589Z"
+      }
+    ],
+    "reminders": [
+      {
+        "id": "45a93737-8b18-43b4-8d38-f1775021e6ee",
+        "text": "Descale the kettle",
+        "dueDay": null,
+        "repeatDays": 30,
+        "doneAt": null,
+        "createdAt": "2026-10-17T08:29:05.582Z",
+        "updatedAt": "2026-10-17T08:29:05.582Z",
+        "deletedAt": null
+      }
+    ],
+    "routine_items": [
+      {
+        "id": "72d1416c-93f6-440f-b344-a9f437e9ed7d",
+        "routineId": "7fffcdfa-1200-4e1a-8074-6d0e12837edc",
+        "exerciseId": "eb24a179-8aad-4221-a18a-714928acf63e",
+        "position": 0,
+        "sets": 3,
+        "reps": 8,
+        "loadKg": "60.00",
+        "durationS": null,
+        "restS": 120
+      }
+    ],
+    "training_sessions": [
+      {
+        "id": "ef0a1dbe-7213-41fb-bd61-4b89f8ea3e71",
+        "day": "2026-10-10",
+        "label": "Push",
+        "status": "done",
+        "startedAt": "2026-10-10T16:00:00.000Z",
+        "durationMin": 60,
+        "routineId": "7fffcdfa-1200-4e1a-8074-6d0e12837edc",
+        "notes": "",
+        "intensity": null,
+        "kcalEstimate": null,
+        "muscleGroups": [],
+        "createdAt": "2026-10-17T08:29:05.567Z",
+        "deletedAt": null
+      }
+    ],
+    "session_exercises": [
+      {
+        "id": "7338e65b-7711-4475-b762-5dc18d884f4f",
+        "sessionId": "ef0a1dbe-7213-41fb-bd61-4b89f8ea3e71",
+        "exerciseId": "eb24a179-8aad-4221-a18a-714928acf63e",
+        "position": 0,
+        "restS": 120,
+        "notes": ""
+      }
+    ],
+    "sets": [
+      {
+        "id": "22d721eb-3d2d-4602-a5c5-8ec17bc10e0d",
+        "sessionExerciseId": "7338e65b-7711-4475-b762-5dc18d884f4f",
+        "position": 0,
+        "reps": 8,
+        "loadKg": "60.00",
+        "loadText": null,
+        "loadApprox": false,
+        "durationS": null,
+        "distanceM": null,
+        "speedKmh": null,
+        "inclinePct": null,
+        "restS": null,
+        "warmup": false,
+        "rir": 2,
+        "done": true,
+        "startedAt": "2026-10-10T16:05:00.000Z",
+        "endedAt": "2026-10-10T16:06:00.000Z"
+      }
+    ],
+    "sleep_logs": [
+      {
+        "day": "2026-10-10",
+        "bedAt": "2026-10-09T22:30:00.000Z",
+        "wakeAt": "2026-10-10T06:15:00.000Z",
+        "quality": 4,
+        "notes": "",
+        "createdAt": "2026-10-17T08:29:05.578Z"
+      }
+    ],
+    "stock_counts": [
+      {
+        "id": "74f2dc40-0bd7-4bc5-8573-4b5ebd9d93e0",
+        "at": "2026-10-09T10:00:00.000Z",
+        "ingredientId": null,
+        "productId": "b33d7895-d2ad-4f8e-9fd3-bb20bdb16832",
+        "quantity": "700.00",
+        "createdAt": "2026-10-17T08:29:05.581Z"
+      }
+    ],
+    "user_settings": [
+      {
+        "timezone": "Europe/Rome",
+        "locale": "it",
+        "theme": "quaderno",
+        "autoTargets": true,
+        "lunchFrom": 660,
+        "snackFrom": 900,
+        "dinnerFrom": 1110,
+        "trendsRange": 7,
+        "listSort": "used",
+        "listPer": "none",
+        "sex": "male",
+        "birthYear": 1995,
+        "heightCm": 180,
+        "energyCorrection": "1.00",
+        "assistantKeyLast4": "ab12",
+        "assistantModel": "openrouter/free",
+        "kcal": "2500.000",
+        "protein": null,
+        "carbs": null,
+        "sugars": null,
+        "fat": null,
+        "saturatedFat": null,
+        "fiber": null,
+        "salt": null,
+        "updatedAt": "2026-10-17T08:29:05.536Z"
+      }
+    ],
+    "week_checkins": [
+      {
+        "startDay": "2026-10-06",
+        "decision": "accepted",
+        "expenditureKcal": null,
+        "factor": null,
+        "trendKg": null,
+        "kcal": 2400,
+        "protein": 160,
+        "fat": 70,
+        "carbs": 280,
+        "fiber": 35,
+        "createdAt": "2026-10-17T08:29:05.562Z"
+      }
+    ],
+    "week_checkin_days": [
+      {
+        "startDay": "2026-10-06",
+        "day": "2026-10-07",
+        "shiftKcal": 150
+      }
+    ],
+    "weigh_in_context": [
+      {
+        "measurementId": "81f9217f-208f-420c-8471-253b390cc262",
+        "measuredAt": "2026-10-10T06:30:00.000Z",
+        "fasted": true,
+        "afterToilet": null,
+        "afterTraining": null
+      }
+    ]
+  }
+}

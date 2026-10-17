@@ -1,0 +1,1 @@
+ALTER TABLE "cycle_steps" ADD COLUMN "label" text DEFAULT '' NOT NULL;

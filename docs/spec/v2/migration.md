@@ -6,6 +6,16 @@ replace then loads that file (ADR-0052's contract on both sides). It is
 tested on a fixture with every table (`seedEverything`) and rehearsed on
 the developer's export in PGlite before every switch.
 
+**Code:** `apps/v2/src/core/convert/` — `convert()` (v21 + the refined
+layers → v2 file, version 100, with its report) and `loadFile()` (one
+transaction, parents first). A coverage test fails when a v1 column with
+a value is neither read nor named as dropped. On the developer's refined
+export (2026-10-17) every row loads into the schema. `parity.ts` computes
+the checks below on both sides (v1 from its export, v2 from the loaded
+rows): 626 numbers, all equal (food 360, sessions 75, best e1RM 149,
+weigh-ins 13, nights 18, money 2, counts 9). The trend weight (E4 against
+v1's estimators) waits for the body slice's day priors.
+
 ## Mapping (all 50 exported tables)
 
 | v1 table | v2 place | Notes |

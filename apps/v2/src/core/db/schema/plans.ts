@@ -149,6 +149,8 @@ export const cycleSteps = pgTable(
     position: integer("position").notNull(),
     /** The step's model, when the step is a day type; else its items (cycle_step_items); neither is a rest. */
     stepTemplateId: uuid("step_template_id"),
+    /** What the step is called ("Push", "Riposo"); v1's slot label. */
+    label: text("label").notNull().default(""),
   },
   (t) => [
     unique("cycle_steps_id_user_uq").on(t.id, t.userId),

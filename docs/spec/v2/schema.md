@@ -44,7 +44,7 @@ snapshots, training sets, money movements, and templates.
 | Table | Columns | Notes |
 |---|---|---|
 | templates | id, user_id, scope (block/day/week/cycle), name, extends_id, recurrence jsonb, targets jsonb (day: fixed or follow-goal parameters), start_day, active, deleted_at | the "Model" of concepts §5 (ADR-0054); a habit = block + recurrence. |
-| cycle_steps | id, cycle_id, position, step_template_id | the steps of a cycle, any models in order; a step's items (routines, exercises, recipes) in cycle_step_items (step_id, position, item_id) |
+| cycle_steps | id, cycle_id, position, step_template_id, label | the steps of a cycle, any models in order; a step's items (routines, exercises, recipes) in cycle_step_items (step_id, position, item_id) |
 | cycles_state | cycle_id, advance (occurrence/date), on_skip (shift/lose) | one row per cycle; a training program is a cycle bound to a training block (the block's `cycle_id`). The next step is derived (E3), not stored |
 | template_blocks | id, template_id, position, kind, item_id, when (absolute / after_block / after_wake / before_bed / unset), at_min, anchor_block_id, offset_min, duration_min, cycle_id (bound to a cycle: takes the step due), kcal_share, protein_share, defaults jsonb, base_block_id, removed | A model built on a base stores only its differences (concepts §5): a row with `base_block_id` changes that inherited block (its non-null fields win) or, with `removed`, hides it here. |
 | week_layouts | user_id, weekday, template_id | PK (user_id, weekday). |
