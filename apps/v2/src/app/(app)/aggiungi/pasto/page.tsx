@@ -1,5 +1,6 @@
 /**
- * The meal composer (V-04) for a day: `/aggiungi/pasto?giorno=…`. The
+ * The meal composer (V-04) for a day: `/aggiungi/pasto?giorno=…`, starting
+ * from a saved meal (`&pasto=`) or a logged one (`&da=`). The
  * server reads the person's foods as choices, the day as it is (its
  * Nutrients against the targets in force) and the role bounds; the client
  * composes and posts to `saveMeal`.
@@ -16,17 +17,26 @@ import {
 } from "@/core/food/catalog";
 import { foodIds, presentDay } from "@/features/day/nutrients";
 import { Composer } from "@/features/food/Composer";
+import { readEntry } from "@/core/entries";
+import { typedEstimate } from "@/core/food/meal";
+import { repeatLines } from "@/features/food/composer";
 import { addContext } from "../kinds";
 import { saveMeal } from "./actions";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function MealPage({
   searchParams,
 }: {
-  searchParams: Promise<{ giorno?: string | string[]; pasto?: string | string[] }>;
+  searchParams: Promise<{
+    giorno?: string | string[];
+    pasto?: string | string[];
+    da?: string | string[];
+  }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
-  const { giorno, pasto } = await searchParams;
+  const { giorno, pasto, da } = await searchParams;
   const { clock, roleBounds, day, today } = await addContext(db, owner, giorno);
   const [choices, dayData, targets] = await Promise.all([
     readFoodChoices(db, owner, today),
@@ -41,6 +51,18 @@ export default async function MealPage({
   const recipes = await readRecipeChoices(db, owner, today, choices);
   // `?pasto=<recipe>` (a saved meal's «Registra»): the composer starts with its foods.
   const from = recipes.find((r) => r.recipeId === pasto);
+  // `?da=<entry>` (a logged meal's «Registra di nuovo»): its foods at today's values.
+  const again =
+    !from && typeof da === "string" && UUID.test(da)
+      ? await readEntry(db, owner, da)
+      : null;
+  const typed =
+    again?.kind.key === "meal" ? typedEstimate(again.values, again.lines) : null;
+  const repeat =
+    again?.kind.key === "meal" && !typed
+      ? repeatLines(again.lines, new Set(choices.map((c) => c.key)))
+      : null;
+  const role = again?.values["role"];
   const now = F.time(localParts(new Date(), clock.timeZone).minute);
   return (
     <Composer
@@ -54,7 +76,12 @@ export default async function MealPage({
               quantity: F.n(Number(p.quantity), 2),
             })),
           }
-        : {})}
+        : repeat
+          ? {
+              initialLines: repeat.lines,
+              ...(again?.item ? { initialRecipe: again.item.id } : {}),
+            }
+          : {})}
       day={day}
       dayLabel={day === today ? "Oggi" : F.Day(day)}
       dayNutrients={whole?.nutrients ?? null}
@@ -62,6 +89,22 @@ export default async function MealPage({
       initial={{
         status: day > today ? "planned" : "done",
         ...(day === today ? { start: now } : {}),
+        ...(typeof role === "string" ? { role } : {}),
+        ...(typeof again?.values["servings"] === "string"
+          ? { servings: F.n(Number(again.values["servings"]), 2) }
+          : {}),
+        ...(typed
+          ? {
+              estimate: "yes",
+              estName: typed.name,
+              ...Object.fromEntries(
+                Object.entries(typed.totals).map(([f, t]) => [
+                  "est." + f,
+                  F.n(Number(t), 2),
+                ]),
+              ),
+            }
+          : {}),
       }}
       backHref={`/aggiungi?giorno=${day}`}
       action={saveMeal}

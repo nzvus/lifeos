@@ -9,6 +9,7 @@ import {
   mealKinds,
   mealTotals,
   parseLines,
+  repeatLines,
   quantityOf,
 } from "./composer";
 
@@ -136,6 +137,29 @@ describe("what a composer posts", () => {
       "v.role": "Scegli",
       role: "Scegli",
       "line.1": "Scrivi una quantità, per esempio 60 o 60,5.",
+    });
+  });
+});
+
+describe("a logged meal registered again", () => {
+  it("names today's choices, falling back from a product to its food, and drops the unknown", () => {
+    const keys = new Set(["oats", "milk", "milk:lidl"]);
+    expect(
+      repeatLines(
+        [
+          { itemId: "oats", productId: "gone", quantity: "60.00" },
+          { itemId: "milk", productId: "lidl", quantity: "200.50" },
+          { itemId: null, productId: null, quantity: "100" },
+          { itemId: "archived", productId: null, quantity: "10" },
+        ],
+        keys,
+      ),
+    ).toEqual({
+      lines: [
+        { key: "oats", quantity: "60" },
+        { key: "milk:lidl", quantity: "200,5" },
+      ],
+      dropped: 2,
     });
   });
 });

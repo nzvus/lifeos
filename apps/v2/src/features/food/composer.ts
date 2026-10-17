@@ -199,3 +199,24 @@ export function mealErrors(
   }
   return out;
 }
+
+/**
+ * A logged meal's lines as a new meal's (V-04 «Registra di nuovo»): each
+ * line names its food (and product) as today's choice, at the quantity it
+ * had; a line whose food left the catalog, or was never known, is left out,
+ * since the new meal reads today's values, not the old snapshot.
+ */
+export function repeatLines(
+  lines: readonly { itemId: string | null; productId: string | null; quantity: string }[],
+  choiceKeys: ReadonlySet<string>,
+): { lines: DraftLine[]; dropped: number } {
+  const out: DraftLine[] = [];
+  for (const l of lines) {
+    if (!l.itemId) continue;
+    const key = l.productId ? l.itemId + ":" + l.productId : l.itemId;
+    const k = choiceKeys.has(key) ? key : choiceKeys.has(l.itemId) ? l.itemId : null;
+    if (k && !out.some((x) => x.key === k))
+      out.push({ key: k, quantity: String(Number(l.quantity)).replace(".", ",") });
+  }
+  return { lines: out, dropped: lines.length - out.length };
+}
