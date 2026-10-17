@@ -107,6 +107,12 @@ app (01 P-1, P-2).
 - **Validation:** known-truth simulations, as for ADR-0041, and a
   back-test on the developer's export: predicted vs actual 7-day trend
   change.
+  - Simulations (2026-10-17): c and the expenditure are found (±4 %);
+    c_train and k barely leave their priors, since a session or a meal
+    out is ≈ 0.1 kg, under the water noise, and c's drift absorbs slow
+    changes. Their σ says so; the expenditure stays right.
+- **Code:** `apps/v2/src/core/engines/body/` (weigh-ins, density, filter;
+  the E4a priors next). c_train does not drift: compensation is a trait.
 
 ### E4a The expenditure prior, piece by piece (2026-10-16)
 Every piece below is a **prior**: the filter's learnt factors (c, c_train)
