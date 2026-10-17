@@ -90,6 +90,21 @@ export async function readClock(
   };
 }
 
+/** The person's own kinds as stored, for `kindRegistry`. */
+export function readUserKinds(db: Db, owner: Owner): Promise<UserKindRow[]> {
+  return db
+    .select({
+      key: kinds.key,
+      domain: kinds.domain,
+      shape: kinds.shape,
+      entryMode: kinds.entryMode,
+      definition: kinds.definition,
+      archivedAt: kinds.archivedAt,
+    })
+    .from(kinds)
+    .where(ownedBy(kinds, owner));
+}
+
 export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRows> {
   const { clock, roleBounds } = await readClock(db, owner);
 
@@ -100,17 +115,7 @@ export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRo
       .where(
         and(ownedBy(entries, owner), eq(entries.day, day), isNull(entries.deletedAt)),
       ),
-    db
-      .select({
-        key: kinds.key,
-        domain: kinds.domain,
-        shape: kinds.shape,
-        entryMode: kinds.entryMode,
-        definition: kinds.definition,
-        archivedAt: kinds.archivedAt,
-      })
-      .from(kinds)
-      .where(ownedBy(kinds, owner)),
+    readUserKinds(db, owner),
   ]);
   const ids = dayEntries.map((e) => e.id);
   const empty: DayRows = {

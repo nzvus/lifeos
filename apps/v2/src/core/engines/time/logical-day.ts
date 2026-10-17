@@ -44,3 +44,27 @@ export function logicalDay(instant: Date, clock: DayClock): IsoDate {
   const { date, minute } = localParts(instant, clock.timeZone);
   return minute < clock.boundaryMin ? addDays(date, -1) : date;
 }
+
+/**
+ * The instant at minute `dayMin` of the logical day `day` (a `DayMin`: past
+ * 1440 is the night after), in the person's zone: the inverse of reading an
+ * instant's day and minute. A wall-clock time the clocks skip lands an hour
+ * later; one they repeat takes its first instant.
+ */
+export function instantAt(day: IsoDate, dayMin: number, clock: DayClock): Date {
+  const date = addDays(day, Math.floor(dayMin / 1440));
+  const minute = ((dayMin % 1440) + 1440) % 1440;
+  const asWall = (p: { date: IsoDate; minute: number }) => {
+    const [y, m, d] = p.date.split("-").map(Number) as [number, number, number];
+    return Date.UTC(y, m - 1, d, Math.floor(p.minute / 60), p.minute % 60);
+  };
+  const wall = asWall({ date, minute });
+  // The zone's offset 12 h either side; each gives a candidate instant.
+  const offset = (t: number) => asWall(localParts(new Date(t), clock.timeZone)) - t;
+  const before = wall - offset(wall - 12 * 3_600_000);
+  const after = wall - offset(wall + 12 * 3_600_000);
+  const fits = [before, after].filter(
+    (t) => asWall(localParts(new Date(t), clock.timeZone)) === wall,
+  );
+  return new Date(fits.length ? Math.min(...fits) : before);
+}
