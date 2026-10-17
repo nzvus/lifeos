@@ -2,7 +2,8 @@
 
 Postgres (Neon branch `v2`), Drizzle, committed SQL migrations, the same
 pipeline as v1 (ADR-0003/0004). v1's invariants carry over:
-- every owned table has `user_id`, every query uses `ownedBy`;
+- every table has `user_id`, children included, and every query uses
+  `ownedBy` (ADR-0057);
 - composite foreign keys `(id, user_id)`;
 - exact `numeric`, money in integer cents;
 - `deleted_at` + 30-day trash;
@@ -35,7 +36,7 @@ snapshots, training sets, money movements, and templates.
 | entry_lines | id, entry_id, position, item_id null (the food), product_id null, format_id null, name (snapshot), quantity numeric(10,2), unit | composite kinds: the meal's foods as eaten, with the product and format used when known (ADR-0055). |
 | entry_line_values | line_id, field, num numeric(14,4) | PK (line_id, field). The snapshot of the item's per-100 values (nutrients, price per g, quality) at logging (ADR-0007). |
 | entry_links | from_id, to_id, relation (fulfils / related / from_block) | PK (from_id, to_id, relation). |
-| training_sets | id, entry_id (the session's exercise entry), position, reps, load_kg numeric(6,2) (total), load_entry (total / per_dumbbell / per_side, how it was typed), rir, warmup, side, started_at, ended_at, done | specialised: timers and effort; e1RM computed on read. |
+| training_sets | id, entry_id (the session's exercise entry), position, reps, load_kg numeric(6,2) (total), load_entry (total / per_dumbbell / per_side, how it was typed), rir, duration_s (planks, cardio), warmup, side, started_at, ended_at, done | specialised: timers and effort; e1RM computed on read. |
 | money_movements | entry_id PK, account_id, amount_cents int (signed), category_id, shop, method, receipt_id | specialised: exact signed cents, balances per account. Lines in money_lines (position, description, quantity, amount_cents, product_id, purchase_entry_id). |
 | receipts, receipt_aliases | as v1 | |
 
@@ -43,9 +44,9 @@ snapshots, training sets, money movements, and templates.
 | Table | Columns | Notes |
 |---|---|---|
 | templates | id, user_id, scope (block/day/week/cycle), name, extends_id, recurrence jsonb, targets jsonb (day: fixed or follow-goal parameters), start_day, active, deleted_at | the "Model" of concepts §5 (ADR-0054); a habit = block + recurrence. |
-| cycle_steps | id, cycle_id, position, step_template_id | the steps of a cycle, any models in order |
-| cycles_state | cycle_id, advance (occurrence/date), on_skip (shift/lose), bound_block_id, next_position | one row per cycle; a training program is a cycle bound to a training block |
-| template_blocks | id, template_id, position, kind, item_id, when (absolute / after_block / after_wake / before_bed / cycle_position), at_min, anchor_block_id, offset_min, duration_min, kcal_share, protein_share, defaults jsonb, base_block_id, removed | A model built on a base stores only its differences (concepts §5): a row with `base_block_id` changes that inherited block (its non-null fields win) or, with `removed`, hides it here. |
+| cycle_steps | id, cycle_id, position, step_template_id | the steps of a cycle, any models in order; a step's items (routines, exercises, recipes) in cycle_step_items (step_id, position, item_id) |
+| cycles_state | cycle_id, advance (occurrence/date), on_skip (shift/lose) | one row per cycle; a training program is a cycle bound to a training block (the block's `cycle_id`). The next step is derived (E3), not stored |
+| template_blocks | id, template_id, position, kind, item_id, when (absolute / after_block / after_wake / before_bed / unset), at_min, anchor_block_id, offset_min, duration_min, cycle_id (bound to a cycle: takes the step due), kcal_share, protein_share, defaults jsonb, base_block_id, removed | A model built on a base stores only its differences (concepts §5): a row with `base_block_id` changes that inherited block (its non-null fields win) or, with `removed`, hides it here. |
 | week_layouts | user_id, weekday, template_id | PK (user_id, weekday). |
 | goals | id, user_id, metric jsonb, target (at_least/at_most/range/reach), value, low, high, by_date, since_day, until_day | history by since_day (v1's goals carried). |
 | decisions | user_id, kind (day_closed / week_targets / cycle_override / cycle_skip / habit_excused), day, key, payload jsonb, created_at | PK (user_id, kind, day, key). Never recomputed. |
