@@ -23,6 +23,8 @@ export type Block = {
   durationMin?: number | undefined;
   /** A meal block's share of the day's kcal and protein (E5). */
   shares?: { kcal?: number; protein?: number } | undefined;
+  /** Bound to a cycle: the block takes the step due (its first key as the item); a rest plans nothing. */
+  cycle?: string | undefined;
   /** Values the planned entry starts with. */
   defaults?: Readonly<Record<string, string | number | boolean>> | undefined;
 };

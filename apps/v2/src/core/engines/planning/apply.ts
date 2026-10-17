@@ -11,9 +11,13 @@
  *   last time used for that block, else that kind, on the same weekday;
  *   else the kind's default; else no time (it sits at the end of the day).
  *   This replaces v1's fixed 17:30 (01 I-9).
+ * - A block bound to a cycle takes the step due that day: "training takes the
+ *   next step". On a rest it plans nothing.
  */
 import type { IsoDate } from "../time/date";
 import { isoWeekday } from "../time/date";
+import type { Step } from "./cycle";
+import { isRest } from "./cycle";
 import type { Block } from "./model";
 import type { DayMin } from "./time";
 
@@ -43,6 +47,8 @@ export type DayContext = {
   history: readonly DayEntry[];
   /** A kind's default time, when history has none. */
   kindDefault?: ReadonlyMap<string, DayMin> | undefined;
+  /** The step each cycle has due on this day (`cyclePlan`), by cycle id. */
+  steps?: ReadonlyMap<string, Step> | undefined;
 };
 
 /** The planned entries the blocks add to the day, in the blocks' order. */
@@ -91,12 +97,19 @@ export function apply(
     }
   };
 
+  /** A bound block plans the step due, or nothing on a rest or when no step is known. */
+  const stepOf = (b: Block): Step | undefined | null =>
+    b.cycle === undefined ? undefined : (ctx.steps?.get(b.cycle) ?? null);
   return blocks
     .filter((b) => !present.has(b.id))
+    .filter((b) => {
+      const s = stepOf(b);
+      return s === undefined || (s !== null && !isRest(s));
+    })
     .map((b) => ({
       id: newId(),
       kind: b.kind,
-      item: b.item,
+      item: stepOf(b)?.keys[0] ?? b.item,
       day: ctx.date,
       at: timeOf(b.id),
       durationMin: b.durationMin,
