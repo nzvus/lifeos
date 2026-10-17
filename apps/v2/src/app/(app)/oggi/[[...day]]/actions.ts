@@ -8,9 +8,20 @@
 import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { restoreEntry, setEntryStatus, trashEntry, type Status } from "@/core/entries";
+import { dayMinute, readClock } from "@/core/day";
+import {
+  checkEntry,
+  createEntry,
+  restoreEntry,
+  setEntryStatus,
+  trashEntry,
+  type Status,
+} from "@/core/entries";
+import { logicalDay } from "@/core/engines/time";
+import { kindRegistry } from "@/core/kinds";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const STATUSES: readonly Status[] = ["planned", "done", "skipped"];
 
 export async function changeStatus(id: string, status: Status): Promise<Status | null> {
@@ -32,4 +43,30 @@ export async function bringBack(id: string): Promise<boolean> {
   const done = await restoreEntry(await getDb(), await requireOwner(), id);
   revalidatePath("/oggi", "layout");
   return done;
+}
+
+/** «+250 ml», «+500 ml» (kinds.md: water is quick): a water entry, now today, else the day only. */
+export async function addWater(day: string, ml: 250 | 500): Promise<void> {
+  if (!ISO.test(day) || (ml !== 250 && ml !== 500)) return;
+  const owner = await requireOwner();
+  const db = await getDb();
+  const { clock } = await readClock(db, owner);
+  const now = new Date();
+  const today = logicalDay(now, clock);
+  if (day > today) return;
+  const checked = checkEntry(
+    kindRegistry().get("water"),
+    {
+      day,
+      status: "done",
+      startMin: day === today ? dayMinute(now, day, clock) : null,
+      endMin: null,
+      values: { ml: String(ml) },
+      note: "",
+    },
+    clock,
+  );
+  if (!checked.ok) return;
+  await createEntry(db, owner, checked.entry);
+  revalidatePath("/oggi", "layout");
 }
