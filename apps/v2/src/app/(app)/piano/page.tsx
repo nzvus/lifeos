@@ -30,6 +30,11 @@ export default async function PianoPage({
   return (
     <main className="k-page has-bd">
       <PageHeader title="Piano" of={{ place: "piano" }} />
+      <section className="k-section" aria-label="Modelli">
+        <a className="k-link" href="/piano/modelli">
+          Modelli e cicli ›
+        </a>
+      </section>
       <section className="k-section g3" aria-label="La settimana">
         <div className="k-line between">
           <a className="k-link" href={href(addDays(week[0]!, -7))}>
