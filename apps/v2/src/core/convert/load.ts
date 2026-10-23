@@ -4,9 +4,12 @@
  * table that points at itself (items, entries, blocks) parents go before
  * their children. Every row gets the owner; ISO strings become timestamps.
  * One transaction: a file that breaks a rule of the schema loads nothing.
+ * `replaceFile` first takes out every row the owner has in those tables
+ * (never the account and sign-in tables), in the same transaction: if the
+ * load fails, what was there stays.
  */
-import { getTableColumns } from "drizzle-orm";
-import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
+import { eq, getTableColumns, getTableName, sql, type Column } from "drizzle-orm";
+import type { PgDatabase, PgQueryResultHKT, PgTable } from "drizzle-orm/pg-core";
 import type { V2File, V2TableKey } from "./file";
 import { V2_TABLES } from "./file";
 
@@ -43,12 +46,53 @@ export function parentsFirst<T extends Record<string, unknown>>(
   return out;
 }
 
-export async function loadFile(
-  db: PgDatabase<PgQueryResultHKT, Record<string, unknown>>,
+type AnyDb = PgDatabase<PgQueryResultHKT, Record<string, unknown>>;
+type Tx = Parameters<Parameters<AnyDb["transaction"]>[0]>[0];
+
+export async function loadFile(db: AnyDb, file: V2File, userId: string): Promise<void> {
+  await db.transaction((tx) => insertAll(tx, file, userId));
+}
+
+/** The owner's rows in the v2 tables taken out, then the file loaded: one transaction. */
+export async function replaceFile(
+  db: AnyDb,
   file: V2File,
   userId: string,
 ): Promise<void> {
   await db.transaction(async (tx) => {
+    for (const key of (Object.keys(V2_TABLES) as V2TableKey[]).reverse()) {
+      const table = V2_TABLES[key] as PgTable & { userId: Column };
+      const refs = SELF[key];
+      if (!refs) {
+        await tx.delete(table).where(eq(table.userId, userId));
+        continue;
+      }
+      // A table pointing at itself: the rows nothing points at first, until none is left
+      // (unhooking the references instead would break the live-name index).
+      const name = sql.identifier(getTableName(table));
+      const cols = getTableColumns(table);
+      const pointed = sql.join(
+        refs.map((r) => sql`c.${sql.identifier(cols[r]!.name)} = t.id`),
+        sql` or `,
+      );
+      for (;;) {
+        const gone = await tx.execute(
+          sql`delete from ${name} t where t.user_id = ${userId} and not exists (
+            select 1 from ${name} c where c.user_id = ${userId} and (${pointed}))
+            returning t.id`,
+        );
+        const n = Array.isArray(gone)
+          ? gone.length
+          : ((gone as { rows?: unknown[] }).rows?.length ?? 0);
+        if (n === 0) break;
+      }
+    }
+    await insertAll(tx, file, userId);
+  });
+}
+
+async function insertAll(tx: Tx, file: V2File, userId: string): Promise<void> {
+  {
     for (const key of Object.keys(V2_TABLES) as V2TableKey[]) {
       const table = V2_TABLES[key];
       const columns = getTableColumns(table);
@@ -69,5 +113,5 @@ export async function loadFile(
           .insert(table)
           .values(ready.slice(i, i + CHUNK) as (typeof table)["$inferInsert"][]);
     }
-  });
+  }
 }
