@@ -231,14 +231,22 @@ From the weight goal (a goal with "reach W by date") and E4:
   guide, gated by RIR (v1 ADR-0049); then the order effect learnt from
   history, the session volume per muscle (diminishing returns, Pelland
   2024; band 10–20 weekly sets), readiness lowering the whole session.
-- **Rests:**
-  - heavy compounds (≤ 6 reps or ≥ 85 %) 2–3 min; other compounds
-    90–120 s; isolation 60–90 s (Schoenfeld 2016; Singer 2024);
-  - between sides 0–15 s;
-  - after a warm-up 30 / 45 / 60–90 s by the ramp (practice).
-  All editable per exercise.
+- **Progress = a trend, never one session's %** (dossiers/training.md
+  §5.2): 6 weeks of best e1RM, restarted after a gap > 21 days, typical
+  error, «stabile» inside 2 × TE/√n, order as a regressor (≥ 8 points).
+- **Rests:** the person's median for the exercise (≥ 5 measured) within
+  floors (60 s working, 30 s warm-up), adapted (+30 s when reps fall ≥ 2 in
+  2 of 3 sessions, −15 s when they never fall at RIR ≥ 2); else the role's
+  default: heavy compounds 2–3 min, other compounds 90–120 s, isolation
+  60–90 s (Schoenfeld 2016; Singer 2024); after a warm-up 30 / 45 / 60 s;
+  unilateral: after both sides, less the other side's time. A rest or a
+  setup delay set on the exercise wins.
 - **Auto mode timing:** a set's expected duration = reps × this exercise's
-  learnt seconds per rep, plus the setup delay.
+  learnt seconds per rep (else the person's, else 3.5 s); the setup delay
+  only in manual mode. Auto mode's sets are assumed (`done` false) until
+  confirmed at «Fine»; history reads done sets only.
+- **Session length:** sets + rests + warm-up rests + transitions, each the
+  person's median (≥ 5), else defaults.
 - **Deload suggestion:** e1RM falling on several exercises for 2+ weeks
   with low recovery, or after N weeks of rising volume.
 - **Code:** `apps/v2/src/core/engines/training/`; v1's progression cases run

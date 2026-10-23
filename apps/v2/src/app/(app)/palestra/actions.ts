@@ -14,11 +14,14 @@ import { logicalDay } from "@/core/engines/time";
 import {
   addExercise,
   checkSet,
+  confirmSets,
   finishSession,
   readExercises,
   readRoutines,
   removeSet,
+  saveExerciseSettings,
   saveSet,
+  setReadiness,
   startSession,
   type SetError,
   type SetInput,
@@ -55,10 +58,16 @@ export async function startGym(routineId: string): Promise<void> {
   redirect("/palestra/" + id);
 }
 
+/**
+ * Saves a set. `timing.startedAt` is when it began (epoch ms: after the
+ * setup countdown, or auto mode's clock); `timing.assumed` marks auto
+ * mode's sets, confirmed at «Fine».
+ */
 export async function tickSet(
   entryId: string,
   position: number,
   input: SetInput,
+  timing: { startedAt?: number | null; assumed?: boolean } = {},
 ): Promise<string | null> {
   if (!UUID.test(entryId) || !Number.isInteger(position))
     return "Questa serie non c’è più.";
@@ -78,6 +87,13 @@ export async function tickSet(
     position,
     checked.set,
     new Date(),
+    {
+      startedAt:
+        typeof timing.startedAt === "number" && Number.isFinite(timing.startedAt)
+          ? new Date(timing.startedAt)
+          : null,
+      assumed: timing.assumed === true,
+    },
   );
   revalidatePath("/palestra", "layout");
   return saved ? null : "Questa serie non c’è più.";
@@ -103,10 +119,43 @@ export async function addGymExercise(
   return id !== null;
 }
 
+/** How ready the person feels (1–5), or null to clear it. */
+export async function readinessGym(
+  sessionId: string,
+  value: number | null,
+): Promise<boolean> {
+  if (!UUID.test(sessionId)) return false;
+  const done = await setReadiness(await getDb(), await requireOwner(), sessionId, value);
+  revalidatePath("/palestra", "layout");
+  return done;
+}
+
+/** An exercise's own rest and setup delay (seconds; null: learnt / default). */
+export async function exerciseSettingsGym(
+  exerciseId: string,
+  restS: number | null,
+  setupS: number | null,
+): Promise<boolean> {
+  if (!UUID.test(exerciseId)) return false;
+  const done = await saveExerciseSettings(
+    await getDb(),
+    await requireOwner(),
+    exerciseId,
+    {
+      restS,
+      setupS,
+    },
+  );
+  revalidatePath("/palestra", "layout");
+  return done;
+}
+
+/** Ends the session; its assumed sets are confirmed first (the person said so at «Fine»). */
 export async function finishGym(sessionId: string): Promise<void> {
   if (!UUID.test(sessionId)) return;
   const owner = await requireOwner();
   const db = await getDb();
+  await confirmSets(db, owner, sessionId);
   await finishSession(db, owner, sessionId, new Date());
   revalidatePath("/oggi", "layout");
   redirect("/oggi");

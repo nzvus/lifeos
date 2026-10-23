@@ -1,9 +1,14 @@
-/** An exercise's page (V-07): its sessions, newest first, with their work sets and best e1RM (E6). */
+/**
+ * An exercise's page (V-07): its trend (E6, dossiers/training.md §5.2), its
+ * sessions newest first with their work sets and best e1RM.
+ */
 import { notFound } from "next/navigation";
 import { F, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
+import { exerciseTrend } from "@/core/engines/training";
 import { readExerciseLog, readExercises } from "@/core/training";
+import { trendText } from "@/features/training/present";
 import { archiveExercise } from "./actions";
 
 const SHOWN = 20;
@@ -20,6 +25,11 @@ export default async function ExercisePage({
   if (!x) notFound();
   const sessions = (await readExerciseLog(db, owner, id)).get(id) ?? [];
   const best = sessions.reduce((m, s) => Math.max(m, s.best ?? 0), 0);
+  const trend = trendText(
+    exerciseTrend(
+      sessions.flatMap((s) => (s.best ? [{ day: s.day, value: s.best }] : [])),
+    ),
+  );
   return (
     <main className="k-page">
       <PageHeader
@@ -30,6 +40,7 @@ export default async function ExercisePage({
       />
       {best > 0 && (
         <section className="k-section g3" aria-label="Record">
+          {trend && <p className="k-body">{trend}</p>}
           <div className="k-line between">
             <span className="k-body">e1RM migliore</span>
             <span className="k-num">{F.num(best, "kg")}</span>

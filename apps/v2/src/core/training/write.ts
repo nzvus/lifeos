@@ -6,8 +6,10 @@
  * for the end). Finishing marks the session and its exercises done, with
  * the end and the minutes. Every write is ownedBy the owner and checks the
  * entry it touches is the right kind, live and theirs.
+ * Auto mode saves its sets as assumed (`done` false: what was planned, not
+ * yet said to be done); «Fine» confirms them. History reads only done sets.
  */
-import { and, count, eq, isNull, sql } from "drizzle-orm";
+import { and, count, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
 import {
   catalogItems,
@@ -199,9 +201,17 @@ export async function saveSet(
   position: number,
   set: CheckedSet,
   at: Date,
+  opts: { startedAt?: Date | null; assumed?: boolean } = {},
 ): Promise<boolean> {
   const x = await liveEntry(db, owner, exerciseEntryId, "session_exercise");
   if (!x || position < 0 || position > 99) return false;
+  // A start is kept only when it is before the end and within two hours of it.
+  const startedAt =
+    opts.startedAt &&
+    opts.startedAt < at &&
+    at.getTime() - opts.startedAt.getTime() < 2 * 3600_000
+      ? opts.startedAt
+      : null;
   const row = {
     reps: set.reps,
     loadKg: set.loadKg,
@@ -209,8 +219,9 @@ export async function saveSet(
     rir: set.rir,
     durationS: set.durationS,
     warmup: set.warmup,
+    startedAt,
     endedAt: at,
-    done: true,
+    done: opts.assumed !== true,
   };
   await db
     .insert(trainingSets)
@@ -240,6 +251,123 @@ export async function removeSet(
     )
     .returning({ id: trainingSets.id });
   return gone.length > 0;
+}
+
+/** Confirms a session's assumed sets (auto mode's): they become done. Returns how many. */
+export async function confirmSets(
+  db: Db,
+  owner: Owner,
+  sessionId: string,
+): Promise<number> {
+  const s = await liveEntry(db, owner, sessionId, "session");
+  if (!s) return 0;
+  const children = await db
+    .select({ id: entries.id })
+    .from(entries)
+    .where(
+      and(
+        ownedBy(entries, owner),
+        eq(entries.parentId, sessionId),
+        isNull(entries.deletedAt),
+      ),
+    );
+  if (children.length === 0) return 0;
+  const done = await db
+    .update(trainingSets)
+    .set({ done: true })
+    .where(
+      and(
+        ownedBy(trainingSets, owner),
+        inArray(
+          trainingSets.entryId,
+          children.map((c) => c.id),
+        ),
+        eq(trainingSets.done, false),
+      ),
+    )
+    .returning({ id: trainingSets.id });
+  return done.length;
+}
+
+/** How ready the person feels at the start (1–5), on the session; null clears it. */
+export async function setReadiness(
+  db: Db,
+  owner: Owner,
+  sessionId: string,
+  value: number | null,
+): Promise<boolean> {
+  const s = await liveEntry(db, owner, sessionId, "session");
+  if (!s) return false;
+  if (value === null) {
+    await db
+      .delete(entryValues)
+      .where(
+        and(
+          ownedBy(entryValues, owner),
+          eq(entryValues.entryId, sessionId),
+          eq(entryValues.field, "readiness"),
+        ),
+      );
+    return true;
+  }
+  if (!Number.isInteger(value) || value < 1 || value > 5) return false;
+  await db.transaction((tx) =>
+    setValue(tx, owner, sessionId, "readiness", String(value)),
+  );
+  return true;
+}
+
+/** An exercise's own rest and setup delay in seconds (null: learnt / the default). */
+export async function saveExerciseSettings(
+  db: Db,
+  owner: Owner,
+  exerciseId: string,
+  settings: { restS: number | null; setupS: number | null },
+): Promise<boolean> {
+  const [item] = await db
+    .select({ id: catalogItems.id })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.id, exerciseId),
+        eq(catalogItems.catalog, "exercise"),
+        isNull(catalogItems.deletedAt),
+      ),
+    );
+  if (!item) return false;
+  for (const [, v, max] of [
+    ["restS", settings.restS, 600],
+    ["setupS", settings.setupS, 60],
+  ] as const) {
+    if (v !== null && (!Number.isInteger(v) || v < 0 || v > max)) return false;
+  }
+  await db.transaction(async (tx) => {
+    for (const [field, v] of [
+      ["restS", settings.restS],
+      ["setupS", settings.setupS],
+    ] as const) {
+      if (v === null)
+        await tx
+          .delete(catalogValues)
+          .where(
+            and(
+              ownedBy(catalogValues, owner),
+              eq(catalogValues.itemId, exerciseId),
+              eq(catalogValues.field, field),
+            ),
+          );
+      else
+        await tx
+          .insert(catalogValues)
+          .values({ userId: owner.id, itemId: exerciseId, field, num: String(v) })
+          .onConflictDoUpdate({
+            target: [catalogValues.itemId, catalogValues.field],
+            set: { num: String(v), source: "typed", confidence: "1" },
+          });
+    }
+  });
+  return true;
 }
 
 /** Ends a live session at `endAt`: it and its exercises are done, with its minutes. */

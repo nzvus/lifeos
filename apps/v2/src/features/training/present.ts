@@ -5,7 +5,14 @@
  * the step of its load stepper. Numbers through `F` (content.md).
  */
 import { F } from "@lifeos/kit";
-import { loadStep, restAfter, type LastSet, type Role } from "@/core/engines/training";
+import {
+  loadStep,
+  restAfter,
+  vsExpected,
+  type LastSet,
+  type Role,
+  type Trend,
+} from "@/core/engines/training";
 import { guideOf } from "@/core/training/plan";
 
 export type SetView = {
@@ -77,4 +84,45 @@ export function usesDumbbells(name: string, equipment: string | null): boolean {
     /dumbbell|manubri/i.test(equipment ?? "") ||
     /\b(db|dumbbells?|manubri\w*)\b/i.test(name)
   );
+}
+
+/** Where a rest comes from, in words: "tua media", "+30 s: le ripetizioni calavano"… */
+export function restSourceText(source: string, change: number): string {
+  if (source === "set") return "impostata";
+  if (source === "default") return "consigliata";
+  if (change > 0) return "tua media +" + change + " s: le ripetizioni calavano";
+  if (change < 0) return "tua media " + change + " s: ti avanzavano ripetizioni";
+  return "tua media";
+}
+
+/** An exercise's trend in one line (dossiers/training.md §6). */
+export function trendText(t: Trend): string {
+  if (t.state === "few")
+    return t.n === 0
+      ? ""
+      : "Andamento: servono 3 sessioni (ne hai " + t.n + " dal " + F.date(t.since!) + ")";
+  const noise = "±" + F.n(t.te * 100, 0) + " %";
+  const order =
+    t.orderPctPerSet !== null && t.orderPctPerSet < -0.5
+      ? " · dopo altre serie per gli stessi muscoli " +
+        F.n(t.orderPctPerSet, 1) +
+        " % a serie"
+      : "";
+  if (t.state === "stable") return "Andamento: stabile (rumore " + noise + ")" + order;
+  return (
+    "Andamento: " +
+    (t.state === "rising" ? "in crescita, " : "in calo, ") +
+    (t.perMonthPct > 0 ? "+" : "") +
+    F.n(t.perMonthPct, 1) +
+    " % al mese" +
+    order
+  );
+}
+
+/** A done set against what was proposed for it: "+1 rispetto alla proposta"; "" when as proposed. */
+export function vsProposedText(done: number | null, proposed: number | null): string {
+  if (done === null || proposed === null) return "";
+  const { diff, word } = vsExpected(done, proposed);
+  if (word === "as") return "";
+  return (diff > 0 ? "+" : "") + diff + " rispetto alla proposta";
 }

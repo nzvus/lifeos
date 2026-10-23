@@ -535,3 +535,5 @@ span.k-head{cursor:default}
 /* a micronutrient row: the name, its bar, "v / target unit" (the boards' 72 · bar · 88) */
 .k-krow.k-microw{grid-template-columns:72px minmax(0,1fr) 96px}
 
+/* A link that is a button (opens a part of the page): looks like .k-link */
+button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;color:var(--herb);cursor:pointer;text-align:left;align-self:flex-start}
