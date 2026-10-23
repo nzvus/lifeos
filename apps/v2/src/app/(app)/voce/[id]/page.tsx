@@ -64,7 +64,10 @@ export default async function EntryEditPage({
           estimate: "yes",
           estName: est.name,
           ...Object.fromEntries(
-            Object.entries(est.totals).map(([f, t]) => ["est." + f, F.n(Number(t), 2)]),
+            Object.entries(est.totals).map(([f, t]) => [
+              "est." + f,
+              F.input(Number(t), 2),
+            ]),
           ),
         }
       : {};
@@ -76,7 +79,7 @@ export default async function EntryEditPage({
         extraChoices={lineChoices(item.lines, kinds)}
         initialLines={(est ? [] : item.lines).map((l) => ({
           key: "line:" + l.id,
-          quantity: F.n(Number(l.quantity), 2),
+          quantity: F.input(Number(l.quantity), 2),
         }))}
         title="Modifica pasto"
         repeatHref={"/aggiungi/pasto?da=" + id}
@@ -90,7 +93,7 @@ export default async function EntryEditPage({
           role: typeof role === "string" ? role : "",
           servings:
             typeof item.values["servings"] === "string"
-              ? F.n(Number(item.values["servings"]), 2)
+              ? F.input(Number(item.values["servings"]), 2)
               : "1",
           ...typed,
         }}

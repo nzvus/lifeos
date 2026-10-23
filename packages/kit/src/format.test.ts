@@ -51,3 +51,12 @@ describe("F writes what the boards write", () => {
     expect(F.time(24 * 60 + 90)).toBe("01:30");
   });
 });
+
+describe("F.input writes a number a field reads back", () => {
+  it("has no thousands dot, a comma for decimals, a minus sign kept", () => {
+    expect(F.input(1250)).toBe("1250");
+    expect(F.input(1000.5)).toBe("1000,5");
+    expect(F.input(12.345, 2)).toBe("12,35");
+    expect(F.input(0.1234, 4)).toBe("0,1234");
+  });
+});
