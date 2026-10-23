@@ -180,6 +180,14 @@ v2 runs without a database server: PGlite in a folder, migrated on start.
    <new export.json> --email <email> --since 2026-10-17` — a dry run: it
    lists the sessions, sets and new exercises it would load. Add `--write`
    to load them. Running it again loads nothing twice.
+7. **Everything again from a newer v1 export** (when you logged only in v1
+   since the last load; 2026-10-23). Refine it first (`boards-tools/refine.py`
+   with the approved corrections, as for 16 Oct), then:
+   `cd apps/v2 && DATABASE_URL='<direct URL>' npm run load:export --
+   <refined export.json> --email <email> --replace` — it takes out
+   everything your account has in v2 (not the account) and loads the file,
+   in one transaction: if the load fails, nothing changes. Anything typed
+   only in v2 since the last load is lost: use it only when there is none.
 
 From then on, a migration reaches `lifeos_v2` only through migrate-v2.
 v2 has no Preview variables yet: a preview (a PR touching v2's schema, or a

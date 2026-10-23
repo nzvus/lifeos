@@ -10,7 +10,7 @@ import * as s from "../db/schema";
 import { createTestDb, createTestUser, type TestDb } from "../db/test-db";
 import type { V1Export, V1Row } from "./context";
 import { convert, ConvertError } from "./convert";
-import { loadFile, parentsFirst } from "./load";
+import { loadFile, parentsFirst, replaceFile } from "./load";
 
 const fixture = (): V1Export =>
   JSON.parse(
@@ -264,6 +264,44 @@ describe("loading the file", () => {
       .where(eq(s.catalogItems.userId, owner));
     expect(items.length).toBe(f.tables.catalog_items.length);
     expect(f.tables.entries.length).toBeGreaterThan(10);
+  });
+
+  it("replacing: the owner's rows out and the file in, one transaction; others untouched", async () => {
+    const owner = (
+      await db
+        .select({ id: s.user.id })
+        .from(s.user)
+        .where(eq(s.user.email, "importer@example.test"))
+    )[0]!.id;
+    const bystander = await createTestUser(db, "bystander@example.test");
+    await db
+      .insert(s.catalogItems)
+      .values({ userId: bystander, catalog: "food", name: "Mela" });
+    const f = convert(fixture(), NOW);
+    // Something of the owner's that the file does not have goes.
+    await db
+      .insert(s.catalogItems)
+      .values({ userId: owner, catalog: "food", name: "Solo in v2" });
+    await replaceFile(db as never, f, owner);
+    const mine = await db
+      .select()
+      .from(s.catalogItems)
+      .where(eq(s.catalogItems.userId, owner));
+    expect(mine.length).toBe(f.tables.catalog_items.length);
+    expect(mine.some((i) => i.name === "Solo in v2")).toBe(false);
+    const entries = await db.select().from(s.entries).where(eq(s.entries.userId, owner));
+    expect(entries.length).toBe(f.tables.entries.length);
+    expect(
+      (await db.select().from(s.catalogItems).where(eq(s.catalogItems.userId, bystander)))
+        .length,
+    ).toBe(1);
+    // A file that breaks the schema replaces nothing: what was there stays.
+    const broken = convert(fixture(), NOW);
+    broken.tables.entries[0] = { ...broken.tables.entries[0]!, status: "nope" as never };
+    await expect(replaceFile(db as never, broken, owner)).rejects.toThrow();
+    expect(
+      (await db.select().from(s.entries).where(eq(s.entries.userId, owner))).length,
+    ).toBe(f.tables.entries.length);
   });
 
   it("the same file loads again for another person: ids are not shared across owners", async () => {
