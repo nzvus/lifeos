@@ -6,13 +6,17 @@
  */
 import { F } from "@lifeos/kit";
 import {
+  dumbbellStep,
   loadStep,
+  repsAtLoad,
   restAfter,
   vsExpected,
   type LastSet,
   type Role,
   type Trend,
 } from "@/core/engines/training";
+import type { Score } from "@/core/engines/judgements";
+import type { SessionContext } from "@/core/training/context";
 import { guideOf } from "@/core/training/plan";
 
 export type SetView = {
@@ -67,10 +71,11 @@ export function restFor(
   return restAfter({ role: roleOf(pattern), reps: reps ?? 10 });
 }
 
-/** The load stepper's step: E6's plate step at that load. */
-export function kgStep(kg: string): number {
+/** The load stepper's step: one dumbbell's next size when typed per dumbbell, else E6's plate step. */
+export function kgStep(kg: string, perDumbbell = false): number {
   const n = Number(kg.replace(",", "."));
-  return loadStep(Number.isFinite(n) ? n : 0);
+  const x = Number.isFinite(n) ? n : 0;
+  return perDumbbell ? dumbbellStep(x * 2) / 2 : loadStep(x);
 }
 
 /** Whether an exercise is timed (a plank, a run): its sets are seconds, not reps. */
@@ -119,10 +124,60 @@ export function trendText(t: Trend): string {
   );
 }
 
-/** A done set against what was proposed for it: "+1 rispetto alla proposta"; "" when as proposed. */
-export function vsProposedText(done: number | null, proposed: number | null): string {
-  if (done === null || proposed === null) return "";
-  const { diff, word } = vsExpected(done, proposed);
+/**
+ * A done set against what was proposed for it: "+1 rispetto alla proposta"
+ * ("" when as proposed); at another load, brought to the proposed one.
+ */
+export function vsProposedText(
+  done: { reps: number | null; loadKg: string | null },
+  proposed: { reps: number | null; loadKg: string | null } | undefined,
+): string {
+  if (done.reps === null || !proposed || proposed.reps === null) return "";
+  const kg = (x: string | null) => (x === null ? null : Number(x));
+  const { diff, word } = vsExpected(
+    repsAtLoad(done.reps, kg(done.loadKg), kg(proposed.loadKg)),
+    proposed.reps,
+  );
   if (word === "as") return "";
   return (diff > 0 ? "+" : "") + diff + " rispetto alla proposta";
+}
+
+/** What came before the session, in one line; "" when nothing was logged. */
+export function contextText(c: SessionContext): string {
+  const parts = [
+    c.sleptMin !== null ? "dormito " + F.hm(c.sleptMin) : "",
+    c.kcal24h !== null ? F.num(c.kcal24h, "kcal") + " nelle 24 h" : "",
+    c.carbs3h !== null ? F.num(c.carbs3h, "g") + " di carboidrati nelle 3 h" : "",
+    c.coffees3h > 0 ? F.plural(c.coffees3h, "caffè", "caffè") + " prima" : "",
+    c.creatineDays !== null ? "creatina " + c.creatineDays + " giorni su 28" : "",
+    c.readiness !== null ? "come ti sentivi " + c.readiness + "/5" : "",
+  ].filter(Boolean);
+  return parts.length ? "Prima: " + parts.join(" · ") : "";
+}
+
+const PART_WORDS: Record<string, string> = {
+  progression: "progressione",
+  volume: "volume",
+  effort: "sforzo",
+  rests: "recuperi",
+};
+
+/** The session's score in words: "Sessione 82/100 · progressione 100 · … · senza: sforzo (nessun RIR)". */
+export function scoreText(s: Score): string {
+  if (s.value === null) return "";
+  const parts = s.parts.map((p) => PART_WORDS[p.key] + " " + Math.round(p.score * 100));
+  const missing = s.missing.map((k) =>
+    k === "effort"
+      ? "sforzo (nessun RIR)"
+      : k === "rests"
+        ? "recuperi (non cronometrati)"
+        : PART_WORDS[k],
+  );
+  return (
+    "Sessione " +
+    s.value +
+    "/100 · " +
+    parts.join(" · ") +
+    (missing.length ? " · senza: " + missing.join(", ") : "")
+  );
 }

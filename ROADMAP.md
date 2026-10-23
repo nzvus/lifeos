@@ -124,9 +124,11 @@ scanning) are placed in the v2 spec.
      learnt and adaptive rests, session length; gym mode with «Inizia» and
      the setup delay, «Automatico» (sets assumed until «Fine»), RIR on the
      last set, readiness, an exercise's own rest and setup, the minutes
-     left; the trend on the exercise's page. Next: dumbbell load steps per
-     dumbbell, side-by-side sets for unilateral moves, the session score
-     (E7), the context row (sleep, intake, caffeine, creatine).
+     left; the trend on the exercise's page. Then: dumbbell loads by the
+     rack's pairs; one side at a time on the set's clock; the session score
+     (E7: progression with sets at another load brought to the proposed one,
+     volume, effort, rests; parts without data named); «Prima:» the night,
+     intake, carbs, coffee and creatine days before the session.
    - Estimates in the library (s171): a typed estimate saved as a saved
      meal with its totals, from the composer or later from `/voce/<id>`.
 6. **Switch** when every v1 screen id is covered and parity is green.

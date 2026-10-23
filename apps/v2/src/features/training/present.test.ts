@@ -1,3 +1,4 @@
+import { F } from "@lifeos/kit";
 import { describe, expect, it } from "vitest";
 import { kgStep, lastTimeText, restFor, setText, timed, usesDumbbells } from "./present";
 
@@ -53,5 +54,55 @@ describe("dumbbells", () => {
         loadEntry: "per_dumbbell",
       }).replace(/\u00a0/g, " "),
     ).toBe("10 × 2 × 12,5 kg");
+  });
+});
+
+describe("the load stepper's step", () => {
+  it("per dumbbell: 1 kg under 10 kg, 2 kg from 10 kg; else E6's plate step", async () => {
+    const { kgStep } = await import("./present");
+    expect(kgStep("8", true)).toBe(1);
+    expect(kgStep("16", true)).toBe(2);
+    expect(kgStep("40")).toBe(2.5);
+    expect(kgStep("12")).toBe(1);
+  });
+});
+
+describe("the session's words", () => {
+  it("context in one line, only what was logged; the score with what is left out", async () => {
+    const { contextText, scoreText } = await import("./present");
+    const { score, SESSION } = await import("@/core/engines/judgements");
+    expect(
+      contextText({
+        sleptMin: 450,
+        kcal24h: 1871,
+        carbs3h: null,
+        coffees3h: 1,
+        creatineDays: null,
+        readiness: null,
+      }),
+    ).toBe(
+      "Prima: dormito " +
+        F.hm(450) +
+        " · " +
+        F.num(1871, "kcal") +
+        " nelle 24 h · 1 caffè prima",
+    );
+    expect(
+      contextText({
+        sleptMin: null,
+        kcal24h: null,
+        carbs3h: null,
+        coffees3h: 0,
+        creatineDays: null,
+        readiness: null,
+      }),
+    ).toBe("");
+    expect(
+      scoreText(
+        score(SESSION, { progression: 1, volume: 0.5, effort: null, rests: null }),
+      ),
+    ).toBe(
+      "Sessione 79/100 · progressione 100 · volume 50 · senza: sforzo (nessun RIR), recuperi (non cronometrati)",
+    );
   });
 });

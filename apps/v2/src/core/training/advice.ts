@@ -50,8 +50,11 @@ export type ExerciseAdvice = {
   trend: Trend;
   secPerRep: number;
   setupS: number;
-  /** The first proposed set's expected seconds (auto mode's set timer). */
+  /** The first proposed set's expected seconds (auto mode's set timer); unilateral: both sides. */
   setS: number | null;
+  /** Unilateral: one side's seconds and the change between sides. */
+  sideS: number | null;
+  betweenS: number | null;
 };
 
 const DROP_SESSIONS = 6;
@@ -78,6 +81,8 @@ function dropOf(sets: readonly HistorySet[]): number | null {
 export function adviseExercise(p: {
   pattern: string | null;
   unilateral: boolean;
+  /** Loads go by pairs of dumbbells. */
+  dumbbells?: boolean | undefined;
   history: readonly HistorySession[];
   timing: Timing;
   settings?: ExerciseSettings | undefined;
@@ -85,7 +90,7 @@ export function adviseExercise(p: {
   const h = p.history;
   const last = h.at(-1)?.sets.map(asLast);
   const before = h.at(-2)?.sets.map(asLast);
-  const proposal = proposeSets(p.pattern, last, before).sets;
+  const proposal = proposeSets(p.pattern, last, before, p.dumbbells === true).sets;
   // A session cut short does not lower the next one: as many sets as the more of the last two.
   const most = Math.max(
     0,
@@ -143,7 +148,7 @@ export function adviseExercise(p: {
   const restS = p.settings?.restS ?? adapted.seconds;
   const secPerRep = perRep.length >= 5 ? median(perRep) : p.timing.secPerRep;
   const setupS = p.settings?.setupS ?? SETUP_DEFAULT_S;
-  const setS =
+  const oneSide =
     proposed[0]?.durationS ??
     (proposed[0]?.reps
       ? expectedSetS({
@@ -164,16 +169,21 @@ export function adviseExercise(p: {
     return best > 0 ? [{ day: s.day, value: best, before: s.before }] : [];
   });
 
+  const pair =
+    p.unilateral && oneSide !== null
+      ? unilateralRests({ setRestS: restS, otherSideS: oneSide, setupS })
+      : null;
+  const setS = oneSide !== null && pair ? oneSide * 2 + pair.betweenSidesS : oneSide;
+
   return {
     proposed,
     role,
     restS,
     restSource: p.settings?.restS !== undefined ? "set" : learnt.source,
     restChange: p.settings?.restS !== undefined ? 0 : adapted.change,
-    afterPairS:
-      p.unilateral && setS !== null
-        ? unilateralRests({ setRestS: restS, otherSideS: setS, setupS }).afterPairS
-        : null,
+    afterPairS: pair?.afterPairS ?? null,
+    sideS: pair ? oneSide : null,
+    betweenS: pair?.betweenSidesS ?? null,
     trend: exerciseTrend(points),
     secPerRep,
     setupS,

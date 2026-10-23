@@ -3,9 +3,16 @@
  * E6's double progression (`nextTarget`) on the guide of its movement
  * pattern, from its last two sessions. With no known pattern ("other"), the
  * last session's working sets as they were; with no history either, 3 × 10.
+ * Dumbbells step by the rack's next pair (E6 `dumbbellStep`).
  * Pure: the proposal only fills the steppers; what is lifted is typed.
  */
-import { GUIDES, nextTarget, type Guide, type LastSet } from "../engines/training";
+import {
+  dumbbellStep,
+  GUIDES,
+  nextTarget,
+  type Guide,
+  type LastSet,
+} from "../engines/training";
 
 export type ProposedSet = {
   reps: number | null;
@@ -21,6 +28,7 @@ export function proposeSets(
   pattern: string | null | undefined,
   last: readonly LastSet[] | undefined,
   before?: readonly LastSet[],
+  dumbbells = false,
 ): { sets: ProposedSet[]; reason: string } {
   const guide = guideOf(pattern);
   const work = (last ?? []).filter((s) => !s.warmup);
@@ -39,7 +47,9 @@ export function proposeSets(
       reason: "hold",
     };
   }
-  const t = nextTarget(guide, last, before);
+  const t = dumbbells
+    ? nextTarget(guide, last, before, dumbbellStep)
+    : nextTarget(guide, last, before);
   if ("reps" in t) {
     const reps = t.reps[0];
     const loadKg =

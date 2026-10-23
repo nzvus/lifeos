@@ -87,6 +87,15 @@ export function loadStep(kg: number): number {
   return kg >= 20 ? 2.5 : 1;
 }
 
+/**
+ * A pair of dumbbells' step, on the stored total: the next dumbbell is 1 kg
+ * heavier under 10 kg each, 2 kg from 10 kg up (a gym's usual rack), so the
+ * total moves by twice that. 16.25 kg a dumbbell does not exist.
+ */
+export function dumbbellStep(totalKg: number): number {
+  return (totalKg / 2 < 10 ? 1 : 2) * 2;
+}
+
 export type LastSet = {
   reps: number | null;
   /** Kg as exact text, null for bodyweight. */
@@ -123,6 +132,7 @@ export function nextTarget(
   guide: Guide,
   last: readonly LastSet[] | undefined,
   before?: readonly LastSet[],
+  step: (kg: number) => number = loadStep,
 ): Target {
   const work = (last ?? []).filter((s) => !s.warmup);
   const [lo, hi] = guide.reps;
@@ -163,7 +173,7 @@ export function nextTarget(
   if (tooHard(guide, atTop)) {
     const prior = (before ?? []).filter((s) => !s.warmup);
     if (prior.length && tooHard(guide, prior)) {
-      const down = Math.max(0, round2(n - loadStep(Math.max(0, n - 0.01))));
+      const down = Math.max(0, round2(n - step(Math.max(0, n - 0.01))));
       return { reason: "reduce", sets, reps: [lo, hi], loadKg: String(down) };
     }
     return {
@@ -178,7 +188,7 @@ export function nextTarget(
       reason: "add_load",
       sets,
       reps: [lo, hi],
-      loadKg: String(round2(n + loadStep(n))),
+      loadKg: String(round2(n + step(n))),
     };
   return {
     reason: weakest < lo ? "hold" : "add_reps",
