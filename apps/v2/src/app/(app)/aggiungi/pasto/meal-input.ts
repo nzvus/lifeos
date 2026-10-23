@@ -2,7 +2,8 @@
  * A composer's form as the meal entry's input, and its extras: saved and
  * edited alike. Servings are kept only when not 1, and must be more than
  * none (the kind allows 0). «Salva anche come pasto» needs a new name; it
- * is checked here, before anything is written. An estimate has neither.
+ * is checked here, before anything is written. An estimate has no servings,
+ * and is saved as a saved estimate (its totals, no foods).
  */
 import type { Db } from "@/core/db/db";
 import type { EntryInput } from "@/core/entries";
@@ -15,7 +16,13 @@ import {
   ESTIMATE_FIELDS,
   type LineInput,
 } from "@/core/food/meal";
-import { recipeName, recipeNameTaken } from "@/core/food/recipes";
+import type { RecipeChoice } from "@/core/food/choices";
+import {
+  createEstimateRecipe,
+  createRecipe,
+  recipeName,
+  recipeNameTaken,
+} from "@/core/food/recipes";
 import type { Owner } from "@/core/identity/owner";
 import { clockToDayMin, errorWords } from "@/features/day/entry-form";
 import {
@@ -54,9 +61,8 @@ export async function mealExtras(
   form: Record<string, string>,
 ): Promise<{ errors: Record<string, string>; saveAs: string | null }> {
   const errors: Record<string, string> = {};
-  if (form["estimate"] === "yes") return { errors, saveAs: null };
   const raw = (form["servings"] ?? "").trim();
-  if (raw !== "" && quantityOf(raw) === null)
+  if (form["estimate"] !== "yes" && raw !== "" && quantityOf(raw) === null)
     errors["servings"] = "Scrivi le porzioni, per esempio 1 o 1,5.";
   if (form["saveAs"] !== "yes") return { errors, saveAs: null };
   const name = recipeName(form["recipeName"] ?? "");
@@ -64,6 +70,28 @@ export async function mealExtras(
   else if (await recipeNameTaken(db, owner, name.name))
     errors["recipeName"] = RECIPE_WORDS.taken;
   return { errors, saveAs: name.ok ? name.name : null };
+}
+
+/** The saved meal it is of: the person's own, and an estimate only of a saved estimate. */
+export function recipeOf(
+  form: Record<string, string>,
+  recipes: readonly RecipeChoice[],
+  estimate: boolean,
+): string | null {
+  const r = recipes.find((x) => x.recipeId === form["recipe"]);
+  return r && (r.estimate !== undefined) === estimate ? r.recipeId : null;
+}
+
+/** «Salva anche come pasto»: the foods as a recipe, an estimate's one line as a saved estimate. */
+export function saveAsRecipe(
+  db: Db,
+  owner: Owner,
+  name: string,
+  checked: { lines: CheckedLine[]; estimate: boolean },
+): Promise<string> {
+  return checked.estimate
+    ? createEstimateRecipe(db, owner, name, checked.lines[0]!.per100)
+    : createRecipe(db, owner, name, checked.lines);
 }
 
 /**

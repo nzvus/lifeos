@@ -63,6 +63,15 @@ export function recipeRows(
 ): LibraryRow[] {
   const by = new Map(foods.map((f) => [f.key, f]));
   return recipes.map((r) => {
+    if (r.estimate)
+      return {
+        key: r.key,
+        href: "/libreria/pasto/" + r.recipeId,
+        name: r.name,
+        sub: "stima",
+        uses: r.uses,
+        values: nums(r.estimate),
+      };
     const parts = r.parts.flatMap((p) => {
       const f = by.get(p.key);
       return f ? [{ quantity: p.quantity, values: f.per100, name: f.name }] : [];
@@ -158,6 +167,8 @@ export function foodPage(
 export type MealPage = {
   name: string;
   uses: number;
+  /** A saved estimate: typed totals, no foods. */
+  estimate: boolean;
   parts: {
     name: string;
     brand: string;
@@ -180,6 +191,7 @@ export function mealPage(
   return {
     name: r.name,
     uses: r.uses,
+    estimate: r.estimate !== undefined,
     parts: r.parts.flatMap((p) => {
       const f = by.get(p.key);
       return f

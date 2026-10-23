@@ -11,7 +11,9 @@
  * that keeps the values it was logged with (`extraChoices`, ADR-0007).
  * A saved meal (a recipe) found by the search adds all its foods, and the
  * meal is then "of" it. «Stima a mano» types the meal's totals instead of
- * its foods (a meal out, a guess): saved as one line, marked estimated.
+ * its foods (a meal out, a guess): saved as one line, marked estimated;
+ * «Salva anche in Libreria» keeps it as a saved estimate, found by the
+ * search like a saved meal and reopened here with its totals.
  */
 import { useActionState, useMemo, useState } from "react";
 import { Box, F, Field, Nutrients, PageHeader, type NutrientsData } from "@lifeos/kit";
@@ -172,7 +174,12 @@ function Draft({
   const [typed, setTyped] = useState<Partial<Record<EstimateField, string>>>(() =>
     Object.fromEntries(ESTIMATE_FIELDS.map((f) => [f, state.values["est." + f] ?? ""])),
   );
-  const recipeName = recipes.find((r) => r.recipeId === recipe)?.name;
+  const [estName, setEstName] = useState(state.values["estName"] ?? "");
+  // A saved estimate picked fills the fields again: they remount with its totals.
+  const [estKey, setEstKey] = useState(0);
+  const ofRecipe = recipes.find((r) => r.recipeId === recipe);
+  const recipeName = ofRecipe?.name;
+  const ofEstimate = ofRecipe?.estimate !== undefined;
   const e = state.errors;
   const v = state.values;
   const totals = estimate ? estimateTotals(typed) : mealTotals(lines, by, servings);
@@ -187,12 +194,27 @@ function Draft({
   const foundRecipes = searchRecipes(recipes, query, query ? 5 : lines.length ? 0 : 3);
   /** A saved meal adds its foods not in the meal yet; the meal is of it unless already of another. */
   const addRecipe = (r: RecipeChoice) => {
+    if (r.estimate) {
+      setEstimate(true);
+      setTyped(
+        Object.fromEntries(
+          ESTIMATE_FIELDS.flatMap((f) =>
+            r.estimate![f] === undefined ? [] : [[f, F.input(Number(r.estimate![f]), 2)]],
+          ),
+        ),
+      );
+      setEstName(r.name);
+      setEstKey((k) => k + 1);
+      setRecipe(r.recipeId);
+      setQuery("");
+      return;
+    }
     const fresh = r.parts.filter(
       (p) => by.has(p.key) && !lines.some((l) => l.key === p.key),
     );
     setLines([
       ...lines,
-      ...fresh.map((p) => ({ key: p.key, quantity: F.n(Number(p.quantity), 2) })),
+      ...fresh.map((p) => ({ key: p.key, quantity: F.input(Number(p.quantity), 2) })),
     ]);
     if (!recipe) setRecipe(r.recipeId);
     setQuery("");
@@ -201,7 +223,7 @@ function Draft({
     const last = c.lastQty === null ? null : quantityOf(c.lastQty);
     setLines([
       ...lines,
-      { key: c.key, quantity: last ? F.n(Number(last), 2) : DEFAULT_QTY },
+      { key: c.key, quantity: last ? F.input(Number(last), 2) : DEFAULT_QTY },
     ]);
     setQuery("");
   };
@@ -227,7 +249,7 @@ function Draft({
       )}
       <input type="hidden" name="day" value={day} />
       <input type="hidden" name="lines" value={JSON.stringify(estimate ? [] : lines)} />
-      <input type="hidden" name="recipe" value={estimate ? "" : recipe} />
+      <input type="hidden" name="recipe" value={recipe} />
       <input type="hidden" name="estimate" value={estimate ? "yes" : ""} />
 
       <section className="k-section g3" aria-label="I cibi del pasto">
@@ -237,13 +259,17 @@ function Draft({
             type="button"
             className="k-chip"
             aria-pressed={estimate}
-            onClick={() => setEstimate(!estimate)}
+            onClick={() => {
+              // A saved meal of the other sort stops being the one it is of.
+              if (!ofRecipe || ofEstimate === estimate) setRecipe("");
+              setEstimate(!estimate);
+            }}
           >
             Stima a mano
           </button>
         </div>
         {estimate && (
-          <>
+          <div key={estKey} className="k-stack g3">
             <p className="k-help">
               Scrivi i totali del pasto, anche a occhio: conta come stima.
             </p>
@@ -252,7 +278,8 @@ function Draft({
               label="Cosa hai mangiato"
               type="text"
               placeholder="per esempio: Pizza fuori"
-              defaultValue={v["estName"] ?? ""}
+              defaultValue={estName}
+              onChange={setEstName}
             />
             {ESTIMATE_FIELDS.map((f) => (
               <Field
@@ -269,7 +296,7 @@ function Draft({
                 onChange={(x) => setTyped((t) => ({ ...t, [f]: x }))}
               />
             ))}
-          </>
+          </div>
         )}
         {!estimate && lines.length === 0 && (
           <p className="k-help">Cerca qui sotto e tocca un cibo o un pasto salvato.</p>
@@ -339,16 +366,20 @@ function Draft({
                         fam: "food",
                         of: { kind: "meal" },
                         title: r.name,
-                        meta:
-                          F.plural(r.parts.length, "cibo", "cibi") +
-                          " · " +
-                          F.num(
-                            mealTotals(
-                              r.parts.map((p) => ({ key: p.key, quantity: p.quantity })),
-                              by,
-                            )["kcal"] ?? 0,
-                            "kcal",
-                          ),
+                        meta: r.estimate
+                          ? "stima · " + F.num(Number(r.estimate["kcal"] ?? 0), "kcal")
+                          : F.plural(r.parts.length, "cibo", "cibi") +
+                            " · " +
+                            F.num(
+                              mealTotals(
+                                r.parts.map((p) => ({
+                                  key: p.key,
+                                  quantity: p.quantity,
+                                })),
+                                by,
+                              )["kcal"] ?? 0,
+                              "kcal",
+                            ),
                         value: "+",
                       }}
                     />
@@ -424,7 +455,11 @@ function Draft({
             ...(role || auto ? { sub: role || auto } : {}),
             title: ROLE_WORDS[role || auto] ?? "Pasto",
             value: F.num(totals["kcal"] ?? 0, "kcal"),
-            ...(estimate ? { meta: "stima" } : recipeName ? { meta: recipeName } : {}),
+            ...(estimate
+              ? { meta: recipeName ? "stima · " + recipeName : "stima" }
+              : recipeName
+                ? { meta: recipeName }
+                : {}),
           }}
         >
           <Nutrients
@@ -493,7 +528,7 @@ function Draft({
           defaultValue={v["note"] ?? ""}
           error={e["note"]}
         />
-        {!estimate && lines.length > 0 && (
+        {(estimate ? !ofEstimate : lines.length > 0) && (
           <div className="k-stack g2">
             <input type="hidden" name="saveAs" value={saveAs ? "yes" : ""} />
             <div className="k-chips">
@@ -503,7 +538,7 @@ function Draft({
                 aria-pressed={saveAs}
                 onClick={() => setSaveAs(!saveAs)}
               >
-                Salva anche come pasto
+                {estimate ? "Salva anche in Libreria" : "Salva anche come pasto"}
               </button>
             </div>
             {saveAs && (
@@ -511,10 +546,18 @@ function Draft({
                 name="recipeName"
                 label="Nome del pasto"
                 type="text"
-                placeholder="per esempio: Porridge della domenica"
-                defaultValue={v["recipeName"] ?? ""}
+                placeholder={
+                  estimate
+                    ? "per esempio: Menu hamburger"
+                    : "per esempio: Porridge della domenica"
+                }
+                defaultValue={v["recipeName"] ?? (estimate ? estName : "")}
                 error={e["recipeName"]}
-                help="Lo ritrovi in «Pasti salvati», con questi cibi e queste quantità."
+                help={
+                  estimate
+                    ? "Lo ritrovi in «Pasti salvati» con questi totali: la prossima volta basta toccarlo."
+                    : "Lo ritrovi in «Pasti salvati», con questi cibi e queste quantità."
+                }
               />
             )}
           </div>

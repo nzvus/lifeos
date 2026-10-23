@@ -20,8 +20,13 @@ import { errorWords, managedFields, readEntryForm } from "@/features/day/entry-f
 import type { MealState } from "@/features/food/Composer";
 import { mealErrors, parseLines } from "@/features/food/composer";
 import { addContext } from "../../aggiungi/kinds";
-import { createRecipe } from "@/core/food/recipes";
-import { formLines, mealExtras, mealInput } from "../../aggiungi/pasto/meal-input";
+import {
+  formLines,
+  mealExtras,
+  mealInput,
+  recipeOf,
+  saveAsRecipe,
+} from "../../aggiungi/pasto/meal-input";
 
 const GONE = "Questa voce non c’è più: forse è stata eliminata.";
 
@@ -90,9 +95,11 @@ export async function updateMeal(
   const recipe =
     form["recipe"] === linked
       ? linked
-      : ((await readRecipeChoices(db, owner, ctx.today, foods)).find(
-          (r) => r.recipeId === form["recipe"],
-        )?.recipeId ?? null);
+      : recipeOf(
+          form,
+          await readRecipeChoices(db, owner, ctx.today, foods),
+          form["estimate"] === "yes",
+        );
   const checkedLines = formLines(form, lines, choices);
   const entry = checkEntry(
     kindRegistry().get("meal"),
@@ -109,7 +116,7 @@ export async function updateMeal(
   // An estimate composed with foods becomes typed food; a converted one with foods keeps its confidence.
   const wasTyped = typedEstimate(item.values, item.lines) !== null;
   const saved = extras.saveAs
-    ? await createRecipe(db, owner, extras.saveAs, checkedLines.lines)
+    ? await saveAsRecipe(db, owner, extras.saveAs, checkedLines)
     : null;
   if (
     !(await updateEntry(
@@ -119,7 +126,7 @@ export async function updateMeal(
       {
         ...entry.entry,
         lines: checkedLines.lines,
-        itemId: checkedLines.estimate ? null : (saved ?? recipe),
+        itemId: saved ?? recipe,
         ...(checkedLines.estimate
           ? { confidence: ESTIMATE_CONFIDENCE }
           : wasTyped

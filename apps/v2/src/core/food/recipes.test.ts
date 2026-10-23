@@ -3,8 +3,10 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
+import { readFoodChoices, readRecipeChoices, savedEstimates } from "./catalog";
 import {
   archiveRecipe,
+  createEstimateRecipe,
   createRecipe,
   duplicateRecipe,
   readRecipe,
@@ -80,5 +82,50 @@ describe("a saved meal's editor", () => {
     expect(await archiveRecipe(db, b, id)).toBe(false);
     expect(await archiveRecipe(db, a, id)).toBe(true);
     expect(await readRecipe(db, a, id)).toBeNull();
+  });
+});
+
+describe("a saved estimate (a meal out kept in the library)", () => {
+  let db: Db;
+  let close: () => Promise<void>;
+  let a: Owner;
+  let b: Owner;
+  beforeAll(async () => {
+    const t = await createTestDb();
+    db = t.db as unknown as Db;
+    close = t.close;
+    a = ownerFromVerifiedSession(await createTestUser(t.db, "a@example.test"));
+    b = ownerFromVerifiedSession(await createTestUser(t.db, "b@example.test"));
+  });
+  afterAll(() => close());
+
+  it("is a saved meal with its typed totals and no foods, the owner's only", async () => {
+    const id = await createEstimateRecipe(db, a, "Menu hamburger", {
+      kcal: "1250",
+      protein: "45",
+      fat: "60",
+    });
+    const foods = await readFoodChoices(db, a, "2026-10-23");
+    const mine = await readRecipeChoices(db, a, "2026-10-23", foods);
+    expect(mine).toEqual([
+      {
+        key: "recipe:" + id,
+        recipeId: id,
+        name: "Menu hamburger",
+        parts: [],
+        uses: 0,
+        estimate: { kcal: "1250.0000", protein: "45.0000", fat: "60.0000" },
+      },
+    ]);
+    expect(await readRecipeChoices(db, b, "2026-10-23", [])).toEqual([]);
+  });
+
+  it("needs the mark: values on a recipe without it are no estimate", () => {
+    const rows = [
+      { itemId: "x", field: "kcal", num: "900", bool: null },
+      { itemId: "y", field: "estimate", num: null, bool: true },
+      { itemId: "y", field: "kcal", num: "700", bool: null },
+    ];
+    expect([...savedEstimates(rows)]).toEqual([["y", { kcal: "700" }]]);
   });
 });

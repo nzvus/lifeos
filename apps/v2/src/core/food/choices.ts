@@ -186,6 +186,8 @@ export type RecipeChoice = {
   name: string;
   parts: { key: string; quantity: string }[];
   uses: number;
+  /** A saved estimate's typed totals (it has no parts); absent for a recipe of foods. */
+  estimate?: Record<string, string>;
 };
 
 export type PartRow = {
@@ -199,13 +201,15 @@ export type PartRow = {
 /**
  * Pure: the live recipes as choices. Each part names its food's choice, or
  * its preferred product's when that product is still a choice; a part whose
- * food left the catalog, or with no quantity, is not added.
+ * food left the catalog, or with no quantity, is not added. A saved estimate
+ * (in `estimates`, by recipe) carries its totals instead of parts.
  */
 export function recipeChoices(
   recipes: readonly { id: string; name: string }[],
   parts: readonly PartRow[],
   uses: ReadonlyMap<string, number>,
   foods: readonly FoodChoice[],
+  estimates: ReadonlyMap<string, Record<string, string>> = new Map(),
 ): RecipeChoice[] {
   const known = new Set(foods.map((f) => f.key));
   return recipes
@@ -229,8 +233,9 @@ export function recipeChoices(
           return key ? [{ key, quantity: p.quantity! }] : [];
         }),
       uses: uses.get(r.id) ?? 0,
+      ...(estimates.has(r.id) ? { estimate: estimates.get(r.id)! } : {}),
     }))
-    .filter((r) => r.parts.length > 0)
+    .filter((r) => r.parts.length > 0 || r.estimate !== undefined)
     .sort((a, b) => a.name.localeCompare(b.name, "it"));
 }
 

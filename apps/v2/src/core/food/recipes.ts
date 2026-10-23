@@ -5,13 +5,17 @@
  * whose food was never known (an old converted line) cannot be a part.
  * The name must be new among the person's live recipes (the catalog's
  * live-name index, ignoring case).
+ * A typed estimate (a meal out: a burger menu, a pizza) is saved as a
+ * recipe with no parts: its totals as values, typed at the estimate's
+ * confidence and marked `estimate`, so logging it again is an estimate too.
  */
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { archiveItem } from "../catalog/archive";
 import type { Db } from "../db/db";
-import { catalogItems, catalogParts } from "../db/schema";
+import { catalogItems, catalogParts, catalogValues } from "../db/schema";
 import type { CheckedLine } from "../entries";
 import { ownedBy, type Owner } from "../identity/owner";
+import { ESTIMATE_CONFIDENCE, ESTIMATE_FIELDS, type EstimateField } from "./meal";
 
 export type RecipeNameError = "empty" | "too_long" | "taken";
 const NAME_MAX = 80;
@@ -74,6 +78,42 @@ export async function createRecipe(
           defaults: l.productId ? { preferredProduct: l.productId } : {},
         })),
       );
+    return id;
+  });
+}
+
+/** The field marking a recipe as a saved estimate (its totals are values, not parts). */
+export const ESTIMATE_MARK = "estimate";
+
+/** Creates a saved estimate: the meal's typed totals, kcal at least; returns its id. */
+export async function createEstimateRecipe(
+  db: Db,
+  owner: Owner,
+  name: string,
+  totals: Partial<Record<EstimateField, string>>,
+): Promise<string> {
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(catalogItems)
+      .values({ userId: owner.id, catalog: "recipe", name })
+      .returning({ id: catalogItems.id });
+    const id = row!.id;
+    await tx.insert(catalogValues).values([
+      { userId: owner.id, itemId: id, field: ESTIMATE_MARK, bool: true },
+      ...ESTIMATE_FIELDS.flatMap((field) =>
+        totals[field] === undefined
+          ? []
+          : [
+              {
+                userId: owner.id,
+                itemId: id,
+                field,
+                num: totals[field],
+                confidence: ESTIMATE_CONFIDENCE,
+              },
+            ],
+      ),
+    ]);
     return id;
   });
 }
