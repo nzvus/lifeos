@@ -3,4 +3,7 @@ export * from "./sets";
 export * from "./rests";
 export * from "./progression";
 export * from "./session";
-export { median, slope } from "./stats";
+export * from "./trend";
+export * from "./expected";
+export * from "./duration";
+export { median, ols, slope } from "./stats";

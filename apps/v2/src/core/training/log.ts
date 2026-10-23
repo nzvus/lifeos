@@ -65,6 +65,7 @@ export async function readExerciseLog(
           trainingSets.entryId,
           done.map((d) => d.id),
         ),
+        eq(trainingSets.done, true),
       ),
     )
     .orderBy(trainingSets.position);

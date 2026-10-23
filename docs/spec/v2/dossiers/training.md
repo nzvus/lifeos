@@ -1,6 +1,6 @@
 # Dossier — training (gym mode, progress, rests, auto mode)
 
-Status: **draft for the developer's review** (2026-10-23). Method:
+Status: **approved 2026-10-23** («procedi come ritieni meglio»: §9 decided as recommended). Method:
 `../method.md`. Code it changes: `apps/v2/src/core/engines/training/` (E6),
 `core/training/`, `features/training/`; engines.md E6 and the E7 "Training
 session" model.
@@ -206,7 +206,7 @@ and timed moves (reps or time trends, no e1RM); a session split in two
 8. No RIR on any set → e1RM marked "senza RIR", effort part of the session
    score left out and named.
 
-## 9. Questions for the developer
+## 9. Questions for the developer — decided 2026-10-23, all as recommended
 1. **Auto mode logs the proposed reps as "presunti"** until you confirm them
    at «Fine». Recommended: yes — otherwise the data would record what was
    planned, not done.

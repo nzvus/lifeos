@@ -24,6 +24,9 @@ export type ExerciseChoice = {
   pattern: string | null;
   equipment: string | null;
   unilateral: boolean;
+  /** Its own rest and setup delay in seconds, when set. */
+  restS: number | null;
+  setupS: number | null;
 };
 
 export type RoutineChoice = {
@@ -34,6 +37,8 @@ export type RoutineChoice = {
 };
 
 const USE_DAYS = 90;
+const numOf = (n: string | null | undefined) =>
+  n === null || n === undefined ? null : Number(n);
 
 /** The owner's live exercises with what gym mode needs of them, by name. */
 export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoice[]> {
@@ -55,6 +60,7 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
       field: catalogValues.field,
       text: catalogValues.text,
       bool: catalogValues.bool,
+      num: catalogValues.num,
     })
     .from(catalogValues)
     .where(
@@ -64,7 +70,13 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
           catalogValues.itemId,
           items.map((i) => i.id),
         ),
-        inArray(catalogValues.field, ["pattern", "equipment", "unilateral"]),
+        inArray(catalogValues.field, [
+          "pattern",
+          "equipment",
+          "unilateral",
+          "restS",
+          "setupS",
+        ]),
       ),
     );
   const v = (id: string, f: string) =>
@@ -76,6 +88,8 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
       pattern: v(i.id, "pattern")?.text ?? null,
       equipment: v(i.id, "equipment")?.text ?? null,
       unilateral: v(i.id, "unilateral")?.bool === true,
+      restS: numOf(v(i.id, "restS")?.num),
+      setupS: numOf(v(i.id, "setupS")?.num),
     }))
     .sort((a, b) => a.name.localeCompare(b.name, "it"));
 }
@@ -179,7 +193,13 @@ export async function readHistory(
   const sets = await db
     .select()
     .from(trainingSets)
-    .where(and(ownedBy(trainingSets, owner), inArray(trainingSets.entryId, ids)))
+    .where(
+      and(
+        ownedBy(trainingSets, owner),
+        inArray(trainingSets.entryId, ids),
+        eq(trainingSets.done, true),
+      ),
+    )
     .orderBy(trainingSets.position);
   const of = (entryId: string): LastSet[] =>
     sets
