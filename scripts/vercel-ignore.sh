@@ -9,11 +9,6 @@
 # own Neon branch — or when asked for with a branch named *-preview.
 set -u
 
-if [ "${VERCEL_ENV:-}" = "production" ]; then
-  echo "production: build"
-  exit 1
-fi
-
 case "${VERCEL_GIT_COMMIT_REF:-}" in
   *-preview)
     echo "branch ${VERCEL_GIT_COMMIT_REF} asks for a preview: build"
@@ -26,6 +21,19 @@ esac
 BASE="${VERCEL_GIT_PREVIOUS_SHA:-}"
 if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
   BASE=$(git rev-list --max-count=20 HEAD | tail -n 1)
+fi
+
+# Production builds only when something v1 is made of changed: merges of
+# v2, docs or CI alone spent a deploy each (2026-10-22). Excluded paths
+# are the ones v1's build never reads.
+if [ "${VERCEL_ENV:-}" = "production" ]; then
+  if git diff --quiet "$BASE" HEAD -- . ":!apps" ":!packages/kit" ":!docs" \
+    ":!*.md" ":!.github" ":!.claude"; then
+    echo "production: nothing of v1 changed since ${BASE}: skip"
+    exit 0
+  fi
+  echo "production: v1 changed: build"
+  exit 1
 fi
 
 if git diff --quiet "$BASE" HEAD -- drizzle src/core/db; then

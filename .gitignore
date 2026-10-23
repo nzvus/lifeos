@@ -32,3 +32,6 @@ __pycache__/
 
 # lifeos v2: the local PGlite database (apps/v2/.pglite), real data
 .pglite/
+
+# Vercel CLI link (`vercel link`): project ids, local only
+.vercel
