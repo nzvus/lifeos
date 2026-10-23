@@ -8,6 +8,7 @@ import { and, asc, eq, inArray, isNotNull } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { exercises, routineItems, sessionExercises } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { forget } from "../../shared/request-memo";
 import { live } from "../../shared/trash";
 import { fail, ok, pgErrorCode, type Result } from "../../shared/result";
 import type { ExerciseInput } from "../validation";
@@ -46,6 +47,7 @@ export async function createExercise(
   owner: Owner,
   input: ExerciseInput,
 ): Promise<Result<Exercise>> {
+  forget(db, "sessions:"); // sessions show their exercises: the memo is stale
   try {
     const [row] = await db
       .insert(exercises)
@@ -64,6 +66,7 @@ export async function updateExercise(
   id: string,
   input: ExerciseInput,
 ): Promise<Result<Exercise>> {
+  forget(db, "sessions:"); // sessions show their exercises: the memo is stale
   try {
     const [row] = await db
       .update(exercises)
@@ -84,6 +87,7 @@ export async function setExerciseUnilateral(
   id: string,
   unilateral: boolean,
 ): Promise<Result<null>> {
+  forget(db, "sessions:"); // sessions show their exercises: the memo is stale
   const done = await db
     .update(exercises)
     .set({ unilateral })
@@ -102,6 +106,7 @@ export async function deleteExercise(
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
+  forget(db, "sessions:"); // sessions show their exercises: the memo is stale
   const [inSession] = await db
     .select({ id: sessionExercises.id })
     .from(sessionExercises)
@@ -127,6 +132,7 @@ export async function restoreExercise(
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
+  forget(db, "sessions:"); // sessions show their exercises: the memo is stale
   try {
     const restored = await db
       .update(exercises)
@@ -156,6 +162,7 @@ export async function mergeExercises(
   fromId: string,
   intoId: string,
 ): Promise<Result<null>> {
+  forget(db, "sessions:"); // sessions show their exercises: the memo is stale
   if (fromId === intoId) return fail({ _form: "invalid_choice" });
   const both = await getExercisesByIds(db, owner, [fromId, intoId]);
   if (both.length !== 2) return fail({ _form: "not_found" });

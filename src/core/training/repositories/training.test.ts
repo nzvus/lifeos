@@ -9,6 +9,7 @@ import type { Db } from "../../db/client";
 import { sessionExercises, sets, weighInContext } from "../../db/schema";
 import type { Owner } from "../../identity/owner";
 import { createTestDb, createTestUser } from "../../testing/test-db";
+import { memo, requestScoped } from "../../shared/request-memo";
 import type { ExerciseInput, SessionInput } from "../validation";
 import {
   createExercise,
@@ -527,5 +528,53 @@ describe("how a weigh-in was taken (ADR-0027)", () => {
       db.insert(weighInContext).values({ measurementId: theirs.value.id, userId: me.id }),
     ).rejects.toThrow();
     expect((await listMeasurements(db, me)).length).toBe(0);
+  });
+});
+
+describe("one read of the sessions per request (core/shared/request-memo)", () => {
+  it("a request's database reads them once; a write in it is seen by the next read", async () => {
+    const lat = await mine("Lat pulldown");
+    const one = (day: string) =>
+      session(day, [
+        {
+          exerciseId: lat,
+          restS: 80,
+          notes: "",
+          sets: [set({ reps: 10, loadKg: "40" })],
+        },
+      ]);
+    await createSession(db, me, one("2026-09-20"), "Europe/Rome");
+    const req = requestScoped(db);
+    // Queries and transactions go through the marked database as through the pool.
+    expect((await listSessions(req, me, "2026-09-01", "2026-09-30")).length).toBe(1);
+    expect((await listSessions(req, me, "2026-10-01", "2026-10-31")).length).toBe(0);
+    const r = await createSession(req, me, one("2026-10-02"), "Europe/Rome");
+    expect(r.ok).toBe(true);
+    expect(
+      (await listSessions(req, me, "2026-10-01", "2026-10-31")).map((x) => x.day),
+    ).toEqual(["2026-10-02"]);
+    // Another person's sessions never come from my memo.
+    const other = await createTestUser(db, "other-memo@example.test");
+    expect(await listSessions(req, other, "2000-01-01", "2999-12-31")).toEqual([]);
+  });
+
+  it("memoises only on a request's database; a failed read is not kept", async () => {
+    let n = 0;
+    const load = async () => ++n;
+    await memo(db, "k", load);
+    await memo(db, "k", load);
+    expect(n).toBe(2);
+    const req = requestScoped(db);
+    await memo(req, "k", load);
+    await memo(req, "k", load);
+    expect(n).toBe(3);
+    let fail = true;
+    const flaky = async () => {
+      if (fail) throw new Error("down");
+      return "ok";
+    };
+    await expect(memo(req, "f", flaky)).rejects.toThrow("down");
+    fail = false;
+    expect(await memo(req, "f", flaky)).toBe("ok");
   });
 });

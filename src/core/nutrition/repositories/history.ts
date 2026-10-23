@@ -51,8 +51,17 @@ export async function getHistory(
   fromDay: string,
   toDay: string,
 ): Promise<DaySummary[]> {
+  // Only the columns the summary reads: the history is read on every day
+  // page render, and the database is billed by transfer (2026-10-24).
   const all = await db
-    .select()
+    .select({
+      id: logEntries.id,
+      day: logEntries.day,
+      status: logEntries.status,
+      servings: logEntries.servings,
+      at: logEntries.at,
+      estimated: logEntries.estimated,
+    })
     .from(logEntries)
     .where(
       and(
@@ -72,7 +81,20 @@ export async function getHistory(
   const ids = entries.map((e) => e.id);
   const items = ids.length
     ? await db
-        .select()
+        .select({
+          entryId: logEntryItems.entryId,
+          quantity: logEntryItems.quantity,
+          packagePriceCents: logEntryItems.packagePriceCents,
+          packageSize: logEntryItems.packageSize,
+          kcal: logEntryItems.kcal,
+          protein: logEntryItems.protein,
+          carbs: logEntryItems.carbs,
+          sugars: logEntryItems.sugars,
+          fat: logEntryItems.fat,
+          saturatedFat: logEntryItems.saturatedFat,
+          fiber: logEntryItems.fiber,
+          salt: logEntryItems.salt,
+        })
         .from(logEntryItems)
         .where(and(ownedBy(logEntryItems, owner), inArray(logEntryItems.entryId, ids)))
     : [];
