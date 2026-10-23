@@ -79,3 +79,14 @@ defined in `ROADMAP.md`; run the `retro` skill at sprint end.
   declaring a slice done. Fix ERRORs immediately; report WARNs to the human.
 - Definition of done for any slice: implemented + tested + docs touched
   updated + human has understood it (ask one check question if unsure).
+- **Tests and deploys** (2026-10-23; CI runs everything, so don't run it twice):
+  - Locally: `npx vitest related --run <touched files>` and `typecheck` in the
+    touched workspace only; `prettier --write` on touched files. The full
+    `npm test`, lint and build run in CI, not before the push.
+  - DB tests only when the schema or a repository changes; the phone check
+    only for new or changed UI.
+  - One PR per theme; push when the theme is complete (each push re-runs CI).
+  - Vercel: 100 deploys a day, both projects. The ignore scripts
+    (`scripts/vercel-ignore.sh`, `apps/v2/scripts/vercel-ignore.sh`) build
+    production only when that app changed, previews only for a migration
+    or a `*-preview` branch.
