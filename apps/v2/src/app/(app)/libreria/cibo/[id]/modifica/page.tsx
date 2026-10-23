@@ -27,7 +27,7 @@ export default async function FoodEditPage({
         name: page.name,
         ...Object.fromEntries(
           FOOD_FIELDS.flatMap(([f]) =>
-            page.per100[f] === undefined ? [] : [[f, F.n(Number(page.per100[f]), 4)]],
+            page.per100[f] === undefined ? [] : [[f, F.input(Number(page.per100[f]), 4)]],
           ),
         ),
       }}

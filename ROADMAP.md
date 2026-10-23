@@ -115,8 +115,13 @@ scanning) are placed in the v2 spec.
    - Obiettivi (s169, V-09): the goals in force with their progress (weight:
      now vs start, pace vs needed, ETA, on track; steps days on target;
      study hours a week) and «Nuovo obiettivo» (the pace derived and judged).
-   Next: drink kind (touches loaded data: ask first), templates and cycles
-   (Piano), body/mind trackers.
+   **From 2026-10-23: dossiers first** (`docs/spec/v2/method.md`, the
+   developer's considerations of 10-22): each domain designed whole —
+   evidence, an audit of the data, model, acceptance tests — and reviewed
+   before its code changes. Order: training → movement (routes, trips) →
+   day templates and routines → expenditure → micronutrients → meal roles.
+   - Estimates in the library (s171): a typed estimate saved as a saved
+     meal with its totals, from the composer or later from `/voce/<id>`.
 6. **Switch** when every v1 screen id is covered and parity is green.
    Decided 2026-10-17 («voglio utilizzare la nuova versione quanto prima»):
    switch now for food and the day (load the refined 16 Oct export), gym

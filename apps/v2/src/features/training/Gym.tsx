@@ -335,13 +335,13 @@ function SetForm({
   const [reps, setReps] = useState(start?.reps != null ? String(start.reps) : "");
   const [perDb, setPerDb] = useState(dumbbells);
   const [kg, setKg] = useState(
-    start?.loadKg != null ? F.n(Number(start.loadKg) / (dumbbells ? 2 : 1), 2) : "",
+    start?.loadKg != null ? F.input(Number(start.loadKg) / (dumbbells ? 2 : 1), 2) : "",
   );
   // The stepper is redrawn with the converted load when the chip changes.
   const [kgKey, setKgKey] = useState(0);
   const switchPerDb = () => {
     const n = Number(kg.replace(",", "."));
-    if (kg !== "" && Number.isFinite(n)) setKg(F.n(perDb ? n * 2 : n / 2, 2));
+    if (kg !== "" && Number.isFinite(n)) setKg(F.input(perDb ? n * 2 : n / 2, 2));
     setPerDb(!perDb);
     setKgKey(kgKey + 1);
   };

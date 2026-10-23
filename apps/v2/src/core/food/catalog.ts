@@ -26,7 +26,9 @@ import {
   type RecipeChoice,
 } from "./choices";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
+import { ESTIMATE_FIELDS } from "./meal";
 import { MICRO_FIELDS } from "./micros";
+import { ESTIMATE_MARK } from "./recipes";
 
 /** The owner's live foods and products as choices, with their use up to `today`. */
 export async function readFoodChoices(
@@ -128,7 +130,7 @@ export async function readRecipeChoices(
     );
   if (recipes.length === 0) return [];
   const ids = recipes.map((r) => r.id);
-  const [parts, uses] = await Promise.all([
+  const [parts, uses, values] = await Promise.all([
     db
       .select({
         itemId: catalogParts.itemId,
@@ -153,13 +155,49 @@ export async function readRecipeChoices(
         ),
       )
       .groupBy(entries.itemId),
+    db
+      .select({
+        itemId: catalogValues.itemId,
+        field: catalogValues.field,
+        num: catalogValues.num,
+        bool: catalogValues.bool,
+      })
+      .from(catalogValues)
+      .where(
+        and(
+          ownedBy(catalogValues, owner),
+          inArray(catalogValues.itemId, ids),
+          inArray(catalogValues.field, [ESTIMATE_MARK, ...ESTIMATE_FIELDS]),
+        ),
+      ),
   ]);
   return recipeChoices(
     recipes,
     parts,
     new Map(uses.flatMap((u) => (u.itemId ? [[u.itemId, u.uses] as const] : []))),
     foods,
+    savedEstimates(values),
   );
+}
+
+/** Pure: the saved estimates' totals by recipe; a recipe without the mark is none. */
+export function savedEstimates(
+  rows: readonly {
+    itemId: string;
+    field: string;
+    num: string | null;
+    bool: boolean | null;
+  }[],
+): Map<string, Record<string, string>> {
+  const marked = new Set(
+    rows.filter((r) => r.field === ESTIMATE_MARK && r.bool).map((r) => r.itemId),
+  );
+  const out = new Map<string, Record<string, string>>();
+  for (const id of marked) out.set(id, {});
+  for (const r of rows)
+    if (marked.has(r.itemId) && r.field !== ESTIMATE_MARK && r.num !== null)
+      out.get(r.itemId)![r.field] = r.num;
+  return out;
 }
 
 /** The estimates of these foods (core/food/kinds and micros), by food: for the lines of a day. */

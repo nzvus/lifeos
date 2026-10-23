@@ -37,7 +37,7 @@ export default async function SettingsPage() {
           initial={{
             sex: s.sex ?? "",
             birthYear: s.birthYear === null ? "" : String(s.birthYear),
-            heightCm: s.heightCm === null ? "" : F.n(Number(s.heightCm), 1),
+            heightCm: s.heightCm === null ? "" : F.input(Number(s.heightCm), 1),
             timeZone: s.timeZone,
             boundary: F.time(s.boundaryMin),
           }}

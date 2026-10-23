@@ -4,7 +4,8 @@
  * the browser sent, each only a choice's key and a quantity, checked
  * against the catalog read again here (the snapshot comes from the server,
  * ADR-0007); the meal's role, time and status checked as any entry's.
- * «Stima a mano» saves the typed totals as one line instead (confidence 0.60).
+ * «Stima a mano» saves the typed totals as one line instead (confidence 0.60),
+ * of a saved estimate when it came from one or is saved as one.
  * On an error the composer gets the words and what was typed; on success
  * the day it was for.
  */
@@ -20,8 +21,7 @@ import { errorWords } from "@/features/day/entry-form";
 import type { MealState } from "@/features/food/Composer";
 import { mealErrors, parseLines } from "@/features/food/composer";
 import { addContext } from "../kinds";
-import { createRecipe } from "@/core/food/recipes";
-import { formLines, mealExtras, mealInput } from "./meal-input";
+import { formLines, mealExtras, mealInput, recipeOf, saveAsRecipe } from "./meal-input";
 
 export async function saveMeal(prev: MealState, data: FormData): Promise<MealState> {
   const owner = await requireOwner();
@@ -32,9 +32,8 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
   const ctx = await addContext(db, owner, form["day"]);
   const choices = await readFoodChoices(db, owner, ctx.today);
   const recipes = await readRecipeChoices(db, owner, ctx.today, choices);
-  // Only one of the person's own recipes: anything else is no recipe.
-  const recipe = recipes.find((r) => r.recipeId === form["recipe"])?.recipeId ?? null;
   const checkedLines = formLines(form, lines, choices);
+  const recipe = recipeOf(form, recipes, form["estimate"] === "yes");
   const entry = checkEntry(
     kindRegistry().get("meal"),
     mealInput(ctx.day, form, ctx.clock.boundaryMin),
@@ -50,12 +49,12 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
     return { errors, values: form, lines, n: prev.n + 1 };
   }
   const saved = extras.saveAs
-    ? await createRecipe(db, owner, extras.saveAs, checkedLines.lines)
+    ? await saveAsRecipe(db, owner, extras.saveAs, checkedLines)
     : null;
   await createEntry(db, owner, {
     ...entry.entry,
     lines: checkedLines.lines,
-    itemId: checkedLines.estimate ? null : (saved ?? recipe),
+    itemId: saved ?? recipe,
     ...(checkedLines.estimate ? { confidence: ESTIMATE_CONFIDENCE } : {}),
   });
   revalidatePath("/oggi", "layout");

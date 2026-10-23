@@ -1,4 +1,7 @@
-/** A saved meal's page (V-07, first part): its foods, its totals per serving. Editing comes with the meal editor. */
+/**
+ * A saved meal's page (V-07, first part): its foods, its totals per serving.
+ * A saved estimate shows its typed totals; it can be logged or archived.
+ */
 import { notFound } from "next/navigation";
 import { F, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
@@ -7,7 +10,7 @@ import { readClock } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { FOOD_FIELDS, mealPage } from "@/features/library/library";
-import { duplicateSaved } from "./modifica/actions";
+import { archiveSaved, duplicateSaved } from "./modifica/actions";
 
 export default async function SavedMealPage({
   params,
@@ -34,36 +37,54 @@ export default async function SavedMealPage({
           <a className="k-btn primary" href={"/aggiungi/pasto?pasto=" + id}>
             Registra
           </a>
-          <a className="k-btn secondary" href={"/libreria/pasto/" + id + "/modifica"}>
-            Modifica
-          </a>
-          <form action={duplicateSaved.bind(null, id)}>
-            <button type="submit" className="k-btn secondary">
-              Duplica
-            </button>
-          </form>
+          {page.estimate ? (
+            <form action={archiveSaved.bind(null, id)}>
+              <button type="submit" className="k-btn secondary">
+                Archivia
+              </button>
+            </form>
+          ) : (
+            <>
+              <a className="k-btn secondary" href={"/libreria/pasto/" + id + "/modifica"}>
+                Modifica
+              </a>
+              <form action={duplicateSaved.bind(null, id)}>
+                <button type="submit" className="k-btn secondary">
+                  Duplica
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </div>
-      <section className="k-section g3" aria-label="Cibi">
-        <h2>Cibi</h2>
-        {page.parts.map((p, i) => (
-          <div key={i} className="k-line between">
-            <span className="k-body">
-              {p.href ? (
-                <a className="k-link" href={p.href}>
-                  {p.name}
-                </a>
-              ) : (
-                p.name
-              )}
-              {p.brand && <span className="k-meta"> · {p.brand}</span>}
-            </span>
-            <span className="k-num">{F.num(Number(p.quantity), p.unit)}</span>
-          </div>
-        ))}
-      </section>
+      {page.estimate ? (
+        <section className="k-section">
+          <p className="k-help">
+            Una stima a mano: registrandolo conta come stima, con questi totali.
+          </p>
+        </section>
+      ) : (
+        <section className="k-section g3" aria-label="Cibi">
+          <h2>Cibi</h2>
+          {page.parts.map((p, i) => (
+            <div key={i} className="k-line between">
+              <span className="k-body">
+                {p.href ? (
+                  <a className="k-link" href={p.href}>
+                    {p.name}
+                  </a>
+                ) : (
+                  p.name
+                )}
+                {p.brand && <span className="k-meta"> · {p.brand}</span>}
+              </span>
+              <span className="k-num">{F.num(Number(p.quantity), p.unit)}</span>
+            </div>
+          ))}
+        </section>
+      )}
       <section className="k-section g3" aria-label="Totali">
-        <h2>Una porzione</h2>
+        <h2>{page.estimate ? "Il pasto" : "Una porzione"}</h2>
         {FOOD_FIELDS.filter(([f]) => f !== "nova" && page.totals[f] !== undefined).map(
           ([f, words, unit]) => (
             <div key={f} className="k-line between">

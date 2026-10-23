@@ -22,7 +22,7 @@ export default async function SavedMealEditPage({
       parts={r.parts.map((p) => ({
         position: p.position,
         name: p.name,
-        quantity: p.quantity === null ? "" : F.n(Number(p.quantity), 2),
+        quantity: p.quantity === null ? "" : F.input(Number(p.quantity), 2),
         unit: p.unit ?? "g",
       }))}
       backHref={"/libreria/pasto/" + id}

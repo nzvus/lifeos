@@ -107,6 +107,8 @@ const TONE: Record<State, string> = {
 
 export const F = {
   n: (v: number, d = 1) => n(v, d),
+  /** A number to put back in a field: no thousands dot, which a field reads as a decimal. */
+  input: (v: number, d = 2) => n(v, d).replace(/\./g, ""),
   num: (v: number, unit = "") => u(n(v, dec(v, unit), unit === "€"), unit),
   signed: (v: number, unit = "") => (v > 0 ? "+" : "") + F.num(v, unit),
   approx: (v: number, unit = "") => "≈" + NB + F.num(v, unit),

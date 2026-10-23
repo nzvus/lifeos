@@ -68,20 +68,24 @@ export default async function MealPage({
     <Composer
       choices={choices}
       recipes={recipes}
-      {...(from
-        ? {
-            initialRecipe: from.recipeId,
-            initialLines: from.parts.map((p) => ({
-              key: p.key,
-              quantity: F.n(Number(p.quantity), 2),
-            })),
-          }
-        : repeat
+      {...(from?.estimate
+        ? { initialRecipe: from.recipeId }
+        : from
           ? {
-              initialLines: repeat.lines,
-              ...(again?.item ? { initialRecipe: again.item.id } : {}),
+              initialRecipe: from.recipeId,
+              initialLines: from.parts.map((p) => ({
+                key: p.key,
+                quantity: F.input(Number(p.quantity), 2),
+              })),
             }
-          : {})}
+          : repeat
+            ? {
+                initialLines: repeat.lines,
+                ...(again?.item ? { initialRecipe: again.item.id } : {}),
+              }
+            : typed && again?.item
+              ? { initialRecipe: again.item.id }
+              : {})}
       day={day}
       dayLabel={day === today ? "Oggi" : F.Day(day)}
       dayNutrients={whole?.nutrients ?? null}
@@ -91,7 +95,19 @@ export default async function MealPage({
         ...(day === today ? { start: now } : {}),
         ...(typeof role === "string" ? { role } : {}),
         ...(typeof again?.values["servings"] === "string"
-          ? { servings: F.n(Number(again.values["servings"]), 2) }
+          ? { servings: F.input(Number(again.values["servings"]), 2) }
+          : {}),
+        ...(from?.estimate
+          ? {
+              estimate: "yes",
+              estName: from.name,
+              ...Object.fromEntries(
+                Object.entries(from.estimate).map(([f, t]) => [
+                  "est." + f,
+                  F.input(Number(t), 2),
+                ]),
+              ),
+            }
           : {}),
         ...(typed
           ? {
@@ -100,7 +116,7 @@ export default async function MealPage({
               ...Object.fromEntries(
                 Object.entries(typed.totals).map(([f, t]) => [
                   "est." + f,
-                  F.n(Number(t), 2),
+                  F.input(Number(t), 2),
                 ]),
               ),
             }
