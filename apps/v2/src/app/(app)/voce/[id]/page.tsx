@@ -45,7 +45,7 @@ export default async function EntryEditPage({
   if (item.kind.key === "meal") {
     const [choices, dayData, targets] = await Promise.all([
       readFoodChoices(db, owner, ctx.today),
-      loadDay(db, owner, item.day),
+      loadDay(db, owner, item.day, ctx),
       readDayTargets(db, owner, item.day),
     ]);
     // The day without this meal, so the preview adds it once.

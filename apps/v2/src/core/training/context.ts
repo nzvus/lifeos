@@ -9,9 +9,14 @@
  *   creatine    days of the last 28 with ≥ 3 g (stores fill in ~4 weeks at
  *               3–5 g a day, ISSN 2017); null when none was ever logged
  *   readiness   what the person said at the start (1–5)
- * Pure.
+ * `sessionContext` is pure; `readCreatineLines` reads only the creatine
+ * lines of the 28 days (a narrow query: the page does not load 28 days).
  */
+import { and, eq, gte, ilike, isNull, lte } from "drizzle-orm";
+import type { Db } from "../db/db";
+import { entries, entryLines } from "../db/schema";
 import type { Day, DayItem } from "../day";
+import { ownedBy, type Owner } from "../identity/owner";
 import { addDays, type IsoDate } from "../engines/time";
 import { lineTotals } from "../food/totals";
 
@@ -37,11 +42,41 @@ const meals = (days: readonly Day[]) =>
 const servingsOf = (m: DayItem) =>
   typeof m.values["servings"] === "string" ? (m.values["servings"] as string) : null;
 
+export type CreatineLine = { day: IsoDate; quantity: string; unit: string };
+
+/** The done meals' lines named creatine in the 28 days up to `day`. */
+export function readCreatineLines(
+  db: Db,
+  owner: Owner,
+  day: IsoDate,
+): Promise<CreatineLine[]> {
+  return db
+    .select({ day: entries.day, quantity: entryLines.quantity, unit: entryLines.unit })
+    .from(entryLines)
+    .innerJoin(entries, eq(entryLines.entryId, entries.id))
+    .where(
+      and(
+        ownedBy(entries, owner),
+        eq(entries.kind, "meal"),
+        eq(entries.status, "done"),
+        isNull(entries.deletedAt),
+        gte(entries.day, addDays(day, -(CREATINE_DAYS - 1))),
+        lte(entries.day, day),
+        ilike(entryLines.name, "%creatin%"),
+      ),
+    );
+}
+
+/**
+ * `days` need only hold the session's day and the one before (the night,
+ * the 24 h); creatine comes from `creatine` when given, else from `days`.
+ */
 export function sessionContext(
   days: readonly Day[],
   start: Date,
   sessionDay: IsoDate,
   readiness: number | null,
+  creatine?: readonly CreatineLine[],
 ): SessionContext {
   const t = start.getTime();
   const items = days.flatMap((d) => [...d.timed, ...d.untimed]);
@@ -66,16 +101,22 @@ export function sessionContext(
   const from = addDays(sessionDay, -(CREATINE_DAYS - 1));
   const creatineDays = new Set<string>();
   let anyCreatine = false;
-  for (const d of days) {
-    if (d.day < from || d.day > sessionDay) continue;
-    for (const m of meals([d]))
-      for (const l of m.lines)
-        if (CREATINE.test(l.name)) {
-          anyCreatine = true;
-          const g = Number(l.quantity) * Number(servingsOf(m) ?? 1);
-          if (l.unit === "g" && g >= CREATINE_MIN_G) creatineDays.add(d.day);
-        }
-  }
+  if (creatine)
+    for (const l of creatine) {
+      anyCreatine = true;
+      if (l.unit === "g" && Number(l.quantity) >= CREATINE_MIN_G) creatineDays.add(l.day);
+    }
+  else
+    for (const d of days) {
+      if (d.day < from || d.day > sessionDay) continue;
+      for (const m of meals([d]))
+        for (const l of m.lines)
+          if (CREATINE.test(l.name)) {
+            anyCreatine = true;
+            const g = Number(l.quantity) * Number(servingsOf(m) ?? 1);
+            if (l.unit === "g" && g >= CREATINE_MIN_G) creatineDays.add(d.day);
+          }
+    }
   return {
     sleptMin: night
       ? Math.round((night.end!.getTime() - night.start!.getTime()) / 60_000)

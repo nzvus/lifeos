@@ -1,7 +1,7 @@
 /** «Nuovo obiettivo» (V-09): `/andamento/obiettivi/nuovo`, with today's weight for the pace it asks. */
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { readClock } from "@/core/day";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { readNumbers } from "@/core/goals";
 import { GoalForm } from "@/features/progress/GoalForm";
@@ -10,7 +10,7 @@ import { saveGoal } from "./actions";
 export default async function NewGoalPage() {
   const owner = await requireOwner();
   const db = await getDb();
-  const today = logicalDay(new Date(), (await readClock(db, owner)).clock);
+  const today = logicalDay(new Date(), (await ownerClock()).clock);
   const ws = await readNumbers(
     db,
     owner,

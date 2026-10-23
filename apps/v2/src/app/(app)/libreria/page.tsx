@@ -1,8 +1,8 @@
 /** Libreria (flows.md §1, V-07): the catalog's foods, saved meals and exercises; kinds come with their slice. */
 import { F, NavBar, PageHeader } from "@lifeos/kit";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { readClock } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { readExerciseLog, readExercises } from "@/core/training";
@@ -13,7 +13,7 @@ import { PLACES } from "@/features/places";
 export default async function LibreriaPage() {
   const owner = await requireOwner();
   const db = await getDb();
-  const today = logicalDay(new Date(), (await readClock(db, owner)).clock);
+  const today = logicalDay(new Date(), (await ownerClock()).clock);
   const foods = await readFoodChoices(db, owner, today);
   const [recipes, exercises, log] = await Promise.all([
     readRecipeChoices(db, owner, today, foods),

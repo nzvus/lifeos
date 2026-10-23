@@ -1,3 +1,4 @@
+import { ownerClock } from "@/app/_server/clock";
 /**
  * The kinds ⊕ can enter for this person (V-02): the built-ins and their own
  * kinds that `enterable` allows, without the archived ones; and the day the
@@ -5,7 +6,7 @@
  */
 import "server-only";
 import type { Db } from "@/core/db/db";
-import { readClock, readUserKinds } from "@/core/day";
+import { readUserKinds } from "@/core/day";
 import { enterable } from "@/core/entries";
 import { logicalDay, type DayClock, type IsoDate } from "@/core/engines/time";
 import type { Owner } from "@/core/identity/owner";
@@ -25,7 +26,7 @@ export async function addContext(
   day: IsoDate;
 }> {
   const [{ clock, roleBounds }, rows] = await Promise.all([
-    readClock(db, owner),
+    ownerClock(),
     readUserKinds(db, owner),
   ]);
   const archived = new Set(rows.filter((r) => r.archivedAt).map((r) => r.key));

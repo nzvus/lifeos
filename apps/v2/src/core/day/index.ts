@@ -3,15 +3,20 @@ import type { Db } from "../db/db";
 import type { IsoDate } from "../engines/time";
 import type { Owner } from "../identity/owner";
 import { kindRegistry } from "../kinds";
-import { readDay, readDays } from "./read";
+import { readDay, readDays, type ClockRead } from "./read";
 import { composeDay, type Day } from "./timeline";
 
 export * from "./read";
 export * from "./timeline";
 export * from "./targets";
 
-export async function loadDay(db: Db, owner: Owner, day: IsoDate): Promise<Day> {
-  const rows = await readDay(db, owner, day);
+export async function loadDay(
+  db: Db,
+  owner: Owner,
+  day: IsoDate,
+  known?: ClockRead,
+): Promise<Day> {
+  const rows = await readDay(db, owner, day, known);
   return composeDay(rows, kindRegistry(rows.userKinds));
 }
 
@@ -21,8 +26,9 @@ export async function loadDays(
   owner: Owner,
   from: IsoDate,
   to: IsoDate,
+  known?: ClockRead,
 ): Promise<Day[]> {
-  const all = await readDays(db, owner, from, to);
+  const all = await readDays(db, owner, from, to, known);
   const registry = kindRegistry(all[0]?.userKinds ?? []);
   return all.map((rows) => composeDay(rows, registry));
 }

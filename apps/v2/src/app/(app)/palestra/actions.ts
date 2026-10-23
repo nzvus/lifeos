@@ -7,9 +7,9 @@
  */
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { readClock } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import {
   addExercise,
@@ -40,7 +40,7 @@ const WORDS: Record<SetError, string> = {
 export async function startGym(routineId: string): Promise<void> {
   const owner = await requireOwner();
   const db = await getDb();
-  const { clock } = await readClock(db, owner);
+  const { clock } = await ownerClock();
   const now = new Date();
   const today = logicalDay(now, clock);
   const routine = routineId

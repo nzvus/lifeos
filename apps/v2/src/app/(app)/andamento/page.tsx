@@ -5,9 +5,10 @@
  * its target. Trackers, goals and correlations come with their slices.
  */
 import { Box, F, NavBar, Nutrients, PageHeader } from "@lifeos/kit";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDays, readClock, readRangeTargets } from "@/core/day";
+import { loadDays, readRangeTargets } from "@/core/day";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { presentDay } from "@/features/day/nutrients";
 import { PLACES } from "@/features/places";
@@ -23,7 +24,8 @@ export default async function AndamentoPage({
 }) {
   const owner = await requireOwner();
   const db = await getDb();
-  const today = logicalDay(new Date(), (await readClock(db, owner)).clock);
+  const known = await ownerClock();
+  const today = logicalDay(new Date(), known.clock);
   const { fino: asked, giorni } = await searchParams;
   const DAYS = RANGES.find((n) => String(n) === giorni) ?? 7;
   const link = (fino: string | null, n: number) => {
@@ -35,7 +37,7 @@ export default async function AndamentoPage({
   const days = Array.from({ length: DAYS }, (_, i) => addDays(end, i - DAYS + 1));
   // The whole range in one set of queries (core/day `loadDays`), not one per day.
   const [loaded, targets] = await Promise.all([
-    loadDays(db, owner, days[0]!, end),
+    loadDays(db, owner, days[0]!, end, known),
     readRangeTargets(db, owner, days[0]!, end),
   ]);
   const data = loaded.map((d) => ({

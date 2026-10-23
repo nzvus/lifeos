@@ -11,15 +11,10 @@
  */
 import { notFound } from "next/navigation";
 import { DateNav, Box, F, NavBar, Nutrients, PageHeader } from "@lifeos/kit";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import {
-  dayMinute,
-  loadDay,
-  readClock,
-  readDayTargets,
-  readMicroTargets,
-} from "@/core/day";
+import { dayMinute, loadDay, readDayTargets, readMicroTargets } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, presentDay } from "@/features/day/nutrients";
@@ -40,12 +35,13 @@ export default async function OggiPage({
   const { day: segments = [] } = await params;
   if (segments.length > 1 || (segments[0] !== undefined && !ISO.test(segments[0])))
     notFound();
-  const { clock } = await readClock(db, owner);
+  const known = await ownerClock();
+  const { clock } = known;
   const now = new Date();
   const today = logicalDay(now, clock);
   const date = segments[0] ?? today;
   const [day, targets, micros] = await Promise.all([
-    loadDay(db, owner, date),
+    loadDay(db, owner, date, known),
     readDayTargets(db, owner, date),
     readMicroTargets(db, owner, date),
   ]);

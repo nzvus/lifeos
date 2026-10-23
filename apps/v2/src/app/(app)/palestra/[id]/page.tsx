@@ -8,18 +8,18 @@
  */
 import { notFound } from "next/navigation";
 import { F } from "@lifeos/kit";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDays, readClock } from "@/core/day";
-import { readEntry } from "@/core/entries";
+import { readEntryWithDays } from "@/core/entries";
 import { localParts, logicalDay } from "@/core/engines/time";
 import { score, SESSION } from "@/core/engines/judgements";
 import { learnTiming, sessionParts, sessionSeconds } from "@/core/engines/training";
-import { addDays } from "@/core/engines/time";
 import {
   adviseExercise,
   readExercises,
   readTrainingHistory,
+  readCreatineLines,
   sessionContext,
 } from "@/core/training";
 import { Gym, type GymExercise } from "@/features/training/Gym";
@@ -47,12 +47,15 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
   const db = await getDb();
   const { id } = await params;
   if (!UUID.test(id)) notFound();
-  const session = await readEntry(db, owner, id);
-  if (!session || session.kind.key !== "session") notFound();
-  const [{ clock }, catalog] = await Promise.all([
-    readClock(db, owner),
+  const known = await ownerClock();
+  const { clock } = known;
+  // The session's day and the one before (the night, the 24 h: «Prima:») in one read.
+  const [read, catalog] = await Promise.all([
+    readEntryWithDays(db, owner, id, { before: 1, known }),
     readExercises(db, owner),
   ]);
+  const session = read?.item;
+  if (!session || session.kind.key !== "session") notFound();
   const byId = new Map(catalog.map((e) => [e.id, e]));
   const ids = session.children.flatMap((c) => (c.item ? [c.item.id] : []));
   const today = logicalDay(new Date(), clock);
@@ -130,11 +133,11 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       })),
     };
   });
-  const days = session.start
-    ? await loadDays(db, owner, addDays(session.day, -28), session.day)
-    : [];
+  // The night and the 24 h need two days; creatine its own narrow read.
+  const days = read!.days;
+  const creatine = session.start ? await readCreatineLines(db, owner, session.day) : [];
   const before = session.start
-    ? contextText(sessionContext(days, session.start, session.day, readiness))
+    ? contextText(sessionContext(days, session.start, session.day, readiness, creatine))
     : "";
   const verdict =
     session.status === "done" ? scoreText(score(SESSION, sessionParts(scored))) : "";

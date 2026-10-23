@@ -7,8 +7,8 @@
 import { and, desc, eq, gte, isNotNull, isNull } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { entries } from "../db/schema";
-import { loadDay, type DayItem } from "../day";
-import type { IsoDate } from "../engines/time";
+import { loadDays, type ClockRead, type Day, type DayItem } from "../day";
+import { addDays, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 
 export async function readEntry(
@@ -16,14 +16,35 @@ export async function readEntry(
   owner: Owner,
   id: string,
 ): Promise<(DayItem & { day: IsoDate }) | null> {
+  return (await readEntryWithDays(db, owner, id))?.item ?? null;
+}
+
+/**
+ * The entry and the days it was read from: its own day last, after the
+ * `before` days that precede it — one set of queries, so a page that also
+ * needs the day before (gym mode's context) does not read the day twice.
+ */
+export async function readEntryWithDays(
+  db: Db,
+  owner: Owner,
+  id: string,
+  opts: { before?: number; known?: ClockRead } = {},
+): Promise<{ item: DayItem & { day: IsoDate }; days: Day[] } | null> {
   const [row] = await db
     .select({ day: entries.day, parentId: entries.parentId })
     .from(entries)
     .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)));
   if (!row || row.parentId !== null) return null;
-  const day = await loadDay(db, owner, row.day);
-  const item = [...day.timed, ...day.untimed].find((i) => i.id === id);
-  return item ? { ...item, day: row.day } : null;
+  const days = await loadDays(
+    db,
+    owner,
+    addDays(row.day, -(opts.before ?? 0)),
+    row.day,
+    opts.known,
+  );
+  const own = days.at(-1)!;
+  const item = [...own.timed, ...own.untimed].find((i) => i.id === id);
+  return item ? { item: { ...item, day: row.day }, days } : null;
 }
 
 export type TrashedEntry = { id: string; kind: string; day: IsoDate; deletedAt: Date };
