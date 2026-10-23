@@ -9,20 +9,21 @@
  * Three owner-filtered queries for the whole range (entries, lines, plans),
  * not one per day.
  */
-import { and, asc, gte, inArray, lte } from "drizzle-orm";
+import Big from "big.js";
+import { and, asc, gte, inArray, lte, sql } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { dayPlans, logEntries, logEntryItems } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
 import { live } from "../../shared/trash";
 import { addDays } from "../../shared/dates";
+import { NUTRIENT_KEYS } from "../nutrients";
 import {
   addTotals,
-  sumLines,
+  emptyTotals,
   toDisplay,
   type DisplayTotals,
   type ExactTotals,
 } from "../totals";
-import { per100Of } from "./ingredients";
 import { getDefaultProfile, targetsOf, type Targets } from "./profiles";
 
 export type DaySummary = {
@@ -79,25 +80,9 @@ export async function getHistory(
     if (e.status === "planned")
       plannedByDay.set(e.day, (plannedByDay.get(e.day) ?? 0) + 1);
   const ids = entries.map((e) => e.id);
-  const items = ids.length
-    ? await db
-        .select({
-          entryId: logEntryItems.entryId,
-          quantity: logEntryItems.quantity,
-          packagePriceCents: logEntryItems.packagePriceCents,
-          packageSize: logEntryItems.packageSize,
-          kcal: logEntryItems.kcal,
-          protein: logEntryItems.protein,
-          carbs: logEntryItems.carbs,
-          sugars: logEntryItems.sugars,
-          fat: logEntryItems.fat,
-          saturatedFat: logEntryItems.saturatedFat,
-          fiber: logEntryItems.fiber,
-          salt: logEntryItems.salt,
-        })
-        .from(logEntryItems)
-        .where(and(ownedBy(logEntryItems, owner), inArray(logEntryItems.entryId, ids)))
-    : [];
+  const sums = ids.length
+    ? await entrySums(db, owner, ids)
+    : new Map<string, ExactTotals>();
   const plans = await db
     .select()
     .from(dayPlans)
@@ -110,20 +95,10 @@ export async function getHistory(
   const defaultProfile = await getDefaultProfile(db, owner);
   const defaultTargets = defaultProfile ? targetsOf(defaultProfile) : null;
 
-  const linesByEntry = new Map<string, typeof items>();
-  for (const it of items)
-    linesByEntry.set(it.entryId, [...(linesByEntry.get(it.entryId) ?? []), it]);
-
   const exactByDay = new Map<string, ExactTotals[]>();
   const eatenByDay = new Map<string, DaySummary["eaten"]>();
   for (const e of entries) {
-    const lines = (linesByEntry.get(e.id) ?? []).map((l) => ({
-      quantity: l.quantity,
-      per100: per100Of(l),
-      packagePriceCents: l.packagePriceCents,
-      packageSize: l.packageSize,
-    }));
-    const exact = sumLines(lines, e.servings);
+    const exact = scaleTotals(sums.get(e.id) ?? null, e.servings);
     exactByDay.set(e.day, [...(exactByDay.get(e.day) ?? []), exact]);
     eatenByDay.set(e.day, [
       ...(eatenByDay.get(e.day) ?? []),
@@ -151,4 +126,59 @@ export async function getHistory(
     });
   }
   return out;
+}
+
+/**
+ * Each entry's lines summed in the database: Σ(per100 × quantity) per
+ * nutrient and Σ(price × quantity ÷ package size), whether every line had a
+ * price — one row per entry instead of one per line (the day page reads
+ * the history on every render; transfer is billed, 2026-10-24). Not yet
+ * scaled: `scaleTotals` applies the servings and the ÷ 100, as `sumLines`.
+ */
+async function entrySums(
+  db: Db,
+  owner: Owner,
+  ids: readonly string[],
+): Promise<Map<string, ExactTotals>> {
+  const i = logEntryItems;
+  const priced = sql`${i.packagePriceCents} is not null and ${i.packageSize} is not null and ${i.packageSize} <> 0`;
+  const rows = await db
+    .select({
+      entryId: i.entryId,
+      kcal: sql<string>`sum(${i.kcal} * ${i.quantity})`,
+      protein: sql<string>`sum(${i.protein} * ${i.quantity})`,
+      carbs: sql<string>`sum(${i.carbs} * ${i.quantity})`,
+      sugars: sql<string>`sum(${i.sugars} * ${i.quantity})`,
+      fat: sql<string>`sum(${i.fat} * ${i.quantity})`,
+      saturatedFat: sql<string>`sum(${i.saturatedFat} * ${i.quantity})`,
+      fiber: sql<string>`sum(${i.fiber} * ${i.quantity})`,
+      salt: sql<string>`sum(${i.salt} * ${i.quantity})`,
+      cost: sql<
+        string | null
+      >`sum(case when ${priced} then ${i.packagePriceCents} * ${i.quantity} / ${i.packageSize} end)`,
+      costComplete: sql<boolean>`bool_and(${priced})`,
+    })
+    .from(i)
+    .where(and(ownedBy(i, owner), inArray(i.entryId, [...ids])))
+    .groupBy(i.entryId);
+  const out = new Map<string, ExactTotals>();
+  for (const r of rows) {
+    const t = emptyTotals();
+    for (const k of NUTRIENT_KEYS) t.nutrients[k] = new Big(r[k] ?? "0");
+    t.costCents = new Big(r.cost ?? "0");
+    t.costComplete = r.costComplete !== false;
+    out.set(r.entryId, t);
+  }
+  return out;
+}
+
+/** An entry's database sums as `sumLines` gives them: × servings, nutrients ÷ 100; none = zeros. */
+export function scaleTotals(sum: ExactTotals | null, servings: string): ExactTotals {
+  const t = emptyTotals();
+  if (!sum) return t;
+  const f = new Big(servings);
+  for (const k of NUTRIENT_KEYS) t.nutrients[k] = sum.nutrients[k].times(f).div(100);
+  t.costCents = sum.costCents.times(f);
+  t.costComplete = sum.costComplete;
+  return t;
 }
