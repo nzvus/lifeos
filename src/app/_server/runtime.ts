@@ -12,10 +12,12 @@
  * instances on globalThis survives reloads. In production it changes nothing.
  */
 import "server-only";
+import { cache } from "react";
 import { createAuth, type Auth } from "@/core/auth/auth";
 import { applyPack } from "@/core/catalog/apply";
 import { starterPack } from "@/core/catalog/starter";
 import { createDb, type Db } from "@/core/db/client";
+import { requestScoped } from "@/core/shared/request-memo";
 import { ownerFromVerifiedSession } from "@/core/identity/owner";
 import { DEFAULT_TIMEZONE } from "@/core/nutrition/repositories/settings";
 import { todayIn } from "@/core/shared/dates";
@@ -23,15 +25,24 @@ import { env } from "./env";
 
 const store = globalThis as unknown as { __lifeosDb?: Db; __lifeosAuth?: Auth };
 
-export function getDb(): Db {
+function rawDb(): Db {
   store.__lifeosDb ??= createDb(env().DATABASE_URL);
   return store.__lifeosDb;
 }
 
+/**
+ * The database for this request: the one pool, marked as this request's so
+ * core can share a read between the parts of one page (core/shared/
+ * request-memo; the day page read the sessions eight times, 2026-10-24).
+ * React `cache` gives every request its own; outside a request each call
+ * gets a fresh one, which memoises nothing for long.
+ */
+export const getDb = cache((): Db => requestScoped(rawDb()));
+
 export function getAuth(): Auth {
   const e = env();
   store.__lifeosAuth ??= createAuth({
-    db: getDb(),
+    db: rawDb(),
     secret: e.BETTER_AUTH_SECRET,
     baseURL: e.baseURL,
     trustedOrigins: e.trustedOrigins,

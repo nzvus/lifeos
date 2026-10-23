@@ -15,6 +15,7 @@ import {
   trainingSessions,
 } from "../../db/schema";
 import { ownedBy, type Owner } from "../../identity/owner";
+import { forget, isRequestScoped, memo } from "../../shared/request-memo";
 import { live } from "../../shared/trash";
 import { instantFor } from "../../shared/dates";
 import { fail, ok, type FieldErrors, type Result } from "../../shared/result";
@@ -57,8 +58,29 @@ export type SessionView = {
 
 type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
-/** Every session of mine from `fromDay` to `toDay` inclusive, in day order. */
+/** The request-memo key of an owner's sessions; writes forget it (core/shared/request-memo). */
+const memoKey = (owner: Owner) => "sessions:" + owner.id;
+
+/**
+ * Every session of mine from `fromDay` to `toDay` inclusive, in day order.
+ * Within one request (a database marked by the app) all my sessions are
+ * read once and each call takes its days from them: the day page asked
+ * eight times, with overlapping ranges, ~3,000 set rows a render.
+ */
 export async function listSessions(
+  db: Db,
+  owner: Owner,
+  fromDay: string,
+  toDay: string,
+): Promise<SessionView[]> {
+  if (!isRequestScoped(db)) return readSessions(db, owner, fromDay, toDay);
+  const all = await memo(db, memoKey(owner), () =>
+    readSessions(db, owner, "0001-01-01", "9999-12-31"),
+  );
+  return all.filter((x) => x.day >= fromDay && x.day <= toDay);
+}
+
+async function readSessions(
   db: Db,
   owner: Owner,
   fromDay: string,
@@ -260,6 +282,7 @@ export async function createSession(
   input: SessionInput,
   timeZone: string,
 ): Promise<Result<{ id: string }>> {
+  forget(db, "sessions:"); // what this request memoised of the sessions is stale
   const bad = await check(db, owner, input);
   if (bad) return fail(bad);
   const id = await db.transaction(async (tx) => {
@@ -281,6 +304,7 @@ export async function updateSession(
   input: SessionInput,
   timeZone: string,
 ): Promise<Result<{ id: string }>> {
+  forget(db, "sessions:"); // what this request memoised of the sessions is stale
   const bad = await check(db, owner, input);
   if (bad) return fail(bad);
   const found = await db.transaction(async (tx) => {
@@ -312,6 +336,7 @@ export async function deleteSession(
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
+  forget(db, "sessions:"); // what this request memoised of the sessions is stale
   const trashed = await db
     .update(trainingSessions)
     .set({ deletedAt: new Date() })
@@ -332,6 +357,7 @@ export async function restoreSession(
   owner: Owner,
   id: string,
 ): Promise<Result<null>> {
+  forget(db, "sessions:"); // what this request memoised of the sessions is stale
   const restored = await db
     .update(trainingSessions)
     .set({ deletedAt: null })
