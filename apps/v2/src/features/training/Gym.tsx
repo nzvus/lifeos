@@ -10,7 +10,8 @@
  *
  * «Automatico» chains set → rest → set without touching the phone: each set
  * is saved as proposed and marked assumed ("presunta"); «Fine» confirms
- * them. A beep and a vibration mark every change. Each set is saved the
+ * them. One side at a time: the set's clock says «lato 1», «cambia lato»,
+ * «lato 2», with a beep at each change. A beep and a vibration mark every change. Each set is saved the
  * moment it ends; the server actions arrive as props. The screen is kept
  * awake where the browser allows it.
  */
@@ -45,8 +46,11 @@ export type GymExercise = {
   /** The rest after a working set, and where it comes from in words. */
   restS: number;
   restWords: string;
-  /** A proposed set's expected seconds (auto mode's set clock). */
+  /** A proposed set's expected seconds (auto mode's set clock); unilateral: both sides. */
   setS: number | null;
+  /** Unilateral: one side's seconds and the change between sides. */
+  sideS: number | null;
+  betweenS: number | null;
   setupS: number;
   /** Its own values, when set. */
   settings: { restS: number | null; setupS: number | null };
@@ -235,6 +239,21 @@ export function Gym({
   // The clock's transitions: setup → set; in auto mode set → saved, rest → next set.
   const elapsedPhase =
     now !== null && phase.kind !== "idle" ? (now - phase.from) / 1000 : 0;
+  // One side at a time: which part of the set the clock is in.
+  const side =
+    phase.kind === "set" && x?.sideS != null && x.betweenS != null
+      ? elapsedPhase < x.sideS
+        ? 1
+        : elapsedPhase < x.sideS + x.betweenS
+          ? 0
+          : 2
+      : null;
+  const sideSeen = useRef<number | null>(null);
+  useEffect(() => {
+    if (side === null) sideSeen.current = null;
+    else if (sideSeen.current !== null && side !== sideSeen.current) signal();
+    if (side !== null) sideSeen.current = side;
+  }, [side]);
   useEffect(() => {
     if (phase.kind === "setup" && elapsedPhase >= phase.seconds) {
       signal();
@@ -302,8 +321,14 @@ export function Gym({
       : phase.kind === "setup"
         ? "mettiti in posizione"
         : phase.kind === "set"
-          ? "in serie" +
-            (phase.seconds !== null ? " · prevista " + clock(phase.seconds) : "")
+          ? side === 1
+            ? "lato 1 · " + clock(x!.sideS!)
+            : side === 0
+              ? "cambia lato"
+              : side === 2
+                ? "lato 2 · " + clock(x!.sideS!)
+                : "in serie" +
+                  (phase.seconds !== null ? " · prevista " + clock(phase.seconds) : "")
           : session.done
             ? "allenamento finito"
             : "dall’inizio" +

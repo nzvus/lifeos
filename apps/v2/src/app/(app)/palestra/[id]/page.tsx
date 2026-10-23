@@ -83,6 +83,8 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         restSourceText(a.restSource, a.restChange) +
         (a.afterPairS !== null ? " · dopo i due lati" : ""),
       setS: a.setS,
+      sideS: a.sideS,
+      betweenS: a.betweenS,
       setupS: a.setupS,
       settings: { restS: e?.restS ?? null, setupS: e?.setupS ?? null },
       done: c.sets.map((s) => ({

@@ -125,7 +125,10 @@ describe("what gym mode proposes for an exercise", () => {
     });
     expect(a.restS).toBe(75);
     expect(a.restSource).toBe("set");
-    expect(a.afterPairS).toBe(75 - (a.setS ?? 0));
+    // One side's set counts as the other's rest; the set's clock covers both sides and the change.
+    expect(a.betweenS).toBe(3);
+    expect(a.afterPairS).toBe(Math.max(30, 75 - a.sideS!));
+    expect(a.setS).toBe(a.sideS! * 2 + 3);
   });
 
   it("no history: the guide's start, the role's default rest, the person's seconds per rep", () => {
