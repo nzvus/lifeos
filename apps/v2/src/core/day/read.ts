@@ -6,7 +6,8 @@
  * Four rounds of queries, each by the ids the one before found: never one
  * query per entry.
  */
-import { and, gte, inArray, isNull, lte } from "drizzle-orm";
+import { and, getTableColumns, gte, inArray, isNull, lte } from "drizzle-orm";
+import type { PgTable } from "drizzle-orm/pg-core";
 import { addDays, type DayClock, type IsoDate } from "../engines/time";
 import type { Db } from "../db/db";
 import {
@@ -25,13 +26,21 @@ import {
 import { ownedBy, type Owner } from "../identity/owner";
 import { DEFAULT_ROLE_BOUNDS, type RoleBounds, type UserKindRow } from "../kinds";
 
-export type EntryRow = typeof entries.$inferSelect;
-export type ValueRow = typeof entryValues.$inferSelect;
-export type LineRow = typeof entryLines.$inferSelect;
-export type LineValueRow = typeof entryLineValues.$inferSelect;
-export type SetRow = typeof trainingSets.$inferSelect;
-export type LinkRow = typeof entryLinks.$inferSelect;
-export type MoneyRow = typeof moneyMovements.$inferSelect;
+/** A day's rows leave out their owner: it is the reader, and its id on every row was transfer. */
+type Own<T> = Omit<T, "userId">;
+export type EntryRow = Own<typeof entries.$inferSelect>;
+export type ValueRow = Own<typeof entryValues.$inferSelect>;
+export type LineRow = Own<typeof entryLines.$inferSelect>;
+export type LineValueRow = Own<typeof entryLineValues.$inferSelect>;
+export type SetRow = Own<typeof trainingSets.$inferSelect>;
+export type LinkRow = Own<typeof entryLinks.$inferSelect>;
+export type MoneyRow = Own<typeof moneyMovements.$inferSelect>;
+
+/** A table's columns without its owner's, for a select (every v2 table has `userId`). */
+function ownerless<T extends PgTable>(table: T) {
+  const { userId: _owner, ...rest } = getTableColumns(table) as Record<string, unknown>;
+  return rest as Omit<T["_"]["columns"], "userId">;
+}
 
 export type DayRows = {
   day: IsoDate;
@@ -132,7 +141,7 @@ export async function readDays(
   const [{ clock, roleBounds }, dayEntries, userKinds] = await Promise.all([
     known ?? readClock(db, owner),
     db
-      .select()
+      .select(ownerless(entries))
       .from(entries)
       .where(
         and(
@@ -166,23 +175,23 @@ export async function readDays(
 
   const [values, lines, sets, links, money] = await Promise.all([
     db
-      .select()
+      .select(ownerless(entryValues))
       .from(entryValues)
       .where(and(ownedBy(entryValues, owner), inArray(entryValues.entryId, ids))),
     db
-      .select()
+      .select(ownerless(entryLines))
       .from(entryLines)
       .where(and(ownedBy(entryLines, owner), inArray(entryLines.entryId, ids))),
     db
-      .select()
+      .select(ownerless(trainingSets))
       .from(trainingSets)
       .where(and(ownedBy(trainingSets, owner), inArray(trainingSets.entryId, ids))),
     db
-      .select()
+      .select(ownerless(entryLinks))
       .from(entryLinks)
       .where(and(ownedBy(entryLinks, owner), inArray(entryLinks.fromId, ids))),
     db
-      .select()
+      .select(ownerless(moneyMovements))
       .from(moneyMovements)
       .where(and(ownedBy(moneyMovements, owner), inArray(moneyMovements.entryId, ids))),
   ]);
@@ -202,7 +211,7 @@ export async function readDays(
     lineIds.length === 0
       ? Promise.resolve([])
       : db
-          .select()
+          .select(ownerless(entryLineValues))
           .from(entryLineValues)
           .where(
             and(
