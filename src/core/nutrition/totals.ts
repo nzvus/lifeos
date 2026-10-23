@@ -56,7 +56,7 @@ export type DisplayTotals = {
   costComplete: boolean;
 };
 
-function emptyTotals(): ExactTotals {
+export function emptyTotals(): ExactTotals {
   const nutrients = {} as Record<NutrientKey, Big>;
   for (const k of NUTRIENT_KEYS) nutrients[k] = new Big(0);
   return { nutrients, costCents: new Big(0), costComplete: true };

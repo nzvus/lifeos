@@ -5,7 +5,17 @@
  * is mine and apply the per-kind set rules, then write the session and all
  * its children in one transaction ("replace all" on update, like meals).
  */
-import { and, asc, desc, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  getTableColumns,
+  gte,
+  inArray,
+  isNotNull,
+  lte,
+} from "drizzle-orm";
 import type { Db } from "../../db/client";
 import {
   exercises,
@@ -23,7 +33,9 @@ import type { ExerciseKind, Intensity, SessionStatus } from "../kinds";
 import { checkSetsForKinds, type SessionInput } from "../validation";
 import { getExercisesByIds } from "./exercises";
 
-export type SetRow = typeof sets.$inferSelect;
+/** A set as sessions show it: not its own id or owner, which no reader needs (less transfer). */
+export type SetRow = Omit<typeof sets.$inferSelect, "id" | "userId">;
+const { id: _id, userId: _userId, ...SET_COLUMNS } = getTableColumns(sets);
 
 export type SessionExerciseView = {
   id: string;
@@ -132,7 +144,23 @@ async function withChildren(
   const ids = rows.map((r) => r.id);
   const items = ids.length
     ? await db
-        .select({ item: sessionExercises, exercise: exercises })
+        // Only what the view shows: an exercise's notes or dates would repeat on every session.
+        .select({
+          item: {
+            id: sessionExercises.id,
+            sessionId: sessionExercises.sessionId,
+            restS: sessionExercises.restS,
+            notes: sessionExercises.notes,
+          },
+          exercise: {
+            id: exercises.id,
+            name: exercises.name,
+            kind: exercises.kind,
+            pattern: exercises.pattern,
+            muscleGroups: exercises.muscleGroups,
+            unilateral: exercises.unilateral,
+          },
+        })
         .from(sessionExercises)
         .innerJoin(exercises, eq(sessionExercises.exerciseId, exercises.id))
         .where(
@@ -143,7 +171,7 @@ async function withChildren(
   const itemIds = items.map((i) => i.item.id);
   const setRows = itemIds.length
     ? await db
-        .select()
+        .select(SET_COLUMNS)
         .from(sets)
         .where(and(ownedBy(sets, owner), inArray(sets.sessionExerciseId, itemIds)))
         .orderBy(asc(sets.position))

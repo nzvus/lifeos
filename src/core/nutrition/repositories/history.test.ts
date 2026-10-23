@@ -20,6 +20,24 @@ beforeEach(async () => {
 });
 afterEach(() => close());
 
+describe("an entry's database sums, scaled (scaleTotals)", () => {
+  it("no line is zeros; servings multiply; a missing price stays said", async () => {
+    const { scaleTotals } = await import("./history");
+    const { emptyTotals } = await import("../totals");
+    const none = scaleTotals(null, "2");
+    expect(none.nutrients.kcal.toString()).toBe("0");
+    expect(none.costComplete).toBe(true);
+    const sum = emptyTotals();
+    sum.nutrients.kcal = new (await import("big.js")).default("36000"); // 360 kcal/100 g × 100 g
+    sum.costCents = new (await import("big.js")).default("12.5");
+    sum.costComplete = false;
+    const t = scaleTotals(sum, "1.5");
+    expect(t.nutrients.kcal.toString()).toBe("540");
+    expect(t.costCents.toString()).toBe("18.75");
+    expect(t.costComplete).toBe(false);
+  });
+});
+
 describe("getHistory", () => {
   it("gives every day in the range, with the same totals as the day view", async () => {
     await createProfile(db, me, {
