@@ -247,6 +247,10 @@ From the weight goal (a goal with "reach W by date") and E4:
   confirmed at «Fine»; history reads done sets only.
 - **Session length:** sets + rests + warm-up rests + transitions, each the
   person's median (≥ 5), else defaults.
+- **Dumbbells** step by the rack's next pair: 1 kg a dumbbell under 10 kg,
+  2 kg from 10 kg (the stored total moves by twice that).
+- **Session score parts** (`score.ts`): a set at another load is compared
+  at the proposed load (Epley both ways).
 - **Deload suggestion:** e1RM falling on several exercises for 2+ weeks
   with low recovery, or after N weeks of rising volume.
 - **Code:** `apps/v2/src/core/engines/training/`; v1's progression cases run

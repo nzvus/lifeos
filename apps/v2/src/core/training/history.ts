@@ -4,9 +4,10 @@
  * 120 days, oldest first, each with its sets (times and sides included),
  * its place in the session and the hard sets done before it for the same
  * muscles; and those sessions' exercises in order, for the person's timing.
- * Leaves out the session being trained. Owned by the owner.
+ * Only days before `day` (the session's): a session opened later is judged
+ * on what came before it. Owned by the owner.
  */
-import { and, eq, gte, inArray, isNull, ne } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lt, ne } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { catalogValues, entries, entryValues, trainingSets } from "../db/schema";
 import type { TimedSet } from "../engines/training";
@@ -76,11 +77,11 @@ export async function readTrainingHistory(
   owner: Owner,
   exerciseIds: readonly string[],
   except: string,
-  today: IsoDate,
+  day: IsoDate,
 ): Promise<TrainingHistory> {
   const empty: TrainingHistory = { byExercise: new Map(), sessions: [] };
   if (exerciseIds.length === 0) return empty;
-  const since = addDays(today, -HISTORY_DAYS);
+  const since = addDays(day, -HISTORY_DAYS);
   const mine = await db
     .select({ parentId: entries.parentId })
     .from(entries)
@@ -93,6 +94,7 @@ export async function readTrainingHistory(
         inArray(entries.itemId, [...new Set(exerciseIds)]),
         ne(entries.parentId, except),
         gte(entries.day, since),
+        lt(entries.day, day),
       ),
     );
   const sessionIds = [...new Set(mine.flatMap((m) => (m.parentId ? [m.parentId] : [])))];

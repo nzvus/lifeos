@@ -6,4 +6,5 @@ export * from "./session";
 export * from "./trend";
 export * from "./expected";
 export * from "./duration";
+export * from "./score";
 export { median, ols, slope } from "./stats";

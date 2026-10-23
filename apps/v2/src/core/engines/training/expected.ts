@@ -70,3 +70,14 @@ export function vsExpected(
   const diff = done - expected;
   return { diff, word: diff > 1 ? "above" : diff < -1 ? "below" : "as" };
 }
+
+/**
+ * Reps done at one load as reps at another (Epley both ways), to compare a
+ * set with a proposal at a different load; the same reps when either load is
+ * unknown or they are equal.
+ */
+export function repsAtLoad(reps: number, kg: number | null, atKg: number | null): number {
+  if (kg === null || atKg === null || !(kg > 0) || !(atKg > 0) || kg === atKg)
+    return reps;
+  return Math.round(30 * ((kg * (1 + reps / 30)) / atKg - 1));
+}

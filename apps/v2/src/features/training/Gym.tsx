@@ -138,6 +138,9 @@ export function Gym({
     leftMin: number | null;
     warmupRestS: number;
     transitionS: number;
+    /** What came before the session, and its score when finished: words, "" when none. */
+    before: string;
+    verdict: string;
   };
   exercises: GymExercise[];
   catalog: { id: string; name: string }[];
@@ -344,47 +347,56 @@ export function Gym({
         back={{ label: "Oggi", href: session.dayHref }}
         of={{ fam: "train", kind: "session" }}
       />
-      <div className="k-block g3">
-        <div className="k-timer" role="timer" aria-live="off">
-          <span className="k-stack g0">
-            <span className="v">
-              {over
-                ? "+" + clock(elapsedPhase - (phase.kind === "rest" ? phase.seconds : 0))
-                : big === null
-                  ? "–"
-                  : clock(big)}
+      {(session.verdict || session.before) && (
+        <section className="k-section g1" aria-label="La sessione">
+          {session.verdict && <p className="k-body">{session.verdict}</p>}
+          {session.before && <p className="k-help">{session.before}</p>}
+        </section>
+      )}
+      {!session.done && (
+        <div className="k-block g3">
+          <div className="k-timer" role="timer" aria-live="off">
+            <span className="k-stack g0">
+              <span className="v">
+                {over
+                  ? "+" +
+                    clock(elapsedPhase - (phase.kind === "rest" ? phase.seconds : 0))
+                  : big === null
+                    ? "–"
+                    : clock(big)}
+              </span>
+              <span className="k-help">{help}</span>
             </span>
-            <span className="k-help">{help}</span>
-          </span>
-          {phase.kind !== "idle" && !auto && (
-            <button
-              type="button"
-              className="k-btn secondary"
-              onClick={() => setPhase({ kind: "idle" })}
-            >
-              Basta
-            </button>
+            {phase.kind !== "idle" && !auto && (
+              <button
+                type="button"
+                className="k-btn secondary"
+                onClick={() => setPhase({ kind: "idle" })}
+              >
+                Basta
+              </button>
+            )}
+          </div>
+          {!session.done && (
+            <div className="k-chips">
+              <button
+                type="button"
+                className="k-chip"
+                aria-pressed={auto}
+                onClick={toggleAuto}
+              >
+                Automatico
+              </button>
+            </div>
+          )}
+          {auto && (
+            <p className="k-help">
+              Serie e recuperi vanno da soli: ogni serie si salva come proposta e resta
+              «presunta» finché non la confermi a fine allenamento.
+            </p>
           )}
         </div>
-        {!session.done && (
-          <div className="k-chips">
-            <button
-              type="button"
-              className="k-chip"
-              aria-pressed={auto}
-              onClick={toggleAuto}
-            >
-              Automatico
-            </button>
-          </div>
-        )}
-        {auto && (
-          <p className="k-help">
-            Serie e recuperi vanno da soli: ogni serie si salva come proposta e resta
-            «presunta» finché non la confermi a fine allenamento.
-          </p>
-        )}
-      </div>
+      )}
 
       {confirming && (
         <section className="k-section g2" aria-label="Serie presunte">
@@ -427,9 +439,7 @@ export function Gym({
           {x.last && <span className="k-body">{x.last}</span>}
           {x.done.map((d, i) => {
             const n = x.done.slice(0, i + 1).filter((y) => !y.warmup).length;
-            const vs = d.warmup
-              ? ""
-              : vsProposedText(d.reps, x.proposed[n - 1]?.reps ?? null);
+            const vs = d.warmup ? "" : vsProposedText(d, x.proposed[n - 1]);
             const meta = [
               d.assumed ? "presunta" : "",
               d.rir != null ? "RIR " + d.rir : "",
