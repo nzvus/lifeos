@@ -6,7 +6,7 @@
  * Four rounds of queries, each by the ids the one before found: never one
  * query per entry.
  */
-import { and, eq, gte, inArray, isNull, lte } from "drizzle-orm";
+import { and, gte, inArray, isNull, lte } from "drizzle-orm";
 import { addDays, type DayClock, type IsoDate } from "../engines/time";
 import type { Db } from "../db/db";
 import {
@@ -105,24 +105,32 @@ export function readUserKinds(db: Db, owner: Owner): Promise<UserKindRow[]> {
     .where(ownedBy(kinds, owner));
 }
 
-export async function readDay(db: Db, owner: Owner, day: IsoDate): Promise<DayRows> {
-  return (await readDays(db, owner, day, day))[0]!;
+export type ClockRead = { clock: DayClock; roleBounds: RoleBounds };
+
+export async function readDay(
+  db: Db,
+  owner: Owner,
+  day: IsoDate,
+  known?: ClockRead,
+): Promise<DayRows> {
+  return (await readDays(db, owner, day, day, known))[0]!;
 }
 
 /**
  * Every day from `from` to `to` (inclusive) with one set of queries, each
  * day's rows as `readDay` gives them: Andamento's ranges read 30 or 90 days
- * without 90 round trips.
+ * without 90 round trips. The clock, when the caller already read it in
+ * this request, is not read again; else it is read beside the entries.
  */
 export async function readDays(
   db: Db,
   owner: Owner,
   from: IsoDate,
   to: IsoDate,
+  known?: ClockRead,
 ): Promise<DayRows[]> {
-  const { clock, roleBounds } = await readClock(db, owner);
-
-  const [dayEntries, userKinds] = await Promise.all([
+  const [{ clock, roleBounds }, dayEntries, userKinds] = await Promise.all([
+    known ?? readClock(db, owner),
     db
       .select()
       .from(entries)

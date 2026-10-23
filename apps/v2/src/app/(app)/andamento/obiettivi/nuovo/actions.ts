@@ -2,9 +2,9 @@
 /** Saving «Nuovo obiettivo» (V-09): the session's owner, the form checked by core, then created from today. */
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { readClock } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { checkGoal, createGoal } from "@/core/goals";
 import type { GoalFormState } from "@/features/progress/GoalForm";
@@ -23,7 +23,7 @@ export async function saveGoal(
   const db = await getDb();
   const form: Record<string, string> = {};
   for (const [k, v] of data.entries()) if (typeof v === "string") form[k] = v;
-  const today = logicalDay(new Date(), (await readClock(db, owner)).clock);
+  const today = logicalDay(new Date(), (await ownerClock()).clock);
   const checked = checkGoal(
     {
       kind: form["kind"] ?? "",

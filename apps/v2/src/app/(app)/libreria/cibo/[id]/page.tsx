@@ -1,9 +1,9 @@
 /** A food's page (V-07, first part): values per 100, its products, the saved meals that use it. Editing comes with the editor. */
 import { notFound } from "next/navigation";
 import { F, PageHeader } from "@lifeos/kit";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { readClock } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { FOOD_FIELDS, foodPage } from "@/features/library/library";
@@ -13,7 +13,7 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
   const owner = await requireOwner();
   const db = await getDb();
   const { id } = await params;
-  const today = logicalDay(new Date(), (await readClock(db, owner)).clock);
+  const today = logicalDay(new Date(), (await ownerClock()).clock);
   const foods = await readFoodChoices(db, owner, today);
   const page = foodPage(foods, await readRecipeChoices(db, owner, today, foods), id);
   if (!page) notFound();

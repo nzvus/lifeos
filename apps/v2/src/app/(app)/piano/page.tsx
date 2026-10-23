@@ -5,9 +5,10 @@
  * Models, cycles and habits come with their slices.
  */
 import { addDays, Box, F, NavBar, PageHeader, weekOf } from "@lifeos/kit";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDay, readClock } from "@/core/day";
+import { loadDays } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { present } from "@/features/day/present";
 import { PLACES } from "@/features/places";
@@ -21,10 +22,12 @@ export default async function PianoPage({
 }) {
   const owner = await requireOwner();
   const db = await getDb();
-  const today = logicalDay(new Date(), (await readClock(db, owner)).clock);
+  const known = await ownerClock();
+  const today = logicalDay(new Date(), known.clock);
   const asked = (await searchParams).settimana;
   const week = weekOf(typeof asked === "string" && ISO.test(asked) ? asked : today);
-  const days = await Promise.all(week.map((d) => loadDay(db, owner, d)));
+  // The whole week from one set of queries, not seven.
+  const days = await loadDays(db, owner, week[0]!, week[6]!, known);
   const href = (d: string) =>
     weekOf(today)[0] === weekOf(d)[0] ? "/piano" : "/piano?settimana=" + d;
   return (

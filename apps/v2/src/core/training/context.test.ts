@@ -100,6 +100,15 @@ describe("what came before a session", () => {
     });
   });
 
+  it("creatine from the narrow read when given: days with ≥ 3 g", () => {
+    const c = sessionContext(days.slice(1), start, "2026-10-14", null, [
+      { day: "2026-10-01", quantity: "5", unit: "g" },
+      { day: "2026-10-02", quantity: "2", unit: "g" },
+      { day: "2026-10-12", quantity: "5", unit: "g" },
+    ]);
+    expect(c.creatineDays).toBe(2);
+  });
+
   it("nothing logged: nothing claimed", () => {
     expect(sessionContext([day("2026-10-14", [])], start, "2026-10-14", null)).toEqual({
       sleptMin: null,

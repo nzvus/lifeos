@@ -40,7 +40,7 @@ export default async function MealPage({
   const { clock, roleBounds, day, today } = await addContext(db, owner, giorno);
   const [choices, dayData, targets] = await Promise.all([
     readFoodChoices(db, owner, today),
-    loadDay(db, owner, day),
+    loadDay(db, owner, day, { clock, roleBounds }),
     readDayTargets(db, owner, day),
   ]);
   const whole = presentDay(

@@ -5,9 +5,9 @@
  * days on target) and a week's hours (study). «+ Nuovo obiettivo» opens the editor.
  */
 import { Box, F, NavBar, PageHeader } from "@lifeos/kit";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { readClock } from "@/core/day";
 import { addDays, logicalDay } from "@/core/engines/time";
 import {
   readGoals,
@@ -106,7 +106,7 @@ async function progressOf(
 export default async function GoalsPage() {
   const owner = await requireOwner();
   const db = await getDb();
-  const today = logicalDay(new Date(), (await readClock(db, owner)).clock);
+  const today = logicalDay(new Date(), (await ownerClock()).clock);
   const goals = await readGoals(db, owner, today);
   const shown = await Promise.all(
     goals.map(async (g) => ({ g, p: await progressOf(db, owner, g, today) })),

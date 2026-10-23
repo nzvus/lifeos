@@ -6,9 +6,10 @@
  * answer what Undo needs: the status it had, or whether it happened.
  */
 import { revalidatePath } from "next/cache";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { dayMinute, readClock } from "@/core/day";
+import { dayMinute } from "@/core/day";
 import {
   checkEntry,
   createEntry,
@@ -50,7 +51,7 @@ export async function addWater(day: string, ml: 250 | 500): Promise<void> {
   if (!ISO.test(day) || (ml !== 250 && ml !== 500)) return;
   const owner = await requireOwner();
   const db = await getDb();
-  const { clock } = await readClock(db, owner);
+  const { clock } = await ownerClock();
   const now = new Date();
   const today = logicalDay(now, clock);
   if (day > today) return;

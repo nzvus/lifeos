@@ -4,9 +4,9 @@
  * is for today: a past session is edited from its day.
  */
 import { Box, F, PageHeader } from "@lifeos/kit";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { readClock } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { readExercises, readRoutines } from "@/core/training";
 import { startGym } from "./actions";
@@ -14,7 +14,7 @@ import { startGym } from "./actions";
 export default async function GymStartPage() {
   const owner = await requireOwner();
   const db = await getDb();
-  const { clock } = await readClock(db, owner);
+  const { clock } = await ownerClock();
   const today = logicalDay(new Date(), clock);
   const routines = await readRoutines(db, owner, today, await readExercises(db, owner));
   return (

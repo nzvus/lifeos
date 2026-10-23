@@ -7,7 +7,7 @@
 import { Box, F } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDay } from "@/core/day";
+import { loadDays } from "@/core/day";
 import { addDays } from "@/core/engines/time";
 import { kindRows } from "@/features/day/entry-form";
 import { present } from "@/features/day/present";
@@ -23,10 +23,16 @@ export default async function AddPage({
 }) {
   const owner = await requireOwner();
   const db = await getDb();
-  const { kinds, day, today } = await addContext(db, owner, (await searchParams).giorno);
+  const { kinds, day, today, clock, roleBounds } = await addContext(
+    db,
+    owner,
+    (await searchParams).giorno,
+  );
+  // The last three days, newest first, from one set of queries.
   const recent = (
-    await Promise.all([0, -1, -2].map((n) => loadDay(db, owner, addDays(today, n))))
+    await loadDays(db, owner, addDays(today, -2), today, { clock, roleBounds })
   )
+    .reverse()
     .flatMap((d) =>
       [...d.timed]
         .reverse()
