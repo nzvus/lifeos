@@ -85,7 +85,7 @@ describe("rests", () => {
     expect(restAfter({ role: "compound", reps: 10 })).toEqual({ low: 90, high: 120 });
     expect(restAfter({ role: "isolation", reps: 12 })).toEqual({ low: 60, high: 90 });
   });
-  it("between sides 0–15 s; after a warm-up 30 / 45 / 60–90 s by the ramp", () => {
+  it("between sides 0–15 s; after a warm-up 30 / 45 / 60 s by the ramp", () => {
     expect(restAfter({ role: "isolation", reps: 12, otherSide: true })).toEqual({
       low: 0,
       high: 15,
@@ -96,7 +96,7 @@ describe("rests", () => {
     expect(ramp).toEqual([
       { low: 30, high: 30 },
       { low: 45, high: 45 },
-      { low: 60, high: 90 },
+      { low: 60, high: 60 },
     ]);
   });
 });

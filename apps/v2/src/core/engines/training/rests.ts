@@ -5,8 +5,16 @@
  *   other compounds                               90–120 s
  *   isolation and core                            60–90 s
  *   between sides                                 0–15 s
- *   after a warm-up, by the ramp                  30 / 45 / 60–90 s (practice)
+ *   after a warm-up, by the ramp                  30 / 45 / 60 s (practice; the
+ *                                                 developer rests 57 s)
  * Sources: Schoenfeld 2016; Singer 2024.
+ *
+ * Learnt and adaptive (dossiers/training.md §5.4): the person's own median
+ * rest for an exercise (≥ 5 measured), within evidence floors (60 s
+ * working, 30 s warm-up); +30 s when reps fall ≥ 2 across sets at one load
+ * in 2 of the last 3 sessions (up to ACSM's 3 min for compounds, 2 min
+ * otherwise), −15 s when they never fall and the last set left ≥ 2 reps.
+ * Unilateral: each side rests while the other works.
  */
 import type { IsoDate } from "../time/date";
 import { daysBetween } from "../time/date";
@@ -28,7 +36,7 @@ export function restAfter(p: {
   if (p.otherSide) return { low: 0, high: 15 };
   if (p.warmup) {
     const last = p.warmup.index >= p.warmup.of - 1;
-    if (last) return { low: 60, high: 90 };
+    if (last) return { low: 60, high: 60 };
     return p.warmup.index === 0 ? { low: 30, high: 30 } : { low: 45, high: 45 };
   }
   if (p.role === "compound") {
@@ -132,4 +140,82 @@ export function deloadSuggestion(p: {
   )
     rising++;
   return rising >= n ? { type: "volume", weeks: rising } : null;
+}
+
+export const REST_FLOOR = { working: 60, warmup: 30 } as const;
+const REST_CAP: Record<Role, number> = {
+  compound: 180,
+  isolation: 120,
+  core: 120,
+  cardio: 0,
+};
+const LEARN_MIN = 5;
+
+export type RestSource = "learnt" | "default";
+
+/** The rest to propose: the person's median for this exercise (≥ 5 measured, clamped), else the role's. */
+export function learntRest(p: {
+  role: Role;
+  reps: number;
+  measured: readonly number[];
+  warmup?: boolean | undefined;
+}): { seconds: number; source: RestSource } {
+  const floor = p.warmup ? REST_FLOOR.warmup : REST_FLOOR.working;
+  const ok = p.measured.filter((s) => s > 0 && s < 1200);
+  if (ok.length >= LEARN_MIN)
+    return {
+      seconds: Math.round(
+        Math.max(floor, Math.min(REST_CAP[p.role] || floor, median(ok))),
+      ),
+      source: "learnt",
+    };
+  const d = restAfter({
+    role: p.role,
+    reps: p.reps,
+    ...(p.warmup ? { warmup: { index: 0, of: 1 } } : {}),
+  });
+  return { seconds: d.low, source: "default" };
+}
+
+/**
+ * The rest adapted to the last sessions: `drops` are the reps lost from the
+ * first to the last set at one load, newest first; `lastRir` the last
+ * set's reps in reserve, when said.
+ */
+export function adaptRest(p: {
+  role: Role;
+  seconds: number;
+  drops: readonly number[];
+  lastRir: number | null;
+}): { seconds: number; change: number } {
+  const recent = p.drops.slice(0, 3);
+  const cap = REST_CAP[p.role];
+  if (recent.filter((d) => d >= 2).length >= 2 && p.seconds < cap) {
+    const s = Math.min(cap, p.seconds + 30);
+    return { seconds: s, change: s - p.seconds };
+  }
+  if (recent.length >= 3 && recent.every((d) => d <= 0) && (p.lastRir ?? 0) >= 2) {
+    const s = Math.max(REST_FLOOR.working, p.seconds - 15);
+    return { seconds: s, change: s - p.seconds };
+  }
+  return { seconds: p.seconds, change: 0 };
+}
+
+/**
+ * A unilateral exercise: between the two sides only the setup (at most
+ * 10 s); after the pair, the set rest less the other side's set time, at
+ * least 30 s — each side already rested while the other worked.
+ */
+export function unilateralRests(p: {
+  setRestS: number;
+  otherSideS: number;
+  setupS?: number;
+}): {
+  betweenSidesS: number;
+  afterPairS: number;
+} {
+  return {
+    betweenSidesS: Math.min(10, Math.max(0, p.setupS ?? 5)),
+    afterPairS: Math.max(30, Math.round(p.setRestS - p.otherSideS)),
+  };
 }
