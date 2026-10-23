@@ -137,6 +137,8 @@ describe("the pantry (derived stock)", () => {
       day: "2026-10-02",
       ingredientId: oatsId,
       quantity: "60",
+      // Eaten entries default to the real now: fixed, or after 20 Oct it falls after NOW.
+      at: new Date("2026-10-02T12:00:00Z"),
     }); // −60 eaten
     await logIngredient(db, me, {
       day: "2026-10-03",
