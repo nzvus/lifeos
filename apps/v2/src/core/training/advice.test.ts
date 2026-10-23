@@ -141,3 +141,24 @@ describe("what gym mode proposes for an exercise", () => {
     expect(a.trend.state).toBe("few");
   });
 });
+
+describe("dumbbells go by the rack's pairs", () => {
+  it("10 · 10 · 10 at 2 × 15 kg in a 6–10 range → 2 × 17 kg, not 2 × 16.25", () => {
+    const top = [session("2026-10-15", sets("30", [10, 10, 10]))];
+    const a = adviseExercise({
+      pattern: "horizontal_press",
+      unilateral: false,
+      dumbbells: true,
+      history: top,
+      timing,
+    });
+    expect(a.proposed[0]).toMatchObject({ reps: 6, loadKg: "34" });
+    const plate = adviseExercise({
+      pattern: "horizontal_press",
+      unilateral: false,
+      history: top,
+      timing,
+    });
+    expect(plate.proposed[0]).toMatchObject({ loadKg: "32.5" });
+  });
+});

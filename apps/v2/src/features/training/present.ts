@@ -6,6 +6,7 @@
  */
 import { F } from "@lifeos/kit";
 import {
+  dumbbellStep,
   loadStep,
   restAfter,
   vsExpected,
@@ -67,10 +68,11 @@ export function restFor(
   return restAfter({ role: roleOf(pattern), reps: reps ?? 10 });
 }
 
-/** The load stepper's step: E6's plate step at that load. */
-export function kgStep(kg: string): number {
+/** The load stepper's step: one dumbbell's next size when typed per dumbbell, else E6's plate step. */
+export function kgStep(kg: string, perDumbbell = false): number {
   const n = Number(kg.replace(",", "."));
-  return loadStep(Number.isFinite(n) ? n : 0);
+  const x = Number.isFinite(n) ? n : 0;
+  return perDumbbell ? dumbbellStep(x * 2) / 2 : loadStep(x);
 }
 
 /** Whether an exercise is timed (a plank, a run): its sets are seconds, not reps. */

@@ -645,7 +645,7 @@ function SetForm({
           label={perDb ? "Carico per manubrio" : "Carico"}
           type="stepper"
           unit="kg"
-          step={kgStep(kg)}
+          step={kgStep(kg, perDb)}
           defaultValue={kg}
           onChange={setKg}
         />

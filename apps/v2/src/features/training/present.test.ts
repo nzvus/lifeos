@@ -55,3 +55,13 @@ describe("dumbbells", () => {
     ).toBe("10 × 2 × 12,5 kg");
   });
 });
+
+describe("the load stepper's step", () => {
+  it("per dumbbell: 1 kg under 10 kg, 2 kg from 10 kg; else E6's plate step", async () => {
+    const { kgStep } = await import("./present");
+    expect(kgStep("8", true)).toBe(1);
+    expect(kgStep("16", true)).toBe(2);
+    expect(kgStep("40")).toBe(2.5);
+    expect(kgStep("12")).toBe(1);
+  });
+});

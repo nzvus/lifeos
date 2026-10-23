@@ -55,9 +55,11 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
     const e = c.item ? byId.get(c.item.id) : undefined;
     const p = e?.pattern ?? null;
     const h = c.item ? (history.byExercise.get(c.item.id) ?? []) : [];
+    const dumbbells = usesDumbbells(c.item?.name ?? "", e?.equipment ?? null);
     const a = adviseExercise({
       pattern: p,
       unilateral: e?.unilateral ?? false,
+      dumbbells,
       history: h,
       timing,
       settings: { restS: e?.restS ?? undefined, setupS: e?.setupS ?? undefined },
@@ -72,7 +74,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       name: c.item?.name ?? "Esercizio",
       pattern: p,
       unilateral: e?.unilateral ?? false,
-      dumbbells: usesDumbbells(c.item?.name ?? "", e?.equipment ?? null),
+      dumbbells,
       proposed,
       last: last ? lastTimeText(last.day, last.sets) : "",
       trend: trendText(a.trend),
