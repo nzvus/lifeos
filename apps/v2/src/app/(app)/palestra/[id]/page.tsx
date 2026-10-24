@@ -125,16 +125,25 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       betweenS: a.betweenS,
       setupS: a.setupS,
       settings: { restS: e?.restS ?? null, setupS: e?.setupS ?? null },
-      done: c.sets.map((s) => ({
-        position: s.position,
-        reps: s.reps,
-        loadKg: s.loadKg,
-        rir: s.rir,
-        durationS: s.durationS,
-        warmup: s.warmup,
-        loadEntry: s.loadEntry,
-        assumed: !s.done,
-      })),
+      done: c.sets.map((s, k) => {
+        // The rest before it: from the previous set's end to its start, when both were timed.
+        const prev = c.sets[k - 1];
+        const rest =
+          prev?.endedAt && s.startedAt
+            ? Math.round((s.startedAt.getTime() - prev.endedAt.getTime()) / 1000)
+            : null;
+        return {
+          position: s.position,
+          reps: s.reps,
+          loadKg: s.loadKg,
+          rir: s.rir,
+          durationS: s.durationS,
+          warmup: s.warmup,
+          loadEntry: s.loadEntry,
+          assumed: !s.done,
+          restBeforeS: rest !== null && rest >= 0 && rest < 1800 ? rest : null,
+        };
+      }),
     };
   });
   // The night and the 24 h need two days; creatine its own narrow read.
@@ -164,14 +173,14 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
     <Gym
       session={{
         id,
-        title: session.item?.name ?? "Allenamento",
+        title: (session.item?.name ?? "Allenamento") + (started ? " · " + started : ""),
         context:
           (session.day === today ? "" : F.Day(session.day) + " · ") +
           (done
             ? "finito" +
               (typeof minutes === "string" ? " · " + F.hm(Number(minutes)) : "")
             : started
-              ? "iniziato alle " + started
+              ? ""
               : "da iniziare"),
         startedAt: session.start?.getTime() ?? null,
         done,

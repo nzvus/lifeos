@@ -31,6 +31,8 @@ export type DoneSet = {
   loadEntry: string;
   /** Saved by auto mode, not confirmed yet. */
   assumed: boolean;
+  /** The rest measured before it, in seconds, when both sets were timed. */
+  restBeforeS: number | null;
 };
 export type GymExercise = {
   entryId: string;
@@ -339,13 +341,29 @@ export function Gym({
             : "dall’inizio" +
               (session.leftMin ? " · ne restano circa " + F.hm(session.leftMin) : "");
   const working = x ? workDone(x) : 0;
+  // The board's line under the title: where you are and what is done so far.
+  const allWork = exercises.flatMap((e) => e.done.filter((d) => !d.warmup));
+  const tonnage = allWork.reduce(
+    (a, d) => a + (d.reps ?? 0) * (d.loadKg === null ? 0 : Number(d.loadKg)),
+    0,
+  );
+  const progress =
+    (exercises.length > 0 && !session.done
+      ? "esercizio " +
+        (Math.min(at, exercises.length - 1) + 1) +
+        " di " +
+        exercises.length +
+        " · "
+      : "") +
+    F.plural(allWork.length, "serie", "serie") +
+    (tonnage > 0 ? " · " + F.num(tonnage, "kg") + " in totale" : "");
   const lastSet = x ? working >= x.proposed.length - 1 : false;
 
   return (
     <main className="k-page">
       <PageHeader
         title={session.title}
-        context={session.context}
+        context={[session.context, progress].filter(Boolean).join(" · ")}
         back={{ label: "Oggi", href: session.dayHref }}
         of={{ fam: "train", kind: "session" }}
       />
@@ -380,16 +398,21 @@ export function Gym({
             )}
           </div>
           {!session.done && (
-            <div className="k-chips">
-              <button
-                type="button"
-                className="k-chip"
-                aria-pressed={auto}
-                onClick={toggleAuto}
-              >
-                Automatico
-              </button>
-            </div>
+            <Field
+              key={auto ? "auto" : "manual"}
+              name="mode"
+              label="Modalità"
+              type="choice"
+              required
+              defaultValue={auto ? "auto" : "manual"}
+              options={[
+                { value: "auto", label: "Automatica" },
+                { value: "manual", label: "Manuale" },
+              ]}
+              onChange={(m) => {
+                if ((m === "auto") !== auto) toggleAuto();
+              }}
+            />
           )}
           {auto && (
             <p className="k-help">
@@ -444,6 +467,7 @@ export function Gym({
             const vs = d.warmup ? "" : vsProposedText(d, x.proposed[n - 1]);
             const meta = [
               d.assumed ? "presunta" : "",
+              d.restBeforeS !== null ? "recupero " + clock(d.restBeforeS) : "",
               d.rir != null ? "RIR " + d.rir : "",
               vs,
             ]
@@ -524,11 +548,7 @@ export function Gym({
                 fam: "train",
                 of: e.of,
                 title: e.name,
-                meta:
-                  e.done.length +
-                  " di " +
-                  Math.max(e.proposed.length, e.done.length) +
-                  " serie",
+                meta: planText(e),
                 value: "›",
               }}
             />
@@ -586,6 +606,28 @@ export function Gym({
         )}
       </div>
     </main>
+  );
+}
+
+/** «Poi»: the plan (3 × 10 · 60 kg) or, once begun, the sets done of those planned. */
+function planText(e: GymExercise): string {
+  const done = workDone(e);
+  const first = e.proposed[0];
+  const plan = first
+    ? e.proposed.length +
+      " × " +
+      (first.durationS !== null && first.reps === null
+        ? F.num(first.durationS, "") + " s"
+        : String(first.reps ?? "–")) +
+      (first.loadKg !== null ? " · " + F.num(Number(first.loadKg), "kg") : "")
+    : "";
+  if (done === 0) return plan;
+  return (
+    done +
+    " di " +
+    Math.max(e.proposed.length, done) +
+    " serie fatte" +
+    (plan ? " · " + plan : "")
   );
 }
 
