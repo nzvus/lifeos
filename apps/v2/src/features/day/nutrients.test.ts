@@ -314,3 +314,82 @@ describe("a meal's thin bars (L0)", () => {
     expect(d.nutrients.macros.find((m) => m.key === "protein")!.partZones).toEqual({});
   });
 });
+
+describe("a meal's window (L2)", () => {
+  const cod = {
+    ...line("Merluzzo", "200", { kcal: "80", protein: "17.7", fat: "0.7" }),
+    itemId: "cod",
+  };
+  const pasta = {
+    ...line("Pasta", "80", {
+      kcal: "359",
+      protein: "13",
+      carbs: "71",
+      fat: "1.5",
+      fibre: "3",
+    }),
+    itemId: "pasta",
+  };
+  const est = new Map([
+    ["cod", { protein_high: "1", fat_n3: "0.4", fat_sfa: "0.3", fat_mufa: "0.3" }],
+    [
+      "pasta",
+      {
+        protein_low: "1",
+        carbs_refined: "0.97",
+        carbs_free: "0.03",
+        fat_pufa6: "1",
+        fibre_insoluble: "1",
+      },
+    ],
+  ]);
+  const meal = item("meal", { lines: [cod, pasta] });
+
+  it("its foods, each with its grams per macro and kind, and its kcal in the chip", () => {
+    const m = mealL0(meal, week, est)!;
+    expect(
+      m.foods!.map((f) => [f.key, f.amount.replace(/ /g, " "), Math.round(f.kcal)]),
+    ).toEqual([
+      ["Merluzzo", "200 g · 160 kcal", 160],
+      ["Pasta", "80 g · 287 kcal", 287],
+    ]);
+    expect(m.foods![0]!.macros.protein).toEqual({ high: 35.4 });
+    // Without estimates the kinds are unknown: one piece per macro.
+    expect(mealL0(meal, week)!.foods![1]!.macros.carbs).toEqual({ all: 56.8 });
+  });
+
+  it("notes: the carbs' glycaemic load and free sugars, where the omega-3 came from", () => {
+    const m = mealL0(meal, week, est)!;
+    const carbs = m.macros[1]!.extras!.map((x) => [x.t.replace(/ /g, " "), x.state]);
+    // 55.1 g refined × 70 % + 1.7 g free × 65 % ≈ 39.7: high.
+    expect(carbs).toEqual([
+      ["carico glicemico ≈ 40 (stima)", "bad"],
+      ["zuccheri liberi 1,7 g", undefined],
+    ]);
+    expect(m.macros[2]!.extras![0]!.t.replace(/ /g, " ")).toBe(
+      "omega-3 0,6 g, per lo più da Merluzzo",
+    );
+  });
+
+  it("warns when inulin is most of the fibre", () => {
+    const inulin = {
+      ...line("Inulina", "8", { kcal: "200", carbs: "5", fibre: "90" }),
+      itemId: "in",
+    };
+    const m = mealL0(
+      item("meal", { lines: [inulin] }),
+      week,
+      new Map([["in", { fibre_inulin: "1" }]]),
+    )!;
+    expect(m.macros[3]!.extras![0]!.state).toBe("warn");
+  });
+
+  it("its micros next to the day's need, not judged", () => {
+    const m = mealL0(meal, week, new Map([["cod", { k: "300" }]]), null, [
+      { micro: "k", value: 3500, unit: "mg", kind: "AI" } as never,
+    ])!;
+    expect(m.micros!.summary).toBe("stime · su quanto serve al giorno");
+    const k = m.micros!.groups[0]!.items.find((i) => i.name === "Potassio")!;
+    expect(k).toEqual({ name: "Potassio", v: 600, t: 3500, unit: "mg" });
+  });
+});

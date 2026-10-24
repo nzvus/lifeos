@@ -72,6 +72,11 @@ describe("what an open box shows", () => {
     expect(plain(d.lines[0])).toEqual({ label: "Gnocchi", value: "300 g · 450 kcal" });
     expect(plain(d.foot)).toBe("stima (affidabilità 60 %) · al ristorante");
   });
+
+  it("leaves a meal's foods out when its window lists them (L2 chips)", () => {
+    const meal = item("meal", { lines: [line("Gnocchi", "g", "300", "150")] });
+    expect(details(meal, { foods: false }).lines).toEqual([]);
+  });
 });
 
 describe("caffeine and creatine as the boards draw them", () => {

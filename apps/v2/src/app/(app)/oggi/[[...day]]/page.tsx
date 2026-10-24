@@ -13,14 +13,20 @@
  * score is computed from it, never stored.
  */
 import { notFound } from "next/navigation";
-import { DateNav, F, NavBar, Nutrients, PageHeader, weekOf } from "@lifeos/kit";
+import { DateNav, F, Glyph, NavBar, Nutrients, PageHeader, weekOf } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { dayMinute, loadDays, readDayTargets, readMicroTargets } from "@/core/day";
+import {
+  dayMinute,
+  loadDays,
+  readClosure,
+  readDayTargets,
+  readMicroTargets,
+} from "@/core/day";
 import { addDays, instantAt, logicalDay } from "@/core/engines/time";
 import { readSettings } from "@/core/account/settings";
-import { readGoals, readNumbers, readSpans } from "@/core/goals";
+import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
 import { ensureWeekTargets, mondayOf } from "@/core/energy";
 import {
   planTag,
@@ -59,10 +65,15 @@ import { DayView } from "@/features/day/DayView";
 import {
   addWater,
   bringBack,
+  bringBackAll,
   changeStatus,
+  closeDay,
   recomputeTargets,
   removeEntry,
+  removePlanned,
 } from "./actions";
+import { DayClose } from "@/features/day/DayClose";
+import { goalLine } from "@/features/day/goal-line";
 import { PLACES } from "@/features/places";
 
 /** A meal's score on its box, when it has one (exactOptionalPropertyTypes: no `score: undefined`). */
@@ -91,11 +102,12 @@ export default async function OggiPage({
   const scored = week.filter((d) => d <= today);
   // The viewed week's automatic targets, made on its first open (core/energy, dossiers/targets.md).
   const thisWeek = mondayOf(date) === mondayOf(today);
-  const [days, micros, plans] = await Promise.all([
+  const [days, micros, plans, , closed] = await Promise.all([
     loadDays(db, owner, week[0]!, to, known),
     readMicroTargets(db, owner, date),
     readDayPlans(db, owner, week[0]!, week[6]!, today),
     date <= today ? ensureWeekTargets(db, owner, date, clock) : null,
+    date <= today ? readClosure(db, owner, date) : null,
   ]);
   // Each day's targets: its own decision, its fixed model, or the week's with its model.
   const dayTargets = new Map(
@@ -123,7 +135,8 @@ export default async function OggiPage({
   const weighed = items.some((i) => i.kind.key === "weigh_in" && i.status === "done");
   const [weighings, goals, nights, profile] = await Promise.all([
     readNumbers(db, owner, "weigh_in", "weightKg", addDays(date, -27), to),
-    weighed ? readGoals(db, owner, date) : null,
+    // The goal's line under the day box needs it on every day up to today.
+    weighed || date <= today ? readGoals(db, owner, date) : null,
     readSpans(db, owner, "sleep", addDays(week[0]!, -7), to),
     date <= today ? readSettings(db, owner) : null,
   ]);
@@ -147,6 +160,10 @@ export default async function OggiPage({
     weighings: series,
   });
   const whole = boxes.get(date) ?? null;
+  const progress = goal
+    ? weightProgress(series, { value: goal.value!, since: goal.since, by: goal.by }, date)
+    : null;
+  const line = progress ? goalLine(progress, goal!.by) : null;
   const sctx: ScoreContext = {
     date,
     clock,
@@ -184,7 +201,9 @@ export default async function OggiPage({
   const slotOf = (i: (typeof items)[number]) =>
     (i.subcategory && slots.get(i.subcategory)) || targets;
   const row = (i: (typeof items)[number]) => {
-    const d = details(i);
+    const l0 = mealL0(i, slotOf(i), kinds, weightOn(series, date), micros);
+    // A meal of several foods lists them as its window's chips (L2), not again below.
+    const d = details(i, { foods: (l0?.foods?.length ?? 0) < 2 });
     return {
       ...withCompounds(present(i), i, ctx),
       ...withScore(
@@ -192,7 +211,7 @@ export default async function OggiPage({
           weighScore(i, items, sctx) ??
           sleepScore(i, items, sctx),
       ),
-      l0: mealL0(i, slotOf(i), kinds, weightOn(series, date)),
+      l0,
       details: hasDetails(d) ? d : null,
       id: i.id,
       status: i.status,
@@ -279,6 +298,12 @@ export default async function OggiPage({
               </form>
             )}
           </OpenBox>
+          {line && (
+            <a className="k-line k-plain" href="/andamento/obiettivi">
+              <Glyph of={{ fam: "goal" }} size="m" />
+              <span className="k-body">{line}</span>
+            </a>
+          )}
         </section>
       )}
       <section className="k-section g3" aria-label="La giornata">
@@ -286,7 +311,13 @@ export default async function OggiPage({
           <p className="k-empty k-meta">Niente in questa giornata.</p>
         ) : (
           <DayView
-            actions={{ changeStatus, removeEntry, bringBack }}
+            actions={{
+              changeStatus,
+              removeEntry,
+              bringBack,
+              removePlanned,
+              bringBackAll,
+            }}
             water={water}
             fromModel={fromModel}
             rows={rows}
@@ -296,6 +327,7 @@ export default async function OggiPage({
             }
           />
         )}
+        {date <= today && <DayClose closed={closed} close={closeDay.bind(null, date)} />}
       </section>
       <div className="k-nav k-stick">
         <NavBar active="today" hrefs={PLACES} addHref={"/aggiungi?giorno=" + date} />

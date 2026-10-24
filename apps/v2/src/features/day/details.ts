@@ -74,7 +74,8 @@ function fieldValue(i: DayItem, key: string, v: unknown): string | null {
   return typeof v === "string" ? v : null;
 }
 
-export function details(i: DayItem): Details {
+/** `foods: false`: a meal's foods are shown elsewhere (its window's chips, L2). */
+export function details(i: DayItem, { foods = true }: { foods?: boolean } = {}): Details {
   const stats: Details["stats"] = [];
   const lines: Details["lines"] = [];
 
@@ -87,7 +88,7 @@ export function details(i: DayItem): Details {
   if (i.kind.key === "meal" || i.kind.key === "batch") {
     const servings =
       typeof i.values["servings"] === "string" ? i.values["servings"] : null;
-    for (const l of i.lines) {
+    for (const l of foods ? i.lines : []) {
       const kcal = lineTotals([l], servings)["kcal"];
       lines.push({
         label: l.name || "Senza nome",

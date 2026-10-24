@@ -23,7 +23,9 @@ import { ownedBy, type Owner } from "../identity/owner";
 
 export type EnergyRows = {
   meals: { day: IsoDate; kcal: number; estimated: boolean }[];
+  /** Days closed as «ho segnato tutto»; `partial`: closed as «manca qualcosa» (E4 filter.ts). */
   closed: IsoDate[];
+  partial: IsoDate[];
   weighIns: {
     day: IsoDate;
     at: Date | null;
@@ -255,7 +257,7 @@ export async function readEnergyRows(
   const [meals, closed, weighIns, steps, sessions, profile] = await Promise.all([
     readMeals(db, owner, from, to),
     db
-      .select({ day: decisions.day })
+      .select({ day: decisions.day, payload: decisions.payload })
       .from(decisions)
       .where(
         and(
@@ -288,7 +290,8 @@ export async function readEnergyRows(
   const p = profile[0];
   return {
     meals,
-    closed: closed.map((c) => c.day),
+    closed: closed.filter((c) => !isPartial(c.payload)).map((c) => c.day),
+    partial: closed.filter((c) => isPartial(c.payload)).map((c) => c.day),
     weighIns: weighIns.flatMap((w) => {
       const kg = n(w.values.get("weightKg")?.num);
       return kg === null
@@ -316,3 +319,7 @@ export async function readEnergyRows(
         : null,
   };
 }
+
+/** A closure's state (v1's «complete»/«partial»; none means complete). */
+const isPartial = (p: unknown) =>
+  typeof p === "object" && p !== null && (p as { state?: unknown }).state === "partial";

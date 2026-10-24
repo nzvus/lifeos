@@ -29,7 +29,7 @@ describe("Nutrients L1", () => {
     expect(kcal).toMatchObject({ t: null, bar: null, aria: "Energia: 900 kcal" });
     expect(macros[0]).toMatchObject({ value: "50,3", target: null, mark: null });
     expect(macros[0]!.segs).toEqual([
-      { w: "95.2%", bg: shade("protein", 1), planned: false },
+      { w: "95.2%", bg: shade("protein", 1), planned: false, dim: false },
     ]);
   });
 
@@ -235,5 +235,57 @@ describe("the heat bar (dossiers/ranges.md §6)", () => {
   it("without zones, nothing changes", () => {
     const m = rows({ macros: [{ key: "protein", v: 140.7, t: 154 }] }).macros[0]!;
     expect(m).toMatchObject({ strip: null, word: null });
+  });
+
+  describe("L2, a meal's window", () => {
+    const dinner: NutrientsData = {
+      foods: [
+        {
+          key: "p",
+          name: "Passata",
+          amount: "140 g",
+          kcal: 40,
+          macros: { carbs: { refined: 0.7, intrinsic: 6.3 }, protein: { low: 1.8 } },
+        },
+        {
+          key: "c",
+          name: "Merluzzo",
+          amount: "200 g",
+          kcal: 160,
+          macros: { protein: { high: 35.4 } },
+        },
+      ],
+      macros: [
+        { key: "protein", v: 37.2, parts: { high: 35.4, low: 1.8 } },
+        { key: "carbs", v: 7, parts: { refined: 0.7, intrinsic: 6.3 } },
+      ],
+    };
+
+    it("draws each bar per food, shaded by kind, and dims the others when one is picked", () => {
+      const all = rows(dinner);
+      expect(all.foods.map((f) => [f.name, f.tone])).toEqual([
+        ["Passata", 0.75],
+        ["Merluzzo", 1],
+      ]);
+      const protein = all.macros[0]!;
+      expect(protein.segs).toHaveLength(2);
+      expect(protein.segs[0]!.bg).toBe(shade("protein", 0.3));
+      expect(all.macros[1]!.segs[0]!.bg).toMatch(/^linear-gradient/);
+      const picked = rows(dinner, "c");
+      expect(picked.foods[1]!.pressed).toBe(true);
+      expect(picked.macros[0]!.segs.map((s) => s.dim)).toEqual([true, false]);
+      expect(picked.macros[0]!.sources.map((s) => [s.name, s.dim])).toEqual([
+        ["Merluzzo", false],
+        ["Passata", true],
+      ]);
+    });
+
+    it("says which foods each kind came from, and leaves «da dove» out for a single food", () => {
+      const protein = rows(dinner).macros[0]!;
+      expect(protein.kinds.map((k) => k.from)).toEqual(["Merluzzo 35,4", "Passata 1,8"]);
+      const carbs = rows(dinner).macros[1]!;
+      expect(carbs.sources).toEqual([]);
+      expect(carbs.kinds.map((k) => k.from)).toEqual([null, null]);
+    });
   });
 });

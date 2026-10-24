@@ -13,6 +13,7 @@ const days = Array.from({ length: 56 }, (_, i) => addDays(from, i));
 const person = (kcal: number, kg: (i: number) => number): EnergyRows => ({
   meals: days.map((day) => ({ day, kcal, estimated: false })),
   closed: days,
+  partial: [],
   weighIns: days.map((day, i) => ({
     day,
     at: new Date(day + "T05:30:00Z"),

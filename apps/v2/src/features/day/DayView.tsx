@@ -34,6 +34,9 @@ export type DayActions = {
   changeStatus: (id: string, status: Status) => Promise<Status | null>;
   removeEntry: (id: string) => Promise<boolean>;
   bringBack: (id: string) => Promise<boolean>;
+  /** «Togli i previsti»: answers the ids that went to the trash. */
+  removePlanned: (ids: string[]) => Promise<string[]>;
+  bringBackAll: (ids: string[]) => Promise<boolean>;
 };
 type Toast = { text: string; undo?: () => Promise<unknown> };
 
@@ -107,6 +110,28 @@ export function DayView({
       });
     } catch {
       if (intent === "remove") hide(r.id, false);
+      failed();
+    }
+  };
+  // Every planned row of the day, filtered or not: the action says how many.
+  const plannedIds = [...rows, ...untimed]
+    .filter((r) => r.status === "planned")
+    .map((r) => r.id);
+  const clearPlanned = async () => {
+    const ids = plannedIds;
+    for (const id of ids) hide(id, true);
+    try {
+      const gone = await actions.removePlanned(ids);
+      for (const id of ids) if (!gone.includes(id)) hide(id, false);
+      if (gone.length === 0) return failed();
+      say({
+        text: gone.length === 1 ? "1 previsto tolto" : gone.length + " previsti tolti",
+        undo: async () => {
+          if (await actions.bringBackAll(gone)) for (const id of gone) hide(id, false);
+        },
+      });
+    } catch {
+      for (const id of ids) hide(id, false);
       failed();
     }
   };
@@ -238,6 +263,13 @@ export function DayView({
             </section>
           )}
         </>
+      )}
+      {plannedIds.length > 0 && (
+        <div className="k-line wrap k-railed" aria-label="Azioni sulla giornata">
+          <button type="button" className="k-btn secondary" onClick={clearPlanned}>
+            Togli i previsti ({plannedIds.length})
+          </button>
+        </div>
       )}
       {toast && (
         <div className="k-toastbar">
