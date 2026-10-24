@@ -140,9 +140,10 @@ the nutrient's page; the developer can move them.
   cioè 121–166 g oggi · Morton 2018».
 - **Caffè:** a drink row «Caffè ≈ 100 mg», meta «a letto ne restano
   ≈ 13 mg» (as the Main board); a pill «≈ 100 mg» on the meal it was
-  with. **Creatina:** not a box with grams: a pill on the meal
-  «creatina 3,4 g» and in «Altro» of the micros «3,4 / 3 g · 11 giorni su
-  28».
+  with. **Creatina:** a supplement box «Creatina 3,4 g», meta «integratore
+  · 11 giorni su 28» (the Main board), a pill «creatina 3,4 g» when it is
+  inside a meal, and in «Altro» of the micros «3,4 / 3 g». (Coffee and
+  creatine as boxes: done in #266.)
 - **Week strip (DateNav):** each day's bar coloured by its score
   (`F.judge`), as the board.
 
