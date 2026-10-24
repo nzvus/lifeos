@@ -1,4 +1,7 @@
-/** Libreria (flows.md §1, V-07): the catalog's foods, saved meals and exercises; kinds come with their slice. */
+/**
+ * Libreria (flows.md §1, V-07; the board: an index): the shelves and one
+ * search, or a shelf's list with `?vista=cibi|pasti|esercizi`.
+ */
 import { F, NavBar, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
@@ -6,11 +9,26 @@ import { getDb } from "@/app/_server/runtime";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { readExerciseLog, readExercises } from "@/core/training";
-import { exerciseRows, foodRows, recipeRows } from "@/features/library/library";
+import {
+  exerciseRows,
+  foodRows,
+  LIBRARY_VIEWS,
+  recipeRows,
+  shelfLines,
+} from "@/features/library/library";
 import { Library } from "@/features/library/Library";
 import { PLACES } from "@/features/places";
 
-export default async function LibreriaPage() {
+export default async function LibreriaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ vista?: string | string[] }>;
+}) {
+  const asked = (await searchParams).vista;
+  const view =
+    typeof asked === "string" && asked in LIBRARY_VIEWS
+      ? LIBRARY_VIEWS[asked as keyof typeof LIBRARY_VIEWS]
+      : null;
   const owner = await requireOwner();
   const db = await getDb();
   const today = logicalDay(new Date(), (await ownerClock()).clock);
@@ -20,13 +38,30 @@ export default async function LibreriaPage() {
     readExercises(db, owner),
     readExerciseLog(db, owner),
   ]);
+  const food = foodRows(foods);
+  const meal = recipeRows(recipes, foods);
+  const exercise = exerciseRows(exercises, log, (d) => F.Day(d));
   return (
     <main className="k-page has-bd">
-      <PageHeader title="Libreria" of={{ place: "libreria" }} />
+      {view === null ? (
+        <PageHeader
+          title="Libreria"
+          context="le cose che riusi: cibi, pasti, esercizi"
+          of={{ place: "libreria" }}
+        />
+      ) : (
+        <PageHeader
+          title={{ foods: "Cibi", meals: "Pasti salvati", exercises: "Esercizi" }[view]}
+          back={{ label: "Libreria", href: "/libreria" }}
+          of={{ place: "libreria" }}
+        />
+      )}
       <Library
-        foods={foodRows(foods)}
-        meals={recipeRows(recipes, foods)}
-        exercises={exerciseRows(exercises, log, (d) => F.Day(d))}
+        foods={food}
+        meals={meal}
+        exercises={exercise}
+        view={view}
+        shelfLines={shelfLines(foods, meal, exercise)}
       />
       <div className="k-nav k-stick">
         <NavBar active="library" hrefs={PLACES} addHref="/aggiungi" />

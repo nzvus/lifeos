@@ -21,7 +21,7 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
     <main className="k-page">
       <PageHeader
         title={page.name}
-        back={{ label: "Libreria", href: "/libreria" }}
+        back={{ label: "Cibi", href: "/libreria?vista=cibi" }}
         of={{ fam: "food" }}
       />
       <div className="k-section">

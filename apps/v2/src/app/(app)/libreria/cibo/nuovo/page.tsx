@@ -23,7 +23,7 @@ export default async function NewFoodPage({
       initial={{ unit: "g", name: typeof nome === "string" ? nome.slice(0, 80) : "" }}
       unit="g"
       isNew
-      backHref={back ?? "/libreria"}
+      backHref={back ?? "/libreria?vista=cibi"}
       action={saveFood.bind(null, null, back)}
     />
   );
