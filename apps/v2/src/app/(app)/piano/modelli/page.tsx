@@ -2,7 +2,7 @@
  * Piano · Modelli («Le regole», the board Models; dossiers/day-templates.md
  * §6): the week type (each weekday's model), the day models with what they
  * hold, the archived ones apart, «Nuovo modello»; the cycles (slice c) with
- * their steps, «Nuovo ciclo». Habits join with slice d.
+ * their steps, «Nuovo ciclo»; the habits (slice d), «Nuova abitudine».
  */
 import { Box, NavBar, PageHeader, F, type BoxEntry } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
@@ -10,12 +10,14 @@ import { getDb } from "@/app/_server/runtime";
 import {
   inheritedTargets,
   readCycleBook,
+  readHabits,
   readModelBook,
   resolveModel,
   toModels,
   type ModelRow,
 } from "@/core/plans";
 import { WEEKDAYS } from "@/features/plan/model-form";
+import { habitWhat, ruleWords } from "@/features/plan/habit-form";
 import { PLACES } from "@/features/places";
 import { newModel } from "../modello/[id]/actions";
 import { newCycle } from "../ciclo/[id]/actions";
@@ -23,9 +25,10 @@ import { newCycle } from "../ciclo/[id]/actions";
 export default async function ModelsPage() {
   const owner = await requireOwner();
   const db = await getDb();
-  const [book, { cycles }] = await Promise.all([
+  const [book, { cycles }, habits] = await Promise.all([
     readModelBook(db, owner),
     readCycleBook(db, owner),
+    readHabits(db, owner),
   ]);
   const models = toModels(book.models, book.rows);
   const name = (id: string | null) => book.models.find((m) => m.id === id)?.name ?? "";
@@ -151,6 +154,37 @@ export default async function ModelsPage() {
             Crea
           </button>
         </form>
+      </section>
+      <section className="k-section g3" aria-label="Abitudini">
+        <h2>
+          Abitudini <span className="k-meta">{habits.length}</span>
+        </h2>
+        {habits.map((h) => (
+          <Box
+            key={h.id}
+            density="row"
+            rail={false}
+            entry={{
+              fam: "habit",
+              title: h.name,
+              value: ruleWords(h.recurrence),
+              meta: [
+                habitWhat(h),
+                h.atMin !== null ? "alle " + F.time(h.atMin) : "",
+                h.durationMin ? F.num(h.durationMin, "min") : "",
+                h.active ? "" : "in pausa",
+              ]
+                .filter(Boolean)
+                .join(" · "),
+              href: "/piano/abitudine/" + h.id,
+              hrefLabel: "Apri " + h.name,
+              ...(h.active ? {} : { faded: true }),
+            }}
+          />
+        ))}
+        <a className="k-btn secondary" href="/piano/abitudine/nuova">
+          + Nuova abitudine
+        </a>
       </section>
       {archived.length > 0 && (
         <section className="k-section g3" aria-label="Archiviati">
