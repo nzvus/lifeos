@@ -18,7 +18,7 @@ import type { DayItem } from "@/core/day";
 import type { EntryErrors, EntryInput } from "@/core/entries";
 import { localParts, type IsoDate } from "@/core/engines/time";
 import type { Field, Kind } from "@/core/kinds";
-import { CHOICES, FIELDS, NAMES } from "./words";
+import { CHOICES, FIELDS, keyWords, NAMES } from "./words";
 
 /** Form names: a kind's field is "v.<key>", so it never meets the sheet's own. */
 export const VALUE = "v.";
@@ -37,16 +37,10 @@ const MORE: Record<string, ReadonlySet<string>> = {
   weigh_in: new Set(["bodyFatPct", "waistCm", "hipCm", "neckCm", "abdomenCm"]),
 };
 
-/** "walkingMin" → "Walking min": a user's own field in words until it has a label. */
-const words = (key: string) => {
-  const s = key.replace(/([A-Z])/g, " $1").toLowerCase();
-  return s[0]!.toUpperCase() + s.slice(1);
-};
-
 function field(f: Field): FieldProps {
   const base = {
     name: VALUE + f.key,
-    label: FIELDS[f.key] ?? words(f.key),
+    label: FIELDS[f.key] ?? keyWords(f.key),
     required: f.required,
   };
   switch (f.type) {
@@ -109,7 +103,7 @@ export function entryForm(kind: Kind): EntryForm {
   const more = MORE[kind.key] ?? new Set<string>();
   return {
     kind: kind.key,
-    title: NAMES[kind.key] ?? words(kind.key),
+    title: NAMES[kind.key] ?? keyWords(kind.key),
     fam: kind.family,
     times: span
       ? { start: SPAN[kind.key]?.[0] ?? "Inizio", end: SPAN[kind.key]?.[1] ?? "Fine" }
@@ -188,7 +182,7 @@ export function kindRows(
       fam: k.family,
       ...(typeof k.subcategory === "string" ? { sub: k.subcategory } : {}),
       of: { kind: k.key },
-      title: NAMES[k.key] ?? words(k.key),
+      title: NAMES[k.key] ?? keyWords(k.key),
     },
   }));
 }

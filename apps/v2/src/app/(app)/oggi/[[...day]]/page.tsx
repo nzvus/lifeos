@@ -15,10 +15,18 @@ import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { dayMinute, loadDay, readDayTargets, readMicroTargets } from "@/core/day";
-import { logicalDay } from "@/core/engines/time";
+import { instantAt, logicalDay } from "@/core/engines/time";
+import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0, presentDay } from "@/features/day/nutrients";
 import { mealScore } from "@/features/day/score";
+import {
+  caffeineDoses,
+  compoundsOf,
+  withCompounds,
+  type CompoundContext,
+} from "@/features/day/compounds";
+import { details, hasDetails } from "@/features/day/details";
 import { present } from "@/features/day/present";
 import { DayView } from "@/features/day/DayView";
 import { addWater, bringBack, changeStatus, removeEntry } from "./actions";
@@ -51,21 +59,36 @@ export default async function OggiPage({
   ]);
   const kinds = await readFoodEstimates(db, owner, foodIds(day));
   const whole = presentDay(day, targets, kinds, micros);
-  const rows = day.timed.map((i) => ({
-    ...present(i),
-    ...withScore(mealScore(i, targets, kinds, micros)),
-    l0: mealL0(i, targets, kinds),
-    id: i.id,
-    status: i.status,
-    minute: i.minute!,
-  }));
-  const untimed = day.untimed.map((i) => ({
-    ...present(i),
-    ...withScore(mealScore(i, targets, kinds, micros)),
-    l0: mealL0(i, targets, kinds),
-    id: i.id,
-    status: i.status,
-  }));
+  const items = [...day.timed, ...day.untimed];
+  // Creatine's days of 28 only when the day has some: one narrow read.
+  const creatine = items.some((i) => compoundsOf(i, kinds).creatine > 0)
+    ? creatineDays(await readCreatineLines(db, owner, date))
+    : null;
+  // Bedtime: the evening's sleep when logged on this day, else 23:30.
+  const sleep = items.find(
+    (i) => i.kind.key === "sleep" && i.start && (i.minute ?? 0) >= 18 * 60,
+  );
+  const ctx: CompoundContext = {
+    compounds: kinds,
+    doses: caffeineDoses(items, kinds),
+    bed: sleep?.start
+      ? { at: sleep.start, known: true }
+      : { at: instantAt(date, 23 * 60 + 30, clock), known: false },
+    creatineDays: creatine,
+  };
+  const row = (i: (typeof items)[number]) => {
+    const d = details(i);
+    return {
+      ...withCompounds(present(i), i, ctx),
+      ...withScore(mealScore(i, targets, kinds, micros)),
+      l0: mealL0(i, targets, kinds),
+      details: hasDetails(d) ? d : null,
+      id: i.id,
+      status: i.status,
+    };
+  };
+  const rows = day.timed.map((i) => ({ ...row(i), minute: i.minute! }));
+  const untimed = day.untimed.map(row);
   const nowMinute = date === today ? dayMinute(now, date, clock) : null;
   const empty = rows.length === 0 && untimed.length === 0;
   const water = [...day.timed, ...day.untimed]

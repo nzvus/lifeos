@@ -16,6 +16,7 @@ import {
   type BoxEntry,
   type NutrientsData,
 } from "@lifeos/kit";
+import type { Details } from "./details";
 import type { Status } from "./filter";
 
 export type RowIntent = "done" | "skipped" | "planned" | "remove";
@@ -32,8 +33,8 @@ export function EntryRow({
   onRail,
   onIntent,
 }: {
-  /** `l0`: a meal's thin macro bars, drawn in its box (the boards' L0). */
-  entry: BoxEntry & { l0?: NutrientsData | null };
+  /** `l0`: a meal's thin macro bars (the boards' L0); `details`: what the open box shows. */
+  entry: BoxEntry & { l0?: NutrientsData | null; details?: Details | null };
   status: Status;
   density?: "card" | "row";
   rail?: boolean;
@@ -120,8 +121,10 @@ export function EntryRow({
           mode={mode}
           {...(onRail ? { onRail } : {})}
           acts={acts}
-          // A meal's box opens on its L1, as the boards' boxes do.
-          {...(entry.l0 ? { expanded: open, onToggle: () => setOpen((o) => !o) } : {})}
+          // Every box opens (the boards: «si apre come ogni riquadro»): a meal on its L1, all on their details.
+          {...(entry.l0 || entry.details
+            ? { expanded: open, onToggle: () => setOpen((o) => !o) }
+            : {})}
         >
           {entry.l0 &&
             (open ? (
@@ -131,8 +134,34 @@ export function EntryRow({
                 <NutrientsL0 data={entry.l0} />
               </div>
             ))}
+          {open && entry.details && <EntryDetails d={entry.details} />}
         </Box>
       </div>
+    </div>
+  );
+}
+
+/** The open box's details: the numbers as tiles, then the lines, then where it comes from. */
+function EntryDetails({ d }: { d: Details }) {
+  return (
+    <div className="k-stack g2 k-details">
+      {d.stats.length > 0 && (
+        <div className="k-stats">
+          {d.stats.map((s) => (
+            <span key={s.label} className="k-stat">
+              <span className="k-help">{s.label}</span>
+              <span className="v">{s.value}</span>
+            </span>
+          ))}
+        </div>
+      )}
+      {d.lines.map((l, k) => (
+        <div key={k} className="k-line between">
+          <span className="k-body">{l.label}</span>
+          <span className="k-num k-right">{l.value}</span>
+        </div>
+      ))}
+      {d.foot && <span className="k-help">{d.foot}</span>}
     </div>
   );
 }
