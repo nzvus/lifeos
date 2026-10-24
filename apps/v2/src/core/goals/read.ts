@@ -1,7 +1,8 @@
 /**
  * core/goals/read.ts — the goals in force on a day (a goal changes from a
  * day on: the latest since that day, per metric) and the numbers their
- * progress reads: one field of one kind's done entries, by day.
+ * progress reads: one field of one kind's done entries, by day, and a
+ * kind's intervals (the nights a sleep score compares).
  */
 import { and, eq, gte, isNull, lte } from "drizzle-orm";
 import type { Db } from "../db/db";
@@ -124,5 +125,32 @@ export async function readMinutes(
         ? m + Math.max(0, (r.endAt.getTime() - r.startAt.getTime()) / 60000)
         : m,
     0,
+  );
+}
+
+/** A kind's done intervals from `from` to `to`, start and end only (the nights a sleep score compares). */
+export async function readSpans(
+  db: Db,
+  owner: Owner,
+  kind: string,
+  from: IsoDate,
+  to: IsoDate,
+): Promise<{ day: IsoDate; start: Date; end: Date }[]> {
+  const rows = await db
+    .select({ day: entries.day, startAt: entries.startAt, endAt: entries.endAt })
+    .from(entries)
+    .where(
+      and(
+        ownedBy(entries, owner),
+        eq(entries.kind, kind),
+        eq(entries.status, "done"),
+        isNull(entries.deletedAt),
+        gte(entries.day, from),
+        lte(entries.day, to),
+      ),
+    )
+    .orderBy(entries.day);
+  return rows.flatMap((r) =>
+    r.startAt && r.endAt ? [{ day: r.day, start: r.startAt, end: r.endAt }] : [],
   );
 }

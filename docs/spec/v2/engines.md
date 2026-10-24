@@ -288,7 +288,10 @@ NOVA is shown, not scored. The parts of a score are what the timeline
 box's gradient draws (screens.md).
 - **Code:** `apps/v2/src/core/engines/judgements/`: the five models with
   weights above; day targets, distribution, recovery and habits wait for
-  theirs. Each part's scorer comes with its domain's slice.
+  theirs. Each part's scorer comes with its domain's slice: food
+  (`core/food/score.ts`), weighing (`engines/body/weighing.ts`), sleep
+  (`engines/sleep/`), water (`engines/hydration/`); the bands and floors
+  each file names are its choices. On Oggi: `features/day/score.ts`.
 
 ## E10 Hydration
 - **Need:**
