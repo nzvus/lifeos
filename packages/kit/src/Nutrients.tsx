@@ -116,9 +116,19 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                         <span className="k-body">
                           <span className="k-sw" style={{ background: k.c }} />
                           {k.name}
+                          {k.word && (
+                            <span
+                              className="k-help"
+                              style={{ color: F.tone(k.state ?? undefined) }}
+                            >
+                              {" "}
+                              {k.word}
+                            </span>
+                          )}
                         </span>
-                        <span className="k-bar">
-                          <i style={{ width: k.w, background: k.c }} />
+                        <span className={"k-bar" + (k.strip ? " zoned" : "")}>
+                          <i style={{ width: k.w, background: k.fill }} />
+                          {k.strip && <ZoneBand strip={k.strip} />}
                         </span>
                         <span className="k-num b3 k-right">{k.v}</span>
                       </div>

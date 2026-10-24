@@ -292,4 +292,23 @@ describe("a meal's thin bars (L0)", () => {
     );
     expect(m.macros[0]!.extras![0]!.state).toBe("good");
   });
+
+  it("zones the kinds a guideline speaks of, and only those", () => {
+    const d = presentDay(
+      day([
+        item("meal", {
+          lines: [{ ...line("Olio", "20", { kcal: "900", fat: "100" }), itemId: "oil" }],
+        }),
+      ]),
+      week,
+      new Map([
+        ["oil", { fat_mufa: "0.7", fat_pufa6: "0.1", fat_n3: "0.01", fat_sfa: "0.14" }],
+      ]),
+      null,
+      75.6,
+    )!;
+    const fat = d.nutrients.macros.find((m) => m.key === "fat")!;
+    expect(Object.keys(fat.partZones!).sort()).toEqual(["n3", "pufa6", "sfa", "trans"]);
+    expect(d.nutrients.macros.find((m) => m.key === "protein")!.partZones).toEqual({});
+  });
 });

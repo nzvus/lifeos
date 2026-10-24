@@ -17,6 +17,10 @@ import {
 } from "@lifeos/kit";
 import type { Day, DayItem, FoodTargets } from "@/core/day";
 import {
+  inulinRange,
+  omega3Range,
+  omega6Range,
+  transRange,
   caffeineDayRange,
   carbsRange,
   fatRange,
@@ -149,6 +153,7 @@ export function presentDay(
         ]),
         ...(estimates.size > 0 ? { parts: split[f] } : {}),
         ...zones(RANGE[f]),
+        ...(basis && estimates.size > 0 ? { partZones: kindZones(f, basis) } : {}),
       })),
       ...(estimates.size > 0
         ? { micros: withOthers(microsOf(eatenMicros, microTargets), meals, estimates) }
@@ -156,6 +161,26 @@ export function presentDay(
       limits,
     },
   };
+}
+
+/**
+ * The kinds a guideline speaks of (dossiers/ranges.md): free sugars, saturated
+ * and trans fat, omega-3 and omega-6, inulin/FOS. The others (protein
+ * quality, whole or refined starch, MUFA, other fibres) have no line to judge
+ * against: they stay unjudged rather than invented.
+ */
+function kindZones(f: "protein" | "carbs" | "fat" | "fibre", b: DayBasis) {
+  const z = (r: Range) => r.zones;
+  if (f === "carbs") return { free: z(sugarsRange(b)) };
+  if (f === "fat")
+    return {
+      sfa: z(saturatedRange(b)),
+      trans: z(transRange(b)),
+      n3: z(omega3Range(b)),
+      pufa6: z(omega6Range(b)),
+    };
+  if (f === "fibre") return { inulin: z(inulinRange()) };
+  return {};
 }
 
 /**

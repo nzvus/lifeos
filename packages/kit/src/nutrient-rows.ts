@@ -38,6 +38,8 @@ export type NutrientsData = {
     sources?: [string, number][];
     extras?: { t: string; state?: State }[];
     zones?: HeatZone[];
+    /** Kind → its zones, for the kinds a guideline speaks of (free sugars, trans, omega-3…). */
+    partZones?: Record<string, HeatZone[]>;
   }[];
   /** `name` replaces the key's (free sugars when the kinds tell them apart). */
   limits?: {
@@ -317,12 +319,35 @@ export function nutrientsL1(d: NutrientsData) {
       target: t === null ? null : F.num(t, "g"),
       mark: t === null ? null : pct(t, scale),
       segs,
-      kinds: kinds.map(([k, name, tone]) => ({
-        name,
-        v: g(m.parts![k]!),
-        c: shade(m.key, tone),
-        w: pct(m.parts![k]!, scale),
-      })),
+      kinds: kinds.map(([k, name, tone]) => {
+        const v = m.parts![k]!;
+        const zones = m.partZones?.[k];
+        if (!zones?.length)
+          return {
+            name,
+            v: g(v),
+            c: shade(m.key, tone),
+            fill: shade(m.key, tone),
+            w: pct(v, scale),
+            strip: null,
+            word: null,
+            state: null,
+          };
+        // A judged kind on its own scale, so its zones show (omega-3's 1.5 g on a 100 g fat bar would not).
+        const i = zones.findIndex((z) => z.level === "good");
+        const edge = zones[i + 1]?.from ?? zones[i]?.from ?? v;
+        const own = Math.max(v * 1.05, edge * 1.5) || 1;
+        const h = heat(v, zones, own);
+        // The swatch keeps the kind's shade (it names its part of the macro's bar); the fill its zone.
+        return {
+          name,
+          v: g(v),
+          c: shade(m.key, tone),
+          fill: F.tone(h.state ?? undefined),
+          w: pct(v, own),
+          ...h,
+        };
+      }),
       sources: [
         ...sources.slice(0, SOURCES_SHOWN).map(([name, v]) => ({
           name,

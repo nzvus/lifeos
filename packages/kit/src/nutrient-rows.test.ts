@@ -210,6 +210,28 @@ describe("the heat bar (dossiers/ranges.md §6)", () => {
     expect([p.w, p.pw, p.word]).toEqual(["20%", "30%", "→ ok"]);
     expect(m.aria).toContain("media di 3 giorni");
   });
+  it("judges a kind a guideline speaks of on its own scale; the others as before", () => {
+    const m = rows({
+      macros: [
+        {
+          key: "fat",
+          v: 60,
+          t: 77,
+          parts: { mufa: 30, n3: 0.8, sfa: 29.2 },
+          partZones: {
+            n3: [
+              { from: 0, level: "fair" },
+              { from: 1.5, level: "good" },
+            ],
+          },
+        },
+      ],
+    }).macros[0]!;
+    const n3 = m.kinds.find((k) => k.name === "omega-3")!;
+    expect([n3.word, n3.w, n3.fill]).toEqual(["ok", "35.6%", "var(--warn)"]); // 0.8 of 2.25
+    expect(n3.c).toContain("var(--macro-fat)");
+    expect(m.kinds.find((k) => k.name === "monoinsaturi")!.strip).toBeNull();
+  });
   it("without zones, nothing changes", () => {
     const m = rows({ macros: [{ key: "protein", v: 140.7, t: 154 }] }).macros[0]!;
     expect(m).toMatchObject({ strip: null, word: null });
