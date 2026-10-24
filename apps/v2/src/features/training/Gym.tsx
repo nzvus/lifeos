@@ -19,7 +19,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Box, F, Field, PageHeader } from "@lifeos/kit";
 import type { ProposedSet } from "@/core/training/plan";
 import type { SetInput } from "@/core/training/write";
-import { kgStep, setText, timed, vsProposedText } from "./present";
+import { ExerciseSettings } from "./ExerciseSettings";
+import { setText, timed, vsProposedText } from "./present";
+import { SetForm } from "./SetForm";
 
 export type DoneSet = {
   position: number;
@@ -85,13 +87,6 @@ type Phase =
   | { kind: "set"; from: number; seconds: number | null }
   | { kind: "rest"; from: number; seconds: number; words: string };
 
-const RIR = [
-  { value: "0", label: "0", sub: "al limite" },
-  { value: "1", label: "1", sub: "quasi" },
-  { value: "2", label: "2", sub: "buona" },
-  { value: "3", label: "3", sub: "comoda" },
-  { value: "4", label: "4+", sub: "facile" },
-];
 const READY = [1, 2, 3, 4, 5].map((n) => ({
   value: String(n),
   label: String(n),
@@ -523,7 +518,7 @@ export function Gym({
             </p>
           )}
           {x.exerciseId && !session.done && (
-            <Settings
+            <ExerciseSettings
               key={x.exerciseId}
               exercise={x}
               onSave={(restS, setupS) => actions.settings(x.exerciseId!, restS, setupS)}
@@ -633,210 +628,3 @@ function planText(e: GymExercise): string {
 
 /** The working sets done: warm-ups do not count towards the proposed ones. */
 const workDone = (x: GymExercise) => x.done.filter((d) => !d.warmup).length;
-
-/** The next set's steppers, filled with E6's proposal; drawn again after each tick. */
-function SetForm({
-  timed: isTimed,
-  dumbbells,
-  askRir,
-  start,
-  busy,
-  running,
-  onValues,
-  onBegin,
-  onTick,
-}: {
-  timed: boolean;
-  dumbbells: boolean;
-  askRir: boolean;
-  start: { reps: number | null; loadKg: string | null; durationS: number | null } | null;
-  busy: boolean;
-  running: boolean;
-  onValues: (v: SetInput) => void;
-  onBegin: () => void;
-  onTick: (input: SetInput) => void;
-}) {
-  const [reps, setReps] = useState(start?.reps != null ? String(start.reps) : "");
-  const [perDb, setPerDb] = useState(dumbbells);
-  const [kg, setKg] = useState(
-    start?.loadKg != null ? F.input(Number(start.loadKg) / (dumbbells ? 2 : 1), 2) : "",
-  );
-  // The stepper is redrawn with the converted load when the chip changes.
-  const [kgKey, setKgKey] = useState(0);
-  const switchPerDb = () => {
-    const n = Number(kg.replace(",", "."));
-    if (kg !== "" && Number.isFinite(n)) setKg(F.input(perDb ? n * 2 : n / 2, 2));
-    setPerDb(!perDb);
-    setKgKey(kgKey + 1);
-  };
-  const [dur, setDur] = useState(start?.durationS != null ? String(start.durationS) : "");
-  const [rir, setRir] = useState("");
-  const [warmup, setWarmup] = useState(false);
-  const input: SetInput = {
-    reps: isTimed ? "" : reps,
-    loadKg: kg,
-    rir: warmup || !askRir ? "" : rir,
-    durationS: isTimed ? dur : "",
-    warmup,
-    perDumbbell: perDb,
-  };
-  useEffect(() => {
-    onValues(input);
-  });
-  return (
-    <div className="k-stack g3">
-      <div className="k-chips">
-        <button
-          type="button"
-          className="k-chip"
-          aria-pressed={warmup}
-          onClick={() => setWarmup(!warmup)}
-        >
-          Riscaldamento
-        </button>
-        {dumbbells && (
-          <button
-            type="button"
-            className="k-chip"
-            aria-pressed={perDb}
-            onClick={switchPerDb}
-          >
-            Per manubrio
-          </button>
-        )}
-      </div>
-      <div className="k-grid g3">
-        {isTimed ? (
-          <Field
-            name="durationS"
-            label="Secondi"
-            type="stepper"
-            step={5}
-            defaultValue={dur}
-            onChange={setDur}
-          />
-        ) : (
-          <Field
-            name="reps"
-            label="Ripetizioni"
-            type="stepper"
-            step={1}
-            defaultValue={reps}
-            onChange={setReps}
-          />
-        )}
-        <Field
-          key={kgKey}
-          name="loadKg"
-          label={perDb ? "Carico per manubrio" : "Carico"}
-          type="stepper"
-          unit="kg"
-          step={kgStep(kg, perDb)}
-          defaultValue={kg}
-          onChange={setKg}
-        />
-      </div>
-      {!isTimed && !warmup && askRir && (
-        <Field
-          name="rir"
-          label="Quante ne avresti fatte ancora?"
-          type="scale"
-          options={RIR}
-          defaultValue={rir}
-          onChange={setRir}
-          help="Solo sull’ultima serie: dice quanto eri vicino al limite."
-        />
-      )}
-      <div className="k-line g2">
-        {!running && (
-          <button
-            type="button"
-            className="k-btn secondary"
-            disabled={busy}
-            onClick={onBegin}
-          >
-            Inizia
-          </button>
-        )}
-        <button
-          type="button"
-          className="k-btn primary"
-          aria-busy={busy}
-          disabled={busy}
-          onClick={() => onTick(input)}
-        >
-          {warmup ? "Riscaldamento fatto ✓" : "Serie fatta ✓"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/** «Recupero e posizionamento»: this exercise's own rest and setup delay; empty = learnt. */
-function Settings({
-  exercise,
-  onSave,
-}: {
-  exercise: GymExercise;
-  onSave: (restS: number | null, setupS: number | null) => Promise<boolean>;
-}) {
-  const [open, setOpen] = useState(false);
-  const [rest, setRest] = useState(exercise.settings.restS?.toString() ?? "");
-  const [setup, setSetup] = useState(exercise.settings.setupS?.toString() ?? "");
-  const [msg, setMsg] = useState("");
-  const num = (s: string) => (s.trim() === "" ? null : Number(s));
-  return (
-    <div className="k-stack g2">
-      <button
-        type="button"
-        className="k-link"
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-      >
-        Recupero e posizionamento
-      </button>
-      {open && (
-        <>
-          <div className="k-grid g3">
-            <Field
-              name="restS"
-              label="Recupero"
-              type="stepper"
-              unit="s"
-              step={15}
-              placeholder={String(exercise.restS)}
-              defaultValue={rest}
-              onChange={setRest}
-              help="Vuoto: la tua media."
-            />
-            <Field
-              name="setupS"
-              label="Posizionamento"
-              type="stepper"
-              unit="s"
-              step={1}
-              placeholder={String(exercise.setupS)}
-              defaultValue={setup}
-              onChange={setSetup}
-              help="Dopo «Inizia», prima della serie."
-            />
-          </div>
-          <button
-            type="button"
-            className="k-btn secondary"
-            onClick={async () =>
-              setMsg(
-                (await onSave(num(rest), num(setup)))
-                  ? "Salvato."
-                  : "Non salvato: controlla i numeri.",
-              )
-            }
-          >
-            Salva per questo esercizio
-          </button>
-          {msg && <p className="k-help">{msg}</p>}
-        </>
-      )}
-    </div>
-  );
-}
