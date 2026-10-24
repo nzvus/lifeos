@@ -9,7 +9,7 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { localParts } from "@/core/engines/time";
 import { EntrySheet } from "@/features/day/EntrySheet";
-import { entryForm } from "@/features/day/entry-form";
+import { VALUE, entryForm } from "@/features/day/entry-form";
 import { addContext } from "../kinds";
 import { saveEntry } from "./actions";
 
@@ -18,22 +18,39 @@ export default async function EntryPage({
   searchParams,
 }: {
   params: Promise<{ kind: string }>;
-  searchParams: Promise<{ giorno?: string | string[] }>;
+  /** From a habit on Oggi: the activity's category and the habit's time. */
+  searchParams: Promise<{
+    giorno?: string | string[];
+    categoria?: string | string[];
+    ora?: string | string[];
+  }>;
 }) {
   const owner = await requireOwner();
   const { kind: key } = await params;
+  const asked = await searchParams;
   const { kinds, clock, day, today } = await addContext(
     await getDb(),
     owner,
-    (await searchParams).giorno,
+    asked.giorno,
   );
   const kind = kinds.find((k) => k.key === key);
   if (!kind) notFound();
   const form = entryForm(kind);
   const now = F.time(localParts(new Date(), clock.timeZone).minute);
+  const at =
+    typeof asked.ora === "string" && /^\d{2}:\d{2}$/.test(asked.ora) ? asked.ora : null;
+  const category = kind.fields
+    .find((f) => f.key === "category")
+    ?.choices?.find((c) => c === asked.categoria);
   const initial: Record<string, string> = {
-    status: day > today ? "planned" : "done",
-    ...(day === today ? { [form.times.end ? "end" : "start"]: now } : {}),
+    status:
+      day > today || (at !== null && day === today && at > now) ? "planned" : "done",
+    ...(at !== null
+      ? { start: at }
+      : day === today
+        ? { [form.times.end ? "end" : "start"]: now }
+        : {}),
+    ...(category ? { [VALUE + "category"]: category } : {}),
   };
   return (
     <EntrySheet

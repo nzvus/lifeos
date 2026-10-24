@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { DayItem } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
 import type { ResolvedBlock } from "@/core/plans";
-import { modelItems } from "./model-items";
+import { habitItems, modelItems } from "./model-items";
 
 const reg = kindRegistry();
 const item = (kind: string, over: Partial<DayItem> = {}): DayItem => ({
@@ -83,6 +83,39 @@ describe("what the day's model still plans", () => {
         step: "Riposo",
         slots: new Map(),
       }),
+    ).toEqual([]);
+  });
+});
+
+describe("the habits due, as the day's rows", () => {
+  const h = {
+    id: "s",
+    name: "Studio",
+    kind: "activity",
+    category: "study",
+    atMin: 1080,
+    durationMin: 60,
+  };
+  it("their time, their sheet with category and time; today from an hour ago", () => {
+    const rows = habitItems({
+      day: "2026-10-25",
+      habits: [
+        h,
+        { ...h, id: "r", name: "Lettura", kind: "reading", category: null, atMin: null },
+      ],
+      nowMinute: null,
+      familyOf: () => "habit",
+    });
+    expect(rows.map((r) => [r.title, r.time, r.href])).toEqual([
+      [
+        "Studio",
+        "18:00",
+        "/aggiungi/activity?giorno=2026-10-25&categoria=study&ora=18:00",
+      ],
+      ["Lettura", "—", "/aggiungi/reading?giorno=2026-10-25"],
+    ]);
+    expect(
+      habitItems({ day: "d", habits: [h], nowMinute: 1200, familyOf: () => "habit" }),
     ).toEqual([]);
   });
 });
