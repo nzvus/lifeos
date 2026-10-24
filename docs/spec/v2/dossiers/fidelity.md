@@ -25,10 +25,12 @@ were only ported for the parts a first slice needed.
 ## Oggi (Main)
 Done 2026-10-24: caffeine as mg with what is left at bedtime, creatine
 as a supplement with its days of 28 (compounds from the catalog;
-ranges.md §6). Missing: day type and cycle in the header («Giornata «Rec» · ciclo PLPRR»),
-context chips (weather, light, place), pantry reminder card, the weight
-trend line under the day box, «Salva come modello», «Togli i
-previsti», «Chiudi la giornata». Depends on: day templates (Piano), drink
+ranges.md §6). Done 2026-10-24 (#274): the goal's line under the day
+box, «Togli i previsti (n)» with Undo, «Chiudi la giornata» (ho segnato
+tutto / manca qualcosa, riapri; E4 now reads «manca qualcosa» as partial).
+Missing: day type and cycle in the header («Giornata «Rec» · ciclo PLPRR»),
+context chips (weather, light, place), pantry reminder card, «Salva come
+modello». Depends on: day templates (Piano), drink
 and supplement kinds (migration.md), pantry (V-12).
 
 ## Composer (Food)

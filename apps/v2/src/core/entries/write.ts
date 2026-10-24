@@ -85,6 +85,28 @@ export async function trashEntry(db: Db, owner: Owner, id: string): Promise<bool
   return rows.length > 0;
 }
 
+/** «Togli i previsti»: of these entries, those still planned go to the trash; answers which did. */
+export async function trashPlanned(
+  db: Db,
+  owner: Owner,
+  ids: readonly string[],
+): Promise<string[]> {
+  if (ids.length === 0) return [];
+  const rows = await db
+    .update(entries)
+    .set({ deletedAt: new Date() })
+    .where(
+      and(
+        ownedBy(entries, owner),
+        inArray(entries.id, [...ids]),
+        eq(entries.status, "planned"),
+        isNull(entries.deletedAt),
+      ),
+    )
+    .returning({ id: entries.id });
+  return rows.map((r) => r.id);
+}
+
 /** Brings an entry back from the trash; false if it was not there. */
 export async function restoreEntry(db: Db, owner: Owner, id: string): Promise<boolean> {
   const rows = await db
