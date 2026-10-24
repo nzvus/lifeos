@@ -27,6 +27,8 @@ export type ExerciseChoice = {
   /** Its own rest and setup delay in seconds, when set. */
   restS: number | null;
   setupS: number | null;
+  /** The muscle groups it trains, the main one first (catalog `muscleGroups`). */
+  muscles: string[];
 };
 
 export type RoutineChoice = {
@@ -76,6 +78,7 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
           "unilateral",
           "restS",
           "setupS",
+          "muscleGroups",
         ]),
       ),
     );
@@ -90,6 +93,10 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
       unilateral: v(i.id, "unilateral")?.bool === true,
       restS: numOf(v(i.id, "restS")?.num),
       setupS: numOf(v(i.id, "setupS")?.num),
+      muscles: (v(i.id, "muscleGroups")?.text ?? "")
+        .split(",")
+        .map((m) => m.trim())
+        .filter(Boolean),
     }))
     .sort((a, b) => a.name.localeCompare(b.name, "it"));
 }
