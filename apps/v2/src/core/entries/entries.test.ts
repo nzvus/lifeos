@@ -13,6 +13,7 @@ import {
   restoreEntry,
   setEntryStatus,
   trashEntry,
+  moveEntry,
   trashPlanned,
   updateEntry,
   type EntryInput,
@@ -217,6 +218,15 @@ describe("writing an entry", () => {
     expect(await restoreEntry(db, a, id)).toBe(true);
     expect(await statusOn(a, id)).toBe("planned");
     expect(await restoreEntry(db, a, id)).toBe(false);
+  });
+
+  it("moves a planned entry, not a done one nor another person's", async () => {
+    const id = await planned(a);
+    const at = new Date("2026-10-16T16:00:00Z");
+    expect(await moveEntry(db, a, id, at, null)).toBe(true);
+    expect(await moveEntry(db, b, id, at, null)).toBe(false);
+    await setEntryStatus(db, a, id, "done");
+    expect(await moveEntry(db, a, id, at, null)).toBe(false);
   });
 
   it("never changes another person's entry", async () => {

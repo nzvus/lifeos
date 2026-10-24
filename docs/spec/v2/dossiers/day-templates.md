@@ -30,8 +30,12 @@ with its recurrence (every day, some weekdays, N times a week) and one
 block (a kind, an activity by its category, a time, minutes); due and not
 covered (an entry of that kind and category; «N volte» counts the week)
 they show on Oggi «abitudine», opening the kind's sheet with the category
-and time in; Modelli lists them, «Nuova abitudine», pause. Not yet:
-«Sposta l'allenamento», «Copia ieri», habits in Piano's day sheet, streaks.
+and time in; Modelli lists them, «Nuova abitudine», pause. On the day
+sheet: «Copia i pasti di ieri» (yesterday's meals as this day's planned,
+same time and role, today's catalog values; a role the day has is left)
+and «Sposta l'allenamento» (the planned session moved, or a planned
+session of the cycle's routine at that time). Not yet: habits in Piano's
+day sheet, streaks.
 Method:
 `../method.md`. Boards: Plan (V-08 calendar), Models, ModelEditor
 («Giornata tipo»), CycleEditor («Ciclo PLPRR»). Spec: concepts.md §5,
