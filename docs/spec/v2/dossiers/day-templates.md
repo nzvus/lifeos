@@ -1,6 +1,10 @@
 # Dossier — day templates, cycles and routines (Piano)
 
-Status: **draft for the developer's review** (2026-10-24). Method:
+Status: **approved as recommended** (2026-10-24, §9 as recommended);
+slice (a) read side built: `core/plans` (a day's model and its cycles'
+steps, a step without a label named by its routine), Oggi's plan line and
+the week strip's tags, Piano's day lines. Targets from the model wait for
+slice (b). Method:
 `../method.md`. Boards: Plan (V-08 calendar), Models, ModelEditor
 («Giornata tipo»), CycleEditor («Ciclo PLPRR»). Spec: concepts.md §5,
 flows.md, schema.md (tables `templates`, `template_blocks`, `cycle_steps`,

@@ -1,16 +1,22 @@
 /**
  * Piano (flows.md §1, V-08), first part: the week holding `?settimana=`
  * (today's when missing), Monday to Sunday, each day with what is planned
- * («Previsto»), opened in its editor, and «+» to plan more that day.
- * Models, cycles and habits come with their slices.
+ * («Previsto»), opened in its editor, and «+» to plan more that day; each
+ * day says its model and, from today, its cycle's step (core/plans,
+ * dossiers/day-templates.md slice a). Editing models and cycles comes with
+ * slices b and c.
  */
 import { addDays, Box, F, NavBar, PageHeader, weekOf } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDays } from "@/core/day";
+import { planWords, readDayPlans } from "@/core/plans";
 import { logicalDay } from "@/core/engines/time";
 import { present } from "@/features/day/present";
+import { withCompounds } from "@/features/day/compounds";
+import { foodIds } from "@/features/day/nutrients";
+import { readFoodEstimates } from "@/core/food/catalog";
 import { PLACES } from "@/features/places";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -27,7 +33,13 @@ export default async function PianoPage({
   const asked = (await searchParams).settimana;
   const week = weekOf(typeof asked === "string" && ISO.test(asked) ? asked : today);
   // The whole week from one set of queries, not seven.
-  const days = await loadDays(db, owner, week[0]!, week[6]!, known);
+  const [days, plans] = await Promise.all([
+    loadDays(db, owner, week[0]!, week[6]!, known),
+    readDayPlans(db, owner, week[0]!, week[6]!, today),
+  ]);
+  // A coffee or creatine planned is drawn as on Oggi («Caffè ≈ 100 mg»), not as grams.
+  const compounds = await readFoodEstimates(db, owner, days.flatMap(foodIds));
+  const ctx = { compounds, doses: [], bed: null, creatineDays: null };
   const href = (d: string) =>
     weekOf(today)[0] === weekOf(d)[0] ? "/piano" : "/piano?settimana=" + d;
   return (
@@ -64,8 +76,18 @@ export default async function PianoPage({
                   </a>
                 )}
               </div>
+              {plans.get(d.day) && planWords(plans.get(d.day), d.day === today) && (
+                <span className="k-meta">
+                  {planWords(plans.get(d.day), d.day === today)}
+                </span>
+              )}
               {planned.map((i) => (
-                <Box key={i.id} density="row" rail={false} entry={present(i)} />
+                <Box
+                  key={i.id}
+                  density="row"
+                  rail={false}
+                  entry={withCompounds(present(i), i, ctx)}
+                />
               ))}
             </div>
           );

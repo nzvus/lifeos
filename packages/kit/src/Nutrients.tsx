@@ -41,6 +41,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
   const { kcal, macros, limits, micros } = nutrientsL1(data);
   const strips = [...macros, ...limits].some((x) => x.strip);
   const means = limits.some((l) => l.strip?.mean);
+  const ahead = [...macros, ...limits].some((x) => x.strip?.to);
   return (
     <div className="k-stack g3">
       {kcal && (
@@ -189,7 +190,13 @@ export function Nutrients({ data }: { data: NutrientsData }) {
       )}
       {strips && (
         <span className="k-help k-heatkey" aria-hidden="true">
-          <i className="at" /> adesso <i className="to" /> con il previsto
+          <i className="at" /> adesso
+          {ahead && (
+            <>
+              {" "}
+              <i className="to" /> con il previsto
+            </>
+          )}
           {means && (
             <>
               {" "}

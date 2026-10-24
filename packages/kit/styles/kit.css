@@ -205,7 +205,7 @@
 .k-week a{display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 0;border-radius:var(--r-control);text-decoration:none;color:var(--ink)}
 .k-week a[aria-current="date"]{background:var(--ink);color:var(--sheet)}
 .k-week a[aria-current="date"] .k-meta,.k-week a[aria-current="date"] .k-num{color:var(--sheet)}
-.k-week .tag{font-family:var(--font-display);font-size:var(--fs-b3);line-height:12px;font-weight:600;color:var(--muted)}
+.k-week .tag{font-family:var(--font-display);font-size:var(--fs-b3);line-height:12px;font-weight:600;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .k-week a[aria-current="date"] .tag{color:var(--sheet);opacity:.8}
 .k-week .sc{width:70%;height:3px;border-radius:2px}
 
