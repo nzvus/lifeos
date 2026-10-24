@@ -1,12 +1,14 @@
 /**
  * core/plans/read.ts — the input of `dayPlans` for a range of days: the live
  * day models, the week layout, the days' fixed copies, the active cycles
- * with their steps, and the sessions done since the earliest cycle began.
+ * with their steps (a step without a label named by its items), and the
+ * sessions done since the earliest cycle began.
  * Narrow columns only (Neon bills the bytes): ids, names, days, positions.
  */
 import { and, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import type { Db } from "../db/db";
 import {
+  catalogItems,
   cycleStepItems,
   cycleSteps,
   cyclesState,
@@ -126,6 +128,24 @@ export async function readDayPlans(
 
   const keys = new Map<string, string[]>();
   for (const i of items) keys.set(i.stepId, [...(keys.get(i.stepId) ?? []), i.itemId]);
+  // A step without a label is named by what it holds (v1's programs: «Pull», «Legs»…).
+  const itemIds = [...new Set(items.map((i) => i.itemId))];
+  const itemNames = new Map(
+    itemIds.length === 0
+      ? []
+      : (
+          await db
+            .select({ id: catalogItems.id, name: catalogItems.name })
+            .from(catalogItems)
+            .where(and(ownedBy(catalogItems, owner), inArray(catalogItems.id, itemIds)))
+        ).map((r) => [r.id, r.name] as const),
+  );
+  const labelOf = (s: { id: string; label: string }) =>
+    s.label ||
+    (keys.get(s.id) ?? [])
+      .map((k) => itemNames.get(k))
+      .filter(Boolean)
+      .join(" + ");
   const planCycles: PlanCycle[] = live.map((c) => ({
     id: c.id,
     name: names.get(c.id) ?? "",
@@ -134,7 +154,11 @@ export async function readDayPlans(
     onSkip: c.onSkip ?? "lose",
     steps: steps
       .filter((s) => s.cycleId === c.id)
-      .map((s) => ({ position: s.position, keys: keys.get(s.id) ?? [], label: s.label })),
+      .map((s) => ({
+        position: s.position,
+        keys: keys.get(s.id) ?? [],
+        label: labelOf(s),
+      })),
   }));
   const overrides = new Map<string, { day: IsoDate; position: number | null }[]>();
   const skips = new Map<string, IsoDate[]>();

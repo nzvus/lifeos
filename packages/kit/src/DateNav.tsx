@@ -3,7 +3,8 @@
  * DateNav, day mode (kit.md §3, flows.md §2): ‹ › a day, the title opens the
  * month, the week strip under it, "Oggi" when away. Links, not state: every
  * day is its own page (`hrefBase` + ISO date). The week and the month are
- * computed from the date. Scores (0–100) colour the bars when given.
+ * computed from the date. Scores (0–100) colour the bars when given; a tag
+ * (the cycle's step, the day's model) names a day under its number.
  */
 import { useState } from "react";
 import { addDays, monthOf, weekOf } from "./calendar";
@@ -14,12 +15,14 @@ export function DateNav({
   today,
   hrefBase,
   scores = {},
+  tags = {},
 }: {
   day: string;
   today: string;
   /** Prefix of a day's page: "/oggi/" → "/oggi/2026-10-15". */
   hrefBase: string;
   scores?: Record<string, number>;
+  tags?: Record<string, string>;
 }) {
   const [month, setMonth] = useState(false);
   const href = (d: string) => hrefBase + d;
@@ -61,7 +64,9 @@ export function DateNav({
               href={href(d)}
               aria-current={current ? "date" : undefined}
               aria-label={
-                F.day(d) + (scores[d] !== undefined ? ", voto " + scores[d] : "")
+                F.day(d) +
+                (tags[d] ? ", " + tags[d] : "") +
+                (scores[d] !== undefined ? ", voto " + scores[d] : "")
               }
               style={{
                 color: current
@@ -73,6 +78,7 @@ export function DateNav({
             >
               <span className="k-help k-inh">{F.letter(d)}</span>
               <span className="k-num d3 k-inh">{Number(d.slice(8))}</span>
+              {tags[d] && <span className="tag">{tags[d]}</span>}
               <span
                 className="sc"
                 style={{ background: current ? "var(--sheet)" : bar(d) }}
@@ -100,7 +106,9 @@ export function DateNav({
                   "c" + (d === today ? " today" : "") + (d > today ? " future" : "")
                 }
                 aria-label={
-                  F.day(d) + (scores[d] !== undefined ? ", voto " + scores[d] : "")
+                  F.day(d) +
+                  (tags[d] ? ", " + tags[d] : "") +
+                  (scores[d] !== undefined ? ", voto " + scores[d] : "")
                 }
               >
                 <span>{Number(d.slice(8))}</span>

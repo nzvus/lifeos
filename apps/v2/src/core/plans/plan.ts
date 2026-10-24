@@ -110,3 +110,9 @@ export function planWords(plan: DayPlan | undefined, isToday: boolean): string {
   const s = parts.join(" · ");
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
+
+/** A day's name in the week strip: its cycle's step (the first cycle), else its model. */
+export function planTag(plan: DayPlan | undefined): string {
+  if (!plan) return "";
+  return plan.cycles[0]?.label ?? plan.model?.name ?? "";
+}

@@ -21,6 +21,7 @@ import { dayMinute, loadDays, readDayTargets, readMicroTargets } from "@/core/da
 import { addDays, instantAt, logicalDay } from "@/core/engines/time";
 import { readSettings } from "@/core/account/settings";
 import { readGoals, readNumbers, readSpans } from "@/core/goals";
+import { planTag, planWords, readDayPlans } from "@/core/plans";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
@@ -86,12 +87,18 @@ export default async function OggiPage({
   // The few rows the scores and the zones read: weigh-ins (the reference
   // weight, the weigh-in's score), the week's nights; goals only for a weigh-in.
   const weighed = items.some((i) => i.kind.key === "weigh_in" && i.status === "done");
-  const [weighings, goals, nights, profile] = await Promise.all([
+  const [weighings, goals, nights, profile, plans] = await Promise.all([
     readNumbers(db, owner, "weigh_in", "weightKg", addDays(date, -27), to),
     weighed ? readGoals(db, owner, date) : null,
     readSpans(db, owner, "sleep", addDays(week[0]!, -7), to),
     date <= today ? readSettings(db, owner) : null,
+    readDayPlans(db, owner, week[0]!, week[6]!, today),
   ]);
+  // The week strip names each day by its cycle's step or its model (day-templates.md §6).
+  const tags = Object.fromEntries(
+    week.flatMap((d) => (planTag(plans.get(d)) ? [[d, planTag(plans.get(d))]] : [])),
+  );
+  const planLine = planWords(plans.get(date), date === today);
   const goal = goals?.find(
     (g) => g.source === "weight" && g.target === "reach" && g.value !== null,
   );
@@ -188,7 +195,8 @@ export default async function OggiPage({
     <main className="k-page has-bd">
       <PageHeader title="Oggi" of={{ place: "oggi" }} />
       <section className="k-block g3">
-        <DateNav day={date} today={today} hrefBase="/oggi/" scores={scores} />
+        <DateNav day={date} today={today} hrefBase="/oggi/" scores={scores} tags={tags} />
+        {planLine && <p className="k-meta">{planLine}</p>}
       </section>
       {whole && (
         <section className="k-block g3" aria-label="Il giorno">

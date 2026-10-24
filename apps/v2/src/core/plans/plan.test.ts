@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dayPlans, planWords, type PlanInput } from "./plan";
+import { dayPlans, planTag, planWords, type PlanInput } from "./plan";
 
 const base: PlanInput = {
   today: "2026-10-23",
@@ -52,5 +52,12 @@ describe("what each day is supposed to be", () => {
   it("a model archived or missing gives no model", () => {
     const p = dayPlans({ ...base, models: new Map() });
     expect(p.get("2026-10-23")!.model).toBeNull();
+  });
+
+  it("names a day in the week strip: its cycle's step, else its model", () => {
+    const p = dayPlans(base);
+    expect(planTag(p.get("2026-10-23"))).toBe("Push");
+    expect(planTag(p.get("2026-10-21"))).toBe("Gym");
+    expect(planTag(undefined)).toBe("");
   });
 });
