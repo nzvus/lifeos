@@ -32,6 +32,7 @@ import {
 } from "@/core/plans";
 import { daySlots, slotFits } from "@/features/day/slots";
 import { DayPlanBar } from "@/features/day/DayPlanBar";
+import { modelItems } from "@/features/day/model-items";
 import { changeDayModel, skipStep } from "./plan-actions";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
@@ -232,7 +233,20 @@ export default async function OggiPage({
           add: addWater.bind(null, date),
         }
       : null;
-  const empty = rows.length === 0 && untimed.length === 0 && water === null;
+  // Today and the days to come: what the model still plans, each opening its flow.
+  const fromModel =
+    date >= today
+      ? modelItems({
+          day: date,
+          blocks,
+          items,
+          nowMinute,
+          step: (plans.get(date)?.cycles ?? [])[0]?.label ?? null,
+          slots,
+        })
+      : [];
+  const empty =
+    rows.length === 0 && untimed.length === 0 && water === null && fromModel.length === 0;
 
   return (
     <main className="k-page has-bd">
@@ -274,6 +288,7 @@ export default async function OggiPage({
           <DayView
             actions={{ changeStatus, removeEntry, bringBack }}
             water={water}
+            fromModel={fromModel}
             rows={rows}
             untimed={untimed}
             now={

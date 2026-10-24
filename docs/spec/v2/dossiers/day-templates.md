@@ -15,9 +15,14 @@ changing the base with its preview (rebase). Slice (c) built: Piano ·
 Ciclo (steps: a routine's session or a rest, up / down / out; advance,
 skip rule, start, paused; the last 14 days), Modelli's «Cicli»; on Oggi
 «Cambia la giornata» (a model for this day only, its targets follow) and
-«Salta» / «Annulla il salto». Not yet: «Sposta l'allenamento», «Copia
-ieri», a day's planned items from its model (§9.1: computed on the fly),
-habits (d). Method:
+«Salta» / «Annulla il salto». A day's planned items from its model
+(§9.1, computed on the fly, `features/day/model-items`): a block not yet
+covered (no meal of its role, no session) shows on Oggi, today from an
+hour ago and on the days to come, hatched «dal modello» with its block's
+kcal and protein, opening the composer at its role and time (or the gym);
+no link is stored (entry_links points to entries only), so «covered»
+means by role. Not yet: «Sposta l'allenamento», «Copia ieri», habits (d).
+Method:
 `../method.md`. Boards: Plan (V-08 calendar), Models, ModelEditor
 («Giornata tipo»), CycleEditor («Ciclo PLPRR»). Spec: concepts.md §5,
 flows.md, schema.md (tables `templates`, `template_blocks`, `cycle_steps`,
