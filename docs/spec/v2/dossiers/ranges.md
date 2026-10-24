@@ -1,6 +1,6 @@
 # Dossier — ranges: how far from good each number is
 
-Status: **draft for the developer's review** (2026-10-24). Method:
+Status: **approved as recommended** (2026-10-24, «per il resto sì ok»). Method:
 `../method.md`. Spec: engines.md E5 (targets) and E7 (judgements),
 content.md §3 (`F.cap`, `F.reach`, `F.judge`), kinds.md (macro kinds,
 compounds). Boards: Nutrients (L0/L1/L2), NutrientPanel, DateNav, Box.
@@ -170,6 +170,18 @@ food (the UL's scope is supplements: not judged); no reference weight
 6. Creatine taken 11 days of the last 28: «saturazione ≈ 40 %».
 7. Fibre 68 g on an inulin day: the fibre bar good up to 60 g, then fair;
    inulin 12 g fair («meglio a dosi graduali»).
+
+## 8b. Built (2026-10-24)
+Slice (a): `core/engines/targets/ranges.ts` (tests: §8's 1–7), the heat
+bar in kit `Nutrients` (macros, limits, micros), Oggi's day box zoned.
+Choices made in the build: the reference weight is the last 7 days'
+weigh-ins (as §8), not E5's target weight; without day targets the
+energy is what the day holds (WHO's %-of-energy limits read the intake);
+free sugars from the kinds when the foods have estimates, else the total
+without zones; the AR for vitamin A, C, folate, calcium and iron (EFSA
+2017; the only micros with a PRI). Not yet: the week's mean
+tick on limits, meals' protein zones, caffeine and creatine bars, the
+day score and the week strip (slice c).
 
 ## 9. Questions for the developer
 1. **Four levels (danger, bad, fair, good) with these words: «da

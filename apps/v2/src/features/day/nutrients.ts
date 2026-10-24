@@ -2,8 +2,11 @@
  * features/day/nutrients.ts — the day as a Box (V-01, kit.md §5): its
  * meals added up (core/food `dayFood`) against the targets in force
  * (core/day `readDayTargets`), as the kit's Nutrients L1 data, and the
- * Box's line saying where the targets come from. Pure: tested without a
- * browser. The day's scores join it when E7's weights are decided.
+ * Box's line saying where the targets come from. Every bar carries its
+ * zones (E5 ranges, dossiers/ranges.md): the energy they scale with is the
+ * day's target, else what the day holds; free sugars when the kinds tell
+ * them apart, else the total without zones (the ranges are for free ones).
+ * Pure: tested without a browser.
  */
 import {
   F,
@@ -13,7 +16,21 @@ import {
   type State,
 } from "@lifeos/kit";
 import type { Day, DayItem, FoodTargets } from "@/core/day";
-import { microState, type Micro, type MicroTarget } from "@/core/engines/targets";
+import {
+  carbsRange,
+  fatRange,
+  fibreRange,
+  microRange,
+  microState,
+  proteinRange,
+  saltRange,
+  saturatedRange,
+  sugarsRange,
+  type DayBasis,
+  type Micro,
+  type MicroTarget,
+  type Range,
+} from "@/core/engines/targets";
 import { dayFood, type FoodEntry } from "@/core/food/day";
 import { dayMicros } from "@/core/food/micros";
 
@@ -45,6 +62,8 @@ export function presentDay(
   estimates: ReadonlyMap<string, Record<string, string>> = new Map(),
   /** E5's EFSA targets for this person; null while their sex or age is unknown. */
   microTargets: readonly MicroTarget[] | null = null,
+  /** The reference weight for the zones (the last 7 days' weigh-ins); null when none. */
+  weightKg: number | null = null,
 ): { entry: BoxEntry; nutrients: NutrientsData } | null {
   const meals = [...day.timed, ...day.untimed].filter((i) => i.kind.key === "meal");
   if (meals.length === 0 && targets === null) return null;
@@ -58,6 +77,45 @@ export function presentDay(
     meals.filter((m) => m.status === "done").map((m) => food(m, estimates)),
   );
   const v = (r: Record<string, string>, f: string) => Number(r[f] ?? 0);
+  const kcal = targets?.kcal ?? v(eaten, "kcal") + v(planned, "kcal");
+  const basis: DayBasis | null = kcal > 0 ? { weightKg, kcal } : null;
+  const zones = (r: (b: DayBasis) => Range) => (basis ? { zones: r(basis).zones } : {});
+  const RANGE = {
+    protein: proteinRange,
+    carbs: carbsRange,
+    fat: fatRange,
+    fibre: fibreRange,
+  };
+  const free = estimates.size > 0 ? (split["carbs"]?.["free"] ?? 0) : undefined;
+  const limits: NonNullable<NutrientsData["limits"]> = basis
+    ? [
+        free !== undefined
+          ? {
+              key: "sugars",
+              name: "Zuccheri liberi",
+              v: free,
+              t: (basis.kcal * 0.1) / 4,
+              ...zones(sugarsRange),
+            }
+          : {
+              key: "sugars",
+              v: v(eaten, "sugars"),
+              t: targets?.sugars ?? (kcal * 45) / 1000,
+            },
+        {
+          key: "sat",
+          v: v(eaten, "saturatedFat"),
+          t: targets?.saturatedFat ?? (basis.kcal * 0.1) / 9,
+          ...zones(saturatedRange),
+        },
+        {
+          key: "salt",
+          v: v(eaten, "salt"),
+          t: targets?.salt ?? 5,
+          zones: saltRange().zones,
+        },
+      ]
+    : [];
   return {
     entry: {
       fam: "day",
@@ -85,15 +143,10 @@ export function presentDay(
           Number(s.amount),
         ]),
         ...(estimates.size > 0 ? { parts: split[f] } : {}),
+        ...zones(RANGE[f]),
       })),
       ...(estimates.size > 0 ? { micros: microsOf(eatenMicros, microTargets) } : {}),
-      limits: targets
-        ? [
-            { key: "sugars", v: v(eaten, "sugars"), t: targets.sugars },
-            { key: "sat", v: v(eaten, "saturatedFat"), t: targets.saturatedFat },
-            { key: "salt", v: v(eaten, "salt"), t: targets.salt },
-          ]
-        : [],
+      limits,
     },
   };
 }
@@ -208,7 +261,9 @@ export function microsOf(
       if (s === "met") met++;
       const state: State =
         s === "met" ? "good" : s === "over" ? "bad" : v >= t.value / 2 ? "warn" : "bad";
-      return [{ name: label, v, t: t.value, unit: t.unit, state }];
+      return [
+        { name: label, v, t: t.value, unit: t.unit, state, zones: microRange(t).zones },
+      ];
     }),
   })).filter((g) => g.items.length > 0);
   return {

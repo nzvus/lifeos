@@ -153,3 +153,38 @@ describe("L0: a meal box's thin bars", () => {
     expect(rows[0]!.aria).toContain("dell’obiettivo");
   });
 });
+
+describe("the heat bar (dossiers/ranges.md §6)", () => {
+  const zones = [
+    { from: 0, level: "bad" as const },
+    { from: 62.7, level: "fair" as const },
+    { from: 121, level: "good" as const },
+    { from: 166, level: "fair" as const },
+    { from: 227, level: "bad" as const },
+  ];
+  it("paints the track with the zones and says the value's zone", () => {
+    const m = rows({ macros: [{ key: "protein", v: 140.7, t: 154, zones }] }).macros[0]!;
+    expect(m.word).toBe("ottimo");
+    expect(m.state).toBe("good");
+    expect(m.aria).toContain("ottimo");
+    // The scale shows the whole good zone: max(154 × 1.25, 166 × 1.1) = 192.5.
+    expect(m.track).toContain("var(--herb) 42%, var(--sheet)) 62.9% 86.2%");
+  });
+  it("judges a limit by its zones, its bar running to twice the limit", () => {
+    const salt = [
+      { from: 0, level: "good" as const },
+      { from: 5, level: "fair" as const },
+      { from: 7.5, level: "bad" as const },
+      { from: 12.5, level: "danger" as const },
+    ];
+    const l = rows({ macros: [], limits: [{ key: "salt", v: 11.6, t: 5, zones: salt }] })
+      .limits[0]!;
+    expect(l.w).toBe("95%"); // 11.6 of max(11.6 × 1.05, 10)
+    expect(l.aria).toContain("pessimo");
+    expect(l.color).toBe("var(--tomato)");
+  });
+  it("without zones, nothing changes", () => {
+    const m = rows({ macros: [{ key: "protein", v: 140.7, t: 154 }] }).macros[0]!;
+    expect(m).toMatchObject({ track: null, word: null });
+  });
+});

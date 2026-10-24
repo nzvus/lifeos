@@ -69,13 +69,13 @@ export default async function OggiPage({
     readMicroTargets(db, owner, date),
   ]);
   const kinds = await readFoodEstimates(db, owner, foodIds(day));
-  const whole = presentDay(day, targets, kinds, micros);
   const items = [...day.timed, ...day.untimed];
-  // The few rows the weigh-in, night and water scores read, only when the day has them.
+  // The few rows the scores and the zones read: weigh-ins (the reference
+  // weight, the weigh-in's score), goals and nights only when the day has them.
   const weighed = items.some((i) => i.kind.key === "weigh_in" && i.status === "done");
   const night = nightOf(items);
   const [weighings, goals, nights, profile] = await Promise.all([
-    weighed
+    date <= today
       ? readNumbers(db, owner, "weigh_in", "weightKg", addDays(date, -27), date)
       : null,
     weighed ? readGoals(db, owner, date) : null,
@@ -86,14 +86,20 @@ export default async function OggiPage({
     (g) => g.source === "weight" && g.target === "reach" && g.value !== null,
   );
   const nowMinute = date === today ? dayMinute(now, date, clock) : null;
+  const lastWeek = (weighings ?? []).filter((w) => w.day > addDays(date, -7));
+  const weightKg = lastWeek.length
+    ? lastWeek.reduce((a, w) => a + w.n, 0) / lastWeek.length
+    : null;
+  const whole = presentDay(day, targets, kinds, micros, weightKg);
   const sctx: ScoreContext = {
     date,
     clock,
-    weighings: weighings
-      ? weighings
-          .map((w) => ({ day: w.day, kg: w.n }))
-          .sort((a, b) => a.day.localeCompare(b.day))
-      : null,
+    weighings:
+      weighed && weighings
+        ? weighings
+            .map((w) => ({ day: w.day, kg: w.n }))
+            .sort((a, b) => a.day.localeCompare(b.day))
+        : null,
     weightGoal: goal ? { value: goal.value!, since: goal.since, by: goal.by } : null,
     nights,
     sex: profile?.sex ?? null,

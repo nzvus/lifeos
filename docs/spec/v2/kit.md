@@ -86,6 +86,11 @@ sessions into days. "Routine" is not a word of the app.
   row opens they grow and tilt, on the same transition.
 - **Tapping a food highlights it in every row**, the way a tapped entry
   highlights on the day.
+- **The heat bar:** a bar given `zones` (E5 ranges) paints its track with
+  them in pale tints (herb good, warn fair, tomato bad, deeper tomato
+  danger); the fill takes the nutrient's colour (a limit's or a micro's:
+  its zone's), and the zone's word («ottimo», «ok», «pessimo», «da
+  evitare») follows a macro's value and every aria.
 
 ## 5. Screens → components
 | Screen | Built from |
