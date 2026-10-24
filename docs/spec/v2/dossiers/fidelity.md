@@ -81,8 +81,12 @@ tabs and a sort select.
 
 ## Piano, Obiettivi, Impostazioni, Aggiungi
 Piano: models, day types and cycles (boards Models, ModelEditor,
-CycleEditor) — not built. Obiettivi, Impostazioni, Aggiungi: closer;
-compare again after the cross-cutting fixes.
+CycleEditor) — not built. Aggiungi (2026-10-24): «A quest'ora, di solito» (meals usually logged
+within ±90 min of now on ≥ 2 of the last 28 days, one tap to log again),
+«Allenamento · inizia adesso» (the 3 routines most trained), «La ricerca
+non trova?» (new food, new exercise). Missing: one search across all, the
+«Adesso / Previsto» switch, «Porzioni pronte» (batches, pantry), «Nuovo
+tracker». Obiettivi, Impostazioni: compare again.
 
 ## Proposed order
 1. The box (cross-cutting): score skyline + open state + pills, so every

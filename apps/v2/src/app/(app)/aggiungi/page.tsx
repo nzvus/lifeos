@@ -1,14 +1,20 @@
 /**
- * ⊕ Aggiungi (V-02), first part: «Cosa», the meal composer and the kinds
- * this person can enter, each opening its sheet for the day it came from;
- * «Di nuovo»: the last meals, each opening the composer with its foods.
- * Search and "usual at this hour" come with their slices.
+ * ⊕ Aggiungi (V-02; the board Capture): today, «A quest'ora, di solito»
+ * (what is usually logged around now, core/food `usualAt`) and
+ * «Allenamento, come l'ultima volta» (the routines most trained, started
+ * in one tap); «Di nuovo»: the last meals, each opening the composer with
+ * its foods; «Cosa», the meal composer and the kinds this person can
+ * enter, each opening its sheet for the day it came from; «La ricerca non
+ * trova?»: a new food or exercise. One search across all comes later.
  */
 import { Box, F } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDays } from "@/core/day";
-import { addDays } from "@/core/engines/time";
+import { addDays, localParts } from "@/core/engines/time";
+import { readUsualMeals, usualAt } from "@/core/food/usual";
+import { readExercises, readRoutines } from "@/core/training";
+import { startGym } from "../palestra/actions";
 import { kindRows } from "@/features/day/entry-form";
 import { present } from "@/features/day/present";
 import { addContext } from "./kinds";
@@ -43,6 +49,17 @@ export default async function AddPage({
     )
     .slice(0, RECENT);
   const back = day === today ? "/oggi" : "/oggi/" + day;
+  // Today only: what is usual around now, and the routines to start now.
+  const now = localParts(new Date(), clock.timeZone).minute;
+  const [usual, routines] =
+    day === today
+      ? await Promise.all([
+          readUsualMeals(db, owner, addDays(today, -28), addDays(today, -1), clock).then(
+            (m) => usualAt(m, now),
+          ),
+          readExercises(db, owner).then((x) => readRoutines(db, owner, today, x)),
+        ])
+      : [[], []];
   const rows = kindRows(kinds, (k) => `/aggiungi/${k}?giorno=${day}`);
   return (
     <div className="k-sheet-wrap k-screen">
@@ -54,6 +71,62 @@ export default async function AddPage({
           <span className="k-meta">{day === today ? "oggi" : F.Day(day)}</span>
         </div>
         <div className="k-sbody">
+          {usual.length > 0 && (
+            <section className="k-section" aria-label="A quest'ora, di solito">
+              <h2>
+                A quest’ora, di solito <span className="k-meta">{F.time(now)}</span>
+              </h2>
+              <div className="k-stack g2">
+                {usual.map((u) => (
+                  <a
+                    key={u.lastId}
+                    href={`/aggiungi/pasto?giorno=${day}&da=${u.lastId}`}
+                    className="k-plain"
+                  >
+                    <Box
+                      density="row"
+                      rail={false}
+                      entry={{
+                        fam: "food",
+                        of: { kind: "meal" },
+                        title: u.label,
+                        meta: u.days + " giorni su 28 · l’ultima " + F.date(u.lastDay),
+                        value: "+",
+                      }}
+                    />
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+          {routines.length > 0 && (
+            <section className="k-section" aria-label="Allenamento">
+              <h2>
+                Allenamento <span className="k-meta">inizia adesso</span>
+              </h2>
+              <div className="k-stack g2">
+                {routines.slice(0, 3).map((r) => (
+                  <form key={r.id} action={startGym.bind(null, r.id)}>
+                    <button type="submit" className="k-pick">
+                      <Box
+                        density="row"
+                        rail={false}
+                        entry={{
+                          fam: "train",
+                          of: { kind: "session" },
+                          title: r.name,
+                          meta:
+                            F.plural(r.exercises.length, "esercizio", "esercizi") +
+                            (r.uses ? " · " + r.uses + " volte in 90 giorni" : ""),
+                          value: "›",
+                        }}
+                      />
+                    </button>
+                  </form>
+                ))}
+              </div>
+            </section>
+          )}
           {recent.length > 0 && (
             <section className="k-section" aria-label="Pasti recenti">
               <h2>Di nuovo</h2>
@@ -100,6 +173,36 @@ export default async function AddPage({
             <p className="k-help">
               Le spese hanno il loro editor: arriva con la prossima parte.
             </p>
+          </section>
+          <section className="k-section" aria-label="Non trovi">
+            <h2>La ricerca non trova?</h2>
+            <div className="k-stack g2">
+              <a
+                href={
+                  "/libreria/cibo/nuovo?torna=" +
+                  encodeURIComponent("/aggiungi/pasto?giorno=" + day)
+                }
+                className="k-plain"
+              >
+                <Box
+                  density="row"
+                  rail={false}
+                  entry={{
+                    fam: "food",
+                    title: "Nuovo cibo",
+                    meta: "a mano, dall’etichetta",
+                    value: "›",
+                  }}
+                />
+              </a>
+              <a href="/libreria/esercizio/nuovo" className="k-plain">
+                <Box
+                  density="row"
+                  rail={false}
+                  entry={{ fam: "train", title: "Nuovo esercizio", value: "›" }}
+                />
+              </a>
+            </div>
           </section>
         </div>
         <div className="foot">
