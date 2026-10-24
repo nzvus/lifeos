@@ -38,7 +38,13 @@ and supplement kinds (migration.md), pantry (V-12).
 the saved meal and the kcal so far, and «Cibi»; tabs Ingredienti · Pasti ·
 Stima; each food a box with its drawing, kcal, protein, a stepper and
 «Togli»; «Pranzo, come sarà»; «Salva previsto». Still missing below.
-Missing: «Cena · 20:00» header with its block and saved-vs-now kcal; tabs
+**Done (2026-10-24)**, with the day's model's blocks: the header says the
+block («164 kcal di 495 kcal del blocco · «Rec»»), «come sarà» is the L2
+window (foods as chips) measured against the block, «Per arrivare al
+blocco» (the protein missing and two ways to close it — a food in the meal
+raised, a usual one dense in protein added — each with what it adds, one
+tap), «Pasti adatti a cena» (saved meals by `blockFit`).
+Missing: saved-vs-now kcal in the header; tabs
 Ingredienti · Pasti · Porzioni · Stima; barcode and camera next to the
 search; ingredient rows with glyph, kcal, inline stepper, «36 g prot. ·
 1,50 € · NOVA 1», L0 ribbon and product chip; «La cena, come sarà» (food

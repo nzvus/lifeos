@@ -7,7 +7,9 @@
  * asks for. Plus the words for core's line errors.
  */
 import type { MacroKey, NutrientsData } from "@lifeos/kit";
-import type { FoodChoice } from "@/core/food/choices";
+import { F } from "@lifeos/kit";
+import type { FoodChoice, RecipeChoice } from "@/core/food/choices";
+import { blockFit } from "@/core/food/score";
 import type { EntryErrors } from "@/core/entries";
 import {
   ESTIMATE_FIELDS,
@@ -97,14 +99,179 @@ export function mealKinds(
 export function mealNutrients(
   t: Record<string, number>,
   kinds?: MacroKinds,
+  /** Its foods (the kit's L2 window: chips, each food's part of the bars). */
+  foods?: NutrientsData["foods"],
+  /** Its block's targets (the day's model, features/day/slots): the bars measure against them. */
+  block?: Slot | null,
 ): NutrientsData {
   return {
+    ...(foods && foods.length ? { foods } : {}),
+    ...(block ? { kcal: { v: t["kcal"] ?? 0, t: block.kcal } } : {}),
     macros: MACROS.map(([key, f]) => ({
       key,
       v: t[f] ?? 0,
+      ...(block && block[f as keyof Slot] != null
+        ? { t: block[f as keyof Slot] as number }
+        : {}),
       ...(kinds ? { parts: kinds[f as keyof MacroKinds] } : {}),
     })),
   };
+}
+
+/** A meal block's targets for the composer (plain numbers from the page). */
+export type Slot = {
+  kcal: number;
+  protein: number | null;
+  carbs: number | null;
+  fat: number | null;
+  fibre: number | null;
+};
+
+/** The meal's foods for its window (L2): each line with its grams per macro and kind. */
+export function mealFoods(
+  lines: readonly DraftLine[],
+  choices: ReadonlyMap<string, FoodChoice>,
+  servings = "1",
+): NonNullable<NutrientsData["foods"]> {
+  const times = quantityOf(servings) ?? "1";
+  return lines.flatMap((l) => {
+    const c = choices.get(l.key);
+    const q = quantityOf(l.quantity);
+    if (!c || !q) return [];
+    const one = [
+      {
+        quantity: q,
+        values: c.per100,
+        ...(c.estimates ? { estimates: c.estimates } : {}),
+      },
+    ];
+    const k = macroKinds(one, times);
+    const kcal = Number(lineTotals(one, times)["kcal"] ?? 0);
+    const whole = (m: Record<string, number>) =>
+      c.estimates ? m : { all: Object.values(m).reduce((a, v) => a + v, 0) };
+    return [
+      {
+        key: l.key,
+        name: c.name,
+        amount:
+          F.num(Number(q) * Number(times), c.unit) +
+          (kcal > 0 ? " · " + F.n(kcal, 0) + " kcal" : ""),
+        kcal,
+        macros: {
+          protein: whole(k.protein),
+          carbs: whole(k.carbs),
+          fat: whole(k.fat),
+          fiber: whole(k.fibre),
+        },
+      },
+    ];
+  });
+}
+
+/**
+ * «Per arrivare al blocco» (the board Food): the protein the block still
+ * misses and two ways to close it, each with what it adds — raising a food
+ * already in the meal, or adding one of the person's usual foods dense in
+ * protein (≥ 8 g per 100 kcal). Amounts in steps of 10 (g or ml), never
+ * past twice the usual quantity; nothing when the block is covered.
+ */
+export function closeTheGap(
+  t: Record<string, number>,
+  block: Slot | null,
+  lines: readonly DraftLine[],
+  choices: readonly FoodChoice[],
+): {
+  gap: number;
+  ideas: {
+    key: string;
+    name: string;
+    quantity: string;
+    protein: number;
+    kcal: number;
+    raise: boolean;
+  }[];
+} | null {
+  if (!block?.protein) return null;
+  const gap = block.protein - (t["protein"] ?? 0);
+  if (gap < 3) return { gap: 0, ideas: [] };
+  const per = (c: FoodChoice, f: string) => Number(c.per100[f] ?? 0) / 100;
+  const dense = (c: FoodChoice) =>
+    per(c, "kcal") > 0 && per(c, "protein") / per(c, "kcal") >= 0.08;
+  const step = (q: number) => Math.max(10, Math.ceil(q / 10) * 10);
+  const by = new Map(choices.map((c) => [c.key, c]));
+  const raise = lines.flatMap((l) => {
+    const c = by.get(l.key);
+    const now = Number(quantityOf(l.quantity) ?? 0);
+    if (!c || !dense(c) || now <= 0) return [];
+    const more = Math.min(step(gap / per(c, "protein")), now);
+    return [
+      {
+        key: c.key,
+        name: c.name,
+        quantity: String(now + more),
+        protein: more * per(c, "protein"),
+        kcal: more * per(c, "kcal"),
+        raise: true,
+      },
+    ];
+  });
+  const add = choices
+    .filter((c) => c.uses > 0 && dense(c) && !lines.some((l) => l.key === c.key))
+    .sort((a, b) => b.uses - a.uses)
+    .slice(0, 6)
+    .map((c) => {
+      const usual = Number(c.lastQty ?? 100);
+      const q = Math.min(step(gap / per(c, "protein")), step(usual * 2));
+      return {
+        key: c.key,
+        name: c.name,
+        quantity: String(q),
+        protein: q * per(c, "protein"),
+        kcal: q * per(c, "kcal"),
+        raise: false,
+      };
+    });
+  // The ones closing most of the gap for the fewest kcal first.
+  const rank = (x: { protein: number; kcal: number }) =>
+    Math.min(x.protein, gap) / Math.max(1, x.kcal);
+  return {
+    gap,
+    ideas: [
+      ...raise.sort((a, b) => rank(b) - rank(a)).slice(0, 1),
+      ...add.sort((a, b) => rank(b) - rank(a)),
+    ].slice(0, 2),
+  };
+}
+
+/** «Pasti adatti» (the board Food): the saved meals fitting the block best (`blockFit`), at least 0,5. */
+export function fittingRecipes(
+  recipes: readonly RecipeChoice[],
+  choices: ReadonlyMap<string, FoodChoice>,
+  block: Slot | null,
+  limit = 2,
+): { recipe: RecipeChoice; kcal: number; protein: number; fit: number }[] {
+  if (!block) return [];
+  return recipes
+    .map((r) => {
+      const t = r.estimate
+        ? Object.fromEntries(Object.entries(r.estimate).map(([f, v]) => [f, Number(v)]))
+        : mealTotals(r.parts, choices);
+      const kcal = t["kcal"] ?? 0;
+      const protein = t["protein"] ?? 0;
+      return {
+        recipe: r,
+        kcal,
+        protein,
+        fit:
+          blockFit(
+            { kcal, protein },
+            { kcal: block.kcal, protein: block.protein ?? 0 },
+          ) ?? 0,
+      };
+    })
+    .filter((x) => x.fit >= 0.5)
+    .sort((a, b) => b.fit - a.fit || b.recipe.uses - a.recipe.uses)
+    .slice(0, limit);
 }
 
 /** The day's Nutrients with this meal added to what is planned. */
