@@ -182,8 +182,31 @@ export function Box({
                 <span className="k-num d4">{e.value}</span>
               </span>
             )}
-            {(e.href || acts.length > 0) && (
+            {(e.href || acts.length > 0 || (dense && e.score)) && (
               <span className="k-trail">
+                {dense && e.score && e.score.parts.length > 0 && (
+                  // A row's score: the board's mini skyline, beside its value.
+                  <span className="k-sky mini" aria-hidden="true">
+                    {e.score.parts.map((q) => (
+                      <span
+                        key={q.name}
+                        className="col"
+                        style={
+                          {
+                            flexGrow: q.weight,
+                            "--mix": Math.round(22 + q.score * 40) + "%",
+                          } as CSSProperties
+                        }
+                      >
+                        <span
+                          className="fill"
+                          style={{ height: Math.round(q.score * 100) + "%" }}
+                        />
+                      </span>
+                    ))}
+                    <span className="line" />
+                  </span>
+                )}
                 {acts.map((a) => (
                   <button
                     key={a.label}

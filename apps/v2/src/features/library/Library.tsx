@@ -21,7 +21,7 @@ const UNITS: Partial<Record<SortKey, string>> = {
 const TABS = {
   foods: {
     label: "Cibi",
-    sorts: ["uses", "name", "kcal", "protein", "proteinPerKcal", "fibre"],
+    sorts: ["uses", "name", "score", "kcal", "protein", "proteinPerKcal", "fibre"],
   },
   meals: {
     label: "Pasti salvati",
@@ -71,6 +71,7 @@ function row(tab: Tab, r: LibraryRow, value: string) {
     ...(r.sub ? { meta: r.sub } : {}),
     value,
     ...(r.href ? { href: r.href } : {}),
+    ...(r.score ? { score: r.score } : {}),
   };
 }
 

@@ -1,11 +1,23 @@
-/** A food's page (V-07, first part): values per 100, its products, the saved meals that use it. Editing comes with the editor. */
+/**
+ * A food's page (V-07, first part): its score per 100 kcal (E7, against
+ * today's targets), values per 100, its products, the saved meals that use
+ * it. Editing comes with the editor.
+ */
 import { notFound } from "next/navigation";
 import { F, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { logicalDay } from "@/core/engines/time";
-import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
+import {
+  readFoodChoices,
+  readFoodEstimates,
+  readRecipeChoices,
+} from "@/core/food/catalog";
+import { readMicroTargets } from "@/core/day";
+import { readTargetsFor } from "@/core/energy";
+import { foodScore } from "@/features/day/score";
+import { OpenBox } from "@/features/day/OpenBox";
 import { FOOD_FIELDS, foodPage } from "@/features/library/library";
 import { archiveFood } from "./modifica/actions";
 
@@ -13,10 +25,28 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
   const owner = await requireOwner();
   const db = await getDb();
   const { id } = await params;
-  const today = logicalDay(new Date(), (await ownerClock()).clock);
+  const { clock } = await ownerClock();
+  const today = logicalDay(new Date(), clock);
   const foods = await readFoodChoices(db, owner, today);
   const page = foodPage(foods, await readRecipeChoices(db, owner, today, foods), id);
   if (!page) notFound();
+  // Judged on 100 kcal of it, against today's targets (meal-score.md §8).
+  const [targets, micros, estimates] = await Promise.all([
+    readTargetsFor(db, owner, today, today, clock),
+    readMicroTargets(db, owner, today),
+    readFoodEstimates(db, owner, [id]),
+  ]);
+  const score = foodScore(
+    Object.fromEntries(
+      Object.entries(page.per100).flatMap(([k, v]) =>
+        v == null ? [] : [[k, String(v)]],
+      ),
+    ),
+    estimates.get(id),
+    targets,
+    micros,
+    foods.find((f) => f.foodId === id && f.productId === null)?.drawing?.["group"],
+  );
   return (
     <main className="k-page">
       <PageHeader
@@ -29,6 +59,19 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
           Modifica
         </a>
       </div>
+      {score && (
+        <section className="k-section g3" aria-label="Voto">
+          <OpenBox
+            entry={{
+              fam: "food",
+              title: "Voto per 100 kcal",
+              value: String(score.value),
+              meta: "tocca per le parti: densità di nutrienti e limiti, sugli obiettivi di oggi",
+              score,
+            }}
+          />
+        </section>
+      )}
       <section className="k-section g3" aria-label="Valori">
         <h2>Per 100 {page.unit}</h2>
         {FOOD_FIELDS.filter(([f]) => page.per100[f] !== undefined).map(

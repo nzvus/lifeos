@@ -123,8 +123,8 @@ scanning) are placed in the v2 spec.
    Added 2026-10-24: meal score (merged, slice in #264), day templates
    (merged), ranges (`dossiers/ranges.md`: zones per nutrient in the bar,
    caffeine and creatine, the day score; built #268–#271), targets
-   (`dossiers/targets.md`: E4 + goal + model → the day's targets; v2 has
-   none since 17 Oct; under review).
+   (`dossiers/targets.md`: E4 + goal + model → the day's targets; decided
+   by the agent at the developer's request, slice a built).
    - Training dossier, first slices (s173): E6 trend, expected reps,
      learnt and adaptive rests, session length; gym mode with «Inizia» and
      the setup delay, «Automatico» (sets assumed until «Fine»), RIR on the

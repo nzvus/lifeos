@@ -1,6 +1,7 @@
 # Dossier — the day's targets: expenditure, goal, model
 
-Status: **draft for the developer's review** (2026-10-24). Method:
+Status: **§9 decided by the agent on the developer's request** (2026-10-24,
+«devi rispondere tu … con ricerche»); slice (a) built. Method:
 `../method.md` (order item 4, energy expenditure). Spec: engines.md E4
 (body state, expenditure prior E4a), E5 (targets, pace, week); concepts §5
 (models); dossiers/day-templates.md §5 («a day's targets: the model's»).
@@ -146,19 +147,42 @@ wider σ).
 6. Editing yesterday's dinner makes the next open recompute; the
    targets change by the edit's effect only.
 
-## 9. Questions for the developer
-1. **When targets change:** every day from the latest estimate (smooth,
-   automatic, E4 «used directly»), or once a week on your check-in day
-   and fixed for the 7 days (v1's way, steadier to plan with)?
-   Recommended: computed daily, **applied weekly** — the week's kcal is
-   fixed on the check-in weekday (Monday), the day's line shows today's
-   estimate beside it; no «accept» step.
-2. **Goal or model deficit:** with your weight goal in force, its pace
-   decides the deficit (≈ 370 kcal) over Rec's own 200? Recommended: yes,
-   as v1 did; Rec keeps protein 2.2 and fat 0.8 g/kg.
-3. **Storing the daily state** as a `decisions` row (no migration), rather
-   than a new table? Recommended: yes for now; a table when Andamento
-   needs months of it.
-4. **Order of slices:** (a) the pipeline + targets on Oggi with their
-   words; (b) Andamento → Energia; (c) Piano kcal per day. Recommended as
-   listed.
+## 9. Decisions (the developer asked the agent to decide, 2026-10-24)
+1. **Estimated continuously, changed weekly**, no «accept»: the week's
+   targets are made once, on the first open of a day in it, from E4 over
+   the 56 days before its Monday, and stay for its 7 days. The scale swings
+   1–2 kg a day with water, so daily targets would follow noise;
+   MacroFactor works the same way (expenditure updated continuously,
+   targets at the weekly check-in from the smoothed trend:
+   https://help.macrofactorapp.com/en/articles/222-how-does-macrofactor-make-adjustments-for-a-weight-gain-or-weight-loss-goal).
+   The week's carry-over (E5 `weekContext`) stays advice. «Ricalcola la
+   settimana» makes an automatic week again (never a v1 check-in).
+2. **The goal's pace sets the deficit** when a weight goal is in force (v1
+   ADR-0045's order); the model keeps protein and fat per kg; a
+   recomposition's deficit never over 500 kcal (Murphy & Koehler 2022,
+   *Scand J Med Sci Sports*: energy deficits impair lean-mass gains, to
+   none near 500 kcal a day) [meta-analysis].
+3. **Stored as `week_targets`** with `source: "auto"`: a new decision kind
+   would need a migration (the `decisions_kind_ck` constraint), and
+   `targetsOn` already reads weeks. The daily estimate waits for slice (b).
+4. **Order:** (a) pipeline + targets on Oggi (built), (b) Andamento →
+   Energia, (c) Piano's kcal per day.
+
+## 10. Built (slice a, 2026-10-24)
+`core/energy` (`read.ts` narrow reads, `week.ts` E4 + pace, `ensure.ts`),
+`core/day/targets.ts` (`modelTargets`; order: the day's own, a fixed model,
+the week with the day's model), `core/plans` (the model's targets,
+`readDayModel`), `expenditure/classes.ts` (pattern → class, cardio METs).
+On the developer's data: E = 2 533 ± 224 kcal for the week of 19 Oct (§8,
+2: within 2 400–2 650), W 75.83 kg, BMR 1 792, the goal's pace −0.5 %/week
+→ deficit 322 kcal; «Rec» → 2 211 kcal, 167 g protein, 61 g fat, 249 g
+carbs, 31 g fibre. One run reads ≈ 56 kB (217 meals, 19 weigh-ins, 26
+sessions), once a week.
+Slices (b) and (c), same day: Andamento → Energia (the learnt expenditure ±
+σ and its days, the priors' parts — base, the day, steps, gym set by set,
+TEF — and the gap: 2 533 learnt against 2 506 estimated for the week of
+19 Oct), Piano's kcal per day; the week's automatic decision now also holds
+the priors' means. Every page that shows targets (Oggi, the composer, an
+entry, Andamento, Piano) makes its week when missing, and reads each day's
+model (`readDayModels`), so the numbers agree everywhere.
+

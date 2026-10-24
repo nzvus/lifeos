@@ -11,7 +11,13 @@
 import { cyclePlan, isRest, type Cycle, type Occurrence } from "../engines/planning";
 import { addDays, daysBetween, isoWeekday, type IsoDate } from "../engines/time";
 
-export type DayModelRef = { id: string; name: string; from: "day" | "week" };
+export type DayModelRef = {
+  id: string;
+  name: string;
+  from: "day" | "week";
+  /** Its targets (fixed numbers or dynamic parameters), for core/day's resolution. */
+  targets: Record<string, unknown> | null;
+};
 
 export type CycleStepDue = {
   cycleId: string;
@@ -35,6 +41,8 @@ export type PlanInput = {
   to: IsoDate;
   /** Live day models by id. */
   models: ReadonlyMap<string, string>;
+  /** Their targets, by id; absent ones have none. */
+  modelTargets?: ReadonlyMap<string, Record<string, unknown> | null>;
   /** ISO weekday (1 Monday … 7 Sunday) → model id. */
   week: ReadonlyMap<number, string>;
   /** A day's fixed copy → the model it was made from. */
@@ -51,12 +59,15 @@ export function dayPlans(input: PlanInput): Map<IsoDate, DayPlan> {
   const out = new Map<IsoDate, DayPlan>();
   const modelOf = (day: IsoDate): DayModelRef | null => {
     const own = input.fixed.get(day);
-    if (own && input.models.has(own))
-      return { id: own, name: input.models.get(own)!, from: "day" };
+    const ref = (id: string, from: DayModelRef["from"]): DayModelRef => ({
+      id,
+      name: input.models.get(id)!,
+      from,
+      targets: input.modelTargets?.get(id) ?? null,
+    });
+    if (own && input.models.has(own)) return ref(own, "day");
     const w = input.week.get(isoWeekday(day));
-    return w && input.models.has(w)
-      ? { id: w, name: input.models.get(w)!, from: "week" }
-      : null;
+    return w && input.models.has(w) ? ref(w, "week") : null;
   };
   for (let d = input.from; d <= input.to; d = addDays(d, 1))
     out.set(d, { model: modelOf(d), cycles: [] });

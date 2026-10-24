@@ -36,7 +36,12 @@ const base: PlanInput = {
 describe("what each day is supposed to be", () => {
   it("the day's fixed copy names its model, else the week's", () => {
     const p = dayPlans(base);
-    expect(p.get("2026-10-21")!.model).toEqual({ id: "gym", name: "Gym", from: "day" });
+    expect(p.get("2026-10-21")!.model).toEqual({
+      id: "gym",
+      name: "Gym",
+      from: "day",
+      targets: null,
+    });
     expect(p.get("2026-10-22")!.model?.from).toBe("week");
   });
 

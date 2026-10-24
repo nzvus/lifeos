@@ -20,6 +20,12 @@ export type LibraryRow = {
   values: Record<string, number>;
   /** What picks its drawing: a food's group or dish, an exercise's pattern and equipment. */
   of?: Record<string, string>;
+  /** A food's score per 100 kcal (E7), when the page could judge it. */
+  score?: {
+    value: number | null;
+    parts: { name: string; score: number; weight: number }[];
+    missing: string[];
+  };
 };
 
 /** Libreria's lists by their `?vista=` (the index when absent). */
@@ -58,6 +64,7 @@ export const SORTS = {
   protein: "Proteine",
   proteinPerKcal: "Proteine per 100 kcal",
   fibre: "Fibre",
+  score: "Voto",
   e1rm: "e1RM",
 } as const;
 export type SortKey = keyof typeof SORTS;
@@ -127,6 +134,7 @@ export function sortValue(r: LibraryRow, s: SortKey): number | null {
     return k && p !== undefined ? (p / k) * 100 : null;
   }
   if (s === "uses" || s === "name") return null;
+  if (s === "score") return r.score?.value ?? null;
   return r.values[s] ?? null;
 }
 

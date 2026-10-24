@@ -156,3 +156,23 @@ describe("the index's shelves", () => {
     });
   });
 });
+
+describe("the foods by their score", () => {
+  it("sorts by the score per 100 kcal, unjudged foods last", () => {
+    const row = (name: string, value: number | null) => ({
+      key: name,
+      name,
+      sub: "",
+      uses: 0,
+      values: {},
+      ...(value === null ? {} : { score: { value, parts: [], missing: [] } }),
+    });
+    const rows = [row("Pane", 12), row("Acqua", null), row("Broccoli", 100)];
+    expect(listRows(rows, "", "score").map((r) => r.name)).toEqual([
+      "Broccoli",
+      "Pane",
+      "Acqua",
+    ]);
+    expect(sortValue(rows[0]!, "score")).toBe(12);
+  });
+});

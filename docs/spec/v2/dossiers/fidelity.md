@@ -61,10 +61,12 @@ session no longer shows the set form, RIR and «Aggiungi esercizio».
 **Done (s184)**: the period control (kit RangeNav: ‹ ›, 7 · 30 · 90 giorni ·
 Mese, the month with the period highlighted, each day a link); «Scegli» (a
 custom range) and the day dots (they need the day's E7 score) later.
-Missing: the period box with score and pills; **Energia** (learnt
-expenditure and its parts: base, the day's blocks, steps, gym, thermic
-effect); **Gli ambiti** (food, weight, training, sleep, water, steps), each
-with its score skyline and its page.
+**Done (2026-10-24)**: the day dots (each day's E7 score), the period box
+with its score (each part's mean), **Energia** (learnt expenditure and the
+priors' parts), **Gli ambiti** (food, weight, sleep, water with their
+skylines), each day's row with its mini skyline. Missing: the period box's
+pills, training and steps in «Gli ambiti» (no session scorer yet), each
+domain's page.
 
 ## Libreria
 **Done here**: the index (one search across the catalogs, the shelves with

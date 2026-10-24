@@ -18,7 +18,7 @@ import {
   weekLayouts,
 } from "../db/schema";
 import type { Occurrence } from "../engines/planning";
-import type { IsoDate } from "../engines/time";
+import { addDays, isoWeekday, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 import { dayPlans, type DayPlan, type PlanCycle } from "./plan";
 
@@ -31,7 +31,12 @@ export async function readDayPlans(
 ): Promise<Map<IsoDate, DayPlan>> {
   const [models, week, fixed, cycles] = await Promise.all([
     db
-      .select({ id: templates.id, name: templates.name, scope: templates.scope })
+      .select({
+        id: templates.id,
+        name: templates.name,
+        scope: templates.scope,
+        targets: templates.targets,
+      })
       .from(templates)
       .where(
         and(
@@ -177,6 +182,11 @@ export async function readDayPlans(
     from,
     to,
     models: dayModels,
+    modelTargets: new Map(
+      models
+        .filter((m) => m.scope === "day")
+        .map((m) => [m.id, (m.targets as Record<string, unknown> | null) ?? null]),
+    ),
     week: new Map(week.map((w) => [w.weekday, w.templateId])),
     fixed: fixedModels,
     cycles: planCycles,
@@ -227,4 +237,76 @@ async function readSessionKeys(
     day: r.day,
     keys: [...(r.itemId ? [r.itemId] : []), ...(byParent.get(r.id) ?? [])],
   }));
+}
+
+/**
+ * Each day's model with its targets, for a range (core/day's resolution on
+ * pages that need no cycles): the day's fixed copy, else the week layout's.
+ * Three small queries whatever the range.
+ */
+export async function readDayModels(
+  db: Db,
+  owner: Owner,
+  from: IsoDate,
+  to: IsoDate,
+): Promise<
+  Map<IsoDate, { name: string; targets: Record<string, unknown> | null } | null>
+> {
+  const [models, week, fixed] = await Promise.all([
+    db
+      .select({ id: templates.id, name: templates.name, targets: templates.targets })
+      .from(templates)
+      .where(
+        and(
+          ownedBy(templates, owner),
+          eq(templates.scope, "day"),
+          eq(templates.active, true),
+          isNull(templates.deletedAt),
+        ),
+      ),
+    db
+      .select({ weekday: weekLayouts.weekday, templateId: weekLayouts.templateId })
+      .from(weekLayouts)
+      .where(ownedBy(weekLayouts, owner)),
+    db
+      .select({ day: decisions.day, payload: decisions.payload })
+      .from(decisions)
+      .where(
+        and(
+          ownedBy(decisions, owner),
+          eq(decisions.kind, "day_targets"),
+          gte(decisions.day, from),
+          lte(decisions.day, to),
+        ),
+      ),
+  ]);
+  const byId = new Map(
+    models.map((m) => [
+      m.id,
+      { name: m.name, targets: (m.targets as Record<string, unknown> | null) ?? null },
+    ]),
+  );
+  const layout = new Map(week.map((w) => [w.weekday, w.templateId]));
+  const own = new Map(
+    fixed.map((f) => [f.day, (f.payload as Record<string, unknown>)["profileId"]]),
+  );
+  const out = new Map<
+    IsoDate,
+    { name: string; targets: Record<string, unknown> | null } | null
+  >();
+  for (let d = from; d <= to; d = addDays(d, 1)) {
+    const o = own.get(d);
+    const id = typeof o === "string" && byId.has(o) ? o : layout.get(isoWeekday(d));
+    out.set(d, (id && byId.get(id)) || null);
+  }
+  return out;
+}
+
+/** One day's model with its targets (`readDayModels` for one day). */
+export async function readDayModel(
+  db: Db,
+  owner: Owner,
+  day: IsoDate,
+): Promise<{ name: string; targets: Record<string, unknown> | null } | null> {
+  return (await readDayModels(db, owner, day, day)).get(day) ?? null;
 }

@@ -4,15 +4,44 @@
  * calendar month (`?mese=YYYY-MM`), moved through with the kit's RangeNav
  * (the board: presets and the month with the period highlighted): the day's Nutrients
  * averaged over the days with something eaten, and each day's kcal against
- * its target. Trackers, goals and correlations come with their slices.
+ * its target, each day's score as the calendar's dots and the period's as
+ * the box's (E7 `DAY`), «Gli ambiti» (food, weight, sleep, water: each
+ * domain's score averaged over the period); «Energia» (what E4 learnt the person spends next to the
+ * priors, the week of the period's end: core/energy, dossiers/targets.md).
+ * Trackers, goals and correlations come with their slices.
  */
-import { Box, F, NavBar, Nutrients, PageHeader, RangeNav } from "@lifeos/kit";
+import {
+  Box,
+  F,
+  NavBar,
+  Nutrients,
+  PageHeader,
+  RangeNav,
+  type BoxEntry,
+} from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDays, readRangeTargets } from "@/core/day";
-import { addDays, logicalDay } from "@/core/engines/time";
-import { presentDay } from "@/features/day/nutrients";
+import { dayMinute, loadDays, readMicroTargets, readRangeTargets } from "@/core/day";
+import { ensureWeekTargets, mondayOf } from "@/core/energy";
+import { readDayModels } from "@/core/plans";
+import { energyBoxes } from "@/features/progress/energy";
+import { addDays, daysBetween, logicalDay } from "@/core/engines/time";
+import { readFoodEstimates } from "@/core/food/catalog";
+import { readGoals, readNumbers, readSpans } from "@/core/goals";
+import { readSettings } from "@/core/account/settings";
+import { foodIds } from "@/features/day/nutrients";
+import { dayScores, presentWeek } from "@/features/day/day-score";
+import {
+  mealScore,
+  nightOf,
+  sleepScore,
+  waterBox,
+  weighScore,
+  type ScoreContext,
+} from "@/features/day/score";
+import { OpenBox } from "@/features/day/OpenBox";
+import { averageScore } from "@/features/progress/average";
 import { PLACES } from "@/features/places";
 import { period, trainingOf, weightChange } from "@/features/progress/period";
 
@@ -59,13 +88,111 @@ export default async function AndamentoPage({
     : (RANGES.find((n) => String(n) === giorni) ?? 7);
   const days = Array.from({ length: DAYS }, (_, i) => addDays(end, i - DAYS + 1));
   // The whole range in one set of queries (core/day `loadDays`), not one per day.
-  const [loaded, targets] = await Promise.all([
+  const [loaded, models, week] = await Promise.all([
     loadDays(db, owner, days[0]!, end, known),
-    readRangeTargets(db, owner, days[0]!, end),
+    readDayModels(db, owner, days[0]!, end),
+    // Every week of the period, made when missing (once each): their targets, and
+    // the last one's energy for «Energia».
+    Promise.all(
+      Array.from(
+        { length: Math.floor(daysBetween(mondayOf(days[0]!), mondayOf(end)) / 7) + 1 },
+        (_, i) =>
+          ensureWeekTargets(db, owner, addDays(mondayOf(days[0]!), 7 * i), known.clock),
+      ),
+    ).then((weeks) => weeks.at(-1) ?? null),
   ]);
+  const [targets, estimates, micros, weighings, goals, nights, profile] =
+    await Promise.all([
+      readRangeTargets(db, owner, days[0]!, end, models),
+      readFoodEstimates(db, owner, loaded.flatMap(foodIds)),
+      readMicroTargets(db, owner, end),
+      readNumbers(db, owner, "weigh_in", "weightKg", addDays(days[0]!, -27), end),
+      readGoals(db, owner, end),
+      readSpans(db, owner, "sleep", addDays(days[0]!, -7), end),
+      readSettings(db, owner),
+    ]);
+  const energy = energyBoxes(week as Record<string, unknown> | null, mondayOf(end));
+  const series = weighings
+    .map((w) => ({ day: w.day, kg: w.n }))
+    .sort((a, b) => a.day.localeCompare(b.day));
+  // Each day as Oggi presents and scores it (features/day), from the rows already read.
+  const boxes = presentWeek({
+    days: loaded,
+    targets,
+    estimates,
+    micros,
+    weighings: series,
+  });
+  const goal = goals.find(
+    (g) => g.source === "weight" && g.target === "reach" && g.value !== null,
+  );
+  const nowMinute = dayMinute(new Date(), today, known.clock);
+  const ctxOf = (d: string): ScoreContext => ({
+    date: d,
+    clock: known.clock,
+    weighings: series.filter((w) => w.day <= d),
+    weightGoal: goal ? { value: goal.value!, since: goal.since, by: goal.by } : null,
+    nights,
+    sex: profile.sex,
+    now: d === today ? nowMinute : null,
+  });
+  const scores = dayScores({
+    days: loaded,
+    present: boxes,
+    ctx: ctxOf(end),
+    today,
+    nowMinute,
+  });
+  // «Gli ambiti» (the Progress board): each domain's score, its parts averaged over the period.
+  const domain = (
+    pick: (d: (typeof loaded)[number]) => (BoxEntry["score"] | undefined)[],
+  ) => averageScore(loaded.flatMap(pick));
+  const itemsOf = (d: (typeof loaded)[number]) => [...d.timed, ...d.untimed];
+  const domains: BoxEntry[] = [
+    {
+      fam: "food",
+      sub: "lunch",
+      title: "Cibo",
+      score: domain((d) =>
+        itemsOf(d).map((i) =>
+          mealScore(i, targets.get(d.day) ?? null, estimates, micros),
+        ),
+      ),
+    },
+    {
+      fam: "body",
+      sub: "weight",
+      title: "Peso",
+      score: domain((d) =>
+        itemsOf(d).map((i) => weighScore(i, itemsOf(d), ctxOf(d.day))),
+      ),
+    },
+    {
+      fam: "sleep",
+      sub: "wake",
+      title: "Sonno",
+      score: domain((d) => {
+        const n = nightOf(itemsOf(d));
+        return n ? [sleepScore(n, itemsOf(d), ctxOf(d.day))] : [];
+      }),
+    },
+    {
+      fam: "drink",
+      sub: "water",
+      title: "Acqua",
+      score: domain((d) =>
+        itemsOf(d).some((i) => i.kind.key === "water")
+          ? [waterBox(itemsOf(d), ctxOf(d.day)).score]
+          : [],
+      ),
+    },
+  ].flatMap((e) =>
+    e.score ? [{ ...e, value: String(e.score.value), score: e.score } as BoxEntry] : [],
+  );
+  const periodScore = averageScore([...scores.values()]);
   const data = loaded.map((d) => ({
     day: d.day,
-    nutrients: presentDay(d, targets.get(d.day) ?? null)?.nutrients ?? null,
+    nutrients: boxes.get(d.day)?.nutrients ?? null,
   }));
   const p = period(data);
   const training = trainingOf(
@@ -130,12 +257,15 @@ export default async function AndamentoPage({
             { label: "Mese", href: monthLink(end.slice(0, 7)), on: !!month },
           ]}
           dayHref={(d) => "/oggi/" + d}
+          scores={Object.fromEntries([...scores].map(([d, x]) => [d, x.value!]))}
         />
-        <Box
-          rail={false}
+        <OpenBox
           entry={{
             fam: "day",
             title: "Il periodo",
+            ...(periodScore
+              ? { value: String(periodScore.value), score: periodScore }
+              : {}),
             meta:
               p.logged === 0
                 ? "nessun giorno con pasti"
@@ -143,8 +273,33 @@ export default async function AndamentoPage({
           }}
         >
           {p.nutrients && <Nutrients data={p.nutrients} />}
-        </Box>
+        </OpenBox>
       </section>
+      {energy && (
+        <section className="k-section g3" aria-label="Energia">
+          <h2>
+            Energia <span className="k-meta">quanto consumi, e da dove</span>
+          </h2>
+          <Box rail={false} entry={energy.learnt} />
+          {energy.priors.map((e) => (
+            <Box key={e.title} density="row" rail={false} entry={e} />
+          ))}
+          <span className="k-meta">
+            Le stime sono il punto di partenza; il trend del peso le corregge. Lo scarto
+            tra la loro somma e il consumo appreso è ciò che lifeos ha imparato su di te.
+          </span>
+        </section>
+      )}
+      {domains.length > 0 && (
+        <section className="k-section g3" aria-label="Gli ambiti">
+          <h2>
+            Gli ambiti <span className="k-meta">il voto del periodo</span>
+          </h2>
+          {domains.map((e) => (
+            <OpenBox key={e.title} entry={e} />
+          ))}
+        </section>
+      )}
       <section className="k-section g3" aria-label="Peso">
         <h2>Peso</h2>
         {weight ? (
@@ -210,6 +365,7 @@ export default async function AndamentoPage({
                       ? F.n(r.kcal, 0) + " / " + F.num(r.t, "kcal")
                       : F.num(r.kcal, "kcal"),
                 href: r.day === today ? "/oggi" : "/oggi/" + r.day,
+                ...(scores.get(r.day) ? { score: scores.get(r.day)! } : {}),
               }}
             />
           ))}

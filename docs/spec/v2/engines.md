@@ -212,7 +212,10 @@ From the weight goal (a goal with "reach W by date") and E4:
   fair, good) from the reference weight and the day's energy, and its 0–1
   score; `targets/ranges.ts`.
 - **Code:** `apps/v2/src/core/engines/targets/`; E4's E(t) and ρ come in as
-  numbers. v1's pace and week cases run as parity.
+  numbers. v1's pace and week cases run as parity. The pipeline that feeds
+  them (dossiers/targets.md): `apps/v2/src/core/energy/` runs E4 once a
+  week and stores it as an automatic `week_targets`; `core/day/targets.ts`
+  turns it into a day's numbers through the day's model.
 
 ## E6 Training (specialisation: training)
 
