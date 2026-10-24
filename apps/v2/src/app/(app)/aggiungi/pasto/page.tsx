@@ -26,6 +26,8 @@ import { saveMeal } from "./actions";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+const ROLES = new Set(["breakfast", "lunch", "snack", "dinner"]);
+
 export default async function MealPage({
   searchParams,
 }: {
@@ -33,11 +35,14 @@ export default async function MealPage({
     giorno?: string | string[];
     pasto?: string | string[];
     da?: string | string[];
+    /** From a model's block on Oggi: its meal role and time. */
+    ruolo?: string | string[];
+    ora?: string | string[];
   }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
-  const { giorno, pasto, da } = await searchParams;
+  const { giorno, pasto, da, ruolo, ora } = await searchParams;
   const { clock, roleBounds, day, today } = await addContext(db, owner, giorno);
   const [choices, dayData, targets] = await Promise.all([
     readFoodChoices(db, owner, today),
@@ -63,7 +68,9 @@ export default async function MealPage({
     again?.kind.key === "meal" && !typed
       ? repeatLines(again.lines, new Set(choices.map((c) => c.key)))
       : null;
-  const role = again?.values["role"];
+  const asked = typeof ruolo === "string" && ROLES.has(ruolo) ? ruolo : null;
+  const role = again?.values["role"] ?? asked;
+  const at = typeof ora === "string" && /^\d{2}:\d{2}$/.test(ora) ? ora : null;
   const now = F.time(localParts(new Date(), clock.timeZone).minute);
   return (
     <Composer
@@ -92,8 +99,10 @@ export default async function MealPage({
       dayNutrients={whole?.nutrients ?? null}
       roleBounds={roleBounds}
       initial={{
-        status: day > today ? "planned" : "done",
-        ...(day === today ? { start: now } : {}),
+        // A model's block still to come is planned at its time; else now, eaten.
+        status:
+          day > today || (at !== null && day === today && at > now) ? "planned" : "done",
+        ...(at !== null ? { start: at } : day === today ? { start: now } : {}),
         ...(typeof role === "string" ? { role } : {}),
         ...(typeof again?.values["servings"] === "string"
           ? { servings: F.input(Number(again.values["servings"]), 2) }

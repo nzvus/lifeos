@@ -3,8 +3,26 @@
 Status: **approved as recommended** (2026-10-24, §9 as recommended);
 slice (a) read side built: `core/plans` (a day's model and its cycles'
 steps, a step without a label named by its routine), Oggi's plan line and
-the week strip's tags, Piano's day lines. Targets from the model wait for
-slice (b). Method:
+the week strip's tags, Piano's day lines. Slice (b) built (2026-10-24):
+`core/plans/models*` (rows ↔ E3 models, targets inherited key by key, the
+person's meal split and usual times over 4 weeks), Piano · Modelli (week
+type, models, «Nuovo modello») and «Giornata tipo» (name, base, targets with
+«torna alla base», blocks added / changed / hidden here and back, «Quote
+dalle ultime 4 settimane», weekdays, Duplica · Estendi · Archivia); on Oggi
+each meal's bars against its block and the score's «adatto al blocco»
+(acceptance 5). Not yet: relative times in the editor («60 min dopo»),
+changing the base with its preview (rebase). Slice (c) built: Piano ·
+Ciclo (steps: a routine's session or a rest, up / down / out; advance,
+skip rule, start, paused; the last 14 days), Modelli's «Cicli»; on Oggi
+«Cambia la giornata» (a model for this day only, its targets follow) and
+«Salta» / «Annulla il salto». A day's planned items from its model
+(§9.1, computed on the fly, `features/day/model-items`): a block not yet
+covered (no meal of its role, no session) shows on Oggi, today from an
+hour ago and on the days to come, hatched «dal modello» with its block's
+kcal and protein, opening the composer at its role and time (or the gym);
+no link is stored (entry_links points to entries only), so «covered»
+means by role. Not yet: «Sposta l'allenamento», «Copia ieri», habits (d).
+Method:
 `../method.md`. Boards: Plan (V-08 calendar), Models, ModelEditor
 («Giornata tipo»), CycleEditor («Ciclo PLPRR»). Spec: concepts.md §5,
 flows.md, schema.md (tables `templates`, `template_blocks`, `cycle_steps`,

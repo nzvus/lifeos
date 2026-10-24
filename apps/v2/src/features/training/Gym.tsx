@@ -16,11 +16,11 @@
  * awake where the browser allows it.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, F, Field, PageHeader } from "@lifeos/kit";
+import { Box, F, Field, PageHeader, type BoxEntry, type State } from "@lifeos/kit";
 import type { ProposedSet } from "@/core/training/plan";
 import type { SetInput } from "@/core/training/write";
 import { ExerciseSettings } from "./ExerciseSettings";
-import { setText, timed, vsProposedText } from "./present";
+import { restPill, setText, timed, vsProposedText } from "./present";
 import { SetForm } from "./SetForm";
 
 export type DoneSet = {
@@ -139,12 +139,16 @@ export function Gym({
     transitionS: number;
     /** What came before the session, and its score when finished: words, "" when none. */
     before: string;
-    verdict: string;
+    /** In progress: what came before, as pills under the exercise. */
+    beforePills: { t: string; state: State }[];
+    /** The session so far: minutes, score, muscle split (the board); null before the first set. */
+    box: BoxEntry | null;
   };
   exercises: GymExercise[];
   catalog: { id: string; name: string }[];
   actions: GymActions;
 }) {
+  const [boxOpen, setBoxOpen] = useState(false);
   const firstOpen = exercises.findIndex(
     (x) => workDone(x) < Math.max(1, x.proposed.length),
   );
@@ -362,9 +366,17 @@ export function Gym({
         back={{ label: "Oggi", href: session.dayHref }}
         of={{ fam: "train", kind: "session" }}
       />
-      {(session.verdict || session.before) && (
-        <section className="k-section g1" aria-label="La sessione">
-          {session.verdict && <p className="k-body">{session.verdict}</p>}
+      {(session.box || session.before) && (
+        <section className="k-section g2" aria-label="La sessione">
+          {session.box && (
+            <Box
+              entry={session.box}
+              rail={false}
+              {...(session.box.score
+                ? { expanded: boxOpen, onToggle: () => setBoxOpen(!boxOpen) }
+                : {})}
+            />
+          )}
           {session.before && <p className="k-help">{session.before}</p>}
         </section>
       )}
@@ -491,6 +503,20 @@ export function Gym({
               />
             );
           })}
+          {/* The set running (or about to): hatched «ora · in corso», as on the board. */}
+          {!session.done && (phase.kind === "set" || phase.kind === "setup") && (
+            <Box
+              density="row"
+              rail={false}
+              entry={{
+                fam: "train",
+                of: x.of,
+                title: "Serie " + (working + 1) + " · ora",
+                meta: phase.kind === "setup" ? "in posizione" : "in corso",
+                planned: true,
+              }}
+            />
+          )}
           {/* A finished session is read, not trained: no set to type. */}
           {!session.done && (
             <SetForm
@@ -511,6 +537,17 @@ export function Gym({
               }}
               onBegin={begin}
               onTick={(v) => void tick(v)}
+            />
+          )}
+          {!session.done && (
+            <ContextPills
+              pills={[
+                ...(() => {
+                  const r = restPill(x.done.at(-1)?.restBeforeS ?? null, x.restS);
+                  return r ? [r] : [];
+                })(),
+                ...session.beforePills,
+              ]}
             />
           )}
           {error && (
@@ -629,3 +666,24 @@ function planText(e: GymExercise): string {
 
 /** The working sets done: warm-ups do not count towards the proposed ones. */
 const workDone = (x: GymExercise) => x.done.filter((d) => !d.warmup).length;
+
+/** The board's context pills: a state gives the colour (content.md §3). */
+function ContextPills({ pills }: { pills: { t: string; state: State }[] }) {
+  if (pills.length === 0) return null;
+  return (
+    <div className="k-chips" aria-label="Il contesto">
+      {pills.map((p) => (
+        <span
+          key={p.t}
+          className="k-pill"
+          style={{
+            color: F.tone(p.state),
+            borderColor: p.state === "info" ? "var(--hairline)" : F.tone(p.state),
+          }}
+        >
+          {p.t}
+        </span>
+      ))}
+    </div>
+  );
+}

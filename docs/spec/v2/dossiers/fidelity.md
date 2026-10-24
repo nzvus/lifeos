@@ -58,6 +58,13 @@ pills, skyline); rest on each done set; the current set hatched «ora · in
 corso»; pills after RIR (estimated strength, rest, sleep, last meal); «Poi»
 with each exercise's plan («3 × 10 · 35 kg»). **Fixed here**: a finished
 session no longer shows the set form, RIR and «Aggiungi esercizio».
+**Done (2026-10-24)**: «La sessione finora» as a box (its minutes, the
+session score on what is done — the exercise in progress counted to the
+sets reached — with its skyline and parts, the muscle split as a strip
+and pills from the catalog's muscle groups); the set running hatched
+«Serie n · ora · in corso»; the context as pills under the exercise (the
+last rest against the planned one, sleep, food in 24 h, creatine,
+readiness; short ones in warn). Missing: estimated strength as a pill.
 
 ## Andamento (Progress)
 **Done (s184)**: the period control (kit RangeNav: ‹ ›, 7 · 30 · 90 giorni ·
@@ -81,12 +88,19 @@ tabs and a sort select.
 
 ## Piano, Obiettivi, Impostazioni, Aggiungi
 Piano: models, day types and cycles (boards Models, ModelEditor,
-CycleEditor) — not built. Aggiungi (2026-10-24): «A quest'ora, di solito» (meals usually logged
+CycleEditor) — built with day-templates b and c (#275). Obiettivi
+(2026-10-24): each goal a row as on the board — its drawing, now → target,
+by when with the paces and the arrival, how far along as a strip, the
+week's days coloured for a per-day count, «da qui: … kcal e … g al giorno»,
+in line or not, a link to where it is logged; goals nothing counts yet
+faded; the header counts them. Missing: the score's skyline for a goal,
+the inline «Nuovo obiettivo» with its derived pace (it is a page).
+Aggiungi (2026-10-24): «A quest'ora, di solito» (meals usually logged
 within ±90 min of now on ≥ 2 of the last 28 days, one tap to log again),
 «Allenamento · inizia adesso» (the 3 routines most trained), «La ricerca
 non trova?» (new food, new exercise). Missing: one search across all, the
 «Adesso / Previsto» switch, «Porzioni pronte» (batches, pantry), «Nuovo
-tracker». Obiettivi, Impostazioni: compare again.
+tracker». Impostazioni: compare again.
 
 ## Proposed order
 1. The box (cross-cutting): score skyline + open state + pills, so every

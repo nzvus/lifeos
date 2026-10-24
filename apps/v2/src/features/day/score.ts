@@ -56,6 +56,8 @@ export function mealScore(
   targets: FoodTargets | null,
   estimates: ReadonlyMap<string, Record<string, string>>,
   microTargets: readonly MicroTarget[] | null,
+  /** How its block's meals fit the block (features/day/slots), null without one. */
+  fit: number | null = null,
 ): BoxEntry["score"] | undefined {
   if (meal.kind.key !== "meal") return undefined;
   return linesScore(
@@ -67,6 +69,7 @@ export function mealScore(
     typeof meal.values["servings"] === "string" ? meal.values["servings"] : null,
     targets,
     microTargets,
+    fit,
   );
 }
 
@@ -101,6 +104,7 @@ function linesScore(
   servings: string | null,
   targets: FoodTargets | null,
   microTargets: readonly MicroTarget[] | null,
+  fit: number | null = null,
 ): BoxEntry["score"] | undefined {
   if (targets === null) return undefined;
   const parts = foodParts(lines, servings, {
@@ -113,7 +117,7 @@ function linesScore(
   // Without density (too few nutrients known) only the limits would speak: «no excess» is
   // not «good food» (a cake scored 100 on them alone). No score then.
   if (!parts || parts.density === null) return undefined;
-  const s = score(FOOD, partsOf(parts));
+  const s = score(FOOD, { ...partsOf(parts), fit });
   if (s.value === null) return undefined;
   // Over its allowance: the limit that decided it, by name.
   const worst = Object.entries(parts.detail.limits).sort((a, b) => b[1] - a[1])[0];

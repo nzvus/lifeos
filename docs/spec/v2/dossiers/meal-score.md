@@ -58,8 +58,12 @@ All per 100 kcal of the food or meal; a meal is the sum of its lines.
 - **Value.** NR per € (the same NR ÷ the price of 100 kcal), scored against
   the catalog's median: 1 at twice the median or more, 0.5 at the median.
   Only foods with a price; otherwise left out.
-- **Fit to its block.** Needs a slot's targets (day templates, Piano): left
-  out until then, and named.
+- **Fit to its block** (built 2026-10-24, day-templates slice b): the
+  meals of the block's role on the day (eaten and still planned) against
+  the block's kcal and protein (its shares × the day's targets). Kcal
+  within ±15 % is 1, 0 at ±65 %; protein from 85 % up is 1, 0 under 35 %;
+  the part is their mean (`blockFit`; the 15 % and 50 % are this engine's
+  choices). Left out, and named, on a day whose model has no such block.
 
 ## 5. Experience
 - Oggi: the skyline behind each meal box (columns as wide as each part's

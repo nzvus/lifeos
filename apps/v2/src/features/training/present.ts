@@ -4,7 +4,7 @@
  * suggested rest of an exercise (E6 `restAfter` on its guide's role), and
  * the step of its load stepper. Numbers through `F` (content.md).
  */
-import { F } from "@lifeos/kit";
+import { F, type BoxEntry, type State } from "@lifeos/kit";
 import {
   dumbbellStep,
   loadStep,
@@ -142,17 +142,54 @@ export function vsProposedText(
   return (diff > 0 ? "+" : "") + diff + " rispetto alla proposta";
 }
 
+/**
+ * What came before the session as the board's pills, each with a state
+ * (content.md §3): a night under 7 h, under 1 g/kg-ish of food (< 1 200
+ * kcal) in the 24 h, a readiness of 1–2 are «warn»; the rest «info».
+ */
+export function contextPills(c: SessionContext): { t: string; state: State }[] {
+  const p = (t: string, warn: boolean) => ({
+    t,
+    state: (warn ? "warn" : "info") as State,
+  });
+  return [
+    ...(c.sleptMin !== null ? [p(F.hm(c.sleptMin) + " di sonno", c.sleptMin < 420)] : []),
+    ...(c.kcal24h !== null
+      ? [p(F.num(c.kcal24h, "kcal") + " nelle 24 h", c.kcal24h < 1200)]
+      : []),
+    ...(c.carbs3h !== null
+      ? [p(F.num(c.carbs3h, "g") + " di carboidrati nelle 3 h", false)]
+      : []),
+    ...(c.coffees3h > 0
+      ? [p(F.plural(c.coffees3h, "caffè", "caffè") + " prima", false)]
+      : []),
+    ...(c.creatineDays !== null
+      ? [p("creatina " + c.creatineDays + " giorni su 28", c.creatineDays < 20)]
+      : []),
+    ...(c.readiness !== null
+      ? [p("come ti sentivi " + c.readiness + "/5", c.readiness <= 2)]
+      : []),
+  ];
+}
+
 /** What came before the session, in one line; "" when nothing was logged. */
 export function contextText(c: SessionContext): string {
-  const parts = [
-    c.sleptMin !== null ? "dormito " + F.hm(c.sleptMin) : "",
-    c.kcal24h !== null ? F.num(c.kcal24h, "kcal") + " nelle 24 h" : "",
-    c.carbs3h !== null ? F.num(c.carbs3h, "g") + " di carboidrati nelle 3 h" : "",
-    c.coffees3h > 0 ? F.plural(c.coffees3h, "caffè", "caffè") + " prima" : "",
-    c.creatineDays !== null ? "creatina " + c.creatineDays + " giorni su 28" : "",
-    c.readiness !== null ? "come ti sentivi " + c.readiness + "/5" : "",
-  ].filter(Boolean);
+  const parts = contextPills(c).map((x) => x.t);
   return parts.length ? "Prima: " + parts.join(" · ") : "";
+}
+
+/** The last rest against the planned one (the board's «riposo 1:20 / 1:30»), warn past ±30 %. */
+export function restPill(
+  restS: number | null,
+  plannedS: number,
+): { t: string; state: State } | null {
+  if (restS === null) return null;
+  const clock = (s: number) =>
+    Math.floor(s / 60) + ":" + String(Math.round(s % 60)).padStart(2, "0");
+  return {
+    t: "riposo " + clock(restS) + " / " + clock(plannedS),
+    state: Math.abs(restS - plannedS) <= 0.3 * plannedS ? "good" : "warn",
+  };
 }
 
 const PART_WORDS: Record<string, string> = {
@@ -162,22 +199,93 @@ const PART_WORDS: Record<string, string> = {
   rests: "recuperi",
 };
 
-/** The session's score in words: "Sessione 82/100 · progressione 100 · … · senza: sforzo (nessun RIR)". */
-export function scoreText(s: Score): string {
-  if (s.value === null) return "";
-  const parts = s.parts.map((p) => PART_WORDS[p.key] + " " + Math.round(p.score * 100));
-  const missing = s.missing.map((k) =>
-    k === "effort"
-      ? "sforzo (nessun RIR)"
-      : k === "rests"
-        ? "recuperi (non cronometrati)"
-        : PART_WORDS[k],
-  );
-  return (
-    "Sessione " +
-    s.value +
-    "/100 · " +
-    parts.join(" · ") +
-    (missing.length ? " · senza: " + missing.join(", ") : "")
-  );
+/**
+ * The muscle groups of the catalog (v1's `muscleGroups`) in the six
+ * families the boards colour (tokens `--muscle-*`).
+ */
+const MUSCLE_FAMILY: Record<string, [string, string]> = {
+  chest: ["chest", "petto"],
+  lats: ["back", "schiena"],
+  upper_back: ["back", "schiena"],
+  lower_back: ["back", "schiena"],
+  traps: ["back", "schiena"],
+  front_delts: ["shoulders", "spalle"],
+  side_delts: ["shoulders", "spalle"],
+  rear_delts: ["shoulders", "spalle"],
+  biceps: ["arms", "braccia"],
+  triceps: ["arms", "braccia"],
+  forearms: ["arms", "braccia"],
+  abs: ["core", "core"],
+  obliques: ["core", "core"],
+  quads: ["legs", "gambe"],
+  hamstrings: ["legs", "gambe"],
+  glutes: ["legs", "gambe"],
+  calves: ["legs", "gambe"],
+  adductors: ["legs", "gambe"],
+  abductors: ["legs", "gambe"],
+};
+
+/**
+ * Where the session's working sets went (the board's «La sessione finora»):
+ * each set to its exercise's first muscle group's family, as shares of all,
+ * largest first. Exercises without groups are left out.
+ */
+export function muscleSplit(
+  xs: readonly { muscles: readonly string[]; sets: number }[],
+): { key: string; label: string; pct: number }[] {
+  const by = new Map<string, { label: string; sets: number }>();
+  for (const x of xs) {
+    const fam = MUSCLE_FAMILY[x.muscles[0] ?? ""];
+    if (!fam || x.sets <= 0) continue;
+    const b = by.get(fam[0]) ?? { label: fam[1], sets: 0 };
+    by.set(fam[0], { label: b.label, sets: b.sets + x.sets });
+  }
+  const all = [...by.values()].reduce((a, b) => a + b.sets, 0);
+  return [...by]
+    .map(([key, b]) => ({ key, label: b.label, pct: Math.round((b.sets / all) * 100) }))
+    .sort((a, b) => b.pct - a.pct);
+}
+
+/**
+ * The session so far as a kit box: its minutes, its score's parts (the
+ * skyline; E7 «Training session» on what is done), the muscle split as a
+ * strip and pills.
+ */
+export function sessionBox(
+  s: Score,
+  minutes: number | null,
+  split: readonly { key: string; label: string; pct: number }[],
+  done: boolean,
+): BoxEntry {
+  return {
+    fam: "train",
+    sub: "strength",
+    title: done ? "La sessione" : "La sessione finora",
+    ...(minutes !== null ? { value: F.num(minutes, "min") } : {}),
+    ...(s.value !== null
+      ? {
+          score: {
+            value: s.value,
+            parts: s.parts.map((p) => ({
+              name: PART_WORDS[p.key] ?? p.key,
+              score: p.score,
+              weight: p.weight,
+            })),
+            missing: s.missing.map((k) =>
+              k === "effort"
+                ? "sforzo (nessun RIR)"
+                : k === "rests"
+                  ? "recuperi (non cronometrati)"
+                  : (PART_WORDS[k] ?? k),
+            ),
+          },
+        }
+      : {}),
+    ...(split.length
+      ? {
+          strip: split.map((m) => ({ w: m.pct, c: "var(--muscle-" + m.key + ")" })),
+          pills: split.map((m) => ({ t: m.label + " " + F.num(m.pct, "%") })),
+        }
+      : {}),
+  };
 }
