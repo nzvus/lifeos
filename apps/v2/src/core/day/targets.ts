@@ -162,7 +162,9 @@ export function targetsOn(
   model: DayModel | null = null,
 ): FoodTargets | null {
   const own = rows.find((r) => r.kind === "day_targets" && r.day === day);
-  if (own) return fromPayload("day", own);
+  // A day's own numbers win; a day that only chose its model («Cambia la giornata») takes the model's.
+  const fixed = own ? fromPayload("day", own) : null;
+  if (fixed) return fixed;
   const week = rows
     .filter((r) => r.kind === "week_targets" && r.day <= day)
     .sort((a, b) => (a.day < b.day ? 1 : -1))[0];

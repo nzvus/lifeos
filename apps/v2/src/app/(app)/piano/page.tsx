@@ -4,8 +4,8 @@
  * («Previsto»), opened in its editor, and «+» to plan more that day; each
  * day says its model, its kcal (core/day, dossiers/targets.md) and, from
  * today, its cycle's step (core/plans,
- * dossiers/day-templates.md slice a). Editing models and cycles comes with
- * slices b and c.
+ * dossiers/day-templates.md slice a). «Modelli» opens the day models
+ * (slice b); cycles come with slice c.
  */
 import { addDays, Box, F, NavBar, PageHeader, weekOf } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
@@ -64,6 +64,14 @@ export default async function PianoPage({
   return (
     <main className="k-page has-bd">
       <PageHeader title="Piano" of={{ place: "piano" }} />
+      <nav className="k-block" aria-label="Le regole">
+        <a className="k-line between k-plain" href="/piano/modelli">
+          <span className="k-body">Modelli: giornate tipo e settimana</span>
+          <span className="k-go" aria-hidden="true">
+            ›
+          </span>
+        </a>
+      </nav>
       <section className="k-section g3" aria-label="La settimana">
         <div className="k-line between">
           <a className="k-link" href={href(addDays(week[0]!, -7))}>

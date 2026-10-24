@@ -27,6 +27,20 @@ const week: TargetDecision = {
 };
 
 describe("the targets in force on a day", () => {
+  it("a day that only chose its model takes the model's numbers", () => {
+    const chose: TargetDecision = {
+      kind: "day_targets",
+      day: "2026-10-08",
+      payload: { profileId: "rest", profileName: "Rest" },
+    };
+    expect(
+      targetsOn([chose, week], "2026-10-08", {
+        name: "Rest",
+        targets: { mode: "fixed", kcal: "2000", protein: "150" },
+      }),
+    ).toMatchObject({ from: "model", kcal: 2000, protein: 150 });
+  });
+
   it("takes the accepted week for its 7 days, with the day's shift on the carbs", () => {
     expect(targetsOn([week], "2026-10-12")).toEqual({
       from: "week",

@@ -11,7 +11,8 @@
  * the server says no.
  */
 import { useEffect, useRef, useState } from "react";
-import { Glyph, ICONS, type BoxEntry, type NutrientsData } from "@lifeos/kit";
+import { Box, Glyph, ICONS, type BoxEntry, type NutrientsData } from "@lifeos/kit";
+import type { ModelRow } from "./model-items";
 import { EntryRow, type RowIntent } from "./EntryRow";
 import {
   NONE,
@@ -54,6 +55,7 @@ export function DayView({
   now,
   actions,
   water = null,
+  fromModel = [],
 }: {
   rows: (Row & { minute: number })[];
   untimed: Row[];
@@ -61,6 +63,8 @@ export function DayView({
   actions: DayActions;
   /** The day's water, one box in the timeline; its drinks are not rows. */
   water?: Water | null;
+  /** What the day's model still plans (model-items): shown with no filter on, each a link. */
+  fromModel?: ModelRow[];
 }) {
   const [gone, setGone] = useState<ReadonlySet<string>>(new Set());
   const rows = allRows.filter((r) => !gone.has(r.id));
@@ -157,8 +161,13 @@ export function DayView({
     }
   };
   const active = sel.fam.length + sel.status.length > 0;
-  const shown = [...rows, ...(waterRow ? [waterRow] : [])]
-    .filter((r) => matches(r, sel))
+  const ghosts: (Row & { minute: number })[] = fromModel.map((m) => ({
+    ...m,
+    status: "planned",
+  }));
+  const ghostIds = new Set(ghosts.map((g) => g.id));
+  const shown = [...rows, ...(waterRow ? [waterRow] : []), ...(active ? [] : ghosts)]
+    .filter((r) => ghostIds.has(r.id) || matches(r, sel))
     .sort((a, b) => a.minute - b.minute);
   const shownUntimed = untimed.filter((r) => matches(r, sel));
   const chips = offered.fam.length + offered.status.length > 0;
@@ -224,6 +233,8 @@ export function DayView({
               row={(r, mode, onRail) =>
                 r === waterRow && water ? (
                   <WaterRow water={water} mode={mode} onRail={onRail} />
+                ) : ghostIds.has(r.id) ? (
+                  <Box entry={r} mode={mode} onRail={onRail} />
                 ) : (
                   <EntryRow
                     entry={r}
