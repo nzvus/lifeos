@@ -110,8 +110,8 @@ type Present = NonNullable<ReturnType<typeof presentDay>>;
 
 /**
  * Every loaded day's box data (`presentDay`), each with its own targets and
- * reference weight; each limit carries its mean over the week's days up to
- * that one with food logged (dossiers/ranges.md §5: limits are judged on
+ * reference weight; each limit carries its mean over the 7 days up to that
+ * one with food logged, of the days loaded (dossiers/ranges.md §5: limits are judged on
  * the mean, the day's own value shown beside it).
  */
 export function presentWeek(p: {
@@ -134,7 +134,10 @@ export function presentWeek(p: {
   }
   const fed = [...out.entries()].filter(([, x]) => (x.nutrients.kcal?.v ?? 0) > 0);
   for (const [day, x] of out) {
-    const before = fed.filter(([d]) => d <= day).map(([, y]) => y.nutrients.limits ?? []);
+    // The 7 days up to this one (dossiers/ranges.md §5), of the days loaded.
+    const before = fed
+      .filter(([d]) => d <= day && d > addDays(day, -7))
+      .map(([, y]) => y.nutrients.limits ?? []);
     if (before.length < 2) continue;
     x.nutrients.limits = (x.nutrients.limits ?? []).map((l) => {
       const vs = before.flatMap((ls) =>
@@ -147,18 +150,19 @@ export function presentWeek(p: {
 }
 
 /**
- * Each day's score for the week strip, the days up to today, from its box's
- * data, its night and its plan. `ctx` is the viewed day's; each day gets its
- * own date and, for today, the minute now.
+ * Each day's score, the days up to today, from its box's data, its night and
+ * its plan. `ctx` is the viewed day's; each day gets its own date and, for
+ * today, the minute now. The week strip reads their values; Andamento the
+ * whole scores (the period's mean, its parts).
  */
-export function weekScores(p: {
+export function dayScores(p: {
   days: readonly Day[];
   present: ReadonlyMap<IsoDate, Present>;
   ctx: ScoreContext;
   today: IsoDate;
   nowMinute: number | null;
-}): Record<IsoDate, number> {
-  const out: Record<IsoDate, number> = {};
+}): Map<IsoDate, NonNullable<BoxEntry["score"]>> {
+  const out = new Map<IsoDate, NonNullable<BoxEntry["score"]>>();
   for (const d of p.days) {
     if (d.day > p.today) continue;
     const items = [...d.timed, ...d.untimed];
@@ -171,7 +175,12 @@ export function weekScores(p: {
       night: night ? (sleepScore(night, items, c)?.value ?? null) : null,
       now,
     });
-    if (s?.value != null) out[d.day] = s.value;
+    if (s && s.value !== null) out.set(d.day, s);
   }
   return out;
+}
+
+/** The week strip's bars: each day's score value. */
+export function weekScores(p: Parameters<typeof dayScores>[0]): Record<IsoDate, number> {
+  return Object.fromEntries([...dayScores(p)].map(([d, s]) => [d, s.value!]));
 }
