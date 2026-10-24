@@ -121,8 +121,10 @@ scanning) are placed in the v2 spec.
    before its code changes. Order: training → movement (routes, trips) →
    day templates and routines → expenditure → micronutrients → meal roles.
    Added 2026-10-24: meal score (merged, slice in #264), day templates
-   (merged), ranges (`dossiers/ranges.md`: zones per nutrient, the heat
-   bar, caffeine and creatine; asked by the developer, under review).
+   (merged), ranges (`dossiers/ranges.md`: zones per nutrient in the bar,
+   caffeine and creatine, the day score; built #268–#271), targets
+   (`dossiers/targets.md`: E4 + goal + model → the day's targets; v2 has
+   none since 17 Oct; under review).
    - Training dossier, first slices (s173): E6 trend, expected reps,
      learnt and adaptive rests, session length; gym mode with «Inizia» and
      the setup delay, «Automatico» (sets assumed until «Fine»), RIR on the
