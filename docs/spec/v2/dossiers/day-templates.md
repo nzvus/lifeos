@@ -21,14 +21,17 @@ covered (no meal of its role, no session) shows on Oggi, today from an
 hour ago and on the days to come, hatched «dal modello» with its block's
 kcal and protein, opening the composer at its role and time (or the gym);
 no link is stored (entry_links points to entries only), so «covered»
-means by role. Habits (slice d, 2026-10-24): a template of scope
-`block` with its recurrence (every day, some weekdays, N times a week) and
-one block (a kind, an activity by its category, a time, minutes); due and
-not covered (an entry of that kind and category; «N volte» counts the
-week) they show on Oggi «abitudine», opening the kind's sheet with the
-category and time in; Modelli lists them, «Nuova abitudine», pause. Not
-yet: «Sposta l'allenamento», «Copia ieri», habits in Piano's day sheet,
-streaks.
+means by role. Piano to its board (2026-10-24): the week as one row per
+day (model + step, done or planned, kcal), the day's sheet (its model for
+this day, each cycle's step chosen by hand or a rest — `cycle_override` —,
+«Salta», the planned and what the model still plans), «Le regole» (week
+type, cycles). Habits (slice d, 2026-10-24): a template of scope `block`
+with its recurrence (every day, some weekdays, N times a week) and one
+block (a kind, an activity by its category, a time, minutes); due and not
+covered (an entry of that kind and category; «N volte» counts the week)
+they show on Oggi «abitudine», opening the kind's sheet with the category
+and time in; Modelli lists them, «Nuova abitudine», pause. Not yet:
+«Sposta l'allenamento», «Copia ieri», habits in Piano's day sheet, streaks.
 Method:
 `../method.md`. Boards: Plan (V-08 calendar), Models, ModelEditor
 («Giornata tipo»), CycleEditor («Ciclo PLPRR»). Spec: concepts.md §5,
