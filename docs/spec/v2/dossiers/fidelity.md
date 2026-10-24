@@ -108,6 +108,15 @@ non trova?» (new food, new exercise). Missing: one search across all, the
 «Adesso / Previsto» switch, «Porzioni pronte» (batches, pantry), «Nuovo
 tracker». Impostazioni: compare again.
 
+## Codice a barre
+Done 2026-10-24 (ported from v1): «Nuovo cibo» reads a barcode by camera
+(the browser's BarcodeDetector, else the ponyfill) or typed digits, checks
+its GTIN digit, and fills the form from Open Food Facts (name · brand,
+unit, values per 100, NOVA) to check against the label; the composer and
+Libreria link to it. Missing: a known barcode opening the food it already
+is (barcodes are not stored yet: a product's field), the camera next to
+the composer's search.
+
 ## Impostazioni
 Done 2026-10-24: sections with their drawing and a line of why,
 «Obiettivi di oggi» (kcal and protein, where they come from, a link),

@@ -3,7 +3,7 @@
  * A food's editor (V-07): its name and values per 100, saved by the server
  * action the page passes. Errors in words by field; what was typed is kept.
  */
-import { useActionState } from "react";
+import { useActionState, type ReactNode } from "react";
 import { Field, PageHeader } from "@lifeos/kit";
 import { FOOD_FIELDS } from "./library";
 
@@ -20,6 +20,7 @@ export function FoodForm({
   productOf,
   backHref,
   action,
+  top,
 }: {
   initial: Record<string, string>;
   unit: string;
@@ -29,6 +30,8 @@ export function FoodForm({
   productOf?: string;
   backHref: string;
   action: (s: FoodFormState, d: FormData) => Promise<FoodFormState>;
+  /** Drawn under the header (a new food's barcode box). */
+  top?: ReactNode;
 }) {
   const [state, submit, pending] = useActionState(action, {
     errors: {},
@@ -53,6 +56,7 @@ export function FoodForm({
         }}
         of={{ fam: "food" }}
       />
+      {top}
       <section className="k-section g3" aria-label="Nome">
         <Field
           name="name"

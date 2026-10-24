@@ -161,7 +161,7 @@ const ADDS = [
     fam: "food",
     of: { kind: "ingredient" },
     title: "Un cibo",
-    meta: "a mano, con i valori dell’etichetta",
+    meta: "dal codice a barre (Open Food Facts) o a mano, dall’etichetta",
     href: "/libreria/cibo/nuovo",
     hrefLabel: "Aggiungi un cibo",
   },
