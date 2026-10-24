@@ -41,6 +41,10 @@ prevista» sticky at the bottom. v2 stacks a long generic list, the meal box
 and the day box, with «Quando» last.
 
 ## Gym
+**Done (s183)**: «Push · 09:33 · esercizio 2 di 8 · 30 serie · 6.870 kg in
+totale»; Automatica · Manuale as a segmented control; each done set with
+the rest measured before it; «Poi» with each exercise's plan. Still missing
+below.
 Missing: header «esercizio 2 di 8 · 30 serie · 6.870 kg»; Automatica ·
 Manuale as a segmented control; «La sessione finora» (muscle split bar,
 pills, skyline); rest on each done set; the current set hatched «ora · in
