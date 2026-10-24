@@ -33,10 +33,18 @@ export function targetsPart(n: NutrientsData | null, ongoing: boolean): number |
   if (!n || !((n.kcal?.v ?? 0) > 0)) return null;
   const judge = (v: number, zones: HeatZone[] | undefined) =>
     zones?.length ? [rangeScore(v, { unit: "", source: "", zones }, ongoing)] : [];
+  const groups = n.micros?.groups ?? [];
   const micros = mean(
-    (n.micros?.groups ?? []).flatMap((g) => g.items.flatMap((i) => judge(i.v, i.zones))),
+    groups
+      .filter((g) => g.name !== "Altro")
+      .flatMap((g) => g.items.flatMap((i) => judge(i.v, i.zones))),
   );
+  // «Altro» (caffeine) counts on its own, not as a micro.
+  const others = groups
+    .filter((g) => g.name === "Altro")
+    .flatMap((g) => g.items.flatMap((i) => judge(i.v, i.zones)));
   return mean([
+    ...others,
     ...n.macros.flatMap((m) => judge(m.v, m.zones)),
     // A limit by its week's mean when there is one (dossiers/ranges.md §5).
     ...(n.limits ?? []).flatMap((l) => judge(l.mean ?? l.v, l.zones)),

@@ -17,6 +17,7 @@ import {
 } from "@lifeos/kit";
 import type { Day, DayItem, FoodTargets } from "@/core/day";
 import {
+  caffeineDayRange,
   carbsRange,
   fatRange,
   fibreRange,
@@ -33,6 +34,7 @@ import {
 } from "@/core/engines/targets";
 import { dayFood, type FoodEntry } from "@/core/food/day";
 import { dayMicros } from "@/core/food/micros";
+import { mealCompounds } from "@/core/food/compounds";
 
 /** The kit's macro → the field the snapshot and the targets use. */
 const MACROS: [MacroKey, "protein" | "carbs" | "fat" | "fibre"][] = [
@@ -145,11 +147,69 @@ export function presentDay(
         ...(estimates.size > 0 ? { parts: split[f] } : {}),
         ...zones(RANGE[f]),
       })),
-      ...(estimates.size > 0 ? { micros: microsOf(eatenMicros, microTargets) } : {}),
+      ...(estimates.size > 0
+        ? { micros: withOthers(microsOf(eatenMicros, microTargets), meals, estimates) }
+        : {}),
       limits,
     },
   };
 }
+
+/**
+ * «Altro» under the micros (dossiers/ranges.md §6): the day's caffeine
+ * against 400 mg with its zones (EFSA 2015), creatine against 3 g (ISSN:
+ * 3–5 g a day; what counts is days taken, said on its box).
+ */
+function withOthers(
+  m: NonNullable<NutrientsData["micros"]>,
+  meals: readonly DayItem[],
+  estimates: ReadonlyMap<string, Record<string, string>>,
+): NonNullable<NutrientsData["micros"]> {
+  const sum = { caffeine: 0, creatine: 0 };
+  for (const i of meals.filter((x) => x.status === "done")) {
+    const servings =
+      typeof i.values["servings"] === "string" ? i.values["servings"] : null;
+    const c = mealCompounds(i.lines, servings, estimates);
+    sum.caffeine += c.caffeine;
+    sum.creatine += c.creatine;
+  }
+  const items: MicroItem[] = [
+    ...(sum.caffeine > 0
+      ? [
+          {
+            name: "Caffeina",
+            v: sum.caffeine,
+            t: 400,
+            unit: "mg",
+            zones: caffeineDayRange().zones,
+          },
+        ]
+      : []),
+    ...(sum.creatine > 0
+      ? [
+          {
+            name: "Creatina",
+            v: sum.creatine,
+            t: 3,
+            unit: "g",
+            state: (sum.creatine >= 3 ? "good" : "warn") as State,
+          },
+        ]
+      : []),
+  ];
+  return items.length ? { ...m, groups: [...m.groups, { name: "Altro", items }] } : m;
+}
+
+/** A meal's protein (ISSN 2017): 0.25–0.4 g/kg makes the most of a meal; less is only «ok». */
+const mealProteinZones = (weightKg: number | null) =>
+  weightKg === null
+    ? {}
+    : {
+        zones: [
+          { from: 0, level: "fair" as const },
+          { from: 0.25 * weightKg, level: "good" as const },
+        ],
+      };
 
 /**
  * A meal's nutrients: its thin macro bars (L0), and its L1 when its box
@@ -162,6 +222,8 @@ export function mealL0(
   meal: DayItem,
   targets: FoodTargets | null,
   estimates: ReadonlyMap<string, Record<string, string>> = new Map(),
+  /** The reference weight: the protein's zones per meal; null leaves them out. */
+  weightKg: number | null = null,
 ): NutrientsData | null {
   if (meal.kind.key !== "meal") return null;
   const { eaten, planned, kinds, sources } = dayFood([food(meal, estimates)]);
@@ -184,6 +246,7 @@ export function mealL0(
             ]),
           }),
       ...(estimates.size > 0 ? { parts: kinds[f] } : {}),
+      ...(key === "protein" ? mealProteinZones(weightKg) : {}),
     })),
   };
 }

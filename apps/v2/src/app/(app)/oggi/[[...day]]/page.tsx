@@ -24,7 +24,7 @@ import { readGoals, readNumbers, readSpans } from "@/core/goals";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
-import { dayScore, presentWeek, weekScores } from "@/features/day/day-score";
+import { dayScore, presentWeek, weekScores, weightOn } from "@/features/day/day-score";
 import {
   mealScore,
   nightOf,
@@ -141,7 +141,7 @@ export default async function OggiPage({
           weighScore(i, items, sctx) ??
           sleepScore(i, items, sctx),
       ),
-      l0: mealL0(i, targets, kinds),
+      l0: mealL0(i, targets, kinds, weightOn(series, date)),
       details: hasDetails(d) ? d : null,
       id: i.id,
       status: i.status,

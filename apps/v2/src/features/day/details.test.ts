@@ -97,6 +97,19 @@ describe("caffeine and creatine as the boards draw them", () => {
     expect(plain(e.value)).toBe("≈ 100 mg");
     expect(plain(e.meta)).toBe("alle 23:30 ne restano ≈ 13 mg");
     expect(caffeineLeft(ctx.doses, ctx.bed!.at)).toBeCloseTo(100 / 2 ** 3, 0);
+    // 13 mg at bedtime: under 50, good (dossiers/ranges.md §8, 5).
+    expect(plain(e.pills)).toEqual([{ t: "alle 23:30: ottimo", state: "good" }]);
+    const late = item("meal", {
+      start: new Date("2026-10-15T19:00:00Z"),
+      lines: [line("Capsula", "coffee", "7.2", "0")],
+    });
+    const two = {
+      ...ctx,
+      doses: caffeineDoses([late, { ...late, id: "l2" }], compounds),
+    };
+    expect(plain(withCompounds(present(late), late, two).pills)).toEqual([
+      { t: "alle 23:30: pessimo", state: "bad" },
+    ]);
   });
 
   it("creatine alone is a supplement with its days; inside a meal, a pill", () => {

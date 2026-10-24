@@ -6,10 +6,14 @@
  *   creatine alone  «Creatina 3,4 g», «integratore · 11 giorni su 28»;
  *   inside a meal   a pill: «≈ 100 mg» with the coffee's mark, «creatina 3,4 g».
  * Bedtime: the night's sleep when it is logged, else 23:30, said as such.
+ * What is left at bedtime is judged (EFSA 2015: under 50 mg good, over 100
+ * bad) on a pill: «a letto: ok».
  */
+const LEVEL_STATE = { good: "good", fair: "warn", bad: "bad", danger: "danger" } as const;
 import { F, type BoxEntry } from "@lifeos/kit";
 import type { DayItem } from "@/core/day";
 import { caffeineLeft, mealCompounds } from "@/core/food/compounds";
+import { caffeineBedRange, levelAt, LEVEL_WORDS } from "@/core/engines/targets";
 import { lineTotals } from "@/core/food/totals";
 
 export type CompoundContext = {
@@ -59,6 +63,22 @@ export function withCompounds(
       of: { fam: "drink", kind: "coffee" },
       title: "Caffè",
       value: F.approx(c.caffeine, "mg"),
+      ...(left === null
+        ? {}
+        : (() => {
+            const level = levelAt(left, caffeineBedRange());
+            return {
+              pills: [
+                {
+                  t:
+                    (ctx.bed?.known
+                      ? "a letto: "
+                      : "alle " + F.time(23 * 60 + 30) + ": ") + LEVEL_WORDS[level],
+                  state: LEVEL_STATE[level],
+                },
+              ],
+            };
+          })()),
       meta:
         left === null || !ctx.bed
           ? ""
