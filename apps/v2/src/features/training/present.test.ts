@@ -69,7 +69,7 @@ describe("the load stepper's step", () => {
 
 describe("the session's words", () => {
   it("context in one line, only what was logged; the score with what is left out", async () => {
-    const { contextText, scoreText } = await import("./present");
+    const { contextText, sessionBox, muscleSplit } = await import("./present");
     const { score, SESSION } = await import("@/core/engines/judgements");
     expect(
       contextText({
@@ -81,9 +81,9 @@ describe("the session's words", () => {
         readiness: null,
       }),
     ).toBe(
-      "Prima: dormito " +
+      "Prima: " +
         F.hm(450) +
-        " · " +
+        " di sonno · " +
         F.num(1871, "kcal") +
         " nelle 24 h · 1 caffè prima",
     );
@@ -97,12 +97,46 @@ describe("the session's words", () => {
         readiness: null,
       }),
     ).toBe("");
-    expect(
-      scoreText(
-        score(SESSION, { progression: 1, volume: 0.5, effort: null, rests: null }),
-      ),
-    ).toBe(
-      "Sessione 79/100 · progressione 100 · volume 50 · senza: sforzo (nessun RIR), recuperi (non cronometrati)",
+    const box = sessionBox(
+      score(SESSION, { progression: 1, volume: 0.5, effort: null, rests: null }),
+      42,
+      muscleSplit([
+        { muscles: ["chest", "triceps"], sets: 6 },
+        { muscles: ["side_delts"], sets: 3 },
+        { muscles: ["triceps"], sets: 3 },
+        { muscles: [], sets: 4 },
+      ]),
+      false,
     );
+    expect(box.score).toMatchObject({
+      value: 79,
+      missing: ["sforzo (nessun RIR)", "recuperi (non cronometrati)"],
+    });
+    expect(box.score!.parts.map((x) => x.name)).toEqual(["progressione", "volume"]);
+    expect(box.title).toBe("La sessione finora");
+    expect(box.pills!.map((x) => x.t.replace(/\u00a0/g, " "))).toEqual([
+      "petto 50 %",
+      "spalle 25 %",
+      "braccia 25 %",
+    ]);
+    expect(box.strip![0]).toEqual({ w: 50, c: "var(--muscle-chest)" });
+  });
+});
+
+describe("the gym's pills", () => {
+  it("what came before, a short night or a low readiness in warn; the rest against the plan", async () => {
+    const { contextPills, restPill } = await import("./present");
+    const pills = contextPills({
+      sleptMin: 380,
+      kcal24h: 2100,
+      carbs3h: null,
+      coffees3h: 0,
+      creatineDays: 26,
+      readiness: 2,
+    });
+    expect(pills.map((p) => p.state)).toEqual(["warn", "info", "info", "warn"]);
+    expect(restPill(80, 90)).toEqual({ t: "riposo 1:20 / 1:30", state: "good" });
+    expect(restPill(150, 90)!.state).toBe("warn");
+    expect(restPill(null, 90)).toBeNull();
   });
 });

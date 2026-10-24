@@ -58,6 +58,13 @@ pills, skyline); rest on each done set; the current set hatched «ora · in
 corso»; pills after RIR (estimated strength, rest, sleep, last meal); «Poi»
 with each exercise's plan («3 × 10 · 35 kg»). **Fixed here**: a finished
 session no longer shows the set form, RIR and «Aggiungi esercizio».
+**Done (2026-10-24)**: «La sessione finora» as a box (its minutes, the
+session score on what is done — the exercise in progress counted to the
+sets reached — with its skyline and parts, the muscle split as a strip
+and pills from the catalog's muscle groups); the set running hatched
+«Serie n · ora · in corso»; the context as pills under the exercise (the
+last rest against the planned one, sleep, food in 24 h, creatine,
+readiness; short ones in warn). Missing: estimated strength as a pill.
 
 ## Andamento (Progress)
 **Done (s184)**: the period control (kit RangeNav: ‹ ›, 7 · 30 · 90 giorni ·

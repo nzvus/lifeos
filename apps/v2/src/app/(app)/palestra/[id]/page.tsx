@@ -24,9 +24,11 @@ import {
 } from "@/core/training";
 import { Gym, type GymExercise } from "@/features/training/Gym";
 import {
+  contextPills,
   contextText,
   lastTimeText,
-  scoreText,
+  muscleSplit,
+  sessionBox,
   restSourceText,
   trendText,
   usesDumbbells,
@@ -149,11 +151,51 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
   // The night and the 24 h need two days; creatine its own narrow read.
   const days = read!.days;
   const creatine = session.start ? await readCreatineLines(db, owner, session.day) : [];
-  const before = session.start
-    ? contextText(sessionContext(days, session.start, session.day, readiness, creatine))
-    : "";
-  const verdict =
-    session.status === "done" ? scoreText(score(SESSION, sessionParts(scored))) : "";
+  const context = session.start
+    ? sessionContext(days, session.start, session.day, readiness, creatine)
+    : null;
+  // Finished: one line under the session; in progress: pills under the exercise (the board).
+  const before = context && session.status === "done" ? contextText(context) : "";
+  const beforePills = context && session.status !== "done" ? contextPills(context) : [];
+  // The session so far (the board): its score on what is done — the exercise
+  // in progress counts only the sets reached — and where its sets went.
+  const finished = session.status === "done";
+  const touched = scored.filter((x) => x.done.some((d) => !d.warmup));
+  const soFar = finished
+    ? scored
+    : touched.map((x, i) =>
+        i === touched.length - 1
+          ? {
+              ...x,
+              proposed: x.proposed.slice(
+                0,
+                Math.max(1, x.done.filter((d) => !d.warmup).length),
+              ),
+            }
+          : x,
+      );
+  const split = muscleSplit(
+    session.children.map((c) => ({
+      muscles: (c.item ? byId.get(c.item.id)?.muscles : undefined) ?? [],
+      sets: c.sets.filter((s) => !s.warmup).length,
+    })),
+  );
+  // A finished session: its logged minutes; in progress: since it began.
+  const logged = Number(session.values["durationMin"] ?? NaN);
+  const elapsed =
+    finished && Number.isFinite(logged)
+      ? Math.round(logged)
+      : session.start
+        ? Math.round(
+            ((finished && session.end ? session.end : new Date()).getTime() -
+              session.start.getTime()) /
+              60_000,
+          )
+        : null;
+  const box =
+    touched.length > 0
+      ? sessionBox(score(SESSION, sessionParts(soFar)), elapsed, split, finished)
+      : null;
   // What is left, in minutes: the sets not done yet with the person's timing.
   const leftS = sessionSeconds(
     exercises.map((x) => ({
@@ -189,7 +231,8 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         warmupRestS: Math.round(Math.min(60, Math.max(30, timing.warmupRestS))),
         transitionS: Math.round(timing.transitionS),
         before,
-        verdict,
+        beforePills,
+        box,
         dayHref: session.day === today ? "/oggi" : "/oggi/" + session.day,
       }}
       exercises={exercises}
