@@ -12,6 +12,7 @@ export { Box, type BoxAct, type BoxEntry } from "./Box";
 export { PageHeader } from "./PageHeader";
 export { NavBar, type Place } from "./NavBar";
 export { DateNav } from "./DateNav";
+export { RangeNav, type RangePreset } from "./RangeNav";
 export { Field, type FieldOption, type FieldProps } from "./Field";
 export { Nutrients, NutrientsL0 } from "./Nutrients";
 export {

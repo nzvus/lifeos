@@ -537,3 +537,6 @@ span.k-head{cursor:default}
 
 /* A link that is a button (opens a part of the page): looks like .k-link */
 button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;color:var(--herb);cursor:pointer;text-align:left;align-self:flex-start}
+/* A period's presets are links (every period is a page): drawn as .k-choice buttons */
+.k-choice a{display:flex;align-items:center;justify-content:center;border-radius:var(--r-mark);color:var(--muted);font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px;text-decoration:none}
+.k-choice a[aria-current="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
