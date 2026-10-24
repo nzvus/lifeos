@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import type { FoodChoice } from "@/core/food/choices";
 import {
   clockMinute,
+  closeTheGap,
+  fittingRecipes,
+  mealFoods,
   dayWithMeal,
   estimateTotals,
   mealNutrients,
@@ -161,5 +164,74 @@ describe("a logged meal registered again", () => {
       ],
       dropped: 2,
     });
+  });
+});
+
+describe("the composer against the meal's block", () => {
+  const block = { kcal: 495, protein: 50, carbs: 60, fat: 15, fibre: 10 };
+  const skyr = {
+    ...choice("skyr", { kcal: "63", protein: "11" }),
+    uses: 20,
+    lastQty: "150",
+  };
+  const cod = { ...choice("cod", { kcal: "80", protein: "17.7" }), uses: 5 };
+  const bread = { ...choice("bread", { kcal: "260", protein: "8" }), uses: 30 };
+
+  it("the bars and kcal against the block, the foods as the window's chips", () => {
+    const d = mealNutrients(
+      { kcal: 300, protein: 20 },
+      undefined,
+      mealFoods([{ key: "oats", quantity: "50" }], by),
+      block,
+    );
+    expect(d.kcal).toEqual({ v: 300, t: 495 });
+    expect(d.macros[0]).toMatchObject({ key: "protein", v: 20, t: 50 });
+    expect(d.foods![0]).toMatchObject({
+      key: "oats",
+      kcal: 186,
+      macros: { protein: { all: 6.75 } },
+    });
+  });
+
+  it("what closes the protein gap: a food in the meal raised, a usual dense one added", () => {
+    const g = closeTheGap(
+      { kcal: 300, protein: 35 },
+      block,
+      [{ key: "cod", quantity: "200" }],
+      [skyr, cod, bread],
+    )!;
+    expect(g.gap).toBe(15);
+    // Cod: +90 g → +15,9 g; skyr: 140 g → +15,4 g. Bread is not dense in protein.
+    expect(g.ideas.map((x) => [x.key, x.quantity, x.raise])).toEqual([
+      ["cod", "290", true],
+      ["skyr", "140", false],
+    ]);
+    expect(closeTheGap({ protein: 49 }, block, [], [skyr])!.ideas).toEqual([]);
+    expect(closeTheGap({ protein: 10 }, null, [], [skyr])).toBeNull();
+  });
+
+  it("the saved meals fitting the block best", () => {
+    const fits = fittingRecipes(
+      [
+        {
+          key: "r1",
+          recipeId: "r1",
+          name: "Merluzzo",
+          parts: [{ key: "cod", quantity: "300" }],
+          uses: 3,
+        },
+        {
+          key: "r2",
+          recipeId: "r2",
+          name: "Pizza",
+          parts: [],
+          uses: 9,
+          estimate: { kcal: "900", protein: "35" },
+        },
+      ],
+      new Map([["cod", cod]]),
+      block,
+    );
+    expect(fits.map((f) => f.recipe.name)).toEqual(["Merluzzo"]);
   });
 });
