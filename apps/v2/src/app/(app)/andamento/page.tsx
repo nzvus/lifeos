@@ -4,13 +4,18 @@
  * calendar month (`?mese=YYYY-MM`), moved through with the kit's RangeNav
  * (the board: presets and the month with the period highlighted): the day's Nutrients
  * averaged over the days with something eaten, and each day's kcal against
- * its target. Trackers, goals and correlations come with their slices.
+ * its target; «Energia» (what E4 learnt the person spends next to the
+ * priors, the week of the period's end: core/energy, dossiers/targets.md).
+ * Trackers, goals and correlations come with their slices.
  */
 import { Box, F, NavBar, Nutrients, PageHeader, RangeNav } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDays, readRangeTargets } from "@/core/day";
+import { ensureWeekTargets, mondayOf } from "@/core/energy";
+import { readDayModels } from "@/core/plans";
+import { energyBoxes } from "@/features/progress/energy";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { presentDay } from "@/features/day/nutrients";
 import { PLACES } from "@/features/places";
@@ -59,10 +64,14 @@ export default async function AndamentoPage({
     : (RANGES.find((n) => String(n) === giorni) ?? 7);
   const days = Array.from({ length: DAYS }, (_, i) => addDays(end, i - DAYS + 1));
   // The whole range in one set of queries (core/day `loadDays`), not one per day.
-  const [loaded, targets] = await Promise.all([
+  const [loaded, models, week] = await Promise.all([
     loadDays(db, owner, days[0]!, end, known),
-    readRangeTargets(db, owner, days[0]!, end),
+    readDayModels(db, owner, days[0]!, end),
+    // The week of the period's end, made when missing (it also gives that week's targets).
+    ensureWeekTargets(db, owner, end, known.clock),
   ]);
+  const targets = await readRangeTargets(db, owner, days[0]!, end, models);
+  const energy = energyBoxes(week as Record<string, unknown> | null, mondayOf(end));
   const data = loaded.map((d) => ({
     day: d.day,
     nutrients: presentDay(d, targets.get(d.day) ?? null)?.nutrients ?? null,
@@ -145,6 +154,21 @@ export default async function AndamentoPage({
           {p.nutrients && <Nutrients data={p.nutrients} />}
         </Box>
       </section>
+      {energy && (
+        <section className="k-section g3" aria-label="Energia">
+          <h2>
+            Energia <span className="k-meta">quanto consumi, e da dove</span>
+          </h2>
+          <Box rail={false} entry={energy.learnt} />
+          {energy.priors.map((e) => (
+            <Box key={e.title} density="row" rail={false} entry={e} />
+          ))}
+          <span className="k-meta">
+            Le stime sono il punto di partenza; il trend del peso le corregge. Lo scarto
+            tra la loro somma e il consumo appreso è ciò che lifeos ha imparato su di te.
+          </span>
+        </section>
+      )}
       <section className="k-section g3" aria-label="Peso">
         <h2>Peso</h2>
         {weight ? (

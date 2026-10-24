@@ -178,3 +178,11 @@ On the developer's data: E = 2 533 ± 224 kcal for the week of 19 Oct (§8,
 → deficit 322 kcal; «Rec» → 2 211 kcal, 167 g protein, 61 g fat, 249 g
 carbs, 31 g fibre. One run reads ≈ 56 kB (217 meals, 19 weigh-ins, 26
 sessions), once a week.
+Slices (b) and (c), same day: Andamento → Energia (the learnt expenditure ±
+σ and its days, the priors' parts — base, the day, steps, gym set by set,
+TEF — and the gap: 2 533 learnt against 2 506 estimated for the week of
+19 Oct), Piano's kcal per day; the week's automatic decision now also holds
+the priors' means. Every page that shows targets (Oggi, the composer, an
+entry, Andamento, Piano) makes its week when missing, and reads each day's
+model (`readDayModels`), so the numbers agree everywhere.
+

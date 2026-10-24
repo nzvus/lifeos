@@ -34,6 +34,10 @@ describe("the week's energy (E4 once a week)", () => {
     )!;
     expect(Math.abs(w.expenditureKcal - 2500)).toBeLessThan(150);
     expect(w).toMatchObject({ source: "auto", deficitKcal: null, loggedDays: 56 });
+    // The priors' parts: TEF ≈ 10 % of 2 500, no steps or training logged.
+    expect(w.priors).toMatchObject({ steps: 0, training: 0 });
+    expect(w.priors.tef).toBeGreaterThan(200);
+    expect(w.priors.bmr).toBeGreaterThan(1700);
   });
 
   it("losing 0.25 kg a week on 2 300 kcal: the expenditure is above what is eaten", () => {

@@ -2,7 +2,8 @@
  * Piano (flows.md §1, V-08), first part: the week holding `?settimana=`
  * (today's when missing), Monday to Sunday, each day with what is planned
  * («Previsto»), opened in its editor, and «+» to plan more that day; each
- * day says its model and, from today, its cycle's step (core/plans,
+ * day says its model, its kcal (core/day, dossiers/targets.md) and, from
+ * today, its cycle's step (core/plans,
  * dossiers/day-templates.md slice a). Editing models and cycles comes with
  * slices b and c.
  */
@@ -10,7 +11,8 @@ import { addDays, Box, F, NavBar, PageHeader, weekOf } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDays } from "@/core/day";
+import { loadDays, readRangeTargets } from "@/core/day";
+import { ensureWeekTargets } from "@/core/energy";
 import { planWords, readDayPlans } from "@/core/plans";
 import { logicalDay } from "@/core/engines/time";
 import { present } from "@/features/day/present";
@@ -36,9 +38,26 @@ export default async function PianoPage({
   const [days, plans] = await Promise.all([
     loadDays(db, owner, week[0]!, week[6]!, known),
     readDayPlans(db, owner, week[0]!, week[6]!, today),
+    // A week begun: its automatic targets, made when missing.
+    week[0]! <= today ? ensureWeekTargets(db, owner, week[0]!, known.clock) : null,
   ]);
   // A coffee or creatine planned is drawn as on Oggi («Caffè ≈ 100 mg»), not as grams.
-  const compounds = await readFoodEstimates(db, owner, days.flatMap(foodIds));
+  const [compounds, targets] = await Promise.all([
+    readFoodEstimates(db, owner, days.flatMap(foodIds)),
+    // Each day's kcal from its model and the week (dossiers/targets.md slice c).
+    readRangeTargets(
+      db,
+      owner,
+      week[0]!,
+      week[6]!,
+      new Map(
+        week.map((d) => {
+          const m = plans.get(d)?.model;
+          return [d, m ? { name: m.name, targets: m.targets } : null] as const;
+        }),
+      ),
+    ),
+  ]);
   const ctx = { compounds, doses: [], bed: null, creatineDays: null };
   const href = (d: string) =>
     weekOf(today)[0] === weekOf(d)[0] ? "/piano" : "/piano?settimana=" + d;
@@ -76,9 +95,14 @@ export default async function PianoPage({
                   </a>
                 )}
               </div>
-              {plans.get(d.day) && planWords(plans.get(d.day), d.day === today) && (
+              {(planWords(plans.get(d.day), d.day === today) || targets.get(d.day)) && (
                 <span className="k-meta">
-                  {planWords(plans.get(d.day), d.day === today)}
+                  {[
+                    planWords(plans.get(d.day), d.day === today),
+                    targets.get(d.day) ? F.num(targets.get(d.day)!.kcal, "kcal") : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </span>
               )}
               {planned.map((i) => (

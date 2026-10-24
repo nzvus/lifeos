@@ -67,6 +67,11 @@ export type WeekEnergy = {
   ratePctWeek: number | null;
   /** Days with food logged, of the window. */
   loggedDays: number;
+  /**
+   * What the priors say a day costs, the mean of the window's last 7 days, kcal
+   * (Andamento → Energia: the estimates next to what was learnt).
+   */
+  priors: { bmr: number; everyday: number; steps: number; training: number; tef: number };
 };
 
 const mean = (xs: readonly number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
@@ -90,6 +95,7 @@ export function weekEnergy(
   const closed = new Set(rows.closed);
 
   const days: BodyDay[] = [];
+  const parts: WeekEnergy["priors"][] = [];
   let tails: Range[] = [];
   for (let d = p.from; d <= p.to; d = addDays(d, 1)) {
     const kg = kgOn(d);
@@ -149,6 +155,15 @@ export function weekEnergy(
       intakeKcal: eaten,
     });
     tails = sessions.map((s) => s.tail);
+    const m = (r: Range | null) => (r ? (r.low + r.high) / 2 : 0);
+    // The everyday part holds food's thermic effect: shown apart, so the parts add up.
+    parts.push({
+      bmr: prior.bmr,
+      everyday: Math.max(0, m(prior.baseline) - prior.bmr - m(prior.tef)),
+      steps: m(prior.steps),
+      training: m(prior.training),
+      tef: m(prior.tef),
+    });
     days.push({
       day: d,
       eatenKcal: eaten,
@@ -206,5 +221,17 @@ export function weekEnergy(
     deficitKcal: deficit,
     ratePctWeek: rate,
     loggedDays: days.filter((d) => d.eatenKcal !== null).length,
+    priors: (() => {
+      const week = parts.slice(-7);
+      const avg = (k: keyof WeekEnergy["priors"]) =>
+        Math.round(mean(week.map((x) => x[k])));
+      return {
+        bmr: avg("bmr"),
+        everyday: avg("everyday"),
+        steps: avg("steps"),
+        training: avg("training"),
+        tef: avg("tef"),
+      };
+    })(),
   };
 }

@@ -240,6 +240,8 @@ export async function readRangeTargets(
   owner: Owner,
   from: IsoDate,
   to: IsoDate,
+  /** Each day's model (core/plans `readDayModels`); without it, automatic weeks use the defaults. */
+  models: ReadonlyMap<IsoDate, DayModel | null> = new Map(),
 ): Promise<Map<IsoDate, FoodTargets | null>> {
   const rows = await db
     .select({ kind: decisions.kind, day: decisions.day, payload: decisions.payload })
@@ -254,6 +256,6 @@ export async function readRangeTargets(
     );
   const out = new Map<IsoDate, FoodTargets | null>();
   for (let d = from; d <= to; d = addDays(d, 1))
-    out.set(d, targetsOn(rows as TargetDecision[], d));
+    out.set(d, targetsOn(rows as TargetDecision[], d, models.get(d) ?? null));
   return out;
 }
