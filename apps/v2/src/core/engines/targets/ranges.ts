@@ -21,6 +21,10 @@
  *   caffeine  good ≤ 400 mg a day · bad · danger > 600; at bedtime good
  *             < 50 mg · fair to 100 · bad (EFSA 2015)
  *   inulin    good ≤ 10 g · fair to 20 · bad (Bonnema 2010)
+ *   kinds     trans: good < 1 % E · bad (WHO 2023); omega-3: fair under
+ *             0.5 % E (EFSA's ALA AI) · good; omega-6: fair under 4 % E
+ *             (EFSA's linoleic AI) · good to 10 % · fair (the 10 % is this
+ *             engine's choice: no guideline sets an upper line)
  * Edges past a guideline's one line (1.5× and 2.5× a limit, the 12 % of
  * saturated, 3.0 W of protein) are this engine's choices, said as such.
  * Score of a number, 0–1: good 1; fair from 1 at the good edge to 0.5 at
@@ -221,3 +225,25 @@ export const inulinRange = (): Range =>
     ["fair", 10],
     ["bad", 20],
   ]);
+
+export function transRange(b: DayBasis): Range {
+  return zones("g", "OMS 2023: < 1 % kcal", [
+    ["good", 0],
+    ["bad", pctE(b, 1, 9)],
+  ]);
+}
+
+export function omega3Range(b: DayBasis): Range {
+  return zones("g", "EFSA 2010: ALA 0,5 % kcal", [
+    ["fair", 0],
+    ["good", pctE(b, 0.5, 9)],
+  ]);
+}
+
+export function omega6Range(b: DayBasis): Range {
+  return zones("g", "EFSA 2010: acido linoleico 4 % kcal", [
+    ["fair", 0],
+    ["good", pctE(b, 4, 9)],
+    ["fair", pctE(b, 10, 9)],
+  ]);
+}

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { microTargets } from "./micros";
 import {
+  omega3Range,
+  omega6Range,
+  transRange,
   caffeineBedRange,
   fibreRange,
   inulinRange,
@@ -89,5 +92,14 @@ describe("ranges (dossiers/ranges.md §8)", () => {
     expect(rangeScore(40, proteinRange(day), true)).toBe(1);
     expect(rangeScore(40, proteinRange(day))).toBeLessThan(0.5);
     expect(rangeScore(11.6, saltRange(), true)).toBeCloseTo(0.09, 2);
+  });
+
+  it("the kinds a guideline speaks of: trans, omega-3, omega-6", () => {
+    expect(levelAt(2, transRange(day))).toBe("good"); // under 3.1 g (1 % of 2 778 kcal)
+    expect(levelAt(4, transRange(day))).toBe("bad");
+    expect(levelAt(0.8, omega3Range(day))).toBe("fair"); // under 1.5 g
+    expect(levelAt(2, omega3Range(day))).toBe("good");
+    expect(levelAt(10, omega6Range(day))).toBe("fair"); // under 12.3 g
+    expect(levelAt(20, omega6Range(day))).toBe("good");
   });
 });

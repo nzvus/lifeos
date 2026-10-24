@@ -16,22 +16,21 @@ import {
   type NutrientsData,
 } from "./nutrient-rows";
 
-/** A number's zones on their own line, its marks over them (`heatStrip`). */
-function Heat({ strip }: { strip: HeatStrip }) {
+/**
+ * A number's zones as a thin band along the bottom of its own bar
+ * (`.zoned`): the bar still says how much (eaten, then planned hatched),
+ * the band under the same edge says how good each stretch of it is.
+ */
+function ZoneBand({ strip }: { strip: HeatStrip }) {
   return (
-    <span className="k-heat" aria-hidden="true">
-      <span className="z">
-        {strip.zones.map((z, i) => (
-          <span
-            key={i}
-            className={z.danger ? "danger" : undefined}
-            style={{ width: z.w, background: z.c }}
-          />
-        ))}
-      </span>
-      {strip.to && <i className="to" style={{ left: strip.to }} />}
-      <i className="at" style={{ left: strip.at }} />
-      {strip.mean && <i className="mean" style={{ left: strip.mean }} />}
+    <span className="k-zband" aria-hidden="true">
+      {strip.zones.map((z, i) => (
+        <span
+          key={i}
+          className={z.danger ? "danger" : undefined}
+          style={{ width: z.w, background: z.c }}
+        />
+      ))}
     </span>
   );
 }
@@ -39,9 +38,7 @@ function Heat({ strip }: { strip: HeatStrip }) {
 export function Nutrients({ data }: { data: NutrientsData }) {
   const [open, setOpen] = useState<string | null>(null);
   const { kcal, macros, limits, micros } = nutrientsL1(data);
-  const strips = [...macros, ...limits].some((x) => x.strip);
   const means = limits.some((l) => l.strip?.mean);
-  const ahead = [...macros, ...limits].some((x) => x.strip?.to);
   return (
     <div className="k-stack g3">
       {kcal && (
@@ -94,7 +91,11 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                   )}
                 </span>
               </span>
-              <span className="k-track" role="img" aria-label={m.aria}>
+              <span
+                className={"k-track" + (m.strip ? " zoned" : "")}
+                role="img"
+                aria-label={m.aria}
+              >
                 {m.segs.map((s, i) => (
                   <span
                     key={i}
@@ -103,8 +104,8 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                   />
                 ))}
                 {m.mark && <span className="k-mark" style={{ left: m.mark }} />}
+                {m.strip && <ZoneBand strip={m.strip} />}
               </span>
-              {m.strip && <Heat strip={m.strip} />}
             </button>
             {more && (
               <div className={"k-reveal" + (isOpen ? " on" : "")}>
@@ -115,9 +116,19 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                         <span className="k-body">
                           <span className="k-sw" style={{ background: k.c }} />
                           {k.name}
+                          {k.word && (
+                            <span
+                              className="k-help"
+                              style={{ color: F.tone(k.state ?? undefined) }}
+                            >
+                              {" "}
+                              {k.word}
+                            </span>
+                          )}
                         </span>
-                        <span className="k-bar">
-                          <i style={{ width: k.w, background: k.c }} />
+                        <span className={"k-bar" + (k.strip ? " zoned" : "")}>
+                          <i style={{ width: k.w, background: k.fill }} />
+                          {k.strip && <ZoneBand strip={k.strip} />}
                         </span>
                         <span className="k-num b3 k-right">{k.v}</span>
                       </div>
@@ -169,40 +180,24 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                 <span className="k-num b2">{l.v}</span>
                 <span className="k-help">/ {l.t}</span>
               </span>
-              {l.strip ? (
-                <>
-                  <Heat strip={l.strip} />
-                  <span
-                    className="k-help"
-                    style={{ color: F.tone(l.state ?? undefined) }}
-                  >
-                    {l.word}
-                  </span>
-                </>
-              ) : (
-                <span className="k-bar">
-                  <i style={{ width: l.w, background: l.color }} />
+              <span className={"k-bar" + (l.strip ? " zoned" : "")}>
+                <i style={{ width: l.w, background: l.color }} />
+                {l.pw && <i className="p" style={{ left: l.w, width: l.pw }} />}
+                {l.strip && <ZoneBand strip={l.strip} />}
+                {l.strip?.mean && <b style={{ left: l.strip.mean }} />}
+              </span>
+              {l.word && (
+                <span className="k-help" style={{ color: F.tone(l.state ?? undefined) }}>
+                  {l.word}
                 </span>
               )}
             </span>
           ))}
         </div>
       )}
-      {strips && (
+      {means && (
         <span className="k-help k-heatkey" aria-hidden="true">
-          <i className="at" /> adesso
-          {ahead && (
-            <>
-              {" "}
-              <i className="to" /> con il previsto
-            </>
-          )}
-          {means && (
-            <>
-              {" "}
-              <i className="mean" /> media della settimana
-            </>
-          )}
+          <b /> media della settimana
         </span>
       )}
       {micros && (
@@ -237,13 +232,10 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                         aria-label={i.aria}
                       >
                         <span className="k-body">{i.name}</span>
-                        {i.strip ? (
-                          <Heat strip={i.strip} />
-                        ) : (
-                          <span className="k-bar">
-                            <i style={{ width: i.w, background: i.color }} />
-                          </span>
-                        )}
+                        <span className={"k-bar" + (i.strip ? " zoned" : "")}>
+                          <i style={{ width: i.w, background: i.color }} />
+                          {i.strip && <ZoneBand strip={i.strip} />}
+                        </span>
                         <span className="k-num b3 k-right">{i.v}</span>
                       </div>
                     ))}

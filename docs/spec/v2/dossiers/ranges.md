@@ -189,7 +189,11 @@ score (E7 `DAY`, 45/35/20 as the boards) behind «Il giorno» and on the
 week strip; limits judged on the week's mean (a triangle); «Altro» with
 caffeine and creatine; a coffee's pill judges what is left at bedtime; a
 meal's protein zoned from 0.25 g/kg (ISSN). Carbs' floor never past 45 %
-of the day's energy (a short day cannot ask 3 g/kg).
+of the day's energy (a short day cannot ask 3 g/kg). Then, on the
+developer's review: zones as a 3 px band glued to the bottom of the bar
+itself (not a separate strip), and the kinds a guideline speaks of judged
+too (free sugars, saturated, trans < 1 % E, omega-3 ≥ 0.5 % E, omega-6
+4–10 % E, inulin ≤ 10 g); the other kinds stay unjudged.
 
 ## 9. Questions for the developer
 1. **Four levels (danger, bad, fair, good) with these words: «da

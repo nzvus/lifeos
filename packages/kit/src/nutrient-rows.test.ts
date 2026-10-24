@@ -202,7 +202,35 @@ describe("the heat bar (dossiers/ranges.md §6)", () => {
       limits: [{ key: "salt", v: 11.6, t: 5, zones: salt, mean: 6, meanDays: 3 }],
     }).limits[0]!;
     expect(m.strip!.mean).toBe("49.3%"); // 6 of 12.18
+    const p = rows({
+      macros: [],
+      limits: [{ key: "salt", v: 2, planned: 3, t: 5, zones: salt }],
+    }).limits[0]!;
+    // The plan's 3 g hatched after the 2 eaten, on a bar to 10 g; judged at 5 g.
+    expect([p.w, p.pw, p.word]).toEqual(["20%", "30%", "→ ok"]);
     expect(m.aria).toContain("media di 3 giorni");
+  });
+  it("judges a kind a guideline speaks of on its own scale; the others as before", () => {
+    const m = rows({
+      macros: [
+        {
+          key: "fat",
+          v: 60,
+          t: 77,
+          parts: { mufa: 30, n3: 0.8, sfa: 29.2 },
+          partZones: {
+            n3: [
+              { from: 0, level: "fair" },
+              { from: 1.5, level: "good" },
+            ],
+          },
+        },
+      ],
+    }).macros[0]!;
+    const n3 = m.kinds.find((k) => k.name === "omega-3")!;
+    expect([n3.word, n3.w, n3.fill]).toEqual(["ok", "35.6%", "var(--warn)"]); // 0.8 of 2.25
+    expect(n3.c).toContain("var(--macro-fat)");
+    expect(m.kinds.find((k) => k.name === "monoinsaturi")!.strip).toBeNull();
   });
   it("without zones, nothing changes", () => {
     const m = rows({ macros: [{ key: "protein", v: 140.7, t: 154 }] }).macros[0]!;

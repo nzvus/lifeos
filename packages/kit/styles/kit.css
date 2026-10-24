@@ -540,19 +540,18 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 /* A period's presets are links (every period is a page): drawn as .k-choice buttons */
 .k-choice a{display:flex;align-items:center;justify-content:center;border-radius:var(--r-mark);color:var(--muted);font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px;text-decoration:none}
 .k-choice a[aria-current="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
-/* the heat strip (dossiers/ranges.md §6): a number's zones on their own line, never mixed with the bar's kinds */
-.k-heat{position:relative;display:block;height:6px;margin:5px 0 4px}
-.k-heat .z{display:flex;height:100%;border-radius:var(--r-pill);overflow:hidden;opacity:.85}
-.k-heat .z>span{height:100%}
-.k-heat .z>.danger{background-image:repeating-linear-gradient(135deg,transparent 0 3px,color-mix(in srgb,var(--sheet) 55%,transparent) 3px 5px)}
-.k-heat>i,.k-heatkey>i{display:inline-block}
-.k-heat>i{position:absolute}
-.k-heat .at,.k-heatkey .at{top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;background:var(--ink);border-radius:2px;box-shadow:0 0 0 1.5px var(--sheet)}
-.k-heat .to,.k-heatkey .to{top:-4px;bottom:-4px;width:7px;margin-left:-3.5px;border:2px solid var(--ink);border-radius:2px;background:var(--sheet)}
-.k-heat .mean,.k-heatkey .mean{top:calc(100% + 1px);margin-left:-4px;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:5px solid var(--ink)}
-.k-heatkey{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
-.k-heatkey>i{position:relative;height:12px;top:auto;bottom:auto;margin:0}
-.k-heatkey>.mean{height:0;top:auto}
+/* zones (dossiers/ranges.md §6): a thin band along the bottom of the number's own bar, glued to it */
+.k-track.zoned,.k-bar.zoned{position:relative;box-sizing:border-box;padding-bottom:4px}
+.k-track.zoned{height:calc(var(--segs) + 4px)}
+.k-bar.zoned{height:calc(var(--track) + 4px)}
+.k-bar.zoned>i{bottom:4px}
+.k-bar>i.p{background:repeating-linear-gradient(135deg,currentColor 0 2px,transparent 2px 5px);color:var(--muted);opacity:.6}
+.k-zband{position:absolute;left:0;right:0;bottom:0;height:3px;display:flex}
+.k-zband>span{height:100%}
+.k-zband>.danger{background-image:repeating-linear-gradient(135deg,transparent 0 2px,color-mix(in srgb,var(--sheet) 55%,transparent) 2px 4px)}
+.k-bar.zoned>b{z-index:1}
+.k-heatkey{display:flex;align-items:center;gap:6px}
+.k-heatkey>b{display:inline-block;width:var(--tick);height:12px;background:var(--ink)}
 /* the heat strip's own colours: four levels told apart by hue and lightness, not only by a word */
 :root,[data-theme="light"]{--heat-good:#2f8a5a;--heat-fair:#e0a500;--heat-bad:#d9542c;--heat-danger:#8a1a10}
 [data-theme="dark"]{--heat-good:#6cc391;--heat-fair:#f2cc4d;--heat-bad:#f2805a;--heat-danger:#ff4d3d}
