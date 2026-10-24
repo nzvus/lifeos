@@ -7,6 +7,7 @@
  * Pass plain data (server pages may render it).
  */
 import { useState, type CSSProperties } from "react";
+import { F } from "./format";
 import { Glyph } from "./Glyph";
 import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
 
@@ -54,9 +55,23 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                 <span className="k-num b2">
                   {m.value}
                   {m.target && <span className="k-meta"> / {m.target}</span>}
+                  {m.word && (
+                    <span
+                      className="k-help"
+                      style={{ color: F.tone(m.state ?? undefined) }}
+                    >
+                      {" "}
+                      {m.word}
+                    </span>
+                  )}
                 </span>
               </span>
-              <span className="k-track" role="img" aria-label={m.aria}>
+              <span
+                className="k-track"
+                role="img"
+                aria-label={m.aria}
+                style={m.track ? { background: m.track } : undefined}
+              >
                 {m.segs.map((s, i) => (
                   <span
                     key={i}
@@ -130,7 +145,10 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                 <span className="k-num b2">{l.v}</span>
                 <span className="k-help">/ {l.t}</span>
               </span>
-              <span className="k-bar">
+              <span
+                className="k-bar"
+                style={l.track ? { background: l.track } : undefined}
+              >
                 <i style={{ width: l.w, background: l.color }} />
               </span>
             </span>
@@ -169,7 +187,10 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                         aria-label={i.aria}
                       >
                         <span className="k-body">{i.name}</span>
-                        <span className="k-bar">
+                        <span
+                          className="k-bar"
+                          style={i.track ? { background: i.track } : undefined}
+                        >
                           <i style={{ width: i.w, background: i.color }} />
                         </span>
                         <span className="k-num b3 k-right">{i.v}</span>

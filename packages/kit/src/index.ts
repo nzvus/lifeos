@@ -18,6 +18,10 @@ export { Nutrients, NutrientsL0 } from "./Nutrients";
 export {
   nutrientsL0,
   nutrientsL1,
+  heatLevel,
+  HEAT_WORDS,
+  type HeatLevel,
+  type HeatZone,
   type LimitKey,
   type MacroKey,
   type NutrientsData,

@@ -94,11 +94,40 @@ describe("the day as a Box with Nutrients L1", () => {
       ["fiber", 10, 0, 39],
     ]);
     expect(d.nutrients.macros[0]!.sources).toEqual([["Avena", 13.5]]);
-    expect(d.nutrients.limits).toEqual([
+    expect(d.nutrients.limits!.map(({ key, v, t }) => ({ key, v, t }))).toEqual([
       { key: "sugars", v: 15.6, t: 125 },
       { key: "sat", v: 0, t: 31 },
       { key: "salt", v: 0, t: 5 },
     ]);
+    // Total sugars, not free ones: no zones; the others have theirs.
+    expect(d.nutrients.limits![0]!.zones).toBeUndefined();
+    expect(d.nutrients.limits![2]!.zones!.map((z) => z.from)).toEqual([0, 5, 7.5, 12.5]);
+  });
+
+  it("zones every bar (dossiers/ranges.md): protein per kg of the reference weight", () => {
+    const meal = item("meal", {
+      lines: [line("Pollo", "500", { kcal: "110", protein: "28.1" })],
+    });
+    const d = presentDay(day([meal]), week, new Map(), null, 75.6)!;
+    const protein = d.nutrients.macros[0]!;
+    expect(protein.v).toBeCloseTo(140.5);
+    expect(protein.zones!.map((z) => [z.level, Math.round(z.from)])).toEqual([
+      ["bad", 0],
+      ["fair", 63],
+      ["good", 121],
+      ["fair", 166],
+      ["bad", 227],
+    ]);
+  });
+
+  it("without targets, the zones scale with what the day holds", () => {
+    const meal = item("meal", {
+      lines: [line("Pane", "100", { kcal: "270", salt: "1.2" })],
+    });
+    const d = presentDay(day([meal]), null)!;
+    expect(d.nutrients.limits!.map((l) => l.key)).toEqual(["sugars", "sat", "salt"]);
+    // Fat 20–35 % of 270 kcal.
+    expect(d.nutrients.macros[2]!.zones![2]).toEqual({ from: 6, level: "good" });
   });
 
   it("leaves out what was left out of the plan, and says when there are no targets", () => {
@@ -114,6 +143,7 @@ describe("the day as a Box with Nutrients L1", () => {
     )!;
     expect(d.entry.meta).toBe("obiettivi non ancora calcolati in v2");
     expect(d.nutrients.kcal).toEqual({ v: 0, planned: 0, t: null });
+    // Nothing to scale the limits with.
     expect(d.nutrients.limits).toEqual([]);
   });
 

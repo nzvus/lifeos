@@ -16,6 +16,14 @@ import { F, type State } from "./format";
 export type MacroKey = "protein" | "carbs" | "fat" | "fiber";
 export type LimitKey = "sugars" | "sat" | "salt";
 
+/**
+ * A number's zones (E5 ranges, dossiers/ranges.md): each from its edge to the
+ * next one's, the last open. The bar's track is painted with them in pale
+ * tints (the heat bar); the zone the value is in gives the word and the fill.
+ */
+export type HeatLevel = "danger" | "bad" | "fair" | "good";
+export type HeatZone = { from: number; level: HeatLevel };
+
 export type NutrientsData = {
   kcal?: { v: number; planned?: number; t?: number | null };
   macros: {
@@ -28,14 +36,23 @@ export type NutrientsData = {
     /** [name, grams], largest first. */
     sources?: [string, number][];
     extras?: { t: string; state?: State }[];
+    zones?: HeatZone[];
   }[];
-  limits?: { key: LimitKey; v: number; t: number }[];
+  /** `name` replaces the key's (free sugars when the kinds tell them apart). */
+  limits?: { key: LimitKey; v: number; t: number; name?: string; zones?: HeatZone[] }[];
   /** Vitamins and minerals, grouped; the page judges each (a state), the kit draws it. */
   micros?: {
     summary: string;
     groups: {
       name: string;
-      items: { name: string; v: number; t: number | null; unit: string; state?: State }[];
+      items: {
+        name: string;
+        v: number;
+        t: number | null;
+        unit: string;
+        state?: State;
+        zones?: HeatZone[];
+      }[];
     }[];
   };
 };
@@ -91,6 +108,60 @@ const KINDS: Record<MacroKey, [string, string, number][]> = {
   ],
 };
 const SOURCES_SHOWN = 5;
+
+export const HEAT_WORDS: Record<HeatLevel, string> = {
+  danger: "da evitare",
+  bad: "pessimo",
+  fair: "ok",
+  good: "ottimo",
+};
+const HEAT_STATE: Record<HeatLevel, State> = {
+  danger: "danger",
+  bad: "bad",
+  fair: "warn",
+  good: "good",
+};
+const HEAT_TINT: Record<HeatLevel, string> = {
+  good: "color-mix(in srgb, var(--herb) 42%, var(--sheet))",
+  fair: "color-mix(in srgb, var(--warn) 30%, var(--sheet))",
+  bad: "color-mix(in srgb, var(--tomato) 34%, var(--sheet))",
+  danger: "color-mix(in srgb, var(--tomato) 62%, var(--sheet))",
+};
+
+export function heatLevel(v: number, zones: readonly HeatZone[]): HeatLevel | null {
+  let level: HeatLevel | null = zones[0]?.level ?? null;
+  for (const z of zones) if (v >= z.from) level = z.level;
+  return level;
+}
+
+/** The track's background: each zone in its tint, over a bar whose end is `scale`. */
+export function heatTrack(zones: readonly HeatZone[], scale: number): string {
+  const stops = zones.map((z, i) => {
+    const a = Math.min(100, (z.from / scale) * 100).toFixed(1);
+    const next = zones[i + 1];
+    const b = next ? Math.min(100, (next.from / scale) * 100).toFixed(1) : "100";
+    return HEAT_TINT[z.level] + " " + a + "% " + b + "%";
+  });
+  return "linear-gradient(to right, " + stops.join(", ") + ")";
+}
+
+/** Where the good zone ends, when it does: the bar shows all of it. */
+const goodEnd = (zones: readonly HeatZone[]) => {
+  const i = zones.findIndex((z) => z.level === "good");
+  return i >= 0 ? (zones[i + 1]?.from ?? null) : null;
+};
+
+/** What a judged number adds to its row: the track, the word, its state. */
+function heat(v: number, zones: readonly HeatZone[] | undefined, scale: number) {
+  const level = zones?.length ? heatLevel(v, zones) : null;
+  return level
+    ? {
+        track: heatTrack(zones!, scale),
+        word: HEAT_WORDS[level],
+        state: HEAT_STATE[level],
+      }
+    : { track: null, word: null, state: null };
+}
 
 export const shade = (m: MacroKey, tone: number) =>
   "color-mix(in srgb, " +
@@ -170,7 +241,12 @@ export function nutrientsL1(d: NutrientsData) {
   const macros = d.macros.map((m) => {
     const planned = m.planned ?? 0;
     const t = m.t ?? null;
-    const scale = (t === null ? shared : Math.max(t * 1.25, (m.v + planned) * 1.05)) || 1;
+    const end = m.zones ? goodEnd(m.zones) : null;
+    const scale =
+      (t === null
+        ? Math.max(shared, (end ?? 0) * 1.1)
+        : Math.max(t * 1.25, (m.v + planned) * 1.05, (end ?? 0) * 1.1)) || 1;
+    const h = heat(m.v, m.zones, scale);
     const kinds = KINDS[m.key].filter(([k]) => (m.parts?.[k] ?? 0) > 0);
     const segs: Seg[] = kinds.length
       ? kinds.map(([k, , tone]) => ({
@@ -219,11 +295,13 @@ export function nutrientsL1(d: NutrientsData) {
           : []),
       ],
       extras: (m.extras ?? []).map((x) => ({ t: x.t, c: F.tone(x.state) })),
+      ...h,
       aria:
         NAME[m.key] +
         " " +
         F.num(m.v, "g") +
         (t === null ? "" : " su " + F.num(t, "g")) +
+        (h.word ? ", " + h.word : "") +
         (planned ? ", " + F.num(planned, "g") + " previsti" : "") +
         (kinds.length
           ? ": " + kinds.map(([k, name]) => name + " " + g(m.parts![k]!)).join(", ")
@@ -231,34 +309,60 @@ export function nutrientsL1(d: NutrientsData) {
     };
   });
 
-  const limits = (d.limits ?? []).map((l) => ({
-    key: l.key,
-    v: g(l.v),
-    t: F.num(l.t, "g"),
-    w: Math.min(100, (l.v / l.t) * 100).toFixed(0) + "%",
-    color: F.tone(F.cap(l.v, l.t)),
-    aria: LIMIT[l.key] + " " + F.num(l.v, "g") + " su un massimo di " + F.num(l.t, "g"),
-  }));
+  // A limit with zones: the bar runs to twice the limit, so its zones show past it.
+  const limits = (d.limits ?? []).map((l) => {
+    const scale = l.zones?.length ? Math.max(l.v * 1.05, l.t * 2) : l.t;
+    const h = heat(l.v, l.zones, scale);
+    return {
+      key: l.key,
+      v: g(l.v),
+      t: F.num(l.t, "g"),
+      w: Math.min(100, (l.v / scale) * 100).toFixed(0) + "%",
+      color: F.tone(h.state ?? F.cap(l.v, l.t)),
+      track: h.track,
+      aria:
+        (l.name ?? LIMIT[l.key]) +
+        " " +
+        F.num(l.v, "g") +
+        " su un massimo di " +
+        F.num(l.t, "g") +
+        (h.word ? ", " + h.word : ""),
+    };
+  });
 
   const micros = d.micros
     ? {
         summary: d.micros.summary,
         groups: d.micros.groups.map((g) => ({
           name: g.name,
-          items: g.items.map((i) => ({
-            name: i.name,
-            v:
+          items: g.items.map((i) => {
+            const scale =
               i.t === null
-                ? F.num(i.v, i.unit)
-                : F.n(i.v, i.v < 10 ? 1 : 0) + " / " + F.num(i.t, i.unit),
-            w: i.t === null ? "0%" : Math.min(100, (i.v / i.t) * 100).toFixed(0) + "%",
-            color: F.tone(i.state),
-            aria:
-              i.name +
-              " " +
-              F.num(i.v, i.unit) +
-              (i.t === null ? "" : " su " + F.num(i.t, i.unit)),
-          })),
+                ? null
+                : i.zones?.length
+                  ? Math.max(i.v * 1.05, i.t * 1.5)
+                  : i.t;
+            const h = scale === null ? heat(0, undefined, 1) : heat(i.v, i.zones, scale);
+            return {
+              name: i.name,
+              v:
+                i.t === null
+                  ? F.num(i.v, i.unit)
+                  : F.n(i.v, i.v < 10 ? 1 : 0) + " / " + F.num(i.t, i.unit),
+              w:
+                scale === null
+                  ? "0%"
+                  : Math.min(100, (i.v / scale) * 100).toFixed(0) + "%",
+              color: F.tone(h.state ?? i.state),
+              track: h.track,
+              aria:
+                i.name +
+                " " +
+                F.num(i.v, i.unit) +
+                (i.t === null ? "" : " su " + F.num(i.t, i.unit)) +
+                (h.word ? ", " + h.word : ""),
+            };
+          }),
         })),
       }
     : null;
