@@ -22,7 +22,15 @@ import { addDays, instantAt, logicalDay } from "@/core/engines/time";
 import { readSettings } from "@/core/account/settings";
 import { readGoals, readNumbers, readSpans } from "@/core/goals";
 import { ensureWeekTargets, mondayOf } from "@/core/energy";
-import { planTag, planWords, readDayPlans } from "@/core/plans";
+import {
+  planTag,
+  planWords,
+  readDayPlans,
+  readModelBook,
+  resolveModel,
+  toModels,
+} from "@/core/plans";
+import { daySlots, slotFits } from "@/features/day/slots";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
@@ -161,16 +169,26 @@ export default async function OggiPage({
       : { at: instantAt(date, 23 * 60 + 30, clock), known: false },
     creatineDays: creatine,
   };
+  // The day's model's meal blocks: each meal's bars against its block, the block's fit in its score.
+  const model = plans.get(date)?.model ?? null;
+  const book = model ? await readModelBook(db, owner) : null;
+  const blocks = book
+    ? (resolveModel(model!.id, toModels(book.models, book.rows))?.blocks ?? [])
+    : [];
+  const slots = daySlots(blocks, targets);
+  const fits = slotFits(items, slots);
+  const slotOf = (i: (typeof items)[number]) =>
+    (i.subcategory && slots.get(i.subcategory)) || targets;
   const row = (i: (typeof items)[number]) => {
     const d = details(i);
     return {
       ...withCompounds(present(i), i, ctx),
       ...withScore(
-        mealScore(i, targets, kinds, micros) ??
+        mealScore(i, targets, kinds, micros, fits.get(i.subcategory ?? "") ?? null) ??
           weighScore(i, items, sctx) ??
           sleepScore(i, items, sctx),
       ),
-      l0: mealL0(i, targets, kinds, weightOn(series, date)),
+      l0: mealL0(i, slotOf(i), kinds, weightOn(series, date)),
       details: hasDetails(d) ? d : null,
       id: i.id,
       status: i.status,

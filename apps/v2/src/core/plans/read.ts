@@ -20,7 +20,28 @@ import {
 import type { Occurrence } from "../engines/planning";
 import { addDays, isoWeekday, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
+import { inheritedTargets, type ModelRow } from "./models";
 import { dayPlans, type DayPlan, type PlanCycle } from "./plan";
+
+/** The day models as `inheritedTargets` reads them: an archived base still lends its targets. */
+const asRows = (
+  models: readonly {
+    id: string;
+    name: string;
+    scope: string;
+    targets: unknown;
+    extendsId: string | null;
+  }[],
+): ModelRow[] =>
+  models
+    .filter((m) => m.scope === "day")
+    .map((m) => ({
+      id: m.id,
+      name: m.name,
+      extendsId: m.extendsId,
+      targets: (m.targets as Record<string, unknown> | null) ?? null,
+      active: true,
+    }));
 
 export async function readDayPlans(
   db: Db,
@@ -36,13 +57,14 @@ export async function readDayPlans(
         name: templates.name,
         scope: templates.scope,
         targets: templates.targets,
+        extendsId: templates.extendsId,
+        active: templates.active,
       })
       .from(templates)
       .where(
         and(
           ownedBy(templates, owner),
           inArray(templates.scope, ["day", "cycle"]),
-          eq(templates.active, true),
           isNull(templates.deletedAt),
         ),
       ),
@@ -81,7 +103,7 @@ export async function readDayPlans(
   ]);
   const names = new Map(models.map((m) => [m.id, m.name]));
   const dayModels = new Map(
-    models.filter((m) => m.scope === "day").map((m) => [m.id, m.name]),
+    models.filter((m) => m.scope === "day" && m.active).map((m) => [m.id, m.name]),
   );
   const fixedModels = new Map<IsoDate, string>();
   for (const f of fixed) {
@@ -182,10 +204,11 @@ export async function readDayPlans(
     from,
     to,
     models: dayModels,
+    // A model's targets with its bases' (key by key: core/plans/models).
     modelTargets: new Map(
       models
-        .filter((m) => m.scope === "day")
-        .map((m) => [m.id, (m.targets as Record<string, unknown> | null) ?? null]),
+        .filter((m) => m.scope === "day" && m.active)
+        .map((m) => [m.id, inheritedTargets(m.id, asRows(models)).targets]),
     ),
     week: new Map(week.map((w) => [w.weekday, w.templateId])),
     fixed: fixedModels,
@@ -254,13 +277,19 @@ export async function readDayModels(
 > {
   const [models, week, fixed] = await Promise.all([
     db
-      .select({ id: templates.id, name: templates.name, targets: templates.targets })
+      .select({
+        id: templates.id,
+        name: templates.name,
+        scope: templates.scope,
+        targets: templates.targets,
+        extendsId: templates.extendsId,
+      })
       .from(templates)
       .where(
         and(
           ownedBy(templates, owner),
           eq(templates.scope, "day"),
-          eq(templates.active, true),
+          // Archived ones too: a base still lends its targets, a fixed day keeps its model's name.
           isNull(templates.deletedAt),
         ),
       ),
@@ -283,7 +312,7 @@ export async function readDayModels(
   const byId = new Map(
     models.map((m) => [
       m.id,
-      { name: m.name, targets: (m.targets as Record<string, unknown> | null) ?? null },
+      { name: m.name, targets: inheritedTargets(m.id, asRows(models)).targets },
     ]),
   );
   const layout = new Map(week.map((w) => [w.weekday, w.templateId]));

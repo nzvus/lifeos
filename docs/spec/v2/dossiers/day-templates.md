@@ -3,8 +3,15 @@
 Status: **approved as recommended** (2026-10-24, §9 as recommended);
 slice (a) read side built: `core/plans` (a day's model and its cycles'
 steps, a step without a label named by its routine), Oggi's plan line and
-the week strip's tags, Piano's day lines. Targets from the model wait for
-slice (b). Method:
+the week strip's tags, Piano's day lines. Slice (b) built (2026-10-24):
+`core/plans/models*` (rows ↔ E3 models, targets inherited key by key, the
+person's meal split and usual times over 4 weeks), Piano · Modelli (week
+type, models, «Nuovo modello») and «Giornata tipo» (name, base, targets with
+«torna alla base», blocks added / changed / hidden here and back, «Quote
+dalle ultime 4 settimane», weekdays, Duplica · Estendi · Archivia); on Oggi
+each meal's bars against its block and the score's «adatto al blocco»
+(acceptance 5). Not yet: relative times in the editor («60 min dopo»),
+changing the base with its preview (rebase), cycles (c), habits (d). Method:
 `../method.md`. Boards: Plan (V-08 calendar), Models, ModelEditor
 («Giornata tipo»), CycleEditor («Ciclo PLPRR»). Spec: concepts.md §5,
 flows.md, schema.md (tables `templates`, `template_blocks`, `cycle_steps`,

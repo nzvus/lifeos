@@ -15,7 +15,9 @@
  *            sodium would fail it. 1 at or under its allowance, 0 at twice
  *            it; the part is the worst limit known.
  *   value    nutrients per €: left out (meal lines carry no price yet).
- *   fit      against a block's shares: left out until day templates.
+ *   fit      against its block (`blockFit`): the meals of that role on the
+ *            day against the block's kcal and protein (day model's shares ×
+ *            the day's targets); left out on a day without a model's block.
  * A nutrient counts only when the foods carrying it make ≥ 80 % of the
  * meal's energy; otherwise it is left out. Density needs at least 6 of its
  * 11 nutrients known, or a single one capped at 100 % would carry it (a
@@ -24,6 +26,7 @@
  * Sources: Drewnowski 2009 (NRF9.3); WHO 2015/2023; EFSA DRVs.
  */
 import type { Micro } from "../engines/targets";
+import { bandScore } from "../engines/judgements/model";
 import { macroKinds } from "./kinds";
 import { dayMicros } from "./micros";
 
@@ -45,7 +48,7 @@ export type FoodParts = {
   density: number | null;
   limits: number | null;
   value: null;
-  fit: null;
+  fit: number | null;
   /** What made each part: nutrient → share of its reference (density), limit → ratio to its allowance. */
   detail: { density: Record<string, number>; limits: Record<string, number> };
 };
@@ -63,6 +66,31 @@ const SODIUM_PER_SALT = 0.4;
 const COVER = 0.8;
 const MIN_DENSITY_NUTRIENTS = 6;
 const MIN_KCAL = 5;
+
+/**
+ * How well a block's meals fit it (E7 «fit to its block»; the 15 % and the
+ * 50 % are this engine's choices): kcal within ±15 % of the block's is 1,
+ * falling to 0 at ±65 %; protein from 85 % of the block's up is 1 (more is
+ * not a fault), 0 under 35 %. The part is their mean.
+ */
+export function blockFit(
+  got: { kcal: number; protein: number },
+  block: { kcal: number; protein: number },
+): number | null {
+  if (!(block.kcal > 0)) return null;
+  const kcal = bandScore(
+    got.kcal,
+    { low: 0.85 * block.kcal, high: 1.15 * block.kcal },
+    0.5 * block.kcal,
+  );
+  if (!(block.protein > 0)) return kcal;
+  const protein = bandScore(
+    got.protein,
+    { low: 0.85 * block.protein },
+    0.5 * block.protein,
+  );
+  return (kcal + protein) / 2;
+}
 
 /** The parts as `score()` takes them (E7). */
 export const partsOf = (p: FoodParts) => ({

@@ -555,3 +555,10 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 /* the heat strip's own colours: four levels told apart by hue and lightness, not only by a word */
 :root,[data-theme="light"]{--heat-good:#2f8a5a;--heat-fair:#e0a500;--heat-bad:#d9542c;--heat-danger:#8a1a10}
 [data-theme="dark"]{--heat-good:#6cc391;--heat-fair:#f2cc4d;--heat-bad:#f2805a;--heat-danger:#ff4d3d}
+/* A chip that is a checkbox (Piano: a model's weekdays): the box hidden, the chip pressed when checked. */
+.k-chip:has(>input[type="checkbox"]){position:relative;min-width:var(--touch-dense);justify-content:center}
+.k-chip>input[type="checkbox"]{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.k-chip:has(>input:checked){background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.k-chip:has(>input:focus-visible){outline:var(--ring) solid var(--focus);outline-offset:2px}
+/* An inline form under a row (Piano: a block being changed). */
+.k-panel{padding:12px;border:1px solid var(--hairline);border-radius:var(--radius-surface);background:var(--sheet)}
