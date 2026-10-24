@@ -102,17 +102,20 @@ export function presentDay(
           : {
               key: "sugars",
               v: v(eaten, "sugars"),
+              planned: v(planned, "sugars"),
               t: targets?.sugars ?? (kcal * 45) / 1000,
             },
         {
           key: "sat",
           v: v(eaten, "saturatedFat"),
+          planned: v(planned, "saturatedFat"),
           t: targets?.saturatedFat ?? (basis.kcal * 0.1) / 9,
           ...zones(saturatedRange),
         },
         {
           key: "salt",
           v: v(eaten, "salt"),
+          planned: v(planned, "salt"),
           t: targets?.salt ?? 5,
           zones: saltRange().zones,
         },

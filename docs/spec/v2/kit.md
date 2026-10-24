@@ -86,11 +86,14 @@ sessions into days. "Routine" is not a word of the app.
   row opens they grow and tilt, on the same transition.
 - **Tapping a food highlights it in every row**, the way a tapped entry
   highlights on the day.
-- **The heat bar:** a bar given `zones` (E5 ranges) paints its track with
-  them in pale tints (herb good, warn fair, tomato bad, deeper tomato
-  danger); the fill takes the nutrient's colour (a limit's or a micro's:
-  its zone's), and the zone's word («ottimo», «ok», «pessimo», «da
-  evitare») follows a macro's value and every aria.
+- **The heat strip** (dossiers/ranges.md §6; first painted inside the
+  track, rejected by the developer on 2026-10-24 as unreadable): a bar
+  given `zones` gets a thin strip of its own under it, the zones in four
+  `--heat-*` colours (good green, fair amber, bad orange-red, danger dark
+  red hatched), a solid mark at the number, a hollow one where the plan
+  takes it, a triangle at the week's mean, and a key under the limits. A
+  limit or a micro is its strip. The word («ottimo», «ok», «pessimo», «da
+  evitare») judges eaten + planned, «→» when the plan counts.
 
 ## 5. Screens → components
 | Screen | Built from |

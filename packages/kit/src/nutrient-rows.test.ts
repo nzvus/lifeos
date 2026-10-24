@@ -162,13 +162,27 @@ describe("the heat bar (dossiers/ranges.md §6)", () => {
     { from: 166, level: "fair" as const },
     { from: 227, level: "bad" as const },
   ];
-  it("paints the track with the zones and says the value's zone", () => {
+  it("draws the zones on a strip of their own and says the value's zone", () => {
     const m = rows({ macros: [{ key: "protein", v: 140.7, t: 154, zones }] }).macros[0]!;
     expect(m.word).toBe("ottimo");
     expect(m.state).toBe("good");
     expect(m.aria).toContain("ottimo");
     // The scale shows the whole good zone: max(154 × 1.25, 166 × 1.1) = 192.5.
-    expect(m.track).toContain("var(--herb) 42%, var(--sheet)) 62.9% 86.2%");
+    expect(m.strip!.zones.map((z) => [z.w, z.c])).toEqual([
+      ["32.6%", "var(--heat-bad)"],
+      ["30.3%", "var(--heat-fair)"],
+      ["23.4%", "var(--heat-good)"],
+      ["13.8%", "var(--heat-fair)"],
+      ["0.0%", "var(--heat-bad)"],
+    ]);
+    expect(m.strip).toMatchObject({ at: "73.1%", to: null });
+  });
+  it("judges where the plan takes the day, and marks it", () => {
+    const m = rows({ macros: [{ key: "protein", v: 100, planned: 40, t: 154, zones }] })
+      .macros[0]!;
+    expect(m.word).toBe("→ ottimo");
+    expect(m.aria).toContain("ottimo con il previsto");
+    expect(m.strip).toMatchObject({ at: "51.9%", to: "72.7%" });
   });
   it("judges a limit by its zones, its bar running to twice the limit", () => {
     const salt = [
@@ -179,19 +193,19 @@ describe("the heat bar (dossiers/ranges.md §6)", () => {
     ];
     const l = rows({ macros: [], limits: [{ key: "salt", v: 11.6, t: 5, zones: salt }] })
       .limits[0]!;
-    expect(l.w).toBe("95%"); // 11.6 of max(11.6 × 1.05, 10)
-    expect(l.aria).toContain("pessimo");
-    expect(l.color).toBe("var(--tomato)");
-    expect(l.mean).toBeNull();
+    expect(l.strip!.at).toBe("95.2%"); // 11.6 of max(11.6 × 1.05, 10)
+    expect(l.word).toBe("pessimo");
+    expect(l.strip!.zones[3]).toMatchObject({ danger: true });
+    expect(l.strip!.mean).toBeNull();
     const m = rows({
       macros: [],
       limits: [{ key: "salt", v: 11.6, t: 5, zones: salt, mean: 6, meanDays: 3 }],
     }).limits[0]!;
-    expect(m.mean).toBe("49.3%"); // 6 of 12.18
+    expect(m.strip!.mean).toBe("49.3%"); // 6 of 12.18
     expect(m.aria).toContain("media di 3 giorni");
   });
   it("without zones, nothing changes", () => {
     const m = rows({ macros: [{ key: "protein", v: 140.7, t: 154 }] }).macros[0]!;
-    expect(m).toMatchObject({ track: null, word: null });
+    expect(m).toMatchObject({ strip: null, word: null });
   });
 });

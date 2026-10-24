@@ -3,8 +3,9 @@
  * §5): the skyline behind «Il giorno» and the week strip's bars.
  *   dayTargets  the mean of each macro's and limit's zone score (a limit by
  *               its week's mean), the micros counting as one (their
- *               mean); null without food logged.
- *               A day still going is judged only for what went over (§7)
+ *               mean); null without food logged. A day still going is
+ *               judged on what was eaten plus what is planned, and only for
+ *               what goes over (§7)
  *   recovery    the night's score, 0–1
  *   habits      of what was planned (from a model, or folded into what was
  *               done), the share done; a day still going counts only what
@@ -45,9 +46,12 @@ export function targetsPart(n: NutrientsData | null, ongoing: boolean): number |
     .flatMap((g) => g.items.flatMap((i) => judge(i.v, i.zones)));
   return mean([
     ...others,
-    ...n.macros.flatMap((m) => judge(m.v, m.zones)),
+    // A day still going: what was eaten plus what is planned for the rest of it.
+    ...n.macros.flatMap((m) => judge(m.v + (ongoing ? (m.planned ?? 0) : 0), m.zones)),
     // A limit by its week's mean when there is one (dossiers/ranges.md §5).
-    ...(n.limits ?? []).flatMap((l) => judge(l.mean ?? l.v, l.zones)),
+    ...(n.limits ?? []).flatMap((l) =>
+      judge(l.mean ?? l.v + (ongoing ? (l.planned ?? 0) : 0), l.zones),
+    ),
     ...(micros === null ? [] : [micros]),
   ]);
 }

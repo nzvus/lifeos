@@ -176,4 +176,18 @@ describe("the day's score (dossiers/ranges.md §5)", () => {
     expect(salt("2026-10-19").mean).toBeUndefined();
     expect(salt("2026-10-21")).toMatchObject({ v: 11, mean: 19 / 3, meanDays: 3 });
   });
+
+  it("a day still going is judged with what is planned for the rest of it", () => {
+    const lunch = item("meal", {
+      lines: [line("Pane", "100", { kcal: "900", salt: "4" })],
+    });
+    const dinner = item("meal", {
+      status: "planned",
+      lines: [line("Pizza", "100", { kcal: "1300", salt: "5" })],
+    });
+    const nn = n(day([lunch, dinner]))!;
+    expect(nn.limits!.find((l) => l.key === "salt")).toMatchObject({ v: 4, planned: 5 });
+    // 9 g of salt with the pizza: over 7.5, bad; the day so far alone would be fine.
+    expect(targetsPart(nn, true)!).toBeLessThan(targetsPart(n(day([lunch])), true)!);
+  });
 });
