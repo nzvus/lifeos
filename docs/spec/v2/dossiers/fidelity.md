@@ -108,6 +108,13 @@ non trova?» (new food, new exercise). Missing: one search across all, the
 «Adesso / Previsto» switch, «Porzioni pronte» (batches, pantry), «Nuovo
 tracker». Impostazioni: compare again.
 
+## Impostazioni
+Done 2026-10-24: sections with their drawing and a line of why,
+«Obiettivi di oggi» (kcal and protein, where they come from, a link),
+«Tracker e tipi» (the foods and your own kinds counted), «I tuoi dati»
+(download all, the trash with its count). Missing: CSV per kind, replace
+or merge from a file, invites, language, the weather's city.
+
 ## Proposed order
 1. The box (cross-cutting): score skyline + open state + pills, so every
    screen gains at once.
