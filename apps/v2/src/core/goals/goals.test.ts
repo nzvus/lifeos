@@ -5,7 +5,14 @@ import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { addDays } from "../engines/time";
 import { weekDaysOnTarget, weightProgress } from "./progress";
-import { inForce, readGoals, readMinutes, readNumbers, type GoalRow } from "./read";
+import {
+  inForce,
+  readGoals,
+  readMinutes,
+  readNumbers,
+  readSpans,
+  type GoalRow,
+} from "./read";
 import { checkGoal, createGoal } from "./write";
 
 describe("a weight goal's progress", () => {
@@ -134,6 +141,20 @@ describe("the numbers a goal reads", () => {
         .insert(s.entryValues)
         .values({ userId: a.id, entryId: e!.id, field: "category", text: cat });
     }
+    const night = (owner: Owner, day: string, status: "done" | "planned", end?: string) =>
+      db.insert(s.entries).values({
+        userId: owner.id,
+        kind: "sleep",
+        day,
+        status,
+        startAt: new Date(day + "T00:30:00Z"),
+        endAt: end ? new Date(day + end) : null,
+      });
+    await night(a, "2026-10-16", "done", "T07:00:00Z");
+    await night(a, "2026-10-15", "done", "T06:30:00Z");
+    await night(a, "2026-10-14", "done");
+    await night(a, "2026-10-13", "planned", "T07:00:00Z");
+    await night(b, "2026-10-16", "done", "T07:00:00Z");
   });
   afterAll(() => close());
 
@@ -178,6 +199,14 @@ describe("the numbers a goal reads", () => {
         "2026-10-17",
       ),
     ).toBe(120);
+  });
+
+  it("reads the done intervals with both ends, oldest first", async () => {
+    const got = await readSpans(db, a, "sleep", "2026-10-10", "2026-10-17");
+    expect(got.map((n) => [n.day, n.end.toISOString()])).toEqual([
+      ["2026-10-15", "2026-10-15T06:30:00.000Z"],
+      ["2026-10-16", "2026-10-16T07:00:00.000Z"],
+    ]);
   });
 });
 
