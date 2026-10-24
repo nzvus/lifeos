@@ -9,5 +9,5 @@ import { archiveItem } from "@/core/catalog/archive";
 export async function archiveExercise(id: string): Promise<void> {
   await archiveItem(await getDb(), await requireOwner(), id, "exercise");
   revalidatePath("/libreria", "layout");
-  redirect("/libreria");
+  redirect("/libreria?vista=esercizi");
 }

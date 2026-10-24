@@ -22,6 +22,35 @@ export type LibraryRow = {
   of?: Record<string, string>;
 };
 
+/** Libreria's lists by their `?vista=` (the index when absent). */
+export const LIBRARY_VIEWS = {
+  cibi: "foods",
+  pasti: "meals",
+  esercizi: "exercises",
+} as const;
+export type LibraryView = (typeof LIBRARY_VIEWS)[keyof typeof LIBRARY_VIEWS];
+
+/** Each shelf's line on the index (the board: counts and what is used most). */
+export function shelfLines(
+  foods: readonly FoodChoice[],
+  meals: readonly LibraryRow[],
+  exercises: readonly LibraryRow[],
+): Record<LibraryView, string> {
+  const products = foods.filter((f) => f.productId !== null).length;
+  const top = [...meals]
+    .sort((a, b) => b.uses - a.uses)
+    .slice(0, 2)
+    .map((m) => m.name.toLowerCase());
+  const trained = exercises.filter((e) => e.uses > 0).length;
+  return {
+    foods: "ciò che mangi · " + (products === 1 ? "1 prodotto" : products + " prodotti"),
+    meals: top.length
+      ? "più usati: " + top.join(", ")
+      : "i pasti che salvi dal compositore",
+    exercises: trained + " con sessioni · record ed e1RM",
+  };
+}
+
 export const SORTS = {
   uses: "Più usati",
   name: "Nome",

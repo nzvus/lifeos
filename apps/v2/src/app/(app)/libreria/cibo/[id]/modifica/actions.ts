@@ -73,7 +73,7 @@ export async function saveFood(
 export async function archiveFood(id: string): Promise<void> {
   await archiveItem(await getDb(), await requireOwner(), id, "food");
   revalidatePath("/libreria", "layout");
-  redirect("/libreria");
+  redirect("/libreria?vista=cibi");
 }
 
 /** Saves «Nuovo prodotto» of a food: the brand and the label's values. */

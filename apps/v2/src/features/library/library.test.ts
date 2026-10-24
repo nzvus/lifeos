@@ -120,3 +120,39 @@ describe("Libreria's lists", () => {
     expect(mealPage(foods, recipes, "2")).toBeNull();
   });
 });
+
+describe("the index's shelves", () => {
+  it("say the products, the two saved meals used most, the exercises trained", async () => {
+    const { shelfLines } = await import("./library");
+    const food = (productId: string | null) =>
+      ({
+        key: "k" + productId,
+        foodId: "f",
+        productId,
+        name: "Avena",
+        brand: null,
+        unit: "g",
+        per100: {},
+        uses: 0,
+        lastQty: null,
+      }) as const;
+    const row = (name: string, uses: number) => ({
+      key: name,
+      name,
+      sub: "",
+      uses,
+      values: {},
+    });
+    expect(
+      shelfLines(
+        [food(null), food("p1"), food("p2")],
+        [row("Porridge", 3), row("Pizza", 9), row("Insalata", 1)],
+        [row("Panca", 4), row("Trazioni", 0)],
+      ),
+    ).toEqual({
+      foods: "ciò che mangi · 2 prodotti",
+      meals: "più usati: pizza, porridge",
+      exercises: "1 con sessioni · record ed e1RM",
+    });
+  });
+});

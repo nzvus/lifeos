@@ -60,7 +60,7 @@ export function ExerciseForm({
     <form key={state.n} action={submit} className="k-page">
       <PageHeader
         title="Nuovo esercizio"
-        back={{ label: "Libreria", href: "/libreria" }}
+        back={{ label: "Esercizi", href: "/libreria?vista=esercizi" }}
         of={{ fam: "train" }}
       />
       <section className="k-section g4" aria-label="Esercizio">

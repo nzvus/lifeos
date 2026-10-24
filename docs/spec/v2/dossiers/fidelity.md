@@ -18,8 +18,8 @@ were only ported for the parts a first slice needed.
 | Each food, exercise, meal with its own drawing (Glyph resolver: group, dish, pattern, equipment) | one generic icon per family (fork, dumbbell) | **done here**: the data reaches the rows (composer, library, gym) |
 | Meal boxes named by role (Colazione, Cena), contents underneath | raw food names in capitals | **done here** (drinks and supplements keep their name) |
 | L0: four thin macro bars in each meal box, kinds shaded | none | **done here** (`NutrientsL0`; against the day's targets until day templates give slot targets) |
-| Score skyline in the box background, the box opens on its score parts and L1 | boxes never open, no score | next: E7 food/meal model + `Box` open state |
-| Pills that say something (caffeine left at bedtime, «+49 min», «P 19,3 g», sets · tonnage · kcal) | only pre/post-workout tags | next, per kind |
+| Score skyline in the box background, the box opens on its score parts and L1 | boxes never open, no score | **open state done here** (a meal opens on its L1); the score needs the E7 food/meal scorer, whose thresholds want their own short dossier |
+| Pills that say something (caffeine left at bedtime, «+49 min», «P 19,3 g», sets · tonnage · kcal) | only pre/post-workout tags | sessions' sets · tonnage **done here**; the rest per kind |
 | Planned items hatched with «Fatto», the now line, end-of-day actions | partly (planned style), no now line on past days, no actions | next |
 
 ## Oggi (Main)
@@ -56,6 +56,9 @@ effect); **Gli ambiti** (food, weight, training, sleep, water, steps), each
 with its score skyline and its page.
 
 ## Libreria
+**Done here**: the index (one search across the catalogs, the shelves with
+counts and a line, «Aggiungere»), each shelf opening its list. The board's
+Dispensa and Tipi di tracker shelves join when those slices exist.
 The board is an index: Cibi · Pasti e ricette · Dispensa · Esercizi · Tipi
 di tracker, then «Aggiungere» (food by barcode/label/hand, meal, receipt,
 exercise), one search across all. v2 opens straight on the foods list with
@@ -71,6 +74,5 @@ compare again after the cross-cutting fixes.
    screen gains at once.
 2. Composer to its board (the screen used most after Oggi).
 3. Gym header, segmented auto/manual, «Poi» plans.
-4. Libreria as an index.
 5. Andamento's Energia and Gli ambiti (needs E3/E7 outputs on the page).
 6. Oggi's header and context once day templates exist.
