@@ -34,6 +34,9 @@ import { ESTIMATE_FIELDS, type EstimateField } from "@/core/food/meal";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
 import {
   clockMinute,
+  closeTheGap,
+  fittingRecipes,
+  mealFoods,
   dayWithMeal,
   estimateTotals,
   mealKinds,
@@ -41,6 +44,7 @@ import {
   mealTotals,
   quantityOf,
   type DraftLine,
+  type Slot,
 } from "./composer";
 
 export type MealState = {
@@ -73,6 +77,8 @@ export function Composer({
   day,
   dayLabel,
   dayNutrients,
+  slots = {},
+  modelName = null,
   roleBounds,
   initial,
   backHref,
@@ -93,6 +99,9 @@ export function Composer({
   dayLabel: string;
   /** The day as it is (eaten, planned, targets); null on a day with nothing. */
   dayNutrients: NutrientsData | null;
+  /** The day's model's meal blocks: role → its targets (features/day/slots). */
+  slots?: Record<string, Slot>;
+  modelName?: string | null;
   /** Where lunch, the snack and dinner start: a meal's role from its time. */
   roleBounds: RoleBounds;
   initial: Record<string, string>;
@@ -121,6 +130,8 @@ export function Composer({
       day={day}
       dayLabel={dayLabel}
       dayNutrients={dayNutrients}
+      slots={slots}
+      modelName={modelName}
       roleBounds={roleBounds}
       backHref={backHref}
     />
@@ -142,6 +153,8 @@ function Draft({
   day,
   dayLabel,
   dayNutrients,
+  slots,
+  modelName,
   roleBounds,
   backHref,
 }: {
@@ -158,6 +171,8 @@ function Draft({
   day: string;
   dayLabel: string;
   dayNutrients: NutrientsData | null;
+  slots: Record<string, Slot>;
+  modelName: string | null;
   roleBounds: RoleBounds;
   backHref: string;
 }) {
@@ -166,6 +181,8 @@ function Draft({
     [choices, extraChoices],
   );
   const [lines, setLines] = useState<DraftLine[]>(state.lines);
+  // A quantity changed from outside its stepper («Porta … a …») remounts the steppers.
+  const [rev, setRev] = useState(0);
   const [query, setQuery] = useState("");
   const [start, setStart] = useState(state.values["start"] ?? "");
   const [role, setRole] = useState(state.values["role"] ?? "");
@@ -198,6 +215,10 @@ function Draft({
   const auto = at === null ? "" : mealRoleAt(at, roleBounds);
   const foundRecipes = searchRecipes(recipes, query, tab === "meals" ? 12 : 0);
   const roleWord = ROLE_WORDS[role || auto];
+  // The meal's block in the day's model: its bars, the gap, the meals that fit.
+  const slot = slots[role || auto] ?? null;
+  const gap = estimate ? null : closeTheGap(totals, slot, lines, choices);
+  const fitting = estimate || tab !== "foods" ? [] : fittingRecipes(recipes, by, slot);
   const heading = (roleWord ?? title) + (start ? " · " + start : "");
   const lineKcal = (c: FoodChoice | undefined, q: string) =>
     c && quantityOf(q)
@@ -267,7 +288,9 @@ function Draft({
           dayLabel,
           status === "planned" ? "previsto" : "mangiato",
           recipeName ?? "",
-          F.num(totals["kcal"] ?? 0, "kcal"),
+          F.num(totals["kcal"] ?? 0, "kcal") +
+            (slot ? " di " + F.num(slot.kcal, "kcal") + " del blocco" : ""),
+          slot && modelName ? "«" + modelName + "»" : "",
         ]
           .filter(Boolean)
           .join(" · ")}
@@ -368,7 +391,7 @@ function Draft({
                 const protein = lineProtein(c, l.quantity);
                 return (
                   <Box
-                    key={l.key}
+                    key={l.key + ":" + rev}
                     density="row"
                     rail={false}
                     entry={{
@@ -544,10 +567,99 @@ function Draft({
             data={mealNutrients(
               totals,
               estimate ? undefined : mealKinds(lines, by, servings),
+              estimate ? undefined : mealFoods(lines, by, servings),
+              slot,
             )}
           />
         </Box>
       </section>
+
+      {gap && (
+        <section className="k-section g3" aria-label="Per arrivare al blocco">
+          <h2>Per arrivare al blocco</h2>
+          <span className="k-meta">
+            {gap.gap === 0
+              ? "Le proteine del blocco ci sono."
+              : "Mancano " +
+                F.num(gap.gap, "g") +
+                " di proteine per il blocco (" +
+                F.num(slot!.protein!, "g") +
+                ")" +
+                (gap.ideas.length ? ". Così, con quanto aggiungono:" : ".")}
+          </span>
+          {gap.ideas.map((x) => {
+            const c = by.get(x.key);
+            return (
+              <Box
+                key={x.key}
+                density="row"
+                rail={false}
+                entry={{
+                  fam: "food",
+                  ...withDrawing(drawingOf(c)),
+                  title:
+                    (x.raise ? "Porta " + x.name + " a " : x.name + " ") +
+                    F.num(Number(x.quantity), c?.unit ?? "g"),
+                  value: F.signed(x.protein, "g"),
+                  meta: F.signed(x.kcal, "kcal") + " · proteine",
+                }}
+                acts={[
+                  {
+                    label: "+",
+                    aria: x.raise
+                      ? "Porta " + x.name + " a " + x.quantity
+                      : "Aggiungi " + x.name,
+                    onClick: () => {
+                      if (x.raise) setRev((r) => r + 1);
+                      setLines((ls) =>
+                        x.raise
+                          ? ls.map((l) =>
+                              l.key === x.key ? { ...l, quantity: x.quantity } : l,
+                            )
+                          : [...ls, { key: x.key, quantity: x.quantity }],
+                      );
+                    },
+                  },
+                ]}
+              />
+            );
+          })}
+        </section>
+      )}
+
+      {fitting.length > 0 && (
+        <section className="k-section g3" aria-label="Pasti adatti">
+          <h2>
+            {"Pasti adatti " + (roleWord ? "a " + roleWord.toLowerCase() : "al blocco")}{" "}
+            <span className="k-meta">dai tuoi pasti</span>
+          </h2>
+          {fitting.map((f) => (
+            <button
+              key={f.recipe.key}
+              type="button"
+              className="k-pick"
+              onClick={() => addRecipe(f.recipe)}
+            >
+              <Box
+                density="row"
+                rail={false}
+                entry={{
+                  fam: "food",
+                  of: { kind: "meal" },
+                  title: f.recipe.name,
+                  meta:
+                    F.num(f.kcal, "kcal") +
+                    " · " +
+                    F.num(f.protein, "g") +
+                    " proteine · adatto " +
+                    Math.round(f.fit * 100),
+                  value: "+",
+                }}
+              />
+            </button>
+          ))}
+        </section>
+      )}
 
       {dayNutrients && (
         <section className="k-section g3" aria-label="La giornata con questo pasto">
