@@ -26,6 +26,21 @@ export type HeatLevel = "danger" | "bad" | "fair" | "good";
 export type HeatZone = { from: number; level: HeatLevel };
 
 export type NutrientsData = {
+  /**
+   * Level L2 (a meal's window): the foods it is made of, each with its grams
+   * per macro and kind. Each bar is then drawn per food (shaded by kind
+   * inside), a food's chip highlights its part everywhere, and each kind
+   * says which foods it came from. `sources` are derived from them.
+   */
+  foods?: {
+    key: string;
+    name: string;
+    /** Its quantity, as shown («200 g»). */
+    amount: string;
+    kcal: number;
+    /** Macro → kind → grams; a key outside the macro's kinds («all») is drawn in its own colour. */
+    macros: Partial<Record<MacroKey, Record<string, number>>>;
+  }[];
   kcal?: { v: number; planned?: number; t?: number | null };
   macros: {
     key: MacroKey;
@@ -221,7 +236,13 @@ export const shade = (m: MacroKey, tone: number) =>
 const pct = (v: number, of: number) => ((v / of) * 100).toFixed(1) + "%";
 const g = (v: number) => F.n(v, 1);
 
-export type Seg = { w: string; bg: string; planned: boolean };
+/** `dim`: another food is highlighted (L2). */
+export type Seg = { w: string; bg: string; planned: boolean; dim: boolean };
+
+const total = (o: Record<string, number> | undefined) =>
+  Object.values(o ?? {}).reduce((a, v) => a + v, 0);
+/** A food chip's swatch: the most energy first, darker (the boards' tones). */
+const TONES = [1, 0.75, 0.55, 0.38, 0.22];
 
 /**
  * Level L0 (kit.md §4; the boards' `k-l0`): one thin bar per macro in a
@@ -254,7 +275,17 @@ export function nutrientsL0(d: NutrientsData) {
   });
 }
 
-export function nutrientsL1(d: NutrientsData) {
+/** `sel`: the food highlighted in a meal's window (L2), by key; null for none. */
+export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
+  const foodsIn = d.foods?.length ? d.foods : null;
+  const byKcal = [...(foodsIn ?? [])].sort((a, b) => b.kcal - a.kcal);
+  const foods = (foodsIn ?? []).map((f) => ({
+    key: f.key,
+    name: f.name,
+    amount: f.amount,
+    tone: TONES[Math.min(TONES.length - 1, byKcal.indexOf(f))]!,
+    pressed: sel === f.key,
+  }));
   const kcal = d.kcal
     ? (() => {
         const k = d.kcal;
@@ -297,18 +328,46 @@ export function nutrientsL1(d: NutrientsData) {
         : Math.max(t * 1.25, (m.v + planned) * 1.05, (end ?? 0) * 1.1)) || 1;
     const h = heat(m.v, m.zones, scale, planned);
     const kinds = KINDS[m.key].filter(([k]) => (m.parts?.[k] ?? 0) > 0);
-    const segs: Seg[] = kinds.length
-      ? kinds.map(([k, , tone]) => ({
-          w: pct(m.parts![k]!, scale),
-          bg: shade(m.key, tone),
-          planned: false,
-        }))
-      : m.v > 0
-        ? [{ w: pct(m.v, scale), bg: shade(m.key, 1), planned: false }]
-        : [];
+    const has = (foodsIn ?? []).filter((f) => total(f.macros[m.key]) > 0);
+    const segs: Seg[] = has.length
+      ? has.map((f) =>
+          foodSeg(m.key, f.macros[m.key]!, scale, sel !== null && sel !== f.key),
+        )
+      : kinds.length
+        ? kinds.map(([k, , tone]) => ({
+            w: pct(m.parts![k]!, scale),
+            bg: shade(m.key, tone),
+            planned: false,
+            dim: false,
+          }))
+        : m.v > 0
+          ? [{ w: pct(m.v, scale), bg: shade(m.key, 1), planned: false, dim: false }]
+          : [];
     if (planned > 0)
-      segs.push({ w: pct(planned, scale), bg: shade(m.key, 0.5), planned: true });
-    const sources = m.sources ?? [];
+      segs.push({
+        w: pct(planned, scale),
+        bg: shade(m.key, 0.5),
+        planned: true,
+        dim: false,
+      });
+    const sources: [string, number, string?][] = has.length
+      ? has
+          .map((f): [string, number, string] => [f.name, total(f.macros[m.key]), f.key])
+          .sort((a, b) => b[1] - a[1])
+      : (m.sources ?? []);
+    // Which foods a kind came from, in a window of more than one food.
+    const from = (k: string) => {
+      const by = has
+        .map((f): [string, number] => [f.name, f.macros[m.key]?.[k] ?? 0])
+        .filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1]);
+      return has.length > 1 && by.length > 0
+        ? by
+            .slice(0, 3)
+            .map(([n, v]) => n + " " + g(v))
+            .join(" · ") + (by.length > 3 ? " · altri " + (by.length - 3) : "")
+        : null;
+    };
     const top = sources.reduce((a, s) => Math.max(a, s[1]), 0) || 1;
     const rest = sources.slice(SOURCES_SHOWN);
     return {
@@ -324,6 +383,7 @@ export function nutrientsL1(d: NutrientsData) {
         const zones = m.partZones?.[k];
         if (!zones?.length)
           return {
+            from: from(k),
             name,
             v: g(v),
             c: shade(m.key, tone),
@@ -340,6 +400,7 @@ export function nutrientsL1(d: NutrientsData) {
         const h = heat(v, zones, own);
         // The swatch keeps the kind's shade (it names its part of the macro's bar); the fill its zone.
         return {
+          from: from(k),
           name,
           v: g(v),
           c: shade(m.key, tone),
@@ -348,24 +409,30 @@ export function nutrientsL1(d: NutrientsData) {
           ...h,
         };
       }),
-      sources: [
-        ...sources.slice(0, SOURCES_SHOWN).map(([name, v]) => ({
-          name,
-          g: g(v),
-          w: ((v / top) * 100).toFixed(0) + "%",
-          faint: false,
-        })),
-        ...(rest.length
-          ? [
-              {
-                name: "e altri " + rest.length,
-                g: g(rest.reduce((a, s) => a + s[1], 0)),
-                w: "0%",
-                faint: true,
-              },
-            ]
-          : []),
-      ],
+      // One food alone has nothing to compare: its window shows no «da dove».
+      sources:
+        has.length === 1
+          ? []
+          : [
+              ...sources.slice(0, SOURCES_SHOWN).map(([name, v, key]) => ({
+                name,
+                g: g(v),
+                w: ((v / top) * 100).toFixed(0) + "%",
+                faint: false,
+                dim: sel !== null && key !== undefined && key !== sel,
+              })),
+              ...(rest.length
+                ? [
+                    {
+                      name: "e altri " + rest.length,
+                      g: g(rest.reduce((a, s) => a + s[1], 0)),
+                      w: "0%",
+                      faint: true,
+                      dim: false,
+                    },
+                  ]
+                : []),
+            ],
       extras: (m.extras ?? []).map((x) => ({ t: x.t, c: F.tone(x.state) })),
       ...h,
       aria:
@@ -459,5 +526,36 @@ export function nutrientsL1(d: NutrientsData) {
       }
     : null;
 
-  return { kcal, macros, limits, micros };
+  return { kcal, foods, macros, limits, micros };
+}
+
+/** A food's part of a macro's bar, shaded by its kinds left to right (the boards' L2). */
+function foodSeg(
+  m: MacroKey,
+  kinds: Record<string, number>,
+  scale: number,
+  dim: boolean,
+): Seg {
+  const fv = total(kinds);
+  let at = 0;
+  const stops: string[] = [];
+  const shades: string[] = [];
+  for (const [k, , tone] of KINDS[m]) {
+    const v = kinds[k] ?? 0;
+    if (v <= 0) continue;
+    const c = shade(m, tone);
+    shades.push(c);
+    stops.push(c + " " + ((at / fv) * 100).toFixed(0) + "%");
+    at += v;
+    stops.push(c + " " + ((at / fv) * 100).toFixed(0) + "%");
+  }
+  return {
+    w: pct(fv, scale),
+    bg:
+      shades.length > 1
+        ? "linear-gradient(to right, " + stops.join(", ") + ")"
+        : (shades[0] ?? shade(m, 1)),
+    planned: false,
+    dim,
+  };
 }

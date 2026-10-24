@@ -93,6 +93,7 @@ export function weekEnergy(
   const kgOn = (day: IsoDate) =>
     [...weighIns].reverse().find((w) => w.day <= day)?.kg ?? weighIns[0]!.kg;
   const closed = new Set(rows.closed);
+  const partial = new Set(rows.partial);
 
   const days: BodyDay[] = [];
   const parts: WeekEnergy["priors"][] = [];
@@ -168,7 +169,7 @@ export function weekEnergy(
       day: d,
       eatenKcal: eaten,
       estimatedKcal: meals.filter((m) => m.estimated).reduce((a, m) => a + m.kcal, 0),
-      closed: closed.has(d) ? "complete" : null,
+      closed: closed.has(d) ? "complete" : partial.has(d) ? "partial" : null,
       ...filterInputs(prior),
     });
   }

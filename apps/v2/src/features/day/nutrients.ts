@@ -37,7 +37,9 @@ import {
   type Range,
 } from "@/core/engines/targets";
 import { dayFood, type FoodEntry } from "@/core/food/day";
+import { macroKinds } from "@/core/food/kinds";
 import { dayMicros } from "@/core/food/micros";
+import { lineTotals } from "@/core/food/totals";
 import { mealCompounds } from "@/core/food/compounds";
 
 /** The kit's macro → the field the snapshot and the targets use. */
@@ -296,8 +298,113 @@ const mealProteinZones = (weightKg: number | null) =>
       };
 
 /**
- * A meal's nutrients: its thin macro bars (L0), and its L1 when its box
- * opens (kcal, kinds, where each came from). What it brought (or will
+ * A meal's carbs' glycaemic load, estimated from their kinds (no food carries
+ * its GI yet): whole starch ≈ 50, refined starch and tubers ≈ 70, fruit and
+ * milk sugars ≈ 40, free sugars ≈ 65, unknown 60 (Atkinson 2008, the
+ * international GI tables). A meal's GL ≤ 10 is low, 11–19 medium, ≥ 20 high.
+ */
+const GI: Record<string, number> = { whole: 50, refined: 70, intrinsic: 40, free: 65 };
+function carbsNote(parts: Record<string, number> | undefined) {
+  const p = parts ?? {};
+  const all = Object.values(p).reduce((a, v) => a + v, 0);
+  if (all < 5) return {};
+  const gl = Object.entries(p).reduce((a, [k, v]) => a + (v * (GI[k] ?? 60)) / 100, 0);
+  const r = Math.round(gl);
+  const state: State = r <= 10 ? "good" : r < 20 ? "warn" : "bad";
+  const free = p["free"] ?? 0;
+  return {
+    extras: [
+      { t: "carico glicemico " + F.approx(r, "") + " (stima)", state },
+      ...(free >= 0.5 ? [{ t: "zuccheri liberi " + F.num(free, "g") }] : []),
+    ],
+  };
+}
+
+/** A meal's omega-3, and the food most of it came from when one did. */
+function fatNote(foods: NonNullable<NutrientsData["foods"]>, all: number) {
+  if (all < 0.1) return {};
+  const top = foods
+    .map((f) => [f.name, f.macros.fat?.["n3"] ?? 0] as const)
+    .sort((a, b) => b[1] - a[1])[0];
+  const most =
+    foods.length > 1 && top && top[1] / all >= 0.6 ? ", per lo più da " + top[0] : "";
+  return { extras: [{ t: "omega-3 " + F.num(all, "g") + most }] };
+}
+
+/** Inulin is well tolerated in steps (ranges.md: up to ≈ 10 g a day); most of a meal's fibre from it says so. */
+function fibreNote(parts: Record<string, number> | undefined) {
+  const p = parts ?? {};
+  const all = Object.values(p).reduce((a, v) => a + v, 0);
+  const inulin = p["inulin"] ?? 0;
+  return inulin >= 3 && inulin / all >= 0.5
+    ? {
+        extras: [
+          {
+            t: "l’inulina è quasi tutta la fibra: meglio a dosi graduali",
+            state: "warn" as State,
+          },
+        ],
+      }
+    : {};
+}
+
+/**
+ * A meal's foods for its window (L2): each line with its grams per macro and
+ * kind. Without any estimate the kinds are unknown: each macro is one piece
+ * («all», which the kit draws in the macro's own colour).
+ */
+function mealFoods(
+  meal: DayItem,
+  estimates: ReadonlyMap<string, Record<string, string>>,
+): NonNullable<NutrientsData["foods"]> {
+  const servings = servingsOf(meal);
+  return meal.lines.map((l) => {
+    const est = l.itemId ? estimates.get(l.itemId) : undefined;
+    const k = macroKinds([{ ...l, ...(est ? { estimates: est } : {}) }], servings);
+    const whole = (m: Record<string, number>) =>
+      estimates.size > 0 ? m : { all: Object.values(m).reduce((a, v) => a + v, 0) };
+    const kcal = Number(lineTotals([l], servings)["kcal"] ?? 0);
+    return {
+      key: l.id,
+      name: l.name || "Senza nome",
+      amount:
+        F.num(Number(l.quantity) * Number(servings ?? "1"), l.unit) +
+        (kcal > 0 ? " · " + F.n(kcal, 0) + " kcal" : ""),
+      kcal,
+      macros: {
+        protein: whole(k.protein),
+        carbs: whole(k.carbs),
+        fat: whole(k.fat),
+        fiber: whole(k.fibre),
+      },
+    };
+  });
+}
+
+/**
+ * A meal's micros: what it brought next to what the whole day needs, not
+ * judged (a meal is not meant to cover the day).
+ */
+function mealMicros(
+  meal: DayItem,
+  estimates: ReadonlyMap<string, Record<string, string>>,
+  targets: readonly MicroTarget[] | null,
+): NutrientsData["micros"] | undefined {
+  if (estimates.size === 0) return undefined;
+  const m = microsOf(dayMicros([food(meal, estimates)]), targets);
+  if (m.groups.length === 0) return undefined;
+  return {
+    summary: targets ? "stime · su quanto serve al giorno" : m.summary,
+    groups: m.groups.map((g) => ({
+      name: g.name,
+      items: g.items.map(({ name, v, t, unit }) => ({ name, v, t, unit })),
+    })),
+  };
+}
+
+/**
+ * A meal's nutrients: its thin macro bars (L0), and its window when its box
+ * opens (L2: its foods, kcal, kinds, where each came from, notes, micros). What it brought (or will
  * bring, when planned), split into kinds, against the day's targets — a slot's targets
  * come with day templates (E5 `slotTargets`); without day targets the bars
  * share one scale. Null for a meal with nothing to show (a coffee).
@@ -308,33 +415,46 @@ export function mealL0(
   estimates: ReadonlyMap<string, Record<string, string>> = new Map(),
   /** The reference weight: the protein's zones per meal; null leaves them out. */
   weightKg: number | null = null,
+  /** E5's micro targets: the day's need next to each of the meal's micros. */
+  microTargets: readonly MicroTarget[] | null = null,
 ): NutrientsData | null {
   if (meal.kind.key !== "meal") return null;
-  const { eaten, planned, kinds, sources } = dayFood([food(meal, estimates)]);
-  const got = meal.status === "planned" ? planned : eaten;
-  const v = (f: string) => Number(got[f] ?? 0);
+  const v = (f: string) => Number(lineTotals(meal.lines, servingsOf(meal))[f] ?? 0);
   if (MACROS.every(([, f]) => v(f) === 0)) return null;
+  // The meal's own kinds, eaten or planned (dayFood's are only what was eaten).
+  const kinds = macroKinds(
+    meal.lines.map((l) => {
+      const est = l.itemId ? estimates.get(l.itemId) : undefined;
+      return est ? { ...l, estimates: est } : l;
+    }),
+    servingsOf(meal),
+  );
+  const foods = mealFoods(meal, estimates);
+  const known = estimates.size > 0;
+  const micros = mealMicros(meal, estimates, microTargets);
+  const NOTE = {
+    protein: () => leucineNote(kinds.protein),
+    carbs: () => carbsNote(kinds.carbs),
+    fat: () => fatNote(foods, kinds.fat["n3"] ?? 0),
+    fibre: () => fibreNote(kinds.fibre),
+  };
   return {
+    foods,
     kcal: { v: v("kcal"), t: targets?.kcal ?? null },
     macros: MACROS.map(([key, f]) => ({
       key,
       v: v(f),
       t: targets?.[f] ?? null,
-      // Where it came from: only for a done meal (dayFood's sources are what was eaten).
-      ...(meal.status === "planned"
-        ? {}
-        : {
-            sources: (sources[f] ?? []).map((s): [string, number] => [
-              s.name,
-              Number(s.amount),
-            ]),
-          }),
-      ...(estimates.size > 0 ? { parts: kinds[f] } : {}),
+      ...(known ? { parts: kinds[f] } : {}),
       ...(key === "protein" ? mealProteinZones(weightKg) : {}),
-      ...(key === "protein" && estimates.size > 0 ? leucineNote(kinds["protein"]) : {}),
+      ...(known ? NOTE[f]() : {}),
     })),
+    ...(micros ? { micros } : {}),
   };
 }
+
+const servingsOf = (i: DayItem) =>
+  typeof i.values["servings"] === "string" ? i.values["servings"] : null;
 
 /** The foods a day's meals were made of, for their kind estimates. */
 export function foodIds(day: Day): string[] {

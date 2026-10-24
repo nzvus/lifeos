@@ -9,6 +9,7 @@ import { composeDay, type Day } from "./timeline";
 export * from "./read";
 export * from "./timeline";
 export * from "./targets";
+export * from "./closure";
 
 export async function loadDay(
   db: Db,

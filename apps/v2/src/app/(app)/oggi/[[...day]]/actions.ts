@@ -9,13 +9,14 @@ import { revalidatePath } from "next/cache";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { dayMinute } from "@/core/day";
+import { dayMinute, setClosure, type Closure } from "@/core/day";
 import {
   checkEntry,
   createEntry,
   restoreEntry,
   setEntryStatus,
   trashEntry,
+  trashPlanned,
   type Status,
 } from "@/core/entries";
 import { logicalDay } from "@/core/engines/time";
@@ -45,6 +46,36 @@ export async function bringBack(id: string): Promise<boolean> {
   const done = await restoreEntry(await getDb(), await requireOwner(), id);
   revalidatePath("/oggi", "layout");
   return done;
+}
+
+/** «Togli i previsti (n)»: the day's planned rows to the trash; answers which went, for Undo. */
+export async function removePlanned(ids: string[]): Promise<string[]> {
+  if (!Array.isArray(ids) || ids.length > 200 || !ids.every((i) => UUID.test(i)))
+    return [];
+  const gone = await trashPlanned(await getDb(), await requireOwner(), ids);
+  revalidatePath("/oggi", "layout");
+  return gone;
+}
+
+/** Undo of «Togli i previsti»: each one back. */
+export async function bringBackAll(ids: string[]): Promise<boolean> {
+  if (!Array.isArray(ids) || ids.length > 200 || !ids.every((i) => UUID.test(i)))
+    return false;
+  const db = await getDb();
+  const owner = await requireOwner();
+  for (const id of ids) await restoreEntry(db, owner, id);
+  revalidatePath("/oggi", "layout");
+  return true;
+}
+
+/** «Chiudi la giornata» (S-T28): complete, partial, or reopened (null); never a day still to come. */
+export async function closeDay(day: string, state: Closure | null): Promise<boolean> {
+  if (!ISO.test(day) || ![null, "complete", "partial"].includes(state)) return false;
+  const { clock } = await ownerClock();
+  if (day > logicalDay(new Date(), clock)) return false;
+  await setClosure(await getDb(), await requireOwner(), day, state);
+  revalidatePath("/oggi", "layout");
+  return true;
 }
 
 /** «+250 ml», «+500 ml» (kinds.md: water is quick): a water entry, now today, else the day only. */

@@ -13,6 +13,7 @@ import {
   restoreEntry,
   setEntryStatus,
   trashEntry,
+  trashPlanned,
   updateEntry,
   type EntryInput,
 } from "./index";
@@ -225,6 +226,22 @@ describe("writing an entry", () => {
     expect(await statusOn(a, id)).toBe("planned");
     await trashEntry(db, a, id);
     expect(await restoreEntry(db, b, id)).toBe(false);
+  });
+
+  it("«Togli i previsti»: only the planned ones, only the owner's", async () => {
+    const [p1, p2, done, other] = [
+      await planned(a),
+      await planned(a),
+      await planned(a),
+      await planned(b),
+    ];
+    await setEntryStatus(db, a, done, "done");
+    expect((await trashPlanned(db, a, [p1, p2, done, other])).sort()).toEqual(
+      [p1, p2].sort(),
+    );
+    expect(await statusOn(a, done)).toBe("done");
+    expect(await statusOn(b, other)).toBe("planned");
+    expect(await trashPlanned(db, a, [])).toEqual([]);
   });
 
   it("edits an entry's managed fields and times; a field the form does not show stays", async () => {

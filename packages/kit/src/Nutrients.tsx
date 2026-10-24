@@ -3,7 +3,8 @@
  * Nutrients, level L1 (kit.md §4): the boards' markup, drawn from
  * `nutrientsL1` (nutrient-rows.ts). A macro row opens on the box's transition into its kinds,
  * where it came from and its notes. `NutrientsL0`: a meal box's four thin bars.
- * L2 comes with the food slice.
+ * L2 (a meal's window, `data.foods`): the foods as chips; one tapped is
+ * highlighted in every bar and in «da dove», each kind says where it came from.
  * Pass plain data (server pages may render it).
  */
 import { useState, type CSSProperties } from "react";
@@ -37,7 +38,8 @@ function ZoneBand({ strip }: { strip: HeatStrip }) {
 
 export function Nutrients({ data }: { data: NutrientsData }) {
   const [open, setOpen] = useState<string | null>(null);
-  const { kcal, macros, limits, micros } = nutrientsL1(data);
+  const [sel, setSel] = useState<string | null>(null);
+  const { kcal, foods, macros, limits, micros } = nutrientsL1(data, sel);
   const means = limits.some((l) => l.strip?.mean);
   return (
     <div className="k-stack g3">
@@ -57,6 +59,23 @@ export function Nutrients({ data }: { data: NutrientsData }) {
               <span className="k-seg kcal planned" style={{ width: kcal.bar.pw }} />
             </span>
           )}
+        </div>
+      )}
+      {foods.length > 1 && (
+        <div className="k-chips" aria-label="Cibi: tocca per evidenziarne il contributo">
+          {foods.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              className="k-chip k-nfood"
+              aria-pressed={f.pressed}
+              onClick={() => setSel(f.pressed ? null : f.key)}
+            >
+              <span className="k-sw" style={{ opacity: f.tone }} />
+              <span className="k-clip">{f.name}</span>
+              <span className="k-meta">{f.amount}</span>
+            </button>
+          ))}
         </div>
       )}
       {macros.map((m) => {
@@ -100,7 +119,11 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                   <span
                     key={i}
                     className={"k-seg" + (s.planned ? " planned" : "")}
-                    style={{ width: s.w, background: s.bg, opacity: s.planned ? 0.5 : 1 }}
+                    style={{
+                      width: s.w,
+                      background: s.bg,
+                      opacity: s.planned ? 0.5 : s.dim ? 0.25 : 1,
+                    }}
                   />
                 ))}
                 {m.mark && <span className="k-mark" style={{ left: m.mark }} />}
@@ -112,25 +135,28 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                 <div>
                   <div className="k-kinds">
                     {m.kinds.map((k) => (
-                      <div key={k.name} className="k-krow">
-                        <span className="k-body">
-                          <span className="k-sw" style={{ background: k.c }} />
-                          {k.name}
-                          {k.word && (
-                            <span
-                              className="k-help"
-                              style={{ color: F.tone(k.state ?? undefined) }}
-                            >
-                              {" "}
-                              {k.word}
-                            </span>
-                          )}
-                        </span>
-                        <span className={"k-bar" + (k.strip ? " zoned" : "")}>
-                          <i style={{ width: k.w, background: k.fill }} />
-                          {k.strip && <ZoneBand strip={k.strip} />}
-                        </span>
-                        <span className="k-num b3 k-right">{k.v}</span>
+                      <div key={k.name} className="k-stack g0">
+                        <div className="k-krow">
+                          <span className="k-body">
+                            <span className="k-sw" style={{ background: k.c }} />
+                            {k.name}
+                            {k.word && (
+                              <span
+                                className="k-help"
+                                style={{ color: F.tone(k.state ?? undefined) }}
+                              >
+                                {" "}
+                                {k.word}
+                              </span>
+                            )}
+                          </span>
+                          <span className={"k-bar" + (k.strip ? " zoned" : "")}>
+                            <i style={{ width: k.w, background: k.fill }} />
+                            {k.strip && <ZoneBand strip={k.strip} />}
+                          </span>
+                          <span className="k-num b3 k-right">{k.v}</span>
+                        </div>
+                        {k.from && <span className="k-help k-nfrom">{k.from}</span>}
                       </div>
                     ))}
                     {m.sources.length > 0 && (
@@ -140,7 +166,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                           <div
                             key={s.name}
                             className="k-src"
-                            style={{ opacity: s.faint ? 0.6 : 1 }}
+                            style={{ opacity: s.faint ? 0.6 : s.dim ? 0.3 : 1 }}
                           >
                             <span className="k-body k-clip">{s.name}</span>
                             <span className="k-bar">

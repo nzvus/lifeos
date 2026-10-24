@@ -424,6 +424,11 @@
 .k-nrow{display:flex;flex-direction:column;border-top:1px solid var(--hairline);padding-top:8px}
 .k-nfood{font-family:var(--font-body);font-size:var(--fs-b2);font-weight:400}
 .k-nfood .k-sw{background:var(--ink);margin-right:0}
+.k-nfood{max-width:100%;min-width:0}
+.k-nfood .k-clip{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.k-nfood .k-meta{white-space:nowrap}
+.k-nfood[aria-pressed="true"] .k-sw{background:var(--sheet)}
+.k-nfood[aria-pressed="true"] .k-meta{color:inherit}
 .k-nfrom{padding-left:16px}
 .k-clip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .k-nlims{gap:12px;border-top:1px solid var(--hairline);padding-top:8px}
