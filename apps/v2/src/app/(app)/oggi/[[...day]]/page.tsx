@@ -162,7 +162,9 @@ export default async function OggiPage({
     creatineDays: creatine,
   };
   const row = (i: (typeof items)[number]) => {
-    const d = details(i);
+    const l0 = mealL0(i, targets, kinds, weightOn(series, date), micros);
+    // A meal of several foods lists them as its window's chips (L2), not again below.
+    const d = details(i, { foods: (l0?.foods?.length ?? 0) < 2 });
     return {
       ...withCompounds(present(i), i, ctx),
       ...withScore(
@@ -170,7 +172,7 @@ export default async function OggiPage({
           weighScore(i, items, sctx) ??
           sleepScore(i, items, sctx),
       ),
-      l0: mealL0(i, targets, kinds, weightOn(series, date)),
+      l0,
       details: hasDetails(d) ? d : null,
       id: i.id,
       status: i.status,
