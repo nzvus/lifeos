@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NutrientsData } from "@lifeos/kit";
-import { period, trainingOf, weightChange } from "./period";
+import { period, periodPills, trainingOf, weightChange } from "./period";
 
 const day = (kcal: number, protein: number, t = 2000): NutrientsData => ({
   kcal: { v: kcal, t },
@@ -53,5 +53,26 @@ describe("the period's training", () => {
       minutes: 420,
       perWeek: 3.5,
     });
+  });
+});
+
+describe("the period box's pills", () => {
+  it("sessions, mean sleep (warn under 7 h), the weight's way", () => {
+    const night = (h: number) => ({
+      day: "d",
+      start: new Date(0),
+      end: new Date(h * 3_600_000),
+    });
+    const pills = periodPills({
+      sessions: 4,
+      nights: [night(6.5), night(7)],
+      weight: { from: 77.04, to: 76.31 },
+    });
+    expect(pills.map((p) => [p.t.replace(/\u00a0/g, " "), p.state])).toEqual([
+      ["4 sessioni", undefined],
+      ["sonno 6,8 h", "warn"],
+      ["peso 77 → 76,3", undefined],
+    ]);
+    expect(periodPills({ sessions: 0, nights: [], weight: null })).toEqual([]);
   });
 });

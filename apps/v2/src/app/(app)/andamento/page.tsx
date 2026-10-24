@@ -6,7 +6,7 @@
  * averaged over the days with something eaten, and each day's kcal against
  * its target, each day's score as the calendar's dots and the period's as
  * the box's (E7 `DAY`), «Gli ambiti» (food, weight, sleep, water: each
- * domain's score averaged over the period); «Energia» (what E4 learnt the person spends next to the
+ * domain's score averaged over the period; the steps' numbers, no score yet); «Energia» (what E4 learnt the person spends next to the
  * priors, the week of the period's end: core/energy, dossiers/targets.md).
  * Trackers, goals and correlations come with their slices.
  */
@@ -42,8 +42,14 @@ import {
 } from "@/features/day/score";
 import { OpenBox } from "@/features/day/OpenBox";
 import { averageScore } from "@/features/progress/average";
+import { stepsDomain } from "@/features/progress/steps";
 import { PLACES } from "@/features/places";
-import { period, trainingOf, weightChange } from "@/features/progress/period";
+import {
+  period,
+  periodPills,
+  trainingOf,
+  weightChange,
+} from "@/features/progress/period";
 
 const RANGES = [7, 30, 90] as const;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -189,6 +195,22 @@ export default async function AndamentoPage({
   ].flatMap((e) =>
     e.score ? [{ ...e, value: String(e.score.value), score: e.score } as BoxEntry] : [],
   );
+  // The steps: numbers without a score (the movement dossier has not decided one).
+  const stepGoal = goals.find(
+    (g) => g.source === "steps" && g.target === "at_least" && g.value !== null,
+  );
+  const stepsRow = stepsDomain(
+    days,
+    loaded.flatMap((d) =>
+      itemsOf(d)
+        .filter((i) => i.kind.key === "steps" && i.status === "done")
+        .map((i) => ({ day: d.day, n: Number(i.values["steps"] ?? 0) })),
+    ),
+    stepGoal
+      ? { value: stepGoal.value!, weekdaysOnly: stepGoal.metric["days"] === "weekdays" }
+      : null,
+  );
+  if (stepsRow) domains.push(stepsRow);
   const periodScore = averageScore([...scores.values()]);
   const data = loaded.map((d) => ({
     day: d.day,
@@ -270,6 +292,11 @@ export default async function AndamentoPage({
               p.logged === 0
                 ? "nessun giorno con pasti"
                 : "media di " + F.plural(p.logged, "giorno", "giorni") + " con pasti",
+            pills: periodPills({
+              sessions: training.sessions,
+              nights: nights.filter((n) => n.day >= days[0]! && n.day <= end),
+              weight,
+            }),
           }}
         >
           {p.nutrients && <Nutrients data={p.nutrients} />}

@@ -5,7 +5,7 @@
  * one row per day: its kcal against its target. Pure: the page gives each
  * day's Nutrients as Oggi computes them.
  */
-import type { NutrientsData } from "@lifeos/kit";
+import { F, type NutrientsData } from "@lifeos/kit";
 
 export type PeriodDay = { day: string; nutrients: NutrientsData | null };
 export type PeriodRow = {
@@ -118,4 +118,47 @@ export function trainingOf(days: readonly TrainingDay[]): {
     minutes: sum("minutes"),
     perWeek: days.length === 0 ? 0 : (sessions * 7) / days.length,
   };
+}
+
+/**
+ * The period box's pills (the Progress board): the sessions done, the
+ * nights' mean sleep (warn under 7 h, the AASM/SRS adult minimum), the
+ * weight from the first week's mean to the last's. Each only when known.
+ */
+export function periodPills(p: {
+  sessions: number;
+  nights: readonly { day: string; start: Date; end: Date }[];
+  weight: { from: number; to: number } | null;
+}): { t: string; state?: "warn"; of?: { fam: string } }[] {
+  const hours = p.nights
+    .map((n) => (n.end.getTime() - n.start.getTime()) / 3_600_000)
+    .filter((h) => h > 0 && h < 16);
+  const sleep = hours.length ? hours.reduce((a, h) => a + h, 0) / hours.length : null;
+  return [
+    ...(p.sessions > 0
+      ? [
+          {
+            t: p.sessions === 1 ? "1 sessione" : p.sessions + " sessioni",
+            of: { fam: "train" },
+          },
+        ]
+      : []),
+    ...(sleep !== null
+      ? [
+          {
+            t: "sonno " + F.num(sleep, "h"),
+            of: { fam: "sleep" },
+            ...(sleep < 7 ? { state: "warn" as const } : {}),
+          },
+        ]
+      : []),
+    ...(p.weight
+      ? [
+          {
+            t: "peso " + F.n(p.weight.from, 1) + " → " + F.n(p.weight.to, 1),
+            of: { fam: "body" },
+          },
+        ]
+      : []),
+  ];
 }
