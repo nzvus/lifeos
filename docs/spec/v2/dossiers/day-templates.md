@@ -25,7 +25,10 @@ means by role. Piano to its board (2026-10-24): the week as one row per
 day (model + step, done or planned, kcal), the day's sheet (its model for
 this day, each cycle's step chosen by hand or a rest — `cycle_override` —,
 «Salta», the planned and what the model still plans), «Le regole» (week
-type, cycles). Not yet: «Sposta l'allenamento», «Copia ieri», habits (d).
+type, cycles). On the day sheet: «Copia i pasti di ieri» (yesterday's meals as this
+day's planned, same time and role, today's catalog values; a role the day
+has is left) and «Sposta l'allenamento» (the planned session moved, or a
+planned session of the cycle's routine at that time). Not yet: habits (d).
 Method:
 `../method.md`. Boards: Plan (V-08 calendar), Models, ModelEditor
 («Giornata tipo»), CycleEditor («Ciclo PLPRR»). Spec: concepts.md §5,

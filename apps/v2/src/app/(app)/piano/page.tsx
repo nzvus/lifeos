@@ -32,7 +32,7 @@ import { dayRow } from "@/features/plan/week-rows";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { PLACES } from "@/features/places";
 import { changeDayModel, skipStep } from "../oggi/[[...day]]/plan-actions";
-import { overrideStep } from "./actions";
+import { copyYesterday, moveTraining, overrideStep } from "./actions";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -104,6 +104,20 @@ export default async function PianoPage({
       : [];
   const stepName = (s: (typeof cycles)[number]["steps"][number]) =>
     s.label || s.items.map((i) => i.name).join(" + ") || "Riposo";
+  // «Sposta l'allenamento»: the day's planned session, else the model's training block.
+  const plannedSession = items.find(
+    (i) => i.kind.key === "session" && i.status === "planned",
+  );
+  const ghostSession = fromModel.find(
+    (m) => m.id.startsWith("model:") && m.fam === "train",
+  );
+  const due = sheetPlan?.cycles.find((c) => !c.rest);
+  const dueRoutine = due
+    ? cycles
+        .find((c) => c.id === due.cycleId)
+        ?.steps.find((st) => stepName(st) === due.label)?.items[0]?.id
+    : undefined;
+  const sessionAt = plannedSession?.minute ?? ghostSession?.minute ?? null;
 
   return (
     <main className="k-page has-bd">
@@ -231,11 +245,49 @@ export default async function PianoPage({
           {fromModel.map((m) => (
             <Box key={m.id} density="row" mode="times" entry={m} />
           ))}
+          {open >= today && (plannedSession || ghostSession) && (
+            <form action={moveTraining.bind(null, open)} className="k-line k-panel">
+              <input type="hidden" name="entry" value={plannedSession?.id ?? ""} />
+              <input type="hidden" name="routine" value={dueRoutine ?? ""} />
+              <input
+                type="hidden"
+                name="minutes"
+                value={
+                  plannedSession?.start && plannedSession.end
+                    ? Math.round(
+                        (plannedSession.end.getTime() - plannedSession.start.getTime()) /
+                          60_000,
+                      )
+                    : ""
+                }
+              />
+              <label className="k-stack g1 k-grow">
+                <span className="k-help">Sposta l’allenamento alle</span>
+                <input
+                  className="k-text"
+                  type="time"
+                  name="at"
+                  required
+                  defaultValue={sessionAt === null ? "" : F.time(sessionAt)}
+                />
+              </label>
+              <button type="submit" className="k-btn secondary">
+                Sposta
+              </button>
+            </form>
+          )}
           <div className="k-line wrap">
             {open >= today && (
               <a className="k-btn secondary" href={"/aggiungi?giorno=" + open}>
                 + previsto
               </a>
+            )}
+            {open >= today && (
+              <form action={copyYesterday.bind(null, open)}>
+                <button type="submit" className="k-btn secondary">
+                  Copia i pasti di ieri
+                </button>
+              </form>
             )}
             <a
               className="k-btn secondary"

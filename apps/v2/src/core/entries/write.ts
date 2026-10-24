@@ -107,6 +107,29 @@ export async function trashPlanned(
   return rows.map((r) => r.id);
 }
 
+/** «Sposta»: a planned entry at another time (start and end together); false when not a live planned one. */
+export async function moveEntry(
+  db: Db,
+  owner: Owner,
+  id: string,
+  startAt: Date,
+  endAt: Date | null,
+): Promise<boolean> {
+  const rows = await db
+    .update(entries)
+    .set({ startAt, endAt })
+    .where(
+      and(
+        ownedBy(entries, owner),
+        eq(entries.id, id),
+        eq(entries.status, "planned"),
+        isNull(entries.deletedAt),
+      ),
+    )
+    .returning({ id: entries.id });
+  return rows.length > 0;
+}
+
 /** Brings an entry back from the trash; false if it was not there. */
 export async function restoreEntry(db: Db, owner: Owner, id: string): Promise<boolean> {
   const rows = await db
