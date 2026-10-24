@@ -8,7 +8,7 @@
  *               what goes over (§7)
  *   recovery    the night's score, 0–1
  *   habits      of what was planned (from a model, or folded into what was
- *               done), the share done; a day still going counts only what
+ *               done), meals and drinks apart, the share done; a day still going counts only what
  *               is due by now
  * Built from the day box's data (`presentDay`), so the bars and the score
  * read the same numbers.
@@ -56,11 +56,14 @@ export function targetsPart(n: NutrientsData | null, ongoing: boolean): number |
   ]);
 }
 
+/** Meals and drinks are judged by the food's score; v1's planned meals were never ticked (the eaten ones were logged apart). */
+const NOT_HABITS = new Set(["meal", "water"]);
 const planned = (i: DayItem) =>
-  i.status === "planned" ||
-  i.status === "skipped" ||
-  i.fulfils !== null ||
-  i.source === "template";
+  !NOT_HABITS.has(i.kind.key) &&
+  (i.status === "planned" ||
+    i.status === "skipped" ||
+    i.fulfils !== null ||
+    i.source === "template");
 
 /** `now`: the minute of the day while it is going; null for a day that is over. */
 export function habitsPart(items: readonly DayItem[], now: number | null): number | null {

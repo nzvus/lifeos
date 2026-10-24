@@ -95,6 +95,8 @@ describe("the day's score (dossiers/ranges.md §5)", () => {
     expect(habitsPart(all, null)).toBeCloseTo(1 / 3);
     expect(habitsPart(all, 900)).toBe(0.5);
     expect(habitsPart([unplanned], null)).toBeNull();
+    // A planned meal left over (v1 logged the eaten one apart): not a habit.
+    expect(habitsPart([item("meal", { status: "planned" }), steps], null)).toBe(1);
   });
 
   it("weighs the parts 45/35/20 and names what is missing", () => {
