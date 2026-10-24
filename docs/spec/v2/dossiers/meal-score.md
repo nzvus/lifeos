@@ -1,6 +1,8 @@
 # Dossier — the score of a food and a meal (E7 «Food and meal»)
 
-Status: **draft for the developer's review** (2026-10-24). Method:
+Status: **approved as recommended** (2026-10-24, «procedi con le scelte che
+ritieni migliori»); meals scored on Oggi — see §8 for what changed in the
+build. Method:
 `../method.md`. Why now: the boards draw a score behind every meal box (the
 skyline), open it on its parts, and use it to suggest meals («Pasti adatti»)
 and to sort the catalog (fidelity.md); v2 has no scorer. engines.md E7
@@ -86,3 +88,22 @@ All per 100 kcal of the food or meal; a meal is the sum of its lines.
    the catalog? Recommended: yes, marked as an estimate.
 4. **Score foods too** (Libreria sort, a food's page), not only meals?
    Recommended: yes, same model.
+
+## 8. As built (2026-10-24, `core/food/score.ts`, `features/day/score.ts`)
+Run on the developer's catalog first (§6), which changed three thresholds:
+- **Full density scales with the day:** 4 × (100 kcal ÷ the day's kcal),
+  14.4 % on 2 778 kcal, not a fixed 20 %.
+- **Limits per meal, not per 100 kcal:** the daily limits shared by the
+  meal's energy, but never less than 10 % of the day's limit — per 100 kcal
+  alone, spinach's own sodium failed it.
+- **Density needs ≥ 6 of its 11 nutrients:** a mayonnaise read without its
+  micros scored like broccoli on two capped nutrients.
+- A nutrient counts when the foods carrying it make ≥ 80 % of the energy;
+  under 5 kcal no score. Catalog check: broccoli 100, cod 91, Greek yogurt
+  63, chickpeas 60, gnocchi 23, bread 12, dark chocolate 50 % 9.
+- Oggi: skyline behind each scored meal box; the open box shows the score,
+  each part with its weight, the limit that decided it («limiti · sale») and
+  «senza: valore, adatto al blocco».
+- **Open:** scoring a single food (Libreria) needs a reference portion —
+  per 100 g favours light foods, per serving needs servings the catalog
+  lacks; the composer's choices do not read micros yet. Next slice.

@@ -18,10 +18,14 @@ import { dayMinute, loadDay, readDayTargets, readMicroTargets } from "@/core/day
 import { logicalDay } from "@/core/engines/time";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0, presentDay } from "@/features/day/nutrients";
+import { mealScore } from "@/features/day/score";
 import { present } from "@/features/day/present";
 import { DayView } from "@/features/day/DayView";
 import { addWater, bringBack, changeStatus, removeEntry } from "./actions";
 import { PLACES } from "@/features/places";
+
+/** A meal's score on its box, when it has one (exactOptionalPropertyTypes: no `score: undefined`). */
+const withScore = <T,>(s: T | undefined) => (s === undefined ? {} : { score: s });
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -49,6 +53,7 @@ export default async function OggiPage({
   const whole = presentDay(day, targets, kinds, micros);
   const rows = day.timed.map((i) => ({
     ...present(i),
+    ...withScore(mealScore(i, targets, kinds, micros)),
     l0: mealL0(i, targets, kinds),
     id: i.id,
     status: i.status,
@@ -56,6 +61,7 @@ export default async function OggiPage({
   }));
   const untimed = day.untimed.map((i) => ({
     ...present(i),
+    ...withScore(mealScore(i, targets, kinds, micros)),
     l0: mealL0(i, targets, kinds),
     id: i.id,
     status: i.status,
