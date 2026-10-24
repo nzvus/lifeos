@@ -10,7 +10,7 @@
  */
 import { F, type BoxEntry } from "@lifeos/kit";
 import type { DayItem, FoodTargets } from "@/core/day";
-import type { ResolvedBlock } from "@/core/plans";
+import type { Habit, ResolvedBlock } from "@/core/plans";
 import { MEAL_ROLE_WORDS } from "./words";
 
 /** Where an untimed meal block sits: its role's usual place in the day. */
@@ -86,4 +86,49 @@ export function modelItems(p: {
   return out
     .filter((r) => p.nowMinute === null || r.minute >= p.nowMinute - 60)
     .sort((a, b) => a.minute - b.minute);
+}
+
+/** An untimed habit's place in the day: the evening, after the meals' blocks. */
+const HABIT_AT = 1260;
+
+/**
+ * The habits due today and not covered (core/plans `habitsDue`) as the
+ * day's planned rows «dalle abitudini», each opening its kind's sheet with
+ * the category and the time already in. Today, a timed one from an hour
+ * ago on; an untimed one stays until covered.
+ */
+export function habitItems(p: {
+  day: string;
+  habits: readonly Pick<
+    Habit,
+    "id" | "name" | "kind" | "category" | "atMin" | "durationMin"
+  >[];
+  nowMinute: number | null;
+  /** A kind's family (the drawing): the kind registry's. */
+  familyOf: (kind: string) => string;
+}): ModelRow[] {
+  return p.habits
+    .filter(
+      (h) => p.nowMinute === null || h.atMin === null || h.atMin >= p.nowMinute - 60,
+    )
+    .map((h) => {
+      const minute = h.atMin ?? HABIT_AT;
+      return {
+        id: "habit:" + h.id,
+        minute,
+        fam: p.familyOf(h.kind),
+        title: h.name,
+        time: h.atMin === null ? "—" : F.time(minute),
+        meta: "abitudine" + (h.durationMin ? " · " + F.num(h.durationMin, "min") : ""),
+        planned: true,
+        href:
+          "/aggiungi/" +
+          h.kind +
+          "?giorno=" +
+          p.day +
+          (h.category ? "&categoria=" + h.category : "") +
+          (h.atMin !== null ? "&ora=" + F.time(minute) : ""),
+        hrefLabel: "Segna " + h.name.toLowerCase(),
+      };
+    });
 }

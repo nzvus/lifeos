@@ -32,13 +32,16 @@ import {
   planTag,
   planWords,
   readDayPlans,
+  habitsDue,
+  readHabits,
   readModelBook,
   resolveModel,
   toModels,
 } from "@/core/plans";
 import { daySlots, slotFits } from "@/features/day/slots";
 import { DayPlanBar } from "@/features/day/DayPlanBar";
-import { modelItems } from "@/features/day/model-items";
+import { habitItems, modelItems } from "@/features/day/model-items";
+import { kindRegistry } from "@/core/kinds";
 import { changeDayModel, skipStep } from "./plan-actions";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
@@ -191,8 +194,11 @@ export default async function OggiPage({
   };
   // The day's model's meal blocks: each meal's bars against its block, the block's fit in its score.
   const model = plans.get(date)?.model ?? null;
-  // Always read: «Cambia la giornata» offers the models (three narrow queries).
-  const book = await readModelBook(db, owner);
+  // Always read: «Cambia la giornata» offers the models (three narrow queries); the habits.
+  const [book, habits] = await Promise.all([
+    readModelBook(db, owner),
+    date >= today ? readHabits(db, owner) : [],
+  ]);
   const blocks = model
     ? (resolveModel(model.id, toModels(book.models, book.rows))?.blocks ?? [])
     : [];
@@ -262,7 +268,25 @@ export default async function OggiPage({
           nowMinute,
           step: (plans.get(date)?.cycles ?? [])[0]?.label ?? null,
           slots,
-        })
+        }).concat(
+          habitItems({
+            day: date,
+            // The week's entries say what covers a habit («3 volte a settimana» counts them).
+            habits: habitsDue(
+              habits,
+              date,
+              days.flatMap((d) =>
+                [...d.timed, ...d.untimed].map((i) => ({
+                  day: d.day,
+                  kind: i.kind.key,
+                  category: i.kind.key === "activity" ? i.subcategory : null,
+                })),
+              ),
+            ),
+            nowMinute,
+            familyOf: (k) => kindRegistry().get(k).family,
+          }),
+        )
       : [];
   const empty =
     rows.length === 0 && untimed.length === 0 && water === null && fromModel.length === 0;
