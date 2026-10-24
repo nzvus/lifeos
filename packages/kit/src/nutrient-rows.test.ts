@@ -202,6 +202,12 @@ describe("the heat bar (dossiers/ranges.md §6)", () => {
       limits: [{ key: "salt", v: 11.6, t: 5, zones: salt, mean: 6, meanDays: 3 }],
     }).limits[0]!;
     expect(m.strip!.mean).toBe("49.3%"); // 6 of 12.18
+    const p = rows({
+      macros: [],
+      limits: [{ key: "salt", v: 2, planned: 3, t: 5, zones: salt }],
+    }).limits[0]!;
+    // The plan's 3 g hatched after the 2 eaten, on a bar to 10 g; judged at 5 g.
+    expect([p.w, p.pw, p.word]).toEqual(["20%", "30%", "→ ok"]);
     expect(m.aria).toContain("media di 3 giorni");
   });
   it("without zones, nothing changes", () => {

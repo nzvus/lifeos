@@ -18,8 +18,9 @@ export type LimitKey = "sugars" | "sat" | "salt";
 
 /**
  * A number's zones (E5 ranges, dossiers/ranges.md): each from its edge to the
- * next one's, the last open. They are drawn on a thin strip of their own
- * (`heatStrip`); the zone the value (plus the plan) is in gives the word.
+ * next one's, the last open. They are drawn as a thin band along the bottom
+ * of the number's own bar (`heatStrip`); the zone the value (plus the plan)
+ * is in gives the word.
  */
 export type HeatLevel = "danger" | "bad" | "fair" | "good";
 export type HeatZone = { from: number; level: HeatLevel };
@@ -365,6 +366,14 @@ export function nutrientsL1(d: NutrientsData) {
       v: g(l.v),
       t: F.num(l.t, "g"),
       w: Math.min(100, (l.v / scale) * 100).toFixed(0) + "%",
+      /** The planned part after it, hatched; null without a plan. */
+      pw:
+        planned > 0
+          ? Math.min(
+              100 - Math.min(100, (l.v / scale) * 100),
+              (planned / scale) * 100,
+            ).toFixed(0) + "%"
+          : null,
       color: F.tone(h.state ?? F.cap(l.v, l.t)),
       strip: h.strip,
       word: h.word,
