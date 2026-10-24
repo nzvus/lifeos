@@ -31,6 +31,8 @@ import {
   toModels,
 } from "@/core/plans";
 import { daySlots, slotFits } from "@/features/day/slots";
+import { DayPlanBar } from "@/features/day/DayPlanBar";
+import { changeDayModel, skipStep } from "./plan-actions";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
@@ -171,9 +173,10 @@ export default async function OggiPage({
   };
   // The day's model's meal blocks: each meal's bars against its block, the block's fit in its score.
   const model = plans.get(date)?.model ?? null;
-  const book = model ? await readModelBook(db, owner) : null;
-  const blocks = book
-    ? (resolveModel(model!.id, toModels(book.models, book.rows))?.blocks ?? [])
+  // Always read: «Cambia la giornata» offers the models (three narrow queries).
+  const book = await readModelBook(db, owner);
+  const blocks = model
+    ? (resolveModel(model.id, toModels(book.models, book.rows))?.blocks ?? [])
     : [];
   const slots = daySlots(blocks, targets);
   const fits = slotFits(items, slots);
@@ -236,7 +239,19 @@ export default async function OggiPage({
       <PageHeader title="Oggi" of={{ place: "oggi" }} />
       <section className="k-block g3">
         <DateNav day={date} today={today} hrefBase="/oggi/" scores={scores} tags={tags} />
-        {planLine && <p className="k-meta">{planLine}</p>}
+        <DayPlanBar
+          words={planLine}
+          model={model?.id ?? ""}
+          fromDay={model?.from === "day"}
+          models={(book?.models ?? [])
+            .filter((m) => m.active)
+            .map((m) => ({ id: m.id, name: m.name }))}
+          steps={(plans.get(date)?.cycles ?? [])
+            .filter((c) => !c.rest)
+            .map((c) => ({ cycleId: c.cycleId, label: c.label, skipped: c.skipped }))}
+          change={changeDayModel.bind(null, date)}
+          skip={skipStep.bind(null, date)}
+        />
       </section>
       {whole && (
         <section className="k-block g3" aria-label="Il giorno">

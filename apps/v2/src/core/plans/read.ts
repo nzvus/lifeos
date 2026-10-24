@@ -220,7 +220,7 @@ export async function readDayPlans(
 }
 
 /** Each done session since `from` as an occurrence: its routine and its exercises. */
-async function readSessionKeys(
+export async function readSessionKeys(
   db: Db,
   owner: Owner,
   from: IsoDate,

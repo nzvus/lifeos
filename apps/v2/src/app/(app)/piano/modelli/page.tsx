@@ -1,14 +1,15 @@
 /**
  * Piano · Modelli («Le regole», the board Models; dossiers/day-templates.md
  * §6): the week type (each weekday's model), the day models with what they
- * hold, the archived ones apart, «Nuovo modello». Cycles and habits join
- * with slices c and d.
+ * hold, the archived ones apart, «Nuovo modello»; the cycles (slice c) with
+ * their steps, «Nuovo ciclo». Habits join with slice d.
  */
 import { Box, NavBar, PageHeader, F, type BoxEntry } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import {
   inheritedTargets,
+  readCycleBook,
   readModelBook,
   resolveModel,
   toModels,
@@ -17,11 +18,15 @@ import {
 import { WEEKDAYS } from "@/features/plan/model-form";
 import { PLACES } from "@/features/places";
 import { newModel } from "../modello/[id]/actions";
+import { newCycle } from "../ciclo/[id]/actions";
 
 export default async function ModelsPage() {
   const owner = await requireOwner();
   const db = await getDb();
-  const book = await readModelBook(db, owner);
+  const [book, { cycles }] = await Promise.all([
+    readModelBook(db, owner),
+    readCycleBook(db, owner),
+  ]);
   const models = toModels(book.models, book.rows);
   const name = (id: string | null) => book.models.find((m) => m.id === id)?.name ?? "";
   const row = (m: ModelRow): BoxEntry => {
@@ -107,6 +112,44 @@ export default async function ModelsPage() {
               Crea
             </button>
           </div>
+        </form>
+      </section>
+      <section className="k-section g3" aria-label="Cicli">
+        <h2>
+          Cicli <span className="k-meta">{cycles.length}</span>
+        </h2>
+        {cycles.map((c) => (
+          <Box
+            key={c.id}
+            density="row"
+            rail={false}
+            entry={{
+              fam: "train",
+              sub: "strength",
+              title: c.name,
+              value: c.active ? "attivo" : "in pausa",
+              meta:
+                c.steps
+                  .map(
+                    (s) => s.label || s.items.map((i) => i.name).join(" + ") || "Riposo",
+                  )
+                  .join(" · ") || "nessun passo",
+              href: "/piano/ciclo/" + c.id,
+              hrefLabel: "Apri il ciclo " + c.name,
+              ...(c.active ? {} : { faded: true }),
+            }}
+          />
+        ))}
+        <form action={newCycle} className="k-line k-panel">
+          <input
+            className="k-text"
+            name="name"
+            placeholder="Nuovo ciclo, per esempio: PPL"
+            aria-label="Nome del nuovo ciclo"
+          />
+          <button type="submit" className="k-btn primary">
+            Crea
+          </button>
         </form>
       </section>
       {archived.length > 0 && (
