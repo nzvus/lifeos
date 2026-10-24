@@ -137,6 +137,20 @@ function meta(i: DayItem): string {
   return i.note ? short(i.note) : "";
 }
 
+/** A session's working sets and tonnage (the boards: «30 serie · 6.870 kg»); done sets only. */
+function sessionPills(i: DayItem): NonNullable<BoxEntry["pills"]> {
+  const work = i.children.flatMap((c) => c.sets).filter((s) => s.done && !s.warmup);
+  if (work.length === 0) return [];
+  const kg = work.reduce(
+    (a, s) => a + (s.reps ?? 0) * (s.loadKg === null ? 0 : Number(s.loadKg)),
+    0,
+  );
+  return [
+    { t: F.plural(work.length, "serie", "serie") },
+    ...(kg > 0 ? [{ t: F.num(kg, "kg") }] : []),
+  ];
+}
+
 export function present(i: DayItem): BoxEntry {
   const pills: NonNullable<BoxEntry["pills"]> = [];
   for (const t of i.tags) pills.push({ t: TAGS[t] ?? t, of: { fam: "train" } });
@@ -148,6 +162,7 @@ export function present(i: DayItem): BoxEntry {
         : { t: "non a digiuno", state: "warn" },
     );
   if (Number(i.confidence) < 1) pills.push({ t: "stimato", state: "warn" });
+  if (i.kind.key === "session") pills.push(...sessionPills(i));
   const of: GlyphOf = { kind: i.kind.key, ...i.item?.drawing };
   const members = i.children
     .filter((c) => c.item)

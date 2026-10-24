@@ -10,6 +10,7 @@
 import { useRef, useState, type PointerEvent } from "react";
 import {
   Box,
+  Nutrients,
   NutrientsL0,
   type BoxAct,
   type BoxEntry,
@@ -40,6 +41,7 @@ export function EntryRow({
   onRail?: () => void;
   onIntent: (intent: RowIntent) => void;
 }) {
+  const [open, setOpen] = useState(false);
   const [dx, setDx] = useState(0);
   const drag = useRef<{ x: number; y: number; axis: "h" | "v" | null } | null>(null);
   const width = useRef(1);
@@ -118,12 +120,17 @@ export function EntryRow({
           mode={mode}
           {...(onRail ? { onRail } : {})}
           acts={acts}
+          // A meal's box opens on its L1, as the boards' boxes do.
+          {...(entry.l0 ? { expanded: open, onToggle: () => setOpen((o) => !o) } : {})}
         >
-          {entry.l0 && (
-            <div className="k-slot-l0">
-              <NutrientsL0 data={entry.l0} />
-            </div>
-          )}
+          {entry.l0 &&
+            (open ? (
+              <Nutrients data={entry.l0} />
+            ) : (
+              <div className="k-slot-l0">
+                <NutrientsL0 data={entry.l0} />
+              </div>
+            ))}
         </Box>
       </div>
     </div>

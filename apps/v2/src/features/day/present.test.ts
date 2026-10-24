@@ -129,6 +129,28 @@ describe("a day item as a Box", () => {
     expect(b).toMatchObject({ title: "Pizza", meta: "" });
   });
 
+  it("a session counts its done working sets and tonnage (warm-ups and assumed sets left out)", () => {
+    const set = (reps: number, loadKg: string, warmup = false, done = true) =>
+      ({ reps, loadKg, warmup, done }) as DayItem["sets"][number];
+    const b = present(
+      item("session", {
+        children: [
+          item("session_exercise", {
+            sets: [
+              set(8, "30", true),
+              set(10, "60"),
+              set(9, "60"),
+              set(8, "60", false, false),
+            ],
+          }),
+          item("session_exercise", { sets: [set(12, "0")] }),
+        ],
+      }),
+    );
+    // 10 × 60 + 9 × 60 = 1.140 kg over 3 working sets.
+    expect(b.pills).toEqual([{ t: "3 serie" }, { t: "1.140" + "\u00a0" + "kg" }]);
+  });
+
   it("a session: its length and the drawings of its exercises, in order", () => {
     const ex = (name: string, pattern: string) =>
       item("session_exercise", { item: { id: name, name, drawing: { pattern } } });
