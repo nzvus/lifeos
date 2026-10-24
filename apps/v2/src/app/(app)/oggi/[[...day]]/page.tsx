@@ -21,6 +21,7 @@ import { dayMinute, loadDays, readDayTargets, readMicroTargets } from "@/core/da
 import { addDays, instantAt, logicalDay } from "@/core/engines/time";
 import { readSettings } from "@/core/account/settings";
 import { readGoals, readNumbers, readSpans } from "@/core/goals";
+import { ensureWeekTargets, mondayOf } from "@/core/energy";
 import { planTag, planWords, readDayPlans } from "@/core/plans";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
@@ -44,7 +45,13 @@ import {
 import { details, hasDetails } from "@/features/day/details";
 import { present } from "@/features/day/present";
 import { DayView } from "@/features/day/DayView";
-import { addWater, bringBack, changeStatus, removeEntry } from "./actions";
+import {
+  addWater,
+  bringBack,
+  changeStatus,
+  recomputeTargets,
+  removeEntry,
+} from "./actions";
 import { PLACES } from "@/features/places";
 
 /** A meal's score on its box, when it has one (exactOptionalPropertyTypes: no `score: undefined`). */
@@ -71,15 +78,31 @@ export default async function OggiPage({
   const week = weekOf(date);
   const to = [date, week[6]! < today ? week[6]! : today].sort().at(-1)!;
   const scored = week.filter((d) => d <= today);
-  const [days, dayTargets, micros] = await Promise.all([
+  // The viewed week's automatic targets, made on its first open (core/energy, dossiers/targets.md).
+  const thisWeek = mondayOf(date) === mondayOf(today);
+  const [days, micros, plans] = await Promise.all([
     loadDays(db, owner, week[0]!, to, known),
-    Promise.all(
-      [...new Set([...scored, date])].map(
-        async (d) => [d, await readDayTargets(db, owner, d)] as const,
-      ),
-    ).then((xs) => new Map(xs)),
     readMicroTargets(db, owner, date),
+    readDayPlans(db, owner, week[0]!, week[6]!, today),
+    date <= today ? ensureWeekTargets(db, owner, date, clock) : null,
   ]);
+  // Each day's targets: its own decision, its fixed model, or the week's with its model.
+  const dayTargets = new Map(
+    await Promise.all(
+      [...new Set([...scored, date])].map(async (d) => {
+        const m = plans.get(d)?.model;
+        return [
+          d,
+          await readDayTargets(
+            db,
+            owner,
+            d,
+            m ? { name: m.name, targets: m.targets } : null,
+          ),
+        ] as const;
+      }),
+    ),
+  );
   const day = days.find((d) => d.day === date)!;
   const targets = dayTargets.get(date) ?? null;
   const kinds = await readFoodEstimates(db, owner, days.flatMap(foodIds));
@@ -87,12 +110,11 @@ export default async function OggiPage({
   // The few rows the scores and the zones read: weigh-ins (the reference
   // weight, the weigh-in's score), the week's nights; goals only for a weigh-in.
   const weighed = items.some((i) => i.kind.key === "weigh_in" && i.status === "done");
-  const [weighings, goals, nights, profile, plans] = await Promise.all([
+  const [weighings, goals, nights, profile] = await Promise.all([
     readNumbers(db, owner, "weigh_in", "weightKg", addDays(date, -27), to),
     weighed ? readGoals(db, owner, date) : null,
     readSpans(db, owner, "sleep", addDays(week[0]!, -7), to),
     date <= today ? readSettings(db, owner) : null,
-    readDayPlans(db, owner, week[0]!, week[6]!, today),
   ]);
   // The week strip names each day by its cycle's step or its model (day-templates.md §6).
   const tags = Object.fromEntries(
@@ -202,6 +224,13 @@ export default async function OggiPage({
         <section className="k-block g3" aria-label="Il giorno">
           <OpenBox entry={{ ...whole.entry, ...withScore(score) }}>
             <Nutrients data={whole.nutrients} />
+            {thisWeek && targets?.basis?.expenditureKcal !== undefined && (
+              <form action={recomputeTargets} className="k-line end">
+                <button type="submit" className="k-btn link">
+                  Ricalcola la settimana
+                </button>
+              </form>
+            )}
           </OpenBox>
         </section>
       )}

@@ -19,6 +19,7 @@ import {
   type Status,
 } from "@/core/entries";
 import { logicalDay } from "@/core/engines/time";
+import { recomputeWeekTargets } from "@/core/energy";
 import { kindRegistry } from "@/core/kinds";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -69,5 +70,14 @@ export async function addWater(day: string, ml: 250 | 500): Promise<void> {
   );
   if (!checked.ok) return;
   await createEntry(db, owner, checked.entry);
+  revalidatePath("/oggi", "layout");
+}
+
+/** «Ricalcola»: this week's automatic targets made again (core/energy; a v1 check-in stays). */
+export async function recomputeTargets(): Promise<void> {
+  const owner = await requireOwner();
+  const db = await getDb();
+  const { clock } = await ownerClock();
+  await recomputeWeekTargets(db, owner, logicalDay(new Date(), clock), clock);
   revalidatePath("/oggi", "layout");
 }

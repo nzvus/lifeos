@@ -9,6 +9,7 @@ import { F } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDay, readDayTargets } from "@/core/day";
+import { readDayModel } from "@/core/plans";
 import { localParts } from "@/core/engines/time";
 import {
   readFoodChoices,
@@ -41,7 +42,7 @@ export default async function MealPage({
   const [choices, dayData, targets] = await Promise.all([
     readFoodChoices(db, owner, today),
     loadDay(db, owner, day, { clock, roleBounds }),
-    readDayTargets(db, owner, day),
+    readDayModel(db, owner, day).then((m) => readDayTargets(db, owner, day, m)),
   ]);
   const whole = presentDay(
     dayData,

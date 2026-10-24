@@ -9,6 +9,7 @@ import { F } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDay, readDayTargets } from "@/core/day";
+import { readDayModel } from "@/core/plans";
 import { readEntry } from "@/core/entries";
 import {
   readFoodChoices,
@@ -46,7 +47,9 @@ export default async function EntryEditPage({
     const [choices, dayData, targets] = await Promise.all([
       readFoodChoices(db, owner, ctx.today),
       loadDay(db, owner, item.day, ctx),
-      readDayTargets(db, owner, item.day),
+      readDayModel(db, owner, item.day).then((m) =>
+        readDayTargets(db, owner, item.day, m),
+      ),
     ]);
     // The day without this meal, so the preview adds it once.
     const others = {

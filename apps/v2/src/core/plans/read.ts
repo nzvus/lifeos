@@ -18,7 +18,7 @@ import {
   weekLayouts,
 } from "../db/schema";
 import type { Occurrence } from "../engines/planning";
-import type { IsoDate } from "../engines/time";
+import { isoWeekday, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 import { dayPlans, type DayPlan, type PlanCycle } from "./plan";
 
@@ -31,7 +31,12 @@ export async function readDayPlans(
 ): Promise<Map<IsoDate, DayPlan>> {
   const [models, week, fixed, cycles] = await Promise.all([
     db
-      .select({ id: templates.id, name: templates.name, scope: templates.scope })
+      .select({
+        id: templates.id,
+        name: templates.name,
+        scope: templates.scope,
+        targets: templates.targets,
+      })
       .from(templates)
       .where(
         and(
@@ -177,6 +182,11 @@ export async function readDayPlans(
     from,
     to,
     models: dayModels,
+    modelTargets: new Map(
+      models
+        .filter((m) => m.scope === "day")
+        .map((m) => [m.id, (m.targets as Record<string, unknown> | null) ?? null]),
+    ),
     week: new Map(week.map((w) => [w.weekday, w.templateId])),
     fixed: fixedModels,
     cycles: planCycles,
@@ -227,4 +237,49 @@ async function readSessionKeys(
     day: r.day,
     keys: [...(r.itemId ? [r.itemId] : []), ...(byParent.get(r.id) ?? [])],
   }));
+}
+
+/**
+ * The day's model with its targets, alone (core/day's resolution on pages
+ * that need no cycles): the day's fixed copy, else the week layout's.
+ */
+export async function readDayModel(
+  db: Db,
+  owner: Owner,
+  day: IsoDate,
+): Promise<{ name: string; targets: Record<string, unknown> | null } | null> {
+  const [fixed, week] = await Promise.all([
+    db
+      .select({ payload: decisions.payload })
+      .from(decisions)
+      .where(
+        and(
+          ownedBy(decisions, owner),
+          eq(decisions.kind, "day_targets"),
+          eq(decisions.day, day),
+        ),
+      ),
+    db
+      .select({ templateId: weekLayouts.templateId })
+      .from(weekLayouts)
+      .where(and(ownedBy(weekLayouts, owner), eq(weekLayouts.weekday, isoWeekday(day)))),
+  ]);
+  const own = (fixed[0]?.payload as Record<string, unknown> | undefined)?.["profileId"];
+  const id = typeof own === "string" ? own : week[0]?.templateId;
+  if (!id) return null;
+  const [m] = await db
+    .select({ name: templates.name, targets: templates.targets })
+    .from(templates)
+    .where(
+      and(
+        ownedBy(templates, owner),
+        eq(templates.id, id),
+        eq(templates.scope, "day"),
+        eq(templates.active, true),
+        isNull(templates.deletedAt),
+      ),
+    );
+  return m
+    ? { name: m.name, targets: (m.targets as Record<string, unknown> | null) ?? null }
+    : null;
 }

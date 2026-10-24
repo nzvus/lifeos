@@ -1,0 +1,210 @@
+/**
+ * core/energy/week.ts — the week's energy, once a week (dossiers/targets.md
+ * §5, §9 decided 2026-10-24): E4's filter over the 56 days before Monday,
+ * fed by E4a's priors, gives the trend weight W and the expenditure E (the
+ * mean of the last 7 days, so one session does not set the week); the goal
+ * in force gives the deficit through its pace (E5) and the density of a
+ * change (E4), never over 500 kcal in a recomposition (Murphy & Koehler
+ * 2022: larger deficits stop lean gains). Pure: `read.ts` brings the rows.
+ *   time on one's feet  the steps entry's level: sitting 2 h, mixed 5 h,
+ *                       on one's feet 8 h (v1 ADR-0051's points); 2 h when unsaid
+ *   steps               a day's count, 30 % of it in walks (no minute counts yet)
+ *   sessions            lifted sets by their exercise's class (`sessionCost`),
+ *                       cardio by its MET band over the session's minutes
+ *   weigh-ins           their reliability from what was said (fasted, toilet,
+ *                       training) and the hour; implausible ones at 0.02
+ */
+import {
+  bodyDensity,
+  bodyState,
+  estimatedBodyFatPct,
+  implausibleWeighIns,
+  readWeighIn,
+  type BodyDay,
+  type WeighIn,
+} from "../engines/body";
+import {
+  activityCost,
+  bmr,
+  CARDIO_MET,
+  classOf,
+  dayPrior,
+  filterInputs,
+  sessionCost,
+  type Range,
+} from "../engines/expenditure";
+import { deficitKcal, planPace, type GoalKind } from "../engines/targets";
+import { addDays, localParts, type DayClock, type IsoDate } from "../engines/time";
+import type { EnergyRows } from "./read";
+
+export const WINDOW_DAYS = 56;
+export const RECOMP_MAX_DEFICIT = 500;
+const FEET_HOURS: Record<string, number> = { sitting: 2, mixed: 5, on_feet: 8 };
+const WALK_SHARE = 0.3;
+/** A trained person repeating sessions: half the next-day tail of new work. */
+const NOVELTY = 0.5;
+/** Seconds per rep when a set was not timed, for the rest left in a session's minutes. */
+const SECONDS_PER_REP = 4;
+
+export type WeekGoal = {
+  kind: GoalKind;
+  targetKg: number | null;
+  targetDay: IsoDate | null;
+};
+
+/** The payload of an automatic `week_targets` decision. */
+export type WeekEnergy = {
+  source: "auto";
+  /** The days the filter read: from, to (the day before Monday). */
+  from: IsoDate;
+  to: IsoDate;
+  expenditureKcal: number;
+  sigmaKcal: number;
+  trendKg: number;
+  bmr: number;
+  /** From the goal's pace; null without a weight goal (the model's own then applies). */
+  deficitKcal: number | null;
+  ratePctWeek: number | null;
+  /** Days with food logged, of the window. */
+  loggedDays: number;
+};
+
+const mean = (xs: readonly number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+
+export function weekEnergy(
+  rows: EnergyRows,
+  p: {
+    from: IsoDate;
+    to: IsoDate;
+    today: IsoDate;
+    clock: DayClock;
+    goal: WeekGoal | null;
+  },
+): WeekEnergy | null {
+  const body = rows.profile;
+  if (!body || rows.weighIns.length === 0) return null;
+  const age = Number(p.today.slice(0, 4)) - body.birthYear;
+  const weighIns = [...rows.weighIns].sort((a, b) => a.day.localeCompare(b.day));
+  const kgOn = (day: IsoDate) =>
+    [...weighIns].reverse().find((w) => w.day <= day)?.kg ?? weighIns[0]!.kg;
+  const closed = new Set(rows.closed);
+
+  const days: BodyDay[] = [];
+  let tails: Range[] = [];
+  for (let d = p.from; d <= p.to; d = addDays(d, 1)) {
+    const kg = kgOn(d);
+    const b = bmr({ sex: body.sex, kg, heightCm: body.heightCm, age });
+    const meals = rows.meals.filter((m) => m.day === d);
+    const eaten = meals.length ? meals.reduce((a, m) => a + m.kcal, 0) : null;
+    const step = rows.steps.find((s) => s.day === d);
+    const sessions = rows.sessions
+      .filter((s) => s.day === d)
+      .map((s) => {
+        const lifted = s.exercises.filter((e) => classOf(e.pattern) !== null);
+        const cardio = s.exercises.filter((e) => classOf(e.pattern) === null);
+        const share =
+          s.minutes && s.exercises.length ? s.minutes / s.exercises.length : 0;
+        const sets = lifted.flatMap((e) =>
+          e.sets.map((x) => ({
+            exercise: e.pattern ?? "",
+            cls: classOf(e.pattern)!,
+            reps: x.reps,
+            kg: x.kg > 0 ? x.kg : kg,
+            rir: x.rir ?? undefined,
+            start: x.start ?? undefined,
+            end: x.end ?? undefined,
+          })),
+        );
+        const work = sets.reduce((a, x) => a + (x.reps * SECONDS_PER_REP) / 60, 0);
+        const liftedMin = share * lifted.length;
+        const cost = sets.length
+          ? sessionCost({
+              sets,
+              bodyKg: kg,
+              bmr: b,
+              restMin: Math.max(0, liftedMin - work),
+              novelty: NOVELTY,
+            })
+          : null;
+        const cardioPrior = cardio.map(
+          (e) => activityCost(CARDIO_MET[e.pattern!]!, kg, share).prior,
+        );
+        return {
+          prior: [cost?.prior, ...cardioPrior].reduce<Range>(
+            (a, r) => (r ? { low: a.low + r.low, high: a.high + r.high } : a),
+            { low: 0, high: 0 },
+          ),
+          tail: cost?.tail ?? { low: 0, high: 0 },
+        };
+      });
+    const prior = dayPrior({
+      body: { sex: body.sex, kg, heightCm: body.heightCm, age },
+      hoursOnFeet: FEET_HOURS[step?.level ?? ""] ?? FEET_HOURS["sitting"]!,
+      steps:
+        step?.steps != null
+          ? { type: "total", steps: step.steps, walkShare: WALK_SHARE }
+          : null,
+      sessions: sessions.map((s) => ({ prior: s.prior })),
+      yesterdayTails: tails,
+      intakeKcal: eaten,
+    });
+    tails = sessions.map((s) => s.tail);
+    days.push({
+      day: d,
+      eatenKcal: eaten,
+      estimatedKcal: meals.filter((m) => m.estimated).reduce((a, m) => a + m.kcal, 0),
+      closed: closed.has(d) ? "complete" : null,
+      ...filterInputs(prior),
+    });
+  }
+
+  const inWindow = weighIns.filter((w) => w.day >= p.from && w.day <= p.to);
+  const flags = implausibleWeighIns(inWindow);
+  const points: WeighIn[] = inWindow.map((w, i) => ({
+    day: w.day,
+    kg: w.kg,
+    reliability: readWeighIn({
+      said: {
+        fasted: w.fasted,
+        afterToilet: w.afterToilet,
+        afterTraining: w.afterTraining,
+      },
+      hour: w.at ? Math.floor(localParts(w.at, p.clock.timeZone).minute / 60) : null,
+      ateBeforeKcal: 0,
+      trainedBefore: false,
+      yesterday: null,
+      usual: null,
+      implausible: flags[i],
+    }).reliability,
+  }));
+  if (points.length === 0) return null;
+  const meanKg = mean(points.map((w) => w.kg));
+  const bodyFatPct = estimatedBodyFatPct(meanKg, body.heightCm, age, body.sex);
+  const state = bodyState(days, points, { bodyFatPct });
+  const last = state.days.slice(-7);
+  if (last.length === 0) return null;
+  const W = state.days.at(-1)!.weight.value;
+  const expenditure = mean(last.map((d) => d.expenditure.value));
+  const sigma = mean(last.map((d) => d.expenditure.sigma));
+
+  let deficit: number | null = null;
+  let rate: number | null = null;
+  if (p.goal) {
+    const pace = planPace(p.goal, W, p.today);
+    rate = pace.ratePctWeek;
+    deficit = deficitKcal(rate, W, bodyDensity(W, bodyFatPct));
+    if (p.goal.kind === "recomp") deficit = Math.min(deficit, RECOMP_MAX_DEFICIT);
+  }
+  return {
+    source: "auto",
+    from: p.from,
+    to: p.to,
+    expenditureKcal: Math.round(expenditure),
+    sigmaKcal: Math.round(sigma),
+    trendKg: Math.round(W * 100) / 100,
+    bmr: Math.round(bmr({ sex: body.sex, kg: W, heightCm: body.heightCm, age })),
+    deficitKcal: deficit,
+    ratePctWeek: rate,
+    loggedDays: days.filter((d) => d.eatenKcal !== null).length,
+  };
+}

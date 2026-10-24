@@ -142,7 +142,9 @@ describe("the day as a Box with Nutrients L1", () => {
       ]),
       null,
     )!;
-    expect(d.entry.meta).toBe("obiettivi non ancora calcolati in v2");
+    expect(d.entry.meta).toBe(
+      "obiettivi da calcolare: servono pesate e sesso, anno e altezza nelle impostazioni",
+    );
     expect(d.nutrients.kcal).toEqual({ v: 0, planned: 0, t: null });
     // Nothing to scale the limits with.
     expect(d.nutrients.limits).toEqual([]);
