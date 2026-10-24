@@ -30,6 +30,7 @@
   "dependencies": {
     "@electric-sql/pglite": "0.5.8",
     "@lifeos/kit": "*",
+    "barcode-detector": "3.2.2",
     "better-auth": "1.7.6",
     "big.js": "7.0.1",
     "drizzle-orm": "0.45.3",

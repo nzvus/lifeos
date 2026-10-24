@@ -450,6 +450,17 @@ function Draft({
               value={query}
               onChange={(x) => setQuery(x.target.value)}
             />
+            {tab === "foods" && (
+              <a
+                className="k-link"
+                href={
+                  "/libreria/cibo/nuovo?torna=" +
+                  encodeURIComponent(backHref.replace("/aggiungi?", "/aggiungi/pasto?"))
+                }
+              >
+                Un cibo nuovo dal codice a barre
+              </a>
+            )}
             {foundRecipes.length > 0 && (
               <div className="k-stack g2" aria-label="Pasti salvati">
                 {foundRecipes.map((r) => (
