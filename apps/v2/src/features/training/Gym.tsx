@@ -397,6 +397,7 @@ export function Gym({
               key={auto ? "auto" : "manual"}
               name="mode"
               label="Modalità"
+              hideLabel
               type="choice"
               required
               defaultValue={auto ? "auto" : "manual"}

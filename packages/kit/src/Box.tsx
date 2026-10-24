@@ -11,7 +11,7 @@
  * client component (never from a server page: a function cannot cross);
  * the same for `acts`, the row's actions (tick, skip) in its trail.
  */
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
 import { F, type State } from "./format";
@@ -35,6 +35,12 @@ export type BoxEntry = {
   members?: (GlyphOf & { title?: string })[];
   href?: string;
   hrefLabel?: string;
+  /** Its score (E7): the skyline behind it, the parts when it opens; missing parts named. */
+  score?: {
+    value: number | null;
+    parts: { name: string; score: number; weight: number }[];
+    missing: string[];
+  };
 };
 
 export type BoxAct = {
@@ -116,6 +122,30 @@ export function Box({
             "k-box " + e.fam + (e.sub ? " " + e.sub : "") + (expanded ? " is-open" : "")
           }
         >
+          {e.score && e.score.parts.length > 0 && density !== "row" && (
+            <span className="k-skybg" aria-hidden="true">
+              <span className="k-sky bg">
+                {e.score.parts.map((q) => (
+                  <span
+                    key={q.name}
+                    className="col"
+                    style={
+                      {
+                        flexGrow: q.weight,
+                        "--mix": Math.round(8 + q.score * 18) + "%",
+                      } as CSSProperties
+                    }
+                  >
+                    <span
+                      className="fill"
+                      style={{ height: Math.round(q.score * 100) + "%" }}
+                    />
+                  </span>
+                ))}
+                <span className="line" style={{ bottom: "auto", top: "30%" }} />
+              </span>
+            </span>
+          )}
           <span className="k-artclip" aria-hidden="true">
             <span className="k-art a1">
               <Glyph of={of} size="xl" />
@@ -174,6 +204,44 @@ export function Box({
             )}
           </div>
           {e.meta && <span className="k-meta k-sub">{e.meta}</span>}
+          {expanded && e.score && e.score.value !== null && (
+            <div className="k-parts">
+              <span className="k-num b2">
+                {e.score.value}
+                <span className="k-meta">
+                  {" / 100"}
+                  {e.score.missing.length > 0
+                    ? " · senza: " + e.score.missing.join(", ")
+                    : ""}
+                </span>
+              </span>
+              {e.score.parts.map((q) => {
+                const v = Math.round(q.score * 100);
+                const j = F.judge(v);
+                return (
+                  <div key={q.name} className="k-part">
+                    <span className={j.cls} role="img" aria-label={j.aria} />
+                    <span className="k-body n">
+                      {q.name}{" "}
+                      <span className="k-help">{Math.round(q.weight * 100)} %</span>
+                    </span>
+                    <span className="k-bar">
+                      <i
+                        style={
+                          {
+                            width: v + "%",
+                            "--mix": Math.round(30 + q.score * 50) + "%",
+                          } as CSSProperties
+                        }
+                      />
+                      <b />
+                    </span>
+                    <span className="k-num b2 k-right">{v}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
           {children && <div className="k-bin">{children}</div>}
           <div className="k-reveal on k-more">
             <div>
