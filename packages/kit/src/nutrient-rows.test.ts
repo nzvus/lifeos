@@ -182,6 +182,13 @@ describe("the heat bar (dossiers/ranges.md §6)", () => {
     expect(l.w).toBe("95%"); // 11.6 of max(11.6 × 1.05, 10)
     expect(l.aria).toContain("pessimo");
     expect(l.color).toBe("var(--tomato)");
+    expect(l.mean).toBeNull();
+    const m = rows({
+      macros: [],
+      limits: [{ key: "salt", v: 11.6, t: 5, zones: salt, mean: 6, meanDays: 3 }],
+    }).limits[0]!;
+    expect(m.mean).toBe("49.3%"); // 6 of 12.18
+    expect(m.aria).toContain("media di 3 giorni");
   });
   it("without zones, nothing changes", () => {
     const m = rows({ macros: [{ key: "protein", v: 140.7, t: 154 }] }).macros[0]!;

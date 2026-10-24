@@ -1,8 +1,8 @@
 /**
  * E7 — the registry: the models whose parts, weights and ranges engines.md E7
- * declares. Day targets, distribution, recovery and habits have parts but no
- * weights in the spec yet; they join the registry when their weights are
- * chosen from their evidence (never a shared pattern by default).
+ * declares. Distribution and the full recovery model (check-in z-scores,
+ * balance, load) have parts but no weights yet; they join when their
+ * weights are chosen from their evidence (never a shared pattern by default).
  * NOVA is shown, not scored.
  */
 import type { ScoringModel } from "./model";
@@ -137,7 +137,46 @@ export const WATER: ScoringModel = {
   sources: ["EFSA 2010", "ACSM 2007", "Shirreffs 1996"],
 };
 
-export const REGISTRY: readonly ScoringModel[] = [FOOD, SLEEP, SESSION, WEIGHING, WATER];
+/**
+ * The day (the boards' «Il giorno», dossiers/ranges.md §5): its targets, from
+ * each number's zones (E5 ranges); recovery, the night's score until E7's
+ * recovery model has its other parts; habits, the share of what was planned
+ * that got done. A summary of domains, so its parts are other models'
+ * results, never their raw numbers mixed.
+ */
+export const DAY: ScoringModel = {
+  id: "day",
+  domain: "day",
+  version: 1,
+  date: "2026-10-24",
+  parts: [
+    {
+      key: "dayTargets",
+      weight: w(45, 30, 60),
+      why: "Each macro, limit and the micros as one, by its zone (E5 ranges).",
+    },
+    {
+      key: "recovery",
+      weight: w(35, 20, 50),
+      why: "The night's score: duration, regularity, how you feel.",
+    },
+    {
+      key: "habits",
+      weight: w(20, 0, 30),
+      why: "What was planned for the day and got done.",
+    },
+  ],
+  sources: ["dossiers/ranges.md", "ISSN 2017", "WHO 2015/2023", "Windred 2024"],
+};
+
+export const REGISTRY: readonly ScoringModel[] = [
+  FOOD,
+  SLEEP,
+  SESSION,
+  WEIGHING,
+  WATER,
+  DAY,
+];
 
 /** Declared in the spec with parts but no weights yet: listed so the score's page can say so. */
-export const PENDING = ["dayTargets", "distribution", "recovery", "habits"] as const;
+export const PENDING = ["distribution", "recoveryFull"] as const;

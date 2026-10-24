@@ -39,7 +39,16 @@ export type NutrientsData = {
     zones?: HeatZone[];
   }[];
   /** `name` replaces the key's (free sugars when the kinds tell them apart). */
-  limits?: { key: LimitKey; v: number; t: number; name?: string; zones?: HeatZone[] }[];
+  limits?: {
+    key: LimitKey;
+    v: number;
+    t: number;
+    name?: string;
+    zones?: HeatZone[];
+    /** The week's mean up to this day, drawn as a tick; `meanDays` days. */
+    mean?: number;
+    meanDays?: number;
+  }[];
   /** Vitamins and minerals, grouped; the page judges each (a state), the kit draws it. */
   micros?: {
     summary: string;
@@ -320,13 +329,23 @@ export function nutrientsL1(d: NutrientsData) {
       w: Math.min(100, (l.v / scale) * 100).toFixed(0) + "%",
       color: F.tone(h.state ?? F.cap(l.v, l.t)),
       track: h.track,
+      mean:
+        l.mean === undefined
+          ? null
+          : Math.min(100, (l.mean / scale) * 100).toFixed(1) + "%",
       aria:
         (l.name ?? LIMIT[l.key]) +
         " " +
         F.num(l.v, "g") +
         " su un massimo di " +
         F.num(l.t, "g") +
-        (h.word ? ", " + h.word : ""),
+        (h.word ? ", " + h.word : "") +
+        (l.mean === undefined
+          ? ""
+          : ", media di " +
+            F.plural(l.meanDays ?? 0, "giorno", "giorni") +
+            " " +
+            F.num(l.mean, "g")),
     };
   });
 

@@ -150,6 +150,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                 style={l.track ? { background: l.track } : undefined}
               >
                 <i style={{ width: l.w, background: l.color }} />
+                {l.mean && <b style={{ left: l.mean }} />}
               </span>
             </span>
           ))}

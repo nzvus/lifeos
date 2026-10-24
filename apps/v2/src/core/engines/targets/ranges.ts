@@ -7,7 +7,8 @@
  *   protein   bad < 0.83 W (EFSA PRI) · fair · good 1.6–2.2 W (Morton 2018)
  *             · fair to 3.0 W · bad; without W, 10–35 % of E (EFSA/IOM)
  *   fat       bad < 15 % E · fair · good 20–35 % E (EFSA) · fair to 40 % · bad
- *   carbs     bad < 3 W (ACSM 2016; 5 W on a hard day) · good to 60 % E (EFSA)
+ *   carbs     bad < 3 W (ACSM 2016; 5 W on a hard day), at most 45 % E · good
+ *             to 60 % E (EFSA)
  *             · fair to 65 % · bad
  *   fibre     bad < 10 g/1 000 E · fair · good from 14 g/1 000 E and 25 g
  *             (EFSA, IOM) · fair past 60 g (GI symptoms)
@@ -59,8 +60,15 @@ export function levelAt(v: number, r: Range): Level {
   return level;
 }
 
-export function rangeScore(v: number, r: Range): number {
+/**
+ * `soFar`: a day still going is not judged for what it has yet to reach,
+ * only for what it went over (dossiers/ranges.md §7): under its good zone
+ * a number scores 1.
+ */
+export function rangeScore(v: number, r: Range, soFar = false): number {
   const zs = r.zones;
+  const good = zs.find((z) => z.level === "good");
+  if (soFar && good && v < good.from) return 1;
   let i = 0;
   for (let k = 0; k < zs.length; k++) if (v >= zs[k]!.from) i = k;
   const z = zs[i]!;
@@ -115,7 +123,11 @@ export function fatRange(b: DayBasis): Range {
 }
 
 export function carbsRange(b: DayBasis): Range {
-  const low = b.weightKg === null ? pctE(b, 45, 4) : (b.hardDay ? 5 : 3) * b.weightKg;
+  // Per kg, but never past 45 % of the day's energy: a short day cannot ask 3 g/kg.
+  const low = Math.min(
+    pctE(b, 45, 4),
+    b.weightKg === null ? Infinity : (b.hardDay ? 5 : 3) * b.weightKg,
+  );
   return zones("g", "ACSM 2016: 3–5 g/kg; EFSA 2010: ≤ 60 % kcal", [
     ["bad", 0],
     ["good", low],

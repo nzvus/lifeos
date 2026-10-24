@@ -7,21 +7,24 @@
  * So far: the day as a Box (Nutrients L1 against the targets in force),
  * water as a Box (drunk of the need, its score) with +250/+500 ml, the
  * filters by domain and state, the timeline and the untimed items; meals,
- * weigh-ins and the night scored (features/day/score.ts). The day's own
- * score comes with the ranges (dossiers/ranges.md).
+ * weigh-ins and the night scored (features/day/score.ts); the day's own
+ * score behind its box and on the week strip (features/day/day-score.ts,
+ * dossiers/ranges.md). The week is read once, up to today: each day's
+ * score is computed from it, never stored.
  */
 import { notFound } from "next/navigation";
-import { DateNav, Box, F, NavBar, Nutrients, PageHeader } from "@lifeos/kit";
+import { DateNav, F, NavBar, Nutrients, PageHeader, weekOf } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { dayMinute, loadDay, readDayTargets, readMicroTargets } from "@/core/day";
+import { dayMinute, loadDays, readDayTargets, readMicroTargets } from "@/core/day";
 import { addDays, instantAt, logicalDay } from "@/core/engines/time";
 import { readSettings } from "@/core/account/settings";
 import { readGoals, readNumbers, readSpans } from "@/core/goals";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
-import { foodIds, mealL0, presentDay } from "@/features/day/nutrients";
+import { foodIds, mealL0 } from "@/features/day/nutrients";
+import { dayScore, presentWeek, weekScores } from "@/features/day/day-score";
 import {
   mealScore,
   nightOf,
@@ -63,43 +66,51 @@ export default async function OggiPage({
   const now = new Date();
   const today = logicalDay(now, clock);
   const date = segments[0] ?? today;
-  const [day, targets, micros] = await Promise.all([
-    loadDay(db, owner, date, known),
-    readDayTargets(db, owner, date),
+  // The week up to today (and the viewed day, when it is ahead): one set of queries.
+  const week = weekOf(date);
+  const to = [date, week[6]! < today ? week[6]! : today].sort().at(-1)!;
+  const scored = week.filter((d) => d <= today);
+  const [days, dayTargets, micros] = await Promise.all([
+    loadDays(db, owner, week[0]!, to, known),
+    Promise.all(
+      [...new Set([...scored, date])].map(
+        async (d) => [d, await readDayTargets(db, owner, d)] as const,
+      ),
+    ).then((xs) => new Map(xs)),
     readMicroTargets(db, owner, date),
   ]);
-  const kinds = await readFoodEstimates(db, owner, foodIds(day));
+  const day = days.find((d) => d.day === date)!;
+  const targets = dayTargets.get(date) ?? null;
+  const kinds = await readFoodEstimates(db, owner, days.flatMap(foodIds));
   const items = [...day.timed, ...day.untimed];
   // The few rows the scores and the zones read: weigh-ins (the reference
-  // weight, the weigh-in's score), goals and nights only when the day has them.
+  // weight, the weigh-in's score), the week's nights; goals only for a weigh-in.
   const weighed = items.some((i) => i.kind.key === "weigh_in" && i.status === "done");
-  const night = nightOf(items);
   const [weighings, goals, nights, profile] = await Promise.all([
-    date <= today
-      ? readNumbers(db, owner, "weigh_in", "weightKg", addDays(date, -27), date)
-      : null,
+    readNumbers(db, owner, "weigh_in", "weightKg", addDays(date, -27), to),
     weighed ? readGoals(db, owner, date) : null,
-    night ? readSpans(db, owner, "sleep", addDays(date, -7), addDays(date, -1)) : null,
+    readSpans(db, owner, "sleep", addDays(week[0]!, -7), to),
     date <= today ? readSettings(db, owner) : null,
   ]);
   const goal = goals?.find(
     (g) => g.source === "weight" && g.target === "reach" && g.value !== null,
   );
   const nowMinute = date === today ? dayMinute(now, date, clock) : null;
-  const lastWeek = (weighings ?? []).filter((w) => w.day > addDays(date, -7));
-  const weightKg = lastWeek.length
-    ? lastWeek.reduce((a, w) => a + w.n, 0) / lastWeek.length
-    : null;
-  const whole = presentDay(day, targets, kinds, micros, weightKg);
+  const series = weighings
+    .map((w) => ({ day: w.day, kg: w.n }))
+    .sort((a, b) => a.day.localeCompare(b.day));
+  const boxes = presentWeek({
+    days,
+    targets: dayTargets,
+    estimates: kinds,
+    micros,
+    weighings: series,
+  });
+  const whole = boxes.get(date) ?? null;
   const sctx: ScoreContext = {
     date,
     clock,
-    weighings:
-      weighed && weighings
-        ? weighings
-            .map((w) => ({ day: w.day, kg: w.n }))
-            .sort((a, b) => a.day.localeCompare(b.day))
-        : null,
+    weighings: weighed ? series.filter((w) => w.day <= date) : null,
     weightGoal: goal ? { value: goal.value!, since: goal.since, by: goal.by } : null,
     nights,
     sex: profile?.sex ?? null,
@@ -136,6 +147,21 @@ export default async function OggiPage({
       status: i.status,
     };
   };
+  const night = nightOf(items);
+  const nightScore = night ? (sleepScore(night, items, sctx)?.value ?? null) : null;
+  const score = dayScore({
+    day,
+    nutrients: whole?.nutrients ?? null,
+    night: nightScore,
+    now: nowMinute,
+  });
+  const scores = weekScores({
+    days,
+    present: boxes,
+    ctx: sctx,
+    today,
+    nowMinute: date === today ? nowMinute : dayMinute(now, today, clock),
+  });
   const rows = day.timed.map((i) => ({ ...row(i), minute: i.minute! }));
   const untimed = day.untimed.map(row);
   const empty = rows.length === 0 && untimed.length === 0;
@@ -144,13 +170,13 @@ export default async function OggiPage({
     <main className="k-page has-bd">
       <PageHeader title="Oggi" of={{ place: "oggi" }} />
       <section className="k-block g3">
-        <DateNav day={date} today={today} hrefBase="/oggi/" />
+        <DateNav day={date} today={today} hrefBase="/oggi/" scores={scores} />
       </section>
       {whole && (
         <section className="k-block g3" aria-label="Il giorno">
-          <Box entry={whole.entry} rail={false}>
+          <OpenBox entry={{ ...whole.entry, ...withScore(score) }}>
             <Nutrients data={whole.nutrients} />
-          </Box>
+          </OpenBox>
         </section>
       )}
       {date <= today && (
