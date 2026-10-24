@@ -203,6 +203,32 @@ function withOthers(
   return items.length ? { ...m, groups: [...m.groups, { name: "Altro", items }] } : m;
 }
 
+/**
+ * A meal's leucine, estimated from its protein's quality (no food carries it
+ * yet): ≈ 9 % of high-quality protein (dairy, eggs, meat), 8 % medium, 6.5 %
+ * low (most plants), 7.5 % unknown (Norton 2009; van Vliet 2015). ISSN 2017:
+ * ≈ 2.5 g a meal makes the most of muscle protein synthesis; from 1.5 g «ok».
+ */
+const LEUCINE_SHARE: Record<string, number> = {
+  high: 0.09,
+  medium: 0.08,
+  low: 0.065,
+  none: 0.075,
+};
+function leucineNote(parts: Record<string, number> | undefined) {
+  const g = Object.entries(parts ?? {}).reduce(
+    (a, [k, v]) => a + v * (LEUCINE_SHARE[k] ?? 0.075),
+    0,
+  );
+  if (g < 0.3) return {};
+  // Judged as it is shown, to one decimal: «≈ 2,5 g» is ideal.
+  const r = Math.round(g * 10) / 10;
+  const state: State = r >= 2.5 ? "good" : r >= 1.5 ? "warn" : "bad";
+  return {
+    extras: [{ t: "leucina " + F.approx(g, "g") + " (stima, 2,5 g ideale)", state }],
+  };
+}
+
 /** A meal's protein (ISSN 2017): 0.25–0.4 g/kg makes the most of a meal; less is only «ok». */
 const mealProteinZones = (weightKg: number | null) =>
   weightKg === null
@@ -250,6 +276,7 @@ export function mealL0(
           }),
       ...(estimates.size > 0 ? { parts: kinds[f] } : {}),
       ...(key === "protein" ? mealProteinZones(weightKg) : {}),
+      ...(key === "protein" && estimates.size > 0 ? leucineNote(kinds["protein"]) : {}),
     })),
   };
 }

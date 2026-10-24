@@ -1,3 +1,4 @@
+import { F } from "@lifeos/kit";
 import { describe, expect, it } from "vitest";
 import type { Day, DayItem, FoodTargets } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
@@ -272,5 +273,23 @@ describe("a meal's thin bars (L0)", () => {
       ["Creatina", 3, 3],
     ]);
     expect(altro.items[0]!.zones!.map((z) => z.level)).toEqual(["good", "bad", "danger"]);
+  });
+
+  it("a meal's leucine, estimated from its protein's quality", () => {
+    const m = mealL0(
+      item("meal", {
+        lines: [
+          { ...line("Skyr", "250", { kcal: "63", protein: "11" }), itemId: "skyr" },
+        ],
+      }),
+      week,
+      new Map([["skyr", { protein_high: "1" }]]),
+      75.6,
+    )!;
+    // 27.5 g of high-quality protein × 9 % ≈ 2.5 g.
+    expect(m.macros[0]!.extras![0]!.t).toBe(
+      "leucina " + F.approx(2.475, "g") + " (stima, 2,5 g ideale)",
+    );
+    expect(m.macros[0]!.extras![0]!.state).toBe("good");
   });
 });

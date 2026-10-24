@@ -14,6 +14,9 @@ import { loadDays } from "@/core/day";
 import { planWords, readDayPlans } from "@/core/plans";
 import { logicalDay } from "@/core/engines/time";
 import { present } from "@/features/day/present";
+import { withCompounds } from "@/features/day/compounds";
+import { foodIds } from "@/features/day/nutrients";
+import { readFoodEstimates } from "@/core/food/catalog";
 import { PLACES } from "@/features/places";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -34,6 +37,9 @@ export default async function PianoPage({
     loadDays(db, owner, week[0]!, week[6]!, known),
     readDayPlans(db, owner, week[0]!, week[6]!, today),
   ]);
+  // A coffee or creatine planned is drawn as on Oggi («Caffè ≈ 100 mg»), not as grams.
+  const compounds = await readFoodEstimates(db, owner, days.flatMap(foodIds));
+  const ctx = { compounds, doses: [], bed: null, creatineDays: null };
   const href = (d: string) =>
     weekOf(today)[0] === weekOf(d)[0] ? "/piano" : "/piano?settimana=" + d;
   return (
@@ -76,7 +82,12 @@ export default async function PianoPage({
                 </span>
               )}
               {planned.map((i) => (
-                <Box key={i.id} density="row" rail={false} entry={present(i)} />
+                <Box
+                  key={i.id}
+                  density="row"
+                  rail={false}
+                  entry={withCompounds(present(i), i, ctx)}
+                />
               ))}
             </div>
           );
