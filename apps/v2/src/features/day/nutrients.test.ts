@@ -235,4 +235,42 @@ describe("a meal's thin bars (L0)", () => {
     ).toBeNull();
     expect(mealL0(item("water", {}), week)).toBeNull();
   });
+
+  it("a meal's protein is zoned per kg (ISSN: 0.25 g/kg makes the most of it)", () => {
+    const m = mealL0(
+      item("meal", { lines: [line("Pollo", "100", { kcal: "110", protein: "23" })] }),
+      week,
+      new Map(),
+      75.6,
+    )!;
+    expect(m.macros[0]!.zones).toEqual([
+      { from: 0, level: "fair" },
+      { from: 18.9, level: "good" },
+    ]);
+    expect(m.macros[1]!.zones).toBeUndefined();
+  });
+
+  it("«Altro»: the day's caffeine against 400 mg with its zones, creatine against 3 g", () => {
+    const d = presentDay(
+      day([
+        item("meal", {
+          lines: [
+            { ...line("Capsula", "7.2", { kcal: "0" }), itemId: "coffee" },
+            { ...line("Creatina", "3.4", { kcal: "0" }), itemId: "creatine" },
+          ],
+        }),
+      ]),
+      week,
+      new Map([
+        ["coffee", { caffeine: "1389" }],
+        ["creatine", { creatine: "100" }],
+      ]),
+    )!;
+    const altro = d.nutrients.micros!.groups.find((g) => g.name === "Altro")!;
+    expect(altro.items.map((i) => [i.name, Math.round(i.v), i.t])).toEqual([
+      ["Caffeina", 100, 400],
+      ["Creatina", 3, 3],
+    ]);
+    expect(altro.items[0]!.zones!.map((z) => z.level)).toEqual(["good", "bad", "danger"]);
+  });
 });

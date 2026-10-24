@@ -25,6 +25,7 @@ import {
   type Status,
 } from "./filter";
 import { Timeline } from "./Timeline";
+import { WaterRow, type Water } from "./WaterRow";
 
 type Row = BoxEntry & { id: string; status: Status; l0?: NutrientsData | null };
 
@@ -49,11 +50,14 @@ export function DayView({
   untimed: allUntimed,
   now,
   actions,
+  water = null,
 }: {
   rows: (Row & { minute: number })[];
   untimed: Row[];
   now: { minute: number; label: string } | null;
   actions: DayActions;
+  /** The day's water, one box in the timeline; its drinks are not rows. */
+  water?: Water | null;
 }) {
   const [gone, setGone] = useState<ReadonlySet<string>>(new Set());
   const rows = allRows.filter((r) => !gone.has(r.id));
@@ -102,7 +106,10 @@ export function DayView({
       failed();
     }
   };
-  const all = [...rows, ...untimed];
+  const waterRow: (Row & { minute: number }) | null = water
+    ? { ...water.entry, id: "water", status: "done", minute: water.minute }
+    : null;
+  const all = [...rows, ...(waterRow ? [waterRow] : []), ...untimed];
   const offered = facets(all, FAM_ORDER);
   const [sel, setSel] = useState<Selection>(NONE);
   useEffect(() => {
@@ -125,7 +132,9 @@ export function DayView({
     }
   };
   const active = sel.fam.length + sel.status.length > 0;
-  const shown = rows.filter((r) => matches(r, sel));
+  const shown = [...rows, ...(waterRow ? [waterRow] : [])]
+    .filter((r) => matches(r, sel))
+    .sort((a, b) => a.minute - b.minute);
   const shownUntimed = untimed.filter((r) => matches(r, sel));
   const chips = offered.fam.length + offered.status.length > 0;
 
@@ -187,15 +196,19 @@ export function DayView({
             <Timeline
               rows={shown}
               now={now}
-              row={(r, mode, onRail) => (
-                <EntryRow
-                  entry={r}
-                  status={r.status}
-                  mode={mode}
-                  onRail={onRail}
-                  onIntent={(i) => act(r, i)}
-                />
-              )}
+              row={(r, mode, onRail) =>
+                r === waterRow && water ? (
+                  <WaterRow water={water} mode={mode} onRail={onRail} />
+                ) : (
+                  <EntryRow
+                    entry={r}
+                    status={r.status}
+                    mode={mode}
+                    onRail={onRail}
+                    onIntent={(i) => act(r, i)}
+                  />
+                )
+              }
             />
           )}
           {shownUntimed.length > 0 && (

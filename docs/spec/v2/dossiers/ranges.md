@@ -182,6 +182,14 @@ without zones; the AR for vitamin A, C, folate, calcium and iron (EFSA
 2017; the only micros with a PRI). Not yet: the week's mean
 tick on limits, meals' protein zones, caffeine and creatine bars, the
 day score and the week strip (slice c).
+Same day, slice (c) and the developer's review: the zones moved off the
+bar's track onto a strip of their own (the track painting mixed with the
+kinds' shades); a day still going is judged on eaten + planned; the day
+score (E7 `DAY`, 45/35/20 as the boards) behind «Il giorno» and on the
+week strip; limits judged on the week's mean (a triangle); «Altro» with
+caffeine and creatine; a coffee's pill judges what is left at bedtime; a
+meal's protein zoned from 0.25 g/kg (ISSN). Carbs' floor never past 45 %
+of the day's energy (a short day cannot ask 3 g/kg).
 
 ## 9. Questions for the developer
 1. **Four levels (danger, bad, fair, good) with these words: «da

@@ -9,11 +9,38 @@
 import { useState, type CSSProperties } from "react";
 import { F } from "./format";
 import { Glyph } from "./Glyph";
-import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
+import {
+  nutrientsL0,
+  nutrientsL1,
+  type HeatStrip,
+  type NutrientsData,
+} from "./nutrient-rows";
+
+/** A number's zones on their own line, its marks over them (`heatStrip`). */
+function Heat({ strip }: { strip: HeatStrip }) {
+  return (
+    <span className="k-heat" aria-hidden="true">
+      <span className="z">
+        {strip.zones.map((z, i) => (
+          <span
+            key={i}
+            className={z.danger ? "danger" : undefined}
+            style={{ width: z.w, background: z.c }}
+          />
+        ))}
+      </span>
+      {strip.to && <i className="to" style={{ left: strip.to }} />}
+      <i className="at" style={{ left: strip.at }} />
+      {strip.mean && <i className="mean" style={{ left: strip.mean }} />}
+    </span>
+  );
+}
 
 export function Nutrients({ data }: { data: NutrientsData }) {
   const [open, setOpen] = useState<string | null>(null);
   const { kcal, macros, limits, micros } = nutrientsL1(data);
+  const strips = [...macros, ...limits].some((x) => x.strip);
+  const means = limits.some((l) => l.strip?.mean);
   return (
     <div className="k-stack g3">
       {kcal && (
@@ -66,12 +93,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                   )}
                 </span>
               </span>
-              <span
-                className="k-track"
-                role="img"
-                aria-label={m.aria}
-                style={m.track ? { background: m.track } : undefined}
-              >
+              <span className="k-track" role="img" aria-label={m.aria}>
                 {m.segs.map((s, i) => (
                   <span
                     key={i}
@@ -81,6 +103,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                 ))}
                 {m.mark && <span className="k-mark" style={{ left: m.mark }} />}
               </span>
+              {m.strip && <Heat strip={m.strip} />}
             </button>
             {more && (
               <div className={"k-reveal" + (isOpen ? " on" : "")}>
@@ -145,15 +168,35 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                 <span className="k-num b2">{l.v}</span>
                 <span className="k-help">/ {l.t}</span>
               </span>
-              <span
-                className="k-bar"
-                style={l.track ? { background: l.track } : undefined}
-              >
-                <i style={{ width: l.w, background: l.color }} />
-              </span>
+              {l.strip ? (
+                <>
+                  <Heat strip={l.strip} />
+                  <span
+                    className="k-help"
+                    style={{ color: F.tone(l.state ?? undefined) }}
+                  >
+                    {l.word}
+                  </span>
+                </>
+              ) : (
+                <span className="k-bar">
+                  <i style={{ width: l.w, background: l.color }} />
+                </span>
+              )}
             </span>
           ))}
         </div>
+      )}
+      {strips && (
+        <span className="k-help k-heatkey" aria-hidden="true">
+          <i className="at" /> adesso <i className="to" /> con il previsto
+          {means && (
+            <>
+              {" "}
+              <i className="mean" /> media della settimana
+            </>
+          )}
+        </span>
       )}
       {micros && (
         <div className="k-nrow">
@@ -187,12 +230,13 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                         aria-label={i.aria}
                       >
                         <span className="k-body">{i.name}</span>
-                        <span
-                          className="k-bar"
-                          style={i.track ? { background: i.track } : undefined}
-                        >
-                          <i style={{ width: i.w, background: i.color }} />
-                        </span>
+                        {i.strip ? (
+                          <Heat strip={i.strip} />
+                        ) : (
+                          <span className="k-bar">
+                            <i style={{ width: i.w, background: i.color }} />
+                          </span>
+                        )}
                         <span className="k-num b3 k-right">{i.v}</span>
                       </div>
                     ))}

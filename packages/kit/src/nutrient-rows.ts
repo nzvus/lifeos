@@ -18,8 +18,8 @@ export type LimitKey = "sugars" | "sat" | "salt";
 
 /**
  * A number's zones (E5 ranges, dossiers/ranges.md): each from its edge to the
- * next one's, the last open. The bar's track is painted with them in pale
- * tints (the heat bar); the zone the value is in gives the word and the fill.
+ * next one's, the last open. They are drawn on a thin strip of their own
+ * (`heatStrip`); the zone the value (plus the plan) is in gives the word.
  */
 export type HeatLevel = "danger" | "bad" | "fair" | "good";
 export type HeatZone = { from: number; level: HeatLevel };
@@ -39,7 +39,17 @@ export type NutrientsData = {
     zones?: HeatZone[];
   }[];
   /** `name` replaces the key's (free sugars when the kinds tell them apart). */
-  limits?: { key: LimitKey; v: number; t: number; name?: string; zones?: HeatZone[] }[];
+  limits?: {
+    key: LimitKey;
+    v: number;
+    t: number;
+    name?: string;
+    zones?: HeatZone[];
+    /** The week's mean up to this day, drawn as a tick; `meanDays` days. */
+    mean?: number;
+    meanDays?: number;
+    planned?: number;
+  }[];
   /** Vitamins and minerals, grouped; the page judges each (a state), the kit draws it. */
   micros?: {
     summary: string;
@@ -121,11 +131,11 @@ const HEAT_STATE: Record<HeatLevel, State> = {
   fair: "warn",
   good: "good",
 };
-const HEAT_TINT: Record<HeatLevel, string> = {
-  good: "color-mix(in srgb, var(--herb) 42%, var(--sheet))",
-  fair: "color-mix(in srgb, var(--warn) 30%, var(--sheet))",
-  bad: "color-mix(in srgb, var(--tomato) 34%, var(--sheet))",
-  danger: "color-mix(in srgb, var(--tomato) 62%, var(--sheet))",
+const HEAT_COLOR: Record<HeatLevel, string> = {
+  good: "var(--heat-good)",
+  fair: "var(--heat-fair)",
+  bad: "var(--heat-bad)",
+  danger: "var(--heat-danger)",
 };
 
 export function heatLevel(v: number, zones: readonly HeatZone[]): HeatLevel | null {
@@ -134,15 +144,42 @@ export function heatLevel(v: number, zones: readonly HeatZone[]): HeatLevel | nu
   return level;
 }
 
-/** The track's background: each zone in its tint, over a bar whose end is `scale`. */
-export function heatTrack(zones: readonly HeatZone[], scale: number): string {
-  const stops = zones.map((z, i) => {
-    const a = Math.min(100, (z.from / scale) * 100).toFixed(1);
-    const next = zones[i + 1];
-    const b = next ? Math.min(100, (next.from / scale) * 100).toFixed(1) : "100";
-    return HEAT_TINT[z.level] + " " + a + "% " + b + "%";
-  });
-  return "linear-gradient(to right, " + stops.join(", ") + ")";
+/**
+ * The heat strip under a bar (or, for a limit or a micro, as its bar): the
+ * zones in full colour on their own thin line, so they never mix with the
+ * bar's kinds; a solid mark where the number is, a hollow one where the
+ * plan takes it, a small triangle at the week's mean.
+ */
+export type HeatStrip = {
+  zones: { w: string; c: string; danger: boolean }[];
+  at: string;
+  to: string | null;
+  mean: string | null;
+};
+
+const at = (v: number, scale: number) =>
+  Math.max(0, Math.min(100, (v / scale) * 100)).toFixed(1) + "%";
+
+export function heatStrip(
+  zones: readonly HeatZone[],
+  scale: number,
+  v: number,
+  planned = 0,
+  mean?: number,
+): HeatStrip {
+  return {
+    zones: zones.map((z, i) => {
+      const end = Math.min(scale, zones[i + 1]?.from ?? scale);
+      return {
+        w: Math.max(0, ((end - Math.min(z.from, scale)) / scale) * 100).toFixed(1) + "%",
+        c: HEAT_COLOR[z.level],
+        danger: z.level === "danger",
+      };
+    }),
+    at: at(v, scale),
+    to: planned > 0 ? at(v + planned, scale) : null,
+    mean: mean === undefined ? null : at(mean, scale),
+  };
 }
 
 /** Where the good zone ends, when it does: the bar shows all of it. */
@@ -151,16 +188,25 @@ const goodEnd = (zones: readonly HeatZone[]) => {
   return i >= 0 ? (zones[i + 1]?.from ?? null) : null;
 };
 
-/** What a judged number adds to its row: the track, the word, its state. */
-function heat(v: number, zones: readonly HeatZone[] | undefined, scale: number) {
-  const level = zones?.length ? heatLevel(v, zones) : null;
+/**
+ * What a judged number adds to its row: the strip, the word, its state. With
+ * something planned the word judges where the plan takes the day («→ ottimo»).
+ */
+function heat(
+  v: number,
+  zones: readonly HeatZone[] | undefined,
+  scale: number,
+  planned = 0,
+  mean?: number,
+) {
+  const level = zones?.length ? heatLevel(v + planned, zones) : null;
   return level
     ? {
-        track: heatTrack(zones!, scale),
-        word: HEAT_WORDS[level],
+        strip: heatStrip(zones!, scale, v, planned, mean),
+        word: (planned > 0 ? "→ " : "") + HEAT_WORDS[level],
         state: HEAT_STATE[level],
       }
-    : { track: null, word: null, state: null };
+    : { strip: null, word: null, state: null };
 }
 
 export const shade = (m: MacroKey, tone: number) =>
@@ -246,7 +292,7 @@ export function nutrientsL1(d: NutrientsData) {
       (t === null
         ? Math.max(shared, (end ?? 0) * 1.1)
         : Math.max(t * 1.25, (m.v + planned) * 1.05, (end ?? 0) * 1.1)) || 1;
-    const h = heat(m.v, m.zones, scale);
+    const h = heat(m.v, m.zones, scale, planned);
     const kinds = KINDS[m.key].filter(([k]) => (m.parts?.[k] ?? 0) > 0);
     const segs: Seg[] = kinds.length
       ? kinds.map(([k, , tone]) => ({
@@ -301,7 +347,7 @@ export function nutrientsL1(d: NutrientsData) {
         " " +
         F.num(m.v, "g") +
         (t === null ? "" : " su " + F.num(t, "g")) +
-        (h.word ? ", " + h.word : "") +
+        (h.word ? ", " + h.word + (planned ? " con il previsto" : "") : "") +
         (planned ? ", " + F.num(planned, "g") + " previsti" : "") +
         (kinds.length
           ? ": " + kinds.map(([k, name]) => name + " " + g(m.parts![k]!)).join(", ")
@@ -309,24 +355,36 @@ export function nutrientsL1(d: NutrientsData) {
     };
   });
 
-  // A limit with zones: the bar runs to twice the limit, so its zones show past it.
+  // A limit with zones is its strip, running to twice the limit so its zones show past it.
   const limits = (d.limits ?? []).map((l) => {
-    const scale = l.zones?.length ? Math.max(l.v * 1.05, l.t * 2) : l.t;
-    const h = heat(l.v, l.zones, scale);
+    const planned = l.planned ?? 0;
+    const scale = l.zones?.length ? Math.max((l.v + planned) * 1.05, l.t * 2) : l.t;
+    const h = heat(l.v, l.zones, scale, planned, l.mean);
     return {
       key: l.key,
       v: g(l.v),
       t: F.num(l.t, "g"),
       w: Math.min(100, (l.v / scale) * 100).toFixed(0) + "%",
       color: F.tone(h.state ?? F.cap(l.v, l.t)),
-      track: h.track,
+      strip: h.strip,
+      word: h.word,
+      state: h.state,
       aria:
         (l.name ?? LIMIT[l.key]) +
         " " +
         F.num(l.v, "g") +
+        (planned ? ", " + F.num(planned, "g") + " previsti" : "") +
         " su un massimo di " +
         F.num(l.t, "g") +
-        (h.word ? ", " + h.word : ""),
+        (h.word
+          ? ", " + h.word.replace("→ ", "") + (planned ? " con il previsto" : "")
+          : "") +
+        (l.mean === undefined
+          ? ""
+          : ", media di " +
+            F.plural(l.meanDays ?? 0, "giorno", "giorni") +
+            " " +
+            F.num(l.mean, "g")),
     };
   });
 
@@ -354,7 +412,7 @@ export function nutrientsL1(d: NutrientsData) {
                   ? "0%"
                   : Math.min(100, (i.v / scale) * 100).toFixed(0) + "%",
               color: F.tone(h.state ?? i.state),
-              track: h.track,
+              strip: h.strip,
               aria:
                 i.name +
                 " " +

@@ -84,4 +84,10 @@ describe("ranges (dossiers/ranges.md §8)", () => {
       ["fair", 175],
     ]);
   });
+
+  it("a day still going is judged only for what went over", () => {
+    expect(rangeScore(40, proteinRange(day), true)).toBe(1);
+    expect(rangeScore(40, proteinRange(day))).toBeLessThan(0.5);
+    expect(rangeScore(11.6, saltRange(), true)).toBeCloseTo(0.09, 2);
+  });
 });
