@@ -97,6 +97,13 @@ faded; the header counts them. Missing: the score's skyline for a goal,
 the inline «Nuovo obiettivo» with its derived pace (it is a page).
 Impostazioni, Aggiungi: compare again.
 
+## Impostazioni
+Done 2026-10-24: sections with their drawing and a line of why,
+«Obiettivi di oggi» (kcal and protein, where they come from, a link),
+«Tracker e tipi» (the foods and your own kinds counted), «I tuoi dati»
+(download all, the trash with its count). Missing: CSV per kind, replace
+or merge from a file, invites, language, the weather's city.
+
 ## Proposed order
 1. The box (cross-cutting): score skyline + open state + pills, so every
    screen gains at once.

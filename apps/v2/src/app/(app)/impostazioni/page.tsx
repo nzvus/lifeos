@@ -1,37 +1,97 @@
 /**
- * Impostazioni (V-14), first part: the account (who is signed in, «Esci»)
- * and the profile and day settings. Data (export, trash) and the theme come
- * with their slices.
+ * Impostazioni (V-14; the board Settings): sections with their drawing and
+ * a line of why — Account (who is signed in, «Esci»), Corpo e giornata
+ * (sex, birth year, height, time zone, when the day starts; what today's
+ * targets are and where they come from), Tracker e tipi (your kinds, the
+ * foods), Aspetto, I tuoi dati (export, the trash with its count).
  */
-import { F, PageHeader } from "@lifeos/kit";
+import { Box, F, Glyph, PageHeader, type GlyphOf } from "@lifeos/kit";
+import type { ReactNode } from "react";
 import { getSession, requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
+import { readSettingsCounts } from "@/core/account/counts";
 import { readSettings } from "@/core/account/settings";
+import { readDayTargets } from "@/core/day";
+import { logicalDay } from "@/core/engines/time";
+import { readDayModel } from "@/core/plans";
 import { SettingsForm } from "@/features/account/SettingsForm";
 import { SignOut } from "@/features/account/SignOut";
 import { ThemePicker } from "@/features/account/ThemePicker";
 import { saveSettingsForm } from "./actions";
 
+function Section({
+  name,
+  of,
+  help,
+  children,
+}: {
+  name: string;
+  of: GlyphOf;
+  help?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="k-section g3" aria-label={name}>
+      <h2>
+        <span className="k-hicon">
+          <Glyph of={of} size="m" />
+        </span>
+        {name}
+      </h2>
+      {help && <span className="k-meta">{help}</span>}
+      {children}
+    </section>
+  );
+}
+
 export default async function SettingsPage() {
   const owner = await requireOwner();
   const session = await getSession();
-  const s = await readSettings(await getDb(), owner);
+  const db = await getDb();
+  const s = await readSettings(db, owner);
+  const today = logicalDay(new Date(), {
+    timeZone: s.timeZone,
+    boundaryMin: s.boundaryMin,
+  });
+  const [counts, targets] = await Promise.all([
+    readSettingsCounts(db, owner, new Date()),
+    readDayModel(db, owner, today).then((m) => readDayTargets(db, owner, today, m)),
+  ]);
   return (
-    <main className="k-page">
+    <main className="k-page has-bd">
       <PageHeader
         title="Impostazioni"
+        context="tutto ciò che vale per ogni giorno"
         back={{ label: "Oggi", href: "/oggi" }}
         of={{ place: "impostazioni" }}
       />
-      <section className="k-section g3" aria-label="Account">
-        <h2>Account</h2>
+      <Section name="Account" of={{ fam: "settings", kind: "account" }}>
         <div className="k-line between">
           <span className="k-body">{session?.user.email}</span>
           <SignOut />
         </div>
-      </section>
-      <section className="k-section g3" aria-label="Tu e la giornata">
-        <h2>Tu e la giornata</h2>
+      </Section>
+      <Section
+        name="Corpo e giornata"
+        of={{ fam: "body" }}
+        help="Servono al motore degli obiettivi: le kcal e le proteine di ogni giorno nascono da qui."
+      >
+        <Box
+          density="row"
+          rail={false}
+          entry={{
+            fam: "body",
+            sub: "weight",
+            title: "Obiettivi di oggi",
+            value: targets ? F.num(targets.kcal, "kcal") : "da calcolare",
+            meta: targets
+              ? (targets.protein ? F.num(targets.protein, "g") + " proteine · " : "") +
+                "dall’obiettivo e dal modello del giorno, non a mano"
+              : "servono pesate e sesso, anno e altezza qui sotto",
+            href: "/andamento/obiettivi",
+            hrefLabel: "Apri gli obiettivi",
+          }}
+        />
         <SettingsForm
           action={saveSettingsForm}
           initial={{
@@ -42,23 +102,68 @@ export default async function SettingsPage() {
             boundary: F.time(s.boundaryMin),
           }}
         />
-      </section>
-      <section className="k-section g3" aria-label="Aspetto">
-        <h2>Aspetto</h2>
+      </Section>
+      <Section name="Tracker e tipi" of={{ fam: "catalog", kind: "types" }}>
+        <Box
+          density="row"
+          rail={false}
+          entry={{
+            fam: "catalog",
+            title: "Cibi",
+            value: F.n(counts.foods, 0),
+            meta: "ingredienti e prodotti",
+            href: "/libreria?vista=cibi",
+            hrefLabel: "Apri i cibi in Libreria",
+          }}
+        />
+        <Box
+          density="row"
+          rail={false}
+          entry={{
+            fam: "settings",
+            title: "I tuoi tipi",
+            value: F.n(counts.kinds, 0),
+            meta: counts.kinds
+              ? "tracker tuoi, oltre a quelli di base"
+              : "per ora solo quelli di base",
+          }}
+        />
+      </Section>
+      <Section name="Aspetto" of={{ ui: "theme" }}>
         <ThemePicker />
-      </section>
-      <section className="k-section g2" aria-label="Dati">
-        <h2>Dati</h2>
-        <a className="k-link" href="/impostazioni/cestino">
-          Cestino
+      </Section>
+      <Section
+        name="I tuoi dati"
+        of={{ fam: "settings", kind: "data" }}
+        help="Sempre tuoi: scaricali quando vuoi."
+      >
+        <a className="k-plain" href="/impostazioni/esporta" download>
+          <Box
+            density="row"
+            rail={false}
+            entry={{
+              fam: "settings",
+              sub: "data",
+              title: "Scarica tutto",
+              value: "JSON",
+              meta: "ogni tabella, anche il cestino",
+            }}
+          />
         </a>
-        <a className="k-link" href="/impostazioni/esporta" download>
-          Esporta i dati (JSON)
-        </a>
-        <p className="k-help">
-          Una copia di tutto quello che hai inserito, da tenere da parte.
-        </p>
-      </section>
+        <Box
+          density="row"
+          rail={false}
+          entry={{
+            fam: "settings",
+            sub: "trash",
+            title: "Cestino",
+            value: F.n(counts.trash, 0),
+            meta: "si svuota da solo dopo 30 giorni",
+            href: "/impostazioni/cestino",
+            hrefLabel: "Apri il cestino",
+          }}
+        />
+      </Section>
     </main>
   );
 }
