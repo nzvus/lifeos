@@ -44,6 +44,16 @@ const servingsOf = (m: DayItem) =>
 
 export type CreatineLine = { day: IsoDate; quantity: string; unit: string };
 
+/** Days with ≥ 3 g of creatine among these lines; null when none is creatine at all. */
+export function creatineDays(lines: readonly CreatineLine[]): number | null {
+  if (lines.length === 0) return null;
+  return new Set(
+    lines
+      .filter((l) => l.unit === "g" && Number(l.quantity) >= CREATINE_MIN_G)
+      .map((l) => l.day),
+  ).size;
+}
+
 /** The done meals' lines named creatine in the 28 days up to `day`. */
 export function readCreatineLines(
   db: Db,
@@ -99,24 +109,21 @@ export function sessionContext(
       : null;
   const recent = all.filter((m) => before(m, 3));
   const from = addDays(sessionDay, -(CREATINE_DAYS - 1));
-  const creatineDays = new Set<string>();
-  let anyCreatine = false;
-  if (creatine)
-    for (const l of creatine) {
-      anyCreatine = true;
-      if (l.unit === "g" && Number(l.quantity) >= CREATINE_MIN_G) creatineDays.add(l.day);
-    }
-  else
-    for (const d of days) {
-      if (d.day < from || d.day > sessionDay) continue;
-      for (const m of meals([d]))
-        for (const l of m.lines)
-          if (CREATINE.test(l.name)) {
-            anyCreatine = true;
-            const g = Number(l.quantity) * Number(servingsOf(m) ?? 1);
-            if (l.unit === "g" && g >= CREATINE_MIN_G) creatineDays.add(d.day);
-          }
-    }
+  const lines: readonly CreatineLine[] =
+    creatine ??
+    days
+      .filter((d) => d.day >= from && d.day <= sessionDay)
+      .flatMap((d) =>
+        meals([d]).flatMap((m) =>
+          m.lines
+            .filter((l) => CREATINE.test(l.name))
+            .map((l) => ({
+              day: d.day,
+              quantity: String(Number(l.quantity) * Number(servingsOf(m) ?? 1)),
+              unit: l.unit,
+            })),
+        ),
+      );
   return {
     sleptMin: night
       ? Math.round((night.end!.getTime() - night.start!.getTime()) / 60_000)
@@ -130,7 +137,7 @@ export function sessionContext(
       (n, m) => n + m.lines.filter((l) => COFFEE.test(l.name)).length,
       0,
     ),
-    creatineDays: anyCreatine ? creatineDays.size : null,
+    creatineDays: creatineDays(lines),
     readiness,
   };
 }

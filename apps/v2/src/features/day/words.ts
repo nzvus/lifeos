@@ -41,6 +41,12 @@ export const ACTIVITY: Record<string, string> = {
   screen: "Schermi",
 };
 
+/** "walkingMin" → "Walking min": a user's own field in words until it has a label. */
+export const keyWords = (key: string) => {
+  const s = key.replace(/([A-Z])/g, " $1").toLowerCase();
+  return s[0]!.toUpperCase() + s.slice(1);
+};
+
 /** Field labels of the built-in kinds; a user's own kind shows its key in words. */
 export const FIELDS: Record<string, string> = {
   ml: "Quantità",

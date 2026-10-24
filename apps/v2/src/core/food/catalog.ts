@@ -26,6 +26,7 @@ import {
   type FoodChoice,
   type RecipeChoice,
 } from "./choices";
+import { COMPOUND_FIELDS } from "./compounds";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
 import { ESTIMATE_FIELDS } from "./meal";
 import { MICRO_FIELDS } from "./micros";
@@ -202,7 +203,7 @@ export function savedEstimates(
   return out;
 }
 
-/** The estimates of these foods (core/food/kinds and micros), by food: for the lines of a day. */
+/** The estimates of these foods (core/food/kinds and micros) and their compounds, by food: for the lines of a day. */
 export async function readFoodEstimates(
   db: Db,
   owner: Owner,
@@ -222,7 +223,12 @@ export async function readFoodEstimates(
       and(
         ownedBy(catalogValues, owner),
         inArray(catalogValues.itemId, [...new Set(itemIds)]),
-        inArray(catalogValues.field, [...KIND_FIELDS, FIBRE_TYPES, ...MICRO_FIELDS]),
+        inArray(catalogValues.field, [
+          ...KIND_FIELDS,
+          FIBRE_TYPES,
+          ...MICRO_FIELDS,
+          ...COMPOUND_FIELDS,
+        ]),
       ),
     );
   for (const r of rows) {
