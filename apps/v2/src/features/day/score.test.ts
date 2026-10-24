@@ -3,7 +3,14 @@ import { F } from "@lifeos/kit";
 import type { DayItem, FoodTargets } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
 import { microTargets } from "@/core/engines/targets";
-import { mealScore, sleepScore, waterBox, weighScore, type ScoreContext } from "./score";
+import {
+  foodScore,
+  mealScore,
+  sleepScore,
+  waterBox,
+  weighScore,
+  type ScoreContext,
+} from "./score";
 
 const reg = kindRegistry();
 const item = (kind: string, more: Partial<DayItem> = {}): DayItem =>
@@ -80,6 +87,61 @@ const est = new Map([
     },
   ],
 ]);
+
+describe("a food's score, per 100 kcal (meal-score.md §8)", () => {
+  const micros = microTargets({ sex: "male", age: 24 });
+  it("broccoli scores high on 100 kcal of it, whatever the grams", () => {
+    const s = foodScore(broccoli.values, est.get("f1"), targets, micros)!;
+    expect(s.value).toBeGreaterThanOrEqual(90);
+  });
+  it("bread, poor in micros for its energy, scores low (the dossier's 12)", () => {
+    const bread = {
+      kcal: "270",
+      protein: "9",
+      carbs: "52",
+      fibre: "3",
+      fat: "3",
+      saturatedFat: "0.5",
+      salt: "1.4",
+    };
+    const breadEst = {
+      k: "110",
+      ca: "20",
+      fe: "1",
+      mg: "25",
+      vitA: "0",
+      vitC: "0",
+      vitD: "0",
+      folate: "30",
+      protein_medium: "1",
+      carbs_free: "0",
+      carbs_refined: "1",
+      fat_n3: "0.05",
+      fat_sfa: "0.5",
+    };
+    const s = foodScore(bread, breadEst, targets, micros)!;
+    expect(s.value).toBeLessThan(50);
+    expect(s.parts.find((p) => p.name === "densità")!.score).toBeLessThan(0.3);
+  });
+  it("none for water or coffee, nor without the day's targets", () => {
+    expect(foodScore({ kcal: "2" }, undefined, targets, micros)).toBeUndefined();
+    // A cake without its micros: density unknown, the limits alone would say 100.
+    const cake = {
+      kcal: "480",
+      protein: "7",
+      carbs: "55",
+      fat: "25",
+      saturatedFat: "8",
+      salt: "0.3",
+    };
+    expect(foodScore(cake, undefined, targets, micros)).toBeUndefined();
+    // Basil is eaten by the gram: its 100 kcal would be 435 g.
+    expect(
+      foodScore(broccoli.values, est.get("f1"), targets, micros, "herbs"),
+    ).toBeUndefined();
+    expect(foodScore(broccoli.values, est.get("f1"), null, micros)).toBeUndefined();
+  });
+});
 
 describe("a meal's score on the day", () => {
   it("parts in words with their weights; the parts that cannot be computed named", () => {

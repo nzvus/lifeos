@@ -57,23 +57,62 @@ export function mealScore(
   estimates: ReadonlyMap<string, Record<string, string>>,
   microTargets: readonly MicroTarget[] | null,
 ): BoxEntry["score"] | undefined {
-  if (meal.kind.key !== "meal" || targets === null) return undefined;
-  const parts = foodParts(
+  if (meal.kind.key !== "meal") return undefined;
+  return linesScore(
     meal.lines.map((l) => ({
       quantity: l.quantity,
       values: l.values,
       estimates: l.itemId ? estimates.get(l.itemId) : undefined,
     })),
     typeof meal.values["servings"] === "string" ? meal.values["servings"] : null,
-    {
-      kcal: targets.kcal,
-      // A day without a protein or fibre target: that nutrient is left out of density.
-      protein: targets.protein ?? 0,
-      fibre: targets.fibre ?? 0,
-      micros: Object.fromEntries((microTargets ?? []).map((t) => [t.micro, t.value])),
-    },
+    targets,
+    microTargets,
   );
-  if (!parts) return undefined;
+}
+
+/**
+ * A food's score (Libreria; meal-score.md §8 «Open», decided 2026-10-24): E7's
+ * model is «per 100 kcal», so a food is scored on the amount that brings 100
+ * kcal — a fair portion for light and dense foods alike. None under 5 kcal
+ * per 100 (water, coffee), and none for herbs and spices: eaten by the gram,
+ * 100 kcal of basil (435 g) would score a portion nobody eats — the known
+ * weakness of per-energy density scores (Drewnowski 2009).
+ */
+const UNSCORED_GROUPS = new Set(["herbs"]);
+export function foodScore(
+  per100: Record<string, string>,
+  estimates: Record<string, string> | undefined,
+  targets: FoodTargets | null,
+  microTargets: readonly MicroTarget[] | null,
+  group?: string,
+): BoxEntry["score"] | undefined {
+  const kcal = Number(per100["kcal"] ?? 0);
+  if (!(kcal >= 5) || (group && UNSCORED_GROUPS.has(group))) return undefined;
+  return linesScore(
+    [{ quantity: String(10_000 / kcal), values: per100, estimates }],
+    null,
+    targets,
+    microTargets,
+  );
+}
+
+function linesScore(
+  lines: Parameters<typeof foodParts>[0],
+  servings: string | null,
+  targets: FoodTargets | null,
+  microTargets: readonly MicroTarget[] | null,
+): BoxEntry["score"] | undefined {
+  if (targets === null) return undefined;
+  const parts = foodParts(lines, servings, {
+    kcal: targets.kcal,
+    // A day without a protein or fibre target: that nutrient is left out of density.
+    protein: targets.protein ?? 0,
+    fibre: targets.fibre ?? 0,
+    micros: Object.fromEntries((microTargets ?? []).map((t) => [t.micro, t.value])),
+  });
+  // Without density (too few nutrients known) only the limits would speak: «no excess» is
+  // not «good food» (a cake scored 100 on them alone). No score then.
+  if (!parts || parts.density === null) return undefined;
   const s = score(FOOD, partsOf(parts));
   if (s.value === null) return undefined;
   // Over its allowance: the limit that decided it, by name.

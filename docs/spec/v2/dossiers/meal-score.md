@@ -104,6 +104,9 @@ Run on the developer's catalog first (§6), which changed three thresholds:
 - Oggi: skyline behind each scored meal box; the open box shows the score,
   each part with its weight, the limit that decided it («limiti · sale») and
   «senza: valore, adatto al blocco».
-- **Open:** scoring a single food (Libreria) needs a reference portion —
-  per 100 g favours light foods, per serving needs servings the catalog
-  lacks; the composer's choices do not read micros yet. Next slice.
+- **A single food (2026-10-24):** scored on 100 kcal of it, as E7's model
+  says («per 100 kcal»), on the food's page and in Libreria (sort «Voto»,
+  each row's mini skyline); herbs and spices are not scored (eaten by the
+  gram: 100 kcal of basil is 435 g). **No score without density** (foods
+  or meals): the limits alone gave a cake 100 — «no excess» is not «good
+  food»; such a box says nothing rather than something wrong.

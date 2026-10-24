@@ -7,7 +7,14 @@ import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { logicalDay } from "@/core/engines/time";
-import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
+import {
+  readFoodChoices,
+  readFoodEstimates,
+  readRecipeChoices,
+} from "@/core/food/catalog";
+import { readMicroTargets } from "@/core/day";
+import { readTargetsFor } from "@/core/energy";
+import { foodScore } from "@/features/day/score";
 import { readExerciseLog, readExercises } from "@/core/training";
 import {
   exerciseRows,
@@ -31,14 +38,41 @@ export default async function LibreriaPage({
       : null;
   const owner = await requireOwner();
   const db = await getDb();
-  const today = logicalDay(new Date(), (await ownerClock()).clock);
+  const { clock } = await ownerClock();
+  const today = logicalDay(new Date(), clock);
   const foods = await readFoodChoices(db, owner, today);
   const [recipes, exercises, log] = await Promise.all([
     readRecipeChoices(db, owner, today, foods),
     readExercises(db, owner),
     readExerciseLog(db, owner),
   ]);
-  const food = foodRows(foods);
+  // The foods' list: each scored per 100 kcal (E7) against today's targets; only on its shelf.
+  const scored =
+    view === "foods"
+      ? await Promise.all([
+          readTargetsFor(db, owner, today, today, clock),
+          readMicroTargets(db, owner, today),
+          readFoodEstimates(
+            db,
+            owner,
+            foods.flatMap((f) => (f.productId === null && f.foodId ? [f.foodId] : [])),
+          ),
+        ])
+      : null;
+  const food = foodRows(foods).map((r) => {
+    const id = r.href?.split("/").at(-1);
+    const sc =
+      scored && id
+        ? foodScore(
+            Object.fromEntries(Object.entries(r.values).map(([k, v]) => [k, String(v)])),
+            scored[2].get(id),
+            scored[0],
+            scored[1],
+            r.of?.["group"],
+          )
+        : undefined;
+    return sc ? { ...r, score: sc } : r;
+  });
   const meal = recipeRows(recipes, foods);
   const exercise = exerciseRows(exercises, log, (d) => F.Day(d));
   return (
