@@ -8,7 +8,13 @@
  * component only says which.
  */
 import { useRef, useState, type PointerEvent } from "react";
-import { Box, type BoxAct, type BoxEntry } from "@lifeos/kit";
+import {
+  Box,
+  NutrientsL0,
+  type BoxAct,
+  type BoxEntry,
+  type NutrientsData,
+} from "@lifeos/kit";
 import type { Status } from "./filter";
 
 export type RowIntent = "done" | "skipped" | "planned" | "remove";
@@ -25,7 +31,8 @@ export function EntryRow({
   onRail,
   onIntent,
 }: {
-  entry: BoxEntry;
+  /** `l0`: a meal's thin macro bars, drawn in its box (the boards' L0). */
+  entry: BoxEntry & { l0?: NutrientsData | null };
   status: Status;
   density?: "card" | "row";
   rail?: boolean;
@@ -111,7 +118,13 @@ export function EntryRow({
           mode={mode}
           {...(onRail ? { onRail } : {})}
           acts={acts}
-        />
+        >
+          {entry.l0 && (
+            <div className="k-slot-l0">
+              <NutrientsL0 data={entry.l0} />
+            </div>
+          )}
+        </Box>
       </div>
     </div>
   );

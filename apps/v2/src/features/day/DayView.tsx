@@ -11,7 +11,7 @@
  * the server says no.
  */
 import { useEffect, useRef, useState } from "react";
-import { Glyph, ICONS, type BoxEntry } from "@lifeos/kit";
+import { Glyph, ICONS, type BoxEntry, type NutrientsData } from "@lifeos/kit";
 import { EntryRow, type RowIntent } from "./EntryRow";
 import {
   NONE,
@@ -26,7 +26,7 @@ import {
 } from "./filter";
 import { Timeline } from "./Timeline";
 
-type Row = BoxEntry & { id: string; status: Status };
+type Row = BoxEntry & { id: string; status: Status; l0?: NutrientsData | null };
 
 export type DayActions = {
   changeStatus: (id: string, status: Status) => Promise<Status | null>;

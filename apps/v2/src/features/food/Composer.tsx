@@ -23,6 +23,7 @@ import {
   type FoodChoice,
   type RecipeChoice,
 } from "@/core/food/choices";
+import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { ESTIMATE_FIELDS, type EstimateField } from "@/core/food/meal";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
 import {
@@ -44,12 +45,7 @@ export type MealState = {
   n: number;
 };
 
-const ROLE_WORDS: Record<string, string> = {
-  breakfast: "Colazione",
-  lunch: "Pranzo",
-  snack: "Spuntino",
-  dinner: "Cena",
-};
+const ROLE_WORDS = MEAL_ROLE_WORDS;
 const DEFAULT_QTY = "100";
 const ESTIMATE_LABELS: Record<EstimateField, [string, string]> = {
   kcal: ["Energia", "kcal"],
@@ -405,6 +401,7 @@ function Draft({
                       rail={false}
                       entry={{
                         fam: "food",
+                        ...(c.drawing ? { of: c.drawing } : {}),
                         title: c.name,
                         meta: [c.brand, per100(c)].filter(Boolean).join(" · "),
                         value: "+",

@@ -13,8 +13,9 @@ export { PageHeader } from "./PageHeader";
 export { NavBar, type Place } from "./NavBar";
 export { DateNav } from "./DateNav";
 export { Field, type FieldOption, type FieldProps } from "./Field";
-export { Nutrients } from "./Nutrients";
+export { Nutrients, NutrientsL0 } from "./Nutrients";
 export {
+  nutrientsL0,
   nutrientsL1,
   type LimitKey,
   type MacroKey,

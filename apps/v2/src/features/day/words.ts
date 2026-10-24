@@ -23,6 +23,13 @@ export const NAMES: Record<string, string> = {
   stock_count: "Scorta",
   chore: "Faccenda",
 };
+/** A meal's role as its name on the day and in the composer (the boards: «Colazione», «Cena»). */
+export const MEAL_ROLE_WORDS: Record<string, string> = {
+  breakfast: "Colazione",
+  lunch: "Pranzo",
+  snack: "Spuntino",
+  dinner: "Cena",
+};
 export const ACTIVITY: Record<string, string> = {
   work: "Lavoro",
   study: "Studio",

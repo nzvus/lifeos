@@ -107,6 +107,10 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       exerciseId: c.item?.id ?? null,
       name: c.item?.name ?? "Esercizio",
       pattern: p,
+      of: {
+        ...(p ? { pattern: p } : {}),
+        ...(e?.equipment ? { equipment: e.equipment } : {}),
+      },
       unilateral: e?.unilateral ?? false,
       dumbbells,
       proposed,

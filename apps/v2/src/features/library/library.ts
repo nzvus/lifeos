@@ -18,6 +18,8 @@ export type LibraryRow = {
   uses: number;
   /** Field → number: per 100 for a food, per serving for a saved meal. */
   values: Record<string, number>;
+  /** What picks its drawing: a food's group or dish, an exercise's pattern and equipment. */
+  of?: Record<string, string>;
 };
 
 export const SORTS = {
@@ -53,6 +55,7 @@ export function foodRows(foods: readonly FoodChoice[]): LibraryRow[] {
               : own.length + " prodotti",
         uses: f.uses + own.reduce((n, p) => n + p.uses, 0),
         values: nums(f.per100),
+        ...(f.drawing ? { of: f.drawing } : {}),
       };
     });
 }
@@ -212,7 +215,12 @@ export function mealPage(
 
 /** The exercises, each with its sessions (uses), its last day and the latest e1RM it has. */
 export function exerciseRows(
-  exercises: readonly { id: string; name: string }[],
+  exercises: readonly {
+    id: string;
+    name: string;
+    pattern?: string | null;
+    equipment?: string | null;
+  }[],
   log: ReadonlyMap<string, readonly ExerciseSession[]>,
   dayWords: (day: string) => string,
 ): LibraryRow[] {
@@ -227,6 +235,10 @@ export function exerciseRows(
       sub: last ? "ultima " + dayWords(last.day) : "mai fatto",
       uses: sessions.length,
       values: latest ? { e1rm: latest } : {},
+      of: {
+        ...(x.pattern ? { pattern: x.pattern } : {}),
+        ...(x.equipment ? { equipment: x.equipment } : {}),
+      },
     };
   });
 }

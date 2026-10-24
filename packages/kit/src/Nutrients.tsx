@@ -2,12 +2,13 @@
 /**
  * Nutrients, level L1 (kit.md §4): the boards' markup, drawn from
  * `nutrientsL1` (nutrient-rows.ts). A macro row opens on the box's transition into its kinds,
- * where it came from and its notes. L0 and L2 come with the food slice.
+ * where it came from and its notes. `NutrientsL0`: a meal box's four thin bars.
+ * L2 comes with the food slice.
  * Pass plain data (server pages may render it).
  */
 import { useState, type CSSProperties } from "react";
 import { Glyph } from "./Glyph";
-import { nutrientsL1, type NutrientsData } from "./nutrient-rows";
+import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
 
 export function Nutrients({ data }: { data: NutrientsData }) {
   const [open, setOpen] = useState<string | null>(null);
@@ -181,6 +182,25 @@ export function Nutrients({ data }: { data: NutrientsData }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Level L0: a meal box's four thin bars, its kinds shaded (the boards' `k-l0`). */
+export function NutrientsL0({ data }: { data: NutrientsData }) {
+  return (
+    <div className="k-l0">
+      {nutrientsL0(data).map((m) => (
+        <span key={m.key} className="r" role="img" aria-label={m.aria}>
+          <Glyph of={{ nutrient: m.key }} size="xs" />
+          <span className="k-track">
+            {m.segs.map((s, i) => (
+              <span key={i} className="k-seg" style={{ width: s.w, background: s.bg }} />
+            ))}
+          </span>
+          <span className="k-num b3 k-right">{m.value}</span>
+        </span>
+      ))}
     </div>
   );
 }

@@ -105,7 +105,7 @@ export function Library({
             rail={false}
             entry={{
               fam: "food",
-              ...(tab === "meals" ? { of: { kind: "meal" } } : {}),
+              ...(tab === "meals" ? { of: { kind: "meal" } } : r.of ? { of: r.of } : {}),
               ...(tab === "exercises" ? { fam: "train" as const } : {}),
               title: r.name,
               ...(r.sub ? { meta: r.sub } : {}),

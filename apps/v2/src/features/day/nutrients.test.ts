@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Day, DayItem, FoodTargets } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
 import { microTargets } from "@/core/engines/targets";
-import { microsOf, presentDay } from "./nutrients";
+import { mealL0, microsOf, presentDay } from "./nutrients";
 
 const reg = kindRegistry();
 const item = (kind: string, over: Partial<DayItem> = {}): DayItem => ({
@@ -176,5 +176,33 @@ describe("the day's vitamins and minerals", () => {
       t: null,
       unit: "mg",
     });
+  });
+});
+
+describe("a meal's thin bars (L0)", () => {
+  const oats = line("Avena", "50", {
+    kcal: "372",
+    protein: "13",
+    carbs: "60",
+    fat: "7",
+    fibre: "10",
+  });
+  it("what it brought against the day's targets; planned counts what it will bring", () => {
+    const done = mealL0(item("meal", { lines: [oats] }), week)!;
+    expect(done.macros.map((m) => [m.key, m.v, m.t])).toEqual([
+      ["protein", 6.5, 154],
+      ["carbs", 30, 367],
+      ["fat", 3.5, 77],
+      ["fiber", 5, 39],
+    ]);
+    const planned = mealL0(item("meal", { status: "planned", lines: [oats] }), null)!;
+    expect(planned.macros[0]).toMatchObject({ v: 6.5, t: null });
+  });
+
+  it("nothing to draw for a coffee, nor for what is not a meal", () => {
+    expect(
+      mealL0(item("meal", { lines: [line("Caffè", "30", { kcal: "2" })] }), week),
+    ).toBeNull();
+    expect(mealL0(item("water", {}), week)).toBeNull();
   });
 });
