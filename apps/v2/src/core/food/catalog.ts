@@ -18,6 +18,7 @@ import {
 import { addDays, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 import {
+  FOOD_DRAWING_FIELDS,
   foodChoices,
   recipeChoices,
   SNAPSHOT_FIELDS,
@@ -74,6 +75,7 @@ export async function readFoodChoices(
             ...KIND_FIELDS,
             FIBRE_TYPES,
             "unit",
+            ...FOOD_DRAWING_FIELDS,
           ]),
         ),
       ),

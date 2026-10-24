@@ -37,7 +37,13 @@ export type FoodChoice = {
   estimates?: Record<string, string>;
   uses: number;
   lastQty: string | null;
+  /** What picks its drawing (icons.md §2: food group, dish, fine group); a product has its food's. */
+  drawing?: Record<string, string>;
 };
+
+/** The catalog fields Glyph reads to draw a food (icons.md §2). */
+export const FOOD_DRAWING_FIELDS = ["group", "dish", "fine"] as const;
+const DRAWING = new Set<string>(FOOD_DRAWING_FIELDS);
 
 export type ItemRow = {
   id: string;
@@ -71,8 +77,11 @@ export function foodChoices(
   const per = new Map<string, Record<string, string>>();
   const kinds = new Map<string, Record<string, string>>();
   const unit = new Map<string, string>();
+  const drawing = new Map<string, Record<string, string>>();
   for (const v of values) {
     if (v.field === "unit" && v.text) unit.set(v.itemId, v.text);
+    if (DRAWING.has(v.field) && v.text)
+      drawing.set(v.itemId, { ...drawing.get(v.itemId), [v.field]: v.text });
     if (KIND.has(v.field) && v.num !== null)
       kinds.set(v.itemId, { ...kinds.get(v.itemId), [v.field]: v.num });
     if (v.field === FIBRE_TYPES && v.text)
@@ -98,6 +107,7 @@ export function foodChoices(
       unit: unit.get(f.id) ?? "g",
       per100: base,
       ...(kinds.has(f.id) ? { estimates: kinds.get(f.id)! } : {}),
+      ...(drawing.has(f.id) ? { drawing: drawing.get(f.id)! } : {}),
       uses: u?.uses ?? 0,
       lastQty: u?.lastQty ?? null,
     });
@@ -112,6 +122,7 @@ export function foodChoices(
         unit: unit.get(p.id) ?? unit.get(f.id) ?? "g",
         per100: { ...base, ...per.get(p.id) },
         ...(kinds.has(f.id) ? { estimates: kinds.get(f.id)! } : {}),
+        ...(drawing.has(f.id) ? { drawing: drawing.get(f.id)! } : {}),
         uses: pu?.uses ?? 0,
         lastQty: pu?.lastQty ?? null,
       });

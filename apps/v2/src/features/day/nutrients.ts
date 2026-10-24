@@ -98,6 +98,43 @@ export function presentDay(
   };
 }
 
+/**
+ * A meal's nutrients: its thin macro bars (L0), and its L1 when its box
+ * opens (kcal, kinds, where each came from). What it brought (or will
+ * bring, when planned), split into kinds, against the day's targets — a slot's targets
+ * come with day templates (E5 `slotTargets`); without day targets the bars
+ * share one scale. Null for a meal with nothing to show (a coffee).
+ */
+export function mealL0(
+  meal: DayItem,
+  targets: FoodTargets | null,
+  estimates: ReadonlyMap<string, Record<string, string>> = new Map(),
+): NutrientsData | null {
+  if (meal.kind.key !== "meal") return null;
+  const { eaten, planned, kinds, sources } = dayFood([food(meal, estimates)]);
+  const got = meal.status === "planned" ? planned : eaten;
+  const v = (f: string) => Number(got[f] ?? 0);
+  if (MACROS.every(([, f]) => v(f) === 0)) return null;
+  return {
+    kcal: { v: v("kcal"), t: targets?.kcal ?? null },
+    macros: MACROS.map(([key, f]) => ({
+      key,
+      v: v(f),
+      t: targets?.[f] ?? null,
+      // Where it came from: only for a done meal (dayFood's sources are what was eaten).
+      ...(meal.status === "planned"
+        ? {}
+        : {
+            sources: (sources[f] ?? []).map((s): [string, number] => [
+              s.name,
+              Number(s.amount),
+            ]),
+          }),
+      ...(estimates.size > 0 ? { parts: kinds[f] } : {}),
+    })),
+  };
+}
+
 /** The foods a day's meals were made of, for their kind estimates. */
 export function foodIds(day: Day): string[] {
   return [...day.timed, ...day.untimed]

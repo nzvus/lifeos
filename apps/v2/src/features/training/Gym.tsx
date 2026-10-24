@@ -37,6 +37,8 @@ export type GymExercise = {
   exerciseId: string | null;
   name: string;
   pattern: string | null;
+  /** What picks its drawing (the movement and the equipment, icons.md §2). */
+  of: { pattern?: string; equipment?: string };
   unilateral: boolean;
   /** Its load is typed per dumbbell unless switched off. */
   dumbbells: boolean;
@@ -454,6 +456,7 @@ export function Gym({
                 rail={false}
                 entry={{
                   fam: "train",
+                  of: x.of,
                   title: d.warmup ? "Riscaldamento" : "Serie " + n,
                   value: setText(d),
                   ...(meta ? { meta } : {}),
@@ -468,25 +471,28 @@ export function Gym({
               />
             );
           })}
-          <SetForm
-            key={x.entryId + ":" + x.done.length}
-            timed={timed(x.pattern)}
-            dumbbells={x.dumbbells}
-            askRir={lastSet && !auto}
-            start={
-              x.proposed[working] ??
-              x.done.filter((d) => !d.warmup).at(-1) ??
-              x.proposed[0] ??
-              null
-            }
-            busy={busy || session.done}
-            running={phase.kind === "set" || phase.kind === "setup"}
-            onValues={(v) => {
-              values.current = v;
-            }}
-            onBegin={begin}
-            onTick={(v) => void tick(v)}
-          />
+          {/* A finished session is read, not trained: no set to type. */}
+          {!session.done && (
+            <SetForm
+              key={x.entryId + ":" + x.done.length}
+              timed={timed(x.pattern)}
+              dumbbells={x.dumbbells}
+              askRir={lastSet && !auto}
+              start={
+                x.proposed[working] ??
+                x.done.filter((d) => !d.warmup).at(-1) ??
+                x.proposed[0] ??
+                null
+              }
+              busy={busy}
+              running={phase.kind === "set" || phase.kind === "setup"}
+              onValues={(v) => {
+                values.current = v;
+              }}
+              onBegin={begin}
+              onTick={(v) => void tick(v)}
+            />
+          )}
           {error && (
             <p className="k-help" role="alert">
               {error}
@@ -516,6 +522,7 @@ export function Gym({
               rail={false}
               entry={{
                 fam: "train",
+                of: e.of,
                 title: e.name,
                 meta:
                   e.done.length +
@@ -527,14 +534,16 @@ export function Gym({
             />
           </button>
         ))}
-        <input
-          className="k-text"
-          type="search"
-          placeholder="Aggiungi esercizio"
-          aria-label="Aggiungi esercizio"
-          value={query}
-          onChange={(ev) => setQuery(ev.target.value)}
-        />
+        {!session.done && (
+          <input
+            className="k-text"
+            type="search"
+            placeholder="Aggiungi esercizio"
+            aria-label="Aggiungi esercizio"
+            value={query}
+            onChange={(ev) => setQuery(ev.target.value)}
+          />
+        )}
         {found.map((c) => (
           <button
             key={c.id}

@@ -103,6 +103,37 @@ const g = (v: number) => F.n(v, 1);
 
 export type Seg = { w: string; bg: string; planned: boolean };
 
+/**
+ * Level L0 (kit.md §4; the boards' `k-l0`): one thin bar per macro in a
+ * meal's box, its kinds in their shades, each as a share of the target (the
+ * slot's when the plan gives one, else the day's: the page decides); with
+ * no target the macros share one scale. No sources, no notes: the box opens
+ * for those.
+ */
+export function nutrientsL0(d: NutrientsData) {
+  const shared = Math.max(0, ...d.macros.filter((m) => m.t == null).map((m) => m.v)) || 1;
+  return d.macros.map((m) => {
+    const scale = m.t ?? shared;
+    const kinds = KINDS[m.key].filter(([k]) => (m.parts?.[k] ?? 0) > 0);
+    const w = (v: number) => Math.min(100, (v / scale) * 100).toFixed(1) + "%";
+    const segs = kinds.length
+      ? kinds.map(([k, , tone]) => ({ w: w(m.parts![k]!), bg: shade(m.key, tone) }))
+      : m.v > 0
+        ? [{ w: w(m.v), bg: shade(m.key, 1) }]
+        : [];
+    return {
+      key: m.key,
+      value: g(m.v),
+      segs,
+      aria:
+        NAME[m.key] +
+        " " +
+        F.num(m.v, "g") +
+        (m.t == null ? "" : " su " + F.num(m.t, "g") + " dell’obiettivo"),
+    };
+  });
+}
+
 export function nutrientsL1(d: NutrientsData) {
   const kcal = d.kcal
     ? (() => {

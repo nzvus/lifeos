@@ -52,6 +52,8 @@ export function Box({
   onRail,
   acts = [],
   children,
+  expanded,
+  onToggle,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -60,6 +62,9 @@ export function Box({
   onRail?: () => void;
   acts?: BoxAct[];
   children?: ReactNode;
+  /** The box opens (the boards' head button): the caller holds the state and the content. */
+  expanded?: boolean;
+  onToggle?: () => void;
 }) {
   const dense = density === "row";
   const fam = " fam-" + e.fam + (e.sub ? " sub-" + e.sub : "");
@@ -106,7 +111,11 @@ export function Box({
         </button>
       )}
       <div className={"k-shape" + fam + (e.planned ? " planned" : "")}>
-        <div className={"k-box " + e.fam + (e.sub ? " " + e.sub : "")}>
+        <div
+          className={
+            "k-box " + e.fam + (e.sub ? " " + e.sub : "") + (expanded ? " is-open" : "")
+          }
+        >
           <span className="k-artclip" aria-hidden="true">
             <span className="k-art a1">
               <Glyph of={of} size="xl" />
@@ -116,13 +125,33 @@ export function Box({
             </span>
           </span>
           <div className="k-line base g1">
-            <span className="k-head">
-              <span className={"k-hlead" + (badge ? " badged" : "")}>
-                {badge && <Glyph of={of} size="m" tile />}
-                <span className="k-label k-title">{e.title}</span>
+            {onToggle ? (
+              <button
+                type="button"
+                className="k-head"
+                onClick={onToggle}
+                aria-expanded={expanded ? "true" : "false"}
+                aria-label={
+                  e.title +
+                  (e.value ? " " + e.value : "") +
+                  (expanded ? ". Tocca per chiudere" : ". Tocca per aprire")
+                }
+              >
+                <span className={"k-hlead" + (badge ? " badged" : "")}>
+                  {badge && <Glyph of={of} size="m" tile />}
+                  <span className="k-label k-title">{e.title}</span>
+                </span>
+                <span className="k-num d4">{e.value}</span>
+              </button>
+            ) : (
+              <span className="k-head">
+                <span className={"k-hlead" + (badge ? " badged" : "")}>
+                  {badge && <Glyph of={of} size="m" tile />}
+                  <span className="k-label k-title">{e.title}</span>
+                </span>
+                <span className="k-num d4">{e.value}</span>
               </span>
-              <span className="k-num d4">{e.value}</span>
-            </span>
+            )}
             {(e.href || acts.length > 0) && (
               <span className="k-trail">
                 {acts.map((a) => (

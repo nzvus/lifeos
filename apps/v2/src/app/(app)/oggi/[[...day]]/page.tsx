@@ -17,7 +17,7 @@ import { getDb } from "@/app/_server/runtime";
 import { dayMinute, loadDay, readDayTargets, readMicroTargets } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodEstimates } from "@/core/food/catalog";
-import { foodIds, presentDay } from "@/features/day/nutrients";
+import { foodIds, mealL0, presentDay } from "@/features/day/nutrients";
 import { present } from "@/features/day/present";
 import { DayView } from "@/features/day/DayView";
 import { addWater, bringBack, changeStatus, removeEntry } from "./actions";
@@ -49,11 +49,17 @@ export default async function OggiPage({
   const whole = presentDay(day, targets, kinds, micros);
   const rows = day.timed.map((i) => ({
     ...present(i),
+    l0: mealL0(i, targets, kinds),
     id: i.id,
     status: i.status,
     minute: i.minute!,
   }));
-  const untimed = day.untimed.map((i) => ({ ...present(i), id: i.id, status: i.status }));
+  const untimed = day.untimed.map((i) => ({
+    ...present(i),
+    l0: mealL0(i, targets, kinds),
+    id: i.id,
+    status: i.status,
+  }));
   const nowMinute = date === today ? dayMinute(now, date, clock) : null;
   const empty = rows.length === 0 && untimed.length === 0;
   const water = [...day.timed, ...day.untimed]

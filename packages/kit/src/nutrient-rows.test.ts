@@ -132,3 +132,24 @@ describe("Nutrients L1", () => {
     ]);
   });
 });
+
+describe("L0: a meal box's thin bars", () => {
+  it("each macro's kinds as shares of its target; past it, the bar is full", async () => {
+    const { nutrientsL0 } = await import("./nutrient-rows");
+    const rows = nutrientsL0({
+      macros: [
+        { key: "protein", v: 37.7, t: 150, parts: { high: 35.4, low: 2.3 } },
+        { key: "fiber", v: 40, t: 30 },
+        { key: "carbs", v: 0, t: 300 },
+        { key: "fat", v: 10 },
+      ],
+    });
+    expect(rows[0]!.segs.map((s) => s.w)).toEqual(["23.6%", "1.5%"]);
+    expect(rows[0]!.value).toBe("37,7");
+    expect(rows[1]!.segs).toEqual([expect.objectContaining({ w: "100.0%" })]);
+    expect(rows[2]!.segs).toEqual([]);
+    // No target: the macros without one share a scale (here only fat: full).
+    expect(rows[3]!.segs[0]!.w).toBe("100.0%");
+    expect(rows[0]!.aria).toContain("dell’obiettivo");
+  });
+});
