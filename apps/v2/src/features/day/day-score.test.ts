@@ -50,18 +50,6 @@ const day = (timed: DayItem[], untimed: DayItem[] = []): Day => ({
   untimed,
   invalidKinds: [],
 });
-const week: FoodTargets = {
-  from: "week",
-  since: "2026-10-10",
-  kcal: 2778,
-  protein: 154,
-  carbs: 367,
-  fat: 77,
-  fibre: 39,
-  sugars: 125,
-  saturatedFat: 31,
-  salt: 5,
-};
 
 // A day of the developer's size: 2 200 kcal, 146 g protein, 7.2 g salt.
 const food = item("meal", {

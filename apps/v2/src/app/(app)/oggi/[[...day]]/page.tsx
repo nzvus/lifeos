@@ -5,8 +5,8 @@
  * client plain rows and the row actions (./actions.ts); the client holds the
  * filters, the rail's mode and the toast.
  * So far: the day as a Box (Nutrients L1 against the targets in force),
- * water as a Box (drunk of the need, its score) with +250/+500 ml, the
- * filters by domain and state, the timeline and the untimed items; meals,
+ * the filters by domain and state, the timeline (water as one box in it,
+ * drunk of the need with its score and +250/+500 ml) and the untimed items; meals,
  * weigh-ins and the night scored (features/day/score.ts); the day's own
  * score behind its box and on the week strip (features/day/day-score.ts,
  * dossiers/ranges.md). The week is read once, up to today: each day's
@@ -162,9 +162,27 @@ export default async function OggiPage({
     today,
     nowMinute: date === today ? nowMinute : dayMinute(now, today, clock),
   });
-  const rows = day.timed.map((i) => ({ ...row(i), minute: i.minute! }));
-  const untimed = day.untimed.map(row);
-  const empty = rows.length === 0 && untimed.length === 0;
+  // Water is one box in the timeline (WaterRow): its drinks are not rows of their own.
+  const notWater = (i: (typeof items)[number]) => i.kind.key !== "water";
+  const rows = day.timed.filter(notWater).map((i) => ({ ...row(i), minute: i.minute! }));
+  const untimed = day.untimed.filter(notWater).map(row);
+  const drinks = items.filter((i) => i.kind.key === "water" && i.status === "done");
+  const lastDrink = Math.max(-1, ...drinks.map((i) => i.minute ?? -1));
+  const water =
+    date <= today
+      ? {
+          entry: waterBox(items, sctx),
+          minute: lastDrink >= 0 ? lastDrink : (nowMinute ?? 12 * 60),
+          drinks: drinks.map((i) => ({
+            id: i.id,
+            label:
+              (i.minute !== null ? F.time(i.minute) + " · " : "") +
+              F.num(Number(i.values["ml"] ?? 0), "ml"),
+          })),
+          add: addWater.bind(null, date),
+        }
+      : null;
+  const empty = rows.length === 0 && untimed.length === 0 && water === null;
 
   return (
     <main className="k-page has-bd">
@@ -179,30 +197,13 @@ export default async function OggiPage({
           </OpenBox>
         </section>
       )}
-      {date <= today && (
-        <section className="k-block g3" aria-label="Acqua">
-          <OpenBox entry={waterBox(items, sctx)}>
-            <div className="k-chips">
-              <form action={addWater.bind(null, date, 250)}>
-                <button type="submit" className="k-chip">
-                  +250 ml
-                </button>
-              </form>
-              <form action={addWater.bind(null, date, 500)}>
-                <button type="submit" className="k-chip">
-                  +500 ml
-                </button>
-              </form>
-            </div>
-          </OpenBox>
-        </section>
-      )}
       <section className="k-section g3" aria-label="La giornata">
         {empty ? (
           <p className="k-empty k-meta">Niente in questa giornata.</p>
         ) : (
           <DayView
             actions={{ changeStatus, removeEntry, bringBack }}
+            water={water}
             rows={rows}
             untimed={untimed}
             now={
