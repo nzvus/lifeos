@@ -21,7 +21,11 @@ covered (no meal of its role, no session) shows on Oggi, today from an
 hour ago and on the days to come, hatched «dal modello» with its block's
 kcal and protein, opening the composer at its role and time (or the gym);
 no link is stored (entry_links points to entries only), so «covered»
-means by role. Not yet: «Sposta l'allenamento», «Copia ieri», habits (d).
+means by role. Piano to its board (2026-10-24): the week as one row per
+day (model + step, done or planned, kcal), the day's sheet (its model for
+this day, each cycle's step chosen by hand or a rest — `cycle_override` —,
+«Salta», the planned and what the model still plans), «Le regole» (week
+type, cycles). Not yet: «Sposta l'allenamento», «Copia ieri», habits (d).
 Method:
 `../method.md`. Boards: Plan (V-08 calendar), Models, ModelEditor
 («Giornata tipo»), CycleEditor («Ciclo PLPRR»). Spec: concepts.md §5,

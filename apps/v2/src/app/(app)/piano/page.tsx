@@ -1,11 +1,11 @@
 /**
- * Piano (flows.md §1, V-08), first part: the week holding `?settimana=`
- * (today's when missing), Monday to Sunday, each day with what is planned
- * («Previsto»), opened in its editor, and «+» to plan more that day; each
- * day says its model, its kcal (core/day, dossiers/targets.md) and, from
- * today, its cycle's step (core/plans,
- * dossiers/day-templates.md slice a). «Modelli» opens the day models
- * (slice b); cycles come with slice c.
+ * Piano (flows.md §1, V-08; the board Plan): the week holding `?settimana=`
+ * (today's when missing), one row per day (features/plan/week-rows): its
+ * model and cycle step, what was done or is planned, its kcal. The day in
+ * `?giorno=` (today in this week, else none) opens below: its model for this
+ * day only, each cycle's step chosen by hand or a rest, «Salta», the entries
+ * planned and what the model still plans, «+ previsto». Then «Le regole»:
+ * the week type and the cycles, «Modelli».
  */
 import { addDays, Box, F, NavBar, PageHeader, weekOf } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
@@ -13,31 +13,54 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDays, readRangeTargets } from "@/core/day";
 import { ensureWeekTargets } from "@/core/energy";
-import { planWords, readDayPlans } from "@/core/plans";
+import {
+  planWords,
+  readCycleBook,
+  readDayPlans,
+  readModelBook,
+  resolveModel,
+  toModels,
+} from "@/core/plans";
 import { logicalDay } from "@/core/engines/time";
 import { present } from "@/features/day/present";
 import { withCompounds } from "@/features/day/compounds";
 import { foodIds } from "@/features/day/nutrients";
+import { modelItems } from "@/features/day/model-items";
+import { daySlots } from "@/features/day/slots";
+import { WEEKDAYS } from "@/features/plan/model-form";
+import { dayRow } from "@/features/plan/week-rows";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { PLACES } from "@/features/places";
+import { changeDayModel, skipStep } from "../oggi/[[...day]]/plan-actions";
+import { overrideStep } from "./actions";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
 export default async function PianoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ settimana?: string | string[] }>;
+  searchParams: Promise<{ settimana?: string | string[]; giorno?: string | string[] }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
   const known = await ownerClock();
   const today = logicalDay(new Date(), known.clock);
-  const asked = (await searchParams).settimana;
-  const week = weekOf(typeof asked === "string" && ISO.test(asked) ? asked : today);
+  const asked = await searchParams;
+  const wanted =
+    typeof asked.giorno === "string" && ISO.test(asked.giorno) ? asked.giorno : null;
+  const week = weekOf(
+    wanted ??
+      (typeof asked.settimana === "string" && ISO.test(asked.settimana)
+        ? asked.settimana
+        : today),
+  );
+  const open = wanted ?? (week.includes(today) ? today : null);
   // The whole week from one set of queries, not seven.
-  const [days, plans] = await Promise.all([
+  const [days, plans, book, { cycles }] = await Promise.all([
     loadDays(db, owner, week[0]!, week[6]!, known),
     readDayPlans(db, owner, week[0]!, week[6]!, today),
+    readModelBook(db, owner),
+    readCycleBook(db, owner),
     // A week begun: its automatic targets, made when missing.
     week[0]! <= today ? ensureWeekTargets(db, owner, week[0]!, known.clock) : null,
   ]);
@@ -61,69 +84,219 @@ export default async function PianoPage({
   const ctx = { compounds, doses: [], bed: null, creatineDays: null };
   const href = (d: string) =>
     weekOf(today)[0] === weekOf(d)[0] ? "/piano" : "/piano?settimana=" + d;
+  const models = toModels(book.models, book.rows);
+  const sheet = open ? days.find((d) => d.day === open) : undefined;
+  const sheetPlan = open ? plans.get(open) : undefined;
+  const items = sheet ? [...sheet.timed, ...sheet.untimed] : [];
+  const blocks = sheetPlan?.model
+    ? (resolveModel(sheetPlan.model.id, models)?.blocks ?? [])
+    : [];
+  const fromModel =
+    open && open >= today
+      ? modelItems({
+          day: open,
+          blocks,
+          items,
+          nowMinute: null,
+          step: sheetPlan?.cycles.find((c) => !c.rest)?.label ?? null,
+          slots: daySlots(blocks, targets.get(open) ?? null),
+        })
+      : [];
+  const stepName = (s: (typeof cycles)[number]["steps"][number]) =>
+    s.label || s.items.map((i) => i.name).join(" + ") || "Riposo";
+
   return (
     <main className="k-page has-bd">
-      <PageHeader title="Piano" of={{ place: "piano" }} />
-      <nav className="k-block" aria-label="Le regole">
-        <a className="k-line between k-plain" href="/piano/modelli">
-          <span className="k-body">Modelli: giornate tipo e settimana</span>
-          <span className="k-go" aria-hidden="true">
-            ›
-          </span>
-        </a>
-      </nav>
+      <PageHeader
+        title="Piano"
+        context={F.date(week[0]!) + " – " + F.date(week[6]!)}
+        action={{ label: "Modelli", href: "/piano/modelli" }}
+        of={{ place: "piano" }}
+      />
       <section className="k-section g3" aria-label="La settimana">
         <div className="k-line between">
           <a className="k-link" href={href(addDays(week[0]!, -7))}>
             ‹ prima
           </a>
-          <span className="k-body">
-            {F.date(week[0]!)} – {F.date(week[6]!)}
-          </span>
+          <h2>La settimana</h2>
           <a className="k-link" href={href(addDays(week[0]!, 7))}>
             dopo ›
           </a>
         </div>
+        <span className="k-meta">Tocca un giorno per cambiarlo.</span>
+        <div className="k-stack g2">
+          {days.map((d) => (
+            <Box
+              key={d.day}
+              density="row"
+              mode="times"
+              entry={dayRow({
+                day: d.day,
+                today,
+                plan: plans.get(d.day),
+                sessions: [...d.timed, ...d.untimed]
+                  .filter((i) => i.kind.key === "session" && i.status === "done")
+                  .map((i) => i.item?.name ?? "Allenamento"),
+                planned: [...d.timed, ...d.untimed].filter((i) => i.status === "planned")
+                  .length,
+                kcal: targets.get(d.day)?.kcal ?? null,
+                selected: d.day === open,
+              })}
+            />
+          ))}
+        </div>
       </section>
-      <section className="k-section g4" aria-label="I giorni">
-        {days.map((d) => {
-          const planned = [...d.timed, ...d.untimed].filter(
-            (i) => i.status === "planned",
-          );
-          return (
-            <div key={d.day} className="k-stack g2" aria-label={F.Day(d.day)}>
-              <div className="k-line between">
-                <span className="k-label">{d.day === today ? "Oggi" : F.Day(d.day)}</span>
-                {planned.length === 0 && (
-                  <span className="k-meta">niente di previsto</span>
-                )}
-                {d.day >= today && (
-                  <a className="k-link" href={"/aggiungi?giorno=" + d.day}>
-                    + previsto
-                  </a>
-                )}
-              </div>
-              {(planWords(plans.get(d.day), d.day === today) || targets.get(d.day)) && (
-                <span className="k-meta">
-                  {[
-                    planWords(plans.get(d.day), d.day === today),
-                    targets.get(d.day) ? F.num(targets.get(d.day)!.kcal, "kcal") : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </span>
-              )}
-              {planned.map((i) => (
-                <Box
-                  key={i.id}
-                  density="row"
-                  rail={false}
-                  entry={withCompounds(present(i), i, ctx)}
-                />
-              ))}
-            </div>
-          );
-        })}
+
+      {open && sheet && (
+        <section className="k-section g3" aria-label="Il giorno">
+          <h2>{open === today ? "Oggi" : F.Day(open)}</h2>
+          <span className="k-meta">{planWords(sheetPlan, open === today)}</span>
+          {book.models.some((m) => m.active) && (
+            <form action={changeDayModel.bind(null, open)} className="k-line k-panel">
+              <select
+                className="k-select"
+                name="model"
+                defaultValue={sheetPlan?.model?.from === "day" ? sheetPlan.model.id : ""}
+                aria-label="Giornata tipo di questo giorno"
+              >
+                <option value="">come la settimana</option>
+                {book.models
+                  .filter((m) => m.active)
+                  .map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+              </select>
+              <button type="submit" className="k-btn secondary">
+                Cambia
+              </button>
+            </form>
+          )}
+          {open >= today &&
+            (sheetPlan?.cycles ?? []).map((c) => {
+              const cycle = cycles.find((x) => x.id === c.cycleId);
+              if (!cycle) return null;
+              return (
+                <div key={c.cycleId} className="k-stack g2">
+                  <form
+                    action={overrideStep.bind(null, open, c.cycleId)}
+                    className="k-line k-panel"
+                  >
+                    <select
+                      className="k-select"
+                      name="step"
+                      defaultValue=""
+                      aria-label={"Passo del ciclo " + cycle.name}
+                    >
+                      <option value="">{"come da ciclo (" + c.label + ")"}</option>
+                      {cycle.steps
+                        .filter((s) => s.items.length > 0)
+                        .map((s) => (
+                          <option key={s.id} value={s.position}>
+                            {stepName(s)}
+                          </option>
+                        ))}
+                      <option value="rest">Riposo</option>
+                    </select>
+                    <button type="submit" className="k-btn secondary">
+                      Cambia
+                    </button>
+                  </form>
+                  {!c.rest && (
+                    <form action={skipStep.bind(null, open, c.cycleId, !c.skipped)}>
+                      <button type="submit" className="k-btn link">
+                        {c.skipped
+                          ? "Annulla il salto di «" + c.label + "»"
+                          : "Salta «" + c.label + "»"}
+                      </button>
+                    </form>
+                  )}
+                </div>
+              );
+            })}
+          <span className="k-help">
+            Cambia solo questo giorno: il modello e il ciclo restano come sono.
+          </span>
+          {items
+            .filter((i) => i.status === "planned")
+            .map((i) => (
+              <Box
+                key={i.id}
+                density="row"
+                rail={false}
+                entry={withCompounds(present(i), i, ctx)}
+              />
+            ))}
+          {fromModel.map((m) => (
+            <Box key={m.id} density="row" mode="times" entry={m} />
+          ))}
+          <div className="k-line wrap">
+            {open >= today && (
+              <a className="k-btn secondary" href={"/aggiungi?giorno=" + open}>
+                + previsto
+              </a>
+            )}
+            <a
+              className="k-btn secondary"
+              href={open === today ? "/oggi" : "/oggi/" + open}
+            >
+              Apri il giorno
+            </a>
+            {sheetPlan?.model && (
+              <a
+                className="k-btn secondary"
+                href={"/piano/modello/" + sheetPlan.model.id}
+              >
+                Apri il modello
+              </a>
+            )}
+          </div>
+        </section>
+      )}
+
+      <section className="k-section g3" aria-label="Le regole">
+        <h2>
+          Le regole{" "}
+          <a className="k-link" href="/piano/modelli">
+            tutti i modelli ›
+          </a>
+        </h2>
+        <Box
+          density="row"
+          rail={false}
+          entry={{
+            fam: "day",
+            title: "Settimana tipo",
+            value: F.plural(book.week.size, "giorno", "giorni"),
+            meta: WEEKDAYS.map(
+              ([d, l]) =>
+                l +
+                " " +
+                (book.models.find((m) => m.id === book.week.get(d))?.name ?? "—"),
+            ).join(" · "),
+            href: "/piano/modelli",
+            hrefLabel: "Apri la settimana tipo",
+          }}
+        />
+        {cycles
+          .filter((c) => c.active)
+          .map((c) => (
+            <Box
+              key={c.id}
+              density="row"
+              rail={false}
+              entry={{
+                fam: "train",
+                sub: "strength",
+                title: "Ciclo " + c.name,
+                value: F.plural(c.steps.length, "passo", "passi"),
+                meta: c.steps.map(stepName).join(" · "),
+                href: "/piano/ciclo/" + c.id,
+                hrefLabel: "Apri il ciclo " + c.name,
+              }}
+            />
+          ))}
       </section>
       <div className="k-nav k-stick">
         <NavBar active="plan" hrefs={PLACES} addHref="/aggiungi" />

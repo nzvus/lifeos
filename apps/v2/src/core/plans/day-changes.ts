@@ -89,3 +89,48 @@ export async function setCycleSkip(
     .onConflictDoNothing();
   return true;
 }
+
+/**
+ * A cycle's step changed by hand on one day (`cycle_override`, the board
+ * Plan's «Passo del ciclo» and «Riposo»): a step's position, null for a
+ * rest; `undefined` takes the change away. E3 places the override first and
+ * moves the rest of the cycle around it.
+ */
+export async function setCycleOverride(
+  db: Db,
+  owner: Owner,
+  day: IsoDate,
+  cycleId: string,
+  position: number | null | undefined,
+): Promise<boolean> {
+  const [c] = await db
+    .select({ id: templates.id })
+    .from(templates)
+    .where(
+      and(
+        ownedBy(templates, owner),
+        eq(templates.id, cycleId),
+        eq(templates.scope, "cycle"),
+      ),
+    );
+  if (!c) return false;
+  const where = and(
+    ownedBy(decisions, owner),
+    eq(decisions.kind, "cycle_override"),
+    eq(decisions.day, day),
+    eq(decisions.key, cycleId),
+  );
+  if (position === undefined) {
+    await db.delete(decisions).where(where);
+    return true;
+  }
+  const payload = { position };
+  await db
+    .insert(decisions)
+    .values({ userId: owner.id, kind: "cycle_override", day, key: cycleId, payload })
+    .onConflictDoUpdate({
+      target: [decisions.userId, decisions.kind, decisions.day, decisions.key],
+      set: { payload },
+    });
+  return true;
+}
