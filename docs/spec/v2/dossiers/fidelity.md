@@ -31,6 +31,10 @@ previsti», «Chiudi la giornata». Depends on: day templates (Piano), drink
 and supplement kinds (migration.md), pantry (V-12).
 
 ## Composer (Food)
+**Done (s182)**: the header «Pranzo · 13:13» with the day, eaten or planned,
+the saved meal and the kcal so far, and «Cibi»; tabs Ingredienti · Pasti ·
+Stima; each food a box with its drawing, kcal, protein, a stepper and
+«Togli»; «Pranzo, come sarà»; «Salva previsto». Still missing below.
 Missing: «Cena · 20:00» header with its block and saved-vs-now kcal; tabs
 Ingredienti · Pasti · Porzioni · Stima; barcode and camera next to the
 search; ingredient rows with glyph, kcal, inline stepper, «36 g prot. ·

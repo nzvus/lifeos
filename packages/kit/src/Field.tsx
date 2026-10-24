@@ -14,6 +14,8 @@ export type FieldOption = { value: string; label: string; sub?: string };
 export type FieldProps = {
   name: string;
   label: string;
+  /** The label is read by screen readers but not shown (a stepper inside a box that names it). */
+  hideLabel?: boolean;
   type: "stepper" | "scale" | "choice" | "text" | "time";
   defaultValue?: string;
   unit?: string;
@@ -53,7 +55,7 @@ export function Field(p: FieldProps) {
   const helpText = p.error ?? p.help;
   return (
     <div className={"k-field" + (p.error ? " error" : "")}>
-      <div className="lab">
+      <div className={p.hideLabel ? "k-sr" : "lab"}>
         <label className="k-label" htmlFor={p.type === "scale" ? undefined : id}>
           {p.label}
         </label>
