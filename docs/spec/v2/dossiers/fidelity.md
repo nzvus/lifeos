@@ -79,9 +79,12 @@ custom range) and the day dots (they need the day's E7 score) later.
 **Done (2026-10-24)**: the day dots (each day's E7 score), the period box
 with its score (each part's mean), **Energia** (learnt expenditure and the
 priors' parts), **Gli ambiti** (food, weight, sleep, water with their
-skylines), each day's row with its mini skyline. Missing: the period box's
-pills, training and steps in «Gli ambiti» (no session scorer yet), each
-domain's page.
+skylines), each day's row with its mini skyline. **Done
+(2026-10-24)**: the period box's pills (sessions, mean sleep — warn under
+7 h —, the weight from the first week to the last), the steps in «Gli
+ambiti» with their numbers and no score (the movement dossier has not
+decided one). Missing: training in «Gli ambiti» (a session's score needs
+its history: on the gym page only, Neon budget), each domain's page.
 
 ## Libreria
 **Done here**: the index (one search across the catalogs, the shelves with
