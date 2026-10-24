@@ -88,8 +88,14 @@ tabs and a sort select.
 
 ## Piano, Obiettivi, Impostazioni, Aggiungi
 Piano: models, day types and cycles (boards Models, ModelEditor,
-CycleEditor) — not built. Obiettivi, Impostazioni, Aggiungi: closer;
-compare again after the cross-cutting fixes.
+CycleEditor) — built with day-templates b and c (#275). Obiettivi
+(2026-10-24): each goal a row as on the board — its drawing, now → target,
+by when with the paces and the arrival, how far along as a strip, the
+week's days coloured for a per-day count, «da qui: … kcal e … g al giorno»,
+in line or not, a link to where it is logged; goals nothing counts yet
+faded; the header counts them. Missing: the score's skyline for a goal,
+the inline «Nuovo obiettivo» with its derived pace (it is a page).
+Impostazioni, Aggiungi: compare again.
 
 ## Proposed order
 1. The box (cross-cutting): score skyline + open state + pills, so every
