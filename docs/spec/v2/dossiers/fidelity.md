@@ -95,7 +95,12 @@ week's days coloured for a per-day count, «da qui: … kcal e … g al giorno»
 in line or not, a link to where it is logged; goals nothing counts yet
 faded; the header counts them. Missing: the score's skyline for a goal,
 the inline «Nuovo obiettivo» with its derived pace (it is a page).
-Impostazioni, Aggiungi: compare again.
+Aggiungi (2026-10-24): «A quest'ora, di solito» (meals usually logged
+within ±90 min of now on ≥ 2 of the last 28 days, one tap to log again),
+«Allenamento · inizia adesso» (the 3 routines most trained), «La ricerca
+non trova?» (new food, new exercise). Missing: one search across all, the
+«Adesso / Previsto» switch, «Porzioni pronte» (batches, pantry), «Nuovo
+tracker». Impostazioni: compare again.
 
 ## Proposed order
 1. The box (cross-cutting): score skyline + open state + pills, so every
