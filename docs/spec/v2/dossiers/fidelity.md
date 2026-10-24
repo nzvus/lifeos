@@ -49,8 +49,10 @@ with each exercise's plan («3 × 10 · 35 kg»). **Fixed here**: a finished
 session no longer shows the set form, RIR and «Aggiungi esercizio».
 
 ## Andamento (Progress)
-Missing: range control with a month calendar (7 g · 30 g · 90 g · Mese ·
-Scegli); the period box with score and pills; **Energia** (learnt
+**Done (s184)**: the period control (kit RangeNav: ‹ ›, 7 · 30 · 90 giorni ·
+Mese, the month with the period highlighted, each day a link); «Scegli» (a
+custom range) and the day dots (they need the day's E7 score) later.
+Missing: the period box with score and pills; **Energia** (learnt
 expenditure and its parts: base, the day's blocks, steps, gym, thermic
 effect); **Gli ambiti** (food, weight, training, sleep, water, steps), each
 with its score skyline and its page.

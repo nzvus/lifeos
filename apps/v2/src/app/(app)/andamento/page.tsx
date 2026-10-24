@@ -1,10 +1,12 @@
 /**
  * Andamento (flows.md §1, V-06), first part: «Il periodo», the last 7, 30
- * or 90 days (`?giorni=`) up to `?fino=YYYY-MM-DD` (today when missing): the day's Nutrients
+ * or 90 days (`?giorni=`) up to `?fino=YYYY-MM-DD` (today when missing), or a
+ * calendar month (`?mese=YYYY-MM`), moved through with the kit's RangeNav
+ * (the board: presets and the month with the period highlighted): the day's Nutrients
  * averaged over the days with something eaten, and each day's kcal against
  * its target. Trackers, goals and correlations come with their slices.
  */
-import { Box, F, NavBar, Nutrients, PageHeader } from "@lifeos/kit";
+import { Box, F, NavBar, Nutrients, PageHeader, RangeNav } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -16,24 +18,45 @@ import { period, trainingOf, weightChange } from "@/features/progress/period";
 
 const RANGES = [7, 30, 90] as const;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
+const MONTH = /^\d{4}-\d{2}$/;
 
 export default async function AndamentoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ fino?: string | string[]; giorni?: string | string[] }>;
+  searchParams: Promise<{
+    fino?: string | string[];
+    giorni?: string | string[];
+    mese?: string | string[];
+  }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
   const known = await ownerClock();
   const today = logicalDay(new Date(), known.clock);
-  const { fino: asked, giorni } = await searchParams;
-  const DAYS = RANGES.find((n) => String(n) === giorni) ?? 7;
+  const { fino: asked, giorni, mese } = await searchParams;
+  const month =
+    typeof mese === "string" && MONTH.test(mese) && mese <= today.slice(0, 7)
+      ? mese
+      : null;
   const link = (fino: string | null, n: number) => {
     const q = [fino ? "fino=" + fino : "", n !== 7 ? "giorni=" + n : ""].filter(Boolean);
     return "/andamento" + (q.length ? "?" + q.join("&") : "");
   };
-  const end =
-    typeof asked === "string" && ISO.test(asked) && asked < today ? asked : today;
+  const monthLink = (m: string) => "/andamento?mese=" + m;
+  // A month: from its first day to its last, or to today in the current one.
+  const monthEnd = (m: string) => {
+    const last = addDays(addDays(m + "-01", 32).slice(0, 7) + "-01", -1);
+    return last < today ? last : today;
+  };
+  const end = month
+    ? monthEnd(month)
+    : typeof asked === "string" && ISO.test(asked) && asked < today
+      ? asked
+      : today;
+  const start = month ? month + "-01" : null;
+  const DAYS = start
+    ? Math.round((Date.parse(end) - Date.parse(start)) / 86_400_000) + 1
+    : (RANGES.find((n) => String(n) === giorni) ?? 7);
   const days = Array.from({ length: DAYS }, (_, i) => addDays(end, i - DAYS + 1));
   // The whole range in one set of queries (core/day `loadDays`), not one per day.
   const [loaded, targets] = await Promise.all([
@@ -82,33 +105,32 @@ export default async function AndamentoPage({
         </a>
       </section>
       <section className="k-section g3" aria-label="Il periodo">
-        <div className="k-chips">
-          {RANGES.map((n) => (
-            <a
-              key={n}
-              className="k-chip"
-              aria-pressed={n === DAYS}
-              href={link(end === today ? null : end, n)}
-            >
-              {n} giorni
-            </a>
-          ))}
-        </div>
-        <div className="k-line between">
-          <a className="k-link" href={link(addDays(end, -DAYS), DAYS)}>
-            ‹ prima
-          </a>
-          <span className="k-body">
-            {F.date(days[0]!)} – {F.date(end)}
-          </span>
-          {end < today ? (
-            <a className="k-link" href={link(later >= today ? null : later, DAYS)}>
-              dopo ›
-            </a>
-          ) : (
-            <span />
-          )}
-        </div>
+        <RangeNav
+          from={days[0]!}
+          to={end}
+          today={today}
+          prevHref={
+            month
+              ? monthLink(addDays(month + "-01", -1).slice(0, 7))
+              : link(addDays(end, -DAYS), DAYS)
+          }
+          nextHref={
+            end >= today
+              ? null
+              : month
+                ? monthLink(addDays(month + "-01", 32).slice(0, 7))
+                : link(later >= today ? null : later, DAYS)
+          }
+          presets={[
+            ...RANGES.map((n) => ({
+              label: n + " giorni",
+              href: link(end === today ? null : end, n),
+              on: !month && n === DAYS,
+            })),
+            { label: "Mese", href: monthLink(end.slice(0, 7)), on: !!month },
+          ]}
+          dayHref={(d) => "/oggi/" + d}
+        />
         <Box
           rail={false}
           entry={{
