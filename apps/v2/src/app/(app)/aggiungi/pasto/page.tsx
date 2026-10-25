@@ -1,6 +1,7 @@
 /**
  * The meal composer (V-04) for a day: `/aggiungi/pasto?giorno=…`, starting
- * from a saved meal (`&pasto=`) or a logged one (`&da=`). The
+ * from a saved meal (`&pasto=`), a logged one (`&da=`) or one food (`&cibo=`,
+ * from ⊕'s search: at the quantity of its last time). The
  * server reads the person's foods as choices, the day as it is (its
  * Nutrients against the targets in force) and the role bounds; the client
  * composes and posts to `saveMeal`.
@@ -22,7 +23,7 @@ import { foodIds, presentDay } from "@/features/day/nutrients";
 import { Composer } from "@/features/food/Composer";
 import { readEntry } from "@/core/entries";
 import { typedEstimate } from "@/core/food/meal";
-import { repeatLines } from "@/features/food/composer";
+import { quantityOf, repeatLines } from "@/features/food/composer";
 import { addContext } from "../kinds";
 import { saveMeal } from "./actions";
 
@@ -40,11 +41,12 @@ export default async function MealPage({
     /** From a model's block on Oggi: its meal role and time. */
     ruolo?: string | string[];
     ora?: string | string[];
+    cibo?: string | string[];
   }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
-  const { giorno, pasto, da, ruolo, ora } = await searchParams;
+  const { giorno, pasto, da, ruolo, ora, cibo } = await searchParams;
   const { clock, roleBounds, day, today } = await addContext(db, owner, giorno);
   const [choices, dayData, targets, micros] = await Promise.all([
     readFoodChoices(db, owner, today),
@@ -87,6 +89,8 @@ export default async function MealPage({
     again?.kind.key === "meal" && !typed
       ? repeatLines(again.lines, new Set(choices.map((c) => c.key)))
       : null;
+  // `?cibo=<food>` (⊕'s search): the composer starts with that food.
+  const one = !from && !again ? choices.find((c) => c.key === cibo) : undefined;
   const asked = typeof ruolo === "string" && ROLES.has(ruolo) ? ruolo : null;
   const role = again?.values["role"] ?? asked;
   const at = typeof ora === "string" && /^\d{2}:\d{2}$/.test(ora) ? ora : null;
@@ -105,14 +109,25 @@ export default async function MealPage({
                 quantity: F.input(Number(p.quantity), 2),
               })),
             }
-          : repeat
+          : one
             ? {
-                initialLines: repeat.lines,
-                ...(again?.item ? { initialRecipe: again.item.id } : {}),
+                initialLines: [
+                  {
+                    key: one.key,
+                    quantity: quantityOf(one.lastQty ?? "")
+                      ? F.input(Number(quantityOf(one.lastQty ?? "")), 2)
+                      : "100",
+                  },
+                ],
               }
-            : typed && again?.item
-              ? { initialRecipe: again.item.id }
-              : {})}
+            : repeat
+              ? {
+                  initialLines: repeat.lines,
+                  ...(again?.item ? { initialRecipe: again.item.id } : {}),
+                }
+              : typed && again?.item
+                ? { initialRecipe: again.item.id }
+                : {})}
       day={day}
       dayLabel={day === today ? "Oggi" : F.Day(day)}
       dayNutrients={whole?.nutrients ?? null}

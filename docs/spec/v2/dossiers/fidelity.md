@@ -125,9 +125,11 @@ the inline «Nuovo obiettivo» with its derived pace (it is a page).
 Aggiungi (2026-10-24): «A quest'ora, di solito» (meals usually logged
 within ±90 min of now on ≥ 2 of the last 28 days, one tap to log again),
 «Allenamento · inizia adesso» (the 3 routines most trained), «La ricerca
-non trova?» (new food, new exercise). Missing: one search across all, the
-«Adesso / Previsto» switch, «Porzioni pronte» (batches, pantry), «Nuovo
-tracker». Impostazioni: compare again.
+non trova?» (new food, new exercise). Done 2026-10-25: one search across
+the kinds, foods, saved meals and routines on top (names only, read in one
+query; a food opens the composer with it, `?cibo=`), «Cosa» first.
+Missing: the «Adesso / Previsto / Prima» switch, «Porzioni pronte»
+(batches, pantry), «Nuovo tracker». Impostazioni: compare again.
 
 ## Codice a barre
 
