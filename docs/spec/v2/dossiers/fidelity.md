@@ -89,7 +89,13 @@ skylines), each day's row with its mini skyline. **Done
 7 h —, the weight from the first week to the last), the steps in «Gli
 ambiti» with their numbers and no score (the movement dossier has not
 decided one). Missing: training in «Gli ambiti» (a session's score needs
-its history: on the gym page only, Neon budget), each domain's page.
+its history: on the gym page only, Neon budget). **Done (2026-10-25)**:
+each domain's page (the board Tracker, `/andamento/peso`, `sonno`, `acqua`,
+`passi`, linked from «Gli ambiti»): the period's box with its score, three
+stats, the kit's new Chart (weight: the scale's points, the board's
+smoothed trend, the goal line; sleep, water, steps: bars against 7–9 h,
+the need, the goal), each entry a row with its own score, «Cosa dice di
+te». Missing: the kind's settings on its page, food and training pages.
 
 ## Libreria
 

@@ -274,6 +274,14 @@ const USUAL_INTENSITY: Session["intensity"] = "moderate";
 
 /** The day's water as the boards' box: drunk of the need, the score, the reason for more. */
 export function waterBox(items: readonly DayItem[], ctx: ScoreContext): BoxEntry {
+  return waterOf(items, ctx).box;
+}
+
+/** The day's water: litres drunk, the day's need (null without the sex), and its box. */
+export function waterOf(
+  items: readonly DayItem[],
+  ctx: ScoreContext,
+): { drunk: number; need: number | null; box: BoxEntry } {
   const drinks = items
     .filter((i) => i.kind.key === "water" && done(i) && i.minute !== null)
     .map((i) => ({ minute: i.minute!, litres: (num(i.values["ml"]) ?? 0) / 1000 }));
@@ -305,7 +313,7 @@ export function waterBox(items: readonly DayItem[], ctx: ScoreContext): BoxEntry
     title: "Acqua",
     value: F.num(drunk, "l"),
   };
-  if (ctx.sex === null) return base;
+  if (ctx.sex === null) return { drunk, need: null, box: base };
   const need = dailyNeed({
     sex: ctx.sex,
     sessions: sessions.map((x) => x.s),
@@ -340,7 +348,7 @@ export function waterBox(items: readonly DayItem[], ctx: ScoreContext): BoxEntry
     0,
   );
   const s = boxScore(WATER, parts, WATER_WORDS);
-  return {
+  const box: BoxEntry = {
     ...base,
     value: F.of(drunk, need.drinks, "l"),
     strip: [
@@ -361,4 +369,5 @@ export function waterBox(items: readonly DayItem[], ctx: ScoreContext): BoxEntry
       : {}),
     ...(s ? { score: s } : {}),
   };
+  return { drunk, need: need.drinks, box };
 }
