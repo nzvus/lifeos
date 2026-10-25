@@ -110,8 +110,9 @@ training pages.
 ## Libreria
 
 **Done here**: the index (one search across the catalogs, the shelves with
-counts and a line, «Aggiungere»), each shelf opening its list. The board's
-Dispensa and Tipi di tracker shelves join when those slices exist.
+counts and a line, «Aggiungere»), each shelf opening its list; «Tipi di
+tracker» (2026-10-25: the kinds ⊕ enters, the person's own counted, to
+Tracker e tipi; «Un tracker» under «Aggiungere»). Dispensa joins with V-12.
 The board is an index: Cibi · Pasti e ricette · Dispensa · Esercizi · Tipi
 di tracker, then «Aggiungere» (food by barcode/label/hand, meal, receipt,
 exercise), one search across all. v2 opens straight on the foods list with

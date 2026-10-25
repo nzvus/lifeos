@@ -24,6 +24,9 @@ import {
   shelfLines,
 } from "@/features/library/library";
 import { Library } from "@/features/library/Library";
+import { readUserKinds } from "@/core/day";
+import { enterable } from "@/core/entries";
+import { kindRegistry } from "@/core/kinds";
 import { PLACES } from "@/features/places";
 
 export default async function LibreriaPage({
@@ -75,6 +78,12 @@ export default async function LibreriaPage({
   });
   const meal = recipeRows(recipes, foods);
   const exercise = exerciseRows(exercises, log, (d) => F.Day(d));
+  // «Tipi di tracker»: the kinds ⊕ can enter, the person's own among them.
+  const userKinds = (await readUserKinds(db, owner)).filter((k) => !k.archivedAt);
+  const trackers = {
+    all: kindRegistry(userKinds).all.filter(enterable).length,
+    own: userKinds.length,
+  };
   return (
     <main className="k-page has-bd">
       {view === null ? (
@@ -96,6 +105,7 @@ export default async function LibreriaPage({
         exercises={exercise}
         view={view}
         shelfLines={shelfLines(foods, meal, exercise)}
+        trackers={trackers}
       />
       <div className="k-nav k-stick">
         <NavBar active="library" hrefs={PLACES} addHref="/aggiungi" />

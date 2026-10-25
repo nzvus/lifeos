@@ -49,7 +49,10 @@ export function Library({
   exercises,
   view,
   shelfLines,
+  trackers,
 }: {
+  /** The kinds one can enter, and how many are the person's own («Tipi di tracker»). */
+  trackers: { all: number; own: number };
   foods: LibraryRow[];
   meals: LibraryRow[];
   exercises: LibraryRow[];
@@ -59,7 +62,8 @@ export function Library({
   shelfLines: Record<Tab, string>;
 }) {
   const lists: Record<Tab, LibraryRow[]> = { foods, meals, exercises };
-  if (view === null) return <Index lists={lists} shelfLines={shelfLines} />;
+  if (view === null)
+    return <Index lists={lists} shelfLines={shelfLines} trackers={trackers} />;
   return <List lists={lists} first={view} />;
 }
 
@@ -79,9 +83,11 @@ function row(tab: Tab, r: LibraryRow, value: string) {
 function Index({
   lists,
   shelfLines,
+  trackers,
 }: {
   lists: Record<Tab, LibraryRow[]>;
   shelfLines: Record<Tab, string>;
+  trackers: { all: number; own: number };
 }) {
   const [query, setQuery] = useState("");
   const all = (Object.keys(TABS) as Tab[]).reduce((n, t) => n + lists[t].length, 0);
@@ -143,6 +149,23 @@ function Index({
                 }}
               />
             ))}
+            <Box
+              density="row"
+              rail={false}
+              entry={{
+                fam: "settings",
+                of: { kind: "types" },
+                title: "Tipi di tracker",
+                value: F.n(trackers.all, 0),
+                meta:
+                  "ciò che segni, coi suoi campi · " +
+                  (trackers.own > 0
+                    ? F.plural(trackers.own, "tuo", "tuoi")
+                    : "crea il tuo"),
+                href: "/impostazioni/tipi",
+                hrefLabel: "I tipi di tracker",
+              }}
+            />
           </section>
           <section className="k-section g2" aria-label="Aggiungere">
             <h2>Aggiungere</h2>
@@ -172,6 +195,13 @@ const ADDS = [
     meta: "componilo e «Salva anche come pasto»",
     href: "/aggiungi/pasto",
     hrefLabel: "Componi un pasto",
+  },
+  {
+    fam: "habit",
+    title: "Un tracker",
+    meta: "qualsiasi cosa: un numero, un voto, un segno",
+    href: "/impostazioni/tipi#nuovo",
+    hrefLabel: "Crea un tracker",
   },
   {
     fam: "train",
