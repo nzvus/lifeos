@@ -11,7 +11,12 @@ import "@lifeos/kit/styles/tokens.css";
 import "@lifeos/kit/styles/kit.css";
 import "./app.css";
 
-export const metadata: Metadata = { title: "lifeos" };
+// The manifest (manifest.ts) and the icons (icon.svg, apple-icon.png) are
+// linked by Next from their file names; iOS reads appleWebApp.
+export const metadata: Metadata = {
+  title: "lifeos",
+  appleWebApp: { capable: true, title: "lifeos" },
+};
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
