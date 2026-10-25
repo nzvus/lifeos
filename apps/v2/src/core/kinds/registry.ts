@@ -20,6 +20,7 @@ const BUILTINS: ReadonlyMap<string, Kind> = new Map(
 /** A user kind as stored: the row's columns and its `definition`. */
 export type UserKindRow = {
   key: string;
+  name?: string;
   domain: string;
   shape: string;
   entryMode: string;
@@ -59,6 +60,7 @@ export function kindRegistry(userRows: readonly UserKindRow[] = []): KindRegistr
       typeof row.definition === "object" && row.definition ? row.definition : {};
     const parsed = kindSchema.safeParse({
       ...def,
+      ...(row.name ? { name: row.name } : {}),
       key: row.key,
       domain: row.domain,
       shape: row.shape,

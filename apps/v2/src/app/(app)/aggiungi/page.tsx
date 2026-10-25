@@ -270,6 +270,18 @@ export default async function AddPage({
                     entry={{ fam: "train", title: "Nuovo esercizio", value: "›" }}
                   />
                 </a>
+                <a href="/impostazioni/tipi#nuovo" className="k-plain">
+                  <Box
+                    density="row"
+                    rail={false}
+                    entry={{
+                      fam: "habit",
+                      title: "Nuovo tracker",
+                      meta: "qualsiasi cosa: un numero, un voto, un segno",
+                      value: "›",
+                    }}
+                  />
+                </a>
               </div>
             </section>
           </AddSearch>

@@ -127,6 +127,8 @@ export default async function SettingsPage() {
             meta: counts.kinds
               ? "tracker tuoi, oltre a quelli di base"
               : "per ora solo quelli di base",
+            href: "/impostazioni/tipi",
+            hrefLabel: "I tuoi tracker, e uno nuovo",
           }}
         />
       </Section>

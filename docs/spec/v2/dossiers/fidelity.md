@@ -129,8 +129,9 @@ within ±90 min of now on ≥ 2 of the last 28 days, one tap to log again),
 non trova?» (new food, new exercise). Done 2026-10-25: one search across
 the kinds, foods, saved meals and routines on top (names only, read in one
 query; a food opens the composer with it, `?cibo=`), «Cosa» first.
+«Nuovo tracker» (2026-10-25, Impostazioni → Tracker e tipi; kinds.md).
 Missing: the «Adesso / Previsto / Prima» switch, «Porzioni pronte»
-(batches, pantry), «Nuovo tracker». Impostazioni: compare again.
+(batches, pantry). Impostazioni: compare again.
 
 ## Codice a barre
 
