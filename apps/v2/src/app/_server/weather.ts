@@ -33,6 +33,8 @@ export async function weatherChips(
   day: IsoDate,
   today: IsoDate,
   timeZone: string,
+  /** The hour the card speaks of (now today; midday for another day). */
+  hour = 12,
 ): Promise<DayChips | null> {
   const back = daysBetween(day, today);
   if (back > 90 || back < -14) return null;
@@ -54,6 +56,7 @@ export async function weatherChips(
       day,
       mergeHours(readHourly(w as never, HOURLY), readHourly(a as never, AIR)),
       sun,
+      hour,
     );
   } catch {
     return null;

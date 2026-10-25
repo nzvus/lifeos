@@ -336,7 +336,9 @@ box's gradient draws (screens.md).
 - **Code:** `apps/v2/src/core/engines/environment/`: the requests and the
   reading of answers; the fetch is the server's. Built 2026-10-25: the city
   (Impostazioni → Il tempo, geocoded, in `settings.prefs.place`) and
-  Oggi's chips (high · low, daytime humidity, the worst air, daylight),
+  Oggi's weather card (the developer's pick 2026-10-25: compact — the sky's
+  drawing from the WMO code, the hour's temperature, low–high — opening on
+  the hours' curve, the air on the EEA scale, the sun's arc),
   read live through Next's fetch cache for an hour (`app/_server/weather.ts`);
   nothing stored yet: storing the hours as imported entries comes with the
   correlations (E8) and the water's heat margin (E10).

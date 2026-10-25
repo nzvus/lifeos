@@ -588,3 +588,41 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-sky.chip .col{background:color-mix(in srgb,var(--fam) 10%,var(--sheet))}
 .k-sky.chip .fill{background:color-mix(in srgb,var(--fam) 72%,var(--sheet));border-radius:1.5px 1.5px 0 0}
 .k-sky.chip .line{border-top:1px dashed color-mix(in srgb,var(--ink) 45%,transparent)}
+/* the day's weather card on Oggi (E11, 2026-10-25): closed compact, open with the hours, the air, the light */
+.k-wx{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--hairline);border-radius:var(--r-row);background:var(--sheet)}
+.k-wxhead{display:flex;align-items:center;gap:10px;width:100%;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.k-sky-ico{width:44px;height:33px;flex:0 0 auto}
+.k-sky-ico .cl{fill:color-mix(in srgb,var(--muted) 22%,var(--sheet));stroke:color-mix(in srgb,var(--muted) 55%,var(--sheet));stroke-width:1.5}
+.k-sky-ico .sun circle{fill:#e0a500}.k-sky-ico .sun line{stroke:#e0a500;stroke-width:2;stroke-linecap:round}
+.k-sky-ico .drop{stroke:var(--macro-fat);stroke-width:2;stroke-linecap:round}
+.k-sky-ico .flake{fill:var(--macro-fat)}
+.k-sky-ico .fog{stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.k-sky-ico .bolt{fill:#e0a500}
+.k-sky-ico .drift{animation:k-drift 7s ease-in-out infinite alternate}
+.k-sky-ico .sun{animation:k-glow 4s ease-in-out infinite alternate;transform-origin:center}
+@keyframes k-drift{from{transform:translateX(-2px)}to{transform:translateX(3px)}}
+@keyframes k-glow{from{opacity:.8}to{opacity:1}}
+.k-wxhead .now{display:flex;flex-direction:column;line-height:1}
+.k-wxhead .now b{font-family:var(--font-display);font-size:30px;font-weight:800}
+.k-wxhead .now small{font-size:var(--fs-b3);color:var(--muted);margin-top:2px}
+.k-wxhead .range{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:var(--fs-b3);font-variant-numeric:tabular-nums;color:var(--muted)}
+.k-wxhead .range .tr{position:relative;flex:1;height:5px;border-radius:3px;background:var(--hairline)}
+.k-wxhead .range .tr>i{position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,#5aa0d8,#e0a500)}
+.k-wxhead .range .tr>b{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--sheet);transform:translate(-50%,-50%)}
+.k-wxline{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:var(--fs-b3)}
+.k-wxline .mut{color:var(--muted)}.k-wxline .warn{color:var(--warn)}
+.k-wxmore{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--hairline);padding-top:8px}
+.k-wxcurve{width:100%;height:auto;display:block}
+.k-wxcurve .ar{fill:color-mix(in srgb,var(--macro-fat) 14%,transparent)}
+.k-wxcurve .ln{fill:none;stroke:var(--macro-fat);stroke-width:2;stroke-linejoin:round}
+.k-wxcurve .nw{fill:var(--macro-fat);stroke:var(--sheet);stroke-width:2}
+.k-wxcurve text{font-family:var(--font-body);font-size:10px;fill:var(--muted)}
+.k-wxgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
+.k-wxgrid>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.k-wxgrid .aqs{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,#4fb27a 0 20%,#9ccd6c 20% 40%,#e0a500 40% 60%,#e2762d 60% 80%,#c0392b 80%)}
+.k-wxgrid .aqs>b{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--sheet);transform:translate(-50%,-50%)}
+.k-wxarc{width:100%;max-width:140px;height:auto}
+.k-wxarc .tr{fill:none;stroke:var(--hairline);stroke-width:2;stroke-dasharray:3 3}
+.k-wxarc .hz{stroke:var(--hairline)}
+.k-wxarc .sn{fill:#e0a500}
+@media (prefers-reduced-motion: reduce){.k-sky-ico .drift,.k-sky-ico .sun{animation:none}}

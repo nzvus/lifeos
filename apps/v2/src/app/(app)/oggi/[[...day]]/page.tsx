@@ -24,11 +24,11 @@ import {
   readDayTargets,
   readMicroTargets,
 } from "@/core/day";
-import { addDays, instantAt, logicalDay } from "@/core/engines/time";
+import { addDays, instantAt, localParts, logicalDay } from "@/core/engines/time";
 import { readSettings } from "@/core/account/settings";
 import { readPlace } from "@/core/account/place";
-import { airWords } from "@/core/engines/environment";
 import { weatherChips } from "@/app/_server/weather";
+import { WeatherCard } from "@/features/day/WeatherCard";
 import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
 import { ensureWeekTargets, mondayOf } from "@/core/energy";
 import {
@@ -204,13 +204,18 @@ export default async function OggiPage({
   // The day's model's meal blocks: each meal's bars against its block, the block's fit in its score.
   const model = plans.get(date)?.model ?? null;
   // Always read: «Cambia la giornata» offers the models (three narrow queries); the habits.
+  // The hour the weather card speaks of: now today, midday on another day.
+  const wxHour =
+    date === today ? Math.floor(localParts(now, clock.timeZone).minute / 60) : 12;
   const [book, habits, weather] = await Promise.all([
     readModelBook(db, owner),
     date >= today ? readHabits(db, owner) : [],
     // The weather and the air of the day where the person lives (E11), when a city is set.
     readPlace(db, owner).then((p) =>
       p
-        ? weatherChips(p, date, today, clock.timeZone).then((w) => (w ? { p, w } : null))
+        ? weatherChips(p, date, today, clock.timeZone, wxHour).then((w) =>
+            w ? { p, w } : null,
+          )
         : null,
     ),
   ]);
@@ -339,45 +344,7 @@ export default async function OggiPage({
           tags={tags}
           bars={bars}
         />
-        {weather && (
-          <div className="k-chips" aria-label="Il tempo">
-            {weather.w.maxC !== null && weather.w.minC !== null && (
-              <span className="k-pill">
-                <Glyph of={{ fam: "env", kind: "temp" }} size="xs" />
-                {F.num(weather.w.maxC, "°C") + " · " + F.num(weather.w.minC, "°C")}
-              </span>
-            )}
-            {weather.w.humidity !== null && (
-              <span className="k-pill">
-                <Glyph of={{ fam: "env", kind: "humidity" }} size="xs" />
-                {F.num(weather.w.humidity, "%")} umidità
-              </span>
-            )}
-            {weather.w.aqi !== null && (
-              <span
-                className="k-pill"
-                style={
-                  weather.w.aqi > 60
-                    ? { color: F.tone("warn"), borderColor: F.tone("warn") }
-                    : undefined
-                }
-              >
-                <Glyph of={{ fam: "env", kind: "air" }} size="xs" />
-                {airWords(weather.w.aqi)}
-              </span>
-            )}
-            {weather.w.daylightH !== null && (
-              <span className="k-pill">
-                <Glyph of={{ fam: "env", kind: "light" }} size="xs" />
-                {F.hm(weather.w.daylightH * 60)} di luce
-              </span>
-            )}
-            <span className="k-pill k-muted">
-              <Glyph of={{ fam: "env", kind: "place" }} size="xs" />
-              {weather.p.name}
-            </span>
-          </div>
-        )}
+        {weather && <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />}
       </section>
       {whole && (
         <section className="k-block g3" aria-label="Il giorno">

@@ -14,6 +14,7 @@ export const HOURLY = [
   "relative_humidity_2m",
   "precipitation",
   "uv_index",
+  "weather_code",
 ] as const;
 export const AIR = ["pm2_5", "pm10", "european_aqi"] as const;
 
@@ -159,8 +160,7 @@ export function readGeocode(answer: unknown): {
   longitude: number;
 } | null {
   const r = (answer as { results?: unknown[] })?.results?.[0] as
-    | { name?: unknown; latitude?: unknown; longitude?: unknown }
-    | undefined;
+    { name?: unknown; latitude?: unknown; longitude?: unknown } | undefined;
   if (
     !r ||
     typeof r.name !== "string" ||
@@ -187,6 +187,15 @@ export function airWords(aqi: number): string {
 }
 
 export type DayChips = {
+  /** Each hour's temperature, by hour (null where none came). */
+  hours: (number | null)[];
+  /** The sky at the hour asked (now, or midday for another day): a WMO code. */
+  code: number | null;
+  /** The temperature at that hour. */
+  nowC: number | null;
+  /** Sunrise and sunset, minutes of the day. */
+  rise: number | null;
+  set: number | null;
   maxC: number | null;
   minC: number | null;
   /** Mean relative humidity from 08:00 to 20:00, %. */
@@ -201,6 +210,8 @@ export function dayChips(
   day: IsoDate,
   hours: readonly WeatherHour[],
   sun?: { sunrise: string; sunset: string },
+  /** The hour the card speaks of: now today, midday otherwise. */
+  hour = 12,
 ): DayChips {
   const today = hours.filter((h) => h.day === day);
   const col = (f: string, from = 0, to = 24) =>
@@ -210,11 +221,43 @@ export function dayChips(
   const t = col("temperature_2m");
   const rh = col("relative_humidity_2m", 8, 20);
   const aqi = col("european_aqi");
+  const at = today.find((h) => h.hour === hour);
+  const minuteOf = (x: string | undefined) => {
+    const m = x ? /T(\d{2}):(\d{2})$/.exec(x) : null;
+    return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+  };
   return {
+    hours: Array.from(
+      { length: 24 },
+      (_, h) => today.find((x) => x.hour === h)?.values["temperature_2m"] ?? null,
+    ),
+    code: at?.values["weather_code"] ?? null,
+    nowC: at?.values["temperature_2m"] ?? null,
+    rise: minuteOf(sun?.sunrise),
+    set: minuteOf(sun?.sunset),
     maxC: t.length ? Math.max(...t) : null,
     minC: t.length ? Math.min(...t) : null,
     humidity: mean(rh),
     aqi: aqi.length ? Math.max(...aqi) : null,
     daylightH: dayWeather(day, hours, sun).daylightH,
   };
+}
+
+/** The sky in words and the drawing for it, from a WMO weather code (Open-Meteo's). */
+export function skyOf(code: number | null): {
+  word: string;
+  icon: "sun" | "partly" | "cloud" | "fog" | "rain" | "snow" | "storm";
+} {
+  if (code === null) return { word: "", icon: "cloud" };
+  if (code === 0) return { word: "Sereno", icon: "sun" };
+  if (code <= 2)
+    return { word: code === 1 ? "Quasi sereno" : "Poco nuvoloso", icon: "partly" };
+  if (code === 3) return { word: "Coperto", icon: "cloud" };
+  if (code === 45 || code === 48) return { word: "Nebbia", icon: "fog" };
+  if (code >= 51 && code <= 67)
+    return { word: code <= 57 ? "Pioviggine" : "Pioggia", icon: "rain" };
+  if (code >= 71 && code <= 77) return { word: "Neve", icon: "snow" };
+  if (code >= 80 && code <= 82) return { word: "Rovesci", icon: "rain" };
+  if (code >= 85 && code <= 86) return { word: "Rovesci di neve", icon: "snow" };
+  return { word: "Temporale", icon: "storm" };
 }
