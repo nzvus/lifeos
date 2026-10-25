@@ -122,6 +122,23 @@ export function planWords(plan: DayPlan | undefined, isToday: boolean): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+/** The day's cycles only, as Oggi's header context: «ciclo PLPRR: oggi Push, poi Riposo». */
+export function cycleWords(plan: DayPlan | undefined, isToday: boolean): string {
+  if (!plan || plan.cycles.length === 0) return "";
+  return plan.cycles
+    .map(
+      (c) =>
+        "ciclo " +
+        c.cycle +
+        ": " +
+        (isToday ? "oggi " : "") +
+        c.label +
+        (c.skipped ? " (saltato)" : c.late ? " (in ritardo)" : "") +
+        (c.next ? ", poi " + c.next : ""),
+    )
+    .join(" · ");
+}
+
 /** A day's name in the week strip: its cycle's step (the first cycle), else its model. */
 export function planTag(plan: DayPlan | undefined): string {
   if (!plan) return "";

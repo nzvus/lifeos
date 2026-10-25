@@ -30,7 +30,7 @@ import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals"
 import { ensureWeekTargets, mondayOf } from "@/core/energy";
 import {
   planTag,
-  planWords,
+  cycleWords,
   readDayPlans,
   habitsDue,
   readHabits,
@@ -147,7 +147,7 @@ export default async function OggiPage({
   const tags = Object.fromEntries(
     week.flatMap((d) => (planTag(plans.get(d)) ? [[d, planTag(plans.get(d))]] : [])),
   );
-  const planLine = planWords(plans.get(date), date === today);
+  const cycleLine = cycleWords(plans.get(date), date === today);
   const goal = goals?.find(
     (g) => g.source === "weight" && g.target === "reach" && g.value !== null,
   );
@@ -293,22 +293,28 @@ export default async function OggiPage({
 
   return (
     <main className="k-page has-bd">
-      <PageHeader title="Oggi" of={{ place: "oggi" }} />
+      <PageHeader
+        title="Oggi"
+        of={{ place: "oggi" }}
+        context={cycleLine}
+        extra={
+          <DayPlanBar
+            modelName={model?.name ?? null}
+            model={model?.id ?? ""}
+            fromDay={model?.from === "day"}
+            models={(book?.models ?? [])
+              .filter((m) => m.active)
+              .map((m) => ({ id: m.id, name: m.name }))}
+            steps={(plans.get(date)?.cycles ?? [])
+              .filter((c) => !c.rest)
+              .map((c) => ({ cycleId: c.cycleId, label: c.label, skipped: c.skipped }))}
+            change={changeDayModel.bind(null, date)}
+            skip={skipStep.bind(null, date)}
+          />
+        }
+      />
       <section className="k-block g3">
         <DateNav day={date} today={today} hrefBase="/oggi/" scores={scores} tags={tags} />
-        <DayPlanBar
-          words={planLine}
-          model={model?.id ?? ""}
-          fromDay={model?.from === "day"}
-          models={(book?.models ?? [])
-            .filter((m) => m.active)
-            .map((m) => ({ id: m.id, name: m.name }))}
-          steps={(plans.get(date)?.cycles ?? [])
-            .filter((c) => !c.rest)
-            .map((c) => ({ cycleId: c.cycleId, label: c.label, skipped: c.skipped }))}
-          change={changeDayModel.bind(null, date)}
-          skip={skipStep.bind(null, date)}
-        />
       </section>
       {whole && (
         <section className="k-block g3" aria-label="Il giorno">

@@ -320,6 +320,8 @@
 .k-backdrop{position:sticky;top:0;height:0;z-index:0;pointer-events:none;overflow:visible}
 .k-backdrop>div{position:absolute;top:28px;right:-72px;opacity:.06}
 .k-page.has-bd>*:not(.k-backdrop){position:relative;z-index:1}
+/* the header's own controls (Oggi's «Giornata ▾» panel) open over the page */
+.k-page.has-bd>.k-ph{z-index:3}
 @media (prefers-reduced-motion:reduce){.k-backdrop>div{transition:none}}
 /* a badge sits on the title's first line: 32 px tile, 20 px line → the line starts 6 px down (icons.md §5) */
 .k-hlead{display:flex;align-items:center;gap:8px;min-width:0}

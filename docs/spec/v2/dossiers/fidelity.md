@@ -33,8 +33,9 @@ tutto / manca qualcosa, riapri; E4 now reads «manca qualcosa» as partial).
 Done 2026-10-25: «Salva come modello» (the day's meals as one block per
 role at its first time with its share of kcal and protein, its sessions
 with their minutes; a role with no energy gives none; then the model's
-editor). Missing: the day type and cycle as the header's action
-(«Giornata «Rec» ▾», now a line under the week), context chips (weather,
+editor); the day's model as the header's action («Giornata «Rec» ▾», a
+panel to change it or skip the step) and the cycle as the header's line
+(«ciclo PLPRR: oggi Push, poi Riposo»). Missing: context chips (weather,
 light, place), pantry reminder card. Depends on: day templates (Piano), drink
 and supplement kinds (migration.md), pantry (V-12).
 
