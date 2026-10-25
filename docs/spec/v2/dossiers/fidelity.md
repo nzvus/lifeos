@@ -30,9 +30,12 @@ as a supplement with its days of 28 (compounds from the catalog;
 ranges.md §6). Done 2026-10-24 (#274): the goal's line under the day
 box, «Togli i previsti (n)» with Undo, «Chiudi la giornata» (ho segnato
 tutto / manca qualcosa, riapri; E4 now reads «manca qualcosa» as partial).
-Missing: day type and cycle in the header («Giornata «Rec» · ciclo PLPRR»),
-context chips (weather, light, place), pantry reminder card, «Salva come
-modello». Depends on: day templates (Piano), drink
+Done 2026-10-25: «Salva come modello» (the day's meals as one block per
+role at its first time with its share of kcal and protein, its sessions
+with their minutes; a role with no energy gives none; then the model's
+editor). Missing: the day type and cycle as the header's action
+(«Giornata «Rec» ▾», now a line under the week), context chips (weather,
+light, place), pantry reminder card. Depends on: day templates (Piano), drink
 and supplement kinds (migration.md), pantry (V-12).
 
 ## Composer (Food)
