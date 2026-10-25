@@ -197,7 +197,12 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         : null;
   const box =
     touched.length > 0
-      ? sessionBox(score(SESSION, sessionParts(soFar)), elapsed, split, finished)
+      ? sessionBox(
+          score(SESSION, sessionParts(soFar), known.weights["session"]),
+          elapsed,
+          split,
+          finished,
+        )
       : null;
   // What is left, in minutes: the sets not done yet with the person's timing.
   const leftS = sessionSeconds(

@@ -19,6 +19,7 @@ import { DAY, score } from "@/core/engines/judgements";
 import { rangeScore, type MicroTarget } from "@/core/engines/targets";
 import { addDays, type IsoDate } from "@/core/engines/time";
 import { lineTotals } from "@/core/food/totals";
+import type { WeightBook } from "@/core/account/weights";
 import { presentDay } from "./nutrients";
 import { nightOf, sleepScore, type ScoreContext } from "./score";
 
@@ -105,16 +106,22 @@ export function dayScore(p: {
   now: number | null;
   /** The reference weight for the protein spread; null: 25 g a meal. */
   weightKg?: number | null;
+  /** The person's weights for the scores (V-16). */
+  weights?: WeightBook;
 }): BoxEntry["score"] | undefined {
-  const s = score(DAY, {
-    dayTargets: targetsPart(p.nutrients, p.now !== null),
-    recovery: p.night === null ? null : p.night / 100,
-    habits: habitsPart([...p.day.timed, ...p.day.untimed], p.now),
-    proteinSpread: proteinSpreadPart(
-      [...p.day.timed, ...p.day.untimed],
-      p.weightKg ?? null,
-    ),
-  });
+  const s = score(
+    DAY,
+    {
+      dayTargets: targetsPart(p.nutrients, p.now !== null),
+      recovery: p.night === null ? null : p.night / 100,
+      habits: habitsPart([...p.day.timed, ...p.day.untimed], p.now),
+      proteinSpread: proteinSpreadPart(
+        [...p.day.timed, ...p.day.untimed],
+        p.weightKg ?? null,
+      ),
+    },
+    p.weights?.["day"],
+  );
   if (s.value === null) return undefined;
   return {
     value: s.value,
@@ -205,6 +212,7 @@ export function dayScores(p: {
       nutrients: p.present.get(d.day)?.nutrients ?? null,
       night: night ? (sleepScore(night, items, c)?.value ?? null) : null,
       now,
+      ...(p.ctx.weights ? { weights: p.ctx.weights } : {}),
     });
     if (s && s.value !== null) out.set(d.day, s);
   }

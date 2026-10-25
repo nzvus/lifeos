@@ -208,10 +208,12 @@ models as chips (Pasto, Peso, Sonno, Acqua, Sessione, Giorno), what each
 judges, the last weigh-in, night or water of the week as a box and the big
 skyline, each part with its share, its allowed range (green) and the
 default weight on it, the lock on health limits, why, its score now; the
-sources. Linked from Andamento and from each tracker's rows. Missing: the
-sliders (the weights stored as a dated decision: a migration on
-`decisions_kind_ck`, so the developer applies it), the context lines
-(«il contesto che sposta la bilancia»).
+sources. Linked from Andamento and from each tracker's rows. The sliders
+(2026-10-25): each part within its range, its share live, «Salva i pesi»
+(a dated set per model in `settings.prefs.weights`, no migration),
+«Valori consigliati»; every score reads them (meals, weigh-ins, sleep,
+water, the day, sessions, foods). Missing: the context lines («il contesto
+che sposta la bilancia»).
 
 ## Proposed order
 

@@ -33,7 +33,7 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
   const owner = await requireOwner();
   const db = await getDb();
   const { id } = await params;
-  const { clock } = await ownerClock();
+  const { clock, weights } = await ownerClock();
   const today = logicalDay(new Date(), clock);
   const foods = await readFoodChoices(db, owner, today);
   const page = foodPage(foods, await readRecipeChoices(db, owner, today, foods), id);
@@ -54,6 +54,7 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
     targets,
     micros,
     foods.find((f) => f.foodId === id && f.productId === null)?.drawing?.["group"],
+    weights,
   );
   // Its uses in 90 days, its products' with it; and 100 of it as the composer draws a meal.
   const mine = foods.filter((f) => f.foodId === id);

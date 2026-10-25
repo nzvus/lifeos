@@ -187,6 +187,7 @@ export default async function OggiPage({
     nights,
     sex: profile?.sex ?? null,
     now: nowMinute,
+    weights: known.weights,
   };
   // Creatine's days of 28 only when the day has some: one narrow read.
   const creatine = items.some((i) => compoundsOf(i, kinds).creatine > 0)
@@ -243,6 +244,7 @@ export default async function OggiPage({
           micros,
           fits.get(i.subcategory ?? "") ?? null,
           mealWhen(i, items, weightOn(series, date)),
+          known.weights,
         ) ??
           weighScore(i, items, sctx) ??
           sleepScore(i, items, sctx),
@@ -256,6 +258,7 @@ export default async function OggiPage({
   const night = nightOf(items);
   const nightScore = night ? (sleepScore(night, items, sctx)?.value ?? null) : null;
   const score = dayScore({
+    weights: known.weights,
     day,
     nutrients: whole?.nutrients ?? null,
     night: nightScore,

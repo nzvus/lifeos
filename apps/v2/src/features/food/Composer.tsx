@@ -40,6 +40,7 @@ import {
   type RecipeChoice,
 } from "@/core/food/choices";
 import type { FoodTargets } from "@/core/day";
+import type { WeightBook } from "@/core/account/weights";
 import type { MicroTarget } from "@/core/engines/targets";
 import { blockFit } from "@/core/food/score";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
@@ -122,7 +123,11 @@ export function Composer({
   slots?: Record<string, Slot>;
   modelName?: string | null;
   /** The day's targets and micro needs: the meal's score (E7 FOOD) as it is built. */
-  refs?: { targets: FoodTargets | null; micros: MicroTarget[] | null } | null;
+  refs?: {
+    targets: FoodTargets | null;
+    micros: MicroTarget[] | null;
+    weights?: WeightBook;
+  } | null;
   /** Where lunch, the snack and dinner start: a meal's role from its time. */
   roleBounds: RoleBounds;
   initial: Record<string, string>;
@@ -196,7 +201,11 @@ function Draft({
   dayNutrients: NutrientsData | null;
   slots: Record<string, Slot>;
   modelName: string | null;
-  refs: { targets: FoodTargets | null; micros: MicroTarget[] | null } | null;
+  refs: {
+    targets: FoodTargets | null;
+    micros: MicroTarget[] | null;
+    weights?: WeightBook;
+  } | null;
   roleBounds: RoleBounds;
   backHref: string;
 }) {
@@ -265,6 +274,8 @@ function Draft({
                 { kcal: slot.kcal, protein: slot.protein ?? 0 },
               )
             : null,
+          null,
+          refs.weights?.["food"],
         );
   const scanHref =
     "/libreria/cibo/nuovo?torna=" +

@@ -4,13 +4,13 @@
  * scored as a box and as the big skyline (each column a part, as wide as its
  * weight, as full as its score; the dashed line at 70), then each part with
  * its weight, the range it may move in and why it is there, and the
- * sources. Read-only for now: moving the weights needs their own stored,
- * dated decision (a migration), next.
+ * sources. The weights move within their ranges (`WeightsForm`), kept
+ * dated in prefs (core/account/weights); every score reads them.
  * The subject is the last weigh-in, night or water of the week; a meal,
  * a session and the day open their score where they are (Oggi, the gym).
  */
 import type { CSSProperties } from "react";
-import { Box, F, Glyph, NavBar, PageHeader, type BoxEntry } from "@lifeos/kit";
+import { Box, F, NavBar, PageHeader, type BoxEntry } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -27,6 +27,8 @@ import {
 } from "@/features/day/score";
 import { PLACES } from "@/features/places";
 import { MODELS, modelPage } from "@/features/progress/models";
+import { WeightsForm } from "@/features/progress/WeightsForm";
+import { resetWeights, saveWeightsForm } from "./actions";
 
 const SUBJECT_WHERE: Record<string, string> = {
   food: "Il voto di un pasto si apre toccando il pasto su Oggi.",
@@ -42,6 +44,9 @@ export default async function ScoresPage({
   const { modello } = await searchParams;
   const model = MODELS.find((m) => m.id === modello) ?? MODELS[0]!;
   const page = modelPage(model);
+  // The person's weights for this model and version, when set (V-16).
+  const set = (await ownerClock()).weights[model.id];
+  const mine = set && set.version === model.version ? set : null;
   const subject = SUBJECT_WHERE[model.id] ? null : await latestSubject(model.id);
   const of = { fam: page.fam, ...(page.sub ? { sub: page.sub } : {}) };
   const score = subject?.score;
@@ -120,61 +125,27 @@ export default async function ScoresPage({
       </section>
       <section className="k-section g3" aria-label="I criteri">
         <h2>I criteri e il loro peso</h2>
-        {page.parts.map((p) => {
-          const now = score?.parts.find(
-            (q) => q.name.toLowerCase().split(" · ")[0] === p.name.toLowerCase(),
-          );
-          return (
-            <div key={p.key} className="k-field k-stack g1">
-              <div className="k-line between">
-                <span className="k-label k-line g1">
-                  <Glyph of={of} size="s" />
-                  {p.name}
-                  {p.locked && (
-                    <span role="img" aria-label="minimo bloccato">
-                      <Glyph of={{ ui: "lock" }} size="xs" />
-                    </span>
-                  )}
-                </span>
-                <span className="k-num d4">{p.share}</span>
-              </div>
-              <div
-                className="k-range"
-                role="img"
-                aria-label={
-                  "Peso " + p.weight + ", può andare da " + p.min + " a " + p.max
-                }
-              >
-                <span
-                  className="ok"
-                  style={{ left: p.min + "%", width: p.max - p.min + "%" }}
-                />
-                <span
-                  style={{
-                    position: "absolute",
-                    top: 8,
-                    left: "calc(" + p.weight + "% - 6px)",
-                    width: 12,
-                    height: 12,
-                    borderRadius: "50%",
-                    background: "var(--herb)",
-                  }}
-                />
-              </div>
-              <span className="k-body">{p.why}</span>
-              {now && (
-                <span className="k-help">
-                  Voto ora: <span className="k-num">{Math.round(now.score * 100)}</span>
-                </span>
-              )}
-            </div>
-          );
-        })}
-        <span className="k-help">
-          I pesi possono muoversi solo dentro l’intervallo verde; le parti col lucchetto
-          non scendono sotto il loro minimo. Presto potrai spostarli qui: ogni modifica
-          avrà una data e i voti passati lo diranno.
-        </span>
+        <WeightsForm
+          key={model.id + (mine?.since ?? "")}
+          of={of}
+          since={mine?.since ?? null}
+          parts={page.parts.map((p) => ({
+            key: p.key,
+            name: p.name,
+            why: p.why,
+            min: p.min,
+            max: p.max,
+            def: p.weight,
+            value: mine?.values[p.key] ?? p.weight,
+            locked: p.locked,
+            now:
+              score?.parts.find(
+                (q) => q.name.toLowerCase().split(" · ")[0] === p.name.toLowerCase(),
+              )?.score ?? null,
+          }))}
+          save={saveWeightsForm.bind(null, model.id)}
+          reset={resetWeights.bind(null, model.id)}
+        />
       </section>
       <section className="k-section" aria-label="Le fonti">
         <h2>Le fonti</h2>
@@ -219,6 +190,7 @@ async function latestSubject(model: string): Promise<BoxEntry | null> {
     nights,
     sex: profile.sex,
     now: d === today ? dayMinute(new Date(), today, known.clock) : null,
+    weights: known.weights,
   });
   const items = (d: Day) => [...d.timed, ...d.untimed];
   const when = (d: Day) =>

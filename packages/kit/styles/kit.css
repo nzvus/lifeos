@@ -649,3 +649,10 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-gstate>.bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--ink) 10%,transparent);overflow:hidden}
 .k-gstate>.bar>i{display:block;height:100%;background:var(--ink);opacity:.55}
 .k-gstate>.k-btn{align-self:flex-start}
+/* a bounded slider (V-16): the browser's track made thin and see-through, so the allowed stretch (.ok) shows */
+.k-range input{-webkit-appearance:none;appearance:none;height:28px;cursor:pointer}
+.k-range input::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:color-mix(in srgb,var(--ink) 12%,transparent)}
+.k-range input::-moz-range-track{height:4px;border-radius:2px;background:color-mix(in srgb,var(--ink) 12%,transparent)}
+.k-range input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:var(--herb);border:2px solid var(--sheet);box-shadow:0 0 0 1px var(--herb)}
+.k-range input::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--herb);border:2px solid var(--sheet)}
+.k-range .ok{height:8px;top:10px;border-radius:4px;background:color-mix(in srgb,var(--herb) 35%,var(--paper))}

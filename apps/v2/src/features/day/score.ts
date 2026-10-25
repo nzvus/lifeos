@@ -34,6 +34,7 @@ import { sleepParts } from "@/core/engines/sleep";
 import type { MicroTarget } from "@/core/engines/targets";
 import type { DayClock, IsoDate } from "@/core/engines/time";
 import type { MealWhen } from "@/core/food/score";
+import type { WeightBook } from "@/core/account/weights";
 import { linesScore } from "@/features/food/lines-score";
 import { lineTotals } from "@/core/food/totals";
 import { weightProgress } from "@/core/goals";
@@ -74,6 +75,7 @@ export function mealScore(
   fit: number | null = null,
   /** When it is eaten (`mealWhen`), for «momento». */
   when: MealWhen | null = null,
+  weights?: WeightBook,
 ): BoxEntry["score"] | undefined {
   if (meal.kind.key !== "meal") return undefined;
   return linesScore(
@@ -86,8 +88,8 @@ export function mealScore(
     targets,
     microTargets,
     fit,
-
     when,
+    weights?.["food"],
   );
 }
 
@@ -106,6 +108,7 @@ export function foodScore(
   targets: FoodTargets | null,
   microTargets: readonly MicroTarget[] | null,
   group?: string,
+  weights?: WeightBook,
 ): BoxEntry["score"] | undefined {
   const kcal = Number(per100["kcal"] ?? 0);
   if (!(kcal >= 5) || (group && UNSCORED_GROUPS.has(group))) return undefined;
@@ -114,6 +117,9 @@ export function foodScore(
     null,
     targets,
     microTargets,
+    null,
+    null,
+    weights?.["food"],
   );
 }
 
@@ -129,6 +135,8 @@ export type ScoreContext = {
   sex: Sex | null;
   /** The minute of the day now, when the day is today. */
   now: number | null;
+  /** The person's weights for the scores (V-16), by model; missing: the defaults. */
+  weights?: WeightBook;
 };
 
 const WEIGH_WORDS: Record<string, string> = {
@@ -151,8 +159,9 @@ function boxScore(
   model: ScoringModel,
   parts: Readonly<Record<string, number | null>>,
   words: Record<string, string>,
+  weights?: WeightBook,
 ): BoxEntry["score"] | undefined {
-  const s = score(model, parts);
+  const s = score(model, parts, weights?.[model.id]);
   if (s.value === null) return undefined;
   return {
     value: s.value,
@@ -223,6 +232,7 @@ export function weighScore(
     WEIGHING,
     { reliable: p.reliable, pace: p.pace, consistency: p.consistency },
     WEIGH_WORDS,
+    ctx.weights,
   );
 }
 
@@ -248,6 +258,7 @@ export function sleepScore(
     SLEEP,
     { duration: p.duration, regularity: p.regularity, feel: p.feel },
     SLEEP_WORDS,
+    ctx.weights,
   );
 }
 
@@ -331,7 +342,7 @@ export function waterOf(
     (m, r) => m + (r.type === "training" ? r.minutes : 0),
     0,
   );
-  const s = boxScore(WATER, parts, WATER_WORDS);
+  const s = boxScore(WATER, parts, WATER_WORDS, ctx.weights);
   const box: BoxEntry = {
     ...base,
     value: F.of(drunk, need.drinks, "l"),
