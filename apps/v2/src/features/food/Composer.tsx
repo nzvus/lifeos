@@ -44,6 +44,7 @@ import type { MicroTarget } from "@/core/engines/targets";
 import { blockFit } from "@/core/food/score";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { linesScore } from "./lines-score";
+import { MealWhen } from "./MealWhen";
 import { ESTIMATE_FIELDS, type EstimateField } from "@/core/food/meal";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
 import {
@@ -55,6 +56,7 @@ import {
   estimateTotals,
   mealKinds,
   mealNutrients,
+  macroStrip,
   mealTotals,
   quantityOf,
   type DraftLine,
@@ -732,88 +734,21 @@ function Draft({
         </section>
       )}
 
-      <section className="k-section g4" aria-label="Quando">
-        <h2>Quando</h2>
-        <Field
-          name="status"
-          label="Stato"
-          type="choice"
-          required
-          defaultValue={v["status"] ?? "done"}
-          onChange={setStatus}
-          options={[
-            { value: "done", label: "Mangiato" },
-            { value: "planned", label: "Previsto" },
-          ]}
-        />
-        <Field
-          name="start"
-          label="Ora"
-          type="time"
-          defaultValue={start}
-          error={e["start"]}
-          onChange={setStart}
-        />
-        <Field
-          name="role"
-          label="Pasto"
-          type="choice"
-          defaultValue={role}
-          onChange={setRole}
-          help={
-            auto ? "Senza scelta: " + ROLE_WORDS[auto]!.toLowerCase() + ", dall’ora." : ""
-          }
-          error={e["role"]}
-          options={Object.entries(ROLE_WORDS).map(([value, label]) => ({ value, label }))}
-        />
-        <Field
-          name="note"
-          label="Nota"
-          type="text"
-          placeholder="facoltativa"
-          defaultValue={v["note"] ?? ""}
-          error={e["note"]}
-        />
-        {(estimate ? !ofEstimate : lines.length > 0) && (
-          <div className="k-stack g2">
-            <input type="hidden" name="saveAs" value={saveAs ? "yes" : ""} />
-            <div className="k-chips">
-              <button
-                type="button"
-                className="k-chip"
-                aria-pressed={saveAs}
-                onClick={() => setSaveAs(!saveAs)}
-              >
-                {estimate ? "Salva anche in Libreria" : "Salva anche come pasto"}
-              </button>
-            </div>
-            {saveAs && (
-              <Field
-                name="recipeName"
-                label="Nome del pasto"
-                type="text"
-                placeholder={
-                  estimate
-                    ? "per esempio: Menu hamburger"
-                    : "per esempio: Porridge della domenica"
-                }
-                defaultValue={v["recipeName"] ?? (estimate ? estName : "")}
-                error={e["recipeName"]}
-                help={
-                  estimate
-                    ? "Lo ritrovi in «Pasti salvati» con questi totali: la prossima volta basta toccarlo."
-                    : "Lo ritrovi in «Pasti salvati», con questi cibi e queste quantità."
-                }
-              />
-            )}
-          </div>
-        )}
-        {e["form"] && (
-          <p className="k-help" role="alert">
-            {e["form"]}
-          </p>
-        )}
-      </section>
+      <MealWhen
+        values={v}
+        errors={e}
+        start={start}
+        role={role}
+        auto={auto}
+        estimate={estimate}
+        canSave={estimate ? !ofEstimate : lines.length > 0}
+        saveAs={saveAs}
+        estName={estName}
+        onStatus={setStatus}
+        onStart={setStart}
+        onRole={setRole}
+        onSaveAs={setSaveAs}
+      />
 
       <div className="k-pagefoot">
         {!estimate && (
@@ -840,23 +775,4 @@ function Draft({
       </div>
     </form>
   );
-}
-
-/** A food's energy by macro, as the board's ribbon under each ingredient. */
-function macroStrip(per100: Record<string, string>): { w: number; c: string }[] {
-  const kcal = [
-    ["protein", 4, "var(--macro-protein)"],
-    ["carbs", 4, "var(--macro-carbs)"],
-    ["fat", 9, "var(--macro-fat)"],
-    ["fibre", 2, "var(--macro-fiber)"],
-  ].map(([k, f, c]) => ({
-    v: Number(per100[k as string] ?? 0) * (f as number),
-    c: c as string,
-  }));
-  const total = kcal.reduce((a, x) => a + x.v, 0);
-  return total > 0
-    ? kcal
-        .filter((x) => x.v > 0)
-        .map((x) => ({ w: Math.round((x.v / total) * 100), c: x.c }))
-    : [];
 }
