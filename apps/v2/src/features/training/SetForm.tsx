@@ -123,12 +123,12 @@ export function SetForm({
       {!isTimed && !warmup && askRir && (
         <Field
           name="rir"
-          label="Quante ne avresti fatte ancora?"
+          label="Ultima serie: quante ripetizioni avresti ancora potuto fare?"
           type="scale"
           options={RIR}
           defaultValue={rir}
           onChange={setRir}
-          help="Solo sull’ultima serie: dice quanto eri vicino al limite."
+          help="0 = non ne facevo un’altra; 2 = ne avevo ancora due. Serve a proporti il carico della prossima volta."
         />
       )}
       <div className="k-line g2">

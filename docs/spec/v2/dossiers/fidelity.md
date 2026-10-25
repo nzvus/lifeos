@@ -86,6 +86,16 @@ readiness; short ones in warn). **Done (2026-10-25)**: «forza stimata 40 ·
 +2 %» first among the pills (the best e1RM with RIR today against the last
 session's; warn when it fell over 2 %).
 
+**Redone 2026-10-25** (the developer: «incomprensibile»; their points:
+where am I, auto/manual, the timers, RIR, correcting a set): the exercises
+as dots under the header (tap to go to one); the exercise with its target
+and last time; every planned set as a row — done (with «Correggi»: its
+values back in the steppers), «adesso», still to come («ultima: ti chiederò
+il RIR»); one state box naming the clock (Prima di iniziare · Preparati ·
+Serie in corso · Riposo · Riposo finito) with its time, «di 1:30» and a
+bar; «Tempi: li conta l'app / li avvio io», each said in a sentence; RIR
+asked plainly; the session box and «Elimina la sessione» at the bottom.
+
 ## Andamento (Progress)
 
 **Done (s184)**: the period control (kit RangeNav: ‹ ›, 7 · 30 · 90 giorni ·

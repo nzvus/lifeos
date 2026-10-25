@@ -22,6 +22,7 @@ import type { SetInput } from "@/core/training/write";
 import { ExerciseSettings } from "./ExerciseSettings";
 import { restPill, setText, strengthPill, timed, vsProposedText } from "./present";
 import { SetForm } from "./SetForm";
+import { ContextPills, planText, workDone } from "./gym-parts";
 
 export type DoneSet = {
   position: number;
@@ -165,6 +166,8 @@ export function Gym({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
+  // «Correggi»: a done set taken back, its values in the steppers to type again.
+  const [fix, setFix] = useState<DoneSet | null>(null);
   // What the steppers hold now: auto mode saves it when the set's clock ends.
   const values = useRef<SetInput | null>(null);
   const setStart = useRef<number | null>(null);
@@ -362,6 +365,48 @@ export function Gym({
     (tonnage > 0 ? " · " + F.num(tonnage, "kg") + " in totale" : "");
   const lastSet = x ? working >= x.proposed.length - 1 : false;
 
+  // The state box (the developer's pick, 2026-10-25: «una cosa alla volta»): what the clock is.
+  const stateLabel =
+    phase.kind === "rest"
+      ? over
+        ? "Riposo finito"
+        : "Riposo"
+      : phase.kind === "setup"
+        ? "Preparati"
+        : phase.kind === "set"
+          ? "Serie in corso"
+          : session.startedAt
+            ? "Pronto per la serie"
+            : "Prima di iniziare";
+  const stateTone =
+    phase.kind === "rest"
+      ? "rest"
+      : phase.kind === "set"
+        ? "set"
+        : phase.kind === "setup"
+          ? "setup"
+          : "idle";
+  const share =
+    (phase.kind === "rest" || phase.kind === "setup" || phase.kind === "set") &&
+    phase.seconds
+      ? Math.min(1, elapsedPhase / phase.seconds)
+      : null;
+  // Every set of the exercise as a row: done, now, still to come (the target's values).
+  const slots = x ? Math.max(x.proposed.length, working + 1) : 0;
+  const workSets = x ? x.done.filter((d) => !d.warmup) : [];
+  const warmups = x ? x.done.filter((d) => d.warmup) : [];
+  const target = x?.proposed[0]
+    ? x.proposed.length +
+      " × " +
+      (x.proposed[0].reps ?? "–") +
+      (x.proposed[0].loadKg !== null
+        ? " · " +
+          (x.dumbbells
+            ? F.num(Number(x.proposed[0].loadKg) / 2, "kg") + " per manubrio"
+            : F.num(Number(x.proposed[0].loadKg), "kg"))
+        : "")
+    : "";
+
   return (
     <main className="k-page">
       <PageHeader
@@ -370,79 +415,30 @@ export function Gym({
         back={{ label: "Oggi", href: session.dayHref }}
         of={{ fam: "train", kind: "session" }}
       />
-      {(session.box || session.before) && (
-        <section className="k-section g2" aria-label="La sessione">
-          {session.box && (
-            <Box
-              entry={session.box}
-              rail={false}
-              {...(session.box.score
-                ? { expanded: boxOpen, onToggle: () => setBoxOpen(!boxOpen) }
-                : {})}
+      {!session.done && exercises.length > 1 && (
+        <nav
+          className="k-gdots k-section"
+          aria-label={
+            "Esercizio " +
+            (Math.min(at, exercises.length - 1) + 1) +
+            " di " +
+            exercises.length
+          }
+        >
+          {exercises.map((e, i) => (
+            <button
+              key={e.entryId}
+              type="button"
+              className={
+                (i === at ? "now " : "") +
+                (workDone(e) >= Math.max(1, e.proposed.length) ? "done" : "")
+              }
+              aria-label={e.name + (i === at ? ", adesso" : "")}
+              aria-current={i === at ? "step" : undefined}
+              onClick={() => setAt(i)}
             />
-          )}
-          {session.before && <p className="k-help">{session.before}</p>}
-        </section>
-      )}
-      {!session.done && (
-        <div className="k-block g3">
-          <div className="k-timer" role="timer" aria-live="off">
-            <span className="k-stack g0">
-              <span className="v">
-                {over
-                  ? "+" +
-                    clock(elapsedPhase - (phase.kind === "rest" ? phase.seconds : 0))
-                  : big === null
-                    ? "–"
-                    : clock(big)}
-              </span>
-              <span className="k-help">{help}</span>
-            </span>
-            {phase.kind !== "idle" && !auto && (
-              <button
-                type="button"
-                className="k-btn secondary"
-                onClick={() => setPhase({ kind: "idle" })}
-              >
-                Basta
-              </button>
-            )}
-          </div>
-          {!session.done && (
-            <Field
-              key={auto ? "auto" : "manual"}
-              name="mode"
-              label="Modalità"
-              hideLabel
-              type="choice"
-              required
-              defaultValue={auto ? "auto" : "manual"}
-              options={[
-                { value: "auto", label: "Automatica" },
-                { value: "manual", label: "Manuale" },
-              ]}
-              onChange={(m) => {
-                if ((m === "auto") !== auto) toggleAuto();
-              }}
-            />
-          )}
-          {auto && (
-            <p className="k-help">
-              Serie e recuperi vanno da soli: ogni serie si salva come proposta e resta
-              «presunta» finché non la confermi a fine allenamento.
-            </p>
-          )}
-        </div>
-      )}
-
-      {confirming && (
-        <section className="k-section g2" aria-label="Serie presunte">
-          <p className="k-body" role="alert">
-            {F.plural(assumed, "serie presunta", "serie presunte")} dalla modalità
-            automatica: finendo le confermi come fatte. Se una non è andata così, toglila
-            o correggila prima.
-          </p>
-        </section>
+          ))}
+        </nav>
       )}
 
       {!session.done && exercises.every((e) => e.done.length === 0) && (
@@ -461,74 +457,131 @@ export function Gym({
         </section>
       )}
 
+      {confirming && (
+        <section className="k-section g2" aria-label="Serie presunte">
+          <p className="k-body" role="alert">
+            {F.plural(assumed, "serie presunta", "serie presunte")}: le ha contate l’app
+            mentre i tempi andavano da soli. Finendo le confermi come fatte; se una non è
+            andata così, correggila prima.
+          </p>
+        </section>
+      )}
+
       {x && (
         <section className="k-section g3" aria-label="Esercizio in corso">
-          <h2>
-            {x.name}{" "}
-            <span className="k-meta">
-              {"serie " +
-                Math.min(working + 1, Math.max(x.proposed.length, working + 1)) +
-                " di " +
-                Math.max(x.proposed.length, working + 1)}
-            </span>
-          </h2>
-          {x.trend && <span className="k-help">{x.trend}</span>}
-          {x.last && <span className="k-body">{x.last}</span>}
-          {x.done.map((d, i) => {
-            const n = x.done.slice(0, i + 1).filter((y) => !y.warmup).length;
-            const vs = d.warmup ? "" : vsProposedText(d, x.proposed[n - 1]);
-            const meta = [
-              d.assumed ? "presunta" : "",
-              d.restBeforeS !== null ? "recupero " + clock(d.restBeforeS) : "",
-              d.rir != null ? "RIR " + d.rir : "",
-              vs,
-            ]
-              .filter(Boolean)
-              .join(" · ");
-            return (
-              <Box
-                key={d.position}
-                density="row"
-                rail={false}
-                entry={{
-                  fam: "train",
-                  of: x.of,
-                  title: d.warmup ? "Riscaldamento" : "Serie " + n,
-                  value: setText(d),
-                  ...(meta ? { meta } : {}),
-                }}
-                acts={[
-                  {
-                    label: "Togli",
-                    aria: "Togli la serie " + (d.position + 1),
-                    onClick: () => void actions.untick(x.entryId, d.position),
-                  },
-                ]}
-              />
-            );
-          })}
-          {/* The set running (or about to): hatched «ora · in corso», as on the board. */}
-          {!session.done && (phase.kind === "set" || phase.kind === "setup") && (
-            <Box
-              density="row"
-              rail={false}
-              entry={{
-                fam: "train",
-                of: x.of,
-                title: "Serie " + (working + 1) + " · ora",
-                meta: phase.kind === "setup" ? "in posizione" : "in corso",
-                planned: true,
-              }}
-            />
+          <div className="k-stack g1">
+            <h2>{x.name}</h2>
+            {target && <span className="k-help">obiettivo {target}</span>}
+            {x.trend && <span className="k-help">{x.trend}</span>}
+            {x.last && <span className="k-help">{x.last}</span>}
+          </div>
+          <ol className="k-gsets" aria-label="Le serie">
+            {warmups.map((d) => (
+              <li key={"w" + d.position} className="done warm">
+                <span className="n">R</span>
+                <b>{setText(d)}</b>
+                <em>riscaldamento</em>
+                {!session.done && (
+                  <button
+                    type="button"
+                    className="k-btn act"
+                    aria-label="Togli il riscaldamento"
+                    onClick={() => void actions.untick(x.entryId, d.position)}
+                  >
+                    Togli
+                  </button>
+                )}
+              </li>
+            ))}
+            {Array.from({ length: slots }, (_, k) => {
+              const d = workSets[k];
+              const isNow = !d && k === working && !session.done;
+              const plan = x.proposed[k];
+              const vs = d ? vsProposedText(d, plan) : "";
+              const meta = d
+                ? [
+                    d.assumed ? "presunta" : "",
+                    d.restBeforeS !== null ? "riposo prima " + clock(d.restBeforeS) : "",
+                    d.rir != null ? "RIR " + d.rir : "",
+                    vs,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")
+                : isNow
+                  ? phase.kind === "set"
+                    ? "in corso"
+                    : phase.kind === "setup"
+                      ? "in posizione"
+                      : "adesso"
+                  : k === slots - 1 && !auto
+                    ? "ultima: ti chiederò il RIR"
+                    : "";
+              return (
+                <li key={k} className={d ? "done" : isNow ? "now" : "next"}>
+                  <span className="n">{k + 1}</span>
+                  <b>{d ? setText(d) : plan ? setText(plan) : "–"}</b>
+                  <em>{meta}</em>
+                  {d && !session.done && (
+                    <button
+                      type="button"
+                      className="k-btn act"
+                      aria-label={"Correggi la serie " + (k + 1)}
+                      onClick={async () => {
+                        if (await actions.untick(x.entryId, d.position)) setFix(d);
+                      }}
+                    >
+                      Correggi
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+          {fix && (
+            <p className="k-help" role="status">
+              Serie tolta: i suoi valori sono qui sotto, correggili e tocca «Serie fatta».
+            </p>
+          )}
+          {!session.done && (
+            <div className={"k-gstate " + stateTone} role="timer" aria-live="off">
+              <span className="lab">{stateLabel}</span>
+              <span className="clk">
+                {over
+                  ? "+" +
+                    clock(elapsedPhase - (phase.kind === "rest" ? phase.seconds : 0))
+                  : big === null
+                    ? "–"
+                    : clock(big)}
+                {(phase.kind === "rest" || phase.kind === "setup") && !over && (
+                  <small> di {clock(phase.seconds)}</small>
+                )}
+              </span>
+              {share !== null && (
+                <span className="bar">
+                  <i style={{ width: Math.round(share * 100) + "%" }} />
+                </span>
+              )}
+              <span className="k-help">{help}</span>
+              {phase.kind !== "idle" && !auto && (
+                <button
+                  type="button"
+                  className="k-btn secondary"
+                  onClick={() => setPhase({ kind: "idle" })}
+                >
+                  Ferma il tempo
+                </button>
+              )}
+            </div>
           )}
           {/* A finished session is read, not trained: no set to type. */}
           {!session.done && (
             <SetForm
-              key={x.entryId + ":" + x.done.length}
+              key={x.entryId + ":" + x.done.length + (fix ? ":fix" : "")}
               timed={timed(x.pattern)}
               dumbbells={x.dumbbells}
               askRir={lastSet && !auto}
               start={
+                fix ??
                 x.proposed[working] ??
                 x.done.filter((d) => !d.warmup).at(-1) ??
                 x.proposed[0] ??
@@ -540,8 +593,35 @@ export function Gym({
                 values.current = v;
               }}
               onBegin={begin}
-              onTick={(v) => void tick(v)}
+              onTick={(v) => {
+                setFix(null);
+                void tick(v);
+              }}
             />
+          )}
+          {!session.done && (
+            <div className="k-stack g1">
+              <Field
+                key={auto ? "auto" : "manual"}
+                name="mode"
+                label="Tempi"
+                type="choice"
+                required
+                defaultValue={auto ? "auto" : "manual"}
+                options={[
+                  { value: "auto", label: "li conta l’app" },
+                  { value: "manual", label: "li avvio io" },
+                ]}
+                onChange={(m) => {
+                  if ((m === "auto") !== auto) toggleAuto();
+                }}
+              />
+              <span className="k-help">
+                {auto
+                  ? "Serie e riposi partono da soli e ogni serie si segna come proposta («presunta»): la confermi a fine allenamento."
+                  : "Niente parte da solo: «Inizia» avvia la serie, «Serie fatta» la segna e fa partire il riposo."}
+              </span>
+            </div>
           )}
           {!session.done && (
             <ContextPills
@@ -624,6 +704,22 @@ export function Gym({
         ))}
       </section>
 
+      {(session.box || session.before) && (
+        <section className="k-section g2" aria-label="La sessione">
+          <h2>La sessione finora</h2>
+          {session.box && (
+            <Box
+              entry={session.box}
+              rail={false}
+              {...(session.box.score
+                ? { expanded: boxOpen, onToggle: () => setBoxOpen(!boxOpen) }
+                : {})}
+            />
+          )}
+          {session.before && <p className="k-help">{session.before}</p>}
+        </section>
+      )}
+
       <section className="k-section" aria-label="Elimina">
         <button
           type="button"
@@ -662,51 +758,5 @@ export function Gym({
         )}
       </div>
     </main>
-  );
-}
-
-/** «Poi»: the plan (3 × 10 · 60 kg) or, once begun, the sets done of those planned. */
-function planText(e: GymExercise): string {
-  const done = workDone(e);
-  const first = e.proposed[0];
-  const plan = first
-    ? e.proposed.length +
-      " × " +
-      (first.durationS !== null && first.reps === null
-        ? F.num(first.durationS, "") + " s"
-        : String(first.reps ?? "–")) +
-      (first.loadKg !== null ? " · " + F.num(Number(first.loadKg), "kg") : "")
-    : "";
-  if (done === 0) return plan;
-  return (
-    done +
-    " di " +
-    Math.max(e.proposed.length, done) +
-    " serie fatte" +
-    (plan ? " · " + plan : "")
-  );
-}
-
-/** The working sets done: warm-ups do not count towards the proposed ones. */
-const workDone = (x: GymExercise) => x.done.filter((d) => !d.warmup).length;
-
-/** The board's context pills: a state gives the colour (content.md §3). */
-function ContextPills({ pills }: { pills: { t: string; state: State }[] }) {
-  if (pills.length === 0) return null;
-  return (
-    <div className="k-chips" aria-label="Il contesto">
-      {pills.map((p) => (
-        <span
-          key={p.t}
-          className="k-pill"
-          style={{
-            color: F.tone(p.state),
-            borderColor: p.state === "info" ? "var(--hairline)" : F.tone(p.state),
-          }}
-        >
-          {p.t}
-        </span>
-      ))}
-    </div>
   );
 }
