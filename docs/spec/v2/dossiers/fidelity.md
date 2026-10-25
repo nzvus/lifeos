@@ -60,8 +60,9 @@ next to the search; each ingredient «8 g prot. · NOVA 4», its energy by
 macro as a ribbon, its product as a chip; «come sarà» scored as it is
 built (E7 FOOD, the same function as Oggi's, `features/food/lines-score`;
 fit from the block); «Pasti adatti» before «Per arrivare al blocco»; the
-servings and «Salva» together at the bottom. Missing: saved-vs-now kcal
-in the header, the «Porzioni» tab (batches), the price per line (no
+servings and «Salva» together at the bottom; a saved meal changed shows
+«salvata 453 kcal, ora 491 kcal» in the header (2026-10-25). Missing: the
+«Porzioni» tab (batches), the price per line (no
 prices in the data yet), the photo of a label.
 
 ## Gym

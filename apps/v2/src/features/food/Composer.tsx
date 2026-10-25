@@ -42,9 +42,7 @@ import {
 import type { FoodTargets } from "@/core/day";
 import type { WeightBook } from "@/core/account/weights";
 import type { MicroTarget } from "@/core/engines/targets";
-import { blockFit } from "@/core/food/score";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
-import { linesScore } from "./lines-score";
 import { MealWhen } from "./MealWhen";
 import { ESTIMATE_FIELDS, type EstimateField } from "@/core/food/meal";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
@@ -57,6 +55,7 @@ import {
   estimateTotals,
   mealKinds,
   mealNutrients,
+  composerScore,
   macroStrip,
   mealTotals,
   quantityOf,
@@ -253,30 +252,19 @@ function Draft({
   const gap = estimate ? null : closeTheGap(totals, slot, lines, choices);
   const fitting = estimate || tab !== "foods" ? [] : fittingRecipes(recipes, by, slot);
   const heading = (roleWord ?? title) + (start ? " · " + start : "");
+  // A saved meal changed here: its kcal as saved next to now (the board Food).
+  const savedKcal =
+    ofRecipe && !ofRecipe.estimate && !estimate
+      ? (mealTotals(
+          ofRecipe.parts.map((p) => ({ key: p.key, quantity: p.quantity })),
+          by,
+        )["kcal"] ?? null)
+      : null;
   // The meal's score as it is built (E7 FOOD; Oggi scores the logged meal the same way).
   const score =
-    estimate || !refs || lines.length === 0
+    estimate || !refs
       ? undefined
-      : linesScore(
-          lines.flatMap((l) => {
-            const c = by.get(l.key);
-            const q = quantityOf(l.quantity);
-            return c && q
-              ? [{ quantity: q, values: c.per100, estimates: c.estimates }]
-              : [];
-          }),
-          servings,
-          refs.targets,
-          refs.micros,
-          slot
-            ? blockFit(
-                { kcal: totals["kcal"] ?? 0, protein: totals["protein"] ?? 0 },
-                { kcal: slot.kcal, protein: slot.protein ?? 0 },
-              )
-            : null,
-          null,
-          refs.weights?.["food"],
-        );
+      : composerScore(lines, by, servings, refs, slot, totals);
   const scanHref =
     "/libreria/cibo/nuovo?torna=" +
     encodeURIComponent(backHref.replace("/aggiungi?", "/aggiungi/pasto?"));
@@ -348,7 +336,10 @@ function Draft({
           dayLabel,
           status === "planned" ? "previsto" : "mangiato",
           recipeName ?? "",
-          F.num(totals["kcal"] ?? 0, "kcal") +
+          (savedKcal !== null && Math.abs(savedKcal - (totals["kcal"] ?? 0)) >= 1
+            ? "salvata " + F.num(savedKcal, "kcal") + ", ora "
+            : "") +
+            F.num(totals["kcal"] ?? 0, "kcal") +
             (slot ? " di " + F.num(slot.kcal, "kcal") + " del blocco" : ""),
           slot && modelName ? "«" + modelName + "»" : "",
         ]
