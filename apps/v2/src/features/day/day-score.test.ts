@@ -6,6 +6,7 @@ import {
   habitsPart,
   presentWeek,
   targetsPart,
+  weekBars,
   weekScores,
   weightOn,
 } from "./day-score";
@@ -99,7 +100,7 @@ describe("the day's score (dossiers/ranges.md §5)", () => {
     expect(habitsPart([item("meal", { status: "planned" }), steps], null)).toBe(1);
   });
 
-  it("weighs the parts 45/35/20 and names what is missing", () => {
+  it("weighs the parts 40/30/15/15 (v2) and names what is missing", () => {
     const s = dayScore({
       day: day([food]),
       nutrients: n(day([food])),
@@ -107,8 +108,8 @@ describe("the day's score (dossiers/ranges.md §5)", () => {
       now: null,
     })!;
     expect(s.parts.map((p) => p.name)).toEqual(["obiettivi del giorno", "recupero"]);
-    expect(s.missing).toEqual(["abitudini"]);
-    expect(s.parts[1]!.weight).toBeCloseTo(35 / 80);
+    expect(s.missing).toEqual(["abitudini", "proteine distribuite"]);
+    expect(s.parts[1]!.weight).toBeCloseTo(30 / 70);
   });
 
   it("the week strip: a score for each day up to today", () => {
@@ -136,6 +137,45 @@ describe("the day's score (dossiers/ranges.md §5)", () => {
       nowMinute: 600,
     });
     expect(Object.keys(scores)).toEqual(["2026-10-19"]);
+  });
+
+  it("the week strip's thin bars: food from the score, a planned session hatched", () => {
+    const d = (iso: string, timed: DayItem[]) => ({ ...day(timed), day: iso });
+    const gym = {
+      ...food,
+      id: "s",
+      kind: kindRegistry().get("session"),
+      status: "planned",
+    } as DayItem;
+    const days = [d("2026-10-19", [food]), d("2026-10-20", [gym])];
+    const bars = weekBars({
+      days,
+      present: presentWeek({
+        days,
+        targets: new Map(),
+        estimates: new Map(),
+        micros: null,
+        weighings: [],
+      }),
+      ctx: {
+        date: "2026-10-19",
+        clock: { timeZone: "Europe/Rome", boundaryMin: 0 },
+        weighings: null,
+        weightGoal: null,
+        nights: [],
+        sex: null,
+        now: null,
+      },
+      today: "2026-10-24",
+      nowMinute: 600,
+    });
+    expect(bars["2026-10-20"]).toEqual({
+      food: null,
+      limits: null,
+      train: "planned",
+      habits: 0,
+    });
+    expect(bars["2026-10-19"]?.train).toBeNull();
   });
 
   it("the reference weight: the mean of the 7 days up to the day", () => {

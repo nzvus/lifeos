@@ -549,14 +549,17 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-choice a{display:flex;align-items:center;justify-content:center;border-radius:var(--r-mark);color:var(--muted);font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px;text-decoration:none}
 .k-choice a[aria-current="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 /* zones (dossiers/ranges.md §6): a thin band along the bottom of the number's own bar, glued to it */
-.k-track.zoned,.k-bar.zoned{position:relative;box-sizing:border-box;padding-bottom:4px}
-.k-track.zoned{height:calc(var(--segs) + 4px)}
-.k-bar.zoned{height:calc(var(--track) + 4px)}
-.k-bar.zoned>i{bottom:4px}
-.k-bar>i.p{background:repeating-linear-gradient(135deg,currentColor 0 2px,transparent 2px 5px);color:var(--muted);opacity:.6}
-.k-zband{position:absolute;left:0;right:0;bottom:0;height:3px;display:flex}
-.k-zband>span{height:100%}
-.k-zband>.danger{background-image:repeating-linear-gradient(135deg,transparent 0 2px,color-mix(in srgb,var(--sheet) 55%,transparent) 2px 4px)}
+.k-track.zoned,.k-bar.zoned{position:relative;overflow:visible;margin-bottom:17px}
+/* the ruler: every zone a stretch of one thin line, the amount at each change (ranges.md, 2026-10-25) */
+.k-zrule{position:absolute;left:0;right:0;top:calc(100% + 3px);height:14px;pointer-events:none}
+.k-zrule::before{content:"";position:absolute;left:0;right:0;top:2px;height:1px;background:var(--hairline)}
+.k-zrule>.z{position:absolute;top:2px;height:1px}
+.k-zrule>.z.good{top:1px;height:3px;border-radius:2px;background:var(--heat-good)}
+.k-zrule>.z.fair{top:1.5px;height:2px;border-radius:1px;background:color-mix(in srgb,var(--heat-fair) 70%,transparent)}
+.k-zrule>.tk{position:absolute;top:0;width:1px;height:6px;background:var(--muted)}
+.k-zrule>.tk>span{position:absolute;top:6px;left:0;transform:translateX(-50%);font-family:var(--font-body);font-size:10px;line-height:11px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* the bar's tip: the colour of the zone it ends in */
+.k-ztip{position:absolute;top:-1px;bottom:-1px;width:4px;border-radius:2px;transform:translateX(-4px);box-shadow:0 0 0 1.5px var(--sheet);z-index:1}
 .k-bar.zoned>b{z-index:1}
 .k-heatkey{display:flex;align-items:center;gap:6px}
 .k-heatkey>b{display:inline-block;width:var(--tick);height:12px;background:var(--ink)}
@@ -570,3 +573,86 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-chip:has(>input:focus-visible){outline:var(--ring) solid var(--focus);outline-offset:2px}
 /* An inline form under a row (Piano: a block being changed). */
 .k-panel{padding:12px;border:1px solid var(--hairline);border-radius:var(--radius-surface);background:var(--sheet)}
+/* the week strip's four thin bars (food, limits, training, habits), in place of the score line (2026-10-25) */
+.k-wbars{display:flex;align-items:flex-end;justify-content:center;gap:2px;height:12px;margin-top:2px;opacity:.7}
+.k-wbars>i{width:3px;border-radius:1.5px 1.5px 0 0;min-height:2px}
+.k-wbars>i.none{height:2px;background:var(--hairline)}
+.k-wbars>i.plan{background-image:repeating-linear-gradient(135deg,var(--muscle-chest) 0 1.5px,transparent 1.5px 3px)!important;background-color:transparent!important}
+.k-week a[aria-current] .k-wbars{opacity:1}
+.k-week a[aria-current] .k-wbars>i.none{background:color-mix(in srgb,var(--sheet) 40%,transparent)}
+/* the score as a small framed chart in a box's head (2026-10-25): number + a column per part */
+.k-hright{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto}
+.k-skyc{display:inline-flex;align-items:center;gap:6px;height:26px;box-sizing:border-box;padding:3px 4px 3px 7px;border:1px solid color-mix(in srgb,var(--fam) 35%,var(--hairline));border-radius:7px;background:color-mix(in srgb,var(--fam) 6%,var(--sheet))}
+.k-skyc>b{font-family:var(--font-display);font-size:15px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.k-sky.chip{width:44px;height:18px;gap:1.5px;overflow:hidden;border-radius:3px}
+.k-sky.chip .col{background:color-mix(in srgb,var(--fam) 10%,var(--sheet))}
+.k-sky.chip .fill{background:color-mix(in srgb,var(--fam) 72%,var(--sheet));border-radius:1.5px 1.5px 0 0}
+.k-sky.chip .line{border-top:1px dashed color-mix(in srgb,var(--ink) 45%,transparent)}
+/* the day's weather card on Oggi (E11, 2026-10-25): closed compact, open with the hours, the air, the light */
+.k-wx{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--hairline);border-radius:var(--r-row);background:var(--sheet)}
+.k-wxhead{display:flex;align-items:center;gap:10px;width:100%;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.k-sky-ico{width:44px;height:33px;flex:0 0 auto}
+.k-sky-ico .cl{fill:color-mix(in srgb,var(--muted) 22%,var(--sheet));stroke:color-mix(in srgb,var(--muted) 55%,var(--sheet));stroke-width:1.5}
+.k-sky-ico .sun circle{fill:#e0a500}.k-sky-ico .sun line{stroke:#e0a500;stroke-width:2;stroke-linecap:round}
+.k-sky-ico .drop{stroke:var(--macro-fat);stroke-width:2;stroke-linecap:round}
+.k-sky-ico .flake{fill:var(--macro-fat)}
+.k-sky-ico .fog{stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.k-sky-ico .bolt{fill:#e0a500}
+.k-sky-ico .drift{animation:k-drift 7s ease-in-out infinite alternate}
+.k-sky-ico .sun{animation:k-glow 4s ease-in-out infinite alternate;transform-origin:center}
+@keyframes k-drift{from{transform:translateX(-2px)}to{transform:translateX(3px)}}
+@keyframes k-glow{from{opacity:.8}to{opacity:1}}
+.k-wxhead .now{display:flex;flex-direction:column;line-height:1}
+.k-wxhead .now b{font-family:var(--font-display);font-size:30px;font-weight:800}
+.k-wxhead .now small{font-size:var(--fs-b3);color:var(--muted);margin-top:2px}
+.k-wxhead .range{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:var(--fs-b3);font-variant-numeric:tabular-nums;color:var(--muted)}
+.k-wxhead .range .tr{position:relative;flex:1;height:5px;border-radius:3px;background:var(--hairline)}
+.k-wxhead .range .tr>i{position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,#5aa0d8,#e0a500)}
+.k-wxhead .range .tr>b{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--sheet);transform:translate(-50%,-50%)}
+.k-wxline{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:var(--fs-b3)}
+.k-wxline .mut{color:var(--muted)}.k-wxline .warn{color:var(--warn)}
+.k-wxmore{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--hairline);padding-top:8px}
+.k-wxcurve{width:100%;height:auto;display:block}
+.k-wxcurve .ar{fill:color-mix(in srgb,var(--macro-fat) 14%,transparent)}
+.k-wxcurve .ln{fill:none;stroke:var(--macro-fat);stroke-width:2;stroke-linejoin:round}
+.k-wxcurve .nw{fill:var(--macro-fat);stroke:var(--sheet);stroke-width:2}
+.k-wxcurve text{font-family:var(--font-body);font-size:10px;fill:var(--muted)}
+.k-wxgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
+.k-wxgrid>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.k-wxgrid .aqs{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,#4fb27a 0 20%,#9ccd6c 20% 40%,#e0a500 40% 60%,#e2762d 60% 80%,#c0392b 80%)}
+.k-wxgrid .aqs>b{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--sheet);transform:translate(-50%,-50%)}
+.k-wxarc{width:100%;max-width:140px;height:auto}
+.k-wxarc .tr{fill:none;stroke:var(--hairline);stroke-width:2;stroke-dasharray:3 3}
+.k-wxarc .hz{stroke:var(--hairline)}
+.k-wxarc .sn{fill:#e0a500}
+@media (prefers-reduced-motion: reduce){.k-sky-ico .drift,.k-sky-ico .sun{animation:none}}
+/* gym mode, one thing at a time (2026-10-25): the exercises as dots, the sets as rows, the clock's state */
+.k-gdots{display:flex;flex-direction:row;gap:6px;flex-wrap:wrap}
+.k-gdots>button{width:14px;height:14px;padding:0;border-radius:50%;border:1.5px solid var(--muscle-chest);background:transparent;cursor:pointer}
+.k-gdots>button.done{background:var(--muscle-chest)}
+.k-gdots>button.now{box-shadow:0 0 0 3px color-mix(in srgb,var(--muscle-chest) 30%,transparent);background:color-mix(in srgb,var(--muscle-chest) 45%,var(--sheet))}
+.k-gsets{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.k-gsets>li{display:grid;grid-template-columns:24px auto 1fr auto;gap:8px;align-items:center;min-height:40px;padding:4px 8px;border-radius:var(--r-row);border:1px solid var(--hairline);color:var(--muted);background:var(--sheet)}
+.k-gsets>li>.n{font-family:var(--font-display);font-weight:700;text-align:center}
+.k-gsets>li>b{font-variant-numeric:tabular-nums;font-weight:600}
+.k-gsets>li>em{font-style:normal;font-size:var(--fs-b3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.k-gsets>li.done{color:var(--ink);background:color-mix(in srgb,var(--heat-good) 9%,var(--sheet))}
+.k-gsets>li.warm{opacity:.75}
+.k-gsets>li.now{color:var(--ink);border:2px solid var(--muscle-chest)}
+.k-gstate{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:var(--r-row);background:color-mix(in srgb,var(--muted) 8%,var(--sheet))}
+.k-gstate.rest{background:color-mix(in srgb,var(--macro-fat) 11%,var(--sheet))}
+.k-gstate.set{background:color-mix(in srgb,var(--muscle-chest) 11%,var(--sheet))}
+.k-gstate.setup{background:color-mix(in srgb,var(--heat-fair) 14%,var(--sheet))}
+.k-gstate>.lab{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.k-gstate>.clk{font-family:var(--font-display);font-size:44px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
+.k-gstate>.clk>small{font-size:18px;color:var(--muted);font-weight:600}
+.k-gstate>.bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--ink) 10%,transparent);overflow:hidden}
+.k-gstate>.bar>i{display:block;height:100%;background:var(--ink);opacity:.55}
+.k-gstate>.k-btn{align-self:flex-start}
+/* a bounded slider (V-16): the browser's track made thin and see-through, so the allowed stretch (.ok) shows */
+.k-range input{-webkit-appearance:none;appearance:none;height:28px;cursor:pointer}
+.k-range input::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:color-mix(in srgb,var(--ink) 12%,transparent)}
+.k-range input::-moz-range-track{height:4px;border-radius:2px;background:color-mix(in srgb,var(--ink) 12%,transparent)}
+.k-range input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:var(--herb);border:2px solid var(--sheet);box-shadow:0 0 0 1px var(--herb)}
+.k-range input::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--herb);border:2px solid var(--sheet)}
+.k-range .ok{height:8px;top:10px;border-radius:4px;background:color-mix(in srgb,var(--herb) 35%,var(--paper))}

@@ -95,6 +95,7 @@ export default async function TrackerPage({
     nights,
     sex: profile.sex,
     now: d === today ? nowMinute : null,
+    weights: known.weights,
   });
   let view;
   if (own) view = kindTracker({ kind: own, days, period });

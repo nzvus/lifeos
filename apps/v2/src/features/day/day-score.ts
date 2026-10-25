@@ -18,6 +18,8 @@ import type { Day, DayItem, FoodTargets } from "@/core/day";
 import { DAY, score } from "@/core/engines/judgements";
 import { rangeScore, type MicroTarget } from "@/core/engines/targets";
 import { addDays, type IsoDate } from "@/core/engines/time";
+import { lineTotals } from "@/core/food/totals";
+import type { WeightBook } from "@/core/account/weights";
 import { presentDay } from "./nutrients";
 import { nightOf, sleepScore, type ScoreContext } from "./score";
 
@@ -25,6 +27,7 @@ const WORDS: Record<string, string> = {
   dayTargets: "obiettivi del giorno",
   recovery: "recupero",
   habits: "abitudini",
+  proteinSpread: "proteine distribuite",
 };
 
 const mean = (xs: readonly number[]) =>
@@ -75,18 +78,50 @@ export function habitsPart(items: readonly DayItem[], now: number | null): numbe
   return due.length ? due.filter((i) => i.status === "done").length / due.length : null;
 }
 
+/**
+ * Protein spread (E7 DAY v2; Areta 2013): the day's eaten meals with at least
+ * 0.3 g/kg of protein (25 g without a weight) — three or more full, two
+ * two-thirds, one a third; none with fewer than two meals eaten.
+ */
+export function proteinSpreadPart(
+  items: readonly DayItem[],
+  weightKg: number | null,
+): number | null {
+  const meals = items.filter((i) => i.kind.key === "meal" && i.status === "done");
+  if (meals.length < 2) return null;
+  const need = weightKg ? 0.3 * weightKg : 25;
+  const enough = meals.filter((m) => {
+    const servings =
+      typeof m.values["servings"] === "string" ? m.values["servings"] : null;
+    return Number(lineTotals(m.lines, servings)["protein"] ?? 0) >= need;
+  }).length;
+  return Math.min(1, enough / 3);
+}
+
 export function dayScore(p: {
   day: Day;
   nutrients: NutrientsData | null;
   /** The night's score, 0–100; null without one. */
   night: number | null;
   now: number | null;
+  /** The reference weight for the protein spread; null: 25 g a meal. */
+  weightKg?: number | null;
+  /** The person's weights for the scores (V-16). */
+  weights?: WeightBook;
 }): BoxEntry["score"] | undefined {
-  const s = score(DAY, {
-    dayTargets: targetsPart(p.nutrients, p.now !== null),
-    recovery: p.night === null ? null : p.night / 100,
-    habits: habitsPart([...p.day.timed, ...p.day.untimed], p.now),
-  });
+  const s = score(
+    DAY,
+    {
+      dayTargets: targetsPart(p.nutrients, p.now !== null),
+      recovery: p.night === null ? null : p.night / 100,
+      habits: habitsPart([...p.day.timed, ...p.day.untimed], p.now),
+      proteinSpread: proteinSpreadPart(
+        [...p.day.timed, ...p.day.untimed],
+        p.weightKg ?? null,
+      ),
+    },
+    p.weights?.["day"],
+  );
   if (s.value === null) return undefined;
   return {
     value: s.value,
@@ -177,6 +212,7 @@ export function dayScores(p: {
       nutrients: p.present.get(d.day)?.nutrients ?? null,
       night: night ? (sleepScore(night, items, c)?.value ?? null) : null,
       now,
+      ...(p.ctx.weights ? { weights: p.ctx.weights } : {}),
     });
     if (s && s.value !== null) out.set(d.day, s);
   }
@@ -186,4 +222,48 @@ export function dayScores(p: {
 /** The week strip's bars: each day's score value. */
 export function weekScores(p: Parameters<typeof dayScores>[0]): Record<IsoDate, number> {
   return Object.fromEntries([...dayScores(p)].map(([d, s]) => [d, s.value!]));
+}
+
+/** One day's bars in the week strip (the developer's pick, 2026-10-25). */
+export type WeekBar = {
+  /** The day's food against its targets, 0–1 (its score's «obiettivi del giorno»). */
+  food: number | null;
+  /** The worst limit as a share of its allowance (1 = at the limit). */
+  limits: number | null;
+  train: "done" | "planned" | null;
+  /** What was planned and got done, 0–1. */
+  habits: number | null;
+};
+
+/**
+ * Each day's four thin bars (food, limits, training, habits) from what the
+ * week strip already reads: the day scores' parts, the days' panels, their
+ * sessions. A day with nothing gives no bars.
+ */
+export function weekBars(p: Parameters<typeof dayScores>[0]): Record<IsoDate, WeekBar> {
+  const scores = dayScores(p);
+  const out: Record<IsoDate, WeekBar> = {};
+  for (const d of p.days) {
+    const s = scores.get(d.day);
+    const part = (w: string) => s?.parts.find((x) => x.name === w)?.score ?? null;
+    const lims = p.present.get(d.day)?.nutrients.limits ?? [];
+    const worst = lims.length
+      ? Math.max(...lims.map((l) => (l.t > 0 ? l.v / l.t : 0)))
+      : null;
+    const sessions = [...d.timed, ...d.untimed].filter((i) => i.kind.key === "session");
+    const train = sessions.some((i) => i.status === "done")
+      ? "done"
+      : sessions.some((i) => i.status === "planned")
+        ? "planned"
+        : null;
+    const bar: WeekBar = {
+      food: part(WORDS.dayTargets!),
+      limits: worst !== null && worst > 0 ? worst : null,
+      train,
+      habits: part(WORDS.habits!),
+    };
+    if (bar.food !== null || bar.limits !== null || bar.train || bar.habits !== null)
+      out[d.day] = bar;
+  }
+  return out;
 }

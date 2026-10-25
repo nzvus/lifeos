@@ -8,7 +8,19 @@
  * Week mode (Piano, the board Plan): «Settimana 42 · 12–18 ottobre», ‹ ›
  * move a week (`weekBase` + a day of it), the strip's days still open a day.
  */
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
+
+/**
+ * A day's four thin bars (the developer's pick, 2026-10-25), in place of the
+ * score's line: food against its targets, the worst limit as a share of its
+ * allowance, training done or planned, habits done; each 0–1.
+ */
+export type DayBars = {
+  food?: number | null;
+  limits?: number | null;
+  train?: "done" | "planned" | null;
+  habits?: number | null;
+};
 import { addDays, monthOf, weekOf } from "./calendar";
 import { F } from "./format";
 
@@ -20,7 +32,10 @@ export function DateNav({
   tags = {},
   mode = "day",
   weekBase,
+  bars,
 }: {
+  /** Each day's thin bars; when given they replace the score's line. */
+  bars?: Record<string, DayBars>;
   day: string;
   mode?: "day" | "week";
   /** Week mode: the prefix of a week's page ("/piano?settimana="). */
@@ -109,10 +124,14 @@ export function DateNav({
               <span className="k-help k-inh">{F.letter(d)}</span>
               <span className="k-num d3 k-inh">{Number(d.slice(8))}</span>
               {tags[d] && <span className="tag">{tags[d]}</span>}
-              <span
-                className="sc"
-                style={{ background: current ? "var(--sheet)" : bar(d) }}
-              />
+              {bars ? (
+                <DayBarsMark b={bars[d]} />
+              ) : (
+                <span
+                  className="sc"
+                  style={{ background: current ? "var(--sheet)" : bar(d) }}
+                />
+              )}
             </a>
           );
         })}
@@ -152,5 +171,32 @@ export function DateNav({
         </div>
       </div>
     </div>
+  );
+}
+
+function DayBarsMark({ b }: { b: DayBars | undefined }) {
+  const h = (v: number | null | undefined) =>
+    Math.round(Math.max(0.08, Math.min(1, v ?? 0)) * 100) + "%";
+  const limitTone = (r: number) =>
+    r > 1 ? "var(--heat-bad)" : r > 0.85 ? "var(--heat-fair)" : "var(--heat-good)";
+  const one = (key: string, v: number | null | undefined, color: string, extra = "") =>
+    v == null ? (
+      <i key={key} className="none" />
+    ) : (
+      <i
+        key={key}
+        className={extra}
+        style={{ height: h(v), background: color } as CSSProperties}
+      />
+    );
+  return (
+    <span className="k-wbars" aria-hidden="true">
+      {one("f", b?.food, F.judge(b?.food == null ? undefined : b.food * 100).tone)}
+      {one("l", b?.limits, b?.limits == null ? "" : limitTone(b.limits))}
+      {b?.train === "planned"
+        ? one("t", 1, "var(--muscle-chest)", "plan")
+        : one("t", b?.train === "done" ? 1 : null, "var(--muscle-chest)")}
+      {one("h", b?.habits, "var(--moment-snack)")}
+    </span>
   );
 }

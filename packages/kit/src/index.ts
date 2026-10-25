@@ -11,7 +11,7 @@ export { Glyph, type GlyphSize } from "./Glyph";
 export { Box, type BoxAct, type BoxEntry } from "./Box";
 export { PageHeader } from "./PageHeader";
 export { NavBar, type Place } from "./NavBar";
-export { DateNav } from "./DateNav";
+export { DateNav, type DayBars } from "./DateNav";
 export { RangeNav, type RangePreset } from "./RangeNav";
 export { Chart, chartGeometry, type ChartData } from "./Chart";
 export { Field, type FieldOption, type FieldProps } from "./Field";

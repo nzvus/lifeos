@@ -6,6 +6,7 @@
  */
 import { notFound } from "next/navigation";
 import { F } from "@lifeos/kit";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDay, readMicroTargets } from "@/core/day";
@@ -93,7 +94,7 @@ export default async function EntryEditPage({
         day={item.day}
         dayLabel={dayLabel}
         dayNutrients={presentDay(others, targets, kinds, micros)?.nutrients ?? null}
-        refs={{ targets, micros }}
+        refs={{ targets, micros, weights: (await ownerClock()).weights }}
         roleBounds={ctx.roleBounds}
         initial={{
           ...initial,

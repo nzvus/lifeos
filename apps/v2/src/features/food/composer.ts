@@ -10,6 +10,10 @@ import type { MacroKey, NutrientsData } from "@lifeos/kit";
 import { F } from "@lifeos/kit";
 import type { FoodChoice, RecipeChoice } from "@/core/food/choices";
 import { blockFit } from "@/core/food/score";
+import type { FoodTargets } from "@/core/day";
+import type { MicroTarget } from "@/core/engines/targets";
+import type { WeightBook } from "@/core/account/weights";
+import { linesScore } from "./lines-score";
 import type { EntryErrors } from "@/core/entries";
 import {
   ESTIMATE_FIELDS,
@@ -409,4 +413,42 @@ export function macroStrip(per100: Record<string, string>): { w: number; c: stri
         .filter((x) => x.v > 0)
         .map((x) => ({ w: Math.round((x.v / total) * 100), c: x.c }))
     : [];
+}
+
+/**
+ * The meal's score as the composer builds it (E7 FOOD, the same function as
+ * Oggi's): its lines at their quantities, the fit to its block when the day's
+ * model gives one, the person's weights.
+ */
+export function composerScore(
+  lines: readonly DraftLine[],
+  by: ReadonlyMap<string, FoodChoice>,
+  servings: string,
+  refs: {
+    targets: FoodTargets | null;
+    micros: MicroTarget[] | null;
+    weights?: WeightBook;
+  },
+  slot: Slot | null,
+  totals: Record<string, number>,
+) {
+  if (lines.length === 0) return undefined;
+  return linesScore(
+    lines.flatMap((l) => {
+      const c = by.get(l.key);
+      const q = quantityOf(l.quantity);
+      return c && q ? [{ quantity: q, values: c.per100, estimates: c.estimates }] : [];
+    }),
+    servings,
+    refs.targets,
+    refs.micros,
+    slot
+      ? blockFit(
+          { kcal: totals["kcal"] ?? 0, protein: totals["protein"] ?? 0 },
+          { kcal: slot.kcal, protein: slot.protein ?? 0 },
+        )
+      : null,
+    null,
+    refs.weights?.["food"],
+  );
 }

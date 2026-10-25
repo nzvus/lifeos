@@ -228,11 +228,13 @@ export async function readFoodEstimates(
           FIBRE_TYPES,
           ...MICRO_FIELDS,
           ...COMPOUND_FIELDS,
+          // The food's group, for a meal's variety (E7 FOOD v2).
+          "group",
         ]),
       ),
     );
   for (const r of rows) {
-    const v = r.field === FIBRE_TYPES ? r.text : r.num;
+    const v = r.field === FIBRE_TYPES || r.field === "group" ? r.text : r.num;
     if (v) out.set(r.itemId, { ...out.get(r.itemId), [r.field]: v });
   }
   return out;

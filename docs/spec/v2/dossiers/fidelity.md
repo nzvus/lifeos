@@ -36,8 +36,11 @@ with their minutes; a role with no energy gives none; then the model's
 editor); the day's model as the header's action («Giornata «Rec» ▾», a
 panel to change it or skip the step) and the cycle as the header's line
 («ciclo PLPRR: oggi Push, poi Riposo»); the weather chips (high · low,
-humidity, air, daylight, the city; engines.md E11). Missing: the pantry
-reminder card. Depends on: day templates (Piano), drink
+humidity, air, daylight, the city; engines.md E11), since 25 Oct a card.
+Meals of one role together (2026-10-25, the developer's pick): two or more
+«Cena» entries are one box with the whole dinner's bars and score, opening
+on its panel, then each entry as its own row, then «+ Aggiungi a cena»
+(`features/day/meal-groups`). Missing: the pantry reminder card. Depends on: day templates (Piano), drink
 and supplement kinds (migration.md), pantry (V-12).
 
 ## Composer (Food)
@@ -57,8 +60,9 @@ next to the search; each ingredient «8 g prot. · NOVA 4», its energy by
 macro as a ribbon, its product as a chip; «come sarà» scored as it is
 built (E7 FOOD, the same function as Oggi's, `features/food/lines-score`;
 fit from the block); «Pasti adatti» before «Per arrivare al blocco»; the
-servings and «Salva» together at the bottom. Missing: saved-vs-now kcal
-in the header, the «Porzioni» tab (batches), the price per line (no
+servings and «Salva» together at the bottom; a saved meal changed shows
+«salvata 453 kcal, ora 491 kcal» in the header (2026-10-25). Missing: the
+«Porzioni» tab (batches), the price per line (no
 prices in the data yet), the photo of a label.
 
 ## Gym
@@ -82,6 +86,16 @@ last rest against the planned one, sleep, food in 24 h, creatine,
 readiness; short ones in warn). **Done (2026-10-25)**: «forza stimata 40 ·
 +2 %» first among the pills (the best e1RM with RIR today against the last
 session's; warn when it fell over 2 %).
+
+**Redone 2026-10-25** (the developer: «incomprensibile»; their points:
+where am I, auto/manual, the timers, RIR, correcting a set): the exercises
+as dots under the header (tap to go to one); the exercise with its target
+and last time; every planned set as a row — done (with «Correggi»: its
+values back in the steppers), «adesso», still to come («ultima: ti chiederò
+il RIR»); one state box naming the clock (Prima di iniziare · Preparati ·
+Serie in corso · Riposo · Riposo finito) with its time, «di 1:30» and a
+bar; «Tempi: li conta l'app / li avvio io», each said in a sentence; RIR
+asked plainly; the session box and «Elimina la sessione» at the bottom.
 
 ## Andamento (Progress)
 
@@ -122,8 +136,9 @@ it was used, «Modifica» in its header, its values as stats, «Così appare»
 (100 of it in the meal's bars, folded), section icons; the editor has
 «Nome e codici» and «Per 100 g» with steppers two by two and NOVA 1–4.
 Missing: one page for reading and editing (the board's), products with
-their formats and prices, «Tipi di ogni macro», «Vitamine e minerali»,
-«Fonti».
+their formats and prices, «Fonti». «Così appare» holds the kinds (tap a
+macro) and, since 2026-10-25, the vitamins and minerals in 100 g against a
+day's need.
 
 ## Piano, Obiettivi, Impostazioni, Aggiungi
 
@@ -172,8 +187,9 @@ da v1» — v1's export, a dry run (per kind, the days, what stays out), then
 day (with its children, lines, sets), its catalog items by id, else v2's of
 the same name, else new; nothing in v2 changes (core/convert `newFromV1`,
 ADR-0052's merge narrowed to v1 → v2; a movement with its money,
-lines and receipt since 2026-10-25). Missing: CSV per
-kind, replace from a file, invites, language. The weather's city is in
+lines and receipt since 2026-10-25). «Un foglio per
+tipo» (2026-10-25, ADR-0052 C): a kind's entries as CSV, a meal a row per
+food. Missing: replace from a file, invites, language. The weather's city is in
 «Il tempo» (2026-10-25).
 
 ## Soldi (Money)
@@ -195,10 +211,12 @@ models as chips (Pasto, Peso, Sonno, Acqua, Sessione, Giorno), what each
 judges, the last weigh-in, night or water of the week as a box and the big
 skyline, each part with its share, its allowed range (green) and the
 default weight on it, the lock on health limits, why, its score now; the
-sources. Linked from Andamento and from each tracker's rows. Missing: the
-sliders (the weights stored as a dated decision: a migration on
-`decisions_kind_ck`, so the developer applies it), the context lines
-(«il contesto che sposta la bilancia»).
+sources. Linked from Andamento and from each tracker's rows. The sliders
+(2026-10-25): each part within its range, its share live, «Salva i pesi»
+(a dated set per model in `settings.prefs.weights`, no migration),
+«Valori consigliati»; every score reads them (meals, weigh-ins, sleep,
+water, the day, sessions, foods). Missing: the context lines («il contesto
+che sposta la bilancia»).
 
 ## Proposed order
 

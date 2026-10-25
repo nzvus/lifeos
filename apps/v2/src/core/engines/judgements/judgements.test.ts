@@ -36,10 +36,11 @@ describe("score", () => {
 describe("weights", () => {
   it("move within their range; a health limit cannot go under its minimum", () => {
     const e = editWeights(FOOD, { density: 70, limits: 0, value: 10 }, "2026-10-20");
-    expect(e.weights.values).toEqual({ density: 60, limits: 20, value: 10 });
+    // FOOD v2's ranges: density 20–50, limits 15–100 (locked).
+    expect(e.weights.values).toEqual({ density: 50, limits: 15, value: 10 });
     expect(e.rejected).toEqual([
-      { key: "density", asked: 70, kept: 60 },
-      { key: "limits", asked: 0, kept: 20 },
+      { key: "density", asked: 70, kept: 50 },
+      { key: "limits", asked: 0, kept: 15 },
     ]);
   });
   it("a dated edit makes the score, and the score says so", () => {

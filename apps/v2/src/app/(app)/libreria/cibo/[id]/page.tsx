@@ -27,13 +27,15 @@ import {
   mealNutrients,
   mealTotals,
 } from "@/features/food/composer";
+import { microsOf } from "@/features/day/nutrients";
+import { dayMicros } from "@/core/food/micros";
 import { archiveFood } from "./modifica/actions";
 
 export default async function FoodPage({ params }: { params: Promise<{ id: string }> }) {
   const owner = await requireOwner();
   const db = await getDb();
   const { id } = await params;
-  const { clock } = await ownerClock();
+  const { clock, weights } = await ownerClock();
   const today = logicalDay(new Date(), clock);
   const foods = await readFoodChoices(db, owner, today);
   const page = foodPage(foods, await readRecipeChoices(db, owner, today, foods), id);
@@ -54,6 +56,7 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
     targets,
     micros,
     foods.find((f) => f.foodId === id && f.productId === null)?.drawing?.["group"],
+    weights,
   );
   // Its uses in 90 days, its products' with it; and 100 of it as the composer draws a meal.
   const mine = foods.filter((f) => f.foodId === id);
@@ -61,12 +64,46 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
   const self = mine.find((f) => f.productId === null);
   const by = new Map(mine.map((f) => [f.key, f]));
   const hundred = self ? [{ key: self.key, quantity: "100" }] : [];
+  // Its vitamins and minerals in 100 of it, next to what a day needs (not judged: a food
+  // is not meant to cover the day), as a meal's panel shows them.
+  const micro = microsOf(
+    dayMicros([
+      {
+        servings: null,
+        lines: [
+          {
+            quantity: "100",
+            values: Object.fromEntries(
+              Object.entries(page.per100).flatMap(([k, v]) =>
+                v == null ? [] : [[k, String(v)]],
+              ),
+            ),
+            ...(estimates.get(id) ? { estimates: estimates.get(id)! } : {}),
+          },
+        ],
+      },
+    ]),
+    micros,
+  );
   const look = self
-    ? mealNutrients(
-        mealTotals(hundred, by),
-        mealKinds(hundred, by),
-        mealFoods(hundred, by),
-      )
+    ? {
+        ...mealNutrients(
+          mealTotals(hundred, by),
+          mealKinds(hundred, by),
+          mealFoods(hundred, by),
+        ),
+        ...(micro.groups.length
+          ? {
+              micros: {
+                summary: "stime · in 100 " + page.unit + ", su quanto serve al giorno",
+                groups: micro.groups.map((g) => ({
+                  name: g.name,
+                  items: g.items.map(({ name, v, t, unit }) => ({ name, v, t, unit })),
+                })),
+              },
+            }
+          : {}),
+      }
     : null;
   const head = (of: GlyphOf, words: string) => (
     <h2>
@@ -125,7 +162,9 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
         <details className="k-section k-fold">
           <summary>
             Così appare{" "}
-            <span className="k-meta">100 {page.unit} nelle barre del pasto</span>
+            <span className="k-meta">
+              100 {page.unit}: macro, tipi, vitamine e minerali
+            </span>
           </summary>
           <div className="k-foldbody">
             <Nutrients data={look} />

@@ -141,6 +141,7 @@ export default async function AndamentoPage({
     nights,
     sex: profile.sex,
     now: d === today ? nowMinute : null,
+    weights: known.weights,
   });
   const scores = dayScores({
     days: loaded,
@@ -161,7 +162,15 @@ export default async function AndamentoPage({
       title: "Cibo",
       score: domain((d) =>
         itemsOf(d).map((i) =>
-          mealScore(i, targets.get(d.day) ?? null, estimates, micros),
+          mealScore(
+            i,
+            targets.get(d.day) ?? null,
+            estimates,
+            micros,
+            null,
+            null,
+            known.weights,
+          ),
         ),
       ),
     },
@@ -267,6 +276,12 @@ export default async function AndamentoPage({
           </a>
           <a className="k-link" href="/andamento/soldi">
             Soldi ›
+          </a>
+          <a className="k-link" href="/andamento/legami">
+            Legami ›
+          </a>
+          <a className="k-link" href="/andamento/qualita">
+            Qualità ›
           </a>
           <a className="k-link" href="/andamento/come-valutiamo">
             Come valutiamo ›

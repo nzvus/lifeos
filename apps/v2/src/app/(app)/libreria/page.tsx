@@ -41,7 +41,7 @@ export default async function LibreriaPage({
       : null;
   const owner = await requireOwner();
   const db = await getDb();
-  const { clock } = await ownerClock();
+  const { clock, weights } = await ownerClock();
   const today = logicalDay(new Date(), clock);
   const foods = await readFoodChoices(db, owner, today);
   const [recipes, exercises, log] = await Promise.all([
@@ -72,6 +72,7 @@ export default async function LibreriaPage({
             scored[0],
             scored[1],
             r.of?.["group"],
+            weights,
           )
         : undefined;
     return sc ? { ...r, score: sc } : r;

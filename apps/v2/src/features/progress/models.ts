@@ -39,8 +39,28 @@ export const MODEL_WORDS: Record<string, Words> = {
         why: "Quanti nutrienti utili compri con un euro, dai prezzi dei tuoi acquisti.",
       },
       fit: {
-        name: "Adatto al suo momento",
+        name: "Adatto al suo blocco",
         why: "Quanto copre la parte del giorno che il blocco chiede (kcal e proteine).",
+      },
+      carbsQuality: {
+        name: "Qualità dei carboidrati",
+        why: "Quanti carboidrati vengono da cibi integrali o interi, e quanti grammi di carboidrati per grammo di fibra: 10 a 1 o meglio.",
+      },
+      fatQuality: {
+        name: "Qualità dei grassi",
+        why: "Grassi insaturi (olio d’oliva, frutta secca, pesce) contro saturi: almeno il doppio.",
+      },
+      satiety: {
+        name: "Sazietà",
+        why: "Proteine e fibra ogni 100 kcal: quanto il pasto tiene lontana la fame.",
+      },
+      variety: {
+        name: "Varietà",
+        why: "Quanti gruppi di cibi diversi ci sono nel pasto.",
+      },
+      timing: {
+        name: "Momento",
+        why: "Dopo l’allenamento: almeno 0,3 g di proteine per kg. Vicino al sonno: un pasto leggero.",
       },
     },
   },
@@ -150,6 +170,10 @@ export const MODEL_WORDS: Record<string, Words> = {
       habits: {
         name: "Abitudini",
         why: "Quanto di ciò che era previsto per il giorno è stato fatto.",
+      },
+      proteinSpread: {
+        name: "Proteine distribuite",
+        why: "Quanti pasti hanno almeno 0,3 g di proteine per kg: tre o più è il massimo.",
       },
     },
   },

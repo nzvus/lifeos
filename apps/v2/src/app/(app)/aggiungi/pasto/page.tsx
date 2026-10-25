@@ -9,6 +9,7 @@
 import { readDayPlans, readModelBook, resolveModel, toModels } from "@/core/plans";
 import { daySlots } from "@/features/day/slots";
 import { F } from "@lifeos/kit";
+import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDay, readMicroTargets } from "@/core/day";
@@ -137,7 +138,7 @@ export default async function MealPage({
       dayNutrients={whole?.nutrients ?? null}
       slots={slots}
       modelName={model?.name ?? null}
-      refs={{ targets, micros }}
+      refs={{ targets, micros, weights: (await ownerClock()).weights }}
       roleBounds={roleBounds}
       initial={{
         // A model's block still to come is planned at its time; else now, eaten.

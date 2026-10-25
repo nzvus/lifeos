@@ -336,7 +336,9 @@ box's gradient draws (screens.md).
 - **Code:** `apps/v2/src/core/engines/environment/`: the requests and the
   reading of answers; the fetch is the server's. Built 2026-10-25: the city
   (Impostazioni → Il tempo, geocoded, in `settings.prefs.place`) and
-  Oggi's chips (high · low, daytime humidity, the worst air, daylight),
+  Oggi's weather card (the developer's pick 2026-10-25: compact — the sky's
+  drawing from the WMO code, the hour's temperature, low–high — opening on
+  the hours' curve, the air on the EEA scale, the sun's arc),
   read live through Next's fetch cache for an hour (`app/_server/weather.ts`);
   nothing stored yet: storing the hours as imported entries comes with the
   correlations (E8) and the water's heat margin (E10).
@@ -349,6 +351,11 @@ Pairs of daily (or per-session) metrics, after n ≥ 21 paired days:
 - lagged pairs (today's caffeine after 14:00 → tonight's sleep);
 - "may be chance" when the interval crosses 0;
 - never advice.
+- **Built 2026-10-25:** Andamento → «Legami» (`/andamento/legami`, the last
+  90 days, read only when opened): six default pairs (sleep → energy and
+  mood; steps, training and stress → the next night's sleep; training →
+  the next day's energy), each in words with ρ, n and its interval, or how
+  many paired days it has of the 21 it needs (`features/progress/links`).
   Default pairs come from the kinds' relations; the user can add their own
   in Review.
 
@@ -357,7 +364,11 @@ Pairs of daily (or per-session) metrics, after n ≥ 21 paired days:
 For every kind: missing days, implausible values (per field range),
 duplicates, sudden unit-like jumps (×2, ×10, ÷1000), estimated share.
 Shown in Review → Data quality, and before saving where cheap (E6
-flags). The dumbbell loads of 2026-10-15 are its first test case.
+flags). The dumbbell loads of 2026-10-15 are its first test case. Built
+2026-10-25: Andamento → «Qualità dei dati» (`/andamento/qualita`, the last
+30 days up to yesterday): weigh-ins, steps, nights and meals with their
+days, what is missing, what looks wrong (each opening its entry), the
+estimates' share (`core/quality/read`, `features/progress/quality`).
 ×2 counts only on fields typed per side (loads): steps doubling is real.
 
 - **Code:** `engines/correlations/` (a seeded bootstrap, so the interval

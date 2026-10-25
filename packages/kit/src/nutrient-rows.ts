@@ -173,6 +173,16 @@ export type HeatStrip = {
   at: string;
   to: string | null;
   mean: string | null;
+  /**
+   * The ruler under the bar (the developer's pick, 2026-10-25: «C + D»):
+   * each zone as a stretch of a thin line — the right one green and thick,
+   * «quasi» and «un po' oltre» yellow, the rest bare —, a tick with the
+   * amount where a zone changes; the bar's tip in the colour of where it
+   * ends.
+   */
+  rule: { left: string; w: string; level: HeatLevel }[];
+  ticks: { at: string; label: string }[];
+  tip: string | null;
 };
 
 const at = (v: number, scale: number) =>
@@ -185,7 +195,28 @@ export function heatStrip(
   planned = 0,
   mean?: number,
 ): HeatStrip {
+  const label = (x: number) => F.n(x, x >= 10 ? 0 : 1);
+  const level = heatLevel(v + planned, zones);
   return {
+    rule: zones.flatMap((z, i) => {
+      const from = Math.min(z.from, scale);
+      const end = Math.min(scale, zones[i + 1]?.from ?? scale);
+      return end > from
+        ? [{ left: at(from, scale), w: at(end - from, scale), level: z.level }]
+        : [];
+    }),
+    // A label too close to the one before keeps its tick, not its words (short bars).
+    ticks: zones
+      .slice(1)
+      .filter((z) => z.from > 0 && z.from < scale)
+      .reduce<{ at: string; label: string; x: number }[]>((out, z) => {
+        const x = (z.from / scale) * 100;
+        const last = [...out].reverse().find((t) => t.label !== "");
+        const room = last === undefined || x - last.x >= 12;
+        return [...out, { at: at(z.from, scale), label: room ? label(z.from) : "", x }];
+      }, [])
+      .map(({ at: a, label: l }) => ({ at: a, label: l })),
+    tip: level ? HEAT_COLOR[level] : null,
     zones: zones.map((z, i) => {
       const end = Math.min(scale, zones[i + 1]?.from ?? scale);
       return {

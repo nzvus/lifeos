@@ -24,11 +24,13 @@ import {
   readDayTargets,
   readMicroTargets,
 } from "@/core/day";
-import { addDays, instantAt, logicalDay } from "@/core/engines/time";
+import { addDays, instantAt, localParts, logicalDay } from "@/core/engines/time";
 import { readSettings } from "@/core/account/settings";
 import { readPlace } from "@/core/account/place";
-import { airWords } from "@/core/engines/environment";
 import { weatherChips } from "@/app/_server/weather";
+import { WeatherCard } from "@/features/day/WeatherCard";
+import { mealGroups } from "@/features/day/meal-groups";
+import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
 import { ensureWeekTargets, mondayOf } from "@/core/energy";
 import {
@@ -49,7 +51,13 @@ import { changeDayModel, saveDayAsModel, skipStep } from "./plan-actions";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
-import { dayScore, presentWeek, weekScores, weightOn } from "@/features/day/day-score";
+import {
+  dayScore,
+  presentWeek,
+  weekBars,
+  weekScores,
+  weightOn,
+} from "@/features/day/day-score";
 import {
   mealScore,
   nightOf,
@@ -57,6 +65,7 @@ import {
   waterBox,
   weighScore,
   type ScoreContext,
+  mealWhen,
 } from "@/features/day/score";
 import { OpenBox } from "@/features/day/OpenBox";
 import {
@@ -178,6 +187,7 @@ export default async function OggiPage({
     nights,
     sex: profile?.sex ?? null,
     now: nowMinute,
+    weights: known.weights,
   };
   // Creatine's days of 28 only when the day has some: one narrow read.
   const creatine = items.some((i) => compoundsOf(i, kinds).creatine > 0)
@@ -198,13 +208,18 @@ export default async function OggiPage({
   // The day's model's meal blocks: each meal's bars against its block, the block's fit in its score.
   const model = plans.get(date)?.model ?? null;
   // Always read: «Cambia la giornata» offers the models (three narrow queries); the habits.
+  // The hour the weather card speaks of: now today, midday on another day.
+  const wxHour =
+    date === today ? Math.floor(localParts(now, clock.timeZone).minute / 60) : 12;
   const [book, habits, weather] = await Promise.all([
     readModelBook(db, owner),
     date >= today ? readHabits(db, owner) : [],
     // The weather and the air of the day where the person lives (E11), when a city is set.
     readPlace(db, owner).then((p) =>
       p
-        ? weatherChips(p, date, today, clock.timeZone).then((w) => (w ? { p, w } : null))
+        ? weatherChips(p, date, today, clock.timeZone, wxHour).then((w) =>
+            w ? { p, w } : null,
+          )
         : null,
     ),
   ]);
@@ -222,7 +237,15 @@ export default async function OggiPage({
     return {
       ...withCompounds(present(i), i, ctx),
       ...withScore(
-        mealScore(i, targets, kinds, micros, fits.get(i.subcategory ?? "") ?? null) ??
+        mealScore(
+          i,
+          targets,
+          kinds,
+          micros,
+          fits.get(i.subcategory ?? "") ?? null,
+          mealWhen(i, items, weightOn(series, date)),
+          known.weights,
+        ) ??
           weighScore(i, items, sctx) ??
           sleepScore(i, items, sctx),
       ),
@@ -235,21 +258,50 @@ export default async function OggiPage({
   const night = nightOf(items);
   const nightScore = night ? (sleepScore(night, items, sctx)?.value ?? null) : null;
   const score = dayScore({
+    weights: known.weights,
     day,
     nutrients: whole?.nutrients ?? null,
     night: nightScore,
     now: nowMinute,
   });
-  const scores = weekScores({
+  const weekInput = {
     days,
     present: boxes,
     ctx: sctx,
     today,
     nowMinute: date === today ? nowMinute : dayMinute(now, today, clock),
-  });
+  };
+  const scores = weekScores(weekInput);
+  const bars = weekBars(weekInput);
   // Water is one box in the timeline (WaterRow): its drinks are not rows of their own.
   const notWater = (i: (typeof items)[number]) => i.kind.key !== "water";
-  const rows = day.timed.filter(notWater).map((i) => ({ ...row(i), minute: i.minute! }));
+  const timedRows = day.timed
+    .filter(notWater)
+    .map((i) => ({ ...row(i), minute: i.minute! }));
+  // Meals of one role together (Cena ×5 → one «Cena» that opens on its entries).
+  const groups = mealGroups(
+    day.timed.filter(notWater),
+    (i) => timedRows.find((r) => r.id === i.id)?.title ?? "",
+  );
+  const grouped = new Set(groups.flatMap((g) => g.items.map((i) => i.id)));
+  const groupRows = groups.map((g) => {
+    const kids = timedRows.filter((r) => g.items.some((i) => i.id === r.id));
+    const { href: _href, hrefLabel: _label, ...whole } = row(g.merged);
+    const what = kids
+      .map((k) => (k.meta ?? "").split(" · ")[0])
+      .filter(Boolean)
+      .join(", ");
+    return {
+      ...whole,
+      id: g.merged.id,
+      title: MEAL_ROLE_WORDS[g.role] ?? whole.title,
+      meta: kids.length + " voci" + (what ? " · " + what : ""),
+      minute: g.merged.minute!,
+      group: kids,
+      addHref: `/aggiungi/pasto?giorno=${date}&ruolo=${g.role}`,
+    };
+  });
+  const rows = [...timedRows.filter((r) => !grouped.has(r.id)), ...groupRows];
   const untimed = day.untimed.filter(notWater).map(row);
   const drinks = items.filter((i) => i.kind.key === "water" && i.status === "done");
   const lastDrink = Math.max(-1, ...drinks.map((i) => i.minute ?? -1));
@@ -323,46 +375,15 @@ export default async function OggiPage({
         }
       />
       <section className="k-block g3">
-        <DateNav day={date} today={today} hrefBase="/oggi/" scores={scores} tags={tags} />
-        {weather && (
-          <div className="k-chips" aria-label="Il tempo">
-            {weather.w.maxC !== null && weather.w.minC !== null && (
-              <span className="k-pill">
-                <Glyph of={{ fam: "env", kind: "temp" }} size="xs" />
-                {F.num(weather.w.maxC, "°C") + " · " + F.num(weather.w.minC, "°C")}
-              </span>
-            )}
-            {weather.w.humidity !== null && (
-              <span className="k-pill">
-                <Glyph of={{ fam: "env", kind: "humidity" }} size="xs" />
-                {F.num(weather.w.humidity, "%")} umidità
-              </span>
-            )}
-            {weather.w.aqi !== null && (
-              <span
-                className="k-pill"
-                style={
-                  weather.w.aqi > 60
-                    ? { color: F.tone("warn"), borderColor: F.tone("warn") }
-                    : undefined
-                }
-              >
-                <Glyph of={{ fam: "env", kind: "air" }} size="xs" />
-                {airWords(weather.w.aqi)}
-              </span>
-            )}
-            {weather.w.daylightH !== null && (
-              <span className="k-pill">
-                <Glyph of={{ fam: "env", kind: "light" }} size="xs" />
-                {F.hm(weather.w.daylightH * 60)} di luce
-              </span>
-            )}
-            <span className="k-pill k-muted">
-              <Glyph of={{ fam: "env", kind: "place" }} size="xs" />
-              {weather.p.name}
-            </span>
-          </div>
-        )}
+        <DateNav
+          day={date}
+          today={today}
+          hrefBase="/oggi/"
+          scores={scores}
+          tags={tags}
+          bars={bars}
+        />
+        {weather && <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />}
       </section>
       {whole && (
         <section className="k-block g3" aria-label="Il giorno">

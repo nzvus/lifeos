@@ -25,6 +25,7 @@ import {
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
 import { DEFAULT_ROLE_BOUNDS, type RoleBounds, type UserKindRow } from "../kinds";
+import { weightsOf, type WeightBook } from "../account/weights";
 
 /** A day's rows leave out their owner: it is the reader, and its id on every row was transfer. */
 type Own<T> = Omit<T, "userId">;
@@ -84,7 +85,7 @@ export function roleBoundsOf(prefs: Record<string, unknown>): RoleBounds {
 export async function readClock(
   db: Db,
   owner: Owner,
-): Promise<{ clock: DayClock; roleBounds: RoleBounds }> {
+): Promise<{ clock: DayClock; roleBounds: RoleBounds; weights: WeightBook }> {
   const [set] = await db
     .select({
       timeZone: settings.timezone,
@@ -96,6 +97,8 @@ export async function readClock(
   return {
     clock: set ? { timeZone: set.timeZone, boundaryMin: set.boundaryMin } : DEFAULT_CLOCK,
     roleBounds: roleBoundsOf(set?.prefs ?? {}),
+    // The person's weights for the scores (V-16), read with the rest of prefs.
+    weights: weightsOf(set?.prefs ?? {}),
   };
 }
 

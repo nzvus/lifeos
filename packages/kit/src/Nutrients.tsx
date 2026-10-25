@@ -18,21 +18,32 @@ import {
 } from "./nutrient-rows";
 
 /**
- * A number's zones as a thin band along the bottom of its own bar
- * (`.zoned`): the bar still says how much (eaten, then planned hatched),
- * the band under the same edge says how good each stretch of it is.
+ * A number's zones as a ruler under its own bar (`.zoned`): the bar still
+ * says how much (its kinds, then the planned part hatched), its tip takes
+ * the colour of the zone it ends in, and the ruler shows every zone — the
+ * right one green, the near ones yellow — with the amount at each change.
  */
 function ZoneBand({ strip }: { strip: HeatStrip }) {
   return (
-    <span className="k-zband" aria-hidden="true">
-      {strip.zones.map((z, i) => (
+    <>
+      {strip.tip && (
         <span
-          key={i}
-          className={z.danger ? "danger" : undefined}
-          style={{ width: z.w, background: z.c }}
+          className="k-ztip"
+          aria-hidden="true"
+          style={{ left: strip.to ?? strip.at, background: strip.tip }}
         />
-      ))}
-    </span>
+      )}
+      <span className="k-zrule" aria-hidden="true">
+        {strip.rule.map((r, i) => (
+          <span key={i} className={"z " + r.level} style={{ left: r.left, width: r.w }} />
+        ))}
+        {strip.ticks.map((t, i) => (
+          <span key={"t" + i} className="tk" style={{ left: t.at }}>
+            {t.label && <span>{t.label}</span>}
+          </span>
+        ))}
+      </span>
+    </>
   );
 }
 
@@ -63,9 +74,10 @@ export function Nutrients({ data }: { data: NutrientsData }) {
       )}
       {foods.length > 1 && (
         <div className="k-chips" aria-label="Cibi: tocca per evidenziarne il contributo">
-          {foods.map((f) => (
+          {foods.map((f, n) => (
             <button
-              key={f.key}
+              // The same food can come twice (a role's meals together): the key keeps its place.
+              key={f.key + ":" + n}
               type="button"
               className="k-chip k-nfood"
               aria-pressed={f.pressed}
@@ -162,9 +174,9 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                     {m.sources.length > 0 && (
                       <>
                         <span className="k-cap">da dove</span>
-                        {m.sources.map((s) => (
+                        {m.sources.map((s, n) => (
                           <div
-                            key={s.name}
+                            key={s.name + ":" + n}
                             className="k-src"
                             style={{ opacity: s.faint ? 0.6 : s.dim ? 0.3 : 1 }}
                           >
