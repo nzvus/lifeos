@@ -35,15 +35,13 @@ describe("reading the meals for «di solito»", () => {
         startAt: new Date("2026-10-20T06:15:00Z"),
       })
       .returning({ id: s.entries.id });
-    await db
-      .insert(s.entries)
-      .values({
-        userId: a.id,
-        kind: "meal",
-        day: "2026-10-20",
-        status: "planned",
-        startAt: new Date("2026-10-20T10:00:00Z"),
-      });
+    await db.insert(s.entries).values({
+      userId: a.id,
+      kind: "meal",
+      day: "2026-10-20",
+      status: "planned",
+      startAt: new Date("2026-10-20T10:00:00Z"),
+    });
     await db.insert(s.entryLines).values([
       {
         userId: a.id,
