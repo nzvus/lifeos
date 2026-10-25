@@ -8,6 +8,7 @@ import { kindRegistry } from "@/core/kinds";
 import {
   buildUserKind,
   createUserKind,
+  renameUserKind,
   setUserKindArchived,
   takenKindKeys,
   type UserKindError,
@@ -66,5 +67,16 @@ export async function createTracker(
 export async function archiveTracker(id: string, archived: boolean): Promise<void> {
   if (!UUID.test(id)) return;
   await setUserKindArchived(await getDb(), await requireOwner(), id, archived);
+  revalidatePath("/", "layout");
+}
+
+export async function renameTracker(id: string, data: FormData): Promise<void> {
+  if (!UUID.test(id)) return;
+  await renameUserKind(
+    await getDb(),
+    await requireOwner(),
+    id,
+    String(data.get("name") ?? ""),
+  );
   revalidatePath("/", "layout");
 }

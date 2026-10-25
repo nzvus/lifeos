@@ -145,7 +145,11 @@ export default async function TrackerPage({
         title={view.title}
         context={view.context}
         back={{ label: "Andamento", href: "/andamento" }}
-        action={{ label: "Obiettivi", href: "/andamento/obiettivi" }}
+        action={
+          own
+            ? { label: "Il tracker", href: "/impostazioni/tipi" }
+            : { label: "Obiettivi", href: "/andamento/obiettivi" }
+        }
         of={view.of}
       />
       <section className={"k-section g3 fam-" + view.head.fam} aria-label="Il periodo">

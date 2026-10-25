@@ -252,3 +252,20 @@ export async function takenKindKeys(db: Db, owner: Owner): Promise<Set<string>> 
     .where(ownedBy(kinds, owner));
   return new Set(rows.map((r) => r.key));
 }
+
+/** Renames one of the owner's kinds (its key stays: entries keep pointing at it). */
+export async function renameUserKind(
+  db: Db,
+  owner: Owner,
+  id: string,
+  name: string,
+): Promise<boolean> {
+  const n = name.trim().replace(/\s+/g, " ");
+  if (n.length < 2 || n.length > 40) return false;
+  const done = await db
+    .update(kinds)
+    .set({ name: n })
+    .where(and(ownedBy(kinds, owner), eq(kinds.id, id)))
+    .returning({ id: kinds.id });
+  return done.length > 0;
+}

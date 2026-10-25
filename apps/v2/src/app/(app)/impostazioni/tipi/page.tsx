@@ -9,7 +9,7 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { listUserKinds } from "@/core/kinds/user";
 import { TrackerForm } from "@/features/account/TrackerForm";
-import { archiveTracker, createTracker } from "./actions";
+import { archiveTracker, createTracker, renameTracker } from "./actions";
 
 export default async function TrackersPage({
   searchParams,
@@ -44,30 +44,46 @@ export default async function TrackersPage({
           <p className="k-help">Ancora nessuno: crea il primo qui sotto.</p>
         ) : (
           mine.map((k) => (
-            <form key={k.id} action={archiveTracker.bind(null, k.id, !k.archived)}>
-              <Box
-                density="row"
-                rail={false}
-                entry={{
-                  fam: k.family,
-                  of: { kind: k.key },
-                  title: k.name,
-                  faded: k.archived,
-                  href: "/andamento/" + k.key,
-                  hrefLabel: "Andamento di " + k.name,
-                  meta:
-                    (k.shape === "interval" ? "con una durata" : "un momento") +
-                    " · " +
-                    (k.fields === 0
-                      ? "un segno"
-                      : k.fields + (k.fields === 1 ? " campo" : " campi")) +
-                    (k.archived ? " · archiviato" : ""),
-                }}
-              />
-              <button type="submit" className="k-btn link">
-                {k.archived ? "Riattiva" : "Archivia"}
-              </button>
-            </form>
+            <div key={k.id} className="k-stack g1">
+              <form action={archiveTracker.bind(null, k.id, !k.archived)}>
+                <Box
+                  density="row"
+                  rail={false}
+                  entry={{
+                    fam: k.family,
+                    of: { kind: k.key },
+                    title: k.name,
+                    faded: k.archived,
+                    href: "/andamento/" + k.key,
+                    hrefLabel: "Andamento di " + k.name,
+                    meta:
+                      (k.shape === "interval" ? "con una durata" : "un momento") +
+                      " · " +
+                      (k.fields === 0
+                        ? "un segno"
+                        : k.fields + (k.fields === 1 ? " campo" : " campi")) +
+                      (k.archived ? " · archiviato" : ""),
+                  }}
+                />
+                <div className="k-line wrap g2">
+                  <button type="submit" className="k-btn link">
+                    {k.archived ? "Riattiva" : "Archivia"}
+                  </button>
+                </div>
+              </form>
+              <form action={renameTracker.bind(null, k.id)} className="k-line g2">
+                <input
+                  className="k-text"
+                  style={{ flex: 1, minWidth: 0 }}
+                  name="name"
+                  defaultValue={k.name}
+                  aria-label={"Nuovo nome per " + k.name}
+                />
+                <button type="submit" className="k-btn secondary">
+                  Rinomina
+                </button>
+              </form>
+            </div>
           ))
         )}
       </section>
