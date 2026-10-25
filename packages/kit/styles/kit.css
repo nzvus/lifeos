@@ -549,14 +549,17 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-choice a{display:flex;align-items:center;justify-content:center;border-radius:var(--r-mark);color:var(--muted);font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px;text-decoration:none}
 .k-choice a[aria-current="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 /* zones (dossiers/ranges.md §6): a thin band along the bottom of the number's own bar, glued to it */
-.k-track.zoned,.k-bar.zoned{position:relative;box-sizing:border-box;padding-bottom:4px}
-.k-track.zoned{height:calc(var(--segs) + 4px)}
-.k-bar.zoned{height:calc(var(--track) + 4px)}
-.k-bar.zoned>i{bottom:4px}
-.k-bar>i.p{background:repeating-linear-gradient(135deg,currentColor 0 2px,transparent 2px 5px);color:var(--muted);opacity:.6}
-.k-zband{position:absolute;left:0;right:0;bottom:0;height:3px;display:flex}
-.k-zband>span{height:100%}
-.k-zband>.danger{background-image:repeating-linear-gradient(135deg,transparent 0 2px,color-mix(in srgb,var(--sheet) 55%,transparent) 2px 4px)}
+.k-track.zoned,.k-bar.zoned{position:relative;overflow:visible;margin-bottom:17px}
+/* the ruler: every zone a stretch of one thin line, the amount at each change (ranges.md, 2026-10-25) */
+.k-zrule{position:absolute;left:0;right:0;top:calc(100% + 3px);height:14px;pointer-events:none}
+.k-zrule::before{content:"";position:absolute;left:0;right:0;top:2px;height:1px;background:var(--hairline)}
+.k-zrule>.z{position:absolute;top:2px;height:1px}
+.k-zrule>.z.good{top:1px;height:3px;border-radius:2px;background:var(--heat-good)}
+.k-zrule>.z.fair{top:1.5px;height:2px;border-radius:1px;background:color-mix(in srgb,var(--heat-fair) 70%,transparent)}
+.k-zrule>.tk{position:absolute;top:0;width:1px;height:6px;background:var(--muted)}
+.k-zrule>.tk>span{position:absolute;top:6px;left:0;transform:translateX(-50%);font-family:var(--font-body);font-size:10px;line-height:11px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* the bar's tip: the colour of the zone it ends in */
+.k-ztip{position:absolute;top:-1px;bottom:-1px;width:4px;border-radius:2px;transform:translateX(-4px);box-shadow:0 0 0 1.5px var(--sheet);z-index:1}
 .k-bar.zoned>b{z-index:1}
 .k-heatkey{display:flex;align-items:center;gap:6px}
 .k-heatkey>b{display:inline-block;width:var(--tick);height:12px;background:var(--ink)}

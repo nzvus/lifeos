@@ -18,21 +18,32 @@ import {
 } from "./nutrient-rows";
 
 /**
- * A number's zones as a thin band along the bottom of its own bar
- * (`.zoned`): the bar still says how much (eaten, then planned hatched),
- * the band under the same edge says how good each stretch of it is.
+ * A number's zones as a ruler under its own bar (`.zoned`): the bar still
+ * says how much (its kinds, then the planned part hatched), its tip takes
+ * the colour of the zone it ends in, and the ruler shows every zone — the
+ * right one green, the near ones yellow — with the amount at each change.
  */
 function ZoneBand({ strip }: { strip: HeatStrip }) {
   return (
-    <span className="k-zband" aria-hidden="true">
-      {strip.zones.map((z, i) => (
+    <>
+      {strip.tip && (
         <span
-          key={i}
-          className={z.danger ? "danger" : undefined}
-          style={{ width: z.w, background: z.c }}
+          className="k-ztip"
+          aria-hidden="true"
+          style={{ left: strip.to ?? strip.at, background: strip.tip }}
         />
-      ))}
-    </span>
+      )}
+      <span className="k-zrule" aria-hidden="true">
+        {strip.rule.map((r, i) => (
+          <span key={i} className={"z " + r.level} style={{ left: r.left, width: r.w }} />
+        ))}
+        {strip.ticks.map((t, i) => (
+          <span key={"t" + i} className="tk" style={{ left: t.at }}>
+            {t.label && <span>{t.label}</span>}
+          </span>
+        ))}
+      </span>
+    </>
   );
 }
 

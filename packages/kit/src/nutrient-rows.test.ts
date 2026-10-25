@@ -289,3 +289,34 @@ describe("the heat bar (dossiers/ranges.md §6)", () => {
     });
   });
 });
+
+describe("the ruler under a judged bar (2026-10-25)", () => {
+  it("every zone a stretch, a tick at each change, close labels dropped, the tip's colour", async () => {
+    const { heatStrip } = await import("./nutrient-rows");
+    const s = heatStrip(
+      [
+        { from: 0, level: "bad" },
+        { from: 63, level: "fair" },
+        { from: 122, level: "good" },
+        { from: 168, level: "fair" },
+        { from: 200, level: "bad" },
+      ],
+      208.75,
+      146,
+    );
+    expect(s.rule.map((r) => r.level)).toEqual(["bad", "fair", "good", "fair", "bad"]);
+    expect(s.ticks.map((t) => t.label)).toEqual(["63", "122", "168", "200"]);
+    expect(
+      heatStrip(
+        [
+          { from: 0, level: "good" },
+          { from: 25, level: "fair" },
+          { from: 29, level: "bad" },
+        ],
+        100,
+        10,
+      ).ticks.map((t) => t.label),
+    ).toEqual(["25", ""]);
+    expect(s.tip).toBe("var(--heat-good)");
+  });
+});
