@@ -3,7 +3,7 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
-import { createMovement, readCategories, readMovements } from "./index";
+import { createMovement, readCategories, readMovements, updateMovement } from "./index";
 
 describe("the money repository", () => {
   let db: Db;
@@ -51,5 +51,19 @@ describe("the money repository", () => {
       { day: "2026-10-04", cents: -2300, categoryId: eat, shop: "TAR", note: "Indiano" },
     ]);
     expect(await readMovements(db, b, "2026-10-01", "2026-10-31")).toEqual([]);
+    const [one] = await readMovements(db, a, "2026-10-01", "2026-10-31");
+    const change = {
+      startAt: null,
+      cents: 2500,
+      categoryId: null,
+      shop: "",
+      method: "cash",
+      note: "Rimborso",
+    };
+    expect(await updateMovement(db, b, one!.id, change)).toBe(false);
+    expect(await updateMovement(db, a, one!.id, change)).toBe(true);
+    expect(await readMovements(db, a, "2026-10-01", "2026-10-31")).toMatchObject([
+      { cents: 2500, categoryId: null, method: "cash", note: "Rimborso" },
+    ]);
   });
 });

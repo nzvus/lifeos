@@ -151,6 +151,8 @@ export default async function MoneyPage({
                   ]
                     .filter(Boolean)
                     .join(" · "),
+                  href: "/voce/" + x.id,
+                  hrefLabel: "Modifica il movimento",
                 }}
               />
             ))}

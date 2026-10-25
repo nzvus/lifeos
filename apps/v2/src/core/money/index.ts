@@ -146,3 +146,37 @@ export async function readMovements(
       (a.startAt?.getTime() ?? 0) - (b.startAt?.getTime() ?? 0),
   );
 }
+
+/** Changes a movement (its entry's day stays); false when it is not the owner's live movement. */
+export async function updateMovement(
+  db: Db,
+  owner: Owner,
+  id: string,
+  m: Omit<Movement, "id" | "day">,
+): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    const done = await tx
+      .update(entries)
+      .set({ startAt: m.startAt, note: m.note })
+      .where(
+        and(
+          ownedBy(entries, owner),
+          eq(entries.id, id),
+          eq(entries.kind, "movement"),
+          isNull(entries.deletedAt),
+        ),
+      )
+      .returning({ id: entries.id });
+    if (done.length === 0) return false;
+    await tx
+      .update(moneyMovements)
+      .set({
+        amountCents: m.cents,
+        categoryId: m.categoryId,
+        shop: m.shop,
+        method: m.method,
+      })
+      .where(and(ownedBy(moneyMovements, owner), eq(moneyMovements.entryId, id)));
+    return true;
+  });
+}

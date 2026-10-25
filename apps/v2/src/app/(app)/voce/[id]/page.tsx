@@ -24,6 +24,10 @@ import { foodIds, presentDay } from "@/features/day/nutrients";
 import { Composer } from "@/features/food/Composer";
 import { addContext } from "../../aggiungi/kinds";
 import { updateMeal, updateSheet } from "./actions";
+import { changeMovement, removeMovement } from "../../aggiungi/spesa/actions";
+import { readCategories } from "@/core/money";
+import { MovementForm } from "@/features/money/MovementForm";
+import { categoryOptions } from "@/features/money/options";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -106,6 +110,29 @@ export default async function EntryEditPage({
     );
   }
 
+  // A movement opens its own form (V-11), with what it holds and «Elimina».
+  if (item.kind.key === "movement" && item.money) {
+    const m = item.money;
+    return (
+      <MovementForm
+        categories={categoryOptions(await readCategories(db, owner))}
+        initial={{
+          day: item.day,
+          direction: m.amountCents > 0 ? "in" : "out",
+          amount: F.input(Math.abs(m.amountCents) / 100, 2),
+          category: m.categoryId ?? "",
+          shop: m.shop,
+          note: item.note,
+          method: m.method === "cash" ? "cash" : "card",
+          start: initial["start"] ?? "",
+        }}
+        backHref={dayHref}
+        backLabel={dayLabel}
+        action={changeMovement.bind(null, id)}
+        remove={removeMovement.bind(null, id, item.day)}
+      />
+    );
+  }
   const kind = ctx.kinds.find((k) => k.key === item.kind.key);
   if (!kind) notFound();
   return (

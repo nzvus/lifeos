@@ -18,9 +18,14 @@ export function MovementForm({
   categories,
   initial,
   backHref,
+  backLabel = "Aggiungi",
   action,
+  remove,
 }: {
   categories: CategoryOption[];
+  backLabel?: string;
+  /** An existing movement: «Elimina» (to the trash). */
+  remove?: () => Promise<void>;
   initial: Record<string, string>;
   backHref: string;
   action: (s: MovementState, d: FormData) => Promise<MovementState>;
@@ -38,7 +43,7 @@ export function MovementForm({
       <PageHeader
         title="Spesa"
         context="un movimento di soldi"
-        back={{ label: "Aggiungi", href: backHref }}
+        back={{ label: backLabel, href: backHref }}
         of={{ fam: "money" }}
       />
       <input type="hidden" name="day" value={v["day"] ?? ""} />
@@ -125,6 +130,11 @@ export function MovementForm({
           <p className="k-help" role="alert">
             {e["form"]}
           </p>
+        )}
+        {remove && (
+          <button type="submit" formAction={remove} className="k-btn secondary danger">
+            Elimina
+          </button>
         )}
       </section>
       <div className="k-pagefoot">
