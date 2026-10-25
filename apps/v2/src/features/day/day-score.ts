@@ -87,14 +87,21 @@ export function proteinSpreadPart(
   items: readonly DayItem[],
   weightKg: number | null,
 ): number | null {
-  const meals = items.filter((i) => i.kind.key === "meal" && i.status === "done");
-  if (meals.length < 2) return null;
-  const need = weightKg ? 0.3 * weightKg : 25;
-  const enough = meals.filter((m) => {
+  // A role's entries (four of «Cena») are one meal, as Oggi groups them.
+  const meals = new Map<string, number>();
+  for (const m of items) {
+    if (m.kind.key !== "meal" || m.status !== "done") continue;
     const servings =
       typeof m.values["servings"] === "string" ? m.values["servings"] : null;
-    return Number(lineTotals(m.lines, servings)["protein"] ?? 0) >= need;
-  }).length;
+    const key = m.subcategory ?? m.id;
+    meals.set(
+      key,
+      (meals.get(key) ?? 0) + Number(lineTotals(m.lines, servings)["protein"] ?? 0),
+    );
+  }
+  if (meals.size < 2) return null;
+  const need = weightKg ? 0.3 * weightKg : 25;
+  const enough = [...meals.values()].filter((g) => g >= need).length;
   return Math.min(1, enough / 3);
 }
 
@@ -199,6 +206,8 @@ export function dayScores(p: {
   ctx: ScoreContext;
   today: IsoDate;
   nowMinute: number | null;
+  /** Every weigh-in, for each day's reference weight (else the context's). */
+  weighings?: readonly { day: IsoDate; kg: number }[];
 }): Map<IsoDate, NonNullable<BoxEntry["score"]>> {
   const out = new Map<IsoDate, NonNullable<BoxEntry["score"]>>();
   for (const d of p.days) {
@@ -212,6 +221,7 @@ export function dayScores(p: {
       nutrients: p.present.get(d.day)?.nutrients ?? null,
       night: night ? (sleepScore(night, items, c)?.value ?? null) : null,
       now,
+      weightKg: weightOn(p.weighings ?? p.ctx.weighings ?? [], d.day),
       ...(p.ctx.weights ? { weights: p.ctx.weights } : {}),
     });
     if (s && s.value !== null) out.set(d.day, s);

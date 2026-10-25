@@ -2,7 +2,8 @@
  * features/day/meal-groups.ts — Oggi's meals of one role together (the
  * developer's pick, 2026-10-25): two or more meals named by the same role
  * (four entries of «Cena») become one group, read as one meal — its lines
- * merged, each scaled by its servings — so its bars, its panel and its
+ * merged, each scaled by its servings (only the eaten ones while others
+ * are still planned) — so its bars, its panel and its
  * score are the whole dinner's; its entries stay rows of their own inside.
  * Coffee, creatine and other named things stay out (their title is not the
  * role's). Pure.
@@ -32,6 +33,9 @@ export function mealGroups(
     .map(([role, xs]) => {
       const sorted = [...xs].sort((a, b) => (a.minute ?? 9999) - (b.minute ?? 9999));
       const first = sorted[0]!;
+      // Some eaten, some still planned: the group is what is eaten; the planned rows wait inside.
+      const eaten = sorted.filter((i) => i.status !== "planned");
+      const counted = eaten.length ? eaten : sorted;
       const { servings: _s, ...values } = first.values;
       return {
         role,
@@ -39,10 +43,10 @@ export function mealGroups(
         merged: {
           ...first,
           id: "group:" + role,
-          status: sorted.every((i) => i.status === "planned") ? "planned" : "done",
+          status: eaten.length ? "done" : "planned",
           values,
           item: null,
-          lines: sorted.flatMap((i) => {
+          lines: counted.flatMap((i) => {
             const times =
               Number(
                 typeof i.values["servings"] === "string" ? i.values["servings"] : "1",

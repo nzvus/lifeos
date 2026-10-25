@@ -193,6 +193,11 @@ export function Gym({
     };
   }, []);
 
+  // Another exercise: a correction left open belongs to the one being left.
+  const goTo = (i: number) => {
+    setFix(null);
+    setAt(i);
+  };
   const x = exercises[Math.min(at, exercises.length - 1)];
   const others = exercises.map((e, i) => ({ e, i })).filter(({ i }) => i !== at);
   const found = useMemo(() => {
@@ -214,7 +219,10 @@ export function Gym({
     const startedAt = setStart.current;
     setStart.current = null;
     try {
-      const err = await actions.tick(x.entryId, x.done.length, input, {
+      // A corrected set goes back to its own place; a new one after the last.
+      const position =
+        fix?.position ?? x.done.reduce((m, d) => Math.max(m, d.position + 1), 0);
+      const err = await actions.tick(x.entryId, position, input, {
         startedAt,
         assumed: opts.assumed === true,
       });
@@ -435,7 +443,7 @@ export function Gym({
               }
               aria-label={e.name + (i === at ? ", adesso" : "")}
               aria-current={i === at ? "step" : undefined}
-              onClick={() => setAt(i)}
+              onClick={() => goTo(i)}
             />
           ))}
         </nav>
@@ -660,7 +668,7 @@ export function Gym({
             key={e.entryId}
             type="button"
             className="k-pick"
-            onClick={() => setAt(i)}
+            onClick={() => goTo(i)}
           >
             <Box
               density="row"
@@ -692,7 +700,7 @@ export function Gym({
             className="k-pick"
             onClick={async () => {
               setQuery("");
-              if (await actions.add(session.id, c.id)) setAt(exercises.length);
+              if (await actions.add(session.id, c.id)) goTo(exercises.length);
             }}
           >
             <Box
