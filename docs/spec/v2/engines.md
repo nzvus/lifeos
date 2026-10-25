@@ -351,6 +351,11 @@ Pairs of daily (or per-session) metrics, after n ≥ 21 paired days:
 - lagged pairs (today's caffeine after 14:00 → tonight's sleep);
 - "may be chance" when the interval crosses 0;
 - never advice.
+- **Built 2026-10-25:** Andamento → «Legami» (`/andamento/legami`, the last
+  90 days, read only when opened): six default pairs (sleep → energy and
+  mood; steps, training and stress → the next night's sleep; training →
+  the next day's energy), each in words with ρ, n and its interval, or how
+  many paired days it has of the 21 it needs (`features/progress/links`).
   Default pairs come from the kinds' relations; the user can add their own
   in Review.
 
