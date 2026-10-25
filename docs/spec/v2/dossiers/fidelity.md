@@ -13,27 +13,33 @@ pills, the open box). The kit has the CSS for most of it; the components
 were only ported for the parts a first slice needed.
 
 ## Cross-cutting (every screen)
-| Board | v2 before | Fix |
-|---|---|---|
-| Each food, exercise, meal with its own drawing (Glyph resolver: group, dish, pattern, equipment) | one generic icon per family (fork, dumbbell) | **done here**: the data reaches the rows (composer, library, gym) |
-| Meal boxes named by role (Colazione, Cena), contents underneath | raw food names in capitals | **done here** (drinks and supplements keep their name) |
-| L0: four thin macro bars in each meal box, kinds shaded | none | **done here** (`NutrientsL0`; against the day's targets until day templates give slot targets) |
-| Score skyline in the box background, the box opens on its score parts and L1 | boxes never open, no score | **done**: a meal opens on its L1; the meal score's skyline and parts (meal-score.md §8); sessions and foods not scored in boxes yet. **Every box opens** (2026-10-24) on its details: fields as tiles, a session's exercises with their sets, a meal's foods, times, provenance; weigh-in, sleep and water scored; water one box inside the timeline with +250/+500 (2026-10-24); **a meal opens on its window (L2)** (2026-10-24): its foods as chips that highlight their part in every bar and in «da dove», each kind's foods, notes (leucine, glycaemic load and free sugars, omega-3, inulin), its micros next to the day's need |
-| Pills that say something (caffeine left at bedtime, «+49 min», «P 19,3 g», sets · tonnage · kcal) | only pre/post-workout tags | sessions' sets · tonnage **done here**; the rest per kind |
-| Planned items hatched with «Fatto», the now line, end-of-day actions | partly (planned style), no now line on past days, no actions | next |
+
+| Board                                                                                             | v2 before                                                    | Fix                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Each food, exercise, meal with its own drawing (Glyph resolver: group, dish, pattern, equipment)  | one generic icon per family (fork, dumbbell)                 | **done here**: the data reaches the rows (composer, library, gym)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Meal boxes named by role (Colazione, Cena), contents underneath                                   | raw food names in capitals                                   | **done here** (drinks and supplements keep their name)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| L0: four thin macro bars in each meal box, kinds shaded                                           | none                                                         | **done here** (`NutrientsL0`; against the day's targets until day templates give slot targets)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Score skyline in the box background, the box opens on its score parts and L1                      | boxes never open, no score                                   | **done**: a meal opens on its L1; the meal score's skyline and parts (meal-score.md §8); sessions and foods not scored in boxes yet. **Every box opens** (2026-10-24) on its details: fields as tiles, a session's exercises with their sets, a meal's foods, times, provenance; weigh-in, sleep and water scored; water one box inside the timeline with +250/+500 (2026-10-24); **a meal opens on its window (L2)** (2026-10-24): its foods as chips that highlight their part in every bar and in «da dove», each kind's foods, notes (leucine, glycaemic load and free sugars, omega-3, inulin), its micros next to the day's need |
+| Pills that say something (caffeine left at bedtime, «+49 min», «P 19,3 g», sets · tonnage · kcal) | only pre/post-workout tags                                   | sessions' sets · tonnage **done here**; the rest per kind                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Planned items hatched with «Fatto», the now line, end-of-day actions                              | partly (planned style), no now line on past days, no actions | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 ## Oggi (Main)
+
 Done 2026-10-24: caffeine as mg with what is left at bedtime, creatine
 as a supplement with its days of 28 (compounds from the catalog;
 ranges.md §6). Done 2026-10-24 (#274): the goal's line under the day
 box, «Togli i previsti (n)» with Undo, «Chiudi la giornata» (ho segnato
 tutto / manca qualcosa, riapri; E4 now reads «manca qualcosa» as partial).
-Missing: day type and cycle in the header («Giornata «Rec» · ciclo PLPRR»),
-context chips (weather, light, place), pantry reminder card, «Salva come
-modello». Depends on: day templates (Piano), drink
+Done 2026-10-25: «Salva come modello» (the day's meals as one block per
+role at its first time with its share of kcal and protein, its sessions
+with their minutes; a role with no energy gives none; then the model's
+editor). Missing: the day type and cycle as the header's action
+(«Giornata «Rec» ▾», now a line under the week), context chips (weather,
+light, place), pantry reminder card. Depends on: day templates (Piano), drink
 and supplement kinds (migration.md), pantry (V-12).
 
 ## Composer (Food)
+
 **Done (s182)**: the header «Pranzo · 13:13» with the day, eaten or planned,
 the saved meal and the kcal so far, and «Cibi»; tabs Ingredienti · Pasti ·
 Stima; each food a box with its drawing, kcal, protein, a stepper and
@@ -44,16 +50,17 @@ window (foods as chips) measured against the block, «Per arrivare al
 blocco» (the protein missing and two ways to close it — a food in the meal
 raised, a usual one dense in protein added — each with what it adds, one
 tap), «Pasti adatti a cena» (saved meals by `blockFit`).
-Missing: saved-vs-now kcal in the header; tabs
-Ingredienti · Pasti · Porzioni · Stima; barcode and camera next to the
-search; ingredient rows with glyph, kcal, inline stepper, «36 g prot. ·
-1,50 € · NOVA 1», L0 ribbon and product chip; «La cena, come sarà» (food
-chips, L1, micros, relations, score); «Pasti adatti alla cena»; «Per
-arrivare al blocco» (what closes the protein gap); servings + «Salva
-prevista» sticky at the bottom. v2 stacks a long generic list, the meal box
-and the day box, with «Quando» last.
+**Done (2026-10-25)**: tabs as the board's underline tabs; the barcode
+next to the search; each ingredient «8 g prot. · NOVA 4», its energy by
+macro as a ribbon, its product as a chip; «come sarà» scored as it is
+built (E7 FOOD, the same function as Oggi's, `features/food/lines-score`;
+fit from the block); «Pasti adatti» before «Per arrivare al blocco»; the
+servings and «Salva» together at the bottom. Missing: saved-vs-now kcal
+in the header, the «Porzioni» tab (batches), the price per line (no
+prices in the data yet), the photo of a label.
 
 ## Gym
+
 **Done (s183)**: «Push · 09:33 · esercizio 2 di 8 · 30 serie · 6.870 kg in
 totale»; Automatica · Manuale as a segmented control; each done set with
 the rest measured before it; «Poi» with each exercise's plan. Still missing
@@ -70,9 +77,12 @@ sets reached — with its skyline and parts, the muscle split as a strip
 and pills from the catalog's muscle groups); the set running hatched
 «Serie n · ora · in corso»; the context as pills under the exercise (the
 last rest against the planned one, sleep, food in 24 h, creatine,
-readiness; short ones in warn). Missing: estimated strength as a pill.
+readiness; short ones in warn). **Done (2026-10-25)**: «forza stimata 40 ·
++2 %» first among the pills (the best e1RM with RIR today against the last
+session's; warn when it fell over 2 %).
 
 ## Andamento (Progress)
+
 **Done (s184)**: the period control (kit RangeNav: ‹ ›, 7 · 30 · 90 giorni ·
 Mese, the month with the period highlighted, each day a link); «Scegli» (a
 custom range) and the day dots (they need the day's E7 score) later.
@@ -84,9 +94,16 @@ skylines), each day's row with its mini skyline. **Done
 7 h —, the weight from the first week to the last), the steps in «Gli
 ambiti» with their numbers and no score (the movement dossier has not
 decided one). Missing: training in «Gli ambiti» (a session's score needs
-its history: on the gym page only, Neon budget), each domain's page.
+its history: on the gym page only, Neon budget). **Done (2026-10-25)**:
+each domain's page (the board Tracker, `/andamento/peso`, `sonno`, `acqua`,
+`passi`, linked from «Gli ambiti»): the period's box with its score, three
+stats, the kit's new Chart (weight: the scale's points, the board's
+smoothed trend, the goal line; sleep, water, steps: bars against 7–9 h,
+the need, the goal), each entry a row with its own score, «Cosa dice di
+te». Missing: the kind's settings on its page, food and training pages.
 
 ## Libreria
+
 **Done here**: the index (one search across the catalogs, the shelves with
 counts and a line, «Aggiungere»), each shelf opening its list. The board's
 Dispensa and Tipi di tracker shelves join when those slices exist.
@@ -96,6 +113,7 @@ exercise), one search across all. v2 opens straight on the foods list with
 tabs and a sort select.
 
 ## Piano, Obiettivi, Impostazioni, Aggiungi
+
 Piano: models, day types and cycles (boards Models, ModelEditor,
 CycleEditor) — built with day-templates b and c (#275). Obiettivi
 (2026-10-24): each goal a row as on the board — its drawing, now → target,
@@ -112,25 +130,40 @@ non trova?» (new food, new exercise). Missing: one search across all, the
 tracker». Impostazioni: compare again.
 
 ## Codice a barre
+
 Done 2026-10-24 (ported from v1): «Nuovo cibo» reads a barcode by camera
 (the browser's BarcodeDetector, else the ponyfill) or typed digits, checks
 its GTIN digit, and fills the form from Open Food Facts (name · brand,
 unit, values per 100, NOVA) to check against the label; the composer and
-Libreria link to it. Missing: a known barcode opening the food it already
-is (barcodes are not stored yet: a product's field), the camera next to
-the composer's search.
+Libreria link to it. A food made from a barcode keeps it (a `barcode`
+value), and scanning it again opens that food. Missing: the camera next
+to the composer's search.
 
 ## Impostazioni
+
 Done 2026-10-24: sections with their drawing and a line of why,
 «Obiettivi di oggi» (kcal and protein, where they come from, a link),
 «Tracker e tipi» (the foods and your own kinds counted), «I tuoi dati»
 (download all, the trash with its count). Missing: CSV per kind, replace
 or merge from a file, invites, language, the weather's city.
 
+## Come valutiamo (Scores)
+
+Done 2026-10-25, read-only: `/andamento/come-valutiamo?modello=` — the
+models as chips (Pasto, Peso, Sonno, Acqua, Sessione, Giorno), what each
+judges, the last weigh-in, night or water of the week as a box and the big
+skyline, each part with its share, its allowed range (green) and the
+default weight on it, the lock on health limits, why, its score now; the
+sources. Linked from Andamento and from each tracker's rows. Missing: the
+sliders (the weights stored as a dated decision: a migration on
+`decisions_kind_ck`, so the developer applies it), the context lines
+(«il contesto che sposta la bilancia»).
+
 ## Proposed order
+
 1. The box (cross-cutting): score skyline + open state + pills, so every
    screen gains at once.
 2. Composer to its board (the screen used most after Oggi).
 3. Gym header, segmented auto/manual, «Poi» plans.
-5. Andamento's Energia and Gli ambiti (needs E3/E7 outputs on the page).
-6. Oggi's header and context once day templates exist.
+4. Andamento's Energia and Gli ambiti (needs E3/E7 outputs on the page).
+5. Oggi's header and context once day templates exist.

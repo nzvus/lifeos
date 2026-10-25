@@ -20,7 +20,7 @@ import { Box, F, Field, PageHeader, type BoxEntry, type State } from "@lifeos/ki
 import type { ProposedSet } from "@/core/training/plan";
 import type { SetInput } from "@/core/training/write";
 import { ExerciseSettings } from "./ExerciseSettings";
-import { restPill, setText, timed, vsProposedText } from "./present";
+import { restPill, setText, strengthPill, timed, vsProposedText } from "./present";
 import { SetForm } from "./SetForm";
 
 export type DoneSet = {
@@ -48,6 +48,8 @@ export type GymExercise = {
   dumbbells: boolean;
   proposed: ProposedSet[];
   last: string;
+  /** The last session's best e1RM of this exercise, for «forza stimata». */
+  lastE1rm: number | null;
   trend: string;
   /** The rest after a working set, and where it comes from in words. */
   restS: number;
@@ -542,6 +544,10 @@ export function Gym({
           {!session.done && (
             <ContextPills
               pills={[
+                ...(() => {
+                  const f = strengthPill(x.done, x.lastE1rm);
+                  return f ? [f] : [];
+                })(),
                 ...(() => {
                   const r = restPill(x.done.at(-1)?.restBeforeS ?? null, x.restS);
                   return r ? [r] : [];

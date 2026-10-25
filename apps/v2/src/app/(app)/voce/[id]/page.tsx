@@ -8,7 +8,7 @@ import { notFound } from "next/navigation";
 import { F } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDay } from "@/core/day";
+import { loadDay, readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { readEntry } from "@/core/entries";
 import {
@@ -44,10 +44,11 @@ export default async function EntryEditPage({
   const initial = formOf(item, ctx.clock.timeZone);
 
   if (item.kind.key === "meal") {
-    const [choices, dayData, targets] = await Promise.all([
+    const [choices, dayData, targets, micros] = await Promise.all([
       readFoodChoices(db, owner, ctx.today),
       loadDay(db, owner, item.day, ctx),
       readTargetsFor(db, owner, item.day, ctx.today, ctx.clock),
+      readMicroTargets(db, owner, item.day),
     ]);
     // The day without this meal, so the preview adds it once.
     const others = {
@@ -88,6 +89,7 @@ export default async function EntryEditPage({
         day={item.day}
         dayLabel={dayLabel}
         dayNutrients={presentDay(others, targets, kinds)?.nutrients ?? null}
+        refs={{ targets, micros }}
         roleBounds={ctx.roleBounds}
         initial={{
           ...initial,

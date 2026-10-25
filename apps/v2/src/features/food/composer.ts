@@ -387,3 +387,22 @@ export function repeatLines(
   }
   return { lines: out, dropped: lines.length - out.length };
 }
+
+/** A food's energy by macro, as the board's ribbon under each ingredient. */
+export function macroStrip(per100: Record<string, string>): { w: number; c: string }[] {
+  const kcal = [
+    ["protein", 4, "var(--macro-protein)"],
+    ["carbs", 4, "var(--macro-carbs)"],
+    ["fat", 9, "var(--macro-fat)"],
+    ["fibre", 2, "var(--macro-fiber)"],
+  ].map(([k, f, c]) => ({
+    v: Number(per100[k as string] ?? 0) * (f as number),
+    c: c as string,
+  }));
+  const total = kcal.reduce((a, x) => a + x.v, 0);
+  return total > 0
+    ? kcal
+        .filter((x) => x.v > 0)
+        .map((x) => ({ w: Math.round((x.v / total) * 100), c: x.c }))
+    : [];
+}

@@ -87,8 +87,7 @@ export function BarcodeBox({ code, found }: { code: string | null; found: boolea
       stop = true;
       stream?.getTracks().forEach((t) => t.stop());
     };
-    // `go` is stable enough for the life of one scan.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // `go` is stable enough for the life of one scan: the effect runs per scan.
   }, [scanning]);
 
   return (

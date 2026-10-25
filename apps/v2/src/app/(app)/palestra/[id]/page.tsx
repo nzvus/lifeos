@@ -26,6 +26,7 @@ import { Gym, type GymExercise } from "@/features/training/Gym";
 import {
   contextPills,
   contextText,
+  bestE1rm,
   lastTimeText,
   muscleSplit,
   sessionBox,
@@ -117,6 +118,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       dumbbells,
       proposed,
       last: last ? lastTimeText(last.day, last.sets) : "",
+      lastE1rm: last ? bestE1rm(last.sets) : null,
       trend: trendText(a.trend),
       restS: a.afterPairS ?? a.restS,
       restWords:

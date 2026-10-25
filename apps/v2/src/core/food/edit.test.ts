@@ -4,7 +4,14 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
-import { checkFood, createFood, createProduct, updateFood, valueChanges } from "./edit";
+import {
+  checkFood,
+  createFood,
+  createProduct,
+  readFoodByBarcode,
+  updateFood,
+  valueChanges,
+} from "./edit";
 import { readFoodChoices } from "./catalog";
 
 describe("a food's editor", () => {
@@ -99,5 +106,22 @@ describe("a food's editor", () => {
       foodId: oats,
       per100: { kcal: "372.0000", protein: "14.0000" },
     });
+  });
+
+  it("keeps the barcode a food came from, and finds it again (the owner's only)", async () => {
+    const made = await createFood(
+      db,
+      a,
+      "Arrabbiata · Barilla",
+      "g",
+      { kcal: "60" },
+      "8076809513388",
+    );
+    expect(made).not.toBe("taken");
+    expect(await readFoodByBarcode(db, a, "8076809513388")).toBe(
+      (made as { id: string }).id,
+    );
+    expect(await readFoodByBarcode(db, b, "8076809513388")).toBeNull();
+    expect(await readFoodByBarcode(db, a, "96385074")).toBeNull();
   });
 });

@@ -42,7 +42,7 @@ import { daySlots, slotFits } from "@/features/day/slots";
 import { DayPlanBar } from "@/features/day/DayPlanBar";
 import { habitItems, modelItems } from "@/features/day/model-items";
 import { kindRegistry } from "@/core/kinds";
-import { changeDayModel, skipStep } from "./plan-actions";
+import { changeDayModel, saveDayAsModel, skipStep } from "./plan-actions";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
@@ -350,6 +350,13 @@ export default async function OggiPage({
               nowMinute === null ? null : { minute: nowMinute, label: F.time(nowMinute) }
             }
           />
+        )}
+        {rows.some((r) => r.fam === "food" || r.fam === "train") && (
+          <form action={saveDayAsModel.bind(null, date)} className="k-line k-railed">
+            <button type="submit" className="k-btn secondary">
+              Salva come modello
+            </button>
+          </form>
         )}
         {date <= today && <DayClose closed={closed} close={closeDay.bind(null, date)} />}
       </section>

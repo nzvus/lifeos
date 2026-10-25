@@ -169,6 +169,7 @@ export default async function AndamentoPage({
       fam: "body",
       sub: "weight",
       title: "Peso",
+      href: "/andamento/peso",
       score: domain((d) =>
         itemsOf(d).map((i) => weighScore(i, itemsOf(d), ctxOf(d.day))),
       ),
@@ -177,6 +178,7 @@ export default async function AndamentoPage({
       fam: "sleep",
       sub: "wake",
       title: "Sonno",
+      href: "/andamento/sonno",
       score: domain((d) => {
         const n = nightOf(itemsOf(d));
         return n ? [sleepScore(n, itemsOf(d), ctxOf(d.day))] : [];
@@ -186,6 +188,7 @@ export default async function AndamentoPage({
       fam: "drink",
       sub: "water",
       title: "Acqua",
+      href: "/andamento/acqua",
       score: domain((d) =>
         itemsOf(d).some((i) => i.kind.key === "water")
           ? [waterBox(itemsOf(d), ctxOf(d.day)).score]
@@ -210,7 +213,7 @@ export default async function AndamentoPage({
       ? { value: stepGoal.value!, weekdaysOnly: stepGoal.metric["days"] === "weekdays" }
       : null,
   );
-  if (stepsRow) domains.push(stepsRow);
+  if (stepsRow) domains.push({ ...stepsRow, href: "/andamento/passi" });
   const periodScore = averageScore([...scores.values()]);
   const data = loaded.map((d) => ({
     day: d.day,
@@ -249,9 +252,14 @@ export default async function AndamentoPage({
     <main className="k-page has-bd">
       <PageHeader title="Andamento" of={{ place: "andamento" }} />
       <section className="k-section" aria-label="Obiettivi">
-        <a className="k-link" href="/andamento/obiettivi">
-          Obiettivi ›
-        </a>
+        <div className="k-line between">
+          <a className="k-link" href="/andamento/obiettivi">
+            Obiettivi ›
+          </a>
+          <a className="k-link" href="/andamento/come-valutiamo">
+            Come valutiamo ›
+          </a>
+        </div>
       </section>
       <section className="k-section g3" aria-label="Il periodo">
         <RangeNav
