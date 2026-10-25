@@ -84,6 +84,14 @@ export default async function AddPage({
       of: { kind: "session" },
       href: "/palestra",
     },
+    {
+      key: "k:movement",
+      title: "Spesa",
+      sub: "tipo",
+      fam: "money",
+      of: { kind: "movement" },
+      href: `/aggiungi/spesa?giorno=${day}`,
+    },
     ...rows.map((r) => ({
       key: "k:" + r.key,
       title: r.entry.title,
@@ -152,15 +160,19 @@ export default async function AddPage({
                     rail={false}
                   />
                 </a>
+                <a href={`/aggiungi/spesa?giorno=${day}`} className="k-plain">
+                  <Box
+                    entry={{ fam: "money", of: { kind: "movement" }, title: "Spesa" }}
+                    density="row"
+                    rail={false}
+                  />
+                </a>
                 {rows.map((r) => (
                   <a key={r.key} href={r.href} className="k-plain">
                     <Box entry={r.entry} density="row" rail={false} />
                   </a>
                 ))}
               </div>
-              <p className="k-help">
-                Le spese hanno il loro editor: arriva con la prossima parte.
-              </p>
             </section>
             {usual.length > 0 && (
               <section className="k-section" aria-label="A quest'ora, di solito">

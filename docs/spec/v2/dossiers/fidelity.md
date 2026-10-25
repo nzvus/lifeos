@@ -172,6 +172,17 @@ ADR-0052's merge narrowed to v1 → v2; money stays out). Missing: CSV per
 kind, replace from a file, invites, language. The weather's city is in
 «Il tempo» (2026-10-25).
 
+## Soldi (Money)
+
+Done 2026-10-25: ⊕ → «Spesa» (spending or income, how much, the category
+grouped under its parent — v1's 51, in Italian —, where, what, card or
+cash, the time), written as a `movement` entry with its `money_movements`
+row (core/money); `/andamento/soldi` (the board Money): spent, the pace
+against the month before at the same day, income, the month by category,
+the movements day by day with each day's total, ‹ the month before.
+Missing: budgets, accounts and balances, receipts (⊕ → Scontrino, V-13),
+editing a movement (its row opens nothing yet).
+
 ## Come valutiamo (Scores)
 
 Done 2026-10-25, read-only: `/andamento/come-valutiamo?modello=` — the
