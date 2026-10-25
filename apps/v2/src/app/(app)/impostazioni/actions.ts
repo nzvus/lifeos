@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { checkSettings, saveSettings, type SettingsInput } from "@/core/account/settings";
+import { redirect } from "next/navigation";
+import { savePlace } from "@/core/account/place";
+import { geocodeUrl, readGeocode } from "@/core/engines/environment";
 import type { SettingsState } from "@/features/account/SettingsForm";
 
 const WORDS: Record<keyof SettingsInput, Record<"invalid" | "range", string>> = {
@@ -46,4 +49,28 @@ export async function saveSettingsForm(
   await saveSettings(await getDb(), owner, checked.profile);
   revalidatePath("/", "layout");
   return { errors: {}, values: form, saved: true, n: prev.n + 1 };
+}
+
+/** «Il tempo»: the city, found by Open-Meteo's geocoder; empty takes it out. */
+export async function savePlaceForm(data: FormData): Promise<void> {
+  const owner = await requireOwner();
+  const city = String(data.get("city") ?? "")
+    .trim()
+    .slice(0, 80);
+  if (city === "") {
+    await savePlace(await getDb(), owner, null);
+    revalidatePath("/", "layout");
+    redirect("/impostazioni");
+  }
+  let place = null;
+  try {
+    const r = await fetch(geocodeUrl(city), { signal: AbortSignal.timeout(4000) });
+    place = r.ok ? readGeocode(await r.json()) : null;
+  } catch {
+    place = null;
+  }
+  if (!place) redirect("/impostazioni?luogo=nontrovato");
+  await savePlace(await getDb(), owner, place);
+  revalidatePath("/", "layout");
+  redirect("/impostazioni?luogo=ok");
 }

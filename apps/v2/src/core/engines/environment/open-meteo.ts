@@ -145,3 +145,76 @@ export function dayWeather(
     daylightH: rise !== null && set !== null && set > rise ? (set - rise) / 60 : null,
   };
 }
+
+/** The geocoding request for a city's name (Open-Meteo, Italian names first). */
+export function geocodeUrl(name: string): string {
+  const q = new URLSearchParams({ name: name.trim(), count: "1", language: "it" });
+  return `https://geocoding-api.open-meteo.com/v1/search?${q}`;
+}
+
+/** The first place an answer names, or null. */
+export function readGeocode(answer: unknown): {
+  name: string;
+  latitude: number;
+  longitude: number;
+} | null {
+  const r = (answer as { results?: unknown[] })?.results?.[0] as
+    | { name?: unknown; latitude?: unknown; longitude?: unknown }
+    | undefined;
+  if (
+    !r ||
+    typeof r.name !== "string" ||
+    typeof r.latitude !== "number" ||
+    typeof r.longitude !== "number"
+  )
+    return null;
+  return { name: r.name, latitude: r.latitude, longitude: r.longitude };
+}
+
+/** The air's words for the European AQI (EEA bands): buona … pessima. */
+export function airWords(aqi: number): string {
+  return aqi <= 20
+    ? "aria buona"
+    : aqi <= 40
+      ? "aria discreta"
+      : aqi <= 60
+        ? "aria moderata"
+        : aqi <= 80
+          ? "aria scarsa"
+          : aqi <= 100
+            ? "aria molto scarsa"
+            : "aria pessima";
+}
+
+export type DayChips = {
+  maxC: number | null;
+  minC: number | null;
+  /** Mean relative humidity from 08:00 to 20:00, %. */
+  humidity: number | null;
+  /** The day's worst European AQI. */
+  aqi: number | null;
+  daylightH: number | null;
+};
+
+/** What Oggi's chips say about a day, from its hours and sunrise/sunset. */
+export function dayChips(
+  day: IsoDate,
+  hours: readonly WeatherHour[],
+  sun?: { sunrise: string; sunset: string },
+): DayChips {
+  const today = hours.filter((h) => h.day === day);
+  const col = (f: string, from = 0, to = 24) =>
+    today
+      .filter((h) => h.hour >= from && h.hour < to)
+      .flatMap((h) => (h.values[f] === undefined ? [] : [h.values[f]!]));
+  const t = col("temperature_2m");
+  const rh = col("relative_humidity_2m", 8, 20);
+  const aqi = col("european_aqi");
+  return {
+    maxC: t.length ? Math.max(...t) : null,
+    minC: t.length ? Math.min(...t) : null,
+    humidity: mean(rh),
+    aqi: aqi.length ? Math.max(...aqi) : null,
+    daylightH: dayWeather(day, hours, sun).daylightH,
+  };
+}

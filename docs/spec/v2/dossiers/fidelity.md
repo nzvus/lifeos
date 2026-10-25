@@ -35,8 +35,9 @@ role at its first time with its share of kcal and protein, its sessions
 with their minutes; a role with no energy gives none; then the model's
 editor); the day's model as the header's action («Giornata «Rec» ▾», a
 panel to change it or skip the step) and the cycle as the header's line
-(«ciclo PLPRR: oggi Push, poi Riposo»). Missing: context chips (weather,
-light, place), pantry reminder card. Depends on: day templates (Piano), drink
+(«ciclo PLPRR: oggi Push, poi Riposo»); the weather chips (high · low,
+humidity, air, daylight, the city; engines.md E11). Missing: the pantry
+reminder card. Depends on: day templates (Piano), drink
 and supplement kinds (migration.md), pantry (V-12).
 
 ## Composer (Food)
@@ -168,7 +169,8 @@ da v1» — v1's export, a dry run (per kind, the days, what stays out), then
 day (with its children, lines, sets), its catalog items by id, else v2's of
 the same name, else new; nothing in v2 changes (core/convert `newFromV1`,
 ADR-0052's merge narrowed to v1 → v2; money stays out). Missing: CSV per
-kind, replace from a file, invites, language, the weather's city.
+kind, replace from a file, invites, language. The weather's city is in
+«Il tempo» (2026-10-25).
 
 ## Come valutiamo (Scores)
 
