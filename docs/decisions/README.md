@@ -36,4 +36,4 @@ ones it amends only if you need the history.
 | UI and editing | 0010, 0015, 0019 | — |
 | Assistant, packs, invites | 0018, 0034 | — |
 | Data out and back in | 0052 | 0003 (export), 0034 (Settings import) |
-| lifeos v2 (target) | 0053, 0054, 0055 (food › product › format), 0056 (v2 next to v1 in `apps/v2`), 0057 (v2 schema: `user_id` on every table) | the v1 domain models, when v2 replaces v1 |
+| lifeos v2 (target) | 0053, 0054, 0055 (food › product › format), 0056 (v2 next to v1 in `apps/v2`), 0057 (v2 schema: `user_id` on every table), 0058 (nine interaction principles, kit patterns) | the v1 domain models, when v2 replaces v1 |
