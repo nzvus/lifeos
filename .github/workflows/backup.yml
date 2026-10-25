@@ -69,6 +69,53 @@ jobs:
         if: failure()
         run: curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECKS_BACKUP_URL }}/fail" || true
 
+  # v2's database (apps/v2, its own Neon branch), dumped the same way. Until
+  # the secret V2_DATABASE_URL_DIRECT is set the job says so and stops, green.
+  # It joins the heartbeat when v1 is retired (docs/runbooks/setup.md §11).
+  dump-v2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: ${{ secrets.V2_DATABASE_URL_DIRECT }}
+    steps:
+      - name: Is v2's database set?
+        id: set
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "V2_DATABASE_URL_DIRECT is not set: no v2 backup today"
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.set.outputs.go == 'true'
+        uses: actions/checkout@v7
+
+      - name: Install pg_dump 18 and age
+        if: steps.set.outputs.go == 'true'
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-18 age
+          echo "/usr/lib/postgresql/18/bin" >> "$GITHUB_PATH"
+
+      - name: Dump, verify, encrypt
+        if: steps.set.outputs.go == 'true'
+        env:
+          AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+          PGSSLROOTCERT: system
+        run: scripts/backup.sh out
+
+      - if: steps.set.outputs.go == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: db-backup-v2-${{ github.run_id }}
+          path: out/*.dump.age
+          retention-days: 30
+          if-no-files-found: error
+
   # The trash (ADR-0015): delete for good what has been there over 30 days.
   # Only after today's dump is stored (needs: dump), so a purged record is
   # still in the backups for 30 more days. A separate job: a failed purge

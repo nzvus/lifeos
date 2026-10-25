@@ -199,3 +199,32 @@ From then on, a migration reaches `lifeos_v2` only through migrate-v2.
 v2 has no Preview variables yet: a preview (a PR touching v2's schema, or a
 `*-preview` branch) builds but has no database. The per-PR rehearsal branch,
 as v1's, comes with v2's next migration.
+
+## 11. Only v2: retiring v1 (decided 2026-10-25, in stages)
+
+1. **Today.** v2 → Impostazioni → «Porta i dati da v1» with the newest v1
+   export (§10 step 8). From then on log only in v2; leave v1 unopened.
+2. **Install v2 on the phone.** Open v2 in the browser, signed in. Android
+   (Chrome): ⋮ → «Installa app» / «Aggiungi a schermata Home». iPhone
+   (Safari): Condividi → «Aggiungi alla schermata Home». It opens on Oggi,
+   without the browser's bars. Remove v1's icon from the home screen.
+3. **v2's backup, on or after 1 Nov** (Neon's transfer resets then).
+   Settings → Secrets and variables → Actions → New repository secret
+   `V2_DATABASE_URL_DIRECT` = v2's **direct** URL (§10 step 1). Then
+   `gh workflow enable backup.yml` and Actions → backup → Run workflow.
+   Check: the run has an artifact `db-backup-v2-…`. Restore drill as §9,
+   with v2's dump.
+4. **After one or two weeks with nothing missing in v2.** One last v1
+   export (Settings → Export) kept off the laptop too (the encrypted
+   dumps expire after 30 days). Then, in this order:
+   - Vercel → the v1 project → Settings → Advanced → Delete Project. If
+     its domain was the one you use, add it to `lifeos-v2` first
+     (Settings → Domains).
+   - Neon: **never delete the project**, v2 lives in it. Neon will not
+     delete `production` (v1) either while `v2`, its child, exists; an
+     unused branch moves no data, so it stays idle. To free its storage,
+     drop v1's tables there (the agent's PR prepares the SQL).
+   - healthchecks.io: point the "app" check at v2 or delete it.
+   - The agent's PR: v1's code out of the repository, v2 to the root,
+     the backup's `dump` job and v1's secrets removed, `dump-v2` with the
+     heartbeat.
