@@ -77,7 +77,9 @@ sets reached — with its skyline and parts, the muscle split as a strip
 and pills from the catalog's muscle groups); the set running hatched
 «Serie n · ora · in corso»; the context as pills under the exercise (the
 last rest against the planned one, sleep, food in 24 h, creatine,
-readiness; short ones in warn). Missing: estimated strength as a pill.
+readiness; short ones in warn). **Done (2026-10-25)**: «forza stimata 40 ·
++2 %» first among the pills (the best e1RM with RIR today against the last
+session's; warn when it fell over 2 %).
 
 ## Andamento (Progress)
 

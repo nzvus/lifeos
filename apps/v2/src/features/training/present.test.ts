@@ -1,6 +1,15 @@
 import { F } from "@lifeos/kit";
 import { describe, expect, it } from "vitest";
-import { kgStep, lastTimeText, restFor, setText, timed, usesDumbbells } from "./present";
+import {
+  kgStep,
+  lastTimeText,
+  restFor,
+  setText,
+  timed,
+  usesDumbbells,
+  bestE1rm,
+  strengthPill,
+} from "./present";
 
 const nb = (s: string) => s.replace(/ /g, " ");
 const set = (
@@ -138,5 +147,29 @@ describe("the gym's pills", () => {
     expect(restPill(80, 90)).toEqual({ t: "riposo 1:20 / 1:30", state: "good" });
     expect(restPill(150, 90)!.state).toBe("warn");
     expect(restPill(null, 90)).toBeNull();
+  });
+});
+
+describe("«forza stimata» (the board Gym's first context pill)", () => {
+  const set = (reps: number, kg: string, rir: number | null = null, warmup = false) => ({
+    reps,
+    loadKg: kg,
+    durationS: null,
+    warmup,
+    rir,
+  });
+  it("today's best e1RM against last time's, good unless it fell over 2 %", () => {
+    // 8 × 30 kg at RIR 2: 30 × (1 + 10/30) = 40.
+    expect(bestE1rm([set(8, "30", 2), set(20, "10", null, true)])).toBe(40);
+    expect(strengthPill([set(8, "30", 2)], 39.2)).toEqual({
+      t: "forza stimata 40 · +2 %",
+      state: "good",
+    });
+    expect(strengthPill([set(6, "30", 0)], 40)?.state).toBe("warn");
+    expect(strengthPill([set(6, "30", 0)], null)).toEqual({
+      t: "forza stimata 36",
+      state: "info",
+    });
+    expect(strengthPill([], 40)).toBeNull();
   });
 });

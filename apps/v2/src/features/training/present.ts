@@ -7,6 +7,7 @@
 import { F, type BoxEntry, type State } from "@lifeos/kit";
 import {
   dumbbellStep,
+  e1rm,
   loadStep,
   repsAtLoad,
   restAfter,
@@ -176,6 +177,35 @@ export function contextPills(c: SessionContext): { t: string; state: State }[] {
 export function contextText(c: SessionContext): string {
   const parts = contextPills(c).map((x) => x.t);
   return parts.length ? "Prima: " + parts.join(" · ") : "";
+}
+
+/** The best e1RM (with RIR) of the working sets; null without a loaded set of 1–12 reps. */
+export function bestE1rm(sets: readonly LastSet[]): number | null {
+  const all = sets
+    .filter((x) => !x.warmup && x.reps !== null && x.loadKg !== null)
+    .map((x) => e1rm(x.reps!, Number(x.loadKg), x.rir ?? null))
+    .filter((v): v is number => v !== null);
+  return all.length ? Math.max(...all) : null;
+}
+
+/**
+ * The board's «forza stimata 41 · +2 %»: today's best e1RM of the exercise
+ * against its last session's; good when it held or rose, warn when it fell
+ * more than 2 % (a day's noise is about that much).
+ */
+export function strengthPill(
+  today: readonly LastSet[],
+  lastBest: number | null,
+): { t: string; state: State } | null {
+  const now = bestE1rm(today);
+  if (now === null) return null;
+  if (lastBest === null || !(lastBest > 0))
+    return { t: "forza stimata " + F.n(now, 1), state: "info" };
+  const pct = ((now - lastBest) / lastBest) * 100;
+  return {
+    t: "forza stimata " + F.n(now, 1) + " · " + F.signed(Math.round(pct), "%"),
+    state: pct >= -2 ? "good" : "warn",
+  };
 }
 
 /** The last rest against the planned one (the board's «riposo 1:20 / 1:30»), warn past ±30 %. */
