@@ -105,7 +105,9 @@ Run on the developer's catalog first (§6), which changed three thresholds:
 - A nutrient counts when the foods carrying it make ≥ 80 % of the energy;
   under 5 kcal no score. Catalog check: broccoli 100, cod 91, Greek yogurt
   63, chickpeas 60, gnocchi 23, bread 12, dark chocolate 50 % 9.
-- Oggi: skyline behind each scored meal box; the open box shows the score,
+- Oggi: the score as a small framed chart in the box's head (since
+  2026-10-25, the developer's pick: its number in the judgement's colour, a
+  column per part, the 70 dashed; it replaced the skyline behind the box); the open box shows the score,
   each part with its weight, the limit that decided it («limiti · sale») and
   «senza: valore, adatto al blocco».
 - **A single food (2026-10-24):** scored on 100 kcal of it, as E7's model

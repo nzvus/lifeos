@@ -73,6 +73,32 @@ export function Box({
   onToggle?: () => void;
 }) {
   const dense = density === "row";
+  // The score as a small framed chart in the head (the developer's pick, 2026-10-25):
+  // its number in the judgement's colour, a column per part (as wide as its weight,
+  // as full as its score), the 70 dashed.
+  const sc = e.score && e.score.parts.length > 0 && !dense ? e.score : null;
+  const chip = sc ? (
+    <span
+      className="k-skyc"
+      role="img"
+      aria-label={
+        "voto " +
+        (sc.value ?? "") +
+        ": " +
+        sc.parts.map((q) => q.name + " " + Math.round(q.score * 100)).join(", ")
+      }
+    >
+      <b style={{ color: F.judge(sc.value ?? undefined).tone }}>{sc.value}</b>
+      <span className="k-sky chip" aria-hidden="true">
+        {sc.parts.map((q) => (
+          <span key={q.name} className="col" style={{ flexGrow: q.weight }}>
+            <span className="fill" style={{ height: Math.round(q.score * 100) + "%" }} />
+          </span>
+        ))}
+        <span className="line" />
+      </span>
+    </span>
+  ) : null;
   const fam = " fam-" + e.fam + (e.sub ? " sub-" + e.sub : "");
   const of: GlyphOf = {
     ...e.of,
@@ -122,30 +148,6 @@ export function Box({
             "k-box " + e.fam + (e.sub ? " " + e.sub : "") + (expanded ? " is-open" : "")
           }
         >
-          {e.score && e.score.parts.length > 0 && density !== "row" && (
-            <span className="k-skybg" aria-hidden="true">
-              <span className="k-sky bg">
-                {e.score.parts.map((q) => (
-                  <span
-                    key={q.name}
-                    className="col"
-                    style={
-                      {
-                        flexGrow: q.weight,
-                        "--mix": Math.round(8 + q.score * 18) + "%",
-                      } as CSSProperties
-                    }
-                  >
-                    <span
-                      className="fill"
-                      style={{ height: Math.round(q.score * 100) + "%" }}
-                    />
-                  </span>
-                ))}
-                <span className="line" style={{ bottom: "auto", top: "30%" }} />
-              </span>
-            </span>
-          )}
           <span className="k-artclip" aria-hidden="true">
             <span className="k-art a1">
               <Glyph of={of} size="xl" />
@@ -171,7 +173,10 @@ export function Box({
                   {badge && <Glyph of={of} size="m" tile />}
                   <span className="k-label k-title">{e.title}</span>
                 </span>
-                <span className="k-num d4">{e.value}</span>
+                <span className="k-hright">
+                  {chip}
+                  <span className="k-num d4">{e.value}</span>
+                </span>
               </button>
             ) : (
               <span className="k-head">
@@ -179,7 +184,10 @@ export function Box({
                   {badge && <Glyph of={of} size="m" tile />}
                   <span className="k-label k-title">{e.title}</span>
                 </span>
-                <span className="k-num d4">{e.value}</span>
+                <span className="k-hright">
+                  {chip}
+                  <span className="k-num d4">{e.value}</span>
+                </span>
               </span>
             )}
             {(e.href || acts.length > 0 || (dense && e.score)) && (

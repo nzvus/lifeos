@@ -580,3 +580,11 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-wbars>i.plan{background-image:repeating-linear-gradient(135deg,var(--muscle-chest) 0 1.5px,transparent 1.5px 3px)!important;background-color:transparent!important}
 .k-week a[aria-current] .k-wbars{opacity:1}
 .k-week a[aria-current] .k-wbars>i.none{background:color-mix(in srgb,var(--sheet) 40%,transparent)}
+/* the score as a small framed chart in a box's head (2026-10-25): number + a column per part */
+.k-hright{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto}
+.k-skyc{display:inline-flex;align-items:center;gap:6px;height:26px;box-sizing:border-box;padding:3px 4px 3px 7px;border:1px solid color-mix(in srgb,var(--fam) 35%,var(--hairline));border-radius:7px;background:color-mix(in srgb,var(--fam) 6%,var(--sheet))}
+.k-skyc>b{font-family:var(--font-display);font-size:15px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.k-sky.chip{width:44px;height:18px;gap:1.5px;overflow:hidden;border-radius:3px}
+.k-sky.chip .col{background:color-mix(in srgb,var(--fam) 10%,var(--sheet))}
+.k-sky.chip .fill{background:color-mix(in srgb,var(--fam) 72%,var(--sheet));border-radius:1.5px 1.5px 0 0}
+.k-sky.chip .line{border-top:1px dashed color-mix(in srgb,var(--ink) 45%,transparent)}
