@@ -6,7 +6,7 @@
  * header opens the editor.
  */
 import { notFound } from "next/navigation";
-import { F, Glyph, Nutrients, PageHeader, type GlyphOf } from "@lifeos/kit";
+import { Box, F, Field, Glyph, Nutrients, PageHeader, type GlyphOf } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -30,22 +30,42 @@ import {
 import { microsOf } from "@/features/day/nutrients";
 import { dayMicros } from "@/core/food/micros";
 import { archiveFood } from "./modifica/actions";
+import { readPantry } from "@/core/pantry";
+import { stockWords } from "@/features/library/pantry";
+import { bought, counted } from "./dispensa";
 
-export default async function FoodPage({ params }: { params: Promise<{ id: string }> }) {
+const PANTRY_ERRORS: Record<string, string> = {
+  quantity: "Quanto hai comprato, per esempio 1000.",
+  packages: "Le confezioni, per esempio 2.",
+  price: "Il prezzo in euro, per esempio 3,98.",
+  left: "Quanto ne hai, per esempio 500 (0 se è finito).",
+};
+
+export default async function FoodPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ dispensa?: string | string[] }>;
+}) {
   const owner = await requireOwner();
   const db = await getDb();
   const { id } = await params;
+  const asked = (await searchParams).dispensa;
+  const pantryError = typeof asked === "string" ? PANTRY_ERRORS[asked] : undefined;
   const { clock, weights } = await ownerClock();
   const today = logicalDay(new Date(), clock);
   const foods = await readFoodChoices(db, owner, today);
   const page = foodPage(foods, await readRecipeChoices(db, owner, today, foods), id);
   if (!page) notFound();
   // Judged on 100 kcal of it, against today's targets (meal-score.md §8).
-  const [targets, micros, estimates] = await Promise.all([
+  const [targets, micros, estimates, pantry] = await Promise.all([
     readTargetsFor(db, owner, today, today, clock),
     readMicroTargets(db, owner, today),
     readFoodEstimates(db, owner, [id]),
+    readPantry(db, owner, today, new Date()),
   ]);
+  const stock = pantry.find((p) => p.foodId === id) ?? null;
   const score = foodScore(
     Object.fromEntries(
       Object.entries(page.per100).flatMap(([k, v]) =>
@@ -171,6 +191,99 @@ export default async function FoodPage({ params }: { params: Promise<{ id: strin
           </div>
         </details>
       )}
+      <section className="k-section g3" id="dispensa" aria-label="Dispensa">
+        {head({ place: "libreria" }, "In casa")}
+        {stock ? (
+          <Box
+            density="row"
+            rail={false}
+            entry={{
+              fam: "food",
+              of: { kind: "ingredient" },
+              title: "Dispensa",
+              ...stockWords(stock.stock, page.unit),
+              href: "/libreria/dispensa",
+              hrefLabel: "Apri la dispensa",
+            }}
+          />
+        ) : (
+          <p className="k-help">
+            Segna quando lo compri: quello che mangi lo toglie la dispensa da sola.
+          </p>
+        )}
+        {pantryError && (
+          <p className="k-help" role="alert">
+            {pantryError}
+          </p>
+        )}
+        <details className="k-fold">
+          <summary>Comprato</summary>
+          <form
+            action={bought.bind(null, id, stock?.last?.itemId ?? id)}
+            className="k-foldbody k-stack g3"
+          >
+            <div className="k-grid">
+              <Field
+                name="quantity"
+                label="Quanto in tutto"
+                type="stepper"
+                unit={page.unit}
+                step={100}
+                required
+                defaultValue={stock?.last?.quantity ?? ""}
+              />
+              <Field
+                name="packages"
+                label="Confezioni"
+                type="stepper"
+                step={1}
+                defaultValue={stock?.last?.packages ?? ""}
+              />
+              <Field
+                name="price"
+                label="Prezzo"
+                type="text"
+                unit="€"
+                placeholder="facoltativo"
+                defaultValue={
+                  stock?.last?.priceCents != null
+                    ? F.input(stock.last.priceCents / 100, 2)
+                    : ""
+                }
+              />
+              <Field
+                name="shop"
+                label="Negozio"
+                type="text"
+                placeholder="facoltativo"
+                defaultValue={stock?.last?.shop ?? ""}
+              />
+            </div>
+            <button type="submit" className="k-btn primary">
+              Comprato adesso
+            </button>
+          </form>
+        </details>
+        {stock && (
+          <details className="k-fold">
+            <summary>Ne ho…</summary>
+            <form action={counted.bind(null, id)} className="k-foldbody k-stack g3">
+              <Field
+                name="left"
+                label="Quanto ne hai adesso"
+                type="stepper"
+                unit={page.unit}
+                step={50}
+                required
+                help="Da adesso conta questo: utile se hai buttato o dimenticato qualcosa."
+              />
+              <button type="submit" className="k-btn secondary">
+                Salva
+              </button>
+            </form>
+          </details>
+        )}
+      </section>
       <section className="k-section g3" aria-label="Prodotti">
         {head({ section: "products" }, "Prodotti")}
         {page.products.length === 0 && (

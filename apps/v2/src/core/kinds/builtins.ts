@@ -257,6 +257,8 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
     entry: "form",
     fields: [
       { key: "packages", type: "number", min: 0 },
+      // What it brought in, in the food's unit (packages × the format's size): the Dispensa's «in».
+      { key: "quantity", type: "number", min: 0 },
       { key: "priceCents", type: "integer", unit: "cents", min: 0 },
       { key: "shop", type: "text" },
     ],

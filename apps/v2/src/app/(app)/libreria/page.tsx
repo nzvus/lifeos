@@ -30,6 +30,7 @@ import { kindRegistry } from "@/core/kinds";
 import { PLACES } from "@/features/places";
 import { addDays } from "@/core/engines/time";
 import { readRoutes } from "@/core/movement/routes";
+import { readPantry } from "@/core/pantry";
 
 export default async function LibreriaPage({
   searchParams,
@@ -46,11 +47,12 @@ export default async function LibreriaPage({
   const { clock, weights } = await ownerClock();
   const today = logicalDay(new Date(), clock);
   const foods = await readFoodChoices(db, owner, today);
-  const [recipes, exercises, log, routes] = await Promise.all([
+  const [recipes, exercises, log, routes, pantry] = await Promise.all([
     readRecipeChoices(db, owner, today, foods),
     readExercises(db, owner),
     readExerciseLog(db, owner),
     view === null ? readRoutes(db, owner, addDays(today, -90)) : [],
+    view === null ? readPantry(db, owner, today, new Date()) : [],
   ]);
   // The foods' list: each scored per 100 kcal (E7) against today's targets; only on its shelf.
   const scored =
@@ -93,7 +95,7 @@ export default async function LibreriaPage({
       {view === null ? (
         <PageHeader
           title="Libreria"
-          context="le cose che riusi: cibi, pasti, esercizi, tragitti"
+          context="le cose che riusi: cibi, pasti, esercizi, dispensa, tragitti"
           of={{ place: "libreria" }}
         />
       ) : (
@@ -110,6 +112,7 @@ export default async function LibreriaPage({
         view={view}
         shelfLines={shelfLines(foods, meal, exercise)}
         trackers={trackers}
+        pantry={{ count: pantry.length, toBuy: pantry.filter((p) => p.toBuy).length }}
         routes={{
           count: routes.length,
           line: routes.length
