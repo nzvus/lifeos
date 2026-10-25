@@ -125,6 +125,9 @@ scanning) are placed in the v2 spec.
    caffeine and creatine, the day score; built #268–#271), targets
    (`dossiers/targets.md`: E4 + goal + model → the day's targets; decided
    by the agent at the developer's request, slice a built).
+   Added 2026-10-25: pantry (`dossiers/pantry.md`, V-12: stock derived from
+   purchases and what is eaten, the shopping list, batches; drafted and
+   decided by the agent while the developer was away, for their review).
    - Training dossier, first slices (s173): E6 trend, expected reps,
      learnt and adaptive rests, session length; gym mode with «Inizia» and
      the setup delay, «Automatico» (sets assumed until «Fine»), RIR on the
