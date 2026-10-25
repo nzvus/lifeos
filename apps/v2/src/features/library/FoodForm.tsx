@@ -57,6 +57,7 @@ export function FoodForm({
         of={{ fam: "food" }}
       />
       {top}
+      {v["barcode"] && <input type="hidden" name="barcode" value={v["barcode"]} />}
       <section className="k-section g3" aria-label="Nome">
         <Field
           name="name"

@@ -13,6 +13,7 @@ import {
   type FoodValueError,
 } from "@/core/food/edit";
 import { archiveItem } from "@/core/catalog/archive";
+import { isValidGtin } from "@/core/food/barcode";
 import { RECIPE_WORDS } from "@/features/food/composer";
 import type { FoodFormState } from "@/features/library/FoodForm";
 
@@ -57,6 +58,7 @@ export async function saveFood(
       checked.name,
       form["unit"] === "ml" ? "ml" : "g",
       checked.values,
+      isValidGtin(form["barcode"] ?? "") ? form["barcode"]! : null,
     );
     if (made === "taken") return again({ name: "Hai già un cibo con questo nome." });
     revalidatePath("/libreria", "layout");
