@@ -49,7 +49,13 @@ import { changeDayModel, saveDayAsModel, skipStep } from "./plan-actions";
 import { creatineDays, readCreatineLines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
-import { dayScore, presentWeek, weekScores, weightOn } from "@/features/day/day-score";
+import {
+  dayScore,
+  presentWeek,
+  weekBars,
+  weekScores,
+  weightOn,
+} from "@/features/day/day-score";
 import {
   mealScore,
   nightOf,
@@ -240,13 +246,15 @@ export default async function OggiPage({
     night: nightScore,
     now: nowMinute,
   });
-  const scores = weekScores({
+  const weekInput = {
     days,
     present: boxes,
     ctx: sctx,
     today,
     nowMinute: date === today ? nowMinute : dayMinute(now, today, clock),
-  });
+  };
+  const scores = weekScores(weekInput);
+  const bars = weekBars(weekInput);
   // Water is one box in the timeline (WaterRow): its drinks are not rows of their own.
   const notWater = (i: (typeof items)[number]) => i.kind.key !== "water";
   const rows = day.timed.filter(notWater).map((i) => ({ ...row(i), minute: i.minute! }));
@@ -323,7 +331,14 @@ export default async function OggiPage({
         }
       />
       <section className="k-block g3">
-        <DateNav day={date} today={today} hrefBase="/oggi/" scores={scores} tags={tags} />
+        <DateNav
+          day={date}
+          today={today}
+          hrefBase="/oggi/"
+          scores={scores}
+          tags={tags}
+          bars={bars}
+        />
         {weather && (
           <div className="k-chips" aria-label="Il tempo">
             {weather.w.maxC !== null && weather.w.minC !== null && (

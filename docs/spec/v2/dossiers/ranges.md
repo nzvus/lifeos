@@ -154,8 +154,10 @@ the nutrient's page; the developer can move them.
   · 11 giorni su 28» (the Main board), a pill «creatina 3,4 g» when it is
   inside a meal, and in «Altro» of the micros «3,4 / 3 g». (Coffee and
   creatine as boxes: done in #266.)
-- **Week strip (DateNav):** each day's bar coloured by its score
-  (`F.judge`), as the board.
+- **Week strip (DateNav):** under each day four thin bars in
+  transparency (the developer's pick, 2026-10-25), no score line: food
+  against its targets (coloured by its score), the worst limit as a share
+  of its allowance, training (done full, planned hatched), habits done.
 
 ## 7. Edge cases
 

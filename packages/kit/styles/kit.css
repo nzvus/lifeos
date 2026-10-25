@@ -573,3 +573,10 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-chip:has(>input:focus-visible){outline:var(--ring) solid var(--focus);outline-offset:2px}
 /* An inline form under a row (Piano: a block being changed). */
 .k-panel{padding:12px;border:1px solid var(--hairline);border-radius:var(--radius-surface);background:var(--sheet)}
+/* the week strip's four thin bars (food, limits, training, habits), in place of the score line (2026-10-25) */
+.k-wbars{display:flex;align-items:flex-end;justify-content:center;gap:2px;height:12px;margin-top:2px;opacity:.7}
+.k-wbars>i{width:3px;border-radius:1.5px 1.5px 0 0;min-height:2px}
+.k-wbars>i.none{height:2px;background:var(--hairline)}
+.k-wbars>i.plan{background-image:repeating-linear-gradient(135deg,var(--muscle-chest) 0 1.5px,transparent 1.5px 3px)!important;background-color:transparent!important}
+.k-week a[aria-current] .k-wbars{opacity:1}
+.k-week a[aria-current] .k-wbars>i.none{background:color-mix(in srgb,var(--sheet) 40%,transparent)}

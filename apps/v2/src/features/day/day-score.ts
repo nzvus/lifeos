@@ -187,3 +187,47 @@ export function dayScores(p: {
 export function weekScores(p: Parameters<typeof dayScores>[0]): Record<IsoDate, number> {
   return Object.fromEntries([...dayScores(p)].map(([d, s]) => [d, s.value!]));
 }
+
+/** One day's bars in the week strip (the developer's pick, 2026-10-25). */
+export type WeekBar = {
+  /** The day's food against its targets, 0–1 (its score's «obiettivi del giorno»). */
+  food: number | null;
+  /** The worst limit as a share of its allowance (1 = at the limit). */
+  limits: number | null;
+  train: "done" | "planned" | null;
+  /** What was planned and got done, 0–1. */
+  habits: number | null;
+};
+
+/**
+ * Each day's four thin bars (food, limits, training, habits) from what the
+ * week strip already reads: the day scores' parts, the days' panels, their
+ * sessions. A day with nothing gives no bars.
+ */
+export function weekBars(p: Parameters<typeof dayScores>[0]): Record<IsoDate, WeekBar> {
+  const scores = dayScores(p);
+  const out: Record<IsoDate, WeekBar> = {};
+  for (const d of p.days) {
+    const s = scores.get(d.day);
+    const part = (w: string) => s?.parts.find((x) => x.name === w)?.score ?? null;
+    const lims = p.present.get(d.day)?.nutrients.limits ?? [];
+    const worst = lims.length
+      ? Math.max(...lims.map((l) => (l.t > 0 ? l.v / l.t : 0)))
+      : null;
+    const sessions = [...d.timed, ...d.untimed].filter((i) => i.kind.key === "session");
+    const train = sessions.some((i) => i.status === "done")
+      ? "done"
+      : sessions.some((i) => i.status === "planned")
+        ? "planned"
+        : null;
+    const bar: WeekBar = {
+      food: part(WORDS.dayTargets!),
+      limits: worst !== null && worst > 0 ? worst : null,
+      train,
+      habits: part(WORDS.habits!),
+    };
+    if (bar.food !== null || bar.limits !== null || bar.train || bar.habits !== null)
+      out[d.day] = bar;
+  }
+  return out;
+}
