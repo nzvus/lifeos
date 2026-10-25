@@ -263,6 +263,7 @@ export default async function OggiPage({
     nutrients: whole?.nutrients ?? null,
     night: nightScore,
     now: nowMinute,
+    weightKg: weightOn(series, date),
   });
   const weekInput = {
     days,
@@ -270,6 +271,7 @@ export default async function OggiPage({
     ctx: sctx,
     today,
     nowMinute: date === today ? nowMinute : dayMinute(now, today, clock),
+    weighings: series,
   };
   const scores = weekScores(weekInput);
   const bars = weekBars(weekInput);

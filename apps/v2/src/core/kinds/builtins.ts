@@ -91,6 +91,26 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
       { key: "restS", type: "duration", unit: "s", min: 0 },
     ],
   },
+  // A trip along a route of the library (dossiers/movement.md, slice 1): on foot, by bike or
+  // by transport; its walking part feeds the day's steps later (E3), when trips have data.
+  {
+    key: "trip",
+    family: "train",
+    domain: "training",
+    shape: "interval",
+    entry: "specialised",
+    subcategory: { field: "mode" },
+    fields: [
+      { key: "route", type: "ref", catalog: "route" },
+      {
+        key: "mode",
+        type: "choice",
+        choices: ["walk", "run", "bike", "bus", "train", "car", "mixed"],
+      },
+      { key: "distanceKm", type: "number", unit: "km", min: 0, max: 1000 },
+      { key: "walkingM", type: "integer", unit: "m", min: 0, max: 100000 },
+    ],
+  },
   {
     key: "steps",
     family: "train",
@@ -237,6 +257,8 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
     entry: "form",
     fields: [
       { key: "packages", type: "number", min: 0 },
+      // What it brought in, in the food's unit (packages × the format's size): the Dispensa's «in».
+      { key: "quantity", type: "number", min: 0 },
       { key: "priceCents", type: "integer", unit: "cents", min: 0 },
       { key: "shop", type: "text" },
     ],

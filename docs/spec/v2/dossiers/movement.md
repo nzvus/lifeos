@@ -1,6 +1,11 @@
 # Dossier — movement (steps, trips, routes)
 
-Status: **draft for the developer's review** (2026-10-23). Method:
+Status: **draft for the developer's review** (2026-10-23). **Slice 1 built
+(2026-10-25, the agent deciding §9.1 for now: distances typed, no routing
+service, so no ADR yet)**: routes in Libreria → Tragitti (how, km, usual
+minutes, metres on foot, a Maps link), ⊕ → Tragitto logs one with a tap,
+Oggi names a trip by its route. Not yet: the trip's walking into E3's
+steps, a route's own glyph (icons.json in the boards). Method:
 `../method.md`. Touches: kinds.md "Training and movement" (steps, walk/run/
 ride), engines.md E3 (expenditure: steps by cadence band, seated blocks),
 E11 (data quality), the Libreria (ADR-0054).

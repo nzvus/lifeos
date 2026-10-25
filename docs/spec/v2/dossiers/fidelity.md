@@ -71,11 +71,7 @@ prices in the data yet), the photo of a label.
 totale»; Automatica · Manuale as a segmented control; each done set with
 the rest measured before it; «Poi» with each exercise's plan. Still missing
 below.
-Missing: header «esercizio 2 di 8 · 30 serie · 6.870 kg»; Automatica ·
-Manuale as a segmented control; «La sessione finora» (muscle split bar,
-pills, skyline); rest on each done set; the current set hatched «ora · in
-corso»; pills after RIR (estimated strength, rest, sleep, last meal); «Poi»
-with each exercise's plan («3 × 10 · 35 kg»). **Fixed here**: a finished
+**Fixed here**: a finished
 session no longer shows the set form, RIR and «Aggiungi esercizio».
 **Done (2026-10-24)**: «La sessione finora» as a box (its minutes, the
 session score on what is done — the exercise in progress counted to the
@@ -118,8 +114,8 @@ smoothed trend, the goal line; sleep, water, steps: bars against 7–9 h,
 the need, the goal), each entry a row with its own score, «Cosa dice di
 te». The person's own trackers too (`/andamento/<key>`: each day's first
 number summed, or how many times; their rows as on Oggi; «I tuoi tracker»
-on Andamento). Missing: the kind's settings on its page, food and
-training pages.
+on Andamento), a link to the tracker's settings and its rename
+(2026-10-25). Missing: food and training pages.
 
 ## Libreria
 
@@ -173,8 +169,8 @@ Done 2026-10-24 (ported from v1): «Nuovo cibo» reads a barcode by camera
 its GTIN digit, and fills the form from Open Food Facts (name · brand,
 unit, values per 100, NOVA) to check against the label; the composer and
 Libreria link to it. A food made from a barcode keeps it (a `barcode`
-value), and scanning it again opens that food. Missing: the camera next
-to the composer's search.
+value), and scanning it again opens that food; the composer has the
+barcode button next to its search (2026-10-25).
 
 ## Impostazioni
 

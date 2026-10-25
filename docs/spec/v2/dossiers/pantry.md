@@ -3,6 +3,13 @@
 Status: **draft 2026-10-25**, written by the agent while the developer was
 away («fai tu le scelte per me»). §9's questions carry the agent's
 decisions; the developer reviews them before the pantry's code changes.
+**Slice a built (2026-10-25)**: `core/pantry` (stock from purchases,
+counts and logged meals; pace over the logged days of 28), Libreria →
+«Dispensa» (Da comprare, In casa), a food's «In casa» with «Comprato»
+(the last purchase prefilled) and «Ne ho…». Not yet: batches («Lotti
+cucinati», ⊕ «Porzioni pronte»), best-before (§9.4), the Oggi reminder,
+the shop cadence as a setting (7 days fixed), choosing a format at
+«Comprato», purchases' money in Soldi.
 
 ## 1. Question
 

@@ -50,9 +50,15 @@ export function Library({
   view,
   shelfLines,
   trackers,
+  routes,
+  pantry,
 }: {
   /** The kinds one can enter, and how many are the person's own («Tipi di tracker»). */
   trackers: { all: number; own: number };
+  /** The person's routes: how many, and its shelf's line («Tragitti»). */
+  routes: { count: number; line: string };
+  /** The foods at home and how many to buy («Dispensa»). */
+  pantry: { count: number; toBuy: number };
   foods: LibraryRow[];
   meals: LibraryRow[];
   exercises: LibraryRow[];
@@ -63,7 +69,15 @@ export function Library({
 }) {
   const lists: Record<Tab, LibraryRow[]> = { foods, meals, exercises };
   if (view === null)
-    return <Index lists={lists} shelfLines={shelfLines} trackers={trackers} />;
+    return (
+      <Index
+        lists={lists}
+        shelfLines={shelfLines}
+        trackers={trackers}
+        routes={routes}
+        pantry={pantry}
+      />
+    );
   return <List lists={lists} first={view} />;
 }
 
@@ -84,10 +98,14 @@ function Index({
   lists,
   shelfLines,
   trackers,
+  routes,
+  pantry,
 }: {
   lists: Record<Tab, LibraryRow[]>;
   shelfLines: Record<Tab, string>;
   trackers: { all: number; own: number };
+  routes: { count: number; line: string };
+  pantry: { count: number; toBuy: number };
 }) {
   const [query, setQuery] = useState("");
   const all = (Object.keys(TABS) as Tab[]).reduce((n, t) => n + lists[t].length, 0);
@@ -149,6 +167,36 @@ function Index({
                 }}
               />
             ))}
+            <Box
+              density="row"
+              rail={false}
+              entry={{
+                fam: "food",
+                of: { kind: "ingredient" },
+                title: "Dispensa",
+                value: F.n(pantry.count, 0),
+                meta: pantry.count
+                  ? pantry.toBuy
+                    ? F.plural(pantry.toBuy, "da comprare", "da comprare")
+                    : "niente da comprare"
+                  : "segna cosa compri: quello che mangi lo toglie lei",
+                href: "/libreria/dispensa",
+                hrefLabel: "Apri la dispensa",
+              }}
+            />
+            <Box
+              density="row"
+              rail={false}
+              entry={{
+                fam: "train",
+                of: { kind: "trip" },
+                title: "Tragitti",
+                value: F.n(routes.count, 0),
+                meta: routes.line,
+                href: "/libreria/tragitto",
+                hrefLabel: "Apri i tragitti",
+              }}
+            />
             <Box
               density="row"
               rail={false}
