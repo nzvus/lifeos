@@ -23,6 +23,8 @@ export default async function EntryPage({
     giorno?: string | string[];
     categoria?: string | string[];
     ora?: string | string[];
+    /** From ⊕'s switch: planned, or done earlier (the time to say). */
+    stato?: string | string[];
   }>;
 }) {
   const owner = await requireOwner();
@@ -42,12 +44,16 @@ export default async function EntryPage({
   const category = kind.fields
     .find((f) => f.key === "category")
     ?.choices?.find((c) => c === asked.categoria);
+  const when = asked.stato === "previsto" || asked.stato === "prima" ? asked.stato : null;
   const initial: Record<string, string> = {
     status:
-      day > today || (at !== null && day === today && at > now) ? "planned" : "done",
+      when === "previsto" ||
+      (when === null && (day > today || (at !== null && day === today && at > now)))
+        ? "planned"
+        : "done",
     ...(at !== null
       ? { start: at }
-      : day === today
+      : day === today && when === null
         ? { [form.times.end ? "end" : "start"]: now }
         : {}),
     ...(category ? { [VALUE + "category"]: category } : {}),

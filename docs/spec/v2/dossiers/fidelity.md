@@ -146,8 +146,10 @@ non trova?» (new food, new exercise). Done 2026-10-25: one search across
 the kinds, foods, saved meals and routines on top (names only, read in one
 query; a food opens the composer with it, `?cibo=`), «Cosa» first.
 «Nuovo tracker» (2026-10-25, Impostazioni → Tracker e tipi; kinds.md).
-Missing: the «Adesso / Previsto / Prima» switch, «Porzioni pronte»
-(batches, pantry). Impostazioni: compare again.
+The «Adesso · Previsto · Prima» switch (2026-10-25): what opens from ⊕ is
+done now, planned, or done earlier with its time left to say (`&stato=`
+to the sheets and the composer). Missing: «Porzioni pronte» (batches,
+pantry). Impostazioni: compare again.
 
 ## Codice a barre
 
