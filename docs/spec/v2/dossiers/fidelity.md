@@ -126,7 +126,11 @@ their formats and prices, «Tipi di ogni macro», «Vitamine e minerali»,
 ## Piano, Obiettivi, Impostazioni, Aggiungi
 
 Piano: models, day types and cycles (boards Models, ModelEditor,
-CycleEditor) — built with day-templates b and c (#275). Obiettivi
+CycleEditor) — built with day-templates b and c (#275). The week's header
+as the board Plan (2026-10-25): the kit's DateNav in week mode
+(«Settimana 42 · 12–18 ottobre», ‹ › a week, each day's step or model
+under its number), the header line «sett. 42 · giornata «Rec» · ciclo
+PLPRR». Obiettivi
 (2026-10-24): each goal a row as on the board — its drawing, now → target,
 by when with the paces and the arrival, how far along as a strip, the
 week's days coloured for a per-day count, «da qui: … kcal e … g al giorno»,

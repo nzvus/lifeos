@@ -7,13 +7,14 @@
  * planned and what the model still plans, «+ previsto». Then «Le regole»:
  * the week type and the cycles, «Modelli».
  */
-import { addDays, Box, F, NavBar, PageHeader, weekOf } from "@lifeos/kit";
+import { Box, DateNav, F, NavBar, PageHeader, weekOf } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDays, readRangeTargets } from "@/core/day";
 import { ensureWeekTargets } from "@/core/energy";
 import {
+  planTag,
   planWords,
   readCycleBook,
   readDayPlans,
@@ -82,9 +83,9 @@ export default async function PianoPage({
     ),
   ]);
   const ctx = { compounds, doses: [], bed: null, creatineDays: null };
-  const href = (d: string) =>
-    weekOf(today)[0] === weekOf(d)[0] ? "/piano" : "/piano?settimana=" + d;
   const models = toModels(book.models, book.rows);
+  // The header names the open day's model and cycles (the week's first day when none is open).
+  const headPlan = plans.get(open ?? week[0]!);
   const sheet = open ? days.find((d) => d.day === open) : undefined;
   const sheetPlan = open ? plans.get(open) : undefined;
   const items = sheet ? [...sheet.timed, ...sheet.untimed] : [];
@@ -123,21 +124,30 @@ export default async function PianoPage({
     <main className="k-page has-bd">
       <PageHeader
         title="Piano"
-        context={F.date(week[0]!) + " – " + F.date(week[6]!)}
+        context={[
+          F.week(week[0]!),
+          headPlan?.model ? "giornata «" + headPlan.model.name + "»" : "",
+          ...(headPlan?.cycles ?? []).map((c) => "ciclo " + c.cycle),
+        ]
+          .filter(Boolean)
+          .join(" · ")}
         action={{ label: "Modelli", href: "/piano/modelli" }}
         of={{ place: "piano" }}
       />
+      <section className="k-block g3">
+        <DateNav
+          mode="week"
+          day={open ?? week[0]!}
+          today={today}
+          hrefBase="/piano?giorno="
+          weekBase="/piano?settimana="
+          tags={Object.fromEntries(week.map((d) => [d, planTag(plans.get(d))]))}
+        />
+      </section>
       <section className="k-section g3" aria-label="La settimana">
-        <div className="k-line between">
-          <a className="k-link" href={href(addDays(week[0]!, -7))}>
-            ‹ prima
-          </a>
-          <h2>La settimana</h2>
-          <a className="k-link" href={href(addDays(week[0]!, 7))}>
-            dopo ›
-          </a>
-        </div>
-        <span className="k-meta">Tocca un giorno per cambiarlo.</span>
+        <h2>
+          La settimana <span className="k-meta">tocca un giorno per cambiarlo</span>
+        </h2>
         <div className="k-stack g2">
           {days.map((d) => (
             <Box
