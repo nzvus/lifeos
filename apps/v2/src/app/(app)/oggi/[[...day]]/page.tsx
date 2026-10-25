@@ -26,11 +26,14 @@ import {
 } from "@/core/day";
 import { addDays, instantAt, logicalDay } from "@/core/engines/time";
 import { readSettings } from "@/core/account/settings";
+import { readPlace } from "@/core/account/place";
+import { airWords } from "@/core/engines/environment";
+import { weatherChips } from "@/app/_server/weather";
 import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
 import { ensureWeekTargets, mondayOf } from "@/core/energy";
 import {
   planTag,
-  planWords,
+  cycleWords,
   readDayPlans,
   habitsDue,
   readHabits,
@@ -147,7 +150,7 @@ export default async function OggiPage({
   const tags = Object.fromEntries(
     week.flatMap((d) => (planTag(plans.get(d)) ? [[d, planTag(plans.get(d))]] : [])),
   );
-  const planLine = planWords(plans.get(date), date === today);
+  const cycleLine = cycleWords(plans.get(date), date === today);
   const goal = goals?.find(
     (g) => g.source === "weight" && g.target === "reach" && g.value !== null,
   );
@@ -195,9 +198,15 @@ export default async function OggiPage({
   // The day's model's meal blocks: each meal's bars against its block, the block's fit in its score.
   const model = plans.get(date)?.model ?? null;
   // Always read: «Cambia la giornata» offers the models (three narrow queries); the habits.
-  const [book, habits] = await Promise.all([
+  const [book, habits, weather] = await Promise.all([
     readModelBook(db, owner),
     date >= today ? readHabits(db, owner) : [],
+    // The weather and the air of the day where the person lives (E11), when a city is set.
+    readPlace(db, owner).then((p) =>
+      p
+        ? weatherChips(p, date, today, clock.timeZone).then((w) => (w ? { p, w } : null))
+        : null,
+    ),
   ]);
   const blocks = model
     ? (resolveModel(model.id, toModels(book.models, book.rows))?.blocks ?? [])
@@ -293,22 +302,67 @@ export default async function OggiPage({
 
   return (
     <main className="k-page has-bd">
-      <PageHeader title="Oggi" of={{ place: "oggi" }} />
+      <PageHeader
+        title="Oggi"
+        of={{ place: "oggi" }}
+        context={cycleLine}
+        extra={
+          <DayPlanBar
+            modelName={model?.name ?? null}
+            model={model?.id ?? ""}
+            fromDay={model?.from === "day"}
+            models={(book?.models ?? [])
+              .filter((m) => m.active)
+              .map((m) => ({ id: m.id, name: m.name }))}
+            steps={(plans.get(date)?.cycles ?? [])
+              .filter((c) => !c.rest)
+              .map((c) => ({ cycleId: c.cycleId, label: c.label, skipped: c.skipped }))}
+            change={changeDayModel.bind(null, date)}
+            skip={skipStep.bind(null, date)}
+          />
+        }
+      />
       <section className="k-block g3">
         <DateNav day={date} today={today} hrefBase="/oggi/" scores={scores} tags={tags} />
-        <DayPlanBar
-          words={planLine}
-          model={model?.id ?? ""}
-          fromDay={model?.from === "day"}
-          models={(book?.models ?? [])
-            .filter((m) => m.active)
-            .map((m) => ({ id: m.id, name: m.name }))}
-          steps={(plans.get(date)?.cycles ?? [])
-            .filter((c) => !c.rest)
-            .map((c) => ({ cycleId: c.cycleId, label: c.label, skipped: c.skipped }))}
-          change={changeDayModel.bind(null, date)}
-          skip={skipStep.bind(null, date)}
-        />
+        {weather && (
+          <div className="k-chips" aria-label="Il tempo">
+            {weather.w.maxC !== null && weather.w.minC !== null && (
+              <span className="k-pill">
+                <Glyph of={{ fam: "env", kind: "temp" }} size="xs" />
+                {F.num(weather.w.maxC, "°C") + " · " + F.num(weather.w.minC, "°C")}
+              </span>
+            )}
+            {weather.w.humidity !== null && (
+              <span className="k-pill">
+                <Glyph of={{ fam: "env", kind: "humidity" }} size="xs" />
+                {F.num(weather.w.humidity, "%")} umidità
+              </span>
+            )}
+            {weather.w.aqi !== null && (
+              <span
+                className="k-pill"
+                style={
+                  weather.w.aqi > 60
+                    ? { color: F.tone("warn"), borderColor: F.tone("warn") }
+                    : undefined
+                }
+              >
+                <Glyph of={{ fam: "env", kind: "air" }} size="xs" />
+                {airWords(weather.w.aqi)}
+              </span>
+            )}
+            {weather.w.daylightH !== null && (
+              <span className="k-pill">
+                <Glyph of={{ fam: "env", kind: "light" }} size="xs" />
+                {F.hm(weather.w.daylightH * 60)} di luce
+              </span>
+            )}
+            <span className="k-pill k-muted">
+              <Glyph of={{ fam: "env", kind: "place" }} size="xs" />
+              {weather.p.name}
+            </span>
+          </div>
+        )}
       </section>
       {whole && (
         <section className="k-block g3" aria-label="Il giorno">

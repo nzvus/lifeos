@@ -33,9 +33,11 @@ tutto / manca qualcosa, riapri; E4 now reads «manca qualcosa» as partial).
 Done 2026-10-25: «Salva come modello» (the day's meals as one block per
 role at its first time with its share of kcal and protein, its sessions
 with their minutes; a role with no energy gives none; then the model's
-editor). Missing: the day type and cycle as the header's action
-(«Giornata «Rec» ▾», now a line under the week), context chips (weather,
-light, place), pantry reminder card. Depends on: day templates (Piano), drink
+editor); the day's model as the header's action («Giornata «Rec» ▾», a
+panel to change it or skip the step) and the cycle as the header's line
+(«ciclo PLPRR: oggi Push, poi Riposo»); the weather chips (high · low,
+humidity, air, daylight, the city; engines.md E11). Missing: the pantry
+reminder card. Depends on: day templates (Piano), drink
 and supplement kinds (migration.md), pantry (V-12).
 
 ## Composer (Food)
@@ -100,7 +102,10 @@ each domain's page (the board Tracker, `/andamento/peso`, `sonno`, `acqua`,
 stats, the kit's new Chart (weight: the scale's points, the board's
 smoothed trend, the goal line; sleep, water, steps: bars against 7–9 h,
 the need, the goal), each entry a row with its own score, «Cosa dice di
-te». Missing: the kind's settings on its page, food and training pages.
+te». The person's own trackers too (`/andamento/<key>`: each day's first
+number summed, or how many times; their rows as on Oggi; «I tuoi tracker»
+on Andamento). Missing: the kind's settings on its page, food and
+training pages.
 
 ## Libreria
 
@@ -111,11 +116,22 @@ The board is an index: Cibi · Pasti e ricette · Dispensa · Esercizi · Tipi
 di tracker, then «Aggiungere» (food by barcode/label/hand, meal, receipt,
 exercise), one search across all. v2 opens straight on the foods list with
 tabs and a sort select.
+Done 2026-10-25 (the board IngredientEditor): a food's page says how often
+it was used, «Modifica» in its header, its values as stats, «Così appare»
+(100 of it in the meal's bars, folded), section icons; the editor has
+«Nome e codici» and «Per 100 g» with steppers two by two and NOVA 1–4.
+Missing: one page for reading and editing (the board's), products with
+their formats and prices, «Tipi di ogni macro», «Vitamine e minerali»,
+«Fonti».
 
 ## Piano, Obiettivi, Impostazioni, Aggiungi
 
 Piano: models, day types and cycles (boards Models, ModelEditor,
-CycleEditor) — built with day-templates b and c (#275). Obiettivi
+CycleEditor) — built with day-templates b and c (#275). The week's header
+as the board Plan (2026-10-25): the kit's DateNav in week mode
+(«Settimana 42 · 12–18 ottobre», ‹ › a week, each day's step or model
+under its number), the header line «sett. 42 · giornata «Rec» · ciclo
+PLPRR». Obiettivi
 (2026-10-24): each goal a row as on the board — its drawing, now → target,
 by when with the paces and the arrival, how far along as a strip, the
 week's days coloured for a per-day count, «da qui: … kcal e … g al giorno»,
@@ -125,9 +141,12 @@ the inline «Nuovo obiettivo» with its derived pace (it is a page).
 Aggiungi (2026-10-24): «A quest'ora, di solito» (meals usually logged
 within ±90 min of now on ≥ 2 of the last 28 days, one tap to log again),
 «Allenamento · inizia adesso» (the 3 routines most trained), «La ricerca
-non trova?» (new food, new exercise). Missing: one search across all, the
-«Adesso / Previsto» switch, «Porzioni pronte» (batches, pantry), «Nuovo
-tracker». Impostazioni: compare again.
+non trova?» (new food, new exercise). Done 2026-10-25: one search across
+the kinds, foods, saved meals and routines on top (names only, read in one
+query; a food opens the composer with it, `?cibo=`), «Cosa» first.
+«Nuovo tracker» (2026-10-25, Impostazioni → Tracker e tipi; kinds.md).
+Missing: the «Adesso / Previsto / Prima» switch, «Porzioni pronte»
+(batches, pantry). Impostazioni: compare again.
 
 ## Codice a barre
 
@@ -144,8 +163,14 @@ to the composer's search.
 Done 2026-10-24: sections with their drawing and a line of why,
 «Obiettivi di oggi» (kcal and protein, where they come from, a link),
 «Tracker e tipi» (the foods and your own kinds counted), «I tuoi dati»
-(download all, the trash with its count). Missing: CSV per kind, replace
-or merge from a file, invites, language, the weather's city.
+(download all, the trash with its count). Done 2026-10-25: «Porta i dati
+da v1» — v1's export, a dry run (per kind, the days, what stays out), then
+«Aggiungi»: an entry comes in when v2 has no live entry of its kind on its
+day (with its children, lines, sets), its catalog items by id, else v2's of
+the same name, else new; nothing in v2 changes (core/convert `newFromV1`,
+ADR-0052's merge narrowed to v1 → v2; money stays out). Missing: CSV per
+kind, replace from a file, invites, language. The weather's city is in
+«Il tempo» (2026-10-25).
 
 ## Come valutiamo (Scores)
 

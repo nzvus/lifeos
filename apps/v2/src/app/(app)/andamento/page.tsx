@@ -214,6 +214,15 @@ export default async function AndamentoPage({
       : null,
   );
   if (stepsRow) domains.push({ ...stepsRow, href: "/andamento/passi" });
+  // The person's own trackers used in the period, each to its page (no score: theirs to say).
+  const own = new Map<
+    string,
+    { kind: (typeof loaded)[number]["timed"][number]["kind"]; n: number }
+  >();
+  for (const d of loaded)
+    for (const i of itemsOf(d))
+      if (i.kind.name && i.status === "done")
+        own.set(i.kind.key, { kind: i.kind, n: (own.get(i.kind.key)?.n ?? 0) + 1 });
   const periodScore = averageScore([...scores.values()]);
   const data = loaded.map((d) => ({
     day: d.day,
@@ -332,6 +341,27 @@ export default async function AndamentoPage({
           </h2>
           {domains.map((e) => (
             <OpenBox key={e.title} entry={e} />
+          ))}
+        </section>
+      )}
+      {own.size > 0 && (
+        <section className="k-section g3" aria-label="I tuoi tracker">
+          <h2>I tuoi tracker</h2>
+          {[...own.values()].map(({ kind, n }) => (
+            <Box
+              key={kind.key}
+              density="row"
+              rail={false}
+              entry={{
+                fam: kind.family,
+                of: { kind: kind.key },
+                title: kind.name!,
+                value: String(n),
+                meta: n === 1 ? "volta nel periodo" : "volte nel periodo",
+                href: "/andamento/" + kind.key,
+                hrefLabel: "Andamento di " + kind.name,
+              }}
+            />
           ))}
         </section>
       )}

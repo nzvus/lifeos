@@ -40,7 +40,7 @@ const MORE: Record<string, ReadonlySet<string>> = {
 function field(f: Field): FieldProps {
   const base = {
     name: VALUE + f.key,
-    label: FIELDS[f.key] ?? keyWords(f.key),
+    label: FIELDS[f.key] ?? f.label ?? keyWords(f.key),
     required: f.required,
   };
   switch (f.type) {
@@ -103,7 +103,7 @@ export function entryForm(kind: Kind): EntryForm {
   const more = MORE[kind.key] ?? new Set<string>();
   return {
     kind: kind.key,
-    title: NAMES[kind.key] ?? keyWords(kind.key),
+    title: NAMES[kind.key] ?? kind.name ?? keyWords(kind.key),
     fam: kind.family,
     times: span
       ? { start: SPAN[kind.key]?.[0] ?? "Inizio", end: SPAN[kind.key]?.[1] ?? "Fine" }
@@ -182,7 +182,7 @@ export function kindRows(
       fam: k.family,
       ...(typeof k.subcategory === "string" ? { sub: k.subcategory } : {}),
       of: { kind: k.key },
-      title: NAMES[k.key] ?? keyWords(k.key),
+      title: NAMES[k.key] ?? k.name ?? keyWords(k.key),
     },
   }));
 }

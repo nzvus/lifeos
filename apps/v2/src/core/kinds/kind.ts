@@ -51,6 +51,8 @@ const fieldKey = z.string().regex(/^[a-z][a-zA-Z0-9]*$/, "camelCase");
 export const fieldSchema = z
   .object({
     key: fieldKey,
+    /** The person's own word for it (a user kind's field); built-ins have theirs in features. */
+    label: z.string().min(1).max(40).optional(),
     type: z.enum(FIELD_TYPES),
     unit: z.string().optional(),
     /** For `scale`: the top of the scale (1–5 or 1–10). */
@@ -80,6 +82,8 @@ const gapSchema = z.object({
 export const kindSchema = z
   .object({
     key,
+    /** The person's own name for it (a user kind: the row's `name`). */
+    name: z.string().min(1).max(40).optional(),
     family: z.enum(FAMILIES),
     domain: z.enum(DOMAINS),
     shape: z.enum(["instant", "interval"]),

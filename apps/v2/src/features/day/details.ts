@@ -82,7 +82,8 @@ export function details(i: DayItem, { foods = true }: { foods?: boolean } = {}):
   for (const [key, v] of Object.entries(i.values)) {
     if (HIDDEN.has(key) || HEADLINE[i.kind.key] === key) continue;
     const value = fieldValue(i, key, v);
-    if (value !== null) stats.push({ label: FIELDS[key] ?? keyWords(key), value });
+    const label = FIELDS[key] ?? i.kind.fields.find((f) => f.key === key)?.label;
+    if (value !== null) stats.push({ label: label ?? keyWords(key), value });
   }
 
   if (i.kind.key === "meal" || i.kind.key === "batch") {

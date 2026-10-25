@@ -63,7 +63,7 @@ function title(i: DayItem): string {
     case "chore":
       return i.note || NAMES.chore!;
     default:
-      return NAMES[i.kind.key] ?? i.item?.name ?? i.kind.key;
+      return NAMES[i.kind.key] ?? i.kind.name ?? i.item?.name ?? i.kind.key;
   }
 }
 
@@ -117,6 +117,7 @@ function value(i: DayItem): string {
 }
 
 function meta(i: DayItem): string {
+  if (i.kind.name) return userMeta(i);
   if (i.kind.key === "checkin") {
     const parts = (
       [
@@ -135,6 +136,33 @@ function meta(i: DayItem): string {
     return short([what, i.note].filter(Boolean).join(" · "));
   }
   return i.note ? short(i.note) : "";
+}
+
+/**
+ * A kind of the person's own (it has their name): each field with their word,
+ * «Intensità 3/5 · Farmaco ibuprofene»; the first number is the box's value.
+ */
+function userMeta(i: DayItem): string {
+  const v = i.values;
+  const head = i.kind.fields.find(
+    (x) => ["number", "integer"].includes(x.type) && num(v[x.key]) !== null,
+  );
+  const parts = i.kind.fields.flatMap((f) => {
+    const x = v[f.key];
+    if (f === head || x === undefined || x === null || x === "") return [];
+    const shown =
+      typeof x === "boolean" || x === "true" || x === "false"
+        ? x === true || x === "true"
+          ? "sì"
+          : "no"
+        : f.type === "scale"
+          ? F.n(Number(x), 0) + "/" + f.scale
+          : f.type === "duration" || f.type === "number" || f.type === "integer"
+            ? F.num(Number(x), f.unit ?? "")
+            : String(x);
+    return [(f.label ?? f.key) + " " + shown];
+  });
+  return short([...parts, i.note].filter(Boolean).join(" · "));
 }
 
 /** A session's working sets and tonnage (the boards: «30 serie · 6.870 kg»); done sets only. */

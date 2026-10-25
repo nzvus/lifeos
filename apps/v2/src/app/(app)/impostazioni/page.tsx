@@ -16,8 +16,10 @@ import { logicalDay } from "@/core/engines/time";
 import { readDayModel } from "@/core/plans";
 import { SettingsForm } from "@/features/account/SettingsForm";
 import { SignOut } from "@/features/account/SignOut";
+import { FromV1 } from "@/features/account/FromV1";
 import { ThemePicker } from "@/features/account/ThemePicker";
-import { saveSettingsForm } from "./actions";
+import { savePlaceForm, saveSettingsForm } from "./actions";
+import { readPlace } from "@/core/account/place";
 
 function Section({
   name,
@@ -44,7 +46,12 @@ function Section({
   );
 }
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ luogo?: string | string[] }>;
+}) {
+  const { luogo } = await searchParams;
   const owner = await requireOwner();
   const session = await getSession();
   const db = await getDb();
@@ -53,9 +60,10 @@ export default async function SettingsPage() {
     timeZone: s.timeZone,
     boundaryMin: s.boundaryMin,
   });
-  const [counts, targets] = await Promise.all([
+  const [counts, targets, place] = await Promise.all([
     readSettingsCounts(db, owner, new Date()),
     readDayModel(db, owner, today).then((m) => readDayTargets(db, owner, today, m)),
+    readPlace(db, owner),
   ]);
   return (
     <main className="k-page has-bd">
@@ -126,8 +134,39 @@ export default async function SettingsPage() {
             meta: counts.kinds
               ? "tracker tuoi, oltre a quelli di base"
               : "per ora solo quelli di base",
+            href: "/impostazioni/tipi",
+            hrefLabel: "I tuoi tracker, e uno nuovo",
           }}
         />
+      </Section>
+      <Section
+        name="Il tempo"
+        of={{ fam: "env", kind: "weather" }}
+        help="La tua città: su Oggi la temperatura, l’umidità, l’aria e la luce del giorno (Open-Meteo)."
+      >
+        <form action={savePlaceForm} className="k-line g2">
+          <input
+            className="k-text"
+            style={{ flex: 1, minWidth: 0 }}
+            name="city"
+            defaultValue={place?.name ?? ""}
+            placeholder="per esempio: Bologna"
+            aria-label="La tua città"
+          />
+          <button type="submit" className="k-btn secondary">
+            Salva
+          </button>
+        </form>
+        {luogo === "nontrovato" && (
+          <p className="k-help" role="alert">
+            Non trovo questa città: prova col nome in italiano o in inglese.
+          </p>
+        )}
+        {luogo === "ok" && place && (
+          <p className="k-help" role="status">
+            Fatto: {place.name}.
+          </p>
+        )}
       </Section>
       <Section name="Aspetto" of={{ ui: "theme" }}>
         <ThemePicker />
@@ -150,6 +189,14 @@ export default async function SettingsPage() {
             }}
           />
         </a>
+        <div className="k-stack g1">
+          <span className="k-label">Porta i dati da v1</span>
+          <span className="k-help">
+            Scegli l’export di v1 (Impostazioni → Esporta): vedi cosa arriverebbe, poi
+            «Aggiungi». Entra solo ciò che v2 non ha; niente in v2 cambia.
+          </span>
+          <FromV1 />
+        </div>
         <Box
           density="row"
           rail={false}

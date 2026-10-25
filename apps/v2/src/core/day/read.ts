@@ -104,6 +104,7 @@ export function readUserKinds(db: Db, owner: Owner): Promise<UserKindRow[]> {
   return db
     .select({
       key: kinds.key,
+      name: kinds.name,
       domain: kinds.domain,
       shape: kinds.shape,
       entryMode: kinds.entryMode,

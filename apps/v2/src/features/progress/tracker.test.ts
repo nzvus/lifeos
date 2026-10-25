@@ -3,6 +3,7 @@ import type { Day, DayItem } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
 import type { ScoreContext } from "@/features/day/score";
 import {
+  kindTracker,
   sleepTracker,
   smoothWeight,
   stepsTracker,
@@ -133,5 +134,37 @@ describe("a tracker page", () => {
     expect(v.head.score).toBeUndefined();
     expect(v.stats[1]).toMatchObject({ v: "1 su 2" });
     expect(v.chart?.data.bandLo).toBe(8000);
+  });
+
+  it("a kind of the person's own: its first number summed per day, its rows as on Oggi", () => {
+    const mine = kindRegistry([
+      {
+        key: "lettura_libera",
+        name: "Lettura libera",
+        domain: "mind",
+        shape: "instant",
+        entryMode: "form",
+        archivedAt: null,
+        definition: {
+          family: "mind",
+          fields: [{ key: "pagine", label: "Pagine", type: "integer", unit: "pagine" }],
+        },
+      },
+    ]).get("lettura_libera");
+    const read = (n: string) =>
+      item("chore", { kind: mine, family: "mind", values: { pagine: n } });
+    const v = kindTracker({
+      kind: mine,
+      days: [day("2026-10-20", [read("10"), read("5")]), day("2026-10-21", [read("20")])],
+      period,
+    });
+    expect(v.title).toBe("Lettura libera");
+    expect(v.chart?.data.y).toEqual([15, 20]);
+    expect(v.head.value).toBe("35\u00a0pagine");
+    expect(v.rows.map((r) => r.title)).toEqual([
+      "Mercoledì 21",
+      "Martedì 20",
+      "Martedì 20",
+    ]);
   });
 });

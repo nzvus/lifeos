@@ -1,8 +1,10 @@
 /**
  * PageHeader (kit.md §3) — top level: the title and the gear to Settings;
  * a sub-page: "‹ parent" naming where it goes, then the title. An optional
- * action on the right (the day's model on Oggi).
+ * action on the right: a link, or a control of the page's own (`extra`, the
+ * day's model on Oggi: «Giornata «Rec» ▾»).
  */
+import type { ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
 
@@ -13,6 +15,7 @@ export function PageHeader({
   context,
   back,
   action,
+  extra,
   of,
   settingsHref = "/impostazioni",
 }: {
@@ -20,6 +23,8 @@ export function PageHeader({
   context?: string;
   back?: Link;
   action?: Link;
+  /** A control on the right, before the gear (a client component of the page). */
+  extra?: ReactNode;
   of?: GlyphOf;
   settingsHref?: string;
 }) {
@@ -41,6 +46,7 @@ export function PageHeader({
           heading
         )}
         <span className="k-line g1">
+          {extra}
           {action && (
             <a className="k-back k-act-link" href={action.href}>
               {action.label}

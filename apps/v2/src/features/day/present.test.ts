@@ -214,3 +214,36 @@ describe("a day item as a Box", () => {
     expect([b.title, b.value]).toEqual(["guitar", "30 min"]);
   });
 });
+
+describe("a kind of the person's own on Oggi", () => {
+  const mine = kindRegistry([
+    {
+      key: "mal_di_testa",
+      name: "Mal di testa",
+      domain: "body",
+      shape: "instant",
+      entryMode: "form",
+      archivedAt: null,
+      definition: {
+        family: "body",
+        fields: [
+          { key: "intensita", label: "Intensità", type: "scale", scale: 5 },
+          { key: "farmaco", label: "Farmaco", type: "choice", choices: ["no", "sì"] },
+          { key: "acqua", label: "Acqua", type: "number", unit: "ml" },
+        ],
+      },
+    },
+  ]).get("mal_di_testa");
+  it("is named by its name, valued by its first number, each field with its word", () => {
+    const e = present(
+      item("chore", {
+        kind: mine,
+        family: "body",
+        values: { intensita: "3", farmaco: "sì", acqua: "250" },
+      }),
+    );
+    expect(e.title).toBe("Mal di testa");
+    expect(e.value).toBe("250 ml");
+    expect(e.meta).toBe("Intensità 3/5 · Farmaco sì");
+  });
+});

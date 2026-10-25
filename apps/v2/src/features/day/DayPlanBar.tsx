@@ -1,24 +1,24 @@
 "use client";
 /**
- * The day's plan on Oggi (the boards' header line «Giornata «Rec» · PLPRR:
- * oggi Push, poi Riposo») with what changes this day only
- * (dossiers/day-templates.md §5): «Cambia la giornata» picks another model
- * (or the week's again); each cycle's step can be skipped, and back.
+ * The day's model in Oggi's header (the board Main: «Giornata «Rec» ▾»,
+ * the cycle as the line under the title): what changes this day only
+ * (dossiers/day-templates.md §5). The button opens a panel: another model
+ * (or the week's again), and each cycle's step skipped, or back.
  */
 import { useState, useTransition } from "react";
 
 export function DayPlanBar({
-  words,
   model,
+  modelName,
   fromDay,
   models,
   steps,
   change,
   skip,
 }: {
-  words: string;
   /** The day's model id, "" for none. */
   model: string;
+  modelName: string | null;
   /** The model was chosen for this day (not the week's). */
   fromDay: boolean;
   models: { id: string; name: string }[];
@@ -28,60 +28,77 @@ export function DayPlanBar({
 }) {
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
+  if (models.length === 0 && steps.length === 0) return null;
   return (
-    <div className="k-stack g2">
-      {words && <p className="k-meta">{words}</p>}
-      <div className="k-line wrap">
-        {models.length > 0 && (
-          <button
-            type="button"
-            className="k-btn link"
-            aria-expanded={open}
-            onClick={() => setOpen(!open)}
-          >
-            Cambia la giornata
-          </button>
-        )}
-        {steps.map((s) => (
-          <button
-            key={s.cycleId}
-            type="button"
-            className="k-btn link"
-            disabled={pending}
-            onClick={() => start(() => skip(s.cycleId, !s.skipped))}
-          >
-            {s.skipped
-              ? "Annulla il salto di «" + s.label + "»"
-              : "Salta «" + s.label + "»"}
-          </button>
-        ))}
-      </div>
+    <span style={{ position: "relative", zIndex: 20 }}>
+      <button
+        type="button"
+        className="k-back k-act-link"
+        style={{ background: "none", border: 0, padding: 0, cursor: "pointer" }}
+        aria-expanded={open}
+        aria-label={
+          (modelName ? "Giornata «" + modelName + "»" : "Nessun modello") +
+          ": tocca per cambiarla"
+        }
+        onClick={() => setOpen(!open)}
+      >
+        {modelName ? "Giornata «" + modelName + "»" : "Giornata"} ▾
+      </button>
       {open && (
-        <form
-          action={async (d) => {
-            await change(d);
-            setOpen(false);
+        <div
+          className="k-panel k-stack g2"
+          style={{
+            position: "absolute",
+            // Its right edge on the page's gutter: past the gear beside the button.
+            right: -48,
+            top: "calc(100% + 4px)",
+            zIndex: 20,
+            boxShadow: "0 8px 24px rgb(0 0 0 / 0.12)",
+            width: "min(20rem, calc(100vw - 32px))",
           }}
-          className="k-line k-panel"
         >
-          <select
-            className="k-select"
-            name="model"
-            defaultValue={fromDay ? model : ""}
-            aria-label="Il modello di questa giornata"
-          >
-            <option value="">come la settimana</option>
-            {models.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-          <button type="submit" className="k-btn primary">
-            Salva
-          </button>
-        </form>
+          {models.length > 0 && (
+            <form
+              action={async (d) => {
+                await change(d);
+                setOpen(false);
+              }}
+              className="k-line g2"
+            >
+              <select
+                className="k-select"
+                style={{ flex: 1, minWidth: 0 }}
+                name="model"
+                defaultValue={fromDay ? model : ""}
+                aria-label="Il modello di questa giornata"
+              >
+                <option value="">come la settimana</option>
+                {models.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+              <button type="submit" className="k-btn primary">
+                Salva
+              </button>
+            </form>
+          )}
+          {steps.map((s) => (
+            <button
+              key={s.cycleId}
+              type="button"
+              className="k-btn link"
+              disabled={pending}
+              onClick={() => start(() => skip(s.cycleId, !s.skipped))}
+            >
+              {s.skipped
+                ? "Annulla il salto di «" + s.label + "»"
+                : "Salta «" + s.label + "»"}
+            </button>
+          ))}
+        </div>
       )}
-    </div>
+    </span>
   );
 }

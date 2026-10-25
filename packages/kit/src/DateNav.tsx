@@ -5,6 +5,8 @@
  * day is its own page (`hrefBase` + ISO date). The week and the month are
  * computed from the date. Scores (0–100) colour the bars when given; a tag
  * (the cycle's step, the day's model) names a day under its number.
+ * Week mode (Piano, the board Plan): «Settimana 42 · 12–18 ottobre», ‹ ›
+ * move a week (`weekBase` + a day of it), the strip's days still open a day.
  */
 import { useState } from "react";
 import { addDays, monthOf, weekOf } from "./calendar";
@@ -16,8 +18,13 @@ export function DateNav({
   hrefBase,
   scores = {},
   tags = {},
+  mode = "day",
+  weekBase,
 }: {
   day: string;
+  mode?: "day" | "week";
+  /** Week mode: the prefix of a week's page ("/piano?settimana="). */
+  weekBase?: string;
   today: string;
   /** Prefix of a day's page: "/oggi/" → "/oggi/2026-10-15". */
   hrefBase: string;
@@ -27,12 +34,28 @@ export function DateNav({
   const [month, setMonth] = useState(false);
   const href = (d: string) => hrefBase + d;
   const bar = (d: string) => F.judge(scores[d]).tone;
-  const title = F.Day(day);
+  const week = mode === "week";
+  const days = weekOf(day);
+  const first = days[0]!;
+  const last = days[6]!;
+  const title = week ? "Settimana " + F.week(day).replace(/^sett\.\s/, "") : F.Day(day);
+  const sub = week
+    ? first.slice(5, 7) === last.slice(5, 7)
+      ? Number(first.slice(8)) + "–" + Number(last.slice(8)) + " " + F.month(first)
+      : F.date(first) + " – " + F.date(last)
+    : F.month(day) + " · " + F.week(day);
+  const step = (n: number) =>
+    week && weekBase ? weekBase + addDays(day, n * 7) : href(addDays(day, n));
+  const away = week ? !days.includes(today) : day !== today;
   const m = monthOf(day);
   return (
     <div className="k-dn">
       <div className="top">
-        <a className="nav" href={href(addDays(day, -1))} aria-label="Giorno prima">
+        <a
+          className="nav"
+          href={step(-1)}
+          aria-label={week ? "Settimana prima" : "Giorno prima"}
+        >
           ‹
         </a>
         <button
@@ -44,19 +67,26 @@ export function DateNav({
             title + ". Tocca per " + (month ? "chiudere" : "aprire") + " il mese"
           }
         >
-          {title} <small>{F.month(day) + " · " + F.week(day)}</small>
+          {title} <small>{sub}</small>
         </button>
-        <a className="nav" href={href(addDays(day, 1))} aria-label="Giorno dopo">
+        <a
+          className="nav"
+          href={step(1)}
+          aria-label={week ? "Settimana dopo" : "Giorno dopo"}
+        >
           ›
         </a>
-        {day !== today && (
-          <a href={href(today)} className="k-btn secondary">
+        {away && (
+          <a
+            href={week && weekBase ? weekBase + today : href(today)}
+            className="k-btn secondary"
+          >
             Oggi
           </a>
         )}
       </div>
       <nav className="k-week" aria-label="La settimana">
-        {weekOf(day).map((d) => {
+        {days.map((d) => {
           const current = d === day;
           return (
             <a

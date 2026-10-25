@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dayPlans, planTag, planWords, type PlanInput } from "./plan";
+import { cycleWords, dayPlans, planTag, planWords, type PlanInput } from "./plan";
 
 const base: PlanInput = {
   today: "2026-10-23",
@@ -51,6 +51,8 @@ describe("what each day is supposed to be", () => {
     const today = p.get("2026-10-23")!;
     expect(today.cycles[0]).toMatchObject({ label: "Push", rest: false, next: "Legs" });
     expect(planWords(today, true)).toBe("Giornata «Rest» · PLPRR: oggi Push, poi Legs");
+    expect(cycleWords(today, true)).toBe("ciclo PLPRR: oggi Push, poi Legs");
+    expect(cycleWords(p.get("2026-10-22"), true)).toBe("");
     expect(p.get("2026-10-26")!.cycles[0]!.next).not.toBeNull();
   });
 
