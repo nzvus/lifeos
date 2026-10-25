@@ -187,8 +187,9 @@ da v1» — v1's export, a dry run (per kind, the days, what stays out), then
 day (with its children, lines, sets), its catalog items by id, else v2's of
 the same name, else new; nothing in v2 changes (core/convert `newFromV1`,
 ADR-0052's merge narrowed to v1 → v2; a movement with its money,
-lines and receipt since 2026-10-25). Missing: CSV per
-kind, replace from a file, invites, language. The weather's city is in
+lines and receipt since 2026-10-25). «Un foglio per
+tipo» (2026-10-25, ADR-0052 C): a kind's entries as CSV, a meal a row per
+food. Missing: replace from a file, invites, language. The weather's city is in
 «Il tempo» (2026-10-25).
 
 ## Soldi (Money)

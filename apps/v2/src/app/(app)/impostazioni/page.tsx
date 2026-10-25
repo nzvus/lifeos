@@ -20,6 +20,10 @@ import { FromV1 } from "@/features/account/FromV1";
 import { ThemePicker } from "@/features/account/ThemePicker";
 import { savePlaceForm, saveSettingsForm } from "./actions";
 import { readPlace } from "@/core/account/place";
+import { readUserKinds } from "@/core/day";
+import { enterable } from "@/core/entries";
+import { kindRegistry } from "@/core/kinds";
+import { kindRows } from "@/features/day/entry-form";
 
 function Section({
   name,
@@ -65,6 +69,17 @@ export default async function SettingsPage({
     readDayModel(db, owner, today).then((m) => readDayTargets(db, owner, today, m)),
     readPlace(db, owner),
   ]);
+  // «Un foglio per tipo»: the specialised kinds, then those ⊕ enters (the person's own too).
+  const userKinds = (await readUserKinds(db, owner)).filter((k) => !k.archivedAt);
+  const csvKinds = [
+    { key: "meal", title: "Pasti" },
+    { key: "session", title: "Allenamenti" },
+    { key: "movement", title: "Spese" },
+    ...kindRows(kindRegistry(userKinds).all.filter(enterable), (k) => k).map((r) => ({
+      key: r.key,
+      title: r.entry.title,
+    })),
+  ];
   return (
     <main className="k-page has-bd">
       <PageHeader
@@ -189,6 +204,32 @@ export default async function SettingsPage({
             }}
           />
         </a>
+        <form action="/impostazioni/csv" method="get" className="k-stack g1">
+          <label className="k-label" htmlFor="f-csv">
+            Un foglio per tipo
+          </label>
+          <span className="k-help">
+            Le voci di un tipo come foglio di calcolo (CSV): una riga per voce, un pasto
+            una riga per cibo con i suoi valori.
+          </span>
+          <div className="k-line g2">
+            <select
+              id="f-csv"
+              name="tipo"
+              className="k-select"
+              style={{ flex: 1, minWidth: 0 }}
+            >
+              {csvKinds.map((k) => (
+                <option key={k.key} value={k.key}>
+                  {k.title}
+                </option>
+              ))}
+            </select>
+            <button type="submit" className="k-btn secondary">
+              Scarica
+            </button>
+          </div>
+        </form>
         <div className="k-stack g1">
           <span className="k-label">Porta i dati da v1</span>
           <span className="k-help">
