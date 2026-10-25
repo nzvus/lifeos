@@ -33,9 +33,37 @@ import {
 import { sleepParts } from "@/core/engines/sleep";
 import type { MicroTarget } from "@/core/engines/targets";
 import type { DayClock, IsoDate } from "@/core/engines/time";
+import type { MealWhen } from "@/core/food/score";
 import { linesScore } from "@/features/food/lines-score";
 import { lineTotals } from "@/core/food/totals";
 import { weightProgress } from "@/core/goals";
+
+/**
+ * When a meal is eaten, for its «momento» (E7 FOOD v2): within 2 h after a
+ * session done that day, within 2 h before bedtime (the evening's sleep
+ * start, else 23:30), with the person's weight for the protein.
+ */
+export function mealWhen(
+  meal: DayItem,
+  items: readonly DayItem[],
+  weightKg: number | null,
+): MealWhen | null {
+  if (meal.minute === null) return null;
+  const at = meal.minute;
+  const afterTraining = items.some(
+    (i) =>
+      i.kind.key === "session" &&
+      i.status === "done" &&
+      i.minute !== null &&
+      at - (i.minute + (Number(i.values["durationMin"]) || 60)) >= -15 &&
+      at - (i.minute + (Number(i.values["durationMin"]) || 60)) <= 120,
+  );
+  const bedAt =
+    items.find((i) => i.kind.key === "sleep" && i.start && (i.minute ?? 0) >= 18 * 60)
+      ?.minute ?? 23 * 60 + 30;
+  const nearBed = at >= bedAt - 120 && at <= bedAt;
+  return afterTraining || nearBed ? { afterTraining, nearBed, weightKg } : null;
+}
 
 export function mealScore(
   meal: DayItem,
@@ -44,6 +72,8 @@ export function mealScore(
   microTargets: readonly MicroTarget[] | null,
   /** How its block's meals fit the block (features/day/slots), null without one. */
   fit: number | null = null,
+  /** When it is eaten (`mealWhen`), for «momento». */
+  when: MealWhen | null = null,
 ): BoxEntry["score"] | undefined {
   if (meal.kind.key !== "meal") return undefined;
   return linesScore(
@@ -56,6 +86,8 @@ export function mealScore(
     targets,
     microTargets,
     fit,
+
+    when,
   );
 }
 

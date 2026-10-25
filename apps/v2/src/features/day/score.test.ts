@@ -151,8 +151,19 @@ describe("a meal's score on the day", () => {
       est,
       microTargets({ sex: "male", age: 24 }),
     )!;
-    expect(s.parts.map((p) => p.name)).toEqual(["densità", "limiti"]);
-    expect(s.missing).toEqual(["valore", "adatto al blocco"]);
+    expect(s.parts.map((p) => p.name)).toEqual([
+      "densità",
+      "limiti",
+      "qualità dei carboidrati",
+      "sazietà",
+    ]);
+    expect(s.missing).toEqual([
+      "valore",
+      "adatto al blocco",
+      "qualità dei grassi",
+      "varietà",
+      "momento",
+    ]);
     expect(s.value).toBeGreaterThanOrEqual(70);
     expect(s.parts.reduce((a, p) => a + p.weight, 0)).toBeCloseTo(1, 10);
   });

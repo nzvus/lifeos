@@ -49,6 +49,12 @@ export type FoodParts = {
   limits: number | null;
   value: null;
   fit: number | null;
+  /** E7 FOOD v2 (the developer's ticks, 2026-10-25); null where not known. */
+  carbsQuality: number | null;
+  fatQuality: number | null;
+  satiety: number | null;
+  variety: number | null;
+  timing: number | null;
   /** What made each part: nutrient → share of its reference (density), limit → ratio to its allowance. */
   detail: { density: Record<string, number>; limits: Record<string, number> };
 };
@@ -98,12 +104,33 @@ export const partsOf = (p: FoodParts) => ({
   limits: p.limits,
   value: p.value,
   fit: p.fit,
+  carbsQuality: p.carbsQuality,
+  fatQuality: p.fatQuality,
+  satiety: p.satiety,
+  variety: p.variety,
+  timing: p.timing,
 });
+
+/** When the meal is eaten, for «timing»: after a session, near bedtime, the person's weight. */
+export type MealWhen = {
+  afterTraining: boolean;
+  nearBed: boolean;
+  weightKg: number | null;
+};
+
+/** 0 at `bad`, 1 at `good`, straight between (either order). */
+const ramp = (v: number, bad: number, good: number) =>
+  Math.max(0, Math.min(1, (v - bad) / (good - bad)));
+const meanOf = (xs: readonly (number | null)[]) => {
+  const ok = xs.filter((x): x is number => x !== null);
+  return ok.length ? ok.reduce((a, b) => a + b, 0) / ok.length : null;
+};
 
 export function foodParts(
   lines: readonly ScoreLine[],
   servings: string | null,
   refs: DailyRefs,
+  when: MealWhen | null = null,
 ): FoodParts | null {
   const times = Number(servings ?? "1");
   const own = lines.map((l) => ({
@@ -166,7 +193,82 @@ export function foodParts(
     limits["trans"] = ratio(kinds.fat["trans"] ?? 0, "trans");
   const ls = Object.values(limits).map((r) => (r <= 1 ? 1 : r >= 2 ? 0 : 2 - r));
 
+  // Carbohydrate quality: the share from whole or intrinsic sources (≥ 75 % good, ≤ 30 %
+  // poor) and carbs per gram of fibre (≤ 10:1 good, ≥ 25:1 poor; Liu 2023's 10:1 ratio).
+  const carbs = total("carbs");
+  const carbKinds = Object.values(kinds.carbs).reduce((a, b) => a + b, 0);
+  const carbsQuality =
+    carbs >= 5
+      ? meanOf([
+          carbKinds > 0 &&
+          covered(
+            (l) =>
+              l.estimates?.["carbs_whole"] !== undefined ||
+              l.estimates?.["carbs_intrinsic"] !== undefined ||
+              amount(l, "carbs") === 0,
+          )
+            ? ramp(
+                ((kinds.carbs["whole"] ?? 0) + (kinds.carbs["intrinsic"] ?? 0)) /
+                  carbKinds,
+                0.3,
+                0.75,
+              )
+            : null,
+          covered((l) => l.values["fibre"] !== undefined)
+            ? total("fibre") > 0
+              ? ramp(carbs / total("fibre"), 25, 10)
+              : 0
+            : null,
+        ])
+      : null;
+  // Fat quality: unsaturated against saturated (≥ 2:1 good, ≤ 0.5:1 poor; AHA).
+  const fat = total("fat");
+  const unsat =
+    (kinds.fat["mufa"] ?? 0) + (kinds.fat["pufa6"] ?? 0) + (kinds.fat["n3"] ?? 0);
+  const sat = kinds.fat["sfa"] ?? 0;
+  const fatQuality =
+    fat >= 3 &&
+    covered((l) => l.estimates?.["fat_mufa"] !== undefined || amount(l, "fat") === 0)
+      ? sat > 0
+        ? ramp(unsat / sat, 0.5, 2)
+        : 1
+      : null;
+  // Satiety: protein and fibre per 100 kcal (≥ 6 g and ≥ 2 g full; Holt 1995's satiety index).
+  const satiety = meanOf([
+    covered((l) => l.values["protein"] !== undefined)
+      ? ramp(total("protein") * per100, 1, 6)
+      : null,
+    covered((l) => l.values["fibre"] !== undefined)
+      ? ramp(total("fibre") * per100, 0.3, 2)
+      : null,
+  ]);
+  // Variety: the food groups of the lines bringing ≥ 10 % of its energy (a meal of one food: none).
+  const groups = new Set(
+    lines
+      .filter((l) => kcalOf(l) >= 0.1 * kcal && l.estimates?.["group"])
+      .map((l) => l.estimates!["group"]!),
+  );
+  const variety =
+    lines.length >= 2 && groups.size > 0
+      ? ([0, 0.25, 0.6, 0.85][groups.size] ?? 1)
+      : null;
+  // Timing: after a session, protein ≥ 0.3 g/kg (25 g without a weight; ISSN 2017); near
+  // bedtime, a light meal (≤ 20 % of the day's energy full, ≥ 40 % none).
+  const timing = when
+    ? meanOf([
+        when.afterTraining
+          ? Math.min(1, total("protein") / (when.weightKg ? 0.3 * when.weightKg : 25))
+          : null,
+        when.nearBed ? ramp(kcal / day, 0.4, 0.2) : null,
+      ])
+    : null;
+
   return {
+    carbsQuality,
+    fatQuality,
+    satiety,
+    variety,
+    timing,
     density:
       ds.length >= MIN_DENSITY_NUTRIENTS
         ? Math.min(1, ds.reduce((a, b) => a + b, 0) / ds.length / fullDensity)

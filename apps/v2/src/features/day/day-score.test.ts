@@ -100,7 +100,7 @@ describe("the day's score (dossiers/ranges.md §5)", () => {
     expect(habitsPart([item("meal", { status: "planned" }), steps], null)).toBe(1);
   });
 
-  it("weighs the parts 45/35/20 and names what is missing", () => {
+  it("weighs the parts 40/30/15/15 (v2) and names what is missing", () => {
     const s = dayScore({
       day: day([food]),
       nutrients: n(day([food])),
@@ -108,8 +108,8 @@ describe("the day's score (dossiers/ranges.md §5)", () => {
       now: null,
     })!;
     expect(s.parts.map((p) => p.name)).toEqual(["obiettivi del giorno", "recupero"]);
-    expect(s.missing).toEqual(["abitudini"]);
-    expect(s.parts[1]!.weight).toBeCloseTo(35 / 80);
+    expect(s.missing).toEqual(["abitudini", "proteine distribuite"]);
+    expect(s.parts[1]!.weight).toBeCloseTo(30 / 70);
   });
 
   it("the week strip: a score for each day up to today", () => {

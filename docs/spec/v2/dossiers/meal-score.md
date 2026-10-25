@@ -11,10 +11,12 @@ thresholds that turn nutrients into a 0–1 part — the place where a score
 becomes «fatto a caso» if chosen in passing.
 
 ## 1. Question
+
 "Is this meal (or food) good for me, for its energy?" One number 0–100 on the
 shared scale (70 = met, 40 = in part, content.md), with its parts shown.
 
 ## 2. Today
+
 - The model (engines.md E7): **density** 40 % (25–60): protein × DIAAS, fibre,
   K, Ca, Fe, Mg, vitamins A/C/D, folate, omega-3; **limits** 25 % (locked
   ≥ 20): free sugars, sodium, SFA, trans; **value** 15 % (0–30): useful
@@ -28,6 +30,7 @@ shared scale (70 = met, 40 = in part, content.md), with its parts shown.
   DIAAS, trans fats.
 
 ## 3. Evidence
+
 - Nutrient Rich Foods index NRF9.3: per 100 kcal, the sum of %DV of 9
   qualifying nutrients, each capped at 100 %, minus the sum of %MRV of 3
   limits; validated against diet quality (HEI) (guideline-like, widely
@@ -40,7 +43,9 @@ shared scale (70 = met, 40 = in part, content.md), with its parts shown.
   three-level quality estimate per food (high/medium/low).
 
 ## 4. Model (proposal)
+
 All per 100 kcal of the food or meal; a meal is the sum of its lines.
+
 - **Density.** For each qualifying nutrient present in the data: amount per
   100 kcal ÷ the person's daily reference, capped at 100 %; protein weighted
   by its quality (high 1.0, medium 0.8, low 0.6, unknown 0.7 — a stand-in
@@ -66,6 +71,7 @@ All per 100 kcal of the food or meal; a meal is the sum of its lines.
   choices). Left out, and named, on a day whose model has no such block.
 
 ## 5. Experience
+
 - Oggi: the skyline behind each meal box (columns as wide as each part's
   weight, filled to its score), the open box with the parts and their
   values, «come valutiamo» linking to the model's page.
@@ -73,6 +79,7 @@ All per 100 kcal of the food or meal; a meal is the sum of its lines.
 - Libreria: sort by score; the score on a food's page with its parts.
 
 ## 6. Acceptance tests (to run on the developer's foods before any UI)
+
 1. Fish, legumes, vegetables of the catalog: density ≥ 0.8.
 2. Dark chocolate 50 %, hazelnut cream: limits ≤ 0.3 (SFA, sugars).
 3. A coffee (no energy): no score (per 100 kcal is meaningless) — shown as
@@ -83,6 +90,7 @@ All per 100 kcal of the food or meal; a meal is the sum of its lines.
    blocco»).
 
 ## 7. Questions for the developer
+
 1. **The density threshold: 20 % of daily needs per 100 kcal = full marks?**
    Recommended: yes, then checked against test 1 on your catalog; adjusted
    once with the numbers in front of you.
@@ -94,7 +102,9 @@ All per 100 kcal of the food or meal; a meal is the sum of its lines.
    Recommended: yes, same model.
 
 ## 8. As built (2026-10-24, `core/food/score.ts`, `features/day/score.ts`)
+
 Run on the developer's catalog first (§6), which changed three thresholds:
+
 - **Full density scales with the day:** 4 × (100 kcal ÷ the day's kcal),
   14.4 % on 2 778 kcal, not a fixed 20 %.
 - **Limits per meal, not per 100 kcal:** the daily limits shared by the
@@ -116,3 +126,26 @@ Run on the developer's catalog first (§6), which changed three thresholds:
   gram: 100 kcal of basil is 435 g). **No score without density** (foods
   or meals): the limits alone gave a cake 100 — «no excess» is not «good
   food»; such a box says nothing rather than something wrong.
+
+## 9. Version 2 (2026-10-25, the developer's ticks on the proposals)
+
+Five parts more for a meal and one for the day; the weights stay movable
+within their ranges («Come valutiamo»), and a person's weights for v1 no
+longer apply (the defaults do until they are set again).
+
+| Part          | Weight (range)      | How                                                                                                                                                               | Source          |
+| ------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| density       | 30 (20–50)          | as §8                                                                                                                                                             | NRF 9.3         |
+| limits        | 20 (15–100), locked | as §8                                                                                                                                                             | WHO             |
+| value         | 10 (0–30)           | as §8 (no prices yet)                                                                                                                                             | —               |
+| fit           | 10 (0–30)           | as §8                                                                                                                                                             | the day's model |
+| carbs quality | 8 (0–20)            | mean of: share of carbs from whole or intrinsic sources (≤ 30 % → 0, ≥ 75 % → 1) and carbs per g of fibre (≥ 25 → 0, ≤ 10 → 1); from 5 g of carbs                 | Liu 2023 (10:1) |
+| fat quality   | 7 (0–20)            | unsaturated ÷ saturated (≤ 0.5 → 0, ≥ 2 → 1); from 3 g of fat                                                                                                     | AHA 2017        |
+| satiety       | 7 (0–20)            | mean of protein (1 → 0, 6 g → 1) and fibre (0.3 → 0, 2 g → 1) per 100 kcal                                                                                        | Holt 1995       |
+| variety       | 4 (0–15)            | food groups among the lines with ≥ 10 % of the energy: 1 → 0.25, 2 → 0.6, 3 → 0.85, 4+ → 1; a one-food meal: none                                                 | —               |
+| timing        | 4 (0–15)            | within 2 h after a session: protein ÷ (0.3 g/kg, or 25 g); within 2 h before bed (23:30 unless known): ≤ 20 % of the day's energy → 1, ≥ 40 % → 0; otherwise none | ISSN 2017       |
+
+The day (DAY v2): targets 40, recovery 30, habits 15, **protein spread
+15** — eaten meals with ≥ 0.3 g/kg of protein (25 g without a weight),
+three or more full; none with fewer than two meals (Areta 2013).
+NOVA stays shown, not scored (the developer left it unticked).

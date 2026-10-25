@@ -65,6 +65,7 @@ import {
   waterBox,
   weighScore,
   type ScoreContext,
+  mealWhen,
 } from "@/features/day/score";
 import { OpenBox } from "@/features/day/OpenBox";
 import {
@@ -235,7 +236,14 @@ export default async function OggiPage({
     return {
       ...withCompounds(present(i), i, ctx),
       ...withScore(
-        mealScore(i, targets, kinds, micros, fits.get(i.subcategory ?? "") ?? null) ??
+        mealScore(
+          i,
+          targets,
+          kinds,
+          micros,
+          fits.get(i.subcategory ?? "") ?? null,
+          mealWhen(i, items, weightOn(series, date)),
+        ) ??
           weighScore(i, items, sctx) ??
           sleepScore(i, items, sctx),
       ),

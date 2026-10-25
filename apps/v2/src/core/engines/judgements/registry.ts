@@ -13,25 +13,43 @@ const w = (d: number, min: number, max: number) => ({ default: d, min, max });
 export const FOOD: ScoringModel = {
   id: "food",
   domain: "food",
-  version: 1,
-  date: DATE,
+  version: 2,
+  // v2: five parts more (the developer's ticks on the proposals, 2026-10-25).
+  date: "2026-10-25",
   parts: [
     {
       key: "density",
-      weight: w(40, 25, 60),
+      weight: w(30, 20, 50),
       why: "Nutrients per 100 kcal: protein × DIAAS, fibre, K, Ca, Fe, Mg, vitamins A/C/D, folate, omega-3.",
     },
     {
       key: "limits",
-      weight: w(25, 20, 100),
+      weight: w(20, 15, 100),
       locked: true,
       why: "Free sugars, sodium, saturated and trans fat per 100 kcal: health limits.",
     },
-    { key: "value", weight: w(15, 0, 30), why: "Useful nutrients per euro." },
+    { key: "value", weight: w(10, 0, 30), why: "Useful nutrients per euro." },
     {
       key: "fit",
-      weight: w(20, 0, 30),
+      weight: w(10, 0, 30),
       why: "kcal and protein against the block's shares.",
+    },
+    {
+      key: "carbsQuality",
+      weight: w(8, 0, 20),
+      why: "Carbs from whole or intrinsic sources; carbs per gram of fibre (10:1 or better).",
+    },
+    {
+      key: "fatQuality",
+      weight: w(7, 0, 20),
+      why: "Unsaturated fat against saturated (2:1 or better).",
+    },
+    { key: "satiety", weight: w(7, 0, 20), why: "Protein and fibre per 100 kcal." },
+    { key: "variety", weight: w(4, 0, 15), why: "Food groups in the meal." },
+    {
+      key: "timing",
+      weight: w(4, 0, 15),
+      why: "Protein after training; a light meal near bedtime.",
     },
   ],
   sources: [
@@ -39,6 +57,10 @@ export const FOOD: ScoringModel = {
     "WHO 2015/2023",
     "EFSA DRVs",
     "FAO 2013 (DIAAS)",
+    "Liu 2023 (carb:fibre 10:1)",
+    "AHA 2017 (fat quality)",
+    "Holt 1995 (satiety)",
+    "ISSN 2017 (protein timing)",
   ],
 };
 
@@ -147,23 +169,28 @@ export const WATER: ScoringModel = {
 export const DAY: ScoringModel = {
   id: "day",
   domain: "day",
-  version: 1,
-  date: "2026-10-24",
+  version: 2,
+  date: "2026-10-25",
   parts: [
     {
       key: "dayTargets",
-      weight: w(45, 30, 60),
+      weight: w(40, 30, 60),
       why: "Each macro, limit and the micros as one, by its zone (E5 ranges).",
     },
     {
       key: "recovery",
-      weight: w(35, 20, 50),
+      weight: w(30, 20, 50),
       why: "The night's score: duration, regularity, how you feel.",
     },
     {
       key: "habits",
-      weight: w(20, 0, 30),
+      weight: w(15, 0, 30),
       why: "What was planned for the day and got done.",
+    },
+    {
+      key: "proteinSpread",
+      weight: w(15, 0, 25),
+      why: "Meals with at least 0.3 g/kg of protein: three or more full (Areta 2013).",
     },
   ],
   sources: ["dossiers/ranges.md", "ISSN 2017", "WHO 2015/2023", "Windred 2024"],

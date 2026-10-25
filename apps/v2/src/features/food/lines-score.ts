@@ -7,13 +7,18 @@ import type { BoxEntry } from "@lifeos/kit";
 import type { FoodTargets } from "@/core/day";
 import { FOOD, score } from "@/core/engines/judgements";
 import type { MicroTarget } from "@/core/engines/targets";
-import { foodParts, partsOf } from "@/core/food/score";
+import { foodParts, partsOf, type MealWhen } from "@/core/food/score";
 
 export const PART_WORDS: Record<string, string> = {
   density: "densità",
   limits: "limiti",
   value: "valore",
   fit: "adatto al blocco",
+  carbsQuality: "qualità dei carboidrati",
+  fatQuality: "qualità dei grassi",
+  satiety: "sazietà",
+  variety: "varietà",
+  timing: "momento",
 };
 const LIMIT_WORDS: Record<string, string> = {
   sodium: "sale",
@@ -28,15 +33,22 @@ export function linesScore(
   targets: FoodTargets | null,
   microTargets: readonly MicroTarget[] | null,
   fit: number | null = null,
+  /** When it is eaten (after training, near bedtime): «momento»; null leaves it out. */
+  when: MealWhen | null = null,
 ): BoxEntry["score"] | undefined {
   if (targets === null) return undefined;
-  const parts = foodParts(lines, servings, {
-    kcal: targets.kcal,
-    // A day without a protein or fibre target: that nutrient is left out of density.
-    protein: targets.protein ?? 0,
-    fibre: targets.fibre ?? 0,
-    micros: Object.fromEntries((microTargets ?? []).map((t) => [t.micro, t.value])),
-  });
+  const parts = foodParts(
+    lines,
+    servings,
+    {
+      kcal: targets.kcal,
+      // A day without a protein or fibre target: that nutrient is left out of density.
+      protein: targets.protein ?? 0,
+      fibre: targets.fibre ?? 0,
+      micros: Object.fromEntries((microTargets ?? []).map((t) => [t.micro, t.value])),
+    },
+    when,
+  );
   // Without density (too few nutrients known) only the limits would speak: «no excess» is
   // not «good food» (a cake scored 100 on them alone). No score then.
   if (!parts || parts.density === null) return undefined;

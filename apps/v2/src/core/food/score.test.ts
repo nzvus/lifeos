@@ -79,7 +79,15 @@ describe("the food and meal score's parts (meal-score.md §4)", () => {
     expect(p.limits).toBeLessThan(0.1);
     const s = score(FOOD, partsOf(p));
     // No micros in this line: too few nutrients for density, left out and named.
-    expect(s.missing).toEqual(["density", "value", "fit"]);
+    // v2: fat quality, variety and timing are not known for this line either.
+    expect(s.missing).toEqual([
+      "density",
+      "value",
+      "fit",
+      "fatQuality",
+      "variety",
+      "timing",
+    ]);
   });
 
   it("a coffee has no score; what is not known is left out", () => {
@@ -127,5 +135,49 @@ describe("the food and meal score's parts (meal-score.md §4)", () => {
     expect(small.detail.limits["saturated"]).toBeLessThan(
       one.detail.limits["saturated"]!,
     );
+  });
+});
+
+describe("FOOD v2's new parts (2026-10-25)", () => {
+  const refs2 = { kcal: 2400, protein: 150, fibre: 30, micros: {} };
+  it("satiety, carb and fat quality, variety, timing", () => {
+    const lines = [
+      // 100 g of oats: 372 kcal, 13.5 P, 58.7 C, 7 F, 10 fibre
+      {
+        quantity: "100",
+        values: { kcal: "372", protein: "13.5", carbs: "58.7", fat: "7", fibre: "10" },
+        estimates: {
+          carbs_whole: "50",
+          carbs_intrinsic: "8.7",
+          fat_mufa: "2.5",
+          fat_pufa6: "2.8",
+          fat_sfa: "1.3",
+          group: "grains_whole",
+        },
+      },
+      // 200 g of skyr: 126 kcal, 22 P, 8 C, 0.4 F
+      {
+        quantity: "200",
+        values: { kcal: "63", protein: "11", carbs: "4", fat: "0.2", fibre: "0" },
+        estimates: {
+          carbs_intrinsic: "4",
+          fat_sfa: "0.13",
+          fat_mufa: "0.05",
+          group: "dairy",
+        },
+      },
+    ];
+    const p = foodParts(lines, null, refs2, {
+      afterTraining: true,
+      nearBed: false,
+      weightKg: 75,
+    })!;
+    expect(p.carbsQuality).toBeCloseTo(1, 1);
+    expect(p.fatQuality).toBe(1);
+    expect(p.satiety).toBeGreaterThan(0.5);
+    expect(p.variety).toBe(0.6);
+    // 35.5 g of protein against 0.3 × 75 = 22.5 g: full.
+    expect(p.timing).toBe(1);
+    expect(foodParts(lines, null, refs2)!.timing).toBeNull();
   });
 });

@@ -18,6 +18,7 @@ import type { Day, DayItem, FoodTargets } from "@/core/day";
 import { DAY, score } from "@/core/engines/judgements";
 import { rangeScore, type MicroTarget } from "@/core/engines/targets";
 import { addDays, type IsoDate } from "@/core/engines/time";
+import { lineTotals } from "@/core/food/totals";
 import { presentDay } from "./nutrients";
 import { nightOf, sleepScore, type ScoreContext } from "./score";
 
@@ -25,6 +26,7 @@ const WORDS: Record<string, string> = {
   dayTargets: "obiettivi del giorno",
   recovery: "recupero",
   habits: "abitudini",
+  proteinSpread: "proteine distribuite",
 };
 
 const mean = (xs: readonly number[]) =>
@@ -75,17 +77,43 @@ export function habitsPart(items: readonly DayItem[], now: number | null): numbe
   return due.length ? due.filter((i) => i.status === "done").length / due.length : null;
 }
 
+/**
+ * Protein spread (E7 DAY v2; Areta 2013): the day's eaten meals with at least
+ * 0.3 g/kg of protein (25 g without a weight) — three or more full, two
+ * two-thirds, one a third; none with fewer than two meals eaten.
+ */
+export function proteinSpreadPart(
+  items: readonly DayItem[],
+  weightKg: number | null,
+): number | null {
+  const meals = items.filter((i) => i.kind.key === "meal" && i.status === "done");
+  if (meals.length < 2) return null;
+  const need = weightKg ? 0.3 * weightKg : 25;
+  const enough = meals.filter((m) => {
+    const servings =
+      typeof m.values["servings"] === "string" ? m.values["servings"] : null;
+    return Number(lineTotals(m.lines, servings)["protein"] ?? 0) >= need;
+  }).length;
+  return Math.min(1, enough / 3);
+}
+
 export function dayScore(p: {
   day: Day;
   nutrients: NutrientsData | null;
   /** The night's score, 0–100; null without one. */
   night: number | null;
   now: number | null;
+  /** The reference weight for the protein spread; null: 25 g a meal. */
+  weightKg?: number | null;
 }): BoxEntry["score"] | undefined {
   const s = score(DAY, {
     dayTargets: targetsPart(p.nutrients, p.now !== null),
     recovery: p.night === null ? null : p.night / 100,
     habits: habitsPart([...p.day.timed, ...p.day.untimed], p.now),
+    proteinSpread: proteinSpreadPart(
+      [...p.day.timed, ...p.day.untimed],
+      p.weightKg ?? null,
+    ),
   });
   if (s.value === null) return undefined;
   return {
