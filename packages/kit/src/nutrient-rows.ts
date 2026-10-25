@@ -455,6 +455,7 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
     const h = heat(l.v, l.zones, scale, planned, l.mean);
     return {
       key: l.key,
+      name: l.name ?? LIMIT[l.key],
       v: g(l.v),
       t: F.num(l.t, "g"),
       w: Math.min(100, (l.v / scale) * 100).toFixed(0) + "%",

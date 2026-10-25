@@ -279,10 +279,14 @@ export function dayWithMeal(
   dayData: NutrientsData,
   t: Record<string, number>,
 ): NutrientsData {
-  // The micros are the day's eaten ones: without the meal's they would mislead, so they stay out.
-  const { micros: _micros, ...day } = dayData;
+  // The micros are the day's eaten ones, without this meal's: kept (the same panel everywhere,
+  // the developer 2026-10-25), and their summary says so.
+  const { micros, ...day } = dayData;
   const add = (planned: number | undefined, f: string) => (planned ?? 0) + (t[f] ?? 0);
   return {
+    ...(micros
+      ? { micros: { ...micros, summary: micros.summary + " · senza questo pasto" } }
+      : {}),
     ...(day.kcal
       ? { kcal: { ...day.kcal, planned: add(day.kcal.planned, "kcal") } }
       : {}),

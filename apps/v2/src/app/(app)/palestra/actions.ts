@@ -6,6 +6,7 @@
  * A set is saved the moment it is ticked.
  */
 import { revalidatePath } from "next/cache";
+import { trashEntry } from "@/core/entries";
 import { redirect } from "next/navigation";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
@@ -159,4 +160,12 @@ export async function finishGym(sessionId: string): Promise<void> {
   await finishSession(db, owner, sessionId, new Date());
   revalidatePath("/oggi", "layout");
   redirect("/oggi");
+}
+
+/** «Elimina la sessione»: to the trash (30 days, Impostazioni → Cestino), back to its day. */
+export async function removeGym(day: string, sessionId: string): Promise<void> {
+  if (!UUID.test(sessionId) || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return;
+  await trashEntry(await getDb(), await requireOwner(), sessionId);
+  revalidatePath("/oggi", "layout");
+  redirect("/oggi/" + day);
 }

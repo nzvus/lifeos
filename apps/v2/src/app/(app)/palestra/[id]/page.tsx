@@ -38,6 +38,7 @@ import {
   addGymExercise,
   exerciseSettingsGym,
   finishGym,
+  removeGym,
   readinessGym,
   tickSet,
   untickSet,
@@ -244,6 +245,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         untick: untickSet,
         add: addGymExercise,
         finish: finishGym,
+        remove: removeGym.bind(null, session.day),
         readiness: readinessGym,
         settings: exerciseSettingsGym,
       }}

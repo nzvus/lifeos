@@ -201,8 +201,12 @@ export function Nutrients({ data }: { data: NutrientsData }) {
         <div className="k-grid k-nlims" style={{ "--cols": 3 } as CSSProperties}>
           {limits.map((l) => (
             <span key={l.key} className="k-stack g1" role="img" aria-label={l.aria}>
+              {/* Named as the macros are (the developer, 2026-10-25), the numbers under. */}
               <span className="k-line g1">
                 <Glyph of={{ nutrient: l.key }} size="xs" />
+                <span className="k-label k-nlim">{l.name}</span>
+              </span>
+              <span className="k-line g1">
                 <span className="k-num b2">{l.v}</span>
                 <span className="k-help">/ {l.t}</span>
               </span>

@@ -61,6 +61,7 @@ export default async function MealPage({
     dayData,
     targets,
     await readFoodEstimates(db, owner, foodIds(dayData)),
+    micros,
   );
   const recipes = await readRecipeChoices(db, owner, today, choices);
   // The day's model's meal blocks (day-templates): each role's targets, for the bars and the gap.

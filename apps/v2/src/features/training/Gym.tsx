@@ -75,6 +75,8 @@ export type GymActions = {
   untick: (entryId: string, position: number) => Promise<boolean>;
   add: (sessionId: string, exerciseId: string) => Promise<boolean>;
   finish: (sessionId: string) => Promise<void>;
+  /** «Elimina la sessione»: to the trash. */
+  remove: (sessionId: string) => Promise<void>;
   readiness: (sessionId: string, value: number | null) => Promise<boolean>;
   settings: (
     exerciseId: string,
@@ -622,6 +624,21 @@ export function Gym({
         ))}
       </section>
 
+      <section className="k-section" aria-label="Elimina">
+        <button
+          type="button"
+          className="k-btn secondary danger"
+          disabled={busy}
+          onClick={async () => {
+            if (!window.confirm("Eliminare la sessione? Resta 30 giorni nel cestino."))
+              return;
+            setBusy(true);
+            await actions.remove(session.id);
+          }}
+        >
+          Elimina la sessione
+        </button>
+      </section>
       <div className="k-pagefoot">
         <a className="k-btn secondary" href={session.dayHref}>
           Esci

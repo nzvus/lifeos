@@ -92,7 +92,7 @@ export default async function EntryEditPage({
         backLabel={dayLabel}
         day={item.day}
         dayLabel={dayLabel}
-        dayNutrients={presentDay(others, targets, kinds)?.nutrients ?? null}
+        dayNutrients={presentDay(others, targets, kinds, micros)?.nutrients ?? null}
         refs={{ targets, micros }}
         roleBounds={ctx.roleBounds}
         initial={{
