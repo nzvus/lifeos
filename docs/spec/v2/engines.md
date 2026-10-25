@@ -364,7 +364,11 @@ Pairs of daily (or per-session) metrics, after n ≥ 21 paired days:
 For every kind: missing days, implausible values (per field range),
 duplicates, sudden unit-like jumps (×2, ×10, ÷1000), estimated share.
 Shown in Review → Data quality, and before saving where cheap (E6
-flags). The dumbbell loads of 2026-10-15 are its first test case.
+flags). The dumbbell loads of 2026-10-15 are its first test case. Built
+2026-10-25: Andamento → «Qualità dei dati» (`/andamento/qualita`, the last
+30 days up to yesterday): weigh-ins, steps, nights and meals with their
+days, what is missing, what looks wrong (each opening its entry), the
+estimates' share (`core/quality/read`, `features/progress/quality`).
 ×2 counts only on fields typed per side (loads): steps doubling is real.
 
 - **Code:** `engines/correlations/` (a seeded bootstrap, so the interval

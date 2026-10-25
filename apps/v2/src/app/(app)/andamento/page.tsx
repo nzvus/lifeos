@@ -280,6 +280,9 @@ export default async function AndamentoPage({
           <a className="k-link" href="/andamento/legami">
             Legami ›
           </a>
+          <a className="k-link" href="/andamento/qualita">
+            Qualità ›
+          </a>
           <a className="k-link" href="/andamento/come-valutiamo">
             Come valutiamo ›
           </a>
