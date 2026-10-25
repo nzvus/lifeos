@@ -8,7 +8,10 @@
 import { F } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { fetchOff } from "@/app/_server/openfoodfacts";
+import { redirect } from "next/navigation";
+import { getDb } from "@/app/_server/runtime";
 import { isValidGtin } from "@/core/food/barcode";
+import { readFoodByBarcode } from "@/core/food/edit";
 import { BarcodeBox } from "@/features/library/BarcodeBox";
 import { FoodForm } from "@/features/library/FoodForm";
 import { saveFood } from "../[id]/modifica/actions";
@@ -36,14 +39,18 @@ export default async function NewFoodPage({
     barcode?: string | string[];
   }>;
 }) {
-  await requireOwner();
   const { nome, torna, barcode } = await searchParams;
   const back = typeof torna === "string" && BACK.test(torna) ? torna : null;
   const code = typeof barcode === "string" && isValidGtin(barcode) ? barcode : null;
+  // A code already saved with a food opens that food; else Open Food Facts.
+  const owner = await requireOwner();
+  const known = code ? await readFoodByBarcode(await getDb(), owner, code) : null;
+  if (known) redirect("/libreria/cibo/" + known);
   const off = code ? await fetchOff(code) : null;
   const initial: Record<string, string> = off
     ? {
         unit: off.unit,
+        barcode: off.barcode,
         // The brand in the name: a product of its own comes later, from the food's page.
         name: (off.name + (off.description ? " · " + off.description : "")).slice(0, 80),
         ...Object.fromEntries(
@@ -54,7 +61,11 @@ export default async function NewFoodPage({
           ),
         ),
       }
-    : { unit: "g", name: typeof nome === "string" ? nome.slice(0, 80) : "" };
+    : {
+        unit: "g",
+        name: typeof nome === "string" ? nome.slice(0, 80) : "",
+        ...(code ? { barcode: code } : {}),
+      };
   return (
     <FoodForm
       key={code ?? "new"}

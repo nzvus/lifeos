@@ -168,6 +168,8 @@ export async function createFood(
   name: string,
   unit: "g" | "ml",
   values: Partial<Record<FoodField, string>>,
+  /** Its barcode, when it came from one: a second scan finds it (`readFoodByBarcode`). */
+  barcode: string | null = null,
 ): Promise<{ id: string } | "taken"> {
   return db.transaction(async (tx) => {
     const [twin] = await tx
@@ -191,6 +193,9 @@ export async function createFood(
     const id = row!.id;
     await tx.insert(catalogValues).values([
       { userId: owner.id, itemId: id, field: "unit", text: unit },
+      ...(barcode
+        ? [{ userId: owner.id, itemId: id, field: "barcode", text: barcode }]
+        : []),
       ...Object.entries(values).map(([field, num]) => ({
         userId: owner.id,
         itemId: id,
@@ -255,4 +260,26 @@ export async function createProduct(
         );
     return { id };
   });
+}
+
+/** The live food a barcode was saved with; null when none. */
+export async function readFoodByBarcode(
+  db: Db,
+  owner: Owner,
+  barcode: string,
+): Promise<string | null> {
+  const [row] = await db
+    .select({ id: catalogItems.id })
+    .from(catalogValues)
+    .innerJoin(catalogItems, eq(catalogItems.id, catalogValues.itemId))
+    .where(
+      and(
+        ownedBy(catalogValues, owner),
+        eq(catalogValues.field, "barcode"),
+        eq(catalogValues.text, barcode),
+        isNull(catalogItems.deletedAt),
+      ),
+    )
+    .limit(1);
+  return row?.id ?? null;
 }
