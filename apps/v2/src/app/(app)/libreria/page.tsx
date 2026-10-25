@@ -28,6 +28,8 @@ import { readUserKinds } from "@/core/day";
 import { enterable } from "@/core/entries";
 import { kindRegistry } from "@/core/kinds";
 import { PLACES } from "@/features/places";
+import { addDays } from "@/core/engines/time";
+import { readRoutes } from "@/core/movement/routes";
 
 export default async function LibreriaPage({
   searchParams,
@@ -44,10 +46,11 @@ export default async function LibreriaPage({
   const { clock, weights } = await ownerClock();
   const today = logicalDay(new Date(), clock);
   const foods = await readFoodChoices(db, owner, today);
-  const [recipes, exercises, log] = await Promise.all([
+  const [recipes, exercises, log, routes] = await Promise.all([
     readRecipeChoices(db, owner, today, foods),
     readExercises(db, owner),
     readExerciseLog(db, owner),
+    view === null ? readRoutes(db, owner, addDays(today, -90)) : [],
   ]);
   // The foods' list: each scored per 100 kcal (E7) against today's targets; only on its shelf.
   const scored =
@@ -90,7 +93,7 @@ export default async function LibreriaPage({
       {view === null ? (
         <PageHeader
           title="Libreria"
-          context="le cose che riusi: cibi, pasti, esercizi"
+          context="le cose che riusi: cibi, pasti, esercizi, tragitti"
           of={{ place: "libreria" }}
         />
       ) : (
@@ -107,6 +110,16 @@ export default async function LibreriaPage({
         view={view}
         shelfLines={shelfLines(foods, meal, exercise)}
         trackers={trackers}
+        routes={{
+          count: routes.length,
+          line: routes.length
+            ? "più usati: " +
+              routes
+                .slice(0, 2)
+                .map((r) => r.name)
+                .join(", ")
+            : "casa → palestra, casa → lavoro: poi basta un tocco",
+        }}
       />
       <div className="k-nav k-stick">
         <NavBar active="library" hrefs={PLACES} addHref="/aggiungi" />

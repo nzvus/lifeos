@@ -10,6 +10,7 @@ export const NAMES: Record<string, string> = {
   water: "Acqua",
   session: "Allenamento",
   steps: "Passi",
+  trip: "Tragitto",
   activity: "Attività",
   reading: "Lettura",
   weigh_in: "Peso",

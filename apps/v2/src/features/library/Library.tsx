@@ -50,9 +50,12 @@ export function Library({
   view,
   shelfLines,
   trackers,
+  routes,
 }: {
   /** The kinds one can enter, and how many are the person's own («Tipi di tracker»). */
   trackers: { all: number; own: number };
+  /** The person's routes: how many, and its shelf's line («Tragitti»). */
+  routes: { count: number; line: string };
   foods: LibraryRow[];
   meals: LibraryRow[];
   exercises: LibraryRow[];
@@ -63,7 +66,9 @@ export function Library({
 }) {
   const lists: Record<Tab, LibraryRow[]> = { foods, meals, exercises };
   if (view === null)
-    return <Index lists={lists} shelfLines={shelfLines} trackers={trackers} />;
+    return (
+      <Index lists={lists} shelfLines={shelfLines} trackers={trackers} routes={routes} />
+    );
   return <List lists={lists} first={view} />;
 }
 
@@ -84,10 +89,12 @@ function Index({
   lists,
   shelfLines,
   trackers,
+  routes,
 }: {
   lists: Record<Tab, LibraryRow[]>;
   shelfLines: Record<Tab, string>;
   trackers: { all: number; own: number };
+  routes: { count: number; line: string };
 }) {
   const [query, setQuery] = useState("");
   const all = (Object.keys(TABS) as Tab[]).reduce((n, t) => n + lists[t].length, 0);
@@ -149,6 +156,19 @@ function Index({
                 }}
               />
             ))}
+            <Box
+              density="row"
+              rail={false}
+              entry={{
+                fam: "train",
+                of: { kind: "trip" },
+                title: "Tragitti",
+                value: F.n(routes.count, 0),
+                meta: routes.line,
+                href: "/libreria/tragitto",
+                hrefLabel: "Apri i tragitti",
+              }}
+            />
             <Box
               density="row"
               rail={false}

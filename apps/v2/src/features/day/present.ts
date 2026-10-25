@@ -9,6 +9,7 @@ import type { DayItem } from "@/core/day";
 import { enterable } from "@/core/entries/check";
 import { lineTotals } from "@/core/food/totals";
 import { ACTIVITY, MEAL_ROLE_WORDS, NAMES } from "./words";
+import { MODE_WORDS } from "@/features/movement-words";
 
 const TAGS: Record<string, string> = {
   "pre-workout": "prima dell’allenamento",
@@ -56,6 +57,9 @@ function title(i: DayItem): string {
       return label || i.item?.name || NAMES.batch!;
     case "session":
       return label || i.item?.name || NAMES.session!;
+    case "trip":
+      // A trip is named by its route («Casa → palestra»).
+      return i.item?.name || NAMES.trip!;
     case "activity":
       return ACTIVITY[String(i.values["category"])] ?? NAMES.activity!;
     case "movement":
@@ -131,6 +135,13 @@ function meta(i: DayItem): string {
     return parts.join(" · ");
   }
   if (["movement", "chore"].includes(i.kind.key)) return "";
+  if (i.kind.key === "trip") {
+    const mode = typeof i.values["mode"] === "string" ? MODE_WORDS[i.values["mode"]] : "";
+    const min = minutesBetween(i.start, i.end);
+    return [mode, min === null ? "" : F.hm(min), i.note ? short(i.note) : ""]
+      .filter(Boolean)
+      .join(" · ");
+  }
   if (i.kind.key === "meal" && roleName(i)) {
     const what = mealContents(i);
     return short([what, i.note].filter(Boolean).join(" · "));

@@ -97,6 +97,14 @@ export default async function AddPage({
       of: { kind: "movement" },
       href: `/aggiungi/spesa?giorno=${day}`,
     },
+    {
+      key: "k:trip",
+      title: "Tragitto",
+      sub: "tipo",
+      fam: "train",
+      of: { kind: "trip" },
+      href: `/aggiungi/tragitto?giorno=${day}`,
+    },
     ...rows.map((r) => ({
       key: "k:" + r.key,
       title: r.entry.title,
@@ -187,6 +195,13 @@ export default async function AddPage({
                 <a href={`/aggiungi/spesa?giorno=${day}`} className="k-plain">
                   <Box
                     entry={{ fam: "money", of: { kind: "movement" }, title: "Spesa" }}
+                    density="row"
+                    rail={false}
+                  />
+                </a>
+                <a href={`/aggiungi/tragitto?giorno=${day}`} className="k-plain">
+                  <Box
+                    entry={{ fam: "train", of: { kind: "trip" }, title: "Tragitto" }}
                     density="row"
                     rail={false}
                   />
