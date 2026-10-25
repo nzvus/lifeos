@@ -147,8 +147,13 @@ to the composer's search.
 Done 2026-10-24: sections with their drawing and a line of why,
 «Obiettivi di oggi» (kcal and protein, where they come from, a link),
 «Tracker e tipi» (the foods and your own kinds counted), «I tuoi dati»
-(download all, the trash with its count). Missing: CSV per kind, replace
-or merge from a file, invites, language, the weather's city.
+(download all, the trash with its count). Done 2026-10-25: «Porta i dati
+da v1» — v1's export, a dry run (per kind, the days, what stays out), then
+«Aggiungi»: an entry comes in when v2 has no live entry of its kind on its
+day (with its children, lines, sets), its catalog items by id, else v2's of
+the same name, else new; nothing in v2 changes (core/convert `newFromV1`,
+ADR-0052's merge narrowed to v1 → v2; money stays out). Missing: CSV per
+kind, replace from a file, invites, language, the weather's city.
 
 ## Come valutiamo (Scores)
 

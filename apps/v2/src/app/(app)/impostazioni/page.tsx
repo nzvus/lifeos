@@ -16,6 +16,7 @@ import { logicalDay } from "@/core/engines/time";
 import { readDayModel } from "@/core/plans";
 import { SettingsForm } from "@/features/account/SettingsForm";
 import { SignOut } from "@/features/account/SignOut";
+import { FromV1 } from "@/features/account/FromV1";
 import { ThemePicker } from "@/features/account/ThemePicker";
 import { saveSettingsForm } from "./actions";
 
@@ -150,6 +151,14 @@ export default async function SettingsPage() {
             }}
           />
         </a>
+        <div className="k-stack g1">
+          <span className="k-label">Porta i dati da v1</span>
+          <span className="k-help">
+            Scegli l’export di v1 (Impostazioni → Esporta): vedi cosa arriverebbe, poi
+            «Aggiungi». Entra solo ciò che v2 non ha; niente in v2 cambia.
+          </span>
+          <FromV1 />
+        </div>
         <Box
           density="row"
           rail={false}

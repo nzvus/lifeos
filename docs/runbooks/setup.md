@@ -188,6 +188,12 @@ v2 runs without a database server: PGlite in a folder, migrated on start.
    everything your account has in v2 (not the account) and loads the file,
    in one transaction: if the load fails, nothing changes. Anything typed
    only in v2 since the last load is lost: use it only when there is none.
+8. **What you logged in v1 since, from the app** (2026-10-25, no command):
+   v2 → Impostazioni → I tuoi dati → «Porta i dati da v1», pick the v1
+   export (plain, not refined). It shows what would come in, then
+   «Aggiungi». It adds an entry only where v2 has nothing of its kind on
+   that day, and never changes or removes anything in v2; running it again
+   adds nothing twice. It replaces steps 6–7 when v2 has entries of its own.
 
 From then on, a migration reaches `lifeos_v2` only through migrate-v2.
 v2 has no Preview variables yet: a preview (a PR touching v2's schema, or a
