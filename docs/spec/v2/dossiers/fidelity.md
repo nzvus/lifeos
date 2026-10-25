@@ -135,8 +135,9 @@ it was used, «Modifica» in its header, its values as stats, «Così appare»
 (100 of it in the meal's bars, folded), section icons; the editor has
 «Nome e codici» and «Per 100 g» with steppers two by two and NOVA 1–4.
 Missing: one page for reading and editing (the board's), products with
-their formats and prices, «Tipi di ogni macro», «Vitamine e minerali»,
-«Fonti».
+their formats and prices, «Fonti». «Così appare» holds the kinds (tap a
+macro) and, since 2026-10-25, the vitamins and minerals in 100 g against a
+day's need.
 
 ## Piano, Obiettivi, Impostazioni, Aggiungi
 
