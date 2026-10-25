@@ -47,14 +47,14 @@ window (foods as chips) measured against the block, «Per arrivare al
 blocco» (the protein missing and two ways to close it — a food in the meal
 raised, a usual one dense in protein added — each with what it adds, one
 tap), «Pasti adatti a cena» (saved meals by `blockFit`).
-Missing: saved-vs-now kcal in the header; tabs
-Ingredienti · Pasti · Porzioni · Stima; barcode and camera next to the
-search; ingredient rows with glyph, kcal, inline stepper, «36 g prot. ·
-1,50 € · NOVA 1», L0 ribbon and product chip; «La cena, come sarà» (food
-chips, L1, micros, relations, score); «Pasti adatti alla cena»; «Per
-arrivare al blocco» (what closes the protein gap); servings + «Salva
-prevista» sticky at the bottom. v2 stacks a long generic list, the meal box
-and the day box, with «Quando» last.
+**Done (2026-10-25)**: tabs as the board's underline tabs; the barcode
+next to the search; each ingredient «8 g prot. · NOVA 4», its energy by
+macro as a ribbon, its product as a chip; «come sarà» scored as it is
+built (E7 FOOD, the same function as Oggi's, `features/food/lines-score`;
+fit from the block); «Pasti adatti» before «Per arrivare al blocco»; the
+servings and «Salva» together at the bottom. Missing: saved-vs-now kcal
+in the header, the «Porzioni» tab (batches), the price per line (no
+prices in the data yet), the photo of a label.
 
 ## Gym
 

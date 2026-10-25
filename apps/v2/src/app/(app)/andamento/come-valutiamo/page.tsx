@@ -96,7 +96,9 @@ export default async function ScoresPage({
                         className="fill"
                         style={{ height: Math.round(q.score * 100) + "%" }}
                       />
-                      <span className="w">{q.name}</span>
+                      <span className="w">
+                        {q.name + " " + Math.round(q.weight * 100) + " %"}
+                      </span>
                     </span>
                   ))}
                   <span className="line" />

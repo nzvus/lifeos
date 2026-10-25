@@ -10,7 +10,7 @@ import { daySlots } from "@/features/day/slots";
 import { F } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDay } from "@/core/day";
+import { loadDay, readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { localParts } from "@/core/engines/time";
 import {
@@ -46,10 +46,11 @@ export default async function MealPage({
   const db = await getDb();
   const { giorno, pasto, da, ruolo, ora } = await searchParams;
   const { clock, roleBounds, day, today } = await addContext(db, owner, giorno);
-  const [choices, dayData, targets] = await Promise.all([
+  const [choices, dayData, targets, micros] = await Promise.all([
     readFoodChoices(db, owner, today),
     loadDay(db, owner, day, { clock, roleBounds }),
     readTargetsFor(db, owner, day, today, clock),
+    readMicroTargets(db, owner, day),
   ]);
   const whole = presentDay(
     dayData,
@@ -117,6 +118,7 @@ export default async function MealPage({
       dayNutrients={whole?.nutrients ?? null}
       slots={slots}
       modelName={model?.name ?? null}
+      refs={{ targets, micros }}
       roleBounds={roleBounds}
       initial={{
         // A model's block still to come is planned at its time; else now, eaten.
