@@ -101,7 +101,10 @@ each domain's page (the board Tracker, `/andamento/peso`, `sonno`, `acqua`,
 stats, the kit's new Chart (weight: the scale's points, the board's
 smoothed trend, the goal line; sleep, water, steps: bars against 7–9 h,
 the need, the goal), each entry a row with its own score, «Cosa dice di
-te». Missing: the kind's settings on its page, food and training pages.
+te». The person's own trackers too (`/andamento/<key>`: each day's first
+number summed, or how many times; their rows as on Oggi; «I tuoi tracker»
+on Andamento). Missing: the kind's settings on its page, food and
+training pages.
 
 ## Libreria
 

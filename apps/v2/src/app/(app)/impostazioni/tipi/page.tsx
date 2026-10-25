@@ -53,6 +53,8 @@ export default async function TrackersPage({
                   of: { kind: k.key },
                   title: k.name,
                   faded: k.archived,
+                  href: "/andamento/" + k.key,
+                  hrefLabel: "Andamento di " + k.name,
                   meta:
                     (k.shape === "interval" ? "con una durata" : "un momento") +
                     " · " +

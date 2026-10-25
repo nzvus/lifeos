@@ -10,6 +10,8 @@
  */
 import { F, type BoxEntry, type ChartData, type GlyphOf } from "@lifeos/kit";
 import type { Day, DayItem } from "@/core/day";
+import type { Kind } from "@/core/kinds";
+import { present } from "@/features/day/present";
 import type { WeightProgress } from "@/core/goals";
 import { isoWeekday, localParts } from "@/core/engines/time";
 import {
@@ -453,5 +455,97 @@ export function stepsTracker(p: {
     }),
     about:
       "Come giudicare i passi lo decide il dossier sul movimento: per ora solo i numeri.",
+  };
+}
+
+/**
+ * A kind of the person's own (V-14): each day its first number summed (with
+ * its unit), or how many times when it has none; each entry a row as Oggi
+ * shows it (its fields with their words). No score: the person has not
+ * said what good is for it.
+ */
+export function kindTracker(p: {
+  kind: Kind;
+  days: readonly Day[];
+  period: readonly string[];
+}): TrackerView {
+  const k = p.kind;
+  const name = k.name ?? k.key;
+  const head = k.fields.find((f) => ["number", "integer", "duration"].includes(f.type));
+  const unit = head ? (head.type === "duration" ? "min" : (head.unit ?? "")) : "";
+  const entries = p.days.flatMap((d) =>
+    items(d)
+      .filter((i) => i.kind.key === k.key && done(i))
+      .map((i) => ({ day: d.day, item: i })),
+  );
+  const by = new Map<string, number>();
+  for (const e of entries)
+    by.set(
+      e.day,
+      (by.get(e.day) ?? 0) + (head ? (num(e.item.values[head.key]) ?? 0) : 1),
+    );
+  const logged = p.period.filter((d) => by.has(d));
+  const y = p.period.map((d) => by.get(d) ?? 0);
+  const total = y.reduce((a, b) => a + b, 0);
+  const what = head ? (head.label ?? head.key).toLowerCase() : "volte";
+  return {
+    title: name,
+    of: { fam: k.family, kind: k.key },
+    context:
+      entries.length === 0
+        ? "niente nel periodo"
+        : F.plural(entries.length, "volta", "volte") +
+          " in " +
+          F.plural(logged.length, "giorno", "giorni"),
+    head: {
+      fam: k.family,
+      title: "Il periodo",
+      ...(entries.length ? { value: head ? F.num(total, unit) : String(total) } : {}),
+      meta: "senza voto: è un tracker tuo",
+    },
+    stats: entries.length
+      ? [
+          { l: "Giorni", v: String(logged.length), u: "su " + p.period.length },
+          {
+            l: "Al giorno",
+            v: F.n(total / Math.max(1, logged.length), head ? 1 : 1),
+            u: (head ? unit || what : "volte") + ", nei giorni segnati",
+          },
+          {
+            l: "Il massimo",
+            v: F.n(Math.max(...y), head ? 1 : 0),
+            u: head ? unit || what : "volte",
+          },
+        ]
+      : [],
+    chart:
+      entries.length === 0
+        ? null
+        : {
+            type: "bars",
+            data: {
+              x: labels(p.period),
+              y,
+              unit: head ? unit : "volte",
+              lo: 0,
+              hi: Math.max(1, Math.ceil(Math.max(...y) * 1.15)),
+              decimals: head ? 1 : 0,
+            },
+            caption: head
+              ? "Ogni barra un giorno: " +
+                what +
+                (unit ? " (" + unit + ")" : "") +
+                ", sommati."
+              : "Ogni barra un giorno: quante volte.",
+          },
+    rowsTitle: "Le volte",
+    rowsNote: "Ognuna con quello che hai segnato.",
+    rows: [...entries].reverse().map((e) => ({
+      ...present(e.item),
+      title: F.Day(e.day),
+      href: "/voce/" + e.item.id,
+      hrefLabel: name + " di " + F.day(e.day),
+    })),
+    about: "Un tracker tuo: lo cambi o lo archivi in Impostazioni → Tracker e tipi.",
   };
 }

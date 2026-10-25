@@ -1,6 +1,6 @@
 /**
  * A tracker page (V-06, the board Tracker): `/andamento/peso`, `sonno`,
- * `acqua`, `passi` — the period (`?giorni=` 7, 30 or 90, 30 when missing, up
+ * `acqua`, `passi`, or a kind of the person's own by its key — the period (`?giorni=` 7, 30 or 90, 30 when missing, up
  * to `?fino=`) as a box with its score and three stats, the chart, each
  * entry a row with its own score, what the tracker says about you. The
  * rows of the period are read once (core/day `loadDays`) and drawn by
@@ -11,7 +11,8 @@ import { Box, Chart, NavBar, PageHeader, RangeNav } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { dayMinute, loadDays } from "@/core/day";
+import { dayMinute, loadDays, readUserKinds } from "@/core/day";
+import { kindRegistry } from "@/core/kinds";
 import { ensureWeekTargets } from "@/core/energy";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
@@ -20,6 +21,7 @@ import type { ScoreContext } from "@/features/day/score";
 import { OpenBox } from "@/features/day/OpenBox";
 import { PLACES } from "@/features/places";
 import {
+  kindTracker,
   sleepTracker,
   stepsTracker,
   TRACKERS,
@@ -45,10 +47,17 @@ export default async function TrackerPage({
   searchParams: Promise<{ fino?: string | string[]; giorni?: string | string[] }>;
 }) {
   const { tracker: asked } = await params;
-  if (!(TRACKERS as readonly string[]).includes(asked)) notFound();
-  const tracker = asked as Tracker;
   const owner = await requireOwner();
   const db = await getDb();
+  const builtIn = (TRACKERS as readonly string[]).includes(asked);
+  // A kind of the person's own: its key, live (an archived one keeps its page).
+  const own = builtIn
+    ? null
+    : (kindRegistry(await readUserKinds(db, owner)).all.find(
+        (k) => k.key === asked && k.name,
+      ) ?? null);
+  if (!builtIn && !own) notFound();
+  const tracker = asked as Tracker;
   const known = await ownerClock();
   const today = logicalDay(new Date(), known.clock);
   const { fino, giorni } = await searchParams;
@@ -88,7 +97,8 @@ export default async function TrackerPage({
     now: d === today ? nowMinute : null,
   });
   let view;
-  if (tracker === "peso") {
+  if (own) view = kindTracker({ kind: own, days, period });
+  else if (tracker === "peso") {
     const week = (await ensureWeekTargets(db, owner, end, known.clock)) as Record<
       string,
       unknown
