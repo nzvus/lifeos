@@ -16,6 +16,7 @@ const KIND_WORDS: Record<string, [string, string]> = {
   steps: ["giorno di passi", "giorni di passi"],
   water: ["acqua", "acque"],
   checkin: ["come stai", "come stai"],
+  movement: ["movimento", "movimenti"],
 };
 const words = (counts: Record<string, number>) =>
   Object.entries(counts)

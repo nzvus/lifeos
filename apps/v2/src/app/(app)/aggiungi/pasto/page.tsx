@@ -42,11 +42,14 @@ export default async function MealPage({
     ruolo?: string | string[];
     ora?: string | string[];
     cibo?: string | string[];
+    /** From ⊕'s switch: planned, or done earlier (the time to say). */
+    stato?: string | string[];
   }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
-  const { giorno, pasto, da, ruolo, ora, cibo } = await searchParams;
+  const { giorno, pasto, da, ruolo, ora, cibo, stato } = await searchParams;
+  const when = stato === "previsto" || stato === "prima" ? stato : null;
   const { clock, roleBounds, day, today } = await addContext(db, owner, giorno);
   const [choices, dayData, targets, micros] = await Promise.all([
     readFoodChoices(db, owner, today),
@@ -58,6 +61,7 @@ export default async function MealPage({
     dayData,
     targets,
     await readFoodEstimates(db, owner, foodIds(dayData)),
+    micros,
   );
   const recipes = await readRecipeChoices(db, owner, today, choices);
   // The day's model's meal blocks (day-templates): each role's targets, for the bars and the gap.
@@ -138,8 +142,15 @@ export default async function MealPage({
       initial={{
         // A model's block still to come is planned at its time; else now, eaten.
         status:
-          day > today || (at !== null && day === today && at > now) ? "planned" : "done",
-        ...(at !== null ? { start: at } : day === today ? { start: now } : {}),
+          when === "previsto" ||
+          (when === null && (day > today || (at !== null && day === today && at > now)))
+            ? "planned"
+            : "done",
+        ...(at !== null
+          ? { start: at }
+          : day === today && when === null
+            ? { start: now }
+            : {}),
         ...(typeof role === "string" ? { role } : {}),
         ...(typeof again?.values["servings"] === "string"
           ? { servings: F.input(Number(again.values["servings"]), 2) }

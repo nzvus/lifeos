@@ -41,36 +41,99 @@ export function period(days: readonly PeriodDay[]): {
       : null,
   }));
   if (on.length === 0) return { nutrients: null, logged: 0, rows };
-  const first = on[0]!.nutrients;
-  const limits = first.limits ?? [];
   return {
     logged: on.length,
     rows,
-    nutrients: {
-      kcal: {
-        v: avg(on.map((d) => d.nutrients.kcal!.v)),
-        t: avgOrNull(on.map((d) => d.nutrients.kcal?.t)),
-      },
-      macros: first.macros.map((m) => ({
-        key: m.key,
-        v: avg(on.map((d) => d.nutrients.macros.find((x) => x.key === m.key)?.v ?? 0)),
-        t: avgOrNull(on.map((d) => d.nutrients.macros.find((x) => x.key === m.key)?.t)),
-      })),
-      ...(limits.length > 0
-        ? {
-            limits: limits.map((l) => ({
-              key: l.key,
-              v: avg(
-                on.map((d) => d.nutrients.limits?.find((x) => x.key === l.key)?.v ?? 0),
+    nutrients: meanNutrients(on.map((d) => d.nutrients)),
+  };
+}
+
+/**
+ * The days' Nutrients as one (the developer, 2026-10-25: «uguale in tutte le
+ * pagine»): every number averaged — kcal, each macro and each of its kinds,
+ * each limit, each micro —, the zones and the words of the last day (the
+ * targets the period ends with), the sources summed. So the period's panel
+ * is Oggi's, read over days.
+ */
+export function meanNutrients(all: readonly NutrientsData[]): NutrientsData {
+  const last = all.at(-1)!;
+  const meanParts = (key: string) => {
+    const sum = new Map<string, number>();
+    for (const d of all)
+      for (const [k, g] of Object.entries(
+        d.macros.find((m) => m.key === key)?.parts ?? {},
+      ))
+        sum.set(k, (sum.get(k) ?? 0) + g);
+    return sum.size
+      ? Object.fromEntries([...sum].map(([k, g]) => [k, g / all.length]))
+      : null;
+  };
+  const meanSources = (key: string) => {
+    const sum = new Map<string, number>();
+    for (const d of all)
+      for (const [n, g] of d.macros.find((m) => m.key === key)?.sources ?? [])
+        sum.set(n, (sum.get(n) ?? 0) + g);
+    return [...sum]
+      .map(([n, g]) => [n, g / all.length] as [string, number])
+      .sort((a, b) => b[1] - a[1]);
+  };
+  const micros = last.micros
+    ? (() => {
+        const groups = last.micros!.groups.map((g) => ({
+          ...g,
+          items: g.items.map((it) => {
+            const v = avg(
+              all.map(
+                (d) =>
+                  d.micros?.groups.flatMap((x) => x.items).find((x) => x.name === it.name)
+                    ?.v ?? 0,
               ),
-              t:
-                avgOrNull(
-                  on.map((d) => d.nutrients.limits?.find((x) => x.key === l.key)?.t),
-                ) ?? 0,
-            })),
-          }
-        : {}),
+            );
+            const state = it.t ? F.reach(v, it.t) : undefined;
+            return { ...it, v, ...(state ? { state } : {}) };
+          }),
+        }));
+        const items = groups.flatMap((g) => g.items).filter((x) => x.t);
+        return {
+          summary:
+            items.filter((x) => x.v >= x.t!).length +
+            " su " +
+            items.length +
+            " coperti · media",
+          groups,
+        };
+      })()
+    : null;
+  return {
+    kcal: {
+      v: avg(all.map((d) => d.kcal?.v ?? 0)),
+      t: avgOrNull(all.map((d) => d.kcal?.t)),
     },
+    macros: last.macros.map((m) => {
+      const parts = meanParts(m.key);
+      const sources = meanSources(m.key);
+      return {
+        key: m.key,
+        v: avg(all.map((d) => d.macros.find((x) => x.key === m.key)?.v ?? 0)),
+        t: avgOrNull(all.map((d) => d.macros.find((x) => x.key === m.key)?.t)),
+        ...(parts ? { parts } : {}),
+        ...(sources.length ? { sources } : {}),
+        ...(m.zones ? { zones: m.zones } : {}),
+        ...(m.partZones ? { partZones: m.partZones } : {}),
+      };
+    }),
+    ...(last.limits?.length
+      ? {
+          limits: last.limits.map((l) => ({
+            key: l.key,
+            ...(l.name ? { name: l.name } : {}),
+            v: avg(all.map((d) => d.limits?.find((x) => x.key === l.key)?.v ?? 0)),
+            t: avgOrNull(all.map((d) => d.limits?.find((x) => x.key === l.key)?.t)) ?? 0,
+            ...(l.zones ? { zones: l.zones } : {}),
+          })),
+        }
+      : {}),
+    ...(micros ? { micros } : {}),
   };
 }
 

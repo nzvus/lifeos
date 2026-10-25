@@ -135,6 +135,19 @@ export function EntryRow({
               </div>
             ))}
           {open && entry.details && <EntryDetails d={entry.details} />}
+          {/* Deleting is also a swipe to the left; opened, it is said in words. */}
+          {open && (
+            <div className="k-line end">
+              <button
+                type="button"
+                className="k-btn act danger"
+                aria-label={"Elimina " + entry.title}
+                onClick={() => onIntent("remove")}
+              >
+                Elimina
+              </button>
+            </div>
+          )}
         </Box>
       </div>
     </div>

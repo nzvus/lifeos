@@ -110,8 +110,9 @@ training pages.
 ## Libreria
 
 **Done here**: the index (one search across the catalogs, the shelves with
-counts and a line, «Aggiungere»), each shelf opening its list. The board's
-Dispensa and Tipi di tracker shelves join when those slices exist.
+counts and a line, «Aggiungere»), each shelf opening its list; «Tipi di
+tracker» (2026-10-25: the kinds ⊕ enters, the person's own counted, to
+Tracker e tipi; «Un tracker» under «Aggiungere»). Dispensa joins with V-12.
 The board is an index: Cibi · Pasti e ricette · Dispensa · Esercizi · Tipi
 di tracker, then «Aggiungere» (food by barcode/label/hand, meal, receipt,
 exercise), one search across all. v2 opens straight on the foods list with
@@ -145,8 +146,10 @@ non trova?» (new food, new exercise). Done 2026-10-25: one search across
 the kinds, foods, saved meals and routines on top (names only, read in one
 query; a food opens the composer with it, `?cibo=`), «Cosa» first.
 «Nuovo tracker» (2026-10-25, Impostazioni → Tracker e tipi; kinds.md).
-Missing: the «Adesso / Previsto / Prima» switch, «Porzioni pronte»
-(batches, pantry). Impostazioni: compare again.
+The «Adesso · Previsto · Prima» switch (2026-10-25): what opens from ⊕ is
+done now, planned, or done earlier with its time left to say (`&stato=`
+to the sheets and the composer). Missing: «Porzioni pronte» (batches,
+pantry). Impostazioni: compare again.
 
 ## Codice a barre
 
@@ -168,9 +171,22 @@ da v1» — v1's export, a dry run (per kind, the days, what stays out), then
 «Aggiungi»: an entry comes in when v2 has no live entry of its kind on its
 day (with its children, lines, sets), its catalog items by id, else v2's of
 the same name, else new; nothing in v2 changes (core/convert `newFromV1`,
-ADR-0052's merge narrowed to v1 → v2; money stays out). Missing: CSV per
+ADR-0052's merge narrowed to v1 → v2; a movement with its money,
+lines and receipt since 2026-10-25). Missing: CSV per
 kind, replace from a file, invites, language. The weather's city is in
 «Il tempo» (2026-10-25).
+
+## Soldi (Money)
+
+Done 2026-10-25: ⊕ → «Spesa» (spending or income, how much, the category
+grouped under its parent — v1's 51, in Italian —, where, what, card or
+cash, the time), written as a `movement` entry with its `money_movements`
+row (core/money); `/andamento/soldi` (the board Money): spent, the pace
+against the month before at the same day, income, the month by category,
+the movements day by day with each day's total, ‹ the month before.
+A movement opens from Oggi or Soldi in the same form, to change it or
+«Elimina» (to the trash). Missing: budgets, accounts and balances,
+receipts (⊕ → Scontrino, V-13).
 
 ## Come valutiamo (Scores)
 

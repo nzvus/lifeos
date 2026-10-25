@@ -30,15 +30,20 @@ const RECENT = 4;
 export default async function AddPage({
   searchParams,
 }: {
-  searchParams: Promise<{ giorno?: string | string[] }>;
+  searchParams: Promise<{ giorno?: string | string[]; stato?: string | string[] }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
+  const asked = await searchParams;
   const { kinds, day, today, clock, roleBounds } = await addContext(
     db,
     owner,
-    (await searchParams).giorno,
+    asked.giorno,
   );
+  // «Adesso · Previsto · Prima» (the board Capture): what opens from here is done now,
+  // planned, or done earlier with its time to say; carried as `&stato=` to each sheet.
+  const when = asked.stato === "previsto" || asked.stato === "prima" ? asked.stato : null;
+  const st = when ? "&stato=" + when : "";
   // The last three days, newest first, from one set of queries.
   const recent = (
     await loadDays(db, owner, addDays(today, -2), today, { clock, roleBounds })
@@ -65,8 +70,8 @@ export default async function AddPage({
           readExercises(db, owner).then((x) => readRoutines(db, owner, today, x)),
         ])
       : [[], []];
-  const rows = kindRows(kinds, (k) => `/aggiungi/${k}?giorno=${day}`);
-  const meal = `/aggiungi/pasto?giorno=${day}`;
+  const rows = kindRows(kinds, (k) => `/aggiungi/${k}?giorno=${day}${st}`);
+  const meal = `/aggiungi/pasto?giorno=${day}${st}`;
   const targets: AddTarget[] = [
     {
       key: "k:meal",
@@ -83,6 +88,14 @@ export default async function AddPage({
       fam: "train",
       of: { kind: "session" },
       href: "/palestra",
+    },
+    {
+      key: "k:movement",
+      title: "Spesa",
+      sub: "tipo",
+      fam: "money",
+      of: { kind: "movement" },
+      href: `/aggiungi/spesa?giorno=${day}`,
     },
     ...rows.map((r) => ({
       key: "k:" + r.key,
@@ -131,10 +144,29 @@ export default async function AddPage({
         </div>
         <div className="k-sbody">
           <AddSearch targets={targets}>
+            <section className="k-section" aria-label="Quando">
+              <nav className="k-choice" aria-label="Quando">
+                {(
+                  [
+                    [null, "Adesso"],
+                    ["previsto", "Previsto"],
+                    ["prima", "Prima"],
+                  ] as const
+                ).map(([k, label]) => (
+                  <a
+                    key={label}
+                    href={`/aggiungi?giorno=${day}` + (k ? "&stato=" + k : "")}
+                    aria-current={k === when ? "true" : undefined}
+                  >
+                    {label}
+                  </a>
+                ))}
+              </nav>
+            </section>
             <section className="k-section" aria-label="Cosa aggiungere">
               <h2>Cosa</h2>
               <div className="k-grid">
-                <a href={`/aggiungi/pasto?giorno=${day}`} className="k-plain">
+                <a href={meal} className="k-plain">
                   <Box
                     entry={{ fam: "food", of: { kind: "meal" }, title: "Pasto" }}
                     density="row"
@@ -152,15 +184,19 @@ export default async function AddPage({
                     rail={false}
                   />
                 </a>
+                <a href={`/aggiungi/spesa?giorno=${day}`} className="k-plain">
+                  <Box
+                    entry={{ fam: "money", of: { kind: "movement" }, title: "Spesa" }}
+                    density="row"
+                    rail={false}
+                  />
+                </a>
                 {rows.map((r) => (
                   <a key={r.key} href={r.href} className="k-plain">
                     <Box entry={r.entry} density="row" rail={false} />
                   </a>
                 ))}
               </div>
-              <p className="k-help">
-                Le spese hanno il loro editor: arriva con la prossima parte.
-              </p>
             </section>
             {usual.length > 0 && (
               <section className="k-section" aria-label="A quest'ora, di solito">
@@ -171,7 +207,7 @@ export default async function AddPage({
                   {usual.map((u) => (
                     <a
                       key={u.lastId}
-                      href={`/aggiungi/pasto?giorno=${day}&da=${u.lastId}`}
+                      href={`/aggiungi/pasto?giorno=${day}&da=${u.lastId}${st}`}
                       className="k-plain"
                     >
                       <Box
@@ -228,7 +264,7 @@ export default async function AddPage({
                     return (
                       <a
                         key={i.id}
-                        href={`/aggiungi/pasto?giorno=${day}&da=${i.id}`}
+                        href={`/aggiungi/pasto?giorno=${day}&da=${i.id}${st}`}
                         className="k-plain"
                       >
                         <Box
