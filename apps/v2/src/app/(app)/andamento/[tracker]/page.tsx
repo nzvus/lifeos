@@ -30,6 +30,12 @@ import {
 
 const RANGES = [7, 30, 90] as const;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
+/** The E7 model each tracker's rows are scored by («Come valutiamo»). */
+const SCORED: Partial<Record<Tracker, string>> = {
+  peso: "weighing",
+  sonno: "sleep",
+  acqua: "water",
+};
 
 export default async function TrackerPage({
   params,
@@ -170,7 +176,14 @@ export default async function TrackerPage({
         <span className="k-body">{view.about}</span>
       </section>
       <section className="k-section g3" aria-label={view.rowsTitle}>
-        <h2>{view.rowsTitle}</h2>
+        <h2>
+          {view.rowsTitle}{" "}
+          {SCORED[tracker] && (
+            <a href={"/andamento/come-valutiamo?modello=" + SCORED[tracker]}>
+              come valutiamo ›
+            </a>
+          )}
+        </h2>
         <span className="k-meta">{view.rowsNote}</span>
         {view.rows.length === 0 ? (
           <p className="k-help">Niente nel periodo.</p>

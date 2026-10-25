@@ -142,6 +142,18 @@ Done 2026-10-24: sections with their drawing and a line of why,
 (download all, the trash with its count). Missing: CSV per kind, replace
 or merge from a file, invites, language, the weather's city.
 
+## Come valutiamo (Scores)
+
+Done 2026-10-25, read-only: `/andamento/come-valutiamo?modello=` — the
+models as chips (Pasto, Peso, Sonno, Acqua, Sessione, Giorno), what each
+judges, the last weigh-in, night or water of the week as a box and the big
+skyline, each part with its share, its allowed range (green) and the
+default weight on it, the lock on health limits, why, its score now; the
+sources. Linked from Andamento and from each tracker's rows. Missing: the
+sliders (the weights stored as a dated decision: a migration on
+`decisions_kind_ck`, so the developer applies it), the context lines
+(«il contesto che sposta la bilancia»).
+
 ## Proposed order
 
 1. The box (cross-cutting): score skyline + open state + pills, so every

@@ -252,9 +252,14 @@ export default async function AndamentoPage({
     <main className="k-page has-bd">
       <PageHeader title="Andamento" of={{ place: "andamento" }} />
       <section className="k-section" aria-label="Obiettivi">
-        <a className="k-link" href="/andamento/obiettivi">
-          Obiettivi ›
-        </a>
+        <div className="k-line between">
+          <a className="k-link" href="/andamento/obiettivi">
+            Obiettivi ›
+          </a>
+          <a className="k-link" href="/andamento/come-valutiamo">
+            Come valutiamo ›
+          </a>
+        </div>
       </section>
       <section className="k-section g3" aria-label="Il periodo">
         <RangeNav
