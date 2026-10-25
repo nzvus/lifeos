@@ -115,6 +115,13 @@ The board is an index: Cibi · Pasti e ricette · Dispensa · Esercizi · Tipi
 di tracker, then «Aggiungere» (food by barcode/label/hand, meal, receipt,
 exercise), one search across all. v2 opens straight on the foods list with
 tabs and a sort select.
+Done 2026-10-25 (the board IngredientEditor): a food's page says how often
+it was used, «Modifica» in its header, its values as stats, «Così appare»
+(100 of it in the meal's bars, folded), section icons; the editor has
+«Nome e codici» and «Per 100 g» with steppers two by two and NOVA 1–4.
+Missing: one page for reading and editing (the board's), products with
+their formats and prices, «Tipi di ogni macro», «Vitamine e minerali»,
+«Fonti».
 
 ## Piano, Obiettivi, Impostazioni, Aggiungi
 
