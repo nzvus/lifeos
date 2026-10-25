@@ -74,9 +74,10 @@ export function Nutrients({ data }: { data: NutrientsData }) {
       )}
       {foods.length > 1 && (
         <div className="k-chips" aria-label="Cibi: tocca per evidenziarne il contributo">
-          {foods.map((f) => (
+          {foods.map((f, n) => (
             <button
-              key={f.key}
+              // The same food can come twice (a role's meals together): the key keeps its place.
+              key={f.key + ":" + n}
               type="button"
               className="k-chip k-nfood"
               aria-pressed={f.pressed}
@@ -173,9 +174,9 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                     {m.sources.length > 0 && (
                       <>
                         <span className="k-cap">da dove</span>
-                        {m.sources.map((s) => (
+                        {m.sources.map((s, n) => (
                           <div
-                            key={s.name}
+                            key={s.name + ":" + n}
                             className="k-src"
                             style={{ opacity: s.faint ? 0.6 : s.dim ? 0.3 : 1 }}
                           >

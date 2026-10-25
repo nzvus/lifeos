@@ -29,6 +29,8 @@ import { readSettings } from "@/core/account/settings";
 import { readPlace } from "@/core/account/place";
 import { weatherChips } from "@/app/_server/weather";
 import { WeatherCard } from "@/features/day/WeatherCard";
+import { mealGroups } from "@/features/day/meal-groups";
+import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
 import { ensureWeekTargets, mondayOf } from "@/core/energy";
 import {
@@ -262,7 +264,33 @@ export default async function OggiPage({
   const bars = weekBars(weekInput);
   // Water is one box in the timeline (WaterRow): its drinks are not rows of their own.
   const notWater = (i: (typeof items)[number]) => i.kind.key !== "water";
-  const rows = day.timed.filter(notWater).map((i) => ({ ...row(i), minute: i.minute! }));
+  const timedRows = day.timed
+    .filter(notWater)
+    .map((i) => ({ ...row(i), minute: i.minute! }));
+  // Meals of one role together (Cena ×5 → one «Cena» that opens on its entries).
+  const groups = mealGroups(
+    day.timed.filter(notWater),
+    (i) => timedRows.find((r) => r.id === i.id)?.title ?? "",
+  );
+  const grouped = new Set(groups.flatMap((g) => g.items.map((i) => i.id)));
+  const groupRows = groups.map((g) => {
+    const kids = timedRows.filter((r) => g.items.some((i) => i.id === r.id));
+    const { href: _href, hrefLabel: _label, ...whole } = row(g.merged);
+    const what = kids
+      .map((k) => (k.meta ?? "").split(" · ")[0])
+      .filter(Boolean)
+      .join(", ");
+    return {
+      ...whole,
+      id: g.merged.id,
+      title: MEAL_ROLE_WORDS[g.role] ?? whole.title,
+      meta: kids.length + " voci" + (what ? " · " + what : ""),
+      minute: g.merged.minute!,
+      group: kids,
+      addHref: `/aggiungi/pasto?giorno=${date}&ruolo=${g.role}`,
+    };
+  });
+  const rows = [...timedRows.filter((r) => !grouped.has(r.id)), ...groupRows];
   const untimed = day.untimed.filter(notWater).map(row);
   const drinks = items.filter((i) => i.kind.key === "water" && i.status === "done");
   const lastDrink = Math.max(-1, ...drinks.map((i) => i.minute ?? -1));

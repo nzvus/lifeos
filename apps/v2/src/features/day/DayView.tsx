@@ -11,7 +11,15 @@
  * the server says no.
  */
 import { useEffect, useRef, useState } from "react";
-import { Box, Glyph, ICONS, type BoxEntry, type NutrientsData } from "@lifeos/kit";
+import {
+  Box,
+  Glyph,
+  ICONS,
+  Nutrients,
+  NutrientsL0,
+  type BoxEntry,
+  type NutrientsData,
+} from "@lifeos/kit";
 import type { ModelRow } from "./model-items";
 import { EntryRow, type RowIntent } from "./EntryRow";
 import {
@@ -28,7 +36,14 @@ import {
 import { Timeline } from "./Timeline";
 import { WaterRow, type Water } from "./WaterRow";
 
-type Row = BoxEntry & { id: string; status: Status; l0?: NutrientsData | null };
+type Row = BoxEntry & {
+  id: string;
+  status: Status;
+  l0?: NutrientsData | null;
+  /** Meals of one role together: the entries inside, and where to add one more. */
+  group?: (Row & { minute: number })[];
+  addHref?: string;
+};
 
 export type DayActions = {
   changeStatus: (id: string, status: Status) => Promise<Status | null>;
@@ -114,7 +129,7 @@ export function DayView({
     }
   };
   // Every planned row of the day, filtered or not: the action says how many.
-  const plannedIds = [...rows, ...untimed]
+  const plannedIds = [...rows.flatMap((r) => r.group ?? [r]), ...untimed]
     .filter((r) => r.status === "planned")
     .map((r) => r.id);
   const clearPlanned = async () => {
@@ -233,6 +248,14 @@ export function DayView({
               row={(r, mode, onRail) =>
                 r === waterRow && water ? (
                   <WaterRow water={water} mode={mode} onRail={onRail} />
+                ) : r.group ? (
+                  <GroupRow
+                    row={r}
+                    kids={r.group.filter((k) => !gone.has(k.id))}
+                    mode={mode}
+                    onRail={onRail}
+                    onIntent={(k, i) => act(k, i)}
+                  />
                 ) : ghostIds.has(r.id) ? (
                   <Box entry={r} mode={mode} onRail={onRail} />
                 ) : (
@@ -296,5 +319,69 @@ export function DayView({
         </div>
       )}
     </>
+  );
+}
+
+/**
+ * A role's meals as one box (the developer's pick, 2026-10-25): closed, the
+ * whole meal's bars and score; open, its panel (each entry's foods as chips,
+ * as the day's), then each entry as a row of its own — open it, change it,
+ * delete it —, then «+ Aggiungi a cena».
+ */
+function GroupRow({
+  row,
+  kids,
+  mode,
+  onRail,
+  onIntent,
+}: {
+  row: Row & { minute: number };
+  kids: (Row & { minute: number })[];
+  mode: "compact" | "times";
+  onRail: () => void;
+  onIntent: (k: Row, i: RowIntent) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="k-mgroup">
+      <Box
+        entry={{
+          ...row,
+          meta: kids.length + " voci" + (row.meta?.replace(/^\d+ voci/, "") ?? ""),
+        }}
+        mode={mode}
+        onRail={onRail}
+        expanded={open}
+        onToggle={() => setOpen(!open)}
+      >
+        {row.l0 &&
+          (open ? (
+            <Nutrients data={row.l0} />
+          ) : (
+            <div className="k-slot-l0">
+              <NutrientsL0 data={row.l0} />
+            </div>
+          ))}
+        {open && (
+          <div className="k-stack g2 k-mkids">
+            {kids.map((k) => (
+              <EntryRow
+                key={k.id}
+                entry={k}
+                status={k.status}
+                density="row"
+                rail={false}
+                onIntent={(i) => onIntent(k, i)}
+              />
+            ))}
+            {row.addHref && (
+              <a className="k-link" href={row.addHref}>
+                + Aggiungi a {row.title.toLowerCase()}
+              </a>
+            )}
+          </div>
+        )}
+      </Box>
+    </div>
   );
 }

@@ -36,8 +36,11 @@ with their minutes; a role with no energy gives none; then the model's
 editor); the day's model as the header's action («Giornata «Rec» ▾», a
 panel to change it or skip the step) and the cycle as the header's line
 («ciclo PLPRR: oggi Push, poi Riposo»); the weather chips (high · low,
-humidity, air, daylight, the city; engines.md E11). Missing: the pantry
-reminder card. Depends on: day templates (Piano), drink
+humidity, air, daylight, the city; engines.md E11), since 25 Oct a card.
+Meals of one role together (2026-10-25, the developer's pick): two or more
+«Cena» entries are one box with the whole dinner's bars and score, opening
+on its panel, then each entry as its own row, then «+ Aggiungi a cena»
+(`features/day/meal-groups`). Missing: the pantry reminder card. Depends on: day templates (Piano), drink
 and supplement kinds (migration.md), pantry (V-12).
 
 ## Composer (Food)
