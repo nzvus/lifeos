@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PricedDay } from "@/core/energy";
-import { burnText, dayBurnLine, rowBurns } from "./burn";
+import { burnText, dayBurnLine, dayPieces, rowBurns } from "./burn";
 
 const r = (low: number, high: number) => ({ low, high });
 // F joins numbers and units with no-break spaces.
@@ -51,6 +51,30 @@ describe("dayBurnLine", () => {
     // 0.5 × (2115–2313) + steps + training = 1783.5–2171.5, widened to ±15 %
     expect(plain(dayBurnLine(day, 0.5))).toBe(
       "Speso finora ≈ 1.680–2.270 kcal · a fine giornata ≈ 2.620–3.550 kcal · 3,5 h in piedi (stima), per lo più seduto",
+    );
+  });
+});
+
+describe("dayPieces", () => {
+  it("base, the day from the hours on feet, steps, training, digesting", () => {
+    const rows = dayPieces(day);
+    expect(rows.map((e) => e.title)).toEqual([
+      "Base (a riposo)",
+      "La giornata",
+      "Passi",
+      "Allenamento",
+      "Digerire",
+    ]);
+    expect(plain(rows[1]!.meta ?? "")).toBe(
+      "3,5 h in piedi, tua mediana di 14 giorni · per lo più seduto",
+    );
+  });
+  it("the pieces add up to the day: base + day + steps + training (digesting is inside the day factor)", () => {
+    const p = day.prior;
+    const everyday = p.baseline.low - p.bmr - p.tef!.low;
+    expect(p.bmr + everyday + p.tef!.low + p.steps!.low + p.training.low).toBeCloseTo(
+      p.total.low,
+      6,
     );
   });
 });

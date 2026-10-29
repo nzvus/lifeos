@@ -13,7 +13,16 @@
  * score is computed from it, never stored.
  */
 import { notFound } from "next/navigation";
-import { DateNav, F, Glyph, NavBar, Nutrients, PageHeader, weekOf } from "@lifeos/kit";
+import {
+  Box,
+  DateNav,
+  F,
+  Glyph,
+  NavBar,
+  Nutrients,
+  PageHeader,
+  weekOf,
+} from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -33,7 +42,13 @@ import { mealGroups } from "@/features/day/meal-groups";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
 import { ensureWeekTargets, mondayOf, priceDay, readEnergyRows } from "@/core/energy";
-import { burnText, dayBurnLine, rowBurns } from "@/features/day/burn";
+import {
+  burnText,
+  dayBurnLine,
+  dayPieces,
+  dayTotalText,
+  rowBurns,
+} from "@/features/day/burn";
 import {
   planTag,
   cycleWords,
@@ -439,12 +454,22 @@ export default async function OggiPage({
             )}
           </OpenBox>
           {priced && (
-            <a className="k-line k-plain" href="/andamento">
-              <Glyph of={{ fam: "train" }} size="m" />
-              <span className="k-body">
-                {dayBurnLine(priced, nowMinute === null ? null : nowMinute / 1440)}
-              </span>
-            </a>
+            <details className="k-fold">
+              <summary>
+                Energia del giorno <span className="k-meta">{dayTotalText(priced)}</span>
+              </summary>
+              <div className="k-foldbody">
+                <p className="k-body">
+                  {dayBurnLine(priced, nowMinute === null ? null : nowMinute / 1440)}
+                </p>
+                {dayPieces(priced).map((e) => (
+                  <Box key={e.title} density="row" rail={false} entry={e} />
+                ))}
+                <a className="k-btn link" href="/andamento">
+                  La settimana in Andamento ›
+                </a>
+              </div>
+            </details>
           )}
           {line && (
             <a className="k-line k-plain" href="/andamento/obiettivi">
