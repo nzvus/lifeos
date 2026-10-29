@@ -42,6 +42,7 @@ import {
   contextPills,
   contextText,
   bestE1rm,
+  orderNote,
   lastTimeText,
   MUSCLE_WORDS,
   muscleSplit,
@@ -57,6 +58,7 @@ import {
   reopenGym,
   skipGymExercise,
   reorderGym,
+  pairGym,
   swapGym,
   saveRoutineGym,
   removeGym,
@@ -122,6 +124,11 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       x.exercise.name,
   );
   const timing = learnTiming(history.sessions);
+  // Today's place of each exercise among those not skipped, 0 = first (the order effect).
+  const todayPlace = (entryId: string) =>
+    session.children
+      .filter((c) => c.status !== "skipped")
+      .findIndex((c) => c.id === entryId);
   const readiness = Number(session.values["readiness"] ?? 0) || null;
   const tired = readiness !== null && readiness <= 2;
   const scored: Parameters<typeof sessionParts>[0][number][] = [];
@@ -205,7 +212,12 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       warmups,
       last: last ? lastTimeText(last.day, last.sets) : "",
       lastE1rm: last ? bestE1rm(last.sets) : null,
-      trend: trendText(a.trend),
+      trend: [
+        trendText(a.trend),
+        c.item ? orderNote(history.byExercise, c.item.id, todayPlace(c.id)) : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
       restS: a.afterPairS ?? a.restS,
       restWords:
         restSourceText(a.restSource, a.restChange) +
@@ -215,6 +227,8 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       betweenS: a.betweenS,
       setupS: a.setupS,
       settings: { restS: e?.restS ?? null, setupS: e?.setupS ?? null },
+      muscles: e?.muscles ?? [],
+      partner: typeof c.values["superset"] === "string" ? c.values["superset"] : null,
       done: c.sets.map((s, k) => {
         // The rest before it: from the previous set's end to its start, when both were timed.
         const prev = c.sets[k - 1];
@@ -335,7 +349,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         routine,
       }}
       exercises={exercises}
-      catalog={catalog.map((e) => ({ id: e.id, name: e.name }))}
+      catalog={catalog.map((e) => ({ id: e.id, name: e.name, aliases: e.aliases }))}
       actions={{
         tick: tickSet,
         untick: untickSet,
@@ -344,6 +358,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         reopen: reopenGym,
         skip: skipGymExercise,
         reorder: reorderGym,
+        pair: pairGym,
         swap: swapGym,
         saveRoutine: saveRoutineGym,
         remove: removeGym.bind(null, session.day),

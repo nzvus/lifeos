@@ -15,6 +15,8 @@ export type LibraryRow = {
   name: string;
   /** A food's products, or a saved meal's foods. */
   sub: string;
+  /** Words it is found by and not shown: the names merged into it («Unisci»). */
+  also?: string;
   uses: number;
   /** Field → number: per 100 for a food, per serving for a saved meal. */
   values: Record<string, number>;
@@ -147,7 +149,9 @@ export function listRows(
   const words = fold(query).split(/\s+/).filter(Boolean);
   const byName = (a: LibraryRow, b: LibraryRow) => a.name.localeCompare(b.name, "it");
   return rows
-    .filter((r) => words.every((w) => fold(r.name + " " + r.sub).includes(w)))
+    .filter((r) =>
+      words.every((w) => fold(r.name + " " + r.sub + " " + (r.also ?? "")).includes(w)),
+    )
     .sort((a, b) => {
       if (s === "name") return byName(a, b);
       if (s === "uses") return b.uses - a.uses || byName(a, b);
@@ -257,6 +261,7 @@ export function exerciseRows(
     name: string;
     pattern?: string | null;
     equipment?: string | null;
+    aliases?: readonly string[];
   }[],
   log: ReadonlyMap<string, readonly ExerciseSession[]>,
   dayWords: (day: string) => string,
@@ -270,6 +275,7 @@ export function exerciseRows(
       href: "/libreria/esercizio/" + x.id,
       name: x.name,
       sub: last ? "ultima " + dayWords(last.day) : "mai fatto",
+      ...(x.aliases?.length ? { also: x.aliases.join(" ") } : {}),
       uses: sessions.length,
       values: latest ? { e1rm: latest } : {},
       of: {
@@ -278,4 +284,69 @@ export function exerciseRows(
       },
     };
   });
+}
+
+/** Words too common in food names to say two foods are the same. */
+const COMMON = new Set([
+  "con",
+  "senza",
+  "alla",
+  "allo",
+  "alle",
+  "agli",
+  "del",
+  "della",
+  "dei",
+  "delle",
+  "fresco",
+  "fresca",
+  "fresche",
+  "freschi",
+  "intero",
+  "intera",
+  "light",
+  "bio",
+]);
+const meaningful = (name: string) =>
+  fold(name)
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length >= 4 && !COMMON.has(w));
+
+/**
+ * Foods that may be the same as this one («Unisci», capture.md §4): another
+ * food (not a product) whose name holds the head word of this one's, or the
+ * other way round. Italian food names start with what the food is («Caffè
+ * macinato», «Capsula Caffè», «Latte scremato»): an adjective in common
+ * («macinato») is not enough. The person decides; most alike first.
+ */
+export function foodTwins(
+  foods: readonly FoodChoice[],
+  foodId: string,
+): { id: string; name: string }[] {
+  const me = foods.find((f) => f.foodId === foodId && f.productId === null);
+  if (!me) return [];
+  const mine = meaningful(me.name);
+  if (mine.length === 0) return [];
+  return foods
+    .filter((f) => f.productId === null && f.foodId && f.foodId !== foodId)
+    .map((f) => {
+      const theirs = meaningful(f.name);
+      const head = theirs.includes(mine[0]!) || (!!theirs[0] && mine.includes(theirs[0]));
+      return {
+        id: f.foodId!,
+        name: f.name,
+        head,
+        // Same first word («Latte …» and «Latte …») before a name that only holds it.
+        same: theirs[0] === mine[0],
+        shared: theirs.filter((w) => mine.includes(w)).length,
+      };
+    })
+    .filter((f) => f.head)
+    .sort(
+      (a, b) =>
+        Number(b.same) - Number(a.same) ||
+        b.shared - a.shared ||
+        a.name.localeCompare(b.name, "it"),
+    )
+    .map(({ id, name }) => ({ id, name }));
 }

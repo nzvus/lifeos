@@ -27,6 +27,7 @@ import { FinishSheet } from "./FinishSheet";
 import { GymClock } from "./GymClock";
 import { NextList } from "./NextList";
 import { usePoi } from "./use-poi";
+import { afterSet } from "./superset";
 import { restPill, setText, strengthPill, timed, vsProposedText } from "./present";
 import { SetForm } from "./SetForm";
 import {
@@ -85,6 +86,10 @@ export type GymExercise = {
   /** Its own values, when set. */
   settings: { restS: number | null; setupS: number | null };
   done: DoneSet[];
+  /** Its muscle groups, the main one first: which exercises can go in a superset with it. */
+  muscles: string[];
+  /** The exercise it is done in turn with (a superset, session.md §5.2), or null. */
+  partner: string | null;
 };
 export type GymActions = {
   /** Saves a set; the error in words, or null. */
@@ -103,6 +108,8 @@ export type GymActions = {
   reorder: (sessionId: string, entryIds: string[]) => Promise<boolean>;
   /** «Cambia»: another exercise in its place; the one it was, for «Annulla». */
   swap: (exerciseEntryId: string, exerciseId: string) => Promise<string | null>;
+  /** A superset with that exercise, or none (null). */
+  pair: (exerciseEntryId: string, partnerId: string | null) => Promise<boolean>;
   /** «Salva nella routine»: today's exercises and order become the routine's. */
   saveRoutine: (sessionId: string) => Promise<boolean>;
   /** «Riprendi»: a finished session in progress again. */
@@ -185,7 +192,8 @@ export function Gym({
     box: BoxEntry | null;
   };
   exercises: GymExercise[];
-  catalog: { id: string; name: string }[];
+  /** The person's exercises; `aliases`: names merged into one («Unisci»), found too. */
+  catalog: { id: string; name: string; aliases?: string[] }[];
   actions: GymActions;
 }) {
   const [boxOpen, setBoxOpen] = useState(false);
@@ -294,7 +302,9 @@ export function Gym({
     const words = fold(query).split(/\s+/).filter(Boolean);
     if (words.length === 0) return [];
     return catalog
-      .filter((c) => words.every((w) => fold(c.name).includes(w)))
+      .filter((c) =>
+        words.every((w) => fold([c.name, ...(c.aliases ?? [])].join(" ")).includes(w)),
+      )
       .slice(0, 6);
   }, [catalog, query]);
 
@@ -319,18 +329,9 @@ export function Gym({
         setAuto(false);
         return;
       }
-      const finished = !input.warmup && workDone(x) + 1 >= x.proposed.length;
-      const next = finished
-        ? exercises.findIndex(
-            (e, i) =>
-              i > at && !e.skipped && workDone(e) < Math.max(1, e.proposed.length),
-          )
-        : at;
-      const rest = input.warmup
-        ? { seconds: session.warmupRestS, words: "dopo il riscaldamento" }
-        : finished
-          ? { seconds: session.transitionS, words: "cambio esercizio · tua media" }
-          : { seconds: x.restS, words: x.restWords };
+      // The next exercise and the rest: a superset's partner, or as before.
+      const { next, ...rest } = afterSet(exercises, at, !!input.warmup, session);
+      const finished = next !== at;
       if (!opts.assumed) {
         clearTimeout(undoTimer.current);
         setUndo({
@@ -341,7 +342,7 @@ export function Gym({
         });
         undoTimer.current = setTimeout(() => setUndo(null), 5000);
       }
-      if (finished && next === -1) {
+      if (next === -1) {
         setAuto(false);
         setPhase({ kind: "idle" });
       } else setPhase({ kind: "rest", from: Date.now(), ...rest });
@@ -685,6 +686,8 @@ export function Gym({
         query={query}
         found={found}
         swapping={poi.swapping}
+        current={x ?? null}
+        onPair={poi.pair}
         onQuery={setQuery}
         onGo={goTo}
         onSkip={poi.skip}

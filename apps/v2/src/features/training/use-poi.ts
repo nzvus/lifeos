@@ -15,7 +15,7 @@ export function usePoi(p: {
   exercises: readonly GymExercise[];
   at: number;
   setAt: (i: number) => void;
-  actions: Pick<GymActions, "reorder" | "swap" | "skip">;
+  actions: Pick<GymActions, "reorder" | "swap" | "skip" | "pair">;
   catalog: readonly { id: string; name: string }[];
   /** Other toasts give way to this one. */
   quiet: () => void;
@@ -66,11 +66,23 @@ export function usePoi(p: {
     return true;
   };
 
+  /** «In superserie con…» (`w` the partner) or «Togli la superserie» (null). */
+  const pair = async (e: GymExercise, w: GymExercise | null) => {
+    const was = e.partner;
+    if (!(await p.actions.pair(e.entryId, w?.entryId ?? null))) return;
+    tell(
+      w
+        ? e.name + " + " + w.name + " · in superserie"
+        : e.name + " · non più in superserie",
+      () => p.actions.pair(e.entryId, was),
+    );
+  };
+
   const undo = async () => {
     const n = notice;
     setNotice(null);
     if (n) await n.undo();
   };
 
-  return { notice, swapping, setSwapping, skip, next, swapTo, undo };
+  return { notice, swapping, setSwapping, skip, next, swapTo, pair, undo };
 }

@@ -13,6 +13,7 @@ import {
   finishSession,
   reopenSession,
   reorderExercises,
+  setSuperset,
   substituteExercise,
   saveRoutineFromSession,
   readExercises,
@@ -268,6 +269,24 @@ describe("a session in gym mode", () => {
     );
     expect(await substituteExercise(db, a, y!, bench)).toBeNull();
     expect(await substituteExercise(db, b, x!, bench)).toBeNull();
+  });
+
+  it("a superset points both ways, and taking one apart frees both (session.md §5.2)", async () => {
+    const id = await startSession(db, a, {
+      day: "2026-10-22",
+      startAt: new Date("2026-10-22T16:00:00Z"),
+      routineId: push,
+      exerciseIds: [bench, curl],
+    });
+    const [x, y] = (await readEntry(db, a, id))!.children.map((c) => c.id);
+    const pairs = async () =>
+      (await readEntry(db, a, id))!.children.map((c) => c.values.superset ?? null);
+    expect(await setSuperset(db, a, x!, y!)).toBe(true);
+    expect(await pairs()).toEqual([y, x]);
+    expect(await setSuperset(db, a, y!, null)).toBe(true);
+    expect(await pairs()).toEqual([null, null]);
+    expect(await setSuperset(db, b, x!, y!)).toBe(false);
+    expect(await setSuperset(db, a, x!, x!)).toBe(false);
   });
 
   it("takes a session's exercises to the trash with it, and brings them back", async () => {

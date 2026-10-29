@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { FoodChoice } from "@/core/food/choices";
-import { foodPage, mealPage, foodRows, listRows, recipeRows, sortValue } from "./library";
+import {
+  exerciseRows,
+  foodPage,
+  mealPage,
+  foodRows,
+  foodTwins,
+  listRows,
+  recipeRows,
+  sortValue,
+} from "./library";
 
 const food = (
   key: string,
@@ -174,5 +183,65 @@ describe("the foods by their score", () => {
       "Acqua",
     ]);
     expect(sortValue(rows[0]!, "score")).toBe(12);
+  });
+});
+
+describe("an exercise found by a merged name («Unisci»)", () => {
+  it("«run» finds Corsa, which shows its own name only", () => {
+    const rows = exerciseRows(
+      [
+        { id: "c", name: "Corsa", pattern: "run", aliases: ["Run"] },
+        { id: "p", name: "Panca piana", pattern: "horizontal_press" },
+      ],
+      new Map(),
+      (d) => d,
+    );
+    const found = listRows(rows, "run", "name");
+    expect(found.map((r) => r.name)).toEqual(["Corsa"]);
+    expect(found[0]!.sub).toBe("mai fatto");
+  });
+});
+
+describe("foodTwins («Unisci»)", () => {
+  const f = (foodId: string, name: string, productId: string | null = null) =>
+    ({
+      key: foodId,
+      foodId,
+      productId,
+      name,
+      brand: null,
+      unit: "g",
+      per100: {},
+    }) as FoodChoice;
+  it("foods sharing a meaningful word, most alike first; never products or itself", () => {
+    const foods = [
+      f("a", "Latte scremato proteico senza lattosio"),
+      f("b", "Latte scremato"),
+      f("c", "Latte fresco intero"),
+      f("d", "Riso basmati"),
+      f("e", "Pepe nero macinato"),
+      f("a", "Lidl", "p1"),
+    ];
+    expect(foodTwins(foods, "a").map((x) => x.name)).toEqual([
+      "Latte scremato",
+      "Latte fresco intero",
+    ]);
+    expect(foodTwins(foods, "d")).toEqual([]);
+    const coffee = [
+      f("k", "Caffè macinato"),
+      f("e", "Pepe nero macinato"),
+      f("q", "Capsula Caffè Lavazza"),
+    ];
+    expect(foodTwins(coffee, "k").map((x) => x.name)).toEqual(["Capsula Caffè Lavazza"]);
+    // The same head word first: «Latte fresco» before «Fiocchi di latte».
+    const milk = [
+      f("m", "Latte scremato proteico"),
+      f("x", "Fiocchi di latte proteici"),
+      f("y", "Latte fresco intero"),
+    ];
+    expect(foodTwins(milk, "m").map((x) => x.name)).toEqual([
+      "Latte fresco intero",
+      "Fiocchi di latte proteici",
+    ]);
   });
 });

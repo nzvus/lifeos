@@ -13,6 +13,7 @@ import {
   type FoodValueError,
 } from "@/core/food/edit";
 import { archiveItem } from "@/core/catalog/archive";
+import { mergeItems } from "@/core/catalog/merge";
 import { isValidGtin } from "@/core/food/barcode";
 import { RECIPE_WORDS } from "@/features/food/composer";
 import type { FoodFormState } from "@/features/library/FoodForm";
@@ -69,6 +70,14 @@ export async function saveFood(
   if (done === "taken") return again({ name: "Hai già un cibo con questo nome." });
   revalidatePath("/libreria", "layout");
   redirect("/libreria/cibo/" + id);
+}
+
+/** «Unisci» (capture.md §4): another food's meals, products and places move onto this one. */
+export async function mergeFood(keepId: string, goneId: string): Promise<void> {
+  await mergeItems(await getDb(), await requireOwner(), keepId, goneId);
+  revalidatePath("/libreria", "layout");
+  revalidatePath("/oggi", "layout");
+  redirect("/libreria/cibo/" + keepId);
 }
 
 /** Archives the food (and so its products): out of Libreria and the composer. */

@@ -3,7 +3,9 @@
  * Gym mode's «Poi» (session.md §5.2, §6.4): the other exercises with their
  * plan, the whole row to go there; «⋯» on one not begun opens its actions:
  * «Fai dopo» (it becomes the next one: a machine free now, another taken),
- * «Cambia» (another of the person's exercises in its place) and «Salta»
+ * «Cambia» (another of the person's exercises in its place), «In superserie
+ * con» the exercise in progress (no muscle in common) or «Togli la
+ * superserie», and «Salta»
  * («Rimetti» on a skipped one, which stays listed, faded); each undoable.
  * Then «Aggiungi esercizio», a search over the person's exercises, which
  * picks the replacement while «Cambia» is on. Split from Gym.tsx.
@@ -12,9 +14,11 @@ import { useState } from "react";
 import { Box } from "@lifeos/kit";
 import type { GymExercise } from "./Gym";
 import { planText } from "./gym-parts";
+import { antagonists, canPair } from "./superset";
 
 export function NextList({
   others,
+  current,
   live,
   query,
   found,
@@ -24,9 +28,12 @@ export function NextList({
   onSkip,
   onNext,
   onSwap,
+  onPair,
   onAdd,
 }: {
   others: { e: GymExercise; i: number }[];
+  /** The exercise in progress: the one a superset is made with. */
+  current: GymExercise | null;
   /** The session is in progress (a finished one is read, not changed). */
   live: boolean;
   query: string;
@@ -38,9 +45,12 @@ export function NextList({
   onSkip: (e: GymExercise, skip: boolean) => void;
   onNext: (e: GymExercise) => void;
   onSwap: (e: GymExercise | null) => void;
+  onPair: (e: GymExercise, with_: GymExercise | null) => void;
   onAdd: (exerciseId: string) => void;
 }) {
   const [menu, setMenu] = useState<string | null>(null);
+  const all = [...others.map((o) => o.e), ...(current ? [current] : [])];
+  const partnerOf = (e: GymExercise) => all.find((y) => y.entryId === e.partner);
   return (
     <section className="k-section g2" aria-label="Poi">
       <h2>Poi</h2>
@@ -68,7 +78,14 @@ export function NextList({
                 fam: "train",
                 of: e.of,
                 title: e.name,
-                meta: e.skipped ? "saltato oggi" : planText(e),
+                meta: e.skipped
+                  ? "saltato oggi"
+                  : [
+                      partnerOf(e) && "in superserie con " + partnerOf(e)!.name,
+                      planText(e),
+                    ]
+                      .filter(Boolean)
+                      .join(" · "),
                 faded: e.skipped,
               }}
             />
@@ -96,6 +113,34 @@ export function NextList({
                     }}
                   >
                     Cambia
+                  </button>
+                )}
+                {!e.skipped &&
+                  current &&
+                  e.partner !== current.entryId &&
+                  canPair(e, current) && (
+                    <button
+                      type="button"
+                      className="k-btn secondary"
+                      onClick={() => {
+                        setMenu(null);
+                        onPair(e, current);
+                      }}
+                    >
+                      In superserie con {current.name}
+                      {antagonists(e, current) ? " (antagonisti)" : ""}
+                    </button>
+                  )}
+                {e.partner && (
+                  <button
+                    type="button"
+                    className="k-btn secondary"
+                    onClick={() => {
+                      setMenu(null);
+                      onPair(e, null);
+                    }}
+                  >
+                    Togli la superserie
                   </button>
                 )}
                 <button

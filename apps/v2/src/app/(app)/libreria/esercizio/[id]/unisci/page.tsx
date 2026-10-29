@@ -49,7 +49,7 @@ export default async function MergeExercisePage({
                 " a «" +
                 keep.name +
                 "»: un solo andamento, un solo record."
-              : "Non l’hai mai fatto: non si sposta nessuna sessione."}
+              : "«" + gone.name + "» non è in nessuna sessione: nessuna si sposta."}
           </li>
           {n.plans > 0 && (
             <li>
