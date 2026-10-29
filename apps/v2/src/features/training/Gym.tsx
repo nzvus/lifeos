@@ -25,11 +25,11 @@ import type { SetInput } from "@/core/training/write";
 import { ExerciseSettings } from "./ExerciseSettings";
 import { FinishSheet } from "./FinishSheet";
 import { GymClock } from "./GymClock";
+import { NextList } from "./NextList";
 import { restPill, setText, strengthPill, timed, vsProposedText } from "./present";
 import { SetForm } from "./SetForm";
 import {
   ContextPills,
-  planText,
   recallSet,
   rememberSet,
   restAfterLast,
@@ -64,6 +64,8 @@ export type GymExercise = {
   /** Its load is typed per dumbbell unless switched off. */
   dumbbells: boolean;
   proposed: ProposedSet[];
+  /** Skipped for today («Salta» in «Poi»). */
+  skipped: boolean;
   /** The warm-up sets proposed before the first work set (session.md §5.1), lightest first. */
   warmups: { reps: number; loadKg: string }[];
   last: string;
@@ -94,6 +96,8 @@ export type GymActions = {
   untick: (entryId: string, position: number) => Promise<boolean>;
   add: (sessionId: string, exerciseId: string) => Promise<boolean>;
   finish: (sessionId: string) => Promise<void>;
+  /** «Salta» an exercise for today (true), or put it back (false). */
+  skip: (exerciseEntryId: string, skip: boolean) => Promise<boolean>;
   /** «Riprendi»: a finished session in progress again. */
   reopen: (sessionId: string) => Promise<void>;
   /** «Elimina la sessione»: to the trash. */
@@ -166,6 +170,8 @@ export function Gym({
     before: string;
     /** In progress: what came before, as pills under the exercise. */
     beforePills: { t: string; state: State }[];
+    /** «Cosa aggiungere» lines for the end summary (session.md §5.4). */
+    toAdd: string[];
     /** The session so far: minutes, score, muscle split (the board); null before the first set. */
     box: BoxEntry | null;
   };
@@ -175,7 +181,7 @@ export function Gym({
 }) {
   const [boxOpen, setBoxOpen] = useState(false);
   const firstOpen = exercises.findIndex(
-    (x) => workDone(x) < Math.max(1, x.proposed.length),
+    (x) => !x.skipped && workDone(x) < Math.max(1, x.proposed.length),
   );
   const [at, setAt] = useState(firstOpen === -1 ? 0 : firstOpen);
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
@@ -192,6 +198,8 @@ export function Gym({
     text: string;
   } | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  // «Saltato · Alzate laterali · Annulla»: the skip taken back.
+  const [skipped, setSkipped] = useState<{ entryId: string; text: string } | null>(null);
   // «Finisci…» opens the summary; the session ends only from there.
   const [ending, setEnding] = useState(false);
   // «Correggi»: a done set taken back, its values in the steppers to type again.
@@ -298,7 +306,8 @@ export function Gym({
       const finished = !input.warmup && workDone(x) + 1 >= x.proposed.length;
       const next = finished
         ? exercises.findIndex(
-            (e, i) => i > at && workDone(e) < Math.max(1, e.proposed.length),
+            (e, i) =>
+              i > at && !e.skipped && workDone(e) < Math.max(1, e.proposed.length),
           )
         : at;
       const rest = input.warmup
@@ -654,56 +663,27 @@ export function Gym({
         </section>
       )}
 
-      <section className="k-section g2" aria-label="Poi">
-        <h2>Poi</h2>
-        {others.map(({ e, i }) => (
-          <button
-            key={e.entryId}
-            type="button"
-            className="k-pick"
-            onClick={() => goTo(i)}
-          >
-            <Box
-              density="row"
-              rail={false}
-              entry={{
-                fam: "train",
-                of: e.of,
-                title: e.name,
-                meta: planText(e),
-                value: "›",
-              }}
-            />
-          </button>
-        ))}
-        {!session.done && (
-          <input
-            className="k-text"
-            type="search"
-            placeholder="Aggiungi esercizio"
-            aria-label="Aggiungi esercizio"
-            value={query}
-            onChange={(ev) => setQuery(ev.target.value)}
-          />
-        )}
-        {found.map((c) => (
-          <button
-            key={c.id}
-            type="button"
-            className="k-pick"
-            onClick={async () => {
-              setQuery("");
-              if (await actions.add(session.id, c.id)) goTo(exercises.length);
-            }}
-          >
-            <Box
-              density="row"
-              rail={false}
-              entry={{ fam: "train", title: c.name, value: "+" }}
-            />
-          </button>
-        ))}
-      </section>
+      <NextList
+        others={others}
+        live={!session.done}
+        query={query}
+        found={found}
+        onQuery={setQuery}
+        onGo={goTo}
+        onSkip={async (e, skip) => {
+          if (!(await actions.skip(e.entryId, skip))) return;
+          clearTimeout(undoTimer.current);
+          if (skip) {
+            setUndo(null);
+            setSkipped({ entryId: e.entryId, text: "Saltato · " + e.name });
+            undoTimer.current = setTimeout(() => setSkipped(null), 5000);
+          }
+        }}
+        onAdd={async (id) => {
+          setQuery("");
+          if (await actions.add(session.id, id)) goTo(exercises.length);
+        }}
+      />
 
       {(session.box || session.before) && (
         <section className="k-section g2" aria-label="La sessione">
@@ -765,12 +745,23 @@ export function Gym({
       {ending && !session.done && (
         <FinishSheet
           exercises={exercises}
+          toAdd={session.toAdd}
           minutes={sessionElapsed !== null ? Math.round(sessionElapsed / 60) : null}
           busy={busy}
           onBack={() => setEnding(false)}
           onFinish={async () => {
             setBusy(true);
             await actions.finish(session.id);
+          }}
+        />
+      )}
+      {skipped && (
+        <UndoToast
+          text={skipped.text}
+          onUndo={async () => {
+            const k = skipped;
+            setSkipped(null);
+            await actions.skip(k.entryId, false);
           }}
         />
       )}

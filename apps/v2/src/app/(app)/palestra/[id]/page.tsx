@@ -20,16 +20,19 @@ import {
   learnRamp,
   learnTiming,
   loadStep,
+  missingVolume,
   opensGroup,
   REST_FLOOR,
   sessionParts,
   sessionSeconds,
   warmupSets,
+  weeklySets,
 } from "@/core/engines/training";
 import {
   adviseExercise,
   readExercises,
   readTrainingHistory,
+  readWeekWork,
   readCreatineLines,
   sessionContext,
 } from "@/core/training";
@@ -39,6 +42,7 @@ import {
   contextText,
   bestE1rm,
   lastTimeText,
+  MUSCLE_WORDS,
   muscleSplit,
   sessionBox,
   restSourceText,
@@ -50,6 +54,7 @@ import {
   exerciseSettingsGym,
   finishGym,
   reopenGym,
+  skipGymExercise,
   removeGym,
   readinessGym,
   tickSet,
@@ -75,7 +80,36 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
   const byId = new Map(catalog.map((e) => [e.id, e]));
   const ids = session.children.flatMap((c) => (c.item ? [c.item.id] : []));
   const today = logicalDay(new Date(), clock);
-  const history = await readTrainingHistory(db, owner, ids, id, session.day);
+  const [history, week] = await Promise.all([
+    readTrainingHistory(db, owner, ids, id, session.day),
+    readWeekWork(db, owner, session.day),
+  ]);
+  // «Cosa aggiungere» (session.md §5.4): muscles under 10 weekly sets, with an exercise of theirs.
+  const usedThisMonth = week.flatMap((w) => {
+    const e = byId.get(w.exerciseId);
+    return e ? [e] : [];
+  });
+  const toAdd = missingVolume(
+    weeklySets(
+      week.flatMap((w) =>
+        Array.from({ length: w.sets }, () => ({ exercise: w.exerciseId })),
+      ),
+      new Map(
+        usedThisMonth.map((e) => [
+          e.id,
+          { direct: e.muscles.slice(0, 1), indirect: e.muscles.slice(1) },
+        ]),
+      ),
+    ),
+    usedThisMonth,
+  ).map(
+    (x) =>
+      (MUSCLE_WORDS[x.muscle] ?? x.muscle) +
+      ": " +
+      F.plural(x.sets, "serie", "serie") +
+      " in 7 giorni · " +
+      x.exercise.name,
+  );
   const timing = learnTiming(history.sessions);
   const readiness = Number(session.values["readiness"] ?? 0) || null;
   const tired = readiness !== null && readiness <= 2;
@@ -156,6 +190,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       unilateral: e?.unilateral ?? false,
       dumbbells,
       proposed,
+      skipped: c.status === "skipped",
       warmups,
       last: last ? lastTimeText(last.day, last.sets) : "",
       lastE1rm: last ? bestE1rm(last.sets) : null,
@@ -285,6 +320,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         beforePills,
         box,
         dayHref: session.day === today ? "/oggi" : "/oggi/" + session.day,
+        toAdd,
       }}
       exercises={exercises}
       catalog={catalog.map((e) => ({ id: e.id, name: e.name }))}
@@ -294,6 +330,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         add: addGymExercise,
         finish: finishGym,
         reopen: reopenGym,
+        skip: skipGymExercise,
         remove: removeGym.bind(null, session.day),
         readiness: readinessGym,
         settings: exerciseSettingsGym,

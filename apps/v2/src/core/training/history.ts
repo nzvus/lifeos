@@ -7,7 +7,7 @@
  * Only days before `day` (the session's): a session opened later is judged
  * on what came before it. Owned by the owner.
  */
-import { and, eq, gte, inArray, isNull, lt, ne } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lt, lte, ne } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { catalogValues, entries, entryValues, trainingSets } from "../db/schema";
 import type { TimedSet } from "../engines/training";
@@ -211,4 +211,55 @@ export async function readTrainingHistory(
       .map((r) => setsOf.get(r.id) ?? []),
   );
   return { byExercise, sessions };
+}
+
+/**
+ * The working sets of the last `days` days up to `day` included, per
+ * exercise (the session in progress counts what is already done): what
+ * E6's weekly volume reads (session.md §5.4). Exercises used in the last 28
+ * days come with it, with no sets when none this week, so the volume can
+ * name what is missing. Owned by the owner.
+ */
+export async function readWeekWork(
+  db: Db,
+  owner: Owner,
+  day: IsoDate,
+  days = 7,
+): Promise<{ exerciseId: string; sets: number }[]> {
+  const kids = await db
+    .select({ id: entries.id, itemId: entries.itemId, day: entries.day })
+    .from(entries)
+    .where(
+      and(
+        ownedBy(entries, owner),
+        eq(entries.kind, "session_exercise"),
+        isNull(entries.deletedAt),
+        gte(entries.day, addDays(day, -27)),
+        lte(entries.day, day),
+      ),
+    );
+  if (kids.length === 0) return [];
+  const sets = await db
+    .select({ entryId: trainingSets.entryId })
+    .from(trainingSets)
+    .where(
+      and(
+        ownedBy(trainingSets, owner),
+        inArray(
+          trainingSets.entryId,
+          kids.map((k) => k.id),
+        ),
+        eq(trainingSets.warmup, false),
+        eq(trainingSets.done, true),
+      ),
+    );
+  const from = addDays(day, -(days - 1));
+  const out = new Map<string, number>();
+  for (const k of kids) {
+    if (!k.itemId) continue;
+    const n = k.day >= from ? sets.filter((s) => s.entryId === k.id).length : 0;
+    if (n > 0 || sets.some((s) => s.entryId === k.id))
+      out.set(k.itemId, (out.get(k.itemId) ?? 0) + n);
+  }
+  return [...out].map(([exerciseId, n]) => ({ exerciseId, sets: n }));
 }

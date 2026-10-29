@@ -10,12 +10,15 @@ import { workDone } from "./gym-parts";
 
 export function FinishSheet({
   exercises,
+  toAdd,
   minutes,
   busy,
   onBack,
   onFinish,
 }: {
   exercises: GymExercise[];
+  /** Muscles under their weekly sets, with an exercise of the person's for each. */
+  toAdd: string[];
   minutes: number | null;
   busy: boolean;
   onBack: () => void;
@@ -63,6 +66,19 @@ export function FinishSheet({
               mentre i tempi andavano da soli. Finendo le confermi come fatte; se una non
               è andata così, torna indietro e correggila.
             </p>
+          )}
+          {toAdd.length > 0 && (
+            <div className="k-stack g1">
+              <p className="k-body">Sotto le 10 serie a settimana:</p>
+              <ul className="k-help" style={{ margin: 0, paddingLeft: 18 }}>
+                {toAdd.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+              <p className="k-help">
+                Se hai tempo, aggiungilo ora da «Poi», o mettilo nella routine.
+              </p>
+            </div>
           )}
           <p className="k-help">Potrai riprenderlo dopo, dalla sessione.</p>
         </div>

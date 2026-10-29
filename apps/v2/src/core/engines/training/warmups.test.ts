@@ -101,3 +101,29 @@ describe("warm-ups (session.md §5.1)", () => {
     expect(warmupSets({ ...p, workKg: null })).toEqual([]);
   });
 });
+
+describe("what to add this week (session.md §5.4)", () => {
+  it("muscles under 10 weekly sets, most missing first, with the person's own exercise", async () => {
+    const { missingVolume, weeklySets } = await import("./session");
+    const used = [
+      { id: "lat", name: "Alzate laterali", muscles: ["side_delts"] },
+      { id: "bench", name: "Chest press", muscles: ["chest", "triceps"] },
+      { id: "calf", name: "Calf", muscles: ["calves"] },
+    ];
+    const muscles = new Map(
+      used.map((u) => [
+        u.id,
+        { direct: u.muscles.slice(0, 1), indirect: u.muscles.slice(1) },
+      ]),
+    );
+    const sets = [
+      ...Array.from({ length: 12 }, () => ({ exercise: "bench" })),
+      ...Array.from({ length: 4 }, () => ({ exercise: "lat" })),
+    ];
+    const week = weeklySets(sets, muscles);
+    expect(missingVolume(week, used)).toEqual([
+      { muscle: "calves", sets: 0, exercise: { id: "calf", name: "Calf" } },
+      { muscle: "side_delts", sets: 4, exercise: { id: "lat", name: "Alzate laterali" } },
+    ]);
+  });
+});

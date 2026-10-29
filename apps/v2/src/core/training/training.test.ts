@@ -15,6 +15,7 @@ import {
   readExercises,
   readHistory,
   readRoutines,
+  readWeekWork,
   removeSet,
   saveSet,
   startSession,
@@ -248,6 +249,19 @@ describe("a session in gym mode", () => {
     expect([...day.timed, ...day.untimed].map((i) => i.kind.key)).not.toContain(
       "session_exercise",
     );
+  });
+
+  it("counts the week's working sets per exercise, for «cosa aggiungere»", async () => {
+    const week = await readWeekWork(db, a, "2026-10-19");
+    expect(week.find((w) => w.exerciseId === bench)?.sets).toBe(1);
+    // A week later the bench is still known (28 days), with no sets this week.
+    expect(
+      (await readWeekWork(db, a, "2026-10-26")).find((w) => w.exerciseId === bench),
+    ).toEqual({
+      exerciseId: bench,
+      sets: 0,
+    });
+    expect(await readWeekWork(db, b, "2026-10-19")).toEqual([]);
   });
 
   it("gives each exercise its last two sessions, leaving out the one being trained", async () => {
