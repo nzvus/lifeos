@@ -3,3 +3,4 @@ export * from "./everyday";
 export * from "./training";
 export * from "./day";
 export * from "./classes";
+export * from "./acsm";

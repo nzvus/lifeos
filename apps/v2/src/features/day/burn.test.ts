@@ -55,6 +55,14 @@ describe("dayBurnLine", () => {
   });
 });
 
+describe("dayBurnLine with planned sessions", () => {
+  it("adds them to the day's end and says so", () => {
+    expect(plain(dayBurnLine(day, 0.5, { count: 1, prior: r(200, 300) }))).toBe(
+      "Speso finora ≈ 1.680–2.270 kcal · a fine giornata ≈ 2.830–3.830 kcal con 1 sessione prevista · 3,5 h in piedi (stima), per lo più seduto",
+    );
+  });
+});
+
 describe("dayPieces", () => {
   it("base, the day from the hours on feet, steps, training, digesting", () => {
     const rows = dayPieces(day);

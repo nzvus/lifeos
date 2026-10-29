@@ -44,7 +44,11 @@ export function rowBurns(d: PricedDay): Map<string, Range> {
  * counts the everyday part up to now plus what was done, then the whole day;
  * a past day only its total.
  */
-export function dayBurnLine(d: PricedDay, elapsed: number | null): string {
+export function dayBurnLine(
+  d: PricedDay,
+  elapsed: number | null,
+  planned: { count: number; prior: Range } | null = null,
+): string {
   const p = d.prior;
   const whole = burnText(p.total)!;
   const feet =
@@ -63,7 +67,17 @@ export function dayBurnLine(d: PricedDay, elapsed: number | null): string {
     low: p.baseline.low * t + more.low,
     high: p.baseline.high * t + more.high,
   };
-  return "Speso finora " + burnText(sofar) + " · a fine giornata " + whole + " · " + feet;
+  // Planned sessions not done yet: in the day's end, said so (their sets are not known).
+  const end =
+    planned && planned.count > 0
+      ? burnText({
+          low: p.total.low + planned.prior.low,
+          high: p.total.high + planned.prior.high,
+        })! +
+        " con " +
+        F.plural(planned.count, "sessione prevista", "sessioni previste")
+      : whole;
+  return "Speso finora " + burnText(sofar) + " · a fine giornata " + end + " · " + feet;
 }
 
 /** The day's total in a few characters, for the fold's head: «≈ 2.620–3.550 kcal». */

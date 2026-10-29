@@ -41,7 +41,13 @@ import { WeatherCard } from "@/features/day/WeatherCard";
 import { mealGroups } from "@/features/day/meal-groups";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
-import { ensureWeekTargets, mondayOf, priceDay, readEnergyRows } from "@/core/energy";
+import {
+  ensureWeekTargets,
+  mondayOf,
+  plannedSessionCost,
+  priceDay,
+  readEnergyRows,
+} from "@/core/energy";
 import {
   burnText,
   dayBurnLine,
@@ -216,6 +222,20 @@ export default async function OggiPage({
         })()
       : null;
   const burns = priced ? rowBurns(priced) : null;
+  // Sessions still planned today (not begun): the day's end counts them at the person's usual length.
+  const plannedCount = items.filter(
+    (i) => i.kind.key === "session" && i.status === "planned" && !isRunning(i),
+  ).length;
+  const plannedBurn =
+    priced && energyRows && kgNow !== null && date === today && plannedCount > 0
+      ? (() => {
+          const c = plannedSessionCost(energyRows.sessions, kgNow);
+          return {
+            count: plannedCount,
+            prior: { low: c.prior.low * plannedCount, high: c.prior.high * plannedCount },
+          };
+        })()
+      : null;
   const boxes = presentWeek({
     days,
     targets: dayTargets,
@@ -460,7 +480,11 @@ export default async function OggiPage({
               </summary>
               <div className="k-foldbody">
                 <p className="k-body">
-                  {dayBurnLine(priced, nowMinute === null ? null : nowMinute / 1440)}
+                  {dayBurnLine(
+                    priced,
+                    nowMinute === null ? null : nowMinute / 1440,
+                    plannedBurn,
+                  )}
                 </p>
                 {dayPieces(priced).map((e) => (
                   <Box key={e.title} density="row" rail={false} entry={e} />

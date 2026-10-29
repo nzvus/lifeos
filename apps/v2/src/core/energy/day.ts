@@ -10,6 +10,8 @@
  *                       cardio by its MET band over the session's minutes
  */
 import {
+  acsmMet,
+  RUN_FROM_M_PER_MIN,
   activityCost,
   bmr,
   CARDIO_MET,
@@ -83,13 +85,14 @@ export function priceSession(
         novelty: NOVELTY,
       })
     : null;
-  const cardioCost = cardio.map((e) =>
-    activityCost(
-      (e.pattern && CARDIO_MET[e.pattern]) || CARDIO_MODERATE,
-      kg,
-      e.cardioMin ?? share,
-    ),
-  );
+  // Walking and running with a distance and a time by ACSM; else the mode's MET band.
+  const cardioCost = cardio.map((e) => {
+    const minutes = e.cardioMin ?? share;
+    const met =
+      acsmMet(e.cardioM, minutes, e.inclinePct) ??
+      ((e.pattern && CARDIO_MET[e.pattern]) || CARDIO_MODERATE);
+    return activityCost(met, kg, minutes);
+  });
   const sum = (rs: (Range | undefined)[]) =>
     rs.reduce<Range>(
       (a, r) => (r ? { low: a.low + r.low, high: a.high + r.high } : a),
@@ -104,6 +107,32 @@ export function priceSession(
 }
 
 /** The day's prior and its sessions, given yesterday's session tails and what was eaten. */
+/** Patterns on foot: their steps are in the phone's total too. */
+const ON_FOOT = new Set(["run", "treadmill", "walk"]);
+/** Running cadence, steps/min (Tudor-Locke 2018: ≈ 160–180), and the walking stride, × height. */
+const RUN_CADENCE = 165;
+const STRIDE_OF_HEIGHT = 0.415;
+
+/**
+ * The steps of the day's runs and walks with a distance (activity.md §5): priced by ACSM,
+ * so taken out of the phone's total before the steps are priced by cadence.
+ */
+export function activitySteps(
+  sessions: EnergyRows["sessions"],
+  heightCm: number,
+): number {
+  let n = 0;
+  for (const s of sessions)
+    for (const e of s.exercises) {
+      if (!e.cardioM || !e.cardioMin || !(e.pattern && ON_FOOT.has(e.pattern))) continue;
+      const running = e.cardioM / e.cardioMin >= RUN_FROM_M_PER_MIN;
+      n += running
+        ? RUN_CADENCE * e.cardioMin
+        : e.cardioM / (STRIDE_OF_HEIGHT * (heightCm / 100));
+    }
+  return Math.round(n);
+}
+
 export function priceDay(
   rows: Pick<EnergyRows, "steps" | "sessions">,
   day: IsoDate,
@@ -111,20 +140,50 @@ export function priceDay(
 ): PricedDay {
   const b = bmr(p.body);
   const step = rows.steps.find((s) => s.day === day);
-  const sessions = rows.sessions
-    .filter((s) => s.day === day)
-    .map((s) => priceSession(s, { kg: p.body.kg, bmr: b }));
+  const today = rows.sessions.filter((s) => s.day === day);
+  const sessions = today.map((s) => priceSession(s, { kg: p.body.kg, bmr: b }));
+  const counted = activitySteps(today, p.body.heightCm);
   const feet = hoursOnFeetOn(day, rows.steps);
   const prior = dayPrior({
     body: p.body,
     hoursOnFeet: feet.hours,
     steps:
       step?.steps != null
-        ? { type: "total", steps: step.steps, walkShare: WALK_SHARE }
+        ? {
+            type: "total",
+            steps: Math.max(0, step.steps - counted),
+            walkShare: WALK_SHARE,
+          }
         : null,
     sessions,
     yesterdayTails: p.yesterdayTails,
     intakeKcal: p.eatenKcal,
   });
   return { day, prior, feet, sessions };
+}
+
+/** A planned gym session's sets are not known yet: the Compendium's band, 02054 to 02052. */
+export const PLANNED_SESSION_MET: Range = { low: 3.5, high: 5 };
+const PLANNED_DEFAULT_MIN = 60;
+
+/**
+ * A planned session's cost before it is done (energy-day.md §6): the person's median
+ * session length over the rows read (else 60 min) in the Compendium's band.
+ */
+export function plannedSessionCost(
+  done: EnergyRows["sessions"],
+  kg: number,
+): { minutes: number; burn: Range; prior: Range } {
+  const mins = done
+    .map((s) => s.minutes)
+    .filter((m): m is number => m !== null && m >= 10)
+    .sort((a, b) => a - b);
+  const k = mins.length >> 1;
+  const minutes = mins.length
+    ? mins.length % 2
+      ? mins[k]!
+      : (mins[k - 1]! + mins[k]!) / 2
+    : PLANNED_DEFAULT_MIN;
+  const c = activityCost(PLANNED_SESSION_MET, kg, minutes);
+  return { minutes, burn: c.session, prior: c.prior };
 }
