@@ -21,6 +21,7 @@ approved design board.
 | [method.md](method.md) | how v2 is built from 2026-10-23: a dossier per domain (research, data audit, model, acceptance tests), reviewed, then slices |
 | [shapes.md](shapes.md) | the shape system: seven levels from page to mark, concentric corners, the space/corner/type scales, domain silhouettes, one role per button, choice, tab and bar, field states, the audit |
 | [interaction.md](interaction.md) | the nine principles (ADR-0058) and the patterns that keep them: the object page, edit in place, removing, the action vocabulary, lists, decisions first, the map, the checks |
+| [design-register.md](design-register.md) | the redesign's register: every design decision already taken (principles, the system, components, dossier behaviour, the developer's choices and notes, themes and density), where it was decided, whether v2 has it, how it stays; boards and PRs cite its rows |
 
 Design (claude.ai artifacts, private to the developer):
 - design system "lifeos" (tokens, type, fonts from `src/design/`): https://claude.ai/artifact/G56wCe8VdGjWpyi4oTML2D
