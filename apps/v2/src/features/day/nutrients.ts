@@ -41,6 +41,7 @@ import { macroKinds } from "@/core/food/kinds";
 import { dayMicros } from "@/core/food/micros";
 import { lineTotals } from "@/core/food/totals";
 import { mealCompounds } from "@/core/food/compounds";
+import { isEaten } from "@/core/kinds";
 
 /** The kit's macro → the field the snapshot and the targets use. */
 const MACROS: [MacroKey, "protein" | "carbs" | "fat" | "fibre"][] = [
@@ -73,7 +74,7 @@ export function presentDay(
   /** The reference weight for the zones (the last 7 days' weigh-ins); null when none. */
   weightKg: number | null = null,
 ): { entry: BoxEntry; nutrients: NutrientsData } | null {
-  const meals = [...day.timed, ...day.untimed].filter((i) => i.kind.key === "meal");
+  const meals = [...day.timed, ...day.untimed].filter((i) => isEaten(i.kind.key));
   if (meals.length === 0 && targets === null) return null;
   const {
     eaten,
@@ -459,7 +460,7 @@ const servingsOf = (i: DayItem) =>
 /** The foods a day's meals were made of, for their kind estimates. */
 export function foodIds(day: Day): string[] {
   return [...day.timed, ...day.untimed]
-    .filter((i) => i.kind.key === "meal")
+    .filter((i) => isEaten(i.kind.key))
     .flatMap((i) => i.lines.flatMap((l) => (l.itemId ? [l.itemId] : [])));
 }
 

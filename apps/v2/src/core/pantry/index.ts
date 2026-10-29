@@ -9,11 +9,18 @@
  */
 import { and, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { catalogItems, catalogValues, entries, entryLines, entryValues } from "../db/schema";
+import {
+  catalogItems,
+  catalogValues,
+  entries,
+  entryLines,
+  entryValues,
+} from "../db/schema";
 import Big from "big.js";
 import { addDays, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 import { stockOf, toBuy, type Stock, type StockEvent } from "./stock";
+import { EATEN_KINDS } from "../kinds";
 
 /** «Faccio la spesa ogni N giorni» (§9.3); a setting later, a week for now. */
 export const SHOP_EVERY_DAYS = 7;
@@ -41,7 +48,10 @@ const plain = (x: string | null) => (x === null ? null : new Big(x).toString());
 
 /** Each catalog id's food: itself, a product's parent, a format's product's parent. */
 async function foodsOf(db: Db, owner: Owner, ids: readonly string[]) {
-  const items = new Map<string, { catalog: string; name: string; parentId: string | null }>();
+  const items = new Map<
+    string,
+    { catalog: string; name: string; parentId: string | null }
+  >();
   let ask = [...new Set(ids)];
   // At most two steps up: format → product → food.
   for (let step = 0; step < 3 && ask.length; step++) {
@@ -107,7 +117,8 @@ export async function readPantry(
   const tracked = [...new Set(withItem.flatMap((e) => food(e.itemId!) ?? []))];
   if (tracked.length === 0) return [];
   const first = withItem.reduce((m, e) => (e.day < m ? e.day : m), today);
-  const since = first < addDays(today, -(WINDOW - 1)) ? first : addDays(today, -(WINDOW - 1));
+  const since =
+    first < addDays(today, -(WINDOW - 1)) ? first : addDays(today, -(WINDOW - 1));
   const [values, units, lines, days] = await Promise.all([
     db
       .select({
@@ -154,7 +165,7 @@ export async function readPantry(
         and(
           ownedBy(entryLines, owner),
           inArray(entryLines.itemId, tracked),
-          eq(entries.kind, "meal"),
+          inArray(entries.kind, [...EATEN_KINDS]),
           eq(entries.status, "done"),
           isNull(entries.deletedAt),
           gte(entries.day, since),
@@ -168,7 +179,7 @@ export async function readPantry(
       .where(
         and(
           ownedBy(entries, owner),
-          eq(entries.kind, "meal"),
+          inArray(entries.kind, [...EATEN_KINDS]),
           eq(entries.status, "done"),
           isNull(entries.deletedAt),
           gte(entries.day, addDays(today, -(WINDOW - 1))),
@@ -189,10 +200,12 @@ export async function readPantry(
         )
     : [];
   const times = new Map(servings.map((s) => [s.entryId, s.num]));
-  const val = (id: string, f: string) => values.find((v) => v.entryId === id && v.field === f);
+  const val = (id: string, f: string) =>
+    values.find((v) => v.entryId === id && v.field === f);
   const unitOf = new Map(units.map((u) => [u.itemId, u.text ?? "g"]));
   const loggedDays = new Set(days.map((d) => d.day as IsoDate));
-  const at = (day: string, startAt: Date | null) => startAt ?? new Date(day + "T12:00:00Z");
+  const at = (day: string, startAt: Date | null) =>
+    startAt ?? new Date(day + "T12:00:00Z");
 
   const out: PantryFood[] = [];
   for (const foodId of tracked) {
@@ -266,7 +279,9 @@ export async function logPurchase(
   return writeEvent(db, owner, "purchase", p.itemId, p.day, p.at, [
     { field: "quantity", num: p.quantity },
     ...(p.packages ? [{ field: "packages", num: p.packages }] : []),
-    ...(p.priceCents !== null ? [{ field: "priceCents", num: String(p.priceCents) }] : []),
+    ...(p.priceCents !== null
+      ? [{ field: "priceCents", num: String(p.priceCents) }]
+      : []),
     ...(p.shop ? [{ field: "shop", text: p.shop }] : []),
   ]);
 }

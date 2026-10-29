@@ -11,6 +11,13 @@ import type { KindInput } from "./kind";
 /** The four meal roles; v1's pre/post-workout and pre-sleep are relations in v2 (migration.md). */
 export const MEAL_ROLES = ["breakfast", "lunch", "snack", "dinner"] as const;
 export type MealRole = (typeof MEAL_ROLES)[number];
+/**
+ * What is eaten or taken, counted in the day's nutrients and compounds: a meal,
+ * and an «assunzione» (`intake`: coffee, creatine, a supplement; capture.md §4),
+ * which has no role, no score and is never grouped with meals.
+ */
+export const EATEN_KINDS = ["meal", "intake"] as const;
+export const isEaten = (key: string) => (EATEN_KINDS as readonly string[]).includes(key);
 
 const bodyFields: KindInput["fields"] = [
   { key: "bodyFatPct", type: "number", unit: "%", min: 2, max: 70 },
@@ -41,6 +48,19 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
       { key: "leftOut", type: "boolean" },
     ],
     relations: [{ to: "session", bands: MEAL_SESSION.bands }],
+  },
+  {
+    key: "intake",
+    family: "food",
+    domain: "food",
+    shape: "instant",
+    entry: "specialised",
+    composite: { lines: "food" },
+    fields: [
+      { key: "servings", type: "number", min: 0 },
+      { key: "label", type: "text" },
+      { key: "estimated", type: "boolean" },
+    ],
   },
   {
     key: "batch",

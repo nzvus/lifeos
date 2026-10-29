@@ -15,6 +15,7 @@ import type { DayItem } from "@/core/day";
 import { caffeineLeft, mealCompounds } from "@/core/food/compounds";
 import { caffeineBedRange, levelAt, LEVEL_WORDS } from "@/core/engines/targets";
 import { lineTotals } from "@/core/food/totals";
+import { isEaten } from "@/core/kinds";
 
 export type CompoundContext = {
   compounds: ReadonlyMap<string, Record<string, string>>;
@@ -29,7 +30,7 @@ const servingsOf = (i: DayItem) =>
   typeof i.values["servings"] === "string" ? i.values["servings"] : null;
 
 export function compoundsOf(i: DayItem, compounds: CompoundContext["compounds"]) {
-  return i.kind.key === "meal"
+  return isEaten(i.kind.key)
     ? mealCompounds(i.lines, servingsOf(i), compounds)
     : { caffeine: 0, creatine: 0 };
 }

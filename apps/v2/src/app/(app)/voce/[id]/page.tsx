@@ -24,6 +24,7 @@ import { entryForm, formOf } from "@/features/day/entry-form";
 import { foodIds, presentDay } from "@/features/day/nutrients";
 import { Composer } from "@/features/food/Composer";
 import { addContext } from "../../aggiungi/kinds";
+import { isEaten } from "@/core/kinds";
 import { updateMeal, updateSheet } from "./actions";
 import { changeMovement, removeMovement } from "../../aggiungi/spesa/actions";
 import { readCategories } from "@/core/money";
@@ -48,7 +49,7 @@ export default async function EntryEditPage({
   const dayLabel = item.day === ctx.today ? "Oggi" : F.Day(item.day);
   const initial = formOf(item, ctx.clock.timeZone);
 
-  if (item.kind.key === "meal") {
+  if (isEaten(item.kind.key)) {
     const [choices, dayData, targets, micros] = await Promise.all([
       readFoodChoices(db, owner, ctx.today),
       loadDay(db, owner, item.day, ctx),
@@ -99,6 +100,7 @@ export default async function EntryEditPage({
         initial={{
           ...initial,
           role: typeof role === "string" ? role : "",
+          ...(item.kind.key === "intake" ? { kind: "intake" } : {}),
           servings:
             typeof item.values["servings"] === "string"
               ? F.input(Number(item.values["servings"]), 2)

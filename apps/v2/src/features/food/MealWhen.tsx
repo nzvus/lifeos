@@ -12,6 +12,7 @@ export function MealWhen({
   errors,
   start,
   role,
+  intake = false,
   auto,
   estimate,
   canSave,
@@ -26,6 +27,8 @@ export function MealWhen({
   errors: Record<string, string>;
   start: string;
   role: string;
+  /** An «assunzione» (coffee, creatine, a supplement; capture.md §4): no meal role. */
+  intake?: boolean;
   /** The role the time gives, when none is chosen. */
   auto: string;
   estimate: boolean;
@@ -61,18 +64,20 @@ export function MealWhen({
         error={errors["start"]}
         onChange={onStart}
       />
-      <Field
-        name="role"
-        label="Pasto"
-        type="choice"
-        defaultValue={role}
-        onChange={onRole}
-        help={
-          auto ? "Senza scelta: " + ROLE_WORDS[auto]!.toLowerCase() + ", dall’ora." : ""
-        }
-        error={errors["role"]}
-        options={Object.entries(ROLE_WORDS).map(([value, label]) => ({ value, label }))}
-      />
+      {!intake && (
+        <Field
+          name="role"
+          label="Pasto"
+          type="choice"
+          defaultValue={role}
+          onChange={onRole}
+          help={
+            auto ? "Senza scelta: " + ROLE_WORDS[auto]!.toLowerCase() + ", dall’ora." : ""
+          }
+          error={errors["role"]}
+          options={Object.entries(ROLE_WORDS).map(([value, label]) => ({ value, label }))}
+        />
+      )}
       <Field
         name="note"
         label="Nota"

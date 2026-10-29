@@ -9,6 +9,7 @@ import { F } from "@lifeos/kit";
 import type { DayItem } from "@/core/day";
 import { lineTotals } from "@/core/food/totals";
 import { CHOICES, FIELDS, keyWords } from "./words";
+import { isEaten } from "@/core/kinds";
 
 export type Details = {
   stats: { label: string; value: string }[];
@@ -95,7 +96,7 @@ export function details(i: DayItem, { foods = true }: { foods?: boolean } = {}):
     if (value !== null) stats.push({ label: label ?? keyWords(key), value });
   }
 
-  if (i.kind.key === "meal" || i.kind.key === "batch") {
+  if (isEaten(i.kind.key) || i.kind.key === "batch") {
     const servings =
       typeof i.values["servings"] === "string" ? i.values["servings"] : null;
     for (const l of foods ? i.lines : []) {

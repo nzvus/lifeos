@@ -14,7 +14,7 @@ import { checkEntry, readEntry, updateEntry } from "@/core/entries";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { lineChoices } from "@/core/food/choices";
 import { ESTIMATE_CONFIDENCE, typedEstimate } from "@/core/food/meal";
-import { kindRegistry } from "@/core/kinds";
+import { isEaten, kindRegistry } from "@/core/kinds";
 import type { SaveState } from "@/features/day/EntrySheet";
 import { errorWords, managedFields, readEntryForm } from "@/features/day/entry-form";
 import type { MealState } from "@/features/food/Composer";
@@ -86,7 +86,7 @@ export async function updateMeal(
     n: prev.n + 1,
   });
   const item = await readEntry(db, owner, id);
-  if (!item || item.kind.key !== "meal") return again({ form: GONE });
+  if (!item || !isEaten(item.kind.key)) return again({ form: GONE });
   const ctx = await addContext(db, owner, item.day);
   const foods = await readFoodChoices(db, owner, ctx.today);
   const choices = [...lineChoices(item.lines), ...foods];
@@ -102,7 +102,7 @@ export async function updateMeal(
         );
   const checkedLines = formLines(form, lines, choices);
   const entry = checkEntry(
-    kindRegistry().get("meal"),
+    kindRegistry().get(item.kind.key),
     mealInput(item.day, form, ctx.clock.boundaryMin, ctx.roleBounds),
     ctx.clock,
   );

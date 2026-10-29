@@ -45,11 +45,13 @@ export default async function MealPage({
     cibo?: string | string[];
     /** From ⊕'s switch: planned, or done earlier (the time to say). */
     stato?: string | string[];
+    /** «assunzione»: coffee, creatine, a supplement, not a meal (capture.md §4). */
+    per?: string | string[];
   }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
-  const { giorno, pasto, da, ruolo, ora, cibo, stato } = await searchParams;
+  const { giorno, pasto, da, ruolo, ora, cibo, stato, per } = await searchParams;
   const when = stato === "previsto" || stato === "prima" ? stato : null;
   const { clock, roleBounds, day, today } = await addContext(db, owner, giorno);
   const [choices, dayData, targets, micros] = await Promise.all([
@@ -154,7 +156,11 @@ export default async function MealPage({
           : day === today && when === null
             ? { start: now }
             : {}),
-        ...(typeof role === "string" ? { role } : {}),
+        ...(per === "assunzione"
+          ? { kind: "intake" }
+          : typeof role === "string"
+            ? { role }
+            : {}),
         ...(typeof again?.values["servings"] === "string"
           ? { servings: F.input(Number(again.values["servings"]), 2) }
           : {}),
