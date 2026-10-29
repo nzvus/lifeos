@@ -1,6 +1,6 @@
 # Dossier — data repair (what the 29 Oct export shows is wrong, and the rules that stop it)
 
-Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Data repairs run on production only by the developer's migrate job.
+Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Data repairs run on production only by the developer's migrate job. **R1 and R3 written 2026-10-29** as `apps/v2/drizzle/0002_data_repair_orphans.sql` (tested on PGlite, idempotent); R2 waits for #299 (the role stored), R5 and R6 for «Unisci» and the intake kind.
 data, so each repair is the developer's call (method.md §2). Short by
 design: the causes are fixed in session.md, capture.md and activity.md;
 this page lists the rows already wrong and how to repair them once.
