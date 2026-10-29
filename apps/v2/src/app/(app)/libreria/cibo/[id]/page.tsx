@@ -20,7 +20,7 @@ import { readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { foodScore } from "@/features/day/score";
 import { OpenBox } from "@/features/day/OpenBox";
-import { FOOD_FIELDS, foodPage } from "@/features/library/library";
+import { FOOD_FIELDS, foodPage, foodTwins } from "@/features/library/library";
 import {
   mealFoods,
   mealKinds,
@@ -58,6 +58,8 @@ export default async function FoodPage({
   const foods = await readFoodChoices(db, owner, today);
   const page = foodPage(foods, await readRecipeChoices(db, owner, today, foods), id);
   if (!page) notFound();
+  // Possible duplicates: another food sharing a meaningful word of its name.
+  const twins = foodTwins(foods, id);
   // Judged on 100 kcal of it, against today's targets (meal-score.md §8).
   const [targets, micros, estimates, pantry] = await Promise.all([
     readTargetsFor(db, owner, today, today, clock),
@@ -309,6 +311,28 @@ export default async function FoodPage({
           </div>
         ))}
       </section>
+      {twins.length > 0 && (
+        <details className="k-section k-fold">
+          <summary>
+            Unisci un doppione <span className="k-meta">{twins.length}</span>
+          </summary>
+          <div className="k-foldbody">
+            <p className="k-help">
+              Lo stesso cibo con un altro nome? I suoi pasti e prodotti passano qui e il
+              suo nome resta come alias.
+            </p>
+            {twins.map((t) => (
+              <a
+                key={t.id}
+                className="k-btn link"
+                href={`/libreria/cibo/${id}/unisci?con=${t.id}`}
+              >
+                Unisci «{t.name}» in «{page.name}» ›
+              </a>
+            ))}
+          </div>
+        </details>
+      )}
       <form action={archiveFood.bind(null, id)} className="k-section g3">
         <p className="k-help">
           Archiviato, esce dalla Libreria e dal composer con i suoi prodotti; i pasti
