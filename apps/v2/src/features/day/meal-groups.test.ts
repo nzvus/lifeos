@@ -65,4 +65,31 @@ describe("meals of one role together", () => {
     expect(g[0]!.merged.minute).toBe(1096);
     expect(g[0]!.merged.values["servings"]).toBeUndefined();
   });
+
+  it("groups only neighbours: far apart or with something else between, two rows", () => {
+    const session = { ...meal("gym", "", 800, "0"), kind: reg.get("session") } as DayItem;
+    const items = [
+      meal("l1", "lunch", 750, "100"),
+      meal("l2", "lunch", 900, "100"), // 150 min later: a second lunch row
+      meal("s1", "snack", 600, "10"),
+      meal("s2", "snack", 640, "10"),
+      meal("d1", "dinner", 1140, "10"),
+      session,
+      meal("d2", "dinner", 1150, "10"),
+    ];
+    session.minute = 1145;
+    const titles: Record<string, string> = {
+      l1: "Pranzo",
+      l2: "Pranzo",
+      s1: "Spuntino",
+      s2: "Spuntino",
+      d1: "Cena",
+      d2: "Cena",
+      gym: "Pull",
+    };
+    const g = mealGroups(items, (i) => titles[i.id]!);
+    expect(g.map((x) => [x.merged.id, x.items.map((i) => i.id)])).toEqual([
+      ["group:snack:s1", ["s1", "s2"]],
+    ]);
+  });
 });

@@ -1,12 +1,15 @@
 /**
- * features/day/meal-groups.ts — Oggi's meals of one role together (the
- * developer's pick, 2026-10-25): two or more meals named by the same role
- * (four entries of «Cena») become one group, read as one meal — its lines
- * merged, each scaled by its servings (only the eaten ones while others
- * are still planned) — so its bars, its panel and its
- * score are the whole dinner's; its entries stay rows of their own inside.
- * Coffee, creatine and other named things stay out (their title is not the
- * role's). Pure.
+ * features/day/meal-groups.ts — Oggi's meals of one role together, the
+ * timeline first (interaction.md §6; the developer, 29 Oct: «continua a dare
+ * priorità alle categorie piuttosto che alle timeline»): two or more meals
+ * named by the same role become one group only when they are neighbours on
+ * the timeline — at most 60 minutes from one to the next, with no other
+ * kind of entry (a session, a sleep) and no meal of another role between.
+ * A lunch at 12:30 and a lunch at 15:00 stay two rows. A single food logged
+ * as a meal (coffee, creatine) does not break a run, nor joins it. The group
+ * is read as one meal — its lines merged, each scaled by its servings (only
+ * the eaten ones while others are still planned) — so its bars, its panel
+ * and its score are the whole meal's; its entries stay rows inside. Pure.
  */
 import type { DayItem } from "@/core/day";
 import { MEAL_ROLE_WORDS } from "./words";
@@ -19,16 +22,36 @@ const isRoleMeal = (i: DayItem, title: string) =>
   MEAL_ROLE_WORDS[i.subcategory] === title &&
   i.status !== "skipped";
 
+/** Neighbours: at most this many minutes from one entry of a group to the next. */
+const NEAR_MIN = 60;
+
 /** `titleOf`: each item's title as the timeline shows it. */
 export function mealGroups(
   items: readonly DayItem[],
   titleOf: (i: DayItem) => string,
 ): MealGroup[] {
-  const by = new Map<string, DayItem[]>();
-  for (const i of items)
-    if (isRoleMeal(i, titleOf(i)))
-      by.set(i.subcategory!, [...(by.get(i.subcategory!) ?? []), i]);
-  return [...by]
+  const timed = [...items]
+    .filter((i) => i.minute !== null)
+    .sort((a, b) => a.minute! - b.minute!);
+  const runs: [string, DayItem[]][] = [];
+  let run: DayItem[] = [];
+  const close = () => {
+    if (run.length) runs.push([run[0]!.subcategory!, run]);
+    run = [];
+  };
+  for (const i of timed) {
+    if (isRoleMeal(i, titleOf(i))) {
+      const last = run[run.length - 1];
+      if (
+        last &&
+        (last.subcategory !== i.subcategory || i.minute! - last.minute! > NEAR_MIN)
+      )
+        close();
+      run.push(i);
+    } else if (i.kind.key !== "meal") close();
+  }
+  close();
+  return runs
     .filter(([, xs]) => xs.length >= 2)
     .map(([role, xs]) => {
       const sorted = [...xs].sort((a, b) => (a.minute ?? 9999) - (b.minute ?? 9999));
@@ -42,7 +65,7 @@ export function mealGroups(
         items: sorted,
         merged: {
           ...first,
-          id: "group:" + role,
+          id: "group:" + role + ":" + first.id,
           status: eaten.length ? "done" : "planned",
           values,
           item: null,

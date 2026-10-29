@@ -3,7 +3,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
-import { readEntry } from "../entries";
+import { loadDay } from "../day";
+import { readEntry, restoreEntry, trashEntry, trashPlanned } from "../entries";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import {
   addExercise,
@@ -210,6 +211,43 @@ describe("a session in gym mode", () => {
     expect(row!.endAt).toBeNull();
     expect(open.values.durationMin).toBeUndefined();
     expect(open.children.map((c) => c.status)).toEqual(["planned"]);
+  });
+
+  it("takes a session's exercises to the trash with it, and brings them back", async () => {
+    const id = await startSession(db, a, {
+      day: "2026-10-19",
+      startAt: new Date("2026-10-19T16:00:00Z"),
+      routineId: push,
+      exerciseIds: [bench, curl],
+    });
+    const live = async () =>
+      (
+        await db
+          .select({ id: s.entries.id })
+          .from(s.entries)
+          .where(eq(s.entries.parentId, id))
+      ).length;
+    const trashed = async () =>
+      (
+        await db
+          .select({ d: s.entries.deletedAt })
+          .from(s.entries)
+          .where(eq(s.entries.parentId, id))
+      ).filter((r) => r.d !== null).length;
+    expect(await live()).toBe(2);
+    expect(await trashEntry(db, a, id)).toBe(true);
+    expect(await trashed()).toBe(2);
+    expect(await restoreEntry(db, a, id)).toBe(true);
+    expect(await trashed()).toBe(0);
+    // A planned session removed by «Togli i previsti» takes its exercises too.
+    expect(await trashPlanned(db, a, [id])).toEqual([id]);
+    expect(await trashed()).toBe(2);
+    // Orphans left by the old trash (parent gone, children live) are not on the day.
+    await db.update(s.entries).set({ deletedAt: null }).where(eq(s.entries.parentId, id));
+    const day = await loadDay(db, a, "2026-10-19");
+    expect([...day.timed, ...day.untimed].map((i) => i.kind.key)).not.toContain(
+      "session_exercise",
+    );
   });
 
   it("gives each exercise its last two sessions, leaving out the one being trained", async () => {

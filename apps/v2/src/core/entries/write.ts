@@ -6,7 +6,7 @@
  * Removing moves to the 30-day trash (`deleted_at`, schema.md); restoring
  * brings it back as it was.
  */
-import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { entries, entryLines, entryLineValues, entryValues } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
@@ -77,12 +77,33 @@ export async function setEntryStatus(
 
 /** Moves a live entry to the trash; false if there was none. */
 export async function trashEntry(db: Db, owner: Owner, id: string): Promise<boolean> {
-  const rows = await db
+  const at = new Date();
+  return db.transaction(async (tx) => {
+    const rows = await tx
+      .update(entries)
+      .set({ deletedAt: at })
+      .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)))
+      .returning({ id: entries.id });
+    if (rows.length > 0) await trashChildren(tx, owner, [id], at);
+    return rows.length > 0;
+  });
+}
+
+/**
+ * A session's exercises go with it, at the same instant, so restoring the
+ * parent brings back exactly the children that left with it.
+ */
+async function trashChildren(tx: Tx, owner: Owner, parentIds: string[], at: Date) {
+  await tx
     .update(entries)
-    .set({ deletedAt: new Date() })
-    .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)))
-    .returning({ id: entries.id });
-  return rows.length > 0;
+    .set({ deletedAt: at })
+    .where(
+      and(
+        ownedBy(entries, owner),
+        inArray(entries.parentId, parentIds),
+        isNull(entries.deletedAt),
+      ),
+    );
 }
 
 /** «Togli i previsti»: of these entries, those still planned go to the trash; answers which did. */
@@ -92,19 +113,24 @@ export async function trashPlanned(
   ids: readonly string[],
 ): Promise<string[]> {
   if (ids.length === 0) return [];
-  const rows = await db
-    .update(entries)
-    .set({ deletedAt: new Date() })
-    .where(
-      and(
-        ownedBy(entries, owner),
-        inArray(entries.id, [...ids]),
-        eq(entries.status, "planned"),
-        isNull(entries.deletedAt),
-      ),
-    )
-    .returning({ id: entries.id });
-  return rows.map((r) => r.id);
+  const at = new Date();
+  return db.transaction(async (tx) => {
+    const rows = await tx
+      .update(entries)
+      .set({ deletedAt: at })
+      .where(
+        and(
+          ownedBy(entries, owner),
+          inArray(entries.id, [...ids]),
+          eq(entries.status, "planned"),
+          isNull(entries.deletedAt),
+        ),
+      )
+      .returning({ id: entries.id });
+    const gone = rows.map((r) => r.id);
+    if (gone.length > 0) await trashChildren(tx, owner, gone, at);
+    return gone;
+  });
 }
 
 /** «Sposta»: a planned entry at another time (start and end together); false when not a live planned one. */
@@ -130,14 +156,28 @@ export async function moveEntry(
   return rows.length > 0;
 }
 
-/** Brings an entry back from the trash; false if it was not there. */
+/** Brings an entry back from the trash, with the children trashed with it; false if it was not there. */
 export async function restoreEntry(db: Db, owner: Owner, id: string): Promise<boolean> {
-  const rows = await db
-    .update(entries)
-    .set({ deletedAt: null })
-    .where(and(ownedBy(entries, owner), eq(entries.id, id), isNotNull(entries.deletedAt)))
-    .returning({ id: entries.id });
-  return rows.length > 0;
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .select({ deletedAt: entries.deletedAt })
+      .from(entries)
+      .where(
+        and(ownedBy(entries, owner), eq(entries.id, id), isNotNull(entries.deletedAt)),
+      );
+    if (!row?.deletedAt) return false;
+    await tx
+      .update(entries)
+      .set({ deletedAt: null })
+      .where(
+        and(
+          ownedBy(entries, owner),
+          eq(entries.deletedAt, row.deletedAt),
+          or(eq(entries.id, id), eq(entries.parentId, id)),
+        ),
+      );
+    return true;
+  });
 }
 
 type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
