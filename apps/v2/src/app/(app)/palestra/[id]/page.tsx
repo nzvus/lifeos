@@ -42,6 +42,7 @@ import {
   contextPills,
   contextText,
   bestE1rm,
+  orderNote,
   lastTimeText,
   MUSCLE_WORDS,
   muscleSplit,
@@ -123,6 +124,11 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       x.exercise.name,
   );
   const timing = learnTiming(history.sessions);
+  // Today's place of each exercise among those not skipped, 0 = first (the order effect).
+  const todayPlace = (entryId: string) =>
+    session.children
+      .filter((c) => c.status !== "skipped")
+      .findIndex((c) => c.id === entryId);
   const readiness = Number(session.values["readiness"] ?? 0) || null;
   const tired = readiness !== null && readiness <= 2;
   const scored: Parameters<typeof sessionParts>[0][number][] = [];
@@ -206,7 +212,12 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       warmups,
       last: last ? lastTimeText(last.day, last.sets) : "",
       lastE1rm: last ? bestE1rm(last.sets) : null,
-      trend: trendText(a.trend),
+      trend: [
+        trendText(a.trend),
+        c.item ? orderNote(history.byExercise, c.item.id, todayPlace(c.id)) : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
       restS: a.afterPairS ?? a.restS,
       restWords:
         restSourceText(a.restSource, a.restChange) +

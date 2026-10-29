@@ -34,6 +34,7 @@ const session = (day: string, s: HistorySet[], before = 0): HistorySession => ({
   day,
   sessionId: day,
   before,
+  place: 0,
   sets: s,
 });
 

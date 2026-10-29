@@ -32,6 +32,8 @@ export type HistorySession = {
   sessionId: string;
   /** Hard (working) sets done before it in the session for the same muscles. */
   before: number;
+  /** Its place among the exercises done in that session, 0 = first (the order effect). */
+  place: number;
   sets: HistorySet[];
 };
 
@@ -194,6 +196,13 @@ export async function readTrainingHistory(
     ]),
   );
   const before = hardSetsBefore(rows, work, muscles);
+  // Each exercise's place among those done (with sets) in its session.
+  const place = new Map<string, number>();
+  for (const sid of new Set(rows.map((r) => r.parentId)))
+    rows
+      .filter((r) => r.parentId === sid && (setsOf.get(r.id)?.length ?? 0) > 0)
+      .sort((a, b) => a.position - b.position)
+      .forEach((r, i) => place.set(r.id, i));
   const byExercise = new Map<string, HistorySession[]>();
   const wanted = new Set(exerciseIds);
   for (const r of [...rows].sort((a, b) => a.day.localeCompare(b.day))) {
@@ -201,7 +210,13 @@ export async function readTrainingHistory(
     if (!wanted.has(r.itemId) || own.length === 0) continue;
     byExercise.set(r.itemId, [
       ...(byExercise.get(r.itemId) ?? []),
-      { day: r.day, sessionId: r.parentId, before: before.get(r.id) ?? 0, sets: own },
+      {
+        day: r.day,
+        sessionId: r.parentId,
+        before: before.get(r.id) ?? 0,
+        place: place.get(r.id) ?? 0,
+        sets: own,
+      },
     ]);
   }
   const sessions = sessionIds.map((sid) =>

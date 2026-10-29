@@ -9,6 +9,7 @@ import {
   dumbbellStep,
   e1rm,
   loadStep,
+  orderEffect,
   repsAtLoad,
   restAfter,
   vsExpected,
@@ -341,4 +342,46 @@ export function sessionBox(
         }
       : {}),
   };
+}
+
+/**
+ * The order effect on today's exercise (session.md §5.2): «di solito lo fai
+ * 1°, oggi 4° · ~−4 %», so a lower number is not read as a regression. The
+ * effect is learnt across the person's exercises (`orderEffect`, a place with
+ * fewer than three sessions says nothing); the usual place is the one this
+ * exercise had most often, from three sessions on. Null when today's place is
+ * the usual one or too little is known.
+ */
+export function orderNote(
+  byExercise: ReadonlyMap<string, readonly { place: number; sets: readonly LastSet[] }[]>,
+  exerciseId: string,
+  today: number,
+): string | null {
+  const own = byExercise.get(exerciseId) ?? [];
+  if (own.length < 3) return null;
+  const count = new Map<number, number>();
+  for (const s of own) count.set(s.place, (count.get(s.place) ?? 0) + 1);
+  const usual = [...count].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]![0];
+  if (usual === today) return null;
+  const effect = orderEffect(
+    [...byExercise].flatMap(([exercise, ss]) =>
+      ss.flatMap((s) => {
+        const e1rm = bestE1rm(s.sets);
+        return e1rm ? [{ exercise, position: s.place, e1rm }] : [];
+      }),
+    ),
+  );
+  const pct = Math.round(((effect.get(today) ?? 1) / (effect.get(usual) ?? 1) - 1) * 100);
+  return (
+    "di solito lo fai " +
+    (usual + 1) +
+    "°, oggi " +
+    (today + 1) +
+    "°" +
+    (pct < 0
+      ? " · " + F.signed(pct, "%") + " atteso, non un calo"
+      : pct > 0
+        ? " · " + F.signed(pct, "%") + " atteso"
+        : "")
+  );
 }
