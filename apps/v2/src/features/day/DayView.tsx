@@ -103,7 +103,6 @@ export function DayView({
     if (!arrived) return;
     say({ text: arrived.text, undo: () => actions.changeStatus(arrived.id, "planned") });
     window.history.replaceState(null, "", window.location.pathname);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const failed = () => say({ text: "Non è stato salvato. Riprova." });
   const hide = (id: string, on: boolean) =>
