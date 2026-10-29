@@ -9,17 +9,21 @@
  * set's clock) and «Serie fatta». RIR is asked on the last set only.
  *
  * «Automatico» chains set → rest → set without touching the phone: each set
- * is saved as proposed and marked assumed ("presunta"); «Fine» confirms
- * them. One side at a time: the set's clock says «lato 1», «cambia lato»,
+ * is saved as proposed and marked assumed ("presunta"); finishing confirms
+ * them. «Finisci…» only opens a summary (what was done, what was not, what
+ * is presunta): the session ends from there, and a finished one can be
+ * taken up again with «Riprendi». One side at a time: the set's clock says «lato 1», «cambia lato»,
  * «lato 2», with a beep at each change. A beep and a vibration mark every change. Each set is saved the
  * moment it ends; the server actions arrive as props. The screen is kept
- * awake where the browser allows it.
+ * awake where the browser allows it, asked again each time the page comes
+ * back (the browser drops the lock when the phone locks or the app changes).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Box, F, Field, PageHeader, type BoxEntry, type State } from "@lifeos/kit";
 import type { ProposedSet } from "@/core/training/plan";
 import type { SetInput } from "@/core/training/write";
 import { ExerciseSettings } from "./ExerciseSettings";
+import { FinishSheet } from "./FinishSheet";
 import { restPill, setText, strengthPill, timed, vsProposedText } from "./present";
 import { SetForm } from "./SetForm";
 import { ContextPills, planText, workDone } from "./gym-parts";
@@ -76,6 +80,8 @@ export type GymActions = {
   untick: (entryId: string, position: number) => Promise<boolean>;
   add: (sessionId: string, exerciseId: string) => Promise<boolean>;
   finish: (sessionId: string) => Promise<void>;
+  /** «Riprendi»: a finished session in progress again. */
+  reopen: (sessionId: string) => Promise<void>;
   /** «Elimina la sessione»: to the trash. */
   remove: (sessionId: string) => Promise<void>;
   readiness: (sessionId: string, value: number | null) => Promise<boolean>;
@@ -165,7 +171,8 @@ export function Gym({
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [confirming, setConfirming] = useState(false);
+  // «Finisci…» opens the summary; the session ends only from there.
+  const [ending, setEnding] = useState(false);
   // «Correggi»: a done set taken back, its values in the steppers to type again.
   const [fix, setFix] = useState<DoneSet | null>(null);
   // What the steppers hold now: auto mode saves it when the set's clock ends.
@@ -178,20 +185,33 @@ export function Gym({
     return () => clearInterval(t);
   }, []);
   useEffect(() => {
+    if (session.done) return;
     let lock: { release: () => Promise<void> } | null = null;
+    let gone = false;
     const nav = navigator as Navigator & {
       wakeLock?: { request: (t: "screen") => Promise<{ release: () => Promise<void> }> };
     };
-    nav.wakeLock
-      ?.request("screen")
-      .then((l) => (lock = l))
-      .catch(() => {
-        // Not allowed (battery saver, an old browser): the screen may sleep.
-      });
+    const ask = () => {
+      if (document.visibilityState !== "visible") return;
+      nav.wakeLock
+        ?.request("screen")
+        .then((l) => {
+          if (gone) void l.release().catch(() => {});
+          else lock = l;
+        })
+        .catch(() => {
+          // Not allowed (battery saver, an old browser): the screen may sleep.
+        });
+    };
+    ask();
+    // The browser releases the lock whenever the page is hidden: ask again on the way back.
+    document.addEventListener("visibilitychange", ask);
     return () => {
+      gone = true;
+      document.removeEventListener("visibilitychange", ask);
       void lock?.release().catch(() => {});
     };
-  }, []);
+  }, [session.done]);
 
   // Another exercise: a correction left open belongs to the one being left.
   const goTo = (i: number) => {
@@ -207,10 +227,6 @@ export function Gym({
       .filter((c) => words.every((w) => fold(c.name).includes(w)))
       .slice(0, 6);
   }, [catalog, query]);
-  const assumed = exercises.reduce(
-    (n, e) => n + e.done.filter((d) => d.assumed).length,
-    0,
-  );
 
   const tick = async (input: SetInput, opts: { assumed?: boolean } = {}) => {
     if (!x) return;
@@ -462,16 +478,6 @@ export function Gym({
             }
             help="Facoltativo. Con 1–2 propone una serie in meno, stesso carico."
           />
-        </section>
-      )}
-
-      {confirming && (
-        <section className="k-section g2" aria-label="Serie presunte">
-          <p className="k-body" role="alert">
-            {F.plural(assumed, "serie presunta", "serie presunte")}: le ha contate l’app
-            mentre i tempi andavano da soli. Finendo le confermi come fatte; se una non è
-            andata così, correggila prima.
-          </p>
         </section>
       )}
 
@@ -747,24 +753,40 @@ export function Gym({
         <a className="k-btn secondary" href={session.dayHref}>
           Esci
         </a>
-        {!session.done && (
+        {session.done ? (
           <button
             type="button"
-            className="k-btn primary"
+            className="k-btn secondary"
             aria-busy={busy}
             onClick={async () => {
-              if (assumed > 0 && !confirming) {
-                setConfirming(true);
-                return;
-              }
               setBusy(true);
-              await actions.finish(session.id);
+              await actions.reopen(session.id);
             }}
           >
-            {confirming ? "Conferma e finisci" : "Fine allenamento"}
+            Riprendi
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="k-btn secondary"
+            onClick={() => setEnding(true)}
+          >
+            Finisci…
           </button>
         )}
       </div>
+      {ending && !session.done && (
+        <FinishSheet
+          exercises={exercises}
+          minutes={sessionElapsed !== null ? Math.round(sessionElapsed / 60) : null}
+          busy={busy}
+          onBack={() => setEnding(false)}
+          onFinish={async () => {
+            setBusy(true);
+            await actions.finish(session.id);
+          }}
+        />
+      )}
     </main>
   );
 }

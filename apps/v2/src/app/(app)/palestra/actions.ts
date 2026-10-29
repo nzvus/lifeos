@@ -17,6 +17,7 @@ import {
   checkSet,
   confirmSets,
   finishSession,
+  reopenSession,
   readExercises,
   readRoutines,
   removeSet,
@@ -160,6 +161,15 @@ export async function finishGym(sessionId: string): Promise<void> {
   await finishSession(db, owner, sessionId, new Date());
   revalidatePath("/oggi", "layout");
   redirect("/oggi");
+}
+
+/** «Riprendi»: a finished session in progress again, back in gym mode. */
+export async function reopenGym(sessionId: string): Promise<void> {
+  if (!UUID.test(sessionId)) return;
+  await reopenSession(await getDb(), await requireOwner(), sessionId);
+  revalidatePath("/oggi", "layout");
+  revalidatePath("/palestra", "layout");
+  redirect("/palestra/" + sessionId);
 }
 
 /** «Elimina la sessione»: to the trash (30 days, Impostazioni → Cestino), back to its day. */

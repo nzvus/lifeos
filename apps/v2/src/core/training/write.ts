@@ -3,8 +3,9 @@
  * is a `session` entry with its start and no end, status planned; its
  * exercises are `session_exercise` children in order; each set is saved the
  * moment it is ticked (a gym has a phone, not always a signal: nothing waits
- * for the end). Finishing marks the session and its exercises done, with
- * the end and the minutes. Every write is ownedBy the owner and checks the
+ * for the end). Finishing marks the session done, with the end and the
+ * minutes; an exercise with sets is done, one without is skipped. A finished
+ * session can be reopened: it is in progress again. Every write is ownedBy the owner and checks the
  * entry it touches is the right kind, live and theirs.
  * Auto mode saves its sets as assumed (`done` false: what was planned, not
  * yet said to be done); «Fine» confirms them. History reads only done sets.
@@ -86,6 +87,7 @@ async function liveEntry(db: Db | Tx, owner: Owner, id: string, kind: string) {
       day: entries.day,
       parentId: entries.parentId,
       startAt: entries.startAt,
+      status: entries.status,
     })
     .from(entries)
     .where(
@@ -385,9 +387,11 @@ export async function finishSession(
       .update(entries)
       .set({ status: "done", ...(start ? { endAt } : {}) })
       .where(and(ownedBy(entries, owner), eq(entries.id, sessionId)));
+    // An exercise with no set was not done: skipped, so «last time» never points at it.
+    const hasSets = sql`exists (select 1 from ${trainingSets} where ${trainingSets.entryId} = ${entries.id})`;
     await tx
       .update(entries)
-      .set({ status: "done" })
+      .set({ status: sql`case when ${hasSets} then 'done' else 'skipped' end` })
       .where(
         and(
           ownedBy(entries, owner),
@@ -402,6 +406,42 @@ export async function finishSession(
         sessionId,
         "durationMin",
         String(Math.round((endAt.getTime() - start.getTime()) / 60_000)),
+      );
+    return true;
+  });
+}
+
+/** «Riprendi»: a finished session is in progress again — no end, no minutes, its exercises open. */
+export async function reopenSession(
+  db: Db,
+  owner: Owner,
+  sessionId: string,
+): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    const s = await liveEntry(tx, owner, sessionId, "session");
+    if (!s || s.status !== "done") return false;
+    await tx
+      .update(entries)
+      .set({ status: "planned", endAt: null })
+      .where(and(ownedBy(entries, owner), eq(entries.id, sessionId)));
+    await tx
+      .update(entries)
+      .set({ status: "planned" })
+      .where(
+        and(
+          ownedBy(entries, owner),
+          eq(entries.parentId, sessionId),
+          isNull(entries.deletedAt),
+        ),
+      );
+    await tx
+      .delete(entryValues)
+      .where(
+        and(
+          ownedBy(entryValues, owner),
+          eq(entryValues.entryId, sessionId),
+          eq(entryValues.field, "durationMin"),
+        ),
       );
     return true;
   });
