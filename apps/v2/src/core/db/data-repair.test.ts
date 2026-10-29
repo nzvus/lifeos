@@ -69,3 +69,90 @@ describe("data repair R1, R3 (data-repair.md)", () => {
     expect((await row(notYet)).deletedAt).toBeNull();
   });
 });
+
+// R6: single-food «meals» with no energy become «assunzioni» (capture.md §4).
+const R6 = readFileSync(
+  join(__dirname, "../../../drizzle/0003_data_repair_intake.sql"),
+  "utf8",
+)
+  .split("--> statement-breakpoint")
+  .map((x) => x.trim())
+  .filter(Boolean);
+
+describe("data repair R6 (data-repair.md)", () => {
+  let t: Awaited<ReturnType<typeof createTestDb>>;
+  let user: string;
+  beforeAll(async () => {
+    t = await createTestDb();
+    user = await createTestUser(t.db, "b@example.test");
+  });
+  afterAll(() => t.close());
+
+  const food = async (name: string) =>
+    (
+      await t.db
+        .insert(s.catalogItems)
+        .values({ userId: user, catalog: "food", name })
+        .returning({ id: s.catalogItems.id })
+    )[0]!.id;
+  const meal = async (lines: { item: string | null; kcal: number | null }[]) => {
+    const id = (
+      await t.db
+        .insert(s.entries)
+        .values({ userId: user, kind: "meal", day: "2026-10-27", status: "done" })
+        .returning({ id: s.entries.id })
+    )[0]!.id;
+    await t.db.insert(s.entryValues).values([
+      { userId: user, entryId: id, field: "role", text: "snack" },
+      { userId: user, entryId: id, field: "roleSource", text: "auto" },
+    ]);
+    for (const [i, l] of lines.entries()) {
+      const line = (
+        await t.db
+          .insert(s.entryLines)
+          .values({
+            userId: user,
+            entryId: id,
+            position: i,
+            itemId: l.item,
+            name: "x",
+            quantity: "5",
+            unit: "g",
+          })
+          .returning({ id: s.entryLines.id })
+      )[0]!.id;
+      if (l.kcal !== null)
+        await t.db
+          .insert(s.entryLineValues)
+          .values({ userId: user, lineId: line, field: "kcal", num: String(l.kcal) });
+    }
+    return id;
+  };
+  const kind = async (id: string) =>
+    (await t.db.select().from(s.entries).where(eq(s.entries.id, id)))[0]!.kind;
+  const values = async (id: string) =>
+    (await t.db.select().from(s.entryValues).where(eq(s.entryValues.entryId, id))).map(
+      (v) => v.field,
+    );
+
+  it("creatine and coffee become intakes without a role; real meals stay meals", async () => {
+    const creatina = await meal([{ item: await food("Creatina"), kcal: 0 }]);
+    const caffe = await meal([{ item: await food("Caffè macinato"), kcal: null }]);
+    const gallette = await meal([{ item: await food("Gallette di mais"), kcal: 77 }]);
+    const two = await meal([
+      { item: await food("Caffè"), kcal: 0 },
+      { item: await food("Latte"), kcal: 0 },
+    ]);
+    const estimate = await meal([{ item: null, kcal: 0 }]);
+
+    for (let run = 0; run < 2; run++) for (const q of R6) await t.client.exec(q);
+
+    expect(await kind(creatina)).toBe("intake");
+    expect(await kind(caffe)).toBe("intake");
+    expect(await values(creatina)).toEqual([]);
+    expect(await kind(gallette)).toBe("meal");
+    expect(await values(gallette)).toHaveLength(2);
+    expect(await kind(two)).toBe("meal");
+    expect(await kind(estimate)).toBe("meal");
+  });
+});
