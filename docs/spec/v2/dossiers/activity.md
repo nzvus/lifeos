@@ -1,6 +1,6 @@
 # Dossier — activity (runs, cardio, the day's steps)
 
-Status: **draft 2026-10-29**, for the developer's review. Method:
+Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Method:
 `../method.md`. Extends `movement.md` (routes, trips, steps from the phone;
 its §5 stays the steps model) with the endurance activities it left out.
 Code it changes: `core/kinds/builtins.ts` (steps), `core/training/` (cardio
@@ -113,7 +113,7 @@ entry: the trip with «a piedi», never both).
 6. Cyclette 40 min, no distance, RPE 6 → Compendium MET for moderate
    stationary cycling, net kcal at 76 kg.
 
-## 9. Questions for the developer
+## 9. Questions for the developer — decided 2026-10-29, as recommended
 1. **Activities logged with their own sheet**, «Fatta» by default and
    «Inizia adesso» as the second choice? Recommended: yes.
 2. **Steps as the phone's running total** (a new value replaces), level

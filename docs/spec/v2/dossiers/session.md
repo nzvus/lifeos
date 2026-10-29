@@ -1,6 +1,6 @@
 # Dossier — the live gym session (what to do now, how, and what was done)
 
-Status: **draft 2026-10-29**, for the developer's review. Method:
+Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Method:
 `../method.md`. Builds on `training.md` (approved 2026-10-23: e1RM, trends,
 learnt rests, duration), which stays the source for the numbers; this dossier
 designs the **session as an experience**: order, warm-ups, the screen's
@@ -172,6 +172,15 @@ Top to bottom, phone first (interaction.md §6, P4):
 **Robustness:** Wake Lock re-asked on return (#294); vibration + beep at
 each change; the phase resumes from instants; offline taps queue and say so.
 
+**On Oggi** (the developer, 29 Oct: «quando faccio un allenamento mi
+compaiono tutti sotto gli esercizi, quando lo elimino mi compaiono
+pianificati»): a session is one row on the timeline, from start to end,
+with its state — planned («Push · 17:30», «Inizia»), **in corso** («Pull ·
+esercizio 3 di 8 · Riprendi», never Fatto/Salta), done («Pull · 50 min ·
+24 serie · voto»). Its exercises show only when the row opens, done ones
+first; no icon strip of every planned exercise. Trashing it takes its
+exercises with it (#296).
+
 **Links:** Piano proposes the session at the person's usual time (not a
 fixed 17:30) and the routine's next step; Oggi shows the session on the
 timeline with pre/post meal labels by time; Andamento reads the trends;
@@ -202,7 +211,7 @@ controllare»); cardio inside a gym session belongs to `activity.md`.
 8. Weekly sets for lateral delts < 10 → the summary proposes one of his own
    lateral-raise exercises; > 20 → nothing added.
 
-## 9. Questions for the developer
+## 9. Questions for the developer — decided 2026-10-29, as recommended
 1. **Generated warm-ups on by default**, pre-filled from your own ramp and
    skippable per exercise? Recommended: yes.
 2. **Supersets now** (agonist–antagonist only, proposed when short on time)

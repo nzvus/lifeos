@@ -1,6 +1,6 @@
 # Dossier — capture (⊕ and every quick log)
 
-Status: **draft 2026-10-29**, for the developer's review. Method:
+Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Method:
 `../method.md`. Code it changes: `app/(app)/aggiungi/` (page, kinds, the
 sheets), `features/add/`, `features/food/MealWhen.tsx`, `core/entries/`;
 interaction.md §3–§6; screens.md V-02 (board Capture).
@@ -33,6 +33,17 @@ recenti» (4) · «Non trovi» (nuovo cibo, nuovo esercizio, nuovo tracker).
   says «no role».
 - After a tap the sheet closes and Oggi reloads; nothing says «Acqua 500 ml
   aggiunta · Annulla», so a second tap looks needed.
+- **«Fatto» keeps the planned time** (`setEntryStatus` changes the status
+  only): a breakfast planned 06:58 and eaten 08:30 stays at 06:58, so the
+  developer deletes the planned one and logs a new one (26–27 Oct).
+- **Categories before the timeline:** `features/day/meal-groups.ts` puts
+  every meal of the same role into one group wherever it sits in the day,
+  against interaction.md §6 (only neighbours, nothing between, ≤ 60 min).
+  The developer (29 Oct): «continua a dare priorità alle categorie
+  piuttosto che alle timeline».
+- **Coffee and creatine are meals** (`meal` entries of one food): they get a
+  role, a composer, a meal score, and they split the meal groups: **50 of
+  the 262 done meals** in the export are «CAFFÉ» (26) or «CREATINA» (24).
 
 **The developer's data** (export 29 Oct, 70 entries created 26–29 Oct;
 script `audit-capture.py`):
@@ -70,6 +81,8 @@ script `audit-capture.py`):
 | Doubles | none → the same kind with the same values within 10 s asks «Di nuovo? 500 ml anche adesso» |
 | Sleep vs nap | two kinds → one «Sonno» sheet; under 3 h and by day it is stored as a nap |
 | Catalog duplicates | → «Unisci» on the object page (keeps history on the kept one), offered when two items share pattern and words |
+| Planned time | kept on «Fatto» → each planned item has **«ora fissa»** (an appointment, the class at 18:00) or **«ora della spunta»** (default for meals and quick items: «Fatto» writes now, or the time typed in the toast «Fatto alle 08:30 · Cambia»); the planned time stays as `plannedStart` for adherence |
+| Coffee, creatine, supplements | `meal` → **`intake`**: one food or supplement, a dose, a time; nutrients and compounds counted in the day's totals (caffeine and creatine ranges, ranges.md), no role, no meal score, never grouped with meals |
 No migration except a backfill of `role` on past meals (data-repair).
 
 ## 5. Model
@@ -88,7 +101,15 @@ No migration except a backfill of `role` on past meals (data-repair).
   workout opens the session (session.md) or, for a past one, the activity
   sheet (activity.md).
 - **Planned → done:** a planned item in the list logs as its planned entry
-  turned done (no second entry).
+  turned done (no second entry), at the time its rule says (§4).
+- **The timeline first:** Oggi orders everything by time; meals are named
+  by their role but grouped only as interaction.md §6 says (neighbours,
+  nothing between, ≤ 60 min apart). A role is a name, not a container: two
+  snacks at 10:00 and 16:00 are two rows.
+- **Intake** rows (coffee, creatine, water) sit on the timeline as small
+  marks with their dose, logged from the «Al volo» row on Oggi or ⊕'s first
+  rows; their caffeine/creatine feed the context of the gym session
+  (training.md §4) and the ranges.
 
 ## 6. Experience
 - ⊕ opens as a sheet: search, then «Adesso» (time chip, tap to change),
@@ -120,7 +141,14 @@ day); after midnight before sleep (the day boundary, clock.ts); offline
 5. Search «corsa» → one row «Corsa» (Run merged into it), not two.
 6. 26 Oct sleep 22:11 → 05:23 entered from «Sonno» → a sleep, never a nap.
 
-## 9. Questions for the developer
+## 9. Questions for the developer — decided 2026-10-29, as recommended
+0. **Coffee, creatine and supplements as «assunzioni»** (`intake`), not
+   meals: counted in the day's nutrients and ranges, logged in one tap, no
+   role or score? Recommended: yes; existing single-food «meals» of a
+   supplement or a drink are converted (data-repair R6).
+0b. **«Ora della spunta» by default for meals and quick items, «ora
+   fissa» for appointments** (a class, a visit), switchable per planned
+   item and per block of a day type? Recommended: yes.
 1. **Store the role from the time** when not chosen (and backfill the past
    meals the same way)? Recommended: yes.
 2. **Merge sleep and nap** into one «Sonno» sheet? Recommended: yes.
