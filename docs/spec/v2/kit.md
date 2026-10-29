@@ -76,10 +76,10 @@ exercises, a cycle its sessions. A session is a block model made of exercises; a
 sessions into days. "Routine" is not a word of the app.
 
 ## 4. Nutrients, conformed to V-01
-- **L0-box:** inside the host Box, left of its skyline.
+- **L0-box:** inside the host Box, left of its score chip.
 - **L1 and L2 open like a Box:**
   - the host's silhouette on top, with its drawing on the left and its
-    score skyline behind the header;
+    score chip in the header;
   - each macro row opens on the same `--t-box` transition;
   - the kinds and the foods slide in with the row, not after it.
 - **The macro icons behave like drawings:** small when closed; when the
@@ -89,8 +89,9 @@ sessions into days. "Routine" is not a word of the app.
 - **Zones in the bar** (dossiers/ranges.md §6; the developer, 2026-10-24:
   first a painted track, then a separate strip, both rejected — «nella
   stessa barra … attaccata e sottile»): a bar given `zones` keeps its
-  fill (eaten, then planned hatched) and gets a 3 px band along its bottom
-  edge in four `--heat-*` colours (good green, fair amber, bad orange-red,
+  fill (eaten, then planned hatched) and gets a ruler under the bar with
+  gram ticks, its tip coloured by the zone the value is in (pick «C + D»,
+  2026-10-25; the 3 px band was rejected), in four `--heat-*` colours (good green, fair amber, bad orange-red,
   danger dark red hatched); a limit draws the week's mean as a tick. A
   macro's kinds a guideline speaks of (`partZones`: free sugars,
   saturated, trans, omega-3, omega-6, inulin) are judged the same way on

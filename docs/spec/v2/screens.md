@@ -117,7 +117,8 @@ One table, in flows.md §6 (place, board, notes).
   Off with `prefers-reduced-motion`. Every place that reuses the box
   reuses the motion.
 - **Planned** entries get a fainter outline and a light hatch.
-- **The score as a criterion skyline** behind the right ~46 % of the box:
+- **The score as a chip in the box's head** (pick 2026-10-25, #289);
+  the criterion skyline is drawn when the box opens, not behind it:
   - one column per criterion, in the model's fixed order;
   - each column as wide as its weight and filled up to its score;
   - hard edges between columns;
