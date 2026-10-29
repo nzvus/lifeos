@@ -217,7 +217,10 @@ function Draft({
   const [rev, setRev] = useState(0);
   const [query, setQuery] = useState("");
   const [start, setStart] = useState(state.values["start"] ?? "");
-  const [role, setRole] = useState(state.values["role"] ?? "");
+  // A role taken from the time stays «Senza scelta»: moving the meal moves it.
+  const [role, setRole] = useState(
+    state.values["roleSource"] === "auto" ? "" : (state.values["role"] ?? ""),
+  );
   const [recipe, setRecipe] = useState(state.values["recipe"] ?? initialRecipe);
   const [servings, setServings] = useState(state.values["servings"] ?? "1");
   const [saveAs, setSaveAs] = useState(state.values["saveAs"] === "yes");

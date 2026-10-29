@@ -33,6 +33,8 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
     subcategory: { field: "role" },
     fields: [
       { key: "role", type: "choice", choices: [...MEAL_ROLES] },
+      // Chosen by the person, or taken from the time (capture.md §4).
+      { key: "roleSource", type: "choice", choices: ["manual", "auto"] },
       { key: "servings", type: "number", min: 0 },
       { key: "label", type: "text" },
       { key: "estimated", type: "boolean" },
