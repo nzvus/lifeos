@@ -128,6 +128,15 @@ scanning) are placed in the v2 spec.
    Added 2026-10-25: pantry (`dossiers/pantry.md`, V-12: stock derived from
    purchases and what is eaten, the shopping list, batches; drafted and
    decided by the agent while the developer was away, for their review).
+   Added 2026-10-29, after the developer's «la sessione palestra fa schifo»
+   and the export of 29 Oct: session (`dossiers/session.md`: order,
+   generated warm-ups, the screen's states, reversibility, resume), capture
+   (`dossiers/capture.md`: ⊕ ranks instead of listing, the role stored,
+   doubles, planned → done), activity (`dossiers/activity.md`: runs and
+   cardio logged after the fact, steps as the phone's total), data repair
+   (`dossiers/data-repair.md`: orphan exercises, meals without a role).
+   Order: session first in the redesign's boards and code (developer,
+   2026-10-29); urgent gym fixes shipped in #294.
    - Training dossier, first slices (s173): E6 trend, expected reps,
      learnt and adaptive rests, session length; gym mode with «Inizia» and
      the setup delay, «Automatico» (sets assumed until «Fine»), RIR on the

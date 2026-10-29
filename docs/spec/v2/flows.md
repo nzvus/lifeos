@@ -12,7 +12,7 @@ and the assistant (when enabled) in the header.
 | Place | Holds | Screens |
 |---|---|---|
 | **Oggi** | any day: what was planned and done, in time order | V-01 Day; V-04 composer, V-05 gym, entry sheet (V-03) as sub-pages |
-| **Piano** | the future and its rules | Calendario; Modelli (blocks, day types, week layout, cycles); Abitudini |
+| **Piano** | the future and its rules, for every kind | shelves: Calendario · Giornate tipo (blocks of any kind, week layout) · Cicli · Routine · Pasti tipici · Abitudini · Tracker |
 | **⊕** | the one way to add anything | V-02 Aggiungi: search, kinds, usual, recent, scan (barcode, label, receipt) |
 | **Andamento** | the past by range, and progress | Il periodo; domains → tracker pages (V-06), Soldi (V-11); Obiettivi (V-09); correlations; data quality; Come valutiamo (V-16) |
 | **Libreria** | reusable things | Cibi (ingredients, products: V-07); Pasti e ricette; Dispensa (V-12); Esercizi; Tipi (user-made kinds) |
@@ -54,7 +54,7 @@ for all of them: interaction.md §2–§3 (ADR-0058).
 | Price observation | a receipt line; by hand on a format | the food's page: per shop, with the history | the receipt | with the receipt | price per g → value per € in the scores; the cheapest shop |
 | Recipe / saved meal | Libreria → Pasti → "+"; composer "Salva come pasto" | Libreria → Pasti (sort by any nutrient, per kcal or €); the composer's "Salvate" | meal editor (lines, live totals, ratings) | archive, with Undo | a template block can point at it; cycles can rotate it |
 | Exercise | Libreria → Esercizi → "+"; gym mode "add exercise" | Libreria → Esercizi (guide, records, e1RM) | exercise editor; merge into another | archive | — |
-| Block, day type, week layout | Piano → Modelli → "+"; Oggi ⋯ "Salva come modello"; "duplica", "estendi" | Piano → Modelli; Calendario | model editor | archive (days already planned keep their entries) | applied → planned entries on the calendar |
+| Block, day type, week layout | Piano → Modelli → "+"; Oggi ⋯ "Salva come modello"; «Parti da…», "estendi" | Piano → Modelli; Calendario | model editor | archive (days already planned keep their entries) | applied → planned entries on the calendar |
 | Cycle | Piano → Cicli → "+ ciclo" | Piano → Cicli; the day it fills | its page: days (each with 0..n sessions, or a model), reorder by drag, advance rule, bound block, «Fai slittare» from a day (dossier to come) | archive, or delete | each occurrence takes the next day |
 | Routine (a session's exercises) | Piano → Routine → "+"; gym «Salva come routine» | Piano → Routine; the cycle's steps; ⊕ «Allenamento» | its page: exercises in order, sets, rests (in place) | archive, or delete when no session or cycle uses it | a cycle step can hold one or more routines |
 | Habit | Piano → Abitudini → "+"; Oggi ⋯ on an entry "Ripeti come abitudine" | Oggi (when due), Piano → Abitudini | habit editor (recurrence, block) | archive | planned entries; streaks |
@@ -146,7 +146,7 @@ whether v2 keeps them, are in migration.md §"Parity of functions".
 | S-T23 add training | ⊕ → Palestra | Capture, Gym | routine at its latest version, a past session, estimate |
 | S-T24 movement, S-T25 sleep, S-T26 weight, S-T27 mood, S-T29 spending | ⊕ → the entry sheet | Capture, Entry | sleep also by wake/bed taps; mood with a moment |
 | S-T28 close the day | Oggi | Main |  |
-| S-F01 meals, S-F02 meal editor | Libreria → Pasti e ricette | Meals, MealEditor | duplicate, sort by any nutrient alone or per kcal/€/macro |
+| S-F01 meals, S-F02 meal editor | Libreria → Pasti e ricette | Meals, MealEditor | «Parti da…», sort by any nutrient alone or per kcal/€/macro |
 | S-F03 ingredients, S-F04 ingredient editor (label, OFF, OCR, impact) | Libreria → Cibi | Catalog, IngredientEditor, Scan |  |
 | S-F05 pantry | Libreria → Dispensa | Pantry |  |
 | S-F06 food trends | Andamento → Cibo | Progress |  |

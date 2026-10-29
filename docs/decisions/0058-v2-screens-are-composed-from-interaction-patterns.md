@@ -2,6 +2,9 @@
 
 **Status:** accepted
 **Date:** 2026-10-25
+**Extends:** ADR-0015 (one interaction model for edit, save, delete and
+undo): 0015 stays the rule for saving and removing; this ADR adds the
+object page, the action vocabulary and the reversibility classes around it.
 
 ## Context
 Using v2 every day, the developer found it uncomfortable everywhere:
@@ -52,7 +55,8 @@ fixes, revisit C for those three parts only.
   - `ActionRow`, `Toast` with Undo, `MoreSheet`.
 - `Box` opens or follows its link from its whole surface.
 - Every catalog object gets the full matrix:
-  - create, read, edit in place, duplicate;
+  - create, read, edit in place, «Parti da…» (a new object built from
+    this one; no «Duplica»);
   - archive, delete when unused, restore.
   This needs the core functions that are missing (catalog delete and
   restore; routine create and edit; exercise, route and goal edit).
@@ -61,5 +65,8 @@ fixes, revisit C for those three parts only.
 - A UI check script runs on UI PRs and keeps the study's task numbers
   from getting worse.
 - Separate «Modifica» pages and the row's lone «›» link are retired.
+- The form of every action follows its reversibility class
+  (interaction.md §3): a consequential action (finish a session, shift a
+  cycle) opens a summary sheet and can be reopened afterwards.
 
 ## What I learned

@@ -39,8 +39,11 @@ has one page, built the same way, top to bottom:
 3. **Sections**, each a fold whose whole header row opens it, in the
    order the person needs them. Every value in a section is shown as it
    reads and changes in place (§3).
-4. **The object's actions** at the end, always the same row: Duplica ·
-   Archivia · Elimina (§3), the last two with Undo.
+4. **The object's actions** at the end, always the same row: «Parti da…» ·
+   Archivia · Elimina (§3), the last two with Undo. «Parti da…» opens a
+   new object filled from this one, already renamed and editable: the
+   person builds from a base and never gets a silent copy to tidy up (no
+   «Duplica»).
 5. **The bar** (NavBar), as on every page that is not a sheet or a
    running mode (gym).
 
@@ -70,8 +73,25 @@ its field (Field, with the row's label), right there. The page saves:
   and from the row's swipe.
 
 **The matrix every object must fill** (P1):
-Crea · Leggi · Modifica sul posto · Duplica · Archivia · Elimina (se non
+Crea · Leggi · Modifica sul posto · Parti da… · Archivia · Elimina (se non
 usato) · Ripristina. A missing cell is a bug, not a later slice.
+
+**Reversibility decides the form of an action.** Every action is put in
+one of four classes, and the class, not the screen, decides how it is
+reached and confirmed:
+
+| Class | Example | Form |
+|---|---|---|
+| Free (nothing lost) | open, filter, move between exercises | one tap anywhere |
+| Undoable | log an entry, tick a set, archive, delete an entry | one tap, then the toast «… · Annulla» (5 s) and a way back from the object itself (reopen, restore) |
+| Consequential (ends or changes several things) | finish a session, shift a cycle, change a day type | a secondary button that opens a summary sheet of what will change; the primary action is inside the sheet, and the result can still be reopened |
+| Irreversible | empty the trash, delete an account | in Impostazioni only, typed or held confirmation |
+
+Rules that follow: a consequential action is never the primary button of
+a running mode or the bottom-most target of a page; nothing is
+irreversible from Oggi, ⊕ or a running mode; a repeated identical log
+within a few seconds (two taps on «Acqua») shows the first as done and
+asks before making a second.
 
 ## 4. The action vocabulary (P5)
 
@@ -85,7 +105,7 @@ One form per verb, from the kit:
 | **Modifica** | tap the value (§3) | in place |
 | **Fatto / Salta** (a planned thing) | `act` pills on the row | the row |
 | **Salva** (only for something being composed) | sticky primary at the bottom | composer, sheets, gym |
-| **Archivia / Elimina / Duplica** | the object's action row (§2.4) | the page's end |
+| **Parti da… / Archivia / Elimina** | the object's action row (§2.4) | the page's end |
 | **Annulla** (undo) | the toast's action, 44 high | above the bar, 5 s |
 | **Indietro** | «‹ parent» in the header | every sub-page |
 | **Altro** (rare actions of a row) | «⋯» opening a sheet of actions | the row's trail |
@@ -118,7 +138,7 @@ content comes after.
 | Log a meal (16 a day) | when (Adesso · ora) and which meal (from the time, changeable), then the saved meals and foods, then the totals |
 | Correct a logged entry | its sheet opens on the field that is changed most (grams, time) |
 | Log water, coffee, creatine | one tap on Oggi's row or from ⊕'s first screen |
-| Gym | where I am (exercise n of N), the set to do, «Serie fatta»; the rest below |
+| Gym | where I am (exercise n of N), the set to do and how, «Serie fatta»; the rest below; «Finisci…» opens a summary (§3, consequential) |
 | A day in Piano | the day's plan and its actions (Riposo · Salta · Sposta · Slitta · Cambia la giornata) as one row each |
 
 The meal's moment follows the time by default, from ranges set in
@@ -130,8 +150,10 @@ with nothing between them and at most 60 minutes apart.
 
 flows.md §1 stays, with these homes made explicit:
 - **Oggi**: one day.
-- **Piano**: what repeats: Calendario; Modelli (day types, week layout);
-  Cicli; Routine (the sessions a cycle uses); Abitudini.
+- **Piano**: what repeats, for everything (meals, sessions, habits,
+  trackers), on shelves: Calendario; Giornate tipo (and the week layout);
+  Cicli; Routine (the sessions a cycle uses); Pasti tipici (a saved meal
+  or a rotation); Abitudini; Tracker (what to log and when).
 - **Libreria**: what you use: Cibi (with products and formats), Pasti,
   Esercizi, Dispensa, Tragitti, Tipi di tracker.
 - **Andamento**: the past and its numbers, Soldi, Obiettivi.
