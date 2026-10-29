@@ -68,6 +68,7 @@ describe("the week's energy (E4 once a week)", () => {
           ...person(2500, () => 76),
           sessions: [
             {
+              id: "s1",
               day: "2026-10-15",
               minutes: 40,
               exercises: [{ pattern: "other", cardio, cardioMin, sets: [] }],

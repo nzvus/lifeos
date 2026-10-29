@@ -125,6 +125,8 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
     fields: [
       { key: "steps", type: "integer", min: 0, max: 100000 },
       { key: "walkingMin", type: "duration", unit: "min", min: 0 },
+      // Hours on one's feet today (energy-day.md §4): a number; the old level stays for old days.
+      { key: "onFeetH", type: "number", unit: "h", min: 0, max: 16 },
       { key: "level", type: "choice", choices: ["sitting", "mixed", "on_feet"] },
     ],
   },

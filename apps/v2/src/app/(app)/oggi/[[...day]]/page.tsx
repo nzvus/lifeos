@@ -32,7 +32,8 @@ import { WeatherCard } from "@/features/day/WeatherCard";
 import { mealGroups } from "@/features/day/meal-groups";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
-import { ensureWeekTargets, mondayOf } from "@/core/energy";
+import { ensureWeekTargets, mondayOf, priceDay, readEnergyRows } from "@/core/energy";
+import { burnText, dayBurnLine, rowBurns } from "@/features/day/burn";
 import {
   planTag,
   cycleWords,
@@ -167,6 +168,39 @@ export default async function OggiPage({
   const series = weighings
     .map((w) => ({ day: w.day, kg: w.n }))
     .sort((a, b) => a.day.localeCompare(b.day));
+  // The day's burn piece by piece (energy-day.md §5): 15 days of rows, for the median hours on feet.
+  const kgNow =
+    weightOn(series, date) ??
+    [...series].reverse().find((w) => w.day <= date)?.kg ??
+    null;
+  const energyRows =
+    date <= today && kgNow !== null
+      ? await readEnergyRows(db, owner, addDays(date, -15), date)
+      : null;
+  const priced =
+    energyRows?.profile && kgNow !== null
+      ? (() => {
+          const p = energyRows.profile;
+          const body = {
+            sex: p.sex,
+            kg: kgNow,
+            heightCm: p.heightCm,
+            age: Number(date.slice(0, 4)) - p.birthYear,
+          };
+          const meals = energyRows.meals.filter((m) => m.day === date);
+          const yesterday = priceDay(energyRows, addDays(date, -1), {
+            body,
+            yesterdayTails: [],
+            eatenKcal: null,
+          });
+          return priceDay(energyRows, date, {
+            body,
+            yesterdayTails: yesterday.sessions.map((x) => x.tail),
+            eatenKcal: meals.length ? meals.reduce((a, m) => a + m.kcal, 0) : null,
+          });
+        })()
+      : null;
+  const burns = priced ? rowBurns(priced) : null;
   const boxes = presentWeek({
     days,
     targets: dayTargets,
@@ -234,8 +268,11 @@ export default async function OggiPage({
     const l0 = mealL0(i, slotOf(i), kinds, weightOn(series, date), micros);
     // A meal of several foods lists them as its window's chips (L2), not again below.
     const d = details(i, { foods: (l0?.foods?.length ?? 0) < 2 });
+    const shown = withCompounds(present(i), i, ctx);
+    const burn = burnText(burns?.get(i.kind.key === "steps" ? "steps" : i.id));
     return {
-      ...withCompounds(present(i), i, ctx),
+      ...shown,
+      ...(burn ? { pills: [...(shown.pills ?? []), { t: burn }] } : {}),
       ...withScore(
         mealScore(
           i,
@@ -401,6 +438,14 @@ export default async function OggiPage({
               </form>
             )}
           </OpenBox>
+          {priced && (
+            <a className="k-line k-plain" href="/andamento">
+              <Glyph of={{ fam: "train" }} size="m" />
+              <span className="k-body">
+                {dayBurnLine(priced, nowMinute === null ? null : nowMinute / 1440)}
+              </span>
+            </a>
+          )}
           {line && (
             <a className="k-line k-plain" href="/andamento/obiettivi">
               <Glyph of={{ fam: "goal" }} size="m" />

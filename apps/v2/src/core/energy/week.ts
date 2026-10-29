@@ -6,11 +6,7 @@
  * in force gives the deficit through its pace (E5) and the density of a
  * change (E4), never over 500 kcal in a recomposition (Murphy & Koehler
  * 2022: larger deficits stop lean gains). Pure: `read.ts` brings the rows.
- *   time on one's feet  the steps entry's level: sitting 2 h, mixed 5 h,
- *                       on one's feet 8 h (v1 ADR-0051's points); 2 h when unsaid
- *   steps               a day's count, 30 % of it in walks (no minute counts yet)
- *   sessions            lifted sets by their exercise's class (`sessionCost`),
- *                       cardio by its MET band over the session's minutes
+ *   each day           priced by day.ts (hours on feet, steps, sessions)
  *   weigh-ins           their reliability from what was said (fasted, toilet,
  *                       training) and the hour; implausible ones at 0.02
  */
@@ -23,29 +19,14 @@ import {
   type BodyDay,
   type WeighIn,
 } from "../engines/body";
-import {
-  activityCost,
-  bmr,
-  CARDIO_MET,
-  CARDIO_MODERATE,
-  classOf,
-  dayPrior,
-  filterInputs,
-  sessionCost,
-  type Range,
-} from "../engines/expenditure";
+import { bmr, filterInputs, type Range } from "../engines/expenditure";
 import { deficitKcal, planPace, type GoalKind } from "../engines/targets";
 import { addDays, localParts, type DayClock, type IsoDate } from "../engines/time";
+import { priceDay } from "./day";
 import type { EnergyRows } from "./read";
 
 export const WINDOW_DAYS = 56;
 export const RECOMP_MAX_DEFICIT = 500;
-const FEET_HOURS: Record<string, number> = { sitting: 2, mixed: 5, on_feet: 8 };
-const WALK_SHARE = 0.3;
-/** A trained person repeating sessions: half the next-day tail of new work. */
-const NOVELTY = 0.5;
-/** Seconds per rep when a set was not timed, for the rest left in a session's minutes. */
-const SECONDS_PER_REP = 4;
 
 export type WeekGoal = {
   kind: GoalKind;
@@ -101,68 +82,12 @@ export function weekEnergy(
   let tails: Range[] = [];
   for (let d = p.from; d <= p.to; d = addDays(d, 1)) {
     const kg = kgOn(d);
-    const b = bmr({ sex: body.sex, kg, heightCm: body.heightCm, age });
     const meals = rows.meals.filter((m) => m.day === d);
     const eaten = meals.length ? meals.reduce((a, m) => a + m.kcal, 0) : null;
-    const step = rows.steps.find((s) => s.day === d);
-    const sessions = rows.sessions
-      .filter((s) => s.day === d)
-      .map((s) => {
-        // An activity is cardio by its catalog kind, not only by a known pattern.
-        const lifted = s.exercises.filter(
-          (e) => !e.cardio && classOf(e.pattern) !== null,
-        );
-        const cardio = s.exercises.filter((e) => e.cardio || classOf(e.pattern) === null);
-        const share =
-          s.minutes && s.exercises.length ? s.minutes / s.exercises.length : 0;
-        const sets = lifted.flatMap((e) =>
-          e.sets.map((x) => ({
-            exercise: e.pattern ?? "",
-            cls: classOf(e.pattern)!,
-            reps: x.reps,
-            kg: x.kg > 0 ? x.kg : kg,
-            rir: x.rir ?? undefined,
-            start: x.start ?? undefined,
-            end: x.end ?? undefined,
-          })),
-        );
-        const work = sets.reduce((a, x) => a + (x.reps * SECONDS_PER_REP) / 60, 0);
-        const liftedMin = share * lifted.length;
-        const cost = sets.length
-          ? sessionCost({
-              sets,
-              bodyKg: kg,
-              bmr: b,
-              restMin: Math.max(0, liftedMin - work),
-              novelty: NOVELTY,
-            })
-          : null;
-        const cardioPrior = cardio.map(
-          (e) =>
-            activityCost(
-              (e.pattern && CARDIO_MET[e.pattern]) || CARDIO_MODERATE,
-              kg,
-              e.cardioMin ?? share,
-            ).prior,
-        );
-        return {
-          prior: [cost?.prior, ...cardioPrior].reduce<Range>(
-            (a, r) => (r ? { low: a.low + r.low, high: a.high + r.high } : a),
-            { low: 0, high: 0 },
-          ),
-          tail: cost?.tail ?? { low: 0, high: 0 },
-        };
-      });
-    const prior = dayPrior({
+    const { prior, sessions } = priceDay(rows, d, {
       body: { sex: body.sex, kg, heightCm: body.heightCm, age },
-      hoursOnFeet: FEET_HOURS[step?.level ?? ""] ?? FEET_HOURS["sitting"]!,
-      steps:
-        step?.steps != null
-          ? { type: "total", steps: step.steps, walkShare: WALK_SHARE }
-          : null,
-      sessions: sessions.map((s) => ({ prior: s.prior })),
       yesterdayTails: tails,
-      intakeKcal: eaten,
+      eatenKcal: eaten,
     });
     tails = sessions.map((s) => s.tail);
     const m = (r: Range | null) => (r ? (r.low + r.high) / 2 : 0);

@@ -75,7 +75,7 @@ export function energyBoxes(
         undefined,
         "La giornata (seduto, in piedi)",
         p.everyday,
-        "dal livello del giorno nei passi · stima",
+        "dalle ore in piedi del giorno (nei passi), o la tua mediana · stima",
       ),
       row(
         "habit",

@@ -13,6 +13,7 @@ import type { Day, DayItem } from "@/core/day";
 import type { Kind } from "@/core/kinds";
 import { present } from "@/features/day/present";
 import type { WeightProgress } from "@/core/goals";
+import { feetLabel } from "@/core/energy/feet";
 import { isoWeekday, localParts } from "@/core/engines/time";
 import {
   nightOf,
@@ -443,12 +444,17 @@ export function stepsTracker(p: {
     rowsNote: "I passi entrano nel consumo del giorno (Energia).",
     rows: [...entries].reverse().map((e) => {
       const level = e.item.values["level"];
+      const feet = Number(e.item.values["onFeetH"]);
       return {
         fam: "habit",
         sub: "steps",
         title: F.Day(e.day),
         value: F.n(e.n, 0),
-        ...(typeof level === "string" && LEVEL[level] ? { meta: LEVEL[level] } : {}),
+        ...(e.item.values["onFeetH"] != null && Number.isFinite(feet)
+          ? { meta: F.num(feet, "h") + " in piedi · " + feetLabel(feet) }
+          : typeof level === "string" && LEVEL[level]
+            ? { meta: LEVEL[level] }
+            : {}),
         href: "/voce/" + e.item.id,
         hrefLabel: "I passi di " + F.day(e.day),
       };

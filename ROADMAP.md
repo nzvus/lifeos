@@ -136,7 +136,12 @@ scanning) are placed in the v2 spec.
    cardio logged after the fact, steps as the phone's total), data repair
    (`dossiers/data-repair.md`: orphan exercises, meals without a role).
    Order: session first in the redesign's boards and code (developer,
-   2026-10-29); urgent gym fixes shipped in #294.
+   2026-10-29); urgent gym fixes shipped in #294. The session's states are
+   on the canvas (board «Sessione — gli stati», 29 Oct). Then energy of the
+   day (`dossiers/energy-day.md`: each session, run and the steps with
+   their burn as a range, the day live, hours on feet instead of three
+   levels; the week's targets unchanged), after the developer's «non vedo
+   il loro consumo calorico».
    - Training dossier, first slices (s173): E6 trend, expected reps,
      learnt and adaptive rests, session length; gym mode with «Inizia» and
      the setup delay, «Automatico» (sets assumed until «Fine»), RIR on the

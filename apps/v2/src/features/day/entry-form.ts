@@ -29,6 +29,7 @@ const STEP: Record<string, number> = {
   weightKg: 0.1,
   bodyFatPct: 0.5,
   walkingMin: 5,
+  onFeetH: 0.5,
 };
 // Steps' «level» is no longer asked (movement.md §4, activity.md §4): old values stay.
 const HIDDEN = new Set(["sleep.bedAt", "sleep.wakeAt", "steps.level"]);
