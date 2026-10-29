@@ -335,7 +335,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         routine,
       }}
       exercises={exercises}
-      catalog={catalog.map((e) => ({ id: e.id, name: e.name }))}
+      catalog={catalog.map((e) => ({ id: e.id, name: e.name, aliases: e.aliases }))}
       actions={{
         tick: tickSet,
         untick: untickSet,

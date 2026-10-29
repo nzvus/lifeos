@@ -185,7 +185,8 @@ export function Gym({
     box: BoxEntry | null;
   };
   exercises: GymExercise[];
-  catalog: { id: string; name: string }[];
+  /** The person's exercises; `aliases`: names merged into one («Unisci»), found too. */
+  catalog: { id: string; name: string; aliases?: string[] }[];
   actions: GymActions;
 }) {
   const [boxOpen, setBoxOpen] = useState(false);
@@ -294,7 +295,9 @@ export function Gym({
     const words = fold(query).split(/\s+/).filter(Boolean);
     if (words.length === 0) return [];
     return catalog
-      .filter((c) => words.every((w) => fold(c.name).includes(w)))
+      .filter((c) =>
+        words.every((w) => fold([c.name, ...(c.aliases ?? [])].join(" ")).includes(w)),
+      )
       .slice(0, 6);
   }, [catalog, query]);
 

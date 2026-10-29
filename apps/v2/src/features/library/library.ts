@@ -15,6 +15,8 @@ export type LibraryRow = {
   name: string;
   /** A food's products, or a saved meal's foods. */
   sub: string;
+  /** Words it is found by and not shown: the names merged into it («Unisci»). */
+  also?: string;
   uses: number;
   /** Field → number: per 100 for a food, per serving for a saved meal. */
   values: Record<string, number>;
@@ -147,7 +149,9 @@ export function listRows(
   const words = fold(query).split(/\s+/).filter(Boolean);
   const byName = (a: LibraryRow, b: LibraryRow) => a.name.localeCompare(b.name, "it");
   return rows
-    .filter((r) => words.every((w) => fold(r.name + " " + r.sub).includes(w)))
+    .filter((r) =>
+      words.every((w) => fold(r.name + " " + r.sub + " " + (r.also ?? "")).includes(w)),
+    )
     .sort((a, b) => {
       if (s === "name") return byName(a, b);
       if (s === "uses") return b.uses - a.uses || byName(a, b);
@@ -257,6 +261,7 @@ export function exerciseRows(
     name: string;
     pattern?: string | null;
     equipment?: string | null;
+    aliases?: readonly string[];
   }[],
   log: ReadonlyMap<string, readonly ExerciseSession[]>,
   dayWords: (day: string) => string,
@@ -270,6 +275,7 @@ export function exerciseRows(
       href: "/libreria/esercizio/" + x.id,
       name: x.name,
       sub: last ? "ultima " + dayWords(last.day) : "mai fatto",
+      ...(x.aliases?.length ? { also: x.aliases.join(" ") } : {}),
       uses: sessions.length,
       values: latest ? { e1rm: latest } : {},
       of: {

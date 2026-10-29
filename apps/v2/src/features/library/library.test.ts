@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { FoodChoice } from "@/core/food/choices";
-import { foodPage, mealPage, foodRows, listRows, recipeRows, sortValue } from "./library";
+import {
+  exerciseRows,
+  foodPage,
+  mealPage,
+  foodRows,
+  listRows,
+  recipeRows,
+  sortValue,
+} from "./library";
 
 const food = (
   key: string,
@@ -174,5 +182,21 @@ describe("the foods by their score", () => {
       "Acqua",
     ]);
     expect(sortValue(rows[0]!, "score")).toBe(12);
+  });
+});
+
+describe("an exercise found by a merged name («Unisci»)", () => {
+  it("«run» finds Corsa, which shows its own name only", () => {
+    const rows = exerciseRows(
+      [
+        { id: "c", name: "Corsa", pattern: "run", aliases: ["Run"] },
+        { id: "p", name: "Panca piana", pattern: "horizontal_press" },
+      ],
+      new Map(),
+      (d) => d,
+    );
+    const found = listRows(rows, "run", "name");
+    expect(found.map((r) => r.name)).toEqual(["Corsa"]);
+    expect(found[0]!.sub).toBe("mai fatto");
   });
 });

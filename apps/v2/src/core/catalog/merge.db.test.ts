@@ -4,6 +4,7 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
+import { readExercises } from "../training";
 import { mergeItems, mergePreview } from "./merge";
 
 describe("«Unisci» (capture.md §4, data-repair R5)", () => {
@@ -67,6 +68,9 @@ describe("«Unisci» (capture.md §4, data-repair R5)", () => {
       await db.select().from(s.catalogItems).where(eq(s.catalogItems.id, run))
     )[0]!;
     expect(gone.archivedAt).not.toBeNull();
+    const list = await readExercises(db, a);
+    expect(list.find((e) => e.id === corsa)?.aliases).toEqual(["Run"]);
+    expect(list.some((e) => e.id === run)).toBe(false);
     expect(gone.deletedAt).toBeNull();
   });
 

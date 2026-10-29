@@ -17,6 +17,7 @@ import {
 import type { LastSet } from "../engines/training";
 import { addDays, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
+import { ALIASES } from "../catalog/merge";
 
 export type ExerciseChoice = {
   id: string;
@@ -31,6 +32,8 @@ export type ExerciseChoice = {
   muscles: string[];
   /** The catalog's kind: strength, bodyweight, cardio (null when not set). */
   kind: string | null;
+  /** The names of exercises merged into it («Unisci»): the searches find it by them. */
+  aliases: string[];
 };
 
 export type RoutineChoice = {
@@ -82,6 +85,7 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
           "setupS",
           "muscleGroups",
           "kind",
+          ALIASES,
         ]),
       ),
     );
@@ -101,6 +105,8 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
         .map((m) => m.trim())
         .filter(Boolean),
       kind: v(i.id, "kind")?.text ?? null,
+      // The names of exercises merged into it («Unisci»): the search finds it by them too.
+      aliases: (v(i.id, ALIASES)?.text ?? "").split("\n").filter(Boolean),
     }))
     .sort((a, b) => a.name.localeCompare(b.name, "it"));
 }
