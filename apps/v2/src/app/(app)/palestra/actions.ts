@@ -6,7 +6,7 @@
  * A set is saved the moment it is ticked.
  */
 import { revalidatePath } from "next/cache";
-import { trashEntry } from "@/core/entries";
+import { setEntryStatus, trashEntry } from "@/core/entries";
 import { redirect } from "next/navigation";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
@@ -18,6 +18,7 @@ import {
   confirmSets,
   finishSession,
   reopenSession,
+  saveRoutineFromSession,
   readExercises,
   readRoutines,
   removeSet,
@@ -161,6 +162,31 @@ export async function finishGym(sessionId: string): Promise<void> {
   await finishSession(db, owner, sessionId, new Date());
   revalidatePath("/oggi", "layout");
   redirect("/oggi");
+}
+
+/** «Salta» an exercise for today, or put it back («Rimetti»); false if not found. */
+export async function skipGymExercise(entryId: string, skip: boolean): Promise<boolean> {
+  if (!UUID.test(entryId)) return false;
+  const before = await setEntryStatus(
+    await getDb(),
+    await requireOwner(),
+    entryId,
+    skip ? "skipped" : "planned",
+  );
+  revalidatePath("/palestra", "layout");
+  return before !== null;
+}
+
+/** «Salva nella routine»: today's exercises and order become the routine's. */
+export async function saveRoutineGym(sessionId: string): Promise<boolean> {
+  if (!UUID.test(sessionId)) return false;
+  const done = await saveRoutineFromSession(
+    await getDb(),
+    await requireOwner(),
+    sessionId,
+  );
+  revalidatePath("/palestra", "layout");
+  return done;
 }
 
 /** «Riprendi»: a finished session in progress again, back in gym mode. */

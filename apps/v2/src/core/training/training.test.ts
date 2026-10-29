@@ -12,9 +12,11 @@ import {
   createExercise,
   finishSession,
   reopenSession,
+  saveRoutineFromSession,
   readExercises,
   readHistory,
   readRoutines,
+  readWeekWork,
   removeSet,
   saveSet,
   startSession,
@@ -248,6 +250,46 @@ describe("a session in gym mode", () => {
     expect([...day.timed, ...day.untimed].map((i) => i.kind.key)).not.toContain(
       "session_exercise",
     );
+  });
+
+  it("counts the week's working sets per exercise, for «cosa aggiungere»", async () => {
+    const week = await readWeekWork(db, a, "2026-10-19");
+    expect(week.find((w) => w.exerciseId === bench)?.sets).toBe(1);
+    // A week later the bench is still known (28 days), with no sets this week.
+    expect(
+      (await readWeekWork(db, a, "2026-10-26")).find((w) => w.exerciseId === bench),
+    ).toEqual({
+      exerciseId: bench,
+      sets: 0,
+    });
+    expect(await readWeekWork(db, b, "2026-10-19")).toEqual([]);
+  });
+
+  it("«Salva nella routine»: today's exercises, in today's order, become the routine's", async () => {
+    const order = async () =>
+      (await readRoutines(db, a, "2026-10-20", await readExercises(db, a)))
+        .find((r) => r.id === push)!
+        .exercises.map((e) => e.exerciseId);
+    const today = await startSession(db, a, {
+      day: "2026-10-20",
+      startAt: new Date("2026-10-20T16:00:00Z"),
+      routineId: push,
+      exerciseIds: [curl, bench],
+    });
+    expect(await saveRoutineFromSession(db, b, today)).toBe(false);
+    expect(await saveRoutineFromSession(db, a, today)).toBe(true);
+    expect(await order()).toEqual([curl, bench]);
+    // Back as it was, for the tests after this one.
+    const again = await startSession(db, a, {
+      day: "2026-10-20",
+      startAt: new Date("2026-10-20T18:00:00Z"),
+      routineId: push,
+      exerciseIds: [bench, curl],
+    });
+    await saveRoutineFromSession(db, a, again);
+    expect(await order()).toEqual([bench, curl]);
+    await trashEntry(db, a, today);
+    await trashEntry(db, a, again);
   });
 
   it("gives each exercise its last two sessions, leaving out the one being trained", async () => {

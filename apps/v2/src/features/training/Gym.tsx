@@ -24,9 +24,19 @@ import type { ProposedSet } from "@/core/training/plan";
 import type { SetInput } from "@/core/training/write";
 import { ExerciseSettings } from "./ExerciseSettings";
 import { FinishSheet } from "./FinishSheet";
+import { GymClock } from "./GymClock";
+import { NextList } from "./NextList";
 import { restPill, setText, strengthPill, timed, vsProposedText } from "./present";
 import { SetForm } from "./SetForm";
-import { ContextPills, planText, workDone } from "./gym-parts";
+import {
+  ContextPills,
+  recallSet,
+  rememberSet,
+  restAfterLast,
+  UndoToast,
+  WarmupRows,
+  workDone,
+} from "./gym-parts";
 
 export type DoneSet = {
   position: number;
@@ -40,6 +50,8 @@ export type DoneSet = {
   assumed: boolean;
   /** The rest measured before it, in seconds, when both sets were timed. */
   restBeforeS: number | null;
+  /** When it ended (epoch ms): a reload resumes the rest after the last set. */
+  endedAt: number | null;
 };
 export type GymExercise = {
   entryId: string;
@@ -52,6 +64,10 @@ export type GymExercise = {
   /** Its load is typed per dumbbell unless switched off. */
   dumbbells: boolean;
   proposed: ProposedSet[];
+  /** Skipped for today («Salta» in «Poi»). */
+  skipped: boolean;
+  /** The warm-up sets proposed before the first work set (session.md §5.1), lightest first. */
+  warmups: { reps: number; loadKg: string }[];
   last: string;
   /** The last session's best e1RM of this exercise, for «forza stimata». */
   lastE1rm: number | null;
@@ -80,6 +96,10 @@ export type GymActions = {
   untick: (entryId: string, position: number) => Promise<boolean>;
   add: (sessionId: string, exerciseId: string) => Promise<boolean>;
   finish: (sessionId: string) => Promise<void>;
+  /** «Salta» an exercise for today (true), or put it back (false). */
+  skip: (exerciseEntryId: string, skip: boolean) => Promise<boolean>;
+  /** «Salva nella routine»: today's exercises and order become the routine's. */
+  saveRoutine: (sessionId: string) => Promise<boolean>;
   /** «Riprendi»: a finished session in progress again. */
   reopen: (sessionId: string) => Promise<void>;
   /** «Elimina la sessione»: to the trash. */
@@ -92,7 +112,7 @@ export type GymActions = {
   ) => Promise<boolean>;
 };
 
-type Phase =
+export type Phase =
   | { kind: "idle" }
   | { kind: "setup"; from: number; seconds: number }
   | { kind: "set"; from: number; seconds: number | null }
@@ -152,6 +172,10 @@ export function Gym({
     before: string;
     /** In progress: what came before, as pills under the exercise. */
     beforePills: { t: string; state: State }[];
+    /** «Cosa aggiungere» lines for the end summary (session.md §5.4). */
+    toAdd: string[];
+    /** The routine when today's exercises or order differ from it: offered to save. */
+    routine: { name: string } | null;
     /** The session so far: minutes, score, muscle split (the board); null before the first set. */
     box: BoxEntry | null;
   };
@@ -161,7 +185,7 @@ export function Gym({
 }) {
   const [boxOpen, setBoxOpen] = useState(false);
   const firstOpen = exercises.findIndex(
-    (x) => workDone(x) < Math.max(1, x.proposed.length),
+    (x) => !x.skipped && workDone(x) < Math.max(1, x.proposed.length),
   );
   const [at, setAt] = useState(firstOpen === -1 ? 0 : firstOpen);
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
@@ -171,10 +195,21 @@ export function Gym({
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // «Serie salvata · Annulla» (interaction.md §3, undoable): 5 s to take the set back.
+  const [undo, setUndo] = useState<{
+    entryId: string;
+    position: number;
+    text: string;
+  } | null>(null);
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  // «Saltato · Alzate laterali · Annulla»: the skip taken back.
+  const [skipped, setSkipped] = useState<{ entryId: string; text: string } | null>(null);
   // «Finisci…» opens the summary; the session ends only from there.
   const [ending, setEnding] = useState(false);
   // «Correggi»: a done set taken back, its values in the steppers to type again.
   const [fix, setFix] = useState<DoneSet | null>(null);
+  // Exercises whose proposed warm-ups the person skipped («Salta il riscaldamento»).
+  const [noWarm, setNoWarm] = useState<ReadonlySet<string>>(new Set());
   // What the steppers hold now: auto mode saves it when the set's clock ends.
   const values = useRef<SetInput | null>(null);
   const setStart = useRef<number | null>(null);
@@ -213,6 +248,29 @@ export function Gym({
     };
   }, [session.done]);
 
+  // A set's clock: kept on the phone too, so a reload or a killed tab resumes it.
+  const startClock = (from: number) => {
+    setStart.current = from;
+    if (x) rememberSet(session.id, { entryId: x.entryId, from });
+  };
+  // On opening: a set begun before a reload goes on; else the rest after the last saved set.
+  useEffect(() => {
+    if (session.done) return;
+    const begun = recallSet(session.id);
+    const cur = exercises[at];
+    if (begun && cur && begun.entryId === cur.entryId) {
+      const seconds = cur.setS ?? 120;
+      if (Date.now() - begun.from < 3 * seconds * 1000) {
+        setStart.current = begun.from;
+        setPhase({ kind: "set", from: begun.from, seconds: cur.setS });
+        return;
+      }
+    }
+    const rest = restAfterLast(exercises, session);
+    if (rest) setPhase({ kind: "rest", ...rest });
+    // Once, on opening: later phases come from the person's taps.
+  }, []);
+
   // Another exercise: a correction left open belongs to the one being left.
   const goTo = (i: number) => {
     setFix(null);
@@ -234,6 +292,7 @@ export function Gym({
     setError(null);
     const startedAt = setStart.current;
     setStart.current = null;
+    rememberSet(session.id, null);
     try {
       // A corrected set goes back to its own place; a new one after the last.
       const position =
@@ -251,7 +310,8 @@ export function Gym({
       const finished = !input.warmup && workDone(x) + 1 >= x.proposed.length;
       const next = finished
         ? exercises.findIndex(
-            (e, i) => i > at && workDone(e) < Math.max(1, e.proposed.length),
+            (e, i) =>
+              i > at && !e.skipped && workDone(e) < Math.max(1, e.proposed.length),
           )
         : at;
       const rest = input.warmup
@@ -259,6 +319,16 @@ export function Gym({
         : finished
           ? { seconds: session.transitionS, words: "cambio esercizio · tua media" }
           : { seconds: x.restS, words: x.restWords };
+      if (!opts.assumed) {
+        clearTimeout(undoTimer.current);
+        setUndo({
+          entryId: x.entryId,
+          position,
+          text:
+            (input.warmup ? "Riscaldamento salvato" : "Serie salvata") + " · " + x.name,
+        });
+        undoTimer.current = setTimeout(() => setUndo(null), 5000);
+      }
       if (finished && next === -1) {
         setAuto(false);
         setPhase({ kind: "idle" });
@@ -294,7 +364,7 @@ export function Gym({
   useEffect(() => {
     if (phase.kind === "setup" && elapsedPhase >= phase.seconds) {
       signal();
-      setStart.current = Date.now();
+      startClock(Date.now());
       setPhase({ kind: "set", from: Date.now(), seconds: x?.setS ?? null });
     } else if (
       auto &&
@@ -309,7 +379,7 @@ export function Gym({
     } else if (phase.kind === "rest" && elapsedPhase >= phase.seconds) {
       if (auto && x) {
         signal();
-        setStart.current = Date.now();
+        startClock(Date.now());
         setPhase({ kind: "set", from: Date.now(), seconds: x.setS });
       } else if (elapsedPhase < phase.seconds + 0.6) signal();
     }
@@ -320,7 +390,7 @@ export function Gym({
     if (!x) return;
     if (x.setupS > 0) setPhase({ kind: "setup", from: Date.now(), seconds: x.setupS });
     else {
-      setStart.current = Date.now();
+      startClock(Date.now());
       setPhase({ kind: "set", from: Date.now(), seconds: x.setS });
     }
   };
@@ -332,7 +402,7 @@ export function Gym({
     setAuto(true);
     // In auto mode no setup delay: the set's clock starts now unless a rest is running.
     if (phase.kind !== "rest" && x) {
-      setStart.current = Date.now();
+      startClock(Date.now());
       setPhase({ kind: "set", from: Date.now(), seconds: x.setS });
     }
   };
@@ -341,35 +411,6 @@ export function Gym({
     session.startedAt && now !== null && !session.done
       ? (now - session.startedAt) / 1000
       : null;
-  const big =
-    phase.kind === "rest"
-      ? phase.seconds - elapsedPhase
-      : phase.kind === "setup"
-        ? phase.seconds - elapsedPhase
-        : phase.kind === "set"
-          ? elapsedPhase
-          : sessionElapsed;
-  const over = phase.kind === "rest" && elapsedPhase > phase.seconds;
-  const help =
-    phase.kind === "rest"
-      ? over
-        ? "recupero finito da " + clock(elapsedPhase - phase.seconds)
-        : "recupero " + clock(phase.seconds) + " · " + phase.words
-      : phase.kind === "setup"
-        ? "mettiti in posizione"
-        : phase.kind === "set"
-          ? side === 1
-            ? "lato 1 · " + clock(x!.sideS!)
-            : side === 0
-              ? "cambia lato"
-              : side === 2
-                ? "lato 2 · " + clock(x!.sideS!)
-                : "in serie" +
-                  (phase.seconds !== null ? " · prevista " + clock(phase.seconds) : "")
-          : session.done
-            ? "allenamento finito"
-            : "dall’inizio" +
-              (session.leftMin ? " · ne restano circa " + F.hm(session.leftMin) : "");
   const working = x ? workDone(x) : 0;
   // The board's line under the title: where you are and what is done so far.
   const allWork = exercises.flatMap((e) => e.done.filter((d) => !d.warmup));
@@ -389,36 +430,15 @@ export function Gym({
     (tonnage > 0 ? " · " + F.num(tonnage, "kg") + " in totale" : "");
   const lastSet = x ? working >= x.proposed.length - 1 : false;
 
-  // The state box (the developer's pick, 2026-10-25: «una cosa alla volta»): what the clock is.
-  const stateLabel =
-    phase.kind === "rest"
-      ? over
-        ? "Riposo finito"
-        : "Riposo"
-      : phase.kind === "setup"
-        ? "Preparati"
-        : phase.kind === "set"
-          ? "Serie in corso"
-          : session.startedAt
-            ? "Pronto per la serie"
-            : "Prima di iniziare";
-  const stateTone =
-    phase.kind === "rest"
-      ? "rest"
-      : phase.kind === "set"
-        ? "set"
-        : phase.kind === "setup"
-          ? "setup"
-          : "idle";
-  const share =
-    (phase.kind === "rest" || phase.kind === "setup" || phase.kind === "set") &&
-    phase.seconds
-      ? Math.min(1, elapsedPhase / phase.seconds)
-      : null;
   // Every set of the exercise as a row: done, now, still to come (the target's values).
   const slots = x ? Math.max(x.proposed.length, working + 1) : 0;
   const workSets = x ? x.done.filter((d) => !d.warmup) : [];
   const warmups = x ? x.done.filter((d) => d.warmup) : [];
+  // The proposed warm-ups still to do: before the first work set, unless skipped.
+  const warmNext =
+    x && !session.done && !fix && workSets.length === 0 && !noWarm.has(x.entryId)
+      ? x.warmups.slice(warmups.length).map((w) => ({ ...w, durationS: null }))
+      : [];
   const target = x?.proposed[0]
     ? x.proposed.length +
       " × " +
@@ -490,26 +510,16 @@ export function Gym({
             {x.last && <span className="k-help">{x.last}</span>}
           </div>
           <ol className="k-gsets" aria-label="Le serie">
-            {warmups.map((d) => (
-              <li key={"w" + d.position} className="done warm">
-                <span className="n">R</span>
-                <b>{setText(d)}</b>
-                <em>riscaldamento</em>
-                {!session.done && (
-                  <button
-                    type="button"
-                    className="k-btn act"
-                    aria-label="Togli il riscaldamento"
-                    onClick={() => void actions.untick(x.entryId, d.position)}
-                  >
-                    Togli
-                  </button>
-                )}
-              </li>
-            ))}
+            <WarmupRows
+              done={warmups}
+              next={warmNext}
+              live={!session.done}
+              onRemove={(d) => void actions.untick(x.entryId, d.position)}
+              onSkip={() => setNoWarm(new Set([...noWarm, x.entryId]))}
+            />
             {Array.from({ length: slots }, (_, k) => {
               const d = workSets[k];
-              const isNow = !d && k === working && !session.done;
+              const isNow = !d && k === working && !session.done && warmNext.length === 0;
               const plan = x.proposed[k];
               const vs = d ? vsProposedText(d, plan) : "";
               const meta = d
@@ -557,45 +567,35 @@ export function Gym({
             </p>
           )}
           {!session.done && (
-            <div className={"k-gstate " + stateTone} role="timer" aria-live="off">
-              <span className="lab">{stateLabel}</span>
-              <span className="clk">
-                {over
-                  ? "+" +
-                    clock(elapsedPhase - (phase.kind === "rest" ? phase.seconds : 0))
-                  : big === null
-                    ? "–"
-                    : clock(big)}
-                {(phase.kind === "rest" || phase.kind === "setup") && !over && (
-                  <small> di {clock(phase.seconds)}</small>
-                )}
-              </span>
-              {share !== null && (
-                <span className="bar">
-                  <i style={{ width: Math.round(share * 100) + "%" }} />
-                </span>
-              )}
-              <span className="k-help">{help}</span>
-              {phase.kind !== "idle" && !auto && (
-                <button
-                  type="button"
-                  className="k-btn secondary"
-                  onClick={() => setPhase({ kind: "idle" })}
-                >
-                  Ferma il tempo
-                </button>
-              )}
-            </div>
+            <GymClock
+              phase={phase}
+              elapsed={elapsedPhase}
+              sessionElapsed={sessionElapsed}
+              side={side}
+              sideS={x.sideS}
+              started={session.startedAt !== null}
+              leftMin={session.leftMin}
+              auto={auto}
+              onStop={() => setPhase({ kind: "idle" })}
+            />
           )}
           {/* A finished session is read, not trained: no set to type. */}
           {!session.done && (
             <SetForm
-              key={x.entryId + ":" + x.done.length + (fix ? ":fix" : "")}
+              key={
+                x.entryId +
+                ":" +
+                x.done.length +
+                (fix ? ":fix" : "") +
+                (warmNext.length ? ":w" + warmNext.length : "")
+              }
               timed={timed(x.pattern)}
               dumbbells={x.dumbbells}
-              askRir={lastSet && !auto}
+              askRir={lastSet && !auto && warmNext.length === 0}
+              warmup={warmNext.length > 0}
               start={
                 fix ??
+                warmNext[0] ??
                 x.proposed[working] ??
                 x.done.filter((d) => !d.warmup).at(-1) ??
                 x.proposed[0] ??
@@ -667,56 +667,27 @@ export function Gym({
         </section>
       )}
 
-      <section className="k-section g2" aria-label="Poi">
-        <h2>Poi</h2>
-        {others.map(({ e, i }) => (
-          <button
-            key={e.entryId}
-            type="button"
-            className="k-pick"
-            onClick={() => goTo(i)}
-          >
-            <Box
-              density="row"
-              rail={false}
-              entry={{
-                fam: "train",
-                of: e.of,
-                title: e.name,
-                meta: planText(e),
-                value: "›",
-              }}
-            />
-          </button>
-        ))}
-        {!session.done && (
-          <input
-            className="k-text"
-            type="search"
-            placeholder="Aggiungi esercizio"
-            aria-label="Aggiungi esercizio"
-            value={query}
-            onChange={(ev) => setQuery(ev.target.value)}
-          />
-        )}
-        {found.map((c) => (
-          <button
-            key={c.id}
-            type="button"
-            className="k-pick"
-            onClick={async () => {
-              setQuery("");
-              if (await actions.add(session.id, c.id)) goTo(exercises.length);
-            }}
-          >
-            <Box
-              density="row"
-              rail={false}
-              entry={{ fam: "train", title: c.name, value: "+" }}
-            />
-          </button>
-        ))}
-      </section>
+      <NextList
+        others={others}
+        live={!session.done}
+        query={query}
+        found={found}
+        onQuery={setQuery}
+        onGo={goTo}
+        onSkip={async (e, skip) => {
+          if (!(await actions.skip(e.entryId, skip))) return;
+          clearTimeout(undoTimer.current);
+          if (skip) {
+            setUndo(null);
+            setSkipped({ entryId: e.entryId, text: "Saltato · " + e.name });
+            undoTimer.current = setTimeout(() => setSkipped(null), 5000);
+          }
+        }}
+        onAdd={async (id) => {
+          setQuery("");
+          if (await actions.add(session.id, id)) goTo(exercises.length);
+        }}
+      />
 
       {(session.box || session.before) && (
         <section className="k-section g2" aria-label="La sessione">
@@ -778,12 +749,35 @@ export function Gym({
       {ending && !session.done && (
         <FinishSheet
           exercises={exercises}
+          toAdd={session.toAdd}
+          routine={session.routine}
+          onSaveRoutine={() => actions.saveRoutine(session.id)}
           minutes={sessionElapsed !== null ? Math.round(sessionElapsed / 60) : null}
           busy={busy}
           onBack={() => setEnding(false)}
           onFinish={async () => {
             setBusy(true);
             await actions.finish(session.id);
+          }}
+        />
+      )}
+      {skipped && (
+        <UndoToast
+          text={skipped.text}
+          onUndo={async () => {
+            const k = skipped;
+            setSkipped(null);
+            await actions.skip(k.entryId, false);
+          }}
+        />
+      )}
+      {undo && (
+        <UndoToast
+          text={undo.text}
+          onUndo={async () => {
+            const u = undo;
+            setUndo(null);
+            if (await actions.untick(u.entryId, u.position)) setPhase({ kind: "idle" });
           }}
         />
       )}

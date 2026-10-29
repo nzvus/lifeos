@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { DayItem } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
-import { present } from "./present";
+import { isRunning, present } from "./present";
 
 const reg = kindRegistry();
 const item = (kind: string, over: Partial<DayItem> = {}): DayItem => ({
@@ -151,9 +151,18 @@ describe("a day item as a Box", () => {
     expect(b.pills).toEqual([{ t: "3 serie" }, { t: "1.140" + "\u00a0" + "kg" }]);
   });
 
-  it("a session: its length and the drawings of its exercises, in order", () => {
+  it("a session: its length and the drawings of the exercises done, in order", () => {
+    const one = {
+      reps: 8,
+      loadKg: null,
+      warmup: false,
+      done: true,
+    } as DayItem["sets"][number];
     const ex = (name: string, pattern: string) =>
-      item("session_exercise", { item: { id: name, name, drawing: { pattern } } });
+      item("session_exercise", {
+        item: { id: name, name, drawing: { pattern } },
+        sets: [one],
+      });
     const b = present(
       item("session", {
         values: { durationMin: "62.0000", label: "Push" },
@@ -245,5 +254,40 @@ describe("a kind of the person's own on Oggi", () => {
     expect(e.title).toBe("Mal di testa");
     expect(e.value).toBe("250 ml");
     expect(e.meta).toBe("Intensità 3/5 · Farmaco sì");
+  });
+});
+
+describe("a session on Oggi (session.md §6)", () => {
+  const ex = (name: string, sets: number) =>
+    item("session_exercise", {
+      id: name,
+      item: { id: name, name, drawing: {} } as unknown as DayItem["item"],
+      sets: Array.from({ length: sets }, (_, k) => ({
+        position: k,
+        reps: 10,
+        loadKg: "50.00",
+        rir: null,
+        durationS: null,
+        warmup: false,
+        side: null,
+        done: true,
+        startedAt: null,
+        endedAt: null,
+      })) as unknown as DayItem["sets"],
+    });
+  it("begun and not finished: in progress, only the exercises with sets", () => {
+    const s = item("session", {
+      status: "planned",
+      children: [ex("Lat pulldown", 2), ex("Pulley row", 0), ex("Preacher curl", 0)],
+    });
+    expect(isRunning(s)).toBe(true);
+    const box = present(s);
+    expect(box.pills?.map((p) => p.t)).toContain("in corso");
+    expect(box.members?.map((m) => m.title)).toEqual(["Lat pulldown"]);
+  });
+  it("planned and not begun: not in progress, no strip of planned exercises", () => {
+    const s = item("session", { status: "planned", children: [ex("Lat pulldown", 0)] });
+    expect(isRunning(s)).toBe(false);
+    expect(present(s).members).toEqual([]);
   });
 });

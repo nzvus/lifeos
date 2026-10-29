@@ -14,6 +14,7 @@ import { and, count, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
 import {
   catalogItems,
+  catalogParts,
   catalogValues,
   entries,
   entryValues,
@@ -501,5 +502,75 @@ export async function createExercise(
         { userId: owner.id, itemId: id, field: "unilateral", bool: e.unilateral },
       ]);
     return { id };
+  });
+}
+
+/**
+ * «Salva nella routine» (flows.md:59; session.md §5.2): the session's
+ * exercises, in today's order, become its routine's — the ones added today
+ * join, each keeps the defaults it had in the routine. A session is not a
+ * routine edit: this happens only when asked. False with no routine.
+ */
+export async function saveRoutineFromSession(
+  db: Db,
+  owner: Owner,
+  sessionId: string,
+): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    const [s] = await tx
+      .select({ itemId: entries.itemId })
+      .from(entries)
+      .where(
+        and(
+          ownedBy(entries, owner),
+          eq(entries.id, sessionId),
+          eq(entries.kind, "session"),
+          isNull(entries.deletedAt),
+        ),
+      );
+    const routine = s?.itemId;
+    if (!routine) return false;
+    const kids = await tx
+      .select({ id: entries.id, itemId: entries.itemId, position: entryValues.num })
+      .from(entries)
+      .leftJoin(
+        entryValues,
+        and(eq(entryValues.entryId, entries.id), eq(entryValues.field, "position")),
+      )
+      .where(
+        and(
+          ownedBy(entries, owner),
+          eq(entries.parentId, sessionId),
+          isNull(entries.deletedAt),
+        ),
+      );
+    const order = [
+      ...new Set(
+        kids
+          .sort((a, b) => Number(a.position ?? 0) - Number(b.position ?? 0))
+          .flatMap((k) => (k.itemId ? [k.itemId] : [])),
+      ),
+    ];
+    if (order.length === 0) return false;
+    const before = await tx
+      .select()
+      .from(catalogParts)
+      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, routine)));
+    const kept = new Map(before.map((p) => [p.partItemId, p]));
+    await tx
+      .delete(catalogParts)
+      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, routine)));
+    await tx.insert(catalogParts).values(
+      order.map((partItemId, position) => ({
+        userId: owner.id,
+        itemId: routine,
+        position,
+        partItemId,
+        quantity: kept.get(partItemId)?.quantity ?? null,
+        unit: kept.get(partItemId)?.unit ?? null,
+        defaults: kept.get(partItemId)?.defaults ?? {},
+      })),
+    );
+    return true;
   });
 }

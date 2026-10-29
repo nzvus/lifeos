@@ -36,6 +36,29 @@ export function weeklySets(
   return out;
 }
 
+/**
+ * What to add (session.md §5.4): the muscles the person trains (the primary
+ * group of an exercise they used) whose weekly sets are under the band,
+ * most missing first, each with one of their own exercises for it — never a
+ * catalog they do not use. At most `max`.
+ */
+export function missingVolume(
+  week: ReadonlyMap<string, number>,
+  used: readonly { id: string; name: string; muscles: readonly string[] }[],
+  max = 2,
+): { muscle: string; sets: number; exercise: { id: string; name: string } }[] {
+  const byMuscle = new Map<string, { id: string; name: string }>();
+  for (const e of used) {
+    const m = e.muscles[0];
+    if (m && !byMuscle.has(m)) byMuscle.set(m, { id: e.id, name: e.name });
+  }
+  return [...byMuscle]
+    .map(([muscle, exercise]) => ({ muscle, sets: week.get(muscle) ?? 0, exercise }))
+    .filter((x) => x.sets < VOLUME_BAND.low)
+    .sort((a, b) => a.sets - b.sets || a.muscle.localeCompare(b.muscle))
+    .slice(0, max);
+}
+
 export type VolumeState = "under" | "in" | "over";
 export function volumeState(sets: number): VolumeState {
   return sets < VOLUME_BAND.low ? "under" : sets > VOLUME_BAND.high ? "over" : "in";

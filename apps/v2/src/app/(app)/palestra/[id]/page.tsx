@@ -14,11 +14,26 @@ import { getDb } from "@/app/_server/runtime";
 import { readEntryWithDays } from "@/core/entries";
 import { localParts, logicalDay } from "@/core/engines/time";
 import { score, SESSION } from "@/core/engines/judgements";
-import { learnTiming, sessionParts, sessionSeconds } from "@/core/engines/training";
+import {
+  DEFAULT_RAMP,
+  dumbbellStep,
+  learnRamp,
+  learnTiming,
+  loadStep,
+  missingVolume,
+  opensGroup,
+  REST_FLOOR,
+  sessionParts,
+  sessionSeconds,
+  warmupSets,
+  weeklySets,
+} from "@/core/engines/training";
 import {
   adviseExercise,
   readExercises,
   readTrainingHistory,
+  readWeekWork,
+  readRoutines,
   readCreatineLines,
   sessionContext,
 } from "@/core/training";
@@ -28,6 +43,7 @@ import {
   contextText,
   bestE1rm,
   lastTimeText,
+  MUSCLE_WORDS,
   muscleSplit,
   sessionBox,
   restSourceText,
@@ -39,6 +55,8 @@ import {
   exerciseSettingsGym,
   finishGym,
   reopenGym,
+  skipGymExercise,
+  saveRoutineGym,
   removeGym,
   readinessGym,
   tickSet,
@@ -64,11 +82,54 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
   const byId = new Map(catalog.map((e) => [e.id, e]));
   const ids = session.children.flatMap((c) => (c.item ? [c.item.id] : []));
   const today = logicalDay(new Date(), clock);
-  const history = await readTrainingHistory(db, owner, ids, id, session.day);
+  const [history, week, routines] = await Promise.all([
+    readTrainingHistory(db, owner, ids, id, session.day),
+    readWeekWork(db, owner, session.day),
+    session.item ? readRoutines(db, owner, session.day, catalog) : Promise.resolve([]),
+  ]);
+  // «Salva nella routine» only when today's exercises or order differ from it.
+  const own = routines.find((r) => r.id === session.item?.id);
+  const routine =
+    own && own.exercises.map((e) => e.exerciseId).join() !== ids.join()
+      ? { name: own.name }
+      : null;
+  // «Cosa aggiungere» (session.md §5.4): muscles under 10 weekly sets, with an exercise of theirs.
+  const usedThisMonth = week.flatMap((w) => {
+    const e = byId.get(w.exerciseId);
+    return e ? [e] : [];
+  });
+  const toAdd = missingVolume(
+    weeklySets(
+      week.flatMap((w) =>
+        Array.from({ length: w.sets }, () => ({ exercise: w.exerciseId })),
+      ),
+      new Map(
+        usedThisMonth.map((e) => [
+          e.id,
+          { direct: e.muscles.slice(0, 1), indirect: e.muscles.slice(1) },
+        ]),
+      ),
+    ),
+    usedThisMonth,
+  ).map(
+    (x) =>
+      (MUSCLE_WORDS[x.muscle] ?? x.muscle) +
+      ": " +
+      F.plural(x.sets, "serie", "serie") +
+      " in 7 giorni · " +
+      x.exercise.name,
+  );
   const timing = learnTiming(history.sessions);
   const readiness = Number(session.values["readiness"] ?? 0) || null;
   const tired = readiness !== null && readiness <= 2;
   const scored: Parameters<typeof sessionParts>[0][number][] = [];
+  // The person's own warm-up ramp from these exercises' past sessions, else the default.
+  const ramp =
+    learnRamp([...history.byExercise.values()].flat().map((h) => h.sets)) ?? DEFAULT_RAMP;
+  // Muscles already trained today (sets done): which groups are open, the heaviest loads.
+  const musclesOf = (itemId: string | undefined) =>
+    (itemId ? byId.get(itemId)?.muscles : undefined) ?? [];
+  const startedGroups = session.children.filter((c) => c.sets.some((s) => !s.warmup));
   const exercises: GymExercise[] = session.children.map((c) => {
     const e = c.item ? byId.get(c.item.id) : undefined;
     const p = e?.pattern ?? null;
@@ -86,6 +147,25 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
     const proposed =
       tired && a.proposed.length > 1 ? a.proposed.slice(0, -1) : a.proposed;
     const last = h.at(-1);
+    // Warm-ups (session.md §5.1): only before the first work set of this exercise.
+    const muscles = musclesOf(c.item?.id);
+    const others = startedGroups.filter((o) => o.id !== c.id);
+    const workKg = proposed[0]?.loadKg != null ? Number(proposed[0].loadKg) : null;
+    const heaviest = others
+      .filter((o) => musclesOf(o.item?.id).some((m) => muscles.includes(m)))
+      .flatMap((o) => o.sets.filter((t) => !t.warmup).map((t) => Number(t.loadKg ?? 0)));
+    const warmups = c.sets.some((t) => !t.warmup)
+      ? []
+      : warmupSets({
+          workKg,
+          step: workKg === null ? 1 : dumbbells ? dumbbellStep(workKg) : loadStep(workKg),
+          ramp,
+          opens: opensGroup(
+            muscles[0] ?? null,
+            new Set(others.map((o) => musclesOf(o.item?.id)[0] ?? "")),
+          ),
+          heaviestToday: heaviest.length ? Math.max(...heaviest) : null,
+        }).map((w) => ({ reps: w.reps, loadKg: String(w.loadKg) }));
     // This session's measured rests between working sets (not from one side to the other).
     const work = c.sets.filter((s) => !s.warmup);
     const rests = work.slice(1).flatMap((s, i) => {
@@ -119,6 +199,8 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       unilateral: e?.unilateral ?? false,
       dumbbells,
       proposed,
+      skipped: c.status === "skipped",
+      warmups,
       last: last ? lastTimeText(last.day, last.sets) : "",
       lastE1rm: last ? bestE1rm(last.sets) : null,
       trend: trendText(a.trend),
@@ -148,6 +230,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
           loadEntry: s.loadEntry,
           assumed: !s.done,
           restBeforeS: rest !== null && rest >= 0 && rest < 1800 ? rest : null,
+          endedAt: s.endedAt?.getTime() ?? null,
         };
       }),
     };
@@ -237,12 +320,17 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         done,
         readiness,
         leftMin: done ? null : Math.round(leftS / 60),
-        warmupRestS: Math.round(Math.min(60, Math.max(30, timing.warmupRestS))),
+        // The person's rest after a warm-up set (59 s in the export of 29 Oct), at least the floor.
+        warmupRestS: Math.round(
+          Math.min(120, Math.max(REST_FLOOR.warmup, timing.warmupRestS)),
+        ),
         transitionS: Math.round(timing.transitionS),
         before,
         beforePills,
         box,
         dayHref: session.day === today ? "/oggi" : "/oggi/" + session.day,
+        toAdd,
+        routine,
       }}
       exercises={exercises}
       catalog={catalog.map((e) => ({ id: e.id, name: e.name }))}
@@ -252,6 +340,8 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         add: addGymExercise,
         finish: finishGym,
         reopen: reopenGym,
+        skip: skipGymExercise,
+        saveRoutine: saveRoutineGym,
         remove: removeGym.bind(null, session.day),
         readiness: readinessGym,
         settings: exerciseSettingsGym,

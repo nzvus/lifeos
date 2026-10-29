@@ -75,7 +75,7 @@ import {
   type CompoundContext,
 } from "@/features/day/compounds";
 import { details, hasDetails } from "@/features/day/details";
-import { present } from "@/features/day/present";
+import { isRunning, present } from "@/features/day/present";
 import { DayView } from "@/features/day/DayView";
 import {
   addWater,
@@ -253,6 +253,8 @@ export default async function OggiPage({
       details: hasDetails(d) ? d : null,
       id: i.id,
       status: i.status,
+      running: isRunning(i),
+      session: i.kind.key === "session",
     };
   };
   const night = nightOf(items);

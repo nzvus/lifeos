@@ -34,7 +34,14 @@ export function EntryRow({
   onIntent,
 }: {
   /** `l0`: a meal's thin macro bars (the boards' L0); `details`: what the open box shows. */
-  entry: BoxEntry & { l0?: NutrientsData | null; details?: Details | null };
+  entry: BoxEntry & {
+    l0?: NutrientsData | null;
+    details?: Details | null;
+    /** A session in progress: «Riprendi» instead of «Fatto» and «Salta». */
+    running?: boolean;
+    /** A session: begun in gym mode («Inizia»), never ticked done with no set. */
+    session?: boolean;
+  };
   status: Status;
   density?: "card" | "row";
   rail?: boolean;
@@ -72,28 +79,49 @@ export function EntryRow({
   };
 
   const acts: BoxAct[] =
-    status === "planned"
+    status === "planned" && entry.running && entry.href
       ? [
           {
-            label: "Fatto",
-            aria: entry.title + ": segna fatto",
-            onClick: () => onIntent("done"),
-          },
-          {
-            label: "Salta",
-            aria: entry.title + ": salta",
-            onClick: () => onIntent("skipped"),
+            label: "Riprendi",
+            aria: entry.title + ": riprendi in palestra",
+            onClick: () => window.location.assign(entry.href!),
           },
         ]
-      : status === "skipped"
+      : status === "planned" && entry.session && entry.href
         ? [
             {
-              label: "Ripristina",
-              aria: entry.title + ": rimetti tra i previsti",
-              onClick: () => onIntent("planned"),
+              label: "Inizia",
+              aria: entry.title + ": inizia in palestra",
+              onClick: () => window.location.assign(entry.href!),
+            },
+            {
+              label: "Salta",
+              aria: entry.title + ": salta",
+              onClick: () => onIntent("skipped"),
             },
           ]
-        : [];
+        : status === "planned"
+          ? [
+              {
+                label: "Fatto",
+                aria: entry.title + ": segna fatto",
+                onClick: () => onIntent("done"),
+              },
+              {
+                label: "Salta",
+                aria: entry.title + ": salta",
+                onClick: () => onIntent("skipped"),
+              },
+            ]
+          : status === "skipped"
+            ? [
+                {
+                  label: "Ripristina",
+                  aria: entry.title + ": rimetti tra i previsti",
+                  onClick: () => onIntent("planned"),
+                },
+              ]
+            : [];
 
   return (
     <div

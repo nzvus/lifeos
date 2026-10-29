@@ -190,6 +190,15 @@ function sessionPills(i: DayItem): NonNullable<BoxEntry["pills"]> {
   ];
 }
 
+/** A session begun and not finished (session.md §6 «On Oggi»): «in corso · Riprendi», not «Fatto». */
+export function isRunning(i: DayItem): boolean {
+  return (
+    i.kind.key === "session" &&
+    i.status === "planned" &&
+    i.children.some((c) => c.sets.length > 0)
+  );
+}
+
 export function present(i: DayItem): BoxEntry {
   const pills: NonNullable<BoxEntry["pills"]> = [];
   for (const t of i.tags) pills.push({ t: TAGS[t] ?? t, of: { fam: "train" } });
@@ -201,10 +210,12 @@ export function present(i: DayItem): BoxEntry {
         : { t: "non a digiuno", state: "warn" },
     );
   if (Number(i.confidence) < 1) pills.push({ t: "stimato", state: "warn" });
+  if (isRunning(i)) pills.push({ t: "in corso", state: "good" });
   if (i.kind.key === "session") pills.push(...sessionPills(i));
   const of: GlyphOf = { kind: i.kind.key, ...i.item?.drawing };
+  // A session's exercises: only those with sets, never the strip of every planned one.
   const members = i.children
-    .filter((c) => c.item)
+    .filter((c) => c.item && (i.kind.key !== "session" || c.sets.length > 0))
     .map((c) => ({ fam: "train", ...c.item!.drawing, title: c.item!.name }));
   return {
     fam: i.family,

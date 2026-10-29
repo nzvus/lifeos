@@ -255,6 +255,29 @@ const MUSCLE_FAMILY: Record<string, [string, string]> = {
   abductors: ["legs", "gambe"],
 };
 
+/** A muscle group in words, for «cosa aggiungere» (session.md §5.4). */
+export const MUSCLE_WORDS: Record<string, string> = {
+  chest: "petto",
+  lats: "dorsali",
+  upper_back: "parte alta della schiena",
+  lower_back: "lombari",
+  traps: "trapezi",
+  front_delts: "deltoidi anteriori",
+  side_delts: "deltoidi laterali",
+  rear_delts: "deltoidi posteriori",
+  biceps: "bicipiti",
+  triceps: "tricipiti",
+  forearms: "avambracci",
+  abs: "addome",
+  obliques: "obliqui",
+  quads: "quadricipiti",
+  hamstrings: "femorali",
+  glutes: "glutei",
+  calves: "polpacci",
+  adductors: "adduttori",
+  abductors: "abduttori",
+};
+
 /**
  * Where the session's working sets went (the board's «La sessione finora»):
  * each set to its exercise's first muscle group's family, as shares of all,
