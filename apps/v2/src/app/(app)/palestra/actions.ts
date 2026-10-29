@@ -19,6 +19,7 @@ import {
   finishSession,
   reopenSession,
   reorderExercises,
+  setSuperset,
   substituteExercise,
   saveRoutineFromSession,
   readExercises,
@@ -238,4 +239,15 @@ export async function swapGym(
   );
   revalidatePath("/palestra", "layout");
   return before;
+}
+
+/** «In superserie con…» or «Togli la superserie» (session.md §5.2). */
+export async function pairGym(
+  entryId: string,
+  partnerId: string | null,
+): Promise<boolean> {
+  if (!UUID.test(entryId) || (partnerId !== null && !UUID.test(partnerId))) return false;
+  const done = await setSuperset(await getDb(), await requireOwner(), entryId, partnerId);
+  revalidatePath("/palestra", "layout");
+  return done;
 }

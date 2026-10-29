@@ -57,6 +57,7 @@ import {
   reopenGym,
   skipGymExercise,
   reorderGym,
+  pairGym,
   swapGym,
   saveRoutineGym,
   removeGym,
@@ -215,6 +216,8 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
       betweenS: a.betweenS,
       setupS: a.setupS,
       settings: { restS: e?.restS ?? null, setupS: e?.setupS ?? null },
+      muscles: e?.muscles ?? [],
+      partner: typeof c.values["superset"] === "string" ? c.values["superset"] : null,
       done: c.sets.map((s, k) => {
         // The rest before it: from the previous set's end to its start, when both were timed.
         const prev = c.sets[k - 1];
@@ -344,6 +347,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         reopen: reopenGym,
         skip: skipGymExercise,
         reorder: reorderGym,
+        pair: pairGym,
         swap: swapGym,
         saveRoutine: saveRoutineGym,
         remove: removeGym.bind(null, session.day),

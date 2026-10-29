@@ -656,3 +656,62 @@ export async function substituteExercise(
     return x.itemId;
   });
 }
+
+/**
+ * A superset (session.md §5.2): two exercises of one live session done in
+ * turn, each pointing at the other (`superset`, the partner's entry id);
+ * `partnerId` null takes the pair apart. A former partner of either is freed.
+ * False if they are not two live exercises of the same live session.
+ */
+export async function setSuperset(
+  db: Db,
+  owner: Owner,
+  entryId: string,
+  partnerId: string | null,
+): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    const ids = partnerId ? [entryId, partnerId] : [entryId];
+    if (partnerId === entryId) return false;
+    const rows = await tx
+      .select({ id: entries.id, parentId: entries.parentId })
+      .from(entries)
+      .where(
+        and(
+          ownedBy(entries, owner),
+          inArray(entries.id, ids),
+          eq(entries.kind, "session_exercise"),
+          isNull(entries.deletedAt),
+        ),
+      );
+    if (rows.length !== ids.length || new Set(rows.map((r) => r.parentId)).size !== 1)
+      return false;
+    if (!(await liveEntry(tx, owner, rows[0]!.parentId!, "session"))) return false;
+    // Whoever either was paired with is freed first.
+    const was = await tx
+      .select({ id: entryValues.entryId, text: entryValues.text })
+      .from(entryValues)
+      .where(
+        and(
+          ownedBy(entryValues, owner),
+          inArray(entryValues.entryId, ids),
+          eq(entryValues.field, "superset"),
+        ),
+      );
+    const free = [...ids, ...was.flatMap((w) => (w.text ? [w.text] : []))];
+    await tx
+      .delete(entryValues)
+      .where(
+        and(
+          ownedBy(entryValues, owner),
+          inArray(entryValues.entryId, free),
+          eq(entryValues.field, "superset"),
+        ),
+      );
+    if (partnerId)
+      await tx.insert(entryValues).values([
+        { userId: owner.id, entryId, field: "superset", text: partnerId },
+        { userId: owner.id, entryId: partnerId, field: "superset", text: entryId },
+      ]);
+    return true;
+  });
+}
