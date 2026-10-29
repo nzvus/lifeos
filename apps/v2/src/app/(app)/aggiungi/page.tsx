@@ -70,7 +70,11 @@ export default async function AddPage({
           readExercises(db, owner).then((x) => readRoutines(db, owner, today, x)),
         ])
       : [[], []];
-  const rows = kindRows(kinds, (k) => `/aggiungi/${k}?giorno=${day}${st}`);
+  // One «Sonno» for the night and the nap: a short sleep by day is saved as a nap.
+  const rows = kindRows(
+    kinds.filter((k) => k.key !== "nap"),
+    (k) => `/aggiungi/${k}?giorno=${day}${st}`,
+  );
   const meal = `/aggiungi/pasto?giorno=${day}${st}`;
   const targets: AddTarget[] = [
     {

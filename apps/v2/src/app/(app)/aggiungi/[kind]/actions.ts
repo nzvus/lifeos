@@ -13,6 +13,7 @@ import { checkEntry, createEntry, dailyTotalOf, updateEntry } from "@/core/entri
 import type { SaveState } from "@/features/day/EntrySheet";
 import { errorWords, managedFields, readEntryForm } from "@/features/day/entry-form";
 import { addContext } from "../kinds";
+import { asNap } from "./nap";
 
 export async function saveEntry(prev: SaveState, data: FormData): Promise<SaveState> {
   const owner = await requireOwner();
@@ -39,7 +40,7 @@ export async function saveEntry(prev: SaveState, data: FormData): Promise<SaveSt
       ? await dailyTotalOf(db, owner, "steps", checked.entry.day)
       : null;
   if (total) await updateEntry(db, owner, total, checked.entry, managedFields(kind));
-  else await createEntry(db, owner, checked.entry);
+  else await createEntry(db, owner, asNap(checked.entry, ctx.clock.timeZone));
   revalidatePath("/oggi", "layout");
   redirect(ctx.day === ctx.today ? "/oggi" : "/oggi/" + ctx.day);
 }
