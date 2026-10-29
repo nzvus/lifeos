@@ -156,3 +156,74 @@ describe("data repair R6 (data-repair.md)", () => {
     expect(await kind(estimate)).toBe("meal");
   });
 });
+
+// R2: a timed meal with no role takes its time's, `auto` (capture.md §4).
+const R2 = readFileSync(
+  join(__dirname, "../../../drizzle/0004_data_repair_roles.sql"),
+  "utf8",
+)
+  .split("--> statement-breakpoint")
+  .map((x) => x.trim())
+  .filter(Boolean);
+
+describe("data repair R2 (data-repair.md §3)", () => {
+  let t: Awaited<ReturnType<typeof createTestDb>>;
+  let user: string;
+  beforeAll(async () => {
+    t = await createTestDb();
+    user = await createTestUser(t.db, "c@example.test");
+    await t.db
+      .insert(s.settings)
+      .values({
+        userId: user,
+        prefs: { lunchFrom: 720, snackFrom: 900, dinnerFrom: 1110 },
+      })
+      .onConflictDoUpdate({
+        target: s.settings.userId,
+        set: { prefs: { lunchFrom: 720, snackFrom: 900, dinnerFrom: 1110 } },
+      });
+  });
+  afterAll(() => t.close());
+
+  const meal = async (at: string | null, role?: string) => {
+    const id = (
+      await t.db
+        .insert(s.entries)
+        .values({
+          userId: user,
+          kind: "meal",
+          day: "2026-10-27",
+          status: "done",
+          startAt: at ? new Date(at) : null,
+        })
+        .returning({ id: s.entries.id })
+    )[0]!.id;
+    if (role !== undefined)
+      await t.db
+        .insert(s.entryValues)
+        .values({ userId: user, entryId: id, field: "role", text: role });
+    return id;
+  };
+  const vals = async (id: string) =>
+    Object.fromEntries(
+      (await t.db.select().from(s.entryValues).where(eq(s.entryValues.entryId, id))).map(
+        (v) => [v.field, v.text],
+      ),
+    );
+
+  it("27 Oct 11:09 UTC (12:09 in Rome) → lunch, auto; chosen roles and untimed meals untouched", async () => {
+    const noon = await meal("2026-10-27T11:09:00Z");
+    const evening = await meal("2026-10-27T19:30:00Z", "");
+    const morning = await meal("2026-10-27T07:00:00Z");
+    const chosen = await meal("2026-10-27T11:09:00Z", "breakfast");
+    const untimed = await meal(null);
+
+    for (let run = 0; run < 2; run++) for (const q of R2) await t.client.exec(q);
+
+    expect(await vals(noon)).toEqual({ role: "lunch", roleSource: "auto" });
+    expect(await vals(evening)).toEqual({ role: "dinner", roleSource: "auto" });
+    expect(await vals(morning)).toEqual({ role: "breakfast", roleSource: "auto" });
+    expect(await vals(chosen)).toEqual({ role: "breakfast" });
+    expect(await vals(untimed)).toEqual({});
+  });
+});
