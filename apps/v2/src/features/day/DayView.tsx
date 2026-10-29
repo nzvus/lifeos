@@ -75,6 +75,7 @@ export function DayView({
   actions,
   water = null,
   fromModel = [],
+  arrived = null,
 }: {
   rows: (Row & { minute: number })[];
   untimed: Row[];
@@ -84,6 +85,8 @@ export function DayView({
   water?: Water | null;
   /** What the day's model still plans (model-items): shown with no filter on, each a link. */
   fromModel?: ModelRow[];
+  /** An entry ticked done from ⊕ (capture.md §6): its toast, with «Annulla», on arrival. */
+  arrived?: { id: string; text: string } | null;
 }) {
   const [gone, setGone] = useState<ReadonlySet<string>>(new Set());
   const rows = allRows.filter((r) => !gone.has(r.id));
@@ -95,6 +98,12 @@ export function DayView({
     setToast(t);
     timer.current = setTimeout(() => setToast(null), TOAST_MS);
   };
+  // Once: the toast of what ⊕ ticked, and the address without `?fatto=` (a reload says nothing).
+  useEffect(() => {
+    if (!arrived) return;
+    say({ text: arrived.text, undo: () => actions.changeStatus(arrived.id, "planned") });
+    window.history.replaceState(null, "", window.location.pathname);
+  }, []);
   const failed = () => say({ text: "Non è stato salvato. Riprova." });
   const hide = (id: string, on: boolean) =>
     setGone((g) => {
