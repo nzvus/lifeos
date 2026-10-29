@@ -91,6 +91,9 @@ at 45 % and add the hatch; status is the shape, never an icon.
 - `icon`: 44 × 44, always with an aria label; only for icons everyone
   reads (settings, back, more).
 
+Every target is at least 44 × 44, and a row or box is tapped on its whole
+surface (interaction.md §1 P3); `act` pills and «⋯» keep their own tap.
+
 Every button has the same states: default, pressed (1 px down, 10 %
 ink), focus (2 px ring in `--focus`, 2 px out), disabled (40 %),
 busy (`aria-busy`: the label gives way to a spinner, the size stays).

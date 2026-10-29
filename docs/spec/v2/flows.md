@@ -40,7 +40,9 @@ and the assistant (when enabled) in the header.
 ## 3. Objects and actions
 
 "With Undo" and confirmations follow content.md §4: Undo for what can be
-redone, a question only for what cannot.
+redone, a question only for what cannot. How each object is read, edited
+in place, archived, deleted (only when unused) and restored is the same
+for all of them: interaction.md §2–§3 (ADR-0058).
 
 | Object | Created | Seen | Edited | Deleted | Sets off |
 |---|---|---|---|---|---|
@@ -53,8 +55,9 @@ redone, a question only for what cannot.
 | Recipe / saved meal | Libreria → Pasti → "+"; composer "Salva come pasto" | Libreria → Pasti (sort by any nutrient, per kcal or €); the composer's "Salvate" | meal editor (lines, live totals, ratings) | archive, with Undo | a template block can point at it; cycles can rotate it |
 | Exercise | Libreria → Esercizi → "+"; gym mode "add exercise" | Libreria → Esercizi (guide, records, e1RM) | exercise editor; merge into another | archive | — |
 | Block, day type, week layout | Piano → Modelli → "+"; Oggi ⋯ "Salva come modello"; "duplica", "estendi" | Piano → Modelli; Calendario | model editor | archive (days already planned keep their entries) | applied → planned entries on the calendar |
-| Cycle | Piano → Modelli → "+ ciclo" | Piano → Modelli; the day it fills | cycle editor (steps of any model, advance rule, bound block) | archive | each occurrence takes the next step |
-| Routine / habit | Piano → Abitudini → "+"; Oggi ⋯ on an entry "Ripeti come abitudine" | Oggi (when due), Piano → Abitudini | habit editor (recurrence, block) | archive | planned entries; streaks |
+| Cycle | Piano → Cicli → "+ ciclo" | Piano → Cicli; the day it fills | its page: days (each with 0..n sessions, or a model), reorder by drag, advance rule, bound block, «Fai slittare» from a day (dossier to come) | archive, or delete | each occurrence takes the next day |
+| Routine (a session's exercises) | Piano → Routine → "+"; gym «Salva come routine» | Piano → Routine; the cycle's steps; ⊕ «Allenamento» | its page: exercises in order, sets, rests (in place) | archive, or delete when no session or cycle uses it | a cycle step can hold one or more routines |
+| Habit | Piano → Abitudini → "+"; Oggi ⋯ on an entry "Ripeti come abitudine" | Oggi (when due), Piano → Abitudini | habit editor (recurrence, block) | archive | planned entries; streaks |
 | Goal | Andamento → Obiettivi → "+" (what, how much, by when; the pace is derived) | Andamento → Obiettivi; Oggi's goal line | goal page | end or delete, with Undo | targets of every day (E5) |
 | Day type targets | inside a day type (fixed values or "follow the goal" with deficit, protein and fat g/kg), meal shares on its blocks | model editor; Oggi's day box | model editor | with the model | the targets each block and day are judged against |
 | Purchase / stock / shopping item | receipt (⊕ → Scontrino), Dispensa "+", a count | Dispensa | Dispensa | Dispensa, with Undo | "runs out in N days" → shopping list → Oggi reminder (S-T15) |
