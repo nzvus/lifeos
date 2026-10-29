@@ -522,6 +522,7 @@ span.k-head{cursor:default}
 /* a sheet as a page (⊕, an entry): it fills the screen over the dimmed backdrop, its body scrolls, the foot stays */
 .k-sheet-wrap.k-screen{position:fixed;inset:0;z-index:5}
 .k-sheet-wrap.k-screen>.k-dim{flex:1 0 40px;display:block}
+.k-sheet-wrap.k-screen>button.k-dim{border:0;padding:0;background:transparent;cursor:pointer}
 .k-sheet-wrap.k-screen>.k-sheet{max-height:none;flex:0 1 auto;min-height:0}
 .k-sbody{display:flex;flex-direction:column;gap:var(--sp-4);padding:0 16px 16px;overflow-y:auto;min-height:0}
 .k-sbody>.k-section{padding-left:0;padding-right:0}

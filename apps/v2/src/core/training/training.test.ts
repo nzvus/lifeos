@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "../db/db";
 import * as s from "../db/schema";
@@ -9,6 +10,7 @@ import {
   checkSet,
   createExercise,
   finishSession,
+  reopenSession,
   readExercises,
   readHistory,
   readRoutines,
@@ -187,8 +189,27 @@ describe("a session in gym mode", () => {
       ]),
     ).toEqual([
       ["Panca piana", "done", [[9, "60.00", 1]]],
-      ["Curl con manubri", "done", []],
+      ["Curl con manubri", "skipped", []],
     ]);
+  });
+
+  it("reopens a finished session: in progress again, no end, no minutes", async () => {
+    const id = await startSession(db, a, {
+      day: "2026-10-17",
+      startAt: new Date("2026-10-17T16:00:00Z"),
+      routineId: push,
+      exerciseIds: [bench],
+    });
+    expect(await reopenSession(db, a, id)).toBe(false); // not finished yet
+    await finishSession(db, a, id, new Date("2026-10-17T16:30:00Z"));
+    expect(await reopenSession(db, b, id)).toBe(false);
+    expect(await reopenSession(db, a, id)).toBe(true);
+    const open = (await readEntry(db, a, id))!;
+    expect(open.status).toBe("planned");
+    const [row] = await db.select().from(s.entries).where(eq(s.entries.id, id));
+    expect(row!.endAt).toBeNull();
+    expect(open.values.durationMin).toBeUndefined();
+    expect(open.children.map((c) => c.status)).toEqual(["planned"]);
   });
 
   it("gives each exercise its last two sessions, leaving out the one being trained", async () => {
