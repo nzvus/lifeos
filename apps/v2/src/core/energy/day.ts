@@ -34,7 +34,9 @@ const ZERO: Range = { low: 0, high: 0 };
 
 export type PricedSession = {
   id: string;
-  /** What the session burned above rest, during it and the hours after. */
+  /** What the session burned above rest, during it and the hours after (its row shows this). */
+  burn: Range;
+  /** The same × 0.75, what the day counts: the person compensates the rest (Careau 2021). */
   prior: Range;
   /** Its share the next day (after-burn of new work). */
   tail: Range;
@@ -81,20 +83,22 @@ export function priceSession(
         novelty: NOVELTY,
       })
     : null;
-  const cardioPrior = cardio.map(
-    (e) =>
-      activityCost(
-        (e.pattern && CARDIO_MET[e.pattern]) || CARDIO_MODERATE,
-        kg,
-        e.cardioMin ?? share,
-      ).prior,
+  const cardioCost = cardio.map((e) =>
+    activityCost(
+      (e.pattern && CARDIO_MET[e.pattern]) || CARDIO_MODERATE,
+      kg,
+      e.cardioMin ?? share,
+    ),
   );
-  return {
-    id: s.id,
-    prior: [cost?.prior, ...cardioPrior].reduce<Range>(
+  const sum = (rs: (Range | undefined)[]) =>
+    rs.reduce<Range>(
       (a, r) => (r ? { low: a.low + r.low, high: a.high + r.high } : a),
       ZERO,
-    ),
+    );
+  return {
+    id: s.id,
+    burn: sum([cost?.session, ...cardioCost.map((c) => c.session)]),
+    prior: sum([cost?.prior, ...cardioCost.map((c) => c.prior)]),
     tail: cost?.tail ?? ZERO,
   };
 }

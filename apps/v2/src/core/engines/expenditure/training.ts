@@ -9,10 +9,14 @@
  *            higher with short rests and many hard sets
  *   tail     the next day: resting metabolism + 3–5 % after hard or new work,
  *            smaller for a trained person and a repeated session
+ *   floor    the 2024 Compendium's whole-session value, 3.5 MET (02054: resistance
+ *            training, multiple exercises, 8–15 reps) over the session's minutes,
+ *            net: the set-by-set sum may not fall below it (energy-day.md §3: it
+ *            priced the rests too low, ≈ 2/3 of the Compendium)
  *   prior    × 0.75: what the person compensates after training (Careau 2021);
  *            E4's cT learns the rest for this person
  * Everything is net of one MET (resting is in the baseline).
- * Sources: Ainsworth 2011 (Compendium); Reis 2017 and Vezina 2014
+ * Sources: Ainsworth 2011 and Herrmann 2024 (Compendium); Reis 2017 and Vezina 2014
  * (resistance-exercise energy cost); Careau 2021.
  * Tonnage is a check, not the driver: mechanical work at 20–25 % efficiency
  * gives a floor for the working sets.
@@ -37,6 +41,8 @@ const TEMPO_S: Record<ExerciseClass, Range> = {
   core: { low: 2.5, high: 3 },
 };
 export const REST_MET: Range = { low: 1.5, high: 2 };
+/** 2024 Adult Compendium 02054, a whole session of resistance training: the floor. */
+export const SESSION_FLOOR_MET: Range = { low: 3.5, high: 3.5 };
 const REFERENCE_INTENSITY = 0.75;
 /** The MET's scaling by intensity stays within these bounds. */
 const INTENSITY_SCALE = { min: 0.6, max: 1.3 };
@@ -68,7 +74,9 @@ export type SessionCost = {
   work: Range;
   rest: Range;
   epoc: Range;
-  /** Gross net cost: work + rest + EPOC. */
+  /** The Compendium's whole-session floor (net), before EPOC. */
+  compendium: Range;
+  /** Gross net cost: work + rest (at least the floor) + EPOC. */
   session: Range;
   /** The prior for E4: × 0.75 (Careau 2021). */
   prior: Range;
@@ -138,7 +146,12 @@ export function sessionCost(p: {
   const restMin = gaps > 0 ? gaps : (p.restMin ?? 0);
   const rest = netKcal(REST_MET, bodyKg, restMin);
   const share = epocShare(sets, restMin);
-  const net = add(work, rest);
+  const compendium = netKcal(SESSION_FLOOR_MET, bodyKg, workMin + restMin);
+  const sum = add(work, rest);
+  const net = range(
+    Math.max(sum.low, compendium.low),
+    Math.max(sum.high, compendium.high),
+  );
   const epoc = scale(net, share);
   const session = add(net, epoc);
   const novelty = Math.min(1, Math.max(0, p.novelty));
@@ -148,6 +161,7 @@ export function sessionCost(p: {
     restMin,
     work,
     rest,
+    compendium,
     epoc,
     session,
     prior: scale(session, COMPENSATION),

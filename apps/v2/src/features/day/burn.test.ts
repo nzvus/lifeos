@@ -9,7 +9,7 @@ const plain = (s: string | null) => s?.replace(/\u00a0/g, " ") ?? null;
 const day: PricedDay = {
   day: "2026-10-27",
   feet: { hours: 3.5, source: "median" },
-  sessions: [{ id: "push", prior: r(254, 377), tail: r(20, 40) }],
+  sessions: [{ id: "push", burn: r(339, 503), prior: r(254, 377), tail: r(20, 40) }],
   prior: {
     bmr: 1800,
     baseline: r(2115, 2313),
@@ -24,6 +24,9 @@ describe("burnText", () => {
   it("rounds a range to 10 kcal", () => {
     expect(plain(burnText(r(254, 377)))).toBe("≈ 250–380 kcal");
   });
+  it("never narrower than ±15 %: a point becomes a range", () => {
+    expect(plain(burnText(r(240, 240)))).toBe("≈ 200–280 kcal");
+  });
   it("says nothing under 10 kcal or without a range", () => {
     expect(burnText(r(0, 4))).toBeNull();
     expect(burnText(null)).toBeNull();
@@ -31,9 +34,9 @@ describe("burnText", () => {
 });
 
 describe("rowBurns", () => {
-  it("prices each session by id and the steps under «steps»", () => {
+  it("a session shows its own cost (not × 0.75), the steps under «steps»", () => {
     const m = rowBurns(day);
-    expect(m.get("push")).toEqual(r(254, 377));
+    expect(m.get("push")).toEqual(r(339, 503));
     expect(m.get("steps")).toEqual(r(452, 598));
   });
 });
@@ -41,13 +44,13 @@ describe("rowBurns", () => {
 describe("dayBurnLine", () => {
   it("a past day: its total and the hours on feet, marked as an estimate", () => {
     expect(plain(dayBurnLine(day, null))).toBe(
-      "Speso ≈ 2.840–3.330 kcal · 3,5 h in piedi (stima), per lo più seduto",
+      "Speso ≈ 2.620–3.550 kcal · 3,5 h in piedi (stima), per lo più seduto",
     );
   });
   it("today at noon: half the everyday part plus what was done, then the whole day", () => {
-    // 0.5 × (2115–2313) + steps + training = 1783.5–2171.5
+    // 0.5 × (2115–2313) + steps + training = 1783.5–2171.5, widened to ±15 %
     expect(plain(dayBurnLine(day, 0.5))).toBe(
-      "Speso finora ≈ 1.780–2.170 kcal · a fine giornata ≈ 2.840–3.330 kcal · 3,5 h in piedi (stima), per lo più seduto",
+      "Speso finora ≈ 1.680–2.270 kcal · a fine giornata ≈ 2.620–3.550 kcal · 3,5 h in piedi (stima), per lo più seduto",
     );
   });
 });

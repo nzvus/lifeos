@@ -10,17 +10,21 @@ import type { Range } from "@/core/engines/expenditure";
 
 const ten = (v: number) => Math.round(v / 10) * 10;
 
+/** Any one day's burn is ±15–25 % (energy-day.md §3): a range never narrower than ±15 %. */
+const SPREAD = 0.15;
+
 /** «≈ 250–380 kcal»; nothing under 10 kcal. */
 export function burnText(r: Range | null | undefined): string | null {
   if (!r || r.high < 10) return null;
-  const lo = ten(r.low);
-  const hi = ten(r.high);
+  const m = (r.low + r.high) / 2;
+  const lo = ten(Math.min(r.low, m * (1 - SPREAD)));
+  const hi = ten(Math.max(r.high, m * (1 + SPREAD)));
   return "≈ " + (lo === hi ? F.num(lo, "kcal") : F.range(lo, hi, "kcal"));
 }
 
-/** Each row's burn: the sessions by id, the steps under the key "steps". */
+/** Each row's burn: a session's own cost by id (before the day's compensation), the steps under "steps". */
 export function rowBurns(d: PricedDay): Map<string, Range> {
-  const m = new Map<string, Range>(d.sessions.map((s) => [s.id, s.prior]));
+  const m = new Map<string, Range>(d.sessions.map((s) => [s.id, s.burn]));
   if (d.prior.steps) m.set("steps", d.prior.steps);
   return m;
 }

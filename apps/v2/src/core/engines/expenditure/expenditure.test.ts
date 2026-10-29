@@ -80,7 +80,7 @@ function timed(
 }
 
 describe("a session, set by set", () => {
-  it("the spec's session: 55 min with 17 of sets is ≈ 110, not v1's 277", () => {
+  it("the spec's session: 55 min with 17 of sets is the Compendium's ≈ 165 + EPOC, not v1's 277", () => {
     // 17 sets of 60 s with ≈ 2 min 20 s between them: 17 min of work, ≈ 37 of rests.
     const sets = timed(17, 60, 140, {
       exercise: "x",
@@ -92,11 +92,14 @@ describe("a session, set by set", () => {
     const c = sessionCost({ sets, bodyKg: 71, bmr: 1692.5, novelty: 0.5 });
     expect(c.workMin).toBe(17);
     expect(c.restMin).toBeCloseTo(37.33, 2);
-    expect(mid(c.session)).toBeGreaterThan(95);
-    expect(mid(c.session)).toBeLessThan(135);
+    // The set-by-set sum (≈ 95–135) is below 2024 Compendium 02054, 3.5 MET net over 54.3 min.
+    expect(mid(c.work) + mid(c.rest)).toBeLessThan(mid(c.compendium));
+    expect(mid(c.compendium)).toBeCloseTo((2.5 * 71 * (c.workMin + c.restMin)) / 60, 6);
+    expect(mid(c.session)).toBeGreaterThan(165);
+    expect(mid(c.session)).toBeLessThan(195);
     expect(mid(c.prior)).toBeCloseTo(mid(c.session) * 0.75, 6);
     // v1: one MET (3.5–5) for all 55 minutes, gross.
-    expect(4.25 * 71 * (55 / 60)).toBeGreaterThan(2 * mid(c.session));
+    expect(4.25 * 71 * (55 / 60)).toBeGreaterThan(1.4 * mid(c.session));
   });
   it("untimed sets take reps × tempo, rests as given", () => {
     const sets: SetDone[] = Array.from({ length: 4 }, () => ({
@@ -138,7 +141,8 @@ describe("a session, set by set", () => {
         rir,
       });
       const c = sessionCost({ sets, bodyKg: 71, bmr: 1692.5, novelty: 0 });
-      return mid(c.epoc) / (mid(c.work) + mid(c.rest));
+      // EPOC is a share of the net cost (work + rest, at least the Compendium's floor).
+      return mid(c.epoc) / (mid(c.session) - mid(c.epoc));
     };
     expect(share(240, 4)).toBeCloseTo(0.05, 6);
     expect(share(45, 1)).toBeCloseTo(0.15, 6); // 16 hard sets (≥ 15) and rests of 0.75 min: both at most

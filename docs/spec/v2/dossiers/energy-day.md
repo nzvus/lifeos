@@ -119,12 +119,16 @@ done (drops out of «a fine giornata» when the day ends); days before 29 Oct
 (their level read as hours); travel days with 25 000+ steps (steps priced,
 hours unchanged); hours over 16 (refused: the stepper stops).
 
-**Open (found by slice 1, 29 Oct):** the 22 Oct Pull (53 min, 24 work
-sets) prices at ≈ 80–110 kcal net. The Compendium's resistance training
-(3.5–6 MET) gives ≈ 170–330 kcal net for the same 53 min at 77 kg. E4a's
-`sessionCost` (work, rests, after-burn × 0,75, novelty 0,5) needs a check
-against the Compendium before the session pill is trusted; E4's filter
-corrects the week either way.
+**Checked 29 Oct (was open after slice 1):** the 22 Oct Pull (53 min,
+24 work sets) priced at ≈ 80–110 kcal. Two causes. (1) The set-by-set sum
+was ≈ 2/3 of the 2024 Compendium's whole-session value (02054, 3.5 MET:
+resistance training, multiple exercises, 8–15 reps), because the rests at
+1.5–2 MET under-price the recovery between sets. Fix: the Compendium is a
+floor, net of rest (engines.md E4a). (2) The row showed the day's prior,
+× 0.75 for the compensation (Careau 2021), which belongs to the rest of
+the day, not to the session. Fix: the row shows the session's own cost;
+the day keeps the × 0.75. The same Pull now reads ≈ 200–280 kcal. Every
+range is at least ±15 % (§3), so a floor never reads as one exact number.
 
 ## 8. Acceptance tests (from his days)
 1. 27 Oct, Push 08:01–09:04, 27 work sets, his weight trend → the session row shows

@@ -150,6 +150,16 @@ is right in the first weeks, and how well a single day is explained.
     the rests as work. Today's session lasted 55 min with 17 min of
     sets; v1's ≈ 277 kcal becomes ≈ 109 for the session plus the tail
     the next day.
+  - **The Compendium as a floor** (checked 2026-10-29, energy-day.md):
+    the 2024 Adult Compendium (Herrmann 2024) gives a whole session of
+    resistance training, multiple exercises at 8–15 reps (02054), 3.5 MET.
+    Net of rest that is ≈ 163 kcal for the session above, against ≈ 109
+    from the set-by-set sum: the rests at 1.5–2 MET price the recovery
+    between sets too low. The sum may not fall below 3.5 MET net over the
+    session's minutes; EPOC comes on top. v1's 277 stays an overcount:
+    it took 3.5–5 MET gross.
+  - **A session's row** shows its own cost; the day counts it × 0.75
+    (below).
   - **What the person does after training** is partly compensated
     (sitting more, moving less: Careau 2021, ≈ 25 %). The filter's
     c_train learns the net effect for this person.
