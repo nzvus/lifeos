@@ -40,7 +40,7 @@ to one, and so do the design boards.
 | Component | Props | Used for |
 |---|---|---|
 | **Box** | entry (family, subcategory, title, value, meta line, link, actions, an inline Field), score parts, density `card · row`, mode `compact · times`, open, planned, faded, rail | every item anywhere: day entries, list rows, plan blocks, weighings, sets, exercises, goals, foods, settings rows, data-quality flags |
-| **Skyline** | parts, size `bg · mini · row · big` | behind a card Box; trailing a row Box; V-16 |
+| **Skyline** | parts, size `bg · mini · row · big` | inside a card Box when it opens (never behind it); trailing a row Box; V-16 |
 | **Nutrients** | foods × kinds or totals, targets, limits, micro groups, level `L0-box · L0-ribbon · L1 · L2` | food Box (L0-box), rows (L0-ribbon), day/week Box (L1), composer and catalog item (L2) |
 | **PageHeader** | title, context; `back` (a sub-page: "‹ parent"), `action` | every page; top level shows the gear → Settings |
 | **WeekStrip** | days with score bar or template tag | inside DateNav |
