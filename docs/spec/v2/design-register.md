@@ -111,6 +111,22 @@ Status words: **sì** (v2 has it and it stays), **parziale**, **no** (to build),
 | N14 | Estimates saved later in Libreria (pizza, hamburger menu) | sì |
 | N15 | Routes compatible with Google Maps | sì (#292) |
 
+## L — Layout: alignment, spacing, sizes (the developer, 29 Oct: «tutta l'app sembra fatta a caso, con allineamenti, padding, spaziature, dimensioni, stili»)
+Measured by `scripts/ui-check.mjs` on 29 Oct (14 pages, 390 px): **text starts
+on 64 different left edges on Oggi**, 50 on Andamento, 42 on Piano, 29 in
+the composer, 27 on an entry's page; 55 % of targets under 44 px (110 on the
+foods' list); 52 shapes off the scale (15 on Oggi). The kit has a scale; the
+pages place things by hand around it.
+
+| ID | Rule | Where | v2 today | Target, checked by `ui-check.mjs` |
+|---|---|---|---|---|
+| L1 | One page gutter (16 px); inside a box, content starts at its padding (16, dense 12); one indent only, under a badge (+48) | shapes.md §2, kit.css `.k-block` `.k-section` | no: 64 edges on Oggi | ≤ 6 left edges a page |
+| L2 | Vertical rhythm from the scale: 24 between sections, 8 between rows, 4 inside a row, 16 before a page's actions | shapes.md §2 | parziale | 0 shapes off the scale |
+| L3 | Pages lay out only with the kit's primitives (`k-stack`, `k-line`, `k-grid`, `k-block`, `k-section`, `k-foot`); no spacing in a page's own CSS or inline style | shapes.md §6, memory v2-boards-kit | no in the app (boards: yes) | a lint rule on `style={{…}}` with spacing, and the edges above |
+| L4 | Sizes from the type scale only (12, 14, 16, 19, 24, 30, 40); numbers in Barlow Condensed, text in Barlow | shapes.md §2, S3 | parziale | 0 off-scale fonts |
+| L5 | Every target ≥ 44 × 44: the whole Box (C1), buttons at `--touch`, dense acts at `--touch-dense` only inside a 44 px row | P3, shapes.md (44 px rule) | no: 386 small targets | 0 small targets outside a 44 px row |
+| L6 | One style per role: one primary button, one secondary, one link, one act; no page-made buttons | S8, C10 | parziale | forms per verb ≤ 1 |
+
 ## T — Themes and density (plan, A3)
 v1 has five themes over one kit (ADR-0010: a theme is a token set plus
 replacements for a closed list of slots) and one density setting (ADR-0038:
