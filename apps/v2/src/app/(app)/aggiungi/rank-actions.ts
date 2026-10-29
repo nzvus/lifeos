@@ -15,7 +15,8 @@ export async function tickPlanned(
   today: boolean,
 ): Promise<void> {
   await changeStatus(id, "done");
-  redirect(back(day, today));
+  // Oggi shows «… · fatto» with «Annulla» (capture.md §6).
+  redirect(back(day, today) + "?fatto=" + id);
 }
 
 export async function waterNow(

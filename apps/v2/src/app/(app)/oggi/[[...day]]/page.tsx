@@ -120,8 +120,11 @@ const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
 export default async function OggiPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ day?: string[] }>;
+  /** `fatto=<id>`: an entry ticked done from ⊕, its toast with «Annulla» (capture.md §6). */
+  searchParams: Promise<{ fatto?: string | string[] }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
@@ -351,6 +354,15 @@ export default async function OggiPage({
   const bars = weekBars(weekInput);
   // Water is one box in the timeline (WaterRow): its drinks are not rows of their own.
   const notWater = (i: (typeof items)[number]) => i.kind.key !== "water";
+  // An entry ticked done from ⊕: its toast on arrival, with «Annulla».
+  const { fatto } = await searchParams;
+  const ticked =
+    typeof fatto === "string"
+      ? items.find((i) => i.id === fatto && i.status === "done")
+      : undefined;
+  const arrived = ticked
+    ? { id: ticked.id, text: present(ticked).title + " · fatto" }
+    : null;
   const timedRows = day.timed
     .filter(notWater)
     .map((i) => ({ ...row(i), minute: i.minute! }));
@@ -517,6 +529,7 @@ export default async function OggiPage({
             }}
             water={water}
             fromModel={fromModel}
+            arrived={arrived}
             rows={rows}
             untimed={untimed}
             now={
