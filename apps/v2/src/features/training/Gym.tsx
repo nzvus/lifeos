@@ -23,6 +23,7 @@ import { Box, F, Field, PageHeader, type BoxEntry, type State } from "@lifeos/ki
 import type { ProposedSet } from "@/core/training/plan";
 import type { SetInput } from "@/core/training/write";
 import { ExerciseSettings } from "./ExerciseSettings";
+import { FinishSheet } from "./FinishSheet";
 import { restPill, setText, strengthPill, timed, vsProposedText } from "./present";
 import { SetForm } from "./SetForm";
 import { ContextPills, planText, workDone } from "./gym-parts";
@@ -226,16 +227,6 @@ export function Gym({
       .filter((c) => words.every((w) => fold(c.name).includes(w)))
       .slice(0, 6);
   }, [catalog, query]);
-  const workTotal = exercises.reduce((n, e) => n + workDone(e), 0);
-  const warmTotal = exercises.reduce(
-    (n, e) => n + e.done.filter((d) => d.warmup).length,
-    0,
-  );
-  const untouched = exercises.filter((e) => e.done.length === 0);
-  const assumed = exercises.reduce(
-    (n, e) => n + e.done.filter((d) => d.assumed).length,
-    0,
-  );
 
   const tick = async (input: SetInput, opts: { assumed?: boolean } = {}) => {
     if (!x) return;
@@ -785,69 +776,16 @@ export function Gym({
         )}
       </div>
       {ending && !session.done && (
-        <div className="k-sheet-wrap k-screen">
-          <button
-            type="button"
-            className="k-dim"
-            aria-label="Torna all’allenamento"
-            onClick={() => setEnding(false)}
-          />
-          <section className="k-sheet" role="dialog" aria-label="Finire l’allenamento">
-            <span className="handle" />
-            <div className="k-sh">
-              <h2>Finire l’allenamento?</h2>
-              {sessionElapsed !== null && (
-                <span className="k-meta">
-                  {F.num(Math.round(sessionElapsed / 60), "min")}
-                </span>
-              )}
-            </div>
-            <div className="k-sbody">
-              <p className="k-body">
-                {F.plural(workTotal, "serie fatta", "serie fatte")} in{" "}
-                {F.plural(exercises.length - untouched.length, "esercizio", "esercizi")}
-                {warmTotal > 0 && (
-                  <>, più {F.plural(warmTotal, "di riscaldamento", "di riscaldamento")}</>
-                )}
-                .
-              </p>
-              {untouched.length > 0 && (
-                <p className="k-body">
-                  Senza serie, segnati come saltati:{" "}
-                  {untouched.map((e) => e.name).join(", ")}.
-                </p>
-              )}
-              {assumed > 0 && (
-                <p className="k-body" role="alert">
-                  {F.plural(assumed, "serie presunta", "serie presunte")}: le ha contate
-                  l’app mentre i tempi andavano da soli. Finendo le confermi come fatte;
-                  se una non è andata così, torna indietro e correggila.
-                </p>
-              )}
-              <p className="k-help">Potrai riprenderlo dopo, dalla sessione.</p>
-            </div>
-            <div className="foot">
-              <button
-                type="button"
-                className="k-btn secondary k-grow"
-                onClick={() => setEnding(false)}
-              >
-                Continua
-              </button>
-              <button
-                type="button"
-                className="k-btn primary k-grow"
-                aria-busy={busy}
-                onClick={async () => {
-                  setBusy(true);
-                  await actions.finish(session.id);
-                }}
-              >
-                {assumed > 0 ? "Conferma e finisci" : "Finisci"}
-              </button>
-            </div>
-          </section>
-        </div>
+        <FinishSheet
+          exercises={exercises}
+          minutes={sessionElapsed !== null ? Math.round(sessionElapsed / 60) : null}
+          busy={busy}
+          onBack={() => setEnding(false)}
+          onFinish={async () => {
+            setBusy(true);
+            await actions.finish(session.id);
+          }}
+        />
       )}
     </main>
   );
