@@ -18,6 +18,8 @@ import {
   confirmSets,
   finishSession,
   reopenSession,
+  reorderExercises,
+  substituteExercise,
   saveRoutineFromSession,
   readExercises,
   readRoutines,
@@ -204,4 +206,36 @@ export async function removeGym(day: string, sessionId: string): Promise<void> {
   await trashEntry(await getDb(), await requireOwner(), sessionId);
   revalidatePath("/oggi", "layout");
   redirect("/oggi/" + day);
+}
+
+/** «Fai dopo» and its «Annulla»: the session's exercises in this order (session.md §5.2). */
+export async function reorderGym(
+  sessionId: string,
+  entryIds: string[],
+): Promise<boolean> {
+  if (!UUID.test(sessionId) || !entryIds.every((id) => UUID.test(id))) return false;
+  const done = await reorderExercises(
+    await getDb(),
+    await requireOwner(),
+    sessionId,
+    entryIds,
+  );
+  revalidatePath("/palestra", "layout");
+  return done;
+}
+
+/** «Cambia»: an exercise not begun becomes another; the one it was, for «Annulla». */
+export async function swapGym(
+  entryId: string,
+  exerciseId: string,
+): Promise<string | null> {
+  if (!UUID.test(entryId) || !UUID.test(exerciseId)) return null;
+  const before = await substituteExercise(
+    await getDb(),
+    await requireOwner(),
+    entryId,
+    exerciseId,
+  );
+  revalidatePath("/palestra", "layout");
+  return before;
 }
