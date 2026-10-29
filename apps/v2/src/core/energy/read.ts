@@ -51,6 +51,9 @@ export type EnergyRows = {
       cardio: boolean;
       /** Its timed minutes (the sets' durations), when it has any. */
       cardioMin: number | null;
+      /** Its distance, m (the sets' sum): walking and running go by ACSM. */
+      cardioM?: number | null;
+      inclinePct?: number | null;
       sets: {
         reps: number;
         kg: number;
@@ -208,6 +211,8 @@ async function readSessions(
             rir: trainingSets.rir,
             warmup: trainingSets.warmup,
             durationS: trainingSets.durationS,
+            distanceM: trainingSets.distanceM,
+            inclinePct: trainingSets.inclinePct,
             startedAt: trainingSets.startedAt,
             endedAt: trainingSets.endedAt,
           })
@@ -257,12 +262,17 @@ async function readSessions(
           const timed = sets
             .filter((x) => x.entryId === c.id && !x.warmup)
             .reduce((a, x) => a + (x.durationS ?? 0), 0);
+          const own = sets.filter((x) => x.entryId === c.id && !x.warmup);
+          const metres = own.reduce((a, x) => a + (n(x.distanceM) ?? 0), 0);
+          const incline = own.map((x) => n(x.inclinePct)).find((x) => x != null);
           return {
             pattern,
             cardio:
               (c.itemId !== null && kindOf.get(c.itemId) === "cardio") ||
               (pattern !== null && pattern in CARDIO_MET),
             cardioMin: timed > 0 ? timed / 60 : null,
+            cardioM: metres > 0 ? metres : null,
+            inclinePct: incline ?? null,
             sets: sets
               .filter((x) => x.entryId === c.id && !x.warmup && (x.reps ?? 0) > 0)
               .map((x) => ({

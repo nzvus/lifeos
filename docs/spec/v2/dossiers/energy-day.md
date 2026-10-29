@@ -1,6 +1,6 @@
 # Dossier — the day's energy (what each thing burns, live)
 
-Status: **draft 2026-10-29**. **Slice 1 built 2026-10-29:** hours on feet as a number (`core/energy/feet.ts`; the steps sheet asks «In piedi oggi», unsaid → your 14-day median, never the silent «seduto»), the day priced piece by piece (`core/energy/day.ts`, shared with `week.ts`), each done session and the steps with «≈ … kcal» on Oggi, the day's line «Speso finora · a fine giornata · h in piedi». Not yet: planned sessions in «a fine giornata», runs and trips by ACSM, the pieces sheet, Andamento's day picker. **Decided 2026-10-29 by the agent at the
+Status: **draft 2026-10-29**. **Slice 1 built 2026-10-29:** hours on feet as a number (`core/energy/feet.ts`; the steps sheet asks «In piedi oggi», unsaid → your 14-day median, never the silent «seduto»), the day priced piece by piece (`core/energy/day.ts`, shared with `week.ts`), each done session and the steps with «≈ … kcal» on Oggi, the day's line «Speso finora · a fine giornata · h in piedi». **Slice 2 (29 Oct):** sessionCost checked against the 2024 Compendium (floor, see §7), the row shows the session's own cost, ranges at least ±15 %, «Energia del giorno» on Oggi folds open on the pieces (base, giornata with where its hours come from, passi, allenamento × 0,75, digerire). **Slice 3 (29 Oct):** runs and walks with a distance by ACSM (`engines/expenditure/acsm.ts`, ±10 %), their steps taken out of the phone's total (running 165 steps/min, walking by the stride 0,415 × height), planned sessions in «a fine giornata» at the person's median length in the Compendium's 3,5–5 MET band, said so. Not yet: trips (no distance in their data yet), Andamento's day picker. **Decided 2026-10-29 by the agent at the
 developer's request** («procedi senza di me… fai le scelte migliori»): §9 as
 recommended; the developer reviews after. Method: `../method.md`. Extends
 `activity.md` (runs, steps), `session.md` (the gym session) and
@@ -119,12 +119,16 @@ done (drops out of «a fine giornata» when the day ends); days before 29 Oct
 (their level read as hours); travel days with 25 000+ steps (steps priced,
 hours unchanged); hours over 16 (refused: the stepper stops).
 
-**Open (found by slice 1, 29 Oct):** the 22 Oct Pull (53 min, 24 work
-sets) prices at ≈ 80–110 kcal net. The Compendium's resistance training
-(3.5–6 MET) gives ≈ 170–330 kcal net for the same 53 min at 77 kg. E4a's
-`sessionCost` (work, rests, after-burn × 0,75, novelty 0,5) needs a check
-against the Compendium before the session pill is trusted; E4's filter
-corrects the week either way.
+**Checked 29 Oct (was open after slice 1):** the 22 Oct Pull (53 min,
+24 work sets) priced at ≈ 80–110 kcal. Two causes. (1) The set-by-set sum
+was ≈ 2/3 of the 2024 Compendium's whole-session value (02054, 3.5 MET:
+resistance training, multiple exercises, 8–15 reps), because the rests at
+1.5–2 MET under-price the recovery between sets. Fix: the Compendium is a
+floor, net of rest (engines.md E4a). (2) The row showed the day's prior,
+× 0.75 for the compensation (Careau 2021), which belongs to the rest of
+the day, not to the session. Fix: the row shows the session's own cost;
+the day keeps the × 0.75. The same Pull now reads ≈ 200–280 kcal. Every
+range is at least ±15 % (§3), so a floor never reads as one exact number.
 
 ## 8. Acceptance tests (from his days)
 1. 27 Oct, Push 08:01–09:04, 27 work sets, his weight trend → the session row shows
@@ -138,9 +142,9 @@ corrects the week either way.
    2 h of today.
 4. 3,5 h on feet → factor halfway between the 2 h and 5 h points (1,175–
    1,285), label «per lo più seduto».
-5. A day with a 5 km run in 28 min and 12 000 phone steps of which 5 600 in
-   the run → steps priced on 6 400; the run by ACSM; the day counts the run
-   once.
+5. A day with a 5 km run in 28 min and 12 000 phone steps → the run's
+   4 620 steps (165 a minute) come out, the steps are priced on 7 380; the
+   run by ACSM (≈ 11,2 MET ± 10 %); the day counts the run once.
 6. Any day of a week → the macro targets on Oggi are the same before and
    after logging a session; only the day's burn line changes.
 
