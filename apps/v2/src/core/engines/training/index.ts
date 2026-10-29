@@ -7,4 +7,5 @@ export * from "./trend";
 export * from "./expected";
 export * from "./duration";
 export * from "./score";
+export * from "./warmups";
 export { median, ols, slope } from "./stats";

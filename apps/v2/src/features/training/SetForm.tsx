@@ -23,6 +23,7 @@ export function SetForm({
   timed: isTimed,
   dumbbells,
   askRir,
+  warmup: warmupStart = false,
   start,
   busy,
   running,
@@ -33,6 +34,8 @@ export function SetForm({
   timed: boolean;
   dumbbells: boolean;
   askRir: boolean;
+  /** The set to type is a proposed warm-up: the chip starts on. */
+  warmup?: boolean;
   start: { reps: number | null; loadKg: string | null; durationS: number | null } | null;
   busy: boolean;
   running: boolean;
@@ -55,7 +58,7 @@ export function SetForm({
   };
   const [dur, setDur] = useState(start?.durationS != null ? String(start.durationS) : "");
   const [rir, setRir] = useState("");
-  const [warmup, setWarmup] = useState(false);
+  const [warmup, setWarmup] = useState(warmupStart);
   const input: SetInput = {
     reps: isTimed ? "" : reps,
     loadKg: kg,
