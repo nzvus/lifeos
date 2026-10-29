@@ -1,6 +1,7 @@
 /**
  * An exercise's page (V-07): its trend (E6, dossiers/training.md §5.2), its
- * sessions newest first with their work sets and best e1RM.
+ * sessions newest first with their work sets and best e1RM; «Unisci» with
+ * an exercise of the same movement (a duplicate: Run and Corsa).
  */
 import { notFound } from "next/navigation";
 import { F, PageHeader } from "@lifeos/kit";
@@ -21,9 +22,14 @@ export default async function ExercisePage({
   const owner = await requireOwner();
   const db = await getDb();
   const { id } = await params;
-  const x = (await readExercises(db, owner)).find((e) => e.id === id);
+  const all = await readExercises(db, owner);
+  const x = all.find((e) => e.id === id);
   if (!x) notFound();
   const sessions = (await readExerciseLog(db, owner, id)).get(id) ?? [];
+  // Possible duplicates: another exercise of the same movement pattern.
+  const twins = x.pattern
+    ? all.filter((e) => e.id !== id && e.pattern === x.pattern)
+    : [];
   const best = sessions.reduce((m, s) => Math.max(m, s.best ?? 0), 0);
   const trend = trendText(
     exerciseTrend(
@@ -69,6 +75,28 @@ export default async function ExercisePage({
           </div>
         ))}
       </section>
+      {twins.length > 0 && (
+        <details className="k-section k-fold">
+          <summary>
+            Unisci un doppione <span className="k-meta">{twins.length}</span>
+          </summary>
+          <div className="k-foldbody">
+            <p className="k-help">
+              Lo stesso movimento con un altro nome? Le sue sessioni passano qui e il suo
+              nome resta come alias.
+            </p>
+            {twins.map((t) => (
+              <a
+                key={t.id}
+                className="k-btn link"
+                href={`/libreria/esercizio/${id}/unisci?con=${t.id}`}
+              >
+                Unisci «{t.name}» in «{x.name}» ›
+              </a>
+            ))}
+          </div>
+        </details>
+      )}
       <form action={archiveExercise.bind(null, id)} className="k-section g3">
         <p className="k-help">
           Archiviato, esce dalla Libreria e dalla palestra; le sessioni fatte restano.
