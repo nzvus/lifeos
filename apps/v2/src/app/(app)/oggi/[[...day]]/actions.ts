@@ -29,7 +29,13 @@ const STATUSES: readonly Status[] = ["planned", "done", "skipped"];
 
 export async function changeStatus(id: string, status: Status): Promise<Status | null> {
   if (!UUID.test(id) || !STATUSES.includes(status)) return null;
-  const before = await setEntryStatus(await getDb(), await requireOwner(), id, status);
+  const { clock } = await ownerClock();
+  const at = new Date();
+  // «Ora della spunta»: a planned instant entry of today ticked done takes now.
+  const before = await setEntryStatus(await getDb(), await requireOwner(), id, status, {
+    at,
+    today: logicalDay(at, clock),
+  });
   revalidatePath("/oggi", "layout");
   return before;
 }

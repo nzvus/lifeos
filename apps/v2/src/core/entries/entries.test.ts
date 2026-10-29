@@ -7,6 +7,7 @@ import { kindRegistry, type KindInput, kindSchema } from "../kinds";
 import {
   checkEntry,
   createEntry,
+  dailyTotalOf,
   enterable,
   readEntry,
   readTrash,
@@ -202,6 +203,48 @@ describe("writing an entry", () => {
     expect(await setEntryStatus(db, a, id, "planned")).toBe("done");
     expect(await setEntryStatus(db, a, id, "skipped")).toBe("planned");
     expect(await statusOn(a, id)).toBe("skipped");
+  });
+
+  it("«ora della spunta»: ticked done today it takes the tick's time; Undo puts the planned one back", async () => {
+    const id = await planned(a);
+    const minute = async () =>
+      (await loadDay(db, a, "2026-10-16")).timed.find((i) => i.id === id)?.minute;
+    const plannedAt = await minute();
+    const at = new Date("2026-10-16T06:30:00Z"); // 08:30 in Rome
+    expect(await setEntryStatus(db, a, id, "done", { at, today: "2026-10-16" })).toBe(
+      "planned",
+    );
+    expect(await minute()).toBe(8 * 60 + 30);
+    expect(await setEntryStatus(db, a, id, "planned")).toBe("done");
+    expect(await minute()).toBe(plannedAt);
+    // Ticked on another day (yesterday's plan, today): the planned time stays.
+    await setEntryStatus(db, a, id, "done", { at, today: "2026-10-17" });
+    expect(await minute()).toBe(plannedAt);
+  });
+
+  it("steps are the day's running total: a new count replaces it (activity.md §8.2)", async () => {
+    const steps = (n: string) => {
+      const c = checkEntry(
+        reg.get("steps"),
+        input({
+          day: "2026-10-26",
+          status: "done",
+          startMin: 20 * 60,
+          values: { steps: n },
+        }),
+        rome,
+      );
+      if (!c.ok) throw new Error("expected valid steps");
+      return c.entry;
+    };
+    expect(await dailyTotalOf(db, a, "steps", "2026-10-26")).toBeNull();
+    const id = await createEntry(db, a, steps("12000"));
+    expect(await dailyTotalOf(db, a, "steps", "2026-10-26")).toBe(id);
+    expect(await dailyTotalOf(db, b, "steps", "2026-10-26")).toBeNull();
+    await updateEntry(db, a, id, steps("18000"), ["steps", "walkingMin"]);
+    const day = await loadDay(db, a, "2026-10-26");
+    const all = [...day.timed, ...day.untimed].filter((i) => i.kind.key === "steps");
+    expect(all.map((i) => Number(i.values["steps"]))).toEqual([18000]);
   });
 
   it("moves an entry to the trash and back", async () => {
