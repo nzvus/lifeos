@@ -29,6 +29,8 @@ export type ExerciseChoice = {
   setupS: number | null;
   /** The muscle groups it trains, the main one first (catalog `muscleGroups`). */
   muscles: string[];
+  /** The catalog's kind: strength, bodyweight, cardio (null when not set). */
+  kind: string | null;
 };
 
 export type RoutineChoice = {
@@ -79,6 +81,7 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
           "restS",
           "setupS",
           "muscleGroups",
+          "kind",
         ]),
       ),
     );
@@ -97,6 +100,7 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
         .split(",")
         .map((m) => m.trim())
         .filter(Boolean),
+      kind: v(i.id, "kind")?.text ?? null,
     }))
     .sort((a, b) => a.name.localeCompare(b.name, "it"));
 }

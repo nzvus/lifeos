@@ -6,3 +6,4 @@ export * from "./log";
 export * from "./history";
 export * from "./advice";
 export * from "./context";
+export * from "./activity";

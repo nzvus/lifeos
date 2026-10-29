@@ -90,6 +90,14 @@ export default async function AddPage({
       href: "/palestra",
     },
     {
+      key: "k:activity",
+      title: "Attività fatta",
+      sub: "corsa, bici, cardio",
+      fam: "train",
+      of: { kind: "session", pattern: "run" },
+      href: `/aggiungi/attivita?giorno=${day}`,
+    },
+    {
       key: "k:movement",
       title: "Spesa",
       sub: "tipo",
@@ -187,6 +195,18 @@ export default async function AddPage({
                       fam: "train",
                       of: { kind: "session" },
                       title: "Allenamento",
+                    }}
+                    density="row"
+                    rail={false}
+                  />
+                </a>
+                <a href={`/aggiungi/attivita?giorno=${day}`} className="k-plain">
+                  <Box
+                    entry={{
+                      fam: "train",
+                      of: { kind: "session", pattern: "run" },
+                      title: "Attività fatta",
+                      meta: "corsa, bici, cardio: già fatta",
                     }}
                     density="row"
                     rail={false}
