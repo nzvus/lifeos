@@ -21,7 +21,7 @@ Status words: **sì** (v2 has it and it stays), **parziale**, **no** (to build),
 | P6 | Lists and Find from the kit | find.md, interaction.md §6 | parziale: Find only in Libreria | List + Find (C5) on every list > 8 rows |
 | P7 | A map of places | ADR-0054, screens.md | sì (Oggi · Piano · ⊕ · Andamento · Libreria) | kept; the Map board updated |
 | P8 | Visible answers, the person's words, 24 h times | content.md, interaction.md §8 | parziale (01:45 PM in Piano) | Toast (C6) after every change; `F.time` only |
-| P9 | System first, rules checked by a script | interaction.md §8 | no: `scripts/ui-check.mjs` missing | write `ui-check.mjs` (30 tasks, targets, words) before phase D |
+| P9 | System first, rules checked by a script | interaction.md §8 | parziale: `scripts/ui-check.mjs` (29 Oct) measures 14 pages and 5 daily tasks against `scripts/ui-baseline.json`: 54 % of targets < 44 px, 7 pages with no primary action, water 999 px and «Fatto» 1 199 px of scroll | every phase D PR runs `--compare`; the 30 study tasks are added one by one as their screens are rebuilt |
 
 ## S — The system that exists: keep it all (handoff §5)
 | ID | Decision | Where | v2 today | In the redesign |

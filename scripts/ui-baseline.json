@@ -1,0 +1,104 @@
+{
+ "pages": {
+  "/oggi": {
+   "targets": 134,
+   "small": 76,
+   "primary": 1,
+   "longLists": 1
+  },
+  "/aggiungi": {
+   "targets": 35,
+   "small": 5,
+   "primary": 0,
+   "longLists": 0
+  },
+  "/aggiungi/pasto": {
+   "targets": 40,
+   "small": 16,
+   "primary": 1,
+   "longLists": 0
+  },
+  "/aggiungi/attivita": {
+   "targets": 12,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0
+  },
+  "/piano": {
+   "targets": 92,
+   "small": 26,
+   "primary": 0,
+   "longLists": 1
+  },
+  "/andamento": {
+   "targets": 68,
+   "small": 26,
+   "primary": 0,
+   "longLists": 0
+  },
+  "/libreria": {
+   "targets": 17,
+   "small": 10,
+   "primary": 0,
+   "longLists": 0
+  },
+  "/libreria?vista=cibi": {
+   "targets": 119,
+   "small": 110,
+   "primary": 0,
+   "longLists": 0
+  },
+  "/libreria?vista=esercizi": {
+   "targets": 83,
+   "small": 75,
+   "primary": 0,
+   "longLists": 0
+  },
+  "/palestra": {
+   "targets": 11,
+   "small": 0,
+   "primary": 0,
+   "longLists": 1
+  },
+  "/impostazioni": {
+   "targets": 26,
+   "small": 11,
+   "primary": 1,
+   "longLists": 0
+  },
+  "/libreria/cibo/nuovo": {
+   "targets": 37,
+   "small": 14,
+   "primary": 1,
+   "longLists": 0
+  },
+  "/libreria/esercizio/nuovo": {
+   "targets": 8,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0
+  },
+  "/voce/:id": {
+   "targets": 34,
+   "small": 14,
+   "primary": 1,
+   "longLists": 0
+  }
+ },
+ "verbs": {
+  "Aggiungi": 2,
+  "Elimina": 0,
+  "Modifica": 0,
+  "Salva": 4,
+  "Annulla": 2,
+  "Fatto": 1,
+  "Archivia": 0
+ },
+ "tasks": {
+  "acqua": 999,
+  "pasto": 0,
+  "peso": 0,
+  "palestra": 0,
+  "fatto": 1199
+ }
+}

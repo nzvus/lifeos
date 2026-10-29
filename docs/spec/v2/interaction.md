@@ -174,6 +174,11 @@ database) runs on the PRs that touch UI and reports per page:
 - the 30 tasks of the study, with taps, screens, fields and dead ends:
   a PR may not make a task longer or turn a done task into a dead end.
 
+Written 29 Oct: `node scripts/ui-check.mjs --save | --compare` (baseline in
+`scripts/ui-baseline.json`); today it covers the page checks and five daily
+tasks' scroll to their first control. The study's 30 tasks join as their
+screens are rebuilt in phase D.
+
 ## 9. In the kit
 
 New parts: `ObjectPage`, `Section` (fold with a whole-row header),
