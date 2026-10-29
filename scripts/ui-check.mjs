@@ -4,7 +4,9 @@
 // the visual forms of each verb (P5, one form per verb); per daily task: the
 // scroll needed to reach its first control (P4).
 //
-// usage: node scripts/ui-check.mjs [--save | --compare] [--base http://localhost:3200]
+// usage: node scripts/ui-check.mjs [--save | --compare] [--crawl] [--shots <dir>] [--base http://localhost:3200]
+//   --crawl    every page the app links to (one per kind of address), not only the list below
+//   --shots    a full-page screenshot of each page into <dir>
 //   --save     writes scripts/ui-baseline.json
 //   --compare  exits 1 when a page or task is worse than the baseline
 // Needs the dev server (`cd apps/v2 && npx next dev -p 3200`) and the local
@@ -83,6 +85,51 @@ for (const [list, sel] of FIRST_OF) {
   if (href) pages.push(href.replace(/\/[0-9a-f-]{36}/, "/:id") + "@" + href);
 }
 
+// --crawl: every page the app links to, one per kind of address (ids and days as :id, :day;
+// only `vista` kept from the query), so the check covers the whole app, not only the list above.
+if (arg("--crawl")) {
+  const keyOf = (href) => {
+    const u = new URL(href, BASE);
+    const vista = u.searchParams.get("vista");
+    return (
+      u.pathname
+        .replace(/\/[0-9a-f]{8}-[0-9a-f-]{27}/g, "/:id")
+        .replace(/\/\d{4}-\d{2}-\d{2}/g, "/:day") + (vista ? "?vista=" + vista : "")
+    );
+  };
+  const known = new Map(pages.map((e) => (e.includes("@") ? e.split("@") : [e, e])));
+  const todo = [...known.values()];
+  while (todo.length && known.size < 90) {
+    const url = todo.shift();
+    // A link that downloads (the export) or fails is not a page: skip it.
+    if (
+      !(await p.goto(BASE + url, { timeout: 120000 }).then(
+        () => true,
+        () => false,
+      ))
+    ) {
+      known.delete(keyOf(url));
+      continue;
+    }
+    await p.waitForTimeout(800);
+    const hrefs = await p.$$eval("a[href^='/']", (as) =>
+      as.map((a) => a.getAttribute("href")),
+    );
+    for (const h of hrefs) {
+      if (!h || /^\/(api|sign-|_next)|esporta/.test(h)) continue;
+      const k = keyOf(h);
+      if (!known.has(k)) {
+        known.set(k, h);
+        todo.push(h);
+      }
+    }
+  }
+  pages.length = 0;
+  for (const [k, u] of known) pages.push(k === u ? k : k + "@" + u);
+}
+const SHOTS = arg("--shots") ? process.argv[process.argv.indexOf("--shots") + 1] : null;
+if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
+
 const report = { pages: {}, verbs: {}, tasks: {} };
 const forms = Object.fromEntries(VERBS.map((v) => [v, new Set()]));
 for (const entry of pages) {
@@ -130,6 +177,15 @@ for (const entry of pages) {
       verbForms,
     };
   }, VERBS);
+  if (SHOTS)
+    await p.screenshot({
+      path:
+        SHOTS +
+        "/" +
+        (name.replace(/[^a-z0-9:]+/gi, "_").replace(/^_|_$/g, "") || "root") +
+        ".png",
+      fullPage: true,
+    });
   for (const [v, fs_] of Object.entries(r.verbForms))
     for (const f of fs_) forms[v].add(f);
   delete r.verbForms;

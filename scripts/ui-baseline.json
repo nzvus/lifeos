@@ -4,95 +4,467 @@
    "targets": 134,
    "small": 76,
    "primary": 1,
-   "longLists": 1
+   "longLists": 1,
+   "offScale": 15,
+   "edges": 64
   },
   "/aggiungi": {
    "targets": 35,
    "small": 5,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 8
   },
   "/aggiungi/pasto": {
    "targets": 40,
    "small": 16,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 29
   },
   "/aggiungi/attivita": {
    "targets": 12,
    "small": 2,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 5
   },
   "/piano": {
    "targets": 92,
    "small": 26,
    "primary": 0,
-   "longLists": 1
+   "longLists": 1,
+   "offScale": 2,
+   "edges": 42
   },
   "/andamento": {
    "targets": 68,
    "small": 26,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 9,
+   "edges": 50
   },
   "/libreria": {
    "targets": 17,
    "small": 10,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 8
   },
   "/libreria?vista=cibi": {
    "targets": 119,
    "small": 110,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 7
   },
   "/libreria?vista=esercizi": {
    "targets": 83,
    "small": 75,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 9
   },
   "/palestra": {
    "targets": 11,
    "small": 0,
    "primary": 0,
-   "longLists": 1
+   "longLists": 1,
+   "offScale": 2,
+   "edges": 4
   },
   "/impostazioni": {
    "targets": 26,
    "small": 11,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 11
   },
-  "/libreria/cibo/nuovo": {
-   "targets": 37,
+  "/libreria/cibo/:id": {
+   "targets": 31,
    "small": 14,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 8,
+   "edges": 17
   },
-  "/libreria/esercizio/nuovo": {
-   "targets": 8,
-   "small": 2,
-   "primary": 1,
-   "longLists": 0
+  "/libreria/esercizio/:id": {
+   "targets": 4,
+   "small": 1,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 2
   },
   "/voce/:id": {
    "targets": 34,
    "small": 14,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 27
+  },
+  "/oggi/:day": {
+   "targets": 65,
+   "small": 8,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 14,
+   "edges": 53
+  },
+  "/andamento/obiettivi": {
+   "targets": 10,
+   "small": 3,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 8
+  },
+  "/palestra/:id": {
+   "targets": 5,
+   "small": 1,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 5,
+   "edges": 7
+  },
+  "/aggiungi/water": {
+   "targets": 10,
+   "small": 3,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 6
+  },
+  "/aggiungi/tragitto": {
+   "targets": 3,
+   "small": 1,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 4
+  },
+  "/aggiungi/steps": {
+   "targets": 16,
+   "small": 5,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 7
+  },
+  "/aggiungi/weigh_in": {
+   "targets": 32,
+   "small": 15,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 8
+  },
+  "/aggiungi/measurements": {
+   "targets": 22,
+   "small": 8,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 7
+  },
+  "/aggiungi/mal_di_testa": {
+   "targets": 14,
+   "small": 4,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 7
+  },
+  "/aggiungi/reading": {
+   "targets": 11,
+   "small": 3,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 6
+  },
+  "/aggiungi/sleep": {
+   "targets": 13,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 8
+  },
+  "/aggiungi/checkin": {
+   "targets": 24,
+   "small": 4,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 7
+  },
+  "/aggiungi/journal": {
+   "targets": 7,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 4
+  },
+  "/aggiungi/spesa": {
+   "targets": 12,
+   "small": 4,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 5
+  },
+  "/aggiungi/activity": {
+   "targets": 14,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 8
+  },
+  "/aggiungi/chore": {
+   "targets": 7,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 4
+  },
+  "/libreria/cibo/nuovo": {
+   "targets": 37,
+   "small": 14,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 11
+  },
+  "/libreria/esercizio/nuovo": {
+   "targets": 8,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 5
+  },
+  "/impostazioni/tipi": {
+   "targets": 9,
+   "small": 3,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 6
+  },
+  "/piano/modelli": {
+   "targets": 21,
+   "small": 9,
+   "primary": 2,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 11
+  },
+  "/piano/modello/:id": {
+   "targets": 47,
+   "small": 20,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 18
+  },
+  "/piano/ciclo/:id": {
+   "targets": 40,
+   "small": 19,
+   "primary": 1,
+   "longLists": 1,
+   "offScale": 2,
+   "edges": 14
+  },
+  "/andamento/soldi": {
+   "targets": 11,
+   "small": 4,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 8
+  },
+  "/andamento/legami": {
+   "targets": 6,
+   "small": 0,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 6
+  },
+  "/andamento/qualita": {
+   "targets": 6,
+   "small": 0,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 8
+  },
+  "/andamento/come-valutiamo": {
+   "targets": 22,
+   "small": 15,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 6
+  },
+  "/andamento/peso": {
+   "targets": 64,
+   "small": 25,
+   "primary": 0,
+   "longLists": 1,
+   "offScale": 7,
+   "edges": 30
+  },
+  "/andamento/sonno": {
+   "targets": 67,
+   "small": 28,
+   "primary": 0,
+   "longLists": 1,
+   "offScale": 7,
+   "edges": 30
+  },
+  "/andamento/acqua": {
+   "targets": 46,
+   "small": 7,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 7,
+   "edges": 29
+  },
+  "/andamento/mal_di_testa": {
+   "targets": 43,
+   "small": 4,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 30
+  },
+  "/libreria?vista=pasti": {
+   "targets": 30,
+   "small": 22,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 7
+  },
+  "/libreria/dispensa": {
+   "targets": 7,
+   "small": 1,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 6
+  },
+  "/libreria/tragitto": {
+   "targets": 7,
+   "small": 1,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 6
+  },
+  "/impostazioni/cestino": {
+   "targets": 201,
+   "small": 200,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 2
+  },
+  "/libreria/cibo/:id/modifica": {
+   "targets": 32,
+   "small": 12,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 11
+  },
+  "/libreria/cibo/:id/prodotto": {
+   "targets": 32,
+   "small": 12,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 11
+  },
+  "/libreria/cibo/:id/unisci": {
+   "targets": 3,
+   "small": 0,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 1,
+   "edges": 4
+  },
+  "/libreria/esercizio/:id/unisci": {
+   "targets": 3,
+   "small": 0,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 1,
+   "edges": 4
+  },
+  "/andamento/obiettivi/nuovo": {
+   "targets": 6,
+   "small": 0,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 3
+  },
+  "/libreria/tragitto/nuovo": {
+   "targets": 15,
+   "small": 3,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 8
+  },
+  "/piano/abitudine/nuova": {
+   "targets": 15,
+   "small": 1,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 7
+  },
+  "/libreria/pasto/:id": {
+   "targets": 9,
+   "small": 5,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 2
+  },
+  "/libreria/pasto/:id/modifica": {
+   "targets": 25,
+   "small": 5,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 5
   }
  },
  "verbs": {
   "Aggiungi": 2,
-  "Elimina": 0,
-  "Modifica": 0,
+  "Elimina": 1,
+  "Modifica": 2,
   "Salva": 4,
   "Annulla": 2,
-  "Fatto": 1,
-  "Archivia": 0
+  "Fatto": 2,
+  "Archivia": 2
  },
  "tasks": {
   "acqua": 999,
