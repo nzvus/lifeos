@@ -40,6 +40,8 @@ type Row = BoxEntry & {
   id: string;
   status: Status;
   l0?: NutrientsData | null;
+  /** A session in progress (features/day/present `isRunning`). */
+  running?: boolean;
   /** Meals of one role together: the entries inside, and where to add one more. */
   group?: (Row & { minute: number })[];
   addHref?: string;
