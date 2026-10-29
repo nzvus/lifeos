@@ -35,8 +35,14 @@ export type EnergyRows = {
     afterToilet: boolean | null;
     afterTraining: boolean | null;
   }[];
-  steps: { day: IsoDate; steps: number | null; level: string | null }[];
+  steps: {
+    day: IsoDate;
+    steps: number | null;
+    level: string | null;
+    onFeetH?: number | null;
+  }[];
   sessions: {
+    id: string;
     day: IsoDate;
     minutes: number | null;
     exercises: {
@@ -241,6 +247,7 @@ async function readSessions(
     const span =
       s.startAt && s.endAt ? (s.endAt.getTime() - s.startAt.getTime()) / 60_000 : null;
     return {
+      id: s.id,
       day: s.day,
       minutes: n(s.values.get("durationMin")?.num) ?? span,
       exercises: children
@@ -298,7 +305,7 @@ export async function readEnergyRows(
       from,
       to,
     ),
-    doneWithValues(db, owner, "steps", ["steps", "level"], from, to),
+    doneWithValues(db, owner, "steps", ["steps", "level", "onFeetH"], from, to),
     readSessions(db, owner, from, to),
     db
       .select({
@@ -334,6 +341,7 @@ export async function readEnergyRows(
       day: s.day,
       steps: n(s.values.get("steps")?.num),
       level: s.values.get("level")?.text ?? null,
+      onFeetH: n(s.values.get("onFeetH")?.num),
     })),
     sessions,
     profile:

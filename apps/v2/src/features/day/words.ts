@@ -53,6 +53,7 @@ export const FIELDS: Record<string, string> = {
   ml: "Quantità",
   steps: "Passi",
   walkingMin: "Camminata",
+  onFeetH: "In piedi oggi",
   level: "Livello",
   category: "Cosa",
   focus: "Concentrazione",
