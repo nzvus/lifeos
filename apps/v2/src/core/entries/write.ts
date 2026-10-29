@@ -10,7 +10,16 @@ import { and, eq, inArray, isNotNull, isNull, or } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { entries, entryLines, entryLineValues, entryValues } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
+import type { IsoDate } from "../engines/time";
+import { kindRegistry } from "../kinds";
 import type { CheckedEntry, CheckedLine } from "./check";
+
+/** The built-in kinds logged at one instant: «Fatto» moves them to the tick. */
+const INSTANT = new Set(
+  kindRegistry()
+    .all.filter((k) => k.shape === "instant")
+    .map((k) => k.key),
+);
 
 /** Writes a checked entry typed by the person, with its lines and their snapshot; returns its id. */
 export async function createEntry(
@@ -53,26 +62,113 @@ export async function createEntry(
 
 export type Status = CheckedEntry["status"] | "skipped";
 
-/** Planned ↔ done, or skipped; returns the status it had, or null if not found. */
+/** The planned time kept when «Fatto» moves an entry to the tick's time (ISO text). */
+const PLANNED_START = "plannedStart";
+
+/**
+ * Planned ↔ done, or skipped; returns the status it had, or null if not
+ * found. «Ora della spunta» (capture.md §4): with `tick`, a planned instant
+ * entry of today ticked done takes the tick's time and keeps the planned one
+ * in `plannedStart`; back to planned (Undo, «Ripristina») it gets it back.
+ * An entry marked `timeMode = fixed` (an appointment) keeps its time.
+ */
 export async function setEntryStatus(
   db: Db,
   owner: Owner,
   id: string,
   status: Status,
+  tick?: { at: Date; today: IsoDate },
 ): Promise<Status | null> {
   return db.transaction(async (tx) => {
     const [before] = await tx
-      .select({ status: entries.status })
+      .select({
+        status: entries.status,
+        kind: entries.kind,
+        day: entries.day,
+        startAt: entries.startAt,
+        endAt: entries.endAt,
+      })
       .from(entries)
       .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)))
       .for("update");
     if (!before) return null;
+    const vals = await tx
+      .select({ field: entryValues.field, num: entryValues.num, text: entryValues.text })
+      .from(entryValues)
+      .where(
+        and(
+          ownedBy(entryValues, owner),
+          eq(entryValues.entryId, id),
+          inArray(entryValues.field, [PLANNED_START, "timeMode"]),
+        ),
+      );
+    const kept = vals.find((v) => v.field === PLANNED_START)?.text ?? null;
+    const fixed = vals.some((v) => v.field === "timeMode" && v.text === "fixed");
+    let startAt: Date | null | undefined;
+    if (
+      tick &&
+      status === "done" &&
+      before.status === "planned" &&
+      !fixed &&
+      before.endAt === null &&
+      before.day === tick.today &&
+      INSTANT.has(before.kind)
+    ) {
+      startAt = tick.at;
+      if (before.startAt && kept === null)
+        await tx
+          .insert(entryValues)
+          .values({
+            userId: owner.id,
+            entryId: id,
+            field: PLANNED_START,
+            text: before.startAt.toISOString(),
+          })
+          .onConflictDoNothing();
+    } else if (status === "planned" && kept !== null) {
+      startAt = new Date(kept);
+      await tx
+        .delete(entryValues)
+        .where(
+          and(
+            ownedBy(entryValues, owner),
+            eq(entryValues.entryId, id),
+            eq(entryValues.field, PLANNED_START),
+          ),
+        );
+    }
     await tx
       .update(entries)
-      .set({ status })
+      .set({ status, ...(startAt !== undefined ? { startAt } : {}) })
       .where(and(ownedBy(entries, owner), eq(entries.id, id)));
     return before.status;
   });
+}
+
+/**
+ * The day's live done entry of a kind logged once a day as a running total
+ * (steps: the phone's count, activity.md §4), if any: a new value replaces it.
+ */
+export async function dailyTotalOf(
+  db: Db,
+  owner: Owner,
+  kind: string,
+  day: IsoDate,
+): Promise<string | null> {
+  const [row] = await db
+    .select({ id: entries.id })
+    .from(entries)
+    .where(
+      and(
+        ownedBy(entries, owner),
+        eq(entries.kind, kind),
+        eq(entries.day, day),
+        eq(entries.status, "done"),
+        isNull(entries.deletedAt),
+      ),
+    )
+    .limit(1);
+  return row?.id ?? null;
 }
 
 /** Moves a live entry to the trash; false if there was none. */

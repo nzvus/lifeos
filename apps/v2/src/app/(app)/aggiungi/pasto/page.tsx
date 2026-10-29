@@ -97,7 +97,9 @@ export default async function MealPage({
   // `?cibo=<food>` (⊕'s search): the composer starts with that food.
   const one = !from && !again ? choices.find((c) => c.key === cibo) : undefined;
   const asked = typeof ruolo === "string" && ROLES.has(ruolo) ? ruolo : null;
-  const role = again?.values["role"] ?? asked;
+  // «Registra di nuovo» keeps a chosen role; one taken from the time follows the new time.
+  const role =
+    (again?.values["roleSource"] === "auto" ? undefined : again?.values["role"]) ?? asked;
   const at = typeof ora === "string" && /^\d{2}:\d{2}$/.test(ora) ? ora : null;
   const now = F.time(localParts(new Date(), clock.timeZone).minute);
   return (

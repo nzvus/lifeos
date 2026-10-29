@@ -30,7 +30,8 @@ const STEP: Record<string, number> = {
   bodyFatPct: 0.5,
   walkingMin: 5,
 };
-const HIDDEN = new Set(["sleep.bedAt", "sleep.wakeAt"]);
+// Steps' «level» is no longer asked (movement.md §4, activity.md §4): old values stay.
+const HIDDEN = new Set(["sleep.bedAt", "sleep.wakeAt", "steps.level"]);
 const SPAN: Record<string, [string, string]> = { sleep: ["A letto", "Sveglia"] };
 /** Fields asked under «Altre misure», closed: a weighing is its weight first. */
 const MORE: Record<string, ReadonlySet<string>> = {

@@ -1,6 +1,6 @@
 # Dossier — activity (runs, cardio, the day's steps)
 
-Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Method:
+Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. **Slice 1 built 2026-10-29:** ⊕ → «Attività fatta» (end, minutes, km with the pace, effort), saved as a finished cardio session; steps as the day's running total, level no longer asked. E3 counts cardio by the catalog's kind and its timed minutes (a mode the table does not name: 4–7 MET). Not yet: ACSM speed-based kcal in E3, run steps subtracted from the phone's, «Inizia adesso» timer, the weekly load caution. Method:
 `../method.md`. Extends `movement.md` (routes, trips, steps from the phone;
 its §5 stays the steps model) with the endurance activities it left out.
 Code it changes: `core/kinds/builtins.ts` (steps), `core/training/` (cardio

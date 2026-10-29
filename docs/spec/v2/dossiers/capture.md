@@ -1,6 +1,6 @@
 # Dossier — capture (⊕ and every quick log)
 
-Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Method:
+Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. **Slice 1 built 2026-10-29:** the role stored (manual / auto from the time), «Fatto» at the tick's time with the planned one kept (Undo restores it), water asked before the same amount within 10 s, one «Sonno» in ⊕ (a sleep under 3 h by day is saved as a nap). Not yet: the ranked ⊕, intake, «Unisci», planned → done from ⊕. Method:
 `../method.md`. Code it changes: `app/(app)/aggiungi/` (page, kinds, the
 sheets), `features/add/`, `features/food/MealWhen.tsx`, `core/entries/`;
 interaction.md §3–§6; screens.md V-02 (board Capture).

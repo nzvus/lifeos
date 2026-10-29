@@ -27,7 +27,16 @@ const SOURCE_WORDS: Record<string, string> = {
   derived: "calcolato",
 };
 /** Shown elsewhere in the box (its title or its lines), not again as a tile. */
-const HIDDEN = new Set(["label", "servings", "durationMin", "role", "estimated"]);
+const HIDDEN = new Set([
+  "label",
+  "servings",
+  "durationMin",
+  "role",
+  "roleSource",
+  "plannedStart",
+  "timeMode",
+  "estimated",
+]);
 /** The number the box's title line already shows, per kind. */
 const HEADLINE: Record<string, string> = {
   weigh_in: "weightKg",

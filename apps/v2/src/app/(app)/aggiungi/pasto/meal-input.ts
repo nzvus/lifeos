@@ -3,7 +3,10 @@
  * edited alike. Servings are kept only when not 1, and must be more than
  * none (the kind allows 0). «Salva anche come pasto» needs a new name; it
  * is checked here, before anything is written. An estimate has no servings,
- * and is saved as a saved estimate (its totals, no foods).
+ * and is saved as a saved estimate (its totals, no foods). The role is
+ * always stored (capture.md §4): the one chosen («manual»), else the one of
+ * the meal's time from the person's bounds («auto», taken again from the
+ * time on every save, so moving the meal moves its role).
  */
 import type { Db } from "@/core/db/db";
 import type { EntryInput } from "@/core/entries";
@@ -24,6 +27,7 @@ import {
   recipeNameTaken,
 } from "@/core/food/recipes";
 import type { Owner } from "@/core/identity/owner";
+import { mealRoleAt, type RoleBounds } from "@/core/kinds";
 import { clockToDayMin, errorWords } from "@/features/day/entry-form";
 import {
   ESTIMATE_WORDS,
@@ -36,6 +40,7 @@ export function mealInput(
   day: IsoDate,
   form: Record<string, string>,
   boundaryMin: number,
+  bounds: RoleBounds,
 ): EntryInput {
   const estimate = form["estimate"] === "yes";
   // An estimate's totals are the whole meal: no servings.
@@ -46,11 +51,26 @@ export function mealInput(
     startMin: clockToDayMin(form["start"] ?? "", boundaryMin),
     endMin: null,
     values: {
-      role: form["role"] ?? "",
+      ...roleOf(form["role"] ?? "", form["start"] ?? "", bounds),
       servings: servings === null || Number(servings) === 1 ? "" : servings,
       estimated: estimate ? "true" : "",
     },
     note: form["note"] ?? "",
+  };
+}
+
+/** The role chosen, else the time's; with no time, none (Oggi lists it untimed). */
+export function roleOf(
+  chosen: string,
+  start: string,
+  bounds: RoleBounds,
+): { role: string; roleSource: string } {
+  if (chosen) return { role: chosen, roleSource: "manual" };
+  const m = /^(\d{1,2}):(\d{2})$/.exec(start.trim());
+  if (!m) return { role: "", roleSource: "" };
+  return {
+    role: mealRoleAt(Number(m[1]) * 60 + Number(m[2]), bounds),
+    roleSource: "auto",
   };
 }
 

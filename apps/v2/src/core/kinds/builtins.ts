@@ -33,6 +33,8 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
     subcategory: { field: "role" },
     fields: [
       { key: "role", type: "choice", choices: [...MEAL_ROLES] },
+      // Chosen by the person, or taken from the time (capture.md §4).
+      { key: "roleSource", type: "choice", choices: ["manual", "auto"] },
       { key: "servings", type: "number", min: 0 },
       { key: "label", type: "text" },
       { key: "estimated", type: "boolean" },
@@ -75,6 +77,8 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
       { key: "durationMin", type: "duration", unit: "min", min: 0 },
       { key: "intensity", type: "text" },
       { key: "kcalEstimate", type: "number", unit: "kcal", min: 0 },
+      // Effort of the whole session, 0–10 (session RPE; activity.md §4).
+      { key: "rpe", type: "integer", min: 0, max: 10 },
       { key: "label", type: "text" },
       { key: "muscleGroups", type: "text" },
     ],

@@ -9,10 +9,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { checkEntry, createEntry } from "@/core/entries";
+import { checkEntry, createEntry, dailyTotalOf, updateEntry } from "@/core/entries";
 import type { SaveState } from "@/features/day/EntrySheet";
-import { errorWords, readEntryForm } from "@/features/day/entry-form";
+import { errorWords, managedFields, readEntryForm } from "@/features/day/entry-form";
 import { addContext } from "../kinds";
+import { asNap } from "./nap";
 
 export async function saveEntry(prev: SaveState, data: FormData): Promise<SaveState> {
   const owner = await requireOwner();
@@ -33,7 +34,13 @@ export async function saveEntry(prev: SaveState, data: FormData): Promise<SaveSt
     ctx.clock,
   );
   if (!checked.ok) return again(errorWords(checked.errors));
-  await createEntry(db, owner, checked.entry);
+  // Steps are the phone's total so far: a new count replaces the day's, never adds to it.
+  const total =
+    kind.key === "steps" && checked.entry.status === "done"
+      ? await dailyTotalOf(db, owner, "steps", checked.entry.day)
+      : null;
+  if (total) await updateEntry(db, owner, total, checked.entry, managedFields(kind));
+  else await createEntry(db, owner, asNap(checked.entry, ctx.clock.timeZone));
   revalidatePath("/oggi", "layout");
   redirect(ctx.day === ctx.today ? "/oggi" : "/oggi/" + ctx.day);
 }

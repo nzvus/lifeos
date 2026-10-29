@@ -103,7 +103,7 @@ export async function updateMeal(
   const checkedLines = formLines(form, lines, choices);
   const entry = checkEntry(
     kindRegistry().get("meal"),
-    mealInput(item.day, form, ctx.clock.boundaryMin),
+    mealInput(item.day, form, ctx.clock.boundaryMin, ctx.roleBounds),
     ctx.clock,
   );
   const extras = await mealExtras(db, owner, form);

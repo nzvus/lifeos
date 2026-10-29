@@ -70,7 +70,11 @@ export default async function AddPage({
           readExercises(db, owner).then((x) => readRoutines(db, owner, today, x)),
         ])
       : [[], []];
-  const rows = kindRows(kinds, (k) => `/aggiungi/${k}?giorno=${day}${st}`);
+  // One «Sonno» for the night and the nap: a short sleep by day is saved as a nap.
+  const rows = kindRows(
+    kinds.filter((k) => k.key !== "nap"),
+    (k) => `/aggiungi/${k}?giorno=${day}${st}`,
+  );
   const meal = `/aggiungi/pasto?giorno=${day}${st}`;
   const targets: AddTarget[] = [
     {
@@ -88,6 +92,14 @@ export default async function AddPage({
       fam: "train",
       of: { kind: "session" },
       href: "/palestra",
+    },
+    {
+      key: "k:activity",
+      title: "Attività fatta",
+      sub: "corsa, bici, cardio",
+      fam: "train",
+      of: { kind: "session", pattern: "run" },
+      href: `/aggiungi/attivita?giorno=${day}`,
     },
     {
       key: "k:movement",
@@ -187,6 +199,18 @@ export default async function AddPage({
                       fam: "train",
                       of: { kind: "session" },
                       title: "Allenamento",
+                    }}
+                    density="row"
+                    rail={false}
+                  />
+                </a>
+                <a href={`/aggiungi/attivita?giorno=${day}`} className="k-plain">
+                  <Box
+                    entry={{
+                      fam: "train",
+                      of: { kind: "session", pattern: "run" },
+                      title: "Attività fatta",
+                      meta: "corsa, bici, cardio: già fatta",
                     }}
                     density="row"
                     rail={false}

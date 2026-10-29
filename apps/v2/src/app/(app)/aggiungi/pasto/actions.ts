@@ -36,7 +36,7 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
   const recipe = recipeOf(form, recipes, form["estimate"] === "yes");
   const entry = checkEntry(
     kindRegistry().get("meal"),
-    mealInput(ctx.day, form, ctx.clock.boundaryMin),
+    mealInput(ctx.day, form, ctx.clock.boundaryMin, ctx.roleBounds),
     ctx.clock,
   );
   const extras = await mealExtras(db, owner, form);
