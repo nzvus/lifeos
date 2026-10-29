@@ -166,8 +166,9 @@ export function composeDay(rows: DayRows, registry: KindRegistry): Day {
     byCreation.filter((e) => !folded.has(e.id)).map((e) => [e.id, toItem(e)]),
   );
 
-  // Children under their parent, in their position; an orphan (its parent is
-  // on another day or deleted) stays on the day rather than vanish.
+  // Children under their parent, in their position; one whose parent is on
+  // another day stays on this day rather than vanish (a child of a trashed
+  // parent is not read at all: core/day/read.ts).
   const roots: DayItem[] = [];
   for (const e of byCreation) {
     const item = items.get(e.id);

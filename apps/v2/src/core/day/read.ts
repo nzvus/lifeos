@@ -6,7 +6,7 @@
  * Four rounds of queries, each by the ids the one before found: never one
  * query per entry.
  */
-import { and, getTableColumns, gte, inArray, isNull, lte } from "drizzle-orm";
+import { and, getTableColumns, gte, inArray, isNull, lte, sql } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
 import { addDays, type DayClock, type IsoDate } from "../engines/time";
 import type { Db } from "../db/db";
@@ -153,6 +153,8 @@ export async function readDays(
           gte(entries.day, from),
           lte(entries.day, to),
           isNull(entries.deletedAt),
+          // A child whose parent is in the trash left with it (a session's exercises).
+          sql`not exists (select 1 from entries p where p.id = ${entries.parentId} and p.deleted_at is not null)`,
         ),
       ),
     readUserKinds(db, owner),
