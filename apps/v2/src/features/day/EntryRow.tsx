@@ -39,6 +39,8 @@ export function EntryRow({
     details?: Details | null;
     /** A session in progress: «Riprendi» instead of «Fatto» and «Salta». */
     running?: boolean;
+    /** A session: begun in gym mode («Inizia»), never ticked done with no set. */
+    session?: boolean;
   };
   status: Status;
   density?: "card" | "row";
@@ -85,12 +87,12 @@ export function EntryRow({
             onClick: () => window.location.assign(entry.href!),
           },
         ]
-      : status === "planned"
+      : status === "planned" && entry.session && entry.href
         ? [
             {
-              label: "Fatto",
-              aria: entry.title + ": segna fatto",
-              onClick: () => onIntent("done"),
+              label: "Inizia",
+              aria: entry.title + ": inizia in palestra",
+              onClick: () => window.location.assign(entry.href!),
             },
             {
               label: "Salta",
@@ -98,15 +100,28 @@ export function EntryRow({
               onClick: () => onIntent("skipped"),
             },
           ]
-        : status === "skipped"
+        : status === "planned"
           ? [
               {
-                label: "Ripristina",
-                aria: entry.title + ": rimetti tra i previsti",
-                onClick: () => onIntent("planned"),
+                label: "Fatto",
+                aria: entry.title + ": segna fatto",
+                onClick: () => onIntent("done"),
+              },
+              {
+                label: "Salta",
+                aria: entry.title + ": salta",
+                onClick: () => onIntent("skipped"),
               },
             ]
-          : [];
+          : status === "skipped"
+            ? [
+                {
+                  label: "Ripristina",
+                  aria: entry.title + ": rimetti tra i previsti",
+                  onClick: () => onIntent("planned"),
+                },
+              ]
+            : [];
 
   return (
     <div

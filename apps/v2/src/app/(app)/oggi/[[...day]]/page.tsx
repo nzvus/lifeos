@@ -254,6 +254,7 @@ export default async function OggiPage({
       id: i.id,
       status: i.status,
       running: isRunning(i),
+      session: i.kind.key === "session",
     };
   };
   const night = nightOf(items);
