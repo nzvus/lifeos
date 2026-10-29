@@ -1,6 +1,6 @@
 # Dossier — the live gym session (what to do now, how, and what was done)
 
-Status: **draft 2026-10-29**, for the developer's review. Method:
+Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Method:
 `../method.md`. Builds on `training.md` (approved 2026-10-23: e1RM, trends,
 learnt rests, duration), which stays the source for the numbers; this dossier
 designs the **session as an experience**: order, warm-ups, the screen's
@@ -211,7 +211,7 @@ controllare»); cardio inside a gym session belongs to `activity.md`.
 8. Weekly sets for lateral delts < 10 → the summary proposes one of his own
    lateral-raise exercises; > 20 → nothing added.
 
-## 9. Questions for the developer
+## 9. Questions for the developer — decided 2026-10-29, as recommended
 1. **Generated warm-ups on by default**, pre-filled from your own ramp and
    skippable per exercise? Recommended: yes.
 2. **Supersets now** (agonist–antagonist only, proposed when short on time)

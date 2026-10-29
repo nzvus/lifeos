@@ -1,6 +1,6 @@
 # Dossier — data repair (what the 29 Oct export shows is wrong, and the rules that stop it)
 
-Status: **draft 2026-10-29**, for the developer's review: it changes stored
+Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Data repairs run on production only by the developer's migrate job.
 data, so each repair is the developer's call (method.md §2). Short by
 design: the causes are fixed in session.md, capture.md and activity.md;
 this page lists the rows already wrong and how to repair them once.
@@ -30,6 +30,6 @@ this page lists the rows already wrong and how to repair them once.
 3. A session trashed and restored from the trash comes back with its
    exercises and sets.
 
-## 4. Questions for the developer
+## 4. Questions for the developer — decided 2026-10-29, as recommended
 1. Run R1, R2, R3 and R5 on production after the code fixes ship?
    Recommended: yes, R1 first (it is pure cleanup).

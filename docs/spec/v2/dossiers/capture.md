@@ -1,6 +1,6 @@
 # Dossier — capture (⊕ and every quick log)
 
-Status: **draft 2026-10-29**, for the developer's review. Method:
+Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Method:
 `../method.md`. Code it changes: `app/(app)/aggiungi/` (page, kinds, the
 sheets), `features/add/`, `features/food/MealWhen.tsx`, `core/entries/`;
 interaction.md §3–§6; screens.md V-02 (board Capture).
@@ -141,7 +141,7 @@ day); after midnight before sleep (the day boundary, clock.ts); offline
 5. Search «corsa» → one row «Corsa» (Run merged into it), not two.
 6. 26 Oct sleep 22:11 → 05:23 entered from «Sonno» → a sleep, never a nap.
 
-## 9. Questions for the developer
+## 9. Questions for the developer — decided 2026-10-29, as recommended
 0. **Coffee, creatine and supplements as «assunzioni»** (`intake`), not
    meals: counted in the day's nutrients and ranges, logged in one tap, no
    role or score? Recommended: yes; existing single-food «meals» of a
