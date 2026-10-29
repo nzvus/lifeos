@@ -18,6 +18,7 @@ import {
   settings,
   trainingSets,
 } from "../db/schema";
+import { CARDIO_MET } from "../engines/expenditure";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 
@@ -40,6 +41,10 @@ export type EnergyRows = {
     minutes: number | null;
     exercises: {
       pattern: string | null;
+      /** An activity (catalog kind «cardio» or a cardio pattern): costs a MET band over its minutes. */
+      cardio: boolean;
+      /** Its timed minutes (the sets' durations), when it has any. */
+      cardioMin: number | null;
       sets: {
         reps: number;
         kg: number;
@@ -196,6 +201,7 @@ async function readSessions(
             loadKg: trainingSets.loadKg,
             rir: trainingSets.rir,
             warmup: trainingSets.warmup,
+            durationS: trainingSets.durationS,
             startedAt: trainingSets.startedAt,
             endedAt: trainingSets.endedAt,
           })
@@ -212,18 +218,25 @@ async function readSessions(
       : [],
     itemIds.length
       ? db
-          .select({ itemId: catalogValues.itemId, text: catalogValues.text })
+          .select({
+            itemId: catalogValues.itemId,
+            field: catalogValues.field,
+            text: catalogValues.text,
+          })
           .from(catalogValues)
           .where(
             and(
               ownedBy(catalogValues, owner),
-              eq(catalogValues.field, "pattern"),
+              inArray(catalogValues.field, ["pattern", "kind"]),
               inArray(catalogValues.itemId, itemIds),
             ),
           )
       : [],
   ]);
-  const patternOf = new Map(patterns.map((p) => [p.itemId, p.text]));
+  const valueOf = (field: string) =>
+    new Map(patterns.filter((p) => p.field === field).map((p) => [p.itemId, p.text]));
+  const patternOf = valueOf("pattern");
+  const kindOf = valueOf("kind");
   return sessions.map((s) => {
     const span =
       s.startAt && s.endAt ? (s.endAt.getTime() - s.startAt.getTime()) / 60_000 : null;
@@ -232,18 +245,28 @@ async function readSessions(
       minutes: n(s.values.get("durationMin")?.num) ?? span,
       exercises: children
         .filter((c) => c.parentId === s.id)
-        .map((c) => ({
-          pattern: (c.itemId && patternOf.get(c.itemId)) || null,
-          sets: sets
-            .filter((x) => x.entryId === c.id && !x.warmup && (x.reps ?? 0) > 0)
-            .map((x) => ({
-              reps: x.reps!,
-              kg: Number(x.loadKg ?? 0),
-              rir: x.rir,
-              start: x.startedAt?.getTime() ?? null,
-              end: x.endedAt?.getTime() ?? null,
-            })),
-        })),
+        .map((c) => {
+          const pattern = (c.itemId && patternOf.get(c.itemId)) || null;
+          const timed = sets
+            .filter((x) => x.entryId === c.id && !x.warmup)
+            .reduce((a, x) => a + (x.durationS ?? 0), 0);
+          return {
+            pattern,
+            cardio:
+              (c.itemId !== null && kindOf.get(c.itemId) === "cardio") ||
+              (pattern !== null && pattern in CARDIO_MET),
+            cardioMin: timed > 0 ? timed / 60 : null,
+            sets: sets
+              .filter((x) => x.entryId === c.id && !x.warmup && (x.reps ?? 0) > 0)
+              .map((x) => ({
+                reps: x.reps!,
+                kg: Number(x.loadKg ?? 0),
+                rir: x.rir,
+                start: x.startedAt?.getTime() ?? null,
+                end: x.endedAt?.getTime() ?? null,
+              })),
+          };
+        }),
     };
   });
 }

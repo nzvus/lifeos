@@ -30,6 +30,9 @@ export const CARDIO_MET: Readonly<Record<string, Range>> = {
   elliptical: { low: 5, high: 7 },
 };
 
+/** Cardio of a mode the table does not name (an elliptical, a pool): a moderate band. */
+export const CARDIO_MODERATE: Range = { low: 4, high: 7 };
+
 /** The class of a lifted exercise; null for cardio (see `CARDIO_MET`). */
 export function classOf(pattern: string | null | undefined): ExerciseClass | null {
   if (pattern && pattern in CARDIO_MET) return null;

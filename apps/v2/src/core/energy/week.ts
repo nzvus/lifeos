@@ -27,6 +27,7 @@ import {
   activityCost,
   bmr,
   CARDIO_MET,
+  CARDIO_MODERATE,
   classOf,
   dayPrior,
   filterInputs,
@@ -107,8 +108,11 @@ export function weekEnergy(
     const sessions = rows.sessions
       .filter((s) => s.day === d)
       .map((s) => {
-        const lifted = s.exercises.filter((e) => classOf(e.pattern) !== null);
-        const cardio = s.exercises.filter((e) => classOf(e.pattern) === null);
+        // An activity is cardio by its catalog kind, not only by a known pattern.
+        const lifted = s.exercises.filter(
+          (e) => !e.cardio && classOf(e.pattern) !== null,
+        );
+        const cardio = s.exercises.filter((e) => e.cardio || classOf(e.pattern) === null);
         const share =
           s.minutes && s.exercises.length ? s.minutes / s.exercises.length : 0;
         const sets = lifted.flatMap((e) =>
@@ -134,7 +138,12 @@ export function weekEnergy(
             })
           : null;
         const cardioPrior = cardio.map(
-          (e) => activityCost(CARDIO_MET[e.pattern!]!, kg, share).prior,
+          (e) =>
+            activityCost(
+              (e.pattern && CARDIO_MET[e.pattern]) || CARDIO_MODERATE,
+              kg,
+              e.cardioMin ?? share,
+            ).prior,
         );
         return {
           prior: [cost?.prior, ...cardioPrior].reduce<Range>(

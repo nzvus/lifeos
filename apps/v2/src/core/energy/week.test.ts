@@ -61,6 +61,27 @@ describe("the week's energy (E4 once a week)", () => {
     expect(w.bmr).toBe(1797);
   });
 
+  it("cardio by its catalog kind: an elliptical (pattern «other») costs its timed minutes", () => {
+    const withSession = (cardio: boolean, cardioMin: number | null) =>
+      weekEnergy(
+        {
+          ...person(2500, () => 76),
+          sessions: [
+            {
+              day: "2026-10-15",
+              minutes: 40,
+              exercises: [{ pattern: "other", cardio, cardioMin, sets: [] }],
+            },
+          ],
+        },
+        { from, to, today: "2026-10-19", clock, goal: null },
+      )!.priors.training;
+    // As a lift with no sets it cost nothing; as cardio, 40 min at a moderate band.
+    expect(withSession(false, null)).toBe(0);
+    expect(withSession(true, 40)).toBeGreaterThan(0);
+    expect(withSession(true, 40)).toBeGreaterThan(withSession(true, 20));
+  });
+
   it("nothing without the body in the settings or a weigh-in", () => {
     expect(
       weekEnergy(
