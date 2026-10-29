@@ -18,6 +18,7 @@ import {
   confirmSets,
   finishSession,
   reopenSession,
+  saveRoutineFromSession,
   readExercises,
   readRoutines,
   removeSet,
@@ -174,6 +175,18 @@ export async function skipGymExercise(entryId: string, skip: boolean): Promise<b
   );
   revalidatePath("/palestra", "layout");
   return before !== null;
+}
+
+/** «Salva nella routine»: today's exercises and order become the routine's. */
+export async function saveRoutineGym(sessionId: string): Promise<boolean> {
+  if (!UUID.test(sessionId)) return false;
+  const done = await saveRoutineFromSession(
+    await getDb(),
+    await requireOwner(),
+    sessionId,
+  );
+  revalidatePath("/palestra", "layout");
+  return done;
 }
 
 /** «Riprendi»: a finished session in progress again, back in gym mode. */

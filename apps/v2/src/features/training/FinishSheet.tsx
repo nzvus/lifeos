@@ -4,6 +4,7 @@
  * done, the exercises with no set (skipped at the end), the presunte that
  * finishing confirms. The session ends only from here; «Continua» goes back.
  */
+import { useState } from "react";
 import { F } from "@lifeos/kit";
 import type { GymExercise } from "./Gym";
 import { workDone } from "./gym-parts";
@@ -11,6 +12,8 @@ import { workDone } from "./gym-parts";
 export function FinishSheet({
   exercises,
   toAdd,
+  routine,
+  onSaveRoutine,
   minutes,
   busy,
   onBack,
@@ -19,11 +22,15 @@ export function FinishSheet({
   exercises: GymExercise[];
   /** Muscles under their weekly sets, with an exercise of the person's for each. */
   toAdd: string[];
+  routine: { name: string } | null;
+  onSaveRoutine: () => Promise<boolean>;
   minutes: number | null;
   busy: boolean;
   onBack: () => void;
   onFinish: () => void;
 }) {
+  // The routine saved into, kept after the page reloads (it no longer differs then).
+  const [saved, setSaved] = useState<string | null>(null);
   const work = exercises.reduce((n, e) => n + workDone(e), 0);
   const warm = exercises.reduce((n, e) => n + e.done.filter((d) => d.warmup).length, 0);
   const untouched = exercises.filter((e) => e.done.length === 0);
@@ -78,6 +85,28 @@ export function FinishSheet({
               <p className="k-help">
                 Se hai tempo, aggiungilo ora da «Poi», o mettilo nella routine.
               </p>
+            </div>
+          )}
+          {(routine || saved) && (
+            <div className="k-stack g1">
+              <p className="k-body">
+                Oggi esercizi o ordine diversi da «{routine?.name ?? saved}».
+              </p>
+              {saved ? (
+                <p className="k-help" role="status">
+                  Salvati in «{saved}».
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  className="k-btn secondary"
+                  onClick={async () => {
+                    if (routine && (await onSaveRoutine())) setSaved(routine.name);
+                  }}
+                >
+                  Salva nella routine
+                </button>
+              )}
             </div>
           )}
           <p className="k-help">Potrai riprenderlo dopo, dalla sessione.</p>

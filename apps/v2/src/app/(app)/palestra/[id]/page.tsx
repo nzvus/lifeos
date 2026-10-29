@@ -33,6 +33,7 @@ import {
   readExercises,
   readTrainingHistory,
   readWeekWork,
+  readRoutines,
   readCreatineLines,
   sessionContext,
 } from "@/core/training";
@@ -55,6 +56,7 @@ import {
   finishGym,
   reopenGym,
   skipGymExercise,
+  saveRoutineGym,
   removeGym,
   readinessGym,
   tickSet,
@@ -80,10 +82,17 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
   const byId = new Map(catalog.map((e) => [e.id, e]));
   const ids = session.children.flatMap((c) => (c.item ? [c.item.id] : []));
   const today = logicalDay(new Date(), clock);
-  const [history, week] = await Promise.all([
+  const [history, week, routines] = await Promise.all([
     readTrainingHistory(db, owner, ids, id, session.day),
     readWeekWork(db, owner, session.day),
+    session.item ? readRoutines(db, owner, session.day, catalog) : Promise.resolve([]),
   ]);
+  // «Salva nella routine» only when today's exercises or order differ from it.
+  const own = routines.find((r) => r.id === session.item?.id);
+  const routine =
+    own && own.exercises.map((e) => e.exerciseId).join() !== ids.join()
+      ? { name: own.name }
+      : null;
   // «Cosa aggiungere» (session.md §5.4): muscles under 10 weekly sets, with an exercise of theirs.
   const usedThisMonth = week.flatMap((w) => {
     const e = byId.get(w.exerciseId);
@@ -321,6 +330,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         box,
         dayHref: session.day === today ? "/oggi" : "/oggi/" + session.day,
         toAdd,
+        routine,
       }}
       exercises={exercises}
       catalog={catalog.map((e) => ({ id: e.id, name: e.name }))}
@@ -331,6 +341,7 @@ export default async function GymPage({ params }: { params: Promise<{ id: string
         finish: finishGym,
         reopen: reopenGym,
         skip: skipGymExercise,
+        saveRoutine: saveRoutineGym,
         remove: removeGym.bind(null, session.day),
         readiness: readinessGym,
         settings: exerciseSettingsGym,

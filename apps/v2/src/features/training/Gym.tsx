@@ -98,6 +98,8 @@ export type GymActions = {
   finish: (sessionId: string) => Promise<void>;
   /** «Salta» an exercise for today (true), or put it back (false). */
   skip: (exerciseEntryId: string, skip: boolean) => Promise<boolean>;
+  /** «Salva nella routine»: today's exercises and order become the routine's. */
+  saveRoutine: (sessionId: string) => Promise<boolean>;
   /** «Riprendi»: a finished session in progress again. */
   reopen: (sessionId: string) => Promise<void>;
   /** «Elimina la sessione»: to the trash. */
@@ -172,6 +174,8 @@ export function Gym({
     beforePills: { t: string; state: State }[];
     /** «Cosa aggiungere» lines for the end summary (session.md §5.4). */
     toAdd: string[];
+    /** The routine when today's exercises or order differ from it: offered to save. */
+    routine: { name: string } | null;
     /** The session so far: minutes, score, muscle split (the board); null before the first set. */
     box: BoxEntry | null;
   };
@@ -746,6 +750,8 @@ export function Gym({
         <FinishSheet
           exercises={exercises}
           toAdd={session.toAdd}
+          routine={session.routine}
+          onSaveRoutine={() => actions.saveRoutine(session.id)}
           minutes={sessionElapsed !== null ? Math.round(sessionElapsed / 60) : null}
           busy={busy}
           onBack={() => setEnding(false)}
