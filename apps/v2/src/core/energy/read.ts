@@ -19,6 +19,7 @@ import {
   trainingSets,
 } from "../db/schema";
 import { CARDIO_MET } from "../engines/expenditure";
+import { EATEN_KINDS } from "../kinds";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 
@@ -127,7 +128,12 @@ async function readMeals(
   from: IsoDate,
   to: IsoDate,
 ): Promise<EnergyRows["meals"]> {
-  const meals = await doneWithValues(db, owner, "meal", ["servings"], from, to);
+  // An «assunzione» (coffee, creatine) counts with the meals (capture.md §4).
+  const meals = (
+    await Promise.all(
+      EATEN_KINDS.map((k) => doneWithValues(db, owner, k, ["servings"], from, to)),
+    )
+  ).flat();
   if (meals.length === 0) return [];
   const lines = await db
     .select({

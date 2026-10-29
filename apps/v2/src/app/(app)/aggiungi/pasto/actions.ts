@@ -35,7 +35,7 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
   const checkedLines = formLines(form, lines, choices);
   const recipe = recipeOf(form, recipes, form["estimate"] === "yes");
   const entry = checkEntry(
-    kindRegistry().get("meal"),
+    kindRegistry().get(form["kind"] === "intake" ? "intake" : "meal"),
     mealInput(ctx.day, form, ctx.clock.boundaryMin, ctx.roleBounds),
     ctx.clock,
   );

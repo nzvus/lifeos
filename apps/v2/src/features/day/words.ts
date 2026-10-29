@@ -6,6 +6,7 @@
 /** Built-in kinds' names on the day (Italian, content.md). */
 export const NAMES: Record<string, string> = {
   meal: "Pasto",
+  intake: "Assunzione",
   batch: "Cucinato",
   water: "Acqua",
   session: "Allenamento",

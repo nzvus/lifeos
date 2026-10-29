@@ -7,6 +7,7 @@
 import { F, type BoxEntry, type GlyphOf } from "@lifeos/kit";
 import type { DayItem } from "@/core/day";
 import { enterable } from "@/core/entries/check";
+import { isEaten } from "@/core/kinds";
 import { lineTotals } from "@/core/food/totals";
 import { ACTIVITY, MEAL_ROLE_WORDS, NAMES } from "./words";
 import { MODE_WORDS } from "@/features/movement-words";
@@ -53,6 +54,9 @@ function title(i: DayItem): string {
     case "meal":
       // The boards name a meal by its role; what it was is the line under it.
       return roleName(i) || mealContents(i) || NAMES.meal!;
+    case "intake":
+      // An «assunzione» is named by what was taken (capture.md §4).
+      return label || mealContents(i) || NAMES.intake!;
     case "batch":
       return label || i.item?.name || NAMES.batch!;
     case "session":
@@ -75,6 +79,7 @@ function value(i: DayItem): string {
   const v = i.values;
   switch (i.kind.key) {
     case "meal":
+    case "intake":
     case "batch": {
       const servings = typeof v["servings"] === "string" ? v["servings"] : null;
       const kcal = lineTotals(i.lines, servings)["kcal"];
@@ -232,7 +237,7 @@ export function present(i: DayItem): BoxEntry {
     // A session opens gym mode, a meal its composer, a plain kind its sheet; others come later.
     ...(i.kind.key === "session"
       ? { href: "/palestra/" + i.id, hrefLabel: "Apri in palestra " + title(i) }
-      : i.kind.key === "meal" || i.kind.key === "movement" || enterable(i.kind)
+      : isEaten(i.kind.key) || i.kind.key === "movement" || enterable(i.kind)
         ? { href: "/voce/" + i.id, hrefLabel: "Modifica " + title(i) }
         : {}),
   };

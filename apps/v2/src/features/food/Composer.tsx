@@ -254,7 +254,10 @@ function Draft({
   const slot = slots[role || auto] ?? null;
   const gap = estimate ? null : closeTheGap(totals, slot, lines, choices);
   const fitting = estimate || tab !== "foods" ? [] : fittingRecipes(recipes, by, slot);
-  const heading = (roleWord ?? title) + (start ? " · " + start : "");
+  // An «assunzione» (coffee, creatine, a supplement; capture.md §4): no role, never a meal.
+  const intake = v["kind"] === "intake";
+  const heading =
+    (intake ? "Assunzione" : (roleWord ?? title)) + (start ? " · " + start : "");
   // A saved meal changed here: its kcal as saved next to now (the board Food).
   const savedKcal =
     ofRecipe && !ofRecipe.estimate && !estimate
@@ -363,6 +366,7 @@ function Draft({
       <input type="hidden" name="lines" value={JSON.stringify(estimate ? [] : lines)} />
       <input type="hidden" name="recipe" value={recipe} />
       <input type="hidden" name="estimate" value={estimate ? "yes" : ""} />
+      {intake && <input type="hidden" name="kind" value="intake" />}
 
       <div className="k-section">
         <nav className="k-tabs" aria-label="Come comporre il pasto">
@@ -609,14 +613,14 @@ function Draft({
       </section>
 
       <section className="k-section g3" aria-label="Il pasto">
-        <h2>{(roleWord ?? "Il pasto") + ", come sarà"}</h2>
+        <h2>{(intake ? "L’assunzione" : (roleWord ?? "Il pasto")) + ", come sarà"}</h2>
         <Box
           rail={false}
           entry={{
             ...(score ? { score } : {}),
             fam: "food",
-            ...(role || auto ? { sub: role || auto } : {}),
-            title: ROLE_WORDS[role || auto] ?? "Pasto",
+            ...(!intake && (role || auto) ? { sub: role || auto } : {}),
+            title: intake ? "Assunzione" : (ROLE_WORDS[role || auto] ?? "Pasto"),
             value: F.num(totals["kcal"] ?? 0, "kcal"),
             ...(estimate
               ? { meta: recipeName ? "stima · " + recipeName : "stima" }
@@ -744,6 +748,7 @@ function Draft({
         errors={e}
         start={start}
         role={role}
+        intake={intake}
         auto={auto}
         estimate={estimate}
         canSave={estimate ? !ofEstimate : lines.length > 0}

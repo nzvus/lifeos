@@ -54,7 +54,10 @@ export default async function AddPage({
         .reverse()
         .concat(d.untimed)
         .filter(
-          (i) => i.kind.key === "meal" && i.status === "done" && i.lines.length > 0,
+          (i) =>
+            (i.kind.key === "meal" || i.kind.key === "intake") &&
+            i.status === "done" &&
+            i.lines.length > 0,
         ),
     )
     .slice(0, RECENT);
@@ -193,6 +196,18 @@ export default async function AddPage({
                     rail={false}
                   />
                 </a>
+                <a href={meal + "&per=assunzione"} className="k-plain">
+                  <Box
+                    entry={{
+                      fam: "food",
+                      of: { kind: "meal" },
+                      title: "Assunzione",
+                      meta: "caffè, creatina, integratori",
+                    }}
+                    density="row"
+                    rail={false}
+                  />
+                </a>
                 <a href="/palestra" className="k-plain">
                   <Box
                     entry={{
@@ -303,7 +318,10 @@ export default async function AddPage({
                     return (
                       <a
                         key={i.id}
-                        href={`/aggiungi/pasto?giorno=${day}&da=${i.id}${st}`}
+                        href={
+                          `/aggiungi/pasto?giorno=${day}&da=${i.id}${st}` +
+                          (i.kind.key === "intake" ? "&per=assunzione" : "")
+                        }
                         className="k-plain"
                       >
                         <Box

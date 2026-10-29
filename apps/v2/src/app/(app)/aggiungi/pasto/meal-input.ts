@@ -51,7 +51,10 @@ export function mealInput(
     startMin: clockToDayMin(form["start"] ?? "", boundaryMin),
     endMin: null,
     values: {
-      ...roleOf(form["role"] ?? "", form["start"] ?? "", bounds),
+      // An «assunzione» has no role (capture.md §4).
+      ...(form["kind"] === "intake"
+        ? {}
+        : roleOf(form["role"] ?? "", form["start"] ?? "", bounds)),
       servings: servings === null || Number(servings) === 1 ? "" : servings,
       estimated: estimate ? "true" : "",
     },

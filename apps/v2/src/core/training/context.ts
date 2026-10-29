@@ -12,13 +12,14 @@
  * `sessionContext` is pure; `readCreatineLines` reads only the creatine
  * lines of the 28 days (a narrow query: the page does not load 28 days).
  */
-import { and, eq, gte, ilike, isNull, lte } from "drizzle-orm";
+import { and, eq, gte, ilike, inArray, isNull, lte } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { entries, entryLines } from "../db/schema";
 import type { Day, DayItem } from "../day";
 import { ownedBy, type Owner } from "../identity/owner";
 import { addDays, type IsoDate } from "../engines/time";
 import { lineTotals } from "../food/totals";
+import { EATEN_KINDS, isEaten } from "../kinds";
 
 export type SessionContext = {
   sleptMin: number | null;
@@ -38,7 +39,7 @@ const CREATINE_DAYS = 28;
 const meals = (days: readonly Day[]) =>
   days
     .flatMap((d) => [...d.timed, ...d.untimed])
-    .filter((i) => i.kind.key === "meal" && i.status === "done");
+    .filter((i) => isEaten(i.kind.key) && i.status === "done");
 const servingsOf = (m: DayItem) =>
   typeof m.values["servings"] === "string" ? (m.values["servings"] as string) : null;
 
@@ -67,7 +68,7 @@ export function readCreatineLines(
     .where(
       and(
         ownedBy(entries, owner),
-        eq(entries.kind, "meal"),
+        inArray(entries.kind, [...EATEN_KINDS]),
         eq(entries.status, "done"),
         isNull(entries.deletedAt),
         gte(entries.day, addDays(day, -(CREATINE_DAYS - 1))),
