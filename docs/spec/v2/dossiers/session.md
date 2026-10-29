@@ -1,6 +1,6 @@
 # Dossier — the live gym session (what to do now, how, and what was done)
 
-Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. Method:
+Status: **draft 2026-10-29**. **Decided 2026-10-29 by the agent at the developer's request** («procedi senza di me… fai le scelte migliori»): §9 as recommended; the developer reviews after. **Built 29 Oct:** generated warm-ups, resume after reload, «Annulla» on sets, Oggi's «in corso», «Salta/Rimetti», «Salva nella routine» (#298); «Poi»'s «⋯» with «Fai dopo» (the next one; the rest keep their order) and «Cambia» (another of the person's exercises, only one not begun), each with «Annulla» (`reorderExercises`, `substituteExercise`). Not yet: supersets (§5.2, agonist–antagonist when short on time), the order effect on the exercise, the board's screen redesign. Method:
 `../method.md`. Builds on `training.md` (approved 2026-10-23: e1RM, trends,
 learnt rests, duration), which stays the source for the numbers; this dossier
 designs the **session as an experience**: order, warm-ups, the screen's

@@ -26,6 +26,7 @@ import { ExerciseSettings } from "./ExerciseSettings";
 import { FinishSheet } from "./FinishSheet";
 import { GymClock } from "./GymClock";
 import { NextList } from "./NextList";
+import { usePoi } from "./use-poi";
 import { restPill, setText, strengthPill, timed, vsProposedText } from "./present";
 import { SetForm } from "./SetForm";
 import {
@@ -98,6 +99,10 @@ export type GymActions = {
   finish: (sessionId: string) => Promise<void>;
   /** «Salta» an exercise for today (true), or put it back (false). */
   skip: (exerciseEntryId: string, skip: boolean) => Promise<boolean>;
+  /** «Fai dopo» and its «Annulla»: the session's exercises in this order. */
+  reorder: (sessionId: string, entryIds: string[]) => Promise<boolean>;
+  /** «Cambia»: another exercise in its place; the one it was, for «Annulla». */
+  swap: (exerciseEntryId: string, exerciseId: string) => Promise<string | null>;
   /** «Salva nella routine»: today's exercises and order become the routine's. */
   saveRoutine: (sessionId: string) => Promise<boolean>;
   /** «Riprendi»: a finished session in progress again. */
@@ -202,8 +207,6 @@ export function Gym({
     text: string;
   } | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  // «Saltato · Alzate laterali · Annulla»: the skip taken back.
-  const [skipped, setSkipped] = useState<{ entryId: string; text: string } | null>(null);
   // «Finisci…» opens the summary; the session ends only from there.
   const [ending, setEnding] = useState(false);
   // «Correggi»: a done set taken back, its values in the steppers to type again.
@@ -276,6 +279,15 @@ export function Gym({
     setFix(null);
     setAt(i);
   };
+  const poi = usePoi({
+    sessionId: session.id,
+    exercises,
+    at,
+    setAt,
+    actions,
+    catalog,
+    quiet: () => setUndo(null),
+  });
   const x = exercises[Math.min(at, exercises.length - 1)];
   const others = exercises.map((e, i) => ({ e, i })).filter(({ i }) => i !== at);
   const found = useMemo(() => {
@@ -672,19 +684,18 @@ export function Gym({
         live={!session.done}
         query={query}
         found={found}
+        swapping={poi.swapping}
         onQuery={setQuery}
         onGo={goTo}
-        onSkip={async (e, skip) => {
-          if (!(await actions.skip(e.entryId, skip))) return;
-          clearTimeout(undoTimer.current);
-          if (skip) {
-            setUndo(null);
-            setSkipped({ entryId: e.entryId, text: "Saltato · " + e.name });
-            undoTimer.current = setTimeout(() => setSkipped(null), 5000);
-          }
+        onSkip={poi.skip}
+        onNext={poi.next}
+        onSwap={(e) => {
+          poi.setSwapping(e);
+          setQuery("");
         }}
         onAdd={async (id) => {
           setQuery("");
+          if (await poi.swapTo(id)) return;
           if (await actions.add(session.id, id)) goTo(exercises.length);
         }}
       />
@@ -761,16 +772,7 @@ export function Gym({
           }}
         />
       )}
-      {skipped && (
-        <UndoToast
-          text={skipped.text}
-          onUndo={async () => {
-            const k = skipped;
-            setSkipped(null);
-            await actions.skip(k.entryId, false);
-          }}
-        />
-      )}
+      {poi.notice && <UndoToast text={poi.notice.text} onUndo={poi.undo} />}
       {undo && (
         <UndoToast
           text={undo.text}

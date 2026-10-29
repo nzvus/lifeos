@@ -574,3 +574,85 @@ export async function saveRoutineFromSession(
     return true;
   });
 }
+
+/**
+ * A live session's exercises in a new order (session.md §5.2: «Fai dopo»,
+ * and its «Annulla»): positions 0… as given. Every id must be a live exercise
+ * of the session; false otherwise, and nothing changes.
+ */
+export async function reorderExercises(
+  db: Db,
+  owner: Owner,
+  sessionId: string,
+  entryIds: readonly string[],
+): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    const s = await liveEntry(tx, owner, sessionId, "session");
+    if (!s) return false;
+    const kids = await tx
+      .select({ id: entries.id })
+      .from(entries)
+      .where(
+        and(
+          ownedBy(entries, owner),
+          eq(entries.parentId, sessionId),
+          isNull(entries.deletedAt),
+        ),
+      );
+    const live = new Set(kids.map((k) => k.id));
+    if (entryIds.length !== live.size || !entryIds.every((id) => live.has(id)))
+      return false;
+    for (const [i, id] of entryIds.entries())
+      await setValue(tx, owner, id, "position", String(i));
+    return true;
+  });
+}
+
+/**
+ * «Cambia» (session.md §5.2, a machine taken): an exercise not begun becomes
+ * another of the person's exercises, at the same place. Its id before, for
+ * «Annulla»; null if it has sets, is not this owner's, or the exercise is not.
+ */
+export async function substituteExercise(
+  db: Db,
+  owner: Owner,
+  entryId: string,
+  exerciseId: string,
+): Promise<string | null> {
+  return db.transaction(async (tx) => {
+    const [x] = await tx
+      .select({ itemId: entries.itemId })
+      .from(entries)
+      .where(
+        and(
+          ownedBy(entries, owner),
+          eq(entries.id, entryId),
+          eq(entries.kind, "session_exercise"),
+          isNull(entries.deletedAt),
+        ),
+      );
+    if (!x) return null;
+    const [sets] = await tx
+      .select({ n: count() })
+      .from(trainingSets)
+      .where(and(ownedBy(trainingSets, owner), eq(trainingSets.entryId, entryId)));
+    if (sets!.n > 0) return null;
+    const [ex] = await tx
+      .select({ id: catalogItems.id })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.id, exerciseId),
+          eq(catalogItems.catalog, "exercise"),
+          isNull(catalogItems.deletedAt),
+        ),
+      );
+    if (!ex) return null;
+    await tx
+      .update(entries)
+      .set({ itemId: exerciseId })
+      .where(and(ownedBy(entries, owner), eq(entries.id, entryId)));
+    return x.itemId;
+  });
+}

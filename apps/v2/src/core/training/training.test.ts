@@ -12,6 +12,8 @@ import {
   createExercise,
   finishSession,
   reopenSession,
+  reorderExercises,
+  substituteExercise,
   saveRoutineFromSession,
   readExercises,
   readHistory,
@@ -213,6 +215,59 @@ describe("a session in gym mode", () => {
     expect(row!.endAt).toBeNull();
     expect(open.values.durationMin).toBeUndefined();
     expect(open.children.map((c) => c.status)).toEqual(["planned"]);
+  });
+
+  it("«Fai dopo» reorders a live session's exercises, all or nothing (session.md §5.2)", async () => {
+    const id = await startSession(db, a, {
+      day: "2026-10-20",
+      startAt: new Date("2026-10-20T16:00:00Z"),
+      routineId: push,
+      exerciseIds: [bench, curl],
+    });
+    const kids = async () =>
+      (await readEntry(db, a, id))!.children.map((c) => [
+        c.item?.name,
+        Number(c.values.position),
+      ]);
+    const [x, y] = (await readEntry(db, a, id))!.children.map((c) => c.id);
+    expect(await reorderExercises(db, a, id, [y!, x!])).toBe(true);
+    expect(await kids()).toEqual([
+      ["Curl con manubri", 0],
+      ["Panca piana", 1],
+    ]);
+    expect(await reorderExercises(db, a, id, [y!])).toBe(false); // one missing
+    expect(await reorderExercises(db, b, id, [x!, y!])).toBe(false); // not theirs
+  });
+
+  it("«Cambia» swaps an exercise not begun, never one with sets (session.md §5.2)", async () => {
+    const id = await startSession(db, a, {
+      day: "2026-10-21",
+      startAt: new Date("2026-10-21T16:00:00Z"),
+      routineId: push,
+      exerciseIds: [bench, curl],
+    });
+    const [x, y] = (await readEntry(db, a, id))!.children.map((c) => c.id);
+    expect(await substituteExercise(db, a, x!, curl)).toBe(bench);
+    expect((await readEntry(db, a, id))!.children[0]!.item?.name).toBe(
+      "Curl con manubri",
+    );
+    await saveSet(
+      db,
+      a,
+      y!,
+      0,
+      {
+        reps: 10,
+        loadKg: "12",
+        loadEntry: "total",
+        rir: 2,
+        durationS: null,
+        warmup: false,
+      },
+      new Date("2026-10-21T16:05:00Z"),
+    );
+    expect(await substituteExercise(db, a, y!, bench)).toBeNull();
+    expect(await substituteExercise(db, b, x!, bench)).toBeNull();
   });
 
   it("takes a session's exercises to the trash with it, and brings them back", async () => {
