@@ -4,95 +4,123 @@
    "targets": 134,
    "small": 76,
    "primary": 1,
-   "longLists": 1
+   "longLists": 1,
+   "offScale": 15,
+   "edges": 64
   },
   "/aggiungi": {
    "targets": 35,
    "small": 5,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 8
   },
   "/aggiungi/pasto": {
    "targets": 40,
    "small": 16,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 29
   },
   "/aggiungi/attivita": {
    "targets": 12,
    "small": 2,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 5
   },
   "/piano": {
    "targets": 92,
    "small": 26,
    "primary": 0,
-   "longLists": 1
+   "longLists": 1,
+   "offScale": 2,
+   "edges": 42
   },
   "/andamento": {
    "targets": 68,
    "small": 26,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 9,
+   "edges": 50
   },
   "/libreria": {
    "targets": 17,
    "small": 10,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 8
   },
   "/libreria?vista=cibi": {
    "targets": 119,
    "small": 110,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 7
   },
   "/libreria?vista=esercizi": {
    "targets": 83,
    "small": 75,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 9
   },
   "/palestra": {
    "targets": 11,
    "small": 0,
    "primary": 0,
-   "longLists": 1
+   "longLists": 1,
+   "offScale": 2,
+   "edges": 4
   },
   "/impostazioni": {
    "targets": 26,
    "small": 11,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 11
   },
-  "/libreria/cibo/nuovo": {
-   "targets": 37,
+  "/libreria/cibo/:id": {
+   "targets": 31,
    "small": 14,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 8,
+   "edges": 17
   },
-  "/libreria/esercizio/nuovo": {
-   "targets": 8,
-   "small": 2,
-   "primary": 1,
-   "longLists": 0
+  "/libreria/esercizio/:id": {
+   "targets": 4,
+   "small": 1,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 2
   },
   "/voce/:id": {
    "targets": 34,
    "small": 14,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 27
   }
  },
  "verbs": {
   "Aggiungi": 2,
   "Elimina": 0,
-  "Modifica": 0,
+  "Modifica": 1,
   "Salva": 4,
-  "Annulla": 2,
+  "Annulla": 1,
   "Fatto": 1,
-  "Archivia": 0
+  "Archivia": 1
  },
  "tasks": {
   "acqua": 999,

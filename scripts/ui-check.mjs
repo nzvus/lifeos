@@ -36,8 +36,8 @@ const PAGES = [
 ];
 /** One object page of each kind: the first link of its list. */
 const FIRST_OF = [
-  ["/libreria?vista=cibi", "a[href^='/libreria/cibo/']"],
-  ["/libreria?vista=esercizi", "a[href^='/libreria/esercizio/']"],
+  ["/libreria?vista=cibi", "a[href^='/libreria/cibo/']:not([href$='/nuovo'])"],
+  ["/libreria?vista=esercizi", "a[href^='/libreria/esercizio/']:not([href$='/nuovo'])"],
   ["/oggi", "a[href^='/voce/']"],
 ];
 /** Daily tasks (the study's most frequent): the page and the control that starts each. */
@@ -122,11 +122,59 @@ for (const entry of pages) {
           el.tagName.toLowerCase() + "." + [...el.classList].sort().join("."),
         );
     }
+    // Shapes on the scales of shapes.md §2 (radius 0–20, space 0–32, type 12–40), as the
+    // boards' audit: one count per value, class and property. And alignment: the left
+    // edges that text starts on (many edges = things placed by hand).
+    const SCALE = {
+      radius: [0, 4, 8, 12, 16, 20],
+      space: [0, 4, 8, 12, 16, 24, 32],
+      font: [12, 14, 16, 19, 24, 30, 40],
+    };
+    const px = (v) => parseFloat(v) || 0;
+    const seen = new Set();
+    const edges = new Set();
+    const off = (cat, v, el, prop) => {
+      const n = Math.round(v * 10) / 10;
+      if (n === 0 || SCALE[cat].includes(n)) return;
+      const cls =
+        (typeof el.className === "string" ? el.className : "").trim().split(/\s+/)[0] ||
+        el.tagName.toLowerCase();
+      seen.add(cat + "|" + n + "|" + cls + "|" + prop);
+    };
+    for (const el of document.querySelectorAll("main *, .k-page *, .k-sheet *")) {
+      if (el.closest("svg, .k-glyph, .k-art, .k-artclip, .k-chart, .k-sky")) continue;
+      const cs = getComputedStyle(el);
+      if (cs.display === "none") continue;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) continue;
+      for (const c of ["TopLeft", "TopRight", "BottomRight", "BottomLeft"]) {
+        const raw = cs["border" + c + "Radius"];
+        const v = px(raw);
+        if (raw.includes("%") || v >= Math.min(r.width, r.height) / 2 - 0.5) continue;
+        off("radius", v, el, "radius");
+      }
+      if (el.childElementCount || (el.textContent || "").trim())
+        for (const side of ["Top", "Right", "Bottom", "Left"])
+          off("space", px(cs["padding" + side]), el, "padding");
+      if (/flex|grid/.test(cs.display)) {
+        off("space", px(cs.rowGap), el, "gap");
+        off("space", px(cs.columnGap), el, "gap");
+      }
+      const own = [...el.childNodes].some(
+        (n) => n.nodeType === 3 && n.textContent.trim(),
+      );
+      if (own) {
+        off("font", px(cs.fontSize), el, "font");
+        if (cs.display !== "inline" && r.left < 200) edges.add(Math.round(r.left));
+      }
+    }
     return {
       targets: targets.length,
       small: small.length,
       primary,
       longLists,
+      offScale: seen.size,
+      edges: edges.size,
       verbForms,
     };
   }, VERBS);
@@ -162,6 +210,10 @@ if (arg("--compare") && fs.existsSync(BASELINE)) {
       worse.push(`${name}: ${r.longLists} long lists without Find (was ${o.longLists})`);
     if (o.primary === 1 && r.primary !== 1)
       worse.push(`${name}: ${r.primary} primary actions (was 1)`);
+    if (o.offScale !== undefined && r.offScale > o.offScale)
+      worse.push(`${name}: ${r.offScale} shapes off the scale (was ${o.offScale})`);
+    if (o.edges !== undefined && r.edges > o.edges)
+      worse.push(`${name}: text starts on ${r.edges} left edges (was ${o.edges})`);
   }
   for (const [v, n] of Object.entries(report.verbs))
     if (n > (base.verbs[v] ?? n)) worse.push(`«${v}»: ${n} forms (was ${base.verbs[v]})`);
@@ -179,11 +231,12 @@ const sum = Object.values(report.pages).reduce(
     targets: a.targets + r.targets,
     small: a.small + r.small,
     noPrimary: a.noPrimary + (r.primary === 0 ? 1 : 0),
+    offScale: a.offScale + r.offScale,
   }),
-  { targets: 0, small: 0, noPrimary: 0 },
+  { targets: 0, small: 0, noPrimary: 0, offScale: 0 },
 );
 console.log(
-  `pages ${Object.keys(report.pages).length} · targets ${sum.targets}, under 44 px ${sum.small} (${Math.round((sum.small / Math.max(1, sum.targets)) * 100)} %) · pages without a primary action ${sum.noPrimary}`,
+  `pages ${Object.keys(report.pages).length} · targets ${sum.targets}, under 44 px ${sum.small} (${Math.round((sum.small / Math.max(1, sum.targets)) * 100)} %) · pages without a primary action ${sum.noPrimary} · shapes off the scale ${sum.offScale}`,
 );
 console.log(
   "forms per verb:",
