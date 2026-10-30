@@ -177,15 +177,25 @@ for (const entry of pages) {
       verbForms,
     };
   }, VERBS);
-  if (SHOTS)
+  // The window as tall as the page (not a stitched full-page shot): fixed bars stay where the person sees them.
+  if (SHOTS) {
+    const h = await p.evaluate(() =>
+      Math.min(
+        6000,
+        Math.max(document.documentElement.scrollHeight, document.body.scrollHeight),
+      ),
+    );
+    await p.setViewportSize({ width: 390, height: Math.max(844, h) });
+    await p.waitForTimeout(600);
     await p.screenshot({
       path:
         SHOTS +
         "/" +
         (name.replace(/[^a-z0-9:]+/gi, "_").replace(/^_|_$/g, "") || "root") +
         ".png",
-      fullPage: true,
     });
+    await p.setViewportSize({ width: 390, height: 844 });
+  }
   for (const [v, fs_] of Object.entries(r.verbForms))
     for (const f of fs_) forms[v].add(f);
   delete r.verbForms;
