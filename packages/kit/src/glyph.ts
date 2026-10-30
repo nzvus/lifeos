@@ -70,7 +70,8 @@ export function resolveGlyph(reg: IconRegistry, o: GlyphOf): Resolved {
     if (fg) return [(o.fine && fg[2]?.[o.fine]) || fg[1], fg[0]];
     const dom = o.fam ? reg.domains[o.fam] : undefined;
     if (dom) {
-      const k = (o.kind && dom.kinds[o.kind]) || (o.sub && dom.kinds[o.sub]);
+      // The subcategory is the more specific datum: a lunch is a meal, drawn as a lunch.
+      const k = (o.sub && dom.kinds[o.sub]) || (o.kind && dom.kinds[o.kind]);
       return k ? [k[1], k[0]] : [dom.glyph, dom.label];
     }
     return named(reg.places, o.place) ?? ["", ""];

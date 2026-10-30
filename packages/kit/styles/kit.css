@@ -309,7 +309,8 @@
 .fam-work{--fam:var(--moment-breakfast)}
 .fam-catalog{--fam:var(--muted)}
 .k-glyph{position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;line-height:0;color:var(--fam,var(--ink))}
-.k-glyph.tile{background:color-mix(in srgb,var(--fam,var(--ink)) 13%,var(--sheet));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fam,var(--ink)) 22%,transparent)}
+/* UI-81: a tile is filled, and only where the icon is a button; rows draw the icon bare */
+.k-glyph.tile{background:var(--fam,var(--ink));color:var(--sheet)}
 .k-glyph.tile.g-s{width:28px;height:28px;border-radius:var(--r-control)}
 .k-glyph.tile.g-m{width:32px;height:32px;border-radius:var(--r-control)}
 .k-glyph.tile.g-l{width:48px;height:48px;border-radius:var(--r-row)}
@@ -594,11 +595,11 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-wxhead{display:flex;align-items:center;gap:10px;width:100%;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .k-sky-ico{width:44px;height:33px;flex:0 0 auto}
 .k-sky-ico .cl{fill:color-mix(in srgb,var(--muted) 22%,var(--sheet));stroke:color-mix(in srgb,var(--muted) 55%,var(--sheet));stroke-width:1.5}
-.k-sky-ico .sun circle{fill:#e0a500}.k-sky-ico .sun line{stroke:#e0a500;stroke-width:2;stroke-linecap:round}
+.k-sky-ico .sun circle{fill:var(--macro-carbs)}.k-sky-ico .sun line{stroke:var(--macro-carbs);stroke-width:2;stroke-linecap:round}
 .k-sky-ico .drop{stroke:var(--macro-fat);stroke-width:2;stroke-linecap:round}
 .k-sky-ico .flake{fill:var(--macro-fat)}
 .k-sky-ico .fog{stroke:var(--muted);stroke-width:2;stroke-linecap:round}
-.k-sky-ico .bolt{fill:#e0a500}
+.k-sky-ico .bolt{fill:var(--macro-carbs)}
 .k-sky-ico .drift{animation:k-drift 7s ease-in-out infinite alternate}
 .k-sky-ico .sun{animation:k-glow 4s ease-in-out infinite alternate;transform-origin:center}
 @keyframes k-drift{from{transform:translateX(-2px)}to{transform:translateX(3px)}}
@@ -608,8 +609,15 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-wxhead .now small{font-size:var(--fs-b3);color:var(--muted);margin-top:2px}
 .k-wxhead .range{flex:1;min-width:0;display:flex;align-items:center;gap:6px;font-size:var(--fs-b3);font-variant-numeric:tabular-nums;color:var(--muted)}
 .k-wxhead .range .tr{position:relative;flex:1;height:5px;border-radius:3px;background:var(--hairline)}
-.k-wxhead .range .tr>i{position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,#5aa0d8,#e0a500)}
+.k-wxhead .range .tr>i{position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,var(--macro-fat),var(--macro-carbs))}
 .k-wxhead .range .tr>b{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--sheet);transform:translate(-50%,-50%)}
+/* UI-80: levels of expansion; 0 is one line, the dots say the level */
+.k-wx.l0{padding:6px 12px}
+.k-wx.l0 .k-sky-ico{width:28px;height:21px}
+.k-wx.l0 .k-wxhead .k-body{flex:1;min-width:0}
+.k-lv{display:inline-flex;gap:3px;align-self:center;flex:0 0 auto}
+.k-lv i{width:5px;height:5px;border-radius:50%;background:var(--hairline)}
+.k-lv i.on{background:var(--muted)}
 .k-wxline{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:var(--fs-b3)}
 .k-wxline .mut{color:var(--muted)}.k-wxline .warn{color:var(--warn)}
 .k-wxmore{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--hairline);padding-top:8px}
@@ -620,12 +628,12 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-wxcurve text{font-family:var(--font-body);font-size:10px;fill:var(--muted)}
 .k-wxgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
 .k-wxgrid>div{display:flex;flex-direction:column;gap:4px;min-width:0}
-.k-wxgrid .aqs{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,#4fb27a 0 20%,#9ccd6c 20% 40%,#e0a500 40% 60%,#e2762d 60% 80%,#c0392b 80%)}
+.k-wxgrid .aqs{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--herb) 0 20%,var(--macro-fiber) 20% 40%,var(--macro-carbs) 40% 60%,var(--warn) 60% 80%,var(--tomato) 80%)}
 .k-wxgrid .aqs>b{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--sheet);transform:translate(-50%,-50%)}
 .k-wxarc{width:100%;max-width:140px;height:auto}
 .k-wxarc .tr{fill:none;stroke:var(--hairline);stroke-width:2;stroke-dasharray:3 3}
 .k-wxarc .hz{stroke:var(--hairline)}
-.k-wxarc .sn{fill:#e0a500}
+.k-wxarc .sn{fill:var(--macro-carbs)}
 @media (prefers-reduced-motion: reduce){.k-sky-ico .drift,.k-sky-ico .sun{animation:none}}
 /* gym mode, one thing at a time (2026-10-25): the exercises as dots, the sets as rows, the clock's state */
 .k-gdots{display:flex;flex-direction:row;gap:6px;flex-wrap:wrap}
@@ -657,3 +665,43 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-range input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:50%;background:var(--herb);border:2px solid var(--sheet);box-shadow:0 0 0 1px var(--herb)}
 .k-range input::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--herb);border:2px solid var(--sheet)}
 .k-range .ok{height:8px;top:10px;border-radius:4px;background:color-mix(in srgb,var(--herb) 35%,var(--paper))}
+
+/* ---------- the round of 30 Oct (ledger UI-78, UI-79; dossiers/visual.md §3.4) ---------- */
+/* UI-79: a silhouette changes corners, rims or a corner bite, never the padding or a side,
+   so icons and text line up in every row (the developer: «certe sagome rompono un po' troppo») */
+.k-box.train{padding-left:16px;padding-right:16px;-webkit-mask:none;mask:none;border-radius:var(--r-mark) var(--r) var(--r-mark) var(--r)}
+.k-box.train.cardio{clip-path:none;padding-right:16px;border-radius:var(--r) var(--r-wide) var(--r-wide) var(--r)}
+.k-box.body{clip-path:none;padding-left:16px;border-radius:var(--r-mark) var(--r) var(--r) var(--r-mark)}
+.k-box.body::before{content:none}
+.k-box.money{-webkit-mask:none;mask:none;padding-top:12px;padding-bottom:12px;border-radius:var(--r-mark)}
+.k-box.mind{margin-bottom:0}
+.k-box.mind::after{content:none}
+.k-box.habit{padding:12px 16px}
+.k-row.dense .k-box.train,.k-row.dense .k-box.body{padding-left:12px;padding-right:12px}
+/* UI-79: the icon before the title, always; in the times mode the rail carries it */
+.k-glyph-lead{display:inline-flex;align-self:center}
+.k-row.times .k-glyph-lead{display:none}
+/* UI-79: the drawing behind, in the free corner under the value, never under words;
+   only where the box has room (lines under the head, or open); it turns in once on load */
+.k-art,.k-box.is-open .k-art,.k-box.day .k-art,.k-box.body .k-art{left:auto;right:-12px;top:auto;bottom:-18px;margin-top:0;width:64px;height:64px}
+.k-box .k-art.a1{opacity:0}
+.k-box:is(:has(>.k-bin),:has(>.k-sub),.day):not(.is-open) .k-art.a1{opacity:.12;animation:k-art-in var(--t-box) var(--ease) backwards}
+@keyframes k-art-in{from{opacity:0;transform:rotate(-50deg) scale(.6)}}
+/* the page's drawing stays at the top, behind the header and the date, and scrolls away */
+.k-backdrop{position:absolute;top:0;right:0;left:0}
+.k-backdrop>div{animation:k-art-in calc(var(--t-box) * 2) var(--ease) backwards}
+@media (prefers-reduced-motion:reduce){.k-box .k-art.a1,.k-backdrop>div{animation:none}}
+/* UI-78: colour separates — a page's sections sit on a surface lightly tinted by their
+   area, no frame and no rule; the day's own panel the same; air between the boxes */
+.k-page>.k-section{margin:8px 16px 0;padding:12px;border-radius:var(--radius-surface);background:color-mix(in srgb,var(--fam,var(--ink)) 7%,var(--paper))}
+.k-page>.k-section>h2{border-bottom:0;padding-bottom:0;color:var(--fam,var(--ink))}
+.k-page>.k-section>h2::before{content:none}
+.k-shape:has(>.k-box.day){filter:none}
+.k-box.day{background:color-mix(in srgb,var(--fam,var(--ink)) 7%,var(--paper));box-shadow:none}
+.k-tlrow+.k-tlrow{margin-top:4px}
+.k-row:not(.times) .k-box:has(>.k-line .k-glyph-lead)>.k-sub{padding-left:26px}
+/* UI-78: a fold reads like a section: no tick, no rule; on a page or a block it gets the tinted surface */
+.k-fold>summary{border-bottom:0;padding-bottom:0}
+.k-fold:not(.has-icon)>summary::before{content:none}
+.k-block>.k-fold{padding:12px;border-radius:var(--radius-surface);background:color-mix(in srgb,var(--fam,var(--ink)) 7%,var(--paper))}
+.k-block>.k-fold>summary{color:var(--fam,var(--ink))}

@@ -108,6 +108,7 @@ export function Box({
   };
   const members = e.members ?? [];
   const shown = members.slice(0, members.length > 8 ? 7 : 8);
+  // Icons in dark (UI-81): bare in a row; a filled tile only where the row is a button.
   const badge = dense && members.length === 0;
   return (
     <div
@@ -170,7 +171,13 @@ export function Box({
                 }
               >
                 <span className={"k-hlead" + (badge ? " badged" : "")}>
-                  {badge && <Glyph of={of} size="m" tile />}
+                  {badge ? (
+                    <Glyph of={of} size="m" tile={!!e.href} />
+                  ) : (
+                    <span className="k-glyph-lead">
+                      <Glyph of={of} size="m" />
+                    </span>
+                  )}
                   <span className="k-label k-title">{e.title}</span>
                 </span>
                 <span className="k-hright">
@@ -181,7 +188,13 @@ export function Box({
             ) : (
               <span className="k-head">
                 <span className={"k-hlead" + (badge ? " badged" : "")}>
-                  {badge && <Glyph of={of} size="m" tile />}
+                  {badge ? (
+                    <Glyph of={of} size="m" tile={!!e.href} />
+                  ) : (
+                    <span className="k-glyph-lead">
+                      <Glyph of={of} size="m" />
+                    </span>
+                  )}
                   <span className="k-label k-title">{e.title}</span>
                 </span>
                 <span className="k-hright">
@@ -313,7 +326,7 @@ export function Box({
                   }
                 >
                   {shown.map((m, i) => (
-                    <Glyph key={i} of={m} size="s" tile />
+                    <Glyph key={i} of={m} size="s" />
                   ))}
                   {members.length > 8 && (
                     <span className="k-meta">{"+" + (members.length - 7)}</span>

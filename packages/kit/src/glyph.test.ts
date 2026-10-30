@@ -21,6 +21,16 @@ describe("the Glyph resolver (icons.md §2)", () => {
     expect(label({ group: "fish", fam: "food" })).toBe("Pesce");
   });
 
+  it("draws each meal role with its own drawing, never the shared fork (UI-81)", () => {
+    const roles = ["breakfast", "lunch", "snack", "dinner"];
+    const ds = roles.map(
+      (sub) => resolveGlyph(ICONS, { fam: "food", kind: "meal", sub }).d,
+    );
+    const fork = resolveGlyph(ICONS, { fam: "food", kind: "meal" }).d;
+    expect(new Set([...ds, fork]).size).toBe(5);
+    expect(label({ fam: "food", kind: "meal", sub: "dinner" })).toBe("Cena");
+  });
+
   it("adds the equipment as a corner mark", () => {
     const r = resolveGlyph(ICONS, { pattern: "vertical_pull", equipment: "cavi" });
     expect(r.mark?.label).toBe("Cavi");
