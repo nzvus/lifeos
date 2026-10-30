@@ -1,5 +1,7 @@
 # v2 — Places, actions, event chains
 
+> **Places superseded by ADR-0059 (2026-10-30):** Corpo · Cibo · Oggi · Mente · Soldi, the same four tabs (Diario · Piano · Elenco · Andamento) everywhere. This file is rewritten in phase 3 of the review; until then the places below are the code's current state, not the target.
+
 Decided by ADR-0054 (proposed 2026-10-16). Each object has one home.
 For every object this file answers five questions: where it is created,
 seen, edited and deleted, and what it sets off. Every v1 screen id

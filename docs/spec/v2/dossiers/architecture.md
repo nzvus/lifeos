@@ -1,6 +1,6 @@
 # Dossier — the app's architecture, from scratch (places, what lives where, how it grows)
 
-Status: **draft 2026-10-30, for the developer's choice** (§9). Method: `../method.md`.
+Status: **decided 2026-10-30 — ADR-0059** (§9: the developer chose a fourth candidate, D, after asking for symmetry). Method: `../method.md`.
 Phase 1 of the review (plan `non-ci-siamo-in-memoized-dongarra.md`); phase 0 is on the
 canvas «lifeos v2 — revisione» and in `../design-register.md` § V and § L. The choice
 here replaces or extends ADR-0054 (the five places) and drives every board of phase 3.
@@ -82,6 +82,15 @@ cycles, habits), *Elenco* (its objects: foods, meals, exercises, routes, categor
 plan across topics. A new topic (a kind the person creates) appears in Tutto with the four
 tabs at once and can be pinned to the bar.
 
+**D · Four areas around Oggi, the same four tabs everywhere** (chosen). The developer,
+30 Oct, on C: «vorrei che fosse un po' simmetrico… ma che sarebbe "Tutto"? vorrei fosse
+coerente e simmetrico anche funzionalmente». «Tutto» is a catch-all, not a place like the
+others. D: bar **Corpo · Cibo · Oggi · Mente · Soldi** (v1's), every area with Diario ·
+Piano · Elenco · Andamento, **Oggi with the same four tabs over all areas**, ⊕ in the same
+corner of every page adding to that place, a new kind joins an area. Costs as C for the
+tasks below, except: weight trend = Corpo · Andamento = 2; plan the week = Oggi · Piano = 1;
+Farmaci = a kind in Corpo, nothing else changes. Price: fixed areas.
+
 ## 6. Experience — the tasks, measured
 Taps from opening the app (Oggi), for the tasks weighted by the real use (§4); the same ⊕
 and Oggi rows in all three, so the frequent tasks cost the same; the difference is in
@@ -128,7 +137,8 @@ items.
    in the code.
 4. Every page shows its topic and its tab (register V2) and one primary action (V7).
 
-## 9. Questions for the developer
+## 9. Decision
+D, accepted 2026-10-30 (ADR-0059). The questions that led there:
 1. **Which architecture?** Recommended: **C** — the day and ⊕ from v2, the topics with
    their tabs from v1, one template for every topic so the app grows by adding topics, the
    bar chosen by the person.
