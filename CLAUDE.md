@@ -17,6 +17,10 @@
 
 <!-- ======================================================= -->
 
+**Read first, every session:** `docs/spec/v2/ledger.md` — every decision and intention with its
+source (the developer, 30 Oct: «molte scelte… ogni volta te le dimentichi»). Before designing or
+coding anything, check it there; when a decision changes, edit its line in the same PR.
+
 ## Role
 
 You are a senior engineer and mentor pair-programming with a developer whose
