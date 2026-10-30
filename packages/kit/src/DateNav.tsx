@@ -4,7 +4,8 @@
  * button in the line — the strip swipes a week, the title opens the month,
  * «↩ oggi» is a word in the title's line only when away, today keeps a ring.
  * Levels like the weather (remembered with `levelKey`): 0 the days, 1 the thin
- * bars behind each number, 2 each day a column that grows into its 24 hours
+ * bars under each number (the developer: A «è il migliore»), 2 each day a column
+ * that grows into its 24 hours
  * (`rhythm`). Arrows stay only without `levelKey`. Links, not state: every
  * day is its own page (`hrefBase` + ISO date). The week and the month are
  * computed from the date. Scores (0–100) colour the bars when given; a tag
@@ -211,7 +212,7 @@ export function DateNav({
               <span className="k-num d3 k-inh">{Number(d.slice(8))}</span>
               {tags[d] && <span className="tag">{tags[d]}</span>}
               {bars ? (
-                level >= 1 && <DayBarsMark b={bars[d]} bg={!!levelKey} />
+                level >= 1 && <DayBarsMark b={bars[d]} />
               ) : (
                 <span
                   className="sc"
@@ -263,7 +264,7 @@ export function DateNav({
   );
 }
 
-function DayBarsMark({ b, bg = false }: { b: DayBars | undefined; bg?: boolean }) {
+function DayBarsMark({ b }: { b: DayBars | undefined }) {
   const h = (v: number | null | undefined) =>
     Math.round(Math.max(0.08, Math.min(1, v ?? 0)) * 100) + "%";
   const limitTone = (r: number) =>
@@ -279,7 +280,7 @@ function DayBarsMark({ b, bg = false }: { b: DayBars | undefined; bg?: boolean }
       />
     );
   return (
-    <span className={"k-wbars" + (bg ? " bg" : "")} aria-hidden="true">
+    <span className="k-wbars" aria-hidden="true">
       {one("f", b?.food, F.judge(b?.food == null ? undefined : b.food * 100).tone)}
       {one("l", b?.limits, b?.limits == null ? "" : limitTone(b.limits))}
       {b?.train === "planned"
