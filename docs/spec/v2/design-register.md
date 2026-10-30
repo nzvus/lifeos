@@ -140,7 +140,7 @@ These rows outrank any other row of this register when they conflict.
 | V4 | «La giornata col piano»: one bar per nutrient, value / target, a tick | three-part bars, rulers, ticks, verdicts, then sugars, salt, micros, energy | the day shows few things plainly; detail one tap away |
 | V5 | Times on the left, horizontal, a dot on the day's line | times rotated vertically in a coloured rail | times read horizontally · 30 Oct: overridden by the developer — the rail stays (UI-77) |
 | V6 | Lists show what matters: grams per macro, «23× in 60 giorni», ⋯ and delete | name, kcal per 100, «+» | a list row carries the facts used to choose and its actions |
-| V7 | Each page has its button and each row its actions in view | 20 of 54 pages without a primary action; 48 % of targets under 44 px | one visible primary action per page; every target ≥ 44 px |
+| V7 | Each page has its button and each row its actions in view | 20 of 54 pages without a primary action; 48 % of targets under 44 px | one visible primary action per page; every target ≥ 44 px · 30 Oct: targets under 44 px 303 → 11 on 13 pages (ui-check); chips and box actions stay 36 (--touch-dense), the rail 20 |
 
 ## T — Themes and density (plan, A3)
 v1 has five themes over one kit (ADR-0010: a theme is a token set plus
