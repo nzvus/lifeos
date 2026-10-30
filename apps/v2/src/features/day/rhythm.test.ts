@@ -34,7 +34,11 @@ const ctxOf = (date: string): ScoreContext => ({
   weighings: null,
   weightGoal: null,
   nights: [
-    { start: new Date("2026-10-14T22:00:00Z"), end: new Date("2026-10-15T05:30:00Z") },
+    {
+      day: "2026-10-15",
+      start: new Date("2026-10-14T22:00:00Z"),
+      end: new Date("2026-10-15T05:30:00Z"),
+    },
   ],
   sex: null,
   now: null,

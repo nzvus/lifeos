@@ -104,11 +104,7 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
         key={"p" + first.name}
         name={first.name}
         {...(blank.length > 1 ? { label: first.name + " – " + lastPart.name } : {})}
-        when={
-          "dalle " +
-          F.time(first.from) +
-          (blank.length > 1 ? " alle " + F.time(lastPart.to) : "")
-        }
+        when={blank.length > 1 ? "" : "dalle " + F.time(first.from)}
         empty
       />,
     );

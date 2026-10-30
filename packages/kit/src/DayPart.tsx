@@ -46,7 +46,7 @@ export function DayPart({
     <div
       className={"k-part" + (empty ? " empty" : "") + (end ? " end" : "")}
       role="separator"
-      aria-label={(label ?? name) + ", " + when + (empty ? ", niente" : "")}
+      aria-label={(label ?? name) + (when ? ", " + when : "") + (empty ? ", niente" : "")}
       style={
         {
           "--sky-a": `var(${a})`,
@@ -55,7 +55,7 @@ export function DayPart({
       }
     >
       <span className="nm">{label ?? name}</span>
-      <span className="t">{empty ? "niente · " + when : when}</span>
+      <span className="t">{empty ? (when ? "niente · " + when : "niente") : when}</span>
       <svg viewBox="0 0 120 44" aria-hidden="true">
         <path className="arc" d="M10 40 A50 30 0 0 1 110 40" />
         <line className="hz" x1="0" x2="120" y1="40" y2="40" />

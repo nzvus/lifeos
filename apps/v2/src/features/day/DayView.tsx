@@ -330,8 +330,9 @@ export function DayView({
             />
           )}
           {shownUntimed.length > 0 && (
-            <section className="k-section g3" aria-label="Senza orario">
-              <h2 className="k-cap">Senza orario</h2>
+            // Below the day's end, aligned with the bands, with no rail (UI-77).
+            <section className="k-stack g3 k-untimed" aria-label="Senza orario">
+              <span className="k-meta">Senza orario</span>
               {shownUntimed.map((e) => (
                 <EntryRow
                   key={e.id}

@@ -746,8 +746,9 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-row:not(.times) .k-box:has(>.k-line .k-glyph-lead)>.k-say{padding-left:24px}
 .k-parts{display:flex;flex-direction:column;gap:12px;margin-top:8px}
 /* ---------- the parts of the day (UI-77, 30 Oct): a band of the part's sky, empty time dashed ---------- */
-.k-part{position:relative;display:flex;align-items:center;gap:8px;height:44px;margin:8px -12px 0;padding:0 12px;overflow:hidden;font-family:var(--font-display);font-size:var(--fs-b1);font-weight:700;color:var(--ink);background:linear-gradient(90deg,color-mix(in srgb,var(--sky-a) 20%,var(--paper)),color-mix(in srgb,var(--sky-b) 12%,var(--paper)))}
-.k-part .t{font-family:var(--font-body);font-weight:400;font-size:var(--fs-b3);color:var(--muted);font-variant-numeric:tabular-nums}
+.k-part{position:relative;display:flex;align-items:center;gap:8px;height:44px;margin:8px -12px 0;padding:0 132px 0 12px;overflow:hidden;font-family:var(--font-display);font-size:var(--fs-b1);font-weight:700;color:var(--ink);background:linear-gradient(90deg,color-mix(in srgb,var(--sky-a) 20%,var(--paper)),color-mix(in srgb,var(--sky-b) 12%,var(--paper)))}
+.k-part .nm{white-space:nowrap}
+.k-part .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-body);font-weight:400;font-size:var(--fs-b3);color:var(--muted);font-variant-numeric:tabular-nums}
 .k-part svg{position:absolute;right:8px;top:0;width:120px;height:44px}
 .k-part .hz{stroke:color-mix(in srgb,var(--ink) 30%,transparent);stroke-width:1}
 .k-part .arc{fill:none;stroke:color-mix(in srgb,var(--ink) 22%,transparent);stroke-width:1;stroke-dasharray:2 3}
@@ -787,3 +788,4 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-day24 .nw{left:0;right:0;border-top:2px solid var(--tomato)}
 .k-week.lv2 .k-day24{animation:k-lv-in var(--t-box) var(--ease) backwards}
 @media (prefers-reduced-motion:reduce){.k-week.lv2 .k-day24{animation:none}}
+.k-untimed{margin-top:8px}
