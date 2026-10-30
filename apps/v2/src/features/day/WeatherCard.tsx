@@ -107,7 +107,8 @@ export function WeatherCard({
                   role="img"
                   aria-label={airWords(w.aqi) + ", indice " + Math.round(w.aqi)}
                 >
-                  <b style={{ left: Math.min(100, w.aqi) + "%" }} />
+                  {/* six EEA bands of 20, the last open: the scale runs to 120 */}
+                  <b style={{ left: (Math.min(120, w.aqi) / 120) * 100 + "%" }} />
                 </span>
                 <span className="k-help">{airWords(w.aqi)}</span>
               </div>

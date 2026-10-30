@@ -185,7 +185,7 @@ export function Box({
                     <Glyph of={of} size="m" tile={!!e.href} />
                   ) : (
                     <span className="k-glyph-lead">
-                      <Glyph of={of} size="m" />
+                      <Glyph of={of} size="s" />
                     </span>
                   )}
                   <span className="k-label k-title">{e.title}</span>
@@ -202,7 +202,7 @@ export function Box({
                     <Glyph of={of} size="m" tile={!!e.href} />
                   ) : (
                     <span className="k-glyph-lead">
-                      <Glyph of={of} size="m" />
+                      <Glyph of={of} size="s" />
                     </span>
                   )}
                   <span className="k-label k-title">{e.title}</span>

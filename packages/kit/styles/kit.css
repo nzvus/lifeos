@@ -567,6 +567,9 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-heatkey>b{display:inline-block;width:var(--tick);height:12px;background:var(--ink)}
 /* the heat strip's own colours: four levels told apart by hue and lightness, not only by a word */
 :root,[data-theme="light"]{--heat-good:#2f8a5a;--heat-fair:#e0a500;--heat-bad:#d9542c;--heat-danger:#8a1a10}
+/* the European Air Quality Index's own colours (EEA; visual.md §3.2): six data tokens, the same in
+   both themes, a standard the person may know from maps; the scale gets a ring for its edge (3:1) */
+:root{--air-1:#50f0e6;--air-2:#50ccaa;--air-3:#f0e641;--air-4:#ff5050;--air-5:#960032;--air-6:#7d2181}
 [data-theme="dark"]{--heat-good:#6cc391;--heat-fair:#f2cc4d;--heat-bad:#f2805a;--heat-danger:#ff4d3d}
 /* A chip that is a checkbox (Piano: a model's weekdays): the box hidden, the chip pressed when checked. */
 .k-chip:has(>input[type="checkbox"]){position:relative;min-width:var(--touch-dense);justify-content:center}
@@ -615,7 +618,7 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-wx.l0{padding:10px 12px}
 .k-wx.l0 .k-sky-ico{width:28px;height:21px}
 .k-wx.l0 .k-wxhead .k-body{flex:1;min-width:0}
-.k-lv{display:inline-flex;gap:3px;align-self:center;flex:0 0 auto}
+.k-lv{display:inline-flex;gap:4px;align-self:center;flex:0 0 auto}
 .k-lv i{width:5px;height:5px;border-radius:50%;background:var(--hairline)}
 .k-lv i.on{background:var(--muted)}
 .k-wxline{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:var(--fs-b3)}
@@ -628,7 +631,7 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-wxcurve text{font-family:var(--font-body);font-size:10px;fill:var(--muted)}
 .k-wxgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
 .k-wxgrid>div{display:flex;flex-direction:column;gap:4px;min-width:0}
-.k-wxgrid .aqs{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--herb) 0 20%,var(--macro-fiber) 20% 40%,var(--macro-carbs) 40% 60%,var(--warn) 60% 80%,var(--tomato) 80%)}
+.k-wxgrid .aqs{position:relative;height:6px;border-radius:3px;box-shadow:0 0 0 1px var(--hairline);background:linear-gradient(90deg,var(--air-1) 0 16.67%,var(--air-2) 16.67% 33.33%,var(--air-3) 33.33% 50%,var(--air-4) 50% 66.67%,var(--air-5) 66.67% 83.33%,var(--air-6) 83.33%)}
 .k-wxgrid .aqs>b{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--sheet);transform:translate(-50%,-50%)}
 .k-wxarc{width:100%;max-width:140px;height:auto}
 .k-wxarc .tr{fill:none;stroke:var(--hairline);stroke-width:2;stroke-dasharray:3 3}
@@ -700,9 +703,9 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-shape:has(>.k-box.day){filter:none}
 .k-box.day{background:color-mix(in srgb,var(--fam,var(--ink)) 7%,var(--paper));box-shadow:none}
 .k-tlrow+.k-tlrow{margin-top:4px}
-.k-row:not(.times) .k-box:has(>.k-line .k-glyph-lead)>.k-sub{padding-left:26px}
+.k-row:not(.times) .k-box:has(>.k-line .k-glyph-lead)>.k-sub{padding-left:24px}
 /* UI-78: a fold reads like a section: no tick, no rule; on a page or a block it gets the tinted surface */
-.k-fold>summary{border-bottom:0;padding-bottom:0}
+.k-fold>summary{border-bottom:0;padding-bottom:0;min-height:var(--touch)}
 .k-fold:not(.has-icon)>summary::before{content:none}
 .k-block>.k-fold{padding:12px;border-radius:var(--radius-surface);background:color-mix(in srgb,var(--fam,var(--ink)) 7%,var(--paper))}
 .k-block>.k-fold>summary{color:var(--fam,var(--ink))}
