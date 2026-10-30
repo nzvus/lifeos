@@ -20,6 +20,7 @@ import {
   Glyph,
   NavBar,
   Nutrients,
+  NutrientsL0,
   PageHeader,
   weekOf,
 } from "@lifeos/kit";
@@ -457,7 +458,11 @@ export default async function OggiPage({
       </section>
       {whole && (
         <section className="k-block g3" aria-label="Il giorno">
-          <OpenBox entry={{ ...whole.entry, ...withScore(score) }}>
+          <OpenBox
+            entry={{ ...whole.entry, ...withScore(score) }}
+            levelKey="oggi.giorno"
+            compact={<NutrientsL0 data={whole.nutrients} />}
+          >
             <Nutrients data={whole.nutrients} />
             {thisWeek && targets?.basis?.expenditureKcal !== undefined && (
               <form action={recomputeTargets} className="k-line end">

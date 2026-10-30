@@ -731,3 +731,5 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 @keyframes k-lv-in{from{opacity:0;transform:translateY(-6px)}}
 .k-wxmore,.k-wx.l0 .k-wxhead,.k-wx:not(.l0) .k-wxline{animation:k-lv-in var(--t-box) var(--ease) backwards}
 @media (prefers-reduced-motion:reduce){.k-wxmore,.k-wx.l0 .k-wxhead,.k-wx:not(.l0) .k-wxline{animation:none}}
+/* the level switch at a box's foot: words and dots, at the right, a 44 px target */
+.k-lvbtn{align-self:flex-end;display:inline-flex;align-items:center;gap:8px;min-height:var(--touch)}
