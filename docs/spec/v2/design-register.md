@@ -111,6 +111,37 @@ Status words: **sì** (v2 has it and it stays), **parziale**, **no** (to build),
 | N14 | Estimates saved later in Libreria (pizza, hamburger menu) | sì |
 | N15 | Routes compatible with Google Maps | sì (#292) |
 
+## L — Layout: alignment, spacing, sizes (the developer, 29 Oct: «tutta l'app sembra fatta a caso, con allineamenti, padding, spaziature, dimensioni, stili»)
+Measured by `scripts/ui-check.mjs` on 29 Oct (14 pages, 390 px): **text starts
+on 64 different left edges on Oggi**, 50 on Andamento, 42 on Piano, 29 in
+the composer, 27 on an entry's page; 55 % of targets under 44 px (110 on the
+foods' list); 52 shapes off the scale (15 on Oggi). The kit has a scale; the
+pages place things by hand around it.
+
+| ID | Rule | Where | v2 today | Target, checked by `ui-check.mjs` |
+|---|---|---|---|---|
+| L1 | One page gutter (16 px); inside a box, content starts at its padding (16, dense 12); one indent only, under a badge (+48) | shapes.md §2, kit.css `.k-block` `.k-section` | no: 64 edges on Oggi | ≤ 6 left edges a page |
+| L2 | Vertical rhythm from the scale: 24 between sections, 8 between rows, 4 inside a row, 16 before a page's actions | shapes.md §2 | parziale | 0 shapes off the scale |
+| L3 | Pages lay out only with the kit's primitives (`k-stack`, `k-line`, `k-grid`, `k-block`, `k-section`, `k-foot`); no spacing in a page's own CSS or inline style | shapes.md §6, memory v2-boards-kit | no in the app (boards: yes) | a lint rule on `style={{…}}` with spacing, and the edges above |
+| L4 | Sizes from the type scale only (12, 14, 16, 19, 24, 30, 40); numbers in Barlow Condensed, text in Barlow | shapes.md §2, S3 | parziale | 0 off-scale fonts |
+| L5 | Every target ≥ 44 × 44: the whole Box (C1), buttons at `--touch`, dense acts at `--touch-dense` only inside a 44 px row | P3, shapes.md (44 px rule) | no: 386 small targets | 0 small targets outside a 44 px row |
+| L6 | One style per role: one primary button, one secondary, one link, one act; no page-made buttons | S8, C10 | parziale | forms per verb ≤ 1 |
+
+## V — Why v1 was understood and v2 is not (the developer, 29–30 Oct: «l'app è completamente inusabile, era molto più comprensibile v1… cercando di migliorare abbiamo peggiorato molto»)
+Evidence: the review canvas «lifeos v2 — revisione» (board «v1 e v2 a confronto»): v1 and v2 on the
+same data (the v1 export of 25 Oct loaded in both), the same day (23 Oct), the same task, at 390 px.
+These rows outrank any other row of this register when they conflict.
+
+| ID | v1 did | v2 does | Rule for the redesign |
+|---|---|---|---|
+| V1 | Every number has a label and a sentence: «Mangia 2100 kcal · consumi ~2518», «Bilancio = mangiato − consumo» | bare scores (71, 87, 60), rulers with ticks (63 · 122 · 168), icon-only chips with a count, «Fatto 10 · Previsto 1» | no number without its words; a score shows what it judges, or does not show |
+| V2 | Each area has its tabs on top (Pasti · Ingredienti · Dispensa · Andamento; Piano · Schede · Esercizi · Progressi) | sub-pages are text links («Obiettivi › Soldi ›») or hidden in Libreria and Aggiungi | every place shows its parts as tabs; you always know where you are and what is next to it |
+| V3 | One panel for every section: framed, uppercase title, its icon | cut-out silhouettes, hatching, coloured rails, faded drawings behind text, a weather card | one panel shape; decoration only where it carries meaning; silhouettes and backdrops are re-judged against this row |
+| V4 | «La giornata col piano»: one bar per nutrient, value / target, a tick | three-part bars, rulers, ticks, verdicts, then sugars, salt, micros, energy | the day shows few things plainly; detail one tap away |
+| V5 | Times on the left, horizontal, a dot on the day's line | times rotated vertically in a coloured rail | times read horizontally |
+| V6 | Lists show what matters: grams per macro, «23× in 60 giorni», ⋯ and delete | name, kcal per 100, «+» | a list row carries the facts used to choose and its actions |
+| V7 | Each page has its button and each row its actions in view | 20 of 54 pages without a primary action; 48 % of targets under 44 px | one visible primary action per page; every target ≥ 44 px |
+
 ## T — Themes and density (plan, A3)
 v1 has five themes over one kit (ADR-0010: a theme is a token set plus
 replacements for a closed list of slots) and one density setting (ADR-0038:

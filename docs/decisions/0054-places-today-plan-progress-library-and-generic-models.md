@@ -1,6 +1,6 @@
 # ADR-0054: Four places — Oggi, Piano, Andamento, Libreria — and models that plan anything
 
-**Status:** proposed
+**Status:** superseded by ADR-0059 (places); the plan models stay
 **Date:** 2026-10-16
 
 ## Context

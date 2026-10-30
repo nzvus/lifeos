@@ -52,6 +52,27 @@ for code quality, then for speed. Never for speed first.
    UI changes are checked before the PR with `npm run audit:ui` and a phone
    emulation (docs/runbooks/ui-audit.md).
 
+## Working agreements (the developer's standing rules, repeated often — follow them without being asked)
+
+- **As few PRs as possible.** Everything goes on one branch from `main`; a
+  different theme is not a reason for a new PR. While a PR of yours is open,
+  add the next slices to it (check its state in its own call first). Split
+  only a data migration that must merge after the code it needs.
+- **«Devo andare» / «procedi senza di me» = never stop.** Make the choices you
+  judge best, write each one down as «decided by the agent» where it belongs
+  (dossier, ADR, handoff), go on to the next item, and report at the end.
+- **Docs and handoff always current.** After every PR or significant step,
+  update the docs touched and `~/.claude/plans/handoff-lifeos.md`, so a new
+  conversation starts with everything: decisions, the developer's feedback in
+  his own words, considerations, open problems, next step.
+- **Write down what you learn when you learn it.** A mistake, a tool's quirk,
+  a preference, a useful finding: into memory or the docs right away, not at
+  the end.
+- **«Done» only after checking the effect** (the data, the screen, the
+  export), never from a green run or a script's exit code alone.
+- **Keep the developer informed** while working: a short line on what you are
+  doing; never go long silent stretches.
+
 ## Workflow cadence
 
 Research → discuss architecture → decide (ADR if significant) → implement a

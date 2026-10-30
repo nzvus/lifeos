@@ -1,5 +1,7 @@
 # v2 — Screens
 
+> **Places superseded by ADR-0059 (2026-10-30):** Corpo · Cibo · Oggi · Mente · Soldi, the same four tabs (Diario · Piano · Elenco · Andamento) everywhere. This file is rewritten in phase 3 of the review; until then the places below are the code's current state, not the target.
+
 Few generic screens driven by kinds, catalogs and metrics. Specialised
 screens only where `concepts.md` says the generic model is not enough.
 The design boards (Design artifact "lifeos v2") draw them at 360 and
