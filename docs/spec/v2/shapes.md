@@ -19,7 +19,7 @@ like a button.
 | L0 Page | a place's page, `paper` background, backdrop | no frame; 16 px side gutter |
 | L1 Sheet | rises from below: an entry, a day's sheet, filters | top corners 20, bottom 0; the one surface with a shadow; grabber; dims the page |
 | L1′ Sub-page | a full-screen editor: composer, ingredient, cycle | like L0, with "‹ parent" in the header; no frame |
-| L2 Section | a group of things on a page | no frame: a title (19) with its 2 px rule and accent; may fold (`k-fold`) |
+| L2 Section | a group of things on a page | no frame: a surface tinted 7 % by its area, the title (19) in the area's colour, no rule, no tick; may fold (`k-fold`) — UI-78, 30 Oct |
 | L3 Card | the card Box, a summary, a scorecard | corners 16; 1 px outline; the domain silhouette; padding 12 / 16 |
 | L4 Row | the dense Box, list rows, stats | corners 12; the same silhouette; padding 8 / 12 |
 | L5 Control | fields, buttons, segmented, search | corners 8; height 44 (36 inside a row) |

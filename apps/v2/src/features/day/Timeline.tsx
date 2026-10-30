@@ -37,7 +37,7 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
         </button>
       </div>
       {rows.map((r, i) => (
-        <div key={i} className="k-stack">
+        <div key={i} className="k-stack k-tlrow">
           {i === nowAt && line}
           {row(r, times ? "times" : "compact", toggle)}
         </div>

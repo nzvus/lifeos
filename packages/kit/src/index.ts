@@ -12,6 +12,7 @@ export { Box, type BoxAct, type BoxEntry } from "./Box";
 export { PageHeader } from "./PageHeader";
 export { NavBar, type Place } from "./NavBar";
 export { DateNav, type DayBars } from "./DateNav";
+export { useLevel, nextLevel, readLevel } from "./levels";
 export { RangeNav, type RangePreset } from "./RangeNav";
 export { Chart, chartGeometry, type ChartData } from "./Chart";
 export { Field, type FieldOption, type FieldProps } from "./Field";

@@ -181,3 +181,55 @@ ripensate». Seven choices, ledger UI-75 … UI-81: the score, the week, the tim
 silhouettes and backdrops, the weather, the icons — each with today's v2, three new ways and a
 recommendation. Themes deferred (UI-74). **Waiting for the developer's picks**; the picked ones
 move into the kit, the others and the study pages are deleted.
+
+### 3.4 His picks (30 Oct, comments on canvas v19) and round 2
+Ledger UI-75 … UI-81, CONTRA-01 … 03. The developer commented each card; then «io vado, continua
+senza di me»: the rest below is **decided by the agent** where it says so.
+
+**Decided and built in the kit (commit «the round of 30 Oct in the kit»):**
+- **Icons (UI-81)**, his «mi fido del tuo consiglio»: bare in rows, a *filled* tile only where the
+  row is a button (a Box row with its link: ⊕, Libreria, Piano). Decided by the agent: four own
+  drawings for the meal roles in the line of the silhouettes (UI-20) — colazione cup on its saucer,
+  pranzo plate from above with cutlery, cena deep plate with the moon, spuntino biscuit with a bite
+  (`meal-*` in icons.json `custom`); Tabler's salad, soup and cookie were already dishes or food
+  groups, one drawing one meaning. The resolver now prefers the subcategory over the kind (a lunch
+  is a meal, drawn as a lunch). Audit of the set: no other duplicate between domains and kinds;
+  intakes logged as meals in v1 (CREATINA, CAFFÈ) still draw the fork — that is data (R6), not icons.
+- **Levels of expansion (UI-80)**, a kit pattern (`useLevel`, `packages/kit/src/levels.ts`): levels
+  0…n, one tap to the next, after the last back to 0, three dots say the level; the level is kept per
+  piece in the browser (decided by the agent: localStorage, no schema; a server preference later if
+  he wants it on every device). Weather is the first user: 0 one line, 1 the card, 2 hours, air, sun;
+  hex colours replaced by tokens (S15).
+- **Panel (UI-78, option 3)**: a page's sections and the day's own panel sit on a surface tinted
+  7 % by their area, no frame, no rule, no tick; folds read like sections; 12 px between the day's
+  boxes. It applies to every page's sections (`.k-page>.k-section`), not to the boxes inside them.
+- **Silhouettes and drawings (UI-79)**: decided by the agent — a silhouette changes corners, rims or
+  a corner bite, never the padding or a side, so icon and text line up in every row: the body tag's
+  point and eyelet, training's side notches, the cardio arrow, the receipt's zigzag, the bubble's
+  tail and the capsule's wide padding are gone; plate rims, cup corners, snack and moon bites stay.
+  The icon stands before every title (in the times mode the rail carries it). The drawing behind
+  moves to the free bottom-right corner, only in boxes with lines under the head, and turns in once
+  on load; open, it grows as before (S6). The page's big drawing stays at the top and scrolls away.
+
+**Round 2, waiting for his pick** (`/studio/voto`, `/studio/settimana`, `/studio/orari`, dev only):
+- **Score (UI-75)**: one combination — the skyline without frame, each column in its band's colour
+  (2), the number with its word; under the head one line: the action when known (3), else the part
+  that cost most (1); open, the skyline the box's width on its 40/70 bands, each column named.
+- **Week (UI-76)**: v2's strip without ‹ › and without the «Oggi» button: the strip swipes a week,
+  the title opens the month, today keeps a ring, «↩ oggi» is a word in the title's line only when
+  away (KEEP-01 functions kept); levels like the weather: days · thin bars · bars and each day's 24
+  hours under its column (option 1, smaller: 96 px, guides at 6/12/18, now in red).
+- **Times (UI-77)**: the rail stays with its animation; parts of the day are full-width headers from
+  the person's meal-role bounds (mattina, mezzogiorno, pomeriggio, sera, notte) that cut the rail;
+  «Fine giornata» closes it and the things without a time sit below, aligned, with no rail; ≥ 2 h
+  with nothing is a thin dashed grey bar with «+ <the meal missing at that hour>» or «+ aggiungi»
+  (the composer with role, time and state); parts not yet begun are not drawn unless something is
+  planned in them; an empty passed part says «niente».
+
+**Round 3 (his comments on canvas v22, 30 Oct 17:01–17:04; canvas v25):** score closed accepted, open
+redone as one row per criterion with the nutrients' ruler (S12); week in two ways to compare —
+A each day one column that grows into its 24 hours, B his 25 Oct idea, thin bars behind each day's
+number; times: separators are drawn sky bands (the sun at the part's height on the day's arc, the
+moon at night, rising once on load), untimed things full width aligned with the bands; weather line
+padding equal to the card; the water row's overflow fixed in Box (UI-84).
+

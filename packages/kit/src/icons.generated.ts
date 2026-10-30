@@ -24,6 +24,10 @@ export const ICONS: IconRegistry = {
         ingredient: ["Ingrediente", "apple"],
         product: ["Prodotto", "barcode"],
         recipe: ["Ricetta", "chef-hat"],
+        breakfast: ["Colazione", "meal-breakfast"],
+        lunch: ["Pranzo", "meal-lunch"],
+        snack: ["Spuntino", "meal-snack"],
+        dinner: ["Cena", "meal-dinner"],
       },
     },
     drink: {
@@ -343,6 +347,14 @@ export const ICONS: IconRegistry = {
     usedIn: ["Dove è usato", "chef-hat"],
   },
   g: {
+    "meal-breakfast":
+      "M5 9h11v4a5 5 0 0 1 -5 5h-1a5 5 0 0 1 -5 -5zM16 10h1.5a2.5 2.5 0 0 1 0 5h-1.8M3 21h16M9 3.5c-.6 .8 -.6 1.7 0 2.5M12.5 3.5c-.6 .8 -.6 1.7 0 2.5",
+    "meal-lunch":
+      "M13 12m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0M13 12m-3.2 0a3.2 3.2 0 1 0 6.4 0a3.2 3.2 0 1 0 -6.4 0M3 4v5a1 1 0 0 0 1 1M5 4v5a1 1 0 0 1 -1 1v10M21.5 4c-1 1 -1.5 3 -1.5 6h1.5v10",
+    "meal-dinner":
+      "M3 13h18M4 13a8 5.5 0 0 0 16 0M7.5 18.6h9M18.5 3.2a3.6 3.6 0 1 0 2.8 5.6a2.8 2.8 0 0 1 -2.8 -5.6z",
+    "meal-snack":
+      "M19.6 9.8a8.5 8.5 0 1 1 -5.4 -6.4a2.6 2.6 0 0 0 2.3 3.6a2.6 2.6 0 0 0 3.1 2.8zM9 10v.01M12 15v.01M8 15.5v.01M14.5 11v.01",
     "adjustments-horizontal":
       "M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M4 6l8 0M16 6l4 0M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M4 12l2 0M10 12l10 0M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M4 18l11 0M19 18l1 0",
     "alert-triangle":
@@ -632,6 +644,10 @@ export const ICONS: IconRegistry = {
     "mcable",
     "mcan",
     "mdb",
+    "meal-breakfast",
+    "meal-dinner",
+    "meal-lunch",
+    "meal-snack",
     "mmachine",
     "mprot",
     "mpullbar",

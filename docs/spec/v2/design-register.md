@@ -29,10 +29,10 @@ Status words: **sì** (v2 has it and it stays), **parziale**, **no** (to build),
 | S1 | Tokens and one scale of shapes (radius 0–20, space 0–32, font 12–40) | shapes.md §2, kit.css | sì | kept; the shapes audit at 0 on every board |
 | S2 | One colour per meaning; fixed hues for macros, moments, muscles | kit.md, tokens.css | sì | kept; themes (T) change the ground, not the meanings |
 | S3 | Barlow + Barlow Condensed | tokens.json | sì | kept as the default theme's faces |
-| S4 | Domain silhouettes (plate, cup, bite; notched bar; moon; tag; receipt; cloud; capsule; drop; calendar) | kit.css `.k-shape` | sì | kept on Box (C1) |
+| S4 | Domain silhouettes (plate, cup, bite; notched bar; moon; tag; receipt; cloud; capsule; drop; calendar) | kit.css `.k-shape` | sì | kept on Box (C1) · 30 Oct (UI-79): only corners, rims and corner bites; no point, notch, zigzag or tail that moves the content |
 | S5 | Planned things are hatched | kit.md | sì | kept, everywhere a thing is planned |
-| S6 | The drawing in the box (`k-art` a1/a2) grows ≈ 1.9× on open | kit.css | sì | kept |
-| S7 | The time rail 20 → 64 px | ADR-0050, kit.css | sì | kept on Oggi |
+| S6 | The drawing in the box (`k-art` a1/a2) grows ≈ 1.9× on open | kit.css | sì | kept · 30 Oct (UI-79): at rest in the free bottom-right corner, only in boxes with lines under the head |
+| S7 | The time rail 20 → 64 px | ADR-0050, kit.css | sì | kept on Oggi · 30 Oct (UI-77): kept by the developer, V5 overridden; parts-of-day headers in study |
 | S8 | Buttons by role and their states; segmented → menu past 4 options | kit.md | sì | kept; verbs from C10 |
 | S9 | Glyph: Tabler 3.19 + own drawings, 4-level resolver, 18 food groups, dishes, 36 movements, corner mark, sizes with thinning stroke, domain backdrop 320 px at 6 % | icons.md | sì | kept; pages pass data, never icon names |
 | S10 | `F`: decimal comma, «−», decimals by unit, no-break space; judgement scale 70/40 (`judge`, `cap`, `reach`, `tone`) | content.md, kit `format.ts` | sì | kept; no page formats a number itself |
@@ -136,9 +136,9 @@ These rows outrank any other row of this register when they conflict.
 |---|---|---|---|
 | V1 | Every number has a label and a sentence: «Mangia 2100 kcal · consumi ~2518», «Bilancio = mangiato − consumo» | bare scores (71, 87, 60), rulers with ticks (63 · 122 · 168), icon-only chips with a count, «Fatto 10 · Previsto 1» | no number without its words; a score shows what it judges, or does not show |
 | V2 | Each area has its tabs on top (Pasti · Ingredienti · Dispensa · Andamento; Piano · Schede · Esercizi · Progressi) | sub-pages are text links («Obiettivi › Soldi ›») or hidden in Libreria and Aggiungi | every place shows its parts as tabs; you always know where you are and what is next to it |
-| V3 | One panel for every section: framed, uppercase title, its icon | cut-out silhouettes, hatching, coloured rails, faded drawings behind text, a weather card | one panel shape; decoration only where it carries meaning; silhouettes and backdrops are re-judged against this row |
+| V3 | One panel for every section: framed, uppercase title, its icon | cut-out silhouettes, hatching, coloured rails, faded drawings behind text, a weather card | one panel shape; decoration only where it carries meaning; silhouettes and backdrops are re-judged against this row · 30 Oct: overridden by the developer — colour separates (UI-78), icons and drawings kept and repositioned (UI-79) |
 | V4 | «La giornata col piano»: one bar per nutrient, value / target, a tick | three-part bars, rulers, ticks, verdicts, then sugars, salt, micros, energy | the day shows few things plainly; detail one tap away |
-| V5 | Times on the left, horizontal, a dot on the day's line | times rotated vertically in a coloured rail | times read horizontally |
+| V5 | Times on the left, horizontal, a dot on the day's line | times rotated vertically in a coloured rail | times read horizontally · 30 Oct: overridden by the developer — the rail stays (UI-77) |
 | V6 | Lists show what matters: grams per macro, «23× in 60 giorni», ⋯ and delete | name, kcal per 100, «+» | a list row carries the facts used to choose and its actions |
 | V7 | Each page has its button and each row its actions in view | 20 of 54 pages without a primary action; 48 % of targets under 44 px | one visible primary action per page; every target ≥ 44 px |
 

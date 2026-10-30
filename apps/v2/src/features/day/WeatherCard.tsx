@@ -1,14 +1,17 @@
 "use client";
 /**
  * The day's weather on Oggi (E11; the developer's pick, 2026-10-25: «B con A
- * in espansione»): closed, the sky's drawing, the temperature at the hour,
- * the sky in words and the day's low–high with the hour on it, then the
- * humidity, the air, the daylight, the city; open, the curve of the hours,
- * the air on its scale (EEA), the daylight as the sun's arc.
+ * in espansione»), on three levels (UI-80, 30 Oct: «più gradi di
+ * espandibilità… ricordata nelle aperture delle pagine»), one tap each, the
+ * level kept for the next visit: 0 one line (the sky, the temperature at
+ * the hour, its word, low–high); 1 the card (the sky's drawing, the day's
+ * range with the hour on it, humidity, air, daylight, the city); 2 the card
+ * and the curve of the hours, the air on its scale (EEA), the sun's arc.
  */
-import { useState } from "react";
-import { F } from "@lifeos/kit";
+import { F, useLevel } from "@lifeos/kit";
 import { airWords, skyOf, type DayChips } from "@/core/engines/environment";
+
+const LEVEL_WORDS = ["una riga", "la scheda", "le ore, l’aria e la luce"];
 
 export function WeatherCard({
   w,
@@ -19,34 +22,54 @@ export function WeatherCard({
   place: string;
   hour: number;
 }) {
-  const [open, setOpen] = useState(false);
+  const [level, next] = useLevel("oggi.meteo", 2, 1);
   const sky = skyOf(w.code);
   const lo = w.minC ?? 0;
   const hi = w.maxC ?? 0;
   const now = w.nowC ?? null;
   const pos = now !== null && hi > lo ? ((now - lo) / (hi - lo)) * 100 : null;
+  const said =
+    "Il tempo a " +
+    place +
+    ": " +
+    [
+      sky.word,
+      now !== null ? F.num(now, "°C") : "",
+      "minima " + F.num(lo, "°C"),
+      "massima " + F.num(hi, "°C"),
+    ]
+      .filter(Boolean)
+      .join(", ") +
+    ". Mostra " +
+    LEVEL_WORDS[level] +
+    ": tocca per " +
+    LEVEL_WORDS[(level + 1) % 3];
+  const dots = (
+    <span className="k-lv" aria-hidden="true">
+      {[0, 1, 2].map((i) => (
+        <i key={i} className={i <= level ? "on" : ""} />
+      ))}
+    </span>
+  );
+  if (level === 0)
+    return (
+      <div className="k-wx l0">
+        <button type="button" className="k-wxhead" aria-label={said} onClick={next}>
+          <Sky icon={sky.icon} />
+          <span className="k-body">
+            <b className="k-num">{now !== null ? Math.round(now) + "°" : "–"}</b>{" "}
+            {sky.word}
+          </span>
+          <span className="k-help">
+            {Math.round(lo)}° – {Math.round(hi)}°
+          </span>
+          {dots}
+        </button>
+      </div>
+    );
   return (
-    <div className={"k-wx" + (open ? " open" : "")}>
-      <button
-        type="button"
-        className="k-wxhead"
-        aria-expanded={open}
-        aria-label={
-          "Il tempo a " +
-          place +
-          ": " +
-          [
-            sky.word,
-            now !== null ? F.num(now, "°C") : "",
-            "minima " + F.num(lo, "°C"),
-            "massima " + F.num(hi, "°C"),
-          ]
-            .filter(Boolean)
-            .join(", ") +
-          (open ? ". Tocca per chiudere" : ". Tocca per aprire")
-        }
-        onClick={() => setOpen(!open)}
-      >
+    <div className={"k-wx" + (level === 2 ? " open" : "")}>
+      <button type="button" className="k-wxhead" aria-label={said} onClick={next}>
         <Sky icon={sky.icon} />
         <span className="now">
           <b>{now !== null ? Math.round(now) + "°" : "–"}</b>
@@ -62,6 +85,7 @@ export function WeatherCard({
           </span>
           <span>{Math.round(hi)}°</span>
         </span>
+        {dots}
       </button>
       <span className="k-wxline">
         {w.humidity !== null && <span>{F.num(w.humidity, "%")} umidità</span>}
@@ -71,7 +95,7 @@ export function WeatherCard({
         {w.daylightH !== null && <span>{F.hm(w.daylightH * 60)} di luce</span>}
         <span className="mut">{place}</span>
       </span>
-      {open && (
+      {level === 2 && (
         <div className="k-wxmore">
           <Curve hours={w.hours} hour={hour} />
           <div className="k-wxgrid">

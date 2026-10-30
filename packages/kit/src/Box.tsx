@@ -60,6 +60,7 @@ export function Box({
   children,
   expanded,
   onToggle,
+  chip: chipSlot,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -71,13 +72,17 @@ export function Box({
   /** The box opens (the boards' head button): the caller holds the state and the content. */
   expanded?: boolean;
   onToggle?: () => void;
+  /** Replaces the score chip in the head (the visual study's round 2, UI-75). */
+  chip?: ReactNode;
 }) {
   const dense = density === "row";
   // The score as a small framed chart in the head (the developer's pick, 2026-10-25):
   // its number in the judgement's colour, a column per part (as wide as its weight,
   // as full as its score), the 70 dashed.
   const sc = e.score && e.score.parts.length > 0 && !dense ? e.score : null;
-  const chip = sc ? (
+  const chip = chipSlot ? (
+    chipSlot
+  ) : sc ? (
     <span
       className="k-skyc"
       role="img"
@@ -108,7 +113,13 @@ export function Box({
   };
   const members = e.members ?? [];
   const shown = members.slice(0, members.length > 8 ? 7 : 8);
+  // Icons in dark (UI-81): bare in a row; a filled tile only where the row is a button.
   const badge = dense && members.length === 0;
+  // One short action fits the head; more, or a long one («Ancora +500?»), get their
+  // own line under the box: the head never pushes past the edge (the water row did).
+  const inline = acts.length === 1 && acts[0]!.label.length <= 6;
+  const headActs = inline ? acts : [];
+  const lineActs = inline ? [] : acts;
   return (
     <div
       className={
@@ -170,7 +181,13 @@ export function Box({
                 }
               >
                 <span className={"k-hlead" + (badge ? " badged" : "")}>
-                  {badge && <Glyph of={of} size="m" tile />}
+                  {badge ? (
+                    <Glyph of={of} size="m" tile={!!e.href} />
+                  ) : (
+                    <span className="k-glyph-lead">
+                      <Glyph of={of} size="m" />
+                    </span>
+                  )}
                   <span className="k-label k-title">{e.title}</span>
                 </span>
                 <span className="k-hright">
@@ -181,7 +198,13 @@ export function Box({
             ) : (
               <span className="k-head">
                 <span className={"k-hlead" + (badge ? " badged" : "")}>
-                  {badge && <Glyph of={of} size="m" tile />}
+                  {badge ? (
+                    <Glyph of={of} size="m" tile={!!e.href} />
+                  ) : (
+                    <span className="k-glyph-lead">
+                      <Glyph of={of} size="m" />
+                    </span>
+                  )}
                   <span className="k-label k-title">{e.title}</span>
                 </span>
                 <span className="k-hright">
@@ -190,7 +213,7 @@ export function Box({
                 </span>
               </span>
             )}
-            {(e.href || acts.length > 0 || (dense && e.score)) && (
+            {(e.href || headActs.length > 0 || (dense && e.score)) && (
               <span className="k-trail">
                 {dense && e.score && e.score.parts.length > 0 && (
                   // A row's score: the board's mini skyline, beside its value.
@@ -215,7 +238,7 @@ export function Box({
                     <span className="line" />
                   </span>
                 )}
-                {acts.map((a) => (
+                {headActs.map((a) => (
                   <button
                     key={a.label}
                     type="button"
@@ -313,7 +336,7 @@ export function Box({
                   }
                 >
                   {shown.map((m, i) => (
-                    <Glyph key={i} of={m} size="s" tile />
+                    <Glyph key={i} of={m} size="s" />
                   ))}
                   {members.length > 8 && (
                     <span className="k-meta">{"+" + (members.length - 7)}</span>
@@ -322,6 +345,21 @@ export function Box({
               )}
             </div>
           </div>
+          {lineActs.length > 0 && (
+            <div className="k-line end g2 k-acts">
+              {lineActs.map((a) => (
+                <button
+                  key={a.label}
+                  type="button"
+                  className={"k-btn act" + (a.danger ? " danger" : "")}
+                  aria-label={a.aria ?? a.label}
+                  onClick={a.onClick}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
