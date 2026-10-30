@@ -100,6 +100,13 @@ and prepare the big choices together in one round (themes and palette, panel sha
 the bar and the charts, the score, the week, the weather, silhouettes and backdrops CONTRA-03,
 icons) — those are the developer's.
 
+**Corrected 30 Oct (ledger UI-74, the developer: «se vedi v2 è diversa… non dovevamo ripensarle?
+… uso quello scuro io e basta»):** the starting point is **v2 as the app draws it now**, board «v2
+com’è, in scuro» (canvas v18: Oggi, an open box, ⊕, Palestra, Libreria, Andamento, Sonno, Piano, a
+new food; photographed in dark at 390 px). The «Atlante» of mid-October components stays as a
+memory of the pieces, not as the reference. Everything is drawn and judged in dark first; the
+themes (A1, choice 1) wait.
+
 ## 2. Criteria, decided before judging (decided by the agent, 30 Oct, from the plan's list)
 Each element of the atlas is judged on these, with its proof; a «no» on a measured threshold is a
 «rethink», never a matter of taste.
@@ -139,12 +146,12 @@ options (§3.1). Proof = what the atlas boards show against §2.
 | S20 | v1's rings, MacroStrip, NovaBar, ChartFrame | pending (rendered after 1 Nov) | — |
 
 ### 3.1 The one round of choices (to prepare, all together, from real components and your day)
-1. Themes and palette (with the T2 frame slots, so themes really differ). 2. Panel and section shape
+1. Themes and palette — **deferred** (he uses dark only). 2. Panel and section shape
 (CONTRA-01). 3. The rail and the times (CONTRA-02). 4. The score (D2). 5. The week (D3). 6. Weather
 graphics and animation (D4, after a short research on weather visuals). 7. Silhouettes and
 backdrops (CONTRA-03). 8. Icons. Each: 2–3 options side by side and a recommendation.
 
-Progress: **choice 5 (the week) ready on the canvas, v17, board «Scelta 5 · La settimana»**: A as
+Progress (superseded the same day by UI-74: these are variants, not a rethink; to redo in dark from v2 as it is): **choice 5 (the week) drafted on the canvas, v17, board «Scelta 5 · La settimana»**: A as
 today (one thin line), B your idea whole (eight thin transparent bars a day), C one bar per area
 (Cibo, Corpo, Sonno); real days 23–29 Oct computed from the export by
 `boards-tools/week_data.py` (line values are per 100 g: value × quantity ÷ 100, as
