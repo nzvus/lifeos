@@ -26,7 +26,7 @@ drawing, so the same thing always has the same icon everywhere.
 |---|---|---|
 | Place | the five places + Settings | Oggi (sun), Piano (calendar-week), ⊕ (circle-plus), Andamento (trending-up), Libreria (books) |
 | Domain | the family: hue + glyph, also the page's backdrop | Cibo, Bere, Allenamento, Sonno, Corpo, Mente, Soldi, Dispensa, Abitudini, Obiettivi, Tempo, Libreria, Impostazioni, Ambiente, Lavoro |
-| Kind | a type inside a domain | Cibo: meal, ingredient, product, recipe · Allenamento: session, exercise, cycle · Soldi: movement, receipt, budget · Dispensa: stock, shopping, batch |
+| Kind | a type inside a domain (a subcategory wins over its kind: a lunch is drawn as a lunch) | Cibo: meal (colazione, pranzo, spuntino, cena have own drawings, 30 Oct UI-81), ingredient, product, recipe · Allenamento: session, exercise, cycle · Soldi: movement, receipt, budget · Dispensa: stock, shopping, batch |
 | Item | derived from the item's data | an exercise from its movement; an ingredient from its food group; a meal from its dish |
 
 The resolver tries, in order:
@@ -161,3 +161,11 @@ lunch, snack, dinner) change the hue, never the drawing.
   icon of its own.
 - Adding a domain, kind, food group, dish, movement, control or
   nutrient is a line in `icons.json`; it is never page code.
+
+## Dark, 30 Oct (ledger UI-81, UI-79)
+- In a row the icon is bare, in its domain's colour, before the title; a tile is **filled** (the
+  domain's colour, the drawing in the sheet's colour) and only where the row is a button.
+- The four meal roles have own drawings (`meal-breakfast`, `meal-lunch`, `meal-dinner`,
+  `meal-snack` in icons.json `custom`), in the line of the silhouettes; one drawing, one meaning.
+- The drawing behind a box sits in its free bottom-right corner, never under words (visual.md §3.4).
+
