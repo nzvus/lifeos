@@ -93,6 +93,7 @@ import {
 } from "@/features/day/score";
 import { OpenBox } from "@/features/day/OpenBox";
 import { readPricedDay } from "@/features/day/priced";
+import { weekRhythm } from "@/features/day/rhythm";
 import {
   caffeineDoses,
   compoundsOf,
@@ -453,6 +454,9 @@ export default async function OggiPage({
           scores={scores}
           tags={tags}
           bars={bars}
+          levelKey="oggi.settimana"
+          rhythm={weekRhythm(days, (d) => ({ ...sctx, date: d, now: null }), clock)}
+          nowMinute={nowMinute}
         />
         {weather && <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />}
       </section>
@@ -522,6 +526,15 @@ export default async function OggiPage({
             now={
               nowMinute === null ? null : { minute: nowMinute, label: F.time(nowMinute) }
             }
+            clock={{
+              date,
+              gone: date < today,
+              boundaryMin: clock.boundaryMin,
+              roleBounds: known.roleBounds,
+              roles: items
+                .filter((i) => i.kind.key === "meal" && i.status !== "skipped")
+                .map((i) => String(i.values["role"] ?? i.subcategory ?? "")),
+            }}
           />
         )}
         {rows.some((r) => r.fam === "food" || r.fam === "train") && (

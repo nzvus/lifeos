@@ -141,6 +141,7 @@ export default async function PianoPage({
           today={today}
           hrefBase="/piano?giorno="
           weekBase="/piano?settimana="
+          levelKey="piano.settimana"
           tags={Object.fromEntries(week.map((d) => [d, planTag(plans.get(d))]))}
         />
       </section>

@@ -62,7 +62,6 @@ export function Box({
   children,
   expanded,
   onToggle,
-  chip: chipSlot,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -74,8 +73,6 @@ export function Box({
   /** The box opens (the boards' head button): the caller holds the state and the content. */
   expanded?: boolean;
   onToggle?: () => void;
-  /** Replaces the score chip in the head (the visual study's round 2, UI-75). */
-  chip?: ReactNode;
 }) {
   const dense = density === "row";
   // The score (UI-75, decided 30 Oct combining the developer's picks): the skyline
@@ -83,41 +80,40 @@ export function Box({
   // its band's colour (the ruler's zones), beside the number and its word.
   const sc = e.score && e.score.parts.length > 0 && !dense ? e.score : null;
   const judged = sc ? F.judge(sc.value ?? undefined) : null;
-  const chip = chipSlot ? (
-    chipSlot
-  ) : sc && judged ? (
-    <span
-      className="k-vh"
-      role="img"
-      aria-label={
-        "voto " +
-        (sc.value ?? "") +
-        ", " +
-        SCORE_WORD[judged.level] +
-        ": " +
-        sc.parts.map((q) => q.name + " " + Math.round(q.score * 100)).join(", ")
-      }
-    >
-      <span className="k-vsky" aria-hidden="true">
-        {sc.parts.map((q) => (
-          <span key={q.name} className="col" style={{ flexGrow: q.weight }}>
-            <span
-              className="fill"
-              style={{
-                height: Math.round(q.score * 100) + "%",
-                background: band(q.score * 100),
-              }}
-            />
-          </span>
-        ))}
-        <span className="ln" style={{ bottom: MET + "%" }} />
+  const chip =
+    sc && judged ? (
+      <span
+        className="k-vh"
+        role="img"
+        aria-label={
+          "voto " +
+          (sc.value ?? "") +
+          ", " +
+          SCORE_WORD[judged.level] +
+          ": " +
+          sc.parts.map((q) => q.name + " " + Math.round(q.score * 100)).join(", ")
+        }
+      >
+        <span className="k-vsky" aria-hidden="true">
+          {sc.parts.map((q) => (
+            <span key={q.name} className="col" style={{ flexGrow: q.weight }}>
+              <span
+                className="fill"
+                style={{
+                  height: Math.round(q.score * 100) + "%",
+                  background: band(q.score * 100),
+                }}
+              />
+            </span>
+          ))}
+          <span className="ln" style={{ bottom: MET + "%" }} />
+        </span>
+        <span className="n" aria-hidden="true">
+          <b style={{ color: judged.tone }}>{sc.value}</b>
+          <small>{SCORE_WORD[judged.level]}</small>
+        </span>
       </span>
-      <span className="n" aria-hidden="true">
-        <b style={{ color: judged.tone }}>{sc.value}</b>
-        <small>{SCORE_WORD[judged.level]}</small>
-      </span>
-    </span>
-  ) : null;
+    ) : null;
   // Under the head, one line: what would raise it, else the part that cost the most.
   const low = sc
     ? [...sc.parts].sort((a, b) => b.weight * (1 - b.score) - a.weight * (1 - a.score))[0]

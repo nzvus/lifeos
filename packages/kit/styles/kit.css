@@ -745,3 +745,45 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-say{display:flex;align-items:baseline;gap:8px;margin-top:4px}
 .k-row:not(.times) .k-box:has(>.k-line .k-glyph-lead)>.k-say{padding-left:24px}
 .k-parts{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+/* ---------- the parts of the day (UI-77, 30 Oct): a band of the part's sky, empty time dashed ---------- */
+.k-part{position:relative;display:flex;align-items:center;gap:8px;height:44px;margin:8px -12px 0;padding:0 12px;overflow:hidden;font-family:var(--font-display);font-size:var(--fs-b1);font-weight:700;color:var(--ink);background:linear-gradient(90deg,color-mix(in srgb,var(--sky-a) 20%,var(--paper)),color-mix(in srgb,var(--sky-b) 12%,var(--paper)))}
+.k-part .t{font-family:var(--font-body);font-weight:400;font-size:var(--fs-b3);color:var(--muted);font-variant-numeric:tabular-nums}
+.k-part svg{position:absolute;right:8px;top:0;width:120px;height:44px}
+.k-part .hz{stroke:color-mix(in srgb,var(--ink) 30%,transparent);stroke-width:1}
+.k-part .arc{fill:none;stroke:color-mix(in srgb,var(--ink) 22%,transparent);stroke-width:1;stroke-dasharray:2 3}
+.k-part .sun{fill:var(--macro-carbs)}
+.k-part .ray{stroke:var(--macro-carbs);stroke-width:1.5;stroke-linecap:round}
+.k-part .moon{fill:var(--moment-dinner)}
+.k-part .star{fill:var(--ink);opacity:.6}
+.k-part .body{animation:k-rise calc(var(--t-box) * 2) var(--ease) backwards}
+@keyframes k-rise{from{transform:translateY(14px);opacity:0}}
+.k-part.empty{opacity:.7}
+.k-part.end .nm{color:var(--muted)}
+.k-gap{display:grid;grid-template-columns:20px minmax(0,1fr);column-gap:8px;align-items:center}
+.k-gap .bar{justify-self:start;width:0;border-left:2px dashed color-mix(in srgb,var(--muted) 55%,transparent)}
+.k-gap a{display:flex;align-items:center;gap:8px;min-height:var(--touch);padding:0 12px;border:1px dashed var(--hairline);border-radius:var(--r-row);color:var(--muted);text-decoration:none;font-size:var(--fs-b2)}
+.k-gap a b{margin-left:auto;font-family:var(--font-display);color:var(--herb);font-weight:600}
+@media (prefers-reduced-motion:reduce){.k-part .body{animation:none}}
+/* ---------- the week strip (UI-76, 30 Oct): no arrows, levels, bars behind the number, 24 hours ---------- */
+.k-dn .top.lv{justify-content:flex-start;gap:8px}
+.k-dn .top.lv .ttl{flex:0 1 auto;justify-content:flex-start}
+.k-dn .back{margin-left:auto;display:inline-flex;align-items:center;min-height:var(--touch);padding:0 4px;font-family:var(--font-display);font-size:var(--fs-b2);font-weight:600;color:var(--herb);text-decoration:none}
+.k-dn .lvb{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;min-width:var(--touch);min-height:var(--touch);padding:0;border:0;background:transparent;cursor:pointer}
+.k-dn .back+.lvb{margin-left:0}
+.k-week[class*=" lv"]{touch-action:pan-y;user-select:none}
+.k-week[class*=" lv"] a{position:relative}
+.k-week[class*=" lv"] a>:not(.k-wbars){position:relative;z-index:1}
+.k-week a.today:not([aria-current]){box-shadow:inset 0 0 0 1.5px var(--hairline)}
+.k-wbars.bg{position:absolute;left:16%;right:16%;top:20px;height:36px;margin:0;gap:4px;opacity:.28;z-index:0}
+.k-wbars.bg>i{width:4px}
+.k-week a[aria-current] .k-wbars.bg{opacity:.4}
+.k-day24{position:relative;display:block;width:76%;height:96px;margin-top:8px;border-radius:var(--r-mark);background:color-mix(in srgb,var(--ink) 6%,transparent);overflow:hidden;z-index:1}
+.k-week a[aria-current] .k-day24{background:var(--paper)}
+.k-day24>span{position:absolute}
+.k-day24 .gd{left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--ink) 12%,transparent)}
+.k-day24 .sl{left:25%;width:50%;border-radius:2px;background:color-mix(in srgb,var(--moment-dinner) 50%,transparent)}
+.k-day24 .tr{left:16%;width:68%;border-radius:2px;background:var(--muscle-legs)}
+.k-day24 .ml{left:calc(50% - 4px);width:8px;height:8px;margin-top:-4px;border-radius:50%;box-shadow:0 0 0 1.5px var(--paper)}
+.k-day24 .nw{left:0;right:0;border-top:2px solid var(--tomato)}
+.k-week.lv2 .k-day24{animation:k-lv-in var(--t-box) var(--ease) backwards}
+@media (prefers-reduced-motion:reduce){.k-week.lv2 .k-day24{animation:none}}
