@@ -53,7 +53,7 @@ export function WeatherStudio({
     }),
     ...(hi > HEAT_C ? ["caldo, fino a " + F.num(hi, "°C") + ": bevi di più"] : []),
     ...(w.aqi !== null && w.aqi > 60
-      ? ["aria " + airWords(w.aqi) + ": meglio allenarsi al chiuso"]
+      ? [airWords(w.aqi) + ": meglio allenarsi al chiuso"]
       : []),
     ...(w.set !== null ? ["luce fino alle " + F.time(w.set)] : []),
   ];
@@ -86,8 +86,8 @@ export function WeatherStudio({
           </span>
           <span className="k-body">{sky.word}</span>
           <span className="k-meta">
-            {Math.round(lo)}–{Math.round(hi)}° · aria{" "}
-            {w.aqi !== null ? airWords(w.aqi) : "–"} · {place}
+            {Math.round(lo)}–{Math.round(hi)}° ·{" "}
+            {w.aqi !== null ? airWords(w.aqi) : "aria –"} · {place}
           </span>
         </span>
       </section>
@@ -111,7 +111,7 @@ export function WeatherStudio({
       <section className="k-section g2" aria-label="3 · Sulle ore del giorno">
         <h2>3 · Sulle ore del giorno</h2>
         <p className="k-help">
-          La temperatura come una striscia di 24 ore, dal freddo (blu) al caldo (giallo);
+          La temperatura come una striscia di 24 ore, dal freddo (blu) al caldo (arancio);
           sopra, i tuoi pasti e l’allenamento alla loro ora: com’era fuori quando facevi
           le cose.
         </p>
