@@ -162,3 +162,23 @@ Order: T2 and T4 first (tokens and the test), then T1 one theme at a time with
 the test green, then T3 and T5; boards render the default and Notte from then
 on (T6). This is phase D's «kit first» part; the boards of phase B already use
 the token names of T2.
+
+## G — Visual language (review phase 2, 30 Oct; canvas «lifeos v2 — revisione», board «Il linguaggio visivo»)
+Three panel shapes drawn over the same page (Cibo · Diario and Cibo · Elenco, the developer's
+23 Oct from the v1 export of 25 Oct, data from `boards-tools/lang_data.py`). The developer was
+away («procedi senza di me»): the rows below are **decided by the agent, provisional** until he
+looks at the board.
+
+| ID | Decision | Why |
+|---|---|---|
+| G1 | **Panel A, v1's**: 2 px ink frame, radius 16, uppercase title (Barlow Condensed 19, 800) underlined, icon in a 32 px tinted chip, value on the right of the title | V3 names exactly this shape as the one that was understood; B (thin frame) and C (no frame) group less. Price: long days (Cena with 14 foods) are heavy; detail stays one tap away (V4) |
+| G2 | Nutrient row: name (88 px) · bar with a tick at the target, scaled to max(value, target) · «146 / 159 g»; over the target by > 10 % the bar takes `--warn` | V1, V4: value, target, unit; v1's «la giornata col piano» |
+| G3 | Panel sentence first: «Mangiato 2.198 kcal di 2.100 previste · speso circa 2.518 kcal», then how the balance is computed | V1 |
+| G4 | Meal panel: moment and kcal in the title, «08:31 · proteine 27 g» under it, one 44 px row per food (name · grams · kcal) | V5, V6, L5 |
+| G5 | List row (Elenco): name, «52 volte in 60 giorni · l'ultima il 23 ott», «per 100 g: 53 kcal · proteine 8 · carboidrati 5 · grassi 0», chevron; the whole row is the target | V6, P3 |
+| G6 | Page template: area title (30) and profile icon, four tabs, ⊕ floating bottom right above the bar, the bar with the five places | ADR-0059 |
+| G7 | **Oggi · Diario** (board «Schermata · Oggi»): date row ‹ day ›; panel «Il giorno» = the sentence, the balance and the goal in words, then one 44 px row per area (Cibo · Corpo · Mente · Soldi, each with its headline in words, leading to that area's Diario); panel «La giornata» = one row per entry, time at 44 px on the left, icon, what and how much; a closed day ends with «Giornata chiusa · Riapri». Week, quality, energy and caffeine move to Oggi · Andamento; an entry opens as a sheet over the day with one primary action | V1, V2, V4, V5, V6, ADR-0059 |
+| G8 | Kit fix found by the shapes audit: `.k-icon-btn` and `.k-primary` had the browser's button padding (1 × 6 px); both set it (0 and 0 16 px) | L2 |
+| G9 | **⊕ and the meal** (board «Schermata · ⊕ e pasto»): one sheet, same corner everywhere; from Oggi «Per te, alle 13:00» (the four entries logged most within 90 min of that hour in 60 days, each with why, kcal and a one-tap «Fatto» + «Annulla») then every kind in an area panel; from an area its kinds first, «Per te» of that area, the other areas one row away. Composer: «Quando» and «Quale pasto» (chips) first, then Find, then the foods with gram steppers (starting from a saved meal never changes it, N10), total and «Salva il pranzo» pinned at the bottom. Open: the board's search is a plain field until Find is brought into the review canvas | ADR-0059, N9, N10, V6, L5 |
+| G10 | **Palestra** (board «Schermata · Palestra», the Push of 24 Oct against the 19th): not a place; the session is an entry of Corpo · Diario, started from Oggi's row or there. One row per exercise: sets, best set, the last time with its date; «Salva come sessione tipo» under it. In progress: one panel per exercise, done sets ticked (warm-ups muted), the current set prefilled with the last one, kg and reps steppers, one big «Fatta: 60 kg × 10», the rest starting by itself; «Poi» lists the next exercises with «⋯» (Fai dopo, Cambia, Salta + Annulla); «Finisci…» top right, secondary | ADR-0059, D7, N1, P5, V6 |
+| G11 | **An object's page** (board «Schermata · Un cibo», the oat flakes): back to its Elenco, name, «⋯» (Parti da, Unisci, Elimina); «Cibo · 34 volte in 60 giorni · l'ultima il 23 ott»; one primary «Aggiungi a un pasto»; panels «Valori per 100 g» (every value a 44 px row; tapped, it opens in place with a stepper, its source and what the change touches, Salva / Annulla), «Prezzo e casa» (price per pack and per 100 g, shop, «In casa · Ne ho…»), «Nei pasti salvati». The `…/modifica` pages go away | P1, P2, P5, N10, N12, V1 |
