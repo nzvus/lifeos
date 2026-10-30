@@ -785,3 +785,13 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-week.lv2 .k-day24{animation:k-lv-in var(--t-box) var(--ease) backwards}
 @media (prefers-reduced-motion:reduce){.k-week.lv2 .k-day24{animation:none}}
 .k-untimed{margin-top:8px}
+/* ---------- every target ≥ 44 px (P3, register V7; 30 Oct): the hit area grows, the layout does not ---------- */
+.k-choice button,.k-choice a{min-height:var(--touch);margin:-4px 0}
+.k-tab{min-width:var(--touch);justify-content:center}
+a.k-plain{min-height:var(--touch)}
+.k-sheet-wrap.k-screen>.k-dim{flex-basis:var(--touch)}
+.k-back{min-width:var(--touch)}
+.k-step .k-stepin{align-self:stretch;min-height:var(--touch)}
+.k-mrow{padding-block:12px;margin-block:-12px}
+button.k-head{padding-block:12px;margin-block:-12px}
+a.k-link,button.k-link{padding:12px 4px;margin:-12px -4px}

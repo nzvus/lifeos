@@ -3,16 +3,16 @@
   "/oggi": {
    "overflow": 0,
    "targets": 64,
-   "small": 7,
+   "small": 4,
    "primary": 1,
    "longLists": 0,
-   "offScale": 16,
-   "edges": 53
+   "offScale": 13,
+   "edges": 55
   },
   "/aggiungi": {
    "overflow": 0,
    "targets": 34,
-   "small": 17,
+   "small": 0,
    "primary": 0,
    "longLists": 0,
    "offScale": 2,
@@ -21,16 +21,16 @@
   "/aggiungi/pasto": {
    "overflow": 0,
    "targets": 35,
-   "small": 14,
+   "small": 0,
    "primary": 1,
    "longLists": 0,
    "offScale": 4,
-   "edges": 28
+   "edges": 27
   },
   "/aggiungi/attivita": {
    "overflow": 0,
    "targets": 12,
-   "small": 2,
+   "small": 0,
    "primary": 1,
    "longLists": 0,
    "offScale": 0,
@@ -38,8 +38,8 @@
   },
   "/piano": {
    "overflow": 0,
-   "targets": 78,
-   "small": 2,
+   "targets": 76,
+   "small": 0,
    "primary": 0,
    "longLists": 0,
    "offScale": 2,
@@ -48,11 +48,11 @@
   "/andamento": {
    "overflow": 0,
    "targets": 68,
-   "small": 14,
+   "small": 0,
    "primary": 0,
    "longLists": 0,
-   "offScale": 11,
-   "edges": 47
+   "offScale": 7,
+   "edges": 48
   },
   "/libreria": {
    "overflow": 0,
@@ -75,7 +75,7 @@
   "/libreria?vista=esercizi": {
    "overflow": 0,
    "targets": 84,
-   "small": 6,
+   "small": 3,
    "primary": 0,
    "longLists": 0,
    "offScale": 2,
@@ -93,7 +93,7 @@
   "/impostazioni": {
    "overflow": 0,
    "targets": 26,
-   "small": 7,
+   "small": 0,
    "primary": 1,
    "longLists": 0,
    "offScale": 2,
@@ -102,11 +102,11 @@
   "/libreria/cibo/:id": {
    "overflow": 0,
    "targets": 25,
-   "small": 9,
+   "small": 1,
    "primary": 1,
    "longLists": 0,
-   "offScale": 7,
-   "edges": 16
+   "offScale": 3,
+   "edges": 18
   },
   "/libreria/esercizio/:id": {
    "overflow": 0,
@@ -128,7 +128,7 @@
   "Archivia": 1
  },
  "tasks": {
-  "acqua": 476,
+  "acqua": 699,
   "pasto": 0,
   "peso": 0,
   "palestra": 0,
