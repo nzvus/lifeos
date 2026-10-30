@@ -170,3 +170,14 @@ in Andamento. The other seven choices: next.
   maps), as six data tokens with their contrast tested, not the kit's good/warn/bad.
 - Still to look at for the options: how established weather apps draw the day's temperature range
   and the hourly curve (the current card already does both).
+
+### 3.3 The round of choices, rethought (30 Oct, plan `procedi-imperative-peach.md`)
+Built as a development-only page of the v2 app, `/studio/<scelta>` (`apps/v2/src/app/(app)/studio`,
+`features/studio/*`; 404 in production, tested), with the real kit on the developer's real days
+(his v2 export of 29 Oct loaded into the local preview account by
+`apps/v2/scripts/load-v2-export.ts`), photographed in dark at 390 px and measured (text contrast
+≥ 4.5:1 on computed styles, no sideways scroll, no console error). Canvas v19, board «Le scelte,
+ripensate». Seven choices, ledger UI-75 … UI-81: the score, the week, the times, the panel,
+silhouettes and backdrops, the weather, the icons — each with today's v2, three new ways and a
+recommendation. Themes deferred (UI-74). **Waiting for the developer's picks**; the picked ones
+move into the kit, the others and the study pages are deleted.
