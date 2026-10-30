@@ -4,325 +4,433 @@
    "targets": 62,
    "small": 7,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 9,
+   "edges": 50
   },
   "/aggiungi": {
-   "targets": 34,
+   "targets": 33,
    "small": 5,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 9
   },
   "/aggiungi/pasto": {
    "targets": 35,
    "small": 14,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 24
   },
   "/aggiungi/attivita": {
    "targets": 12,
    "small": 2,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 5
   },
   "/piano": {
    "targets": 74,
    "small": 11,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 39
   },
   "/andamento": {
    "targets": 65,
    "small": 23,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 9,
+   "edges": 45
   },
   "/libreria": {
    "targets": 17,
    "small": 10,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 8
   },
   "/libreria?vista=cibi": {
    "targets": 123,
    "small": 114,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 7
   },
   "/libreria?vista=esercizi": {
    "targets": 84,
    "small": 76,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 9
   },
   "/palestra": {
    "targets": 11,
    "small": 0,
    "primary": 0,
-   "longLists": 1
+   "longLists": 1,
+   "offScale": 2,
+   "edges": 4
   },
   "/impostazioni": {
    "targets": 26,
    "small": 11,
    "primary": 1,
-   "longLists": 0
-  },
-  "/libreria/cibo/nuovo": {
-   "targets": 37,
-   "small": 14,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/libreria/esercizio/nuovo": {
-   "targets": 8,
-   "small": 2,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/oggi/:day": {
-   "targets": 63,
-   "small": 7,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/andamento/obiettivi": {
-   "targets": 8,
-   "small": 1,
-   "primary": 0,
-   "longLists": 0
-  },
-  "/aggiungi/sleep": {
-   "targets": 13,
-   "small": 2,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/aggiungi/weigh_in": {
-   "targets": 32,
-   "small": 15,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/aggiungi/steps": {
-   "targets": 16,
-   "small": 5,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/aggiungi/water": {
-   "targets": 10,
-   "small": 3,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/aggiungi/tragitto": {
-   "targets": 2,
-   "small": 1,
-   "primary": 0,
-   "longLists": 0
-  },
-  "/aggiungi/measurements": {
-   "targets": 22,
-   "small": 8,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/aggiungi/reading": {
-   "targets": 11,
-   "small": 3,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/aggiungi/checkin": {
-   "targets": 24,
-   "small": 4,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/aggiungi/journal": {
-   "targets": 7,
-   "small": 2,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/aggiungi/spesa": {
-   "targets": 12,
-   "small": 4,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/aggiungi/activity": {
-   "targets": 14,
-   "small": 2,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/aggiungi/chore": {
-   "targets": 7,
-   "small": 2,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/impostazioni/tipi": {
-   "targets": 7,
-   "small": 2,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/piano/modelli": {
-   "targets": 18,
-   "small": 6,
-   "primary": 2,
-   "longLists": 0
-  },
-  "/piano/modello/:id": {
-   "targets": 32,
-   "small": 11,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/piano/ciclo/:id": {
-   "targets": 39,
-   "small": 19,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/andamento/soldi": {
-   "targets": 10,
-   "small": 3,
-   "primary": 0,
-   "longLists": 0
-  },
-  "/andamento/legami": {
-   "targets": 6,
-   "small": 0,
-   "primary": 0,
-   "longLists": 0
-  },
-  "/andamento/qualita": {
-   "targets": 6,
-   "small": 0,
-   "primary": 0,
-   "longLists": 0
-  },
-  "/andamento/come-valutiamo": {
-   "targets": 22,
-   "small": 15,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/andamento/peso": {
-   "targets": 65,
-   "small": 26,
-   "primary": 0,
-   "longLists": 1
-  },
-  "/andamento/sonno": {
-   "targets": 69,
-   "small": 30,
-   "primary": 0,
-   "longLists": 1
-  },
-  "/andamento/passi": {
-   "targets": 66,
-   "small": 27,
-   "primary": 0,
-   "longLists": 1
-  },
-  "/libreria?vista=pasti": {
-   "targets": 31,
-   "small": 23,
-   "primary": 0,
-   "longLists": 0
-  },
-  "/libreria/dispensa": {
-   "targets": 6,
-   "small": 0,
-   "primary": 0,
-   "longLists": 0
-  },
-  "/libreria/tragitto": {
-   "targets": 7,
-   "small": 1,
-   "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 11
   },
   "/libreria/cibo/:id": {
    "targets": 24,
    "small": 10,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 1,
+   "edges": 13
   },
   "/libreria/esercizio/:id": {
    "targets": 4,
    "small": 1,
    "primary": 0,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 2
+  },
+  "/oggi/:day": {
+   "targets": 63,
+   "small": 7,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 9,
+   "edges": 50
+  },
+  "/andamento/obiettivi": {
+   "targets": 8,
+   "small": 1,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 6
+  },
+  "/aggiungi/sleep": {
+   "targets": 13,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 8
+  },
+  "/aggiungi/weigh_in": {
+   "targets": 32,
+   "small": 15,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 8
+  },
+  "/aggiungi/steps": {
+   "targets": 16,
+   "small": 5,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 7
+  },
+  "/aggiungi/checkin": {
+   "targets": 24,
+   "small": 4,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 7
+  },
+  "/aggiungi/journal": {
+   "targets": 7,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 4
+  },
+  "/aggiungi/water": {
+   "targets": 10,
+   "small": 3,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 6
+  },
+  "/aggiungi/tragitto": {
+   "targets": 2,
+   "small": 1,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 2
+  },
+  "/aggiungi/measurements": {
+   "targets": 22,
+   "small": 8,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 7
+  },
+  "/aggiungi/reading": {
+   "targets": 11,
+   "small": 3,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 6
+  },
+  "/aggiungi/spesa": {
+   "targets": 12,
+   "small": 4,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 5
+  },
+  "/aggiungi/activity": {
+   "targets": 14,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 8
+  },
+  "/aggiungi/chore": {
+   "targets": 7,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 4
+  },
+  "/libreria/cibo/nuovo": {
+   "targets": 37,
+   "small": 14,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 11
+  },
+  "/libreria/esercizio/nuovo": {
+   "targets": 8,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 5
+  },
+  "/impostazioni/tipi": {
+   "targets": 7,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 4
+  },
+  "/piano/modelli": {
+   "targets": 18,
+   "small": 6,
+   "primary": 2,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 11
+  },
+  "/piano/modello/:id": {
+   "targets": 32,
+   "small": 11,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 15
+  },
+  "/piano/ciclo/:id": {
+   "targets": 39,
+   "small": 19,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 15
+  },
+  "/andamento/soldi": {
+   "targets": 10,
+   "small": 3,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 8
+  },
+  "/andamento/legami": {
+   "targets": 6,
+   "small": 0,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 6
+  },
+  "/andamento/qualita": {
+   "targets": 6,
+   "small": 0,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 3,
+   "edges": 8
+  },
+  "/andamento/come-valutiamo": {
+   "targets": 22,
+   "small": 15,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 6
+  },
+  "/andamento/peso": {
+   "targets": 65,
+   "small": 26,
+   "primary": 0,
+   "longLists": 1,
+   "offScale": 7,
+   "edges": 28
+  },
+  "/andamento/sonno": {
+   "targets": 69,
+   "small": 30,
+   "primary": 0,
+   "longLists": 1,
+   "offScale": 7,
+   "edges": 30
+  },
+  "/andamento/passi": {
+   "targets": 66,
+   "small": 27,
+   "primary": 0,
+   "longLists": 1,
+   "offScale": 2,
+   "edges": 30
+  },
+  "/libreria?vista=pasti": {
+   "targets": 31,
+   "small": 23,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 7
+  },
+  "/libreria/dispensa": {
+   "targets": 6,
+   "small": 0,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 4
+  },
+  "/libreria/tragitto": {
+   "targets": 7,
+   "small": 1,
+   "primary": 0,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 4
   },
   "/impostazioni/cestino": {
    "targets": 201,
    "small": 200,
    "primary": 0,
-   "longLists": 0
-  },
-  "/andamento/obiettivi/nuovo": {
-   "targets": 6,
-   "small": 0,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/libreria/tragitto/nuovo": {
-   "targets": 15,
-   "small": 3,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/piano/abitudine/nuova": {
-   "targets": 15,
-   "small": 1,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/voce/:id": {
-   "targets": 13,
-   "small": 4,
-   "primary": 1,
-   "longLists": 0
-  },
-  "/libreria/pasto/:id": {
-   "targets": 10,
-   "small": 6,
-   "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 2
   },
   "/libreria/cibo/:id/modifica": {
    "targets": 32,
    "small": 12,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 11
   },
   "/libreria/cibo/:id/prodotto": {
    "targets": 32,
    "small": 12,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 11
   },
   "/libreria/cibo/:id/unisci": {
    "targets": 3,
    "small": 0,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 1,
+   "edges": 4
   },
   "/libreria/esercizio/:id/unisci": {
    "targets": 3,
    "small": 0,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 1,
+   "edges": 4
+  },
+  "/andamento/obiettivi/nuovo": {
+   "targets": 6,
+   "small": 0,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 3
+  },
+  "/libreria/tragitto/nuovo": {
+   "targets": 15,
+   "small": 3,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 8
+  },
+  "/piano/abitudine/nuova": {
+   "targets": 15,
+   "small": 1,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 7
+  },
+  "/voce/:id": {
+   "targets": 13,
+   "small": 4,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 5
+  },
+  "/libreria/pasto/:id": {
+   "targets": 10,
+   "small": 6,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 2
   },
   "/libreria/pasto/:id/modifica": {
    "targets": 29,
    "small": 6,
    "primary": 1,
-   "longLists": 0
+   "longLists": 0,
+   "offScale": 0,
+   "edges": 6
   }
  },
  "verbs": {
