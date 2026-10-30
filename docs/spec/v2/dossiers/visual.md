@@ -58,3 +58,25 @@ Each gap becomes a ledger line when its domain's slice is planned, not before.
   levels in one view.
 - Nothing is shown unless it serves a **decision or a check**; every element on a board cites its
   row here.
+
+## 1. Atlas: the whole visual heritage, rendered (no judgement yet)
+The inventory is the design register's rows (S, C, D, T, N), v1's five themes and its `src/ui`
+components, the old canvas's boards; nothing is new here. What step 1 adds is **every element
+drawn with the real kit**, on the canvas «lifeos v2 — revisione» (method: memory v2-boards-kit;
+data from the developer's export; audits at 0; light, dark and Notte). Boards and what they hold
+(decided by the agent, 30 Oct; the matrix row each serves in brackets):
+
+| Board | Elements (register rows) | Sources | Serves |
+|---|---|---|---|
+| A1 Foundations | tokens and scale S1, colour per meaning S2, faces S3, `F` formats S10, motion S17; the five themes T1 × light/dark (Label, Quaderno, Sport, Minimal, Notte), density T5 | `packages/kit/src/kit.css`, `tokens.css`; v1 `src/design/themes/*.css`, `theme.css` | every row |
+| A2 Shapes and drawings | silhouettes S4, planned hatch S5, the drawing in the box S6 and its skyline on open S19, Glyph S9 (food groups, dishes, movements, corner mark, backdrop) | kit.css `.k-shape`, `Glyph.tsx`, icons.md | meal, session, sleep, weigh-in, money |
+| A3 Numbers and judgements | Nutrients L0–L2 S11, zones in the bar S12/UI-32, score chip S13 and the skyline (D2), Chart S16; from v1: ConcentricRings, MacroStrip, NovaBar, ChartFrame S20 | `Nutrients.tsx`, `Chart.tsx`, v1 `src/ui` | meal, day, water, sleep, weigh-in |
+| A4 Time | the rail 20 → 64 px S7 (CONTRA-02: vertical vs horizontal times), week strip S14 with the day bars D3, DateNav, RangeNav | `DateNav.tsx`, `RangeNav.tsx`, ADR-0050 | every timed row; the week |
+| A5 Context | weather card S15 with D4 (B opening to A), sleep night box (sleep.md §6) | `WeatherCard`, Open-Meteo data | weather, sleep |
+| A6 Actions and states | Box C1, buttons S8, ValueRow C3, ActionRow C4, List + Find C5, toast C6, page pattern C7, MoreSheet C8, summary page C9, verbs C10, empty/banner/skeleton S18 | kit, interaction.md, content.md | every object page |
+| A7 The same screen, v1 and v2 | Oggi, a meal, the gym, a food page: v1's render beside v2's, same data (register V1–V7) | v1 and v2 local, preview account | the «why v1 was understood» rows |
+
+Next session: build A1–A7 (one canvas version), then step 2 (criteria) and step 3 (judgement),
+and prepare the big choices together in one round (themes and palette, panel shape CONTRA-01,
+the bar and the charts, the score, the week, the weather, silhouettes and backdrops CONTRA-03,
+icons) — those are the developer's.
