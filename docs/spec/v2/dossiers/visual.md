@@ -88,6 +88,10 @@ tokens translated by `boards-tools/themes_build.py` (colours and title face). Tw
 3: without v1's frame slots (T2: `--panel-*`, `--tile-*`, `--heading-*`) the five themes look
 alike on the v2 kit — the ground and the ink change, the boxes do not; v1's radii (10, 14, 18 px)
 are off v2's scale (shapes.md), so a theme must choose among the scale's steps.
+**A5 weather (canvas v15, board «Meteo»):** the real WeatherCard photographed from v2 (light,
+dark, closed, open). **A6 Find (canvas v16):** the Trova board and the Find component brought over.
+**A3 v1 pieces** (ConcentricRings, MacroStrip, NovaBar, ChartFrame) wait for v1 running after
+1 Nov: v1 reads Neon, whose transfer quota is nearly spent (memory neon-transfer-budget).
 Still to draw: A1 density; A3 v1's ConcentricRings,
 MacroStrip, NovaBar, ChartFrame; A5 the weather card; A6 List + Find, summary page, empty states.
 
@@ -95,3 +99,47 @@ Then step 2 (criteria) and step 3 (judgement),
 and prepare the big choices together in one round (themes and palette, panel shape CONTRA-01,
 the bar and the charts, the score, the week, the weather, silhouettes and backdrops CONTRA-03,
 icons) — those are the developer's.
+
+## 2. Criteria, decided before judging (decided by the agent, 30 Oct, from the plan's list)
+Each element of the atlas is judged on these, with its proof; a «no» on a measured threshold is a
+«rethink», never a matter of taste.
+
+| Criterion | Threshold or test | Source | Measured by |
+|---|---|---|---|
+| Visibility | text ≥ 4.5:1, large text and non-text marks (bar fills, ticks, focus) ≥ 3:1, on every theme × light/dark | WCAG 2.2 SC 1.4.3, 1.4.11 | the contrast test ported from v1 `theme.test.ts` (T4) |
+| Comprehensibility | read without explanation: every number carries its words and unit (content.md); a stranger answers «what does it mean?» in 3 s | NN/g, visual hierarchy and «5-second test»; register V1 | content audit; the 3-second test on the developer's day |
+| Usability | targets ≥ 44 × 44 px; steps per daily task counted (interaction.md §8); the action in view | Apple HIG (44 pt), Material 3 (48 dp), WCAG 2.2 SC 2.5.8 (24 px minimum) | `scripts/ui-check.mjs` |
+| Priority | decisions first (P4), one hierarchy per page: one primary action, one largest number | P4, P5; NN/g, visual hierarchy | ui-check (one primary per page) |
+| Beauty and coherence | one form per role, rhythm from the scale (shapes.md), decoration only when it carries meaning, motion with a purpose and reduced motion respected | Tufte, data-ink ratio; register V3; WCAG 2.2 SC 2.3.3 | shapes audit 0; the register's rows |
+| Functional coherence | the form matches the datum and its function (a gesture to make, a state to check, a trend to read, a judgement); the same datum at the same level has one form everywhere; every element cites its §0c row | Few, preattentive attributes (length and position before colour and area); §0c rules | coherence.js; the board's row citations |
+| Cost | built from kit components and checked by script; no one-off drawing | P9 | the boards' audits, the app's lint |
+
+## 3. Judgement: keep · rethink · drop (first pass, 30 Oct)
+Details are the agent's (marked so); a **choice** is the developer's and goes into the one round of
+options (§3.1). Proof = what the atlas boards show against §2.
+
+| Row | Element | Verdict | Proof and reason |
+|---|---|---|---|
+| S1, S10, S17 | scale, `F` formats, one motion time | keep (agent) | shapes audit 0 on every atlas board; content audit adds nothing |
+| S2 | one colour per meaning | keep (agent); contrast per theme still to prove | T4's test not yet ported: visibility unmeasured on Quaderno, Sport, Minimal, Notte |
+| S3, S9 | Barlow; Glyph | keep (agent) | A1, A2: icons lead every row (UI rule «icons over words») |
+| S4, S6 | silhouettes; the drawing in the box | keep the shapes (agent); **backdrops = choice** (CONTRA-03) | A2: the shape says the domain at a glance (functional coherence) |
+| S5 | planned = hatched | keep (agent) | A2 «Pranzo previsto»: readable in light and dark |
+| S7 | the time rail | **choice** (CONTRA-02) | your vertical thin coloured column vs v1's horizontal times |
+| S8, C3, C4, C6, C8 | buttons, ValueRow, ActionRow, Toast, MoreSheet | keep (agent) | A6: one form per verb (C10), ≥ 44 px |
+| S11, S12 | Nutrients L0–L2; zones in the bar | keep (your pick 25 Oct); L2's foods as chips still to finish (agent) | A3: the same bar at L0, L1, L2 (N8) |
+| S13, D2 | the score: chip and skyline | **choice** | your «c è la migliore, ma fanno comunque schifo graficamente» |
+| S14, D3 | the week strip | **choice** | your «troppo spazio… poco comprensibile… c ma più sottili e in trasparenza, senza la barra orizzontale» |
+| S15, D4 | weather card | colours from tokens (agent); **graphics and animation = choice** after research | A5: fixed hex in the temperature band and the air scale |
+| S16 | Chart | keep, one frame (agent) | A3: trend with band and goal, bars against a band |
+| S18 | empty, toast, skeleton | keep; skeleton to use (agent) | — |
+| T1–T3 | the five themes | **choice: themes and palette** | A1 «Temi»: without v1's frame slots (T2) the five themes look alike; radii off the scale |
+| CONTRA-01 | section/panel shape | **choice** | shapes.md «no frame, title with rule» vs v1's framed panel vs register V3 |
+| icons.md | icon set and style | **choice** (with the themes) | — |
+| S20 | v1's rings, MacroStrip, NovaBar, ChartFrame | pending (rendered after 1 Nov) | — |
+
+### 3.1 The one round of choices (to prepare, all together, from real components and your day)
+1. Themes and palette (with the T2 frame slots, so themes really differ). 2. Panel and section shape
+(CONTRA-01). 3. The rail and the times (CONTRA-02). 4. The score (D2). 5. The week (D3). 6. Weather
+graphics and animation (D4, after a short research on weather visuals). 7. Silhouettes and
+backdrops (CONTRA-03). 8. Icons. Each: 2–3 options side by side and a recommendation.
