@@ -163,6 +163,8 @@ the test green, then T3 and T5; boards render the default and Notte from then
 on (T6). This is phase D's «kit first» part; the boards of phase B already use
 the token names of T2.
 
+## G — Structure of the redrawn screens (review phases 2–3, 30 Oct; **structure and content only**: the look is redone in the visual study, plan of 30 Oct night, because these boards left out the design heritage — see `ledger.md` «Contradictions»)
+<!-- previous title: -->
 ## G — Visual language (review phase 2, 30 Oct; canvas «lifeos v2 — revisione», board «Il linguaggio visivo»)
 Three panel shapes drawn over the same page (Cibo · Diario and Cibo · Elenco, the developer's
 23 Oct from the v1 export of 25 Oct, data from `boards-tools/lang_data.py`). The developer was

@@ -35,6 +35,7 @@ CFG = {
         "ARCHITECTURE.md": 160,
         "CLAUDE.md": 130,
         "PROJECT.md": 120,
+        "docs/spec/v2/ledger.md": 700,  # the decision ledger: split by section past this
     },
     "doc_default_warn_lines": 300,  # any other .md beyond this -> warn
     "ignore_dirs": {".git", "node_modules", "dist", "build", "target", "out",
@@ -85,7 +86,7 @@ def check_lengths(root, files):
                 yield (WARN, rel, None,
                        f"{n} lines (> {CFG['source_warn_lines']}): consider splitting")
         elif p.suffix == ".md":
-            budget = CFG["doc_budgets"].get(p.name)
+            budget = CFG["doc_budgets"].get(rel) or CFG["doc_budgets"].get(p.name)
             if budget and n > budget:
                 yield (ERR, rel, None,
                        f"{n} lines (budget {budget}): run doc compression")
@@ -204,8 +205,54 @@ def check_todos(root, files):
         yield (INFO, ".", None, f"{len(hits)} TODO/FIXME markers: {listing}{more}")
 
 
+# The ledger (docs/spec/v2/ledger.md) is the memory of every decision: the developer, 30 Oct,
+# «molte scelte… ogni volta te le dimentichi». It must cite every ADR and dossier, each line needs
+# an ID, a status and a source, and the developer's raw notes must be folded in when they change.
+LEDGER = "docs/spec/v2/ledger.md"
+LEDGER_LINE = re.compile(r"^- \*\*([A-Z]+-\d+)\*\* (\*\*)?(D/\?|D|v2|v1|F|S|\?)(?= )")
+NOTES_DIR = Path.home() / "Syncthing/Documents/Projects-artifacts/LIFEOS"
+
+
+def check_ledger(root, files):
+    path = root / LEDGER
+    if not path.exists():
+        yield (ERR, LEDGER, None, "missing: the decision ledger")
+        return
+    text = path.read_text(encoding="utf-8")
+    seen = {}
+    section = None
+    for i, line in enumerate(text.splitlines(), 1):
+        if line.startswith("## "):
+            section = line
+        if not line.startswith("- ") or section is None or not re.match(r"## (\d|Contradictions)", section):
+            continue
+        m = LEDGER_LINE.match(line)
+        if not m:
+            yield (ERR, LEDGER, i, "a line without an ID and a status (D · v2 · v1 · F · S · ?)")
+            continue
+        if m.group(1) in seen:
+            yield (ERR, LEDGER, i, f"ID {m.group(1)} already used at line {seen[m.group(1)]}")
+        seen[m.group(1)] = i
+        if "[" not in line and not section.startswith("## Contradictions"):
+            yield (WARN, LEDGER, i, f"{m.group(1)} has no [source]")
+    for adr in sorted((root / CFG["adr_dir"]).glob("[0-9][0-9][0-9][0-9]-*.md")):
+        num = adr.name[:4]
+        if num != "0000" and f"ADR-{num}" not in text:
+            yield (ERR, LEDGER, None, f"ADR-{num} is not cited in the ledger: fold its decision in")
+    for dossier in sorted((root / "docs/spec/v2/dossiers").glob("*.md")):
+        if f"dossiers/{dossier.stem}" not in text and f"{dossier.stem}.md" not in text:
+            yield (ERR, LEDGER, None, f"dossier {dossier.name} is not cited in the ledger")
+    # the developer's notes (outside the repo, so only where they exist): a changed file must be folded in
+    for note in sorted(NOTES_DIR.glob("considerations*")) if NOTES_DIR.exists() else []:
+        digest = __import__("hashlib").sha256(note.read_bytes()).hexdigest()[:12]
+        if f"{note.name} {digest}" not in text:
+            yield (WARN, LEDGER, None,
+                   f"{note.name} changed since it was folded in (sha {digest}): add its new points, "
+                   f"then update its line in «Notes folded»")
+
+
 CHECKS = [check_lengths, check_conflicts_and_empty, check_placeholders,
-          check_adrs, check_md_links, check_skills, check_todos]
+          check_adrs, check_md_links, check_skills, check_todos, check_ledger]
 
 
 # -------------------------------- runner --------------------------------------
