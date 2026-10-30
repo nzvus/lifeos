@@ -343,23 +343,23 @@ export function Box({
                   )}
                 </span>
               )}
+              {lineActs.length > 0 && (
+                <div className="k-line end g2 k-acts">
+                  {lineActs.map((a) => (
+                    <button
+                      key={a.label}
+                      type="button"
+                      className={"k-btn act" + (a.danger ? " danger" : "")}
+                      aria-label={a.aria ?? a.label}
+                      onClick={a.onClick}
+                    >
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-          {lineActs.length > 0 && (
-            <div className="k-line end g2 k-acts">
-              {lineActs.map((a) => (
-                <button
-                  key={a.label}
-                  type="button"
-                  className={"k-btn act" + (a.danger ? " danger" : "")}
-                  aria-label={a.aria ?? a.label}
-                  onClick={a.onClick}
-                >
-                  {a.label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -168,4 +168,12 @@ lunch, snack, dinner) change the hue, never the drawing.
 - The four meal roles have own drawings (`meal-breakfast`, `meal-lunch`, `meal-dinner`,
   `meal-snack` in icons.json `custom`), in the line of the silhouettes; one drawing, one meaning.
 - The drawing behind a box sits in its free bottom-right corner, never under words (visual.md §3.4).
+- Audit of 30 Oct (one drawing, one meaning; guarded by `glyph.test.ts`): water a bottle (the
+  stemmed glass read as wine), humidity a half drop (the drop is «Bere»), daylight the sun over
+  haze (the sun is Oggi), the food page's sections «Valori» a numbered list (the scale is the
+  weigh-in), «Tipi di ogni macro» categories (the donut is the budget), «Dove è usato» a diagram
+  (the chef's hat is the recipe), the tag «Solo qui» a pencil with + (+ is «aggiungi»), «Aggiorna»
+  its own arrow (the circle of arrows is the cycle), «Parallele» their own mark (it was the bar's).
+  Same drawing for a domain and its main kind, or a tag and the control with the same meaning, is
+  allowed. `icons_build.py <tabler> <boards> <kit icons.generated.ts>` now writes the kit's registry.
 

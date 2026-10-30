@@ -707,7 +707,14 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-block>.k-fold{padding:12px;border-radius:var(--radius-surface);background:color-mix(in srgb,var(--fam,var(--ink)) 7%,var(--paper))}
 .k-block>.k-fold>summary{color:var(--fam,var(--ink))}
 /* actions that do not fit the head: their own line, at the right (the water row overflowed, 30 Oct) */
-.k-acts{flex-wrap:wrap;margin-top:8px}
+/* the box's actions sit at the right of its strip and pills, in a column of their own:
+   no extra line under the box (the water row, «troppo grosso», 30 Oct) */
+.k-more>div:has(>.k-acts){display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:center}
+.k-more>div:has(>.k-acts)>:not(.k-acts){grid-column:1}
+.k-more>div:has(>.k-acts)>.k-ribbon{width:100%!important}
+.k-acts{grid-column:2;grid-row:1;flex-wrap:nowrap;margin:0}
+.k-more>div:has(>.k-ribbon):has(>.k-acts)>:not(.k-ribbon):not(.k-acts){grid-column:1 / -1}
+.k-row.times .k-more:has(.k-acts){grid-template-rows:1fr;opacity:1}
 /* a narrow phone (320 px): the title gives way (ellipsis), never the value, the score or › */
 .k-hlead>.k-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .k-head{min-width:0}

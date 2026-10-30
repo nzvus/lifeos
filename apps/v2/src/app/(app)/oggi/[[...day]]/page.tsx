@@ -47,13 +47,7 @@ import {
   SLEEP_KINDS,
   weightProgress,
 } from "@/core/goals";
-import {
-  ensureWeekTargets,
-  mondayOf,
-  plannedSessionCost,
-  priceDay,
-  readEnergyRows,
-} from "@/core/energy";
+import { ensureWeekTargets, mondayOf, plannedSessionCost } from "@/core/energy";
 import {
   burnText,
   dayBurnLine,
@@ -97,6 +91,7 @@ import {
   mealWhen,
 } from "@/features/day/score";
 import { OpenBox } from "@/features/day/OpenBox";
+import { readPricedDay } from "@/features/day/priced";
 import {
   caffeineDoses,
   compoundsOf,
@@ -204,33 +199,9 @@ export default async function OggiPage({
     weightOn(series, date) ??
     [...series].reverse().find((w) => w.day <= date)?.kg ??
     null;
-  const energyRows =
-    date <= today && kgNow !== null
-      ? await readEnergyRows(db, owner, addDays(date, -15), date)
-      : null;
-  const priced =
-    energyRows?.profile && kgNow !== null
-      ? (() => {
-          const p = energyRows.profile;
-          const body = {
-            sex: p.sex,
-            kg: kgNow,
-            heightCm: p.heightCm,
-            age: Number(date.slice(0, 4)) - p.birthYear,
-          };
-          const meals = energyRows.meals.filter((m) => m.day === date);
-          const yesterday = priceDay(energyRows, addDays(date, -1), {
-            body,
-            yesterdayTails: [],
-            eatenKcal: null,
-          });
-          return priceDay(energyRows, date, {
-            body,
-            yesterdayTails: yesterday.sessions.map((x) => x.tail),
-            eatenKcal: meals.length ? meals.reduce((a, m) => a + m.kcal, 0) : null,
-          });
-        })()
-      : null;
+  const pd = await readPricedDay(db, owner, date, today, kgNow);
+  const energyRows = pd?.rows ?? null;
+  const priced = pd?.priced ?? null;
   const burns = priced ? rowBurns(priced) : null;
   // Sessions still planned today (not begun): the day's end counts them at the person's usual length.
   const plannedCount = items.filter(
