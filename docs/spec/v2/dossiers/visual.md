@@ -143,3 +143,23 @@ options (§3.1). Proof = what the atlas boards show against §2.
 (CONTRA-01). 3. The rail and the times (CONTRA-02). 4. The score (D2). 5. The week (D3). 6. Weather
 graphics and animation (D4, after a short research on weather visuals). 7. Silhouettes and
 backdrops (CONTRA-03). 8. Icons. Each: 2–3 options side by side and a recommendation.
+
+Progress: **choice 5 (the week) ready on the canvas, v17, board «Scelta 5 · La settimana»**: A as
+today (one thin line), B your idea whole (eight thin transparent bars a day), C one bar per area
+(Cibo, Corpo, Sonno); real days 23–29 Oct computed from the export by
+`boards-tools/week_data.py` (line values are per 100 g: value × quantity ÷ 100, as
+`core/food/totals.ts`), board written by `week_board.py`. Recommendation: C on Oggi, B's profile
+in Andamento. The other seven choices: next.
+
+### 3.2 Weather visuals: what the short research says (30 Oct, for choice 6)
+- One style for every condition (sun, rain, fog share stroke, palette and motion); conventional
+  pictures, not abstract ones; fog and haze need more than shading to be told apart on a phone
+  (icon-set guides; weak sources, convention).
+- The air scale is the European Air Quality Index: six categories from «good» to «extremely
+  poor», bands revised in 2024 to the WHO 2021 guidelines, the worst pollutant sets the level
+  ([EEA FAQ](https://www.eea.europa.eu/en/about/contact-us/faqs/what-do-the-air-quality-index-values-mean),
+  [ETC HE 2024/17](https://www.eionet.europa.eu/etcs/etc-he/products/etc-he-products/etc-he-reports/etc-he-report-2024-17-eeas-revision-of-the-european-air-quality-index-bands)).
+  Decided by the agent: its colours are the EEA's own table (a standard the person may know from
+  maps), as six data tokens with their contrast tested, not the kit's good/warn/bad.
+- Still to look at for the options: how established weather apps draw the day's temperature range
+  and the hourly curve (the current card already does both).
