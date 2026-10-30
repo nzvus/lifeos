@@ -76,7 +76,17 @@ data from the developer's export; audits at 0; light, dark and Notte). Boards an
 | A6 Actions and states | Box C1, buttons S8, ValueRow C3, ActionRow C4, List + Find C5, toast C6, page pattern C7, MoreSheet C8, summary page C9, verbs C10, empty/banner/skeleton S18 | kit, interaction.md, content.md | every object page |
 | A7 The same screen, v1 and v2 | Oggi, a meal, the gym, a food page: v1's render beside v2's, same data (register V1–V7) | v1 and v2 local, preview account | the «why v1 was understood» rows |
 
-Next session: build A1–A7 (one canvas version), then step 2 (criteria) and step 3 (judgement),
+**Built 30 Oct (canvas «lifeos v2 — revisione», version 13, row «Atlante»):** the board
+`Atlante` (A1 colours and faces, A2 shapes and Glyph, A3 numbers and judgements, A4 time, A6
+actions and states, each piece the real kit component with its register row; light and dark
+rendered, shapes audit 0, no new content findings) and, beside it, the kit's own boards brought from
+the old canvas Q2fD1q…: Icons, Shapes, Content, NutrientPanel, Patterns and the 13 components
+(Box, Skyline, Nutrients, Field, Chart, PageHeader, DateNav, NavBar, Glyph, ValueRow, ActionRow,
+Toast, MoreSheet). A7 already exists there: the board «v1 e v2 a confronto» (Compare, 29 Oct).
+Still to draw: A1 the five v1 themes × light/dark and density; A3 v1's ConcentricRings,
+MacroStrip, NovaBar, ChartFrame; A5 the weather card; A6 List + Find, summary page, empty states.
+
+Then step 2 (criteria) and step 3 (judgement),
 and prepare the big choices together in one round (themes and palette, panel shape CONTRA-01,
 the bar and the charts, the score, the week, the weather, silhouettes and backdrops CONTRA-03,
 icons) — those are the developer's.
