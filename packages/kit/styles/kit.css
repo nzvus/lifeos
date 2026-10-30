@@ -733,3 +733,15 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 @media (prefers-reduced-motion:reduce){.k-wxmore,.k-wx.l0 .k-wxhead,.k-wx:not(.l0) .k-wxline{animation:none}}
 /* the level switch at a box's foot: words and dots, at the right, a 44 px target */
 .k-lvbtn{align-self:flex-end;display:inline-flex;align-items:center;gap:8px;min-height:var(--touch)}
+/* ---------- the score (UI-75, 30 Oct): unframed skyline by band, the number and its word ---------- */
+.k-vh{display:inline-flex;align-items:center;gap:8px}
+.k-vh .n{display:flex;flex-direction:column;align-items:flex-end;line-height:1}
+.k-vh .n b{font-family:var(--font-display);font-size:var(--fs-d4);font-weight:700;font-variant-numeric:tabular-nums}
+.k-vh .n small{font-size:var(--fs-b3);color:var(--muted);margin-top:2px}
+.k-vsky{position:relative;display:flex;align-items:flex-end;gap:2px;width:48px;height:24px}
+.k-vsky .col{position:relative;height:100%;min-width:0;border-radius:var(--r-mark) var(--r-mark) 0 0;background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.k-vsky .fill{position:absolute;left:0;right:0;bottom:0;border-radius:var(--r-mark) var(--r-mark) 0 0;transition:height var(--t-box) var(--ease)}
+.k-vsky .ln{position:absolute;left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--ink) 40%,transparent)}
+.k-say{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.k-row:not(.times) .k-box:has(>.k-line .k-glyph-lead)>.k-say{padding-left:24px}
+.k-parts{display:flex;flex-direction:column;gap:12px;margin-top:8px}
