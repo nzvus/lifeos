@@ -60,6 +60,7 @@ export function Box({
   children,
   expanded,
   onToggle,
+  chip: chipSlot,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -71,13 +72,17 @@ export function Box({
   /** The box opens (the boards' head button): the caller holds the state and the content. */
   expanded?: boolean;
   onToggle?: () => void;
+  /** Replaces the score chip in the head (the visual study's round 2, UI-75). */
+  chip?: ReactNode;
 }) {
   const dense = density === "row";
   // The score as a small framed chart in the head (the developer's pick, 2026-10-25):
   // its number in the judgement's colour, a column per part (as wide as its weight,
   // as full as its score), the 70 dashed.
   const sc = e.score && e.score.parts.length > 0 && !dense ? e.score : null;
-  const chip = sc ? (
+  const chip = chipSlot ? (
+    chipSlot
+  ) : sc ? (
     <span
       className="k-skyc"
       role="img"

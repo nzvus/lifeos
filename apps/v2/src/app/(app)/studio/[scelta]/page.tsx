@@ -1,7 +1,8 @@
 /**
- * The visual study's options (dossiers/visual.md §3.1, ledger UI-74), drawn
- * with the real kit on the developer's real day: development only, never
- * linked, 404 in production. Photographed in dark at 390 px for the canvas.
+ * The visual study's open choices, round 2 (dossiers/visual.md §3.4, ledger
+ * UI-75 il voto, UI-76 la settimana, UI-77 gli orari), drawn with the real kit
+ * on the developer's real days: development only, never linked, 404 in
+ * production. Photographed in dark at 390 px for the canvas.
  */
 import { notFound } from "next/navigation";
 import { Box, F } from "@lifeos/kit";
@@ -16,16 +17,11 @@ import { nightOf, sleepOfDay, sleepScore, type ScoreContext } from "@/features/d
 import { studioAllowed } from "@/features/studio/allowed";
 import { WeekStudio } from "@/features/studio/week";
 import { TimesStudio } from "@/features/studio/times";
-import { PanelStudio } from "@/features/studio/panel";
-import { ShapesStudio } from "@/features/studio/shapes";
-import { WeatherStudio } from "@/features/studio/weather";
-import { IconsStudio } from "@/features/studio/icons";
-import { readPlace } from "@/core/account/place";
-import { weatherChips } from "@/app/_server/weather";
 import {
-  ScoreAction,
-  ScoreRuler,
-  ScoreSentence,
+  SCORE_CSS,
+  ScoreHead,
+  ScoreLine,
+  ScoreOpen,
   type ScoreSay,
 } from "@/features/studio/score";
 
@@ -38,32 +34,11 @@ export default async function StudioPage({
 }) {
   if (!studioAllowed(process.env.NODE_ENV)) notFound();
   const { scelta } = await params;
-  if (scelta === "icone") return <IconsStudio />;
   const owner = await requireOwner();
   const db = await getDb();
   const known = await ownerClock();
   if (scelta === "settimana") return <WeekStudio db={db} owner={owner} known={known} />;
   if (scelta === "orari") return <TimesStudio db={db} owner={owner} known={known} />;
-  if (scelta === "pannello") return <PanelStudio db={db} owner={owner} known={known} />;
-  if (scelta === "sagome") return <ShapesStudio db={db} owner={owner} known={known} />;
-  if (scelta === "meteo") {
-    const [place, days] = await Promise.all([
-      readPlace(db, owner),
-      loadDays(db, owner, DAY, DAY, known),
-    ]);
-    const w = place
-      ? await weatherChips(place, DAY, DAY, known.clock.timeZone, 12)
-      : null;
-    if (!place || !w || !days[0]) notFound();
-    return (
-      <WeatherStudio
-        w={w}
-        place={place.name}
-        hour={12}
-        items={[...days[0].timed, ...days[0].untimed]}
-      />
-    );
-  }
   if (scelta !== "voto") notFound();
   const [days, nights, profile] = await Promise.all([
     loadDays(db, owner, DAY, DAY, known),
@@ -109,45 +84,56 @@ export default async function StudioPage({
     score,
   } as const;
   const { score: _drop, ...bare } = entry;
-  const options = [
-    {
-      k: "1",
-      title: "1 · La frase",
-      why: "Il numero con la sua parola e il motivo: si legge senza imparare niente.",
-      el: <ScoreSentence s={say} />,
-    },
-    {
-      k: "2",
-      title: "2 · Il righello",
-      why: "Il voto contro le sue fasce, con la stessa forma delle barre dei nutrienti: una forma sola per «valore contro fasce».",
-      el: <ScoreRuler s={say} />,
-    },
-    {
-      k: "3",
-      title: "3 · Cosa fare",
-      why: "Il voto tradotto nell’unica cosa che lo alzerebbe: prima la decisione (P4).",
-      el: <ScoreAction s={say} />,
-    },
-  ];
+  const parts = score.parts;
   return (
     <main className="k-page">
+      <style>{SCORE_CSS}</style>
       <section className="k-section g2" aria-label="Il voto">
-        <h2>Scelta · il voto — la tua notte del 29 ottobre</h2>
+        <h2>Il voto, secondo giro — la tua notte del 29 ottobre</h2>
         <p className="k-help">
-          Com’è oggi in v2: il riquadrino col numero e lo skyline. Sotto, tre modi nuovi
-          di dire lo stesso voto.
+          Hai scritto: «mi piace sia lo skyline, e anche 2, visivamente, ma a livello
+          informativo meglio 1 e 3, una combinazione?». Prima com’è oggi in v2.
         </p>
         <Box entry={entry} rail={false} />
       </section>
-      {options.map((o) => (
-        <section key={o.k} className="k-section g2" aria-label={o.title}>
-          <h2>{o.title}</h2>
-          <p className="k-help">{o.why}</p>
-          <Box entry={bare} rail={false}>
-            {o.el}
-          </Box>
-        </section>
-      ))}
+      <section className="k-section g2" aria-label="La combinazione, chiusa">
+        <h2>La combinazione · chiuso</h2>
+        <p className="k-help">
+          Lo skyline senza cornice, ogni colonna del colore della sua fascia (il
+          righello); accanto il numero con la sua parola; sotto il titolo una riga sola:
+          cosa fare quando l’app lo sa, altrimenti cosa è costato di più.
+        </p>
+        <Box entry={bare} rail={false} chip={<ScoreHead s={say} parts={parts} />}>
+          <ScoreLine s={say} />
+        </Box>
+        <Box
+          entry={bare}
+          rail={false}
+          chip={<ScoreHead s={{ ...say, action: null }} parts={parts} />}
+        >
+          <ScoreLine s={{ ...say, action: null }} />
+        </Box>
+        <p className="k-help">
+          Sopra: l’azione è nota (la durata). Sotto: la stessa notte quando l’app non sa
+          dire cosa fare.
+        </p>
+      </section>
+      <section className="k-section g2" aria-label="La combinazione, aperta">
+        <h2>La combinazione · aperto</h2>
+        <p className="k-help">
+          Aperto, lo skyline prende la larghezza del riquadro, sulle fasce 40 e 70, con il
+          nome e il voto di ogni criterio sotto la sua colonna.
+        </p>
+        <Box
+          entry={bare}
+          rail={false}
+          expanded
+          chip={<ScoreHead s={say} parts={parts} />}
+        >
+          <ScoreLine s={say} />
+          <ScoreOpen parts={parts} />
+        </Box>
+      </section>
     </main>
   );
 }

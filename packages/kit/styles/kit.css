@@ -694,8 +694,9 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 /* UI-78: colour separates — a page's sections sit on a surface lightly tinted by their
    area, no frame and no rule; the day's own panel the same; air between the boxes */
 .k-page>.k-section{margin:8px 16px 0;padding:12px;border-radius:var(--radius-surface);background:color-mix(in srgb,var(--fam,var(--ink)) 7%,var(--paper))}
-.k-page>.k-section>h2{border-bottom:0;padding-bottom:0;color:var(--fam,var(--ink))}
-.k-page>.k-section>h2::before{content:none}
+.k-section>h2{border-bottom:0;padding-bottom:0}
+.k-section>h2::before{content:none}
+.k-page>.k-section>h2{color:var(--fam,var(--ink))}
 .k-shape:has(>.k-box.day){filter:none}
 .k-box.day{background:color-mix(in srgb,var(--fam,var(--ink)) 7%,var(--paper));box-shadow:none}
 .k-tlrow+.k-tlrow{margin-top:4px}

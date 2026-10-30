@@ -1,14 +1,12 @@
 /**
- * Visual study, choice «la settimana» (dossiers/visual.md §3.1, ledger UI-74):
- * the week strip as v2 draws it today, beside three rethought ways, on the
- * developer's real week (the one of 29 Oct). Local study only.
- *   1 · the rhythm: each day as its 24 hours — sleep, meals by role, training — so
- *       times and regularity show (data collected and never drawn, visual.md §0c)
- *   2 · three states: each day's food, training and sleep as judged, no quantities
- *   3 · the sentence: the strip keeps the day's score only; the week in words below
+ * Visual study, round 2 of «la settimana» (ledger UI-76, dossiers/visual.md
+ * §3.4): v2's strip as it is today (away from today, with ‹ › and «Oggi»),
+ * then the proposal (`DayHead`): no arrows or button in the line, levels like
+ * the weather, the 24-hour rhythm as the third level, on the developer's real
+ * week (the one of 29 Oct). Local study only.
  */
-import type { CSSProperties } from "react";
-import { DateNav, F, MET, PART } from "@lifeos/kit";
+import { DateNav, F, MET } from "@lifeos/kit";
+import { DayHead } from "./dayhead";
 import type { Db } from "@/core/db/db";
 import type { Owner } from "@/core/identity/owner";
 import {
@@ -29,20 +27,31 @@ import { presentWeek, weekBars, weekScores } from "@/features/day/day-score";
 import { foodIds } from "@/features/day/nutrients";
 import { nightOf, sleepOfDay, sleepScore, type ScoreContext } from "@/features/day/score";
 
+/** The proposal's styles (study only; a server constant, never from the client module). */
+export const DAYHEAD_CSS = `
+.st-dh .top{justify-content:flex-start;gap:8px}
+.st-dh .ttl{flex:0 1 auto;justify-content:flex-start}
+.st-dh .back{margin-left:auto;font-family:var(--font-display);font-size:var(--fs-b2);font-weight:600;color:var(--herb);text-decoration:none;min-height:var(--touch);display:inline-flex;align-items:center;padding:0 4px}
+.st-dh .lv{margin-left:auto;min-width:var(--touch);min-height:var(--touch);border:0;background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.st-dh .back+.lv{margin-left:0}
+.st-dh .k-week{touch-action:pan-y;user-select:none}
+.st-dh .k-week a.today:not([aria-current]){box-shadow:inset 0 0 0 1.5px var(--hairline)}
+.st-rh{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;position:relative;height:96px;margin-top:2px}
+.st-rh .day{position:relative;height:100%;border-radius:var(--r-control);background:color-mix(in srgb,var(--ink) 4%,transparent);overflow:hidden}
+.st-rh .gd{position:absolute;left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--ink) 12%,transparent)}
+.st-rh .gl{position:absolute;right:100%;margin-right:2px;font-size:9px;line-height:1;color:var(--muted);transform:translateY(-50%)}
+.st-rh .sl{position:absolute;left:25%;width:50%;border-radius:2px;background:color-mix(in srgb,var(--moment-dinner) 50%,transparent)}
+.st-rh .tr{position:absolute;left:18%;width:64%;border-radius:2px;background:var(--muscle-legs)}
+.st-rh .ml{position:absolute;left:calc(50% - 3.5px);width:7px;height:7px;border-radius:50%;margin-top:-3.5px;box-shadow:0 0 0 1.5px var(--paper)}
+.st-rh .nw{position:absolute;left:-2px;right:-2px;border-top:1.5px solid var(--tomato)}
+.st-key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--muted)}
+.st-key i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+`;
+
 const MONDAY = "2026-10-26";
 const LAST = "2026-10-29";
-const H = 200;
 
 type Known = Awaited<ReturnType<typeof readClock>>;
-type Level = "met" | "part" | "no" | "none";
-const HEAT: Record<Level, string> = {
-  met: "var(--heat-good)",
-  part: "var(--heat-fair)",
-  no: "var(--heat-bad)",
-  none: "var(--hairline)",
-};
-const level = (v: number | null): Level =>
-  v === null ? "none" : v >= MET ? "met" : v >= PART ? "part" : "no";
 const ROLE: Record<string, string> = {
   breakfast: "var(--moment-breakfast)",
   lunch: "var(--moment-lunch)",
@@ -155,166 +164,64 @@ export async function WeekStudio({
       sessions: [],
     }));
   const all = [...facts, ...empty];
-  const pct = (m: number) => ((m / 1440) * H).toFixed(1) + "px";
   const trained = facts.filter((f) => f.train === "done").length;
   const shortNights = facts.filter((f) => f.sleepH > 0 && f.sleepH < 7).length;
   const foodOk = facts.filter((f) => f.food !== null && f.food * 100 >= MET).length;
+  const rhythm = Object.fromEntries(
+    all.map((f) => [f.day, { bands: f.bands, meals: f.meals, sessions: f.sessions }]),
+  );
   return (
     <main className="k-page">
+      <style>{DAYHEAD_CSS}</style>
       <section className="k-section g2" aria-label="Com’è oggi">
-        <h2>Scelta · la settimana — la tua settimana del 29 ottobre</h2>
+        <h2>La settimana, secondo giro — la tua settimana del 29 ottobre</h2>
         <p className="k-help">
-          Com’è oggi in v2: la striscia con le barre sottili per giorno (cibo, limiti,
-          allenamento, abitudini) e il voto. Sotto, tre modi nuovi.
+          Hai scritto: «com’è attualmente in v2 è il migliore, al di là delle frecce di
+          navigazione che rompono tutto (…«vai a oggi»…)» e che il ritmo (1) è il più
+          bello ma non così grosso in Oggi. Prima com’è oggi, lontano da oggi:
         </p>
         <DateNav
-          day={LAST}
+          day="2026-10-27"
           today={LAST}
           hrefBase="/studio/settimana?"
           scores={scores}
           bars={bars}
         />
       </section>
-
-      <section className="k-section g2" aria-label="1 · Il ritmo">
-        <h2>1 · Il ritmo</h2>
+      <section className="k-section g2" aria-label="La proposta, oggi">
+        <h2>La proposta · su oggi</h2>
         <p className="k-help">
-          Ogni giorno come le sue 24 ore, dall’alto (mezzanotte) al basso: il sonno, i
-          pasti col colore del momento, l’allenamento. Si vedono gli orari e quanto sono
-          regolari: dati che raccogli e che oggi l’app non disegna.
+          Niente frecce né pulsanti nella riga: la striscia si scorre col dito (una
+          settimana), il titolo apre il mese, oggi ha un anello. I puntini a destra sono i
+          livelli, come nel meteo: i giorni · le barre · le 24 ore. Il livello resta.
         </p>
-        <div className="k-week">
-          {all.map((f) => (
-            <span key={f.day} className="k-stack g1" aria-label={F.Day(f.day)}>
-              <span className="k-help">{F.letter(f.day)}</span>
-              <span className="k-num b2">{Number(f.day.slice(8))}</span>
-              <span className="k-rel" style={{ height: H + "px", width: "100%" }}>
-                {f.bands.map((b, i) => (
-                  <span
-                    key={"s" + i}
-                    style={
-                      {
-                        position: "absolute",
-                        left: "30%",
-                        width: "40%",
-                        top: pct(b.from),
-                        height: pct(b.to - b.from),
-                        background:
-                          "color-mix(in srgb, var(--moment-dinner) 45%, transparent)",
-                        borderRadius: "3px",
-                      } as CSSProperties
-                    }
-                  />
-                ))}
-                {f.sessions.map((b, i) => (
-                  <span
-                    key={"t" + i}
-                    style={{
-                      position: "absolute",
-                      left: "20%",
-                      width: "60%",
-                      top: pct(b.from),
-                      height: pct(Math.max(b.to - b.from, 12)),
-                      background: "var(--muscle-legs)",
-                      borderRadius: "3px",
-                    }}
-                  />
-                ))}
-                {f.meals.map((m, i) => (
-                  <span
-                    key={"m" + i}
-                    style={{
-                      position: "absolute",
-                      left: "calc(50% - 4px)",
-                      width: "8px",
-                      height: "8px",
-                      top: pct(m.at),
-                      background: m.c,
-                      borderRadius: "50%",
-                    }}
-                  />
-                ))}
-              </span>
-            </span>
-          ))}
-        </div>
-        <p className="k-help">
-          viola: il sonno · pallini: i pasti (colazione, pranzo, cena, spuntino) · verde:
-          l’allenamento
-        </p>
+        <DayHead
+          day={LAST}
+          today={LAST}
+          hrefBase="/studio/settimana?"
+          bars={bars}
+          rhythm={rhythm}
+          nowMinute={13 * 60 + 10}
+          levelKey="studio.settimana.a"
+        />
       </section>
-
-      <section className="k-section g2" aria-label="2 · Tre stati">
-        <h2>2 · Tre stati</h2>
+      <section className="k-section g2" aria-label="La proposta, lontano da oggi">
+        <h2>La proposta · lontano da oggi, al livello 3</h2>
         <p className="k-help">
-          Per ogni giorno tre quadratini: cibo, allenamento, sonno, colorati dal giudizio
-          (bene, così così, male, niente). Nessuna quantità: uno stato da controllare.
+          Su un altro giorno compare solo «↩ oggi», una parola nella stessa riga. Al terzo
+          livello sotto ogni giorno le sue 24 ore, nella sua colonna: il sonno, i pasti
+          col colore del momento, l’allenamento; la riga rossa è adesso.
         </p>
-        <div className="k-week">
-          {all.map((f) => {
-            const t: Level =
-              f.train === "done" ? "met" : f.train === "planned" ? "no" : "none";
-            const cells: [string, Level][] = [
-              ["cibo", level(f.food === null ? null : f.food * 100)],
-              ["allenamento", t],
-              ["sonno", level(f.sleep)],
-            ];
-            return (
-              <span
-                key={f.day}
-                className="k-stack g1"
-                aria-label={
-                  F.Day(f.day) + ": " + cells.map((c) => c[0] + " " + c[1]).join(", ")
-                }
-              >
-                <span className="k-help">{F.letter(f.day)}</span>
-                <span className="k-num b2">{Number(f.day.slice(8))}</span>
-                {cells.map(([k, l]) => (
-                  <span
-                    key={k}
-                    style={{
-                      height: "10px",
-                      width: "70%",
-                      background: HEAT[l],
-                      borderRadius: "3px",
-                    }}
-                  />
-                ))}
-              </span>
-            );
-          })}
-        </div>
-        <p className="k-help">
-          dall’alto: cibo · allenamento · sonno — verde bene, giallo così così, rosso
-          male, grigio niente
-        </p>
-      </section>
-
-      <section className="k-section g2" aria-label="3 · La frase">
-        <h2>3 · La frase</h2>
-        <p className="k-help">
-          La striscia tiene solo i giorni e il loro voto; la settimana si dice in parole,
-          sotto.
-        </p>
-        <div className="k-week">
-          {week
-            .map((day) => ({ day }))
-            .map((d) => (
-              <span key={d.day} className="k-stack g1">
-                <span className="k-help">{F.letter(d.day)}</span>
-                <span
-                  className="k-num b2"
-                  style={
-                    scores[d.day] !== undefined
-                      ? { color: HEAT[level(scores[d.day]!)] }
-                      : {}
-                  }
-                >
-                  {Number(d.day.slice(8))}
-                </span>
-              </span>
-            ))}
-        </div>
+        <DayHead
+          day="2026-10-27"
+          today={LAST}
+          hrefBase="/studio/settimana?"
+          bars={bars}
+          rhythm={rhythm}
+          nowMinute={13 * 60 + 10}
+          levelKey="studio.settimana.b"
+          fallback={2}
+        />
         <p className="k-body">
           {F.plural(trained, "allenamento fatto", "allenamenti fatti")} ·{" "}
           {F.plural(foodOk, "giorno", "giorni")} col cibo nella fascia ·{" "}
