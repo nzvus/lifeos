@@ -43,4 +43,28 @@ describe("the Glyph resolver (icons.md §2)", () => {
       mark: null,
     });
   });
+
+  it("never draws two different meanings the same way (UI-81 audit, 30 Oct)", () => {
+    const d = (o: Parameters<typeof resolveGlyph>[1]) => resolveGlyph(ICONS, o).d;
+    const pairs: [
+      Parameters<typeof resolveGlyph>[1],
+      Parameters<typeof resolveGlyph>[1],
+    ][] = [
+      [{ section: "values" }, { fam: "body", kind: "weight" }],
+      [{ section: "kinds" }, { fam: "money", kind: "budget" }],
+      [{ section: "usedIn" }, { fam: "food", kind: "recipe" }],
+      [{ ui: "refresh" }, { tag: "cycle" }],
+      [{ tag: "local" }, { ui: "add" }],
+      [{ fam: "env", kind: "humidity" }, { fam: "drink" }],
+      [{ fam: "env", kind: "light" }, { place: "oggi" }],
+      [
+        { fam: "drink", kind: "water" },
+        { fam: "drink", kind: "coffee" },
+      ],
+    ];
+    for (const [a, b] of pairs) expect(d(a), JSON.stringify(a)).not.toBe(d(b));
+    const bar = (equipment: string) =>
+      resolveGlyph(ICONS, { pattern: "vertical_pull", equipment }).mark?.d;
+    expect(bar("parallele")).not.toBe(bar("sbarra"));
+  });
 });

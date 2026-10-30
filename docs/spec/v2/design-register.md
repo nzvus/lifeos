@@ -36,14 +36,14 @@ Status words: **sì** (v2 has it and it stays), **parziale**, **no** (to build),
 | S8 | Buttons by role and their states; segmented → menu past 4 options | kit.md | sì | kept; verbs from C10 |
 | S9 | Glyph: Tabler 3.19 + own drawings, 4-level resolver, 18 food groups, dishes, 36 movements, corner mark, sizes with thinning stroke, domain backdrop 320 px at 6 % | icons.md | sì | kept; pages pass data, never icon names |
 | S10 | `F`: decimal comma, «−», decimals by unit, no-break space; judgement scale 70/40 (`judge`, `cap`, `reach`, `tone`) | content.md, kit `format.ts` | sì | kept; no page formats a number itself |
-| S11 | Nutrients L0, L1 (macro icons that grow and turn); L2 the window | kit.md | parziale: L2 without the foods as highlighted chips | L2 complete (foods highlighted in every bar) |
+| S11 | Nutrients L0, L1 (macro icons that grow and turn); L2 the window | kit.md | sì (checked 30 Oct: `Nutrients` L2 has the foods as chips, one tapped highlighted in every bar and in «da dove») | L2 complete (foods highlighted in every bar) |
 | S12 | Ranges: ruler under the bar, tip coloured by the band (25 Oct «C + D») | memory heat-strip-design, kit.md §4 | sì | kept (kit.md §4 already says it) |
 | S13 | Score chip in the box's head | kit.md | sì | kept, restyled (D2) |
 | S14 | Week strip, 4 thin bars a day | DateNav | sì | kept, thinner (D3) |
 | S15 | Weather card (animated icon, temperature trace, hourly curve, air quality, light arc) | WeatherCard | parziale: fixed hex colours | colours from tokens |
 | S16 | Chart (trend, bands, bars) | kit Chart | sì | kept; one chart frame |
 | S17 | One animation time, reduced motion respected | kit.css | sì | kept |
-| S18 | `k-empty`, `k-banner`, `k-toast` with Annulla, swipe to delete | content.md §4 | parziale: `k-skel` unused | every list has its empty state, every load its skeleton |
+| S18 | `k-empty`, `k-banner`, `k-toast` with Annulla, swipe to delete | content.md §4 | parziale: `k-skel` unused | every list has its empty state, every load its skeleton · 30 Oct: `loading.tsx` per section with `k-skel` |
 | S19 | The skyline behind the box was rejected: it is drawn when the box opens | kit.md, screens.md | sì (kit.md table fixed 29 Oct) | kept |
 | S20 | From v1, to weigh again: ConcentricRings (overflow lap dashed), MacroStrip, NovaBar, ChartFrame (scrolls from the right), ExerciseIcon | v1 `src/ui` | no | each one a board option in phase B, kept only if chosen |
 

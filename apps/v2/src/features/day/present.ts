@@ -60,7 +60,13 @@ function title(i: DayItem): string {
     case "batch":
       return label || i.item?.name || NAMES.batch!;
     case "session":
-      return label || i.item?.name || NAMES.session!;
+      // A session of one exercise and no name is that exercise («Corsa»), not «Allenamento».
+      return (
+        label ||
+        i.item?.name ||
+        (i.children.length === 1 ? i.children[0]!.item?.name : undefined) ||
+        NAMES.session!
+      );
     case "trip":
       // A trip is named by its route («Casa → palestra»).
       return i.item?.name || NAMES.trip!;
@@ -91,8 +97,16 @@ function value(i: DayItem): string {
       return kcal === undefined ? "" : F.n(Number(kcal), 0);
     }
     case "session": {
-      const min = num(v["durationMin"]) ?? minutesBetween(i.start, i.end);
-      return min === null ? "" : F.num(min, "min");
+      // Its timed sets can last longer than the session was open: a 49-minute run logged
+      // afterwards in a session of one minute (28 Oct) is 49 minutes, and is priced so.
+      const timed =
+        i.children
+          .flatMap((c) => c.sets)
+          .filter((s) => s.done && !s.warmup)
+          .reduce((a, s) => a + (s.durationS ?? 0), 0) / 60;
+      const open = num(v["durationMin"]) ?? minutesBetween(i.start, i.end);
+      const min = open === null && timed === 0 ? null : Math.max(open ?? 0, timed);
+      return min === null ? "" : F.num(Math.round(min), "min");
     }
     case "sleep":
     case "nap":
@@ -183,7 +197,10 @@ function userMeta(i: DayItem): string {
 
 /** A session's working sets and tonnage (the boards: «30 serie · 6.870 kg»); done sets only. */
 function sessionPills(i: DayItem): NonNullable<BoxEntry["pills"]> {
-  const work = i.children.flatMap((c) => c.sets).filter((s) => s.done && !s.warmup);
+  // «serie» are sets with reps: a timed run or a hold is minutes, said by the value.
+  const work = i.children
+    .flatMap((c) => c.sets)
+    .filter((s) => s.done && !s.warmup && s.reps !== null);
   if (work.length === 0) return [];
   const kg = work.reduce(
     (a, s) => a + (s.reps ?? 0) * (s.loadKg === null ? 0 : Number(s.loadKg)),

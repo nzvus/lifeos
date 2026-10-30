@@ -18,6 +18,11 @@ import { loadDays, readClock, type DayItem } from "@/core/day";
 import { mealRoleAt } from "@/core/kinds/registry";
 import { clockMin } from "@/core/engines/planning";
 import { present } from "@/features/day/present";
+import { readPricedDay } from "@/features/day/priced";
+import { burnText, rowBurns } from "@/features/day/burn";
+import { weightOn } from "@/features/day/day-score";
+import { readNumbers } from "@/core/goals";
+import { addDays } from "@/core/engines/time";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 
 const DAY = "2026-10-29";
@@ -131,16 +136,31 @@ export async function TimesStudio({
   owner: Owner;
   known: Known;
 }) {
-  const [d] = await loadDays(db, owner, DAY, DAY, known);
+  const [[d], weighings] = await Promise.all([
+    loadDays(db, owner, DAY, DAY, known),
+    readNumbers(db, owner, "weigh_in", "weightKg", addDays(DAY, -27), DAY),
+  ]);
   if (!d) return null;
+  // The same energy pills as Oggi (energy-day.md §6): a session's and the steps' burn.
+  const series = weighings.map((w) => ({ day: w.day, kg: w.n }));
+  const pd = await readPricedDay(db, owner, DAY, DAY, weightOn(series, DAY));
+  const burns = pd ? rowBurns(pd.priced) : null;
+  const withBurn = (i: DayItem, e: BoxEntry): BoxEntry => {
+    const burn = burnText(burns?.get(i.kind.key === "steps" ? "steps" : i.id));
+    return burn ? { ...e, pills: [...(e.pills ?? []), { t: burn }] } : e;
+  };
   const b = known.clock.boundaryMin;
   const rb = known.roleBounds;
   const rows: Row[] = d.timed
     .filter((i) => i.kind.key !== "water" && i.minute !== null)
-    .map((i) => ({ i, at: i.minute!, e: { ...present(i), time: F.time(i.minute!) } }));
+    .map((i) => ({
+      i,
+      at: i.minute!,
+      e: withBurn(i, { ...present(i), time: F.time(i.minute!) }),
+    }));
   const untimed = d.untimed
     .filter((i) => i.kind.key !== "water")
-    .map((i) => ({ id: i.id, e: present(i) as BoxEntry }));
+    .map((i) => ({ id: i.id, e: withBurn(i, present(i) as BoxEntry) }));
   // The parts of the day are the person's meal-role bounds (the same that name a
   // meal by its time and that ⊕ uses): mattina from the day's start, then
   // mezzogiorno, pomeriggio, sera, notte from midnight to the day's end.

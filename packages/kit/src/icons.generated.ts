@@ -2,7 +2,7 @@
  * icons.generated.ts — the Glyph registry (docs/spec/v2/icons.md), copied
  * from the design boards' ICONS block, which boards-tools/icons_build.py
  * builds from icons.json and Tabler Icons 3.19.0 (MIT, (c) Paweł Kuna).
- * Do not edit by hand: change icons.json, rebuild the boards, copy again.
+ * Do not edit by hand: change icons.json, run icons_build.py with the kit's path.
  */
 import type { IconRegistry } from "./glyph";
 
@@ -34,7 +34,7 @@ export const ICONS: IconRegistry = {
       label: "Bere",
       glyph: "droplet",
       kinds: {
-        water: ["Acqua", "glass-full"],
+        water: ["Acqua", "bottle"],
         coffee: ["Caffè", "coffee"],
         supplement: ["Integratore", "pill"],
       },
@@ -103,12 +103,18 @@ export const ICONS: IconRegistry = {
     habit: {
       label: "Abitudini",
       glyph: "calendar-repeat",
-      kinds: { habit: ["Abitudine", "calendar-repeat"], streak: ["Serie", "flame"] },
+      kinds: {
+        habit: ["Abitudine", "calendar-repeat"],
+        streak: ["Serie", "flame"],
+      },
     },
     goal: {
       label: "Obiettivi",
       glyph: "target",
-      kinds: { goal: ["Obiettivo", "target"], arrival: ["Arrivo", "flag"] },
+      kinds: {
+        goal: ["Obiettivo", "target"],
+        arrival: ["Arrivo", "flag"],
+      },
     },
     day: {
       label: "Tempo",
@@ -125,7 +131,9 @@ export const ICONS: IconRegistry = {
     catalog: {
       label: "Libreria",
       glyph: "books",
-      kinds: { types: ["Tipi di tracker", "adjustments-horizontal"] },
+      kinds: {
+        types: ["Tipi di tracker", "adjustments-horizontal"],
+      },
     },
     settings: {
       label: "Impostazioni",
@@ -143,22 +151,31 @@ export const ICONS: IconRegistry = {
         weather: ["Meteo", "cloud"],
         place: ["Luogo", "map-pin"],
         temp: ["Temperatura", "temperature"],
-        humidity: ["Umidità", "droplet"],
+        humidity: ["Umidità", "droplet-half-2"],
         air: ["Aria", "wind"],
-        light: ["Luce", "sun"],
+        light: ["Luce", "haze"],
       },
     },
     work: {
       label: "Lavoro e tempo",
       glyph: "briefcase",
-      kinds: { work: ["Lavoro", "briefcase"] },
+      kinds: {
+        work: ["Lavoro", "briefcase"],
+      },
     },
   },
   foodGroups: {
     meat: ["Carne", "meat"],
     fish: ["Pesce", "fish"],
     eggs: ["Uova", "egg"],
-    dairy: ["Latte e latticini", "milk", { cheese: "cheese", yogurt: "bowl-spoon" }],
+    dairy: [
+      "Latte e latticini",
+      "milk",
+      {
+        cheese: "cheese",
+        yogurt: "bowl-spoon",
+      },
+    ],
     legumes: ["Legumi", "legume"],
     soy: ["Soia", "seeding"],
     grains_whole: ["Cereali integrali", "grain"],
@@ -167,19 +184,54 @@ export const ICONS: IconRegistry = {
     veg: [
       "Verdura",
       "carrot",
-      { mushroom: "mushroom", pepper: "pepper", leafy: "salad" },
+      {
+        mushroom: "mushroom",
+        pepper: "pepper",
+        leafy: "salad",
+      },
     ],
-    fruit: ["Frutta", "apple", { lemon: "lemon", berries: "cherry", melon: "melon" }],
+    fruit: [
+      "Frutta",
+      "apple",
+      {
+        lemon: "lemon",
+        berries: "cherry",
+        melon: "melon",
+      },
+    ],
     nuts: ["Frutta secca e semi", "nut"],
     oils: ["Oli e grassi", "droplet-half"],
-    sweets: ["Dolci e dolcificanti", "candy", { cookie: "cookie", dessert: "ice-cream" }],
+    sweets: [
+      "Dolci e dolcificanti",
+      "candy",
+      {
+        cookie: "cookie",
+        dessert: "ice-cream",
+      },
+    ],
     drinks: [
       "Bevande",
       "cup",
-      { coffee: "coffee", bottle: "bottle", water: "glass-full" },
+      {
+        coffee: "coffee",
+        bottle: "bottle",
+        water: "bottle",
+      },
     ],
-    supplements: ["Integratori", "pill", { powder: "flask" }],
-    herbs: ["Erbe e spezie", "leaf", { spice: "salt" }],
+    supplements: [
+      "Integratori",
+      "pill",
+      {
+        powder: "flask",
+      },
+    ],
+    herbs: [
+      "Erbe e spezie",
+      "leaf",
+      {
+        spice: "salt",
+      },
+    ],
     sauces: ["Salse e condimenti", "sauce"],
   },
   movements: {
@@ -227,7 +279,7 @@ export const ICONS: IconRegistry = {
       cavi: ["Cavi", "mcable"],
       macchina: ["Macchina", "mmachine"],
       sbarra: ["Sbarra", "mpullbar"],
-      parallele: ["Parallele", "mpullbar"],
+      parallele: ["Parallele", "mparallel"],
     },
     state: {
       frozen: ["Surgelato", "snowflake"],
@@ -242,7 +294,7 @@ export const ICONS: IconRegistry = {
     bound: ["Legato a", "link"],
     recur: ["Ricorrenza", "calendar-repeat"],
     inherited: ["Dalla base", "arrow-down-to-arc"],
-    local: ["Solo qui", "plus"],
+    local: ["Solo qui", "pencil-plus"],
     source: ["Fonte", "database"],
     estimate: ["Stima", "sparkles"],
     check: ["Da confermare", "alert-triangle"],
@@ -333,28 +385,20 @@ export const ICONS: IconRegistry = {
     lock: ["Bloccato", "lock"],
     theme: ["Tema", "palette"],
     eye: ["Escludi", "eye-off"],
-    refresh: ["Aggiorna", "refresh"],
+    refresh: ["Aggiorna", "reload"],
     star: ["Preferito", "star"],
   },
   sections: {
     identity: ["Nome e codici", "barcode"],
-    values: ["Valori per 100 g", "scale-outline"],
+    values: ["Valori per 100 g", "list-numbers"],
     products: ["Prodotti e formati", "package"],
-    kinds: ["Tipi di ogni macro", "chart-donut"],
+    kinds: ["Tipi di ogni macro", "category"],
     micros: ["Vitamine e minerali", "nmicro"],
     sources: ["Fonti", "database"],
     preview: ["Anteprima", "eye"],
-    usedIn: ["Dove è usato", "chef-hat"],
+    usedIn: ["Dove è usato", "sitemap"],
   },
   g: {
-    "meal-breakfast":
-      "M5 9h11v4a5 5 0 0 1 -5 5h-1a5 5 0 0 1 -5 -5zM16 10h1.5a2.5 2.5 0 0 1 0 5h-1.8M3 21h16M9 3.5c-.6 .8 -.6 1.7 0 2.5M12.5 3.5c-.6 .8 -.6 1.7 0 2.5",
-    "meal-lunch":
-      "M13 12m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0M13 12m-3.2 0a3.2 3.2 0 1 0 6.4 0a3.2 3.2 0 1 0 -6.4 0M3 4v5a1 1 0 0 0 1 1M5 4v5a1 1 0 0 1 -1 1v10M21.5 4c-1 1 -1.5 3 -1.5 6h1.5v10",
-    "meal-dinner":
-      "M3 13h18M4 13a8 5.5 0 0 0 16 0M7.5 18.6h9M18.5 3.2a3.6 3.6 0 1 0 2.8 5.6a2.8 2.8 0 0 1 -2.8 -5.6z",
-    "meal-snack":
-      "M19.6 9.8a8.5 8.5 0 1 1 -5.4 -6.4a2.6 2.6 0 0 0 2.3 3.6a2.6 2.6 0 0 0 3.1 2.8zM9 10v.01M12 15v.01M8 15.5v.01M14.5 11v.01",
     "adjustments-horizontal":
       "M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M4 6l8 0M16 6l4 0M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M4 12l2 0M10 12l10 0M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M4 18l11 0M19 18l1 0",
     "alert-triangle":
@@ -411,6 +455,8 @@ export const ICONS: IconRegistry = {
       "M7.05 11.293l4.243 -4.243a2 2 0 0 1 2.828 0l2.829 2.83a2 2 0 0 1 0 2.828l-4.243 4.243a2 2 0 0 1 -2.828 0l-2.829 -2.831a2 2 0 0 1 0 -2.828zM16.243 9.172l3.086 -.772a1.5 1.5 0 0 0 .697 -2.516l-2.216 -2.217a1.5 1.5 0 0 0 -2.44 .47l-1.248 2.913M9.172 16.243l-.772 3.086a1.5 1.5 0 0 1 -2.516 .697l-2.217 -2.216a1.5 1.5 0 0 1 .47 -2.44l2.913 -1.248",
     carrot:
       "M3 21s9.834 -3.489 12.684 -6.34a4.487 4.487 0 0 0 0 -6.344a4.483 4.483 0 0 0 -6.342 0c-2.86 2.861 -6.347 12.689 -6.347 12.689zM9 13l-1.5 -1.5M16 14l-2 -2M22 8s-1.14 -2 -3 -2c-1.406 0 -3 2 -3 2s1.14 2 3 2s3 -2 3 -2zM16 2s-2 1.14 -2 3s2 3 2 3s2 -1.577 2 -3c0 -1.86 -2 -3 -2 -3z",
+    category:
+      "M4 4h6v6h-6zM14 4h6v6h-6zM4 14h6v6h-6zM17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0",
     "chart-donut":
       "M10 3.2a9 9 0 1 0 10.8 10.8a1 1 0 0 0 -1 -1h-3.8a4.1 4.1 0 1 1 -5 -5v-4a.9 .9 0 0 0 -1 -.8M15 3.5a9 9 0 0 1 5.5 5.5h-4.5a9 9 0 0 0 -1 -1v-4.5",
     check: "M5 12l5 5l10 -10",
@@ -446,6 +492,8 @@ export const ICONS: IconRegistry = {
       "M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z",
     "droplet-half":
       "M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546zM12 3v18",
+    "droplet-half-2":
+      "M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546zM5 14h14",
     egg: "M19 14.083c0 4.154 -2.966 6.74 -7 6.917c-4.2 0 -7 -2.763 -7 -6.917c0 -5.538 3.5 -11.09 7 -11.083c3.5 .007 7 5.545 7 11.083z",
     elliptical:
       "M4 21h16M7 21l3-11M17 21l-3-11M10 10h4M12 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM7 15h10",
@@ -465,10 +513,9 @@ export const ICONS: IconRegistry = {
     fly: "M12 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM3 7c2 3 5 4 7 4M21 7c-2 3-5 4-7 4M10 11h4v10h-4ZM2 5v4M22 5v4",
     "git-branch":
       "M7 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M7 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M17 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M7 8l0 8M9 18h6a2 2 0 0 0 2 -2v-5M14 14l3 -3l3 3",
-    "glass-full":
-      "M8 21l8 0M12 15l0 6M17 3l1 7c0 3.012 -2.686 5 -6 5s-6 -1.988 -6 -5l1 -7h10zM6 10a5 5 0 0 1 6 0a5 5 0 0 0 6 0",
     grain:
       "M4.5 9.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M9.5 4.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M9.5 14.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M4.5 19.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M14.5 9.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M19.5 4.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M14.5 19.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M19.5 14.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0",
+    haze: "M3 12h1M12 3v1M20 12h1M5.6 5.6l.7 .7M18.4 5.6l-.7 .7M8 12a4 4 0 1 1 8 0M3 16h18M3 20h18",
     heartbeat:
       "M19.5 13.572l-7.5 7.428l-2.896 -2.868m-6.117 -8.104a5 5 0 0 1 9.013 -3.022a5 5 0 1 1 7.5 6.572M3 13h2l2 3l2 -6l1 3h3",
     hinge:
@@ -488,6 +535,8 @@ export const ICONS: IconRegistry = {
     lemon:
       "M17.536 3.393c3.905 3.906 3.905 10.237 0 14.143c-3.906 3.905 -10.237 3.905 -14.143 0l14.143 -14.143M5.868 15.06a6.5 6.5 0 0 0 9.193 -9.192M10.464 10.464l4.597 4.597M10.464 10.464v6.364M10.464 10.464h6.364",
     link: "M9 15l6 -6M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463",
+    "list-numbers":
+      "M11 6h9M11 12h9M12 18h8M4 16a2 2 0 1 1 4 0c0 .591 -.5 1 -1 1.5l-3 2.5h4M6 10v-6l-2 2",
     lock: "M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6zM11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0M8 11v-4a4 4 0 1 1 8 0v4",
     lunge:
       "M12 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM12 7v7M12 14l-5 2v6M12 14l5 1v7M8 9v4M16 9v4",
@@ -497,6 +546,14 @@ export const ICONS: IconRegistry = {
     mcable: "M6 3h12M12 3v11M9 17a3 3 0 1 0 6 0 3 3 0 0 0-6 0",
     mcan: "M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3v12c0 1.7-3.1 3-7 3s-7-1.3-7-3ZM5 6c0 1.7 3.1 3 7 3s7-1.3 7-3",
     mdb: "M8 12h8M6 8v8M18 8v8M3 10v4M21 10v4",
+    "meal-breakfast":
+      "M5 9h11v4a5 5 0 0 1 -5 5h-1a5 5 0 0 1 -5 -5zM16 10h1.5a2.5 2.5 0 0 1 0 5h-1.8M3 21h16M9 3.5c-.6 .8 -.6 1.7 0 2.5M12.5 3.5c-.6 .8 -.6 1.7 0 2.5",
+    "meal-dinner":
+      "M3 13h18M4 13a8 5.5 0 0 0 16 0M7.5 18.6h9M18.5 3.2a3.6 3.6 0 1 0 2.8 5.6a2.8 2.8 0 0 1 -2.8 -5.6z",
+    "meal-lunch":
+      "M13 12m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0M13 12m-3.2 0a3.2 3.2 0 1 0 6.4 0a3.2 3.2 0 1 0 -6.4 0M3 4v5a1 1 0 0 0 1 1M5 4v5a1 1 0 0 1 -1 1v10M21.5 4c-1 1 -1.5 3 -1.5 6h1.5v10",
+    "meal-snack":
+      "M19.6 9.8a8.5 8.5 0 1 1 -5.4 -6.4a2.6 2.6 0 0 0 2.3 3.6a2.6 2.6 0 0 0 3.1 2.8zM9 10v.01M12 15v.01M8 15.5v.01M14.5 11v.01",
     meat: "M13.62 8.382l1.966 -1.967a2 2 0 1 1 3.414 -1.415a2 2 0 1 1 -1.413 3.414l-1.82 1.821M5.904 18.596c2.733 2.734 5.9 4 7.07 2.829c1.172 -1.172 -.094 -4.338 -2.828 -7.071c-2.733 -2.734 -5.9 -4 -7.07 -2.829c-1.172 1.172 .094 4.338 2.828 7.071zM7.5 16l1 1M12.975 21.425c3.905 -3.906 4.855 -9.288 2.121 -12.021c-2.733 -2.734 -8.115 -1.784 -12.02 2.121",
     melon:
       "M20 10c0 5.523 -4.477 10 -10 10a9.967 9.967 0 0 1 -6.984 -2.842l4.343 -4.153a4 4 0 0 0 5.76 -5.51l4.342 -4.153a9.963 9.963 0 0 1 2.539 6.658z",
@@ -508,6 +565,7 @@ export const ICONS: IconRegistry = {
     moon: "M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z",
     "moon-stars":
       "M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454zM17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2M19 11h2m-1 -1v2",
+    mparallel: "M3 9h18M3 13.5h18M6 9v11M18 9v11M9 13.5v6.5M15 13.5v6.5",
     mprot: "M8 21V3h6a5 5 0 0 1 0 10H8",
     mpullbar: "M2 5h20M6 5v15M18 5v15",
     mushroom:
@@ -537,6 +595,8 @@ export const ICONS: IconRegistry = {
     palette:
       "M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0",
     pencil: "M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4M13.5 6.5l4 4",
+    "pencil-plus":
+      "M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4M13.5 6.5l4 4M16 19h6M19 16v6",
     pepper:
       "M13 11c0 2.21 -2.239 4 -5 4s-5 -1.79 -5 -4a8 8 0 1 0 16 0a3 3 0 0 0 -6 0M16 8c0 -2 2 -4 4 -4",
     pill: "M4.5 12.5l8 -8a4.94 4.94 0 0 1 7 7l-8 8a4.94 4.94 0 0 1 -7 -7M8.5 8.5l7 7",
@@ -559,6 +619,8 @@ export const ICONS: IconRegistry = {
       "M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2",
     refresh:
       "M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4",
+    reload:
+      "M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747M20 4v5h-5",
     rope: "M12 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM12 8v7M9 21l3-6 3 6M7 10c-5 5-3 12 5 12s10-7 5-12",
     row: "M2 12h8M8 9v6M15 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM14 7l-4 5M15 7l1 7h4v7M22 4v18",
     rower: "M2 20h20M5 20l2-5h7M14 15l6-4M10 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM10 10v5",
@@ -579,6 +641,8 @@ export const ICONS: IconRegistry = {
       "M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065zM9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0",
     "shopping-cart":
       "M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0M17 17h-11v-14h-2M6 5l14 1l-1 7h-13",
+    sitemap:
+      "M3 15m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2zM15 15m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2zM9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2zM6 15v-1a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v1M12 9l0 3",
     snowflake:
       "M10 4l2 1l2 -1M12 2v6.5l3 1.72M17.928 6.268l.134 2.232l1.866 1.232M20.66 7l-5.629 3.25l.01 3.458M19.928 14.268l-1.866 1.232l-.134 2.232M20.66 17l-5.629 -3.25l-2.99 1.738M14 20l-2 -1l-2 1M12 22v-6.5l-3 -1.72M6.072 17.732l-.134 -2.232l-1.866 -1.232M3.34 17l5.629 -3.25l-.01 -3.458M4.072 9.732l1.866 -1.232l.134 -2.232M3.34 7l5.629 3.25l2.99 -1.738",
     soup: "M4 11h16a1 1 0 0 1 1 1v.5c0 1.5 -2.517 5.573 -4 6.5v1a1 1 0 0 1 -1 1h-8a1 1 0 0 1 -1 -1v-1c-1.687 -1.054 -4 -5 -4 -6.5v-.5a1 1 0 0 1 1 -1zM12 4a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2M16 4a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2M8 4a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2",
@@ -649,6 +713,7 @@ export const ICONS: IconRegistry = {
     "meal-lunch",
     "meal-snack",
     "mmachine",
+    "mparallel",
     "mprot",
     "mpullbar",
     "ncarbs",

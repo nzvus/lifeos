@@ -233,3 +233,21 @@ number; times: separators are drawn sky bands (the sun at the part's height on t
 moon at night, rising once on load), untimed things full width aligned with the bands; weather line
 padding equal to the card; the water row's overflow fixed in Box (UI-84).
 
+**Evening of 30 Oct (his «i cambiamenti mi stanno bene… acqua è troppo grosso… non vedo i dispendi
+calorici… sicuro di aver pensato a tutto? il piano che diceva?», UI-85; canvas v29):**
+- Water row: actions beside the strip, pills under it (as tall as before); nothing past a box at 390,
+  360, 320 px (`scripts/ui-check.mjs` now counts it and takes `--width`).
+- The kcal of sessions and steps were on Oggi; the studies drew rows without them. Now one function
+  (`features/day/priced.ts`) prices the day for Oggi and the studies. A run logged after the fact in a
+  one-minute session read «Allenamento · 1 min · 1 serie» at ≈ 440–620 kcal: the burn was right, the
+  row wrong — now «Corsa · 49 min».
+- The plans re-read: the air scale is back to the EEA's six colours (§3.2, I had replaced them with
+  the kit's); the icon audit promised and not done is done (§ icons.md, a test guards it); the
+  › link is a 44 px target (under-44 targets 303 → 81); text kept off the drawing's corner and the
+  drawing gone from dense rows; weather levels animate in (UI-28); a skeleton per section (S18);
+  S11 was already done (register fixed); Main links the boards.
+- Still open: the water is ~470 px down Oggi because «Il giorno» comes first (P4, the screens phase);
+  more left edges from the icon before every title (asked); the old score chip off the scale until
+  UI-75 is picked; S20 v1 pieces after 1 Nov; step 4 (renewed kit board) and 5 (screens) after his
+  picks on score open, week A/B and times.
+

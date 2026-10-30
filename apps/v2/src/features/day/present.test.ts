@@ -177,6 +177,28 @@ describe("a day item as a Box", () => {
     ]);
   });
 
+  it("a run logged after the fact: its own minutes, its name, no «serie» (28 Oct)", () => {
+    const run = {
+      reps: null,
+      loadKg: null,
+      warmup: false,
+      done: true,
+      durationS: 2940,
+    } as DayItem["sets"][number];
+    const b = present(
+      item("session", {
+        values: { durationMin: "1.0000" },
+        children: [
+          item("session_exercise", {
+            item: { id: "c", name: "Corsa", drawing: { pattern: "run" } },
+            sets: [run],
+          }),
+        ],
+      }),
+    );
+    expect([b.title, b.value, b.pills]).toEqual(["Corsa", "49\u00a0min", []]);
+  });
+
   it("sleep from its span; a weigh-in with its context; a check-in as words", () => {
     const sleep = present(
       item("sleep", {
