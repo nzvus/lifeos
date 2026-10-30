@@ -19,6 +19,7 @@ import { TimesStudio } from "@/features/studio/times";
 import { PanelStudio } from "@/features/studio/panel";
 import { ShapesStudio } from "@/features/studio/shapes";
 import { WeatherStudio } from "@/features/studio/weather";
+import { IconsStudio } from "@/features/studio/icons";
 import { readPlace } from "@/core/account/place";
 import { weatherChips } from "@/app/_server/weather";
 import {
@@ -37,6 +38,7 @@ export default async function StudioPage({
 }) {
   if (!studioAllowed(process.env.NODE_ENV)) notFound();
   const { scelta } = await params;
+  if (scelta === "icone") return <IconsStudio />;
   const owner = await requireOwner();
   const db = await getDb();
   const known = await ownerClock();
