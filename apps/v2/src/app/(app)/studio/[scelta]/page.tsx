@@ -18,6 +18,9 @@ import { WeekStudio } from "@/features/studio/week";
 import { TimesStudio } from "@/features/studio/times";
 import { PanelStudio } from "@/features/studio/panel";
 import { ShapesStudio } from "@/features/studio/shapes";
+import { WeatherStudio } from "@/features/studio/weather";
+import { readPlace } from "@/core/account/place";
+import { weatherChips } from "@/app/_server/weather";
 import {
   ScoreAction,
   ScoreRuler,
@@ -41,6 +44,24 @@ export default async function StudioPage({
   if (scelta === "orari") return <TimesStudio db={db} owner={owner} known={known} />;
   if (scelta === "pannello") return <PanelStudio db={db} owner={owner} known={known} />;
   if (scelta === "sagome") return <ShapesStudio db={db} owner={owner} known={known} />;
+  if (scelta === "meteo") {
+    const [place, days] = await Promise.all([
+      readPlace(db, owner),
+      loadDays(db, owner, DAY, DAY, known),
+    ]);
+    const w = place
+      ? await weatherChips(place, DAY, DAY, known.clock.timeZone, 12)
+      : null;
+    if (!place || !w || !days[0]) notFound();
+    return (
+      <WeatherStudio
+        w={w}
+        place={place.name}
+        hour={12}
+        items={[...days[0].timed, ...days[0].untimed]}
+      />
+    );
+  }
   if (scelta !== "voto") notFound();
   const [days, nights, profile] = await Promise.all([
     loadDays(db, owner, DAY, DAY, known),
