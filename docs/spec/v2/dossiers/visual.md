@@ -83,7 +83,12 @@ rendered, shapes audit 0, no new content findings) and, beside it, the kit's own
 the old canvas Q2fD1q…: Icons, Shapes, Content, NutrientPanel, Patterns and the 13 components
 (Box, Skyline, Nutrients, Field, Chart, PageHeader, DateNav, NavBar, Glyph, ValueRow, ActionRow,
 Toast, MoreSheet). A7 already exists there: the board «v1 e v2 a confronto» (Compare, 29 Oct).
-Still to draw: A1 the five v1 themes × light/dark and density; A3 v1's ConcentricRings,
+**A1 themes (canvas v14, board «Temi»):** the five v1 themes × light/dark over the same kit pieces,
+tokens translated by `boards-tools/themes_build.py` (colours and title face). Two findings for step
+3: without v1's frame slots (T2: `--panel-*`, `--tile-*`, `--heading-*`) the five themes look
+alike on the v2 kit — the ground and the ink change, the boxes do not; v1's radii (10, 14, 18 px)
+are off v2's scale (shapes.md), so a theme must choose among the scale's steps.
+Still to draw: A1 density; A3 v1's ConcentricRings,
 MacroStrip, NovaBar, ChartFrame; A5 the weather card; A6 List + Find, summary page, empty states.
 
 Then step 2 (criteria) and step 3 (judgement),
