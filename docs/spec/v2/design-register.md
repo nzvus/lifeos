@@ -162,3 +162,18 @@ Order: T2 and T4 first (tokens and the test), then T1 one theme at a time with
 the test green, then T3 and T5; boards render the default and Notte from then
 on (T6). This is phase D's «kit first» part; the boards of phase B already use
 the token names of T2.
+
+## G — Visual language (review phase 2, 30 Oct; canvas «lifeos v2 — revisione», board «Il linguaggio visivo»)
+Three panel shapes drawn over the same page (Cibo · Diario and Cibo · Elenco, the developer's
+23 Oct from the v1 export of 25 Oct, data from `boards-tools/lang_data.py`). The developer was
+away («procedi senza di me»): the rows below are **decided by the agent, provisional** until he
+looks at the board.
+
+| ID | Decision | Why |
+|---|---|---|
+| G1 | **Panel A, v1's**: 2 px ink frame, radius 16, uppercase title (Barlow Condensed 19, 800) underlined, icon in a 32 px tinted chip, value on the right of the title | V3 names exactly this shape as the one that was understood; B (thin frame) and C (no frame) group less. Price: long days (Cena with 14 foods) are heavy; detail stays one tap away (V4) |
+| G2 | Nutrient row: name (88 px) · bar with a tick at the target, scaled to max(value, target) · «146 / 159 g»; over the target by > 10 % the bar takes `--warn` | V1, V4: value, target, unit; v1's «la giornata col piano» |
+| G3 | Panel sentence first: «Mangiato 2.198 kcal di 2.100 previste · speso circa 2.518 kcal», then how the balance is computed | V1 |
+| G4 | Meal panel: moment and kcal in the title, «08:31 · proteine 27 g» under it, one 44 px row per food (name · grams · kcal) | V5, V6, L5 |
+| G5 | List row (Elenco): name, «52 volte in 60 giorni · l'ultima il 23 ott», «per 100 g: 53 kcal · proteine 8 · carboidrati 5 · grassi 0», chevron; the whole row is the target | V6, P3 |
+| G6 | Page template: area title (30) and profile icon, four tabs, ⊕ floating bottom right above the bar, the bar with the five places | ADR-0059 |
