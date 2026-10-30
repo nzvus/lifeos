@@ -16,6 +16,7 @@ import { nightOf, sleepOfDay, sleepScore, type ScoreContext } from "@/features/d
 import { studioAllowed } from "@/features/studio/allowed";
 import { WeekStudio } from "@/features/studio/week";
 import { TimesStudio } from "@/features/studio/times";
+import { PanelStudio } from "@/features/studio/panel";
 import {
   ScoreAction,
   ScoreRuler,
@@ -37,6 +38,7 @@ export default async function StudioPage({
   const known = await ownerClock();
   if (scelta === "settimana") return <WeekStudio db={db} owner={owner} known={known} />;
   if (scelta === "orari") return <TimesStudio db={db} owner={owner} known={known} />;
+  if (scelta === "pannello") return <PanelStudio db={db} owner={owner} known={known} />;
   if (scelta !== "voto") notFound();
   const [days, nights, profile] = await Promise.all([
     loadDays(db, owner, DAY, DAY, known),
