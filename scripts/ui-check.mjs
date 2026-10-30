@@ -4,7 +4,8 @@
 // the visual forms of each verb (P5, one form per verb); per daily task: the
 // scroll needed to reach its first control (P4).
 //
-// usage: node scripts/ui-check.mjs [--save | --compare] [--crawl] [--shots <dir>] [--base http://localhost:3200]
+// usage: node scripts/ui-check.mjs [--save | --compare] [--crawl] [--shots <dir>] [--width 390] [--base http://localhost:3200]
+//   --width    the phone's width (390 by default; run 360 and 320 too: memory overflow-per-box)
 //   --crawl    every page the app links to (one per kind of address), not only the list below
 //   --shots    a full-page screenshot of each page into <dir>
 //   --save     writes scripts/ui-baseline.json
@@ -18,6 +19,9 @@ const arg = (k) => process.argv.includes(k);
 const BASE = process.argv.includes("--base")
   ? process.argv[process.argv.indexOf("--base") + 1]
   : "http://localhost:3200";
+const W = process.argv.includes("--width")
+  ? Number(process.argv[process.argv.indexOf("--width") + 1])
+  : 390;
 const BASELINE = new URL("./ui-baseline.json", import.meta.url);
 const EMAIL = process.env.UI_CHECK_EMAIL ?? "agent-preview@example.invalid";
 const PASSWORD = process.env.UI_CHECK_PASSWORD ?? "preview-password-123";
@@ -66,7 +70,7 @@ const VERBS = [
 
 const b = await chromium.launch();
 const p = await (
-  await b.newContext({ ...devices["iPhone 13"], viewport: { width: 390, height: 844 } })
+  await b.newContext({ ...devices["iPhone 13"], viewport: { width: W, height: 844 } })
 ).newPage();
 await p.goto(BASE + "/sign-in", { timeout: 120000 });
 await p.fill("input[type=email]", EMAIL);
@@ -215,7 +219,19 @@ for (const entry of pages) {
         if (cs.display !== "inline" && r.left < 200) edges.add(Math.round(r.left));
       }
     }
+    // A box's child past its right edge: a button, link, number, pill or line that sticks
+    // out (the water row's «+500», 30 Oct, never seen until the developer said it).
+    let overflow = 0;
+    for (const box of document.querySelectorAll(".k-box")) {
+      const bb = box.getBoundingClientRect();
+      if (!bb.width) continue;
+      for (const el of box.querySelectorAll("button, a, .k-num, .k-pill, .k-sub")) {
+        const e = el.getBoundingClientRect();
+        if (e.width && e.right > bb.right + 0.5) overflow++;
+      }
+    }
     return {
+      overflow,
       targets: targets.length,
       small: small.length,
       primary,
@@ -233,7 +249,7 @@ for (const entry of pages) {
         Math.max(document.documentElement.scrollHeight, document.body.scrollHeight),
       ),
     );
-    await p.setViewportSize({ width: 390, height: Math.max(844, h) });
+    await p.setViewportSize({ width: W, height: Math.max(844, h) });
     await p.waitForTimeout(600);
     await p.screenshot({
       path:
@@ -242,7 +258,7 @@ for (const entry of pages) {
         (name.replace(/[^a-z0-9:]+/gi, "_").replace(/^_|_$/g, "") || "root") +
         ".png",
     });
-    await p.setViewportSize({ width: 390, height: 844 });
+    await p.setViewportSize({ width: W, height: 844 });
   }
   for (const [v, fs_] of Object.entries(r.verbForms))
     for (const f of fs_) forms[v].add(f);
@@ -278,6 +294,8 @@ if (arg("--compare") && fs.existsSync(BASELINE)) {
       worse.push(`${name}: ${r.primary} primary actions (was 1)`);
     if (o.offScale !== undefined && r.offScale > o.offScale)
       worse.push(`${name}: ${r.offScale} shapes off the scale (was ${o.offScale})`);
+    if (r.overflow > (o.overflow ?? 0))
+      worse.push(`${name}: ${r.overflow} things past their box's edge (was ${o.overflow ?? 0})`);
     if (o.edges !== undefined && r.edges > o.edges)
       worse.push(`${name}: text starts on ${r.edges} left edges (was ${o.edges})`);
   }
