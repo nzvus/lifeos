@@ -612,7 +612,7 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-wxhead .range .tr>i{position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,var(--macro-fat),var(--macro-carbs))}
 .k-wxhead .range .tr>b{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--sheet);transform:translate(-50%,-50%)}
 /* UI-80: levels of expansion; 0 is one line, the dots say the level */
-.k-wx.l0{padding:6px 12px}
+.k-wx.l0{padding:10px 12px}
 .k-wx.l0 .k-sky-ico{width:28px;height:21px}
 .k-wx.l0 .k-wxhead .k-body{flex:1;min-width:0}
 .k-lv{display:inline-flex;gap:3px;align-self:center;flex:0 0 auto}
@@ -706,3 +706,9 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-fold:not(.has-icon)>summary::before{content:none}
 .k-block>.k-fold{padding:12px;border-radius:var(--radius-surface);background:color-mix(in srgb,var(--fam,var(--ink)) 7%,var(--paper))}
 .k-block>.k-fold>summary{color:var(--fam,var(--ink))}
+/* actions that do not fit the head: their own line, at the right (the water row overflowed, 30 Oct) */
+.k-acts{flex-wrap:wrap;margin-top:8px}
+/* a narrow phone (320 px): the title gives way (ellipsis), never the value, the score or › */
+.k-hlead>.k-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.k-head{min-width:0}
+.k-go{flex-shrink:0;padding-right:0}
