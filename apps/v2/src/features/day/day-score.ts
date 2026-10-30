@@ -215,7 +215,7 @@ export function dayScores(p: {
     const items = [...d.timed, ...d.untimed];
     const now = d.day === p.today ? p.nowMinute : null;
     const c: ScoreContext = { ...p.ctx, date: d.day, now };
-    const night = nightOf(items);
+    const night = nightOf(items, c);
     const s = dayScore({
       day: d,
       nutrients: p.present.get(d.day)?.nutrients ?? null,

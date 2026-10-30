@@ -28,7 +28,7 @@ import { readDayModels } from "@/core/plans";
 import { energyBoxes } from "@/features/progress/energy";
 import { addDays, daysBetween, logicalDay } from "@/core/engines/time";
 import { readFoodEstimates } from "@/core/food/catalog";
-import { readGoals, readNumbers, readSpans } from "@/core/goals";
+import { readGoals, readNumbers, readSpans, SLEEP_KINDS } from "@/core/goals";
 import { readSettings } from "@/core/account/settings";
 import { foodIds } from "@/features/day/nutrients";
 import { dayScores, presentWeek } from "@/features/day/day-score";
@@ -114,7 +114,7 @@ export default async function AndamentoPage({
       readMicroTargets(db, owner, end),
       readNumbers(db, owner, "weigh_in", "weightKg", addDays(days[0]!, -27), end),
       readGoals(db, owner, end),
-      readSpans(db, owner, "sleep", addDays(days[0]!, -7), end),
+      readSpans(db, owner, SLEEP_KINDS, addDays(days[0]!, -8), addDays(end, 1)),
       readSettings(db, owner),
     ]);
   const energy = energyBoxes(week as Record<string, unknown> | null, mondayOf(end));
@@ -189,7 +189,7 @@ export default async function AndamentoPage({
       title: "Sonno",
       href: "/andamento/sonno",
       score: domain((d) => {
-        const n = nightOf(itemsOf(d));
+        const n = nightOf(itemsOf(d), ctxOf(d.day));
         return n ? [sleepScore(n, itemsOf(d), ctxOf(d.day))] : [];
       }),
     },

@@ -17,15 +17,15 @@ describe("the registry", () => {
 
 describe("score", () => {
   it("weighs the parts, 0–100, and says which version made it", () => {
-    const s = score(SLEEP, { duration: 0.75, regularity: 0.5, feel: 1 });
-    expect(s.value).toBe(70); // 0.4 × 75 + 0.4 × 50 + 0.2 × 100
-    expect([s.version, s.weightsSince]).toEqual([1, "2026-10-17"]);
+    const s = score(SLEEP, { duration: 0.75, regularity: 0.5, continuity: 1, feel: 1 });
+    expect(s.value).toBe(74); // 0.35 × 75 + 0.35 × 50 + 0.1 × 100 + 0.2 × 100 = 73.75
+    expect([s.version, s.weightsSince]).toEqual([2, "2026-10-30"]);
     expect(s.missing).toEqual([]);
   });
   it("a part that cannot be computed is left out and named; the rest are weighed among themselves", () => {
     const s = score(SLEEP, { duration: 0.75, regularity: 0.5, feel: null });
-    expect(s.missing).toEqual(["feel"]);
-    expect(s.value).toBe(63); // (40 × 75 + 40 × 50) ÷ 80 = 62.5
+    expect(s.missing).toEqual(["continuity", "feel"]);
+    expect(s.value).toBe(63); // (35 × 75 + 35 × 50) ÷ 70 = 62.5
     expect(score(SLEEP, {}).value).toBeNull();
   });
   it("a scorer out of 0–1 is an error", () => {
@@ -46,7 +46,7 @@ describe("weights", () => {
   it("a dated edit makes the score, and the score says so", () => {
     const { weights } = editWeights(SLEEP, { duration: 50, feel: 0 }, "2026-10-20");
     const s = score(SLEEP, { duration: 1, regularity: 0, feel: 1 }, weights);
-    expect(s.value).toBe(56); // 50 ÷ 90
+    expect(s.value).toBe(59); // 50 ÷ 85, continuity not computed
     expect(s.weightsSince).toBe("2026-10-20");
   });
   it("an edit for another version or model is not used", () => {
@@ -54,7 +54,7 @@ describe("weights", () => {
     expect(
       score(SLEEP, { duration: 1, regularity: 0, feel: 0 }, { ...weights, version: 0 })
         .value,
-    ).toBe(40);
+    ).toBe(39); // 35 ÷ 90 with the defaults
     expect(editWeights(SLEEP, { nope: 5 }, "2026-10-20").rejected).toEqual([
       { key: "nope", asked: 5, kept: 0 },
     ]);

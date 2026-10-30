@@ -22,8 +22,9 @@ describe("«Come valutiamo»", () => {
   it("gives each part its share, its range and its lock", () => {
     const p = modelPage(REGISTRY.find((m) => m.id === "sleep")!);
     expect(p.parts.map((x) => [x.name, x.share, x.min, x.max, x.locked])).toEqual([
-      ["Durata vs bisogno", "40 %", 30, 50, false],
-      ["Regolarità", "40 %", 30, 100, true],
+      ["Durata vs bisogno", "35 %", 25, 50, false],
+      ["Regolarità", "35 %", 30, 100, true],
+      ["Notte senza risvegli", "10 %", 0, 20, false],
       ["Come ti senti", "20 %", 0, 30, false],
     ]);
   });

@@ -10,6 +10,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
+import { dayMinute } from "@/core/day";
 import { checkEntry, readEntry, updateEntry } from "@/core/entries";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { lineChoices } from "@/core/food/choices";
@@ -61,7 +62,13 @@ export async function updateSheet(
   if (!kind) return again({ form: "Questo tipo non si modifica da qui." });
   const checked = checkEntry(
     kind,
-    readEntryForm(kind, item.day, form, ctx.clock.boundaryMin),
+    readEntryForm(
+      kind,
+      item.day,
+      form,
+      ctx.clock.boundaryMin,
+      item.day === ctx.today ? dayMinute(new Date(), item.day, ctx.clock) : null,
+    ),
     ctx.clock,
   );
   if (!checked.ok) return again(errorWords(checked.errors));

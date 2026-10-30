@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { F } from "@lifeos/kit";
 import { kindRegistry, kindSchema } from "@/core/kinds";
 import {
   clockToDayMin,
@@ -7,6 +8,7 @@ import {
   formOf,
   kindRows,
   managedFields,
+  nightWords,
   readEntryForm,
 } from "./entry-form";
 
@@ -102,6 +104,55 @@ describe("reading the posted sheet", () => {
       0,
     );
     expect([late.startMin, late.endMin]).toEqual([1320, 1650]);
+  });
+
+  it("places a sleep by its wake: the latest before now, never on the night after (sleep.md test 9)", () => {
+    // From Oggi 30 Oct at 09:00 (minute 540), boundary 04:00.
+    const read = (start: string, end: string, nowMin: number | null = 540) => {
+      const r = readEntryForm(
+        reg.get("sleep"),
+        "2026-10-30",
+        { start, end },
+        240,
+        nowMin,
+      );
+      return [r.startMin, r.endMin];
+    };
+    expect(read("23:30", "03:00")).toEqual([-30, 180]); // was 30 23:30 → 31 03:00
+    expect(read("00:30", "03:00")).toEqual([30, 180]); // was 31 00:30 → 03:00
+    expect(read("23:30", "07:02")).toEqual([-30, 422]);
+    expect(read("03:50", "07:02")).toEqual([230, 422]);
+    // A wake after now goes to the day before, where it happened (test 10).
+    expect(read("02:00", "10:00")).toEqual([-1320, -840]);
+    // Logged at 03:30, still the 29th's page: the wake is the morning into the 30th.
+    const early = readEntryForm(
+      reg.get("sleep"),
+      "2026-10-29",
+      { start: "23:30", end: "03:00" },
+      240,
+      1650,
+    );
+    expect([early.startMin, early.endMin]).toEqual([1410, 1620]);
+    // A past day's page, no «now»: the wake is on the page's day (the night counts where you wake).
+    expect(read("23:30", "03:00", null)).toEqual([-30, 180]);
+    // A planned night is not bounded by now: tonight's wake stays on the page's day.
+    const plan = readEntryForm(
+      reg.get("sleep"),
+      "2026-10-30",
+      { start: "23:30", end: "07:00", status: "planned" },
+      240,
+      540,
+    );
+    expect([plan.startMin, plan.endMin]).toEqual([-30, 420]);
+  });
+
+  it("says which night a sleep is, as it will be saved", () => {
+    const w = (start: string, end: string, now: number | null = 540) =>
+      nightWords("2026-10-30", { start, end }, 240, now);
+    expect(w("23:30", "03:00")).toBe("Notte tra giovedì 29 e venerdì 30 · " + F.hm(210));
+    expect(w("02:00", "10:00")).toBe("Giovedì 29 · " + F.hm(480));
+    expect(w("00:30", "03:00")).toBe("Venerdì 30 · " + F.hm(150));
+    expect(w("", "03:00")).toBeNull();
   });
 
   it("drops an instant's end, reads a plan, and keeps the note", () => {

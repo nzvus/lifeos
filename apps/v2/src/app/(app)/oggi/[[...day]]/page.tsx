@@ -40,7 +40,13 @@ import { weatherChips } from "@/app/_server/weather";
 import { WeatherCard } from "@/features/day/WeatherCard";
 import { mealGroups } from "@/features/day/meal-groups";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
-import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
+import {
+  readGoals,
+  readNumbers,
+  readSpans,
+  SLEEP_KINDS,
+  weightProgress,
+} from "@/core/goals";
 import {
   ensureWeekTargets,
   mondayOf,
@@ -83,6 +89,7 @@ import {
 import {
   mealScore,
   nightOf,
+  nightWordsOf,
   sleepScore,
   waterBox,
   weighScore,
@@ -177,7 +184,7 @@ export default async function OggiPage({
     readNumbers(db, owner, "weigh_in", "weightKg", addDays(date, -27), to),
     // The goal's line under the day box needs it on every day up to today.
     weighed || date <= today ? readGoals(db, owner, date) : null,
-    readSpans(db, owner, "sleep", addDays(week[0]!, -7), to),
+    readSpans(db, owner, SLEEP_KINDS, addDays(week[0]!, -8), addDays(to, 1)),
     date <= today ? readSettings(db, owner) : null,
   ]);
   // The week strip names each day by its cycle's step or its model (day-templates.md §6).
@@ -306,7 +313,11 @@ export default async function OggiPage({
     const l0 = mealL0(i, slotOf(i), kinds, weightOn(series, date), micros);
     // A meal of several foods lists them as its window's chips (L2), not again below.
     const d = details(i, { foods: (l0?.foods?.length ?? 0) < 2 });
-    const shown = withCompounds(present(i), i, ctx);
+    const shown = {
+      ...withCompounds(present(i), i, ctx),
+      // A night in pieces: its box speaks for the whole night.
+      ...(nightWordsOf(i, items, sctx) ?? {}),
+    };
     const burn = burnText(burns?.get(i.kind.key === "steps" ? "steps" : i.id));
     return {
       ...shown,
@@ -332,7 +343,7 @@ export default async function OggiPage({
       session: i.kind.key === "session",
     };
   };
-  const night = nightOf(items);
+  const night = nightOf(items, sctx);
   const nightScore = night ? (sleepScore(night, items, sctx)?.value ?? null) : null;
   const score = dayScore({
     weights: known.weights,

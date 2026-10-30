@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { F } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
+import { dayMinute } from "@/core/day";
 import { localParts } from "@/core/engines/time";
 import { EntrySheet } from "@/features/day/EntrySheet";
 import { VALUE, entryForm } from "@/features/day/entry-form";
@@ -66,6 +67,8 @@ export default async function EntryPage({
       initial={initial}
       closeHref={`/aggiungi?giorno=${day}`}
       action={saveEntry}
+      boundaryMin={clock.boundaryMin}
+      nowMin={day === today ? dayMinute(new Date(), day, clock) : null}
     />
   );
 }

@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
+import { dayMinute } from "@/core/day";
 import { checkEntry, createEntry, dailyTotalOf, updateEntry } from "@/core/entries";
 import type { SaveState } from "@/features/day/EntrySheet";
 import { errorWords, managedFields, readEntryForm } from "@/features/day/entry-form";
@@ -30,7 +31,13 @@ export async function saveEntry(prev: SaveState, data: FormData): Promise<SaveSt
   if (!kind) return again({ form: "Questo tipo non si può aggiungere da qui." });
   const checked = checkEntry(
     kind,
-    readEntryForm(kind, ctx.day, form, ctx.clock.boundaryMin),
+    readEntryForm(
+      kind,
+      ctx.day,
+      form,
+      ctx.clock.boundaryMin,
+      ctx.day === ctx.today ? dayMinute(new Date(), ctx.day, ctx.clock) : null,
+    ),
     ctx.clock,
   );
   if (!checked.ok) return again(errorWords(checked.errors));

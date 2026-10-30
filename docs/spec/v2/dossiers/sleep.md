@@ -1,6 +1,6 @@
 # Dossier — sleep: a broken night, naps, feeling rested
 
-Status: **draft 2026-10-30**, for the developer's review. Ledger: BODY-29 (the request), BODY-07,
+Status: **decided 2026-10-30 by the agent at the developer's request** («fai come ritieni meglio, adesso io vado, quindi non ti fermare»): §9 as recommended — G = 2 h, continuity scored (35/35/10/20), naps counted in the 24-h duration. The developer reviews after. Ledger: BODY-29 (the request), BODY-07, **Built 30 Oct** (phone check on the preview account: the sheet line, one night with its awake time in Oggi and Andamento): periods and continuity (`core/engines/sleep/periods.ts`, `sleep.ts`, registry sleep v2), every reader through `sleepOfDay`/`nightOf` (`features/day/score.ts`), sleep and nap pieces read together (`readSpans`, `SLEEP_KINDS`), the sheet placing a wake not after now and saying the night (`placeByEnd`, `nightWords`). Not yet: nap words (§5.6), the day chip on each time, Oggi's bar with the gap drawn, typed awakenings.
 BODY-08, BODY-24, DATA-06, PROD-04, PROD-14. Method: `../method.md`.
 
 ## 1. Question
@@ -70,19 +70,21 @@ minutes of wake inside a fixed window; a hand log only knows the gaps the person
 
 ## 5. Model (E7 sleep, L1 per night; no schema change, everything on read)
 Pieces `p = (start, end)` of kind sleep or nap, done, not deleted.
-0. **Instants, not the page.** A sleep piece ends at or before «now» and on the page's day or the
-   night into it: the sheet reads «Sveglia» as the **latest** instant at that clock time in
-   (D−1 04:00, min(now, D+1 04:00)] (from Oggi 30 at 09:00, 03:00 is 30 03:00, never 31) and «A
-   letto» as the latest instant before it (span < 24 h). The guess is always shown as dates. The `day` stored is the day of the wake, by the boundary, but readers group by
-   instants: every reader of day D loads pieces ending from D−1 04:00 to D+1 04:00, builds periods,
-   then keeps those whose final wake falls in D.
+0. **Instants, not the page.** On today's page the sheet reads «Sveglia» as the **latest** instant
+   at that clock time not after now, within (D−1 04:00, D+1 04:00] (from Oggi 30 at 09:00, 03:00 is
+   30 03:00, never 31); on a past day's page, the page's own date; a planned sleep is not bounded
+   by now. «A letto» is the latest instant before it (span < 24 h). The sheet shows the result as
+   dates. The `day` stored stays the page's, but readers group by instants: every reader loads
+   sleep and nap pieces from D−8 to D+1 and keeps the periods whose final wake falls on D.
+   (Built: `features/day/entry-form.ts` `placeByEnd`, `nightWords`.)
 1. **Union first:** overlapping pieces merge (a double entry 23:00–07:00 twice is 8 h, not 16).
 2. **Period:** consecutive pieces join while the gap `next.start − prev.end ≤ G`, **G = 2 h**
    (recommendation; §9 Q1). A period: `bed` = first start, `wake` = last end,
    `TST = Σ piece durations`, `span = wake − bed`, `WASO = span − TST`, `awakenings = gaps`
    (+ the typed ones of a one-piece night).
-3. **Main sleep of day D:** the longest-TST period whose wake falls in D (day boundary of settings,
-   240 min). It is «la notte». Every other period ending in D is a **nap**, whatever its kind. So a
+3. **Main sleep of day D:** the longest-TST period whose wake falls on the **calendar date** D (a
+   night woken at 03:00 belongs to the day it ends on, not to the logical day before; decided by
+   the agent while building). It is «la notte». Every other period ending in D is a **nap**, whatever its kind. So a
    stored `nap` within 2 h of the night joins the night (the morning re-sleep), and a long day-time
    `sleep` stays a nap.
 4. **24-h sleep** of D = main TST + naps' TST (Jackson 2014: the 24-h total drives performance).
@@ -94,8 +96,8 @@ Pieces `p = (start, end)` of kind sleep or nap, done, not deleted.
      ≥ 60 (Ohayon 2017: ≤ 20 good, > 50 poor); null for a one-piece night with nothing typed — a
      missing number is not a perfect night;
    - `feel` = quality and the morning check-in's energy, as today.
-   Weights today 40 / 40 / 20; proposed duration 35, regularity 35 (locked ≥ 30), continuity 10,
-   feel 20.
+   Weights were 40 / 40 / 20; now (registry v2, 30 Oct) duration 35, regularity 35 (locked ≥ 30),
+   continuity 10, feel 20. Built: `core/engines/sleep/periods.ts`, `sleep.ts`, `features/day/score.ts`.
 6. **Naps are described, not scored** (observational, weak evidence): per nap its length and time,
    with a word: ≤ 30 min before 16:00 «breve, buon orario»; 30–60 min «possibile intontimento al
    risveglio» (Brooks 2006, Hilditch 2019); ≥ 60 min «lungo» with the evidence's caveat; ending
@@ -114,9 +116,9 @@ parts) → week/period (mean 24-h sleep, nights under 7 h, regularity, naps per 
 - **Oggi, the sleep box:** «6 h 42 dormite · a letto 23:30–07:02 · sveglio 50 min (1 volta)»; the
   pieces as one bar with the gap drawn hollow; naps under it, «+ 20 min pisolino 14:10». The score
   says which part is low («notte spezzata: 50 min sveglio»).
-- **The sheet says the dates.** Under the two times a live line: «Notte tra gio 29 e ven 30 ·
-  3 h 30»; each time carries its day as a small chip («gio 29» / «ven 30») that taps to the day
-  before or after, for the rare case the guess is wrong. Defaults: «Sveglia» = now rounded to
+- **The sheet says the dates.** Under the two times a live line: «Notte tra giovedì 29 e venerdì
+  30 · 3 h 30» (built). Not yet: a day chip on each time that taps to the day before or after, for
+  the rare case the guess is wrong (today: open the night from its day's page). Defaults: «Sveglia» = now rounded to
   5 min (or the last piece's wake for a second piece), «A letto» = the usual bedtime.
 - **Logging a second piece:** ⊕ Sonno, as today. On save, when it joins a night: «Aggiunto alla
   notte: in tutto 6 h 42, sveglio 50 min» with Annulla. No new question, no toggle.
@@ -149,9 +151,9 @@ parts) → week/period (mean 24-h sleep, nights under 7 h, regularity, naps per 
 7. Weigh-in on test 2's morning reads 6.7 h slept, not 3.5 h (`readWeighIn` sleptHours).
 8. Tracker over 27–29 Oct with test 2 → mean of 24-h sleep, test 2 counted once, one «notte spezzata».
 9. The sheet from Oggi 30 Oct at 09:00: 23:30→03:00 → 29 23:30 → 30 03:00 (today: 30→31); 00:30→
-   03:00 → 30 00:30 → 03:00; 23:30→07:02 unchanged; the line reads «Notte tra gio 29 e ven 30».
+   03:00 → 30 00:30 → 03:00; 23:30→07:02 unchanged; the line reads «Notte tra giovedì 29 e venerdì 30».
 10. The same pieces logged at 03:30 (page = 29) and at 07:10 (page = 30) → one period on day 30;
-   from Oggi 30 at 09:00 a wake typed 10:00 lands on 29 10:00 and the line says «mer 28 e gio 29».
+   from Oggi 30 at 09:00 a wake typed 10:00 (bed 02:00) lands on 29 10:00 and the line says «Giovedì 29 · 8 h».
 
 ## 9. Questions for the developer
 1. **G, the gap that still belongs to the night:** 1 h, **2 h (recommended)** or 3 h? With 2 h a

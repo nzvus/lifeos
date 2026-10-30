@@ -8,8 +8,9 @@ import { Box, F, NavBar, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
+import { sleepOn } from "@/core/engines/sleep";
 import { addDays, logicalDay, type IsoDate } from "@/core/engines/time";
-import { readNumbers, readSpans } from "@/core/goals";
+import { readNumbers, readSpans, SLEEP_KINDS } from "@/core/goals";
 import { links, type Measure } from "@/features/progress/links";
 import { PLACES } from "@/features/places";
 
@@ -22,7 +23,7 @@ export default async function LinksPage() {
   const today = logicalDay(new Date(), clock);
   const from = addDays(today, -DAYS);
   const [nights, energy, mood, stress, steps, train] = await Promise.all([
-    readSpans(db, owner, "sleep", from, today),
+    readSpans(db, owner, SLEEP_KINDS, addDays(from, -1), addDays(today, 1)),
     readNumbers(db, owner, "checkin", "energy", from, today),
     readNumbers(db, owner, "checkin", "mood", from, today),
     readNumbers(db, owner, "checkin", "stress", from, today),
@@ -43,11 +44,12 @@ export default async function LinksPage() {
     {
       key: "sleepH",
       words: "le ore di sonno",
-      byDay: sum(
-        nights.map((n) => ({
-          day: n.day,
-          n: (n.end.getTime() - n.start.getTime()) / 3.6e6,
-        })),
+      // The day's sleep, its night rebuilt from the pieces and naps (dossiers/sleep.md).
+      byDay: new Map(
+        Array.from({ length: DAYS + 1 }, (_, i) => addDays(from, i)).flatMap((d) => {
+          const m = sleepOn(nights, d, clock.timeZone).totalMin;
+          return m > 0 ? [[d, m / 60] as const] : [];
+        }),
       ),
     },
     { key: "energy", words: "l’energia", byDay: mean(energy) },

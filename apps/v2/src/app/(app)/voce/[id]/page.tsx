@@ -9,7 +9,7 @@ import { F } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDay, readMicroTargets } from "@/core/day";
+import { dayMinute, loadDay, readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { readEntry } from "@/core/entries";
 import {
@@ -146,6 +146,8 @@ export default async function EntryEditPage({
       initial={initial}
       closeHref={dayHref}
       action={updateSheet.bind(null, id)}
+      boundaryMin={ctx.clock.boundaryMin}
+      nowMin={item.day === ctx.today ? dayMinute(new Date(), item.day, ctx.clock) : null}
     />
   );
 }

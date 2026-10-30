@@ -207,6 +207,8 @@ describe("the numbers a goal reads", () => {
       ["2026-10-15", "2026-10-15T06:30:00.000Z"],
       ["2026-10-16", "2026-10-16T07:00:00.000Z"],
     ]);
+    const both = await readSpans(db, a, ["sleep", "nap"], "2026-10-10", "2026-10-17");
+    expect(both.length).toBeGreaterThanOrEqual(got.length);
   });
 });
 

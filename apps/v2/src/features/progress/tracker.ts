@@ -17,6 +17,7 @@ import { feetLabel } from "@/core/energy/feet";
 import { isoWeekday, localParts } from "@/core/engines/time";
 import {
   nightOf,
+  sleepOfDay,
   sleepScore,
   waterOf,
   weighScore,
@@ -194,11 +195,17 @@ export function sleepTracker(p: {
   timeZone: string;
 }): TrackerView {
   const nights = p.days.flatMap((d) => {
-    const n = nightOf(items(d));
+    const n = nightOf(items(d), p.ctxOf(d.day));
     if (!n) return [];
-    const minutes = (n.end!.getTime() - n.start!.getTime()) / 60_000;
+    const sd = sleepOfDay(items(d), p.ctxOf(d.day));
     return [
-      { day: d.day, item: n, minutes, score: sleepScore(n, items(d), p.ctxOf(d.day)) },
+      {
+        day: d.day,
+        item: n,
+        sd,
+        minutes: sd.totalMin,
+        score: sleepScore(n, items(d), p.ctxOf(d.day)),
+      },
     ];
   });
   const by = new Map(nights.map((n) => [n.day, n]));
@@ -207,6 +214,7 @@ export function sleepTracker(p: {
     ? nights.reduce((a, n) => a + n.minutes, 0) / nights.length
     : null;
   const short = nights.filter((n) => n.minutes < 7 * 60).length;
+  const broken = nights.filter((n) => (n.sd.night?.awakeMin ?? 0) > 20).length;
   const at = (d: Date) => F.time(localParts(d, p.timeZone).minute);
   const score = averageScore(nights.map((n) => n.score));
   return {
@@ -229,6 +237,14 @@ export function sleepTracker(p: {
                 t: short + " sotto le 7 h",
                 state: short === 0 ? ("good" as const) : ("warn" as const),
               },
+              ...(broken
+                ? [
+                    {
+                      t: F.plural(broken, "notte spezzata", "notti spezzate"),
+                      state: "warn" as const,
+                    },
+                  ]
+                : []),
             ],
           }
         : {}),
@@ -265,19 +281,33 @@ export function sleepTracker(p: {
           },
     rowsTitle: "Notti",
     rowsNote:
-      "Il voto: la durata contro il tuo bisogno, la regolarità degli orari, come dici di sentirti.",
+      "Il voto: le ore dormite nel giorno (pisolini compresi) contro il tuo bisogno, la regolarità degli orari, quanto sei stato sveglio nella notte, come dici di sentirti.",
     rows: [...nights].reverse().map((n) => ({
       fam: "sleep",
       sub: "wake",
       title: F.Day(n.day),
       value: F.hm(n.minutes),
-      meta: "a letto " + at(n.item.start!) + " · sveglia " + at(n.item.end!),
+      meta: [
+        "a letto " + at(n.sd.night!.bed) + " · sveglia " + at(n.sd.night!.wake),
+        n.sd.night!.awakeMin > 0
+          ? "sveglio " +
+            F.hm(n.sd.night!.awakeMin) +
+            " (" +
+            F.plural(n.sd.night!.awakenings, "volta", "volte") +
+            ")"
+          : "",
+        n.sd.naps.length
+          ? "pisolini " + F.hm(n.sd.naps.reduce((a, x) => a + x.asleepMin, 0))
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" · "),
       href: "/voce/" + n.item.id,
       hrefLabel: "La notte di " + F.day(n.day),
       ...(n.score ? { score: n.score } : {}),
     })),
     about:
-      "La notte conta per il giorno in cui ti svegli. Il bisogno di sonno di un adulto è 7–9 ore.",
+      "La notte conta per il giorno in cui ti svegli; se ti risvegli e ti riaddormenti entro 2 ore è la stessa notte, dopo è un pisolino. Il bisogno di sonno di un adulto è 7–9 ore, pisolini compresi.",
   };
 }
 

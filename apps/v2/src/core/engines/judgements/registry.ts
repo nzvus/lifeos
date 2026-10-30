@@ -67,23 +67,28 @@ export const FOOD: ScoringModel = {
 export const SLEEP: ScoringModel = {
   id: "sleep",
   domain: "sleep",
-  version: 1,
-  date: DATE,
+  version: 2,
+  date: "2026-10-30",
   parts: [
     {
       key: "duration",
-      weight: w(40, 30, 50),
-      why: "Hours slept against the person's need.",
+      weight: w(35, 25, 50),
+      why: "Hours slept in the day, naps included, against the person's need.",
     },
     {
       key: "regularity",
-      weight: w(40, 30, 100),
+      weight: w(35, 30, 100),
       locked: true,
       why: "Bed and wake times against the 7-day mean: regularity predicts mortality better than duration.",
     },
+    {
+      key: "continuity",
+      weight: w(10, 0, 20),
+      why: "Minutes awake inside the night: a broken night rests less than a whole one.",
+    },
     { key: "feel", weight: w(20, 0, 30), why: "The morning check-in." },
   ],
-  sources: ["Windred 2024", "Hirshkowitz 2015"],
+  sources: ["Windred 2024", "Hirshkowitz 2015", "Ohayon 2017"],
 };
 
 export const SESSION: ScoringModel = {

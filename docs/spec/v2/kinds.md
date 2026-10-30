@@ -86,8 +86,8 @@ FDC, the label, an estimate). Kinds in the bars are fixed per macro:
 
 | Kind       | Shape               | Fields                               | Entry                 | Metrics · targets                                                             |
 | ---------- | ------------------- | ------------------------------------ | --------------------- | ----------------------------------------------------------------------------- |
-| sleep      | ∫ (ends on its day) | bed, wake, quality 1–5, awakenings ✚ | F, from wake/bed taps | hours vs own need, regularity (SRI), mid-sleep, debt · hours range, bedtime ≤ |
-| nap ✚      | ∫                   | —                                    | T                     | minutes per day                                                               |
+| sleep      | ∫ (ends on its day) | bed, wake, quality 1–5, awakenings ✚ | F, from wake/bed taps; one piece per save, pieces ≤ 2 h apart are one night | hours vs own need, regularity (SRI), mid-sleep, debt · hours range, bedtime ≤ |
+| nap ✚      | ∫                   | —                                    | T; any sleep ending on the day that is not its longest period | minutes per day, counted in the day's sleep                                   |
 | soreness ✚ | I                   | areas, 1–5                           | Q                     | feeds recovery                                                                |
 
 ## Mind
