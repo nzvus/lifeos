@@ -32,14 +32,14 @@ Status words: **sì** (v2 has it and it stays), **parziale**, **no** (to build),
 | S4 | Domain silhouettes (plate, cup, bite; notched bar; moon; tag; receipt; cloud; capsule; drop; calendar) | kit.css `.k-shape` | sì | kept on Box (C1) · 30 Oct (UI-79): only corners, rims and corner bites; no point, notch, zigzag or tail that moves the content |
 | S5 | Planned things are hatched | kit.md | sì | kept, everywhere a thing is planned |
 | S6 | The drawing in the box (`k-art` a1/a2) grows ≈ 1.9× on open | kit.css | sì | kept · 30 Oct (UI-79): at rest in the free bottom-right corner, only in boxes with lines under the head |
-| S7 | The time rail 20 → 64 px | ADR-0050, kit.css | sì | kept on Oggi · 30 Oct (UI-77): kept by the developer, V5 overridden; parts-of-day headers in study |
+| S7 | The time rail 20 → 64 px | ADR-0050, kit.css | sì | kept on Oggi · 30 Oct (UI-77): kept by the developer, V5 overridden; parts-of-day headers in study · 30 Oct: parts of the day as sky bands, empty-time bars (UI-77, built) |
 | S8 | Buttons by role and their states; segmented → menu past 4 options | kit.md | sì | kept; verbs from C10 |
 | S9 | Glyph: Tabler 3.19 + own drawings, 4-level resolver, 18 food groups, dishes, 36 movements, corner mark, sizes with thinning stroke, domain backdrop 320 px at 6 % | icons.md | sì | kept; pages pass data, never icon names |
 | S10 | `F`: decimal comma, «−», decimals by unit, no-break space; judgement scale 70/40 (`judge`, `cap`, `reach`, `tone`) | content.md, kit `format.ts` | sì | kept; no page formats a number itself |
 | S11 | Nutrients L0, L1 (macro icons that grow and turn); L2 the window | kit.md | sì (checked 30 Oct: `Nutrients` L2 has the foods as chips, one tapped highlighted in every bar and in «da dove») | L2 complete (foods highlighted in every bar) |
 | S12 | Ranges: ruler under the bar, tip coloured by the band (25 Oct «C + D») | memory heat-strip-design, kit.md §4 | sì | kept (kit.md §4 already says it) |
-| S13 | Score chip in the box's head | kit.md | sì | kept, restyled (D2) |
-| S14 | Week strip, 4 thin bars a day | DateNav | sì | kept, thinner (D3) |
+| S13 | Score chip in the box's head | kit.md | sì | kept, restyled (D2) · 30 Oct (UI-75): unframed skyline by band, number and word, one line under the head; open = rulers |
+| S14 | Week strip, 4 thin bars a day | DateNav | sì | kept, thinner (D3) · 30 Oct (UI-76): no arrows, levels, bars behind the number, 24-hour column |
 | S15 | Weather card (animated icon, temperature trace, hourly curve, air quality, light arc) | WeatherCard | parziale: fixed hex colours | colours from tokens |
 | S16 | Chart (trend, bands, bars) | kit Chart | sì | kept; one chart frame |
 | S17 | One animation time, reduced motion respected | kit.css | sì | kept |

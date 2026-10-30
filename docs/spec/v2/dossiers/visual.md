@@ -251,3 +251,18 @@ calorici… sicuro di aver pensato a tutto? il piano che diceva?», UI-85; canva
   UI-75 is picked; S20 v1 pieces after 1 Nov; step 4 (renewed kit board) and 5 (screens) after his
   picks on score open, week A/B and times.
 
+**Decided by the agent and built (30 Oct, his «le scelte falle tu, combina le funzionalità e i design
+migliori»; UI-75/76/77 D):**
+- Score — kit `Box`: closed the unframed skyline by band + number + word, one line under the head
+  (`score.action` when the app knows it: sleep says the minutes missing to 7 h; else the costliest
+  part); open one ruler per criterion.
+- Week — kit `DateNav` with `levelKey`: no arrows or «Oggi» button (swipe a week, the title opens
+  the month, «↩ oggi», today's ring); levels 0 days · 1 bars behind the number (B) · 2 each day's
+  column of 24 hours (A, `features/day/rhythm.ts`); Piano's week the same, without arrows.
+- Times — kit `DayPart` / `EmptyTime` in `Timeline` (`parts`, `gap`): sky bands from the meal-role
+  bounds, consecutive empty passed parts merged into one band, «Fine giornata» on a past day, gaps
+  ≥ 2 h offering the missing meal (composer with role, time, state) or ⊕.
+- The `/studio` pages and `features/studio` are deleted.
+- Open: on today the water sits lower (≈ 680 px: the bands and the day box's level switch); the
+  page order is the screens phase.
+
