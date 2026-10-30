@@ -20,6 +20,11 @@
 **Read first, every session:** `docs/spec/v2/ledger.md` — every decision and intention with its
 source (the developer, 30 Oct: «molte scelte… ogni volta te le dimentichi»). Before designing or
 coding anything, check it there; when a decision changes, edit its line in the same PR.
+Two rules keep it whole: (1) every request, opinion or choice of the developer becomes a ledger
+line at once, in his words, with date and source; (2) every board, dossier, plan and PR names
+the ledger IDs it follows («Ledger: UI-12, FOOD-03»). `check.py` (local + CI) fails on a missing
+ADR or dossier, a line without ID or status, a duplicate ID, and warns when his notes change; a
+SessionStart hook (`.claude/settings.json`) prints the open contradictions.
 
 ## Role
 
