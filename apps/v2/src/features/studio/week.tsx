@@ -38,12 +38,18 @@ export const DAYHEAD_CSS = `
 .st-dh .k-week a.today:not([aria-current]){box-shadow:inset 0 0 0 1.5px var(--hairline)}
 .st-rh{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;position:relative;height:96px;margin-top:2px}
 .st-rh .day{position:relative;height:100%;border-radius:var(--r-control);background:color-mix(in srgb,var(--ink) 4%,transparent);overflow:hidden}
-.st-rh .gd{position:absolute;left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--ink) 12%,transparent)}
+:is(.st-rh,.st-col) .gd{position:absolute;left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--ink) 12%,transparent)}
 .st-rh .gl{position:absolute;right:100%;margin-right:2px;font-size:9px;line-height:1;color:var(--muted);transform:translateY(-50%)}
-.st-rh .sl{position:absolute;left:25%;width:50%;border-radius:2px;background:color-mix(in srgb,var(--moment-dinner) 50%,transparent)}
-.st-rh .tr{position:absolute;left:18%;width:64%;border-radius:2px;background:var(--muscle-legs)}
-.st-rh .ml{position:absolute;left:calc(50% - 3.5px);width:7px;height:7px;border-radius:50%;margin-top:-3.5px;box-shadow:0 0 0 1.5px var(--paper)}
-.st-rh .nw{position:absolute;left:-2px;right:-2px;border-top:1.5px solid var(--tomato)}
+:is(.st-rh,.st-col) .sl{position:absolute;left:25%;width:50%;border-radius:2px;background:color-mix(in srgb,var(--moment-dinner) 50%,transparent)}
+:is(.st-rh,.st-col) .tr{position:absolute;left:18%;width:64%;border-radius:2px;background:var(--muscle-legs)}
+:is(.st-rh,.st-col) .ml{position:absolute;left:calc(50% - 3.5px);width:7px;height:7px;border-radius:50%;margin-top:-3.5px;box-shadow:0 0 0 1.5px var(--paper)}
+:is(.st-rh,.st-col) .nw{position:absolute;left:-2px;right:-2px;border-top:1.5px solid var(--tomato)}
+.st-dh .k-week a{position:relative}
+.st-col{position:relative;display:block;width:74%;height:96px;margin-top:6px;border-radius:4px;background:color-mix(in srgb,var(--ink) 6%,transparent);overflow:hidden}
+.st-dh .k-week a[aria-current] .st-col{background:var(--paper)}
+.k-wbars.st-bg{position:absolute;left:16%;right:16%;top:22px;bottom:4px;height:auto;margin:0;gap:3px;opacity:.28;z-index:0}
+.k-wbars.st-bg>i{width:4px}
+.v-b .k-week a>:not(.st-bg){position:relative;z-index:1}
 .st-key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--muted)}
 .st-key i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 `;
@@ -188,29 +194,14 @@ export async function WeekStudio({
           bars={bars}
         />
       </section>
-      <section className="k-section g2" aria-label="La proposta, oggi">
-        <h2>La proposta · su oggi</h2>
+      <section className="k-section g2" aria-label="A · la colonna">
+        <h2>A · Ogni giorno una colonna — terzo giro</h2>
         <p className="k-help">
-          Niente frecce né pulsanti nella riga: la striscia si scorre col dito (una
-          settimana), il titolo apre il mese, oggi ha un anello. I puntini a destra sono i
-          livelli, come nel meteo: i giorni · le barre · le 24 ore. Il livello resta.
-        </p>
-        <DayHead
-          day={LAST}
-          today={LAST}
-          hrefBase="/studio/settimana?"
-          bars={bars}
-          rhythm={rhythm}
-          nowMinute={13 * 60 + 10}
-          levelKey="studio.settimana.a"
-        />
-      </section>
-      <section className="k-section g2" aria-label="La proposta, lontano da oggi">
-        <h2>La proposta · lontano da oggi, al livello 3</h2>
-        <p className="k-help">
-          Su un altro giorno compare solo «↩ oggi», una parola nella stessa riga. Al terzo
-          livello sotto ogni giorno le sue 24 ore, nella sua colonna: il sonno, i pasti
-          col colore del momento, l’allenamento; la riga rossa è adesso.
+          Hai scritto «ancora non mi convincono del tutto». Qui ogni giorno è un oggetto
+          solo: il numero, le barre e, al terzo livello, la stessa casella che scende
+          nelle sue 24 ore (sonno, pasti col colore del momento, allenamento, la riga
+          rossa è adesso). Niente frecce né pulsanti: si scorre col dito, il titolo apre
+          il mese, «↩ oggi» solo quando sei altrove, i puntini sono i livelli.
         </p>
         <DayHead
           day="2026-10-27"
@@ -219,8 +210,38 @@ export async function WeekStudio({
           bars={bars}
           rhythm={rhythm}
           nowMinute={13 * 60 + 10}
-          levelKey="studio.settimana.b"
+          levelKey="studio.settimana.a"
           fallback={2}
+          variant="a"
+        />
+      </section>
+      <section className="k-section g2" aria-label="B · le barre nello sfondo">
+        <h2>B · Le barre nello sfondo</h2>
+        <p className="k-help">
+          La tua idea del 25 ottobre: le barre sottili e trasparenti nello sfondo di ogni
+          quadratino, dietro al numero; la striscia diventa più bassa. Al terzo livello le
+          24 ore sotto, come nel secondo giro.
+        </p>
+        <DayHead
+          day={LAST}
+          today={LAST}
+          hrefBase="/studio/settimana?"
+          bars={bars}
+          rhythm={rhythm}
+          nowMinute={13 * 60 + 10}
+          levelKey="studio.settimana.b"
+          variant="b"
+        />
+        <DayHead
+          day="2026-10-27"
+          today={LAST}
+          hrefBase="/studio/settimana?"
+          bars={bars}
+          rhythm={rhythm}
+          nowMinute={13 * 60 + 10}
+          levelKey="studio.settimana.c"
+          fallback={2}
+          variant="b"
         />
         <p className="k-body">
           {F.plural(trained, "allenamento fatto", "allenamenti fatti")} ·{" "}

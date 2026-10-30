@@ -26,18 +26,101 @@ type Known = Awaited<ReturnType<typeof readClock>>;
 
 export const TIMES_CSS = `
 .st-tl{display:flex;flex-direction:column;gap:8px}
-.st-ph{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin:8px -12px 0;padding:6px 12px;background:color-mix(in srgb,var(--ink) 6%,var(--paper));font-family:var(--font-display);font-size:var(--fs-b2);font-weight:700}
-.st-ph .r{height:1px;background:var(--hairline)}
+.st-ph{position:relative;display:flex;align-items:center;gap:8px;height:44px;margin:8px -12px 0;padding:0 12px;overflow:hidden;font-family:var(--font-display);font-size:var(--fs-b1);font-weight:700;color:var(--ink)}
 .st-ph .t{font-family:var(--font-body);font-weight:400;font-size:var(--fs-b3);color:var(--muted);font-variant-numeric:tabular-nums}
-.st-ph.end{color:var(--muted)}
+.st-ph svg{position:absolute;right:8px;top:0;width:120px;height:44px}
+.st-ph .hz{stroke:color-mix(in srgb,var(--ink) 30%,transparent);stroke-width:1}
+.st-ph .arc{fill:none;stroke:color-mix(in srgb,var(--ink) 22%,transparent);stroke-width:1;stroke-dasharray:2 3}
+.st-ph .sun{fill:var(--macro-carbs)}
+.st-ph .moon{fill:var(--moment-dinner)}
+.st-ph .star{fill:var(--ink);opacity:.6}
+.st-ph .body{animation:st-rise .9s var(--ease) backwards}
+@keyframes st-rise{from{transform:translateY(14px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.st-ph .body{animation:none}}
+.st-ph.empty{opacity:.7}
 .st-gap{display:grid;grid-template-columns:20px minmax(0,1fr);column-gap:8px;align-items:center}
 .st-gap .bar{justify-self:start;width:0;height:100%;min-height:28px;border-left:2px dashed color-mix(in srgb,var(--muted) 55%,transparent)}
 .st-gap a{display:flex;align-items:center;gap:8px;min-height:var(--touch);padding:0 12px;border:1px dashed var(--hairline);border-radius:var(--r-row);color:var(--muted);text-decoration:none;font-size:var(--fs-b2)}
 .st-gap a b{margin-left:auto;font-family:var(--font-display);color:var(--herb);font-weight:600}
-.st-off{padding-left:28px}
 `;
 
 type Row = { i: DayItem; at: number; e: BoxEntry };
+
+const SKY: Record<string, [string, string, number | null]> = {
+  Mattina: ["--macro-carbs", "--moment-breakfast", 0.2],
+  Mezzogiorno: ["--macro-fat", "--macro-carbs", 0.5],
+  Pomeriggio: ["--macro-carbs", "--warn", 0.75],
+  Sera: ["--warn", "--moment-dinner", 0.96],
+  Notte: ["--moment-dinner", "--moment-dinner", null],
+  "Fine giornata": ["--moment-dinner", "--hairline", null],
+};
+
+/** A part of the day as a band of its sky: the sun at its height on the day's arc, the moon at night. */
+function PartBand({
+  name,
+  when,
+  empty,
+}: {
+  name: string;
+  when: string;
+  empty?: boolean;
+}) {
+  const [a, b, f] = SKY[name] ?? SKY["Notte"]!;
+  const at = (x: number) => ({ x: 10 + 100 * x, y: 40 - 30 * Math.sin(Math.PI * x) });
+  const s = f === null ? null : at(f);
+  const end = name === "Fine giornata";
+  return (
+    <div
+      className={"st-ph" + (empty ? " empty" : "")}
+      style={{
+        background: `linear-gradient(90deg, color-mix(in srgb, var(${a}) 20%, var(--paper)), color-mix(in srgb, var(${b}) 12%, var(--paper)))`,
+      }}
+    >
+      <span>{name}</span>
+      <span className="t">{empty ? "niente · " + when : when}</span>
+      <svg viewBox="0 0 120 44" aria-hidden="true">
+        <path className="arc" d="M10 40 A50 30 0 0 1 110 40" />
+        <line className="hz" x1="0" x2="120" y1="40" y2="40" />
+        {s ? (
+          <g className="body">
+            <circle className="sun" cx={s.x} cy={s.y} r="6" />
+            {[0, 60, 120, 180, 240, 300].map((d) => (
+              <line
+                key={d}
+                x1={s.x + 8 * Math.cos((d * Math.PI) / 180)}
+                y1={s.y + 8 * Math.sin((d * Math.PI) / 180)}
+                x2={s.x + 10.5 * Math.cos((d * Math.PI) / 180)}
+                y2={s.y + 10.5 * Math.sin((d * Math.PI) / 180)}
+                stroke="var(--macro-carbs)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            ))}
+          </g>
+        ) : (
+          <g className="body">
+            <path
+              className="moon"
+              d={
+                end
+                  ? "M100 26a7 7 0 1 0 6 10a5.5 5.5 0 0 1 -6 -10z"
+                  : "M60 8a8 8 0 1 0 7 12a6.5 6.5 0 0 1 -7 -12z"
+              }
+            />
+            {!end &&
+              [
+                [30, 14],
+                [86, 10],
+                [96, 24],
+              ].map(([x, y]) => (
+                <circle key={x} className="star" cx={x} cy={y} r="1.2" />
+              ))}
+          </g>
+        )}
+      </svg>
+    </div>
+  );
+}
 
 export async function TimesStudio({
   db,
@@ -95,13 +178,12 @@ export async function TimesStudio({
       const started = now === null || now >= p.from;
       if (!started && mine.length === 0) return;
       out.push(
-        <div key={"h" + p.name} className={"st-ph" + (mine.length === 0 ? " end" : "")}>
-          <span>{p.name}</span>
-          <span className="r" />
-          <span className="t">
-            {mine.length === 0 ? "niente · " : ""}dalle {F.time(p.from)}
-          </span>
-        </div>,
+        <PartBand
+          key={"h" + p.name}
+          name={p.name}
+          when={"dalle " + F.time(p.from)}
+          empty={mine.length === 0}
+        />,
       );
       mine.forEach((r) => {
         if (last !== null && r.at - last >= GAP) {
@@ -147,14 +229,10 @@ export async function TimesStudio({
     });
     if (now === null) {
       out.push(
-        <div key="end" className="st-ph end">
-          <span>Fine giornata</span>
-          <span className="r" />
-          <span className="t">alle {F.time(1440 + b)}</span>
-        </div>,
+        <PartBand key="end" name="Fine giornata" when={"alle " + F.time(1440 + b)} />,
       );
       out.push(
-        <div key="off" className="st-off k-stack g2">
+        <div key="off" className="k-stack g2">
           <span className="k-meta">Senza orario</span>
           {untimed.map((u) => (
             <Box key={u.id} entry={u.e} rail={false} />

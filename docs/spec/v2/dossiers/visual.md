@@ -225,3 +225,11 @@ senza di me»: the rest below is **decided by the agent** where it says so.
   with nothing is a thin dashed grey bar with «+ <the meal missing at that hour>» or «+ aggiungi»
   (the composer with role, time and state); parts not yet begun are not drawn unless something is
   planned in them; an empty passed part says «niente».
+
+**Round 3 (his comments on canvas v22, 30 Oct 17:01–17:04; canvas v25):** score closed accepted, open
+redone as one row per criterion with the nutrients' ruler (S12); week in two ways to compare —
+A each day one column that grows into its 24 hours, B his 25 Oct idea, thin bars behind each day's
+number; times: separators are drawn sky bands (the sun at the part's height on the day's arc, the
+moon at night, rising once on load), untimed things full width aligned with the bands; weather line
+padding equal to the card; the water row's overflow fixed in Box (UI-84).
+

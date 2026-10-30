@@ -119,10 +119,12 @@ export default async function StudioPage({
         </p>
       </section>
       <section className="k-section g2" aria-label="La combinazione, aperta">
-        <h2>La combinazione · aperto</h2>
+        <h2>La combinazione · aperto, terzo giro</h2>
         <p className="k-help">
-          Aperto, lo skyline prende la larghezza del riquadro, sulle fasce 40 e 70, con il
-          nome e il voto di ogni criterio sotto la sua colonna.
+          Hai scritto «aperto fa un po’ schifo». Ora ogni criterio è una riga col righello
+          dei nutrienti: pieno fino al suo voto, le fasce 40 e 70 sotto, la punta del
+          colore della sua fascia, e accanto quanto pesa. Lo skyline resta piccolo in
+          cima.
         </p>
         <Box
           entry={bare}

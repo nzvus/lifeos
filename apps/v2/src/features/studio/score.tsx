@@ -35,12 +35,6 @@ export const SCORE_CSS = `
 .st-sky .ln{position:absolute;left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--ink) 40%,transparent)}
 .st-say{display:flex;align-items:baseline;gap:6px;font-size:var(--fs-b2)}
 .st-say .k-meta{font-size:var(--fs-b2)}
-.st-big{display:flex;flex-direction:column;gap:6px}
-.st-big .st-sky{width:100%;height:72px;gap:3px}
-.st-big .zone{position:absolute;left:0;right:0;pointer-events:none}
-.st-big .names{display:flex;gap:3px}
-.st-big .names span{min-width:0;font-size:11px;line-height:1.2;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis}
-.st-big .names b{display:block;font-family:var(--font-display);font-size:13px;color:var(--ink)}
 `;
 
 /** Closed: the number, its word, the skyline coloured by band; no frame. */
@@ -98,54 +92,59 @@ export function ScoreLine({ s }: { s: ScoreSay }) {
   );
 }
 
-/** Open: the skyline the box's width, on its bands, each column named. */
+/**
+ * Open (round 3; round 2's wide skyline: «aperto fa un po' schifo»): one row per
+ * criterion with the nutrients' own ruler (S12) — the fill to its score, the
+ * bands 40 and 70 under it, the tip in its band's colour — its weight and its
+ * number; the skyline stays small in the head.
+ */
 export function ScoreOpen({ parts }: { parts: ScorePart[] }) {
   return (
-    <span className="st-big">
-      <span className="st-sky" role="img" aria-label="i criteri sulle fasce 40 e 70">
-        <span
-          className="zone"
-          style={
-            {
-              bottom: MET + "%",
-              top: 0,
-              background: "color-mix(in srgb, var(--heat-good) 8%, transparent)",
-            } as CSSProperties
-          }
-        />
-        <span
-          className="zone"
-          style={{
-            bottom: PART + "%",
-            height: MET - PART + "%",
-            background: "color-mix(in srgb, var(--heat-fair) 8%, transparent)",
-          }}
-        />
-        {parts.map((q) => (
-          <span key={q.name} className="col" style={{ flexGrow: q.weight }}>
+    <span className="k-stack g3">
+      {parts.map((q) => {
+        const v = Math.round(q.score * 100);
+        const j = F.judge(v);
+        return (
+          <span key={q.name} className="k-stack g1">
+            <span className="k-line base between">
+              <span className="k-line base g1">
+                <span className={j.cls} role="img" aria-label={j.aria} />
+                <span className="k-body">{q.name}</span>
+                <span className="k-help">pesa {Math.round(q.weight * 100)} %</span>
+              </span>
+              <span className="k-num b2">{v}</span>
+            </span>
             <span
-              className="fill"
-              style={{
-                height: Math.round(q.score * 100) + "%",
-                background: band(q.score * 100),
-              }}
-            />
+              className="k-bar zoned"
+              role="img"
+              aria-label={q.name + " " + v + " su 100"}
+            >
+              <i style={{ width: v + "%", "--mix": "60%" } as CSSProperties} />
+              <span
+                className="k-ztip"
+                aria-hidden="true"
+                style={{ left: v + "%", background: band(v) }}
+              />
+              <span className="k-zrule" aria-hidden="true">
+                <span
+                  className="z fair"
+                  style={{ left: PART + "%", width: MET - PART + "%" }}
+                />
+                <span
+                  className="z good"
+                  style={{ left: MET + "%", width: 100 - MET + "%" }}
+                />
+                <span className="tk" style={{ left: PART + "%" }}>
+                  <span>{PART}</span>
+                </span>
+                <span className="tk" style={{ left: MET + "%" }}>
+                  <span>{MET}</span>
+                </span>
+              </span>
+            </span>
           </span>
-        ))}
-        <span className="ln" style={{ bottom: MET + "%" }} />
-        <span className="ln" style={{ bottom: PART + "%" }} />
-      </span>
-      <span className="names" aria-hidden="true">
-        {parts.map((q) => (
-          <span key={q.name} style={{ flexGrow: q.weight, flexBasis: 0 }}>
-            <b>{Math.round(q.score * 100)}</b>
-            {q.name}
-          </span>
-        ))}
-      </span>
-      <span className="k-help">
-        colonna larga quanto il peso, piena quanto il voto · fasce 40 e 70
-      </span>
+        );
+      })}
     </span>
   );
 }

@@ -29,6 +29,7 @@ export function DayHead({
   nowMinute = null,
   levelKey,
   fallback = 1,
+  variant = "a",
 }: {
   day: string;
   today: string;
@@ -40,6 +41,8 @@ export function DayHead({
   levelKey: string;
   /** The level before the person picks one (the study shows level 2 too). */
   fallback?: number;
+  /** a: each day one column that grows into its 24 hours; b: the bars behind the number. */
+  variant?: "a" | "b";
 }) {
   const [level, next] = useLevel(levelKey, 2, fallback);
   const [month, setMonth] = useState(false);
@@ -50,9 +53,43 @@ export function DayHead({
   const m = monthOf(day);
   const H = 96;
   const y = (min: number) => (min / 1440) * H;
+  const day24 = (d: string) => {
+    const r = rhythm[d];
+    return (
+      <>
+        {[360, 720, 1080].map((g) => (
+          <span key={g} className="gd" style={{ top: y(g) }} />
+        ))}
+        {r?.bands.map((b, i) => (
+          <span
+            key={"s" + i}
+            className="sl"
+            style={{ top: y(b.from), height: y(b.to - b.from) }}
+          />
+        ))}
+        {r?.sessions.map((b, i) => (
+          <span
+            key={"t" + i}
+            className="tr"
+            style={{ top: y(b.from), height: Math.max(3, y(b.to - b.from)) }}
+          />
+        ))}
+        {r?.meals.map((ml, i) => (
+          <span
+            key={"m" + i}
+            className="ml"
+            style={{ top: y(ml.at), background: ml.c } as CSSProperties}
+          />
+        ))}
+        {d === today && nowMinute !== null && (
+          <span className="nw" style={{ top: y(nowMinute) }} />
+        )}
+      </>
+    );
+  };
   const words = ["i giorni", "i giorni e le barre", "le barre e le 24 ore"];
   return (
-    <div className="k-dn st-dh">
+    <div className={"k-dn st-dh v-" + variant}>
       <div className="top">
         <button
           type="button"
@@ -115,52 +152,30 @@ export function DayHead({
             <span className="k-help k-inh">{F.letter(d)}</span>
             <span className="k-num d3 k-inh">{Number(d.slice(8))}</span>
             {tags[d] && <span className="tag">{tags[d]}</span>}
-            {level >= 1 && <Bars b={bars[d]} />}
+            {level >= 1 && <Bars b={bars[d]} bg={variant === "b"} />}
+            {variant === "a" && level === 2 && (
+              <span className="st-col" aria-hidden="true">
+                {day24(d)}
+              </span>
+            )}
           </a>
         ))}
       </nav>
       {level === 2 && (
         <>
-          <div
-            className="st-rh"
-            role="img"
-            aria-label="Le 24 ore di ogni giorno: il sonno, i pasti, l’allenamento"
-          >
-            {days.map((d) => {
-              const r = rhythm[d];
-              return (
+          {variant === "b" && (
+            <div
+              className="st-rh"
+              role="img"
+              aria-label="Le 24 ore di ogni giorno: il sonno, i pasti, l’allenamento"
+            >
+              {days.map((d) => (
                 <span key={d} className="day">
-                  {[360, 720, 1080].map((g) => (
-                    <span key={g} className="gd" style={{ top: y(g) }} />
-                  ))}
-                  {r?.bands.map((b, i) => (
-                    <span
-                      key={"s" + i}
-                      className="sl"
-                      style={{ top: y(b.from), height: y(b.to - b.from) }}
-                    />
-                  ))}
-                  {r?.sessions.map((b, i) => (
-                    <span
-                      key={"t" + i}
-                      className="tr"
-                      style={{ top: y(b.from), height: Math.max(3, y(b.to - b.from)) }}
-                    />
-                  ))}
-                  {r?.meals.map((ml, i) => (
-                    <span
-                      key={"m" + i}
-                      className="ml"
-                      style={{ top: y(ml.at), background: ml.c } as CSSProperties}
-                    />
-                  ))}
-                  {d === today && nowMinute !== null && (
-                    <span className="nw" style={{ top: y(nowMinute) }} />
-                  )}
+                  {day24(d)}
                 </span>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
           <span className="st-key">
             <span>
               <i
@@ -212,7 +227,7 @@ export function DayHead({
   );
 }
 
-function Bars({ b }: { b: DayBars | undefined }) {
+function Bars({ b, bg = false }: { b: DayBars | undefined; bg?: boolean }) {
   const h = (v: number | null | undefined) =>
     Math.round(Math.max(0.08, Math.min(1, v ?? 0)) * 100) + "%";
   const limitTone = (r: number) =>
@@ -224,7 +239,7 @@ function Bars({ b }: { b: DayBars | undefined }) {
       <i key={key} className={extra} style={{ height: h(v), background: color }} />
     );
   return (
-    <span className="k-wbars" aria-hidden="true">
+    <span className={"k-wbars" + (bg ? " st-bg" : "")} aria-hidden="true">
       {one("f", b?.food, F.judge(b?.food == null ? undefined : b.food * 100).tone)}
       {one("l", b?.limits, b?.limits == null ? "" : limitTone(b.limits))}
       {b?.train === "planned"
