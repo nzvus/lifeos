@@ -4,7 +4,7 @@
  * progress reads: one field of one kind's done entries, by day, and a
  * kind's intervals (the nights a sleep score compares).
  */
-import { and, eq, gte, isNull, lte } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { entries, entryValues, goals } from "../db/schema";
 import type { IsoDate } from "../engines/time";
@@ -128,11 +128,14 @@ export async function readMinutes(
   );
 }
 
-/** A kind's done intervals from `from` to `to`, start and end only (the nights a sleep score compares). */
+/** The kinds a night is rebuilt from (dossiers/sleep.md): a nap near the night joins it. */
+export const SLEEP_KINDS = ["sleep", "nap"] as const;
+
+/** Done intervals of one kind or several, from `from` to `to`, start and end only (sleep pieces). */
 export async function readSpans(
   db: Db,
   owner: Owner,
-  kind: string,
+  kind: string | readonly string[],
   from: IsoDate,
   to: IsoDate,
 ): Promise<{ day: IsoDate; start: Date; end: Date }[]> {
@@ -142,7 +145,7 @@ export async function readSpans(
     .where(
       and(
         ownedBy(entries, owner),
-        eq(entries.kind, kind),
+        inArray(entries.kind, typeof kind === "string" ? [kind] : [...kind]),
         eq(entries.status, "done"),
         isNull(entries.deletedAt),
         gte(entries.day, from),

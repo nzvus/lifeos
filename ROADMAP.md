@@ -146,7 +146,8 @@ scanning) are placed in the v2 spec.
    night is one period with its hours and time awake, naps counted in the
    24 h and described, the sheet says the dates; fixes `nightOf` reading the
    first piece only and the form placing a piece before 04:00 on the night
-   after), in review.
+   after), built 30 Oct in #312; left: nap words, a day chip per time,
+   Oggi's bar with the gap drawn.
    - Training dossier, first slices (s173): E6 trend, expected reps,
      learnt and adaptive rests, session length; gym mode with «Inizia» and
      the setup delay, «Automatico» (sets assumed until «Fine»), RIR on the

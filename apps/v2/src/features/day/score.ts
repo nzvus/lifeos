@@ -30,9 +30,9 @@ import {
   score,
   type ScoringModel,
 } from "@/core/engines/judgements";
-import { sleepParts } from "@/core/engines/sleep";
+import { sleepOn, sleepParts, type Piece, type SleepDay } from "@/core/engines/sleep";
 import type { MicroTarget } from "@/core/engines/targets";
-import type { DayClock, IsoDate } from "@/core/engines/time";
+import { addDays, localParts, type DayClock, type IsoDate } from "@/core/engines/time";
 import type { MealWhen } from "@/core/food/score";
 import type { WeightBook } from "@/core/account/weights";
 import { linesScore } from "@/features/food/lines-score";
@@ -130,7 +130,7 @@ export type ScoreContext = {
   /** Weigh-ins of the 28 days up to the day, oldest first. */
   weighings: readonly { day: IsoDate; kg: number }[] | null;
   weightGoal: { value: number; since: IsoDate; by: IsoDate | null } | null;
-  /** The nights of the 7 days before. */
+  /** The sleep and nap pieces from the 8 days before to the day after (a night is rebuilt from them). */
   nights: readonly { day: IsoDate; start: Date; end: Date }[] | null;
   sex: Sex | null;
   /** The minute of the day now, when the day is today. */
@@ -147,6 +147,7 @@ const WEIGH_WORDS: Record<string, string> = {
 const SLEEP_WORDS: Record<string, string> = {
   duration: "durata vs bisogno",
   regularity: "regolarità",
+  continuity: "notte senza risvegli",
   feel: "come ti senti",
 };
 const WATER_WORDS: Record<string, string> = {
@@ -181,9 +182,59 @@ const done = (i: DayItem) => i.status === "done";
 const servingsOf = (i: DayItem) =>
   typeof i.values["servings"] === "string" ? i.values["servings"] : null;
 
-/** The night that ends on this day, done, with both ends. */
-export const nightOf = (items: readonly DayItem[]) =>
-  items.find((i) => i.kind.key === "sleep" && done(i) && i.start && i.end) ?? null;
+const isSleep = (i: DayItem) =>
+  (i.kind.key === "sleep" || i.kind.key === "nap") && done(i) && !!i.start && !!i.end;
+
+/** Every sleep and nap piece the context and the day know of (sleep.md §5: by instants). */
+function piecesOf(items: readonly DayItem[], ctx: ScoreContext | null): Piece[] {
+  return [
+    ...(ctx?.nights ?? []).map((n) => ({ start: n.start, end: n.end })),
+    ...items.filter(isSleep).map((i) => ({ start: i.start!, end: i.end! })),
+  ];
+}
+
+/** The day's sleep: the night (its pieces joined), the naps, all the minutes. */
+export function sleepOfDay(items: readonly DayItem[], ctx: ScoreContext): SleepDay {
+  return sleepOn(piecesOf(items, ctx), ctx.date, ctx.clock.timeZone);
+}
+
+/**
+ * What the night's box says when the night came in pieces (sleep.md §6): the hours slept, bed and
+ * wake, the time awake. Only on the piece that carries the night's score; null otherwise.
+ */
+export function nightWordsOf(
+  i: DayItem,
+  items: readonly DayItem[],
+  ctx: ScoreContext,
+): { value: string; meta: string } | null {
+  const n = sleepOfDay(items, ctx).night;
+  if (!n || n.pieces < 2 || nightOf(items, ctx) !== i) return null;
+  const at = (d: Date) => F.time(localParts(d, ctx.clock.timeZone).minute);
+  return {
+    value: F.hm(n.asleepMin),
+    meta:
+      "a letto " +
+      at(n.bed) +
+      " · sveglia " +
+      at(n.wake) +
+      " · sveglio " +
+      F.hm(n.awakeMin) +
+      " (" +
+      F.plural(n.awakenings, "volta", "volte") +
+      ")",
+  };
+}
+
+/** A piece of this day's night, the last one logged here; null when the day has no night. */
+export function nightOf(items: readonly DayItem[], ctx: ScoreContext): DayItem | null {
+  const n = sleepOfDay(items, ctx).night;
+  if (!n) return null;
+  return (
+    items
+      .filter((i) => isSleep(i) && i.start! >= n.bed && i.end! <= n.wake)
+      .sort((a, b) => b.end!.getTime() - a.end!.getTime())[0] ?? null
+  );
+}
 
 export function weighScore(
   w: DayItem,
@@ -197,7 +248,7 @@ export function weighScore(
   const series = ctx.weighings;
   const flags = implausibleWeighIns(series);
   const mine = series.findIndex((p) => p.day === ctx.date && p.kg === kg);
-  const night = nightOf(items);
+  const night = sleepOfDay(items, ctx).night;
   const { reliability } = readWeighIn({
     said: {
       fasted: yes(w.values["fasted"]),
@@ -211,9 +262,7 @@ export function weighScore(
     trainedBefore: items.some((i) => i.kind.key === "session" && done(i) && before(i)),
     yesterday: null,
     usual: null,
-    sleptHours: night
-      ? (night.end!.getTime() - night.start!.getTime()) / 3_600_000
-      : null,
+    sleptHours: night ? night.asleepMin / 60 : null,
     implausible: mine >= 0 && flags[mine] === true,
   });
   const progress = ctx.weightGoal
@@ -241,22 +290,42 @@ export function sleepScore(
   items: readonly DayItem[],
   ctx: ScoreContext,
 ): BoxEntry["score"] | undefined {
-  if (s.kind.key !== "sleep" || !done(s) || !s.start || !s.end || !ctx.nights) return;
-  const minute = (at: Date, day: IsoDate) => dayMinute(at, day, ctx.clock);
+  if (!isSleep(s)) return;
+  const pieces = piecesOf(items, ctx);
+  const day = sleepOn(pieces, ctx.date, ctx.clock.timeZone);
+  const n = day.night;
+  // The night's score sits on one piece, its last one here (nightOf); a nap is described, not scored.
+  if (!n || nightOf(items, ctx) !== s) return;
+  const minute = (at: Date, d: IsoDate) => dayMinute(at, d, ctx.clock);
+  const before = Array.from({ length: 7 }, (_, i) => addDays(ctx.date, i - 7)).flatMap(
+    (d) => {
+      const b = sleepOn(pieces, d, ctx.clock.timeZone).night;
+      return b ? [{ bed: minute(b.bed, d), wake: minute(b.wake, d) }] : [];
+    },
+  );
+  const quality = items
+    .filter((i) => isSleep(i) && i.start! >= n.bed && i.end! <= n.wake)
+    .map((i) => num(i.values["quality"]))
+    .filter((q): q is number => q !== null);
   const checkin = items.find(
     (i) => i.kind.key === "checkin" && done(i) && i.values["moment"] !== "evening",
   );
   const p = sleepParts({
-    night: { bed: minute(s.start, ctx.date), wake: minute(s.end, ctx.date) },
-    before: ctx.nights
-      .filter((n) => n.day < ctx.date)
-      .map((n) => ({ bed: minute(n.start, n.day), wake: minute(n.end, n.day) })),
-    quality: num(s.values["quality"]),
+    night: { bed: minute(n.bed, ctx.date), wake: minute(n.wake, ctx.date) },
+    asleepMin: day.totalMin,
+    awakeMin: n.pieces > 1 ? n.awakeMin : null,
+    before,
+    quality: quality.length ? quality.reduce((a, q) => a + q, 0) / quality.length : null,
     energy: checkin ? num(checkin.values["energy"]) : null,
   });
   return boxScore(
     SLEEP,
-    { duration: p.duration, regularity: p.regularity, feel: p.feel },
+    {
+      duration: p.duration,
+      regularity: p.regularity,
+      continuity: p.continuity,
+      feel: p.feel,
+    },
     SLEEP_WORDS,
     ctx.weights,
   );
@@ -314,13 +383,11 @@ export function waterOf(
     sessions: sessions.map((x) => x.s),
     maxApparentC: null,
   });
-  const wakeAt = items.find(
-    (i) => i.kind.key === "sleep" && i.end && (i.minute ?? 0) < 18 * 60,
-  );
+  const night = sleepOfDay(items, ctx).night;
   const bedAt = items.find(
     (i) => i.kind.key === "sleep" && i.start && (i.minute ?? 0) >= 18 * 60,
   );
-  const wake = wakeAt?.end ? dayMinute(wakeAt.end, ctx.date, ctx.clock) : WAKE;
+  const wake = night ? dayMinute(night.wake, ctx.date, ctx.clock) : WAKE;
   const bed = bedAt?.start ? dayMinute(bedAt.start, ctx.date, ctx.clock) : BED;
   const last = sessions.filter((x) => x.item.end).at(-1);
   const parts = waterParts({

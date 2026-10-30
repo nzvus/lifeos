@@ -55,3 +55,29 @@ describe("sleep score parts", () => {
     ).toBeNull();
   });
 });
+
+describe("sleep continuity and the day's hours (dossiers/sleep.md)", () => {
+  it("2: a broken night of 6 h 42 with 50 min awake", () => {
+    const p = sleepParts({
+      night: { bed: eve(23, 30), wake: at(7, 2) },
+      asleepMin: 402,
+      awakeMin: 50,
+      before: [],
+      quality: null,
+      energy: null,
+    });
+    expect(p.duration).toBeCloseTo(0.85, 2);
+    expect(p.continuity).toBeCloseTo(0.25, 2);
+  });
+
+  it("a night in one piece says nothing about continuity", () => {
+    const p = sleepParts({
+      night: { bed: eve(23, 30), wake: at(7, 2) },
+      before: [],
+      quality: null,
+      energy: null,
+    });
+    expect(p.continuity).toBeNull();
+    expect(p.duration).toBe(1);
+  });
+});

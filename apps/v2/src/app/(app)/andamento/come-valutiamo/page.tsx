@@ -16,10 +16,11 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { dayMinute, loadDays, type Day } from "@/core/day";
 import { addDays, logicalDay } from "@/core/engines/time";
-import { readGoals, readNumbers, readSpans } from "@/core/goals";
+import { readGoals, readNumbers, readSpans, SLEEP_KINDS } from "@/core/goals";
 import { readSettings } from "@/core/account/settings";
 import {
   nightOf,
+  sleepOfDay,
   sleepScore,
   waterOf,
   weighScore,
@@ -172,7 +173,7 @@ async function latestSubject(model: string): Promise<BoxEntry | null> {
       : Promise.resolve([]),
     model === "weighing" ? readGoals(db, owner, today) : Promise.resolve([]),
     model === "sleep"
-      ? readSpans(db, owner, "sleep", addDays(from, -7), today)
+      ? readSpans(db, owner, SLEEP_KINDS, addDays(from, -8), addDays(today, 1))
       : Promise.resolve([]),
     readSettings(db, owner),
   ]);
@@ -210,14 +211,14 @@ async function latestSubject(model: string): Promise<BoxEntry | null> {
           score: s,
         };
     } else if (model === "sleep") {
-      const n = nightOf(items(d));
+      const n = nightOf(items(d), ctxOf(d.day));
       const s = n && sleepScore(n, items(d), ctxOf(d.day));
       if (n && s)
         return {
           fam: "sleep",
           sub: "wake",
           title: "La notte di " + when(d),
-          value: F.hm((n.end!.getTime() - n.start!.getTime()) / 60_000),
+          value: F.hm(sleepOfDay(items(d), ctxOf(d.day)).totalMin),
           score: s,
         };
     } else if (model === "water") {

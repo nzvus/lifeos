@@ -10,13 +10,16 @@
  *   hold what the converter could not make a span of: neither is asked.
  * - Times are clock times ("07:30"); before the day boundary they belong to
  *   the night after. An interval whose end comes before its start crosses
- *   midnight: a kind anchored at its end (sleep) started the evening before,
- *   any other ends the morning after.
+ *   midnight: it ends the morning after.
+ * - A kind anchored at its end (sleep) is placed by its end (dossiers/sleep.md
+ *   §5): on today's page the latest such time not after now, so a wake at
+ *   03:00 logged at 09:00 is this morning's, never tomorrow night's; on a past
+ *   day's page the page's own date. The start is the latest time before it.
  */
-import type { BoxEntry, FieldProps } from "@lifeos/kit";
+import { F, type BoxEntry, type FieldProps } from "@lifeos/kit";
 import type { DayItem } from "@/core/day";
 import type { EntryErrors, EntryInput } from "@/core/entries";
-import { localParts, type IsoDate } from "@/core/engines/time";
+import { addDays, localParts, type IsoDate } from "@/core/engines/time";
 import type { Field, Kind } from "@/core/kinds";
 import { CHOICES, FIELDS, keyWords, NAMES } from "./words";
 
@@ -92,6 +95,8 @@ export type EntryForm = {
   fam: string;
   /** The time fields' labels: one ("Ora") or a span. */
   times: { start: string; end: string | null };
+  /** A span placed by its end (sleep): the sheet says which night it is. */
+  byEnd: boolean;
   fields: FieldProps[];
   /** The kind's secondary fields, folded. */
   more: FieldProps[];
@@ -110,6 +115,7 @@ export function entryForm(kind: Kind): EntryForm {
     times: span
       ? { start: SPAN[kind.key]?.[0] ?? "Inizio", end: SPAN[kind.key]?.[1] ?? "Fine" }
       : { start: "Ora", end: null },
+    byEnd: span && kind.anchor === "end",
     fields: asked.filter((f) => !more.has(f.key)).map(field),
     more: asked.filter((f) => more.has(f.key)).map(field),
   };
@@ -130,22 +136,70 @@ export function readEntryForm(
   day: IsoDate,
   form: Record<string, string>,
   boundaryMin: number,
+  /** The minute of `day` now (dayMinute), when it is today's page. */
+  nowMin: number | null = null,
 ): EntryInput {
-  let startMin = clockToDayMin(form["start"] ?? "", boundaryMin);
+  if (kind.anchor === "end" && kind.shape === "interval")
+    return { ...readRest(day, form), ...placeByEnd(form, boundaryMin, nowMin) };
+  const startMin = clockToDayMin(form["start"] ?? "", boundaryMin);
   let endMin =
     kind.shape === "interval" ? clockToDayMin(form["end"] ?? "", boundaryMin) : null;
-  if (startMin !== null && endMin !== null && endMin < startMin) {
-    if (kind.anchor === "end") startMin -= 1440;
-    else endMin += 1440;
-  }
+  if (startMin !== null && endMin !== null && endMin < startMin) endMin += 1440;
+  return { ...readRest(day, form), startMin, endMin };
+}
+
+/** A span placed by its end, as minutes of the page's day (start before end, under 24 h). */
+export function placeByEnd(
+  form: Record<string, string>,
+  boundaryMin: number,
+  nowMin: number | null,
+): { startMin: number | null; endMin: number | null } {
+  const end = clockToDayMin(form["end"] ?? "", 0);
+  const start = clockToDayMin(form["start"] ?? "", 0);
+  // A planned sleep is tonight's: «now» only bounds what was done.
+  const now = form["status"] === "planned" ? null : nowMin;
+  const endMin = end === null ? null : placeEnd(end, boundaryMin, now);
+  if (start === null || endMin === null) return { startMin: start, endMin };
+  return { startMin: endMin - ((((endMin - start) % 1440) + 1440) % 1440), endMin };
+}
+
+/** The words under a sleep's times: which night and how long (dossiers/sleep.md §6). */
+export function nightWords(
+  day: IsoDate,
+  form: Record<string, string>,
+  boundaryMin: number,
+  nowMin: number | null,
+): string | null {
+  const { startMin, endMin } = placeByEnd(form, boundaryMin, nowMin);
+  if (startMin === null || endMin === null || endMin <= startMin) return null;
+  const on = (m: number) => addDays(day, Math.floor(m / 1440));
+  const [from, to] = [on(startMin), on(endMin)];
+  return (
+    (from === to ? F.Day(to) : "Notte tra " + F.day(from) + " e " + F.day(to)) +
+    " · " +
+    F.hm(endMin - startMin)
+  );
+}
+
+/** An end's minute of the day: today, the latest not after now; a past day, the day's own. */
+function placeEnd(clock: number, boundaryMin: number, nowMin: number | null): number {
+  const cap = nowMin !== null && nowMin < 1440 + boundaryMin ? nowMin : null;
+  if (cap === null) return clock;
+  const options = [
+    ...(clock < boundaryMin ? [clock + 1440] : []),
+    clock,
+    ...(clock > boundaryMin ? [clock - 1440] : []),
+  ];
+  return options.find((m) => m <= cap) ?? clock - 1440;
+}
+
+function readRest(day: IsoDate, form: Record<string, string>) {
   const values: Record<string, string> = {};
   for (const [k, v] of Object.entries(form))
     if (k.startsWith(VALUE)) values[k.slice(VALUE.length)] = v;
   return {
     day,
-    status: form["status"] === "planned" ? "planned" : "done",
-    startMin,
-    endMin,
+    status: form["status"] === "planned" ? ("planned" as const) : ("done" as const),
     values,
     note: form["note"] ?? "",
   };

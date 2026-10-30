@@ -6,6 +6,9 @@ import { microTargets } from "@/core/engines/targets";
 import {
   foodScore,
   mealScore,
+  nightOf,
+  nightWordsOf,
+  sleepOfDay,
   sleepScore,
   waterBox,
   weighScore,
@@ -265,7 +268,41 @@ describe("a night's score", () => {
 
   it("regularity named missing with fewer than three nights before", () => {
     const s = sleepScore(night, [night], { ...ctx, nights: ctx.nights!.slice(1) })!;
-    expect(s.missing).toEqual(["regolarità"]);
+    expect(s.missing).toEqual(["regolarità", "notte senza risvegli"]);
+  });
+
+  it("a broken night is one night: the hours of both pieces, the time awake scored", () => {
+    // 22:30 → 01:00 and 01:50 → 08:00 local: 2 h 30 + 6 h 10 = 8 h 40 asleep, 50 min awake.
+    const a = item("sleep", {
+      start: at("2026-10-22T20:30:00Z"),
+      end: at("2026-10-22T23:00:00Z"),
+    });
+    const b = item("sleep", {
+      start: at("2026-10-22T23:50:00Z"),
+      end: at("2026-10-23T06:00:00Z"),
+    });
+    const c = { ...ctx, nights: [] };
+    const s = sleepScore(b, [a, b], c)!;
+    const part = (n: string) => s.parts.find((p) => p.name === n)!.score;
+    expect(part("durata vs bisogno")).toBe(1);
+    expect(part("notte senza risvegli")).toBeCloseTo(0.25);
+    expect(sleepScore(a, [a, b], c)).toBeUndefined(); // one score per night, on its last piece
+    expect(sleepOfDay([a, b], c).night).toMatchObject({ asleepMin: 520, awakeMin: 50 });
+    expect(nightOf([a, b], c)).toBe(b);
+    expect(nightWordsOf(b, [a, b], c)).toEqual({
+      value: F.hm(520),
+      meta: "a letto 22:30 · sveglia 08:00 · sveglio " + F.hm(50) + " (1 volta)",
+    });
+    expect(nightWordsOf(a, [a, b], c)).toBeNull();
+  });
+
+  it("a nap is described, not scored", () => {
+    const nap = item("nap", {
+      start: at("2026-10-23T12:00:00Z"),
+      end: at("2026-10-23T12:20:00Z"),
+    });
+    expect(sleepScore(nap, [night, nap], ctx)).toBeUndefined();
+    expect(sleepOfDay([night, nap], ctx).totalMin).toBe(450 + 20);
   });
 });
 

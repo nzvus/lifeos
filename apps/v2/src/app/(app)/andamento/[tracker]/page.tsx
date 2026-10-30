@@ -15,7 +15,13 @@ import { dayMinute, loadDays, readUserKinds } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
 import { ensureWeekTargets } from "@/core/energy";
 import { addDays, logicalDay } from "@/core/engines/time";
-import { readGoals, readNumbers, readSpans, weightProgress } from "@/core/goals";
+import {
+  readGoals,
+  readNumbers,
+  readSpans,
+  SLEEP_KINDS,
+  weightProgress,
+} from "@/core/goals";
 import { readSettings } from "@/core/account/settings";
 import type { ScoreContext } from "@/features/day/score";
 import { OpenBox } from "@/features/day/OpenBox";
@@ -76,7 +82,7 @@ export default async function TrackerPage({
       : Promise.resolve([]),
     readGoals(db, owner, end),
     tracker === "sonno"
-      ? readSpans(db, owner, "sleep", addDays(start, -7), end)
+      ? readSpans(db, owner, SLEEP_KINDS, addDays(start, -8), addDays(end, 1))
       : Promise.resolve([]),
     readSettings(db, owner),
   ]);

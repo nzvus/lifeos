@@ -90,15 +90,19 @@ export const MODEL_WORDS: Record<string, Words> = {
     fam: "sleep",
     sub: "wake",
     intro:
-      "Quanto hai dormito contro quanto ti serve, e quanto sono regolari gli orari: per la salute conta quanto la durata.",
+      "Quanto hai dormito nel giorno contro quanto ti serve, quanto sono regolari gli orari (per la salute conta quanto la durata) e quanto sei stato sveglio nella notte.",
     parts: {
       duration: {
         name: "Durata vs bisogno",
-        why: "Le ore dormite contro il tuo bisogno (7–9 h per un adulto).",
+        why: "Le ore dormite nel giorno, pisolini compresi, contro il tuo bisogno (7–9 h per un adulto).",
       },
       regularity: {
         name: "Regolarità",
         why: "Quanto orari di letto e sveglia restano vicini alla media dei 7 giorni: predice la salute almeno quanto la durata.",
+      },
+      continuity: {
+        name: "Notte senza risvegli",
+        why: "Il tempo sveglio tra un pezzo e l’altro della notte: fino a 20 minuti va bene, da un’ora conta zero. Solo per le notti in più pezzi.",
       },
       feel: {
         name: "Come ti senti",
