@@ -161,6 +161,7 @@ export default async function TrackerPage({
           today={today}
           prevHref={link(addDays(end, -DAYS), DAYS)}
           nextHref={end >= today ? null : link(later >= today ? null : later, DAYS)}
+          todayHref={link(null, DAYS)}
           presets={RANGES.map((n) => ({
             label: n + " giorni",
             href: link(end === today ? null : end, n),

@@ -15,6 +15,7 @@ export { DateNav, type DayBars, type Rhythm } from "./DateNav";
 export { useLevel, nextLevel, readLevel } from "./levels";
 export { DayPart, EmptyTime, type DayPartName } from "./DayPart";
 export { RangeNav, type RangePreset } from "./RangeNav";
+export { Swipe } from "./Swipe";
 export { Chart, chartGeometry, type ChartData } from "./Chart";
 export { Field, type FieldOption, type FieldProps } from "./Field";
 export { Nutrients, NutrientsL0 } from "./Nutrients";

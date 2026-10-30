@@ -795,3 +795,4 @@ a.k-plain{min-height:var(--touch)}
 .k-mrow{padding-block:12px;margin-block:-12px}
 button.k-head{padding-block:12px;margin-block:-12px}
 a.k-link,button.k-link{padding:12px 4px;margin:-12px -4px}
+.k-swipe{touch-action:pan-y}

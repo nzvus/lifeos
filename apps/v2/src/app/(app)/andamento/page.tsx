@@ -305,6 +305,7 @@ export default async function AndamentoPage({
                 ? monthLink(addDays(month + "-01", 32).slice(0, 7))
                 : link(later >= today ? null : later, DAYS)
           }
+          todayHref={month ? monthLink(today.slice(0, 7)) : link(null, DAYS)}
           presets={[
             ...RANGES.map((n) => ({
               label: n + " giorni",
