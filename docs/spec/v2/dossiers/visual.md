@@ -266,3 +266,51 @@ migliori»; UI-75/76/77 D):**
 - Open: on today the water sits lower (≈ 680 px: the bands and the day box's level switch); the
   page order is the screens phase.
 
+
+## 4. The renewed kit (step 4, 31 Oct; ledger UI-88)
+The developer, 31 Oct: «procedi con il piano», then «non ti fermare, io vado»: the kit's approval
+and step 5 are **decided by the agent**; the board is there for him to comment.
+
+**How it was looked at.** Every kit piece photographed alone (element crops, dark, it-IT, 390 px,
+then 360 and 320) from the real pages on his 29 Oct and, for what no page shows, from the
+development-only gallery `/kit` (`apps/v2/src/app/(app)/kit`, 404 in production; example values
+declared as such, the weight chart is his). Board «Il kit rinnovato» on the revision canvas (v34),
+37 figures, each with its register rows. Tools: `boards-tools/kitshot.mjs`, `sheet.py`,
+`kit_board.py` (+ `kit_blobs.json`); `scripts/ui-check.mjs --list`.
+
+**Found and fixed (the photos caught them, tests and page shots had not):**
+1. L0 bars said «187,5» with no unit → «188 g», whole grams (the glance level), column 44 px.
+2. In a dense row without link the bare icon sat above its title → the icon gets the tile's 32 px box.
+3. «per arrivare a 7 h» split «7 / h» → the unit through `F` (non-breaking).
+4. The night read «6,6 h» on Oggi and «6 h 30» in its sheet → `F.hm` everywhere.
+5. Things without a time drew the button tile (dense rows) → the same card as timed entries (UI-81).
+6. Andamento's domains read «62 così così 62» → the chip says the number once.
+7. Andamento's days cut to «Giove…» (nothing at 320) → `F.DayShort` «Gio 29», also in Piano.
+8. Andamento's links broke inside «Come valutiamo ›» and were 43 px → wrap by whole link, 44 px.
+9. At ≤ 360 px the score's skyline pushed titles to nothing → number and word stay, the skyline
+   shows when the box opens; a title never shrinks under 4 em; week and month cells 44 px at 360.
+
+**Decided (closed):** S1 scale, S2 colours by meaning with T4's test (text 4.5:1 on paper, sheet and
+every 7 % area tint, light and dark; an area's own colour 3:1, it paints only large titles and
+icons), S3 type, S8 controls with G8's paddings, S9 icons (UI-81/82), S11–S12 Nutrients, S5
+planned, S16 Chart (callers thin the x labels: «""» skips one), S18 states, the score (UI-75), the
+week (UI-76), times (UI-77), panel (UI-78), silhouettes (UI-79), weather levels (UI-80).
+
+**Exceptions, argued:** at 320 px seven calendar columns cannot be 44 px wide (288 px usable):
+cells stay ≥ 36 × 46, above WCAG 2.5.8's 24 px; filter chips and the water's +250/+500 stay 36 px
+(`--touch-dense`, rows of several); the rail is 20 px wide and as tall as its row. Under 44 px:
+10 targets at 390 (was 11).
+
+**Still open:** themes and density (T1–T3, T5: he uses dark only, UI-74); S20 v1 pieces after
+1 Nov; breakfast and coffee share colour and a similar cup (a drawing to redo with the meal icons);
+the native time field follows the phone's locale (not the app's).
+
+## 5. The screens (step 5): order, decided by the agent (31 Oct)
+Kit first, then one screen at a time, each photographed piece by piece at 390/360/320:
+1. Map D in the kit: area template (title + profile, four tabs Diario · Piano · Elenco · Andamento,
+   ⊕ bottom right), NavBar with five places Corpo · Cibo · Oggi · Mente · Soldi, redirects from the
+   old addresses (ADR-0059, architecture.md §10).
+2. Oggi: the water reachable above «Il giorno» (P4; 635 px down today), «Il giorno» compact first.
+3. ⊕ and the meal (G9), Palestra as Corpo · Diario (G10), an object's page (G11), Elenco with Find,
+   Piano, Andamento (link row → tabs), Profilo.
+4. The 8 pages without a `.k-primary`: ⊕ is their primary on map D; ui-check counts it.
