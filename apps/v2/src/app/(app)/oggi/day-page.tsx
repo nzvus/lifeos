@@ -573,7 +573,11 @@ export async function DayPage({
         )}
       </section>
       <div className="k-nav k-stick">
-        <NavBar active={area} hrefs={AREA_HREF} addHref={"/aggiungi?giorno=" + date} />
+        <NavBar
+          active={area}
+          hrefs={AREA_HREF}
+          addHref={"/aggiungi?giorno=" + date + (area === "oggi" ? "" : "&area=" + area)}
+        />
       </div>
     </main>
   );

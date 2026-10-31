@@ -39,7 +39,7 @@ export async function AreaIndex({
         )}
       </section>
       <div className="k-nav k-stick">
-        <NavBar active={area} hrefs={AREA_HREF} addHref="/aggiungi" />
+        <NavBar active={area} hrefs={AREA_HREF} addHref={"/aggiungi?area=" + area} />
       </div>
     </main>
   );
