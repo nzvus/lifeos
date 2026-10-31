@@ -37,7 +37,7 @@ const fields = (data: FormData) => {
   for (const [k, v] of data.entries()) if (typeof v === "string") form[k] = v;
   return form;
 };
-const done = () => revalidatePath("/piano", "layout");
+const done = () => revalidatePath("/", "layout");
 
 /** Name, base and targets. */
 export async function saveModelForm(

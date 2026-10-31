@@ -22,12 +22,15 @@ const AGAIN_MS = 10_000;
 
 export function WaterRow({
   water,
-  mode,
+  mode = "compact",
   onRail,
+  rail = true,
 }: {
   water: Water;
-  mode: "compact" | "times";
-  onRail: () => void;
+  mode?: "compact" | "times";
+  onRail?: () => void;
+  /** Off at the top of the day (P4, visual.md §5): no time rail there. */
+  rail?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [busy, start] = useTransition();
@@ -58,7 +61,8 @@ export function WaterRow({
     <Box
       entry={water.entry}
       mode={mode}
-      onRail={onRail}
+      rail={rail}
+      {...(onRail ? { onRail } : {})}
       acts={busy ? [] : [act(250), act(500)]}
       expanded={open}
       onToggle={() => setOpen(!open)}

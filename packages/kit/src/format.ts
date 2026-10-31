@@ -148,6 +148,12 @@ export const F = {
     const d = F.day(s);
     return d[0]!.toUpperCase() + d.slice(1);
   },
+  /** «gio 29»: a day in a list or a rail, where the full name would be cut. */
+  dayShort: (s: string) => F.day(s).slice(0, 3) + " " + iso(s).getUTCDate(),
+  DayShort: (s: string) => {
+    const d = F.dayShort(s);
+    return d[0]!.toUpperCase() + d.slice(1);
+  },
   date: (s: string) => {
     const t = iso(s);
     return t.getUTCDate() + " " + MONTHS[t.getUTCMonth()]!.slice(0, 3);

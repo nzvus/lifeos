@@ -27,7 +27,7 @@ const FAM: Record<string, { fam: string; sub?: string }> = {
   study: { fam: "mind", sub: "study" },
 };
 const HREF: Record<string, string> = {
-  weight: "/andamento",
+  weight: "/oggi/andamento",
   steps: "/oggi",
   study: "/oggi",
 };

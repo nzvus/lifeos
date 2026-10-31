@@ -18,7 +18,7 @@ import {
 } from "@/core/plans";
 import { WEEKDAYS } from "@/features/plan/model-form";
 import { habitWhat, ruleWords } from "@/features/plan/habit-form";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 import { newModel } from "../modello/[id]/actions";
 import { newCycle } from "../ciclo/[id]/actions";
 
@@ -65,7 +65,7 @@ export default async function ModelsPage() {
       <PageHeader
         title="Modelli"
         context="le giornate tipo e la settimana"
-        back={{ label: "Piano", href: "/piano" }}
+        back={{ label: "Piano", href: "/oggi/piano" }}
         of={{ place: "piano" }}
       />
       <section className="k-section g3" aria-label="Settimana tipo">
@@ -197,7 +197,7 @@ export default async function ModelsPage() {
         </section>
       )}
       <div className="k-nav k-stick">
-        <NavBar active="plan" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

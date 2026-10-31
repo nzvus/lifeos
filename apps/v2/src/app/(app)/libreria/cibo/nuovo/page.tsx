@@ -72,7 +72,7 @@ export default async function NewFoodPage({
       initial={initial}
       unit={initial["unit"] ?? "g"}
       isNew
-      backHref={back ?? "/libreria?vista=cibi"}
+      backHref={back ?? "/oggi/elenco?vista=cibi"}
       action={saveFood.bind(null, null, back)}
       top={<BarcodeBox code={code} found={off !== null} />}
     />

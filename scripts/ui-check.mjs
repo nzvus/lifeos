@@ -8,6 +8,7 @@
 //   --width    the phone's width (390 by default; run 360 and 320 too: memory overflow-per-box)
 //   --crawl    every page the app links to (one per kind of address), not only the list below
 //   --shots    a full-page screenshot of each page into <dir>
+//   --list     names each target under 44 px (page, element, text, size)
 //   --save     writes scripts/ui-baseline.json
 //   --compare  exits 1 when a page or task is worse than the baseline
 // Needs the dev server (`cd apps/v2 && npx next dev -p 3200`) and the local
@@ -32,11 +33,14 @@ const PAGES = [
   "/aggiungi",
   "/aggiungi/pasto",
   "/aggiungi/attivita",
-  "/piano",
-  "/andamento",
-  "/libreria",
-  "/libreria?vista=cibi",
-  "/libreria?vista=esercizi",
+  "/oggi/piano",
+  "/oggi/andamento",
+  "/oggi/elenco",
+  "/oggi/elenco?vista=cibi",
+  "/oggi/elenco?vista=esercizi",
+  "/corpo",
+  "/cibo",
+  "/corpo/andamento",
   "/palestra",
   "/impostazioni",
 ];
@@ -158,7 +162,8 @@ for (const entry of pages) {
       return r.width < 44 || r.height < 44;
     });
     const primary = targets.filter((el) =>
-      el.matches(".k-primary, .k-btn.primary"),
+      // Map D: ⊕ floats on every page as its primary (visual.md §5).
+      el.matches(".k-primary, .k-btn.primary, .k-fab"),
     ).length;
     const longLists = [...document.querySelectorAll("section")].filter((s) => {
       const rows = s.querySelectorAll(":scope .k-box").length;
@@ -234,6 +239,13 @@ for (const entry of pages) {
       overflow,
       targets: targets.length,
       small: small.length,
+      smallList: small.map((el) => {
+        const r = el.getBoundingClientRect();
+        const t = (el.textContent || el.getAttribute("aria-label") || "")
+          .trim()
+          .slice(0, 24);
+        return `${el.tagName.toLowerCase()}.${[...el.classList].join(".")} «${t}» ${Math.round(r.width)}×${Math.round(r.height)}`;
+      }),
       primary,
       longLists,
       offScale: seen.size,
@@ -263,6 +275,8 @@ for (const entry of pages) {
   for (const [v, fs_] of Object.entries(r.verbForms))
     for (const f of fs_) forms[v].add(f);
   delete r.verbForms;
+  if (arg("--list")) for (const s of r.smallList) console.log(name + "  " + s);
+  delete r.smallList;
   report.pages[name] = r;
 }
 for (const v of VERBS) report.verbs[v] = forms[v].size;
@@ -295,7 +309,9 @@ if (arg("--compare") && fs.existsSync(BASELINE)) {
     if (o.offScale !== undefined && r.offScale > o.offScale)
       worse.push(`${name}: ${r.offScale} shapes off the scale (was ${o.offScale})`);
     if (r.overflow > (o.overflow ?? 0))
-      worse.push(`${name}: ${r.overflow} things past their box's edge (was ${o.overflow ?? 0})`);
+      worse.push(
+        `${name}: ${r.overflow} things past their box's edge (was ${o.overflow ?? 0})`,
+      );
     if (o.edges !== undefined && r.edges > o.edges)
       worse.push(`${name}: text starts on ${r.edges} left edges (was ${o.edges})`);
   }

@@ -2,17 +2,17 @@
  "pages": {
   "/oggi": {
    "overflow": 0,
-   "targets": 64,
-   "small": 7,
-   "primary": 1,
+   "targets": 67,
+   "small": 2,
+   "primary": 2,
    "longLists": 0,
-   "offScale": 16,
-   "edges": 53
+   "offScale": 12,
+   "edges": 52
   },
   "/aggiungi": {
    "overflow": 0,
    "targets": 34,
-   "small": 17,
+   "small": 0,
    "primary": 0,
    "longLists": 0,
    "offScale": 2,
@@ -21,65 +21,92 @@
   "/aggiungi/pasto": {
    "overflow": 0,
    "targets": 35,
-   "small": 14,
+   "small": 0,
    "primary": 1,
    "longLists": 0,
    "offScale": 4,
-   "edges": 28
+   "edges": 27
   },
   "/aggiungi/attivita": {
    "overflow": 0,
    "targets": 12,
-   "small": 2,
+   "small": 0,
    "primary": 1,
    "longLists": 0,
    "offScale": 0,
    "edges": 5
   },
-  "/piano": {
+  "/oggi/piano": {
    "overflow": 0,
-   "targets": 78,
-   "small": 2,
-   "primary": 0,
-   "longLists": 0,
-   "offScale": 2,
-   "edges": 40
-  },
-  "/andamento": {
-   "overflow": 0,
-   "targets": 68,
-   "small": 14,
-   "primary": 0,
-   "longLists": 0,
-   "offScale": 11,
-   "edges": 47
-  },
-  "/libreria": {
-   "overflow": 0,
-   "targets": 17,
+   "targets": 81,
    "small": 0,
-   "primary": 0,
+   "primary": 1,
    "longLists": 0,
    "offScale": 2,
-   "edges": 7
+   "edges": 43
   },
-  "/libreria?vista=cibi": {
+  "/oggi/andamento": {
    "overflow": 0,
-   "targets": 129,
+   "targets": 72,
+   "small": 0,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 7,
+   "edges": 55
+  },
+  "/oggi/elenco": {
+   "overflow": 0,
+   "targets": 22,
+   "small": 0,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 10
+  },
+  "/oggi/elenco?vista=cibi": {
+   "overflow": 0,
+   "targets": 130,
    "small": 3,
-   "primary": 0,
+   "primary": 1,
    "longLists": 0,
    "offScale": 2,
-   "edges": 10
+   "edges": 11
   },
-  "/libreria?vista=esercizi": {
+  "/oggi/elenco?vista=esercizi": {
    "overflow": 0,
-   "targets": 84,
-   "small": 6,
-   "primary": 0,
+   "targets": 85,
+   "small": 3,
+   "primary": 1,
    "longLists": 0,
    "offScale": 2,
-   "edges": 10
+   "edges": 11
+  },
+  "/corpo": {
+   "overflow": 0,
+   "targets": 51,
+   "small": 0,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 1,
+   "edges": 35
+  },
+  "/cibo": {
+   "overflow": 0,
+   "targets": 64,
+   "small": 2,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 7,
+   "edges": 50
+  },
+  "/corpo/andamento": {
+   "overflow": 0,
+   "targets": 14,
+   "small": 0,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 9
   },
   "/palestra": {
    "overflow": 0,
@@ -93,20 +120,20 @@
   "/impostazioni": {
    "overflow": 0,
    "targets": 26,
-   "small": 7,
+   "small": 0,
    "primary": 1,
    "longLists": 0,
    "offScale": 2,
-   "edges": 11
+   "edges": 10
   },
   "/libreria/cibo/:id": {
    "overflow": 0,
    "targets": 25,
-   "small": 9,
+   "small": 0,
    "primary": 1,
    "longLists": 0,
-   "offScale": 7,
-   "edges": 16
+   "offScale": 3,
+   "edges": 18
   },
   "/libreria/esercizio/:id": {
    "overflow": 0,
@@ -128,7 +155,7 @@
   "Archivia": 1
  },
  "tasks": {
-  "acqua": 476,
+  "acqua": 0,
   "pasto": 0,
   "peso": 0,
   "palestra": 0,

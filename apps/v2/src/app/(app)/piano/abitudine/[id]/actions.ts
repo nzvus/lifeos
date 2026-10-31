@@ -32,14 +32,14 @@ export async function saveHabitForm(
     return { errors: { name: "Hai già un’abitudine con questo nome." }, n: prev.n + 1 };
   const saved = await saveHabit(db, owner, id, read.habit);
   if (!saved) return { errors: { name: "Abitudine non trovata." }, n: prev.n + 1 };
-  revalidatePath("/piano", "layout");
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
+  revalidatePath("/", "layout");
   redirect("/piano/modelli");
 }
 
 export async function pauseHabit(id: string, active: boolean): Promise<void> {
   if (!UUID.test(id)) return;
   await setHabitActive(await getDb(), await requireOwner(), id, active);
-  revalidatePath("/piano", "layout");
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
+  revalidatePath("/", "layout");
 }

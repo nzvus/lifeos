@@ -22,8 +22,8 @@ export async function changeDayModel(day: string, data: FormData): Promise<void>
   const id = String(data.get("model") ?? "");
   if (!ISO.test(day) || (id !== "" && !UUID.test(id))) return;
   await setDayModel(await getDb(), await requireOwner(), day, id === "" ? null : id);
-  revalidatePath("/oggi", "layout");
-  revalidatePath("/piano", "layout");
+  revalidatePath("/", "layout");
+  revalidatePath("/", "layout");
 }
 
 export async function skipStep(
@@ -33,8 +33,8 @@ export async function skipStep(
 ): Promise<void> {
   if (!ISO.test(day) || !UUID.test(cycleId)) return;
   await setCycleSkip(await getDb(), await requireOwner(), day, cycleId, skipped);
-  revalidatePath("/oggi", "layout");
-  revalidatePath("/piano", "layout");
+  revalidatePath("/", "layout");
+  revalidatePath("/", "layout");
 }
 
 /** «Salva come modello»: a new day model from the day's meals and sessions; opens its editor. */
@@ -47,6 +47,6 @@ export async function saveDayAsModel(day: string): Promise<void> {
   if (blocks.length === 0) return;
   const id = await createModel(db, owner, "Come " + F.day(day), null);
   for (const b of blocks) await saveBlock(db, owner, id, null, b);
-  revalidatePath("/piano", "layout");
+  revalidatePath("/", "layout");
   redirect("/piano/modello/" + id);
 }

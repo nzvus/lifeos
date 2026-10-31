@@ -139,7 +139,7 @@
 .k-seg.planned{background-image:repeating-linear-gradient(135deg,transparent 0 3px,var(--sheet) 3px 5px)!important}
 .k-mark{position:absolute;top:-2px;bottom:-2px;width:var(--tick);background:var(--ink)}
 .k-l0{display:flex;flex-direction:column;gap:4px}
-.k-l0 .r{display:grid;grid-template-columns:12px minmax(0,1fr) 32px;align-items:center;gap:4px}
+.k-l0 .r{display:grid;grid-template-columns:12px minmax(0,1fr) 44px;align-items:center;gap:4px}
 .k-ribbon{display:flex;height:var(--segs);border-radius:var(--r-pill);overflow:hidden;background:var(--paper)}
 .k-ribbon>span+span{box-shadow:inset 1px 0 0 var(--sheet)}
 .k-mrow{display:flex;flex-direction:column;gap:8px;width:100%;padding:0;border:0;background:transparent;text-align:left;cursor:pointer;color:inherit;font:inherit}
@@ -181,7 +181,7 @@
 .k-ph h1{margin:0;font-family:var(--font-display);font-size:var(--fs-d1);line-height:var(--lh-d1);font-weight:700}
 .k-ph.sub h1{font-size:var(--fs-d2);line-height:var(--lh-d2)}
 .k-back{font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;min-height:var(--touch)}
-.k-icon-btn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--ink);border-radius:var(--r-control);text-decoration:none;cursor:pointer}
+.k-icon-btn{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--ink);border-radius:var(--r-control);text-decoration:none;cursor:pointer}
 .k-section{display:flex;flex-direction:column;gap:8px;padding:12px 16px 4px}
 .k-section>h2{margin:0;display:flex;justify-content:space-between;align-items:baseline;font-family:var(--font-display);font-size:var(--fs-d3);line-height:var(--lh-d3);font-weight:700;border-bottom:var(--rule-strong) solid var(--ink);padding-bottom:4px}
 .k-section>h2 a{font-size:var(--fs-d4);font-weight:600;color:var(--herb);text-decoration:none}
@@ -195,7 +195,7 @@
 .k-sheet{background:var(--paper);border-radius:var(--r-sheet) var(--r-sheet) 0 0;box-shadow:var(--shadow-1);display:flex;flex-direction:column;gap:12px;padding:8px 0 0;max-height:calc(100% - 48px);overflow:hidden}
 .k-sheet .handle{width:40px;height:4px;border-radius:2px;background:var(--hairline);align-self:center}
 .k-sheet .foot{position:sticky;bottom:0;display:flex;gap:8px;padding:12px 16px 16px;background:var(--paper);border-top:1px solid var(--hairline)}
-.k-primary{flex:1 0 auto;height:var(--touch);border:0;border-radius:var(--r-control);background:var(--herb);color:var(--sheet);font-family:var(--font-display);font-size:var(--fs-d3);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer}
+.k-primary{flex:1 0 auto;height:var(--touch);padding:0 16px;border:0;border-radius:var(--r-control);background:var(--herb);color:var(--sheet);font-family:var(--font-display);font-size:var(--fs-d3);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer}
 .k-secondary{height:var(--touch);padding:0 16px;border:var(--rule-medium) solid var(--ink);border-radius:var(--r-control);background:var(--sheet);color:var(--ink);font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer}
 .k-search{display:flex;align-items:center;gap:8px;height:var(--touch);padding:0 12px;border:var(--rule-medium) solid var(--ink);border-radius:var(--r-control);background:var(--sheet)}
 .k-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-family:var(--font-body);font-size:16px;color:var(--ink)}
@@ -328,6 +328,7 @@
 .k-hlead{display:flex;align-items:center;gap:8px;min-width:0}
 .k-hlead.badged{align-items:flex-start}
 .k-hlead.badged>.k-title{padding-top:6px}
+.k-hlead.badged>.k-glyph:not(.tile){width:32px;height:32px}
 .k-row.dense .k-sub,.k-row.dense .k-more>div{padding-left:40px}
 .k-row.dense .k-box:not(:has(.k-hlead.badged)) .k-sub,.k-row.dense .k-box:not(:has(.k-hlead.badged)) .k-more>div{padding-left:0}
 .k-art .k-glyph,.k-art .k-glyph svg{width:100%;height:100%}
@@ -733,3 +734,78 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 @media (prefers-reduced-motion:reduce){.k-wxmore,.k-wx.l0 .k-wxhead,.k-wx:not(.l0) .k-wxline{animation:none}}
 /* the level switch at a box's foot: words and dots, at the right, a 44 px target */
 .k-lvbtn{align-self:flex-end;display:inline-flex;align-items:center;gap:8px;min-height:var(--touch)}
+/* ---------- the score (UI-75, 30 Oct): unframed skyline by band, the number and its word ---------- */
+.k-vh{display:inline-flex;align-items:center;gap:8px}
+.k-vh .n{display:flex;flex-direction:column;align-items:flex-end;line-height:1}
+.k-vh .n b{font-family:var(--font-display);font-size:var(--fs-d4);font-weight:700;font-variant-numeric:tabular-nums}
+.k-vh .n small{font-size:var(--fs-b3);color:var(--muted);margin-top:2px}
+.k-vsky{position:relative;display:flex;align-items:flex-end;gap:2px;width:48px;height:24px}
+.k-vsky .col{position:relative;height:100%;min-width:0;border-radius:var(--r-mark) var(--r-mark) 0 0;background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.k-vsky .fill{position:absolute;left:0;right:0;bottom:0;border-radius:var(--r-mark) var(--r-mark) 0 0;transition:height var(--t-box) var(--ease)}
+.k-vsky .ln{position:absolute;left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--ink) 40%,transparent)}
+.k-say{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.k-row:not(.times) .k-box:has(>.k-line .k-glyph-lead)>.k-say{padding-left:24px}
+.k-parts{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+/* ---------- the parts of the day (UI-77, 30 Oct): a band of the part's sky, empty time dashed ---------- */
+.k-part{position:relative;display:flex;align-items:center;gap:8px;height:44px;margin:8px -12px 0;padding:0 132px 0 12px;overflow:hidden;font-family:var(--font-display);font-size:var(--fs-b1);font-weight:700;color:var(--ink);background:linear-gradient(90deg,color-mix(in srgb,var(--sky-a) 20%,var(--paper)),color-mix(in srgb,var(--sky-b) 12%,var(--paper)))}
+.k-part .nm{white-space:nowrap}
+.k-part .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-body);font-weight:400;font-size:var(--fs-b3);color:var(--muted);font-variant-numeric:tabular-nums}
+.k-part svg{position:absolute;right:8px;top:0;width:120px;height:44px}
+.k-part .hz{stroke:color-mix(in srgb,var(--ink) 30%,transparent);stroke-width:1}
+.k-part .arc{fill:none;stroke:color-mix(in srgb,var(--ink) 22%,transparent);stroke-width:1;stroke-dasharray:2 3}
+.k-part .sun{fill:var(--macro-carbs)}
+.k-part .ray{stroke:var(--macro-carbs);stroke-width:1.5;stroke-linecap:round}
+.k-part .moon{fill:var(--moment-dinner)}
+.k-part .star{fill:var(--ink);opacity:.6}
+.k-part .body{animation:k-rise calc(var(--t-box) * 2) var(--ease) backwards}
+@keyframes k-rise{from{transform:translateY(14px);opacity:0}}
+.k-part.empty{opacity:.7}
+.k-part.end .nm{color:var(--muted)}
+.k-gap{display:grid;grid-template-columns:20px minmax(0,1fr);column-gap:8px;align-items:center}
+.k-gap .bar{justify-self:start;width:0;border-left:2px dashed color-mix(in srgb,var(--muted) 55%,transparent)}
+.k-gap a{display:flex;align-items:center;gap:8px;min-height:var(--touch);padding:0 12px;border:1px dashed var(--hairline);border-radius:var(--r-row);color:var(--muted);text-decoration:none;font-size:var(--fs-b2)}
+.k-gap a b{margin-left:auto;font-family:var(--font-display);color:var(--herb);font-weight:600}
+@media (prefers-reduced-motion:reduce){.k-part .body{animation:none}}
+/* ---------- the week strip (UI-76, 30 Oct): no arrows, levels, bars behind the number, 24 hours ---------- */
+.k-dn .top.lv{justify-content:flex-start;gap:8px}
+.k-dn .top.lv .ttl{flex:0 1 auto;justify-content:flex-start}
+.k-dn .back{margin-left:auto;display:inline-flex;align-items:center;min-height:var(--touch);padding:0 4px;font-family:var(--font-display);font-size:var(--fs-b2);font-weight:600;color:var(--herb);text-decoration:none}
+.k-dn .lvb{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;min-width:var(--touch);min-height:var(--touch);padding:0;border:0;background:transparent;cursor:pointer}
+.k-dn .back+.lvb{margin-left:0}
+.k-week[class*=" lv"]{touch-action:pan-y;user-select:none}
+.k-week[class*=" lv"] a{position:relative}
+.k-week a.today:not([aria-current]){box-shadow:inset 0 0 0 1.5px var(--hairline)}
+.k-day24{position:relative;display:block;width:76%;height:96px;margin-top:8px;border-radius:var(--r-mark);background:color-mix(in srgb,var(--ink) 6%,transparent);overflow:hidden;z-index:1}
+.k-week a[aria-current] .k-day24{background:var(--paper)}
+.k-day24>span{position:absolute}
+.k-day24 .gd{left:0;right:0;border-top:1px dashed color-mix(in srgb,var(--ink) 12%,transparent)}
+.k-day24 .sl{left:25%;width:50%;border-radius:2px;background:color-mix(in srgb,var(--moment-dinner) 50%,transparent)}
+.k-day24 .tr{left:16%;width:68%;border-radius:2px;background:var(--muscle-legs)}
+.k-day24 .ml{left:calc(50% - 4px);width:8px;height:8px;margin-top:-4px;border-radius:50%;box-shadow:0 0 0 1.5px var(--paper)}
+.k-day24 .nw{left:0;right:0;border-top:2px solid var(--tomato)}
+.k-week.lv2 .k-day24{animation:k-lv-in var(--t-box) var(--ease) backwards}
+@media (prefers-reduced-motion:reduce){.k-week.lv2 .k-day24{animation:none}}
+.k-untimed{margin-top:8px}
+/* ---------- every target ≥ 44 px (P3, register V7; 30 Oct): the hit area grows, the layout does not ---------- */
+.k-choice button,.k-choice a{min-height:var(--touch);margin:-4px 0}
+.k-tab{min-width:var(--touch);justify-content:center}
+a.k-plain{min-height:var(--touch)}
+.k-sheet-wrap.k-screen>.k-dim{flex-basis:var(--touch)}
+.k-back{min-width:var(--touch)}
+.k-step .k-stepin{align-self:stretch;min-height:var(--touch)}
+.k-mrow{padding-block:12px;margin-block:-12px}
+button.k-head{padding-block:12px;margin-block:-12px}
+a.k-link,button.k-link{padding:12px 4px;margin:-12px -4px;line-height:20px}
+.k-swipe{touch-action:pan-y}
+/* A row of links wraps by whole links, never inside «Come valutiamo ›» (Andamento). */
+.k-line.wrap>.k-link{white-space:nowrap}
+/* Narrow phones (≤ 360 px): the score keeps its number and word, the skyline shows when the box opens; a title never shrinks below a short word (it vanished at 320). */
+@media (max-width:360px){.k-head .k-vsky,.k-trail .k-sky.mini{display:none}.k-month,.k-week{column-gap:2px}}
+.k-hlead>.k-title{min-width:4em}
+/* Map D (ADR-0059): ⊕ floats bottom right above the bar, the same on every page; the last thing on a page stays clear of it. */
+.k-nav{position:relative}
+.k-add.k-fab{position:absolute;right:16px;bottom:calc(100% + 12px);margin:0;width:56px;height:56px;box-shadow:var(--shadow-1);z-index:3}
+.k-page>:nth-last-child(2 of :not(.k-toastbar)){margin-bottom:80px}
+/* The four tabs of a place, the same row everywhere. */
+.k-areatabs{margin:0 16px;gap:0}
+.k-areatabs>.k-tab{flex:1 1 0}

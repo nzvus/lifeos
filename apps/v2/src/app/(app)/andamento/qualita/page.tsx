@@ -11,7 +11,7 @@ import { getDb } from "@/app/_server/runtime";
 import { PER_SIDE_FACTORS, quality, UNIT_FACTORS } from "@/core/engines/quality";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { readQualityEntries } from "@/core/quality/read";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 import { qualityBox } from "@/features/progress/quality";
 
 const DAYS = 30;
@@ -90,7 +90,7 @@ export default async function QualityPage() {
       <PageHeader
         title="Qualità dei dati"
         context={"dal " + F.date(from) + " al " + F.date(to)}
-        back={{ label: "Andamento", href: "/andamento" }}
+        back={{ label: "Andamento", href: "/oggi/andamento" }}
         of={{ place: "andamento" }}
       />
       <section className="k-section g3" aria-label="Le cose segnate">
@@ -116,7 +116,7 @@ export default async function QualityPage() {
         ))}
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="progress" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

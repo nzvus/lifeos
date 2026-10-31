@@ -30,7 +30,13 @@ import {
   score,
   type ScoringModel,
 } from "@/core/engines/judgements";
-import { sleepOn, sleepParts, type Piece, type SleepDay } from "@/core/engines/sleep";
+import {
+  NEED_H,
+  sleepOn,
+  sleepParts,
+  type Piece,
+  type SleepDay,
+} from "@/core/engines/sleep";
 import type { MicroTarget } from "@/core/engines/targets";
 import { addDays, localParts, type DayClock, type IsoDate } from "@/core/engines/time";
 import type { MealWhen } from "@/core/food/score";
@@ -318,7 +324,7 @@ export function sleepScore(
     quality: quality.length ? quality.reduce((a, q) => a + q, 0) / quality.length : null,
     energy: checkin ? num(checkin.values["energy"]) : null,
   });
-  return boxScore(
+  const box = boxScore(
     SLEEP,
     {
       duration: p.duration,
@@ -329,6 +335,20 @@ export function sleepScore(
     SLEEP_WORDS,
     ctx.weights,
   );
+  // What to do (UI-75): when the length cost the most, the minutes that were missing.
+  const costliest = box
+    ? [...box.parts].sort(
+        (a, b) => b.weight * (1 - b.score) - a.weight * (1 - a.score),
+      )[0]
+    : undefined;
+  const short = NEED_H.low * 60 - day.totalMin;
+  return box && costliest?.name === SLEEP_WORDS["duration"] && short > 0
+    ? {
+        ...box,
+        action:
+          "ti sono mancati " + F.hm(short) + " per arrivare a " + F.num(NEED_H.low, "h"),
+      }
+    : box;
 }
 
 const WAKE = 7 * 60;

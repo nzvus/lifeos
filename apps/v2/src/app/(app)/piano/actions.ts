@@ -33,8 +33,8 @@ export async function overrideStep(
   if (typeof position === "number" && !(Number.isInteger(position) && position >= 0))
     return;
   await setCycleOverride(await getDb(), await requireOwner(), day, cycleId, position);
-  revalidatePath("/piano", "layout");
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
+  revalidatePath("/", "layout");
 }
 
 /**
@@ -88,8 +88,8 @@ export async function copyYesterday(day: string): Promise<void> {
     });
     if (m.subcategory) has.add(m.subcategory);
   }
-  revalidatePath("/piano", "layout");
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
+  revalidatePath("/", "layout");
 }
 
 /**
@@ -128,6 +128,6 @@ export async function moveTraining(day: string, data: FormData): Promise<void> {
       itemId: UUID.test(routine) ? routine : null,
     });
   }
-  revalidatePath("/piano", "layout");
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
+  revalidatePath("/", "layout");
 }

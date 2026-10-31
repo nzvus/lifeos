@@ -32,14 +32,14 @@ Status words: **sì** (v2 has it and it stays), **parziale**, **no** (to build),
 | S4 | Domain silhouettes (plate, cup, bite; notched bar; moon; tag; receipt; cloud; capsule; drop; calendar) | kit.css `.k-shape` | sì | kept on Box (C1) · 30 Oct (UI-79): only corners, rims and corner bites; no point, notch, zigzag or tail that moves the content |
 | S5 | Planned things are hatched | kit.md | sì | kept, everywhere a thing is planned |
 | S6 | The drawing in the box (`k-art` a1/a2) grows ≈ 1.9× on open | kit.css | sì | kept · 30 Oct (UI-79): at rest in the free bottom-right corner, only in boxes with lines under the head |
-| S7 | The time rail 20 → 64 px | ADR-0050, kit.css | sì | kept on Oggi · 30 Oct (UI-77): kept by the developer, V5 overridden; parts-of-day headers in study |
+| S7 | The time rail 20 → 64 px | ADR-0050, kit.css | sì | kept on Oggi · 30 Oct (UI-77): kept by the developer, V5 overridden; parts-of-day headers in study · 30 Oct: parts of the day as sky bands, empty-time bars (UI-77, built) |
 | S8 | Buttons by role and their states; segmented → menu past 4 options | kit.md | sì | kept; verbs from C10 |
 | S9 | Glyph: Tabler 3.19 + own drawings, 4-level resolver, 18 food groups, dishes, 36 movements, corner mark, sizes with thinning stroke, domain backdrop 320 px at 6 % | icons.md | sì | kept; pages pass data, never icon names |
 | S10 | `F`: decimal comma, «−», decimals by unit, no-break space; judgement scale 70/40 (`judge`, `cap`, `reach`, `tone`) | content.md, kit `format.ts` | sì | kept; no page formats a number itself |
 | S11 | Nutrients L0, L1 (macro icons that grow and turn); L2 the window | kit.md | sì (checked 30 Oct: `Nutrients` L2 has the foods as chips, one tapped highlighted in every bar and in «da dove») | L2 complete (foods highlighted in every bar) |
 | S12 | Ranges: ruler under the bar, tip coloured by the band (25 Oct «C + D») | memory heat-strip-design, kit.md §4 | sì | kept (kit.md §4 already says it) |
-| S13 | Score chip in the box's head | kit.md | sì | kept, restyled (D2) |
-| S14 | Week strip, 4 thin bars a day | DateNav | sì | kept, thinner (D3) |
+| S13 | Score chip in the box's head | kit.md | sì | kept, restyled (D2) · 30 Oct (UI-75): unframed skyline by band, number and word, one line under the head; open = rulers |
+| S14 | Week strip, 4 thin bars a day | DateNav | sì | kept, thinner (D3) · 30 Oct (UI-76): no arrows, levels, bars behind the number, 24-hour column |
 | S15 | Weather card (animated icon, temperature trace, hourly curve, air quality, light arc) | WeatherCard | parziale: fixed hex colours | colours from tokens |
 | S16 | Chart (trend, bands, bars) | kit Chart | sì | kept; one chart frame |
 | S17 | One animation time, reduced motion respected | kit.css | sì | kept |
@@ -140,7 +140,7 @@ These rows outrank any other row of this register when they conflict.
 | V4 | «La giornata col piano»: one bar per nutrient, value / target, a tick | three-part bars, rulers, ticks, verdicts, then sugars, salt, micros, energy | the day shows few things plainly; detail one tap away |
 | V5 | Times on the left, horizontal, a dot on the day's line | times rotated vertically in a coloured rail | times read horizontally · 30 Oct: overridden by the developer — the rail stays (UI-77) |
 | V6 | Lists show what matters: grams per macro, «23× in 60 giorni», ⋯ and delete | name, kcal per 100, «+» | a list row carries the facts used to choose and its actions |
-| V7 | Each page has its button and each row its actions in view | 20 of 54 pages without a primary action; 48 % of targets under 44 px | one visible primary action per page; every target ≥ 44 px |
+| V7 | Each page has its button and each row its actions in view | 20 of 54 pages without a primary action; 48 % of targets under 44 px | one visible primary action per page; every target ≥ 44 px · 30 Oct: targets under 44 px 303 → 11 on 13 pages (ui-check); chips and box actions stay 36 (--touch-dense), the rail 20 |
 
 ## T — Themes and density (plan, A3)
 v1 has five themes over one kit (ADR-0010: a theme is a token set plus
@@ -154,7 +154,7 @@ neither: it only switches light and dark (`app/layout.tsx`).
 | T1 | Five themes: Label (EU nutrition label), Quaderno (ivory, blue ink, serif titles), Sport (black and white with lime, capitals), Minimal (no frames), Notte (indigo black, amber titles) | ADR-0010, v1 `src/design/themes/*.css` | no | port each as a token set on `kit.css` (`[data-theme-name=…]`), meanings (S2) untouched |
 | T2 | Surface tokens `--panel-*`, `--tile-*`, `--item-*`, `--heading-*`, `--icon-chip-*` | v1 `src/design/theme.css` | no | add to `tokens.css`; Box, Field, Glyph read them |
 | T3 | Light and dark per device; the theme per device too | ADR-0010 | parziale (light/dark only) | `settings.theme` is the default, the device can override (localStorage, as light/dark) |
-| T4 | Contrast of every text token on every ground ≥ 4.5:1 | v1 `src/design/theme.test.ts` | no | port the contrast test to `packages/kit`, run on every theme × light/dark |
+| T4 | Contrast of every text token on every ground ≥ 4.5:1 | v1 `src/design/theme.test.ts` | sì (31 ott, light/dark) | `packages/kit/src/contrast.test.ts`: text 4.5:1 on paper, sheet and the 7 % area tints; an area's own colour 3:1 (it paints only 20 px bold titles and icons); the five themes join it when they come back |
 | T5 | One density: compact (default) and comfortable | ADR-0038 | no (column unread) | `data-density` on `<html>` scales `--sp-*` and the type scale; targets stay ≥ 44 px in both |
 | T6 | Every board rendered in dark and in one more theme before publishing | memory v2-boards-kit | parziale (dark only) | boards tools get a theme switch (`dark_all.mjs` → any theme) |
 
@@ -180,7 +180,7 @@ looks at the board.
 | G5 | List row (Elenco): name, «52 volte in 60 giorni · l'ultima il 23 ott», «per 100 g: 53 kcal · proteine 8 · carboidrati 5 · grassi 0», chevron; the whole row is the target | V6, P3 |
 | G6 | Page template: area title (30) and profile icon, four tabs, ⊕ floating bottom right above the bar, the bar with the five places | ADR-0059 |
 | G7 | **Oggi · Diario** (board «Schermata · Oggi»): date row ‹ day ›; panel «Il giorno» = the sentence, the balance and the goal in words, then one 44 px row per area (Cibo · Corpo · Mente · Soldi, each with its headline in words, leading to that area's Diario); panel «La giornata» = one row per entry, time at 44 px on the left, icon, what and how much; a closed day ends with «Giornata chiusa · Riapri». Week, quality, energy and caffeine move to Oggi · Andamento; an entry opens as a sheet over the day with one primary action | V1, V2, V4, V5, V6, ADR-0059 |
-| G8 | Kit fix found by the shapes audit: `.k-icon-btn` and `.k-primary` had the browser's button padding (1 × 6 px); both set it (0 and 0 16 px) | L2 |
+| G8 | Kit fix found by the shapes audit: `.k-icon-btn` and `.k-primary` had the browser's button padding (1 × 6 px); both set it (0 and 0 16 px); in `packages/kit` since 31 Oct | L2 |
 | G9 | **⊕ and the meal** (board «Schermata · ⊕ e pasto»): one sheet, same corner everywhere; from Oggi «Per te, alle 13:00» (the four entries logged most within 90 min of that hour in 60 days, each with why, kcal and a one-tap «Fatto» + «Annulla») then every kind in an area panel; from an area its kinds first, «Per te» of that area, the other areas one row away. Composer: «Quando» and «Quale pasto» (chips) first, then Find, then the foods with gram steppers (starting from a saved meal never changes it, N10), total and «Salva il pranzo» pinned at the bottom. Open: the board's search is a plain field until Find is brought into the review canvas | ADR-0059, N9, N10, V6, L5 |
 | G10 | **Palestra** (board «Schermata · Palestra», the Push of 24 Oct against the 19th): not a place; the session is an entry of Corpo · Diario, started from Oggi's row or there. One row per exercise: sets, best set, the last time with its date; «Salva come sessione tipo» under it. In progress: one panel per exercise, done sets ticked (warm-ups muted), the current set prefilled with the last one, kg and reps steppers, one big «Fatta: 60 kg × 10», the rest starting by itself; «Poi» lists the next exercises with «⋯» (Fai dopo, Cambia, Salta + Annulla); «Finisci…» top right, secondary | ADR-0059, D7, N1, P5, V6 |
 | G11 | **An object's page** (board «Schermata · Un cibo», the oat flakes): back to its Elenco, name, «⋯» (Parti da, Unisci, Elimina); «Cibo · 34 volte in 60 giorni · l'ultima il 23 ott»; one primary «Aggiungi a un pasto»; panels «Valori per 100 g» (every value a 44 px row; tapped, it opens in place with a stepper, its source and what the change touches, Salva / Annulla), «Prezzo e casa» (price per pack and per 100 g, shop, «In casa · Ne ho…»), «Nei pasti salvati». The `…/modifica` pages go away | P1, P2, P5, N10, N12, V1 |

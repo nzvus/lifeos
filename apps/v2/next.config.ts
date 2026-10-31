@@ -13,6 +13,14 @@ const config: NextConfig = {
   agentRules: false,
   // The dev badge sits on the NavBar's first place on a phone: off.
   devIndicators: false,
+  // Map D (ADR-0059): the old places are Oggi's tabs now; links and bookmarks keep working.
+  async redirects() {
+    return [
+      { source: "/piano", destination: "/oggi/piano", permanent: false },
+      { source: "/andamento", destination: "/oggi/andamento", permanent: false },
+      { source: "/libreria", destination: "/oggi/elenco", permanent: false },
+    ];
+  },
 };
 
 export default config;

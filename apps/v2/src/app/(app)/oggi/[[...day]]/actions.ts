@@ -36,21 +36,21 @@ export async function changeStatus(id: string, status: Status): Promise<Status |
     at,
     today: logicalDay(at, clock),
   });
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   return before;
 }
 
 export async function removeEntry(id: string): Promise<boolean> {
   if (!UUID.test(id)) return false;
   const done = await trashEntry(await getDb(), await requireOwner(), id);
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   return done;
 }
 
 export async function bringBack(id: string): Promise<boolean> {
   if (!UUID.test(id)) return false;
   const done = await restoreEntry(await getDb(), await requireOwner(), id);
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   return done;
 }
 
@@ -59,7 +59,7 @@ export async function removePlanned(ids: string[]): Promise<string[]> {
   if (!Array.isArray(ids) || ids.length > 200 || !ids.every((i) => UUID.test(i)))
     return [];
   const gone = await trashPlanned(await getDb(), await requireOwner(), ids);
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   return gone;
 }
 
@@ -70,7 +70,7 @@ export async function bringBackAll(ids: string[]): Promise<boolean> {
   const db = await getDb();
   const owner = await requireOwner();
   for (const id of ids) await restoreEntry(db, owner, id);
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   return true;
 }
 
@@ -80,7 +80,7 @@ export async function closeDay(day: string, state: Closure | null): Promise<bool
   const { clock } = await ownerClock();
   if (day > logicalDay(new Date(), clock)) return false;
   await setClosure(await getDb(), await requireOwner(), day, state);
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   return true;
 }
 
@@ -107,7 +107,7 @@ export async function addWater(day: string, ml: 250 | 500): Promise<void> {
   );
   if (!checked.ok) return;
   await createEntry(db, owner, checked.entry);
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
 }
 
 /** «Ricalcola»: this week's automatic targets made again (core/energy; a v1 check-in stays). */
@@ -116,5 +116,5 @@ export async function recomputeTargets(): Promise<void> {
   const db = await getDb();
   const { clock } = await ownerClock();
   await recomputeWeekTargets(db, owner, logicalDay(new Date(), clock), clock);
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
 }

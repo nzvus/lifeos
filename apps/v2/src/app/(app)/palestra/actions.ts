@@ -60,7 +60,7 @@ export async function startGym(routineId: string): Promise<void> {
     routineId: routine?.id ?? null,
     exerciseIds: routine?.exercises.map((e) => e.exerciseId) ?? [],
   });
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   redirect("/palestra/" + id);
 }
 
@@ -163,7 +163,7 @@ export async function finishGym(sessionId: string): Promise<void> {
   const db = await getDb();
   await confirmSets(db, owner, sessionId);
   await finishSession(db, owner, sessionId, new Date());
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   redirect("/oggi");
 }
 
@@ -196,7 +196,7 @@ export async function saveRoutineGym(sessionId: string): Promise<boolean> {
 export async function reopenGym(sessionId: string): Promise<void> {
   if (!UUID.test(sessionId)) return;
   await reopenSession(await getDb(), await requireOwner(), sessionId);
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   revalidatePath("/palestra", "layout");
   redirect("/palestra/" + sessionId);
 }
@@ -205,7 +205,7 @@ export async function reopenGym(sessionId: string): Promise<void> {
 export async function removeGym(day: string, sessionId: string): Promise<void> {
   if (!UUID.test(sessionId) || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return;
   await trashEntry(await getDb(), await requireOwner(), sessionId);
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   redirect("/oggi/" + day);
 }
 

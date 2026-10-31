@@ -352,7 +352,7 @@ function Draft({
           .filter(Boolean)
           .join(" · ")}
         back={{ label: backLabel, href: backHref }}
-        action={{ label: "Cibi", href: "/libreria?vista=cibi" }}
+        action={{ label: "Cibi", href: "/oggi/elenco?vista=cibi" }}
         of={{ fam: "food", kind: "meal" }}
       />
       {repeatHref && (

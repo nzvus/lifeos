@@ -8,7 +8,7 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { readHabits } from "@/core/plans";
 import { HabitForm } from "@/features/plan/HabitForm";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 import { pauseHabit, saveHabitForm } from "./actions";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -62,7 +62,7 @@ export default async function HabitPage({ params }: { params: Promise<{ id: stri
         </form>
       )}
       <div className="k-nav k-stick">
-        <NavBar active="plan" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

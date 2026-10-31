@@ -18,6 +18,7 @@ import {
   PageHeader,
   RangeNav,
   type BoxEntry,
+  AreaTabs,
 } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
@@ -43,7 +44,7 @@ import {
 import { OpenBox } from "@/features/day/OpenBox";
 import { averageScore } from "@/features/progress/average";
 import { stepsDomain } from "@/features/progress/steps";
-import { PLACES } from "@/features/places";
+import { AREA_HREF, tabHrefs } from "@/features/places";
 import {
   period,
   periodPills,
@@ -75,9 +76,9 @@ export default async function AndamentoPage({
       : null;
   const link = (fino: string | null, n: number) => {
     const q = [fino ? "fino=" + fino : "", n !== 7 ? "giorni=" + n : ""].filter(Boolean);
-    return "/andamento" + (q.length ? "?" + q.join("&") : "");
+    return "/oggi/andamento" + (q.length ? "?" + q.join("&") : "");
   };
-  const monthLink = (m: string) => "/andamento?mese=" + m;
+  const monthLink = (m: string) => "/oggi/andamento?mese=" + m;
   // A month: from its first day to its last, or to today in the current one.
   const monthEnd = (m: string) => {
     const last = addDays(addDays(m + "-01", 32).slice(0, 7) + "-01", -1);
@@ -205,7 +206,8 @@ export default async function AndamentoPage({
       ),
     },
   ].flatMap((e) =>
-    e.score ? [{ ...e, value: String(e.score.value), score: e.score } as BoxEntry] : [],
+    // The score's chip says the number: no value beside it (it read «62 così così 62»).
+    e.score ? [{ ...e, score: e.score } as BoxEntry] : [],
   );
   // The steps: numbers without a score (the movement dossier has not decided one).
   const stepGoal = goals.find(
@@ -268,9 +270,10 @@ export default async function AndamentoPage({
   const later = addDays(end, DAYS);
   return (
     <main className="k-page has-bd">
-      <PageHeader title="Andamento" of={{ place: "andamento" }} />
+      <PageHeader title="Oggi" of={{ place: "oggi" }} />
+      <AreaTabs tab="andamento" hrefs={tabHrefs("oggi")} />
       <section className="k-section" aria-label="Obiettivi">
-        <div className="k-line between">
+        <div className="k-line wrap g4">
           <a className="k-link" href="/andamento/obiettivi">
             Obiettivi ›
           </a>
@@ -305,6 +308,7 @@ export default async function AndamentoPage({
                 ? monthLink(addDays(month + "-01", 32).slice(0, 7))
                 : link(later >= today ? null : later, DAYS)
           }
+          todayHref={month ? monthLink(today.slice(0, 7)) : link(null, DAYS)}
           presets={[
             ...RANGES.map((n) => ({
               label: n + " giorni",
@@ -440,7 +444,7 @@ export default async function AndamentoPage({
               rail={false}
               entry={{
                 fam: "day",
-                title: F.Day(r.day),
+                title: F.DayShort(r.day),
                 value:
                   r.kcal === null
                     ? "—"
@@ -455,7 +459,7 @@ export default async function AndamentoPage({
         </div>
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="progress" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

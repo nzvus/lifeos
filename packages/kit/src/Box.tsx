@@ -14,7 +14,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
-import { F, type State } from "./format";
+import { F, MET, PART, type State } from "./format";
 
 export type BoxEntry = {
   fam: string;
@@ -40,6 +40,8 @@ export type BoxEntry = {
     value: number | null;
     parts: { name: string; score: number; weight: number }[];
     missing: string[];
+    /** What would raise it, in the day's words, when the app knows (UI-75). */
+    action?: string;
   };
 };
 
@@ -60,7 +62,6 @@ export function Box({
   children,
   expanded,
   onToggle,
-  chip: chipSlot,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -72,38 +73,64 @@ export function Box({
   /** The box opens (the boards' head button): the caller holds the state and the content. */
   expanded?: boolean;
   onToggle?: () => void;
-  /** Replaces the score chip in the head (the visual study's round 2, UI-75). */
-  chip?: ReactNode;
 }) {
   const dense = density === "row";
-  // The score as a small framed chart in the head (the developer's pick, 2026-10-25):
-  // its number in the judgement's colour, a column per part (as wide as its weight,
-  // as full as its score), the 70 dashed.
+  // The score (UI-75, decided 30 Oct combining the developer's picks): the skyline
+  // without a frame, each column as wide as its weight, as full as its score and in
+  // its band's colour (the ruler's zones), beside the number and its word.
   const sc = e.score && e.score.parts.length > 0 && !dense ? e.score : null;
-  const chip = chipSlot ? (
-    chipSlot
-  ) : sc ? (
-    <span
-      className="k-skyc"
-      role="img"
-      aria-label={
-        "voto " +
-        (sc.value ?? "") +
-        ": " +
-        sc.parts.map((q) => q.name + " " + Math.round(q.score * 100)).join(", ")
-      }
-    >
-      <b style={{ color: F.judge(sc.value ?? undefined).tone }}>{sc.value}</b>
-      <span className="k-sky chip" aria-hidden="true">
-        {sc.parts.map((q) => (
-          <span key={q.name} className="col" style={{ flexGrow: q.weight }}>
-            <span className="fill" style={{ height: Math.round(q.score * 100) + "%" }} />
-          </span>
-        ))}
-        <span className="line" />
+  const judged = sc ? F.judge(sc.value ?? undefined) : null;
+  const chip =
+    sc && judged ? (
+      <span
+        className="k-vh"
+        role="img"
+        aria-label={
+          "voto " +
+          (sc.value ?? "") +
+          ", " +
+          SCORE_WORD[judged.level] +
+          ": " +
+          sc.parts.map((q) => q.name + " " + Math.round(q.score * 100)).join(", ")
+        }
+      >
+        <span className="k-vsky" aria-hidden="true">
+          {sc.parts.map((q) => (
+            <span key={q.name} className="col" style={{ flexGrow: q.weight }}>
+              <span
+                className="fill"
+                style={{
+                  height: Math.round(q.score * 100) + "%",
+                  background: band(q.score * 100),
+                }}
+              />
+            </span>
+          ))}
+          <span className="ln" style={{ bottom: MET + "%" }} />
+        </span>
+        <span className="n" aria-hidden="true">
+          <b style={{ color: judged.tone }}>{sc.value}</b>
+          <small>{SCORE_WORD[judged.level]}</small>
+        </span>
       </span>
-    </span>
-  ) : null;
+    ) : null;
+  // Under the head, one line: what would raise it, else the part that cost the most.
+  const low = sc
+    ? [...sc.parts].sort((a, b) => b.weight * (1 - b.score) - a.weight * (1 - a.score))[0]
+    : undefined;
+  const say =
+    sc && judged && sc.value !== null && (sc.action || (low && low.score < 1)) ? (
+      <span className="k-say">
+        <span className={judged.cls} role="img" aria-label={judged.aria} />
+        {sc.action ? (
+          <span className="k-body">{sc.action}</span>
+        ) : (
+          <span className="k-meta">
+            è costata di più: {low!.name} ({Math.round(low!.score * 100)})
+          </span>
+        )}
+      </span>
+    ) : null;
   const fam = " fam-" + e.fam + (e.sub ? " sub-" + e.sub : "");
   const of: GlyphOf = {
     ...e.of,
@@ -257,40 +284,58 @@ export function Box({
               </span>
             )}
           </div>
+          {say}
           {e.meta && <span className="k-meta k-sub">{e.meta}</span>}
           {expanded && e.score && e.score.value !== null && (
+            // Open: one row per criterion with the nutrients' own ruler (S12): filled to
+            // its score, the bands 40 and 70 under it, the tip in its band's colour.
             <div className="k-parts">
-              <span className="k-num b2">
-                {e.score.value}
-                <span className="k-meta">
-                  {" / 100"}
-                  {e.score.missing.length > 0
-                    ? " · senza: " + e.score.missing.join(", ")
-                    : ""}
-                </span>
-              </span>
+              {e.score.missing.length > 0 && (
+                <span className="k-meta">senza: {e.score.missing.join(", ")}</span>
+              )}
               {e.score.parts.map((q) => {
                 const v = Math.round(q.score * 100);
                 const j = F.judge(v);
                 return (
-                  <div key={q.name} className="k-part">
-                    <span className={j.cls} role="img" aria-label={j.aria} />
-                    <span className="k-body n">
-                      {q.name}{" "}
-                      <span className="k-help">{Math.round(q.weight * 100)} %</span>
+                  <div key={q.name} className="k-stack g1">
+                    <span className="k-line base between">
+                      <span className="k-line base g1">
+                        <span className={j.cls} role="img" aria-label={j.aria} />
+                        <span className="k-body">{q.name}</span>
+                        <span className="k-help">
+                          pesa {Math.round(q.weight * 100)} %
+                        </span>
+                      </span>
+                      <span className="k-num b2">{v}</span>
                     </span>
-                    <span className="k-bar">
-                      <i
-                        style={
-                          {
-                            width: v + "%",
-                            "--mix": Math.round(30 + q.score * 50) + "%",
-                          } as CSSProperties
-                        }
+                    <span
+                      className="k-bar zoned"
+                      role="img"
+                      aria-label={q.name + " " + v + " su 100"}
+                    >
+                      <i style={{ width: v + "%", "--mix": "60%" } as CSSProperties} />
+                      <span
+                        className="k-ztip"
+                        aria-hidden="true"
+                        style={{ left: v + "%", background: band(v) }}
                       />
-                      <b />
+                      <span className="k-zrule" aria-hidden="true">
+                        <span
+                          className="z fair"
+                          style={{ left: PART + "%", width: MET - PART + "%" }}
+                        />
+                        <span
+                          className="z good"
+                          style={{ left: MET + "%", width: 100 - MET + "%" }}
+                        />
+                        <span className="tk" style={{ left: PART + "%" }}>
+                          <span>{PART}</span>
+                        </span>
+                        <span className="tk" style={{ left: MET + "%" }}>
+                          <span>{MET}</span>
+                        </span>
+                      </span>
                     </span>
-                    <span className="k-num b2 k-right">{v}</span>
                   </div>
                 );
               })}
@@ -365,3 +410,7 @@ export function Box({
     </div>
   );
 }
+
+const SCORE_WORD = { met: "bene", part: "così così", no: "male", none: "" } as const;
+const band = (v: number) =>
+  v >= MET ? "var(--heat-good)" : v >= PART ? "var(--heat-fair)" : "var(--heat-bad)";

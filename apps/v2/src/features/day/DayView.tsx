@@ -13,6 +13,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Box,
+  F,
   Glyph,
   ICONS,
   Nutrients,
@@ -33,7 +34,9 @@ import {
   type Selection,
   type Status,
 } from "./filter";
-import { Timeline } from "./Timeline";
+import { Timeline, type Part } from "./Timeline";
+import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
+import { MEAL_ROLE_WORDS } from "./words";
 import { WaterRow, type Water } from "./WaterRow";
 
 type Row = BoxEntry & {
@@ -76,6 +79,7 @@ export function DayView({
   water = null,
   fromModel = [],
   arrived = null,
+  clock,
 }: {
   rows: (Row & { minute: number })[];
   untimed: Row[];
@@ -87,6 +91,15 @@ export function DayView({
   fromModel?: ModelRow[];
   /** An entry ticked done from ⊕ (capture.md §6): its toast, with «Annulla», on arrival. */
   arrived?: { id: string; text: string } | null;
+  /** The parts of the day (UI-77): the day, whether it is over, its boundary, the
+   *  person's meal-role bounds and the roles already eaten (what a gap offers). */
+  clock?: {
+    date: string;
+    gone: boolean;
+    boundaryMin: number;
+    roleBounds: RoleBounds;
+    roles: string[];
+  };
 }) {
   const [gone, setGone] = useState<ReadonlySet<string>>(new Set());
   const rows = allRows.filter((r) => !gone.has(r.id));
@@ -198,6 +211,36 @@ export function DayView({
     .filter((r) => ghostIds.has(r.id) || matches(r, sel))
     .sort((a, b) => a.minute - b.minute);
   const shownUntimed = untimed.filter((r) => matches(r, sel));
+  // The parts are the person's meal-role bounds, the same that name a meal by its time
+  // and that ⊕ offers at that hour (UI-77): a gap offers the meal missing then, else ⊕.
+  const parts: Part[] | undefined = clock && [
+    { name: "Mattina", from: clock.boundaryMin, to: clock.roleBounds.lunchFrom },
+    {
+      name: "Mezzogiorno",
+      from: clock.roleBounds.lunchFrom,
+      to: clock.roleBounds.snackFrom,
+    },
+    {
+      name: "Pomeriggio",
+      from: clock.roleBounds.snackFrom,
+      to: clock.roleBounds.dinnerFrom,
+    },
+    { name: "Sera", from: clock.roleBounds.dinnerFrom, to: 1440 },
+    { name: "Notte", from: 1440, to: 1440 + clock.boundaryMin },
+  ];
+  const gap =
+    clock &&
+    ((from: number, to: number) => {
+      const mid = from + Math.round((to - from) / 2);
+      const role = mealRoleAt(mid % 1440, clock.roleBounds);
+      const st = clock.gone || !now || to <= now.minute ? "prima" : "previsto";
+      return clock.roles.includes(role)
+        ? { href: `/aggiungi?giorno=${clock.date}&stato=${st}`, what: "+ aggiungi" }
+        : {
+            href: `/aggiungi/pasto?giorno=${clock.date}&ruolo=${role}&ora=${F.time(mid)}&stato=${st}`,
+            what: "+ " + MEAL_ROLE_WORDS[role],
+          };
+    });
   const chips = offered.fam.length + offered.status.length > 0;
 
   return (
@@ -258,6 +301,9 @@ export function DayView({
             <Timeline
               rows={shown}
               now={now}
+              {...(parts && gap && clock
+                ? { parts, gap, gone: clock.gone, end: 1440 + clock.boundaryMin }
+                : {})}
               row={(r, mode, onRail) =>
                 r === waterRow && water ? (
                   <WaterRow water={water} mode={mode} onRail={onRail} />
@@ -284,14 +330,15 @@ export function DayView({
             />
           )}
           {shownUntimed.length > 0 && (
-            <section className="k-section g3" aria-label="Senza orario">
-              <h2 className="k-cap">Senza orario</h2>
+            // Below the day's end, aligned with the bands, with no rail (UI-77); the same
+            // card as a timed entry, its icon bare (UI-81: a tile only on button rows).
+            <section className="k-stack g3 k-untimed" aria-label="Senza orario">
+              <span className="k-meta">Senza orario</span>
               {shownUntimed.map((e) => (
                 <EntryRow
                   key={e.id}
                   entry={e}
                   status={e.status}
-                  density="row"
                   rail={false}
                   onIntent={(i) => act(e, i)}
                 />

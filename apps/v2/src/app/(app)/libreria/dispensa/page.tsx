@@ -11,7 +11,7 @@ import { getDb } from "@/app/_server/runtime";
 import { logicalDay } from "@/core/engines/time";
 import { readPantry, SHOP_EVERY_DAYS, type PantryFood } from "@/core/pantry";
 import { stockWords } from "@/features/library/pantry";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 
 export default async function PantryPage() {
   const owner = await requireOwner();
@@ -41,7 +41,7 @@ export default async function PantryPage() {
       <PageHeader
         title="Dispensa"
         context={"cosa hai in casa · spesa ogni " + SHOP_EVERY_DAYS + " giorni"}
-        back={{ label: "Libreria", href: "/libreria" }}
+        back={{ label: "Libreria", href: "/oggi/elenco" }}
         of={{ place: "libreria" }}
       />
       {foods.length === 0 ? (
@@ -70,7 +70,7 @@ export default async function PantryPage() {
         </>
       )}
       <div className="k-nav k-stick">
-        <NavBar active="library" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

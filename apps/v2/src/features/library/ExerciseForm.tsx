@@ -60,7 +60,7 @@ export function ExerciseForm({
     <form key={state.n} action={submit} className="k-page">
       <PageHeader
         title="Nuovo esercizio"
-        back={{ label: "Esercizi", href: "/libreria?vista=esercizi" }}
+        back={{ label: "Esercizi", href: "/oggi/elenco?vista=esercizi" }}
         of={{ fam: "train" }}
       />
       <section className="k-section g4" aria-label="Esercizio">
@@ -107,7 +107,7 @@ export function ExerciseForm({
         )}
       </section>
       <div className="k-pagefoot">
-        <a className="k-btn secondary" href="/libreria">
+        <a className="k-btn secondary" href="/oggi/elenco">
           Annulla
         </a>
         <button type="submit" className="k-btn primary" aria-busy={pending}>

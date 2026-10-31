@@ -29,6 +29,7 @@ import { tickPlanned, waterNow } from "./rank-actions";
 import { AddSearch } from "@/features/add/AddSearch";
 import type { AddTarget } from "@/features/add/search";
 import { addContext } from "./kinds";
+import { AREA_HREF, AREA_NAME, areaOfFam, isDomainArea } from "@/features/places";
 
 /** How many recent meals ⊕ offers to register again, from the last three days. */
 const RECENT = 4;
@@ -36,7 +37,12 @@ const RECENT = 4;
 export default async function AddPage({
   searchParams,
 }: {
-  searchParams: Promise<{ giorno?: string | string[]; stato?: string | string[] }>;
+  /** `area=`: ⊕ opened from Corpo, Cibo, Mente or Soldi offers that area's kinds first (ADR-0059). */
+  searchParams: Promise<{
+    giorno?: string | string[];
+    stato?: string | string[];
+    area?: string | string[];
+  }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
@@ -70,7 +76,10 @@ export default async function AddPage({
         ),
     )
     .slice(0, RECENT);
-  const back = day === today ? "/oggi" : "/oggi/" + day;
+  const area =
+    typeof asked.area === "string" && isDomainArea(asked.area) ? asked.area : null;
+  const home = area ? AREA_HREF[area] : "/oggi";
+  const back = day === today ? home : home + "/" + day;
   // Today only: what is usual around now, and the routines to start now.
   const now = localParts(new Date(), clock.timeZone).minute;
   const [usual, routines] =
@@ -261,13 +270,18 @@ export default async function AddPage({
       weight: -n,
     };
   });
-  const ranked = rankAdd([
+  const candidates = [
     ...planned,
     ...usualRows,
     ...(oneTap ? routineRows : []),
     ...kindRowsUsed,
     ...recentRows,
-  ]);
+  ];
+  // From an area: its own kinds only, when it has any lately (else everything).
+  const mine = area
+    ? candidates.filter((c) => areaOfFam(c.entry.fam ?? "") === area)
+    : candidates;
+  const ranked = rankAdd(mine.length > 0 ? mine : candidates);
   // «Tutti i tipi»: the doors with no value of their own, then every kind, grouped.
   const doors: { key: string; href: string; entry: BoxEntry }[] = [
     {
@@ -312,7 +326,12 @@ export default async function AddPage({
     },
     ...rows.map((r) => ({ key: r.key, href: r.href, entry: r.entry })),
   ];
-  const groups = groupKinds(doors);
+  const ofArea = (rows: readonly { entry: BoxEntry }[]) =>
+    area !== null && rows.some((r) => areaOfFam(r.entry.fam ?? "") === area);
+  // «Tutti i tipi»: the area's group first (stable sort keeps the rest in order).
+  const groups = groupKinds(doors).sort(
+    (a, b) => Number(ofArea(b.rows)) - Number(ofArea(a.rows)),
+  );
   const row = (c: AddCandidate) =>
     c.act.type === "open" ? (
       <a key={c.key} href={c.act.href} className="k-plain">
@@ -341,7 +360,10 @@ export default async function AddPage({
         <span className="handle" />
         <div className="k-sh">
           <h2>Aggiungi</h2>
-          <span className="k-meta">{day === today ? "oggi" : F.Day(day)}</span>
+          <span className="k-meta">
+            {(day === today ? "oggi" : F.Day(day)) +
+              (area ? " · " + AREA_NAME[area] : "")}
+          </span>
         </div>
         <div className="k-sbody">
           <AddSearch targets={targets}>

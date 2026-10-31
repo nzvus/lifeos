@@ -48,6 +48,6 @@ export async function saveEntry(prev: SaveState, data: FormData): Promise<SaveSt
       : null;
   if (total) await updateEntry(db, owner, total, checked.entry, managedFields(kind));
   else await createEntry(db, owner, asNap(checked.entry, ctx.clock.timeZone));
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   redirect(ctx.day === ctx.today ? "/oggi" : "/oggi/" + ctx.day);
 }

@@ -12,7 +12,7 @@ import { logicalDay } from "@/core/engines/time";
 import { readCategories, readMovements } from "@/core/money";
 import { monthMoney } from "@/core/money/month";
 import { categoryName } from "@/features/money/words";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 
 const MONTH = /^\d{4}-\d{2}$/;
 const eur = (cents: number) => F.num(Math.abs(cents) / 100, "€");
@@ -53,7 +53,7 @@ export default async function MoneyPage({
       <PageHeader
         title="Soldi"
         context={F.month(first) + " " + first.slice(0, 4) + " · i movimenti, il mese"}
-        back={{ label: "Andamento", href: "/andamento" }}
+        back={{ label: "Andamento", href: "/oggi/andamento" }}
         action={{ label: "+ Spesa", href: "/aggiungi/spesa" }}
         of={{ fam: "money" }}
       />
@@ -160,7 +160,7 @@ export default async function MoneyPage({
         ))}
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="progress" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

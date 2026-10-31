@@ -27,7 +27,7 @@ export function dayRow(p: {
   return {
     fam: trains ? "train" : "day",
     ...(trains ? { sub: "strength" } : {}),
-    time: F.day(p.day).slice(0, 3) + " " + Number(p.day.slice(8)),
+    time: F.dayShort(p.day),
     title:
       [
         model ? "«" + model + "»" : "",
@@ -63,7 +63,7 @@ export function dayRow(p: {
       .join(" · "),
     planned: !past,
     faded: past,
-    href: "/piano?giorno=" + p.day,
+    href: "/oggi/piano?giorno=" + p.day,
     hrefLabel: "Apri " + label + (p.selected ? " (aperto)" : ""),
   };
 }

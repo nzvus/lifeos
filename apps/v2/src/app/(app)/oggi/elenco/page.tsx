@@ -2,7 +2,7 @@
  * Libreria (flows.md §1, V-07; the board: an index): the shelves and one
  * search, or a shelf's list with `?vista=cibi|pasti|esercizi`.
  */
-import { F, NavBar, PageHeader } from "@lifeos/kit";
+import { F, NavBar, PageHeader, AreaTabs } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -27,7 +27,7 @@ import { Library } from "@/features/library/Library";
 import { readUserKinds } from "@/core/day";
 import { enterable } from "@/core/entries";
 import { kindRegistry } from "@/core/kinds";
-import { PLACES } from "@/features/places";
+import { AREA_HREF, tabHrefs } from "@/features/places";
 import { addDays } from "@/core/engines/time";
 import { readRoutes } from "@/core/movement/routes";
 import { readPantry } from "@/core/pantry";
@@ -93,15 +93,18 @@ export default async function LibreriaPage({
   return (
     <main className="k-page has-bd">
       {view === null ? (
-        <PageHeader
-          title="Libreria"
-          context="le cose che riusi: cibi, pasti, esercizi, dispensa, tragitti"
-          of={{ place: "libreria" }}
-        />
+        <>
+          <PageHeader
+            title="Oggi"
+            context="le cose che riusi: cibi, pasti, esercizi, dispensa, tragitti"
+            of={{ place: "oggi" }}
+          />
+          <AreaTabs tab="elenco" hrefs={tabHrefs("oggi")} />
+        </>
       ) : (
         <PageHeader
           title={{ foods: "Cibi", meals: "Pasti salvati", exercises: "Esercizi" }[view]}
-          back={{ label: "Libreria", href: "/libreria" }}
+          back={{ label: "Libreria", href: "/oggi/elenco" }}
           of={{ place: "libreria" }}
         />
       )}
@@ -125,7 +128,7 @@ export default async function LibreriaPage({
         }}
       />
       <div className="k-nav k-stick">
-        <NavBar active="library" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

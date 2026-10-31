@@ -60,3 +60,10 @@ describe("F.input writes a number a field reads back", () => {
     expect(F.input(0.1234, 4)).toBe("0,1234");
   });
 });
+
+describe("F.dayShort fits a day in a list", () => {
+  it("writes the weekday's first three letters and the date", () => {
+    expect(F.dayShort("2026-10-29")).toBe("gio 29");
+    expect(F.DayShort("2026-11-01")).toBe("Dom 1");
+  });
+});

@@ -11,5 +11,5 @@ export async function restoreFromTrash(id: string): Promise<void> {
   if (!UUID.test(id)) return;
   await restoreEntry(await getDb(), await requireOwner(), id);
   revalidatePath("/impostazioni/cestino");
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
 }
