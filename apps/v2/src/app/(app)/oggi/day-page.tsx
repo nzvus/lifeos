@@ -26,6 +26,7 @@ import {
   AreaTabs,
   AREAS,
   type Area,
+  type DayBars,
 } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
@@ -43,6 +44,7 @@ import { readPlace } from "@/core/account/place";
 import { weatherChips } from "@/app/_server/weather";
 import { WeatherCard } from "@/features/day/WeatherCard";
 import { WaterRow } from "@/features/day/WaterRow";
+import { startGym } from "../palestra/actions";
 import { mealGroups } from "@/features/day/meal-groups";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import {
@@ -75,7 +77,12 @@ import { DayPlanBar } from "@/features/day/DayPlanBar";
 import { habitItems, modelItems } from "@/features/day/model-items";
 import { kindRegistry } from "@/core/kinds";
 import { changeDayModel, saveDayAsModel, skipStep } from "./[[...day]]/plan-actions";
-import { creatineDays, readCreatineLines } from "@/core/training";
+import {
+  creatineDays,
+  readCreatineLines,
+  readExercises,
+  readRoutines,
+} from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
 import {
@@ -120,6 +127,22 @@ import {
 import { DayClose } from "@/features/day/DayClose";
 import { goalLine } from "@/features/day/goal-line";
 import { AREA_HREF, AREA_NAME, areaOf, areaOfFam, tabHrefs } from "@/features/places";
+
+/** The week strip's bars of an area only (Corpo: training; Cibo: food and limits; Mente: habits). */
+const AREA_BARS: Record<Area, (keyof DayBars)[]> = {
+  oggi: ["food", "limits", "train", "habits"],
+  corpo: ["train"],
+  cibo: ["food", "limits"],
+  mente: ["habits"],
+  soldi: [],
+};
+const areaBars = (bars: Record<string, DayBars>, area: Area) =>
+  Object.fromEntries(
+    Object.entries(bars).map(([d, b]) => [
+      d,
+      Object.fromEntries(AREA_BARS[area].map((k) => [k, b[k]])) as DayBars,
+    ]),
+  );
 
 /** A meal's score on its box, when it has one (exactOptionalPropertyTypes: no `score: undefined`). */
 const withScore = <T,>(s: T | undefined) => (s === undefined ? {} : { score: s });
@@ -438,6 +461,22 @@ export async function DayPage({
         )
       : [];
   const planned = fromModel.filter((r) => area === "oggi" || areaOfFam(r.fam) === area);
+  const todayStep = (plans.get(date)?.cycles ?? []).find(
+    (c) => !c.rest && !c.skipped,
+  )?.label;
+  // Corpo today, nothing running: the two routines trained most, to start now (map D:
+  // Palestra's «Inizia» on top of Corpo · Diario, architecture.md §10).
+  const routines =
+    area === "corpo" &&
+    date === today &&
+    !items.some((i) => i.kind.key === "session" && isRunning(i))
+      ? (await readRoutines(db, owner, today, await readExercises(db, owner)))
+          // The cycle's step for today first («Legs»), then the most trained.
+          .map((r, i) => ({ r, i, step: r.name === todayStep ? 0 : 1 }))
+          .sort((a, b) => a.step - b.step || a.i - b.i)
+          .map(({ r }) => r)
+          .slice(0, 2)
+      : [];
   const empty =
     rows.length === 0 && untimed.length === 0 && water === null && planned.length === 0;
 
@@ -473,7 +512,7 @@ export async function DayPage({
           hrefBase={AREA_HREF[area] + "/"}
           scores={scores}
           tags={tags}
-          bars={bars}
+          bars={areaBars(bars, area)}
           levelKey="oggi.settimana"
           rhythm={weekRhythm(days, (d) => ({ ...sctx, date: d, now: null }), clock)}
           nowMinute={nowMinute}
@@ -484,6 +523,34 @@ export async function DayPage({
           <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
         )}
       </section>
+      {routines.length > 0 && (
+        <section className="k-section g2" aria-label="Allenati">
+          <h2>Allenati</h2>
+          {routines.map((r) => (
+            <form key={r.id} action={startGym.bind(null, r.id)}>
+              <button type="submit" className="k-pick">
+                <Box
+                  density="row"
+                  rail={false}
+                  entry={{
+                    fam: "train",
+                    of: { kind: "session" },
+                    title: r.name,
+                    meta:
+                      F.plural(r.exercises.length, "esercizio", "esercizi") +
+                      (r.uses ? " · " + r.uses + " volte in 90 giorni" : "") +
+                      " · inizia adesso",
+                    value: "›",
+                  }}
+                />
+              </button>
+            </form>
+          ))}
+          <a className="k-link" href="/palestra">
+            Altri modelli ›
+          </a>
+        </section>
+      )}
       {food && whole && (
         <section className="k-block g3" aria-label="Il giorno">
           <OpenBox
