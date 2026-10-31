@@ -22,7 +22,7 @@ import {
 import type { Db } from "@/core/db/db";
 import type { Owner } from "@/core/identity/owner";
 import { readDayModel } from "@/core/plans";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 import { goalRow, weekDays, type GoalProgress } from "@/features/progress/goal-rows";
 
 /** The kinds whose one field a per-day goal counts, by the goal's metric. */
@@ -101,7 +101,7 @@ export default async function GoalsPage() {
           F.plural(goals.length, "obiettivo", "obiettivi") +
           (silent ? " · " + F.plural(silent, "senza dati", "senza dati") : "")
         }
-        back={{ label: "Andamento", href: "/andamento" }}
+        back={{ label: "Andamento", href: "/oggi/andamento" }}
         of={{ fam: "goal" }}
       />
       <section className="k-section g3" aria-label="I tuoi obiettivi">
@@ -123,7 +123,7 @@ export default async function GoalsPage() {
         </a>
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="progress" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

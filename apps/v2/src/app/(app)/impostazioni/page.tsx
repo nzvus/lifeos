@@ -135,7 +135,7 @@ export default async function SettingsPage({
             title: "Cibi",
             value: F.n(counts.foods, 0),
             meta: "ingredienti e prodotti",
-            href: "/libreria?vista=cibi",
+            href: "/oggi/elenco?vista=cibi",
             hrefLabel: "Apri i cibi in Libreria",
           }}
         />

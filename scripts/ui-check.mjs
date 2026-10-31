@@ -33,11 +33,14 @@ const PAGES = [
   "/aggiungi",
   "/aggiungi/pasto",
   "/aggiungi/attivita",
-  "/piano",
-  "/andamento",
-  "/libreria",
-  "/libreria?vista=cibi",
-  "/libreria?vista=esercizi",
+  "/oggi/piano",
+  "/oggi/andamento",
+  "/oggi/elenco",
+  "/oggi/elenco?vista=cibi",
+  "/oggi/elenco?vista=esercizi",
+  "/corpo",
+  "/cibo",
+  "/corpo/andamento",
   "/palestra",
   "/impostazioni",
 ];
@@ -159,7 +162,8 @@ for (const entry of pages) {
       return r.width < 44 || r.height < 44;
     });
     const primary = targets.filter((el) =>
-      el.matches(".k-primary, .k-btn.primary"),
+      // Map D: ⊕ floats on every page as its primary (visual.md §5).
+      el.matches(".k-primary, .k-btn.primary, .k-fab"),
     ).length;
     const longLists = [...document.querySelectorAll("section")].filter((s) => {
       const rows = s.querySelectorAll(":scope .k-box").length;

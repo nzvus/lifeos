@@ -21,7 +21,7 @@ export type CycleFormState = {
   saved?: boolean;
 };
 
-const done = () => revalidatePath("/piano", "layout");
+const done = () => revalidatePath("/", "layout");
 
 export async function saveCycleForm(
   id: string,

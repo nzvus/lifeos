@@ -41,7 +41,7 @@ export default async function ExercisePage({
       <PageHeader
         title={x.name}
         context={F.plural(sessions.length, "sessione", "sessioni")}
-        back={{ label: "Esercizi", href: "/libreria?vista=esercizi" }}
+        back={{ label: "Esercizi", href: "/oggi/elenco?vista=esercizi" }}
         of={{ fam: "train" }}
       />
       {best > 0 && (

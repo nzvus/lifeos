@@ -25,7 +25,7 @@ import {
 import { readSettings } from "@/core/account/settings";
 import type { ScoreContext } from "@/features/day/score";
 import { OpenBox } from "@/features/day/OpenBox";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 import {
   kindTracker,
   sleepTracker,
@@ -150,7 +150,7 @@ export default async function TrackerPage({
       <PageHeader
         title={view.title}
         context={view.context}
-        back={{ label: "Andamento", href: "/andamento" }}
+        back={{ label: "Andamento", href: "/oggi/andamento" }}
         action={{ label: "Obiettivi", href: "/andamento/obiettivi" }}
         of={view.of}
       />
@@ -214,7 +214,7 @@ export default async function TrackerPage({
         )}
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="progress" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

@@ -38,6 +38,6 @@ export async function saveExercise(
     unilateral: form["unilateral"] === "yes",
   });
   if (made === "taken") return again({ name: "Hai già un esercizio con questo nome." });
-  revalidatePath("/libreria", "layout");
+  revalidatePath("/", "layout");
   redirect("/libreria/esercizio/" + made.id);
 }

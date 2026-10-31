@@ -10,7 +10,7 @@ import { getDb } from "@/app/_server/runtime";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { readRoutes } from "@/core/movement/routes";
 import { MODE_WORDS } from "@/features/movement-words";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 
 export default async function RoutesPage() {
   const owner = await requireOwner();
@@ -22,7 +22,7 @@ export default async function RoutesPage() {
     <main className="k-page has-bd">
       <PageHeader
         title="Tragitti"
-        back={{ label: "Libreria", href: "/libreria" }}
+        back={{ label: "Libreria", href: "/oggi/elenco" }}
         of={{ place: "libreria" }}
       />
       <section className="k-section g2" aria-label="I tuoi tragitti">
@@ -63,7 +63,7 @@ export default async function RoutesPage() {
         </a>
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="library" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

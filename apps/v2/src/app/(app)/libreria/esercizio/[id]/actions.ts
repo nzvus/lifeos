@@ -12,13 +12,13 @@ import { mergeItems } from "@/core/catalog/merge";
 
 export async function archiveExercise(id: string): Promise<void> {
   await archiveItem(await getDb(), await requireOwner(), id, "exercise");
-  revalidatePath("/libreria", "layout");
-  redirect("/libreria?vista=esercizi");
+  revalidatePath("/", "layout");
+  redirect("/oggi/elenco?vista=esercizi");
 }
 
 export async function mergeExercise(keepId: string, goneId: string): Promise<void> {
   await mergeItems(await getDb(), await requireOwner(), keepId, goneId);
-  revalidatePath("/libreria", "layout");
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
+  revalidatePath("/", "layout");
   redirect("/libreria/esercizio/" + keepId);
 }

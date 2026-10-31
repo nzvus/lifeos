@@ -802,3 +802,10 @@ a.k-link,button.k-link{padding:12px 4px;margin:-12px -4px;line-height:20px}
 /* Narrow phones (≤ 360 px): the score keeps its number and word, the skyline shows when the box opens; a title never shrinks below a short word (it vanished at 320). */
 @media (max-width:360px){.k-head .k-vsky,.k-trail .k-sky.mini{display:none}.k-month,.k-week{column-gap:2px}}
 .k-hlead>.k-title{min-width:4em}
+/* Map D (ADR-0059): ⊕ floats bottom right above the bar, the same on every page; the last thing on a page stays clear of it. */
+.k-nav{position:relative}
+.k-add.k-fab{position:absolute;right:16px;bottom:calc(100% + 12px);margin:0;width:56px;height:56px;box-shadow:var(--shadow-1);z-index:3}
+.k-page>:nth-last-child(2 of :not(.k-toastbar)){margin-bottom:80px}
+/* The four tabs of a place, the same row everywhere. */
+.k-areatabs{margin:0 16px;gap:0}
+.k-areatabs>.k-tab{flex:1 1 0}

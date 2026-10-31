@@ -45,20 +45,20 @@ export async function saveRecipe(
   if (done === "gone") return again({ form: "Questo pasto non c’è più." });
   if (done === "empty")
     return again({ form: "Lascia almeno un cibo, o archivia il pasto." });
-  revalidatePath("/libreria", "layout");
+  revalidatePath("/", "layout");
   redirect("/libreria/pasto/" + id);
 }
 
 export async function archiveSaved(id: string): Promise<void> {
   const owner = await requireOwner();
   await archiveRecipe(await getDb(), owner, id);
-  revalidatePath("/libreria", "layout");
-  redirect("/libreria?vista=pasti");
+  revalidatePath("/", "layout");
+  redirect("/oggi/elenco?vista=pasti");
 }
 
 /** «Duplica»: a copy to change, opened in its editor. */
 export async function duplicateSaved(id: string): Promise<void> {
   const copy = await duplicateRecipe(await getDb(), await requireOwner(), id);
-  revalidatePath("/libreria", "layout");
-  redirect(copy ? "/libreria/pasto/" + copy + "/modifica" : "/libreria?vista=pasti");
+  revalidatePath("/", "layout");
+  redirect(copy ? "/libreria/pasto/" + copy + "/modifica" : "/oggi/elenco?vista=pasti");
 }

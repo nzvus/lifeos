@@ -26,7 +26,7 @@ import {
   weighScore,
   type ScoreContext,
 } from "@/features/day/score";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 import { MODELS, modelPage } from "@/features/progress/models";
 import { WeightsForm } from "@/features/progress/WeightsForm";
 import { resetWeights, saveWeightsForm } from "./actions";
@@ -56,7 +56,7 @@ export default async function ScoresPage({
       <PageHeader
         title="Come valutiamo"
         context={page.name + " · dal " + F.date(page.since)}
-        back={{ label: "Andamento", href: "/andamento" }}
+        back={{ label: "Andamento", href: "/oggi/andamento" }}
         of={{ place: "andamento" }}
       />
       <section className="k-section g3" aria-label="Il modello">
@@ -153,7 +153,7 @@ export default async function ScoresPage({
         <span className="k-body">{page.sources}</span>
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="progress" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

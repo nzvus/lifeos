@@ -38,7 +38,7 @@ function formOf(data: FormData): Record<string, string> {
 }
 
 function backTo(day: string, today: string): never {
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   redirect(day === today ? "/oggi" : "/oggi/" + day);
 }
 

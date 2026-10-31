@@ -2,12 +2,12 @@
  "pages": {
   "/oggi": {
    "overflow": 0,
-   "targets": 64,
+   "targets": 69,
    "small": 4,
-   "primary": 1,
+   "primary": 2,
    "longLists": 0,
    "offScale": 13,
-   "edges": 55
+   "edges": 53
   },
   "/aggiungi": {
    "overflow": 0,
@@ -36,50 +36,77 @@
    "offScale": 0,
    "edges": 5
   },
-  "/piano": {
+  "/oggi/piano": {
    "overflow": 0,
-   "targets": 76,
+   "targets": 81,
    "small": 0,
-   "primary": 0,
+   "primary": 1,
    "longLists": 0,
    "offScale": 2,
-   "edges": 40
+   "edges": 43
   },
-  "/andamento": {
+  "/oggi/andamento": {
    "overflow": 0,
-   "targets": 68,
+   "targets": 72,
    "small": 0,
-   "primary": 0,
+   "primary": 1,
    "longLists": 0,
    "offScale": 7,
-   "edges": 48
+   "edges": 55
   },
-  "/libreria": {
+  "/oggi/elenco": {
    "overflow": 0,
-   "targets": 17,
+   "targets": 22,
    "small": 0,
-   "primary": 0,
-   "longLists": 0,
-   "offScale": 2,
-   "edges": 7
-  },
-  "/libreria?vista=cibi": {
-   "overflow": 0,
-   "targets": 129,
-   "small": 3,
-   "primary": 0,
+   "primary": 1,
    "longLists": 0,
    "offScale": 2,
    "edges": 10
   },
-  "/libreria?vista=esercizi": {
+  "/oggi/elenco?vista=cibi": {
    "overflow": 0,
-   "targets": 84,
+   "targets": 130,
    "small": 3,
-   "primary": 0,
+   "primary": 1,
    "longLists": 0,
    "offScale": 2,
-   "edges": 10
+   "edges": 11
+  },
+  "/oggi/elenco?vista=esercizi": {
+   "overflow": 0,
+   "targets": 85,
+   "small": 3,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 11
+  },
+  "/corpo": {
+   "overflow": 0,
+   "targets": 51,
+   "small": 0,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 1,
+   "edges": 35
+  },
+  "/cibo": {
+   "overflow": 0,
+   "targets": 66,
+   "small": 4,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 8,
+   "edges": 51
+  },
+  "/corpo/andamento": {
+   "overflow": 0,
+   "targets": 14,
+   "small": 0,
+   "primary": 1,
+   "longLists": 0,
+   "offScale": 2,
+   "edges": 9
   },
   "/palestra": {
    "overflow": 0,
@@ -97,12 +124,12 @@
    "primary": 1,
    "longLists": 0,
    "offScale": 2,
-   "edges": 11
+   "edges": 10
   },
   "/libreria/cibo/:id": {
    "overflow": 0,
    "targets": 25,
-   "small": 1,
+   "small": 0,
    "primary": 1,
    "longLists": 0,
    "offScale": 3,
@@ -128,7 +155,7 @@
   "Archivia": 1
  },
  "tasks": {
-  "acqua": 699,
+  "acqua": 680,
   "pasto": 0,
   "peso": 0,
   "palestra": 0,

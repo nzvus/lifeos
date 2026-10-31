@@ -57,6 +57,6 @@ export async function saveMeal(prev: MealState, data: FormData): Promise<MealSta
     itemId: saved ?? recipe,
     ...(checkedLines.estimate ? { confidence: ESTIMATE_CONFIDENCE } : {}),
   });
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
   redirect(ctx.day === ctx.today ? "/oggi" : "/oggi/" + ctx.day);
 }

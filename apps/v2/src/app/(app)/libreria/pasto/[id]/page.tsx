@@ -29,7 +29,7 @@ export default async function SavedMealPage({
       <PageHeader
         title={page.name}
         context={"mangiato " + F.plural(page.uses, "volta", "volte")}
-        back={{ label: "Pasti salvati", href: "/libreria?vista=pasti" }}
+        back={{ label: "Pasti salvati", href: "/oggi/elenco?vista=pasti" }}
         of={{ fam: "food", kind: "meal" }}
       />
       <div className="k-section">

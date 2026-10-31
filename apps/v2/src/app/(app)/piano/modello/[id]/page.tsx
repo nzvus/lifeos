@@ -24,7 +24,7 @@ import {
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { blockName, blockRow, sharesWords } from "@/features/plan/model-form";
 import { ModelEditor, type EditorBlock } from "@/features/plan/ModelEditor";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 import {
   archiveForm,
   copyForm,
@@ -172,7 +172,7 @@ export default async function ModelPage({ params }: { params: Promise<{ id: stri
         }}
       />
       <div className="k-nav k-stick">
-        <NavBar active="plan" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

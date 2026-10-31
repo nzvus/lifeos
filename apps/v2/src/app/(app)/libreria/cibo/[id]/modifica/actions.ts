@@ -62,29 +62,29 @@ export async function saveFood(
       isValidGtin(form["barcode"] ?? "") ? form["barcode"]! : null,
     );
     if (made === "taken") return again({ name: "Hai già un cibo con questo nome." });
-    revalidatePath("/libreria", "layout");
+    revalidatePath("/", "layout");
     redirect(back ?? "/libreria/cibo/" + made.id);
   }
   const done = await updateFood(db, owner, id, checked.name, checked.values);
   if (done === "gone") return again({ form: "Questo cibo non c’è più." });
   if (done === "taken") return again({ name: "Hai già un cibo con questo nome." });
-  revalidatePath("/libreria", "layout");
+  revalidatePath("/", "layout");
   redirect("/libreria/cibo/" + id);
 }
 
 /** «Unisci» (capture.md §4): another food's meals, products and places move onto this one. */
 export async function mergeFood(keepId: string, goneId: string): Promise<void> {
   await mergeItems(await getDb(), await requireOwner(), keepId, goneId);
-  revalidatePath("/libreria", "layout");
-  revalidatePath("/oggi", "layout");
+  revalidatePath("/", "layout");
+  revalidatePath("/", "layout");
   redirect("/libreria/cibo/" + keepId);
 }
 
 /** Archives the food (and so its products): out of Libreria and the composer. */
 export async function archiveFood(id: string): Promise<void> {
   await archiveItem(await getDb(), await requireOwner(), id, "food");
-  revalidatePath("/libreria", "layout");
-  redirect("/libreria?vista=cibi");
+  revalidatePath("/", "layout");
+  redirect("/oggi/elenco?vista=cibi");
 }
 
 /** Saves «Nuovo prodotto» of a food: the brand and the label's values. */
@@ -121,6 +121,6 @@ export async function saveProduct(
   if (made === "gone") return again({ form: "Questo cibo non c’è più." });
   if (made === "taken")
     return again({ name: "Questo cibo ha già un prodotto con questa marca." });
-  revalidatePath("/libreria", "layout");
+  revalidatePath("/", "layout");
   redirect("/libreria/cibo/" + foodId);
 }

@@ -7,7 +7,7 @@
  * planned and what the model still plans, «+ previsto». Then «Le regole»:
  * the week type and the cycles, «Modelli».
  */
-import { Box, DateNav, F, NavBar, PageHeader, weekOf } from "@lifeos/kit";
+import { Box, DateNav, F, NavBar, PageHeader, weekOf, AreaTabs } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -31,9 +31,9 @@ import { daySlots } from "@/features/day/slots";
 import { WEEKDAYS } from "@/features/plan/model-form";
 import { dayRow } from "@/features/plan/week-rows";
 import { readFoodEstimates } from "@/core/food/catalog";
-import { PLACES } from "@/features/places";
-import { changeDayModel, skipStep } from "../oggi/[[...day]]/plan-actions";
-import { copyYesterday, moveTraining, overrideStep } from "./actions";
+import { AREA_HREF, tabHrefs } from "@/features/places";
+import { changeDayModel, skipStep } from "../[[...day]]/plan-actions";
+import { copyYesterday, moveTraining, overrideStep } from "../../piano/actions";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -123,7 +123,7 @@ export default async function PianoPage({
   return (
     <main className="k-page has-bd">
       <PageHeader
-        title="Piano"
+        title="Oggi"
         context={[
           F.week(week[0]!),
           headPlan?.model ? "giornata «" + headPlan.model.name + "»" : "",
@@ -132,15 +132,16 @@ export default async function PianoPage({
           .filter(Boolean)
           .join(" · ")}
         action={{ label: "Modelli", href: "/piano/modelli" }}
-        of={{ place: "piano" }}
+        of={{ place: "oggi" }}
       />
+      <AreaTabs tab="piano" hrefs={tabHrefs("oggi")} />
       <section className="k-block g3">
         <DateNav
           mode="week"
           day={open ?? week[0]!}
           today={today}
-          hrefBase="/piano?giorno="
-          weekBase="/piano?settimana="
+          hrefBase="/oggi/piano?giorno="
+          weekBase="/oggi/piano?settimana="
           levelKey="piano.settimana"
           tags={Object.fromEntries(week.map((d) => [d, planTag(plans.get(d))]))}
         />
@@ -362,7 +363,7 @@ export default async function PianoPage({
           ))}
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="plan" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );

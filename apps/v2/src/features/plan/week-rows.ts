@@ -63,7 +63,7 @@ export function dayRow(p: {
       .join(" · "),
     planned: !past,
     faded: past,
-    href: "/piano?giorno=" + p.day,
+    href: "/oggi/piano?giorno=" + p.day,
     hrefLabel: "Apri " + label + (p.selected ? " (aperto)" : ""),
   };
 }

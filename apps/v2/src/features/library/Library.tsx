@@ -162,7 +162,7 @@ function Index({
                   title: TABS[t].label,
                   value: F.n(lists[t].length, 0),
                   meta: shelfLines[t],
-                  href: "/libreria?vista=" + VIEW_OF[t],
+                  href: "/oggi/elenco?vista=" + VIEW_OF[t],
                   hrefLabel: "Apri " + TABS[t].label.toLowerCase(),
                 }}
               />

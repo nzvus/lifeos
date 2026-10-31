@@ -12,7 +12,7 @@ import { sleepOn } from "@/core/engines/sleep";
 import { addDays, logicalDay, type IsoDate } from "@/core/engines/time";
 import { readNumbers, readSpans, SLEEP_KINDS } from "@/core/goals";
 import { links, type Measure } from "@/features/progress/links";
-import { PLACES } from "@/features/places";
+import { AREA_HREF } from "@/features/places";
 
 const DAYS = 90;
 
@@ -64,7 +64,7 @@ export default async function LinksPage() {
       <PageHeader
         title="Legami"
         context="ultimi 90 giorni · cosa va insieme a cosa"
-        back={{ label: "Andamento", href: "/andamento" }}
+        back={{ label: "Andamento", href: "/oggi/andamento" }}
         of={{ place: "andamento" }}
       />
       <section className="k-section g2" aria-label="I legami">
@@ -104,7 +104,7 @@ export default async function LinksPage() {
         ))}
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="progress" hrefs={PLACES} addHref="/aggiungi" />
+        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
       </div>
     </main>
   );
