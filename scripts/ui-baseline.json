@@ -2,12 +2,12 @@
  "pages": {
   "/oggi": {
    "overflow": 0,
-   "targets": 69,
-   "small": 4,
+   "targets": 67,
+   "small": 2,
    "primary": 2,
    "longLists": 0,
-   "offScale": 13,
-   "edges": 53
+   "offScale": 12,
+   "edges": 52
   },
   "/aggiungi": {
    "overflow": 0,
@@ -92,12 +92,12 @@
   },
   "/cibo": {
    "overflow": 0,
-   "targets": 66,
-   "small": 4,
+   "targets": 64,
+   "small": 2,
    "primary": 1,
    "longLists": 0,
-   "offScale": 8,
-   "edges": 51
+   "offScale": 7,
+   "edges": 50
   },
   "/corpo/andamento": {
    "overflow": 0,
@@ -155,7 +155,7 @@
   "Archivia": 1
  },
  "tasks": {
-  "acqua": 680,
+  "acqua": 0,
   "pasto": 0,
   "peso": 0,
   "palestra": 0,

@@ -42,6 +42,7 @@ import { readSettings } from "@/core/account/settings";
 import { readPlace } from "@/core/account/place";
 import { weatherChips } from "@/app/_server/weather";
 import { WeatherCard } from "@/features/day/WeatherCard";
+import { WaterRow } from "@/features/day/WaterRow";
 import { mealGroups } from "@/features/day/meal-groups";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import {
@@ -477,6 +478,8 @@ export async function DayPage({
           rhythm={weekRhythm(days, (d) => ({ ...sctx, date: d, now: null }), clock)}
           nowMinute={nowMinute}
         />
+        {/* The water near the top (P4: it was 680 px down), out of the times. */}
+        {water && <WaterRow water={water} rail={false} />}
         {area === "oggi" && weather && (
           <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
         )}
@@ -539,7 +542,7 @@ export async function DayPage({
               removePlanned,
               bringBackAll,
             }}
-            water={water}
+            water={null}
             fromModel={planned}
             arrived={arrived}
             rows={rows}
