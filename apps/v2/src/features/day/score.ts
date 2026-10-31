@@ -345,7 +345,8 @@ export function sleepScore(
   return box && costliest?.name === SLEEP_WORDS["duration"] && short > 0
     ? {
         ...box,
-        action: "ti sono mancati " + F.hm(short) + " per arrivare a " + NEED_H.low + " h",
+        action:
+          "ti sono mancati " + F.hm(short) + " per arrivare a " + F.num(NEED_H.low, "h"),
       }
     : box;
 }

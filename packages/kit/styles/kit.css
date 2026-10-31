@@ -139,7 +139,7 @@
 .k-seg.planned{background-image:repeating-linear-gradient(135deg,transparent 0 3px,var(--sheet) 3px 5px)!important}
 .k-mark{position:absolute;top:-2px;bottom:-2px;width:var(--tick);background:var(--ink)}
 .k-l0{display:flex;flex-direction:column;gap:4px}
-.k-l0 .r{display:grid;grid-template-columns:12px minmax(0,1fr) 32px;align-items:center;gap:4px}
+.k-l0 .r{display:grid;grid-template-columns:12px minmax(0,1fr) 44px;align-items:center;gap:4px}
 .k-ribbon{display:flex;height:var(--segs);border-radius:var(--r-pill);overflow:hidden;background:var(--paper)}
 .k-ribbon>span+span{box-shadow:inset 1px 0 0 var(--sheet)}
 .k-mrow{display:flex;flex-direction:column;gap:8px;width:100%;padding:0;border:0;background:transparent;text-align:left;cursor:pointer;color:inherit;font:inherit}
@@ -181,7 +181,7 @@
 .k-ph h1{margin:0;font-family:var(--font-display);font-size:var(--fs-d1);line-height:var(--lh-d1);font-weight:700}
 .k-ph.sub h1{font-size:var(--fs-d2);line-height:var(--lh-d2)}
 .k-back{font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;min-height:var(--touch)}
-.k-icon-btn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--ink);border-radius:var(--r-control);text-decoration:none;cursor:pointer}
+.k-icon-btn{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--ink);border-radius:var(--r-control);text-decoration:none;cursor:pointer}
 .k-section{display:flex;flex-direction:column;gap:8px;padding:12px 16px 4px}
 .k-section>h2{margin:0;display:flex;justify-content:space-between;align-items:baseline;font-family:var(--font-display);font-size:var(--fs-d3);line-height:var(--lh-d3);font-weight:700;border-bottom:var(--rule-strong) solid var(--ink);padding-bottom:4px}
 .k-section>h2 a{font-size:var(--fs-d4);font-weight:600;color:var(--herb);text-decoration:none}
@@ -195,7 +195,7 @@
 .k-sheet{background:var(--paper);border-radius:var(--r-sheet) var(--r-sheet) 0 0;box-shadow:var(--shadow-1);display:flex;flex-direction:column;gap:12px;padding:8px 0 0;max-height:calc(100% - 48px);overflow:hidden}
 .k-sheet .handle{width:40px;height:4px;border-radius:2px;background:var(--hairline);align-self:center}
 .k-sheet .foot{position:sticky;bottom:0;display:flex;gap:8px;padding:12px 16px 16px;background:var(--paper);border-top:1px solid var(--hairline)}
-.k-primary{flex:1 0 auto;height:var(--touch);border:0;border-radius:var(--r-control);background:var(--herb);color:var(--sheet);font-family:var(--font-display);font-size:var(--fs-d3);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer}
+.k-primary{flex:1 0 auto;height:var(--touch);padding:0 16px;border:0;border-radius:var(--r-control);background:var(--herb);color:var(--sheet);font-family:var(--font-display);font-size:var(--fs-d3);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer}
 .k-secondary{height:var(--touch);padding:0 16px;border:var(--rule-medium) solid var(--ink);border-radius:var(--r-control);background:var(--sheet);color:var(--ink);font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer}
 .k-search{display:flex;align-items:center;gap:8px;height:var(--touch);padding:0 12px;border:var(--rule-medium) solid var(--ink);border-radius:var(--r-control);background:var(--sheet)}
 .k-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-family:var(--font-body);font-size:16px;color:var(--ink)}
@@ -328,6 +328,7 @@
 .k-hlead{display:flex;align-items:center;gap:8px;min-width:0}
 .k-hlead.badged{align-items:flex-start}
 .k-hlead.badged>.k-title{padding-top:6px}
+.k-hlead.badged>.k-glyph:not(.tile){width:32px;height:32px}
 .k-row.dense .k-sub,.k-row.dense .k-more>div{padding-left:40px}
 .k-row.dense .k-box:not(:has(.k-hlead.badged)) .k-sub,.k-row.dense .k-box:not(:has(.k-hlead.badged)) .k-more>div{padding-left:0}
 .k-art .k-glyph,.k-art .k-glyph svg{width:100%;height:100%}
@@ -794,5 +795,10 @@ a.k-plain{min-height:var(--touch)}
 .k-step .k-stepin{align-self:stretch;min-height:var(--touch)}
 .k-mrow{padding-block:12px;margin-block:-12px}
 button.k-head{padding-block:12px;margin-block:-12px}
-a.k-link,button.k-link{padding:12px 4px;margin:-12px -4px}
+a.k-link,button.k-link{padding:12px 4px;margin:-12px -4px;line-height:20px}
 .k-swipe{touch-action:pan-y}
+/* A row of links wraps by whole links, never inside «Come valutiamo ›» (Andamento). */
+.k-line.wrap>.k-link{white-space:nowrap}
+/* Narrow phones (≤ 360 px): the score keeps its number and word, the skyline shows when the box opens; a title never shrinks below a short word (it vanished at 320). */
+@media (max-width:360px){.k-head .k-vsky,.k-trail .k-sky.mini{display:none}.k-month,.k-week{column-gap:2px}}
+.k-hlead>.k-title{min-width:4em}

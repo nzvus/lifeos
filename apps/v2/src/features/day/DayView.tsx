@@ -330,7 +330,8 @@ export function DayView({
             />
           )}
           {shownUntimed.length > 0 && (
-            // Below the day's end, aligned with the bands, with no rail (UI-77).
+            // Below the day's end, aligned with the bands, with no rail (UI-77); the same
+            // card as a timed entry, its icon bare (UI-81: a tile only on button rows).
             <section className="k-stack g3 k-untimed" aria-label="Senza orario">
               <span className="k-meta">Senza orario</span>
               {shownUntimed.map((e) => (
@@ -338,7 +339,6 @@ export function DayView({
                   key={e.id}
                   entry={e}
                   status={e.status}
-                  density="row"
                   rail={false}
                   onIntent={(i) => act(e, i)}
                 />

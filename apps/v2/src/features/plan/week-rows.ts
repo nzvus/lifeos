@@ -27,7 +27,7 @@ export function dayRow(p: {
   return {
     fam: trains ? "train" : "day",
     ...(trains ? { sub: "strength" } : {}),
-    time: F.day(p.day).slice(0, 3) + " " + Number(p.day.slice(8)),
+    time: F.dayShort(p.day),
     title:
       [
         model ? "«" + model + "»" : "",

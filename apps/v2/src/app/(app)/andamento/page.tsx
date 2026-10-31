@@ -205,7 +205,8 @@ export default async function AndamentoPage({
       ),
     },
   ].flatMap((e) =>
-    e.score ? [{ ...e, value: String(e.score.value), score: e.score } as BoxEntry] : [],
+    // The score's chip says the number: no value beside it (it read «62 così così 62»).
+    e.score ? [{ ...e, score: e.score } as BoxEntry] : [],
   );
   // The steps: numbers without a score (the movement dossier has not decided one).
   const stepGoal = goals.find(
@@ -270,7 +271,7 @@ export default async function AndamentoPage({
     <main className="k-page has-bd">
       <PageHeader title="Andamento" of={{ place: "andamento" }} />
       <section className="k-section" aria-label="Obiettivi">
-        <div className="k-line between">
+        <div className="k-line wrap g4">
           <a className="k-link" href="/andamento/obiettivi">
             Obiettivi ›
           </a>
@@ -441,7 +442,7 @@ export default async function AndamentoPage({
               rail={false}
               entry={{
                 fam: "day",
-                title: F.Day(r.day),
+                title: F.DayShort(r.day),
                 value:
                   r.kcal === null
                     ? "—"

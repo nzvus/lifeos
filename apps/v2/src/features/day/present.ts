@@ -113,11 +113,7 @@ function value(i: DayItem): string {
     case "activity":
     case "reading": {
       const min = minutesBetween(i.start, i.end);
-      return min === null
-        ? ""
-        : i.kind.key === "sleep"
-          ? F.num(min / 60, "h")
-          : F.hm(min);
+      return min === null ? "" : F.hm(min);
     }
     case "weigh_in":
       return num(v["weightKg"]) === null ? "" : F.num(num(v["weightKg"])!, "kg");

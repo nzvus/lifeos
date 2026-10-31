@@ -145,7 +145,7 @@ describe("L0: a meal box's thin bars", () => {
       ],
     });
     expect(rows[0]!.segs.map((s) => s.w)).toEqual(["23.6%", "1.5%"]);
-    expect(rows[0]!.value).toBe("37,7");
+    expect(rows[0]!.value).toBe("38\u00a0g");
     expect(rows[1]!.segs).toEqual([expect.objectContaining({ w: "100.0%" })]);
     expect(rows[2]!.segs).toEqual([]);
     // No target: the macros without one share a scale (here only fat: full).

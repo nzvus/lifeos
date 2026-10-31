@@ -295,7 +295,8 @@ export function nutrientsL0(d: NutrientsData) {
         : [];
     return {
       key: m.key,
-      value: g(m.v),
+      // The glance level: whole grams with their unit (content.md, every number its unit).
+      value: F.num(Math.round(m.v), "g"),
       segs,
       aria:
         NAME[m.key] +

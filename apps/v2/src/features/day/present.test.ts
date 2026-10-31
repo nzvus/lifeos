@@ -206,7 +206,7 @@ describe("a day item as a Box", () => {
         end: new Date("2026-10-16T05:25:00Z"),
       }),
     );
-    expect([sleep.title, sleep.value]).toEqual(["Sveglia", "7,5 h"]);
+    expect([sleep.title, sleep.value]).toEqual(["Sveglia", "7\u00a0h 30"]);
     const w = present(
       item("weigh_in", { values: { weightKg: "74.2500", fasted: true } }),
     );
