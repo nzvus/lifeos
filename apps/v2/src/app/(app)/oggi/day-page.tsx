@@ -127,6 +127,8 @@ import {
 import { DayClose } from "@/features/day/DayClose";
 import { goalLine } from "@/features/day/goal-line";
 import { AREA_HREF, AREA_NAME, areaOf, areaOfFam, tabHrefs } from "@/features/places";
+import { costWords, entryCost, sumCosts } from "@/core/food/cost";
+import { isEaten } from "@/core/kinds";
 
 /** The week strip's bars of an area only (Corpo: training; Cibo: food and limits; Mente: habits). */
 const AREA_BARS: Record<Area, (keyof DayBars)[]> = {
@@ -377,6 +379,25 @@ export async function DayPage({
     area === "oggi" || areaOf(i.kind.domain) === area;
   const notWater = (i: (typeof items)[number]) => i.kind.key !== "water" && mine(i);
   const food = area === "oggi" || area === "cibo";
+  // What the day's food costs (dossiers/costs.md §6): eaten apart from planned, always «≈».
+  const costOf = (status: string) =>
+    costWords(
+      sumCosts(
+        items
+          .filter((i) => isEaten(i.kind.key) && i.status === status)
+          .map((i) =>
+            entryCost(
+              i.lines,
+              typeof i.values["servings"] === "string" ? i.values["servings"] : null,
+              typeof i.values["priceCents"] === "string"
+                ? Number(i.values["priceCents"])
+                : null,
+            ),
+          ),
+      ),
+    );
+  const eatenCost = food ? costOf("done") : null;
+  const plannedCost = food ? costOf("planned") : null;
   // An entry ticked done from ⊕: its toast on arrival, with «Annulla».
   const { fatto } = await searchParams;
   const ticked =
@@ -567,6 +588,19 @@ export async function DayPage({
               </form>
             )}
           </OpenBox>
+          {(eatenCost || plannedCost) && (
+            <p className="k-line g1 k-meta" aria-label="Costo del giorno">
+              <Glyph of={{ fam: "money" }} size="s" />
+              <span>
+                {[
+                  "Costo " + (eatenCost ?? "—"),
+                  plannedCost ? "previsto " + plannedCost : "",
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
+            </p>
+          )}
           {priced && (
             <details className="k-fold">
               <summary>

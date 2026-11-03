@@ -73,6 +73,22 @@ describe("what an open box shows", () => {
     expect(plain(d.foot)).toBe("stima (affidabilità 60 %) · al ristorante");
   });
 
+  it("a meal's cost: each line's, the meal's as a tile, «senza prezzo» only beside a priced one", () => {
+    const priced = {
+      ...line("Avena", "g", "80", "370"),
+      values: { kcal: "370", cents: "13" },
+    };
+    const d = details(item("meal", { lines: [priced, line("Burro", "g", "10", "740")] }));
+    expect(plain(d.lines.map((l) => l.value))).toEqual([
+      "80 g · 296 kcal · ≈ 0,10 €",
+      "10 g · 74 kcal · senza prezzo",
+    ]);
+    expect(plain(d.stats.find((x) => x.label === "Costo"))).toEqual({
+      label: "Costo",
+      value: "≈ 0,10 €",
+    });
+  });
+
   it("leaves a meal's foods out when its window lists them (L2 chips)", () => {
     const meal = item("meal", { lines: [line("Gnocchi", "g", "300", "150")] });
     expect(details(meal, { foods: false }).lines).toEqual([]);

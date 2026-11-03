@@ -7,6 +7,7 @@
  */
 import { F } from "@lifeos/kit";
 import type { DayItem } from "@/core/day";
+import { costWords, entryCost } from "@/core/food/cost";
 import { lineTotals } from "@/core/food/totals";
 import { CHOICES, FIELDS, keyWords } from "./words";
 import { isEaten } from "@/core/kinds";
@@ -99,17 +100,31 @@ export function details(i: DayItem, { foods = true }: { foods?: boolean } = {}):
   if (isEaten(i.kind.key) || i.kind.key === "batch") {
     const servings =
       typeof i.values["servings"] === "string" ? i.values["servings"] : null;
+    // «senza prezzo» only in a meal where something has a price: else it would be every line.
+    const anyPrice = entryCost(i.lines, servings).pricedKcal.gt(0);
     for (const l of foods ? i.lines : []) {
       const kcal = lineTotals([l], servings)["kcal"];
+      const lineCost = entryCost([l], servings);
       lines.push({
         label: l.name || "Senza nome",
         value:
           F.num(Number(l.quantity) * Number(servings ?? "1"), l.unit) +
           (kcal !== undefined && Number(kcal) > 0
             ? " · " + F.n(Number(kcal), 0) + " kcal"
-            : ""),
+            : "") +
+          // Its cost (dossiers/costs.md §6), or that it has none when it has energy.
+          (lineCost.missing.length > 0
+            ? anyPrice
+              ? " · senza prezzo"
+              : ""
+            : costWords(lineCost, true)
+              ? " · " + costWords(lineCost, true)
+              : ""),
       });
     }
+    const paid = num(i.values["priceCents"]);
+    const cost = costWords(entryCost(i.lines, servings, paid));
+    if (cost) stats.push({ label: "Costo", value: cost });
     if (servings !== null && Number(servings) !== 1)
       stats.push({ label: "Porzioni", value: F.n(Number(servings), 2) });
   }

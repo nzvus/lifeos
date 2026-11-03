@@ -3,6 +3,12 @@
 Status: **draft 2026-11-03**, written by the agent with no stop (the developer:
 «procedi senza fermarti», then «va capito, mi fido di te», ledger HOME-14).
 §9's questions carry the agent's decisions; he can turn any of them over.
+**Slice a built (3 Nov, #318):** `core/food/cost.ts` (+ tests), the price
+per 100 in the choices and so in every new line's snapshot (`cents`),
+migration `0005_data_repair_cost_snapshot.sql` (the v2 lines since 17 Oct),
+the open meal's «Costo» tile and per-line cost, «Il giorno»'s «Costo ≈ … ·
+previsto ≈ …». On his data of 29 Oct: 13 Oct «≈ 8,30 €», 21 Oct «≈ 6,00 € ·
+1 senza prezzo», 28 Oct «≈ 5,20 € · 5 senza prezzo».
 
 Ledger: HOME-14, HOME-02, HOME-10, HOME-09, UI-09, UI-52, KEEP-12, FOOD-17 · ADR-0055, ADR-0007
 
@@ -179,11 +185,12 @@ totals and 0,01 € on a line. Always with «≈».
 
 ## 8. Acceptance tests (his days)
 
-1. **13 Oct** (31 of 34 lines priced, 100 % of kcal): day cost ≈ 8,41 €
-   ± 0,05 from the snapshots.
+1. **13 Oct** (31 of 34 lines priced, 100 % of kcal): day cost ≈ 8,41 € in
+   the refined export of 23 Oct; «≈ 8,30 €» on the v2 data of 29 Oct (later
+   edits), to 10 cents.
 2. **21 Oct** (50 % of kcal priced, the burger menu eaten out): the total is
-   not shown as a plain number. It reads «≈ 3,90 € · 1 senza prezzo» and
-   names the burger meal.
+   not shown as a plain number. It reads «≈ 6,00 € · 1 senza prezzo» (v2 data
+   of 29 Oct) and the open meal names the burger line «senza prezzo».
 3. **4 Oct**: the Indian dinner linked to the 23 € movement costs 23 € in
    Cibo. Soldi still shows −23 € once. The month's food cost counts it once.
 4. **16 Oct dinner**: split into three dishes, the cost is the sum of the

@@ -36,6 +36,13 @@
       "when": 1793302145822,
       "tag": "0004_data_repair_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793700800692,
+      "tag": "0005_data_repair_cost_snapshot",
+      "breakpoints": true
     }
   ]
 }
