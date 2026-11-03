@@ -19,6 +19,7 @@ import {
   RangeNav,
   type BoxEntry,
   AreaTabs,
+  List,
 } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
@@ -436,7 +437,7 @@ export default async function AndamentoPage({
       </section>
       <section className="k-section g3" aria-label="I giorni">
         <h2>I giorni</h2>
-        <div className="k-stack g2">
+        <List label="I giorni">
           {[...p.rows].reverse().map((r) => (
             <Box
               key={r.day}
@@ -456,7 +457,7 @@ export default async function AndamentoPage({
               }}
             />
           ))}
-        </div>
+        </List>
       </section>
       <div className="k-nav k-stick">
         <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />

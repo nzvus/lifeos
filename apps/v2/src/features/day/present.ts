@@ -217,6 +217,16 @@ export function isRunning(i: DayItem): boolean {
   );
 }
 
+/**
+ * The servings of something whose lines it multiplies (a meal, an intake):
+ * "1" when none is stored; null for any other kind.
+ */
+export function servingsOf(i: DayItem): string | null {
+  if (i.kind.key !== "meal" && i.kind.key !== "intake") return null;
+  const v = i.values["servings"];
+  return typeof v === "string" ? String(Number(v)) : "1";
+}
+
 export function present(i: DayItem): BoxEntry {
   const pills: NonNullable<BoxEntry["pills"]> = [];
   for (const t of i.tags) pills.push({ t: TAGS[t] ?? t, of: { fam: "train" } });
@@ -228,6 +238,10 @@ export function present(i: DayItem): BoxEntry {
         : { t: "non a digiuno", state: "warn" },
     );
   if (Number(i.confidence) < 1) pills.push({ t: "stimato", state: "warn" });
+  const served = servingsOf(i);
+  // The multiplier shows on the row when it is not 1 (FOOD-38, FOOD-47).
+  if (served !== null && Number(served) !== 1)
+    pills.push({ t: "×" + "\u00a0" + F.input(Number(served), 2) });
   if (isRunning(i)) pills.push({ t: "in corso", state: "good" });
   if (i.kind.key === "session") pills.push(...sessionPills(i));
   const of: GlyphOf = { kind: i.kind.key, ...i.item?.drawing };

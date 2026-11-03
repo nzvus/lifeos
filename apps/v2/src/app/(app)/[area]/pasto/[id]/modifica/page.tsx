@@ -1,33 +1,25 @@
-/** A saved meal's editor (V-07): `/cibo/pasto/<id>/modifica`. */
+/** A saved meal changed in the composer (FOOD-42): `/cibo/pasto/<id>/modifica`. */
 import { notFound } from "next/navigation";
-import { F } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { readRecipe } from "@/core/food/recipes";
-import { RecipeForm } from "@/features/library/RecipeForm";
-import { archiveSaved, saveRecipe } from "./actions";
+import { replaceSaved } from "../../saved-actions";
+import { SavedComposer } from "../../saved-composer";
 
 export default async function SavedMealEditPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const owner = await requireOwner();
   const { id } = await params;
-  const r = await readRecipe(await getDb(), owner, id);
-  if (!r) notFound();
+  // A saved estimate has no parts but is a live recipe too: readRecipe answers both.
+  if (!(await readRecipe(await getDb(), await requireOwner(), id))) notFound();
   return (
-    <RecipeForm
-      name={r.name}
-      parts={r.parts.map((p) => ({
-        position: p.position,
-        name: p.name,
-        quantity: p.quantity === null ? "" : F.input(Number(p.quantity), 2),
-        unit: p.unit ?? "g",
-      }))}
+    <SavedComposer
+      from={id}
+      editing
       backHref={"/cibo/pasto/" + id}
-      action={saveRecipe.bind(null, id)}
-      archive={archiveSaved.bind(null, id)}
+      action={replaceSaved.bind(null, id)}
     />
   );
 }

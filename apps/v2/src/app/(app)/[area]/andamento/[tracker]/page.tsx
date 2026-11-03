@@ -9,7 +9,7 @@
  * features/progress/tracker.
  */
 import { notFound, redirect } from "next/navigation";
-import { Box, Chart, NavBar, PageHeader, RangeNav } from "@lifeos/kit";
+import { Box, Chart, List, NavBar, PageHeader, RangeNav } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -195,12 +195,20 @@ export default async function TrackerPage({
             ))}
           </div>
         )}
-        {view.chart && (
+        {view.chart ? (
           <Chart
             type={view.chart.type}
             data={view.chart.data}
             caption={view.chart.caption}
           />
+        ) : (
+          // The chart's place stays, said in words (UI-101): an empty period draws nothing.
+          <p className="k-empty k-meta">
+            Nessun valore in questi giorni: il grafico compare con il primo.{" "}
+            <a className="k-link" href={"/aggiungi?area=" + home}>
+              Aggiungi
+            </a>
+          </p>
         )}
       </section>
       <section className="k-section" aria-label="Cosa dice di te">
@@ -220,11 +228,11 @@ export default async function TrackerPage({
         {view.rows.length === 0 ? (
           <p className="k-help">Niente nel periodo.</p>
         ) : (
-          <div className="k-stack g2">
+          <List label={view.rowsTitle}>
             {view.rows.map((e) => (
               <Box key={e.href} density="row" rail={false} entry={e} />
             ))}
-          </div>
+          </List>
         )}
       </section>
       <div className="k-nav k-stick">

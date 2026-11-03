@@ -8,74 +8,122 @@ import {
   archiveRecipe,
   createEstimateRecipe,
   createRecipe,
-  duplicateRecipe,
   readRecipe,
-  updateRecipe,
+  replaceRecipe,
 } from "./recipes";
+import { eq } from "drizzle-orm";
 
-describe("a saved meal's editor", () => {
+describe("a saved meal, made and changed in the composer (FOOD-42)", () => {
   let db: Db;
   let close: () => Promise<void>;
   let a: Owner;
   let b: Owner;
   let id: string;
+  let foods: string[];
+  const line = (itemId: string, name: string, quantity: string) => ({
+    itemId,
+    productId: null,
+    name,
+    quantity,
+    unit: "g",
+    per100: {},
+  });
   beforeAll(async () => {
     const t = await createTestDb();
     db = t.db as unknown as Db;
     close = t.close;
     a = ownerFromVerifiedSession(await createTestUser(t.db, "a@example.test"));
     b = ownerFromVerifiedSession(await createTestUser(t.db, "b@example.test"));
-    const foods = (await db
-      .insert(s.catalogItems)
-      .values([
-        { userId: a.id, catalog: "food", name: "Avena" },
-        { userId: a.id, catalog: "food", name: "Latte" },
-      ])
-      .returning({ id: s.catalogItems.id })) as { id: string }[];
-    const line = (itemId: string, name: string, quantity: string) => ({
-      itemId,
-      productId: null,
-      name,
-      quantity,
-      unit: "g",
-      per100: {},
-    });
+    foods = (
+      (await db
+        .insert(s.catalogItems)
+        .values([
+          { userId: a.id, catalog: "food", name: "Avena" },
+          { userId: a.id, catalog: "food", name: "Latte" },
+        ])
+        .returning({ id: s.catalogItems.id })) as { id: string }[]
+    ).map((f) => f.id);
     id = await createRecipe(db, a, "Porridge", [
-      line(foods[0]!.id, "Avena", "50"),
-      line(foods[1]!.id, "Latte", "200"),
+      line(foods[0]!, "Avena", "50"),
+      line(foods[1]!, "Latte", "200"),
     ]);
-    await createRecipe(db, a, "Pancake", [line(foods[0]!.id, "Avena", "40")]);
+    await createRecipe(db, a, "Pancake", [line(foods[0]!, "Avena", "40")]);
   });
   afterAll(() => close());
 
-  it("renames, keeps the parts named at their quantities, refuses a taken name", async () => {
+  it("is written again from the composer: name, foods with their product; a taken name refused", async () => {
+    const [avena, latte] = foods;
+    const checked = (lines: ReturnType<typeof line>[]) => ({ lines, estimate: false });
     expect(
-      await updateRecipe(db, a, id, "pancake", [{ position: 0, quantity: "60" }]),
+      await replaceRecipe(db, a, id, "pancake", checked([line(avena!, "Avena", "60")])),
     ).toBe("taken");
-    expect(await updateRecipe(db, b, id, "X", [{ position: 0, quantity: "60" }])).toBe(
-      "gone",
-    );
-    expect(await updateRecipe(db, a, id, "X", [])).toBe("empty");
     expect(
-      await updateRecipe(db, a, id, "Porridge salato", [
-        { position: 1, quantity: "250" },
-      ]),
+      await replaceRecipe(db, b, id, "X", checked([line(avena!, "Avena", "60")])),
+    ).toBe("gone");
+    expect(await replaceRecipe(db, a, id, "X", checked([]))).toBe("empty");
+    expect(
+      await replaceRecipe(
+        db,
+        a,
+        id,
+        "Porridge salato",
+        checked([line(latte!, "Latte", "250"), line(avena!, "Avena", "30")]),
+      ),
     ).toBe("ok");
     expect(await readRecipe(db, a, id)).toEqual({
       name: "Porridge salato",
-      parts: [{ position: 0, name: "Latte", quantity: "250.00", unit: "g" }],
+      parts: [
+        { position: 0, name: "Latte", quantity: "250.00", unit: "g" },
+        { position: 1, name: "Avena", quantity: "30.00", unit: "g" },
+      ],
     });
   });
 
-  it("duplicates it with its parts under the first free name", async () => {
-    const one = await duplicateRecipe(db, a, id);
-    const two = await duplicateRecipe(db, a, id);
-    expect((await readRecipe(db, a, one!))?.name).toBe("Porridge salato (copia)");
-    expect(await readRecipe(db, a, two!)).toMatchObject({
-      name: "Porridge salato (copia 2)",
-      parts: [{ name: "Latte", quantity: "250.00" }],
+  it("turns into a saved estimate and back, never keeping the other's values", async () => {
+    const est = {
+      itemId: null,
+      productId: null,
+      name: "Porridge fuori",
+      quantity: "100",
+      unit: "g",
+      per100: { kcal: "500", salt: "1" },
+    };
+    expect(
+      await replaceRecipe(db, a, id, "Porridge salato", { lines: [est], estimate: true }),
+    ).toBe("ok");
+    const read = async () =>
+      (
+        await readRecipeChoices(
+          db,
+          a,
+          "2026-10-23",
+          await readFoodChoices(db, a, "2026-10-23"),
+        )
+      ).find((r) => r.recipeId === id);
+    expect(await read()).toMatchObject({
+      parts: [],
+      estimate: { kcal: "500.0000", salt: "1.0000" },
     });
-    expect(await duplicateRecipe(db, b, id)).toBeNull();
+    await replaceRecipe(db, a, id, "Porridge salato", {
+      lines: [line(foods[0]!, "Avena", "50")],
+      estimate: false,
+    });
+    expect((await read())?.estimate).toBeUndefined();
+  });
+
+  it("«Parti da…»: a new meal remembers the one it started from", async () => {
+    const copy = await createRecipe(
+      db,
+      a,
+      "Porridge proteico",
+      [line(foods[0]!, "Avena", "50")],
+      id,
+    );
+    const [row] = await db
+      .select({ basedOnId: s.catalogItems.basedOnId })
+      .from(s.catalogItems)
+      .where(eq(s.catalogItems.id, copy));
+    expect(row?.basedOnId).toBe(id);
   });
 
   it("archives it out of reach", async () => {

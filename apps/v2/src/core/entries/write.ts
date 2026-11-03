@@ -313,6 +313,50 @@ async function writeLines(
   }
 }
 
+/** The kinds whose servings multiply their lines (builtins: meal, intake). */
+const SERVED = new Set(["meal", "intake"]);
+const SERVINGS_MAX = 20;
+
+/**
+ * The multiplier of a live meal or intake, as the day's −/+ sets it (ledger
+ * FOOD-38, FOOD-47; v1's S-T10): 1 is stored as nothing. Answers the servings
+ * it had before (null for 1), for Undo; undefined when there is no such live
+ * meal or intake, or the number is not one (> 0, ≤ 20, 2 decimals).
+ */
+export async function setEntryServings(
+  db: Db,
+  owner: Owner,
+  id: string,
+  servings: string,
+): Promise<string | null | undefined> {
+  if (!/^\d{1,2}(\.\d{1,2})?$/.test(servings)) return undefined;
+  const n = Number(servings);
+  if (!(n > 0) || n > SERVINGS_MAX) return undefined;
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .select({ kind: entries.kind })
+      .from(entries)
+      .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)))
+      .for("update");
+    if (!row || !SERVED.has(row.kind)) return undefined;
+    const where = and(
+      ownedBy(entryValues, owner),
+      eq(entryValues.entryId, id),
+      eq(entryValues.field, "servings"),
+    );
+    const [was] = await tx
+      .select({ num: entryValues.num })
+      .from(entryValues)
+      .where(where);
+    await tx.delete(entryValues).where(where);
+    if (n !== 1)
+      await tx
+        .insert(entryValues)
+        .values({ userId: owner.id, entryId: id, field: "servings", num: String(n) });
+    return was?.num != null && Number(was.num) !== 1 ? String(Number(was.num)) : null;
+  });
+}
+
 /**
  * Changes a live entry from its sheet or its composer: the entry's own
  * columns; the values of `managed` fields only (a field the form does not

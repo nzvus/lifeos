@@ -47,6 +47,8 @@ type Row = BoxEntry & {
   running?: boolean;
   /** A session: «Inizia» instead of «Fatto». */
   session?: boolean;
+  /** A meal or intake: its multiplier ("1" when none), set by −/+ when open. */
+  servings?: string | null;
   /** Meals of one role together: the entries inside, and where to add one more. */
   group?: (Row & { minute: number })[];
   addHref?: string;
@@ -55,6 +57,8 @@ type Row = BoxEntry & {
 export type DayActions = {
   changeStatus: (id: string, status: Status) => Promise<Status | null>;
   removeEntry: (id: string) => Promise<boolean>;
+  /** −/+ on an open meal: answers the servings it had, null when not saved. */
+  setServings: (id: string, servings: string) => Promise<string | null>;
   bringBack: (id: string) => Promise<boolean>;
   /** «Togli i previsti»: answers the ids that went to the trash. */
   removePlanned: (ids: string[]) => Promise<string[]>;
@@ -151,6 +155,19 @@ export function DayView({
       });
     } catch {
       if (intent === "remove") hide(r.id, false);
+      failed();
+    }
+  };
+  // −/+ on an open meal (FOOD-47): saved at once, the toast says the new multiplier with Undo.
+  const serve = async (r: Row, servings: string) => {
+    try {
+      const before = await actions.setServings(r.id, servings);
+      if (before === null) return failed();
+      say({
+        text: "«" + r.title + "» × " + F.input(Number(servings), 2),
+        undo: () => actions.setServings(r.id, before),
+      });
+    } catch {
       failed();
     }
   };
@@ -314,6 +331,7 @@ export function DayView({
                     mode={mode}
                     onRail={onRail}
                     onIntent={(k, i) => act(k, i)}
+                    onServings={(k, v) => serve(k, v)}
                   />
                 ) : ghostIds.has(r.id) ? (
                   <Box entry={r} mode={mode} onRail={onRail} />
@@ -324,6 +342,7 @@ export function DayView({
                     mode={mode}
                     onRail={onRail}
                     onIntent={(i) => act(r, i)}
+                    onServings={(v) => serve(r, v)}
                   />
                 )
               }
@@ -341,6 +360,7 @@ export function DayView({
                   status={e.status}
                   rail={false}
                   onIntent={(i) => act(e, i)}
+                  onServings={(v) => serve(e, v)}
                 />
               ))}
             </section>
@@ -394,12 +414,14 @@ function GroupRow({
   mode,
   onRail,
   onIntent,
+  onServings,
 }: {
   row: Row & { minute: number };
   kids: (Row & { minute: number })[];
   mode: "compact" | "times";
   onRail: () => void;
   onIntent: (k: Row, i: RowIntent) => void;
+  onServings: (k: Row, servings: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -432,6 +454,7 @@ function GroupRow({
                 density="row"
                 rail={false}
                 onIntent={(i) => onIntent(k, i)}
+                onServings={(v) => onServings(k, v)}
               />
             ))}
             {row.addHref && (

@@ -7,7 +7,16 @@
  * Mente · Piano — the same sections under the area's title and tabs (decided
  * by the agent, 3 Nov, ledger UI-95).
  */
-import { AREAS, AreaTabs, Box, NavBar, PageHeader, F, type BoxEntry } from "@lifeos/kit";
+import {
+  AREAS,
+  AreaTabs,
+  Box,
+  List,
+  NavBar,
+  PageHeader,
+  F,
+  type BoxEntry,
+} from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import {
@@ -116,9 +125,11 @@ export async function ModelsPage({ area }: { area?: ModelsArea }) {
             Giornate tipo <span className="k-meta">{live.length}</span>
           </h2>
           {live.length === 0 && <p className="k-empty k-meta">Nessun modello ancora.</p>}
-          {live.map((m) => (
-            <Box key={m.id} entry={row(m)} density="row" rail={false} />
-          ))}
+          <List label="Giornate tipo">
+            {live.map((m) => (
+              <Box key={m.id} entry={row(m)} density="row" rail={false} />
+            ))}
+          </List>
           <form action={newModel} className="k-stack g2 k-panel">
             <label className="k-stack g1">
               <span className="k-label">Nuovo modello</span>
@@ -150,29 +161,31 @@ export async function ModelsPage({ area }: { area?: ModelsArea }) {
           <h2>
             Cicli <span className="k-meta">{cycles.length}</span>
           </h2>
-          {cycles.map((c) => (
-            <Box
-              key={c.id}
-              density="row"
-              rail={false}
-              entry={{
-                fam: "train",
-                sub: "strength",
-                title: c.name,
-                value: c.active ? "attivo" : "in pausa",
-                meta:
-                  c.steps
-                    .map(
-                      (s) =>
-                        s.label || s.items.map((i) => i.name).join(" + ") || "Riposo",
-                    )
-                    .join(" · ") || "nessun passo",
-                href: "/corpo/ciclo/" + c.id,
-                hrefLabel: "Apri il ciclo " + c.name,
-                ...(c.active ? {} : { faded: true }),
-              }}
-            />
-          ))}
+          <List label="Cicli">
+            {cycles.map((c) => (
+              <Box
+                key={c.id}
+                density="row"
+                rail={false}
+                entry={{
+                  fam: "train",
+                  sub: "strength",
+                  title: c.name,
+                  value: c.active ? "attivo" : "in pausa",
+                  meta:
+                    c.steps
+                      .map(
+                        (s) =>
+                          s.label || s.items.map((i) => i.name).join(" + ") || "Riposo",
+                      )
+                      .join(" · ") || "nessun passo",
+                  href: "/corpo/ciclo/" + c.id,
+                  hrefLabel: "Apri il ciclo " + c.name,
+                  ...(c.active ? {} : { faded: true }),
+                }}
+              />
+            ))}
+          </List>
           <form action={newCycle} className="k-line k-panel">
             <input
               className="k-text"
@@ -191,29 +204,31 @@ export async function ModelsPage({ area }: { area?: ModelsArea }) {
           <h2>
             Abitudini <span className="k-meta">{habits.length}</span>
           </h2>
-          {habits.map((h) => (
-            <Box
-              key={h.id}
-              density="row"
-              rail={false}
-              entry={{
-                fam: "habit",
-                title: h.name,
-                value: ruleWords(h.recurrence),
-                meta: [
-                  habitWhat(h),
-                  h.atMin !== null ? "alle " + F.time(h.atMin) : "",
-                  h.durationMin ? F.num(h.durationMin, "min") : "",
-                  h.active ? "" : "in pausa",
-                ]
-                  .filter(Boolean)
-                  .join(" · "),
-                href: "/mente/abitudine/" + h.id,
-                hrefLabel: "Apri " + h.name,
-                ...(h.active ? {} : { faded: true }),
-              }}
-            />
-          ))}
+          <List label="Abitudini">
+            {habits.map((h) => (
+              <Box
+                key={h.id}
+                density="row"
+                rail={false}
+                entry={{
+                  fam: "habit",
+                  title: h.name,
+                  value: ruleWords(h.recurrence),
+                  meta: [
+                    habitWhat(h),
+                    h.atMin !== null ? "alle " + F.time(h.atMin) : "",
+                    h.durationMin ? F.num(h.durationMin, "min") : "",
+                    h.active ? "" : "in pausa",
+                  ]
+                    .filter(Boolean)
+                    .join(" · "),
+                  href: "/mente/abitudine/" + h.id,
+                  hrefLabel: "Apri " + h.name,
+                  ...(h.active ? {} : { faded: true }),
+                }}
+              />
+            ))}
+          </List>
           <a className="k-btn secondary" href="/mente/abitudine/nuova">
             + Nuova abitudine
           </a>
@@ -224,9 +239,11 @@ export async function ModelsPage({ area }: { area?: ModelsArea }) {
           <h2>
             Archiviati <span className="k-meta">{archived.length}</span>
           </h2>
-          {archived.map((m) => (
-            <Box key={m.id} entry={row(m)} density="row" rail={false} />
-          ))}
+          <List label="Archiviati">
+            {archived.map((m) => (
+              <Box key={m.id} entry={row(m)} density="row" rail={false} />
+            ))}
+          </List>
         </section>
       )}
       <div className="k-nav k-stick">

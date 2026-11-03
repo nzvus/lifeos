@@ -146,6 +146,8 @@ export function Box({
   // own line under the box: the head never pushes past the edge (the water row did).
   const inline = acts.length === 1 && acts[0]!.label.length <= 6;
   const headActs = inline ? acts : [];
+  // Only a link, nothing else to tap in it: the whole box is the link.
+  const cover = !onToggle && !!e.href && acts.length === 0;
   const lineActs = inline ? [] : acts;
   return (
     <div
@@ -222,6 +224,29 @@ export function Box({
                   <span className="k-num d4">{e.value}</span>
                 </span>
               </button>
+            ) : cover ? (
+              // A box that only leads somewhere is one link over its whole surface (P3,
+              // ledger UI-101: «i tracker non riesco a vederli quando li clicco»).
+              <a
+                className="k-head k-cover"
+                href={e.href}
+                aria-label={e.hrefLabel ?? e.title}
+              >
+                <span className={"k-hlead" + (badge ? " badged" : "")}>
+                  {badge ? (
+                    <Glyph of={of} size="m" tile />
+                  ) : (
+                    <span className="k-glyph-lead">
+                      <Glyph of={of} size="s" />
+                    </span>
+                  )}
+                  <span className="k-label k-title">{e.title}</span>
+                </span>
+                <span className="k-hright">
+                  {chip}
+                  <span className="k-num d4">{e.value}</span>
+                </span>
+              </a>
             ) : (
               <span className="k-head">
                 <span className={"k-hlead" + (badge ? " badged" : "")}>
@@ -265,6 +290,13 @@ export function Box({
                     <span className="line" />
                   </span>
                 )}
+                {dense && e.score && e.score.value !== null && (
+                  // The number beside it, in its band's colour: kept when the drawing is
+                  // too small to read (≤ 360 px), never a row with no score at all (UI-102).
+                  <b className="k-vn" style={{ color: F.judge(e.score.value).tone }}>
+                    {e.score.value}
+                  </b>
+                )}
                 {headActs.map((a) => (
                   <button
                     key={a.label}
@@ -276,11 +308,16 @@ export function Box({
                     {a.label}
                   </button>
                 ))}
-                {e.href && (
-                  <a className="k-go" href={e.href} aria-label={e.hrefLabel ?? e.title}>
-                    ›
-                  </a>
-                )}
+                {e.href &&
+                  (cover ? (
+                    <span className="k-go" aria-hidden="true">
+                      ›
+                    </span>
+                  ) : (
+                    <a className="k-go" href={e.href} aria-label={e.hrefLabel ?? e.title}>
+                      ›
+                    </a>
+                  ))}
               </span>
             )}
           </div>

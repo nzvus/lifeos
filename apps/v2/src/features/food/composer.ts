@@ -332,11 +332,13 @@ export const ESTIMATE_WORDS: Record<EstimateError, string> = {
 /** The typed totals of an estimate, as the preview's numbers; what is not a number is left out. */
 export function estimateTotals(
   typed: Partial<Record<EstimateField, string>>,
+  servings = "1",
 ): Record<string, number> {
+  const k = Number(quantityOf(servings) ?? "1");
   const out: Record<string, number> = {};
   for (const f of ESTIMATE_FIELDS) {
     const q = quantityOf(typed[f] ?? "");
-    if (q !== null) out[f] = Number(q);
+    if (q !== null) out[f] = Number(q) * k;
   }
   return out;
 }

@@ -2,7 +2,7 @@
  * A composer's form as the meal entry's input, and its extras: saved and
  * edited alike. Servings are kept only when not 1, and must be more than
  * none (the kind allows 0). «Salva anche come pasto» needs a new name; it
- * is checked here, before anything is written. An estimate has no servings,
+ * is checked here, before anything is written. An estimate has servings too,
  * and is saved as a saved estimate (its totals, no foods). The role is
  * always stored (capture.md §4): the one chosen («manual»), else the one of
  * the meal's time from the person's bounds («auto», taken again from the
@@ -43,8 +43,8 @@ export function mealInput(
   bounds: RoleBounds,
 ): EntryInput {
   const estimate = form["estimate"] === "yes";
-  // An estimate's totals are the whole meal: no servings.
-  const servings = estimate ? null : quantityOf(form["servings"] ?? "");
+  // An estimate's totals are one serving; servings multiply them too (FOOD-41: «mezza pizza»).
+  const servings = quantityOf(form["servings"] ?? "");
   return {
     day,
     status: form["status"] === "planned" ? "planned" : "done",
@@ -85,7 +85,7 @@ export async function mealExtras(
 ): Promise<{ errors: Record<string, string>; saveAs: string | null }> {
   const errors: Record<string, string> = {};
   const raw = (form["servings"] ?? "").trim();
-  if (form["estimate"] !== "yes" && raw !== "" && quantityOf(raw) === null)
+  if (raw !== "" && quantityOf(raw) === null)
     errors["servings"] = "Scrivi le porzioni, per esempio 1 o 1,5.";
   if (form["saveAs"] !== "yes") return { errors, saveAs: null };
   const name = recipeName(form["recipeName"] ?? "");

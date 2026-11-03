@@ -47,7 +47,16 @@ export function checkMealLines(
 }
 
 /** The totals a person may type for a meal they cannot compose (migration.md "estimated"). */
-export const ESTIMATE_FIELDS = ["kcal", "protein", "carbs", "fat", "fibre"] as const;
+export const ESTIMATE_FIELDS = [
+  "kcal",
+  "protein",
+  "carbs",
+  "sugars",
+  "fat",
+  "saturatedFat",
+  "fibre",
+  "salt",
+] as const;
 export type EstimateField = (typeof ESTIMATE_FIELDS)[number];
 export type EstimateError = "required" | "number" | "too_much";
 /** An estimate's confidence, as v1's estimated meals were converted. */
@@ -56,14 +65,18 @@ const ESTIMATE_MAX: Record<EstimateField, number> = {
   kcal: 10000,
   protein: 1000,
   carbs: 1000,
+  sugars: 1000,
   fat: 1000,
+  saturatedFat: 1000,
   fibre: 500,
+  salt: 100,
 };
 
 /**
  * Typed totals as the meal's one line (migration.md): no food, 100 g, the
  * totals as its values per 100, so every sum reads it like any line. Kcal
- * are needed; the macros are optional; all at most 2 decimals.
+ * are needed; the rest is optional and a field left empty stays unknown
+ * (absent), never 0 (ledger FOOD-25, FOOD-41); all at most 2 decimals.
  */
 export function checkEstimate(
   typed: Partial<Record<EstimateField, string>>,

@@ -33,7 +33,8 @@ import { resetWeights, saveWeightsForm } from "./actions";
 
 const SUBJECT_WHERE: Record<string, string> = {
   food: "Il voto di un pasto si apre toccando il pasto su Oggi.",
-  session: "Il voto di una sessione si vede in palestra, mentre ti alleni.",
+  session:
+    "Il voto di una sessione si vede in palestra mentre ti alleni, e sul suo riquadro nella giornata quando è finita.",
   day: "Il voto del giorno è nel riquadro del giorno su Oggi.",
 };
 

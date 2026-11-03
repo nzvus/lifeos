@@ -176,11 +176,12 @@ describe("a meal estimated by hand", () => {
       itemId: null,
       name: "Pizza",
       quantity: "100",
-      values: { kcal: "650", protein: "30.5", salt: "2" },
+      values: { kcal: "650", protein: "30.5", salt: "2", nova: "4" },
     };
+    // Every label field comes back (FOOD-41); what is not one (nova) does not; unknown stays absent.
     expect(typedEstimate({ estimated: true }, [line])).toEqual({
       name: "Pizza",
-      totals: { kcal: "650", protein: "30.5" },
+      totals: { kcal: "650", protein: "30.5", salt: "2" },
     });
     expect(
       typedEstimate({ estimated: true }, [{ ...line, quantity: "200" }])?.totals.kcal,

@@ -5,7 +5,7 @@
  * a catalog's list with its search and sort (features/library), the pantry
  * or the routes. Decided by the agent (3 Nov, ledger UI-95). Server component.
  */
-import { AREAS, AreaTabs, Box, F, NavBar, PageHeader } from "@lifeos/kit";
+import { AREAS, AreaTabs, Box, F, List, NavBar, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -140,13 +140,13 @@ function Pantry({ foods }: { foods: PantryFood[] }) {
         {buy.length === 0 ? (
           <p className="k-help">Niente finisce prima della prossima spesa.</p>
         ) : (
-          buy.map(row)
+          <List label="Da comprare">{buy.map(row)}</List>
         )}
       </section>
       {home.length > 0 && (
         <section className="k-section g2" aria-label="In casa">
           <h2>In casa</h2>
-          {home.map(row)}
+          <List label="In casa">{home.map(row)}</List>
         </section>
       )}
     </>
@@ -163,31 +163,33 @@ function Routes({ routes }: { routes: Awaited<ReturnType<typeof readRoutes>> }) 
           basta un tocco.
         </p>
       ) : (
-        routes.map((r) => (
-          <Box
-            key={r.id}
-            density="row"
-            rail={false}
-            entry={{
-              fam: "train",
-              of: { kind: "trip" },
-              title: r.name,
-              value: r.distanceKm !== null ? F.num(r.distanceKm, "km") : "",
-              meta: [
-                MODE_WORDS[r.mode] ?? r.mode,
-                r.durationMin !== null ? F.hm(r.durationMin) : "",
-                // On foot the whole way says nothing new; by transport, the metres walked.
-                r.walkingM !== null && r.mode !== "walk" && r.mode !== "run"
-                  ? F.num(r.walkingM, "m") + " a piedi"
-                  : "",
-                r.uses ? F.plural(r.uses, "volta", "volte") + " in 90 giorni" : "",
-              ]
-                .filter(Boolean)
-                .join(" · "),
-              ...(r.mapsUrl ? { href: r.mapsUrl, hrefLabel: "Apri in Maps" } : {}),
-            }}
-          />
-        ))
+        <List label="I tuoi tragitti">
+          {routes.map((r) => (
+            <Box
+              key={r.id}
+              density="row"
+              rail={false}
+              entry={{
+                fam: "train",
+                of: { kind: "trip" },
+                title: r.name,
+                value: r.distanceKm !== null ? F.num(r.distanceKm, "km") : "",
+                meta: [
+                  MODE_WORDS[r.mode] ?? r.mode,
+                  r.durationMin !== null ? F.hm(r.durationMin) : "",
+                  // On foot the whole way says nothing new; by transport, the metres walked.
+                  r.walkingM !== null && r.mode !== "walk" && r.mode !== "run"
+                    ? F.num(r.walkingM, "m") + " a piedi"
+                    : "",
+                  r.uses ? F.plural(r.uses, "volta", "volte") + " in 90 giorni" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" · "),
+                ...(r.mapsUrl ? { href: r.mapsUrl, hrefLabel: "Apri in Maps" } : {}),
+              }}
+            />
+          ))}
+        </List>
       )}
       <a className="k-link" href="/corpo/tragitto/nuovo">
         + Nuovo tragitto

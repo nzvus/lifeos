@@ -7,9 +7,10 @@
  * What happens next (the server, the toast's Undo) is the day's: this
  * component only says which.
  */
-import { useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import {
   Box,
+  F,
   Nutrients,
   NutrientsL0,
   type BoxAct,
@@ -18,6 +19,7 @@ import {
 } from "@lifeos/kit";
 import type { Details } from "./details";
 import type { Status } from "./filter";
+import { stepServings } from "./servings";
 
 export type RowIntent = "done" | "skipped" | "planned" | "remove";
 
@@ -32,6 +34,7 @@ export function EntryRow({
   mode = "compact",
   onRail,
   onIntent,
+  onServings,
 }: {
   /** `l0`: a meal's thin macro bars (the boards' L0); `details`: what the open box shows. */
   entry: BoxEntry & {
@@ -41,6 +44,8 @@ export function EntryRow({
     running?: boolean;
     /** A session: begun in gym mode («Inizia»), never ticked done with no set. */
     session?: boolean;
+    /** A meal or intake: its multiplier ("1" when none); −/+ when open. */
+    servings?: string | null;
   };
   status: Status;
   density?: "card" | "row";
@@ -48,8 +53,20 @@ export function EntryRow({
   mode?: "compact" | "times";
   onRail?: () => void;
   onIntent: (intent: RowIntent) => void;
+  /** −/+ on the servings: the new value, saved by the day. */
+  onServings?: (servings: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  // Shown at once, the server's value when it comes back (optimistic, UI-59).
+  const [served, setServed] = useState(entry.servings ?? null);
+  useEffect(() => setServed(entry.servings ?? null), [entry.servings]);
+  const serve = (dir: 1 | -1) => {
+    if (served === null || !onServings) return;
+    const next = stepServings(served, dir);
+    if (next === served) return;
+    setServed(next);
+    onServings(next);
+  };
   const [dx, setDx] = useState(0);
   const drag = useRef<{ x: number; y: number; axis: "h" | "v" | null } | null>(null);
   const width = useRef(1);
@@ -154,18 +171,35 @@ export function EntryRow({
             ? { expanded: open, onToggle: () => setOpen((o) => !o) }
             : {})}
         >
-          {entry.l0 &&
-            (open ? (
-              <Nutrients data={entry.l0} />
-            ) : (
-              <div className="k-slot-l0">
-                <NutrientsL0 data={entry.l0} />
-              </div>
-            ))}
-          {open && entry.details && <EntryDetails d={entry.details} />}
-          {/* Deleting is also a swipe to the left; opened, it is said in words. */}
+          {/* Opened: the multiplier and Elimina first, at the top (FOOD-38, FOOD-47); deleting
+              is also a swipe to the left. */}
           {open && (
-            <div className="k-line end">
+            <div className="k-line between k-serve">
+              {served !== null && onServings ? (
+                <span className="k-line g2" role="group" aria-label="Porzioni">
+                  <button
+                    type="button"
+                    className="k-btn act"
+                    aria-label={"Meno porzioni di " + entry.title}
+                    onClick={() => serve(-1)}
+                  >
+                    −
+                  </button>
+                  <span className="k-num" aria-live="polite">
+                    {"×\u00a0" + F.input(Number(served), 2)}
+                  </span>
+                  <button
+                    type="button"
+                    className="k-btn act"
+                    aria-label={"Più porzioni di " + entry.title}
+                    onClick={() => serve(1)}
+                  >
+                    +
+                  </button>
+                </span>
+              ) : (
+                <span />
+              )}
               <button
                 type="button"
                 className="k-btn act danger"
@@ -176,6 +210,15 @@ export function EntryRow({
               </button>
             </div>
           )}
+          {entry.l0 &&
+            (open ? (
+              <Nutrients data={entry.l0} />
+            ) : (
+              <div className="k-slot-l0">
+                <NutrientsL0 data={entry.l0} />
+              </div>
+            ))}
+          {open && entry.details && <EntryDetails d={entry.details} />}
         </Box>
       </div>
     </div>

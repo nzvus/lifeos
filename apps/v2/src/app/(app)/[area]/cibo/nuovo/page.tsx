@@ -46,13 +46,19 @@ export default async function NewFoodPage({
   const owner = await requireOwner();
   const known = code ? await readFoodByBarcode(await getDb(), owner, code) : null;
   if (known) redirect("/cibo/cibo/" + known);
-  const off = code ? await fetchOff(code) : null;
+  const lookup = code ? await fetchOff(code) : null;
+  const off = lookup?.status === "found" ? lookup.prefill : null;
   const initial: Record<string, string> = off
     ? {
         unit: off.unit,
         barcode: off.barcode,
-        // The brand in the name: a product of its own comes later, from the food's page.
-        name: (off.name + (off.description ? " · " + off.description : "")).slice(0, 80),
+        // The brand apart, prefilled and editable: it becomes the food's product (FOOD-48).
+        name: off.name.slice(0, 80),
+        brand: off.description.slice(0, 80),
+        ...(off.packageSize ? { packageSize: F.input(Number(off.packageSize), 2) } : {}),
+        ...Object.fromEntries(
+          Object.entries(off.extras).map(([k, x]) => ["x." + k, F.input(Number(x), 2)]),
+        ),
         ...Object.fromEntries(
           FIELDS.flatMap((f) =>
             off[f] === ""
@@ -74,7 +80,7 @@ export default async function NewFoodPage({
       isNew
       backHref={back ?? "/cibo/elenco"}
       action={saveFood.bind(null, null, back)}
-      top={<BarcodeBox code={code} found={off !== null} />}
+      top={<BarcodeBox code={code} result={lookup?.status ?? null} />}
     />
   );
 }

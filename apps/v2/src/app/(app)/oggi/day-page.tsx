@@ -108,7 +108,8 @@ import {
   type CompoundContext,
 } from "@/features/day/compounds";
 import { details, hasDetails } from "@/features/day/details";
-import { isRunning, present } from "@/features/day/present";
+import { isRunning, present, servingsOf } from "@/features/day/present";
+import { readSessionScores } from "@/features/training/session-score";
 import { DayView } from "@/features/day/DayView";
 import {
   addWater,
@@ -118,6 +119,7 @@ import {
   closeDay,
   recomputeTargets,
   removeEntry,
+  setServings,
   removePlanned,
 } from "./[[...day]]/actions";
 import { DayClose } from "@/features/day/DayClose";
@@ -210,6 +212,13 @@ export async function DayPage({
   const targets = dayTargets.get(date) ?? null;
   const kinds = await readFoodEstimates(db, owner, days.flatMap(foodIds));
   const items = [...day.timed, ...day.untimed];
+  // The finished sessions' scores, as the gym gives them (TRAIN-36).
+  const sessionScores = await readSessionScores(
+    db,
+    owner,
+    items.filter((i) => i.kind.key === "session").map((i) => ({ ...i, day: date })),
+    known.weights,
+  );
   // The few rows the scores and the zones read: weigh-ins (the reference
   // weight, the weigh-in's score), the week's nights; goals only for a weigh-in.
   const weighed = items.some((i) => i.kind.key === "weigh_in" && i.status === "done");
@@ -376,10 +385,12 @@ export async function DayPage({
           known.weights,
         ) ??
           weighScore(i, items, sctx) ??
-          sleepScore(i, items, sctx),
+          sleepScore(i, items, sctx) ??
+          sessionScores.get(i.id),
       ),
       l0,
       details: hasDetails(d) ? d : null,
+      servings: servingsOf(i),
       id: i.id,
       status: i.status,
       running: isRunning(i),
@@ -413,11 +424,11 @@ export async function DayPage({
   const notWater = (i: (typeof items)[number]) => i.kind.key !== "water" && mine(i);
   const food = area === "oggi" || area === "cibo";
   // What the day's food costs (dossiers/costs.md §6): eaten apart from planned, always «≈».
-  const costOf = (status: string) =>
+  const costOf = (...status: string[]) =>
     costWords(
       sumCosts(
         items
-          .filter((i) => isEaten(i.kind.key) && i.status === status)
+          .filter((i) => isEaten(i.kind.key) && status.includes(i.status))
           .map((i) =>
             entryCost(
               i.lines,
@@ -431,6 +442,9 @@ export async function DayPage({
     );
   const eatenCost = food ? costOf("done") : null;
   const plannedCost = food ? costOf("planned") : null;
+  // With something still planned, the day's end too: «previsto» alone read as a total
+  // lower than what was already spent (his screenshot, 3 Nov).
+  const wholeCost = food && plannedCost ? costOf("done", "planned") : null;
   // An entry ticked done from ⊕: its toast on arrival, with «Annulla».
   const { fatto } = await searchParams;
   const ticked =
@@ -633,7 +647,8 @@ export async function DayPage({
               <span>
                 {[
                   "Costo " + (eatenCost ?? "—"),
-                  plannedCost ? "previsto " + plannedCost : "",
+                  plannedCost ? "ancora da mangiare " + plannedCost : "",
+                  wholeCost ? "a fine giornata " + wholeCost : "",
                 ]
                   .filter(Boolean)
                   .join(" · ")}
@@ -680,6 +695,7 @@ export async function DayPage({
             actions={{
               changeStatus,
               removeEntry,
+              setServings,
               bringBack,
               removePlanned,
               bringBackAll,
