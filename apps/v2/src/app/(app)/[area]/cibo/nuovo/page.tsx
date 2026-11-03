@@ -46,7 +46,8 @@ export default async function NewFoodPage({
   const owner = await requireOwner();
   const known = code ? await readFoodByBarcode(await getDb(), owner, code) : null;
   if (known) redirect("/cibo/cibo/" + known);
-  const off = code ? await fetchOff(code) : null;
+  const lookup = code ? await fetchOff(code) : null;
+  const off = lookup?.status === "found" ? lookup.prefill : null;
   const initial: Record<string, string> = off
     ? {
         unit: off.unit,
@@ -74,7 +75,7 @@ export default async function NewFoodPage({
       isNew
       backHref={back ?? "/cibo/elenco"}
       action={saveFood.bind(null, null, back)}
-      top={<BarcodeBox code={code} found={off !== null} />}
+      top={<BarcodeBox code={code} result={lookup?.status ?? null} />}
     />
   );
 }
