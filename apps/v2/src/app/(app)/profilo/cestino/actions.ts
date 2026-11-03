@@ -10,6 +10,6 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function restoreFromTrash(id: string): Promise<void> {
   if (!UUID.test(id)) return;
   await restoreEntry(await getDb(), await requireOwner(), id);
-  revalidatePath("/impostazioni/cestino");
+  revalidatePath("/profilo/cestino");
   revalidatePath("/", "layout");
 }

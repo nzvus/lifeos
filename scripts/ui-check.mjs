@@ -47,7 +47,7 @@ const PAGES = [
   "/corpo/andamento/peso",
   "/soldi/andamento",
   "/palestra",
-  "/impostazioni",
+  "/profilo",
 ];
 /** One object page of each kind: the first link of its list. */
 const FIRST_OF = [

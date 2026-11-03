@@ -32,6 +32,12 @@ const config: NextConfig = {
         permanent: false,
       },
       { source: "/andamento/soldi", destination: "/soldi/andamento", permanent: false },
+      { source: "/impostazioni", destination: "/profilo", permanent: false },
+      {
+        source: "/impostazioni/:rest+",
+        destination: "/profilo/:rest+",
+        permanent: false,
+      },
       // Map D slice 3: each object under its area.
       ...[
         ["/libreria/cibo", "/cibo/cibo"],

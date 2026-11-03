@@ -60,7 +60,7 @@ export async function createTracker(
   }
   await createUserKind(db, owner, built.row);
   revalidatePath("/", "layout");
-  redirect("/impostazioni/tipi?fatto=" + built.row.key);
+  redirect("/profilo/tipi?fatto=" + built.row.key);
 }
 
 export async function archiveTracker(id: string, archived: boolean): Promise<void> {

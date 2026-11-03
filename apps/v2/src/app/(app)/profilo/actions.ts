@@ -60,7 +60,7 @@ export async function savePlaceForm(data: FormData): Promise<void> {
   if (city === "") {
     await savePlace(await getDb(), owner, null);
     revalidatePath("/", "layout");
-    redirect("/impostazioni");
+    redirect("/profilo");
   }
   let place = null;
   try {
@@ -69,8 +69,8 @@ export async function savePlaceForm(data: FormData): Promise<void> {
   } catch {
     place = null;
   }
-  if (!place) redirect("/impostazioni?luogo=nontrovato");
+  if (!place) redirect("/profilo?luogo=nontrovato");
   await savePlace(await getDb(), owner, place);
   revalidatePath("/", "layout");
-  redirect("/impostazioni?luogo=ok");
+  redirect("/profilo?luogo=ok");
 }

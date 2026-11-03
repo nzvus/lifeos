@@ -26,7 +26,7 @@ export default async function TrackersPage({
       <PageHeader
         title="Tracker e tipi"
         context="quelli di base, più i tuoi"
-        back={{ label: "Impostazioni", href: "/impostazioni" }}
+        back={{ label: "Profilo", href: "/profilo" }}
         of={{ fam: "settings", kind: "trackers" }}
       />
       {made && (

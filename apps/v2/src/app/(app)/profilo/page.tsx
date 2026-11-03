@@ -83,8 +83,8 @@ export default async function SettingsPage({
   return (
     <main className="k-page has-bd">
       <PageHeader
-        title="Impostazioni"
-        context="tutto ciò che vale per ogni giorno"
+        title="Profilo"
+        context="tu, i tuoi dati e ciò che vale per ogni giorno"
         back={{ label: "Oggi", href: "/oggi" }}
         of={{ place: "impostazioni" }}
       />
@@ -149,7 +149,7 @@ export default async function SettingsPage({
             meta: counts.kinds
               ? "tracker tuoi, oltre a quelli di base"
               : "per ora solo quelli di base",
-            href: "/impostazioni/tipi",
+            href: "/profilo/tipi",
             hrefLabel: "I tuoi tracker, e uno nuovo",
           }}
         />
@@ -191,7 +191,7 @@ export default async function SettingsPage({
         of={{ fam: "settings", kind: "data" }}
         help="Sempre tuoi: scaricali quando vuoi."
       >
-        <a className="k-plain" href="/impostazioni/esporta" download>
+        <a className="k-plain" href="/profilo/esporta" download>
           <Box
             density="row"
             rail={false}
@@ -204,7 +204,7 @@ export default async function SettingsPage({
             }}
           />
         </a>
-        <form action="/impostazioni/csv" method="get" className="k-stack g1">
+        <form action="/profilo/csv" method="get" className="k-stack g1">
           <label className="k-label" htmlFor="f-csv">
             Un foglio per tipo
           </label>
@@ -247,7 +247,7 @@ export default async function SettingsPage({
             title: "Cestino",
             value: F.n(counts.trash, 0),
             meta: "si svuota da solo dopo 30 giorni",
-            href: "/impostazioni/cestino",
+            href: "/profilo/cestino",
             hrefLabel: "Apri il cestino",
           }}
         />

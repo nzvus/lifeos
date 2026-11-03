@@ -14,7 +14,7 @@ export default async function TrashPage() {
       <PageHeader
         title="Cestino"
         context={"ultimi " + TRASH_DAYS + " giorni"}
-        back={{ label: "Impostazioni", href: "/impostazioni" }}
+        back={{ label: "Profilo", href: "/profilo" }}
         of={{ place: "impostazioni" }}
       />
       <section className="k-section g2" aria-label="Voci eliminate">
