@@ -3,6 +3,7 @@ import type { FoodChoice } from "@/core/food/choices";
 import {
   exerciseRows,
   foodPage,
+  likelyFoods,
   mealPage,
   variantChanges,
   foodRows,
@@ -276,5 +277,33 @@ describe("what a variant changes, in words (ADR-0060)", () => {
       "+ 40 g Crema 100% pistacchi",
       "senza Cacao",
     ]);
+  });
+});
+
+describe("«È una marca di un tuo cibo?» (ADR-0060, objects.md §8 test 6)", () => {
+  const f = (foodId: string, name: string) => ({
+    key: foodId,
+    foodId,
+    productId: null,
+    name,
+    brand: null,
+    unit: "g",
+    per100: {},
+    uses: 0,
+    lastQty: null,
+  });
+  it("a new Mutti passata proposes his «Passata di pomodoro», not unrelated foods", () => {
+    const foods = [
+      f("a", "Passata di pomodoro"),
+      f("b", "Pomodori secchi"),
+      f("c", "Ceci lessati"),
+    ];
+    expect(likelyFoods("Passata di Pomodoro Mutti", foods).map((x) => x.foodId)).toEqual([
+      "a",
+    ]);
+    expect(
+      likelyFoods("Gnocchi di patate freschi", [f("g", "Gnocchi di patate")]),
+    ).toHaveLength(1);
+    expect(likelyFoods("Coca-Cola", foods)).toEqual([]);
   });
 });

@@ -1,6 +1,7 @@
 "use server";
 /** Saving a food's editor (V-07): the session's owner, the form checked by core, then written. */
 import { revalidatePath } from "next/cache";
+import { F } from "@lifeos/kit";
 import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -8,7 +9,9 @@ import { SNAPSHOT_FIELDS } from "@/core/food/choices";
 import {
   checkFood,
   createFood,
+  createFormat,
   createProduct,
+  productByBrand,
   updateFood,
   type FoodValueError,
 } from "@/core/food/edit";
@@ -65,18 +68,22 @@ export async function saveFood(
     }
     const brand = (form["brand"] ?? "").trim().replace(/\s+/g, " ").slice(0, 80);
     if (Object.keys(bad).length > 0) return again(bad);
+    const unit = form["unit"] === "ml" ? "ml" : "g";
+    const barcode = isValidGtin(form["barcode"] ?? "") ? form["barcode"]! : null;
+    const { packageSize, ...values } = extra;
     const made = await createFood(
       db,
       owner,
       checked.name,
-      form["unit"] === "ml" ? "ml" : "g",
+      unit,
       checked.values,
-      isValidGtin(form["barcode"] ?? "") ? form["barcode"]! : null,
-      extra,
+      null,
+      values,
     );
     if (made === "taken") return again({ name: "Hai già un cibo con questo nome." });
-    // The brand is the food's first product; its values are the food's, so none of its own.
-    if (brand) await createProduct(db, owner, made.id, brand, {});
+    // The brand is the food's first product (its values are the food's); the package and
+    // the barcode are its format (ADR-0060: a barcode is one size of one product).
+    await addBrandFormat(db, owner, made.id, unit, brand, packageSize ?? null, barcode);
     revalidatePath("/", "layout");
     redirect(back ?? "/cibo/cibo/" + made.id);
   }
@@ -126,16 +133,58 @@ export async function saveProduct(
     for (const [f, code] of Object.entries(checked.at)) errors[f] = WORDS[code];
     return again(errors);
   }
-  const made = await createProduct(
-    await getDb(),
-    owner,
-    foodId,
-    checked.name,
-    checked.values,
-  );
-  if (made === "gone") return again({ form: "Questo cibo non c’è più." });
-  if (made === "taken")
-    return again({ name: "Questo cibo ha già un prodotto con questa marca." });
+  const db = await getDb();
+  const barcode = isValidGtin(form["barcode"] ?? "") ? form["barcode"]! : null;
+  const size = (form["packageSize"] ?? "").trim().replace(",", ".");
+  // From a scan («È una marca di un tuo cibo?»): a brand it already has gets a new format.
+  const known = barcode ? await productByBrand(db, owner, foodId, checked.name) : null;
+  if (!known) {
+    const made = await createProduct(db, owner, foodId, checked.name, checked.values);
+    if (made === "gone") return again({ form: "Questo cibo non c’è più." });
+    if (made === "taken")
+      return again({ name: "Questo cibo ha già un prodotto con questa marca." });
+  }
+  if (barcode || /^\d+(\.\d+)?$/.test(size))
+    await addBrandFormat(
+      db,
+      owner,
+      foodId,
+      form["unit"] === "ml" ? "ml" : "g",
+      checked.name,
+      /^\d+(\.\d+)?$/.test(size) ? size : null,
+      barcode,
+    );
   revalidatePath("/", "layout");
   redirect("/cibo/cibo/" + foodId);
+}
+
+/**
+ * The format a scan or a package brings (ADR-0060): under the food's product of
+ * that brand (made when missing; «marca non indicata» with no brand), named by
+ * its size («500 g»), with the barcode. Nothing when there is neither.
+ */
+async function addBrandFormat(
+  db: Awaited<ReturnType<typeof getDb>>,
+  owner: Awaited<ReturnType<typeof requireOwner>>,
+  foodId: string,
+  unit: "g" | "ml",
+  brand: string,
+  size: string | null,
+  barcode: string | null,
+): Promise<void> {
+  if (!brand && !size && !barcode) return;
+  const name = brand || "marca non indicata";
+  let product = await productByBrand(db, owner, foodId, name);
+  if (!product) {
+    const made = await createProduct(db, owner, foodId, name, {});
+    if (typeof made !== "object") return;
+    product = made.id;
+  }
+  if (!size && !barcode) return;
+  await createFormat(db, owner, product, {
+    name: size ? F.num(Number(size), unit) : "confezione",
+    unit,
+    size,
+    barcode,
+  });
 }

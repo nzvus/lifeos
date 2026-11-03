@@ -72,6 +72,8 @@ export function FoodForm({
       />
       {top}
       {v["barcode"] && <input type="hidden" name="barcode" value={v["barcode"]} />}
+      {/* A new brand's format is in its food's unit. */}
+      {productOf && <input type="hidden" name="unit" value={unit} />}
       <section className="k-section g3" aria-label="Nome">
         <h2>
           <span className="k-hicon">
@@ -101,17 +103,19 @@ export function FoodForm({
             ]}
           />
         )}
-        {isNew && !productOf && (
+        {isNew && (
           <>
-            <Field
-              name="brand"
-              label="Marca"
-              type="text"
-              placeholder="facoltativa, per esempio: Lidl"
-              help="Diventa un prodotto di questo cibo: altre marche si aggiungono dalla sua pagina."
-              defaultValue={v["brand"] ?? ""}
-              error={e["brand"]}
-            />
+            {!productOf && (
+              <Field
+                name="brand"
+                label="Marca"
+                type="text"
+                placeholder="facoltativa, per esempio: Lidl"
+                help="Diventa un prodotto di questo cibo: altre marche si aggiungono dalla sua pagina."
+                defaultValue={v["brand"] ?? ""}
+                error={e["brand"]}
+              />
+            )}
             <Field
               name="packageSize"
               label="Confezione"

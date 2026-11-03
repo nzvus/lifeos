@@ -64,7 +64,10 @@ async function ask(track: MediaStreamTrack | null, c: Extra): Promise<void> {
 export function BarcodeBox({
   code,
   result,
+  candidates = [],
 }: {
+  /** Foods this product is likely a brand of («È una marca di un tuo cibo?», ADR-0060). */
+  candidates?: readonly { foodId: string; name: string }[];
   code: string | null;
   /** Open Food Facts' answer for `code`: found, not there, or not reached. */
   result: "found" | "missing" | "error" | null;
@@ -181,6 +184,21 @@ export function BarcodeBox({
           Trovato su Open Food Facts: i valori sono già scritti qui sotto, controllali con
           l’etichetta prima di salvare.
         </p>
+      )}
+      {code && result === "found" && candidates.length > 0 && (
+        <div className="k-stack g2" aria-label="È una marca di un tuo cibo?">
+          <span className="k-label">È una marca di un tuo cibo?</span>
+          {candidates.map((c) => (
+            <a
+              key={c.foodId}
+              className="k-btn secondary"
+              href={"/cibo/cibo/" + c.foodId + "/prodotto?barcode=" + code}
+            >
+              Sì, di «{c.name}»
+            </a>
+          ))}
+          <span className="k-help">Altrimenti è un cibo nuovo: completa qui sotto.</span>
+        </div>
       )}
       {code && result === "missing" && (
         <p className="k-help" role="status">

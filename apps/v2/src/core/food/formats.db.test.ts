@@ -1,9 +1,11 @@
+import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { readFoodChoices, readFoodFormats } from "./catalog";
+import { createFormat, readFoodByBarcode } from "./edit";
 
 // objects.md §8 test 4: his Gnocchi Nonna Mia, two formats, two prices per kg.
 describe("a food's formats and their price per kg (ADR-0055, ADR-0060)", () => {
@@ -72,5 +74,29 @@ describe("a food's formats and their price per kg (ADR-0055, ADR-0060)", () => {
     const generic = choices.find((c) => c.key === food)!;
     expect(Number(generic.per100["cents"]) / 10).toBe(1.3);
     expect(generic.per100["kcal"]).toBe("150.0000");
+  });
+
+  it("a barcode lives on its format and a scan finds the food through it (objects.md §8 test 6)", async () => {
+    const [brand] = await db
+      .select({ id: s.catalogItems.id })
+      .from(s.catalogItems)
+      .where(eq(s.catalogItems.name, "Nonna Mia"));
+    const fmt = await createFormat(db, a, brand!.id, {
+      name: "500 g",
+      unit: "g",
+      size: "500",
+      barcode: "8001234567890",
+    });
+    expect(fmt).not.toBeNull();
+    expect(await readFoodByBarcode(db, a, "8001234567890")).toBe(food);
+    expect(await readFoodByBarcode(db, a, "0000000000000")).toBeNull();
+    expect(
+      await createFormat(db, a, food, {
+        name: "x",
+        unit: "g",
+        size: null,
+        barcode: null,
+      }),
+    ).toBeNull();
   });
 });

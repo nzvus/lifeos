@@ -264,14 +264,22 @@ export async function createProduct(
   });
 }
 
-/** The live food a barcode was saved with; null when none. */
+/**
+ * The live food a barcode belongs to; null when none. A barcode is a format's
+ * (GS1: one code per size, ADR-0060): format › product › food. Barcodes saved
+ * on a food before that still find it.
+ */
 export async function readFoodByBarcode(
   db: Db,
   owner: Owner,
   barcode: string,
 ): Promise<string | null> {
   const [row] = await db
-    .select({ id: catalogItems.id })
+    .select({
+      id: catalogItems.id,
+      catalog: catalogItems.catalog,
+      parentId: catalogItems.parentId,
+    })
     .from(catalogValues)
     .innerJoin(catalogItems, eq(catalogItems.id, catalogValues.itemId))
     .where(
@@ -283,5 +291,86 @@ export async function readFoodByBarcode(
       ),
     )
     .limit(1);
-  return row?.id ?? null;
+  let at: { id: string; catalog: string; parentId: string | null } | undefined = row;
+  for (let up = 0; at && at.catalog !== "food" && at.parentId && up < 2; up++) {
+    [at] = await db
+      .select({
+        id: catalogItems.id,
+        catalog: catalogItems.catalog,
+        parentId: catalogItems.parentId,
+      })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.id, at.parentId),
+          isNull(catalogItems.deletedAt),
+        ),
+      );
+  }
+  return at?.catalog === "food" ? at.id : null;
+}
+
+/**
+ * A format of a product (ADR-0055, ADR-0060): its name («500 g»), its size in
+ * the food's unit and its barcode; null when the product is not a live one.
+ */
+export async function createFormat(
+  db: Db,
+  owner: Owner,
+  productId: string,
+  f: { name: string; unit: "g" | "ml"; size: string | null; barcode: string | null },
+): Promise<string | null> {
+  return db.transaction(async (tx) => {
+    const [product] = await tx
+      .select({ id: catalogItems.id })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.id, productId),
+          eq(catalogItems.catalog, "product"),
+          isNull(catalogItems.deletedAt),
+        ),
+      );
+    if (!product) return null;
+    const [row] = await tx
+      .insert(catalogItems)
+      .values({ userId: owner.id, catalog: "format", name: f.name, parentId: productId })
+      .returning({ id: catalogItems.id });
+    const id = row!.id;
+    await tx
+      .insert(catalogValues)
+      .values([
+        { userId: owner.id, itemId: id, field: "unit", text: f.unit },
+        ...(f.size ? [{ userId: owner.id, itemId: id, field: "size", num: f.size }] : []),
+        ...(f.barcode
+          ? [{ userId: owner.id, itemId: id, field: "barcode", text: f.barcode }]
+          : []),
+      ]);
+    return id;
+  });
+}
+
+/** The live product of a food with this brand (ignoring case), or null. */
+export async function productByBrand(
+  db: Db,
+  owner: Owner,
+  foodId: string,
+  brand: string,
+): Promise<string | null> {
+  const [p] = await db
+    .select({ id: catalogItems.id })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "product"),
+        eq(catalogItems.parentId, foodId),
+        isNull(catalogItems.deletedAt),
+        sql`lower(${catalogItems.name}) = lower(${brand})`,
+      ),
+    )
+    .limit(1);
+  return p?.id ?? null;
 }

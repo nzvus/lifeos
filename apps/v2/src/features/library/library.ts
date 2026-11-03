@@ -430,3 +430,38 @@ export function foodTwins(
     )
     .map(({ id, name }) => ({ id, name }));
 }
+
+/**
+ * The person's foods a scanned product is likely a brand of (ADR-0060 «È una
+ * marca di un tuo cibo?»): the share of the product name's words (4+ letters,
+ * accents ignored) that the food's name has, best first; at most 4, none under
+ * half the words.
+ */
+export function likelyFoods(
+  name: string,
+  foods: readonly FoodChoice[],
+): { foodId: string; name: string }[] {
+  const words = (x: string) =>
+    fold(x)
+      .split(/[^a-z0-9]+/)
+      .filter((w) => w.length >= 4);
+  const want = new Set(words(name));
+  if (want.size === 0) return [];
+  return foods
+    .filter((f) => f.productId === null && f.foodId)
+    .map((f) => {
+      const have = words(f.name);
+      const hit = have.filter((w) =>
+        [...want].some((x) => x.startsWith(w.slice(0, 5)) || w.startsWith(x.slice(0, 5))),
+      ).length;
+      return {
+        foodId: f.foodId!,
+        name: f.name,
+        score: hit / Math.max(want.size, have.length),
+      };
+    })
+    .filter((x) => x.score >= 0.5)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4)
+    .map(({ foodId, name: n }) => ({ foodId, name: n }));
+}
