@@ -5,7 +5,7 @@
  * movements day by day with each day's total. ⊕ → Spesa adds one.
  * It is Soldi · Andamento itself (map D, architecture.md §10: `/soldi/andamento`).
  */
-import { addDays, AreaTabs, Box, F, NavBar, PageHeader } from "@lifeos/kit";
+import { addDays, AreaTabs, Box, F, List, NavBar, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -96,29 +96,32 @@ export async function MoneyPage({
       {m.byCategory.length > 0 && (
         <section className="k-section g2" aria-label="Il mese per categoria">
           <h2>Il mese per categoria</h2>
-          {m.byCategory.map((c) => (
-            <Box
-              key={c.id ?? "none"}
-              density="row"
-              rail={false}
-              entry={{
-                fam: "money",
-                title: c.id ? (nameOf.get(c.id) ?? "Categoria") : "Senza categoria",
-                value: eur(c.cents),
-                meta:
-                  F.n((c.cents / Math.max(1, m.spentCents)) * 100, 0) + " % della spesa",
-                strip: [
-                  {
-                    w: Math.max(
-                      2,
-                      Math.round((c.cents / Math.max(1, m.spentCents)) * 100),
-                    ),
-                    c: "var(--muscle-shoulders)",
-                  },
-                ],
-              }}
-            />
-          ))}
+          <List label="Il mese per categoria">
+            {m.byCategory.map((c) => (
+              <Box
+                key={c.id ?? "none"}
+                density="row"
+                rail={false}
+                entry={{
+                  fam: "money",
+                  title: c.id ? (nameOf.get(c.id) ?? "Categoria") : "Senza categoria",
+                  value: eur(c.cents),
+                  meta:
+                    F.n((c.cents / Math.max(1, m.spentCents)) * 100, 0) +
+                    " % della spesa",
+                  strip: [
+                    {
+                      w: Math.max(
+                        2,
+                        Math.round((c.cents / Math.max(1, m.spentCents)) * 100),
+                      ),
+                      c: "var(--muscle-shoulders)",
+                    },
+                  ],
+                }}
+              />
+            ))}
+          </List>
         </section>
       )}
       <section className="k-section g2" aria-label="Movimenti">
@@ -126,39 +129,42 @@ export async function MoneyPage({
         {m.days.length === 0 && (
           <p className="k-help">Nessun movimento nel mese: si aggiungono da ⊕ → Spesa.</p>
         )}
-        {m.days.map((d) => (
-          <div key={d.day} className="k-stack g2">
-            <div className="k-line between">
-              <span className="k-cap">{F.Day(d.day)}</span>
-              <span className="k-meta">{(d.cents < 0 ? "−" : "+") + eur(d.cents)}</span>
+        {/* Days, not rows, are windowed: a day's movements stay together (UI-41). */}
+        <List label="Movimenti per giorno" gap={3}>
+          {m.days.map((d) => (
+            <div key={d.day} className="k-stack g2">
+              <div className="k-line between">
+                <span className="k-cap">{F.Day(d.day)}</span>
+                <span className="k-meta">{(d.cents < 0 ? "−" : "+") + eur(d.cents)}</span>
+              </div>
+              {d.movements.map((x) => (
+                <Box
+                  key={x.id}
+                  density="row"
+                  rail={false}
+                  entry={{
+                    fam: "money",
+                    title:
+                      x.note ||
+                      x.shop ||
+                      (x.categoryId ? nameOf.get(x.categoryId) : "") ||
+                      "Movimento",
+                    value: (x.cents < 0 ? "−" : "+") + eur(x.cents),
+                    meta: [
+                      x.categoryId ? nameOf.get(x.categoryId) : "",
+                      x.note && x.shop ? x.shop : "",
+                      x.method === "cash" ? "contanti" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" · "),
+                    href: "/voce/" + x.id,
+                    hrefLabel: "Modifica il movimento",
+                  }}
+                />
+              ))}
             </div>
-            {d.movements.map((x) => (
-              <Box
-                key={x.id}
-                density="row"
-                rail={false}
-                entry={{
-                  fam: "money",
-                  title:
-                    x.note ||
-                    x.shop ||
-                    (x.categoryId ? nameOf.get(x.categoryId) : "") ||
-                    "Movimento",
-                  value: (x.cents < 0 ? "−" : "+") + eur(x.cents),
-                  meta: [
-                    x.categoryId ? nameOf.get(x.categoryId) : "",
-                    x.note && x.shop ? x.shop : "",
-                    x.method === "cash" ? "contanti" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" · "),
-                  href: "/voce/" + x.id,
-                  hrefLabel: "Modifica il movimento",
-                }}
-              />
-            ))}
-          </div>
-        ))}
+          ))}
+        </List>
       </section>
       <div className="k-nav k-stick">
         <NavBar active="soldi" hrefs={AREA_HREF} addHref="/aggiungi?area=soldi" />

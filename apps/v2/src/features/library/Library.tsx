@@ -10,7 +10,7 @@
  * above it, as links.
  */
 import { useState } from "react";
-import { Box, F, Field } from "@lifeos/kit";
+import { Box, F, Field, List as KitList } from "@lifeos/kit";
 import { listRows, sortValue, SORTS, type LibraryRow, type SortKey } from "./library";
 
 const UNITS: Partial<Record<SortKey, string>> = {
@@ -344,16 +344,18 @@ function List({
         onChange={(s) => setSort(s as SortKey)}
         options={TABS[tab].sorts.map((value) => ({ value, label: SORTS[value] }))}
       />
-      <div className="k-stack g2" aria-label={TABS[tab].label}>
-        {rows.map((r) => (
-          <Box key={r.key} density="row" rail={false} entry={row(tab, r, value(r))} />
-        ))}
-        {rows.length === 0 && (
-          <p className="k-help">
-            {query ? "Nessun risultato con queste parole." : "Ancora niente qui."}
-          </p>
-        )}
-      </div>
+      {rows.length === 0 ? (
+        <p className="k-help">
+          {query ? "Nessun risultato con queste parole." : "Ancora niente qui."}
+        </p>
+      ) : (
+        // 8 rows, then «Mostra altri (n)» (UI-41, UI-100); a new search or sort starts closed.
+        <KitList key={tab + sort + query} label={TABS[tab].label}>
+          {rows.map((r) => (
+            <Box key={r.key} density="row" rail={false} entry={row(tab, r, value(r))} />
+          ))}
+        </KitList>
+      )}
     </section>
   );
 }

@@ -806,7 +806,8 @@ a.k-plain{min-height:var(--touch)}
 .k-back{min-width:var(--touch)}
 .k-step .k-stepin{align-self:stretch;min-height:var(--touch)}
 .k-mrow{padding-block:12px;margin-block:-12px}
-button.k-head{padding-block:12px;margin-block:-12px}
+button.k-head,a.k-head{padding-block:12px;margin-block:-12px}
+a.k-head{text-decoration:none}.k-head.k-cover::after{content:"";position:absolute;inset:0;border-radius:var(--r)}.k-box:has(>.k-line>.k-cover) :is(a:not(.k-cover),button,input,select,label){position:relative;z-index:2}
 a.k-link,button.k-link{padding:12px 4px;margin:-12px -4px;line-height:20px}
 .k-swipe{touch-action:pan-y}
 /* A row of links wraps by whole links, never inside «Come valutiamo ›» (Andamento). */
@@ -821,3 +822,5 @@ a.k-link,button.k-link{padding:12px 4px;margin:-12px -4px;line-height:20px}
 /* The four tabs of a place, the same row everywhere. */
 .k-areatabs{margin:0 16px;gap:0}
 .k-areatabs>.k-tab{flex:1 1 0}
+/* List (P6, UI-41, UI-100): the rest past 8 rows scroll in their own box, the page stays put. */
+.k-listmore{max-height:min(60vh,32rem);overflow-y:auto;overscroll-behavior:contain;padding-right:4px;scrollbar-width:thin}.k-listbtn{align-self:flex-start;min-height:var(--touch)}
