@@ -310,7 +310,7 @@ export default async function PianoPage({
             {sheetPlan?.model && (
               <a
                 className="k-btn secondary"
-                href={"/piano/modello/" + sheetPlan.model.id}
+                href={"/oggi/giornata/" + sheetPlan.model.id}
               >
                 Apri il modello
               </a>
@@ -356,7 +356,7 @@ export default async function PianoPage({
                 title: "Ciclo " + c.name,
                 value: F.plural(c.steps.length, "passo", "passi"),
                 meta: c.steps.map(stepName).join(" · "),
-                href: "/piano/ciclo/" + c.id,
+                href: "/corpo/ciclo/" + c.id,
                 hrefLabel: "Apri il ciclo " + c.name,
               }}
             />

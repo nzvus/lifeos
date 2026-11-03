@@ -1,5 +1,5 @@
 /**
- * PageHeader (kit.md §3) — top level: the title and the gear to Settings;
+ * PageHeader (kit.md §3) — top level: the title and the gear to Profilo (map D);
  * a sub-page: "‹ parent" naming where it goes, then the title. An optional
  * action on the right: a link, or a control of the page's own (`extra`, the
  * day's model on Oggi: «Giornata «Rec» ▾»).
@@ -17,7 +17,7 @@ export function PageHeader({
   action,
   extra,
   of,
-  settingsHref = "/impostazioni",
+  settingsHref = "/profilo",
 }: {
   title: string;
   context?: string;
@@ -53,7 +53,11 @@ export function PageHeader({
             </a>
           )}
           {!back && (
-            <a className="k-btn icon" href={settingsHref} aria-label="Impostazioni">
+            <a
+              className="k-btn icon"
+              href={settingsHref}
+              aria-label="Profilo e impostazioni"
+            >
               <Glyph of={{ ui: "settings" }} size="m" />
             </a>
           )}

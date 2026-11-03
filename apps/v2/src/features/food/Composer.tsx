@@ -272,7 +272,7 @@ function Draft({
       ? undefined
       : composerScore(lines, by, servings, refs, slot, totals);
   const scanHref =
-    "/libreria/cibo/nuovo?torna=" +
+    "/cibo/cibo/nuovo?torna=" +
     encodeURIComponent(backHref.replace("/aggiungi?", "/aggiungi/pasto?"));
   const lineKcal = (c: FoodChoice | undefined, q: string) =>
     c && quantityOf(q)
@@ -352,7 +352,7 @@ function Draft({
           .filter(Boolean)
           .join(" · ")}
         back={{ label: backLabel, href: backHref }}
-        action={{ label: "Cibi", href: "/oggi/elenco?vista=cibi" }}
+        action={{ label: "Cibi", href: "/cibo/elenco" }}
         of={{ fam: "food", kind: "meal" }}
       />
       {repeatHref && (
@@ -598,7 +598,7 @@ function Draft({
                 <a
                   className="k-link"
                   href={
-                    "/libreria/cibo/nuovo?nome=" +
+                    "/cibo/cibo/nuovo?nome=" +
                     encodeURIComponent(query.trim()) +
                     "&torna=" +
                     encodeURIComponent(backHref.replace("/aggiungi?", "/aggiungi/pasto?"))

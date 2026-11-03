@@ -5,7 +5,9 @@
  * meals, exercises: counts and a line each) and «Aggiungere». A shelf opens
  * its list (`?vista=`): an instant search and a sort by use, name or a
  * nutrient (alone or per 100 kcal); each row shows the sort's number.
- * Pantry and tracker kinds join the shelves with their slices.
+ * Pantry and tracker kinds join the shelves with their slices. In an area's
+ * Elenco (map D) a list stands alone (`only`): the area's own shelves switch
+ * above it, as links.
  */
 import { useState } from "react";
 import { Box, F, Field } from "@lifeos/kit";
@@ -30,10 +32,11 @@ const TABS = {
   exercises: { label: "Esercizi", sorts: ["uses", "name", "e1rm"] },
 } as const satisfies Record<string, { label: string; sorts: readonly SortKey[] }>;
 type Tab = keyof typeof TABS;
-const VIEW_OF: Record<Tab, string> = {
-  foods: "cibi",
-  meals: "pasti",
-  exercises: "esercizi",
+/** Each list's place (map D, architecture.md §10): its area's Elenco. */
+const LIST_HREF: Record<Tab, string> = {
+  foods: "/cibo/elenco",
+  meals: "/cibo/elenco?vista=pasti",
+  exercises: "/corpo/elenco",
 };
 /** The drawing of a list's rows and shelf (the board: kind ingredient, recipe, exercise). */
 const SHELF_OF: Record<Tab, { fam: "food" | "train"; kind: string }> = {
@@ -52,7 +55,10 @@ export function Library({
   trackers,
   routes,
   pantry,
+  only,
 }: {
+  /** An area's Elenco: just this list, no switch of its own. */
+  only?: boolean;
   /** The kinds one can enter, and how many are the person's own («Tipi di tracker»). */
   trackers: { all: number; own: number };
   /** The person's routes: how many, and its shelf's line («Tragitti»). */
@@ -78,7 +84,7 @@ export function Library({
         pantry={pantry}
       />
     );
-  return <List lists={lists} first={view} />;
+  return <List lists={lists} first={view} alone={only ?? false} />;
 }
 
 function row(tab: Tab, r: LibraryRow, value: string) {
@@ -140,7 +146,7 @@ function Index({
             Nessun risultato.{" "}
             <a
               className="k-link"
-              href={"/libreria/cibo/nuovo?nome=" + encodeURIComponent(query.trim())}
+              href={"/cibo/cibo/nuovo?nome=" + encodeURIComponent(query.trim())}
             >
               Crea il cibo «{query.trim()}»
             </a>
@@ -162,7 +168,7 @@ function Index({
                   title: TABS[t].label,
                   value: F.n(lists[t].length, 0),
                   meta: shelfLines[t],
-                  href: "/oggi/elenco?vista=" + VIEW_OF[t],
+                  href: LIST_HREF[t],
                   hrefLabel: "Apri " + TABS[t].label.toLowerCase(),
                 }}
               />
@@ -180,7 +186,7 @@ function Index({
                     ? F.plural(pantry.toBuy, "da comprare", "da comprare")
                     : "niente da comprare"
                   : "segna cosa compri: quello che mangi lo toglie lei",
-                href: "/libreria/dispensa",
+                href: "/cibo/elenco?vista=dispensa",
                 hrefLabel: "Apri la dispensa",
               }}
             />
@@ -193,7 +199,7 @@ function Index({
                 title: "Tragitti",
                 value: F.n(routes.count, 0),
                 meta: routes.line,
-                href: "/libreria/tragitto",
+                href: "/corpo/elenco?vista=tragitti",
                 hrefLabel: "Apri i tragitti",
               }}
             />
@@ -210,7 +216,7 @@ function Index({
                   (trackers.own > 0
                     ? F.plural(trackers.own, "tuo", "tuoi")
                     : "crea il tuo"),
-                href: "/impostazioni/tipi",
+                href: "/profilo/tipi",
                 hrefLabel: "I tipi di tracker",
               }}
             />
@@ -233,7 +239,7 @@ const ADDS = [
     of: { kind: "ingredient" },
     title: "Un cibo",
     meta: "dal codice a barre (Open Food Facts) o a mano, dall’etichetta",
-    href: "/libreria/cibo/nuovo",
+    href: "/cibo/cibo/nuovo",
     hrefLabel: "Aggiungi un cibo",
   },
   {
@@ -248,7 +254,7 @@ const ADDS = [
     fam: "habit",
     title: "Un tracker",
     meta: "qualsiasi cosa: un numero, un voto, un segno",
-    href: "/impostazioni/tipi#nuovo",
+    href: "/profilo/tipi#nuovo",
     hrefLabel: "Crea un tracker",
   },
   {
@@ -256,13 +262,21 @@ const ADDS = [
     of: { kind: "exercise" },
     title: "Un esercizio",
     meta: "nome, schema, attrezzo, un lato alla volta",
-    href: "/libreria/esercizio/nuovo",
+    href: "/corpo/esercizio/nuovo",
     hrefLabel: "Aggiungi un esercizio",
   },
 ];
 
 /** One shelf's list: its search, its sort, the sort's number on each row. */
-function List({ lists, first }: { lists: Record<Tab, LibraryRow[]>; first: Tab }) {
+function List({
+  lists,
+  first,
+  alone,
+}: {
+  lists: Record<Tab, LibraryRow[]>;
+  first: Tab;
+  alone: boolean;
+}) {
   const [tab, setTab] = useState<Tab>(first);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("uses");
@@ -278,29 +292,32 @@ function List({ lists, first }: { lists: Record<Tab, LibraryRow[]>; first: Tab }
   };
   return (
     <section className="k-section g3" aria-label="Catalogo">
-      <div className="k-chips">
-        {(Object.keys(TABS) as Tab[]).map((t) => (
-          <button
-            key={t}
-            type="button"
-            className="k-chip"
-            aria-pressed={tab === t}
-            onClick={() => {
-              setTab(t);
-              if (!(TABS[t].sorts as readonly SortKey[]).includes(sort)) setSort("uses");
-            }}
-          >
-            {TABS[t].label} · {lists[t].length}
-          </button>
-        ))}
-      </div>
+      {!alone && (
+        <div className="k-chips">
+          {(Object.keys(TABS) as Tab[]).map((t) => (
+            <button
+              key={t}
+              type="button"
+              className="k-chip"
+              aria-pressed={tab === t}
+              onClick={() => {
+                setTab(t);
+                if (!(TABS[t].sorts as readonly SortKey[]).includes(sort))
+                  setSort("uses");
+              }}
+            >
+              {TABS[t].label} · {lists[t].length}
+            </button>
+          ))}
+        </div>
+      )}
       {tab === "foods" && (
-        <a className="k-btn secondary" href="/libreria/cibo/nuovo">
+        <a className="k-btn secondary" href="/cibo/cibo/nuovo">
           + Nuovo cibo
         </a>
       )}
       {tab === "exercises" && (
-        <a className="k-btn secondary" href="/libreria/esercizio/nuovo">
+        <a className="k-btn secondary" href="/corpo/esercizio/nuovo">
           + Nuovo esercizio
         </a>
       )}

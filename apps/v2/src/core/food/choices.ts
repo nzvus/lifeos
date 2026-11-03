@@ -5,8 +5,11 @@
  * what its label says differently from its food, so its values are the
  * food's with its own on top. Each carries how often it was eaten in the
  * last 90 days and the quantity of the last time, for the ranking (find.md
- * §2) and the line's starting quantity. `catalog.ts` reads them.
+ * §2) and the line's starting quantity. Its price per 100 (core/food/cost,
+ * a product's or else its food's) rides in `per100` as `cents`, so a logged
+ * line keeps it in its snapshot (dossiers/costs.md §4). `catalog.ts` reads them.
  */
+import { PRICE_FIELD } from "./cost";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
 
 /** The values a meal line keeps: the nutrients parity compares, and NOVA. */
@@ -73,6 +76,8 @@ export function foodChoices(
   items: readonly ItemRow[],
   values: readonly ValueRow[],
   uses: readonly UseRow[],
+  /** Cents per 100 by choice key (`choicePrices`). */
+  prices: ReadonlyMap<string, string> = new Map(),
 ): FoodChoice[] {
   const per = new Map<string, Record<string, string>>();
   const kinds = new Map<string, Record<string, string>>();
@@ -96,7 +101,8 @@ export function foodChoices(
   const products = items.filter((i) => i.catalog === "product");
   const out: FoodChoice[] = [];
   for (const f of foods) {
-    const base = per.get(f.id) ?? {};
+    const fp = prices.get(f.id);
+    const base = { ...per.get(f.id), ...(fp ? { [PRICE_FIELD]: fp } : {}) };
     const u = used.get(f.id + ":");
     out.push({
       key: f.id,
@@ -120,7 +126,13 @@ export function foodChoices(
         name: f.name,
         brand: p.name,
         unit: unit.get(p.id) ?? unit.get(f.id) ?? "g",
-        per100: { ...base, ...per.get(p.id) },
+        per100: {
+          ...base,
+          ...per.get(p.id),
+          ...(prices.has(f.id + ":" + p.id)
+            ? { [PRICE_FIELD]: prices.get(f.id + ":" + p.id)! }
+            : {}),
+        },
         ...(kinds.has(f.id) ? { estimates: kinds.get(f.id)! } : {}),
         ...(drawing.has(f.id) ? { drawing: drawing.get(f.id)! } : {}),
         uses: pu?.uses ?? 0,

@@ -249,7 +249,7 @@ export function present(i: DayItem): BoxEntry {
     members,
     // A session opens gym mode, a meal its composer, a plain kind its sheet; others come later.
     ...(i.kind.key === "session"
-      ? { href: "/palestra/" + i.id, hrefLabel: "Apri in palestra " + title(i) }
+      ? { href: "/corpo/sessione/" + i.id, hrefLabel: "Apri in palestra " + title(i) }
       : isEaten(i.kind.key) || i.kind.key === "movement" || enterable(i.kind)
         ? { href: "/voce/" + i.id, hrefLabel: "Modifica " + title(i) }
         : {}),

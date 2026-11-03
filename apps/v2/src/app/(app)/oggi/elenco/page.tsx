@@ -1,36 +1,28 @@
 /**
- * Libreria (flows.md §1, V-07; the board: an index): the shelves and one
- * search, or a shelf's list with `?vista=cibi|pasti|esercizi`.
+ * Oggi · Elenco (flows.md §1, V-07; map D): one search across every catalog,
+ * the shelves, «Aggiungere». A shelf lives in its area's Elenco (architecture.md
+ * §10): the old `?vista=cibi|pasti|esercizi` goes there.
  */
-import { F, NavBar, PageHeader, AreaTabs } from "@lifeos/kit";
+import { redirect } from "next/navigation";
+import { AreaTabs, NavBar, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { logicalDay } from "@/core/engines/time";
-import {
-  readFoodChoices,
-  readFoodEstimates,
-  readRecipeChoices,
-} from "@/core/food/catalog";
-import { readMicroTargets } from "@/core/day";
-import { readTargetsFor } from "@/core/energy";
-import { foodScore } from "@/features/day/score";
-import { readExerciseLog, readExercises } from "@/core/training";
-import {
-  exerciseRows,
-  foodRows,
-  LIBRARY_VIEWS,
-  recipeRows,
-  shelfLines,
-} from "@/features/library/library";
-import { Library } from "@/features/library/Library";
+import { addDays, logicalDay } from "@/core/engines/time";
 import { readUserKinds } from "@/core/day";
 import { enterable } from "@/core/entries";
 import { kindRegistry } from "@/core/kinds";
-import { AREA_HREF, tabHrefs } from "@/features/places";
-import { addDays } from "@/core/engines/time";
 import { readRoutes } from "@/core/movement/routes";
 import { readPantry } from "@/core/pantry";
+import { Library } from "@/features/library/Library";
+import { AREA_HREF, tabHrefs } from "@/features/places";
+import { readLibrary } from "./library-data";
+
+const MOVED: Record<string, string> = {
+  cibi: "/cibo/elenco",
+  pasti: "/cibo/elenco?vista=pasti",
+  esercizi: "/corpo/elenco",
+};
 
 export default async function LibreriaPage({
   searchParams,
@@ -38,82 +30,35 @@ export default async function LibreriaPage({
   searchParams: Promise<{ vista?: string | string[] }>;
 }) {
   const asked = (await searchParams).vista;
-  const view =
-    typeof asked === "string" && asked in LIBRARY_VIEWS
-      ? LIBRARY_VIEWS[asked as keyof typeof LIBRARY_VIEWS]
-      : null;
+  if (typeof asked === "string" && MOVED[asked]) redirect(MOVED[asked]);
   const owner = await requireOwner();
   const db = await getDb();
   const { clock, weights } = await ownerClock();
   const today = logicalDay(new Date(), clock);
-  const foods = await readFoodChoices(db, owner, today);
-  const [recipes, exercises, log, routes, pantry] = await Promise.all([
-    readRecipeChoices(db, owner, today, foods),
-    readExercises(db, owner),
-    readExerciseLog(db, owner),
-    view === null ? readRoutes(db, owner, addDays(today, -90)) : [],
-    view === null ? readPantry(db, owner, today, new Date()) : [],
+  const [lib, routes, pantry, userKinds] = await Promise.all([
+    readLibrary(db, owner, today, clock, weights, false),
+    readRoutes(db, owner, addDays(today, -90)),
+    readPantry(db, owner, today, new Date()),
+    readUserKinds(db, owner),
   ]);
-  // The foods' list: each scored per 100 kcal (E7) against today's targets; only on its shelf.
-  const scored =
-    view === "foods"
-      ? await Promise.all([
-          readTargetsFor(db, owner, today, today, clock),
-          readMicroTargets(db, owner, today),
-          readFoodEstimates(
-            db,
-            owner,
-            foods.flatMap((f) => (f.productId === null && f.foodId ? [f.foodId] : [])),
-          ),
-        ])
-      : null;
-  const food = foodRows(foods).map((r) => {
-    const id = r.href?.split("/").at(-1);
-    const sc =
-      scored && id
-        ? foodScore(
-            Object.fromEntries(Object.entries(r.values).map(([k, v]) => [k, String(v)])),
-            scored[2].get(id),
-            scored[0],
-            scored[1],
-            r.of?.["group"],
-            weights,
-          )
-        : undefined;
-    return sc ? { ...r, score: sc } : r;
-  });
-  const meal = recipeRows(recipes, foods);
-  const exercise = exerciseRows(exercises, log, (d) => F.Day(d));
   // «Tipi di tracker»: the kinds ⊕ can enter, the person's own among them.
-  const userKinds = (await readUserKinds(db, owner)).filter((k) => !k.archivedAt);
+  const live = userKinds.filter((k) => !k.archivedAt);
   const trackers = {
-    all: kindRegistry(userKinds).all.filter(enterable).length,
-    own: userKinds.length,
+    all: kindRegistry(live).all.filter(enterable).length,
+    own: live.length,
   };
   return (
     <main className="k-page has-bd">
-      {view === null ? (
-        <>
-          <PageHeader
-            title="Oggi"
-            context="le cose che riusi: cibi, pasti, esercizi, dispensa, tragitti"
-            of={{ place: "oggi" }}
-          />
-          <AreaTabs tab="elenco" hrefs={tabHrefs("oggi")} />
-        </>
-      ) : (
-        <PageHeader
-          title={{ foods: "Cibi", meals: "Pasti salvati", exercises: "Esercizi" }[view]}
-          back={{ label: "Libreria", href: "/oggi/elenco" }}
-          of={{ place: "libreria" }}
-        />
-      )}
+      <PageHeader
+        title="Oggi"
+        context="le cose che riusi: cibi, pasti, esercizi, dispensa, tragitti"
+        of={{ place: "oggi" }}
+      />
+      <AreaTabs tab="elenco" hrefs={tabHrefs("oggi")} />
       <Library
-        foods={food}
-        meals={meal}
-        exercises={exercise}
-        view={view}
-        shelfLines={shelfLines(foods, meal, exercise)}
+        {...lib.lists}
+        view={null}
+        shelfLines={lib.shelfLines}
         trackers={trackers}
         pantry={{ count: pantry.length, toBuy: pantry.filter((p) => p.toBuy).length }}
         routes={{

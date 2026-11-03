@@ -185,7 +185,7 @@ export default async function AddPage({
       const { href: _h, hrefLabel: _l, ...entry } = present(i);
       const act: AddAct =
         i.kind.key === "session"
-          ? { type: "open", href: "/palestra/" + i.id }
+          ? { type: "open", href: "/corpo/sessione/" + i.id }
           : oneTap
             ? { type: "done", id: i.id }
             : { type: "open", href: "/voce/" + i.id };
@@ -423,7 +423,7 @@ export default async function AddPage({
               <div className="k-stack g2">
                 <a
                   href={
-                    "/libreria/cibo/nuovo?torna=" +
+                    "/cibo/cibo/nuovo?torna=" +
                     encodeURIComponent("/aggiungi/pasto?giorno=" + day)
                   }
                   className="k-plain"
@@ -439,14 +439,14 @@ export default async function AddPage({
                     }}
                   />
                 </a>
-                <a href="/libreria/esercizio/nuovo" className="k-plain">
+                <a href="/corpo/esercizio/nuovo" className="k-plain">
                   <Box
                     density="row"
                     rail={false}
                     entry={{ fam: "train", title: "Nuovo esercizio", value: "›" }}
                   />
                 </a>
-                <a href="/impostazioni/tipi#nuovo" className="k-plain">
+                <a href="/profilo/tipi#nuovo" className="k-plain">
                   <Box
                     density="row"
                     rail={false}

@@ -83,7 +83,7 @@ export function foodRows(foods: readonly FoodChoice[]): LibraryRow[] {
       const own = products.filter((p) => p.foodId === f.foodId);
       return {
         key: f.key,
-        ...(f.foodId ? { href: "/libreria/cibo/" + f.foodId } : {}),
+        ...(f.foodId ? { href: "/cibo/cibo/" + f.foodId } : {}),
         name: f.name,
         sub:
           own.length === 0
@@ -107,7 +107,7 @@ export function recipeRows(
     if (r.estimate)
       return {
         key: r.key,
-        href: "/libreria/pasto/" + r.recipeId,
+        href: "/cibo/pasto/" + r.recipeId,
         name: r.name,
         sub: "stima",
         uses: r.uses,
@@ -119,7 +119,7 @@ export function recipeRows(
     });
     return {
       key: r.key,
-      href: "/libreria/pasto/" + r.recipeId,
+      href: "/cibo/pasto/" + r.recipeId,
       name: r.name,
       sub: parts.map((p) => p.name).join(", "),
       uses: r.uses,
@@ -245,7 +245,7 @@ export function mealPage(
               brand: f.brand ?? "",
               quantity: p.quantity,
               unit: f.unit,
-              href: f.foodId ? "/libreria/cibo/" + f.foodId : null,
+              href: f.foodId ? "/cibo/cibo/" + f.foodId : null,
             },
           ]
         : [];
@@ -272,7 +272,7 @@ export function exerciseRows(
     const latest = sessions.find((s) => s.best !== null)?.best;
     return {
       key: x.id,
-      href: "/libreria/esercizio/" + x.id,
+      href: "/corpo/esercizio/" + x.id,
       name: x.name,
       sub: last ? "ultima " + dayWords(last.day) : "mai fatto",
       ...(x.aliases?.length ? { also: x.aliases.join(" ") } : {}),

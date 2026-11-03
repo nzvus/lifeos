@@ -39,7 +39,7 @@ export function FromV1() {
   const send = async (dry: boolean, body: string) => {
     setState({ at: "busy" });
     try {
-      const r = await fetch("/impostazioni/da-v1" + (dry ? "?prova=1" : ""), {
+      const r = await fetch("/profilo/da-v1" + (dry ? "?prova=1" : ""), {
         method: "POST",
         headers: { "content-type": "application/json" },
         body,

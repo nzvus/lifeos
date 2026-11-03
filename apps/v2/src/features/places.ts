@@ -63,3 +63,16 @@ const AREA_OF_FAM: Record<string, DomainArea> = {
   money: "soldi",
 };
 export const areaOfFam = (fam: string): DomainArea | null => AREA_OF_FAM[fam] ?? null;
+
+/** The built-in trackers' areas (architecture.md §10); a kind of the person's own goes by its domain. */
+const TRACKER_AREA: Record<string, DomainArea> = {
+  peso: "corpo",
+  sonno: "corpo",
+  passi: "corpo",
+  acqua: "cibo",
+};
+/** Where a tracker lives: `/{area}/andamento/{tracker}`; a health kind of their own falls in Corpo. */
+export const trackerArea = (tracker: string, domain?: string): DomainArea =>
+  TRACKER_AREA[tracker] ?? (domain ? areaOf(domain) : null) ?? "corpo";
+export const trackerHref = (tracker: string, domain?: string) =>
+  "/" + trackerArea(tracker, domain) + "/andamento/" + tracker;

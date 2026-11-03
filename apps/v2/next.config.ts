@@ -19,6 +19,50 @@ const config: NextConfig = {
       { source: "/piano", destination: "/oggi/piano", permanent: false },
       { source: "/andamento", destination: "/oggi/andamento", permanent: false },
       { source: "/libreria", destination: "/oggi/elenco", permanent: false },
+      // Map D slice 2 (architecture.md §10): Andamento's pages in their place; a tracker by
+      // its area is `app/(app)/andamento/[tracker]` (it needs the kind's domain).
+      ...["obiettivi", "qualita", "come-valutiamo"].map((p) => ({
+        source: `/andamento/${p}/:rest*`,
+        destination: `/oggi/andamento/${p}/:rest*`,
+        permanent: false,
+      })),
+      {
+        source: "/andamento/legami",
+        destination: "/mente/andamento/legami",
+        permanent: false,
+      },
+      { source: "/andamento/soldi", destination: "/soldi/andamento", permanent: false },
+      { source: "/impostazioni", destination: "/profilo", permanent: false },
+      {
+        source: "/impostazioni/:rest+",
+        destination: "/profilo/:rest+",
+        permanent: false,
+      },
+      // Map D slice 3: each object under its area.
+      ...[
+        ["/libreria/cibo", "/cibo/cibo"],
+        ["/libreria/pasto", "/cibo/pasto"],
+        ["/libreria/esercizio", "/corpo/esercizio"],
+        ["/libreria/tragitto", "/corpo/tragitto"],
+        ["/piano/ciclo", "/corpo/ciclo"],
+        ["/piano/abitudine", "/mente/abitudine"],
+        ["/piano/modello", "/oggi/giornata"],
+      ].map(([from, to]) => ({
+        source: from + "/:rest+",
+        destination: to + "/:rest+",
+        permanent: false,
+      })),
+      { source: "/palestra/:id", destination: "/corpo/sessione/:id", permanent: false },
+      {
+        source: "/libreria/dispensa",
+        destination: "/cibo/elenco?vista=dispensa",
+        permanent: false,
+      },
+      {
+        source: "/libreria/tragitto",
+        destination: "/corpo/elenco?vista=tragitti",
+        permanent: false,
+      },
     ];
   },
 };

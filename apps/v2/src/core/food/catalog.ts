@@ -14,6 +14,7 @@ import {
   catalogValues,
   entries,
   entryLines,
+  priceObservations,
 } from "../db/schema";
 import { addDays, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
@@ -27,6 +28,7 @@ import {
   type RecipeChoice,
 } from "./choices";
 import { COMPOUND_FIELDS } from "./compounds";
+import { choicePrices, formatPrices } from "./cost";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
 import { ESTIMATE_FIELDS } from "./meal";
 import { MICRO_FIELDS } from "./micros";
@@ -55,7 +57,7 @@ export async function readFoodChoices(
       ),
     );
   if (items.length === 0) return [];
-  const [values, uses] = await Promise.all([
+  const [values, uses, prices] = await Promise.all([
     db
       .select({
         itemId: catalogValues.itemId,
@@ -105,12 +107,54 @@ export async function readFoodChoices(
       )
       .groupBy(entryLines.itemId, entryLines.productId)
       .orderBy(desc(sql`count(*)`)),
+    readChoicePrices(db, owner, today, items),
   ]);
   return foodChoices(
     items,
     values,
     uses.flatMap((u) => (u.itemId === null ? [] : [{ ...u, itemId: u.itemId }])),
+    prices,
   );
+}
+
+/**
+ * Each live food's and product's price per 100 on `today` (core/food/cost): the
+ * price observations of their live formats, one narrow query.
+ */
+async function readChoicePrices(
+  db: Db,
+  owner: Owner,
+  today: IsoDate,
+  items: readonly { id: string; catalog: string; parentId: string | null }[],
+): Promise<Map<string, string>> {
+  const rows = await db
+    .select({
+      formatId: priceObservations.formatId,
+      productId: catalogItems.parentId,
+      shop: priceObservations.shop,
+      day: priceObservations.day,
+      cents: priceObservations.cents,
+      packageQty: priceObservations.packageQty,
+    })
+    .from(priceObservations)
+    .innerJoin(
+      catalogItems,
+      and(
+        eq(catalogItems.id, priceObservations.formatId),
+        eq(catalogItems.userId, priceObservations.userId),
+      ),
+    )
+    .where(and(ownedBy(priceObservations, owner), isNull(catalogItems.deletedAt)));
+  if (rows.length === 0) return new Map();
+  const formats = new Map(
+    rows.flatMap((r) => (r.productId ? [[r.formatId, r.productId] as const] : [])),
+  );
+  const products = new Map(
+    items.flatMap((i) =>
+      i.catalog === "product" && i.parentId ? [[i.id, i.parentId] as const] : [],
+    ),
+  );
+  return choicePrices(formatPrices(rows, today), formats, products);
 }
 
 /** The owner's live recipes as choices over `foods`, with how often each was logged in 90 days. */
