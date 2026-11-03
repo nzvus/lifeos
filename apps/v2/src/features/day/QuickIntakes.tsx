@@ -5,7 +5,7 @@
  * role, no score — with «Annulla» for 5 s. Under the water on Oggi and Cibo.
  */
 import { useRef, useState } from "react";
-import { F, Glyph, type GlyphOf } from "@lifeos/kit";
+import { Glyph, type GlyphOf } from "@lifeos/kit";
 
 export type Quick = {
   foodId: string;
@@ -88,7 +88,3 @@ export function QuickIntakes({
     </div>
   );
 }
-
-/** «1 capsula» when the dose has a name, else the amount («3 g»). */
-export const doseWords = (dose: string, unit: string, name: string | null): string =>
-  name ? "1 " + name : F.num(Number(dose), unit);

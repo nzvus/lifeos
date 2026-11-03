@@ -316,7 +316,7 @@ export default async function FoodPage({
         )}
       </section>
       <section className="k-section g3" aria-label="Prodotti">
-        {head({ section: "products" }, "Prodotti")}
+        {head({ section: "products" }, "Marche")}
         {page.products.length === 0 && (
           <p className="k-help">Nessuna marca: si registra il cibo.</p>
         )}
@@ -332,7 +332,7 @@ export default async function FoodPage({
                   fam: "food",
                   title: p.brand,
                   value:
-                    p.perKg !== null ? F.n(p.perKg, 2) + " €/" + kgOf(page.unit) : "",
+                    p.perKg !== null ? F.num(p.perKg, "€") + "/" + kgOf(page.unit) : "",
                   meta: [
                     F.plural(p.uses, "volta", "volte") + " in 90 giorni",
                     ...p.differs,
@@ -342,8 +342,8 @@ export default async function FoodPage({
                         (x.size ? " " + F.num(Number(x.size), page.unit) : "") +
                         (x.centsPer100
                           ? " " +
-                            F.n(Number(x.centsPer100) / 10, 2) +
-                            " €/" +
+                            F.num(Number(x.centsPer100) / 10, "€") +
+                            "/" +
                             kgOf(page.unit)
                           : ""),
                     ),

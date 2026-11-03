@@ -10,11 +10,17 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { createFood, setIntake } from "@/core/food/edit";
 import { recipeName } from "@/core/food/recipes";
-import { logIntake } from "../../oggi/[[...day]]/actions";
+import { addWater, logIntake } from "../../oggi/[[...day]]/actions";
 
 export async function logIntakeAndBack(day: string, foodId: string): Promise<void> {
   const id = await logIntake(day, foodId);
   redirect("/oggi/" + day + (id ? "?fatto=" + id : ""));
+}
+
+/** Water from the same door: the water kind (E10), 250 ml. */
+export async function waterAndBack(day: string): Promise<void> {
+  await addWater(day, 250);
+  redirect("/oggi/" + day);
 }
 
 export type IntakeFormState = {

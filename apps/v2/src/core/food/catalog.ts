@@ -104,7 +104,8 @@ export async function readFoodChoices(
       .where(
         and(
           ownedBy(entryLines, owner),
-          eq(entries.kind, "meal"),
+          // Meals and «assunzioni» (FOOD-44): a coffee's last dose is its last capsule.
+          inArray(entries.kind, ["meal", "intake"]),
           eq(entries.status, "done"),
           isNull(entries.deletedAt),
           gte(entries.day, addDays(today, -USE_DAYS)),
@@ -397,4 +398,30 @@ export async function readFoodEstimates(
     if (v) out.set(r.itemId, { ...out.get(r.itemId), [r.field]: v });
   }
   return out;
+}
+
+/** How often each item was logged as an «assunzione» since `since` (the «Al volo» row, FOOD-44). */
+export async function readIntakeUses(
+  db: Db,
+  owner: Owner,
+  since: IsoDate,
+): Promise<Map<string, number>> {
+  const rows = await db
+    .select({ itemId: entryLines.itemId, n: sql<number>`count(*)::int` })
+    .from(entryLines)
+    .innerJoin(
+      entries,
+      and(eq(entries.id, entryLines.entryId), eq(entries.userId, entryLines.userId)),
+    )
+    .where(
+      and(
+        ownedBy(entryLines, owner),
+        eq(entries.kind, "intake"),
+        eq(entries.status, "done"),
+        isNull(entries.deletedAt),
+        gte(entries.day, since),
+      ),
+    )
+    .groupBy(entryLines.itemId);
+  return new Map(rows.flatMap((r) => (r.itemId ? [[r.itemId, r.n] as const] : [])));
 }

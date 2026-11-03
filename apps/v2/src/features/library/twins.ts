@@ -52,44 +52,45 @@ export function twinPairs(
       const other = branded === a ? b : a;
       const named = branded ? plain(branded.name.replace(/\([^)]*\)\s*$/, "")) : "";
       const near = branded && plain(other.name).startsWith(named.split(" ")[0] ?? "");
-      out.push(
-        branded && near
-          ? {
-              kind: "food",
-              a: branded,
-              b: other,
-              propose: "brand",
-              brand: brandInName(branded.name),
-            }
-          : {
-              kind: "food",
-              a,
-              b,
-              propose: plain(a.name) === plain(b.name) ? "merge" : null,
-              brand: null,
-            },
-      );
+      // Only what has a proposal: a brand in the name, or the same words (his list stays short).
+      if (branded && near)
+        out.push({
+          kind: "food",
+          a: branded,
+          b: other,
+          propose: "brand",
+          brand: brandInName(branded.name),
+        });
+      else if (plain(a.name) === plain(b.name))
+        out.push({ kind: "food", a, b, propose: "merge", brand: null });
     }
   }
-  // Saved meals: two that share most of their foods are a base and a variant.
+  // Saved meals: a family is those with the same first word that share at least two
+  // foods with the smallest of them, its base; the others are proposed as its variants.
   const foodsOf = (r: RecipeChoice) => new Set(r.parts.map((p) => p.key.split(":")[0]));
   const live = recipes.filter((r) => !r.baseId && r.parts.length > 0);
-  for (const r of live)
-    for (const o of live) {
-      if (r.recipeId >= o.recipeId) continue;
-      const key = pair(r.recipeId, o.recipeId);
-      if (notTwins.has(key)) continue;
-      const [x, y] = [foodsOf(r), foodsOf(o)];
-      const shared = [...x].filter((k) => y.has(k)).length;
-      const head = fold(r.name).split(" ")[0] === fold(o.name).split(" ")[0];
-      if (!head || shared < 2 || shared < Math.min(x.size, y.size) - 1) continue;
-      const [base, child] = x.size <= y.size ? [r, o] : [o, r];
-      out.push({
-        kind: "meal",
-        base: { id: base.recipeId, name: base.name },
-        child: { id: child.recipeId, name: child.name },
-      });
+  const heads = new Map<string, RecipeChoice[]>();
+  for (const r of live) {
+    const h = fold(r.name).split(/[^a-z0-9]+/)[0] ?? "";
+    if (h.length >= 3) heads.set(h, [...(heads.get(h) ?? []), r]);
+  }
+  for (const group of heads.values()) {
+    if (group.length < 2) continue;
+    const base = [...group].sort(
+      (x, y) => foodsOf(x).size - foodsOf(y).size || y.uses - x.uses,
+    )[0]!;
+    const core = foodsOf(base);
+    for (const r of group) {
+      if (r === base || notTwins.has(pair(r.recipeId, base.recipeId))) continue;
+      const shared = [...foodsOf(r)].filter((k) => core.has(k)).length;
+      if (shared >= Math.min(2, core.size))
+        out.push({
+          kind: "meal",
+          base: { id: base.recipeId, name: base.name },
+          child: { id: r.recipeId, name: r.name },
+        });
     }
+  }
   return out;
 }
 

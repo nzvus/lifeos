@@ -44,7 +44,8 @@ import { readPlace } from "@/core/account/place";
 import { weatherChips } from "@/app/_server/weather";
 import { WeatherCard } from "@/features/day/WeatherCard";
 import { WaterRow } from "@/features/day/WaterRow";
-import { doseWords, QuickIntakes } from "@/features/day/QuickIntakes";
+import { QuickIntakes } from "@/features/day/QuickIntakes";
+import { doseWords } from "@/features/day/intake-words";
 import { startGym } from "../palestra/actions";
 import { mealGroups } from "@/features/day/meal-groups";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
@@ -80,7 +81,7 @@ import { habitItems, modelItems } from "@/features/day/model-items";
 import { kindRegistry } from "@/core/kinds";
 import { changeDayModel, saveDayAsModel, skipStep } from "./[[...day]]/plan-actions";
 import { readExercises, readRoutines } from "@/core/training";
-import { readFoodChoices, readFoodEstimates } from "@/core/food/catalog";
+import { readFoodChoices, readFoodEstimates, readIntakeUses } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
 import {
   dayScore,
@@ -487,11 +488,13 @@ export async function DayPage({
   const drinks = items.filter((i) => i.kind.key === "water" && i.status === "done");
   const lastDrink = Math.max(-1, ...drinks.map((i) => i.minute ?? -1));
   // «Al volo» (FOOD-44): his most used «assunzioni», one tap each, on Oggi and Cibo.
+  const taken =
+    food && date <= today ? await readIntakeUses(db, owner, addDays(today, -28)) : null;
   const quick =
-    food && date <= today
+    taken && taken.size > 0
       ? (await readFoodChoices(db, owner, today))
-          .filter((c) => c.intake && c.uses > 0)
-          .sort((a, b) => b.uses - a.uses)
+          .filter((c) => c.intake && c.foodId && taken.has(c.foodId))
+          .sort((a, b) => taken.get(b.foodId!)! - taken.get(a.foodId!)!)
           .slice(0, 4)
           .map((c) => ({
             foodId: c.foodId!,
