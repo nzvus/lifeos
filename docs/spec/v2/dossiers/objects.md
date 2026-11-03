@@ -1,7 +1,7 @@
 # Dossier — Objects: families, variants, brands, formats, intakes
 
-Status: **draft 2026-11-03**, written by the agent. **Waiting for the developer's
-review of §9** before any code (his pick on 3 Nov: «stop a ogni dossier»).
+Status: **decided 2026-11-03** — the developer: «ok alle raccomandazioni, procedi»:
+every §9 answer is the recommendation (a). ADR-0060 accepted. Slices a–g in progress.
 
 Ledger: FOOD-44, FOOD-45, FOOD-46, FOOD-48, TRAIN-37, FOOD-17, FOOD-33, FOOD-03,
 HOME-02, HOME-03, HOME-07, PLAN-11, PROD-10, UI-38 · ADR-0055, ADR-0060 (proposed)
@@ -245,7 +245,7 @@ easy, not that he has none: the duplicates above *are* second brands, kept as fo
 7. **Running:** after R5, 17 sessions are «Corsa». A run trip on a route is logged as
    one activity with the route's km (no second entry, no double steps).
 
-## 9. Questions for the developer (recommendation first)
+## 9. Questions for the developer — decided 3 Nov, all as recommended (a)
 1. **Food with no brand chosen:** **(a) mean of its brands weighted by your use**, with
    min–max shown; (b) a «typical» value typed once; (c) the last brand used.
 2. **Weights of that mean:** **(a) your use in 90 days**; (b) your purchases; (c) equal.

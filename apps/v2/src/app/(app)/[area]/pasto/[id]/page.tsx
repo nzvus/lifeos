@@ -4,7 +4,7 @@
  * composer, started from («Parti da…») or archived (FOOD-42).
  */
 import { notFound } from "next/navigation";
-import { F, PageHeader } from "@lifeos/kit";
+import { Box, F, List, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -42,6 +42,12 @@ export default async function SavedMealPage({
             Modifica
           </a>
           {/* «Parti da…» (FOOD-33, FOOD-42): a new meal starting from this one, never «Duplica». */}
+          {/* A variant keeps following this meal; «Parti da» is a copy on its own (ADR-0060). */}
+          {!page.estimate && (
+            <a className="k-btn secondary" href={"/cibo/pasto/nuovo?variante=" + id}>
+              + Variante
+            </a>
+          )}
           <a className="k-btn secondary" href={"/cibo/pasto/nuovo?da=" + id}>
             Parti da questo
           </a>
@@ -52,6 +58,51 @@ export default async function SavedMealPage({
           </form>
         </div>
       </div>
+      {(page.base || page.variants.length > 0) && (
+        <section className="k-section g2" aria-label="Famiglia">
+          <h2>Famiglia</h2>
+          {page.base && (
+            <Box
+              density="row"
+              rail={false}
+              entry={{
+                fam: "food",
+                of: { kind: "meal" },
+                title: "variante di " + page.base.name,
+                meta: page.base.changes.join(" · ") || "uguale alla base",
+                href: "/cibo/pasto/" + page.base.id,
+              }}
+            />
+          )}
+          {page.variants.length > 0 && (
+            <List label="Le sue varianti">
+              {page.variants.map((v) => (
+                <Box
+                  key={v.id}
+                  density="row"
+                  rail={false}
+                  entry={{
+                    fam: "food",
+                    of: { kind: "meal" },
+                    title: v.name,
+                    meta:
+                      "variante · " +
+                      F.plural(v.uses, "volta", "volte") +
+                      " in 90 giorni",
+                    href: "/cibo/pasto/" + v.id,
+                  }}
+                />
+              ))}
+            </List>
+          )}
+          {page.variants.length > 0 && (
+            <p className="k-help">
+              Cambiando questo pasto cambiano anche le varianti, tranne quello che ognuna
+              cambia; i pasti già registrati restano come erano.
+            </p>
+          )}
+        </section>
+      )}
       {page.estimate ? (
         <section className="k-section">
           <p className="k-help">

@@ -211,6 +211,8 @@ export type RecipeChoice = {
   uses: number;
   /** A saved estimate's typed totals (it has no parts); absent for a recipe of foods. */
   estimate?: Record<string, string>;
+  /** A variant: its nearest base (ADR-0060); its parts are already resolved. */
+  baseId?: string;
 };
 
 export type PartRow = {
@@ -228,7 +230,7 @@ export type PartRow = {
  * (in `estimates`, by recipe) carries its totals instead of parts.
  */
 export function recipeChoices(
-  recipes: readonly { id: string; name: string }[],
+  recipes: readonly { id: string; name: string; baseId?: string }[],
   parts: readonly PartRow[],
   uses: ReadonlyMap<string, number>,
   foods: readonly FoodChoice[],
@@ -257,6 +259,7 @@ export function recipeChoices(
         }),
       uses: uses.get(r.id) ?? 0,
       ...(estimates.has(r.id) ? { estimate: estimates.get(r.id)! } : {}),
+      ...(r.baseId ? { baseId: r.baseId } : {}),
     }))
     .filter((r) => r.parts.length > 0 || r.estimate !== undefined)
     .sort((a, b) => a.name.localeCompare(b.name, "it"));

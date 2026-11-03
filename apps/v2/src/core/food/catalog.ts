@@ -31,6 +31,7 @@ import { COMPOUND_FIELDS } from "./compounds";
 import { choicePrices, formatPrices } from "./cost";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
 import { ESTIMATE_FIELDS } from "./meal";
+import { basesOf, resolveParts } from "../catalog/family";
 import { MICRO_FIELDS } from "./micros";
 import { ESTIMATE_MARK } from "./recipes";
 
@@ -164,19 +165,25 @@ export async function readRecipeChoices(
   today: IsoDate,
   foods: readonly FoodChoice[],
 ): Promise<RecipeChoice[]> {
-  const recipes = await db
-    .select({ id: catalogItems.id, name: catalogItems.name })
+  // Archived ones too: an archived base still gives its variants their parts (ADR-0060).
+  const all = await db
+    .select({
+      id: catalogItems.id,
+      name: catalogItems.name,
+      parentId: catalogItems.parentId,
+      archivedAt: catalogItems.archivedAt,
+    })
     .from(catalogItems)
     .where(
       and(
         ownedBy(catalogItems, owner),
         eq(catalogItems.catalog, "recipe"),
         isNull(catalogItems.deletedAt),
-        isNull(catalogItems.archivedAt),
       ),
     );
+  const recipes = all.filter((r) => r.archivedAt === null);
   if (recipes.length === 0) return [];
-  const ids = recipes.map((r) => r.id);
+  const ids = all.map((r) => r.id);
   const [parts, uses, values] = await Promise.all([
     db
       .select({
@@ -218,9 +225,28 @@ export async function readRecipeChoices(
         ),
       ),
   ]);
+  // A variant's parts: its base's with its own differences (core/catalog/family).
+  const family = new Map(all.map((r) => [r.id, { ...r, catalog: "recipe" }]));
+  const own = (id: string) =>
+    parts
+      .filter((x) => x.itemId === id)
+      .sort((a, b) => a.position - b.position)
+      .map((x) => ({ ...x, unit: null }));
+  const resolved = recipes.flatMap((r) =>
+    resolveParts(r.id, family, own).map((x, position) => ({
+      itemId: r.id,
+      position,
+      partItemId: x.partItemId,
+      quantity: x.quantity,
+      defaults: x.defaults,
+    })),
+  );
   return recipeChoices(
-    recipes,
-    parts,
+    recipes.map((r) => {
+      const base = basesOf(r.id, family)[0];
+      return base ? { ...r, baseId: base } : r;
+    }),
+    resolved,
     new Map(uses.flatMap((u) => (u.itemId ? [[u.itemId, u.uses] as const] : []))),
     foods,
     savedEstimates(values),

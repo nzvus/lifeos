@@ -129,7 +129,7 @@ export function Composer({
   action: (state: MealState, data: FormData) => Promise<MealState>;
   /** A saved meal made or changed here (FOOD-42): its name, no day, no time, saved
    *  without logging anything; its foods are one serving. */
-  saved?: { name: string };
+  saved?: { name: string; variantOf?: string };
 }) {
   const [state, submit, pending] = useActionState(action, {
     errors: {},
@@ -207,7 +207,7 @@ function Draft({
   } | null;
   roleBounds: RoleBounds;
   backHref: string;
-  saved: { name: string } | undefined;
+  saved: { name: string; variantOf?: string } | undefined;
 }) {
   // A saved meal (FOOD-42): its name instead of the day's «when».
   const recipeMode = saved !== undefined;
@@ -350,7 +350,11 @@ function Draft({
         title={heading}
         context={(recipeMode
           ? [
-              estimate ? "stima a mano" : "pasto salvato",
+              saved?.variantOf
+                ? "variante di " + saved.variantOf
+                : estimate
+                  ? "stima a mano"
+                  : "pasto salvato",
               "una porzione " + F.num(totals["kcal"] ?? 0, "kcal"),
             ]
           : [

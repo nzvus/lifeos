@@ -8,6 +8,7 @@ import {
   archiveRecipe,
   createEstimateRecipe,
   createRecipe,
+  createVariant,
   readRecipe,
   replaceRecipe,
 } from "./recipes";
@@ -175,5 +176,80 @@ describe("a saved estimate (a meal out kept in the library)", () => {
       { itemId: "y", field: "kcal", num: "700", bool: null },
     ];
     expect([...savedEstimates(rows)]).toEqual([["y", { kcal: "700" }]]);
+  });
+});
+
+describe("a variant of a saved meal (ADR-0060, objects.md §8 test 1)", () => {
+  let db: Db;
+  let close: () => Promise<void>;
+  let a: Owner;
+  let f: Record<string, string>;
+  const line = (itemId: string, quantity: string) => ({
+    itemId,
+    productId: null,
+    name: "x",
+    quantity,
+    unit: "g",
+    per100: {},
+  });
+  beforeAll(async () => {
+    const t = await createTestDb();
+    db = t.db as unknown as Db;
+    close = t.close;
+    a = ownerFromVerifiedSession(await createTestUser(t.db, "a@example.test"));
+    const rows = (await db
+      .insert(s.catalogItems)
+      .values(
+        ["Latte", "Whey", "Pistacchio"].map((name) => ({
+          userId: a.id,
+          catalog: "food",
+          name,
+        })),
+      )
+      .returning({ id: s.catalogItems.id, name: s.catalogItems.name })) as {
+      id: string;
+      name: string;
+    }[];
+    f = Object.fromEntries(rows.map((r) => [r.name, r.id]));
+  });
+  afterAll(() => close());
+
+  it("stores only its flavour, reads the base's parts, and follows a change to the base", async () => {
+    const base = await createRecipe(db, a, "Gelato proteico", [
+      line(f.Latte!, "400"),
+      line(f.Whey!, "15"),
+    ]);
+    const made = await createVariant(db, a, base, "Gelato proteico al pistacchio", [
+      line(f.Latte!, "400"),
+      line(f.Whey!, "15"),
+      line(f.Pistacchio!, "40"),
+    ]);
+    if (typeof made !== "object") throw new Error("expected a variant");
+    const stored = await db
+      .select({ part: s.catalogParts.partItemId })
+      .from(s.catalogParts)
+      .where(eq(s.catalogParts.itemId, made.id));
+    expect(stored).toEqual([{ part: f.Pistacchio }]);
+    const parts = async () => {
+      const foods = await readFoodChoices(db, a, "2026-11-03");
+      return (await readRecipeChoices(db, a, "2026-11-03", foods))
+        .find((r) => r.recipeId === made.id)
+        ?.parts.map((p) => [p.key, Number(p.quantity)]);
+    };
+    expect(await parts()).toEqual([
+      [f.Latte, 400],
+      [f.Whey, 15],
+      [f.Pistacchio, 40],
+    ]);
+    await replaceRecipe(db, a, base, "Gelato proteico", {
+      lines: [line(f.Latte!, "400"), line(f.Whey!, "20")],
+      estimate: false,
+    });
+    expect(await parts()).toEqual([
+      [f.Latte, 400],
+      [f.Whey, 20],
+      [f.Pistacchio, 40],
+    ]);
+    expect(await createVariant(db, a, base, "gelato proteico", [])).toBe("taken");
   });
 });

@@ -4,6 +4,7 @@
  * a row searched by its words and sorted by use, name, or a nutrient alone
  * or per 100 kcal (v1's metrics). Pure, so the list sorts as you tap.
  */
+import { F } from "@lifeos/kit";
 import { fold, type FoodChoice, type RecipeChoice } from "@/core/food/choices";
 import { lineTotals } from "@/core/food/totals";
 import type { ExerciseSession } from "@/core/training";
@@ -221,7 +222,41 @@ export type MealPage = {
     href: string | null;
   }[];
   totals: Record<string, number>;
+  /** Its family (ADR-0060): the base it is a variant of, with what it changes; its variants. */
+  base: { id: string; name: string; changes: string[] } | null;
+  variants: { id: string; name: string; uses: number }[];
 };
+
+/**
+ * What a variant changes from its base, in words, by food (resolved parts
+ * on both sides): «+ 40 g Crema 100% pistacchi», «Whey 15 → 20 g», «senza Latte».
+ */
+export function variantChanges(
+  base: readonly { key: string; quantity: string }[],
+  mine: readonly { key: string; quantity: string }[],
+  name: (key: string) => { name: string; unit: string },
+): string[] {
+  const food = (k: string) => k.split(":")[0]!;
+  const out: string[] = [];
+  for (const m of mine) {
+    const b = base.find((x) => food(x.key) === food(m.key));
+    const n = name(m.key);
+    if (!b) out.push("+ " + F.num(Number(m.quantity), n.unit) + " " + n.name);
+    else if (Number(b.quantity) !== Number(m.quantity))
+      out.push(
+        n.name +
+          " " +
+          F.n(Number(b.quantity), 0) +
+          " → " +
+          F.num(Number(m.quantity), n.unit),
+      );
+    else if (b.key !== m.key) out.push(n.name + ": un’altra marca");
+  }
+  for (const b of base)
+    if (!mine.some((m) => food(m.key) === food(b.key)))
+      out.push("senza " + name(b.key).name);
+  return out;
+}
 
 /** A saved meal's page (V-07, first part): its foods and quantities, its totals per serving. */
 export function mealPage(
@@ -251,6 +286,22 @@ export function mealPage(
         : [];
     }),
     totals: recipeRows([r], foods)[0]!.values,
+    base: (() => {
+      const b = r.baseId ? recipes.find((x) => x.recipeId === r.baseId) : undefined;
+      if (!b) return null;
+      const name = (k: string) => {
+        const f = by.get(k) ?? by.get(k.split(":")[0]!);
+        return { name: f?.name ?? "un cibo", unit: f?.unit ?? "g" };
+      };
+      return {
+        id: b.recipeId,
+        name: b.name,
+        changes: variantChanges(b.parts, r.parts, name),
+      };
+    })(),
+    variants: recipes
+      .filter((x) => x.baseId === r.recipeId)
+      .map((x) => ({ id: x.recipeId, name: x.name, uses: x.uses })),
   };
 }
 

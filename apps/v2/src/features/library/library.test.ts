@@ -4,6 +4,7 @@ import {
   exerciseRows,
   foodPage,
   mealPage,
+  variantChanges,
   foodRows,
   foodTwins,
   listRows,
@@ -242,6 +243,38 @@ describe("foodTwins («Unisci»)", () => {
     expect(foodTwins(milk, "m").map((x) => x.name)).toEqual([
       "Latte fresco intero",
       "Fiocchi di latte proteici",
+    ]);
+  });
+});
+
+describe("what a variant changes, in words (ADR-0060)", () => {
+  it("added, changed, another brand, removed", () => {
+    const names: Record<string, { name: string; unit: string }> = {
+      milk: { name: "Latte", unit: "g" },
+      whey: { name: "Whey", unit: "g" },
+      pist: { name: "Crema 100% pistacchi", unit: "g" },
+      cocoa: { name: "Cacao", unit: "g" },
+    };
+    const name = (k: string) => names[k.split(":")[0]!]!;
+    expect(
+      variantChanges(
+        [
+          { key: "milk", quantity: "400" },
+          { key: "whey", quantity: "15" },
+          { key: "cocoa", quantity: "6" },
+        ],
+        [
+          { key: "milk:b2", quantity: "400" },
+          { key: "whey", quantity: "20" },
+          { key: "pist", quantity: "40" },
+        ],
+        name,
+      ),
+    ).toEqual([
+      "Latte: un’altra marca",
+      "Whey 15 → 20 g",
+      "+ 40 g Crema 100% pistacchi",
+      "senza Cacao",
     ]);
   });
 });
