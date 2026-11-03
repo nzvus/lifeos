@@ -44,6 +44,7 @@ import type { WeightBook } from "@/core/account/weights";
 import type { MicroTarget } from "@/core/engines/targets";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { MealWhen } from "./MealWhen";
+import { ComposerFoot, EstimateFields } from "./EstimateFields";
 import { ESTIMATE_FIELDS, type EstimateField } from "@/core/food/meal";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
 import {
@@ -75,27 +76,6 @@ const ROLE_WORDS = MEAL_ROLE_WORDS;
 const DEFAULT_QTY = "100";
 /** The converter's brand for a product without one: not a chip. */
 const NO_BRAND = "marca non indicata";
-const ESTIMATE_LABELS: Record<EstimateField, [string, string]> = {
-  kcal: ["Energia", "kcal"],
-  protein: ["Proteine", "g"],
-  carbs: ["Carboidrati", "g"],
-  sugars: ["di cui zuccheri", "g"],
-  fat: ["Grassi", "g"],
-  saturatedFat: ["di cui saturi", "g"],
-  fibre: ["Fibre", "g"],
-  salt: ["Sale", "g"],
-};
-/** The stepper's step per estimate field: kcal by 50, salt by 0,5, the rest by 5 or 1. */
-const ESTIMATE_STEP: Record<EstimateField, number> = {
-  kcal: 50,
-  protein: 5,
-  carbs: 5,
-  sugars: 5,
-  fat: 5,
-  saturatedFat: 1,
-  fibre: 1,
-  salt: 0.5,
-};
 
 export function Composer({
   choices,
@@ -451,36 +431,15 @@ function Draft({
           )}
         </h2>
         {estimate && (
-          <div key={estKey} className="k-stack g3">
-            <p className="k-help">
-              Scrivi i totali del pasto, anche a occhio: conta come stima.
-            </p>
-            {!recipeMode && (
-              <Field
-                name="estName"
-                label="Cosa hai mangiato"
-                type="text"
-                placeholder="per esempio: Pizza fuori"
-                defaultValue={estName}
-                onChange={setEstName}
-              />
-            )}
-            {ESTIMATE_FIELDS.map((f) => (
-              <Field
-                key={f}
-                name={"est." + f}
-                label={ESTIMATE_LABELS[f][0]}
-                type="stepper"
-                unit={ESTIMATE_LABELS[f][1]}
-                step={ESTIMATE_STEP[f]}
-                required={f === "kcal"}
-                placeholder={f === "kcal" ? "" : "se non lo sai, lascia vuoto"}
-                defaultValue={typed[f] ?? ""}
-                error={e["est." + f]}
-                onChange={(x) => setTyped((t) => ({ ...t, [f]: x }))}
-              />
-            ))}
-          </div>
+          <EstimateFields
+            key={estKey}
+            named={!recipeMode}
+            estName={estName}
+            typed={typed}
+            errors={e}
+            onName={setEstName}
+            onTyped={(f, x) => setTyped((t) => ({ ...t, [f]: x }))}
+          />
         )}
         {!estimate && tab === "foods" && lines.length === 0 && (
           <p className="k-help">
@@ -815,33 +774,19 @@ function Draft({
         />
       )}
 
-      <div className="k-pagefoot">
-        {!recipeMode && (
-          <div style={{ flex: "0 0 9.5rem" }}>
-            <Field
-              name="servings"
-              label="Porzioni"
-              type="stepper"
-              step={0.5}
-              defaultValue={servings}
-              error={e["servings"]}
-              onChange={setServings}
-            />
-          </div>
-        )}
-        <button
-          type="submit"
-          className="k-btn primary"
-          style={{ flex: 1, alignSelf: "flex-end" }}
-          aria-busy={pending}
-        >
-          {recipeMode
+      <ComposerFoot
+        servings={recipeMode ? null : servings}
+        error={e["servings"]}
+        onServings={setServings}
+        pending={pending}
+        label={
+          recipeMode
             ? "Salva il pasto"
             : status === "planned"
               ? "Salva previsto"
-              : "Salva"}
-        </button>
-      </div>
+              : "Salva"
+        }
+      />
     </form>
   );
 }
