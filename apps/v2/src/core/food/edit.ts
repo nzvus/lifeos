@@ -170,6 +170,8 @@ export async function createFood(
   values: Partial<Record<FoodField, string>>,
   /** Its barcode, when it came from one: a second scan finds it (`readFoodByBarcode`). */
   barcode: string | null = null,
+  /** Values beyond the label's eight (micros, caffeine, package size), checked by the caller. */
+  extra: Readonly<Record<string, string>> = {},
 ): Promise<{ id: string } | "taken"> {
   return db.transaction(async (tx) => {
     const [twin] = await tx
@@ -196,7 +198,7 @@ export async function createFood(
       ...(barcode
         ? [{ userId: owner.id, itemId: id, field: "barcode", text: barcode }]
         : []),
-      ...Object.entries(values).map(([field, num]) => ({
+      ...Object.entries({ ...extra, ...values }).map(([field, num]) => ({
         userId: owner.id,
         itemId: id,
         field,

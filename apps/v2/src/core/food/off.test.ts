@@ -49,7 +49,26 @@ describe("offPrefill", () => {
       salt: "0.013",
       packageSize: "500",
       nova: "1",
+      extras: {},
     });
+  });
+
+  it("fills every extra OFF has, in the app's units (FOOD-48): mg and µg per 100, caffeine in mg", () => {
+    const p = offPrefill("8001234567890", {
+      status: 1,
+      product: {
+        product_name: "Espresso",
+        nutriments: {
+          "energy-kcal_100g": 2,
+          "vitamin-c_100g": 0.012,
+          "vitamin-d_100g": 0.0000025,
+          calcium_100g: 0.12,
+          caffeine_100g: 0.212,
+          iron_100g: "",
+        },
+      },
+    });
+    expect(p?.extras).toEqual({ vitC: "12", vitD: "2.5", ca: "120", caffeine: "212" });
   });
 
   it("a product that isn't there gives null", () => {

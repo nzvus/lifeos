@@ -7,6 +7,7 @@
  */
 import { useActionState, type ReactNode } from "react";
 import { Field, Glyph, PageHeader } from "@lifeos/kit";
+import { OFF_EXTRAS, type OffExtra } from "@/core/food/off";
 import { FOOD_FIELDS } from "./library";
 
 /** How much a stepper's − and + move each value (kcal by 10, salt by a tenth). */
@@ -50,6 +51,9 @@ export function FoodForm({
   });
   const v = state.values;
   const e = state.errors;
+  const extras = (Object.keys(OFF_EXTRAS) as OffExtra[]).filter(
+    (k) => (v["x." + k] ?? "") !== "",
+  );
   return (
     <form key={state.n} action={submit} className="k-page">
       <PageHeader
@@ -84,6 +88,29 @@ export function FoodForm({
           defaultValue={v["name"] ?? ""}
           error={e["name"]}
         />
+        {isNew && !productOf && (
+          <>
+            <Field
+              name="brand"
+              label="Marca"
+              type="text"
+              placeholder="facoltativa, per esempio: Lidl"
+              help="Diventa un prodotto di questo cibo: altre marche si aggiungono dalla sua pagina."
+              defaultValue={v["brand"] ?? ""}
+              error={e["brand"]}
+            />
+            <Field
+              name="packageSize"
+              label="Confezione"
+              type="stepper"
+              unit={v["unit"] ?? "g"}
+              step={50}
+              placeholder="–"
+              defaultValue={v["packageSize"] ?? ""}
+              error={e["packageSize"]}
+            />
+          </>
+        )}
         {isNew && !productOf && (
           <Field
             name="unit"
@@ -136,6 +163,27 @@ export function FoodForm({
           help="1 non trasformato · 4 ultra-trasformato. Mostrato, non contato nel voto."
           error={e["nova"]}
         />
+        {/* What else Open Food Facts gave (FOOD-48): kept, each one editable. */}
+        {extras.length > 0 && (
+          <details className="k-fold" open>
+            <summary>Altri valori da Open Food Facts · {extras.length}</summary>
+            <div className="k-grid">
+              {extras.map((k) => (
+                <Field
+                  key={k}
+                  name={"x." + k}
+                  label={OFF_EXTRAS[k][3]}
+                  type="stepper"
+                  unit={OFF_EXTRAS[k][2]}
+                  step={1}
+                  placeholder="–"
+                  defaultValue={v["x." + k] ?? ""}
+                  error={e["x." + k]}
+                />
+              ))}
+            </div>
+          </details>
+        )}
         {e["form"] && (
           <p className="k-help" role="alert">
             {e["form"]}

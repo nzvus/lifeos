@@ -15,6 +15,7 @@ import {
 import { archiveItem } from "@/core/catalog/archive";
 import { mergeItems } from "@/core/catalog/merge";
 import { isValidGtin } from "@/core/food/barcode";
+import { OFF_EXTRAS } from "@/core/food/off";
 import { RECIPE_WORDS } from "@/features/food/composer";
 import type { FoodFormState } from "@/features/library/FoodForm";
 
@@ -53,6 +54,17 @@ export async function saveFood(
   }
   const db = await getDb();
   if (id === null) {
+    // What the barcode filled beyond the label (FOOD-48): micros, caffeine, the package.
+    const extra: Record<string, string> = {};
+    const bad: Record<string, string> = {};
+    for (const k of [...Object.keys(OFF_EXTRAS).map((x) => "x." + x), "packageSize"]) {
+      const raw = (form[k] ?? "").trim().replace(",", ".");
+      if (raw === "") continue;
+      if (!/^\d{1,6}(\.\d{1,3})?$/.test(raw)) bad[k] = WORDS.number;
+      else extra[k.replace(/^x\./, "")] = raw;
+    }
+    const brand = (form["brand"] ?? "").trim().replace(/\s+/g, " ").slice(0, 80);
+    if (Object.keys(bad).length > 0) return again(bad);
     const made = await createFood(
       db,
       owner,
@@ -60,8 +72,11 @@ export async function saveFood(
       form["unit"] === "ml" ? "ml" : "g",
       checked.values,
       isValidGtin(form["barcode"] ?? "") ? form["barcode"]! : null,
+      extra,
     );
     if (made === "taken") return again({ name: "Hai già un cibo con questo nome." });
+    // The brand is the food's first product; its values are the food's, so none of its own.
+    if (brand) await createProduct(db, owner, made.id, brand, {});
     revalidatePath("/", "layout");
     redirect(back ?? "/cibo/cibo/" + made.id);
   }

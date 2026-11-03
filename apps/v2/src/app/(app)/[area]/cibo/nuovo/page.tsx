@@ -52,8 +52,13 @@ export default async function NewFoodPage({
     ? {
         unit: off.unit,
         barcode: off.barcode,
-        // The brand in the name: a product of its own comes later, from the food's page.
-        name: (off.name + (off.description ? " · " + off.description : "")).slice(0, 80),
+        // The brand apart, prefilled and editable: it becomes the food's product (FOOD-48).
+        name: off.name.slice(0, 80),
+        brand: off.description.slice(0, 80),
+        ...(off.packageSize ? { packageSize: F.input(Number(off.packageSize), 2) } : {}),
+        ...Object.fromEntries(
+          Object.entries(off.extras).map(([k, x]) => ["x." + k, F.input(Number(x), 2)]),
+        ),
         ...Object.fromEntries(
           FIELDS.flatMap((f) =>
             off[f] === ""

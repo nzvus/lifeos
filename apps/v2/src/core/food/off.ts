@@ -23,7 +23,28 @@ export type OffPrefill = {
   salt: string;
   packageSize: string;
   nova: string;
+  /** Everything else OFF knows that the app keeps (FOOD-43: «precompilare tutto il
+   *  possibile»): micronutrients in the app's units (E5: mg or µg) and caffeine in mg,
+   *  per 100; only those OFF has. */
+  extras: Partial<Record<OffExtra, string>>;
 };
+
+/** The extra fields, their OFF key, and the factor from OFF's grams to the app's unit. */
+export const OFF_EXTRAS = {
+  vitA: ["vitamin-a_100g", 1e6, "µg", "Vitamina A"],
+  vitC: ["vitamin-c_100g", 1e3, "mg", "Vitamina C"],
+  vitD: ["vitamin-d_100g", 1e6, "µg", "Vitamina D"],
+  b12: ["vitamin-b12_100g", 1e6, "µg", "Vitamina B12"],
+  folate: ["folates_100g", 1e6, "µg", "Folati"],
+  ca: ["calcium_100g", 1e3, "mg", "Calcio"],
+  fe: ["iron_100g", 1e3, "mg", "Ferro"],
+  mg: ["magnesium_100g", 1e3, "mg", "Magnesio"],
+  k: ["potassium_100g", 1e3, "mg", "Potassio"],
+  i: ["iodine_100g", 1e6, "µg", "Iodio"],
+  se: ["selenium_100g", 1e6, "µg", "Selenio"],
+  caffeine: ["caffeine_100g", 1e3, "mg", "Caffeina"],
+} as const;
+export type OffExtra = keyof typeof OFF_EXTRAS;
 
 /** Fields to ask for (smaller answers). */
 export const OFF_FIELDS = [
@@ -49,7 +70,12 @@ const NUTRIMENT: Record<string, string> = {
 /** A number (or numeric string) with at most `scale` decimals, or "". */
 function decimal(v: unknown, scale = 3): string {
   const n =
-    typeof v === "number" ? v : typeof v === "string" ? Number(v.replace(",", ".")) : NaN;
+    typeof v === "number"
+      ? v
+      : // An empty string is unknown, never 0 (FOOD-25).
+        typeof v === "string" && v.trim() !== ""
+        ? Number(v.replace(",", "."))
+        : NaN;
   if (!Number.isFinite(n) || n < 0) return "";
   return new Big(n).round(scale, Big.roundHalfUp).toString();
 }
@@ -91,5 +117,13 @@ export function offPrefill(barcode: string, json: unknown): OffPrefill | null {
     ) as Record<keyof typeof NUTRIMENT, string>),
     packageSize: qty ? decimal(qty.amount, 2) : "",
     nova,
+    extras: Object.fromEntries(
+      Object.entries(OFF_EXTRAS).flatMap(([k, [key, factor]]) => {
+        const g = decimal(n[key], 9);
+        return g === ""
+          ? []
+          : [[k, new Big(g).times(factor).round(2, Big.roundHalfUp).toString()]];
+      }),
+    ),
   } as OffPrefill;
 }
