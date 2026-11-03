@@ -10,6 +10,7 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { createFood, setIntake } from "@/core/food/edit";
 import { recipeName } from "@/core/food/recipes";
+import type { IntakeFormState } from "@/features/food/IntakeForm";
 import { addWater, logIntake } from "../../oggi/[[...day]]/actions";
 
 export async function logIntakeAndBack(day: string, foodId: string): Promise<void> {
@@ -22,12 +23,6 @@ export async function waterAndBack(day: string): Promise<void> {
   await addWater(day, 250);
   redirect("/oggi/" + day);
 }
-
-export type IntakeFormState = {
-  errors: Record<string, string>;
-  values: Record<string, string>;
-  n: number;
-};
 
 const NUM = /^\d{1,5}(\.\d{1,3})?$/;
 

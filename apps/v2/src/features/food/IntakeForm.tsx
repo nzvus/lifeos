@@ -6,7 +6,12 @@
  */
 import { useActionState } from "react";
 import { Field, PageHeader } from "@lifeos/kit";
-import type { IntakeFormState } from "@/app/(app)/aggiungi/assunzione/actions";
+
+export type IntakeFormState = {
+  errors: Record<string, string>;
+  values: Record<string, string>;
+  n: number;
+};
 
 export function IntakeForm({
   backHref,

@@ -89,16 +89,14 @@ export async function makeBrandOf(
         (v) => v.num !== null && !has.some((h) => h.field === v.field),
       );
       if (missing.length > 0)
-        await tx
-          .insert(catalogValues)
-          .values(
-            missing.map((v) => ({
-              userId: owner.id,
-              itemId: p.id,
-              field: v.field,
-              num: v.num,
-            })),
-          );
+        await tx.insert(catalogValues).values(
+          missing.map((v) => ({
+            userId: owner.id,
+            itemId: p.id,
+            field: v.field,
+            num: v.num,
+          })),
+        );
     }
     await tx
       .update(entryLines)
