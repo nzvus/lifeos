@@ -29,3 +29,13 @@ describe("calendar", () => {
     expect(addDays("2026-03-01", -1)).toBe("2026-02-28");
   });
 });
+
+describe("the open month moves by a month (DateNav, ledger UI-98)", () => {
+  it("keeps the day, clamped to the month's last", async () => {
+    const { shiftMonth } = await import("./DateNav");
+    expect(shiftMonth("2026-11-03", -1)).toBe("2026-10-03");
+    expect(shiftMonth("2026-03-31", -1)).toBe("2026-02-28");
+    expect(shiftMonth("2026-12-15", 1)).toBe("2027-01-15");
+    expect(shiftMonth("2026-01-31", 1)).toBe("2026-02-28");
+  });
+});

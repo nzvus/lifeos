@@ -12,8 +12,12 @@
  * (the cycle's step, the day's model) names a day under its number.
  * Week mode (Piano, the board Plan): «Settimana 42 · 12–18 ottobre», ‹ ›
  * move a week (`weekBase` + a day of it), the strip's days still open a day.
+ * On a computer (ledger UI-98) the strip and the open month also move with
+ * arrows on their sides (only with a mouse), ← → and the touchpad (`Swipe`);
+ * the open month names itself and stays open on the month it moved to.
  */
-import { useRef, useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
+import { SideArrows, Swipe, useSideMove } from "./Swipe";
 import { useLevel } from "./levels";
 
 /**
@@ -72,7 +76,6 @@ export function DateNav({
   const max = rhythm ? 2 : 1;
   const [stored, next] = useLevel(levelKey ?? "", max, 1);
   const level = levelKey ? stored : 1;
-  const x0 = useRef<number | null>(null);
   const href = (d: string) => hrefBase + d;
   const bar = (d: string) => F.judge(scores[d]).tone;
   const week = mode === "week";
@@ -91,6 +94,29 @@ export function DateNav({
       : href(addDays(day, byWeek ? n * 7 : n));
   const away = week ? !days.includes(today) : day !== today;
   const m = monthOf(day);
+  const weekMove = useSideMove(
+    levelKey ? step(-1, true) : null,
+    levelKey ? step(1, true) : null,
+    Boolean(levelKey),
+  );
+  // The month moved to opens again (a link reloads the page).
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(MONTH_KEY)) {
+        sessionStorage.removeItem(MONTH_KEY);
+        setMonth(true);
+      }
+    } catch {
+      /* no storage: the month starts closed */
+    }
+  }, []);
+  const keepMonth = () => {
+    try {
+      sessionStorage.setItem(MONTH_KEY, "1");
+    } catch {
+      /* no storage */
+    }
+  };
   return (
     <div className="k-dn">
       {levelKey ? (
@@ -173,19 +199,16 @@ export function DateNav({
         aria-label={
           levelKey ? "La settimana: scorri per la settimana prima o dopo" : "La settimana"
         }
-        {...(levelKey
-          ? {
-              onPointerDown: (ev: { clientX: number }) => {
-                x0.current = ev.clientX;
-              },
-              onPointerUp: (ev: { clientX: number }) => {
-                const dx = x0.current === null ? 0 : ev.clientX - x0.current;
-                x0.current = null;
-                if (Math.abs(dx) > 48) window.location.href = step(dx < 0 ? 1 : -1, true);
-              },
-            }
-          : {})}
+        {...(levelKey ? weekMove : {})}
       >
+        {levelKey && (
+          <SideArrows
+            prev={step(-1, true)}
+            next={step(1, true)}
+            prevLabel="Settimana prima"
+            nextLabel="Settimana dopo"
+          />
+        )}
         {days.map((d) => {
           const current = d === day;
           return (
@@ -228,40 +251,64 @@ export function DateNav({
       </nav>
       <div className={"k-reveal" + (month ? " on" : "")}>
         <div>
-          <div className="k-month" role="grid" aria-label="Il mese">
-            {["L", "M", "M", "G", "V", "S", "D"].map((h, i) => (
-              <span key={i} className="h">
-                {h}
-              </span>
-            ))}
-            {Array.from({ length: m.lead }, (_, i) => (
-              <span key={"b" + i} className="c out" />
-            ))}
-            {m.days.map((d) => (
-              <a
-                key={d}
-                href={href(d)}
-                className={
-                  "c" + (d === today ? " today" : "") + (d > today ? " future" : "")
-                }
-                aria-label={
-                  F.day(d) +
-                  (tags[d] ? ", " + tags[d] : "") +
-                  (scores[d] !== undefined ? ", voto " + scores[d] : "")
-                }
-              >
-                <span>{Number(d.slice(8))}</span>
-                <span
-                  className="dot"
-                  style={{ background: d === today ? "transparent" : bar(d) }}
-                />
-              </a>
-            ))}
-          </div>
+          <span className="k-cap k-monthname">
+            {F.month(day)} {day.slice(0, 4)}
+          </span>
+          <Swipe
+            prev={hrefBase + shiftMonth(day, -1)}
+            next={hrefBase + shiftMonth(day, 1)}
+            label="Il mese: scorri per quello prima o dopo"
+            prevLabel="Mese prima"
+            nextLabel="Mese dopo"
+            onGo={keepMonth}
+          >
+            <div className="k-month" role="grid" aria-label="Il mese">
+              {["L", "M", "M", "G", "V", "S", "D"].map((h, i) => (
+                <span key={i} className="h">
+                  {h}
+                </span>
+              ))}
+              {Array.from({ length: m.lead }, (_, i) => (
+                <span key={"b" + i} className="c out" />
+              ))}
+              {m.days.map((d) => (
+                <a
+                  key={d}
+                  href={href(d)}
+                  className={
+                    "c" + (d === today ? " today" : "") + (d > today ? " future" : "")
+                  }
+                  aria-label={
+                    F.day(d) +
+                    (tags[d] ? ", " + tags[d] : "") +
+                    (scores[d] !== undefined ? ", voto " + scores[d] : "")
+                  }
+                >
+                  <span>{Number(d.slice(8))}</span>
+                  <span
+                    className="dot"
+                    style={{ background: d === today ? "transparent" : bar(d) }}
+                  />
+                </a>
+              ))}
+            </div>
+          </Swipe>
         </div>
       </div>
     </div>
   );
+}
+
+const MONTH_KEY = "k-dn-month";
+
+/** The same day of the month `n` months away, clamped to that month's last day. */
+export function shiftMonth(day: string, n: number): string {
+  const y = Number(day.slice(0, 4));
+  const m = Number(day.slice(5, 7)) - 1 + n;
+  const first = new Date(Date.UTC(y, m, 1));
+  const last = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0));
+  const d = Math.min(Number(day.slice(8)), last.getUTCDate());
+  return first.toISOString().slice(0, 8) + String(d).padStart(2, "0");
 }
 
 function DayBarsMark({ b }: { b: DayBars | undefined }) {

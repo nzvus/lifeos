@@ -62,6 +62,9 @@ export function RangeNav({
         prev={prevHref}
         next={nextHref}
         label="Il periodo: scorri per quello prima o dopo"
+        keys
+        prevLabel="Periodo prima"
+        nextLabel="Periodo dopo"
       >
         <div className="k-month" role="grid" aria-label={"Il mese di " + F.month(to)}>
           {["L", "M", "M", "G", "V", "S", "D"].map((h, i) => (
