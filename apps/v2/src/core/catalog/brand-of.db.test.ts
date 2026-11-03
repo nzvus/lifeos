@@ -83,4 +83,68 @@ describe("«È una marca di…» (ADR-0060)", () => {
     expect(Number(v?.num)).toBe(36);
     expect(await makeBrandOf(db, a, keep, keep, "x")).toBe(false);
   });
+
+  it("both foods already have the brand Mutti with a 700 g format (3 Nov, production): one brand, one format", async () => {
+    const item = async (catalog: string, name: string, parentId: string | null) =>
+      (
+        (await db
+          .insert(s.catalogItems)
+          .values({ userId: a.id, catalog, name, parentId })
+          .returning({ id: s.catalogItems.id })) as [{ id: string }]
+      )[0].id;
+    const k = await item("food", "Ceci lessati", null);
+    const g = await item("food", "Ceci lessati (Sol&Mar)", null);
+    const kp = await item("product", "Sol&Mar", k);
+    const kf = await item("format", "400 g", kp);
+    const gp = await item("product", "Sol&Mar", g);
+    const gf = await item("format", "400 g", gp);
+    await db.insert(s.priceObservations).values({
+      userId: a.id,
+      formatId: gf,
+      day: "2026-10-20",
+      cents: 89,
+      packageQty: "400",
+      unit: "g",
+      source: "manual",
+    });
+    const [e] = (await db
+      .insert(s.entries)
+      .values({
+        userId: a.id,
+        kind: "meal",
+        day: "2026-10-21",
+        status: "done",
+        source: "typed",
+      })
+      .returning({ id: s.entries.id })) as { id: string }[];
+    const [l] = (await db
+      .insert(s.entryLines)
+      .values({
+        userId: a.id,
+        entryId: e!.id,
+        position: 0,
+        itemId: g,
+        productId: gp,
+        formatId: gf,
+        name: "Ceci",
+        quantity: "120",
+        unit: "g",
+      })
+      .returning({ id: s.entryLines.id })) as { id: string }[];
+    expect(await makeBrandOf(db, a, g, k, "Sol&Mar")).toBe(true);
+    const [after] = await db
+      .select()
+      .from(s.entryLines)
+      .where(eq(s.entryLines.id, l!.id));
+    expect([after?.itemId, after?.productId, after?.formatId]).toEqual([k, kp, kf]);
+    const [price] = await db
+      .select()
+      .from(s.priceObservations)
+      .where(eq(s.priceObservations.cents, 89));
+    expect(price?.formatId).toBe(kf);
+    const brands = (await readFoodChoices(db, a, "2026-11-03")).filter(
+      (c) => c.foodId === k && c.brand,
+    );
+    expect(brands.map((b) => b.brand)).toEqual(["Sol&Mar"]);
+  });
 });

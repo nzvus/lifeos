@@ -18,6 +18,7 @@ import {
   entries,
   entryLines,
   entryValues,
+  priceObservations,
   templateBlocks,
 } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
@@ -96,6 +97,69 @@ export async function mergeItems(
     const gone = both.find((i) => i.id === goneId);
     if (!keep || !gone || keep.catalog !== gone.catalog) return null;
     const user = keep.userId;
+
+    // Children both have with the same name (the brand «Mutti» under both foods, the
+    // «500 g» under both brands) are one thing too: folded first, deepest first, or
+    // moving the other's children would give a parent two of the same name (3 Nov,
+    // «Possibili doppioni» failed on catalog_items_live_name_uq).
+    const kids = await tx
+      .select({
+        id: catalogItems.id,
+        name: catalogItems.name,
+        catalog: catalogItems.catalog,
+        parentId: catalogItems.parentId,
+      })
+      .from(catalogItems)
+      .where(
+        and(
+          eq(catalogItems.userId, user),
+          isNull(catalogItems.deletedAt),
+          isNull(catalogItems.archivedAt),
+          sql`${catalogItems.parentId} in (${keepId}, ${goneId})`,
+        ),
+      );
+    for (const g of kids.filter((k) => k.parentId === goneId)) {
+      const twin = kids.find(
+        (k) =>
+          k.parentId === keepId &&
+          k.catalog === g.catalog &&
+          k.name.toLowerCase() === g.name.toLowerCase(),
+      );
+      if (!twin) continue;
+      await mergeItems(tx as unknown as Db, owner, twin.id, g.id);
+      // Fully merged: out of the live names, so the parent's move below finds no clash.
+      await tx
+        .update(catalogItems)
+        .set({ deletedAt: new Date() })
+        .where(and(eq(catalogItems.userId, user), eq(catalogItems.id, g.id)));
+    }
+
+    // What points at it as a brand or a format: logged lines, prices, saved meals' brand.
+    await tx
+      .update(entryLines)
+      .set({ productId: keepId })
+      .where(and(eq(entryLines.userId, user), eq(entryLines.productId, goneId)));
+    await tx
+      .update(entryLines)
+      .set({ formatId: keepId })
+      .where(and(eq(entryLines.userId, user), eq(entryLines.formatId, goneId)));
+    await tx
+      .update(priceObservations)
+      .set({ formatId: keepId })
+      .where(
+        and(eq(priceObservations.userId, user), eq(priceObservations.formatId, goneId)),
+      );
+    await tx
+      .update(catalogParts)
+      .set({
+        defaults: sql`jsonb_set(${catalogParts.defaults}, '{preferredProduct}', ${JSON.stringify(keepId)}::jsonb)`,
+      })
+      .where(
+        and(
+          eq(catalogParts.userId, user),
+          sql`${catalogParts.defaults}->>'preferredProduct' = ${goneId}`,
+        ),
+      );
 
     const moved = await tx
       .update(entries)
