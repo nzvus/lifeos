@@ -165,9 +165,16 @@ export function contextPills(c: SessionContext): { t: string; state: State }[] {
     ...(c.coffees3h > 0
       ? [p(F.plural(c.coffees3h, "caffè", "caffè") + " prima", false)]
       : []),
-    ...(c.creatineDays !== null
-      ? [p("creatina " + c.creatineDays + " giorni su 28", c.creatineDays < 20)]
-      : []),
+    ...(c.creatineStores != null
+      ? [
+          p(
+            "creatina: scorte ≈ " + Math.round(c.creatineStores * 100) + " %",
+            c.creatineStores < 0.5,
+          ),
+        ]
+      : c.creatineDays !== null
+        ? [p("creatina " + c.creatineDays + " giorni su 28", c.creatineDays < 20)]
+        : []),
     ...(c.readiness !== null
       ? [p("come ti sentivi " + c.readiness + "/5", c.readiness <= 2)]
       : []),

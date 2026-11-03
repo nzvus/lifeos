@@ -82,7 +82,7 @@ export default async function PianoPage({
       ),
     ),
   ]);
-  const ctx = { compounds, doses: [], bed: null, creatineDays: null };
+  const ctx = { compounds, doses: [], bed: null, creatine: null };
   const models = toModels(book.models, book.rows);
   // The header names the open day's model and cycles (the week's first day when none is open).
   const headPlan = plans.get(open ?? week[0]!);

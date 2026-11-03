@@ -3,6 +3,13 @@
 Status: **draft 2026-11-03**, written by the agent (the developer: «siamo sicuri
 che la creatina funzioni così?… e la caffeina? i caffè mostrano sempre 23.30
 ottimo: è normale?»). §9 carries the agent's decisions.
+**Slices a and b built (3 Nov, #319):** `core/food/creatine.ts` (+ tests, by
+the compound via `creatine-read.ts`, sized by the last weigh-in), the stores on
+the dose's row, in «Il giorno» on other days and on the session's «Prima»;
+his usual bedtime (median of 14 nights), the coffee's pill only when it
+matters, last-coffee time, 400/200 mg. On his data: 24 Oct «scorte ≈ 71 % · in
+aumento» (76,8 kg; the tests use 72 kg → 76 %), today «≈ 59 % · in calo da 5
+giorni» (data up to 29 Oct). Left: slice c.
 
 Ledger: FOOD-40, FOOD-13, FOOD-18, FOOD-21, BODY-07, BODY-10, BODY-11, UI-01, UI-73, DATA-21 · ADR-0038, ADR-0039
 

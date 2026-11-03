@@ -109,28 +109,67 @@ describe("caffeine and creatine as the boards draw them", () => {
     compounds,
     doses: caffeineDoses([coffee], compounds),
     bed: { at: new Date("2026-10-15T21:30:00Z"), known: false },
-    creatineDays: 11,
+    creatine: { stores: 0.76, trend: "up", sinceDose: 0 },
   };
 
-  it("a coffee: «Caffè ≈ 100 mg», what is left at bedtime after three half-lives", () => {
-    const e = withCompounds(present(coffee), coffee, ctx);
-    expect(e.title).toBe("Caffè");
-    expect(plain(e.value)).toBe("≈ 100 mg");
-    expect(plain(e.meta)).toBe("alle 23:30 ne restano ≈ 13 mg");
-    expect(caffeineLeft(ctx.doses, ctx.bed!.at)).toBeCloseTo(100 / 2 ** 3, 0);
-    // 13 mg at bedtime: under 50, good (dossiers/ranges.md §8, 5).
-    expect(plain(e.pills)).toEqual([{ t: "alle 23:30: ottimo", state: "good" }]);
-    const late = item("meal", {
-      start: new Date("2026-10-15T19:00:00Z"),
+  // His clock: Rome, UTC+2 on 15 Oct.
+  const timeOf = (d: Date) =>
+    d.toLocaleTimeString("it-IT", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Europe/Rome",
+    });
+  const capsule = (iso: string, id = "x") =>
+    item("meal", {
+      id,
+      start: new Date(iso),
       lines: [line("Capsula", "coffee", "7.2", "0")],
     });
+
+  it("a morning coffee says only its mg: nothing to decide at bedtime (FOOD-40, test 8.3)", () => {
+    const e = withCompounds(present(coffee), coffee, { ...ctx, timeOf });
+    expect(e.title).toBe("Caffè");
+    expect(plain(e.value)).toBe("≈ 100 mg");
+    expect(e.pills).toEqual([]);
+    expect(e.meta).toBe("");
+    expect(caffeineLeft(ctx.doses, ctx.bed!.at)).toBeCloseTo(100 / 2 ** 3, 0);
+  });
+
+  it("a coffee after the last-coffee time says so, at his usual bedtime (test 8.4)", () => {
+    // 16:00 local, usual bed 00:28 → last coffee 15:28; ≈ 31 mg left: good, so no bed pill.
+    const four = capsule("2026-10-15T14:00:00Z");
+    const usual = {
+      ...ctx,
+      timeOf,
+      doses: caffeineDoses([four], compounds),
+      bed: { at: new Date("2026-10-15T22:28:00Z"), known: false, usual: true },
+    };
+    expect(plain(withCompounds(present(four), four, usual).pills)).toEqual([
+      { t: "dopo le 15:28: tocca il sonno", state: "warn" },
+    ]);
+  });
+
+  it("two late coffees: bad at bedtime, said with when; five a day: over 400 (test 8.5)", () => {
+    const late = capsule("2026-10-15T19:00:00Z");
     const two = {
       ...ctx,
+      timeOf,
       doses: caffeineDoses([late, { ...late, id: "l2" }], compounds),
     };
-    expect(plain(withCompounds(present(late), late, two).pills)).toEqual([
+    const e = withCompounds(present(late), late, two);
+    expect(plain(e.pills)).toEqual([
       { t: "alle 23:30: pessimo", state: "bad" },
+      { t: "dopo le 14:30: tocca il sonno", state: "warn" },
     ]);
+    expect(plain(e.meta)).toBe("ne restano ≈ 141 mg");
+    const five = [0, 1, 2, 3, 4].map((n) =>
+      capsule("2026-10-15T0" + (5 + n) + ":00:00Z", "c" + n),
+    );
+    const many = { ...ctx, timeOf, doses: caffeineDoses(five, compounds) };
+    expect(plain(withCompounds(present(five[0]!), five[0]!, many).pills)).toContainEqual({
+      t: "oggi ≈ 500 mg: oltre 400",
+      state: "bad",
+    });
   });
 
   it("creatine alone is a supplement with its days; inside a meal, a pill", () => {
@@ -139,7 +178,7 @@ describe("caffeine and creatine as the boards draw them", () => {
     expect(plain([e.title, e.value, e.meta])).toEqual([
       "Creatina",
       "3,4 g",
-      "integratore · 11 giorni su 28",
+      "integratore · scorte ≈ 76 % · in aumento",
     ]);
     const meal = item("meal", {
       lines: [

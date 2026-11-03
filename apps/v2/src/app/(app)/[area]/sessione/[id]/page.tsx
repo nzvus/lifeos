@@ -66,6 +66,7 @@ import {
   tickSet,
   untickSet,
 } from "../../../palestra/actions";
+import { readCreatine } from "@/core/food/creatine-read";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -258,9 +259,15 @@ export default async function GymPage({
   });
   // The night and the 24 h need two days; creatine its own narrow read.
   const days = read!.days;
-  const creatine = session.start ? await readCreatineLines(db, owner, session.day) : [];
+  const [creatine, stores] = session.start
+    ? await Promise.all([
+        readCreatineLines(db, owner, session.day),
+        // The stores it was done at (FOOD-21, dossiers/compounds.md).
+        readCreatine(db, owner, session.day).then((c) => c?.stores ?? null),
+      ])
+    : [[], null];
   const context = session.start
-    ? sessionContext(days, session.start, session.day, readiness, creatine)
+    ? sessionContext(days, session.start, session.day, readiness, creatine, stores)
     : null;
   // Finished: one line under the session; in progress: pills under the exercise (the board).
   const before = context && session.status === "done" ? contextText(context) : "";
