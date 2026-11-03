@@ -10,10 +10,9 @@ import { mergeItems } from "@/core/catalog/merge";
 import { makeVariantOf } from "@/core/food/recipes";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const BACK = "/cibo/elenco/doppioni";
 const done = () => {
   revalidatePath("/", "layout");
-  redirect(BACK);
+  redirect("/cibo/elenco/doppioni");
 };
 
 /** «È una marca di …»: `gone` becomes the brand `brand` of `keep`. */

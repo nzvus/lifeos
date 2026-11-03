@@ -54,6 +54,8 @@ export async function logActivity(
     label: string;
     end: Date;
     activity: CheckedActivity;
+    /** Where (a route, ADR-0060 TRAIN-37): the activity is what was done, the route where. */
+    routeId?: string;
   },
 ): Promise<string> {
   const { minutes, km, rpe } = p.activity;
@@ -88,6 +90,9 @@ export async function logActivity(
       .values([
         ...values.map((v) => ({ userId: owner.id, ...v })),
         { userId: owner.id, entryId: s!.id, field: "label", text: p.label },
+        ...(p.routeId
+          ? [{ userId: owner.id, entryId: s!.id, field: "routeId", text: p.routeId }]
+          : []),
       ]);
     await tx.insert(trainingSets).values({
       userId: owner.id,

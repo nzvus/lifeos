@@ -7,8 +7,9 @@
  */
 import { AREAS, AreaTabs, Box, F, List, NavBar, PageHeader } from "@lifeos/kit";
 import { readNotTwins } from "@/core/account/not-twins";
+import { readExercises } from "@/core/training";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
-import { twinPairs } from "@/features/library/twins";
+import { exerciseTwins, twinPairs } from "@/features/library/twins";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -53,16 +54,19 @@ export async function AreaShelves({
   const href = (k: Shelf) =>
     AREA_HREF[area] + "/elenco" + (k === shelves[0][0] ? "" : "?vista=" + k);
   const twins =
-    area === "cibo" && (shelf === "cibi" || shelf === "pasti")
-      ? await (async () => {
-          const foods = await readFoodChoices(db, owner, today);
-          return twinPairs(
-            foods,
-            await readRecipeChoices(db, owner, today, foods),
-            await readNotTwins(db, owner),
-          ).length;
-        })()
-      : 0;
+    area === "corpo" && shelf === "esercizi"
+      ? exerciseTwins(await readExercises(db, owner), await readNotTwins(db, owner))
+          .length
+      : area === "cibo" && (shelf === "cibi" || shelf === "pasti")
+        ? await (async () => {
+            const foods = await readFoodChoices(db, owner, today);
+            return twinPairs(
+              foods,
+              await readRecipeChoices(db, owner, today, foods),
+              await readNotTwins(db, owner),
+            ).length;
+          })()
+        : 0;
   let body: React.ReactNode;
   let context: string;
   if (shelf === "dispensa") {
@@ -114,7 +118,7 @@ export async function AreaShelves({
       {twins > 0 && (
         // His near-duplicates, reviewed once (ADR-0060 slice f).
         <div className="k-block">
-          <a className="k-link" href="/cibo/elenco/doppioni">
+          <a className="k-link" href={AREA_HREF[area] + "/elenco/doppioni"}>
             Possibili doppioni ({twins}) ›
           </a>
         </div>

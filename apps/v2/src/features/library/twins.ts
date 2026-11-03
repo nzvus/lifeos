@@ -92,3 +92,30 @@ export function twinPairs(
     }
   return out;
 }
+
+/** English names his converted data still has, and the Italian one they merge into (TRAIN-02). */
+const SAME_EXERCISE: [string, string][] = [
+  ["run", "corsa"],
+  ["treadmill", "tapis roulant"],
+  ["walk", "camminata"],
+];
+
+/** Exercises that are one with another under an English name (R5, TRAIN-37): keep the Italian. */
+export function exerciseTwins(
+  exercises: readonly { id: string; name: string }[],
+  notTwins: ReadonlySet<string>,
+): { keep: { id: string; name: string }; gone: { id: string; name: string } }[] {
+  const by = (n: string) => exercises.find((e) => fold(e.name).trim() === n);
+  return SAME_EXERCISE.flatMap(([en, it]) => {
+    const gone = by(en);
+    const keep = by(it);
+    return gone && keep && !notTwins.has(pair(gone.id, keep.id))
+      ? [
+          {
+            keep: { id: keep.id, name: keep.name },
+            gone: { id: gone.id, name: gone.name },
+          },
+        ]
+      : [];
+  });
+}

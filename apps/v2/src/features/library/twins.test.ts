@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { FoodChoice, RecipeChoice } from "@/core/food/choices";
-import { twinPairs } from "./twins";
+import { exerciseTwins, twinPairs } from "./twins";
 
 const f = (foodId: string, name: string): FoodChoice => ({
   key: foodId,
@@ -69,5 +69,19 @@ describe("«Possibili doppioni» on his data (objects.md §2)", () => {
         child: { id: "g2", name: "GELATO proteico nocciola" },
       },
     ]);
+  });
+});
+
+describe("Run and Corsa are one (TRAIN-37, R5)", () => {
+  it("keeps the Italian name; asks nothing when only one exists", () => {
+    const ex = [
+      { id: "r", name: "Run" },
+      { id: "c", name: "Corsa" },
+      { id: "t", name: "Tapis roulant" },
+    ];
+    expect(exerciseTwins(ex, new Set())).toEqual([
+      { keep: { id: "c", name: "Corsa" }, gone: { id: "r", name: "Run" } },
+    ]);
+    expect(exerciseTwins(ex, new Set(["c|r"]))).toEqual([]);
   });
 });

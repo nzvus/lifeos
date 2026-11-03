@@ -13,7 +13,8 @@ import { readNotTwins } from "@/core/account/not-twins";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { AREA_HREF } from "@/features/places";
-import { twinPairs } from "@/features/library/twins";
+import { exerciseTwins, twinPairs } from "@/features/library/twins";
+import { readExercises } from "@/core/training";
 import { asBrand, asOne, asVariant, notTwins } from "./actions";
 
 export default async function TwinsPage({
@@ -21,22 +22,29 @@ export default async function TwinsPage({
 }: {
   params: Promise<{ area: string }>;
 }) {
-  if ((await params).area !== "cibo") notFound();
+  const area = (await params).area;
+  if (area !== "cibo" && area !== "corpo") notFound();
   const owner = await requireOwner();
   const db = await getDb();
   const today = logicalDay(new Date(), (await ownerClock()).clock);
   const foods = await readFoodChoices(db, owner, today);
-  const pairs = twinPairs(
-    foods,
-    await readRecipeChoices(db, owner, today, foods),
-    await readNotTwins(db, owner),
-  );
+  const not = await readNotTwins(db, owner);
+  const pairs = twinPairs(foods, await readRecipeChoices(db, owner, today, foods), not);
+  const exercises = exerciseTwins(await readExercises(db, owner), not);
   return (
     <main className="k-page">
       <PageHeader
         title="Possibili doppioni"
-        context={pairs.length === 0 ? "nessuno" : pairs.length + " da guardare"}
-        back={{ label: "Cibo · Elenco", href: "/cibo/elenco" }}
+        context={
+          pairs.length + exercises.length === 0
+            ? "nessuno"
+            : pairs.length + exercises.length + " da guardare"
+        }
+        back={
+          area === "corpo"
+            ? { label: "Corpo · Elenco", href: "/corpo/elenco" }
+            : { label: "Cibo · Elenco", href: "/cibo/elenco" }
+        }
         of={{ fam: "food" }}
       />
       <section className="k-section g3" aria-label="Doppioni">
@@ -44,7 +52,29 @@ export default async function TwinsPage({
           Per ognuno la proposta è il primo pulsante. I pasti già registrati restano come
           sono: cambia solo da dove li prendi d’ora in poi.
         </p>
-        {pairs.length === 0 && <p className="k-empty k-meta">Niente da sistemare.</p>}
+        {pairs.length + exercises.length === 0 && (
+          <p className="k-empty k-meta">Niente da sistemare.</p>
+        )}
+        {exercises.map((x) => (
+          // The same exercise under an English name (TRAIN-37): its sessions move to the Italian.
+          <div key={x.gone.id} className="k-box k-stack g2">
+            <span className="k-label">
+              «{x.gone.name}» e «{x.keep.name}»: lo stesso esercizio
+            </span>
+            <div className="k-line g2 wrap">
+              <form action={asOne.bind(null, x.keep.id, x.gone.id)}>
+                <button type="submit" className="k-btn primary">
+                  Uniscili in «{x.keep.name}»
+                </button>
+              </form>
+              <form action={notTwins.bind(null, x.keep.id, x.gone.id)}>
+                <button type="submit" className="k-btn link">
+                  Sono diversi
+                </button>
+              </form>
+            </div>
+          </div>
+        ))}
         {pairs.map((t) =>
           t.kind === "food" ? (
             <div key={t.a.id + t.b.id} className="k-box k-stack g2">
