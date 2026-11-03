@@ -84,7 +84,7 @@ export async function mergeFood(keepId: string, goneId: string): Promise<void> {
 export async function archiveFood(id: string): Promise<void> {
   await archiveItem(await getDb(), await requireOwner(), id, "food");
   revalidatePath("/", "layout");
-  redirect("/oggi/elenco?vista=cibi");
+  redirect("/cibo/elenco");
 }
 
 /** Saves «Nuovo prodotto» of a food: the brand and the label's values. */

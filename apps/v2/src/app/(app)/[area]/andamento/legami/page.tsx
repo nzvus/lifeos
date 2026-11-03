@@ -3,7 +3,9 @@
  * measures — sleep, morning energy and mood, stress, steps, training
  * minutes — as features/progress/links says them; a pair short of 21 days
  * says how many it has. Read only when opened: a few narrow queries.
+ * In Mente · Andamento (map D, architecture.md §10); another area redirects there.
  */
+import { redirect } from "next/navigation";
 import { Box, F, NavBar, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
@@ -16,7 +18,12 @@ import { AREA_HREF } from "@/features/places";
 
 const DAYS = 90;
 
-export default async function LinksPage() {
+export default async function LinksPage({
+  params,
+}: {
+  params: Promise<{ area: string }>;
+}) {
+  if ((await params).area !== "mente") redirect("/mente/andamento/legami");
   const owner = await requireOwner();
   const db = await getDb();
   const { clock } = await ownerClock();
@@ -64,7 +71,7 @@ export default async function LinksPage() {
       <PageHeader
         title="Legami"
         context="ultimi 90 giorni · cosa va insieme a cosa"
-        back={{ label: "Andamento", href: "/oggi/andamento" }}
+        back={{ label: "Mente · Andamento", href: "/mente/andamento" }}
         of={{ place: "andamento" }}
       />
       <section className="k-section g2" aria-label="I legami">
@@ -104,7 +111,7 @@ export default async function LinksPage() {
         ))}
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
+        <NavBar active="mente" hrefs={AREA_HREF} addHref="/aggiungi?area=mente" />
       </div>
     </main>
   );

@@ -111,7 +111,7 @@ export default async function SettingsPage({
               ? (targets.protein ? F.num(targets.protein, "g") + " proteine · " : "") +
                 "dall’obiettivo e dal modello del giorno, non a mano"
               : "servono pesate e sesso, anno e altezza qui sotto",
-            href: "/andamento/obiettivi",
+            href: "/oggi/andamento/obiettivi",
             hrefLabel: "Apri gli obiettivi",
           }}
         />
@@ -135,7 +135,7 @@ export default async function SettingsPage({
             title: "Cibi",
             value: F.n(counts.foods, 0),
             meta: "ingredienti e prodotti",
-            href: "/oggi/elenco?vista=cibi",
+            href: "/cibo/elenco",
             hrefLabel: "Apri i cibi in Libreria",
           }}
         />

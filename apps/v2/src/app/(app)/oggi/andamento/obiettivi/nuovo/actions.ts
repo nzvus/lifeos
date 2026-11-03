@@ -43,5 +43,5 @@ export async function saveGoal(
     };
   await createGoal(db, owner, checked, today);
   revalidatePath("/", "layout");
-  redirect("/andamento/obiettivi");
+  redirect("/oggi/andamento/obiettivi");
 }

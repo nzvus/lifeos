@@ -53,12 +53,12 @@ export async function archiveSaved(id: string): Promise<void> {
   const owner = await requireOwner();
   await archiveRecipe(await getDb(), owner, id);
   revalidatePath("/", "layout");
-  redirect("/oggi/elenco?vista=pasti");
+  redirect("/cibo/elenco?vista=pasti");
 }
 
 /** «Duplica»: a copy to change, opened in its editor. */
 export async function duplicateSaved(id: string): Promise<void> {
   const copy = await duplicateRecipe(await getDb(), await requireOwner(), id);
   revalidatePath("/", "layout");
-  redirect(copy ? "/libreria/pasto/" + copy + "/modifica" : "/oggi/elenco?vista=pasti");
+  redirect(copy ? "/libreria/pasto/" + copy + "/modifica" : "/cibo/elenco?vista=pasti");
 }

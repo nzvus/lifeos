@@ -44,7 +44,7 @@ import {
 import { OpenBox } from "@/features/day/OpenBox";
 import { averageScore } from "@/features/progress/average";
 import { stepsDomain } from "@/features/progress/steps";
-import { AREA_HREF, tabHrefs } from "@/features/places";
+import { AREA_HREF, tabHrefs, trackerHref } from "@/features/places";
 import {
   period,
   periodPills,
@@ -179,7 +179,7 @@ export default async function AndamentoPage({
       fam: "body",
       sub: "weight",
       title: "Peso",
-      href: "/andamento/peso",
+      href: "/corpo/andamento/peso",
       score: domain((d) =>
         itemsOf(d).map((i) => weighScore(i, itemsOf(d), ctxOf(d.day))),
       ),
@@ -188,7 +188,7 @@ export default async function AndamentoPage({
       fam: "sleep",
       sub: "wake",
       title: "Sonno",
-      href: "/andamento/sonno",
+      href: "/corpo/andamento/sonno",
       score: domain((d) => {
         const n = nightOf(itemsOf(d), ctxOf(d.day));
         return n ? [sleepScore(n, itemsOf(d), ctxOf(d.day))] : [];
@@ -198,7 +198,7 @@ export default async function AndamentoPage({
       fam: "drink",
       sub: "water",
       title: "Acqua",
-      href: "/andamento/acqua",
+      href: "/cibo/andamento/acqua",
       score: domain((d) =>
         itemsOf(d).some((i) => i.kind.key === "water")
           ? [waterBox(itemsOf(d), ctxOf(d.day)).score]
@@ -224,7 +224,7 @@ export default async function AndamentoPage({
       ? { value: stepGoal.value!, weekdaysOnly: stepGoal.metric["days"] === "weekdays" }
       : null,
   );
-  if (stepsRow) domains.push({ ...stepsRow, href: "/andamento/passi" });
+  if (stepsRow) domains.push({ ...stepsRow, href: "/corpo/andamento/passi" });
   // The person's own trackers used in the period, each to its page (no score: theirs to say).
   const own = new Map<
     string,
@@ -274,19 +274,19 @@ export default async function AndamentoPage({
       <AreaTabs tab="andamento" hrefs={tabHrefs("oggi")} />
       <section className="k-section" aria-label="Obiettivi">
         <div className="k-line wrap g4">
-          <a className="k-link" href="/andamento/obiettivi">
+          <a className="k-link" href="/oggi/andamento/obiettivi">
             Obiettivi ›
           </a>
-          <a className="k-link" href="/andamento/soldi">
+          <a className="k-link" href="/soldi/andamento">
             Soldi ›
           </a>
-          <a className="k-link" href="/andamento/legami">
+          <a className="k-link" href="/mente/andamento/legami">
             Legami ›
           </a>
-          <a className="k-link" href="/andamento/qualita">
+          <a className="k-link" href="/oggi/andamento/qualita">
             Qualità ›
           </a>
-          <a className="k-link" href="/andamento/come-valutiamo">
+          <a className="k-link" href="/oggi/andamento/come-valutiamo">
             Come valutiamo ›
           </a>
         </div>
@@ -380,7 +380,7 @@ export default async function AndamentoPage({
                 title: kind.name!,
                 value: String(n),
                 meta: n === 1 ? "volta nel periodo" : "volte nel periodo",
-                href: "/andamento/" + kind.key,
+                href: trackerHref(kind.key, kind.domain),
                 hrefLabel: "Andamento di " + kind.name,
               }}
             />

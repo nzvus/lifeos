@@ -144,7 +144,7 @@ export default async function FoodPage({
             ? "usato " + F.plural(uses, "volta", "volte") + " in 90 giorni"
             : "non usato negli ultimi 90 giorni"
         }
-        back={{ label: "Cibi", href: "/oggi/elenco?vista=cibi" }}
+        back={{ label: "Cibi", href: "/cibo/elenco" }}
         action={{ label: "Modifica", href: "/libreria/cibo/" + id + "/modifica" }}
         of={{ fam: "food", ...(self?.drawing ?? {}) }}
       />
@@ -204,7 +204,7 @@ export default async function FoodPage({
               of: { kind: "ingredient" },
               title: "Dispensa",
               ...stockWords(stock.stock, page.unit),
-              href: "/libreria/dispensa",
+              href: "/cibo/elenco?vista=dispensa",
               hrefLabel: "Apri la dispensa",
             }}
           />

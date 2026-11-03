@@ -1,4 +1,4 @@
-/** «Nuovo obiettivo» (V-09): `/andamento/obiettivi/nuovo`, with today's weight for the pace it asks. */
+/** «Nuovo obiettivo» (V-09): `/oggi/andamento/obiettivi/nuovo`, with today's weight for the pace it asks. */
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";

@@ -3,8 +3,9 @@
  * missing) — spent and earned, the pace against the month before at the
  * same day, spending by category (a sub-category in its parent), then the
  * movements day by day with each day's total. ⊕ → Spesa adds one.
+ * It is Soldi · Andamento itself (map D, architecture.md §10: `/soldi/andamento`).
  */
-import { addDays, Box, F, NavBar, PageHeader } from "@lifeos/kit";
+import { addDays, AreaTabs, Box, F, NavBar, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -12,12 +13,12 @@ import { logicalDay } from "@/core/engines/time";
 import { readCategories, readMovements } from "@/core/money";
 import { monthMoney } from "@/core/money/month";
 import { categoryName } from "@/features/money/words";
-import { AREA_HREF } from "@/features/places";
+import { AREA_HREF, tabHrefs } from "@/features/places";
 
 const MONTH = /^\d{4}-\d{2}$/;
 const eur = (cents: number) => F.num(Math.abs(cents) / 100, "€");
 
-export default async function MoneyPage({
+export async function MoneyPage({
   searchParams,
 }: {
   searchParams: Promise<{ mese?: string | string[] }>;
@@ -47,16 +48,16 @@ export default async function MoneyPage({
       ? Math.round(((m.spentCents - m.beforeCents) / m.beforeCents) * 100)
       : null;
   const link = (mm: string) =>
-    "/andamento/soldi" + (mm === today.slice(0, 7) ? "" : "?mese=" + mm);
+    "/soldi/andamento" + (mm === today.slice(0, 7) ? "" : "?mese=" + mm);
   return (
     <main className="k-page has-bd">
       <PageHeader
         title="Soldi"
         context={F.month(first) + " " + first.slice(0, 4) + " · i movimenti, il mese"}
-        back={{ label: "Andamento", href: "/oggi/andamento" }}
-        action={{ label: "+ Spesa", href: "/aggiungi/spesa" }}
+        action={{ label: "+ Spesa", href: "/aggiungi/spesa?area=soldi" }}
         of={{ fam: "money" }}
       />
+      <AreaTabs tab="andamento" hrefs={tabHrefs("soldi")} />
       <section className="k-block g3">
         <div className="k-line between">
           <a className="k-link" href={link(prevFirst.slice(0, 7))}>
@@ -160,7 +161,7 @@ export default async function MoneyPage({
         ))}
       </section>
       <div className="k-nav k-stick">
-        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
+        <NavBar active="soldi" hrefs={AREA_HREF} addHref="/aggiungi?area=soldi" />
       </div>
     </main>
   );

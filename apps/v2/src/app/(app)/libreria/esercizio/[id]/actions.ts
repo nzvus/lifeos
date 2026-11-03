@@ -13,7 +13,7 @@ import { mergeItems } from "@/core/catalog/merge";
 export async function archiveExercise(id: string): Promise<void> {
   await archiveItem(await getDb(), await requireOwner(), id, "exercise");
   revalidatePath("/", "layout");
-  redirect("/oggi/elenco?vista=esercizi");
+  redirect("/corpo/elenco");
 }
 
 export async function mergeExercise(keepId: string, goneId: string): Promise<void> {

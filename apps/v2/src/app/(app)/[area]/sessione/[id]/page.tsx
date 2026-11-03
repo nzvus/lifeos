@@ -1,12 +1,12 @@
 /**
- * Gym mode for one session (`/palestra/<id>`, V-05): the server reads the
+ * Gym mode for one session (`/corpo/sessione/<id>`, V-05; map D puts it in Corpo · Diario, architecture.md §10): the server reads the
  * session with its exercises and sets, each exercise's history of 120 days
  * and the person's timing, and E6's advice (dossiers/training.md §5): the
  * proposed sets with the learnt drop, the rest and where it comes from, the
  * trend, the timers; a readiness of 1–2 takes one set off each exercise.
  * The client trains and ticks.
  */
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { F } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
@@ -65,14 +65,19 @@ import {
   readinessGym,
   tickSet,
   untickSet,
-} from "../actions";
+} from "../../../palestra/actions";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default async function GymPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function GymPage({
+  params,
+}: {
+  params: Promise<{ area: string; id: string }>;
+}) {
   const owner = await requireOwner();
   const db = await getDb();
-  const { id } = await params;
+  const { area, id } = await params;
+  if (area !== "corpo") redirect("/corpo/sessione/" + id);
   if (!UUID.test(id)) notFound();
   const known = await ownerClock();
   const { clock } = known;

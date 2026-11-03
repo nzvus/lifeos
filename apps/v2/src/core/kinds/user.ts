@@ -171,6 +171,8 @@ export type UserKindListed = {
   key: string;
   name: string;
   family: string;
+  /** Its domain (core/kinds DOMAINS): the area its tracker lives in (map D). */
+  domain: string;
   shape: string;
   fields: number;
   archived: boolean;
@@ -182,6 +184,7 @@ export async function listUserKinds(db: Db, owner: Owner): Promise<UserKindListe
       id: kinds.id,
       key: kinds.key,
       name: kinds.name,
+      domain: kinds.domain,
       shape: kinds.shape,
       definition: kinds.definition,
       archivedAt: kinds.archivedAt,
@@ -196,6 +199,7 @@ export async function listUserKinds(db: Db, owner: Owner): Promise<UserKindListe
         key: r.key,
         name: r.name,
         family: d.family ?? "habit",
+        domain: r.domain,
         shape: r.shape,
         fields: Array.isArray(d.fields) ? d.fields.length : 0,
         archived: r.archivedAt !== null,

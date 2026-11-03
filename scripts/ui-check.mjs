@@ -36,18 +36,23 @@ const PAGES = [
   "/oggi/piano",
   "/oggi/andamento",
   "/oggi/elenco",
-  "/oggi/elenco?vista=cibi",
-  "/oggi/elenco?vista=esercizi",
+  "/cibo/elenco",
+  "/cibo/elenco?vista=dispensa",
+  "/corpo/elenco",
   "/corpo",
   "/cibo",
+  "/corpo/piano",
+  "/mente/piano",
   "/corpo/andamento",
+  "/corpo/andamento/peso",
+  "/soldi/andamento",
   "/palestra",
   "/impostazioni",
 ];
 /** One object page of each kind: the first link of its list. */
 const FIRST_OF = [
-  ["/libreria?vista=cibi", "a[href^='/libreria/cibo/']:not([href$='/nuovo'])"],
-  ["/libreria?vista=esercizi", "a[href^='/libreria/esercizio/']:not([href$='/nuovo'])"],
+  ["/cibo/elenco", "a[href^='/libreria/cibo/']:not([href$='/nuovo'])"],
+  ["/corpo/elenco", "a[href^='/libreria/esercizio/']:not([href$='/nuovo'])"],
   ["/oggi", "a[href^='/voce/']"],
 ];
 /** Daily tasks (the study's most frequent): the page and the control that starts each. */

@@ -1,5 +1,5 @@
 /**
- * «Come valutiamo» (V-16, the board Scores): `/andamento/come-valutiamo`,
+ * «Come valutiamo» (V-16, the board Scores): `/oggi/andamento/come-valutiamo`,
  * one E7 model at a time (`?modello=`): what it judges, the latest thing it
  * scored as a box and as the big skyline (each column a part, as wide as its
  * weight, as full as its score; the dashed line at 70), then each part with
@@ -67,7 +67,7 @@ export default async function ScoresPage({
               <a
                 key={m.id}
                 className="k-chip"
-                href={"/andamento/come-valutiamo?modello=" + m.id}
+                href={"/oggi/andamento/come-valutiamo?modello=" + m.id}
                 aria-current={m.id === model.id ? "page" : undefined}
                 style={
                   m.id === model.id

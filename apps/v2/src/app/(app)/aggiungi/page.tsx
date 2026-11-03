@@ -185,7 +185,7 @@ export default async function AddPage({
       const { href: _h, hrefLabel: _l, ...entry } = present(i);
       const act: AddAct =
         i.kind.key === "session"
-          ? { type: "open", href: "/palestra/" + i.id }
+          ? { type: "open", href: "/corpo/sessione/" + i.id }
           : oneTap
             ? { type: "done", id: i.id }
             : { type: "open", href: "/voce/" + i.id };

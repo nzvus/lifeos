@@ -10,6 +10,7 @@ import { getDb } from "@/app/_server/runtime";
 import { listUserKinds } from "@/core/kinds/user";
 import { TrackerForm } from "@/features/account/TrackerForm";
 import { archiveTracker, createTracker } from "./actions";
+import { trackerHref } from "@/features/places";
 
 export default async function TrackersPage({
   searchParams,
@@ -53,7 +54,7 @@ export default async function TrackersPage({
                   of: { kind: k.key },
                   title: k.name,
                   faded: k.archived,
-                  href: "/andamento/" + k.key,
+                  href: trackerHref(k.key, k.domain),
                   hrefLabel: "Andamento di " + k.name,
                   meta:
                     (k.shape === "interval" ? "con una durata" : "un momento") +

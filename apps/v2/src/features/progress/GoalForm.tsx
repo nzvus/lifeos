@@ -41,7 +41,7 @@ export function GoalForm({
     <form key={state.n} action={submit} className="k-page">
       <PageHeader
         title="Nuovo obiettivo"
-        back={{ label: "Obiettivi", href: "/andamento/obiettivi" }}
+        back={{ label: "Obiettivi", href: "/oggi/andamento/obiettivi" }}
         of={{ place: "andamento" }}
       />
       <section className="k-section g4" aria-label="Obiettivo">
@@ -117,7 +117,7 @@ export function GoalForm({
         )}
       </section>
       <div className="k-pagefoot">
-        <a className="k-btn secondary" href="/andamento/obiettivi">
+        <a className="k-btn secondary" href="/oggi/andamento/obiettivi">
           Annulla
         </a>
         <button type="submit" className="k-btn primary" aria-busy={pending}>

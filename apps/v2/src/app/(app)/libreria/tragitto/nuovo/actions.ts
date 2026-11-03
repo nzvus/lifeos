@@ -15,7 +15,8 @@ const WORDS: Record<RouteError, string> = {
   walkingM: "I metri a piedi, per esempio 600.",
   mapsUrl: "Un link di Google Maps (maps.app.goo.gl o google.com/maps).",
 };
-const BACK = /^\/(aggiungi\/tragitto\?giorno=\d{4}-\d{2}-\d{2}|libreria\/tragitto)$/;
+const BACK =
+  /^\/(aggiungi\/tragitto\?giorno=\d{4}-\d{2}-\d{2}|corpo\/elenco\?vista=tragitti)$/;
 
 export async function saveRoute(
   back: string | null,
@@ -42,5 +43,5 @@ export async function saveRoute(
   const made = await createRoute(await getDb(), owner, c.route);
   if (made === "taken") return again({ name: "Hai già un tragitto con questo nome." });
   revalidatePath("/", "layout");
-  redirect(back && BACK.test(back) ? back : "/libreria/tragitto");
+  redirect(back && BACK.test(back) ? back : "/corpo/elenco?vista=tragitti");
 }

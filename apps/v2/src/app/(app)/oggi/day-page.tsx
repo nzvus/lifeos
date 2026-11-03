@@ -590,7 +590,7 @@ export async function DayPage({
             </details>
           )}
           {line && (
-            <a className="k-line k-plain" href="/andamento/obiettivi">
+            <a className="k-line k-plain" href="/oggi/andamento/obiettivi">
               <Glyph of={{ fam: "goal" }} size="m" />
               <span className="k-body">{line}</span>
             </a>

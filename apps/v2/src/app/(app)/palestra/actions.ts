@@ -61,7 +61,7 @@ export async function startGym(routineId: string): Promise<void> {
     exerciseIds: routine?.exercises.map((e) => e.exerciseId) ?? [],
   });
   revalidatePath("/", "layout");
-  redirect("/palestra/" + id);
+  redirect("/corpo/sessione/" + id);
 }
 
 /**
@@ -101,14 +101,14 @@ export async function tickSet(
       assumed: timing.assumed === true,
     },
   );
-  revalidatePath("/palestra", "layout");
+  revalidatePath("/corpo/sessione", "layout");
   return saved ? null : "Questa serie non c’è più.";
 }
 
 export async function untickSet(entryId: string, position: number): Promise<boolean> {
   if (!UUID.test(entryId) || !Number.isInteger(position)) return false;
   const done = await removeSet(await getDb(), await requireOwner(), entryId, position);
-  revalidatePath("/palestra", "layout");
+  revalidatePath("/corpo/sessione", "layout");
   return done;
 }
 
@@ -121,7 +121,7 @@ export async function addGymExercise(
   const db = await getDb();
   if (!(await readExercises(db, owner)).some((e) => e.id === exerciseId)) return false;
   const id = await addExercise(db, owner, sessionId, exerciseId);
-  revalidatePath("/palestra", "layout");
+  revalidatePath("/corpo/sessione", "layout");
   return id !== null;
 }
 
@@ -132,7 +132,7 @@ export async function readinessGym(
 ): Promise<boolean> {
   if (!UUID.test(sessionId)) return false;
   const done = await setReadiness(await getDb(), await requireOwner(), sessionId, value);
-  revalidatePath("/palestra", "layout");
+  revalidatePath("/corpo/sessione", "layout");
   return done;
 }
 
@@ -152,7 +152,7 @@ export async function exerciseSettingsGym(
       setupS,
     },
   );
-  revalidatePath("/palestra", "layout");
+  revalidatePath("/corpo/sessione", "layout");
   return done;
 }
 
@@ -176,7 +176,7 @@ export async function skipGymExercise(entryId: string, skip: boolean): Promise<b
     entryId,
     skip ? "skipped" : "planned",
   );
-  revalidatePath("/palestra", "layout");
+  revalidatePath("/corpo/sessione", "layout");
   return before !== null;
 }
 
@@ -188,7 +188,7 @@ export async function saveRoutineGym(sessionId: string): Promise<boolean> {
     await requireOwner(),
     sessionId,
   );
-  revalidatePath("/palestra", "layout");
+  revalidatePath("/corpo/sessione", "layout");
   return done;
 }
 
@@ -197,8 +197,8 @@ export async function reopenGym(sessionId: string): Promise<void> {
   if (!UUID.test(sessionId)) return;
   await reopenSession(await getDb(), await requireOwner(), sessionId);
   revalidatePath("/", "layout");
-  revalidatePath("/palestra", "layout");
-  redirect("/palestra/" + sessionId);
+  revalidatePath("/corpo/sessione", "layout");
+  redirect("/corpo/sessione/" + sessionId);
 }
 
 /** «Elimina la sessione»: to the trash (30 days, Impostazioni → Cestino), back to its day. */
@@ -221,7 +221,7 @@ export async function reorderGym(
     sessionId,
     entryIds,
   );
-  revalidatePath("/palestra", "layout");
+  revalidatePath("/corpo/sessione", "layout");
   return done;
 }
 
@@ -237,7 +237,7 @@ export async function swapGym(
     entryId,
     exerciseId,
   );
-  revalidatePath("/palestra", "layout");
+  revalidatePath("/corpo/sessione", "layout");
   return before;
 }
 
@@ -248,6 +248,6 @@ export async function pairGym(
 ): Promise<boolean> {
   if (!UUID.test(entryId) || (partnerId !== null && !UUID.test(partnerId))) return false;
   const done = await setSuperset(await getDb(), await requireOwner(), entryId, partnerId);
-  revalidatePath("/palestra", "layout");
+  revalidatePath("/corpo/sessione", "layout");
   return done;
 }

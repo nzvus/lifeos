@@ -118,7 +118,7 @@ export default async function GoalsPage() {
             )}
           />
         ))}
-        <a className="k-btn secondary" href="/andamento/obiettivi/nuovo">
+        <a className="k-btn secondary" href="/oggi/andamento/obiettivi/nuovo">
           + Nuovo obiettivo
         </a>
       </section>

@@ -21,12 +21,12 @@ export async function saveWeightsForm(modelId: string, data: FormData): Promise<
   const { weights } = editWeights(model, asked, logicalDay(new Date(), clock));
   await saveWeights(await getDb(), await requireOwner(), model.id, weights);
   revalidatePath("/", "layout");
-  redirect("/andamento/come-valutiamo?modello=" + model.id);
+  redirect("/oggi/andamento/come-valutiamo?modello=" + model.id);
 }
 
 export async function resetWeights(modelId: string): Promise<void> {
   if (!REGISTRY.some((m) => m.id === modelId)) return;
   await saveWeights(await getDb(), await requireOwner(), modelId, null);
   revalidatePath("/", "layout");
-  redirect("/andamento/come-valutiamo?modello=" + modelId);
+  redirect("/oggi/andamento/come-valutiamo?modello=" + modelId);
 }

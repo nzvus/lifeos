@@ -13,7 +13,7 @@ export default async function NewRoutePage({
   const back = typeof torna === "string" ? torna : null;
   return (
     <RouteForm
-      backHref={back ?? "/libreria/tragitto"}
+      backHref={back ?? "/corpo/elenco?vista=tragitti"}
       action={saveRoute.bind(null, back)}
     />
   );
