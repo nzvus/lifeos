@@ -45,6 +45,7 @@ import type { MicroTarget } from "@/core/engines/targets";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { MealWhen } from "./MealWhen";
 import { ComposerFoot, EstimateFields } from "./EstimateFields";
+import { BrandSelect, collapseBrands, RecipeResults } from "./LinePicks";
 import { ESTIMATE_FIELDS, type EstimateField } from "@/core/food/meal";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
 import {
@@ -249,10 +250,13 @@ function Draft({
     ? estimateTotals(typed, servings)
     : mealTotals(lines, by, servings);
   // With foods in the meal, a short list of the most eaten leaves room for the preview.
-  const found = searchFoods(
-    choices.filter((c) => !lines.some((l) => l.key === c.key)),
+  const found = collapseBrands(
+    searchFoods(
+      choices.filter((c) => !lines.some((l) => l.key === c.key)),
+      query,
+      query || lines.length === 0 ? 8 : 4,
+    ),
     query,
-    query || lines.length === 0 ? 8 : 4,
   );
   const at = clockMinute(start);
   const auto = at === null ? "" : mealRoleAt(at, roleBounds);
@@ -511,6 +515,15 @@ function Draft({
                         )
                       }
                     />
+                    <BrandSelect
+                      current={c}
+                      choices={choices}
+                      onPick={(k) =>
+                        setLines((ls) =>
+                          ls.map((x, j) => (j === i ? { ...x, key: k } : x)),
+                        )
+                      }
+                    />
                   </Box>
                 );
               })}
@@ -543,43 +556,7 @@ function Draft({
                 </a>
               )}
             </div>
-            {foundRecipes.length > 0 && (
-              <div className="k-stack g2" aria-label="Pasti salvati">
-                {foundRecipes.map((r) => (
-                  <button
-                    key={r.key}
-                    type="button"
-                    className="k-pick"
-                    onClick={() => addRecipe(r)}
-                  >
-                    <Box
-                      density="row"
-                      rail={false}
-                      entry={{
-                        fam: "food",
-                        of: { kind: "meal" },
-                        title: r.name,
-                        meta: r.estimate
-                          ? "stima · " + F.num(Number(r.estimate["kcal"] ?? 0), "kcal")
-                          : F.plural(r.parts.length, "cibo", "cibi") +
-                            " · " +
-                            F.num(
-                              mealTotals(
-                                r.parts.map((p) => ({
-                                  key: p.key,
-                                  quantity: p.quantity,
-                                })),
-                                by,
-                              )["kcal"] ?? 0,
-                              "kcal",
-                            ),
-                        value: "+",
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+            <RecipeResults found={foundRecipes} by={by} onAdd={addRecipe} />
             {tab === "foods" && found.length > 0 && (
               <div
                 className="k-stack g2"
