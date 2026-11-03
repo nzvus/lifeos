@@ -290,6 +290,13 @@ export function Box({
                     <span className="line" />
                   </span>
                 )}
+                {dense && e.score && e.score.value !== null && (
+                  // The number beside it, in its band's colour: kept when the drawing is
+                  // too small to read (≤ 360 px), never a row with no score at all (UI-102).
+                  <b className="k-vn" style={{ color: F.judge(e.score.value).tone }}>
+                    {e.score.value}
+                  </b>
+                )}
                 {headActs.map((a) => (
                   <button
                     key={a.label}

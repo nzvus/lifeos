@@ -38,6 +38,7 @@ import {
   sessionContext,
 } from "@/core/training";
 import { Gym, type GymExercise } from "@/features/training/Gym";
+import { scoredExercise } from "@/features/training/session-score";
 import {
   contextPills,
   contextText,
@@ -158,9 +159,7 @@ export default async function GymPage({
       timing,
       settings: { restS: e?.restS ?? undefined, setupS: e?.setupS ?? undefined },
     });
-    // Readiness 1–2 (v1 ADR-0049): the same load, one set fewer.
-    const proposed =
-      tired && a.proposed.length > 1 ? a.proposed.slice(0, -1) : a.proposed;
+    const { proposed, scored: one } = scoredExercise(c, a, tired);
     const last = h.at(-1);
     // Warm-ups (session.md §5.1): only before the first work set of this exercise.
     const muscles = musclesOf(c.item?.id);
@@ -181,27 +180,7 @@ export default async function GymPage({
           ),
           heaviestToday: heaviest.length ? Math.max(...heaviest) : null,
         }).map((w) => ({ reps: w.reps, loadKg: String(w.loadKg) }));
-    // This session's measured rests between working sets (not from one side to the other).
-    const work = c.sets.filter((s) => !s.warmup);
-    const rests = work.slice(1).flatMap((s, i) => {
-      const prev = work[i]!;
-      if (prev.side && s.side && prev.side !== s.side) return [];
-      return prev.endedAt && s.startedAt
-        ? [(s.startedAt.getTime() - prev.endedAt.getTime()) / 1000]
-        : [];
-    });
-    scored.push({
-      role: a.role,
-      proposed,
-      done: c.sets.map((s) => ({
-        reps: s.reps,
-        loadKg: s.loadKg,
-        warmup: s.warmup,
-        rir: s.rir,
-      })),
-      restS: a.afterPairS ?? a.restS,
-      rests,
-    });
+    scored.push(one);
     return {
       entryId: c.id,
       exerciseId: c.item?.id ?? null,
