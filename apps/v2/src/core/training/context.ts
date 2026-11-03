@@ -27,6 +27,8 @@ export type SessionContext = {
   carbs3h: number | null;
   coffees3h: number;
   creatineDays: number | null;
+  /** The stores the session was done at (dossiers/compounds.md), when read; supersedes the days. */
+  creatineStores?: number | null;
   readiness: number | null;
 };
 
@@ -88,6 +90,7 @@ export function sessionContext(
   sessionDay: IsoDate,
   readiness: number | null,
   creatine?: readonly CreatineLine[],
+  stores?: number | null,
 ): SessionContext {
   const t = start.getTime();
   const items = days.flatMap((d) => [...d.timed, ...d.untimed]);
@@ -139,6 +142,7 @@ export function sessionContext(
       0,
     ),
     creatineDays: creatineDays(lines),
+    ...(stores !== undefined ? { creatineStores: stores } : {}),
     readiness,
   };
 }

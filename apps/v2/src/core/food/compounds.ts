@@ -40,3 +40,35 @@ export function caffeineLeft(
     return h < 0 ? left : left + d.mg * 0.5 ** (h / CAFFEINE_HALF_LIFE_H);
   }, 0);
 }
+
+/** Hours before bed for the last coffee (Gardiner 2023: 8,8 h for ≈ 107 mg; 13,2 h for ≈ 217 mg). */
+export const LAST_COFFEE_H = 9;
+export const LAST_STRONG_H = 13;
+/** A dose above this is judged as a pre-workout's (the 13-hour rule). */
+export const STRONG_MG = 150;
+/** EFSA 2015: a day and one dose for healthy adults. */
+export const DAY_MAX_MG = 400;
+export const DOSE_MAX_MG = 200;
+/** Fewer nights than this and the usual bedtime is not known. */
+const USUAL_NIGHTS = 3;
+
+/**
+ * His usual bedtime, minutes from his day's midnight (after midnight as 1440 +):
+ * the median start of the nights given (dossiers/compounds.md §4); null under 3 nights.
+ */
+export function usualBedMinute(
+  starts: readonly Date[],
+  localMinute: (d: Date) => number,
+): number | null {
+  const m = starts
+    .map(localMinute)
+    .map((x) => (x < 12 * 60 ? x + 1440 : x))
+    .sort((a, b) => a - b);
+  if (m.length < USUAL_NIGHTS) return null;
+  const h = Math.floor(m.length / 2);
+  return Math.round(m.length % 2 ? m[h]! : (m[h - 1]! + m[h]!) / 2);
+}
+
+/** When a dose stops being harmless to that night's sleep. */
+export const lastDoseAt = (bed: Date, mg: number): Date =>
+  new Date(bed.getTime() - (mg > STRONG_MG ? LAST_STRONG_H : LAST_COFFEE_H) * 3_600_000);

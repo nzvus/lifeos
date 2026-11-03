@@ -78,12 +78,7 @@ import { DayPlanBar } from "@/features/day/DayPlanBar";
 import { habitItems, modelItems } from "@/features/day/model-items";
 import { kindRegistry } from "@/core/kinds";
 import { changeDayModel, saveDayAsModel, skipStep } from "./[[...day]]/plan-actions";
-import {
-  creatineDays,
-  readCreatineLines,
-  readExercises,
-  readRoutines,
-} from "@/core/training";
+import { readExercises, readRoutines } from "@/core/training";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
 import {
@@ -129,6 +124,9 @@ import { DayClose } from "@/features/day/DayClose";
 import { goalLine } from "@/features/day/goal-line";
 import { AREA_HREF, AREA_NAME, areaOf, areaOfFam, tabHrefs } from "@/features/places";
 import { costWords, entryCost, sumCosts } from "@/core/food/cost";
+import { creatineWords } from "@/core/food/creatine";
+import { readCreatine } from "@/core/food/creatine-read";
+import { usualBedMinute } from "@/core/food/compounds";
 import { isEaten } from "@/core/kinds";
 
 /** The week strip's bars of an area only (Corpo: training; Cibo: food and limits; Mente: habits). */
@@ -219,7 +217,14 @@ export async function DayPage({
     readNumbers(db, owner, "weigh_in", "weightKg", addDays(date, -27), to),
     // The goal's line under the day box needs it on every day up to today.
     weighed || date <= today ? readGoals(db, owner, date) : null,
-    readSpans(db, owner, SLEEP_KINDS, addDays(week[0]!, -8), addDays(to, 1)),
+    // From 14 days before the day too: his usual bedtime (FOOD-40).
+    readSpans(
+      db,
+      owner,
+      SLEEP_KINDS,
+      [addDays(week[0]!, -8), addDays(date, -14)].sort()[0]!,
+      addDays(to, 1),
+    ),
     date <= today ? readSettings(db, owner) : null,
   ]);
   // The week strip names each day by its cycle's step or its model (day-templates.md §6).
@@ -281,21 +286,46 @@ export async function DayPage({
     now: nowMinute,
     weights: known.weights,
   };
-  // Creatine's days of 28 only when the day has some: one narrow read.
-  const creatine = items.some((i) => compoundsOf(i, kinds).creatine > 0)
-    ? creatineDays(await readCreatineLines(db, owner, date))
-    : null;
-  // Bedtime: the evening's sleep when logged on this day, else 23:30.
+  // The creatine stores every day once taken in the window (FOOD-40): one narrow read.
+  const creatine = await readCreatine(db, owner, date);
+  // A day with a dose says it on the dose's row; the others in «Il giorno».
+  const tookCreatine = items.some(
+    (i) => i.status === "done" && compoundsOf(i, kinds).creatine > 0,
+  );
+  // Bedtime: the evening's sleep when logged on this day, else his usual (the
+  // median of the 14 nights before, FOOD-40), else 23:30.
   const sleep = items.find(
     (i) => i.kind.key === "sleep" && i.start && (i.minute ?? 0) >= 18 * 60,
   );
+  const usualBed = sleep?.start
+    ? null
+    : usualBedMinute(
+        // The nights of the 14 days before: started in the evening or the small
+        // hours and at least 3 h long (not a nap).
+        nights
+          .filter(
+            (n) =>
+              n.day >= addDays(date, -14) &&
+              n.day < date &&
+              n.end.getTime() - n.start.getTime() >= 3 * 3_600_000,
+          )
+          .map((n) => n.start)
+          .filter((d) => {
+            const m = localParts(d, clock.timeZone).minute;
+            return m >= 18 * 60 || m < 6 * 60;
+          }),
+        (d) => localParts(d, clock.timeZone).minute,
+      );
   const ctx: CompoundContext = {
     compounds: kinds,
     doses: caffeineDoses(items, kinds),
     bed: sleep?.start
       ? { at: sleep.start, known: true }
-      : { at: instantAt(date, 23 * 60 + 30, clock), known: false },
-    creatineDays: creatine,
+      : usualBed !== null
+        ? { at: instantAt(date, usualBed, clock), known: false, usual: true }
+        : { at: instantAt(date, 23 * 60 + 30, clock), known: false },
+    timeOf: (d) => F.time(localParts(d, clock.timeZone).minute),
+    creatine,
   };
   // The day's model's meal blocks: each meal's bars against its block, the block's fit in its score.
   const model = plans.get(date)?.model ?? null;
@@ -591,6 +621,12 @@ export async function DayPage({
               </form>
             )}
           </OpenBox>
+          {creatine && !tookCreatine && (
+            <p className="k-line g1 k-meta" aria-label="Creatina">
+              <Glyph of={{ fam: "drink", kind: "supplement" }} size="s" />
+              <span>Creatina · {creatineWords(creatine)}</span>
+            </p>
+          )}
           {(eatenCost || plannedCost) && (
             <p className="k-line g1 k-meta" aria-label="Costo del giorno">
               <Glyph of={{ fam: "money" }} size="s" />
