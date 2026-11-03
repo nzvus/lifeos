@@ -106,7 +106,7 @@ describe("one calibrated number (ledger BODY-30)", () => {
 
   it("each piece and row is one number scaled the same way, and the line says so", () => {
     expect(plain(burnText(r(254, 377), tune))).toBe("≈ 290 kcal");
-    expect(plain(dayPieces(day, tune)[0]!.value)).toBe("1.670 kcal");
+    expect(plain(dayPieces(day, tune)[0]!.value ?? null)).toBe("1.670 kcal");
     expect(plain(dayBurnLine(day, null, null, tune))).toContain(
       "tarato sulle tue pesate (× 0,93)",
     );
