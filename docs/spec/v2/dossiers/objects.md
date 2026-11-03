@@ -1,7 +1,23 @@
 # Dossier — Objects: families, variants, brands, formats, intakes
 
 Status: **decided 2026-11-03** — the developer: «ok alle raccomandazioni, procedi»:
-every §9 answer is the recommendation (a). ADR-0060 accepted. Slices a–g in progress.
+every §9 answer is the recommendation (a). ADR-0060 accepted. **Slices a–g built 3 Nov
+(branch s246-v2-objects):**
+- (a) `core/catalog/family.ts` + `createVariant`/`makeVariantOf`, «Famiglia» and «+ Variante»;
+- (b) `core/food/brands.ts` (mean weighted by use, EU tolerance), `readFoodFormats`, the food
+  page's «Marche» with formats and €/kg;
+- (c) `features/food/LinePicks.tsx` (brand per line, a food once, variants under their base);
+- (d) a barcode on its format (`createFormat`, lookup up the levels), «È una marca di un tuo
+  cibo?»;
+- (e) `core/food/intake.ts`, «Al volo», ⊕ «Assunzione», «Nuova assunzione»; water's row
+  writes the water kind;
+- (f) `core/catalog/brand-of.ts`, `features/library/twins.ts`, «Possibili doppioni» (12 on
+  the preview data), a likely duplicate said on create;
+- (g) a run along a route is one activity (`routeId`), Run/Treadmill proposed into
+  Corsa/Tapis roulant.
+
+Not done: the «pasto?» question when an intake over 20 kcal/100 is logged alone; exercise and
+route variants (the model allows them; no screen yet).
 
 Ledger: FOOD-44, FOOD-45, FOOD-46, FOOD-48, TRAIN-37, FOOD-17, FOOD-33, FOOD-03,
 HOME-02, HOME-03, HOME-07, PLAN-11, PROD-10, UI-38 · ADR-0055, ADR-0060 (proposed)
