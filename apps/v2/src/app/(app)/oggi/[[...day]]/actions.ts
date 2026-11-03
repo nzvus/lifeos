@@ -14,6 +14,7 @@ import {
   checkEntry,
   createEntry,
   restoreEntry,
+  setEntryServings,
   setEntryStatus,
   trashEntry,
   trashPlanned,
@@ -38,6 +39,20 @@ export async function changeStatus(id: string, status: Status): Promise<Status |
   });
   revalidatePath("/", "layout");
   return before;
+}
+
+/** The day's −/+ on a meal or intake: answers the servings it had ("1" for none), null if not saved. */
+export async function setServings(id: string, servings: string): Promise<string | null> {
+  if (!UUID.test(id) || typeof servings !== "string") return null;
+  const before = await setEntryServings(
+    await getDb(),
+    await requireOwner(),
+    id,
+    servings,
+  );
+  if (before === undefined) return null;
+  revalidatePath("/", "layout");
+  return before ?? "1";
 }
 
 export async function removeEntry(id: string): Promise<boolean> {

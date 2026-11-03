@@ -12,6 +12,7 @@ import {
   readEntry,
   readTrash,
   restoreEntry,
+  setEntryServings,
   setEntryStatus,
   trashEntry,
   moveEntry,
@@ -330,5 +331,25 @@ describe("writing an entry", () => {
     });
     expect(await updateEntry(db, b, id, edit.entry, ["weightKg"])).toBe(false);
     expect(await readEntry(db, b, id)).toBeNull();
+  });
+
+  it("sets a meal's servings from the day's −/+, answers the old one for Undo, and only on meals", async () => {
+    const meal = checkEntry(
+      reg.get("meal"),
+      input({ startMin: 13 * 60, values: { role: "lunch" } }),
+      rome,
+    );
+    if (!meal.ok) throw new Error("expected a valid meal");
+    const id = await createEntry(db, a, meal.entry);
+    const servings = async () => (await readEntry(db, a, id))?.values["servings"];
+    expect(await setEntryServings(db, a, id, "1.5")).toBeNull();
+    expect(Number(await servings())).toBe(1.5);
+    expect(await setEntryServings(db, a, id, "1")).toBe("1.5");
+    expect(await servings()).toBeUndefined();
+    expect(await setEntryServings(db, a, id, "0")).toBeUndefined();
+    expect(await setEntryServings(db, a, id, "21")).toBeUndefined();
+    expect(await setEntryServings(db, b, id, "2")).toBeUndefined();
+    const water = await planned(a);
+    expect(await setEntryServings(db, a, water, "2")).toBeUndefined();
   });
 });

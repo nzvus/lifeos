@@ -85,7 +85,8 @@ describe("a day item as a Box", () => {
       meta: "AVENA, Lamponi",
       value: "437",
       time: "11:17",
-      pills: [{ t: "dopo l’allenamento", of: { fam: "train" } }],
+      // ×2 said on the row (FOOD-47).
+      pills: [{ t: "dopo l’allenamento", of: { fam: "train" } }, { t: "×\u00a02" }],
     });
   });
 

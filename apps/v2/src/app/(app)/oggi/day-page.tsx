@@ -108,7 +108,7 @@ import {
   type CompoundContext,
 } from "@/features/day/compounds";
 import { details, hasDetails } from "@/features/day/details";
-import { isRunning, present } from "@/features/day/present";
+import { isRunning, present, servingsOf } from "@/features/day/present";
 import { DayView } from "@/features/day/DayView";
 import {
   addWater,
@@ -118,6 +118,7 @@ import {
   closeDay,
   recomputeTargets,
   removeEntry,
+  setServings,
   removePlanned,
 } from "./[[...day]]/actions";
 import { DayClose } from "@/features/day/DayClose";
@@ -380,6 +381,7 @@ export async function DayPage({
       ),
       l0,
       details: hasDetails(d) ? d : null,
+      servings: servingsOf(i),
       id: i.id,
       status: i.status,
       running: isRunning(i),
@@ -680,6 +682,7 @@ export async function DayPage({
             actions={{
               changeStatus,
               removeEntry,
+              setServings,
               bringBack,
               removePlanned,
               bringBackAll,

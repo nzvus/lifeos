@@ -79,8 +79,22 @@ const ESTIMATE_LABELS: Record<EstimateField, [string, string]> = {
   kcal: ["Energia", "kcal"],
   protein: ["Proteine", "g"],
   carbs: ["Carboidrati", "g"],
+  sugars: ["di cui zuccheri", "g"],
   fat: ["Grassi", "g"],
+  saturatedFat: ["di cui saturi", "g"],
   fibre: ["Fibre", "g"],
+  salt: ["Sale", "g"],
+};
+/** The stepper's step per estimate field: kcal by 50, salt by 0,5, the rest by 5 or 1. */
+const ESTIMATE_STEP: Record<EstimateField, number> = {
+  kcal: 50,
+  protein: 5,
+  carbs: 5,
+  sugars: 5,
+  fat: 5,
+  saturatedFat: 1,
+  fibre: 1,
+  salt: 0.5,
 };
 
 export function Composer({
@@ -239,7 +253,9 @@ function Draft({
   const ofEstimate = ofRecipe?.estimate !== undefined;
   const e = state.errors;
   const v = state.values;
-  const totals = estimate ? estimateTotals(typed) : mealTotals(lines, by, servings);
+  const totals = estimate
+    ? estimateTotals(typed, servings)
+    : mealTotals(lines, by, servings);
   // With foods in the meal, a short list of the most eaten leaves room for the preview.
   const found = searchFoods(
     choices.filter((c) => !lines.some((l) => l.key === c.key)),
@@ -419,9 +435,9 @@ function Draft({
                 label={ESTIMATE_LABELS[f][0]}
                 type="stepper"
                 unit={ESTIMATE_LABELS[f][1]}
-                step={f === "kcal" ? 50 : 5}
+                step={ESTIMATE_STEP[f]}
                 required={f === "kcal"}
-                placeholder={f === "kcal" ? "" : "facoltativo"}
+                placeholder={f === "kcal" ? "" : "se non lo sai, lascia vuoto"}
                 defaultValue={typed[f] ?? ""}
                 error={e["est." + f]}
                 onChange={(x) => setTyped((t) => ({ ...t, [f]: x }))}
@@ -761,19 +777,17 @@ function Draft({
       />
 
       <div className="k-pagefoot">
-        {!estimate && (
-          <div style={{ flex: "0 0 9.5rem" }}>
-            <Field
-              name="servings"
-              label="Porzioni"
-              type="stepper"
-              step={0.5}
-              defaultValue={servings}
-              error={e["servings"]}
-              onChange={setServings}
-            />
-          </div>
-        )}
+        <div style={{ flex: "0 0 9.5rem" }}>
+          <Field
+            name="servings"
+            label="Porzioni"
+            type="stepper"
+            step={0.5}
+            defaultValue={servings}
+            error={e["servings"]}
+            onChange={setServings}
+          />
+        </div>
         <button
           type="submit"
           className="k-btn primary"
