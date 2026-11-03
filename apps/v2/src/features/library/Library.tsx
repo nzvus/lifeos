@@ -246,9 +246,9 @@ const ADDS = [
     fam: "food",
     of: { kind: "recipe" },
     title: "Un pasto",
-    meta: "componilo e «Salva anche come pasto»",
-    href: "/aggiungi/pasto",
-    hrefLabel: "Componi un pasto",
+    meta: "i suoi cibi, o una stima: si salva senza registrarlo",
+    href: "/cibo/pasto/nuovo",
+    hrefLabel: "Nuovo pasto",
   },
   {
     fam: "habit",
@@ -314,6 +314,11 @@ function List({
       {tab === "foods" && (
         <a className="k-btn secondary" href="/cibo/cibo/nuovo">
           + Nuovo cibo
+        </a>
+      )}
+      {tab === "meals" && (
+        <a className="k-btn secondary" href="/cibo/pasto/nuovo">
+          + Nuovo pasto
         </a>
       )}
       {tab === "exercises" && (

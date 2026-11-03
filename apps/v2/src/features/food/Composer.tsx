@@ -116,6 +116,7 @@ export function Composer({
   initial,
   backHref,
   action,
+  saved,
 }: {
   choices: FoodChoice[];
   recipes?: RecipeChoice[];
@@ -146,6 +147,9 @@ export function Composer({
   initial: Record<string, string>;
   backHref: string;
   action: (state: MealState, data: FormData) => Promise<MealState>;
+  /** A saved meal made or changed here (FOOD-42): its name, no day, no time, saved
+   *  without logging anything; its foods are one serving. */
+  saved?: { name: string };
 }) {
   const [state, submit, pending] = useActionState(action, {
     errors: {},
@@ -174,6 +178,7 @@ export function Composer({
       refs={refs}
       roleBounds={roleBounds}
       backHref={backHref}
+      saved={saved}
     />
   );
 }
@@ -198,6 +203,7 @@ function Draft({
   refs,
   roleBounds,
   backHref,
+  saved,
 }: {
   state: MealState;
   submit: (data: FormData) => void;
@@ -221,7 +227,13 @@ function Draft({
   } | null;
   roleBounds: RoleBounds;
   backHref: string;
+  saved: { name: string } | undefined;
 }) {
+  // A saved meal (FOOD-42): its name instead of the day's «when».
+  const recipeMode = saved !== undefined;
+  const [mealName, setMealName] = useState(
+    state.values["recipeName"] ?? saved?.name ?? "",
+  );
   const by = useMemo(
     () => new Map([...extraChoices, ...choices].map((c) => [c.key, c])),
     [choices, extraChoices],
@@ -268,12 +280,14 @@ function Draft({
   const roleWord = ROLE_WORDS[role || auto];
   // The meal's block in the day's model: its bars, the gap, the meals that fit.
   const slot = slots[role || auto] ?? null;
-  const gap = estimate ? null : closeTheGap(totals, slot, lines, choices);
-  const fitting = estimate || tab !== "foods" ? [] : fittingRecipes(recipes, by, slot);
+  const gap = estimate || recipeMode ? null : closeTheGap(totals, slot, lines, choices);
+  const fitting =
+    estimate || recipeMode || tab !== "foods" ? [] : fittingRecipes(recipes, by, slot);
   // An «assunzione» (coffee, creatine, a supplement; capture.md §4): no role, never a meal.
   const intake = v["kind"] === "intake";
-  const heading =
-    (intake ? "Assunzione" : (roleWord ?? title)) + (start ? " · " + start : "");
+  const heading = recipeMode
+    ? mealName.trim() || "Nuovo pasto"
+    : (intake ? "Assunzione" : (roleWord ?? title)) + (start ? " · " + start : "");
   // A saved meal changed here: its kcal as saved next to now (the board Food).
   const savedKcal =
     ofRecipe && !ofRecipe.estimate && !estimate
@@ -354,17 +368,23 @@ function Draft({
     <form action={submit} className="k-page">
       <PageHeader
         title={heading}
-        context={[
-          dayLabel,
-          status === "planned" ? "previsto" : "mangiato",
-          recipeName ?? "",
-          (savedKcal !== null && Math.abs(savedKcal - (totals["kcal"] ?? 0)) >= 1
-            ? "salvata " + F.num(savedKcal, "kcal") + ", ora "
-            : "") +
-            F.num(totals["kcal"] ?? 0, "kcal") +
-            (slot ? " di " + F.num(slot.kcal, "kcal") + " del blocco" : ""),
-          slot && modelName ? "«" + modelName + "»" : "",
-        ]
+        context={(recipeMode
+          ? [
+              estimate ? "stima a mano" : "pasto salvato",
+              "una porzione " + F.num(totals["kcal"] ?? 0, "kcal"),
+            ]
+          : [
+              dayLabel,
+              status === "planned" ? "previsto" : "mangiato",
+              recipeName ?? "",
+              (savedKcal !== null && Math.abs(savedKcal - (totals["kcal"] ?? 0)) >= 1
+                ? "salvata " + F.num(savedKcal, "kcal") + ", ora "
+                : "") +
+                F.num(totals["kcal"] ?? 0, "kcal") +
+                (slot ? " di " + F.num(slot.kcal, "kcal") + " del blocco" : ""),
+              slot && modelName ? "«" + modelName + "»" : "",
+            ]
+        )
           .filter(Boolean)
           .join(" · ")}
         back={{ label: backLabel, href: backHref }}
@@ -376,6 +396,21 @@ function Draft({
           <a className="k-link" href={repeatHref}>
             Registra di nuovo oggi
           </a>
+        </div>
+      )}
+      {recipeMode && (
+        <div className="k-section">
+          <input type="hidden" name="saved" value="yes" />
+          <Field
+            name="recipeName"
+            label="Nome del pasto"
+            type="text"
+            required
+            placeholder="per esempio: Porridge proteico"
+            defaultValue={mealName}
+            error={e["recipeName"]}
+            onChange={setMealName}
+          />
         </div>
       )}
       <input type="hidden" name="day" value={day} />
@@ -420,14 +455,16 @@ function Draft({
             <p className="k-help">
               Scrivi i totali del pasto, anche a occhio: conta come stima.
             </p>
-            <Field
-              name="estName"
-              label="Cosa hai mangiato"
-              type="text"
-              placeholder="per esempio: Pizza fuori"
-              defaultValue={estName}
-              onChange={setEstName}
-            />
+            {!recipeMode && (
+              <Field
+                name="estName"
+                label="Cosa hai mangiato"
+                type="text"
+                placeholder="per esempio: Pizza fuori"
+                defaultValue={estName}
+                onChange={setEstName}
+              />
+            )}
             {ESTIMATE_FIELDS.map((f) => (
               <Field
                 key={f}
@@ -743,7 +780,7 @@ function Draft({
         </section>
       )}
 
-      {dayNutrients && (
+      {dayNutrients && !recipeMode && (
         <section className="k-section g3" aria-label="La giornata con questo pasto">
           <h2>La giornata con questo pasto</h2>
           <Box
@@ -759,42 +796,50 @@ function Draft({
         </section>
       )}
 
-      <MealWhen
-        values={v}
-        errors={e}
-        start={start}
-        role={role}
-        intake={intake}
-        auto={auto}
-        estimate={estimate}
-        canSave={estimate ? !ofEstimate : lines.length > 0}
-        saveAs={saveAs}
-        estName={estName}
-        onStatus={setStatus}
-        onStart={setStart}
-        onRole={setRole}
-        onSaveAs={setSaveAs}
-      />
+      {!recipeMode && (
+        <MealWhen
+          values={v}
+          errors={e}
+          start={start}
+          role={role}
+          intake={intake}
+          auto={auto}
+          estimate={estimate}
+          canSave={estimate ? !ofEstimate : lines.length > 0}
+          saveAs={saveAs}
+          estName={estName}
+          onStatus={setStatus}
+          onStart={setStart}
+          onRole={setRole}
+          onSaveAs={setSaveAs}
+        />
+      )}
 
       <div className="k-pagefoot">
-        <div style={{ flex: "0 0 9.5rem" }}>
-          <Field
-            name="servings"
-            label="Porzioni"
-            type="stepper"
-            step={0.5}
-            defaultValue={servings}
-            error={e["servings"]}
-            onChange={setServings}
-          />
-        </div>
+        {!recipeMode && (
+          <div style={{ flex: "0 0 9.5rem" }}>
+            <Field
+              name="servings"
+              label="Porzioni"
+              type="stepper"
+              step={0.5}
+              defaultValue={servings}
+              error={e["servings"]}
+              onChange={setServings}
+            />
+          </div>
+        )}
         <button
           type="submit"
           className="k-btn primary"
           style={{ flex: 1, alignSelf: "flex-end" }}
           aria-busy={pending}
         >
-          {status === "planned" ? "Salva previsto" : "Salva"}
+          {recipeMode
+            ? "Salva il pasto"
+            : status === "planned"
+              ? "Salva previsto"
+              : "Salva"}
         </button>
       </div>
     </form>

@@ -9,7 +9,7 @@
  * recipe with no parts: its totals as values, typed at the estimate's
  * confidence and marked `estimate`, so logging it again is an estimate too.
  */
-import { and, asc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { archiveItem } from "../catalog/archive";
 import type { Db } from "../db/db";
 import { catalogItems, catalogParts, catalogValues } from "../db/schema";
@@ -58,27 +58,121 @@ export async function createRecipe(
   owner: Owner,
   name: string,
   lines: readonly CheckedLine[],
+  basedOnId: string | null = null,
 ): Promise<string> {
   return db.transaction(async (tx) => {
     const [row] = await tx
       .insert(catalogItems)
-      .values({ userId: owner.id, catalog: "recipe", name })
+      .values({ userId: owner.id, catalog: "recipe", name, basedOnId })
       .returning({ id: catalogItems.id });
     const id = row!.id;
-    const parts = lines.flatMap((l) => (l.itemId ? [{ ...l, itemId: l.itemId }] : []));
-    if (parts.length > 0)
-      await tx.insert(catalogParts).values(
-        parts.map((l, position) => ({
-          userId: owner.id,
-          itemId: id,
-          position,
-          partItemId: l.itemId,
-          quantity: l.quantity,
-          unit: l.unit,
-          defaults: l.productId ? { preferredProduct: l.productId } : {},
-        })),
-      );
+    await writeParts(tx as unknown as Db, owner, id, lines);
     return id;
+  });
+}
+
+/** A recipe's parts from checked lines: food, quantity, unit, the product kept as preferred. */
+async function writeParts(
+  db: Db,
+  owner: Owner,
+  id: string,
+  lines: readonly CheckedLine[],
+): Promise<void> {
+  const parts = lines.flatMap((l) => (l.itemId ? [{ ...l, itemId: l.itemId }] : []));
+  if (parts.length > 0)
+    await db.insert(catalogParts).values(
+      parts.map((l, position) => ({
+        userId: owner.id,
+        itemId: id,
+        position,
+        partItemId: l.itemId,
+        quantity: l.quantity,
+        unit: l.unit,
+        defaults: l.productId ? { preferredProduct: l.productId } : {},
+      })),
+    );
+}
+
+/** A saved estimate's values: the mark and its typed totals at the estimate's confidence. */
+async function writeEstimate(
+  db: Db,
+  owner: Owner,
+  id: string,
+  totals: Partial<Record<EstimateField, string>>,
+): Promise<void> {
+  await db.insert(catalogValues).values([
+    { userId: owner.id, itemId: id, field: ESTIMATE_MARK, bool: true },
+    ...ESTIMATE_FIELDS.flatMap((field) =>
+      totals[field] === undefined
+        ? []
+        : [
+            {
+              userId: owner.id,
+              itemId: id,
+              field,
+              num: totals[field],
+              confidence: ESTIMATE_CONFIDENCE,
+            },
+          ],
+    ),
+  ]);
+}
+
+/**
+ * A saved meal written again from the composer (ledger FOOD-42): its name,
+ * then either its foods (parts, each with its preferred product) or, for an
+ * estimate, its typed totals — the old ones replaced, either way. Meals
+ * already logged keep their lines (ADR-0007). "taken" when another live
+ * recipe has the name, "gone" when it is not a live recipe, "empty" with
+ * no food that can be a part.
+ */
+export async function replaceRecipe(
+  db: Db,
+  owner: Owner,
+  id: string,
+  name: string,
+  checked: { lines: readonly CheckedLine[]; estimate: boolean },
+): Promise<"ok" | "gone" | "taken" | "empty"> {
+  if (!checked.estimate && !checked.lines.some((l) => l.itemId)) return "empty";
+  return db.transaction(async (tx) => {
+    const [r] = await tx
+      .select({ name: catalogItems.name })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.id, id),
+          eq(catalogItems.catalog, "recipe"),
+          isNull(catalogItems.deletedAt),
+        ),
+      )
+      .for("update");
+    if (!r) return "gone";
+    if (
+      r.name.toLowerCase() !== name.toLowerCase() &&
+      (await recipeNameTaken(tx as unknown as Db, owner, name))
+    )
+      return "taken";
+    await tx
+      .update(catalogItems)
+      .set({ name })
+      .where(and(ownedBy(catalogItems, owner), eq(catalogItems.id, id)));
+    await tx
+      .delete(catalogParts)
+      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)));
+    await tx
+      .delete(catalogValues)
+      .where(
+        and(
+          ownedBy(catalogValues, owner),
+          eq(catalogValues.itemId, id),
+          inArray(catalogValues.field, [ESTIMATE_MARK, ...ESTIMATE_FIELDS]),
+        ),
+      );
+    if (checked.estimate)
+      await writeEstimate(tx as unknown as Db, owner, id, checked.lines[0]!.per100);
+    else await writeParts(tx as unknown as Db, owner, id, checked.lines);
+    return "ok";
   });
 }
 
@@ -98,22 +192,7 @@ export async function createEstimateRecipe(
       .values({ userId: owner.id, catalog: "recipe", name })
       .returning({ id: catalogItems.id });
     const id = row!.id;
-    await tx.insert(catalogValues).values([
-      { userId: owner.id, itemId: id, field: ESTIMATE_MARK, bool: true },
-      ...ESTIMATE_FIELDS.flatMap((field) =>
-        totals[field] === undefined
-          ? []
-          : [
-              {
-                userId: owner.id,
-                itemId: id,
-                field,
-                num: totals[field],
-                confidence: ESTIMATE_CONFIDENCE,
-              },
-            ],
-      ),
-    ]);
+    await writeEstimate(tx as unknown as Db, owner, id, totals);
     return id;
   });
 }
@@ -167,93 +246,7 @@ export async function readRecipe(
   return { name: r.name, parts };
 }
 
-/**
- * Renames the recipe and keeps only the parts named, at their new
- * quantities (positions renumbered, food and product kept). Meals already
- * logged keep their lines (ADR-0007). "taken" when another live recipe has
- * the name; "gone" when it is not a live recipe; "empty" with no part left.
- */
-export async function updateRecipe(
-  db: Db,
-  owner: Owner,
-  id: string,
-  name: string,
-  keep: readonly { position: number; quantity: string }[],
-): Promise<"ok" | "gone" | "taken" | "empty"> {
-  if (keep.length === 0) return "empty";
-  return db.transaction(async (tx) => {
-    const [r] = await tx
-      .select({ name: catalogItems.name })
-      .from(catalogItems)
-      .where(
-        and(
-          ownedBy(catalogItems, owner),
-          eq(catalogItems.id, id),
-          eq(catalogItems.catalog, "recipe"),
-          isNull(catalogItems.deletedAt),
-        ),
-      );
-    if (!r) return "gone";
-    if (
-      r.name.toLowerCase() !== name.toLowerCase() &&
-      (await recipeNameTaken(tx as unknown as Db, owner, name))
-    )
-      return "taken";
-    const old = await tx
-      .select()
-      .from(catalogParts)
-      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)));
-    const kept = keep.flatMap((k) => {
-      const p = old.find((o) => o.position === k.position);
-      return p ? [{ ...p, quantity: k.quantity }] : [];
-    });
-    if (kept.length === 0) return "empty";
-    await tx
-      .update(catalogItems)
-      .set({ name })
-      .where(and(ownedBy(catalogItems, owner), eq(catalogItems.id, id)));
-    await tx
-      .delete(catalogParts)
-      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)));
-    await tx.insert(catalogParts).values(kept.map((p, position) => ({ ...p, position })));
-    return "ok";
-  });
-}
-
 /** Archives the recipe: out of the lists and the composer; logged meals stay "of" it. */
 export function archiveRecipe(db: Db, owner: Owner, id: string): Promise<boolean> {
   return archiveItem(db, owner, id, "recipe");
-}
-
-/**
- * A copy of a live recipe with its parts ("duplica", flows.md S-F01):
- * named "<name> (copia)", "(copia 2)"… the first free, based on the
- * original. Its id, or null if the original is not a live recipe.
- */
-export async function duplicateRecipe(
-  db: Db,
-  owner: Owner,
-  id: string,
-): Promise<string | null> {
-  const r = await readRecipe(db, owner, id);
-  if (!r) return null;
-  let name = recipeName(r.name + " (copia)");
-  for (let n = 2; name.ok && (await recipeNameTaken(db, owner, name.name)); n++)
-    name = recipeName(`${r.name} (copia ${n})`);
-  if (!name.ok) return null;
-  const copyName = name.name;
-  return db.transaction(async (tx) => {
-    const [row] = await tx
-      .insert(catalogItems)
-      .values({ userId: owner.id, catalog: "recipe", name: copyName, basedOnId: id })
-      .returning({ id: catalogItems.id });
-    const copy = row!.id;
-    const parts = await tx
-      .select()
-      .from(catalogParts)
-      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)));
-    if (parts.length > 0)
-      await tx.insert(catalogParts).values(parts.map((p) => ({ ...p, itemId: copy })));
-    return copy;
-  });
 }

@@ -1,6 +1,7 @@
 /**
  * A saved meal's page (V-07, first part): its foods, its totals per serving.
- * A saved estimate shows its typed totals; it can be logged or archived.
+ * A saved estimate shows its typed totals. Both are logged, changed in the
+ * composer, started from («Parti da…») or archived (FOOD-42).
  */
 import { notFound } from "next/navigation";
 import { F, PageHeader } from "@lifeos/kit";
@@ -10,7 +11,7 @@ import { getDb } from "@/app/_server/runtime";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { FOOD_FIELDS, mealPage } from "@/features/library/library";
-import { archiveSaved, duplicateSaved } from "./modifica/actions";
+import { archiveSaved } from "./modifica/actions";
 
 export default async function SavedMealPage({
   params,
@@ -33,28 +34,22 @@ export default async function SavedMealPage({
         of={{ fam: "food", kind: "meal" }}
       />
       <div className="k-section">
-        <div className="k-line g2">
+        <div className="k-line g2 wrap">
           <a className="k-btn primary" href={"/aggiungi/pasto?pasto=" + id}>
             Registra
           </a>
-          {page.estimate ? (
-            <form action={archiveSaved.bind(null, id)}>
-              <button type="submit" className="k-btn secondary">
-                Archivia
-              </button>
-            </form>
-          ) : (
-            <>
-              <a className="k-btn secondary" href={"/cibo/pasto/" + id + "/modifica"}>
-                Modifica
-              </a>
-              <form action={duplicateSaved.bind(null, id)}>
-                <button type="submit" className="k-btn secondary">
-                  Duplica
-                </button>
-              </form>
-            </>
-          )}
+          <a className="k-btn secondary" href={"/cibo/pasto/" + id + "/modifica"}>
+            Modifica
+          </a>
+          {/* «Parti da…» (FOOD-33, FOOD-42): a new meal starting from this one, never «Duplica». */}
+          <a className="k-btn secondary" href={"/cibo/pasto/nuovo?da=" + id}>
+            Parti da questo
+          </a>
+          <form action={archiveSaved.bind(null, id)}>
+            <button type="submit" className="k-btn secondary">
+              Archivia
+            </button>
+          </form>
         </div>
       </div>
       {page.estimate ? (
