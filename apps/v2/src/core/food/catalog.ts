@@ -158,6 +158,91 @@ async function readChoicePrices(
   return choicePrices(formatPrices(rows, today), formats, products);
 }
 
+export type FoodFormat = {
+  productId: string;
+  name: string;
+  /** The package or piece size in the food's unit, when known. */
+  size: string | null;
+  /** Cents per 100 g/ml today (the median over shops of each one's latest), when priced. */
+  centsPer100: string | null;
+};
+
+/**
+ * A food's formats under its live products (ADR-0055, ADR-0060): name, size and
+ * price per 100 today — «gnocchi 1 kg 1,00 €/kg · gnocchetti 500 g 1,60 €/kg».
+ */
+export async function readFoodFormats(
+  db: Db,
+  owner: Owner,
+  foodId: string,
+  today: IsoDate,
+): Promise<FoodFormat[]> {
+  const products = await db
+    .select({ id: catalogItems.id })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "product"),
+        eq(catalogItems.parentId, foodId),
+        isNull(catalogItems.deletedAt),
+      ),
+    );
+  if (products.length === 0) return [];
+  const formats = await db
+    .select({
+      id: catalogItems.id,
+      name: catalogItems.name,
+      productId: catalogItems.parentId,
+    })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "format"),
+        inArray(
+          catalogItems.parentId,
+          products.map((p) => p.id),
+        ),
+        isNull(catalogItems.deletedAt),
+      ),
+    );
+  if (formats.length === 0) return [];
+  const ids = formats.map((f) => f.id);
+  const [sizes, obs] = await Promise.all([
+    db
+      .select({ itemId: catalogValues.itemId, num: catalogValues.num })
+      .from(catalogValues)
+      .where(
+        and(
+          ownedBy(catalogValues, owner),
+          inArray(catalogValues.itemId, ids),
+          eq(catalogValues.field, "size"),
+        ),
+      ),
+    db
+      .select({
+        formatId: priceObservations.formatId,
+        shop: priceObservations.shop,
+        day: priceObservations.day,
+        cents: priceObservations.cents,
+        packageQty: priceObservations.packageQty,
+      })
+      .from(priceObservations)
+      .where(
+        and(ownedBy(priceObservations, owner), inArray(priceObservations.formatId, ids)),
+      ),
+  ]);
+  const prices = formatPrices(obs, today);
+  const size = new Map(sizes.map((x) => [x.itemId, x.num]));
+  return formats.map((f) => ({
+    productId: f.productId!,
+    name: f.name,
+    size: size.get(f.id) ?? null,
+    centsPer100: prices.get(f.id)?.toFixed(2) ?? null,
+  }));
+}
+
 /** The owner's live recipes as choices over `foods`, with how often each was logged in 90 days. */
 export async function readRecipeChoices(
   db: Db,

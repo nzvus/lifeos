@@ -6,13 +6,23 @@
  * header opens the editor.
  */
 import { notFound } from "next/navigation";
-import { Box, F, Field, Glyph, Nutrients, PageHeader, type GlyphOf } from "@lifeos/kit";
+import {
+  Box,
+  F,
+  Field,
+  Glyph,
+  List,
+  Nutrients,
+  PageHeader,
+  type GlyphOf,
+} from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { logicalDay } from "@/core/engines/time";
 import {
   readFoodChoices,
+  readFoodFormats,
   readFoodEstimates,
   readRecipeChoices,
 } from "@/core/food/catalog";
@@ -41,6 +51,9 @@ const PANTRY_ERRORS: Record<string, string> = {
   left: "Quanto ne hai, per esempio 500 (0 se è finito).",
 };
 
+/** «€/kg» or «€/l» by the food's unit. */
+const kgOf = (unit: string) => (unit === "ml" ? "l" : "kg");
+
 export default async function FoodPage({
   params,
   searchParams,
@@ -57,6 +70,7 @@ export default async function FoodPage({
   const today = logicalDay(new Date(), clock);
   const foods = await readFoodChoices(db, owner, today);
   const page = foodPage(foods, await readRecipeChoices(db, owner, today, foods), id);
+  const formats = await readFoodFormats(db, owner, id, today);
   if (!page) notFound();
   // Possible duplicates: another food sharing a meaningful word of its name.
   const twins = foodTwins(foods, id);
@@ -163,6 +177,21 @@ export default async function FoodPage({
       )}
       <section className="k-section g3" aria-label="Valori">
         {head({ section: "values" }, "Per 100 " + page.unit)}
+        {page.brands && page.brands.count > 1 && (
+          // Where the numbers come from (ADR-0060): no brand chosen reads this mean.
+          <p className="k-help">
+            Media di {page.brands.count} marche, pesata su quanto mangi ciascuna
+            {page.brands.spread["kcal"]
+              ? " · " +
+                F.n(page.brands.spread["kcal"][0], 0) +
+                "–" +
+                F.num(page.brands.spread["kcal"][1], "kcal")
+              : ""}
+            {page.brands.uncertain.length > 0
+              ? ". Le marche sono molto diverse: nei pasti conviene scegliere quella vera."
+              : "."}
+          </p>
+        )}
         <div className="k-stats">
           {FOOD_FIELDS.filter(([f]) => page.per100[f] !== undefined).map(
             ([f, words, unit]) => (
@@ -291,14 +320,41 @@ export default async function FoodPage({
         {page.products.length === 0 && (
           <p className="k-help">Nessuna marca: si registra il cibo.</p>
         )}
-        {page.products.map((p, i) => (
-          <div key={i} className="k-line between">
-            <span className="k-body">{p.brand}</span>
-            <span className="k-meta">{F.plural(p.uses, "volta", "volte")}</span>
-          </div>
-        ))}
+        <List label="Le marche">
+          {page.products.map((p) => {
+            const mine = formats.filter((x) => x.productId === p.id);
+            return (
+              <Box
+                key={p.id}
+                density="row"
+                rail={false}
+                entry={{
+                  fam: "food",
+                  title: p.brand,
+                  value:
+                    p.perKg !== null ? F.n(p.perKg, 2) + " €/" + kgOf(page.unit) : "",
+                  meta: [
+                    F.plural(p.uses, "volta", "volte") + " in 90 giorni",
+                    ...p.differs,
+                    ...mine.map(
+                      (x) =>
+                        x.name +
+                        (x.size ? " " + F.num(Number(x.size), page.unit) : "") +
+                        (x.centsPer100
+                          ? " " +
+                            F.n(Number(x.centsPer100) / 10, 2) +
+                            " €/" +
+                            kgOf(page.unit)
+                          : ""),
+                    ),
+                  ].join(" · "),
+                }}
+              />
+            );
+          })}
+        </List>
         <a className="k-link" href={"/cibo/cibo/" + id + "/prodotto"}>
-          + Prodotto
+          + Marca
         </a>
       </section>
       <section className="k-section g3" aria-label="Pasti salvati">

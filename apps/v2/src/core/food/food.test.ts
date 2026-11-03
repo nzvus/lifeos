@@ -46,7 +46,9 @@ describe("the composer's choices", () => {
       ["f2:p1", "Granarolo", "g"],
       ["f1", null, "ml"],
     ]);
-    expect(choices[0]!.per100).toEqual({ kcal: "372", protein: "13.5" });
+    // No brand chosen: the mean of its brands by his use (ADR-0060); one brand → that brand.
+    expect(choices[0]!.per100).toEqual({ kcal: "372", protein: "14" });
+    expect(choices[0]!.brands).toEqual({ count: 1, spread: {}, uncertain: [] });
     expect(choices[1]!.per100).toEqual({ kcal: "372", protein: "14" });
     expect(choices[1]).toMatchObject({ uses: 5, lastQty: "60.000" });
   });

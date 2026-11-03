@@ -9,6 +9,7 @@
  * a product's or else its food's) rides in `per100` as `cents`, so a logged
  * line keeps it in its snapshot (dossiers/costs.md §4). `catalog.ts` reads them.
  */
+import { brandMean } from "./brands";
 import { PRICE_FIELD } from "./cost";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
 
@@ -42,6 +43,8 @@ export type FoodChoice = {
   lastQty: string | null;
   /** What picks its drawing (icons.md §2: food group, dish, fine group); a product has its food's. */
   drawing?: Record<string, string>;
+  /** A food with brands, no brand chosen (ADR-0060): its values are their weighted mean. */
+  brands?: { count: number; spread: Record<string, [number, number]>; uncertain: string[] };
 };
 
 /** The catalog fields Glyph reads to draw a food (icons.md §2). */
@@ -104,6 +107,7 @@ export function foodChoices(
     const fp = prices.get(f.id);
     const base = { ...per.get(f.id), ...(fp ? { [PRICE_FIELD]: fp } : {}) };
     const u = used.get(f.id + ":");
+    const at = out.length;
     out.push({
       key: f.id,
       foodId: f.id,
@@ -138,6 +142,21 @@ export function foodChoices(
         uses: pu?.uses ?? 0,
         lastQty: pu?.lastQty ?? null,
       });
+    }
+    // No brand chosen: the mean of its brands weighted by his use (ADR-0060, brands.ts);
+    // lines he logged with no brand count as one more «brand», the food's own values.
+    const mine = out.slice(at + 1);
+    if (mine.length > 0) {
+      const generic = out[at]!;
+      const m = brandMean([
+        ...mine.map((c) => ({ per100: c.per100, uses: c.uses })),
+        ...(generic.uses > 0 ? [{ per100: generic.per100, uses: generic.uses }] : []),
+      ])!;
+      out[at] = {
+        ...generic,
+        per100: m.per100,
+        brands: { count: mine.length, spread: m.spread, uncertain: m.uncertain },
+      };
     }
   }
   return out;

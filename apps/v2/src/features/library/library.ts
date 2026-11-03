@@ -181,10 +181,24 @@ export type FoodPage = {
   name: string;
   unit: string;
   per100: Record<string, string>;
-  products: { brand: string; uses: number }[];
+  products: {
+    id: string;
+    brand: string;
+    uses: number;
+    /** Its label values that differ from the food's mean, in words («proteine 14 g»). */
+    differs: string[];
+    /** Price per kg (or l) of its prices, when any. */
+    perKg: number | null;
+  }[];
+  /** No brand chosen: the mean of how many brands, the spread per field, the uncertain ones. */
+  brands: FoodChoice["brands"] | null;
   /** The saved meals with it, and how much of it each has. */
   meals: { name: string; quantity: string }[];
 };
+
+/** Cents per 100 g/ml → euro per kg/l. */
+export const perKg = (centsPer100: string | undefined | null): number | null =>
+  centsPer100 == null || centsPer100 === "" ? null : Number(centsPer100) / 10;
 
 /** A food's page (V-07, first part): its values, its products, the saved meals that use it. */
 export function foodPage(
@@ -201,7 +215,22 @@ export function foodPage(
     per100: food.per100,
     products: foods
       .filter((f) => f.foodId === foodId && f.productId !== null)
-      .map((f) => ({ brand: f.brand ?? "", uses: f.uses })),
+      .map((f) => ({
+        id: f.productId!,
+        brand: f.brand ?? "",
+        uses: f.uses,
+        differs: FOOD_FIELDS.flatMap(([k, words, unit]) =>
+          k !== "nova" &&
+          f.per100[k] !== undefined &&
+          food.brands &&
+          food.brands.count > 1 &&
+          Number(f.per100[k]) !== Number(food.per100[k])
+            ? [words.toLowerCase() + " " + F.num(Number(f.per100[k]), unit)]
+            : [],
+        ),
+        perKg: perKg(f.per100["cents"]),
+      })),
+    brands: food.brands ?? null,
     meals: recipes.flatMap((r) => {
       const part = r.parts.find((p) => keys.has(p.key));
       return part ? [{ name: r.name, quantity: part.quantity }] : [];
