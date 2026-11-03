@@ -89,6 +89,19 @@ export function FoodForm({
           error={e["name"]}
         />
         {isNew && !productOf && (
+          <Field
+            name="unit"
+            label="Si misura in"
+            type="choice"
+            required
+            defaultValue={v["unit"] ?? "g"}
+            options={[
+              { value: "g", label: "grammi" },
+              { value: "ml", label: "millilitri" },
+            ]}
+          />
+        )}
+        {isNew && !productOf && (
           <>
             <Field
               name="brand"
@@ -110,19 +123,6 @@ export function FoodForm({
               error={e["packageSize"]}
             />
           </>
-        )}
-        {isNew && !productOf && (
-          <Field
-            name="unit"
-            label="Si misura in"
-            type="choice"
-            required
-            defaultValue={v["unit"] ?? "g"}
-            options={[
-              { value: "g", label: "grammi" },
-              { value: "ml", label: "millilitri" },
-            ]}
-          />
         )}
       </section>
       <section className="k-section g3" aria-label="Valori">

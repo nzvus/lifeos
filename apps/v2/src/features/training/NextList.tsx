@@ -158,8 +158,8 @@ export function NextList({
   };
   return (
     <section className="k-section g2" aria-label="Poi">
-      <h2>Da fare</h2>
-      {todo.length === 0 && <p className="k-help">Nient’altro in programma.</p>}
+      <h2>{live ? "Da fare" : "Gli altri"}</h2>
+      {live && todo.length === 0 && <p className="k-help">Nient’altro in programma.</p>}
       {todo.map(row)}
       {done.length > 0 && <span className="k-cap">Fatti</span>}
       {done.map(row)}

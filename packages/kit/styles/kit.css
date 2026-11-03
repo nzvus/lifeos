@@ -4271,3 +4271,4 @@ button.k-link {
   align-self: flex-start;
   min-height: var(--touch);
 }
+.k-btn.link.danger{color:var(--tomato)}
