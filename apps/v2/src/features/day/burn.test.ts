@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PricedDay } from "@/core/energy";
-import { burnText, dayBurnLine, dayPieces, rowBurns } from "./burn";
+import { burnText, dayBurnLine, dayPieces, dayTotalText, rowBurns, tuneOf } from "./burn";
 
 const r = (low: number, high: number) => ({ low, high });
 // F joins numbers and units with no-break spaces.
@@ -83,6 +83,32 @@ describe("dayPieces", () => {
     expect(p.bmr + everyday + p.tef!.low + p.steps!.low + p.training.low).toBeCloseTo(
       p.total.low,
       6,
+    );
+  });
+});
+
+describe("one calibrated number (ledger BODY-30)", () => {
+  // The week learnt 2.663 ± 276 where its priors said 2.865: k ≈ 0,93.
+  const tune = tuneOf({ expenditureKcal: 2663, sigmaKcal: 276, priorKcal: 2865 })!;
+
+  it("calibrates by learnt ÷ priors, and refuses without both or when absurd", () => {
+    expect(tune.k).toBeCloseTo(0.9295, 3);
+    expect(tuneOf({ expenditureKcal: 2663 })).toBeNull();
+    expect(tuneOf({ expenditureKcal: 2663, priorKcal: 1000 })).toBeNull();
+    expect(tuneOf(null)).toBeNull();
+  });
+
+  it("the day's total is one number with the week's ± in proportion", () => {
+    // mid 3.084,5 × 0,9295 = 2.867 → 2.870; ± 2.870 × 276 / 2.663 ≈ 297 → 300.
+    expect(plain(dayTotalText(day, tune))).toBe("≈ 2.870 kcal ± 300");
+    expect(plain(dayTotalText(day))).toBe("≈ 2.620–3.550 kcal");
+  });
+
+  it("each piece and row is one number scaled the same way, and the line says so", () => {
+    expect(plain(burnText(r(254, 377), tune))).toBe("≈ 290 kcal");
+    expect(plain(dayPieces(day, tune)[0]!.value ?? null)).toBe("1.670 kcal");
+    expect(plain(dayBurnLine(day, null, null, tune))).toContain(
+      "tarato sulle tue pesate (× 0,93)",
     );
   });
 });

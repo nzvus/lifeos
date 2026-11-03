@@ -416,6 +416,8 @@
 .k-page>.k-nav{margin-top:auto}
 /* a section without a title still has the page gutter */
 .k-block{display:flex;flex-direction:column;gap:var(--sp-2);padding:0 16px}
+/* two blocks in a row keep the gap of the boxes inside them (the weather touched «Il giorno», 3 Nov) */
+.k-page>.k-block+.k-block{margin-top:var(--sp-3)}
 
 /* ---------- board furniture (Map, Icons, Shapes, Content): the boards that explain the rules ---------- */
 .kb-page{padding:24px 24px 32px;gap:32px}
@@ -532,6 +534,16 @@ span.k-head{cursor:default}
 /* a row that swipes left to be removed (V-01): the row slides over a tomato layer saying so */
 .k-swipe{position:relative;touch-action:pan-y;border-radius:var(--r-card)}
 .k-swipe:focus-visible{outline:var(--ring) solid var(--focus);outline-offset:2px}
+/* ledger UI-98: on a computer the strips move with arrows on their sides; never on a touch screen (UI-76) */
+.k-side,.k-week a.k-side{display:none}
+@media (hover:hover) and (pointer:fine){
+.k-week:has(>.k-side),.k-swipe:has(>.k-side){position:relative;padding-inline:32px}
+.k-side,.k-week[class] a.k-side{position:absolute;top:50%;display:flex;flex-direction:row;align-items:center;justify-content:center;width:28px;height:28px;margin-top:-14px;padding:0;border-radius:50%;color:var(--muted);font-size:22px;line-height:1;text-decoration:none}
+.k-side:hover{background:var(--hairline);color:var(--ink)}
+.k-side:focus-visible{outline:var(--ring) solid var(--focus);outline-offset:2px}
+.k-side.prev{left:0}.k-side.next{right:0}
+}
+.k-monthname{display:block;margin:4px 0 6px;text-transform:capitalize}
 .k-swipe>.under{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding:0 20px;border-radius:var(--r-card);background:var(--tomato);color:var(--sheet);font-family:var(--font-display);font-size:var(--fs-d4);font-weight:600;opacity:0;transition:opacity var(--t-box) var(--ease)}
 .k-swipe.moving>.under{opacity:1}
 .k-swipe>.over{position:relative;transition:transform var(--t-box) var(--ease)}
@@ -595,7 +607,7 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-sky.chip .fill{background:color-mix(in srgb,var(--fam) 72%,var(--sheet));border-radius:1.5px 1.5px 0 0}
 .k-sky.chip .line{border-top:1px dashed color-mix(in srgb,var(--ink) 45%,transparent)}
 /* the day's weather card on Oggi (E11, 2026-10-25): closed compact, open with the hours, the air, the light */
-.k-wx{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--hairline);border-radius:var(--r-row);background:var(--sheet)}
+.k-wx{display:flex;flex-direction:column;gap:6px;padding:12px 16px;border:1px solid var(--hairline);border-radius:var(--r-card);background:var(--sheet)}
 .k-wxhead{display:flex;align-items:center;gap:10px;width:100%;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .k-sky-ico{width:44px;height:33px;flex:0 0 auto}
 .k-sky-ico .cl{fill:color-mix(in srgb,var(--muted) 22%,var(--sheet));stroke:color-mix(in srgb,var(--muted) 55%,var(--sheet));stroke-width:1.5}
@@ -616,7 +628,7 @@ button.k-link{background:none;border:0;padding:0;font:inherit;font-weight:600;co
 .k-wxhead .range .tr>i{position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,var(--macro-fat),var(--macro-carbs))}
 .k-wxhead .range .tr>b{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--sheet);transform:translate(-50%,-50%)}
 /* UI-80: levels of expansion; 0 is one line, the dots say the level */
-.k-wx.l0{padding:10px 12px}
+.k-wx.l0{padding:12px 16px}
 .k-wx.l0 .k-sky-ico{width:28px;height:21px}
 .k-wx.l0 .k-wxhead .k-body{flex:1;min-width:0}
 .k-lv{display:inline-flex;gap:4px;align-self:center;flex:0 0 auto}

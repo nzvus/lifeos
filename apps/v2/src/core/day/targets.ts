@@ -42,6 +42,11 @@ export type FoodTargets = {
     ratePctWeek?: number | null;
     trendKg?: number;
     floored?: boolean;
+    /**
+     * What the priors said the same week cost (WeekEnergy.priors summed): the
+     * learnt expenditure over it calibrates a single day (ledger BODY-30).
+     */
+    priorKcal?: number;
   };
 };
 
@@ -118,6 +123,7 @@ export function modelTargets(
       ratePctWeek: num(p["ratePctWeek"]),
       trendKg: W,
       floored: kcal > wanted,
+      ...priorSum(p["priors"]),
     },
   };
 }
@@ -260,4 +266,15 @@ export async function readRangeTargets(
   for (let d = from; d <= to; d = addDays(d, 1))
     out.set(d, targetsOn(rows as TargetDecision[], d, models.get(d) ?? null));
   return out;
+}
+
+/** The week's priors summed (bmr + everyday + steps + training + tef), when the decision has them. */
+function priorSum(v: unknown): { priorKcal?: number } {
+  if (!v || typeof v !== "object") return {};
+  const parts = ["bmr", "everyday", "steps", "training", "tef"].map(
+    (k) => (v as Record<string, unknown>)[k],
+  );
+  if (!parts.every((x) => typeof x === "number" && Number.isFinite(x))) return {};
+  const sum = (parts as number[]).reduce((a, b) => a + b, 0);
+  return sum > 0 ? { priorKcal: Math.round(sum) } : {};
 }

@@ -61,6 +61,7 @@ import {
   dayPieces,
   dayTotalText,
   rowBurns,
+  tuneOf,
 } from "@/features/day/burn";
 import {
   planTag,
@@ -242,6 +243,8 @@ export async function DayPage({
   const energyRows = pd?.rows ?? null;
   const priced = pd?.priced ?? null;
   const burns = priced ? rowBurns(priced) : null;
+  // One calibrated number per burn when the week learnt it (ledger BODY-30).
+  const tune = tuneOf(targets?.basis);
   // Sessions still planned today (not begun): the day's end counts them at the person's usual length.
   const plannedCount = items.filter(
     (i) => i.kind.key === "session" && i.status === "planned" && !isRunning(i),
@@ -328,7 +331,7 @@ export async function DayPage({
       // A night in pieces: its box speaks for the whole night.
       ...(nightWordsOf(i, items, sctx) ?? {}),
     };
-    const burn = burnText(burns?.get(i.kind.key === "steps" ? "steps" : i.id));
+    const burn = burnText(burns?.get(i.kind.key === "steps" ? "steps" : i.id), tune);
     return {
       ...shown,
       ...(burn ? { pills: [...(shown.pills ?? []), { t: burn }] } : {}),
@@ -604,7 +607,8 @@ export async function DayPage({
           {priced && (
             <details className="k-fold">
               <summary>
-                Energia del giorno <span className="k-meta">{dayTotalText(priced)}</span>
+                Energia del giorno{" "}
+                <span className="k-meta">{dayTotalText(priced, tune)}</span>
               </summary>
               <div className="k-foldbody">
                 <p className="k-body">
@@ -612,9 +616,10 @@ export async function DayPage({
                     priced,
                     nowMinute === null ? null : nowMinute / 1440,
                     plannedBurn,
+                    tune,
                   )}
                 </p>
-                {dayPieces(priced).map((e) => (
+                {dayPieces(priced, tune).map((e) => (
                   <Box key={e.title} density="row" rail={false} entry={e} />
                 ))}
                 <a className="k-btn link" href="/oggi/andamento">

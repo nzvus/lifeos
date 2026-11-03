@@ -108,6 +108,7 @@ levels map to hours when read.
   until touched; also offered in the steps sheet. No level choice anywhere.
 - **Andamento → Energia** keeps the week's means and adds the day picker:
   the same pieces for any day.
+- **Changed 3 Nov (ledger BODY-30, his pick):** with a learnt week, one calibrated number «≈ x kcal ± y» (priors × learnt/priors, the week's ± in proportion); the ranges below stay only without one.
 - Ranges everywhere; «≈» and the band, never a single kcal figure (P-rules,
   content.md).
 

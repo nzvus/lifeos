@@ -142,6 +142,9 @@ scanning) are placed in the v2 spec.
    their burn as a range, the day live, hours on feet instead of three
    levels; the week's targets unchanged), after the developer's «non vedo
    il loro consumo calorico».
+   Added 2026-11-03: compounds (`dossiers/compounds.md`, ledger FOOD-40:
+   creatine stores filling and emptying day by day, caffeine judged at his
+   own bedtime and said only when it matters; slices a–c).
    Added 2026-11-03: costs (`dossiers/costs.md`, ledger HOME-14: what a
    line, meal, day, week and typical day cost, always «≈», kept apart from
    Soldi's money spent and the pantry's value; price snapshot on new lines,
