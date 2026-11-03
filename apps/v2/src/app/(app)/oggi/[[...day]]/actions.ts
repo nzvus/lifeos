@@ -23,6 +23,7 @@ import {
 import { logicalDay } from "@/core/engines/time";
 import { recomputeWeekTargets } from "@/core/energy";
 import { kindRegistry } from "@/core/kinds";
+import { readFoodChoices } from "@/core/food/catalog";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -123,6 +124,51 @@ export async function addWater(day: string, ml: 250 | 500): Promise<void> {
   if (!checked.ok) return;
   await createEntry(db, owner, checked.entry);
   revalidatePath("/", "layout");
+}
+
+/**
+ * «Al volo» (FOOD-44, ADR-0060): one tap logs an «assunzione» at its dose, now,
+ * as one line with today's catalog values (the snapshot, ADR-0007). Answers the
+ * new entry's id, for «Annulla»; null when nothing was logged.
+ */
+export async function logIntake(day: string, foodId: string): Promise<string | null> {
+  if (!ISO.test(day) || !UUID.test(foodId)) return null;
+  const owner = await requireOwner();
+  const db = await getDb();
+  const { clock } = await ownerClock();
+  const now = new Date();
+  const today = logicalDay(now, clock);
+  if (day > today) return null;
+  const c = (await readFoodChoices(db, owner, today)).find((x) => x.key === foodId);
+  if (!c?.intake) return null;
+  const checked = checkEntry(
+    kindRegistry().get("intake"),
+    {
+      day,
+      status: "done",
+      startMin: day === today ? dayMinute(now, day, clock) : null,
+      endMin: null,
+      values: {},
+      note: "",
+    },
+    clock,
+  );
+  if (!checked.ok) return null;
+  const id = await createEntry(db, owner, {
+    ...checked.entry,
+    lines: [
+      {
+        itemId: c.foodId,
+        productId: null,
+        name: c.name,
+        quantity: c.intake.dose,
+        unit: c.unit,
+        per100: c.per100,
+      },
+    ],
+  });
+  revalidatePath("/", "layout");
+  return id;
 }
 
 /** «Ricalcola»: this week's automatic targets made again (core/energy; a v1 check-in stays). */

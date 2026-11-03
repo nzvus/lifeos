@@ -3,7 +3,9 @@ import type { FoodChoice } from "@/core/food/choices";
 import {
   exerciseRows,
   foodPage,
+  likelyFoods,
   mealPage,
+  variantChanges,
   foodRows,
   foodTwins,
   listRows,
@@ -243,5 +245,65 @@ describe("foodTwins («Unisci»)", () => {
       "Latte fresco intero",
       "Fiocchi di latte proteici",
     ]);
+  });
+});
+
+describe("what a variant changes, in words (ADR-0060)", () => {
+  it("added, changed, another brand, removed", () => {
+    const names: Record<string, { name: string; unit: string }> = {
+      milk: { name: "Latte", unit: "g" },
+      whey: { name: "Whey", unit: "g" },
+      pist: { name: "Crema 100% pistacchi", unit: "g" },
+      cocoa: { name: "Cacao", unit: "g" },
+    };
+    const name = (k: string) => names[k.split(":")[0]!]!;
+    expect(
+      variantChanges(
+        [
+          { key: "milk", quantity: "400" },
+          { key: "whey", quantity: "15" },
+          { key: "cocoa", quantity: "6" },
+        ],
+        [
+          { key: "milk:b2", quantity: "400" },
+          { key: "whey", quantity: "20" },
+          { key: "pist", quantity: "40" },
+        ],
+        name,
+      ),
+    ).toEqual([
+      "Latte: un’altra marca",
+      "Whey 15 → 20 g",
+      "+ 40 g Crema 100% pistacchi",
+      "senza Cacao",
+    ]);
+  });
+});
+
+describe("«È una marca di un tuo cibo?» (ADR-0060, objects.md §8 test 6)", () => {
+  const f = (foodId: string, name: string) => ({
+    key: foodId,
+    foodId,
+    productId: null,
+    name,
+    brand: null,
+    unit: "g",
+    per100: {},
+    uses: 0,
+    lastQty: null,
+  });
+  it("a new Mutti passata proposes his «Passata di pomodoro», not unrelated foods", () => {
+    const foods = [
+      f("a", "Passata di pomodoro"),
+      f("b", "Pomodori secchi"),
+      f("c", "Ceci lessati"),
+    ];
+    expect(likelyFoods("Passata di Pomodoro Mutti", foods).map((x) => x.foodId)).toEqual([
+      "a",
+    ]);
+    expect(
+      likelyFoods("Gnocchi di patate freschi", [f("g", "Gnocchi di patate")]),
+    ).toHaveLength(1);
+    expect(likelyFoods("Coca-Cola", foods)).toEqual([]);
   });
 });

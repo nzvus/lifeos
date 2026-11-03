@@ -16,6 +16,7 @@ import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import {
   createEstimateRecipe,
   createRecipe,
+  createVariant,
   recipeName,
   recipeNameTaken,
   replaceRecipe,
@@ -83,4 +84,21 @@ export async function replaceSaved(
   if (done === "empty") return r.again({ lines: NO_FOOD });
   revalidatePath("/", "layout");
   redirect("/cibo/pasto/" + id);
+}
+
+/** «+ Variante» of `baseId` (ADR-0060): stores only what differs from the base. */
+export async function createVariantSaved(
+  baseId: string,
+  prev: MealState,
+  data: FormData,
+): Promise<MealState> {
+  const r = await read(prev, data);
+  if (!r.checked.ok || !r.name.ok || Object.keys(r.errors).length > 0) return r.again();
+  if (r.checked.estimate)
+    return r.again({ form: "Una variante è fatta di cibi: togli la stima." });
+  const made = await createVariant(r.db, r.owner, baseId, r.name.name, r.checked.lines);
+  if (made === "taken") return r.again({ recipeName: RECIPE_WORDS.taken });
+  if (made === "gone") return r.again({ form: "Il pasto di base non c’è più." });
+  revalidatePath("/", "layout");
+  redirect("/cibo/pasto/" + made.id);
 }

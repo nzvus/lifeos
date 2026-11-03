@@ -28,9 +28,11 @@ import {
   type RecipeChoice,
 } from "./choices";
 import { COMPOUND_FIELDS } from "./compounds";
+import { INTAKE_FIELDS } from "./intake";
 import { choicePrices, formatPrices } from "./cost";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
 import { ESTIMATE_FIELDS } from "./meal";
+import { basesOf, resolveParts } from "../catalog/family";
 import { MICRO_FIELDS } from "./micros";
 import { ESTIMATE_MARK } from "./recipes";
 
@@ -64,6 +66,7 @@ export async function readFoodChoices(
         field: catalogValues.field,
         num: catalogValues.num,
         text: catalogValues.text,
+        bool: catalogValues.bool,
       })
       .from(catalogValues)
       .where(
@@ -74,6 +77,8 @@ export async function readFoodChoices(
             items.map((i) => i.id),
           ),
           inArray(catalogValues.field, [
+            ...INTAKE_FIELDS,
+            ...COMPOUND_FIELDS,
             ...SNAPSHOT_FIELDS,
             ...KIND_FIELDS,
             FIBRE_TYPES,
@@ -99,7 +104,8 @@ export async function readFoodChoices(
       .where(
         and(
           ownedBy(entryLines, owner),
-          eq(entries.kind, "meal"),
+          // Meals and «assunzioni» (FOOD-44): a coffee's last dose is its last capsule.
+          inArray(entries.kind, ["meal", "intake"]),
           eq(entries.status, "done"),
           isNull(entries.deletedAt),
           gte(entries.day, addDays(today, -USE_DAYS)),
@@ -157,6 +163,91 @@ async function readChoicePrices(
   return choicePrices(formatPrices(rows, today), formats, products);
 }
 
+export type FoodFormat = {
+  productId: string;
+  name: string;
+  /** The package or piece size in the food's unit, when known. */
+  size: string | null;
+  /** Cents per 100 g/ml today (the median over shops of each one's latest), when priced. */
+  centsPer100: string | null;
+};
+
+/**
+ * A food's formats under its live products (ADR-0055, ADR-0060): name, size and
+ * price per 100 today — «gnocchi 1 kg 1,00 €/kg · gnocchetti 500 g 1,60 €/kg».
+ */
+export async function readFoodFormats(
+  db: Db,
+  owner: Owner,
+  foodId: string,
+  today: IsoDate,
+): Promise<FoodFormat[]> {
+  const products = await db
+    .select({ id: catalogItems.id })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "product"),
+        eq(catalogItems.parentId, foodId),
+        isNull(catalogItems.deletedAt),
+      ),
+    );
+  if (products.length === 0) return [];
+  const formats = await db
+    .select({
+      id: catalogItems.id,
+      name: catalogItems.name,
+      productId: catalogItems.parentId,
+    })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "format"),
+        inArray(
+          catalogItems.parentId,
+          products.map((p) => p.id),
+        ),
+        isNull(catalogItems.deletedAt),
+      ),
+    );
+  if (formats.length === 0) return [];
+  const ids = formats.map((f) => f.id);
+  const [sizes, obs] = await Promise.all([
+    db
+      .select({ itemId: catalogValues.itemId, num: catalogValues.num })
+      .from(catalogValues)
+      .where(
+        and(
+          ownedBy(catalogValues, owner),
+          inArray(catalogValues.itemId, ids),
+          eq(catalogValues.field, "size"),
+        ),
+      ),
+    db
+      .select({
+        formatId: priceObservations.formatId,
+        shop: priceObservations.shop,
+        day: priceObservations.day,
+        cents: priceObservations.cents,
+        packageQty: priceObservations.packageQty,
+      })
+      .from(priceObservations)
+      .where(
+        and(ownedBy(priceObservations, owner), inArray(priceObservations.formatId, ids)),
+      ),
+  ]);
+  const prices = formatPrices(obs, today);
+  const size = new Map(sizes.map((x) => [x.itemId, x.num]));
+  return formats.map((f) => ({
+    productId: f.productId!,
+    name: f.name,
+    size: size.get(f.id) ?? null,
+    centsPer100: prices.get(f.id)?.toFixed(2) ?? null,
+  }));
+}
+
 /** The owner's live recipes as choices over `foods`, with how often each was logged in 90 days. */
 export async function readRecipeChoices(
   db: Db,
@@ -164,19 +255,25 @@ export async function readRecipeChoices(
   today: IsoDate,
   foods: readonly FoodChoice[],
 ): Promise<RecipeChoice[]> {
-  const recipes = await db
-    .select({ id: catalogItems.id, name: catalogItems.name })
+  // Archived ones too: an archived base still gives its variants their parts (ADR-0060).
+  const all = await db
+    .select({
+      id: catalogItems.id,
+      name: catalogItems.name,
+      parentId: catalogItems.parentId,
+      archivedAt: catalogItems.archivedAt,
+    })
     .from(catalogItems)
     .where(
       and(
         ownedBy(catalogItems, owner),
         eq(catalogItems.catalog, "recipe"),
         isNull(catalogItems.deletedAt),
-        isNull(catalogItems.archivedAt),
       ),
     );
+  const recipes = all.filter((r) => r.archivedAt === null);
   if (recipes.length === 0) return [];
-  const ids = recipes.map((r) => r.id);
+  const ids = all.map((r) => r.id);
   const [parts, uses, values] = await Promise.all([
     db
       .select({
@@ -218,9 +315,28 @@ export async function readRecipeChoices(
         ),
       ),
   ]);
+  // A variant's parts: its base's with its own differences (core/catalog/family).
+  const family = new Map(all.map((r) => [r.id, { ...r, catalog: "recipe" }]));
+  const own = (id: string) =>
+    parts
+      .filter((x) => x.itemId === id)
+      .sort((a, b) => a.position - b.position)
+      .map((x) => ({ ...x, unit: null }));
+  const resolved = recipes.flatMap((r) =>
+    resolveParts(r.id, family, own).map((x, position) => ({
+      itemId: r.id,
+      position,
+      partItemId: x.partItemId,
+      quantity: x.quantity,
+      defaults: x.defaults,
+    })),
+  );
   return recipeChoices(
-    recipes,
-    parts,
+    recipes.map((r) => {
+      const base = basesOf(r.id, family)[0];
+      return base ? { ...r, baseId: base } : r;
+    }),
+    resolved,
     new Map(uses.flatMap((u) => (u.itemId ? [[u.itemId, u.uses] as const] : []))),
     foods,
     savedEstimates(values),
@@ -282,4 +398,30 @@ export async function readFoodEstimates(
     if (v) out.set(r.itemId, { ...out.get(r.itemId), [r.field]: v });
   }
   return out;
+}
+
+/** How often each item was logged as an «assunzione» since `since` (the «Al volo» row, FOOD-44). */
+export async function readIntakeUses(
+  db: Db,
+  owner: Owner,
+  since: IsoDate,
+): Promise<Map<string, number>> {
+  const rows = await db
+    .select({ itemId: entryLines.itemId, n: sql<number>`count(*)::int` })
+    .from(entryLines)
+    .innerJoin(
+      entries,
+      and(eq(entries.id, entryLines.entryId), eq(entries.userId, entryLines.userId)),
+    )
+    .where(
+      and(
+        ownedBy(entryLines, owner),
+        eq(entries.kind, "intake"),
+        eq(entries.status, "done"),
+        isNull(entries.deletedAt),
+        gte(entries.day, since),
+      ),
+    )
+    .groupBy(entryLines.itemId);
+  return new Map(rows.flatMap((r) => (r.itemId ? [[r.itemId, r.n] as const] : [])));
 }

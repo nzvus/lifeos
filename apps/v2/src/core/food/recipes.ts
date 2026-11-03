@@ -16,6 +16,13 @@ import { catalogItems, catalogParts, catalogValues } from "../db/schema";
 import type { CheckedLine } from "../entries";
 import { ownedBy, type Owner } from "../identity/owner";
 import { ESTIMATE_CONFIDENCE, ESTIMATE_FIELDS, type EstimateField } from "./meal";
+import {
+  basesOf,
+  canBeVariant,
+  partsDiff,
+  resolveParts,
+  type Part,
+} from "../catalog/family";
 
 export type RecipeNameError = "empty" | "too_long" | "taken";
 const NAME_MAX = 80;
@@ -71,26 +78,121 @@ export async function createRecipe(
   });
 }
 
-/** A recipe's parts from checked lines: food, quantity, unit, the product kept as preferred. */
+/** Checked lines as parts: food, quantity, unit, the product kept as preferred. */
+const asParts = (lines: readonly CheckedLine[]): Part[] =>
+  lines.flatMap((l) =>
+    l.itemId
+      ? [
+          {
+            partItemId: l.itemId,
+            quantity: l.quantity,
+            unit: l.unit,
+            defaults: l.productId ? { preferredProduct: l.productId } : {},
+          },
+        ]
+      : [],
+  );
+
+/**
+ * A recipe's parts as stored. A variant (ADR-0060) stores only what differs
+ * from its base's resolved parts (`partsDiff`); anything else stores them all.
+ */
 async function writeParts(
   db: Db,
   owner: Owner,
   id: string,
   lines: readonly CheckedLine[],
+  base: readonly Part[] | null = null,
 ): Promise<void> {
-  const parts = lines.flatMap((l) => (l.itemId ? [{ ...l, itemId: l.itemId }] : []));
+  const wanted = asParts(lines);
+  const parts = base ? partsDiff(base, wanted) : wanted;
   if (parts.length > 0)
     await db.insert(catalogParts).values(
-      parts.map((l, position) => ({
+      parts.map((x, position) => ({
         userId: owner.id,
         itemId: id,
         position,
-        partItemId: l.itemId,
-        quantity: l.quantity,
-        unit: l.unit,
-        defaults: l.productId ? { preferredProduct: l.productId } : {},
+        partItemId: x.partItemId,
+        quantity: x.quantity,
+        unit: x.unit,
+        defaults: x.defaults,
       })),
     );
+}
+
+/** The resolved parts of a live recipe (its bases applied), or null when it is none. */
+export async function resolvedParts(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<Part[] | null> {
+  const items = await db
+    .select({ id: catalogItems.id, parentId: catalogItems.parentId })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "recipe"),
+        isNull(catalogItems.deletedAt),
+      ),
+    );
+  if (!items.some((i) => i.id === id)) return null;
+  const family = new Map(items.map((i) => [i.id, { ...i, catalog: "recipe" }]));
+  const ids = [id, ...basesOf(id, family)];
+  const rows = await db
+    .select()
+    .from(catalogParts)
+    .where(and(ownedBy(catalogParts, owner), inArray(catalogParts.itemId, ids)));
+  const own = (x: string) =>
+    rows
+      .filter((r) => r.itemId === x)
+      .sort((a, b) => a.position - b.position)
+      .map((r) => ({
+        partItemId: r.partItemId,
+        quantity: r.quantity,
+        unit: r.unit,
+        defaults: (r.defaults ?? {}) as Record<string, unknown>,
+      }));
+  return resolveParts(id, family, own);
+}
+
+/** The base a recipe is a variant of (same catalog), or null. */
+async function variantBase(db: Db, owner: Owner, id: string): Promise<string | null> {
+  const [r] = await db
+    .select({ parentId: catalogItems.parentId })
+    .from(catalogItems)
+    .where(and(ownedBy(catalogItems, owner), eq(catalogItems.id, id)));
+  if (!r?.parentId) return null;
+  const [up] = await db
+    .select({ catalog: catalogItems.catalog })
+    .from(catalogItems)
+    .where(and(ownedBy(catalogItems, owner), eq(catalogItems.id, r.parentId)));
+  return up?.catalog === "recipe" ? r.parentId : null;
+}
+
+/**
+ * «+ Variante» (ADR-0060): a new recipe under `baseId` that stores only its
+ * differences from the base; its id, "taken" for a used name, "gone" when
+ * the base is not a live recipe of the owner.
+ */
+export async function createVariant(
+  db: Db,
+  owner: Owner,
+  baseId: string,
+  name: string,
+  lines: readonly CheckedLine[],
+): Promise<{ id: string } | "taken" | "gone"> {
+  const base = await resolvedParts(db, owner, baseId);
+  if (!base) return "gone";
+  if (await recipeNameTaken(db, owner, name)) return "taken";
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(catalogItems)
+      .values({ userId: owner.id, catalog: "recipe", name, parentId: baseId })
+      .returning({ id: catalogItems.id });
+    await writeParts(tx as unknown as Db, owner, row!.id, lines, base);
+    return { id: row!.id };
+  });
 }
 
 /** A saved estimate's values: the mark and its typed totals at the estimate's confidence. */
@@ -134,6 +236,9 @@ export async function replaceRecipe(
   checked: { lines: readonly CheckedLine[]; estimate: boolean },
 ): Promise<"ok" | "gone" | "taken" | "empty"> {
   if (!checked.estimate && !checked.lines.some((l) => l.itemId)) return "empty";
+  // A variant keeps storing only its differences from its base (ADR-0060).
+  const baseId = await variantBase(db, owner, id);
+  const base = baseId ? await resolvedParts(db, owner, baseId) : null;
   return db.transaction(async (tx) => {
     const [r] = await tx
       .select({ name: catalogItems.name })
@@ -171,7 +276,7 @@ export async function replaceRecipe(
       );
     if (checked.estimate)
       await writeEstimate(tx as unknown as Db, owner, id, checked.lines[0]!.per100);
-    else await writeParts(tx as unknown as Db, owner, id, checked.lines);
+    else await writeParts(tx as unknown as Db, owner, id, checked.lines, base);
     return "ok";
   });
 }
@@ -249,4 +354,59 @@ export async function readRecipe(
 /** Archives the recipe: out of the lists and the composer; logged meals stay "of" it. */
 export function archiveRecipe(db: Db, owner: Owner, id: string): Promise<boolean> {
   return archiveItem(db, owner, id, "recipe");
+}
+
+/**
+ * «Variante di…» for a saved meal that already exists (ADR-0060, his 7 ice
+ * creams): it keeps exactly its foods, now stored as differences from the
+ * base, so a later change to the base reaches it. False when either is not a
+ * live recipe, they are the same, or it would loop or go too deep.
+ */
+export async function makeVariantOf(
+  db: Db,
+  owner: Owner,
+  childId: string,
+  baseId: string,
+): Promise<boolean> {
+  if (childId === baseId) return false;
+  const [mine, base] = await Promise.all([
+    resolvedParts(db, owner, childId),
+    resolvedParts(db, owner, baseId),
+  ]);
+  if (!mine || !base) return false;
+  const items = await db
+    .select({ id: catalogItems.id, parentId: catalogItems.parentId })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "recipe"),
+        isNull(catalogItems.deletedAt),
+      ),
+    );
+  const family = new Map(items.map((i) => [i.id, { ...i, catalog: "recipe" }]));
+  if (!canBeVariant(family.get(childId)!, family.get(baseId)!, family)) return false;
+  const stored = partsDiff(base, mine);
+  await db.transaction(async (tx) => {
+    await tx
+      .update(catalogItems)
+      .set({ parentId: baseId })
+      .where(and(ownedBy(catalogItems, owner), eq(catalogItems.id, childId)));
+    await tx
+      .delete(catalogParts)
+      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, childId)));
+    if (stored.length > 0)
+      await tx.insert(catalogParts).values(
+        stored.map((x, position) => ({
+          userId: owner.id,
+          itemId: childId,
+          position,
+          partItemId: x.partItemId,
+          quantity: x.quantity,
+          unit: x.unit,
+          defaults: x.defaults,
+        })),
+      );
+  });
+  return true;
 }

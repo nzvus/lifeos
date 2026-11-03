@@ -40,7 +40,10 @@ export async function SavedComposer({
   editing,
   backHref,
   action,
+  variantOf = null,
 }: {
+  /** «+ Variante»: the base it will follow (its name says so in the header). */
+  variantOf?: string | null;
   /** The saved meal it starts from (its own, when editing). */
   from: string | null;
   /** Editing `from` itself: keeps its name; else a new meal named by the person. */
@@ -70,10 +73,13 @@ export async function SavedComposer({
       refs={{ targets, micros, weights: (await ownerClock()).weights }}
       roleBounds={roleBounds}
       initial={start.values}
-      backLabel={editing ? (base?.name ?? "Pasto") : "Pasti salvati"}
+      backLabel={editing || variantOf ? (base?.name ?? "Pasto") : "Pasti salvati"}
       backHref={backHref}
       action={action}
-      saved={{ name: start.values.recipeName }}
+      saved={{
+        name: start.values.recipeName,
+        ...(variantOf && base ? { variantOf: base.name } : {}),
+      }}
     />
   );
 }

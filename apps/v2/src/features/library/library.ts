@@ -4,6 +4,7 @@
  * a row searched by its words and sorted by use, name, or a nutrient alone
  * or per 100 kcal (v1's metrics). Pure, so the list sorts as you tap.
  */
+import { F } from "@lifeos/kit";
 import { fold, type FoodChoice, type RecipeChoice } from "@/core/food/choices";
 import { lineTotals } from "@/core/food/totals";
 import type { ExerciseSession } from "@/core/training";
@@ -180,10 +181,24 @@ export type FoodPage = {
   name: string;
   unit: string;
   per100: Record<string, string>;
-  products: { brand: string; uses: number }[];
+  products: {
+    id: string;
+    brand: string;
+    uses: number;
+    /** Its label values that differ from the food's mean, in words («proteine 14 g»). */
+    differs: string[];
+    /** Price per kg (or l) of its prices, when any. */
+    perKg: number | null;
+  }[];
+  /** No brand chosen: the mean of how many brands, the spread per field, the uncertain ones. */
+  brands: FoodChoice["brands"] | null;
   /** The saved meals with it, and how much of it each has. */
   meals: { name: string; quantity: string }[];
 };
+
+/** Cents per 100 g/ml → euro per kg/l. */
+export const perKg = (centsPer100: string | undefined | null): number | null =>
+  centsPer100 == null || centsPer100 === "" ? null : Number(centsPer100) / 10;
 
 /** A food's page (V-07, first part): its values, its products, the saved meals that use it. */
 export function foodPage(
@@ -200,7 +215,22 @@ export function foodPage(
     per100: food.per100,
     products: foods
       .filter((f) => f.foodId === foodId && f.productId !== null)
-      .map((f) => ({ brand: f.brand ?? "", uses: f.uses })),
+      .map((f) => ({
+        id: f.productId!,
+        brand: f.brand ?? "",
+        uses: f.uses,
+        differs: FOOD_FIELDS.flatMap(([k, words, unit]) =>
+          k !== "nova" &&
+          f.per100[k] !== undefined &&
+          food.brands &&
+          food.brands.count > 1 &&
+          Number(f.per100[k]) !== Number(food.per100[k])
+            ? [words.toLowerCase() + " " + F.num(Number(f.per100[k]), unit)]
+            : [],
+        ),
+        perKg: perKg(f.per100["cents"]),
+      })),
+    brands: food.brands ?? null,
     meals: recipes.flatMap((r) => {
       const part = r.parts.find((p) => keys.has(p.key));
       return part ? [{ name: r.name, quantity: part.quantity }] : [];
@@ -221,7 +251,41 @@ export type MealPage = {
     href: string | null;
   }[];
   totals: Record<string, number>;
+  /** Its family (ADR-0060): the base it is a variant of, with what it changes; its variants. */
+  base: { id: string; name: string; changes: string[] } | null;
+  variants: { id: string; name: string; uses: number }[];
 };
+
+/**
+ * What a variant changes from its base, in words, by food (resolved parts
+ * on both sides): «+ 40 g Crema 100% pistacchi», «Whey 15 → 20 g», «senza Latte».
+ */
+export function variantChanges(
+  base: readonly { key: string; quantity: string }[],
+  mine: readonly { key: string; quantity: string }[],
+  name: (key: string) => { name: string; unit: string },
+): string[] {
+  const food = (k: string) => k.split(":")[0]!;
+  const out: string[] = [];
+  for (const m of mine) {
+    const b = base.find((x) => food(x.key) === food(m.key));
+    const n = name(m.key);
+    if (!b) out.push("+ " + F.num(Number(m.quantity), n.unit) + " " + n.name);
+    else if (Number(b.quantity) !== Number(m.quantity))
+      out.push(
+        n.name +
+          " " +
+          F.n(Number(b.quantity), 0) +
+          " → " +
+          F.num(Number(m.quantity), n.unit),
+      );
+    else if (b.key !== m.key) out.push(n.name + ": un’altra marca");
+  }
+  for (const b of base)
+    if (!mine.some((m) => food(m.key) === food(b.key)))
+      out.push("senza " + name(b.key).name);
+  return out;
+}
 
 /** A saved meal's page (V-07, first part): its foods and quantities, its totals per serving. */
 export function mealPage(
@@ -251,6 +315,22 @@ export function mealPage(
         : [];
     }),
     totals: recipeRows([r], foods)[0]!.values,
+    base: (() => {
+      const b = r.baseId ? recipes.find((x) => x.recipeId === r.baseId) : undefined;
+      if (!b) return null;
+      const name = (k: string) => {
+        const f = by.get(k) ?? by.get(k.split(":")[0]!);
+        return { name: f?.name ?? "un cibo", unit: f?.unit ?? "g" };
+      };
+      return {
+        id: b.recipeId,
+        name: b.name,
+        changes: variantChanges(b.parts, r.parts, name),
+      };
+    })(),
+    variants: recipes
+      .filter((x) => x.baseId === r.recipeId)
+      .map((x) => ({ id: x.recipeId, name: x.name, uses: x.uses })),
   };
 }
 
@@ -349,4 +429,39 @@ export function foodTwins(
         a.name.localeCompare(b.name, "it"),
     )
     .map(({ id, name }) => ({ id, name }));
+}
+
+/**
+ * The person's foods a scanned product is likely a brand of (ADR-0060 «È una
+ * marca di un tuo cibo?»): the share of the product name's words (4+ letters,
+ * accents ignored) that the food's name has, best first; at most 4, none under
+ * half the words.
+ */
+export function likelyFoods(
+  name: string,
+  foods: readonly FoodChoice[],
+): { foodId: string; name: string }[] {
+  const words = (x: string) =>
+    fold(x)
+      .split(/[^a-z0-9]+/)
+      .filter((w) => w.length >= 4);
+  const want = new Set(words(name));
+  if (want.size === 0) return [];
+  return foods
+    .filter((f) => f.productId === null && f.foodId)
+    .map((f) => {
+      const have = words(f.name);
+      const hit = have.filter((w) =>
+        [...want].some((x) => x.startsWith(w.slice(0, 5)) || w.startsWith(x.slice(0, 5))),
+      ).length;
+      return {
+        foodId: f.foodId!,
+        name: f.name,
+        score: hit / Math.max(want.size, have.length),
+      };
+    })
+    .filter((x) => x.score >= 0.5)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4)
+    .map(({ foodId, name: n }) => ({ foodId, name: n }));
 }

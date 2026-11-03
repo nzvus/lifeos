@@ -13,6 +13,10 @@ import { getDb } from "@/app/_server/runtime";
 import { isValidGtin } from "@/core/food/barcode";
 import { readFoodByBarcode } from "@/core/food/edit";
 import { BarcodeBox } from "@/features/library/BarcodeBox";
+import { likelyFoods } from "@/features/library/library";
+import { readFoodChoices } from "@/core/food/catalog";
+import { logicalDay } from "@/core/engines/time";
+import { ownerClock } from "@/app/_server/clock";
 import { FoodForm } from "@/features/library/FoodForm";
 import { saveFood } from "../[id]/modifica/actions";
 
@@ -48,6 +52,18 @@ export default async function NewFoodPage({
   if (known) redirect("/cibo/cibo/" + known);
   const lookup = code ? await fetchOff(code) : null;
   const off = lookup?.status === "found" ? lookup.prefill : null;
+  // «È una marca di un tuo cibo?» (ADR-0060): the foods this product likely is a brand of.
+  const candidates =
+    off && code
+      ? likelyFoods(
+          off.name,
+          await readFoodChoices(
+            await getDb(),
+            owner,
+            logicalDay(new Date(), (await ownerClock()).clock),
+          ),
+        )
+      : [];
   const initial: Record<string, string> = off
     ? {
         unit: off.unit,
@@ -80,7 +96,9 @@ export default async function NewFoodPage({
       isNew
       backHref={back ?? "/cibo/elenco"}
       action={saveFood.bind(null, null, back)}
-      top={<BarcodeBox code={code} result={lookup?.status ?? null} />}
+      top={
+        <BarcodeBox code={code} result={lookup?.status ?? null} candidates={candidates} />
+      }
     />
   );
 }

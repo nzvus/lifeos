@@ -1,6 +1,6 @@
 # ADR-0060: Every catalog object has one family model: levels, variants, copies, merges
 
-**Status:** proposed (dossier `docs/spec/v2/dossiers/objects.md`, waiting for the developer's §9)
+**Status:** accepted (the developer, 3 Nov: «ok alle raccomandazioni, procedi»)
 **Date:** 2026-11-03
 
 ## Context
@@ -42,7 +42,7 @@ composer, the barcode, the costs and the trends read it.
   - the duplicates come back.
 
 ## Decision
-**A** (recommended; the developer's answers to the dossier §9 decide 1–3).
+**A**, with the dossier's §9 answered as recommended.
 
 The link is told by the parent:
 - a parent in **the catalog above** is a level (food › product › format);
