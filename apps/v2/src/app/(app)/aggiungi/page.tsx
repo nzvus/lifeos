@@ -423,7 +423,7 @@ export default async function AddPage({
               <div className="k-stack g2">
                 <a
                   href={
-                    "/libreria/cibo/nuovo?torna=" +
+                    "/cibo/cibo/nuovo?torna=" +
                     encodeURIComponent("/aggiungi/pasto?giorno=" + day)
                   }
                   className="k-plain"
@@ -439,7 +439,7 @@ export default async function AddPage({
                     }}
                   />
                 </a>
-                <a href="/libreria/esercizio/nuovo" className="k-plain">
+                <a href="/corpo/esercizio/nuovo" className="k-plain">
                   <Box
                     density="row"
                     rail={false}

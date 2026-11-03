@@ -22,8 +22,8 @@ import {
 import { WEEKDAYS } from "@/features/plan/model-form";
 import { habitWhat, ruleWords } from "@/features/plan/habit-form";
 import { AREA_HREF, AREA_NAME, tabHrefs } from "@/features/places";
-import { newModel } from "../modello/[id]/actions";
-import { newCycle } from "../ciclo/[id]/actions";
+import { newModel } from "../../oggi/giornata/[id]/actions";
+import { newCycle } from "../../[area]/ciclo/[id]/actions";
 
 /** Every section in Oggi's «Modelli»; an area's Piano shows only its own. */
 export type ModelsArea = "corpo" | "mente";
@@ -61,7 +61,7 @@ export async function ModelsPage({ area }: { area?: ModelsArea }) {
       ]
         .filter(Boolean)
         .join(" · "),
-      href: "/piano/modello/" + m.id,
+      href: "/oggi/giornata/" + m.id,
       hrefLabel: "Apri " + m.name,
       ...(m.active ? {} : { faded: true }),
     };
@@ -167,7 +167,7 @@ export async function ModelsPage({ area }: { area?: ModelsArea }) {
                         s.label || s.items.map((i) => i.name).join(" + ") || "Riposo",
                     )
                     .join(" · ") || "nessun passo",
-                href: "/piano/ciclo/" + c.id,
+                href: "/corpo/ciclo/" + c.id,
                 hrefLabel: "Apri il ciclo " + c.name,
                 ...(c.active ? {} : { faded: true }),
               }}
@@ -208,13 +208,13 @@ export async function ModelsPage({ area }: { area?: ModelsArea }) {
                 ]
                   .filter(Boolean)
                   .join(" · "),
-                href: "/piano/abitudine/" + h.id,
+                href: "/mente/abitudine/" + h.id,
                 hrefLabel: "Apri " + h.name,
                 ...(h.active ? {} : { faded: true }),
               }}
             />
           ))}
-          <a className="k-btn secondary" href="/piano/abitudine/nuova">
+          <a className="k-btn secondary" href="/mente/abitudine/nuova">
             + Nuova abitudine
           </a>
         </section>

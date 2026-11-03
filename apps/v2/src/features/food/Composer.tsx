@@ -272,7 +272,7 @@ function Draft({
       ? undefined
       : composerScore(lines, by, servings, refs, slot, totals);
   const scanHref =
-    "/libreria/cibo/nuovo?torna=" +
+    "/cibo/cibo/nuovo?torna=" +
     encodeURIComponent(backHref.replace("/aggiungi?", "/aggiungi/pasto?"));
   const lineKcal = (c: FoodChoice | undefined, q: string) =>
     c && quantityOf(q)
@@ -598,7 +598,7 @@ function Draft({
                 <a
                   className="k-link"
                   href={
-                    "/libreria/cibo/nuovo?nome=" +
+                    "/cibo/cibo/nuovo?nome=" +
                     encodeURIComponent(query.trim()) +
                     "&torna=" +
                     encodeURIComponent(backHref.replace("/aggiungi?", "/aggiungi/pasto?"))

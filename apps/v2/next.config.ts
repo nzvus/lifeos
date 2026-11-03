@@ -32,6 +32,20 @@ const config: NextConfig = {
         permanent: false,
       },
       { source: "/andamento/soldi", destination: "/soldi/andamento", permanent: false },
+      // Map D slice 3: each object under its area.
+      ...[
+        ["/libreria/cibo", "/cibo/cibo"],
+        ["/libreria/pasto", "/cibo/pasto"],
+        ["/libreria/esercizio", "/corpo/esercizio"],
+        ["/libreria/tragitto", "/corpo/tragitto"],
+        ["/piano/ciclo", "/corpo/ciclo"],
+        ["/piano/abitudine", "/mente/abitudine"],
+        ["/piano/modello", "/oggi/giornata"],
+      ].map(([from, to]) => ({
+        source: from + "/:rest+",
+        destination: to + "/:rest+",
+        permanent: false,
+      })),
       { source: "/palestra/:id", destination: "/corpo/sessione/:id", permanent: false },
       {
         source: "/libreria/dispensa",

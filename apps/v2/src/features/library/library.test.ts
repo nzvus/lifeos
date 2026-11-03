@@ -123,7 +123,7 @@ describe("Libreria's lists", () => {
     ];
     expect(mealPage(foods, recipes, "1")).toMatchObject({
       name: "Porridge",
-      parts: [{ name: "Avena", quantity: "50", href: "/libreria/cibo/oats" }],
+      parts: [{ name: "Avena", quantity: "50", href: "/cibo/cibo/oats" }],
       totals: { kcal: 186 },
     });
     expect(mealPage(foods, recipes, "2")).toBeNull();

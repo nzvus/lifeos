@@ -48,5 +48,5 @@ export async function saveDayAsModel(day: string): Promise<void> {
   const id = await createModel(db, owner, "Come " + F.day(day), null);
   for (const b of blocks) await saveBlock(db, owner, id, null, b);
   revalidatePath("/", "layout");
-  redirect("/piano/modello/" + id);
+  redirect("/oggi/giornata/" + id);
 }

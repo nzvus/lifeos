@@ -119,7 +119,7 @@ function Pantry({ foods }: { foods: PantryFood[] }) {
         of: { kind: "ingredient" },
         title: f.name,
         ...stockWords(f.stock, f.unit),
-        href: "/libreria/cibo/" + f.foodId + "#dispensa",
+        href: "/cibo/cibo/" + f.foodId + "#dispensa",
         hrefLabel: "Apri " + f.name,
       }}
     />
@@ -189,7 +189,7 @@ function Routes({ routes }: { routes: Awaited<ReturnType<typeof readRoutes>> }) 
           />
         ))
       )}
-      <a className="k-link" href="/libreria/tragitto/nuovo">
+      <a className="k-link" href="/corpo/tragitto/nuovo">
         + Nuovo tragitto
       </a>
     </section>

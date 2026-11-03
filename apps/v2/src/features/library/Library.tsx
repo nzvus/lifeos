@@ -146,7 +146,7 @@ function Index({
             Nessun risultato.{" "}
             <a
               className="k-link"
-              href={"/libreria/cibo/nuovo?nome=" + encodeURIComponent(query.trim())}
+              href={"/cibo/cibo/nuovo?nome=" + encodeURIComponent(query.trim())}
             >
               Crea il cibo «{query.trim()}»
             </a>
@@ -239,7 +239,7 @@ const ADDS = [
     of: { kind: "ingredient" },
     title: "Un cibo",
     meta: "dal codice a barre (Open Food Facts) o a mano, dall’etichetta",
-    href: "/libreria/cibo/nuovo",
+    href: "/cibo/cibo/nuovo",
     hrefLabel: "Aggiungi un cibo",
   },
   {
@@ -262,7 +262,7 @@ const ADDS = [
     of: { kind: "exercise" },
     title: "Un esercizio",
     meta: "nome, schema, attrezzo, un lato alla volta",
-    href: "/libreria/esercizio/nuovo",
+    href: "/corpo/esercizio/nuovo",
     hrefLabel: "Aggiungi un esercizio",
   },
 ];
@@ -312,12 +312,12 @@ function List({
         </div>
       )}
       {tab === "foods" && (
-        <a className="k-btn secondary" href="/libreria/cibo/nuovo">
+        <a className="k-btn secondary" href="/cibo/cibo/nuovo">
           + Nuovo cibo
         </a>
       )}
       {tab === "exercises" && (
-        <a className="k-btn secondary" href="/libreria/esercizio/nuovo">
+        <a className="k-btn secondary" href="/corpo/esercizio/nuovo">
           + Nuovo esercizio
         </a>
       )}

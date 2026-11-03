@@ -64,7 +64,7 @@ export default async function TripPage({
         <a
           className="k-link"
           href={
-            "/libreria/tragitto/nuovo?torna=" +
+            "/corpo/tragitto/nuovo?torna=" +
             encodeURIComponent("/aggiungi/tragitto?giorno=" + day)
           }
         >
