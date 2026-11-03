@@ -142,6 +142,9 @@ scanning) are placed in the v2 spec.
    their burn as a range, the day live, hours on feet instead of three
    levels; the week's targets unchanged), after the developer's «non vedo
    il loro consumo calorico».
+   Added 2026-11-03: plan (`dossiers/plan.md`, ledger PLAN-33…35, CONTRA-04: blocks
+   with real meals and rotations, layers = areas, if-then rules across areas, suggestions
+   from his history, «scheda» for «routine»). Waiting for his §9.
    Added 2026-11-03: objects (`dossiers/objects.md`, ADR-0060 proposed, ledger
    FOOD-44…48, TRAIN-37: families — level, variant, copy, merge — for every catalog;
    the brands' weighted mean; formats and price per kg; intakes as items with a dose;

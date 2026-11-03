@@ -1,6 +1,7 @@
 # Dossier — day templates, cycles and routines (Piano)
 
-Status: **approved as recommended** (2026-10-24, §9 as recommended);
+Status: **model part superseded by `plan.md` (3 Nov, draft)** — its engines stay.
+Was: **approved as recommended** (2026-10-24, §9 as recommended);
 slice (a) read side built: `core/plans` (a day's model and its cycles'
 steps, a step without a label named by its routine), Oggi's plan line and
 the week strip's tags, Piano's day lines. Slice (b) built (2026-10-24):
