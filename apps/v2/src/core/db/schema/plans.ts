@@ -291,3 +291,31 @@ export const decisions = pgTable(
     ),
   ],
 );
+
+/**
+ * An if-then rule of the Piano (dossiers/plan.md §4, ADR-0061; ledger PLAN-35):
+ * *if* a condition on the day (a session, of a scheda, at a time; a weekday; a
+ * walk), *then* an effect (add a block relative to it, change a block's
+ * servings, swap a block's item). Its own table: queried, checked and listed
+ * like any object; condition and effect are typed jsonb (core/plans/rules.ts).
+ */
+export const planRules = pgTable(
+  "plan_rules",
+  {
+    id: idColumn(),
+    userId: ownerColumn(),
+    name: text("name").notNull(),
+    condition: jsonb("condition").$type<Record<string, unknown>>().notNull(),
+    effect: jsonb("effect").$type<Record<string, unknown>>().notNull(),
+    /** Typed by him, or accepted from a suggestion seen in his history. */
+    source: text("source").$type<"typed" | "suggested">().notNull().default("typed"),
+    position: integer("position").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    ...timestamps(),
+    deletedAt: tstz("deleted_at"),
+  },
+  (t) => [
+    unique("plan_rules_id_user_uq").on(t.id, t.userId),
+    check("plan_rules_source_ck", sql`${t.source} in ('typed', 'suggested')`),
+  ],
+);
