@@ -9,6 +9,7 @@ import {
   createEstimateRecipe,
   createRecipe,
   createVariant,
+  makeVariantOf,
   readRecipe,
   replaceRecipe,
 } from "./recipes";
@@ -251,5 +252,32 @@ describe("a variant of a saved meal (ADR-0060, objects.md §8 test 1)", () => {
       [f.Pistacchio, 40],
     ]);
     expect(await createVariant(db, a, base, "gelato proteico", [])).toBe("taken");
+  });
+
+  it("an existing ice cream becomes a variant and keeps exactly its foods", async () => {
+    const base = await createRecipe(db, a, "Gelato base", [
+      line(f.Latte!, "400"),
+      line(f.Whey!, "15"),
+    ]);
+    const old = await createRecipe(db, a, "Gelato pistacchio vecchio", [
+      line(f.Latte!, "400"),
+      line(f.Whey!, "15"),
+      line(f.Pistacchio!, "40"),
+    ]);
+    const parts = async () => {
+      const foods = await readFoodChoices(db, a, "2026-11-03");
+      return (await readRecipeChoices(db, a, "2026-11-03", foods))
+        .find((r) => r.recipeId === old)
+        ?.parts.map((p) => [p.key, Number(p.quantity)]);
+    };
+    const before = await parts();
+    expect(await makeVariantOf(db, a, old, base)).toBe(true);
+    expect(await parts()).toEqual(before);
+    const stored = await db
+      .select()
+      .from(s.catalogParts)
+      .where(eq(s.catalogParts.itemId, old));
+    expect(stored.map((x) => x.partItemId)).toEqual([f.Pistacchio]);
+    expect(await makeVariantOf(db, a, base, old)).toBe(false);
   });
 });

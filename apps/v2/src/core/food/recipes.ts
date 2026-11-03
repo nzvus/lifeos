@@ -16,7 +16,13 @@ import { catalogItems, catalogParts, catalogValues } from "../db/schema";
 import type { CheckedLine } from "../entries";
 import { ownedBy, type Owner } from "../identity/owner";
 import { ESTIMATE_CONFIDENCE, ESTIMATE_FIELDS, type EstimateField } from "./meal";
-import { basesOf, partsDiff, resolveParts, type Part } from "../catalog/family";
+import {
+  basesOf,
+  canBeVariant,
+  partsDiff,
+  resolveParts,
+  type Part,
+} from "../catalog/family";
 
 export type RecipeNameError = "empty" | "too_long" | "taken";
 const NAME_MAX = 80;
@@ -348,4 +354,59 @@ export async function readRecipe(
 /** Archives the recipe: out of the lists and the composer; logged meals stay "of" it. */
 export function archiveRecipe(db: Db, owner: Owner, id: string): Promise<boolean> {
   return archiveItem(db, owner, id, "recipe");
+}
+
+/**
+ * «Variante di…» for a saved meal that already exists (ADR-0060, his 7 ice
+ * creams): it keeps exactly its foods, now stored as differences from the
+ * base, so a later change to the base reaches it. False when either is not a
+ * live recipe, they are the same, or it would loop or go too deep.
+ */
+export async function makeVariantOf(
+  db: Db,
+  owner: Owner,
+  childId: string,
+  baseId: string,
+): Promise<boolean> {
+  if (childId === baseId) return false;
+  const [mine, base] = await Promise.all([
+    resolvedParts(db, owner, childId),
+    resolvedParts(db, owner, baseId),
+  ]);
+  if (!mine || !base) return false;
+  const items = await db
+    .select({ id: catalogItems.id, parentId: catalogItems.parentId })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "recipe"),
+        isNull(catalogItems.deletedAt),
+      ),
+    );
+  const family = new Map(items.map((i) => [i.id, { ...i, catalog: "recipe" }]));
+  if (!canBeVariant(family.get(childId)!, family.get(baseId)!, family)) return false;
+  const stored = partsDiff(base, mine);
+  await db.transaction(async (tx) => {
+    await tx
+      .update(catalogItems)
+      .set({ parentId: baseId })
+      .where(and(ownedBy(catalogItems, owner), eq(catalogItems.id, childId)));
+    await tx
+      .delete(catalogParts)
+      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, childId)));
+    if (stored.length > 0)
+      await tx.insert(catalogParts).values(
+        stored.map((x, position) => ({
+          userId: owner.id,
+          itemId: childId,
+          position,
+          partItemId: x.partItemId,
+          quantity: x.quantity,
+          unit: x.unit,
+          defaults: x.defaults,
+        })),
+      );
+  });
+  return true;
 }

@@ -19,6 +19,10 @@ import { archiveItem } from "@/core/catalog/archive";
 import { mergeItems } from "@/core/catalog/merge";
 import { isValidGtin } from "@/core/food/barcode";
 import { OFF_EXTRAS } from "@/core/food/off";
+import { ownerClock } from "@/app/_server/clock";
+import { logicalDay } from "@/core/engines/time";
+import { readFoodChoices } from "@/core/food/catalog";
+import { likelyFoods } from "@/features/library/library";
 import { RECIPE_WORDS } from "@/features/food/composer";
 import type { FoodFormState } from "@/features/library/FoodForm";
 
@@ -56,6 +60,25 @@ export async function saveFood(
     return again(errors);
   }
   const db = await getDb();
+  if (id === null && form["twinOk"] !== "yes") {
+    // A likely duplicate is said once (ADR-0060 slice f); saving again goes on.
+    const { clock } = await ownerClock();
+    const near = likelyFoods(
+      checked.name,
+      await readFoodChoices(db, owner, logicalDay(new Date(), clock)),
+    );
+    if (near.length > 0)
+      return {
+        errors: {
+          name:
+            "Esiste già «" +
+            near[0]!.name +
+            "»: se è una sua marca, aggiungila dalla sua pagina («+ Marca»). Se è un’altra cosa, premi di nuovo Salva.",
+        },
+        values: { ...form, twinOk: "yes" },
+        n: prev.n + 1,
+      };
+  }
   if (id === null) {
     // What the barcode filled beyond the label (FOOD-48): micros, caffeine, the package.
     const extra: Record<string, string> = {};

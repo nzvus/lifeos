@@ -72,6 +72,7 @@ export function FoodForm({
       />
       {top}
       {v["barcode"] && <input type="hidden" name="barcode" value={v["barcode"]} />}
+      {v["twinOk"] && <input type="hidden" name="twinOk" value={v["twinOk"]} />}
       {/* A new brand's format is in its food's unit. */}
       {productOf && <input type="hidden" name="unit" value={unit} />}
       <section className="k-section g3" aria-label="Nome">
