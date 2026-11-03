@@ -1,7 +1,7 @@
 "use client";
 /**
  * Gym mode's «Poi» (session.md §5.2, §6.4): the other exercises with their
- * plan, the whole row to go there; «⋯» on one not begun opens its actions:
+ * plan, those to do first and those trained under «Fatti» (TRAIN-36), the whole row to go there; «⋯» on one not begun opens its actions:
  * «Fai dopo» (it becomes the next one: a machine free now, another taken),
  * «Cambia» (another of the person's exercises in its place), «In superserie
  * con» the exercise in progress (no muscle in common) or «Togli la
@@ -51,113 +51,118 @@ export function NextList({
   const [menu, setMenu] = useState<string | null>(null);
   const all = [...others.map((o) => o.e), ...(current ? [current] : [])];
   const partnerOf = (e: GymExercise) => all.find((y) => y.entryId === e.partner);
-  return (
-    <section className="k-section g2" aria-label="Poi">
-      <h2>Poi</h2>
-      {others.map(({ e, i }) => {
-        const open = menu === e.entryId;
-        const can = live && e.done.length === 0;
-        return (
-          <div key={e.entryId} className="k-stack g1">
-            <Box
-              density="row"
-              rail={false}
-              onToggle={() => onGo(i)}
-              acts={
-                can
-                  ? [
-                      {
-                        label: "⋯",
-                        aria: e.name + ": fai dopo, cambia, salta",
-                        onClick: () => setMenu(open ? null : e.entryId),
-                      },
-                    ]
-                  : []
-              }
-              entry={{
-                fam: "train",
-                of: e.of,
-                title: e.name,
-                meta: e.skipped
-                  ? "saltato oggi"
-                  : [
-                      partnerOf(e) && "in superserie con " + partnerOf(e)!.name,
-                      planText(e),
-                    ]
-                      .filter(Boolean)
-                      .join(" · "),
-                faded: e.skipped,
-              }}
-            />
-            {can && open && (
-              <div className="k-line wrap g2" aria-label={"Azioni su " + e.name}>
-                {!e.skipped && (
-                  <button
-                    type="button"
-                    className="k-btn secondary"
-                    onClick={() => {
-                      setMenu(null);
-                      onNext(e);
-                    }}
-                  >
-                    Fai dopo
-                  </button>
-                )}
-                {!e.skipped && (
-                  <button
-                    type="button"
-                    className="k-btn secondary"
-                    onClick={() => {
-                      setMenu(null);
-                      onSwap(e);
-                    }}
-                  >
-                    Cambia
-                  </button>
-                )}
-                {!e.skipped &&
-                  current &&
-                  e.partner !== current.entryId &&
-                  canPair(e, current) && (
-                    <button
-                      type="button"
-                      className="k-btn secondary"
-                      onClick={() => {
-                        setMenu(null);
-                        onPair(e, current);
-                      }}
-                    >
-                      In superserie con {current.name}
-                      {antagonists(e, current) ? " (antagonisti)" : ""}
-                    </button>
-                  )}
-                {e.partner && (
-                  <button
-                    type="button"
-                    className="k-btn secondary"
-                    onClick={() => {
-                      setMenu(null);
-                      onPair(e, null);
-                    }}
-                  >
-                    Togli la superserie
-                  </button>
-                )}
+  // «Da fare» first, those already trained under «Fatti» (TRAIN-36: «l'ordine»).
+  const worked = (e: GymExercise) => e.done.some((d) => !d.warmup);
+  const todo = others.filter((o) => !worked(o.e));
+  const done = others.filter((o) => worked(o.e));
+  const row = ({ e, i }: { e: GymExercise; i: number }) => {
+    const open = menu === e.entryId;
+    const can = live && e.done.length === 0;
+    return (
+      <div key={e.entryId} className="k-stack g1">
+        <Box
+          density="row"
+          rail={false}
+          onToggle={() => onGo(i)}
+          acts={
+            can
+              ? [
+                  {
+                    label: "⋯",
+                    aria: e.name + ": fai dopo, cambia, salta",
+                    onClick: () => setMenu(open ? null : e.entryId),
+                  },
+                ]
+              : []
+          }
+          entry={{
+            fam: "train",
+            of: e.of,
+            title: e.name,
+            meta: e.skipped
+              ? "saltato oggi"
+              : [partnerOf(e) && "in superserie con " + partnerOf(e)!.name, planText(e)]
+                  .filter(Boolean)
+                  .join(" · "),
+            faded: e.skipped,
+          }}
+        />
+        {can && open && (
+          <div className="k-line wrap g2" aria-label={"Azioni su " + e.name}>
+            {!e.skipped && (
+              <button
+                type="button"
+                className="k-btn secondary"
+                onClick={() => {
+                  setMenu(null);
+                  onNext(e);
+                }}
+              >
+                Fai dopo
+              </button>
+            )}
+            {!e.skipped && (
+              <button
+                type="button"
+                className="k-btn secondary"
+                onClick={() => {
+                  setMenu(null);
+                  onSwap(e);
+                }}
+              >
+                Cambia
+              </button>
+            )}
+            {!e.skipped &&
+              current &&
+              e.partner !== current.entryId &&
+              canPair(e, current) && (
                 <button
                   type="button"
                   className="k-btn secondary"
                   onClick={() => {
                     setMenu(null);
-                    onSkip(e, !e.skipped);
+                    onPair(e, current);
                   }}
                 >
-                  {e.skipped ? "Rimetti" : "Salta"}
+                  In superserie con {current.name}
+                  {antagonists(e, current) ? " (antagonisti)" : ""}
                 </button>
-              </div>
+              )}
+            {e.partner && (
+              <button
+                type="button"
+                className="k-btn secondary"
+                onClick={() => {
+                  setMenu(null);
+                  onPair(e, null);
+                }}
+              >
+                Togli la superserie
+              </button>
             )}
+            <button
+              type="button"
+              className="k-btn secondary"
+              onClick={() => {
+                setMenu(null);
+                onSkip(e, !e.skipped);
+              }}
+            >
+              {e.skipped ? "Rimetti" : "Salta"}
+            </button>
           </div>
-        );
-      })}
+        )}
+      </div>
+    );
+  };
+  return (
+    <section className="k-section g2" aria-label="Poi">
+      <h2>Da fare</h2>
+      {todo.length === 0 && <p className="k-help">Nient’altro in programma.</p>}
+      {todo.map(row)}
+      {done.length > 0 && <span className="k-cap">Fatti</span>}
+      {done.map(row)}
       {live && (
         <div className="k-line g2">
           <input

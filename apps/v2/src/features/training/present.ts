@@ -115,7 +115,8 @@ export function trendText(t: Trend): string {
         F.n(t.orderPctPerSet, 1) +
         " % a serie"
       : "";
-  if (t.state === "stable") return "Andamento: stabile (rumore " + noise + ")" + order;
+  if (t.state === "stable")
+    return "Andamento: stabile (" + noise + " è normale da un giorno all’altro)" + order;
   return (
     "Andamento: " +
     (t.state === "rising" ? "in crescita, " : "in calo, ") +
@@ -208,10 +209,15 @@ export function strengthPill(
   const now = bestE1rm(today);
   if (now === null) return null;
   if (lastBest === null || !(lastBest > 0))
-    return { t: "forza stimata " + F.n(now, 1), state: "info" };
+    return { t: "forza stimata " + F.num(now, "kg"), state: "info" };
   const pct = ((now - lastBest) / lastBest) * 100;
   return {
-    t: "forza stimata " + F.n(now, 1) + " · " + F.signed(Math.round(pct), "%"),
+    t:
+      "forza stimata " +
+      F.num(now, "kg") +
+      " · " +
+      F.signed(Math.round(pct), "%") +
+      " dall’ultima volta",
     state: pct >= -2 ? "good" : "warn",
   };
 }

@@ -680,6 +680,22 @@ export function Gym({
         </section>
       )}
 
+      {(session.box || session.before) && (
+        <section className="k-section g2" aria-label="La sessione">
+          <h2>La sessione finora</h2>
+          {session.box && (
+            <Box
+              entry={session.box}
+              rail={false}
+              {...(session.box.score
+                ? { expanded: boxOpen, onToggle: () => setBoxOpen(!boxOpen) }
+                : {})}
+            />
+          )}
+          {session.before && <p className="k-help">{session.before}</p>}
+        </section>
+      )}
+
       <NextList
         others={others}
         live={!session.done}
@@ -703,37 +719,6 @@ export function Gym({
         }}
       />
 
-      {(session.box || session.before) && (
-        <section className="k-section g2" aria-label="La sessione">
-          <h2>La sessione finora</h2>
-          {session.box && (
-            <Box
-              entry={session.box}
-              rail={false}
-              {...(session.box.score
-                ? { expanded: boxOpen, onToggle: () => setBoxOpen(!boxOpen) }
-                : {})}
-            />
-          )}
-          {session.before && <p className="k-help">{session.before}</p>}
-        </section>
-      )}
-
-      <section className="k-section" aria-label="Elimina">
-        <button
-          type="button"
-          className="k-btn secondary danger"
-          disabled={busy}
-          onClick={async () => {
-            if (!window.confirm("Eliminare la sessione? Resta 30 giorni nel cestino."))
-              return;
-            setBusy(true);
-            await actions.remove(session.id);
-          }}
-        >
-          Elimina la sessione
-        </button>
-      </section>
       <div className="k-pagefoot">
         <a className="k-btn secondary" href={session.dayHref}>
           Esci
@@ -760,6 +745,21 @@ export function Gym({
           </button>
         )}
       </div>
+      <section className="k-section" aria-label="Elimina">
+        <button
+          type="button"
+          className="k-btn link danger"
+          disabled={busy}
+          onClick={async () => {
+            if (!window.confirm("Eliminare la sessione? Resta 30 giorni nel cestino."))
+              return;
+            setBusy(true);
+            await actions.remove(session.id);
+          }}
+        >
+          Elimina la sessione
+        </button>
+      </section>
       {ending && !session.done && (
         <FinishSheet
           exercises={exercises}

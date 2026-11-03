@@ -31,9 +31,63 @@ export function planText(e: GymExercise): string {
 /** The working sets done: warm-ups do not count towards the proposed ones. */
 export const workDone = (x: GymExercise) => x.done.filter((d) => !d.warmup).length;
 
-/** The board's context pills: a state gives the colour (content.md §3). */
+/**
+ * What each number of the gym means, in one sentence (TRAIN-36, the developer
+ * 3 Nov: «non capisco… cosa significhino quei valori indicativi di stima di
+ * forza»): shown under the pills for those on screen.
+ */
+export const GYM_WORDS: [RegExp, string, string][] = [
+  [
+    /^forza stimata/,
+    "Forza stimata",
+    "il peso che alzeresti una volta sola, ricavato dalle serie di oggi (peso × ripetizioni, più quelle che ti restavano). Il % la confronta con l’ultima volta: entro ±2 % è la normale variazione di un giorno.",
+  ],
+  [
+    /^riposo/,
+    "Riposo",
+    "quanto hai riposato prima dell’ultima serie, su quanto era previsto: oltre il 30 % in più o in meno diventa arancione.",
+  ],
+];
+
+/** The board's context pills: a state gives the colour (content.md §3); tap «Cosa vogliono dire». */
 export function ContextPills({ pills }: { pills: { t: string; state: State }[] }) {
   if (pills.length === 0) return null;
+  const said = GYM_WORDS.filter(([re]) => pills.some((p) => re.test(p.t)));
+  return (
+    <div className="k-stack g1">
+      <PillRow pills={pills} />
+      {said.length > 0 && (
+        <details className="k-fold">
+          <summary>Cosa vogliono dire</summary>
+          <dl className="k-stack g1">
+            {said.map(([, term, words]) => (
+              <div key={term}>
+                <dt className="k-label">{term}</dt>
+                <dd className="k-help">{words}</dd>
+              </div>
+            ))}
+            <div>
+              <dt className="k-label">Presunta</dt>
+              <dd className="k-help">
+                una serie segnata dall’app come proposta, in automatico: la confermi o la
+                correggi a fine allenamento.
+              </dd>
+            </div>
+            <div>
+              <dt className="k-label">RIR</dt>
+              <dd className="k-help">
+                quante ripetizioni ti restavano alla fine della serie: 0 non ne facevi
+                un’altra, 2 ne avevi ancora due.
+              </dd>
+            </div>
+          </dl>
+        </details>
+      )}
+    </div>
+  );
+}
+
+function PillRow({ pills }: { pills: { t: string; state: State }[] }) {
   return (
     <div className="k-chips" aria-label="Il contesto">
       {pills.map((p) => (
