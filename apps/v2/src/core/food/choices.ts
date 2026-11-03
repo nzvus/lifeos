@@ -10,6 +10,7 @@
  * line keeps it in its snapshot (dossiers/costs.md §4). `catalog.ts` reads them.
  */
 import { brandMean } from "./brands";
+import { intakeOf, type IntakeOf } from "./intake";
 import { PRICE_FIELD } from "./cost";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
 
@@ -43,8 +44,14 @@ export type FoodChoice = {
   lastQty: string | null;
   /** What picks its drawing (icons.md §2: food group, dish, fine group); a product has its food's. */
   drawing?: Record<string, string>;
+  /** An «assunzione» (FOOD-44): what one tap logs; only on the food's own choice. */
+  intake?: IntakeOf;
   /** A food with brands, no brand chosen (ADR-0060): its values are their weighted mean. */
-  brands?: { count: number; spread: Record<string, [number, number]>; uncertain: string[] };
+  brands?: {
+    count: number;
+    spread: Record<string, [number, number]>;
+    uncertain: string[];
+  };
 };
 
 /** The catalog fields Glyph reads to draw a food (icons.md §2). */
@@ -62,6 +69,7 @@ export type ValueRow = {
   field: string;
   num: string | null;
   text: string | null;
+  bool?: boolean | null;
 };
 export type UseRow = {
   itemId: string;
@@ -86,6 +94,8 @@ export function foodChoices(
   const kinds = new Map<string, Record<string, string>>();
   const unit = new Map<string, string>();
   const drawing = new Map<string, Record<string, string>>();
+  const stored = new Map<string, Record<string, string | boolean>>();
+  const compounds = new Map<string, Record<string, string>>();
   for (const v of values) {
     if (v.field === "unit" && v.text) unit.set(v.itemId, v.text);
     if (DRAWING.has(v.field) && v.text)
@@ -96,6 +106,14 @@ export function foodChoices(
       kinds.set(v.itemId, { ...kinds.get(v.itemId), [v.field]: v.text });
     if (FIELDS.has(v.field) && v.num !== null)
       per.set(v.itemId, { ...per.get(v.itemId), [v.field]: v.num });
+    if (v.field === "intake" && typeof v.bool === "boolean")
+      stored.set(v.itemId, { ...stored.get(v.itemId), intake: v.bool });
+    if (v.field === "dose" && v.num !== null)
+      stored.set(v.itemId, { ...stored.get(v.itemId), dose: v.num });
+    if (v.field === "doseName" && v.text)
+      stored.set(v.itemId, { ...stored.get(v.itemId), doseName: v.text });
+    if ((v.field === "caffeine" || v.field === "creatine") && v.num !== null)
+      compounds.set(v.itemId, { ...compounds.get(v.itemId), [v.field]: v.num });
   }
   const used = new Map(uses.map((u) => [u.itemId + ":" + (u.productId ?? ""), u]));
   const foods = items
@@ -121,6 +139,13 @@ export function foodChoices(
       uses: u?.uses ?? 0,
       lastQty: u?.lastQty ?? null,
     });
+    const intake = intakeOf({
+      per100: base,
+      ...(compounds.has(f.id) ? { compounds: compounds.get(f.id)! } : {}),
+      stored: stored.get(f.id) ?? {},
+      lastQty: u?.lastQty ?? null,
+    });
+    if (intake) out[at] = { ...out[at]!, intake };
     for (const p of products.filter((p) => p.parentId === f.id)) {
       const pu = used.get(f.id + ":" + p.id);
       out.push({

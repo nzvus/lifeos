@@ -291,7 +291,7 @@ export default async function AddPage({
     },
     {
       key: "intake",
-      href: meal + "&per=assunzione",
+      href: `/aggiungi/assunzione?giorno=${day}`,
       entry: {
         fam: "food",
         of: { kind: "meal" },

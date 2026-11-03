@@ -374,3 +374,50 @@ export async function productByBrand(
     .limit(1);
   return p?.id ?? null;
 }
+
+/**
+ * Marks a live food as an «assunzione» or not (FOOD-44, ADR-0060), with the dose
+ * one tap logs and its name («capsula»): the three fields written again.
+ */
+export async function setIntake(
+  db: Db,
+  owner: Owner,
+  foodId: string,
+  i: { intake: boolean; dose: string | null; doseName: string | null },
+): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    const [food] = await tx
+      .select({ id: catalogItems.id })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.id, foodId),
+          eq(catalogItems.catalog, "food"),
+          isNull(catalogItems.deletedAt),
+        ),
+      );
+    if (!food) return false;
+    await tx
+      .delete(catalogValues)
+      .where(
+        and(
+          ownedBy(catalogValues, owner),
+          eq(catalogValues.itemId, foodId),
+          inArray(catalogValues.field, ["intake", "dose", "doseName"]),
+        ),
+      );
+    await tx
+      .insert(catalogValues)
+      .values([
+        { userId: owner.id, itemId: foodId, field: "intake", bool: i.intake },
+        ...(i.dose
+          ? [{ userId: owner.id, itemId: foodId, field: "dose", num: i.dose }]
+          : []),
+        ...(i.doseName
+          ? [{ userId: owner.id, itemId: foodId, field: "doseName", text: i.doseName }]
+          : []),
+      ]);
+    return true;
+  });
+}

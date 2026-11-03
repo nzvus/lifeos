@@ -44,6 +44,7 @@ import { readPlace } from "@/core/account/place";
 import { weatherChips } from "@/app/_server/weather";
 import { WeatherCard } from "@/features/day/WeatherCard";
 import { WaterRow } from "@/features/day/WaterRow";
+import { doseWords, QuickIntakes } from "@/features/day/QuickIntakes";
 import { startGym } from "../palestra/actions";
 import { mealGroups } from "@/features/day/meal-groups";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
@@ -79,7 +80,7 @@ import { habitItems, modelItems } from "@/features/day/model-items";
 import { kindRegistry } from "@/core/kinds";
 import { changeDayModel, saveDayAsModel, skipStep } from "./[[...day]]/plan-actions";
 import { readExercises, readRoutines } from "@/core/training";
-import { readFoodEstimates } from "@/core/food/catalog";
+import { readFoodChoices, readFoodEstimates } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
 import {
   dayScore,
@@ -120,6 +121,7 @@ import {
   recomputeTargets,
   removeEntry,
   setServings,
+  logIntake,
   removePlanned,
 } from "./[[...day]]/actions";
 import { DayClose } from "@/features/day/DayClose";
@@ -484,6 +486,20 @@ export async function DayPage({
   const untimed = day.untimed.filter(notWater).map(row);
   const drinks = items.filter((i) => i.kind.key === "water" && i.status === "done");
   const lastDrink = Math.max(-1, ...drinks.map((i) => i.minute ?? -1));
+  // «Al volo» (FOOD-44): his most used «assunzioni», one tap each, on Oggi and Cibo.
+  const quick =
+    food && date <= today
+      ? (await readFoodChoices(db, owner, today))
+          .filter((c) => c.intake && c.uses > 0)
+          .sort((a, b) => b.uses - a.uses)
+          .slice(0, 4)
+          .map((c) => ({
+            foodId: c.foodId!,
+            name: c.name,
+            dose: doseWords(c.intake!.dose, c.unit, c.intake!.doseName),
+            ...(c.drawing ? { of: c.drawing } : {}),
+          }))
+      : [];
   const water =
     date <= today && food
       ? {
@@ -587,6 +603,9 @@ export async function DayPage({
         />
         {/* The water near the top (P4: it was 680 px down), out of the times. */}
         {water && <WaterRow water={water} rail={false} />}
+        {quick.length > 0 && (
+          <QuickIntakes day={date} items={quick} log={logIntake} remove={removeEntry} />
+        )}
         {area === "oggi" && weather && (
           <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
         )}

@@ -28,6 +28,7 @@ import {
   type RecipeChoice,
 } from "./choices";
 import { COMPOUND_FIELDS } from "./compounds";
+import { INTAKE_FIELDS } from "./intake";
 import { choicePrices, formatPrices } from "./cost";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
 import { ESTIMATE_FIELDS } from "./meal";
@@ -65,6 +66,7 @@ export async function readFoodChoices(
         field: catalogValues.field,
         num: catalogValues.num,
         text: catalogValues.text,
+        bool: catalogValues.bool,
       })
       .from(catalogValues)
       .where(
@@ -75,6 +77,8 @@ export async function readFoodChoices(
             items.map((i) => i.id),
           ),
           inArray(catalogValues.field, [
+            ...INTAKE_FIELDS,
+            ...COMPOUND_FIELDS,
             ...SNAPSHOT_FIELDS,
             ...KIND_FIELDS,
             FIBRE_TYPES,
