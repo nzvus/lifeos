@@ -156,11 +156,6 @@
       "count": 2
     }
   },
-  "src/app/(app)/profilo/tipi/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 1
-    }
-  },
   "src/app/(app)/voce/[id]/page.tsx": {
     "lifeos/no-type-key-compare": {
       "count": 2

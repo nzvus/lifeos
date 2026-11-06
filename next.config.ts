@@ -32,6 +32,13 @@ const config: NextConfig = {
         permanent: false,
       },
       { source: "/andamento/soldi", destination: "/soldi/andamento", permanent: false },
+      // Change 2026-11-06-tracker: his trackers are a section of Oggi · Elenco.
+      { source: "/profilo/tipi", destination: "/oggi/elenco#tracker", permanent: false },
+      {
+        source: "/impostazioni/tipi",
+        destination: "/oggi/elenco#tracker",
+        permanent: false,
+      },
       { source: "/impostazioni", destination: "/profilo", permanent: false },
       {
         source: "/impostazioni/:rest+",

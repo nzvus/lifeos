@@ -37,7 +37,10 @@ export function Elenco({
 }) {
   return (
     <div className="k-stack g3 k-elenco">
-      <nav className="k-chips" aria-label={WORDS.elenco.active + " · " + WORDS.elenco.archived}>
+      <nav
+        className="k-chips"
+        aria-label={WORDS.elenco.active + " · " + WORDS.elenco.archived}
+      >
         <a
           className={"k-chip" + (archived ? "" : " on")}
           href={filterHref.active}
@@ -60,7 +63,7 @@ export function Elenco({
         </a>
       )}
       {sections.map((s) => (
-        <section key={s.key} className="k-section g2" aria-label={s.title}>
+        <section key={s.key} id={s.key} className="k-section g2" aria-label={s.title}>
           <h2>
             {s.title} <span className="k-meta">{s.rows.length}</span>
           </h2>

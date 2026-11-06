@@ -4,6 +4,7 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
+import { buildUserKind, createUserKind } from "../kinds/user";
 import { act, listObjects, readObject, undo, type VerbResult } from "./index";
 
 const ok = (r: VerbResult) => {
@@ -308,5 +309,49 @@ describe("core/verbs: one function per verb (PAT-24, MOD-20)", () => {
     expect(await names()).not.toContain("Zeta");
     expect(await listObjects(db, a, "tracker")).toEqual([]);
     ok(await act(db, a, "delete", "route", y.id, {}));
+  });
+
+  it("reads, lists and renames a tracker, with its undo (PAT-04, PAT-13, PAT-24)", async () => {
+    const made = (name: string) => {
+      const b = buildUserKind(
+        { name, family: "habit", shape: "instant", fields: [] },
+        new Set(),
+      );
+      if (!b.ok) throw new Error("kind");
+      return b.row;
+    };
+    await createUserKind(db, a, made("Stretching"));
+    await createUserKind(db, a, made("Meditazione"));
+    const listed = await listObjects(db, a, "tracker");
+    expect(listed.map((k) => k.name)).toEqual(["Meditazione", "Stretching"]);
+    expect(await listObjects(db, b, "tracker")).toEqual([]);
+    const id = listed[1]!.id;
+    expect(await readObject(db, a, "tracker", id)).toMatchObject({
+      type: "tracker",
+      name: "Stretching",
+      archived: false,
+      values: {},
+    });
+    expect(await readObject(db, b, "tracker", id)).toBeNull();
+    const r = ok(await act(db, a, "edit", "tracker", id, { name: "Allungamento" }));
+    expect((await readObject(db, a, "tracker", id))?.name).toBe("Allungamento");
+    ok(await undo(db, a, r.undo!));
+    expect((await readObject(db, a, "tracker", id))?.name).toBe("Stretching");
+    expect(
+      await act(db, a, "edit", "tracker", id, { name: "meditazione" }),
+    ).toMatchObject({
+      refused: "name_taken",
+    });
+    expect(await act(db, a, "edit", "tracker", id, { name: "x" })).toMatchObject({
+      refused: "invalid",
+    });
+    expect(await act(db, b, "edit", "tracker", id, { name: "Mio" })).toMatchObject({
+      refused: "not_found",
+    });
+    ok(await act(db, a, "archive", "tracker", id, {}));
+    expect((await listObjects(db, a, "tracker")).map((k) => k.name)).toEqual([
+      "Meditazione",
+    ]);
+    expect((await readObject(db, a, "tracker", id))?.archived).toBe(true);
   });
 });

@@ -209,6 +209,58 @@ export async function listUserKinds(db: Db, owner: Owner): Promise<UserKindListe
 }
 
 /** Writes a built kind for the owner; its key. */
+/** The id of his tracker with this key (its address, `/oggi/tracker/<id>`), or null. */
+export async function userKindId(
+  db: Db,
+  owner: Owner,
+  key: string,
+): Promise<string | null> {
+  const [r] = await db
+    .select({ id: kinds.id })
+    .from(kinds)
+    .where(and(ownedBy(kinds, owner), eq(kinds.key, key)));
+  return r?.id ?? null;
+}
+
+/** One of his trackers as its page shows it: what it is, its shape, its fields' words and types. */
+export async function readUserKind(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<{
+  key: string;
+  domain: string;
+  family: string;
+  shape: string;
+  fields: { label: string; type: string; unit?: string }[];
+} | null> {
+  const [r] = await db
+    .select({
+      key: kinds.key,
+      domain: kinds.domain,
+      shape: kinds.shape,
+      definition: kinds.definition,
+    })
+    .from(kinds)
+    .where(and(ownedBy(kinds, owner), eq(kinds.id, id)));
+  if (!r) return null;
+  const d = (r.definition ?? {}) as {
+    family?: string;
+    fields?: { key?: string; label?: string; type?: string; unit?: string }[];
+  };
+  return {
+    key: r.key,
+    domain: r.domain,
+    family: d.family ?? "habit",
+    shape: r.shape,
+    fields: (Array.isArray(d.fields) ? d.fields : []).map((f) => ({
+      label: f.label ?? f.key ?? "",
+      type: f.type ?? "text",
+      ...(f.unit ? { unit: f.unit } : {}),
+    })),
+  };
+}
+
 export async function createUserKind(
   db: Db,
   owner: Owner,
