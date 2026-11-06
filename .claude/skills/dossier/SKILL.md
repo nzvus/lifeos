@@ -14,7 +14,7 @@ then only the spec pages the domain touches (`engines.md` sections,
    briefly, and the open items in ROADMAP.
 2. **Today:** read the v1 and v2 code that implements it; write what it does
    in plain words with file paths. Audit the refined export
-   (`LIFEOS/export-2026-10-16/…-refined.json`) with a short script in the
+   (the latest under `LIFEOS/exports/`, see its README; refined copies in `LIFEOS/exports/export-2026-10-23/`) with a short script in the
    scratchpad: counts, distributions, gaps. Never send the export anywhere.
 3. **Evidence:** search guidelines first (ACSM, EFSA, WHO, ISSN, NSCA…), then
    meta-analyses, then single studies. Each claim: source link + strength.

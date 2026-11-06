@@ -1,7 +1,10 @@
 # Dossier — Piano: real meals, layers, rules, one word per thing
 
-Status: **draft 2026-11-03**, written by the agent. **Waiting for the developer's
-review of §9** before any code. It replaces the model part of
+Status: **decided 2026-11-03** — the developer: «ok alle raccomandazioni, procedi»: every
+§9 answer is (a), **except 9.6, changed by the agent**: «Rec» carries his day targets
+(dynamic, deficit 200 kcal, protein 2,2 g/kg, fat 0,8 g/kg), so archiving it would change his
+numbers; it stays as the source of the day's targets and only leaves the Piano. Only the
+empty «Nuovo ciclo» is archived. It replaces the model part of
 `day-templates.md`; that dossier's engines (E3 `resolve`, `apply`, `swap`,
 `cyclePlan`) stay.
 
@@ -177,7 +180,7 @@ across categories (a coffee before training).
    used in many sessions) shows Archivia with «usata in N sessioni».
 8. **Words:** ui-check finds no «routine», «modello» or «giornata tipo» on any page.
 
-## 9. Questions for the developer (recommendation first)
+## 9. Questions for the developer — decided 3 Nov as recommended (a), 9.6 changed (see status)
 1. **The concepts:** **(a) blocks + rules, the layer is the area, «giornata tipo»,
    «settimana tipo» and day models go**; (b) keep «giornata tipo» as a named bundle of
    blocks you switch per day.

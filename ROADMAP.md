@@ -8,7 +8,39 @@
 > 2026-10-09…11 were folded in and deleted; their sources are in
 > `docs/spec/sources.md`.
 
-## Now: lifeos v2 (ADR-0053, decided 2026-10-15)
+## Now: cleanup and one model (decided 2026-11-06) — features frozen until phase 3 closes
+The developer, 6 Nov: «la specifica è un casino, così come il codice e le versioni e i dati… le
+pagine sono eccessive e ridondanti… l'astrazione delle feature non è attuata… come ci assicuriamo
+che ricostruendo non abbiamo di nuovo lo stesso problema? Così è successo con v2» (ledger PROD-35…39).
+Audit 6 Nov: one decision written in 3–9 places; 5 of 10 sampled «decided» lines not built; every
+object type has its own form, actions, archive and page shell (17 bespoke forms, 11 archive/delete
+actions, 4 undo toasts, 5 search fields). Plan `~/.claude/plans/a-che-punto-siamo-deep-star.md`
+(approved): migrate v2, no v3; spec OpenSpec-style in the repo; the agent stops at the end of
+phases 1, 2, 3; v1 retired at the start of phase 4.
+0. **Freeze and secure** — branches with unmerged work pushed as `archive/*` (s247 Piano WIP with
+   `plan_rules` + 0006 among them), 216 local branches deleted; every export in
+   `LIFEOS/exports/` (README); handoff cut to the current state; CLAUDE.md without contradictions.
+1. **Inventory and critical review** — every ledger line classified built / not built /
+   contradicted / superseded (checked in the code); requests grouped by the need behind them,
+   each kept / rethought / dropped with a reason; page × common-action matrix with photos; what
+   is good and stays. **STOP for his review.**
+2. **One horizontal spec** — `docs/spec/`: `product.md` (principles, glossary, process rules),
+   `model.md` (every object type once), `patterns.md` (every common verb once, with its kit
+   component), `domains/*.md` (rules and formulas only), `changes/<id>/` deltas merged then
+   archived. The ledger is absorbed as sources and archived; v1 spec, dossiers, superseded ADRs
+   to `docs/archive/`. **STOP for his approval + ADR.**
+3. **Guards in code** — kind registry for catalog objects (extends `core/kinds`), generic
+   ObjectPage/List+Find/Form/Sheet/Undo/Picker/Empty in the kit, one verb layer in `core/`, one
+   `(app)/layout.tsx`; lint bans ad-hoc search/forms/toasts and off-glossary words; requirement
+   IDs cited by tests, `check.py` fails a «built» requirement without a test; Playwright
+   screenshots per pattern; Claude Code hooks (lint+typecheck after edits, tests before stop,
+   spec edits only inside a change), path rules in `.claude/rules/`, skills `change`/`audit`/
+   `verify`/`retro`. **STOP for his review.**
+4. **Rebuild v2 one type at a time** (strangler) — patterns → habit/tracker → food and meal →
+   exercise and scheda → Piano (`plan_rules` returns here) → money/pantry; each PR counts pages,
+   implementations and lines removed; v1 retired first (verified export, Neon untouched).
+
+## Before: lifeos v2 build (ADR-0053, 2026-10-15 → 11-03) — paused 2026-11-06
 The developer: "un'app completa per tracciare tutto il mio quotidiano… temporalmente
 intelligente… astrarre e unificare al massimo". The v1 spec (`docs/spec/01–08`)
 describes today's app and its issues; the v2 target is `docs/spec/v2/`: one
@@ -144,11 +176,11 @@ scanning) are placed in the v2 spec.
    il loro consumo calorico».
    Added 2026-11-03: plan (`dossiers/plan.md`, ledger PLAN-33…35, CONTRA-04: blocks
    with real meals and rotations, layers = areas, if-then rules across areas, suggestions
-   from his history, «scheda» for «routine»). Waiting for his §9.
+   from his history, «scheda» for «routine»). Decided 3 Nov («ok alle raccomandazioni»); code parked on `archive/s247-v2-plan` (phase 4).
    Added 2026-11-03: objects (`dossiers/objects.md`, ADR-0060 proposed, ledger
    FOOD-44…48, TRAIN-37: families — level, variant, copy, merge — for every catalog;
    the brands' weighted mean; formats and price per kg; intakes as items with a dose;
-   one meaning for running). Waiting for his §9.
+   one meaning for running). Decided 3 Nov, ADR-0060 accepted; slices a–g built (#323).
    Added 2026-11-03: compounds (`dossiers/compounds.md`, ledger FOOD-40:
    creatine stores filling and emptying day by day, caffeine judged at his
    own bedtime and said only when it matters; slices a–c).
@@ -183,7 +215,6 @@ In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 ## Open items owned by the developer
 - **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#186; pick 3 to walk through.
 - **Habits the learnt expenditure needs (ADR-0041/0042):** weigh in every morning; close each day.
-- **Data fix (2026-10-15):** load `Projects-artifacts/LIFEOS/lifeos-export-2026-10-15-incline-db-press-x2.json` with Settings → Replace (24 Incline db press sets ×2), before logging more; say whether the lateral raises' 10 kg is per dumbbell.
 - **Assistant:** off unless `ASSISTANT_ENABLED=true` ("no AI for now", 2026-10-09).
 - **Security:** rotate the production DB password pasted on 2026-09-30, unless already done.
 - **Decisions:** ADR-0007 still `proposed`; "What I learned" missing in most ADRs; a retro for s71–s102 never run.
