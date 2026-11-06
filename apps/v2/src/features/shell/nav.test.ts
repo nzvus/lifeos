@@ -41,20 +41,31 @@ describe("one NavBar and ⊕ in (app)/layout.tsx (PAT-01)", () => {
     expect(at("/piano/modelli")).toEqual({ active: "oggi", addHref: "/aggiungi" });
   });
 
-  it("never on a running gym session (TRAIN-10), nor (yet) on forms, objects and ⊕'s sheets", () => {
+  it("every other page has it too (Q-09 «a»): forms, objects, ⊕, Profilo", () => {
+    expect(at("/cibo/cibo/x")).toEqual({
+      active: "cibo",
+      addHref: "/aggiungi?area=cibo",
+    });
+    expect(at("/cibo/pasto/nuovo")?.active).toBe("cibo");
+    expect(at("/corpo/esercizio/x/unisci")?.active).toBe("corpo");
+    expect(at("/oggi/andamento/obiettivi/nuovo")).toEqual({
+      active: "oggi",
+      addHref: "/aggiungi",
+    });
+    expect(at("/aggiungi/pasto", "area=cibo&giorno=2026-11-05")?.active).toBe("cibo");
+    expect(at("/palestra")).toEqual({ active: "corpo", addHref: "/aggiungi?area=corpo" });
     for (const p of [
-      "/corpo/sessione/x",
-      "/cibo/cibo/x",
-      "/cibo/pasto/nuovo",
-      "/corpo/esercizio/x/unisci",
-      "/oggi/andamento/obiettivi/nuovo",
-      "/aggiungi",
-      "/aggiungi/pasto",
       "/voce/x",
       "/profilo",
-      "/palestra",
+      "/profilo/cestino",
       "/kit",
+      "/andamento/peso",
     ])
-      expect(at(p), p).toBeNull();
+      expect(at(p), p).toEqual({ active: null, addHref: "/aggiungi" });
+  });
+
+  it("never on a running gym session (TRAIN-10)", () => {
+    expect(at("/corpo/sessione/x")).toBeNull();
+    expect(at("/corpo/sessione")).not.toBeNull();
   });
 });

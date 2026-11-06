@@ -7,6 +7,12 @@ const OPEN = ["altro", "conferma", "perche", "toast"];
 
 test("each piece of the gallery (PAT-94)", async ({ page }) => {
   await page.goto("/kit");
+  // These photos are the pieces in place: the sticky bar and «Salva» would float over a section
+  // as it scrolls into view.
+  await page.addStyleTag({
+    content:
+      ".k-shell > .k-nav { visibility: hidden; } .k-formfoot { position: static; }",
+  });
   for (const id of SECTIONS)
     await expect(page.locator("#" + id), id).toHaveScreenshot(`${id}.png`);
 });
@@ -22,7 +28,10 @@ test("each sheet and the toast open (PAT-23, PAT-73, PAT-51, PAT-74)", async ({
   }
 });
 
-test("the ObjectPage (PAT-30)", async ({ page }) => {
+test("the ObjectPage (PAT-30), its top and its end above the bar", async ({ page }) => {
+  // Two screens, not one full page: a full-page shot paints the sticky bar halfway down.
   await page.goto("/kit/oggetto");
-  await expect(page).toHaveScreenshot("oggetto.png", { fullPage: true });
+  await expect(page).toHaveScreenshot("oggetto.png");
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect(page).toHaveScreenshot("oggetto-fine.png");
 });

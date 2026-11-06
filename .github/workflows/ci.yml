@@ -2,8 +2,8 @@
 # (ADR-0004). Branch protection on `main` requires this workflow to be green,
 # so nothing reaches production without it (docs/runbooks/setup.md step 6).
 #
-# Three jobs side by side (2026-10-04: one job in a row took 5 minutes):
-# static checks, tests, build. `check` waits for them and holds the migration
+# Four jobs side by side (2026-10-04: one job in a row took 5 minutes):
+# static checks, tests, build, kit photos. `check` waits for them and holds the migration
 # gate; it is the status branch protection requires, so its name stays.
 # No secrets are used: tests run on PGlite (in-process Postgres), and the build
 # doesn't need DATABASE_URL because every page is rendered per request.
@@ -68,16 +68,47 @@ jobs:
       # Next's build cache between runs: only what changed is compiled again.
       - uses: actions/cache@v4
         with:
-          path: .next/cache
+          path: |
+            .next/cache
+            apps/v2/.next/cache
           key: next-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
           restore-keys: next-${{ hashFiles('package-lock.json') }}-
       - name: Production build
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: "1"
+      # v2 too, with no secret, as Vercel builds a preview: a page that reads the
+      # environment before requireOwner() is prerendered and breaks it (6 Nov).
+      - name: Production build (v2)
+        run: npm run build -w apps/v2
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+
+  # The kit gallery photographed against the committed images (PAT-94,
+  # docs/runbooks/ui-audit.md): a production build on PGlite, no secret.
+  kit-shots:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Kit photos (PAT-94)
+        run: npm run shots -w apps/v2
+        env:
+          CI: "1"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: kit-shots
+          path: apps/v2/test-results/
 
   check:
-    needs: [static, test, build]
+    needs: [static, test, build, kit-shots]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

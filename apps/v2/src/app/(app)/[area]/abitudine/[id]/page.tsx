@@ -16,11 +16,11 @@ export default async function HabitPage({ params }: { params: Promise<{ id: stri
   const { id } = await params;
   const isNew = id === "nuova";
   if (!isNew && !UUID.test(id)) notFound();
+  const owner = await requireOwner();
   const h = isNew
     ? null
-    : (await readHabits(await getDb(), await requireOwner())).find((x) => x.id === id);
+    : (await readHabits(await getDb(), owner)).find((x) => x.id === id);
   if (!isNew && !h) notFound();
-  if (isNew) await requireOwner();
   const r = h?.recurrence;
   return (
     <main className="k-page has-bd">

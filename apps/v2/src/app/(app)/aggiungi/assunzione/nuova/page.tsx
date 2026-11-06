@@ -10,11 +10,9 @@ export default async function NewIntakePage({
 }: {
   searchParams: Promise<{ giorno?: string | string[] }>;
 }) {
-  const { day } = await addContext(
-    await getDb(),
-    await requireOwner(),
-    (await searchParams).giorno,
-  );
+  // requireOwner first: its headers() makes the page per-request, so the build never reads env.
+  const owner = await requireOwner();
+  const { day } = await addContext(await getDb(), owner, (await searchParams).giorno);
   const back = "/aggiungi/assunzione?giorno=" + day;
   return <IntakeForm backHref={back} action={newIntake.bind(null, back)} />;
 }

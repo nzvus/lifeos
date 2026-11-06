@@ -8,10 +8,12 @@ entry in the `/kit` gallery (`/kit/oggetto` for the ObjectPage), photographed by
 A screen is only a composition of these pieces (PRD-18).
 
 ## 1. The page shell
-- **PAT-01** One `(app)/layout.tsx` holds NavBar (Corpo · Cibo · Oggi · Mente · Soldi) and ⊕;
-  pages never mount them. One exception: a running gym session is full screen, left with «Finisci»
-  or «‹ Corpo» (TRAIN-10, his pick 6 Nov). Kit: `NavBar` ✓, layout ✓ (`(app)/layout.tsx`;
-  `features/shell/nav.ts` shows it on the pages that had it on 6 Nov until Q-guards-1 is settled).
+- **PAT-01** One `(app)/layout.tsx` holds NavBar (Corpo · Cibo · Oggi · Mente · Soldi) and ⊕ on
+  every page; pages never mount them. WHEN a sticky «Salva» is on the page (PAT-14, PAT-61) THEN
+  ⊕ is hidden and the «Salva» sits just above the bar (his answer to Q-09, 6 Nov: «a»). ⊕'s own
+  sheets cover the bar. One exception: a running gym session is full screen, left with
+  «Finisci» or «‹ Corpo» (TRAIN-10, his pick 6 Nov). Kit: `NavBar` ✓, layout ✓
+  (`(app)/layout.tsx`, `features/shell/nav.ts`; the bar's height is `--nav-h`).
 - **PAT-02** Every sub-page header: «‹ parent» naming the parent, title, one-line meta.
   One prop name (`back`). Kit: `PageHeader` ✓ (4 prop names today).
 - **PAT-03** An area page = the same four tabs, Diario · Piano · Elenco · Andamento, each a
@@ -140,8 +142,8 @@ A screen is only a composition of these pieces (PRD-18).
   built.
 - **PAT-94** Playwright photographs the `/kit` gallery (every kit piece, each sheet open, the
   ObjectPage), dark, at 390 and 320 px, against `apps/v2/e2e/kit.spec.ts-snapshots/`
-  (`npm run shots -w apps/v2`; runbook `ui-audit.md`). — Today: built; the CI job waits for
-  Q-guards-2.
+  (`npm run shots -w apps/v2`; runbook `ui-audit.md`), in CI as the `kit-shots` job. — Today:
+  built.
 
 | Check | Enforces |
 |---|---|
