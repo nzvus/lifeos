@@ -16,3 +16,17 @@ Existing copies are listed in a baseline that may only shrink.
 
 **Stop.** At the end the agent stops for his review (PROD-39), with photos of the kit gallery
 showing every new piece at 390/320 px, dark.
+
+## Decided by the agent (details inside the approved spec, PRD-51)
+- Lint baseline = ESLint's own bulk suppressions (`--suppressions-location lint-baseline.json`):
+  a file may not grow a rule's count, and a fixed breach must leave the file (unpruned → fail).
+- jscpd and the glossary test also fail when their count drops without the baseline lowered,
+  so a removed copy cannot come back. jscpd runs inside `npm run lint` (CI's static job), as no
+  workflow file changes here (the agent's token cannot push `.github/workflows/`).
+- «Built» for `check.py`: a block with «Today: built», or in `patterns.md` a kit ✓ with no ✗.
+  141 IDs had no citing test on 6 Nov (`untested.txt`): tests citing ledger IDs (FOOD-, UI-)
+  do not count.
+- Glossary: «record» as a personal best stays (MOD-50 uses it); the «Not» means a voce called
+  record. A «Not» word with a qualifier («allenamento (as object)») is left to review.
+  Catalogues: `apps/v2/src/i18n/common.ts` now (verbs and states), one per area as its types
+  move in phase 4; the kit's own words in `packages/kit/src/words.ts`.
