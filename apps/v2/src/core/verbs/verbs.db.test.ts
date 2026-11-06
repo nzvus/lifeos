@@ -1,0 +1,260 @@
+import { and, eq } from "drizzle-orm";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { Db } from "../db/db";
+import * as s from "../db/schema";
+import { createTestDb, createTestUser } from "../db/test-db";
+import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
+import { act, undo, type VerbResult } from "./index";
+
+const ok = (r: VerbResult) => {
+  if (!r.ok) throw new Error(`refused: ${r.refused} ${r.detail ?? ""}`);
+  return r;
+};
+
+describe("core/verbs: one function per verb (PAT-24, MOD-20)", () => {
+  let db: Db;
+  let close: () => Promise<void>;
+  let a: Owner;
+  let b: Owner;
+  const item = async (id: string) =>
+    (await db.select().from(s.catalogItems).where(eq(s.catalogItems.id, id)))[0]!;
+  const values = async (id: string) =>
+    Object.fromEntries(
+      (await db.select().from(s.catalogValues).where(eq(s.catalogValues.itemId, id))).map(
+        (v) => [v.field, v.num !== null ? Number(v.num) : (v.text ?? v.bool)],
+      ),
+    );
+
+  beforeAll(async () => {
+    const t = await createTestDb();
+    db = t.db as unknown as Db;
+    close = t.close;
+    a = ownerFromVerifiedSession(await createTestUser(t.db, "a@example.test"));
+    b = ownerFromVerifiedSession(await createTestUser(t.db, "b@example.test"));
+  });
+  afterAll(() => close());
+
+  it("create validates against the type's fields, and its undo deletes it", async () => {
+    expect(
+      await act(db, a, "create", "route", null, { name: "Casa–lavoro" }),
+    ).toMatchObject({
+      ok: false,
+      refused: "invalid", // mode is required
+    });
+    expect(
+      await act(db, a, "create", "route", null, { name: "X", values: { mode: "plane" } }),
+    ).toMatchObject({ ok: false, refused: "invalid" });
+    const r = ok(
+      await act(db, a, "create", "route", null, {
+        name: "Casa–lavoro",
+        values: { mode: "bike", distanceKm: 4.2 },
+      }),
+    );
+    expect(await values(r.id)).toEqual({ mode: "bike", distanceKm: 4.2 });
+    expect(
+      await act(db, a, "create", "route", null, {
+        name: "casa–LAVORO",
+        values: { mode: "walk" },
+      }),
+    ).toMatchObject({ ok: false, refused: "name_taken" });
+    ok(await undo(db, a, r.undo!));
+    expect((await item(r.id)).deletedAt).not.toBeNull();
+  });
+
+  it("levels need their declared parent (MOD-21): a product under a food", async () => {
+    expect(await act(db, a, "create", "product", null, { name: "Mutti" })).toMatchObject({
+      refused: "invalid",
+      detail: "parent",
+    });
+    const food = ok(await act(db, a, "create", "food", null, { name: "Passata" }));
+    const product = ok(
+      await act(db, a, "create", "product", null, { name: "Mutti", parentId: food.id }),
+    );
+    expect((await item(product.id)).parentId).toBe(food.id);
+  });
+
+  it("PAT-16 «Parti da…»: values and parts copied, basedOnId kept", async () => {
+    const route = ok(
+      await act(db, a, "create", "route", null, {
+        name: "Giro lungo",
+        values: { mode: "run", distanceKm: 12 },
+      }),
+    );
+    const copy = ok(
+      await act(db, a, "startFrom", "route", route.id, { name: "Giro corto" }),
+    );
+    expect((await item(copy.id)).basedOnId).toBe(route.id);
+    expect(await values(copy.id)).toEqual({ mode: "run", distanceKm: 12 });
+  });
+
+  it("PAT-17 «Variante»: only for types with variants, a child that stores nothing yet", async () => {
+    const ex = ok(await act(db, a, "create", "exercise", null, { name: "Panca piana" }));
+    const v = ok(
+      await act(db, a, "variant", "exercise", ex.id, { name: "Panca stretta" }),
+    );
+    expect((await item(v.id)).parentId).toBe(ex.id);
+    expect(await values(v.id)).toEqual({});
+    const route = ok(
+      await act(db, a, "create", "route", null, { name: "R", values: { mode: "walk" } }),
+    );
+    expect(await act(db, a, "variant", "route", route.id, { name: "R2" })).toMatchObject({
+      refused: "verb_not_allowed",
+    });
+  });
+
+  it("PAT-13/PAT-21 «Modifica» + «Annulla»: the undo puts back exactly what was there", async () => {
+    const r = ok(
+      await act(db, a, "create", "route", null, {
+        name: "Stazione",
+        values: { mode: "walk", distanceKm: 1 },
+      }),
+    );
+    const e = ok(
+      await act(db, a, "edit", "route", r.id, {
+        name: "Stazione nord",
+        values: { distanceKm: 1.5, mapsUrl: "https://maps.example/x" },
+      }),
+    );
+    expect((await item(r.id)).name).toBe("Stazione nord");
+    expect(await values(r.id)).toMatchObject({
+      distanceKm: 1.5,
+      mapsUrl: "https://maps.example/x",
+    });
+    ok(await undo(db, a, e.undo!));
+    expect((await item(r.id)).name).toBe("Stazione");
+    expect(await values(r.id)).toEqual({ mode: "walk", distanceKm: 1 });
+    expect(
+      await act(db, a, "edit", "route", r.id, { values: { colour: "red" } } as never),
+    ).toMatchObject({
+      refused: "invalid",
+    });
+  });
+
+  it("PAT-19 «Archivia» ↔ «Ripristina», each the other's undo", async () => {
+    const r = ok(await act(db, a, "create", "exercise", null, { name: "Trazioni" }));
+    const arch = ok(await act(db, a, "archive", "exercise", r.id, {}));
+    expect((await item(r.id)).archivedAt).not.toBeNull();
+    expect(arch.undo).toEqual({
+      verb: "restore",
+      type: "exercise",
+      id: r.id,
+      payload: {},
+    });
+    const back = ok(await undo(db, a, arch.undo!));
+    expect((await item(r.id)).archivedAt).toBeNull();
+    expect(back.undo).toMatchObject({ verb: "archive" });
+  });
+
+  it("PAT-20 «Elimina»: an object only when unused, else Archivia is offered", async () => {
+    const used = ok(await act(db, a, "create", "exercise", null, { name: "Squat" }));
+    await db.insert(s.entries).values({
+      userId: a.id,
+      kind: "session_exercise",
+      day: "2026-11-05",
+      status: "done",
+      itemId: used.id,
+    });
+    expect(await act(db, a, "delete", "exercise", used.id, {})).toEqual({
+      ok: false,
+      refused: "in_use",
+      offer: "archive",
+    });
+    const unused = ok(await act(db, a, "create", "exercise", null, { name: "Affondi" }));
+    const del = ok(await act(db, a, "delete", "exercise", unused.id, {}));
+    expect((await item(unused.id)).deletedAt).not.toBeNull();
+    expect(await act(db, a, "archive", "exercise", unused.id, {})).toMatchObject({
+      refused: "not_found",
+    });
+    ok(await undo(db, a, del.undo!));
+    expect((await item(unused.id)).deletedAt).toBeNull();
+  });
+
+  it("PAT-20 a voce goes to the trash and its undo brings it back", async () => {
+    const [e] = await db
+      .insert(s.entries)
+      .values({ userId: a.id, kind: "water", day: "2026-11-06", status: "done" })
+      .returning({ id: s.entries.id });
+    const t = ok(await act(db, a, "trash", "water", e!.id, {}));
+    const [gone] = await db.select().from(s.entries).where(eq(s.entries.id, e!.id));
+    expect(gone!.deletedAt).not.toBeNull();
+    ok(await undo(db, a, t.undo!));
+    const [back] = await db.select().from(s.entries).where(eq(s.entries.id, e!.id));
+    expect(back!.deletedAt).toBeNull();
+    expect(await act(db, a, "trash", "meal", e!.id, {})).toMatchObject({
+      refused: "not_found",
+    });
+  });
+
+  it("PAT-18 «Unisci»: moves the uses, and cannot be undone (undo null)", async () => {
+    const keep = ok(await act(db, a, "create", "exercise", null, { name: "Corsa" }));
+    const gone = ok(await act(db, a, "create", "exercise", null, { name: "Run" }));
+    await db.insert(s.entries).values({
+      userId: a.id,
+      kind: "session_exercise",
+      day: "2026-11-04",
+      status: "done",
+      itemId: gone.id,
+    });
+    const m = ok(await act(db, a, "merge", "exercise", gone.id, { into: keep.id }));
+    expect(m.undo).toBeNull();
+    const moved = await db
+      .select()
+      .from(s.entries)
+      .where(and(eq(s.entries.itemId, keep.id), eq(s.entries.kind, "session_exercise")));
+    expect(moved).toHaveLength(1);
+  });
+
+  it("PAT-22 / MOD-14 «Salva come pasto»: the meal's lines become the pasto's parts", async () => {
+    const food = ok(await act(db, a, "create", "food", null, { name: "Riso" }));
+    const [meal] = await db
+      .insert(s.entries)
+      .values({ userId: a.id, kind: "meal", day: "2026-11-06", status: "done" })
+      .returning({ id: s.entries.id });
+    await db.insert(s.entryLines).values({
+      userId: a.id,
+      entryId: meal!.id,
+      position: 0,
+      itemId: food.id,
+      name: "Riso",
+      quantity: "80",
+      unit: "g",
+    });
+    const r = ok(
+      await act(db, a, "saveAs", "recipe", meal!.id, { name: "Riso in bianco" }),
+    );
+    expect((await item(r.id)).catalog).toBe("recipe");
+    const parts = await db
+      .select()
+      .from(s.catalogParts)
+      .where(eq(s.catalogParts.itemId, r.id));
+    expect(parts.map((p) => [p.partItemId, Number(p.quantity), p.unit])).toEqual([
+      [food.id, 80, "g"],
+    ]);
+    expect(await act(db, a, "saveAs", "route", meal!.id, { name: "x" })).toMatchObject({
+      refused: "verb_not_allowed",
+    });
+  });
+
+  it("an assunzione is a food with its flag: the flag is written, a plain food is not one", async () => {
+    const coffee = ok(await act(db, a, "create", "intake_item", null, { name: "Caffè" }));
+    expect(await values(coffee.id)).toEqual({ intake: true });
+    const plain = ok(await act(db, a, "create", "food", null, { name: "Pane" }));
+    expect(await act(db, a, "archive", "intake_item", plain.id, {})).toMatchObject({
+      refused: "not_found",
+    });
+  });
+
+  it("refuses an unknown type, and never touches another person's object (ADR-0057)", async () => {
+    expect(await act(db, a, "archive", "unicorn", "x", {})).toMatchObject({
+      refused: "unknown_type",
+    });
+    const mine = ok(await act(db, a, "create", "exercise", null, { name: "Rematore" }));
+    expect(await act(db, b, "archive", "exercise", mine.id, {})).toMatchObject({
+      refused: "not_found",
+    });
+    expect(await act(db, b, "edit", "exercise", mine.id, { name: "Mio" })).toMatchObject({
+      refused: "not_found",
+    });
+    expect((await item(mine.id)).archivedAt).toBeNull();
+  });
+});

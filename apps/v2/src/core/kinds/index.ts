@@ -2,3 +2,4 @@
 export * from "./kind";
 export * from "./builtins";
 export * from "./registry";
+export * from "./catalog";

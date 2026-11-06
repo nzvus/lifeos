@@ -30,3 +30,10 @@ showing every new piece at 390/320 px, dark.
   record. A «Not» word with a qualifier («allenamento (as object)») is left to review.
   Catalogues: `apps/v2/src/i18n/common.ts` now (verbs and states), one per area as its types
   move in phase 4; the kit's own words in `packages/kit/src/words.ts`.
+- Registry: the assunzione catalog type is keyed `intake_item` (stored as a food with the
+  `intake` flag), so no catalog type shares a key with a voce kind (`intake`).
+- `core/verbs`: each result carries its undo as the inverse verb (archive ↔ restore,
+  create/startFrom/variant/saveAs → delete, edit → previous values, trash ↔ restore); merge
+  answers `undo: null` and is confirmed first (PAT-73). «Elimina» on an object is a soft delete
+  (`deletedAt`), so it can be undone too. Trackers (`kinds` rows): archive/restore only until
+  phase 4; specialised values (nutrients, sets) are not edited through `edit`.
