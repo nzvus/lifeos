@@ -6,6 +6,7 @@
  */
 import { useEffect, useState } from "react";
 import {
+  Elenco,
   InPlace,
   MergeSheet,
   Banner,
@@ -170,6 +171,38 @@ export function Pieces({ open }: { open: string | null }) {
           verbs={["startFrom", "archive", "restore"]}
           archived
           onVerb={() => say("Ripristinata", () => undefined)}
+        />
+      </section>
+
+      <section className="k-section g3" id="elenco" aria-label="Elenco di un'area">
+        <h2>Elenco di un&apos;area (PAT-43, PAT-19)</h2>
+        <Elenco
+          archived={false}
+          filterHref={{ active: "/kit", archived: "/kit" }}
+          twins={{ count: 1, href: "/kit" }}
+          sections={[
+            {
+              key: "route",
+              title: "Tragitti",
+              rows: [
+                {
+                  id: "1",
+                  name: "Casa–palestra",
+                  meta: "in bici · 4,2 km",
+                  href: "/kit",
+                },
+                { id: "2", name: "Casa–lavoro", meta: "a piedi · 1,1 km", href: "/kit" },
+              ],
+              add: { label: "Nuovo tragitto", href: "/kit" },
+              empty: "Nessun tragitto",
+            },
+            {
+              key: "routine",
+              title: "Schede",
+              rows: [],
+              empty: "Nessuna scheda: creane una da una sessione.",
+            },
+          ]}
         />
       </section>
 

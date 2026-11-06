@@ -4468,3 +4468,19 @@ button.k-link {
 .k-inplace:last-child {
   border-bottom: 0;
 }
+/* PAT-43: the Elenco's «+ Nuovo …» row (glyph beside the words) and its doppioni hint, a link */
+.k-findrow.add {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-row);
+  border-style: dashed;
+}
+.k-elencotwins {
+  min-height: var(--touch);
+  text-decoration: none;
+}
+.k-elenco a.k-findrow,
+.k-elenco a.k-elencotwins {
+  color: inherit;
+  text-decoration: none;
+}

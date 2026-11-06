@@ -40,6 +40,12 @@ export const WORDS = {
     fascia: "La fascia",
     version: "Versione della formula",
   },
+  elenco: {
+    active: "Attivi",
+    archived: "Archiviati",
+    twins: (n: number) => (n === 1 ? "1 possibile doppione" : `${n} possibili doppioni`),
+    see: "Guarda",
+  },
   merge: {
     /** The first step's title: the one kept. */
     into: (keep: string) => `Unisci a «${keep}»`,

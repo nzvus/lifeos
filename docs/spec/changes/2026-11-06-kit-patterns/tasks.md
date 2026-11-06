@@ -15,7 +15,11 @@
        «Scegli un altro» / «Unisci» in tomato; `listObjects` in `core/verbs`; on the generic
        page through `act merge`, toast «Uniti». Gallery `?aperto=unisci` photographed. Checked
        on two local routes: the kept one took the missing duration, the other archived.
-4. [ ] PAT-19/43 Elenco sections, «Archiviati» filter, doppioni hint; gallery; tests.
+4. [x] PAT-43/19 kit `Elenco`: one `List` section per type (rows open the page, «+ Nuovo …»
+       last, PAT-11), «Attivi · Archiviati» chips as links, the doppioni hint; the one detector
+       `core/catalog/twins.ts` (`nameKey`, `nameTwins`: same words without accents, small words,
+       order); gallery «elenco» photographed. The food/exercise detectors join it, and the area
+       Elenco pages move onto it, in their types' changes. PAT-11 left `untested.txt`.
 5. [ ] PAT-14/62 generic `Composer` from the food composer; gallery; tests.
 6. [ ] PAT-10/60 `Capture` over types and objects; gallery; tests.
 7. [ ] PAT-33 context line; PAT-52 judgement chip + fascia bar; gallery; tests.

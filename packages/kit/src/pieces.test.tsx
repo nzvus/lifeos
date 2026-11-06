@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { Banner } from "./Banner";
 import { Confirm } from "./Confirm";
 import { EmptyState } from "./EmptyState";
+import { Elenco } from "./Elenco";
 import { EntryHeader } from "./EntryHeader";
 import { MergeSheet } from "./MergeSheet";
 import { Find } from "./Find";
@@ -34,6 +35,65 @@ describe("Sheet (PAT-23)", () => {
     expect(s).toContain('aria-label="Panca piana"');
     expect(s).toContain('class="k-dim" aria-label="Chiudi"');
     expect(order(s, "Panca piana", "corpo", "<b>x</b>")).toBe(true);
+  });
+});
+
+describe("Elenco (PAT-43, PAT-19, PAT-11)", () => {
+  const sections = [
+    {
+      key: "route",
+      title: "Tragitti",
+      rows: [
+        {
+          id: "1",
+          name: "Casa–palestra",
+          meta: "in bici · 4,2 km",
+          href: "/corpo/tragitto/1",
+        },
+      ],
+      add: { label: "Nuovo tragitto", href: "/corpo/tragitto/nuovo" },
+      empty: "Nessun tragitto",
+    },
+    { key: "routine", title: "Schede", rows: [], empty: "Nessuna scheda" },
+  ];
+  const filterHref = { active: "/corpo/elenco", archived: "/corpo/elenco?archiviati=1" };
+  it("one section per type, rows that open the page, «+ Nuovo» last, the doppioni hint", () => {
+    const s = html(
+      <Elenco
+        sections={sections}
+        archived={false}
+        filterHref={filterHref}
+        twins={{ count: 2, href: "/corpo/elenco/doppioni" }}
+      />,
+    );
+    expect(
+      order(
+        s,
+        "Attivi",
+        "Archiviati",
+        "2 possibili doppioni",
+        "Tragitti",
+        "Casa–palestra",
+        "Nuovo tragitto",
+        "Schede",
+        "Nessuna scheda",
+      ),
+    ).toBe(true);
+    expect(s).toContain('href="/corpo/tragitto/1"');
+    expect(s).toMatch(/class="k-chip on"[^>]*>Attivi/);
+  });
+  it("archived: the chip is on, no «+ Nuovo», no hint", () => {
+    const s = html(
+      <Elenco
+        sections={sections}
+        archived
+        filterHref={filterHref}
+        twins={{ count: 2, href: "/x" }}
+      />,
+    );
+    expect(s).toMatch(/class="k-chip on"[^>]*>Archiviati/);
+    expect(s).not.toContain("Nuovo tragitto");
+    expect(s).not.toContain("doppioni");
   });
 });
 
