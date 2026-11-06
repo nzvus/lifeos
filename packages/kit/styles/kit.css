@@ -4392,10 +4392,12 @@ button.k-link {
 .k-shell > .k-nav.k-stick {
   position: sticky;
   bottom: 0;
+  /* at the foot even when the page is only a fixed sheet (⊕'s), which then covers it */
+  margin-top: auto;
   z-index: 2;
   width: 100%;
   max-width: var(--container-page);
-  margin: 0 auto;
+  margin-inline: auto;
   box-sizing: border-box;
 }
 .k-page:has(+ .k-nav) > :nth-last-child(2 of :not(.k-toastbar)) {
@@ -4413,4 +4415,20 @@ button.k-link {
 .k-shell > .k-page:has(+ .k-nav) {
   flex: 1 0 auto;
   min-height: 0;
+}
+/* PAT-01 (Q-09 «a»): while a sticky «Salva» is on the page, ⊕ hides and the foot sits just
+   above the bar (`--nav-h`, measured by the layout's AppNav). */
+.k-shell:has(.k-pagefoot, .k-formfoot) .k-fab {
+  display: none;
+}
+.k-shell:has(> .k-nav) .k-pagefoot,
+.k-shell:has(> .k-nav) .k-formfoot {
+  bottom: var(--nav-h, 65px);
+}
+.k-page:has(+ .k-nav) > .k-pagefoot {
+  margin-bottom: 0;
+}
+/* the toast sits above the bar (96 px) and, while there is one, above the sticky «Salva» (PAT-74) */
+.k-shell:has(> .k-nav):has(.k-pagefoot, .k-formfoot) .k-toastbar {
+  bottom: calc(var(--nav-h, 65px) + 88px);
 }
