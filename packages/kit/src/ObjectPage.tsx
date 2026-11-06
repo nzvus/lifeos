@@ -18,6 +18,7 @@ export function ObjectPage({
   progress,
   usedIn,
   actions,
+  toast,
 }: {
   back: { label: string; href: string };
   title: string;
@@ -31,6 +32,8 @@ export function ObjectPage({
   usedIn?: ReactNode;
   /** `ObjectActions`. */
   actions: ReactNode;
+  /** `useToast()`'s toast: inside the page, last, as the shell's rules expect (PAT-74). */
+  toast?: ReactNode;
 }) {
   return (
     <main className="k-page k-objpage">
@@ -62,6 +65,7 @@ export function ObjectPage({
         </section>
       )}
       {actions}
+      {toast}
     </main>
   );
 }

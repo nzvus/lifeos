@@ -6,6 +6,9 @@ import {
   catalogType,
   catalogTypeSchema,
   ROUTE_MODES,
+  areaSlug,
+  typeAtSlug,
+  typeSlug,
   typeOfItem,
   valuesSchema,
 } from "./catalog";
@@ -89,5 +92,17 @@ describe("catalog types in the registry (MOD-01, MOD-02)", () => {
 
   it("route modes equal core/movement's", () => {
     expect([...ROUTE_MODES]).toEqual([...MODES]);
+  });
+
+  it("each type has one address word, and the address finds it back (PAT-04)", () => {
+    const slugs = CATALOG_TYPES.map(typeSlug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+    for (const t of CATALOG_TYPES) {
+      expect(typeSlug(t)).toMatch(/^[a-z-]+$/);
+      expect(typeAtSlug(typeSlug(t))).toBe(t);
+    }
+    expect(typeSlug(catalogType("money_category")!)).toBe("categoria-di-spesa");
+    expect(areaSlug(catalogType("route")!)).toBe("corpo");
+    expect(typeAtSlug("nessuno")).toBeNull();
   });
 });

@@ -1,11 +1,13 @@
 "use client";
 /**
  * The phase 3 pieces in the `/kit` gallery (change 2026-11-06-guards, PAT-94): each with the
- * states that matter, example values only. `open` («?aperto=altro|conferma|perche|toast»)
+ * states that matter, example values only. `open` («?aperto=altro|conferma|perche|toast|unisci»)
  * shows a sheet or the toast at once, so the CI screenshots can photograph them.
  */
 import { useEffect, useState } from "react";
 import {
+  InPlace,
+  MergeSheet,
   Banner,
   Confirm,
   EmptyState,
@@ -171,6 +173,41 @@ export function Pieces({ open }: { open: string | null }) {
         />
       </section>
 
+      <section
+        className="k-section g3"
+        id="valori"
+        aria-label="Valori modificabili sul posto"
+      >
+        <h2>Valori modificabili sul posto (PAT-13)</h2>
+        <div className="k-stack">
+          <InPlace
+            spec={ROUTE_FIELDS[0]!}
+            value="bike"
+            shown="Bici"
+            onSave={async () => (say("Salvato", () => undefined), null)}
+          />
+          <InPlace
+            spec={ROUTE_FIELDS[1]!}
+            value={4.2}
+            shown="4,2 km"
+            onSave={async () => (say("Salvato", () => undefined), null)}
+          />
+          <InPlace
+            spec={ROUTE_FIELDS[3]!}
+            value={null}
+            shown=""
+            onSave={async () => (say("Salvato", () => undefined), null)}
+          />
+          <InPlace
+            spec={ROUTE_FIELDS[2]!}
+            value={350}
+            shown="350 m"
+            initiallyEditing
+            onSave={async () => "Scrivi un numero intero"}
+          />
+        </div>
+      </section>
+
       <section className="k-section g3" id="voce" aria-label="Testa di una voce">
         <h2>Testa di una voce (PAT-31)</h2>
         <EntryHeader
@@ -237,6 +274,24 @@ export function Pieces({ open }: { open: string | null }) {
         />
       </section>
 
+      <MergeSheet
+        open={open === "unisci"}
+        keep="Corsa"
+        candidates={EXERCISES}
+        hour={18}
+        findLabel="Cerca esercizio"
+        preview={async () => ["2 voci passano a «Corsa»."]}
+        onConfirm={async () => (say("Uniti"), null)}
+        onClose={() => undefined}
+        initial={{
+          other: EXERCISES[0]!,
+          lines: [
+            "2 voci passano a «Corsa».",
+            "1 posto nel Piano passa a «Corsa».",
+            `«Corsa» prende i valori che gli mancano e il nome «${EXERCISES[0]!.name}» come alias; «${EXERCISES[0]!.name}» va negli archiviati.`,
+          ],
+        }}
+      />
       <Confirm
         open={sheet === "conferma"}
         question="Unire «Run» in «Corsa»?"

@@ -116,6 +116,76 @@ export async function act<V extends ActVerb>(
   }
 }
 
+/** One catalog object as its ObjectPage shows it (PAT-30): name, state, declared values. */
+export type ObjectRead = {
+  type: string;
+  id: string;
+  name: string;
+  archived: boolean;
+  values: Values;
+};
+
+/** Reads one live catalog object of the owner (PAT-04); null if not hers, gone or not one. */
+export async function readObject(
+  db: Db,
+  owner: Owner,
+  type: string,
+  id: string,
+): Promise<ObjectRead | null> {
+  const t = catalogType(type);
+  if (!t || t.storage.table !== "catalog_items") return null;
+  const item = await readItem(db, owner, t, id);
+  if (!item || item.deletedAt) return null;
+  const values = await readValues(
+    db,
+    owner,
+    item.id,
+    t.fields.map((f) => f.key),
+  );
+  return {
+    type: t.key,
+    id: item.id,
+    name: item.name,
+    archived: !!item.archivedAt,
+    values,
+  };
+}
+
+/** The owner's live, not archived objects of one catalog type, by name (PAT-18's choices). */
+export async function listObjects(
+  db: Db,
+  owner: Owner,
+  type: string,
+): Promise<{ id: string; name: string }[]> {
+  const t = catalogType(type);
+  if (!t || t.storage.table !== "catalog_items") return [];
+  const rows = await db
+    .select({ id: catalogItems.id, name: catalogItems.name })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, t.storage.catalog),
+        isNull(catalogItems.deletedAt),
+        isNull(catalogItems.archivedAt),
+      ),
+    )
+    .orderBy(asc(catalogItems.name));
+  if (!t.storage.flag) return rows;
+  const flagged = await db
+    .select({ id: catalogValues.itemId })
+    .from(catalogValues)
+    .where(
+      and(
+        ownedBy(catalogValues, owner),
+        eq(catalogValues.field, t.storage.flag),
+        eq(catalogValues.bool, true),
+      ),
+    );
+  const ok = new Set(flagged.map((f) => f.id));
+  return rows.filter((r) => ok.has(r.id));
+}
+
 /** «Annulla» (PAT-21): the undo a verb returned, run as a verb. */
 export function undo(db: Db, owner: Owner, u: Undo): Promise<VerbResult> {
   return act(db, owner, u.verb, u.type, u.id, u.payload);

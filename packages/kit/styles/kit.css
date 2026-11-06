@@ -4428,7 +4428,43 @@ button.k-link {
 .k-page:has(+ .k-nav) > .k-pagefoot {
   margin-bottom: 0;
 }
+/* the toast sits above ⊕, which sits above the bar (PAT-74): it never covers either */
+.k-shell:has(> .k-nav):has(.k-fab) .k-toastbar {
+  bottom: calc(var(--nav-h, 65px) + 80px);
+}
 /* the toast sits above the bar (96 px) and, while there is one, above the sticky «Salva» (PAT-74) */
 .k-shell:has(> .k-nav):has(.k-pagefoot, .k-formfoot) .k-toastbar {
   bottom: calc(var(--nav-h, 65px) + 88px);
+}
+/* PAT-13: a value editable in place — at rest one whole-row target, label left, value right */
+.k-inplace {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-row);
+  width: 100%;
+  min-height: var(--touch);
+  padding: var(--space-row) 0;
+  border: 0;
+  border-bottom: var(--rule-medium) solid var(--hairline);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+}
+.k-inplace > .v {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.k-inplace.editing {
+  display: block;
+  padding: var(--space-row) 0;
+}
+.k-inplace:focus-visible {
+  outline: var(--rule-strong) solid var(--focus);
+  outline-offset: 2px;
+}
+.k-inplace:last-child {
+  border-bottom: 0;
 }

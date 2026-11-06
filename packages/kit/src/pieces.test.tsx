@@ -5,6 +5,7 @@ import { Banner } from "./Banner";
 import { Confirm } from "./Confirm";
 import { EmptyState } from "./EmptyState";
 import { EntryHeader } from "./EntryHeader";
+import { MergeSheet } from "./MergeSheet";
 import { Find } from "./Find";
 import { ObjectActions } from "./ObjectActions";
 import { ObjectForm } from "./ObjectForm";
@@ -33,6 +34,48 @@ describe("Sheet (PAT-23)", () => {
     expect(s).toContain('aria-label="Panca piana"');
     expect(s).toContain('class="k-dim" aria-label="Chiudi"');
     expect(order(s, "Panca piana", "corpo", "<b>x</b>")).toBe(true);
+  });
+});
+
+describe("MergeSheet (PAT-18)", () => {
+  const items = [
+    { id: "r", name: "Run", uses: 2 },
+    { id: "j", name: "Jogging", uses: 1 },
+  ];
+  const props = {
+    open: true,
+    keep: "Corsa",
+    candidates: items,
+    hour: 18,
+    findLabel: "Cerca un esercizio",
+    preview: async () => ["2 sessioni passano a «Corsa»."],
+    onConfirm: async () => null,
+    onClose: noop,
+  };
+  it("first asks which one, with a search over the others", () => {
+    const s = html(<MergeSheet {...props} />);
+    expect(s).toContain("Unisci a «Corsa»");
+    expect(s).toContain("Quale è la stessa cosa?");
+    expect(s).toContain("Cerca un esercizio");
+    expect(s).toContain("Run");
+  });
+  it("then says what moves, that it cannot be undone, «Unisci» last in tomato", () => {
+    const s = html(
+      <MergeSheet
+        {...props}
+        initial={{ other: items[0]!, lines: ["2 sessioni passano a «Corsa»."] }}
+      />,
+    );
+    expect(s).toContain("«Run» in «Corsa»");
+    expect(
+      order(
+        s,
+        "2 sessioni passano",
+        "Non si può annullare.",
+        "Scegli un altro",
+        "danger",
+      ),
+    ).toBe(true);
   });
 });
 

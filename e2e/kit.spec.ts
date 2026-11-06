@@ -2,8 +2,8 @@
 // compared with the committed images. A changed piece shows here before it reaches a screen.
 import { expect, test } from "@playwright/test";
 
-const SECTIONS = ["cerca", "azioni", "voce", "modulo", "numeri", "stati-nuovi"];
-const OPEN = ["altro", "conferma", "perche", "toast"];
+const SECTIONS = ["cerca", "azioni", "valori", "voce", "modulo", "numeri", "stati-nuovi"];
+const OPEN = ["altro", "conferma", "perche", "toast", "unisci"];
 
 test("each piece of the gallery (PAT-94)", async ({ page }) => {
   await page.goto("/kit");
@@ -17,7 +17,7 @@ test("each piece of the gallery (PAT-94)", async ({ page }) => {
     await expect(page.locator("#" + id), id).toHaveScreenshot(`${id}.png`);
 });
 
-test("each sheet and the toast open (PAT-23, PAT-73, PAT-51, PAT-74)", async ({
+test("each sheet and the toast open (PAT-23, PAT-73, PAT-51, PAT-74, PAT-18)", async ({
   page,
 }) => {
   for (const o of OPEN) {

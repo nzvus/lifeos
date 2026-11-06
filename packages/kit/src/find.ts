@@ -73,9 +73,10 @@ export const usesAtHour = (item: Findable, hour: number) =>
 export function find<T extends Findable>(
   items: readonly T[],
   query: string,
-  opts: { hour: number; tag?: string | null } = { hour: 12 },
+  opts: { hour: number; tag?: string | null; all?: boolean } = { hour: 12 },
 ): T[] {
-  const typed = fold(query).length > 0;
+  // `all`: with nothing typed, every item (a short choice, «Unisci»), not only the habitual ones.
+  const typed = fold(query).length > 0 || !!opts.all;
   return items
     .filter((i) => !opts.tag || (i.tags ?? []).includes(opts.tag))
     .map((i) => ({ i, m: matchScore(query, i) }))

@@ -242,6 +242,17 @@ export const CATALOG_TYPES: readonly CatalogType[] = DECLARED.map((t) =>
 );
 const BY_KEY = new Map(CATALOG_TYPES.map((t) => [t.key, t]));
 
+/** The address segment of a type (PAT-04): its word, lower case, spaces as dashes. */
+export const typeSlug = (t: CatalogType) => t.name.toLowerCase().replace(/\s+/g, "-");
+
+/** The address segment of its area (`/cibo`, `/corpo`…). */
+export const areaSlug = (t: CatalogType) => t.area.toLowerCase();
+
+/** The catalog type at `/{area}/{type}/…` (PAT-04), or null. */
+export function typeAtSlug(slug: string): CatalogType | null {
+  return CATALOG_TYPES.find((t) => typeSlug(t) === slug) ?? null;
+}
+
 export function catalogType(key: string): CatalogType | undefined {
   return BY_KEY.get(key);
 }
