@@ -5,7 +5,7 @@ ADR-0061). Only what is specific to training: rules, formulas, thresholds; every
 horizontal is cited. Specialisation: `core/training`, `core/engines/training` (MOD §8).
 Ledger fold: `audit-2026-11/fold-training.md`. Sources: **E6** `v2/engines.md` · **tr**
 `v2/dossiers/training.md` · **se** `session.md` · **act** `activity.md` · **n/c/x**
-`audit-2026-11/needs.md` (his decisions, PROD-40). Paths under `apps/v2/src/`; «Today» = 6 Nov.
+`audit-2026-11/needs.md` (his decisions, PROD-40). Paths under `src/`; «Today» = 6 Nov.
 
 ## 1. Session structure
 - **TR-01** A **sessione** (voce, interval) holds its exercises in the order actually done

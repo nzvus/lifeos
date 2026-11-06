@@ -83,7 +83,7 @@ themes beyond dark · goals with no data (log them or remove them). Each comes b
   `changes/archive/`. One change open at a time. [PROD-38, OpenSpec model]
 - **PRD-42** A requirement is «built» only when a test cites its ID. `check.py` reads «Today:
   built» in the spec (in `patterns.md`: a kit ✓ with no ✗) and fails when no test under
-  `apps/v2`, `packages/kit` or `scripts` names the ID, unless the ID is in
+  `src`, `e2e`, `eslint`, `packages/kit` or `scripts` names the ID, unless the ID is in
   `docs/spec/untested.txt` (the baseline of 6 Nov, which may only shrink: a tested or unbuilt ID
   listed there fails too). ADRs stay for expensive choices and cite the requirement IDs they
   decide. — Today: built (`scripts/check.py`, `scripts/guards.test.mjs`).
@@ -97,6 +97,6 @@ themes beyond dark · goals with no data (log them or remove them). Each comes b
   type, word or expensive choice is a question. [PROD-39]
 - **PRD-52** Adding a document removes or archives one. [PROD-39]
 - **PRD-53** Rule of three: a shape used a third time becomes a kit piece; a copy-paste detector
-  keeps it honest: `jscpd` on `apps/v2/src` and `packages/kit/src` inside `npm run lint` (CI),
+  keeps it honest: `jscpd` on `src` and `packages/kit/src` inside `npm run lint` (CI),
   failing when duplicated lines rise above `scripts/cpd-baseline.json` (909 on 6 Nov) or drop
   without the baseline lowered. [c12, PROD-43] — Today: built (`scripts/cpd.mjs`).

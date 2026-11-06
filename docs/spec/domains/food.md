@@ -5,7 +5,7 @@ Owns what is specific to food and drink: composition, food targets, fasce, the m
 caffeine and creatine, water, costs, food capture. Horizontal things are cited (PRD-, MOD-, PAT-).
 IDs `FD-nn`. Sources: ledger IDs, phase 1 answers (`n04`, `c08`, `x06`: `audit-2026-11/needs.md`),
 `v2/dossiers/*.md` §, `v2/engines.md`, ADRs. «Today» = audit of 6 Nov (`audit-2026-11/ledger-B.md`
-+ spot checks in `apps/v2/src`).
++ spot checks in `src`).
 
 ## 1. Composition and value resolution
 - **FD-01** Levels cibo › prodotto › formato (MOD-21 «levels»). Values resolve formato › prodotto › cibo,

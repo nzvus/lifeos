@@ -119,12 +119,12 @@ A screen is only a composition of these pieces (PRD-18).
   area (`i18n/`), never inline; the glossary test reads the catalogue (his pick 6 Nov, DT-61). [content §2]
 
 ## 9. The checks (each fails a PR; their baselines of 6 Nov may only shrink)
-- **PAT-90** Lint (`apps/v2/eslint/fitness.mjs`) fails a screen (`app/`, `features/`) with
+- **PAT-90** Lint (`eslint/fitness.mjs`) fails a screen (`app/`, `features/`) with
   `<input type="search">`, a raw `<form>`, `window.confirm`, a hand-made toast, an `<svg>`,
   inline `style`, or a comparison with a type key (`kind === "meal"`, `catalog === "food"`);
   the last also anywhere in `core/` outside `core/{food,training,money,engines,kinds}`. The
   keys are `eslint/type-keys.json`, kept equal to the registry by a test. Breaches of 6 Nov:
-  `apps/v2/lint-baseline.json` (ESLint suppressions): a file may not grow a rule's count, a
+  `lint-baseline.json` (ESLint suppressions): a file may not grow a rule's count, a
   fixed breach must leave the list. — Today: built.
 - **PAT-91** Claude Code hooks (`.claude/settings.json`, `scripts/hooks/guard.py`): after an
   Edit/Write of a `.ts`/`.tsx` in v2 or the kit, prettier and eslint run on it and errors go back
@@ -135,14 +135,14 @@ A screen is only a composition of these pieces (PRD-18).
 - **PAT-92** Skills: `change` (propose → apply → archive), `verify` (photos 390/360/320 dark +
   ui-check), `audit` (spec against code); `adr`, `retro`, `kickoff` stay; `dossier` and
   `compress` retired 6 Nov. — Today: built.
-- **PAT-93** UI strings live in `apps/v2/src/i18n/<area>.ts` (with `common.ts`) and the kit's
+- **PAT-93** UI strings live in `src/i18n/<area>.ts` (with `common.ts`) and the kit's
   `packages/kit/src/words.ts`; the glossary test fails on a word of product.md §3's «Not»
   column in a catalogue, and on an inline string above the file's 6 Nov count
   (`i18n/glossary-baseline.json`). «record» as a personal best is allowed (MOD-50). — Today:
   built.
 - **PAT-94** Playwright photographs the `/kit` gallery (every kit piece, each sheet open, the
-  ObjectPage), dark, at 390 and 320 px, against `apps/v2/e2e/kit.spec.ts-snapshots/`
-  (`npm run shots -w apps/v2`; runbook `ui-audit.md`), in CI as the `kit-shots` job. — Today:
+  ObjectPage), dark, at 390 and 320 px, against `e2e/kit.spec.ts-snapshots/`
+  (`npm run shots`; runbook `ui-audit.md`), in CI as the `kit-shots` job. — Today:
   built.
 
 | Check | Enforces |

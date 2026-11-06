@@ -3,12 +3,12 @@
 <!-- ===== PROJECT-SPECIFIC BLOCK — fill in at kickoff ===== -->
 **Project:** Personal nutrition + training tracker; pilot app that drives a reusable fullstack webapp kit.
 **Domain:** webapp (responsive web; fullstack)
-**Stack:** TypeScript + Next.js (App Router), npm (ADR-0001); Tailwind v4 `@theme` tokens (ADR-0002); Postgres on Neon + Drizzle (ADR-0003); Vercel Hobby + GitHub Actions CI (ADR-0004); Better Auth, email+password, users and sessions in our own Postgres (ADR-0006).
-**Layout:** `src/{app,features,core,ui,design,i18n}` — one-way deps, no cross-slice imports, rule of three for `ui/` (ADR-0002).
-**Data:** all DB access via `core/` repositories; migrations are committed SQL from `drizzle-kit generate`, rehearsed on the PR's Neon branch, and applied to production only by the human-triggered CI job that dumps first — never `drizzle-kit push` on a shared DB, never auto-migrate on deploy (ADR-0003/0004).
-**Run:** `npm run dev` (needs `.env`, see `.env.example` and `docs/runbooks/setup.md`)
+**Stack:** TypeScript + Next.js (App Router), npm workspace (ADR-0001, ADR-0056); the kit `packages/kit` with its tokens (`docs/spec/patterns.md`); Postgres on Neon branch `v2` + Drizzle (ADR-0003, ADR-0057); Vercel Hobby (`lifeos-v2`) + GitHub Actions CI (ADR-0004); Better Auth, email+password, users and sessions in our own Postgres (ADR-0006). v1 retired 6 Nov (DT-42).
+**Layout:** `src/{app,features,core,i18n}` + `packages/kit` — one-way deps, no cross-slice imports, screens only from kit pieces (ADR-0002, PAT-90).
+**Data:** all DB access via `core/` repositories; migrations are committed SQL from `drizzle-kit generate`, applied to production only by the human-triggered `migrate-v2` job that dumps first — never `drizzle-kit push` on a shared DB, never auto-migrate on deploy (ADR-0003/0004).
+**Run:** `npm run dev` (:3200; needs `.env.local`, see `.env.example` and `docs/runbooks/setup.md` §3)
 **Test:** `npm test` (Vitest; DB tests run on PGlite with the real migrations — no database needed)
-**Lint/format:** `npm run lint` (ADR-0002 boundaries, PAT-90 fitness rules with `apps/v2/lint-baseline.json`, jscpd PRD-53), `npm run typecheck`, `npm run format`; kit photos `npm run shots -w apps/v2` (PAT-94). Baselines only shrink.
+**Lint/format:** `npm run lint` (ADR-0002 boundaries, PAT-90 fitness rules with `lint-baseline.json`, jscpd PRD-53), `npm run typecheck`, `npm run format`; kit photos `npm run shots` (PAT-94). Baselines only shrink.
 **Schema change:** edit `src/core/db/schema/*` → `npm run db:generate` → read the SQL in `drizzle/` → commit. Log entries are snapshots (ADR-0007, proposed).
 <!-- ADR-0001 rule: domain logic lives in core/ and must not import next/*. Route handlers and server actions call into core/, they don't contain logic. -->
 
@@ -58,8 +58,8 @@ for code quality, then for speed. Never for speed first.
    developer merges. Each PR says what to look at first. Reviewing and being
    able to explain each diff is deferred, not dropped: list the PRs awaiting
    review, and ask check questions again when the developer asks for them.
-   UI changes are checked before the PR with `npm run audit:ui` and a phone
-   emulation (docs/runbooks/ui-audit.md).
+   UI changes are checked before the PR with the `verify` skill (photos at
+   390/360/320, `scripts/ui-check.mjs`; docs/runbooks/ui-audit.md).
 
 ## Working agreements (the developer's standing rules, repeated often — follow them without being asked)
 
@@ -124,7 +124,6 @@ for code quality, then for speed. Never for speed first.
   - DB tests only when the schema or a repository changes; the phone check
     only for new or changed UI.
   - Push when a slice of the change is complete (each push re-runs CI).
-  - Vercel: 100 deploys a day, both projects. The ignore scripts
-    (`scripts/vercel-ignore.sh`, `apps/v2/scripts/vercel-ignore.sh`) build
-    production only when that app changed, previews only for a migration
+  - Vercel: 100 deploys a day. The ignore script (`scripts/vercel-ignore.sh`)
+    builds production only when the app changed, previews only for a migration
     or a `*-preview` branch.

@@ -11,7 +11,7 @@ Read-only until he answers: the audit reports, it does not fix.
 2. For each requirement: read the code its «Today» line names; mark **ok** (code does it, a
    test cites the ID), **untested** (code does it, no test cites the ID), **drift** (code does
    something else: say what, with `file:line`), **missing**.
-3. Count the baselines: `apps/v2/lint-baseline.json`
+3. Count the baselines: `lint-baseline.json`
    (violations per rule), `scripts/cpd-baseline.json` (duplicated lines), `docs/spec/untested.txt`
    (IDs). Each may only shrink; compare with the last audit.
 4. Write the result as `docs/spec/audit-YYYY-MM/README.md` (a table per file: ID, verdict,

@@ -28,5 +28,7 @@ meals and ingredients by name (13 renamed by the 16 Oct refinement). Note in `ex
 **Not in this change.** Renaming the Vercel project or the package `@lifeos/v2`; the per-type
 rebuild of phase 4 (next changes).
 
-**Stop.** (a) Now, for his OK to this proposal. (b) Before step 1 (irreversible, his hand).
+**His OK.** 6 Nov, «ok vai».
+
+**Stop.** (a) Done: his OK. (b) Before step 1 (irreversible, his hand).
 (c) The PR waits for him to switch the Root Directory and merge. (d) The drop SQL is his to run.

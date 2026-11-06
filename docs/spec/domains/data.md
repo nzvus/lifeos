@@ -4,7 +4,7 @@ Status: **draft 2026-11-06** (phase 2b fold; horizontal shape approved in `model
 Rules beyond MOD-10…12 (voce, source, confidence), MOD-40…44 (metric, fascia, goal, voto,
 decision) and MOD-60 (relations). IDs: `DT-nn`. Sources: `v2/engines.md` E1 Time, E2 Metrics,
 E8, E9; `v2/schema.md`; `v2/migration.md`; `v2/dossiers/data-repair.md`; ADR-0003, -0004,
--0006, -0052, -0057; `v2/kinds.md` (Money, Mind, Work, Habits, user-made). «Today» = `apps/v2`,
+-0006, -0052, -0057; `v2/kinds.md` (Money, Mind, Work, Habits, user-made). «Today» = the app (`src/`),
 6 Nov. Fold map: `audit-2026-11/fold-plan-data.md`.
 
 ## 1. Time
@@ -105,7 +105,9 @@ E8, E9; `v2/schema.md`; `v2/migration.md`; `v2/dossiers/data-repair.md`; ADR-000
   written down; a second copy of the backup key in the restore runbook. Neon's transfer budget
   (5 GB/month): narrow columns, measured locally with a counting proxy, never against Neon. The
   Neon project is never deleted. [ADR-0003, ADR-0004, DATA-12, DATA-17, PLAT-02] — Today:
-  built (`backup.yml`, `scripts/restore-drill.sh`); second key copy not built.
+  built (`backup.yml` dumps branch `v2` daily since 6 Nov, #329 — before that only v1 was
+  dumped; `/api/health`; `scripts/restore-drill.sh`); second key copy not built; no restore
+  drill of a v2 dump yet.
 
 ## 5. Export and import
 - **DT-40** One file, `lifeos-export` version 100 (the v2 line): every owned table, flat, in
@@ -121,9 +123,13 @@ E8, E9; `v2/schema.md`; `v2/migration.md`; `v2/dossiers/data-repair.md`; ADR-000
   any unresolvable conflict stops the whole merge, lists why and offers Replace; never half.
   [ADR-0052, PLAT-03] — Today: partial (`loadFile`/`replaceFile` and the v1 → v2 merge built;
   no Replace or Merge of a v2 file in Impostazioni).
-- **DT-42** v1 retires at the start of phase 4, after a verified export: v1's Vercel project
-  removed, v1 tables dropped, v2 moved to the root. [PLAT-01 as amended by PROD-39] — Today:
-  not built.
+- **DT-42** v1 is retired: WHEN the export of v1 is verified against v2's (6 Nov) THEN v1's
+  Vercel project is removed, v1's code leaves the repository, v2 lives at the repository root
+  (`src/`, with `packages/kit` a workspace) and v1's tables are dropped on Neon branch
+  `production` by him; the Neon project stays (DT-34) and v1 export files still load (DT-40).
+  [PLAT-01 as amended by PROD-39; his 25 Oct pick «ok come consigli tu»; change
+  2026-11-06-retire-v1] — Today: built (export verified, Vercel `lifeos` deleted, code out,
+  root layout); the table drop is his step (`docs/runbooks/retire-v1.sql`).
 
 ## 6. Minor trackers (no structure until data asks: PRD-02)
 - **DT-50** **Soldi**: a movement = signed cents, category (a sub-category counts for its
