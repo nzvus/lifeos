@@ -53,6 +53,8 @@ export { MergeSheet } from "./MergeSheet";
 export { Elenco, type ElencoRow, type ElencoSection } from "./Elenco";
 export { Composer, type ComposerLine } from "./Composer";
 export { Capture, captureIdle, type CaptureItem } from "./Capture";
+export { Fascia, FasciaBar, Judge, scoreFascia, type FasciaRuler } from "./Fascia";
+export { ContextLine } from "./ContextLine";
 export { addLine, readLines, removeLine, setQuantity } from "./composer";
 export { inPlaceCommit, type InPlaceCommit } from "./inplace";
 export { whySections, isUnknown, unknownWords, type WhyDeclaration } from "./why";

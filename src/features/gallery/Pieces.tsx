@@ -8,8 +8,11 @@ import { useEffect, useState } from "react";
 import {
   Capture,
   Composer,
+  ContextLine,
   Elenco,
+  FasciaBar,
   InPlace,
+  Judge,
   MergeSheet,
   Banner,
   Confirm,
@@ -315,6 +318,20 @@ export function Pieces({ open }: { open: string | null }) {
           onRetry={() => say("Salvato", () => undefined)}
           action={() => say("Salvato", () => undefined)}
         />
+      </section>
+
+      <section className="k-section g3" id="giudizio" aria-label="Giudizio e contesto">
+        <h2>Giudizio, fascia e contesto (PAT-52, PAT-33)</h2>
+        <div className="k-line base between">
+          <span className="k-body">Pranzo</span>
+          <Judge score={82} />
+        </div>
+        <div className="k-line base between">
+          <span className="k-body">Proteine</span>
+          <Judge score={55} shown="1,4 g/kg" />
+        </div>
+        <FasciaBar score={35} label="Fibre 35 su 100" />
+        <ContextLine parts={["5 h 30 di sonno", "caffè 40 min fa", "allenamento ieri"]} />
       </section>
 
       <section className="k-section g3" id="numeri" aria-label="Perché e non so">

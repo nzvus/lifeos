@@ -29,5 +29,9 @@
        typed the types, the current area's first then by use (`captureIdle`), never the objects
        until he types. `Find` gets `idle` (rows shown with nothing typed). Gallery
        `?aperto=aggiungi` photographed. `/aggiungi` moves onto it with the first type change.
-7. [ ] PAT-33 context line; PAT-52 judgement chip + fascia bar; gallery; tests.
+7. [x] PAT-52 one ruler: kit `Fascia` (Nutrients' ZoneBand moved, its copy in `Box` replaced;
+       Box's markup proven byte-identical before/after), `scoreFascia`, `FasciaBar`, and one
+       chip `Judge` (mark + number + word). PAT-33 kit `ContextLine` (MOD-53). Gallery
+       «giudizio» photographed; the other kit photos unchanged. The day and object pages move
+       their hand-written marks onto `Judge` in their types' changes.
 8. [ ] Delta into `patterns.md`; change archived; `verify` photos in the PR.

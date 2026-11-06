@@ -40,6 +40,7 @@ export const WORDS = {
     fascia: "La fascia",
     version: "Versione della formula",
   },
+  context: "Contesto",
   capture: {
     title: "Aggiungi",
     search: "Cosa aggiungi?",

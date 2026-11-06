@@ -10,6 +10,7 @@ const SECTIONS = [
   "valori",
   "voce",
   "modulo",
+  "giudizio",
   "numeri",
   "stati-nuovi",
 ];

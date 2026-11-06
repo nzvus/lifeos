@@ -1,15 +1,15 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { Capture, captureIdle } from "./Capture";
+import { Capture, captureIdle, type CaptureItem } from "./Capture";
 import { SheetInline } from "./Sheet";
 
-const types = [
+const types: CaptureItem[] = [
   { id: "peso", name: "Peso", area: "Corpo", uses: 40, href: "/aggiungi/peso" },
   { id: "pasto", name: "Pasto", area: "Cibo", uses: 90, href: "/aggiungi/pasto" },
   { id: "acqua", name: "Acqua", area: "Cibo", uses: 10, href: "/aggiungi/acqua" },
   { id: "spesa", name: "Spesa", area: "Soldi", href: "/aggiungi/spesa" },
 ];
-const objects = [
+const objects: CaptureItem[] = [
   {
     id: "caffe",
     name: "Caffè",

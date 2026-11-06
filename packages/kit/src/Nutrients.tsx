@@ -10,42 +10,8 @@
 import { useState, type CSSProperties } from "react";
 import { F } from "./format";
 import { Glyph } from "./Glyph";
-import {
-  nutrientsL0,
-  nutrientsL1,
-  type HeatStrip,
-  type NutrientsData,
-} from "./nutrient-rows";
-
-/**
- * A number's zones as a ruler under its own bar (`.zoned`): the bar still
- * says how much (its kinds, then the planned part hatched), its tip takes
- * the colour of the zone it ends in, and the ruler shows every zone — the
- * right one green, the near ones yellow — with the amount at each change.
- */
-function ZoneBand({ strip }: { strip: HeatStrip }) {
-  return (
-    <>
-      {strip.tip && (
-        <span
-          className="k-ztip"
-          aria-hidden="true"
-          style={{ left: strip.to ?? strip.at, background: strip.tip }}
-        />
-      )}
-      <span className="k-zrule" aria-hidden="true">
-        {strip.rule.map((r, i) => (
-          <span key={i} className={"z " + r.level} style={{ left: r.left, width: r.w }} />
-        ))}
-        {strip.ticks.map((t, i) => (
-          <span key={"t" + i} className="tk" style={{ left: t.at }}>
-            {t.label && <span>{t.label}</span>}
-          </span>
-        ))}
-      </span>
-    </>
-  );
-}
+import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
+import { Fascia } from "./Fascia";
 
 export function Nutrients({ data }: { data: NutrientsData }) {
   const [open, setOpen] = useState<string | null>(null);
@@ -139,7 +105,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                   />
                 ))}
                 {m.mark && <span className="k-mark" style={{ left: m.mark }} />}
-                {m.strip && <ZoneBand strip={m.strip} />}
+                {m.strip && <Fascia strip={m.strip} />}
               </span>
             </button>
             {more && (
@@ -164,7 +130,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                           </span>
                           <span className={"k-bar" + (k.strip ? " zoned" : "")}>
                             <i style={{ width: k.w, background: k.fill }} />
-                            {k.strip && <ZoneBand strip={k.strip} />}
+                            {k.strip && <Fascia strip={k.strip} />}
                           </span>
                           <span className="k-num b3 k-right">{k.v}</span>
                         </div>
@@ -225,7 +191,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
               <span className={"k-bar" + (l.strip ? " zoned" : "")}>
                 <i style={{ width: l.w, background: l.color }} />
                 {l.pw && <i className="p" style={{ left: l.w, width: l.pw }} />}
-                {l.strip && <ZoneBand strip={l.strip} />}
+                {l.strip && <Fascia strip={l.strip} />}
                 {l.strip?.mean && <b style={{ left: l.strip.mean }} />}
               </span>
               {l.word && (
@@ -276,7 +242,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
                         <span className="k-body">{i.name}</span>
                         <span className={"k-bar" + (i.strip ? " zoned" : "")}>
                           <i style={{ width: i.w, background: i.color }} />
-                          {i.strip && <ZoneBand strip={i.strip} />}
+                          {i.strip && <Fascia strip={i.strip} />}
                         </span>
                         <span className="k-num b3 k-right">{i.v}</span>
                       </div>

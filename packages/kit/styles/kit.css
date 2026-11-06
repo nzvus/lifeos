@@ -4488,3 +4488,9 @@ button.k-link {
 .k-composer > .k-formfoot > .k-btn.primary {
   flex: 1;
 }
+/* PAT-52: one judged number — mark, number, word on one baseline */
+.k-judge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-unit);
+}
