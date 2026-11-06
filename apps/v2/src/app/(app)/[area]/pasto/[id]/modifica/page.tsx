@@ -13,7 +13,8 @@ export default async function SavedMealEditPage({
 }) {
   const { id } = await params;
   // A saved estimate has no parts but is a live recipe too: readRecipe answers both.
-  if (!(await readRecipe(await getDb(), await requireOwner(), id))) notFound();
+  const owner = await requireOwner();
+  if (!(await readRecipe(await getDb(), owner, id))) notFound();
   return (
     <SavedComposer
       from={id}
