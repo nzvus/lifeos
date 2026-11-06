@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "eslint/**/*.test.mjs"],
     // As v1's: a PGlite test database takes seconds to create when CI runs every file at
     // once; 10 s timed out a beforeAll (food.test.ts, 2026-10-24).
     testTimeout: 30_000,

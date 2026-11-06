@@ -8,8 +8,17 @@
  *     Only core/db and the repositories use Drizzle (ADR-0057).
  */
 import tseslint from "typescript-eslint";
+import { fitness, SCREEN_RULES } from "./eslint/fitness.mjs";
 
-const FRAMEWORK = ["next", "next/*", "react", "react-dom", "react/*", "better-auth/react", "better-auth/client"];
+const FRAMEWORK = [
+  "next",
+  "next/*",
+  "react",
+  "react-dom",
+  "react/*",
+  "better-auth/react",
+  "better-auth/client",
+];
 const UPWARD = ["@/app/*", "@/features/*", "@lifeos/kit", "@lifeos/kit/*"];
 const DATABASE = [
   "drizzle-orm",
@@ -56,6 +65,26 @@ export default tseslint.config(
         message: "features read data through core/'s repositories, from a page.",
       },
     ]),
+  },
+  // PAT-90 fitness rules (eslint/fitness.mjs): screens compose kit pieces and never compare a
+  // type key; the rest of core/ only the latter, except the specialisation folders and the
+  // registry (model.md §8, MOD-02). Breaches of 6 Nov: lint-baseline.json, may only shrink.
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    plugins: { lifeos: fitness },
+  },
+  {
+    files: ["src/app/**/*.{ts,tsx}", "src/features/**/*.{ts,tsx}"],
+    rules: SCREEN_RULES,
+  },
+  {
+    files: ["src/core/**/*.ts"],
+    ignores: ["src/core/{food,training,money,engines,kinds}/**"],
+    rules: { "lifeos/no-type-key-compare": "error" },
+  },
+  {
+    files: ["src/**/*.test.{ts,tsx}", "src/**/testing/**"],
+    rules: Object.fromEntries(Object.keys(SCREEN_RULES).map((r) => [r, "off"])),
   },
   {
     files: ["src/core/engines/**/*.ts"],

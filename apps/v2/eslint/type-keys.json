@@ -1,0 +1,37 @@
+{
+  "$comment": "Every registry type key (MOD-01): voce kinds of core/kinds/builtins.ts and catalog keys. The lint rule lifeos/no-type-key-compare reads it; core/kinds/type-keys.test.ts keeps it equal to the registry.",
+  "voce": [
+    "meal",
+    "intake",
+    "batch",
+    "water",
+    "session",
+    "session_exercise",
+    "trip",
+    "steps",
+    "activity",
+    "reading",
+    "weigh_in",
+    "measurements",
+    "sleep",
+    "nap",
+    "checkin",
+    "journal",
+    "movement",
+    "purchase",
+    "stock_count",
+    "chore"
+  ],
+  "catalog": [
+    "food",
+    "product",
+    "format",
+    "recipe",
+    "exercise",
+    "routine",
+    "route",
+    "money_category",
+    "book",
+    "project"
+  ]
+}

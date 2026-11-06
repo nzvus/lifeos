@@ -3,7 +3,7 @@
 1. [x] Claude Code guards (PAT-91): hooks in `.claude/settings.json` + scripts in `scripts/hooks/`;
        `.claude/rules/{features,kit,spec}.md`; skills `change`, `verify`, `audit` (PAT-92);
        retire `dossier`, `compress`.
-2. [ ] Fitness checks: ESLint rules + `lint-baseline.json` (PAT-90); jscpd + baseline (PRD-53);
+2. [x] Fitness checks: ESLint rules + `lint-baseline.json` (PAT-90); jscpd + baseline (PRD-53);
        `check.py` built-needs-a-test + `docs/spec/untested.txt` (PRD-42). CI runs all three.
 3. [ ] `i18n/` catalogue scaffold + glossary test (PAT-93).
 4. [ ] Registry for catalog types (MOD-01/02) + `core/verbs` (PAT-24) with DB tests on PGlite.

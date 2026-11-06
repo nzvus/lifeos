@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start -p 3200",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . --suppressions-location lint-baseline.json",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "load:export": "tsx --env-file-if-exists=.env.local scripts/load-export.ts",

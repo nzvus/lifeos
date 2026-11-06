@@ -1,0 +1,455 @@
+{
+  "src/app/(app)/[area]/abitudine/[id]/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/[area]/cibo/[id]/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 3
+    }
+  },
+  "src/app/(app)/[area]/cibo/[id]/unisci/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/[area]/elenco/doppioni/page.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 1
+    },
+    "lifeos/no-raw-form": {
+      "count": 8
+    },
+    "lifeos/no-type-key-compare": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/[area]/esercizio/[id]/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/[area]/esercizio/[id]/unisci/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/[area]/pasto/[id]/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/[area]/sessione/[id]/page.tsx": {
+    "lifeos/no-type-key-compare": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/aggiungi/[kind]/actions.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/aggiungi/[kind]/nap.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/aggiungi/assunzione/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 2
+    }
+  },
+  "src/app/(app)/aggiungi/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    },
+    "lifeos/no-type-key-compare": {
+      "count": 11
+    }
+  },
+  "src/app/(app)/aggiungi/pasto/page.tsx": {
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/app/(app)/aggiungi/tragitto/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/kit/page.tsx": {
+    "lifeos/no-hand-toast": {
+      "count": 1
+    },
+    "lifeos/no-inline-style": {
+      "count": 7
+    }
+  },
+  "src/app/(app)/oggi/andamento/come-valutiamo/page.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 3
+    },
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/app/(app)/oggi/andamento/page.tsx": {
+    "lifeos/no-type-key-compare": {
+      "count": 4
+    }
+  },
+  "src/app/(app)/oggi/day-page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 3
+    },
+    "lifeos/no-type-key-compare": {
+      "count": 11
+    }
+  },
+  "src/app/(app)/oggi/giornata/[id]/actions.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/oggi/giornata/[id]/page.tsx": {
+    "lifeos/no-type-key-compare": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/oggi/piano/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 5
+    },
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/app/(app)/palestra/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 2
+    }
+  },
+  "src/app/(app)/piano/actions.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/app/(app)/piano/modelli/models.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 2
+    },
+    "lifeos/no-raw-form": {
+      "count": 2
+    },
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/app/(app)/profilo/cestino/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/profilo/page.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 2
+    },
+    "lifeos/no-raw-form": {
+      "count": 2
+    }
+  },
+  "src/app/(app)/profilo/tipi/page.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/app/(app)/voce/[id]/page.tsx": {
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/core/account/csv.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 1
+    }
+  },
+  "src/core/convert/parity.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 6
+    }
+  },
+  "src/core/convert/sessions.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 3
+    }
+  },
+  "src/core/goals/write.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/core/pantry/index.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 5
+    }
+  },
+  "src/core/plans/models-repo.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 3
+    }
+  },
+  "src/features/account/AuthForm.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/account/SettingsForm.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/account/TrackerForm.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 1
+    },
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/add/AddSearch.tsx": {
+    "lifeos/no-search-input": {
+      "count": 1
+    }
+  },
+  "src/features/day/DayPlanBar.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 4
+    },
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/day/DayView.tsx": {
+    "lifeos/no-hand-toast": {
+      "count": 2
+    }
+  },
+  "src/features/day/EntryRow.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 1
+    }
+  },
+  "src/features/day/EntrySheet.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/day/QuickIntakes.tsx": {
+    "lifeos/no-hand-toast": {
+      "count": 2
+    }
+  },
+  "src/features/day/WaterRow.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 1
+    }
+  },
+  "src/features/day/WeatherCard.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 2
+    },
+    "lifeos/no-svg": {
+      "count": 3
+    }
+  },
+  "src/features/day/day-score.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/features/day/details.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/features/day/meal-groups.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/features/day/model-items.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 4
+    }
+  },
+  "src/features/day/nutrients.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 1
+    }
+  },
+  "src/features/day/present.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 32
+    }
+  },
+  "src/features/day/rhythm.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/features/day/score.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 13
+    }
+  },
+  "src/features/day/slots.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/features/food/Composer.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 1
+    },
+    "lifeos/no-raw-form": {
+      "count": 1
+    },
+    "lifeos/no-search-input": {
+      "count": 1
+    }
+  },
+  "src/features/food/EstimateFields.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 2
+    }
+  },
+  "src/features/food/IntakeForm.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/library/BarcodeBox.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 2
+    },
+    "lifeos/no-window-confirm": {
+      "count": 1
+    }
+  },
+  "src/features/library/ExerciseForm.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/library/FoodForm.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/library/Library.tsx": {
+    "lifeos/no-search-input": {
+      "count": 2
+    }
+  },
+  "src/features/library/RouteForm.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/money/MovementForm.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/plan/CycleEditor.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 2
+    }
+  },
+  "src/features/plan/HabitForm.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/plan/ModelEditor.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 4
+    },
+    "lifeos/no-raw-form": {
+      "count": 3
+    },
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/features/plan/from-day.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 2
+    }
+  },
+  "src/features/plan/model-form.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 13
+    }
+  },
+  "src/features/progress/GoalForm.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    },
+    "lifeos/no-type-key-compare": {
+      "count": 3
+    }
+  },
+  "src/features/progress/WeightsForm.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 1
+    },
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/progress/tracker.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 3
+    }
+  },
+  "src/features/training/ActivitySheet.tsx": {
+    "lifeos/no-raw-form": {
+      "count": 1
+    }
+  },
+  "src/features/training/FinishSheet.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 1
+    }
+  },
+  "src/features/training/Gym.tsx": {
+    "lifeos/no-window-confirm": {
+      "count": 1
+    }
+  },
+  "src/features/training/GymClock.tsx": {
+    "lifeos/no-inline-style": {
+      "count": 1
+    }
+  },
+  "src/features/training/NextList.tsx": {
+    "lifeos/no-search-input": {
+      "count": 1
+    }
+  },
+  "src/features/training/gym-parts.tsx": {
+    "lifeos/no-hand-toast": {
+      "count": 2
+    },
+    "lifeos/no-inline-style": {
+      "count": 1
+    }
+  },
+  "src/features/training/session-score.ts": {
+    "lifeos/no-type-key-compare": {
+      "count": 1
+    }
+  }
+}
