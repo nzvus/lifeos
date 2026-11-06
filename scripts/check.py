@@ -259,8 +259,9 @@ def check_spec(root, files):
 
 REQ_ID = re.compile(r"\b((?:PRD|MOD|PAT|VIS|FD|TR|BD|PL|DT)-\d+)\b")
 UNTESTED = "docs/spec/untested.txt"
-TEST_DIRS = ("apps/v2", "packages/kit")
-TEST_FILE = re.compile(r"\.test\.(?:ts|tsx|mjs)$")
+TEST_DIRS = ("apps/v2", "packages/kit", "scripts")
+SKIP_DIRS = {"node_modules", ".next", ".pglite", ".pglite-e2e", "test-results", "playwright-report"}
+TEST_FILE = re.compile(r"\.(?:test|spec)\.(?:ts|tsx|mjs)$")
 
 
 def built_requirements(root):
@@ -287,8 +288,8 @@ def built_requirements(root):
 def cited_by_tests(root):
     cited = set()
     for d in TEST_DIRS:
-        for f in (root / d).rglob("*.test.*"):
-            if "node_modules" not in f.parts and TEST_FILE.search(f.name):
+        for f in (root / d).rglob("*.*.*"):
+            if not SKIP_DIRS.intersection(f.parts) and TEST_FILE.search(f.name):
                 cited.update(REQ_ID.findall(f.read_text(encoding="utf-8", errors="ignore")))
     return cited
 

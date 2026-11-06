@@ -43,8 +43,11 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
    screenshots per pattern; Claude Code hooks (lint+typecheck after edits, tests before stop,
    spec edits only inside a change), path rules in `.claude/rules/`, skills `change`/`audit`/
    `verify`/`retro`. **STOP for his review.**
-   Change folder `docs/spec/changes/2026-11-06-guards/` (proposal, delta, tasks: 8 slices) written
-   6 Nov; code starts after #326 is merged (no stacked PRs).
+   BUILT 6 Nov, PR #327 (change archived in `changes/archive/2026-11-06-guards/`): hooks, rules,
+   skills; fitness lint + `lint-baseline.json`, jscpd, `check.py` PRD-42 + `untested.txt`;
+   `i18n/` + glossary test; catalog types + `core/verbs`; 13 kit pieces in `/kit`; one
+   `(app)/layout.tsx`; Playwright photos of `/kit`. Open for him: Q-09 (bar on sub-pages),
+   Q-10 (CI job needs the workflow scope). **STOPPED for his review.**
 4. **Rebuild v2 one type at a time** (strangler) — patterns → habit/tracker → food and meal →
    exercise and scheda → Piano (`plan_rules` returns here) → money/pantry; each PR counts pages,
    implementations and lines removed; v1 retired first (verified export, Neon untouched).

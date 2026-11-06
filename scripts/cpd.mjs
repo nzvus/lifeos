@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
-const BASELINE = path.join(ROOT, "scripts/cpd-baseline.json");
+const BASELINE = process.env.CPD_BASELINE ?? path.join(ROOT, "scripts/cpd-baseline.json");
 const out = fs.mkdtempSync(path.join(os.tmpdir(), "cpd-"));
 
 execFileSync(

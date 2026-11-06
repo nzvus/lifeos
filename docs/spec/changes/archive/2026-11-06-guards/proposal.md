@@ -46,7 +46,7 @@ showing every new piece at 390/320 px, dark.
   on exactly the addresses that had them on 6 Nov; the 17 pages no longer mount them. Checked
   pixel by pixel: 17 pages at 390 and 320 px are identical before and after.
 
-## Open questions (his call, asked at the stop)
+## Open questions (moved to `changes/inbox.md` as Q-09 and Q-10 when archived)
 - **Q-guards-1** PAT-01 says every page has the NavBar and ⊕ except a running gym session.
   On 6 Nov 29 sub-pages had none (object pages, forms, ⊕'s sheets, Profilo), and on the 7
   forms with a sticky «Salva» (PAT-14) ⊕ would sit on top of it. Options: (a) the bar on every

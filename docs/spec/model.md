@@ -27,7 +27,11 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
 - **MOD-02** Pages, forms, lists, search, verbs, charts and engines read the registry; no
   code compares a type key outside its own specialisation folder (today ~114 comparisons).
   [n12, n13] — Today: `core/kinds` (zod `Kind`, `kindRegistry`, 20 voce types) drives
-  `EntrySheet` for 13; catalog types have no registry.
+  `EntrySheet` for 13; the 10 catalog types of §3 are declared in `core/kinds/catalog.ts`
+  (`CatalogType`: area, hue, storage, family rule, fields, lines, capture, verbs, list,
+  «Salva come» source; the assunzione is `intake_item`, a food with the `intake` flag) and
+  `core/verbs` reads them; screens move onto them in phase 4. The lint rule of PAT-90 fails a
+  new type-key comparison; the 148 of 6 Nov are in `lint-baseline.json`.
 
 ## 2. Voce (an entry)
 - **MOD-10** A voce: `type, start, end?, day (logical, boundary 04:00), status, values, lines[],
