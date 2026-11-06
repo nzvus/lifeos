@@ -1,5 +1,5 @@
 /**
- * icons.generated.ts — the Glyph registry (docs/spec/v2/icons.md), copied
+ * icons.generated.ts — the Glyph registry (docs/archive/spec-v2/icons.md), copied
  * from the design boards' ICONS block, which boards-tools/icons_build.py
  * builds from icons.json and Tabler Icons 3.19.0 (MIT, (c) Paweł Kuna).
  * Do not edit by hand: change icons.json, run icons_build.py with the kit's path.

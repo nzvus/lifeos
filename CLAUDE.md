@@ -17,14 +17,14 @@
 
 <!-- ======================================================= -->
 
-**Read first, every session:** `docs/spec/v2/ledger.md` — every decision and intention with its
-source (the developer, 30 Oct: «molte scelte… ogni volta te le dimentichi»). Before designing or
-coding anything, check it there; when a decision changes, edit its line in the same PR.
-Two rules keep it whole: (1) every request, opinion or choice of the developer becomes a ledger
-line at once, in his words, with date and source; (2) every board, dossier, plan and PR names
-the ledger IDs it follows («Ledger: UI-12, FOOD-03»). `check.py` (local + CI) fails on a missing
-ADR or dossier, a line without ID or status, a duplicate ID, and warns when his notes change; a
-SessionStart hook (`.claude/settings.json`) prints the open contradictions.
+**Read first, every session:** `docs/spec/product.md`, `model.md`, `patterns.md` (ADR-0061),
+and the `domains/` or `visual.md` file you touch. Each rule has one home and an ID
+(PRD- MOD- PAT- VIS- FD- TR- BD- PL- DT-); cite the IDs you follow in every PR («Spec: PAT-13»).
+His words become a line at once: in the open change's `proposal.md`, or in
+`docs/spec/changes/inbox.md`. A spec change = `docs/spec/changes/YYYY-MM-DD-name/` (proposal,
+delta, tasks), merged into the spec when built, then archived (PRD-41). `check.py` (local + CI)
+fails on a duplicate ID, an uncited new ADR, an incomplete change; the SessionStart hook prints
+the open change and the inbox. The old ledger is in `docs/archive/` (sources only).
 
 ## Role
 
@@ -63,17 +63,21 @@ for code quality, then for speed. Never for speed first.
 
 ## Working agreements (the developer's standing rules, repeated often — follow them without being asked)
 
-- **As few PRs as possible.** Everything goes on one branch from `main`; a
-  different theme is not a reason for a new PR. While a PR of yours is open,
-  add the next slices to it (check its state in its own call first). Split
-  only a data migration that must merge after the code it needs.
-- **«Devo andare» / «procedi senza di me» = never stop.** Make the choices you
-  judge best, write each one down as «decided by the agent» where it belongs
-  (dossier, ADR, handoff), go on to the next item, and report at the end.
+- **As few PRs as possible: one PR per change** (a phase of the ROADMAP «Now»
+  plan, or one `changes/<id>` once phase 2 exists). While its PR is open, add
+  the next slices of the same change to it (check its state in its own call
+  first). Split only a data migration that must merge after the code it needs.
+- **«Devo andare» / «procedi senza di me» = never stop, inside the approved
+  spec and plan** (PROD-39, 6 Nov). Details the spec already implies: decide,
+  write «decided by the agent» where it belongs, go on. A new pattern, a new
+  object model, a new word or anything expensive to reverse (rule 1): never
+  decide it alone — write it as an open question, move to work that needs no
+  pick, and ask at the end.
 - **Docs and handoff always current.** After every PR or significant step,
-  update the docs touched and `~/.claude/plans/handoff-lifeos.md`, so a new
-  conversation starts with everything: decisions, the developer's feedback in
-  his own words, considerations, open problems, next step.
+  update the docs touched and `~/.claude/plans/handoff-lifeos.md`: **at most
+  60 lines of current state, rewritten, never appended** (decisions live in
+  the ledger/spec, history in git). It says where we are, what is open, the
+  next step, and his latest words not yet in the ledger.
 - **Write down what you learn when you learn it.** A mistake, a tool's quirk,
   a preference, a useful finding: into memory or the docs right away, not at
   the end.
@@ -82,22 +86,26 @@ for code quality, then for speed. Never for speed first.
 - **Keep the developer informed** while working: a short line on what you are
   doing; never go long silent stretches.
 
-## Workflow cadence
+## Process rules (6 Nov 2026, PROD-35…39 — the cleanup plan in ROADMAP «Now»)
 
-Research → discuss architecture → decide (ADR if significant) → implement a
-small slice → test → review → update docs touched → next. Each sprint is
-defined in `ROADMAP.md`; run the `retro` skill at sprint end.
+- **Features are frozen** until phase 3 of the plan closes: only cleanup,
+  spec and guards; a bug fix that blocks his daily logging is the exception.
+- **Decide per pattern, never per screen.** A remark on one screen changes a
+  pattern or an object type in the spec (and so every screen that uses it), or
+  is dropped with a reason. Never a one-screen fix.
+- **One truth per decision.** Adding a document removes or archives one; a
+  decision is written in one place and cited elsewhere by ID.
+- **Stop at the end of phases 1, 2 and 3** for his review (his pick, 6 Nov).
+- **Nothing unpushed at the end of a session** (parked → `archive/` + branch name).
+- **Exports** live only in `~/Syncthing/Documents/Projects-artifacts/LIFEOS/exports/`.
 
-## Context & token discipline
+## Cadence and context
 
-- Read `CLAUDE.md` (this file) always; read `ARCHITECTURE.md` before design
-  or implementation work; read `PROJECT.md` / `ROADMAP.md` / specific ADRs
-  only when the task needs them. Do not bulk-load docs "for context".
-- Keep `ARCHITECTURE.md` under ~150 lines: current state only, no history
-  (history lives in ADRs and git).
-- When a doc grows stale or bloated, propose running the `compress` skill.
-- Prefer editing existing docs over creating new ones. New root-level doc
-  files require explicit human approval.
+- Research → decide (ADR if significant) → small slice → test → review →
+  docs touched → next; `retro` skill at the end of each change.
+- Read `ARCHITECTURE.md` before design or code; PROJECT/ROADMAP/ADRs only when
+  the task needs them, never bulk-loaded. ARCHITECTURE ≤ 150 lines, current
+  state only; a bloated doc → `compress` skill. New root-level docs need his OK.
 
 ## Conventions
 
@@ -115,7 +123,7 @@ defined in `ROADMAP.md`; run the `retro` skill at sprint end.
     `npm test`, lint and build run in CI, not before the push.
   - DB tests only when the schema or a repository changes; the phone check
     only for new or changed UI.
-  - One PR per theme; push when the theme is complete (each push re-runs CI).
+  - Push when a slice of the change is complete (each push re-runs CI).
   - Vercel: 100 deploys a day, both projects. The ignore scripts
     (`scripts/vercel-ignore.sh`, `apps/v2/scripts/vercel-ignore.sh`) build
     production only when that app changed, previews only for a migration

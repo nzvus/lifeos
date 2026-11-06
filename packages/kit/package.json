@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "lifeos v2's kit (docs/spec/v2/kit.md): one stylesheet, one icon registry, one formatter, the components every screen is made of.",
+  "description": "lifeos v2's kit (docs/spec/patterns.md): one stylesheet, one icon registry, one formatter, the components every screen is made of.",
   "exports": {
     ".": "./src/index.ts",
     "./styles/*": "./styles/*"

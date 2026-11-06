@@ -35,7 +35,7 @@ CFG = {
         "ARCHITECTURE.md": 160,
         "CLAUDE.md": 130,
         "PROJECT.md": 120,
-        "docs/spec/v2/ledger.md": 700,  # the decision ledger: split by section past this
+        "docs/spec/domains/food.md": 260,  # domain rules: split the domain past this
     },
     "doc_default_warn_lines": 300,  # any other .md beyond this -> warn
     "ignore_dirs": {".git", "node_modules", "dist", "build", "target", "out",
@@ -205,54 +205,60 @@ def check_todos(root, files):
         yield (INFO, ".", None, f"{len(hits)} TODO/FIXME markers: {listing}{more}")
 
 
-# The ledger (docs/spec/v2/ledger.md) is the memory of every decision: the developer, 30 Oct,
+# The spec (docs/spec, ADR-0061) is the memory of every decision: the developer, 30 Oct,
 # «molte scelte… ogni volta te le dimentichi». It must cite every ADR and dossier, each line needs
 # an ID, a status and a source, and the developer's raw notes must be folded in when they change.
-LEDGER = "docs/spec/v2/ledger.md"
-LEDGER_LINE = re.compile(r"^- \*\*([A-Z]+-\d+)\*\* (\*\*)?(D/\?|D|v2|v1|F|S|\?)(?= )")
+SPEC = "docs/spec"
+INBOX = "docs/spec/changes/inbox.md"
+REQ_DEF = re.compile(r"^(?:- \*\*|\| )((?:PRD|MOD|PAT|VIS|FD|TR|BD|PL|DT)-\d+)(?:\*\*| \|)")
 NOTES_DIR = Path.home() / "Syncthing/Documents/Projects-artifacts/LIFEOS"
+FIRST_SPEC_ADR = 61  # ADR-0061 made the spec the source of truth; later ADRs must be cited in it
 
 
-def check_ledger(root, files):
-    path = root / LEDGER
-    if not path.exists():
-        yield (ERR, LEDGER, None, "missing: the decision ledger")
+def spec_files(root):
+    base = root / SPEC
+    return [f for f in sorted(base.rglob("*.md"))
+            if not any(part in ("archive", "audit-2026-11", "changes") for part in f.relative_to(base).parts)]
+
+
+def check_spec(root, files):
+    """The horizontal spec (ADR-0061): requirement IDs unique, new ADRs cited, changes complete."""
+    if not (root / SPEC / "product.md").exists():
+        yield (ERR, SPEC, None, "missing: docs/spec/product.md (the constitution)")
         return
-    text = path.read_text(encoding="utf-8")
-    seen = {}
-    section = None
-    for i, line in enumerate(text.splitlines(), 1):
-        if line.startswith("## "):
-            section = line
-        if not line.startswith("- ") or section is None or not re.match(r"## (\d|Contradictions)", section):
-            continue
-        m = LEDGER_LINE.match(line)
-        if not m:
-            yield (ERR, LEDGER, i, "a line without an ID and a status (D · v2 · v1 · F · S · ?)")
-            continue
-        if m.group(1) in seen:
-            yield (ERR, LEDGER, i, f"ID {m.group(1)} already used at line {seen[m.group(1)]}")
-        seen[m.group(1)] = i
-        if "[" not in line and not section.startswith("## Contradictions"):
-            yield (WARN, LEDGER, i, f"{m.group(1)} has no [source]")
+    seen, text = {}, ""
+    for f in spec_files(root):
+        rel = str(f.relative_to(root))
+        body = f.read_text(encoding="utf-8")
+        text += body
+        for i, line in enumerate(body.splitlines(), 1):
+            m = REQ_DEF.match(line)
+            if not m:
+                continue
+            if m.group(1) in seen:
+                yield (ERR, rel, i, f"{m.group(1)} already defined at {seen[m.group(1)]}")
+            seen[m.group(1)] = f"{rel}:{i}"
     for adr in sorted((root / CFG["adr_dir"]).glob("[0-9][0-9][0-9][0-9]-*.md")):
         num = adr.name[:4]
-        if num != "0000" and f"ADR-{num}" not in text:
-            yield (ERR, LEDGER, None, f"ADR-{num} is not cited in the ledger: fold its decision in")
-    for dossier in sorted((root / "docs/spec/v2/dossiers").glob("*.md")):
-        if f"dossiers/{dossier.stem}" not in text and f"{dossier.stem}.md" not in text:
-            yield (ERR, LEDGER, None, f"dossier {dossier.name} is not cited in the ledger")
+        if int(num) >= FIRST_SPEC_ADR and f"ADR-{num}" not in text:
+            yield (ERR, SPEC, None, f"ADR-{num} is not cited in docs/spec: cite it where it decides")
+    changes = root / SPEC / "changes"
+    for folder in sorted(p for p in changes.iterdir() if p.is_dir() and p.name != "archive") if changes.exists() else []:
+        for need in ("proposal.md", "delta.md", "tasks.md"):
+            if not (folder / need).exists():
+                yield (ERR, str(folder.relative_to(root)), None, f"a change needs {need}")
     # the developer's notes (outside the repo, so only where they exist): a changed file must be folded in
+    inbox = (root / INBOX).read_text(encoding="utf-8") if (root / INBOX).exists() else ""
     for note in sorted(NOTES_DIR.glob("considerations*")) if NOTES_DIR.exists() else []:
         digest = __import__("hashlib").sha256(note.read_bytes()).hexdigest()[:12]
-        if f"{note.name} {digest}" not in text:
-            yield (WARN, LEDGER, None,
-                   f"{note.name} changed since it was folded in (sha {digest}): add its new points, "
-                   f"then update its line in «Notes folded»")
+        if f"{note.name} {digest}" not in inbox:
+            yield (WARN, INBOX, None,
+                   f"{note.name} changed since it was folded in (sha {digest}): add its new points "
+                   f"to the inbox, then update its line in «Notes folded»")
 
 
 CHECKS = [check_lengths, check_conflicts_and_empty, check_placeholders,
-          check_adrs, check_md_links, check_skills, check_todos, check_ledger]
+          check_adrs, check_md_links, check_skills, check_todos, check_spec]
 
 
 # -------------------------------- runner --------------------------------------
