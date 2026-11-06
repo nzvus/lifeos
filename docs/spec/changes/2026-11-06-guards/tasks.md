@@ -1,6 +1,6 @@
 # Tasks — 2026-11-06-guards (one PR, slices in this order; each slice: tests citing IDs, docs touched)
 
-1. [ ] Claude Code guards (PAT-91): hooks in `.claude/settings.json` + scripts in `scripts/hooks/`;
+1. [x] Claude Code guards (PAT-91): hooks in `.claude/settings.json` + scripts in `scripts/hooks/`;
        `.claude/rules/{features,kit,spec}.md`; skills `change`, `verify`, `audit` (PAT-92);
        retire `dossier`, `compress`.
 2. [ ] Fitness checks: ESLint rules + `lint-baseline.json` (PAT-90); jscpd + baseline (PRD-53);

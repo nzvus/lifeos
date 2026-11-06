@@ -35,3 +35,4 @@ __pycache__/
 
 # Vercel CLI link (`vercel link`): project ids, local only
 .vercel
+.claude/hooks-state/

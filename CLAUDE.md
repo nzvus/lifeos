@@ -105,7 +105,7 @@ for code quality, then for speed. Never for speed first.
   docs touched → next; `retro` skill at the end of each change.
 - Read `ARCHITECTURE.md` before design or code; PROJECT/ROADMAP/ADRs only when
   the task needs them, never bulk-loaded. ARCHITECTURE ≤ 150 lines, current
-  state only; a bloated doc → `compress` skill. New root-level docs need his OK.
+  state only; spec vs code → `audit` skill. New root-level docs need his OK.
 
 ## Conventions
 
