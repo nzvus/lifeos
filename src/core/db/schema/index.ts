@@ -1,22 +1,11 @@
 /**
- * core/db/schema/index.ts — the complete database schema, in one import.
- *
- * Who reads it:
- *   - drizzle.config.ts points drizzle-kit here to generate migrations;
- *   - core/db/client.ts passes it to Drizzle so queries are typed;
- *   - core/auth/auth.ts hands the auth tables to Better Auth.
- * Add a new schema file? Export it here, or drizzle-kit won't see it.
+ * core/db/schema/index.ts — v2's whole schema in one import (ADR-0057,
+ * docs/archive/spec-v2/schema.md). drizzle-kit reads it to generate migrations; the
+ * client and the repositories read it for typed queries. A new schema file
+ * is exported here, or drizzle-kit does not see it.
  */
 export * from "./auth";
-export * from "./nutrition";
-export * from "./training";
-export * from "./pantry";
-export * from "./assistant";
-export * from "./programs";
-export * from "./invites";
-export * from "./money";
-export * from "./mind";
-export * from "./supplements";
-export * from "./closures";
-export * from "./goals";
-export * from "./dayprograms";
+export * from "./account";
+export * from "./definitions";
+export * from "./facts";
+export * from "./plans";

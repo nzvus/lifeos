@@ -15,7 +15,7 @@ const out = fs.mkdtempSync(path.join(os.tmpdir(), "cpd-"));
 execFileSync(
   path.join(ROOT, "node_modules/.bin/jscpd"),
   [
-    "apps/v2/src",
+    "src",
     "packages/kit/src",
     "--format",
     "typescript,tsx",

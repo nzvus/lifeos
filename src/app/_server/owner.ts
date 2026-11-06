@@ -1,88 +1,23 @@
 /**
- * app/_server/owner.ts — from an HTTP request to an `Owner` (ADR-0006).
- *
- * This is the ONLY place that reads the session cookie (ADR-0006: "reading
- * cookies happens only in app/"). Every protected page and every server action
- * starts with `requireOwner()` or `requireContext()`:
- *   1. Next's `headers()` gives the incoming request headers (with the cookie);
- *   2. Better Auth verifies the session token against the `session` table;
- *   3. the verified user id becomes an Owner — the only kind of value core's
- *      repositories accept (core/identity/owner.ts).
- * No valid session -> redirect to /sign-in. There is no middleware doing this
- * "for" the pages: CVE-2025-29927 showed middleware can be skipped, so each
- * entry point checks for itself, and core checks again (defence in depth).
- *
- * `cache()` (React): within ONE request, the layout, the page and nested
- * components may all call requireContext(); cache makes it run once.
+ * app/_server/owner.ts — from a request to an `Owner` (ADR-0006), as v1's:
+ * the only place that reads the session cookie. Every page and action starts
+ * with `requireOwner()`; no middleware does it for them (CVE-2025-29927).
  */
 import "server-only";
 import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ownerFromVerifiedSession, type Owner } from "@/core/identity/owner";
-import { getSettings, type Settings } from "@/core/nutrition/repositories/settings";
-import { DEFAULT_THEME, type Theme } from "@/core/shared/themes";
-import type { Messages } from "@/i18n";
-import { getMessages } from "./i18n";
-import { env } from "./env";
-import { getAuth, getDb } from "./runtime";
+import { getAuth } from "./runtime";
 
-/** The verified session, or null. Never throws for "not logged in". */
+/** The verified session, or null. headers() first: it makes the page per-request. */
 export const getSession = cache(async () => {
-  // headers() FIRST: calling it is what marks the page as per-request
-  // (dynamic). If getAuth() ran first, `next build` would try to pre-render
-  // signed-in pages at build time, without secrets, and fail.
   const requestHeaders = await headers();
-  return getAuth().api.getSession({ headers: requestHeaders });
+  return (await getAuth()).api.getSession({ headers: requestHeaders });
 });
 
-/** The current Owner; redirects to /sign-in if there is no valid session. */
 export const requireOwner = cache(async (): Promise<Owner> => {
   const session = await getSession();
-  if (!session) redirect("/sign-in"); // redirect() throws: nothing below runs
+  if (!session) redirect("/sign-in");
   return ownerFromVerifiedSession(session.user.id);
-});
-
-export type PageContext = {
-  owner: Owner;
-  settings: Settings;
-  /** The dictionary in the user's language. */
-  t: Messages;
-};
-
-/**
- * One settings query per request, shared by the root layout and the page.
- * Keyed by the user id (a string): cache() compares arguments by identity,
- * and each Owner object is a new one.
- */
-const settingsOf = cache((userId: string) =>
-  getSettings(getDb(), ownerFromVerifiedSession(userId)),
-);
-
-/** Owner + settings + dictionary: what nearly every page needs. */
-export const requireContext = cache(async (): Promise<PageContext> => {
-  const owner = await requireOwner();
-  const settings = await settingsOf(owner.id);
-  return { owner, settings, t: getMessages(settings.locale) };
-});
-
-/**
- * The signed-in user's theme (ADR-0010), or the default when nobody is
- * signed in (sign-in page). For the root layout, which must not redirect.
- */
-export const getTheme = cache(async (): Promise<Theme> => {
-  const session = await getSession();
-  if (!session) return DEFAULT_THEME;
-  return (await settingsOf(session.user.id)).theme;
-});
-
-/**
- * ADR-0034: the signed-in user may create invitations (their email is in
- * ADMIN_EMAILS). Checked on the server, in the page and in every action.
- */
-export const isAdmin = cache(async (): Promise<boolean> => {
-  const session = await getSession();
-  return Boolean(
-    session && env().ADMIN_EMAILS.includes(session.user.email.toLowerCase()),
-  );
 });

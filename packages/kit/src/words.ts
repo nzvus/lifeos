@@ -1,6 +1,6 @@
 /**
  * The kit's own words (PAT-81, DT-61): the verbs and states every piece says, whatever the
- * type. A type's words come from the caller's catalogue (`apps/v2/src/i18n/`); the glossary
+ * type. A type's words come from the caller's catalogue (`src/i18n/`); the glossary
  * test reads this file too, so no «Not» word of product.md §3 reaches a piece.
  */
 export const WORDS = {

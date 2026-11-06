@@ -1,67 +1,90 @@
-/** Tests for core/pantry/stock.ts: stock from events, counts, run-out days. */
+/** Tests for core/pantry/stock.ts: the dossier's acceptance tests (pantry.md §8). */
 import { describe, expect, it } from "vitest";
-import { stockOf, type StockEvent } from "./stock";
+import type { IsoDate } from "../engines/time";
+import { stockOf, toBuy, type StockEvent } from "./stock";
 
-const NOW = new Date("2026-10-31T12:00:00Z");
-const ev = (kind: StockEvent["kind"], at: string, quantity: string): StockEvent => ({
+const ev = (kind: StockEvent["kind"], day: IsoDate, quantity: string): StockEvent => ({
   kind,
-  at: `${at}T10:00:00Z`,
+  at: new Date(`${day}T10:00:00Z`),
+  day,
   quantity,
 });
+const NOW = new Date("2026-10-23T20:00:00Z");
+const today = "2026-10-23" as IsoDate;
+const logged = new Set<IsoDate>(["2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"]);
+const milk = [
+  ev("in", "2026-10-20", "2000"),
+  ev("out", "2026-10-20", "100"),
+  ev("out", "2026-10-21", "400"),
+  ev("out", "2026-10-22", "100"),
+  ev("out", "2026-10-23", "100"),
+];
 
 describe("stockOf", () => {
-  it("adds purchases and subtracts what was eaten, exactly", () => {
-    const s = stockOf(
-      [ev("in", "2026-10-01", "500"), ev("out", "2026-10-02", "60.5")],
-      NOW,
-    );
-    expect(s.quantity).toBe("439.5");
+  it("2 × 1 000 ml bought, 700 ml logged → 1 300 left (§8.1)", () => {
+    expect(stockOf(milk, NOW, { today, loggedDays: logged }).left).toBe("1300");
   });
 
-  it("a count replaces the running total from its moment on", () => {
-    const s = stockOf(
-      [
-        ev("in", "2026-10-01", "500"),
-        ev("out", "2026-10-02", "100"), // 400 by the books…
-        ev("count", "2026-10-03", "250"), // …but only 250 were there
-        ev("out", "2026-10-04", "50"),
-      ],
-      NOW,
-    );
-    expect(s.quantity).toBe("200");
+  it("175 ml a logged day → «finisce tra 7 giorni» (§8.2)", () => {
+    const s = stockOf(milk, NOW, { today, loggedDays: logged });
+    expect(s.dailyUse).toBe("175");
+    expect(s.daysLeft).toBe(7);
   });
 
-  it("on the same instant, a count is the last word", () => {
-    const at = "2026-10-05";
-    expect(stockOf([ev("count", at, "300"), ev("in", at, "500")], NOW).quantity).toBe(
-      "300",
-    );
-  });
-
-  it("never shows below zero, and ignores the future", () => {
-    expect(stockOf([ev("out", "2026-10-02", "80")], NOW).quantity).toBe("0");
-    expect(stockOf([ev("in", "2026-11-05", "500")], NOW).quantity).toBe("0");
-  });
-
-  it("runs out at the pace of the last 30 days", () => {
+  it("a count replaces the books from its moment (§8.3)", () => {
     const s = stockOf(
       [
-        ev("in", "2026-10-01", "1000"),
-        // 600 g eaten in the window → 20 g/day; 400 left → 20 days.
-        ev("out", "2026-10-10", "300"),
-        ev("out", "2026-10-20", "300"),
-        ev("out", "2026-09-01", "999"), // outside the window: not "use"
+        ev("in", "2026-10-20", "2000"),
+        ev("out", "2026-10-20", "600"),
+        { ...ev("count", "2026-10-22", "500"), at: new Date("2026-10-22T09:00:00Z") },
+        ev("out", "2026-10-22", "100"),
       ],
       NOW,
+      { today, loggedDays: logged },
     );
-    expect(s).toEqual({ quantity: "400", dailyUse: "20", daysLeft: 20 });
+    expect(s.left).toBe("400");
   });
 
-  it("without any use there is no run-out date", () => {
-    expect(stockOf([ev("in", "2026-10-01", "8")], NOW)).toEqual({
-      quantity: "8",
-      dailyUse: null,
-      daysLeft: null,
+  it("eating what was never bought stays at 0 and does not eat later purchases", () => {
+    const s = stockOf(
+      [ev("out", "2026-10-20", "300"), ev("in", "2026-10-21", "500")],
+      NOW,
+      { today, loggedDays: logged },
+    );
+    expect(s.left).toBe("500");
+  });
+
+  it("days with nothing logged are not days of no use; no use → no pace", () => {
+    const s = stockOf([ev("in", "2026-10-20", "500")], NOW, {
+      today,
+      loggedDays: logged,
     });
+    expect(s).toEqual({ left: "500", dailyUse: null, daysLeft: null });
+  });
+
+  it("an event after now is not counted yet", () => {
+    const s = stockOf(
+      [ev("in", "2026-10-20", "500"), ev("out", "2026-10-24", "100")],
+      NOW,
+      { today, loggedDays: logged },
+    );
+    expect(s.left).toBe("500");
+  });
+});
+
+describe("toBuy", () => {
+  it("1 day left with the shop in 3 → to buy (§8.6); 30 days left → not", () => {
+    expect(
+      toBuy({ left: "100", dailyUse: "100", daysLeft: 1 }, { shopEveryDays: 3 }),
+    ).toBe(true);
+    expect(
+      toBuy({ left: "3000", dailyUse: "100", daysLeft: 30 }, { shopEveryDays: 7 }),
+    ).toBe(false);
+  });
+
+  it("no pace: only a minimum makes it a shopping item (§8.5)", () => {
+    const s = { left: "0", dailyUse: null, daysLeft: null };
+    expect(toBuy(s, { shopEveryDays: 7 })).toBe(false);
+    expect(toBuy(s, { shopEveryDays: 7, minimum: "200" })).toBe(true);
   });
 });

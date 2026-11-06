@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
-WORKSPACES = ("apps/v2", "packages/kit")  # v1 at the root is frozen until it retires
+WORKSPACES = (".", "packages/kit")  # the app at the root (v1 retired 6 Nov), the kit
 CODE = (".ts", ".tsx")
 STATE = ROOT / ".claude/hooks-state"
 
@@ -40,7 +40,12 @@ def rel(path: str) -> str:
 
 
 def workspace(relpath: str) -> str | None:
-    return next((w for w in WORKSPACES if relpath.startswith(w + "/")), None)
+    """The kit for `packages/kit/…`, the app (root) for its own code, None for the rest."""
+    if relpath.startswith("packages/kit/"):
+        return "packages/kit"
+    if relpath.startswith(("src/", "e2e/", "eslint/", "scripts/")) or "/" not in relpath:
+        return "."
+    return None
 
 
 def open_changes() -> list[str]:
@@ -114,7 +119,7 @@ def stop(data: dict) -> int:
         return 0
     failures = []
     for ws in WORKSPACES:
-        mine = [str(Path(f).relative_to(ws)) for f in files if f.startswith(ws + "/")]
+        mine = [str(Path(f).relative_to(ws)) for f in files if workspace(f) == ws]
         if not mine:
             continue
         code, out = run(["npx", "--no-install", "vitest", "related", "--run",

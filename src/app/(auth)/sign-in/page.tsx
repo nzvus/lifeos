@@ -1,24 +1,19 @@
-/**
- * app/(auth)/sign-in/page.tsx — URL /sign-in.
- *
- * A server component that decides, then delegates: if you're already signed
- * in it sends you home; otherwise it renders the SignInForm feature with the
- * dictionary. The login itself happens in the browser (SignInForm ->
- * auth-client -> /api/auth).
- */
 import { redirect } from "next/navigation";
 import { getSession } from "@/app/_server/owner";
-import { DEFAULT_LOCALE } from "@/core/shared/locales";
-import { SignInForm } from "@/features/account/auth/SignInForm";
-import { dictionaries } from "@/i18n";
+import { env } from "@/app/_server/env";
+import { AuthForm } from "@/features/account/AuthForm";
 
 export default async function SignInPage() {
-  if (await getSession()) redirect("/");
-  const t = dictionaries[DEFAULT_LOCALE];
+  if (await getSession()) redirect("/oggi");
   return (
     <>
-      <h1 className="section-heading">{t.auth.signInTitle}</h1>
-      <SignInForm t={t.auth} />
+      <h2 className="k-label">Entra</h2>
+      <AuthForm mode="sign-in" />
+      {env().ALLOW_SIGNUP === "true" && (
+        <a className="k-link" href="/sign-up">
+          Crea un account
+        </a>
+      )}
     </>
   );
 }

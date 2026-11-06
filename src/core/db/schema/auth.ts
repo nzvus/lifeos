@@ -1,22 +1,9 @@
 /**
- * core/db/schema/auth.ts — the identity tables owned by Better Auth (ADR-0006).
- *
- * Why these are OUR tables: ADR-0006 put users and sessions inside our own
- * Postgres so that every pg_dump contains them. A restore then brings back
- * accounts AND their data together; nothing is orphaned.
- *
- * Where the shape comes from: generated with the official Better Auth CLI
- * (`npx @better-auth/cli generate`) for this exact configuration
- * (core/auth/auth.ts: email+password, uuid ids, database rate limiting), then
- * edited in two ways:
- *   - timestamps use `withTimezone: true` (ADR-0003: store UTC with time zone);
- *   - comments added.
- * If you change Better Auth options or upgrade it, re-run the CLI into a temp
- * file and diff it against this one: Better Auth reads/writes these columns by
- * their TypeScript property names (userId, expiresAt, ...), so names matter.
- *
- * Linked files: core/auth/auth.ts passes these tables to Better Auth's Drizzle
- * adapter; every user-owned table in nutrition.ts references `user.id`.
+ * core/db/schema/auth.ts — the identity tables owned by Better Auth (v1
+ * ADR-0006, kept by ADR-0057), in v2's own database: v2 has its own login.
+ * Copied from v1's `src/core/db/schema/auth.ts`, which says how they were
+ * generated; Better Auth reads these columns by their property names, so the
+ * names matter. Invitations (v1 ADR-0034) are at the end.
  */
 import { sql } from "drizzle-orm";
 import {
@@ -135,3 +122,26 @@ export const rateLimit = pgTable("rate_limit", {
   count: integer("count").notNull(),
   lastRequest: bigint("last_request", { mode: "number" }).notNull(),
 });
+
+/** Invitations to sign up (v1 ADR-0034): only a hash of the code is stored. */
+export const invites = pgTable(
+  "invites",
+  {
+    id: uuid("id")
+      .default(sql`pg_catalog.gen_random_uuid()`)
+      .primaryKey(),
+    /** SHA-256 of the code, hex. */
+    codeHash: text("code_hash").notNull().unique(),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: tstz("created_at").defaultNow().notNull(),
+    expiresAt: tstz("expires_at").notNull(),
+    /** Claimed: set atomically while the account is being created. */
+    usedAt: tstz("used_at"),
+    usedEmail: text("used_email"),
+    /** The account it created, once it exists. */
+    usedBy: uuid("used_by").references(() => user.id, { onDelete: "set null" }),
+  },
+  (t) => [index("invites_created_by_idx").on(t.createdBy)],
+);

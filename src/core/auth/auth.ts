@@ -1,48 +1,23 @@
 /**
- * core/auth/auth.ts — the Better Auth instance factory (ADR-0006).
+ * core/auth/auth.ts — the Better Auth instance, as v1's (ADR-0006): email
+ * and password, users and sessions in v2's own database (ADR-0057). The
+ * Next.js glue is in app/: the route mounts it, _server/runtime.ts makes
+ * the one instance, _server/owner.ts turns a cookie into an Owner.
  *
- * Better Auth is a library that owns login: it hashes passwords, creates
- * session rows, sets and verifies the session cookie, and rate-limits login
- * attempts. We own its CONFIGURATION, which is security-relevant and reviewed
- * here.
- *
- * Why it lives in core/: it is framework-free (works on standard Request/
- * Response objects), so ADR-0001's purity rule holds. The Next.js-specific
- * glue is elsewhere:
- *   - src/app/api/auth/[...all]/route.ts   mounts its HTTP endpoints
- *   - src/app/_server/runtime.ts           creates the one instance (reads env)
- *   - src/app/_server/owner.ts             turns a request's cookie into an Owner
- *   - src/features/auth/auth-client.ts     browser side (sign in/up/out calls)
+ * Sign-up is closed unless ALLOW_SIGNUP says otherwise; v1's invitations
+ * (ADR-0034) come to v2 when a second person does.
  */
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { APIError, createAuthMiddleware } from "better-auth/api";
-import type { Db } from "../db/client";
+import type { Db } from "../db/db";
 import { account, rateLimit, session, user, verification } from "../db/schema";
-import { INVITE_HEADER } from "./invite-header";
-import { claimInvite, inviteUsable, linkInvite } from "./invites";
 
 export type AuthConfig = {
   db: Db;
-  /** Signs cookies. From BETTER_AUTH_SECRET; never committed. */
   secret: string;
-  /** Public URL of this deployment, e.g. https://lifeos.vercel.app */
   baseURL: string;
-  /** Other origins allowed to call the auth endpoints (Vercel preview URLs). */
   trustedOrigins: string[];
-  /** false = nobody can create an account (ADR-0006 tripwire; env ALLOW_SIGNUP). */
   allowSignUp: boolean;
-  /**
-   * ADR-0034: runs once, right after an account is created (the starter
-   * pack). A failure is the caller's to log: the account exists either way.
-   */
-  onUserCreated?: (userId: string) => Promise<void>;
-  /**
-   * ADR-0034: a sign-up needs a valid invitation, sent by the form in the
-   * INVITE_HEADER header. Accounts created without a request (tests,
-   * scripts) are not affected.
-   */
-  requireInvite: boolean;
 };
 
 export function createAuth(config: AuthConfig) {
@@ -52,7 +27,6 @@ export function createAuth(config: AuthConfig) {
     trustedOrigins: config.trustedOrigins,
     database: drizzleAdapter(config.db, {
       provider: "pg",
-      // Better Auth looks tables up by these names.
       schema: { user, session, account, verification, rateLimit },
     }),
     emailAndPassword: {
@@ -61,62 +35,18 @@ export function createAuth(config: AuthConfig) {
       minPasswordLength: 10,
     },
     session: {
-      // A session lives 30 days; each use within the last day extends it.
       expiresIn: 60 * 60 * 24 * 30,
       updateAge: 60 * 60 * 24,
-      // Speed: keep the verified session in a signed cookie for 5 minutes,
-      // so most requests skip the `session` table query entirely. The
-      // trade-off: a session revoked in the database (e.g. "log out that
-      // device") stays usable for up to 5 minutes. Acceptable for one user;
-      // revisit with ADR-0006's tripwire when a second account exists.
       cookieCache: { enabled: true, maxAge: 5 * 60 },
     },
-    // ADR-0034: refuse a sign-up without a usable invitation early, with a
-    // clear code for the form...
-    hooks: {
-      before: createAuthMiddleware(async (ctx) => {
-        if (!config.requireInvite || ctx.path !== "/sign-up/email") return;
-        const code = ctx.headers?.get(INVITE_HEADER);
-        if (!code || !(await inviteUsable(config.db, code, new Date())))
-          throw new APIError("FORBIDDEN", {
-            code: "INVITE_INVALID",
-            message: "INVITE_INVALID",
-          });
-      }),
-    },
-    databaseHooks: {
-      user: {
-        create: {
-          // ...and claim it atomically while the account is created: of two
-          // sign-ups with the same code, one gets no account.
-          before: async (u, ctx) => {
-            if (!config.requireInvite || !ctx) return;
-            const code = ctx.headers?.get(INVITE_HEADER);
-            if (!code || !(await claimInvite(config.db, code, u.email, new Date())))
-              return false;
-          },
-          after: async (u, ctx) => {
-            const code = ctx?.headers?.get(INVITE_HEADER);
-            if (code) await linkInvite(config.db, code, u.id);
-            await config.onUserCreated?.(u.id);
-          },
-        },
-      },
-    },
-    rateLimit: {
-      enabled: true,
-      // Stored in Postgres (rate_limit table): in-memory counters would reset
-      // on every serverless cold start and never really limit anything.
-      storage: "database",
-    },
+    // In Postgres: in-memory counters reset on every cold start (v1).
+    rateLimit: { enabled: true, storage: "database" },
     advanced: {
-      // Ids generated by Postgres as UUIDs, like every other table (ADR-0003).
+      // Ids are Postgres UUIDs, like every other table.
       database: { generateId: "uuid" },
-      // Cookies only over HTTPS in production (Vercel is always HTTPS).
       useSecureCookies: config.baseURL.startsWith("https://"),
     },
   });
 }
 
-/** The type of the instance, for code that receives it. */
 export type Auth = ReturnType<typeof createAuth>;

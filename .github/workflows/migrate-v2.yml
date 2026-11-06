@@ -1,9 +1,7 @@
-# migrate-v2.yml — apply v2's committed migrations (apps/v2/drizzle) to the
-# Neon branch `v2`, only when a human presses the button (ADR-0004, ADR-0057).
-# A copy lives in docs/runbooks/workflows/ because the agent's token cannot
-# write .github/workflows: the developer copies it there (setup.md §10).
-#
-# As v1's migrate.yml: 1) encrypted backup first, kept 90 days; 2) migrate.
+# migrate-v2.yml — apply the committed migrations (drizzle/) to the Neon
+# branch `v2`, only when a human presses the button (ADR-0004, ADR-0057).
+# 1) encrypted backup first, kept 90 days; 2) migrate; 3) re-run the PRs'
+# migration gates (ci.yml) that waited for it. (v1's migrate.yml retired 6 Nov.)
 # Run it: Actions -> migrate-v2 -> Run workflow -> type "migrate v2".
 name: migrate-v2
 
@@ -16,13 +14,14 @@ on:
 
 permissions:
   contents: read
+  actions: write # re-run the PRs' migration gates afterwards
 
 jobs:
   migrate:
     if: github.event.inputs.confirm == 'migrate v2'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
-    # Its own environment: the v2 database's secret is never visible to v1's jobs.
+    # Its own environment: the database's secret is scoped to this job.
     environment: v2
     steps:
       - uses: actions/checkout@v7
@@ -57,8 +56,7 @@ jobs:
           retention-days: 90
           if-no-files-found: error
 
-      - name: 2. Apply committed migrations (apps/v2/drizzle/*.sql)
-        working-directory: apps/v2
+      - name: 2. Apply committed migrations (drizzle/*.sql)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
         run: npx drizzle-kit migrate
@@ -68,3 +66,14 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
           PGSSLROOTCERT: system
         run: psql "$DATABASE_URL" -c "select id, hash, to_timestamp(created_at/1000) as generated from drizzle.__drizzle_migrations order by id"
+
+      # The PRs waiting for this migration: their CI failed at the migration
+      # gate; re-run the failed jobs so they pass now (ci.yml finds this run).
+      - name: Re-run the waiting migration gates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for id in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml \
+              --event pull_request --status failure --limit 20 --json databaseId -q '.[].databaseId'); do
+            gh run rerun "$id" --failed --repo "$GITHUB_REPOSITORY" || true
+          done

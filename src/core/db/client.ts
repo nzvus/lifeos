@@ -1,47 +1,31 @@
 /**
- * core/db/client.ts — how the app gets a database connection.
+ * core/db/client.ts — the two ways v2 opens a database (ADR-0057). Making
+ * one is the app's composition root (app/_server/runtime.ts) or a local
+ * script; repositories only receive a `Db`.
  *
- * ADR-0003: this folder is the ONLY code that holds a connection. Routes,
- * server actions and components never import `pg` or run SQL; they call
- * repository functions (core/nutrition/repositories/*), which receive a `Db`.
- *
- * Why a factory instead of a global: tests pass a different database (PGlite,
- * in-memory Postgres — core/testing/test-db.ts) to the very same repository
- * code. The single real instance for the running app is created once in
- * src/app/_server/runtime.ts, which reads DATABASE_URL.
+ *   - `createDb(url)`: Postgres over a pool (Neon's branch `v2`). Never
+ *     migrated here: migrations reach a shared database only through the
+ *     human-triggered job (ADR-0003/0004).
+ *   - `createLocalDb(dir)`: PGlite in a folder on this machine, for running
+ *     the app with no database server (`V2_PGLITE_DIR`). It is nobody's but
+ *     this machine's, so it applies the committed migrations itself.
  */
-import { drizzle } from "drizzle-orm/node-postgres";
-import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
+import { join } from "node:path";
+import { PGlite } from "@electric-sql/pglite";
+import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
+import { drizzle as drizzlePglite } from "drizzle-orm/pglite";
+import { migrate } from "drizzle-orm/pglite/migrator";
 import { Pool } from "pg";
+import type { Db } from "./db";
 import * as schema from "./schema";
 
-export type Schema = typeof schema;
-
-/**
- * The type every repository accepts. It is the common base of the node-postgres
- * database (production) and the PGlite database (tests), so both fit.
- */
-export type Db = PgDatabase<PgQueryResultHKT, Schema>;
-
-/**
- * Creates a Drizzle database on a connection pool.
- *
- * `max: 10`: on Vercel each function instance gets its own pool; Neon's pooled
- * endpoint (hostname containing "-pooler") multiplexes them, so small pools
- * are right. Not smaller: the day page asks ~20 queries at once, and 5
- * connections made them queue (2026-10-03).
- * Use the pooled URL for the app, the direct one for pg_dump.
- */
+/** max 10: Neon's pooled endpoint multiplexes the small pools of each function (v1). */
 export function createDb(connectionString: string): Db {
-  return openDb(connectionString).db;
+  return drizzlePg(new Pool({ connectionString, max: 10 }), { schema }) as unknown as Db;
 }
 
-/**
- * Same, plus `close()` to end the pool. A long-running server never closes
- * it; a command-line script must, or Node keeps waiting on open connections
- * and the script never exits (scripts/import-fitforge.ts).
- */
-export function openDb(connectionString: string): { db: Db; close: () => Promise<void> } {
-  const pool = new Pool({ connectionString, max: 10 });
-  return { db: drizzle(pool, { schema }), close: () => pool.end() };
+export async function createLocalDb(dir: string): Promise<Db> {
+  const db = drizzlePglite(new PGlite(dir), { schema });
+  await migrate(db, { migrationsFolder: join(process.cwd(), "drizzle") });
+  return db as unknown as Db;
 }

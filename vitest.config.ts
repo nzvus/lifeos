@@ -1,27 +1,15 @@
-/**
- * vitest.config.ts — test runner configuration (`npm test`).
- *
- * Tests live next to the code they test (`foo.ts` + `foo.test.ts`), as
- * CLAUDE.md requires. Database tests do NOT need a Postgres server: they use
- * PGlite (real Postgres compiled to WebAssembly, in-process) — see
- * src/core/testing/test-db.ts.
- */
-import { defineConfig } from "vitest/config";
+/** lifeos v2 tests (`npm test`): next to the code, `foo.ts` + `foo.test.ts`. */
 import { fileURLToPath } from "node:url";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  resolve: {
-    // Same alias as tsconfig.json "paths": `@/x` -> `src/x`.
-    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
-  },
+  // The same `@/` as tsconfig's paths.
+  resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   test: {
     environment: "node",
-    // scripts/: the guards of change 2026-11-06-guards (hooks, check.py, the copy detector).
-    include: ["src/**/*.test.ts", "scripts/**/*.test.mjs"],
-    // The migrations run once; each test database copies the result.
-    globalSetup: ["src/core/testing/global-setup.ts"],
-    // Each DB test file boots its own PGlite instance and applies every
-    // migration: a few seconds, so give it room on slow machines / CI.
+    include: ["src/**/*.test.ts", "eslint/**/*.test.mjs", "scripts/**/*.test.mjs"],
+    // As v1's: a PGlite test database takes seconds to create when CI runs every file at
+    // once; 10 s timed out a beforeAll (food.test.ts, 2026-10-24).
     testTimeout: 30_000,
     hookTimeout: 60_000,
   },

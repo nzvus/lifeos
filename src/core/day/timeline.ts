@@ -1,108 +1,210 @@
 /**
- * core/day/timeline.ts — the day as one timeline (ADR-0050). Pure.
+ * core/day/timeline.ts — one logical day as the V-01 timeline (screens.md
+ * V-01, concepts §3 and §8). Pure: the rows from `readDay` and the kinds in,
+ * the day out. No formatting: numbers stay exact strings, times stay
+ * instants and day minutes; the page's formatter writes them.
  *
- * In: the day's items as core/nutrition/slots withSlots gives them (moment
- * groups, matched to their slot or not, and empty slots), the day's
- * training sessions, and — on today — the time now. Out: one list in time
- * order, each row with its minute of the day:
- *
- *   group    food of one moment, at its slot's time or its own
- *   empty    a slot with no food yet; `past` once its time has gone
- *   session  a training session, at its real start or its planned time
- *   event    something else logged that day (2026-10-11): waking up, going
- *            to bed, a weigh-in, money spent or earned — each its own kind
- *   now      the "now" line (today only)
- *
- * Food with no time and no slot ("not set") goes last, as before.
+ * - **Timed** items are sorted by their minute of the logical day (a
+ *   `DayMin`: 00:30 after a 04:00 boundary is 1470), an interval at its
+ *   start, or at its end when its kind says so (sleep shows at the wake).
+ * - **Untimed** items (a day's steps, a check-in with no hour, a meal
+ *   with only its day) are kept apart, in the order they were made.
+ * - **Children** (a session's exercises) sit under their parent, never on
+ *   the day by themselves; their sets come along.
+ * - A **planned** entry another entry fulfils is folded into it: the day
+ *   shows what happened, with the plan it came from.
+ * - **Relations** the kinds declare (meal → session) become tags, from E1.
  */
-import type { Moment, MomentBounds } from "../nutrition/moments";
-import type { ProgramSlot } from "../nutrition/programs";
-import { groupAt, type DayItem } from "../nutrition/slots";
+import {
+  daysBetween,
+  localParts,
+  relate,
+  type DayClock,
+  type GapRule,
+  type IsoDate,
+  type TimedEntry,
+} from "../engines/time";
+import { clockMin, type DayMin } from "../engines/planning";
+import { subcategoryOf, type Family, type Kind, type KindRegistry } from "../kinds";
+import type { DayRows, EntryRow, MoneyRow, SetRow } from "./read";
 
-/** A session without any time sits here (late afternoon, the usual gym hour). */
-export const SESSION_DEFAULT_AT = 17 * 60 + 30;
+export type Value = string | boolean;
 
-export type TimelineSession = {
+export type DayLine = {
   id: string;
-  label: string;
-  status: "planned" | "done";
-  /** Minutes after midnight: the real start, else the program's time, else null. */
-  at: number | null;
+  name: string;
+  itemId: string | null;
+  productId: string | null;
+  quantity: string;
+  unit: string;
+  /** The snapshot per 100 (ADR-0007): field → exact number. */
+  values: Record<string, string>;
 };
 
-/** Not food, not training: the rest of the day's log, on the same line. */
-export type TimelineEvent = {
+export type DayItem = {
   id: string;
-  kind: "wake" | "bed" | "weigh" | "money";
-  at: number;
-  text: string;
-  href?: string;
+  kind: Kind;
+  family: Family;
+  subcategory: string | null;
+  status: EntryRow["status"];
+  start: Date | null;
+  end: Date | null;
+  /** Where it sits on the day; null when untimed. */
+  minute: DayMin | null;
+  /** The catalog item it is "of", with its name and the values that pick its drawing. */
+  item: { id: string; name: string; drawing: Record<string, string> } | null;
+  /** Field → value: numbers as exact strings, a ref as the item's id. */
+  values: Record<string, Value>;
+  lines: DayLine[];
+  children: DayItem[];
+  sets: SetRow[];
+  money: MoneyRow | null;
+  /** The planned entry it fulfils (folded into it), if any. */
+  fulfils: string | null;
+  tags: string[];
+  source: EntryRow["source"];
+  confidence: string;
+  note: string;
 };
 
-export type TimelineRow<E> =
-  | { type: "group"; at: number | null; item: Extract<DayItem<E>, { type: "group" }> }
-  | {
-      type: "empty";
-      at: number;
-      past: boolean;
-      item: Extract<DayItem<E>, { type: "empty" }>;
-    }
-  | { type: "session"; at: number; session: TimelineSession }
-  | { type: "event"; at: number; event: TimelineEvent }
-  | { type: "now"; at: number };
+export type Day = {
+  day: IsoDate;
+  clock: DayClock;
+  timed: DayItem[];
+  untimed: DayItem[];
+  /** User kinds that could not be read: their entries show as plain items. */
+  invalidKinds: { key: string; reason: string }[];
+};
 
-/**
- * Slots for a day whose type has no program (ADR-0050): the main meals at
- * the times the moments usually have, without shares — so the day still
- * reads as a timeline with places to fill.
- */
-export function defaultSlots(bounds: MomentBounds): ProgramSlot[] {
-  const at = (m: Moment, minutes: number) => ({
-    kind: m,
-    at: minutes,
-    kcalShare: null,
-    proteinShare: null,
-  });
-  return [
-    at("breakfast", Math.min(8 * 60, bounds.lunch - 60)),
-    at("lunch", Math.max(bounds.lunch + 60, 13 * 60)),
-    at("dinner", Math.max(bounds.dinner + 60, 20 * 60)),
-  ];
+/** The minute of the logical day `day` an instant falls at, in the person's zone. */
+export function dayMinute(instant: Date, day: IsoDate, clock: DayClock): DayMin {
+  const { date, minute } = localParts(instant, clock.timeZone);
+  return daysBetween(day, date) * 1440 + minute;
 }
 
-export function timeline<E>(
-  items: readonly DayItem<E>[],
-  sessions: readonly TimelineSession[],
-  /** Minutes after midnight on today; null on other days. */
-  now: number | null,
-  /** The day is over (a past day): every empty slot is past. */
-  over: boolean,
-  events: readonly TimelineEvent[] = [],
-): TimelineRow<E>[] {
-  const rows: TimelineRow<E>[] = [];
-  for (const item of items) {
-    if (item.type === "empty") {
-      rows.push({
-        type: "empty",
-        at: item.slot.at,
-        past: over || (now !== null && item.slot.at < now),
-        item,
-      });
-    } else {
-      rows.push({ type: "group", at: groupAt(item), item });
-    }
+const groupBy = <T, K>(rows: readonly T[], key: (r: T) => K): Map<K, T[]> => {
+  const out = new Map<K, T[]>();
+  for (const r of rows) out.set(key(r), [...(out.get(key(r)) ?? []), r]);
+  return out;
+};
+
+export function composeDay(rows: DayRows, registry: KindRegistry): Day {
+  const values = groupBy(rows.values, (v) => v.entryId);
+  const lines = groupBy(rows.lines, (l) => l.entryId);
+  const lineValues = groupBy(rows.lineValues, (v) => v.lineId);
+  const sets = groupBy(rows.sets, (s) => s.entryId);
+  const money = new Map(rows.money.map((m) => [m.entryId, m]));
+  const names = new Map(rows.items.map((i) => [i.id, i.name]));
+  const drawing = new Map<string, Record<string, string>>();
+  for (const v of rows.itemValues)
+    if (v.text) drawing.set(v.itemId, { ...drawing.get(v.itemId), [v.field]: v.text });
+  const live = new Set(rows.entries.map((e) => e.id));
+
+  // done → the planned entry it fulfils; the planned one leaves the day.
+  const fulfils = new Map<string, string>();
+  for (const l of rows.links)
+    if (l.relation === "fulfils" && live.has(l.toId)) fulfils.set(l.fromId, l.toId);
+  const folded = new Set(fulfils.values());
+
+  const toItem = (e: EntryRow): DayItem => {
+    const kind = registry.get(e.kind);
+    const vals: Record<string, Value> = {};
+    for (const v of values.get(e.id) ?? [])
+      vals[v.field] = v.num ?? v.text ?? v.bool ?? v.refItemId ?? "";
+    const anchor = kind.anchor === "end" && e.endAt ? e.endAt : e.startAt;
+    const minute = anchor ? dayMinute(anchor, rows.day, rows.clock) : null;
+    return {
+      id: e.id,
+      kind,
+      family: kind.family,
+      subcategory: subcategoryOf(
+        kind,
+        new Map(Object.entries(vals)),
+        minute === null ? null : clockMin(minute),
+        rows.roleBounds,
+      ),
+      status: e.status,
+      start: e.startAt,
+      end: e.endAt,
+      minute,
+      item: e.itemId
+        ? {
+            id: e.itemId,
+            name: names.get(e.itemId) ?? "",
+            drawing: drawing.get(e.itemId) ?? {},
+          }
+        : null,
+      values: vals,
+      lines: (lines.get(e.id) ?? [])
+        .sort((a, b) => a.position - b.position)
+        .map((l) => ({
+          id: l.id,
+          name: l.name,
+          itemId: l.itemId,
+          productId: l.productId,
+          quantity: l.quantity,
+          unit: l.unit,
+          values: Object.fromEntries(
+            (lineValues.get(l.id) ?? []).map((v) => [v.field, v.num]),
+          ),
+        })),
+      children: [],
+      sets: (sets.get(e.id) ?? []).sort((a, b) => a.position - b.position),
+      money: money.get(e.id) ?? null,
+      fulfils: fulfils.get(e.id) ?? null,
+      tags: [],
+      source: e.source,
+      confidence: e.confidence,
+      note: e.note,
+    };
+  };
+
+  const byCreation = [...rows.entries].sort(
+    (a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id.localeCompare(b.id),
+  );
+  const items = new Map(
+    byCreation.filter((e) => !folded.has(e.id)).map((e) => [e.id, toItem(e)]),
+  );
+
+  // Children under their parent, in their position; one whose parent is on
+  // another day stays on this day rather than vanish (a child of a trashed
+  // parent is not read at all: core/day/read.ts).
+  const roots: DayItem[] = [];
+  for (const e of byCreation) {
+    const item = items.get(e.id);
+    if (!item) continue;
+    const parent = e.parentId ? items.get(e.parentId) : undefined;
+    if (parent) parent.children.push(item);
+    else roots.push(item);
   }
-  for (const s of sessions)
-    rows.push({ type: "session", at: s.at ?? SESSION_DEFAULT_AT, session: s });
-  for (const event of events) rows.push({ type: "event", at: event.at, event });
-  if (now !== null) rows.push({ type: "now", at: now });
-  // Time order; "now" after anything at the same minute; no time last.
-  const rank = (r: TimelineRow<E>) => (r.type === "now" ? 1 : 0);
-  return rows
-    .map((r, i) => ({ r, i }))
-    .sort(
-      (a, b) =>
-        (a.r.at ?? Infinity) - (b.r.at ?? Infinity) || rank(a.r) - rank(b.r) || a.i - b.i,
-    )
-    .map((x) => x.r);
+  const position = (i: DayItem) => Number(i.values["position"] ?? 0);
+  for (const r of roots) r.children.sort((a, b) => position(a) - position(b));
+
+  // Relations: the gap rules every kind on the day declares.
+  const rules: GapRule[] = [];
+  for (const k of new Set(roots.map((r) => r.kind)))
+    for (const r of k.relations) rules.push({ from: k.key, to: r.to, bands: r.bands });
+  const timedEntries: TimedEntry[] = roots
+    .filter((r) => r.start !== null)
+    .map((r) => ({
+      id: r.id,
+      kind: r.kind.key,
+      at: r.start!,
+      ...(r.end ? { end: r.end } : {}),
+      status: r.status,
+    }));
+  const related = relate(timedEntries, rules);
+  for (const r of roots) r.tags = related.get(r.id)?.tags ?? [];
+
+  const timed = roots
+    .filter((r) => r.minute !== null)
+    .sort((a, b) => a.minute! - b.minute! || a.id.localeCompare(b.id));
+  const untimed = roots.filter((r) => r.minute === null);
+  return {
+    day: rows.day,
+    clock: rows.clock,
+    timed,
+    untimed,
+    invalidKinds: [...registry.invalid],
+  };
 }

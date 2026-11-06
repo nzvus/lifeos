@@ -1,165 +1,149 @@
-/**
- * features/money/MovementForm.tsx — one movement of the ledger (ADR-0036):
- * spending or income, how much, when, the category (of that kind), and
- * optionally where, how it was paid, what it was and tags. Used by the add
- * sheet (empties itself after saving) and by the edit page. Client component.
- */
 "use client";
+/**
+ * «Spesa» (V-11; ⊕ → Spesa): how much, out or in, its category (grouped as
+ * the categories are), where, what, the day and the time. The server action
+ * checks it (core/money) and writes the movement with its entry.
+ */
+import { useActionState } from "react";
+import { Field, PageHeader } from "@lifeos/kit";
 
-import { ArrowDownLeft, ArrowUpRight, Check, Plus } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
-import { fieldError, IDLE, type FormState } from "@/core/shared/result";
-import type { Messages } from "@/i18n";
-import { Field } from "@/ui/Field";
-import { FormAlert } from "@/ui/FormAlert";
-import { Segmented } from "@/ui/Segmented";
-import { SelectField } from "@/ui/SelectField";
-import { SubmitButton } from "@/ui/SubmitButton";
-
-export type CategoryOption = { id: string; label: string; kind: "expense" | "income" };
-export type MovementValues = {
-  kind: "expense" | "income";
-  amount: string;
-  day: string;
-  categoryId: string;
-  description: string;
-  shop: string;
-  method: string;
-  tags: string;
+export type MovementState = {
+  errors: Record<string, string>;
+  values: Record<string, string>;
+  n: number;
 };
+export type CategoryOption = { id: string; name: string; group: string; kind: string };
 
 export function MovementForm({
-  action,
   categories,
   initial,
-  onSaved,
-  submitLabel,
-  t,
+  backHref,
+  backLabel = "Aggiungi",
+  action,
+  remove,
 }: {
-  action: (prev: FormState, formData: FormData) => Promise<FormState>;
   categories: CategoryOption[];
-  initial: MovementValues;
-  /** After a save (the sheet closes and empties). */
-  onSaved?: () => void;
-  submitLabel: string;
-  t: Pick<Messages, "money" | "errors">;
+  backLabel?: string;
+  /** An existing movement: «Elimina» (to the trash). */
+  remove?: () => Promise<void>;
+  initial: Record<string, string>;
+  backHref: string;
+  action: (s: MovementState, d: FormData) => Promise<MovementState>;
 }) {
-  const m = t.money;
-  const [state, formAction] = useActionState(action, IDLE);
-  const kept = (f: keyof MovementValues) =>
-    state.status === "error" ? (state.values[f] ?? initial[f]) : initial[f];
-  const [kind, setKind] = useState<MovementValues["kind"]>(() =>
-    kept("kind") === "income" ? "income" : "expense",
-  );
-  // A save = a fresh, empty form (state adjusted while rendering, as in
-  // AddToDay); the sheet is told after the render.
-  const [round, setRound] = useState(0);
-  const [seen, setSeen] = useState(state);
-  if (state !== seen) {
-    setSeen(state);
-    if (state.status === "saved") setRound((r) => r + 1);
-  }
-  useEffect(() => {
-    if (round > 0) onSaved?.();
-  }, [round, onSaved]);
-  const err = (f: string) => fieldError(state, f, t.errors);
+  const [state, submit, pending] = useActionState(action, {
+    errors: {},
+    values: initial,
+    n: 0,
+  });
+  const v = state.values;
+  const e = state.errors;
+  const groups = [...new Set(categories.map((c) => c.group))];
   return (
-    <form key={round} action={formAction} className="flex flex-col gap-3">
-      <input type="hidden" name="kind" value={kind} />
-      <Segmented
-        label={m.kind}
-        value={kind}
-        onChange={setKind}
-        options={[
-          {
-            value: "expense",
-            label: m.expense,
-            icon: <ArrowUpRight size={18} aria-hidden="true" />,
-          },
-          {
-            value: "income",
-            label: m.income,
-            icon: <ArrowDownLeft size={18} aria-hidden="true" />,
-          },
-        ]}
+    <form key={state.n} action={submit} className="k-page">
+      <PageHeader
+        title="Spesa"
+        context="un movimento di soldi"
+        back={{ label: backLabel, href: backHref }}
+        of={{ fam: "money" }}
       />
-      <div className="grid grid-cols-2 gap-3">
+      <input type="hidden" name="day" value={v["day"] ?? ""} />
+      <section className="k-section g3" aria-label="Quanto">
         <Field
-          label={m.amount}
+          name="direction"
+          label="Che cosa"
+          type="choice"
+          required
+          defaultValue={v["direction"] ?? "out"}
+          options={[
+            { value: "out", label: "Spesa" },
+            { value: "in", label: "Entrata" },
+          ]}
+        />
+        <Field
           name="amount"
-          inputMode="decimal"
-          defaultValue={round ? "" : kept("amount")}
-          error={err("amount")}
+          label="Quanto"
+          type="text"
+          unit="€"
           required
+          placeholder="per esempio 12,50"
+          defaultValue={v["amount"] ?? ""}
+          error={e["amount"]}
         />
+        <div className="k-field">
+          <label className="k-label" htmlFor="f-category">
+            Categoria
+          </label>
+          <select
+            id="f-category"
+            name="category"
+            className="k-select"
+            defaultValue={v["category"] ?? ""}
+          >
+            <option value="">nessuna</option>
+            {groups.map((g) => (
+              <optgroup key={g} label={g}>
+                {categories
+                  .filter((c) => c.group === g)
+                  .map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
         <Field
-          label={m.day}
-          name="day"
-          type="date"
-          defaultValue={kept("day")}
-          error={err("day")}
-          required
-        />
-      </div>
-      <SelectField
-        // A new kind = a fresh list (the select keeps its first default).
-        key={kind}
-        label={m.category}
-        name="categoryId"
-        placeholder={m.noCategory}
-        defaultValue={round ? "" : kept("categoryId")}
-        options={categories
-          .filter((c) => c.kind === kind)
-          .map((c) => ({ value: c.id, label: c.label }))}
-        error={err("categoryId")}
-      />
-      <Field
-        label={m.description}
-        name="description"
-        defaultValue={round ? "" : kept("description")}
-        error={err("description")}
-      />
-      <div className="grid grid-cols-2 gap-3">
-        <Field
-          label={m.shop}
           name="shop"
-          defaultValue={round ? "" : kept("shop")}
-          error={err("shop")}
+          label="Dove"
+          type="text"
+          placeholder="il negozio, facoltativo"
+          defaultValue={v["shop"] ?? ""}
+          error={e["shop"]}
         />
-        <SelectField
-          label={m.method}
+        <Field
+          name="note"
+          label="Cosa"
+          type="text"
+          placeholder="per esempio: cena al ristorante indiano"
+          defaultValue={v["note"] ?? ""}
+          error={e["note"]}
+        />
+        <Field
           name="method"
-          placeholder={m.methodNone}
-          defaultValue={kept("method")}
-          options={(["card", "cash", "account", "other"] as const).map((k) => ({
-            value: k,
-            label: m.methods[k],
-          }))}
-          error={err("method")}
+          label="Come"
+          type="choice"
+          defaultValue={v["method"] ?? "card"}
+          options={[
+            { value: "card", label: "Carta" },
+            { value: "cash", label: "Contanti" },
+          ]}
         />
-      </div>
-      <Field
-        label={m.tags}
-        name="tags"
-        hint={m.tagsHint}
-        defaultValue={round ? "" : kept("tags")}
-        error={err("tags")}
-      />
-      {state.status === "error" && state.errors._form && (
-        <FormAlert tone="error">{err("_form")}</FormAlert>
-      )}
-      <div>
-        <SubmitButton
-          icon={
-            onSaved ? (
-              <Plus size={18} aria-hidden="true" />
-            ) : (
-              <Check size={18} aria-hidden="true" />
-            )
-          }
-        >
-          {submitLabel}
-        </SubmitButton>
+        <Field
+          name="start"
+          label="Ora"
+          type="time"
+          defaultValue={v["start"] ?? ""}
+          error={e["start"]}
+        />
+        {e["form"] && (
+          <p className="k-help" role="alert">
+            {e["form"]}
+          </p>
+        )}
+        {remove && (
+          <button type="submit" formAction={remove} className="k-btn secondary danger">
+            Elimina
+          </button>
+        )}
+      </section>
+      <div className="k-pagefoot">
+        <a className="k-btn secondary" href={backHref}>
+          Annulla
+        </a>
+        <button type="submit" className="k-btn primary" aria-busy={pending}>
+          Salva
+        </button>
       </div>
     </form>
   );

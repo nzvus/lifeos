@@ -259,7 +259,7 @@ def check_spec(root, files):
 
 REQ_ID = re.compile(r"\b((?:PRD|MOD|PAT|VIS|FD|TR|BD|PL|DT)-\d+)\b")
 UNTESTED = "docs/spec/untested.txt"
-TEST_DIRS = ("apps/v2", "packages/kit", "scripts")
+TEST_DIRS = ("src", "e2e", "eslint", "packages/kit", "scripts")
 SKIP_DIRS = {"node_modules", ".next", ".pglite", ".pglite-e2e", "test-results", "playwright-report"}
 TEST_FILE = re.compile(r"\.(?:test|spec)\.(?:ts|tsx|mjs)$")
 

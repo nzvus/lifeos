@@ -1,21 +1,18 @@
 /**
- * app/(app)/loading.tsx — shown INSTANTLY while a signed-in page loads.
- *
- * Next.js wraps each page in a React Suspense boundary using this file: when
- * you tap a link, the layout (header, nav) stays and this skeleton appears
- * immediately, then the real page replaces it. Without it the old page sat
- * frozen until the server answered, which felt like the tap did nothing.
- *
- * Pure shapes, no text: nothing to translate, nothing to read.
+ * While a page of the app loads (register S18: every load its skeleton): the
+ * page's own shape — title, a panel, a few rows — in the kit's `k-skel`, so the
+ * old page does not sit frozen on a phone while the new one comes.
  */
 export default function Loading() {
   return (
-    <div aria-busy="true" className="flex animate-pulse flex-col gap-4">
-      <div className="h-8 w-2/3 bg-hairline" />
-      <div className="h-40 w-full bg-hairline" />
-      <div className="h-6 w-full bg-hairline" />
-      <div className="h-6 w-5/6 bg-hairline" />
-      <div className="h-6 w-4/6 bg-hairline" />
-    </div>
+    <main className="k-page" aria-busy="true" aria-label="Carico la pagina">
+      <section className="k-section g3">
+        <span className="k-skel title" />
+        <span className="k-skel card" />
+        <span className="k-skel row" />
+        <span className="k-skel row" />
+        <span className="k-skel row" />
+      </section>
+    </main>
   );
 }

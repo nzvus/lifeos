@@ -1,20 +1,20 @@
 {
-  // TypeScript compiler settings. `npm run typecheck` runs `tsc --noEmit`:
-  // it checks types only; Next.js does the real compilation (its own compiler).
+  // lifeos v2 (ADR-0053, ADR-0056): the engines and core in plain
+  // TypeScript, the app in Next.js (src/app), the kit from packages/kit.
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "ES2023"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "esnext",
-    "moduleResolution": "bundler", // resolve imports the way Next's bundler does
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "strict": true, // all strict checks: null safety, no implicit any, ...
-    "noUncheckedIndexedAccess": true, // arr[i] is `T | undefined`: forces handling missing rows
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true, // an optional field is absent, never `undefined` by accident
     "noEmit": true,
-    "allowJs": false,
-    "skipLibCheck": true, // don't type-check node_modules' .d.ts files (speed)
+    "skipLibCheck": true,
+    "isolatedModules": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true, // every file must compile alone (required by Next/Vitest)
+    "allowJs": false,
     "incremental": true,
     "plugins": [
       {
@@ -22,16 +22,19 @@
       }
     ],
     "paths": {
-      // `@/core/...` means `src/core/...` everywhere (app code, tests, eslint).
       "@/*": ["./src/*"]
-    }
+    },
+    "resolveJsonModule": true
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "scripts/**/*.ts",
+    "e2e/**/*.ts",
+    "*.config.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "drizzle", "apps", "packages"] // apps/v2 has its own config (ADR-0056)
+  "exclude": ["node_modules", "drizzle", ".pglite", ".pglite-e2e"]
 }
