@@ -4,7 +4,7 @@
  * the registry declares and the verbs it allows, each answered by a toast with «Annulla»
  * (PAT-21, PAT-74). Every type moves onto it in its own change (phase 4).
  */
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   InPlace,
@@ -33,6 +33,8 @@ export function ObjectView({
   title,
   meta,
   fields,
+  parts,
+  progress,
   others,
   typeName,
   verbs,
@@ -42,6 +44,7 @@ export function ObjectView({
   run,
   save,
   revert,
+  rename,
   mergePreview,
   merge,
 }: {
@@ -49,6 +52,9 @@ export function ObjectView({
   title: string;
   meta: string;
   fields: readonly ObjectField[];
+  /** A type's own sections (its specialisation): its parts and its progress. */
+  parts?: { title: string; node: ReactNode };
+  progress?: ReactNode;
   /** The other objects of its type, for «Unisci» (PAT-18). */
   others: readonly { id: string; name: string }[];
   typeName: string;
@@ -64,6 +70,7 @@ export function ObjectView({
     value: string | number | boolean | null,
   ) => Promise<Answer>;
   revert: (u: Undo) => Promise<Answer>;
+  rename: (type: string, id: string, name: string) => Promise<Answer>;
   mergePreview: (type: string, keep: string, gone: string) => Promise<string[]>;
   merge: (type: string, keep: string, gone: string) => Promise<Answer>;
 }) {
@@ -73,6 +80,18 @@ export function ObjectView({
   const [hour] = useState(() => new Date().getHours());
   const refusal = (r: string) =>
     objects.refused[r as keyof typeof objects.refused] ?? objects.refused.other;
+  /** PAT-13: a value saved in place — its refusal in words, or «Salvato · Annulla». */
+  const saved = async (answer: Promise<Answer>): Promise<string | null> => {
+    const r = await answer;
+    if (!r.ok) return refusal(r.refused);
+    const u = r.undo;
+    say(
+      common.states.saved,
+      u ? () => revert(u).then(() => router.refresh()) : undefined,
+    );
+    router.refresh();
+    return null;
+  };
   const onVerb = async (v: ObjectVerb) => {
     if (v === "merge") return setMerging(true);
     const r = await run(type, id, v);
@@ -95,36 +114,26 @@ export function ObjectView({
       title={title}
       meta={meta}
       values={
-        fields.length ? (
-          <div className="k-stack">
-            {fields.map((f) => (
-              <InPlace
-                key={f.spec.key}
-                spec={f.spec}
-                value={f.value}
-                shown={f.shown}
-                onSave={async (v) => {
-                  const r = await save(type, id, f.spec.key, v);
-                  if (!r.ok)
-                    return (
-                      objects.refused[r.refused as keyof typeof objects.refused] ??
-                      objects.refused.other
-                    );
-                  const u = r.undo;
-                  say(
-                    common.states.saved,
-                    u ? () => revert(u).then(() => router.refresh()) : undefined,
-                  );
-                  router.refresh();
-                  return null;
-                }}
-              />
-            ))}
-          </div>
-        ) : (
-          <span className="k-body">{objects.noValues}</span>
-        )
+        <div className="k-stack">
+          <InPlace
+            spec={{ key: "name", label: objects.name, type: "text", required: true }}
+            value={title}
+            shown={title}
+            onSave={(v) => saved(rename(type, id, String(v ?? "")))}
+          />
+          {fields.map((f) => (
+            <InPlace
+              key={f.spec.key}
+              spec={f.spec}
+              value={f.value}
+              shown={f.shown}
+              onSave={(v) => saved(save(type, id, f.spec.key, v))}
+            />
+          ))}
+        </div>
       }
+      {...(parts ? { parts } : {})}
+      {...(progress ? { progress } : {})}
       actions={
         <ObjectActions
           title={title}

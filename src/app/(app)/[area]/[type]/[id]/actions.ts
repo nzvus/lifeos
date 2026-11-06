@@ -40,6 +40,18 @@ export async function objectEdit(
   return r.ok ? { ok: true, undo: r.undo } : { ok: false, refused: r.refused };
 }
 
+/** PAT-13: the object's name saved in place; the undo puts the old one back. */
+export async function objectRename(
+  type: string,
+  id: string,
+  name: string,
+): Promise<VerbAnswer> {
+  const owner = await requireOwner();
+  const r = await act(await getDb(), owner, "edit", type, id, { name });
+  revalidatePath("/", "layout");
+  return r.ok ? { ok: true, undo: r.undo } : { ok: false, refused: r.refused };
+}
+
 /** PAT-18: what moves when `gone` goes into `keep`, said before it is done (PAT-73). */
 export async function objectMergePreview(
   type: string,

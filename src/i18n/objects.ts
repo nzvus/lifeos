@@ -5,7 +5,7 @@
  */
 export const objects = {
   values: "Valori",
-  noValues: "Nessun valore",
+  name: "Nome",
   yes: "sì",
   no: "no",
   archived: "archiviato",

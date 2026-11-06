@@ -446,7 +446,7 @@ export default async function AddPage({
                     entry={{ fam: "train", title: "Nuovo esercizio", value: "›" }}
                   />
                 </a>
-                <a href="/profilo/tipi#nuovo" className="k-plain">
+                <a href="/oggi/tracker/nuovo" className="k-plain">
                   <Box
                     density="row"
                     rail={false}

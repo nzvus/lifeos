@@ -216,7 +216,7 @@ function Index({
                   (trackers.own > 0
                     ? F.plural(trackers.own, "tuo", "tuoi")
                     : "crea il tuo"),
-                href: "/profilo/tipi",
+                href: "/oggi/elenco#tracker",
                 hrefLabel: "I tipi di tracker",
               }}
             />
@@ -254,7 +254,7 @@ const ADDS = [
     fam: "habit",
     title: "Un tracker",
     meta: "qualsiasi cosa: un numero, un voto, un segno",
-    href: "/profilo/tipi#nuovo",
+    href: "/oggi/tracker/nuovo",
     hrefLabel: "Crea un tracker",
   },
   {

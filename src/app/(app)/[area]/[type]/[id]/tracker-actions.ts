@@ -1,5 +1,9 @@
 "use server";
-/** «Tracker e tipi» (V-14): a new tracker, and archiving one. The session's owner, core/kinds checks. */
+/**
+ * «Nuovo tracker» (PAT-11; the tracker's specialisation, core/kinds/user): builds and saves his
+ * new type, then opens its page `/oggi/tracker/<id>`. Moved from Profilo's «Tracker e tipi»
+ * (change 2026-11-06-tracker).
+ */
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
@@ -8,14 +12,13 @@ import { kindRegistry } from "@/core/kinds";
 import {
   buildUserKind,
   createUserKind,
-  setUserKindArchived,
   takenKindKeys,
+  userKindId,
   type UserKindError,
   type UserKindInput,
 } from "@/core/kinds/user";
 import type { TrackerState } from "@/features/account/TrackerForm";
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const WORDS: Record<string, string> = {
   name: "Un nome di 2–40 caratteri.",
   family: "Scegli che cosa è.",
@@ -58,13 +61,8 @@ export async function createTracker(
       else errors["field." + x.field] = WORDS[x.error]!;
     return { errors, n: prev.n + 1 };
   }
-  await createUserKind(db, owner, built.row);
+  const key = await createUserKind(db, owner, built.row);
+  const id = await userKindId(db, owner, key);
   revalidatePath("/", "layout");
-  redirect("/profilo/tipi?fatto=" + built.row.key);
-}
-
-export async function archiveTracker(id: string, archived: boolean): Promise<void> {
-  if (!UUID.test(id)) return;
-  await setUserKindArchived(await getDb(), await requireOwner(), id, archived);
-  revalidatePath("/", "layout");
+  redirect(id ? "/oggi/tracker/" + id : "/oggi/elenco");
 }

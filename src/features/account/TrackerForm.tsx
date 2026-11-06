@@ -8,27 +8,13 @@
  */
 import { useActionState, useState } from "react";
 import { Field } from "@lifeos/kit";
+import { tracker } from "@/i18n/tracker";
 
 export type TrackerState = { errors: Record<string, string>; n: number };
 type Row = { id: number; label: string; type: string; unit: string; choices: string };
 
-const FAMILIES = [
-  { value: "habit", label: "Abitudine" },
-  { value: "mind", label: "Mente" },
-  { value: "body", label: "Corpo" },
-  { value: "sleep", label: "Sonno" },
-  { value: "drink", label: "Bevande" },
-  { value: "food", label: "Cibo" },
-];
-const TYPES: [string, string][] = [
-  ["number", "numero"],
-  ["integer", "numero intero"],
-  ["scale", "da 1 a 5"],
-  ["boolean", "sì / no"],
-  ["choice", "una tra più opzioni"],
-  ["text", "testo"],
-  ["duration", "minuti"],
-];
+const FAMILIES = [...tracker.families];
+const TYPES = tracker.types;
 const MAX = 6;
 
 export function TrackerForm({
@@ -72,10 +58,7 @@ export function TrackerForm({
         type="choice"
         required
         defaultValue="instant"
-        options={[
-          { value: "instant", label: "Un momento" },
-          { value: "interval", label: "Con una durata" },
-        ]}
+        options={[...tracker.shapes]}
         error={e["shape"]}
       />
       <div className="k-stack g2">

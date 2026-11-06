@@ -84,7 +84,7 @@ export async function act<V extends ActVerb>(
   }
   if (!t.verbs.includes(verb) && !isInverse(verb, t))
     return refuse("verb_not_allowed", verb);
-  if (t.storage.table === "kinds") return actOnTracker(db, owner, verb, t, id);
+  if (t.storage.table === "kinds") return actOnTracker(db, owner, verb, t, id, payload);
   if (verb === "create") return create(db, owner, t, payload as Payloads["create"]);
   if (verb === "saveAs") return saveAs(db, owner, t, id, payload as Payloads["saveAs"]);
   const item = id ? await readItem(db, owner, t, id) : null;
@@ -133,7 +133,16 @@ export async function readObject(
   id: string,
 ): Promise<ObjectRead | null> {
   const t = catalogType(type);
-  if (!t || t.storage.table !== "catalog_items") return null;
+  if (!t) return null;
+  if (t.storage.table === "kinds") {
+    const [k] = await db
+      .select({ id: kinds.id, name: kinds.name, archivedAt: kinds.archivedAt })
+      .from(kinds)
+      .where(and(ownedBy(kinds, owner), eq(kinds.id, id)));
+    return k
+      ? { type: t.key, id: k.id, name: k.name, archived: !!k.archivedAt, values: {} }
+      : null;
+  }
   const item = await readItem(db, owner, t, id);
   if (!item || item.deletedAt) return null;
   const values = await readValues(
@@ -158,7 +167,13 @@ export async function listObjects(
   type: string,
 ): Promise<{ id: string; name: string }[]> {
   const t = catalogType(type);
-  if (!t || t.storage.table !== "catalog_items") return [];
+  if (!t) return [];
+  if (t.storage.table === "kinds")
+    return db
+      .select({ id: kinds.id, name: kinds.name })
+      .from(kinds)
+      .where(and(ownedBy(kinds, owner), isNull(kinds.archivedAt)))
+      .orderBy(asc(kinds.name));
   const rows = await db
     .select({ id: catalogItems.id, name: catalogItems.name })
     .from(catalogItems)
@@ -605,7 +620,10 @@ async function actOnTracker(
   verb: ActVerb,
   t: CatalogType,
   id: string | null,
+  payload: Payloads[ActVerb],
 ): Promise<VerbResult> {
+  if (id && verb === "edit")
+    return renameTracker(db, owner, t, id, payload as Payloads["edit"]);
   if (!id || (verb !== "archive" && verb !== "restore"))
     return refuse("verb_not_allowed", verb);
   const rows = await db
@@ -618,4 +636,29 @@ async function actOnTracker(
     id,
     verb === "archive" ? { verb: "restore", type: t.key, id, payload: NO } : null,
   );
+}
+
+/** A tracker's new name (PAT-13): 2–40 characters, not another of his trackers' names; undo: the old one. */
+async function renameTracker(
+  db: Db,
+  owner: Owner,
+  t: CatalogType,
+  id: string,
+  p: Payloads["edit"],
+): Promise<VerbResult> {
+  const name = cleanName(p?.name);
+  if (name.length < 2 || name.length > 40) return refuse("invalid", "name");
+  const mine = await db
+    .select({ id: kinds.id, name: kinds.name })
+    .from(kinds)
+    .where(ownedBy(kinds, owner));
+  const it = mine.find((k) => k.id === id);
+  if (!it) return refuse("not_found");
+  if (mine.some((k) => k.id !== id && k.name.toLowerCase() === name.toLowerCase()))
+    return refuse("name_taken");
+  await db
+    .update(kinds)
+    .set({ name })
+    .where(and(ownedBy(kinds, owner), eq(kinds.id, id)));
+  return done(id, { verb: "edit", type: t.key, id, payload: { name: it.name } });
 }

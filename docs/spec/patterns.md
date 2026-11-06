@@ -22,8 +22,12 @@ A screen is only a composition of these pieces (PRD-18).
 - **PAT-04** Object addresses: `/{area}/{type}/{id}`; one route per family
   (`[area]/[type]/[id]`), not one per type: the type is found by its word (`typeAtSlug`), a
   wrong area redirects to the type's own, the page is the generic ObjectPage
-  (`features/objects/ObjectView`). Kit: route ✓ (`src/app/(app)/[area]/[type]/[id]`); the
-  per-type folders still served first leave as their types move (phase 4).
+  (`features/objects/ObjectView`), its `nuovo` the type's create form; a type's own sections
+  come from one map by type key (`extras.tsx`, `new-forms.tsx`). Kit: route ✓
+  (`src/app/(app)/[area]/[type]/[id]`, mounted again as `oggi/[type]/[id]` because the `oggi`
+  folder wins over `[area]`). Moved: the tracker (`/oggi/tracker/<id>`, change
+  2026-11-06-tracker; `/profilo/tipi` gone). The other per-type folders leave as their types
+  move (phase 4).
 
 ## 2. The verbs (one form each; the registry says which apply)
 | ID | Verb | WHEN he… | THEN | Kit |
@@ -31,7 +35,7 @@ A screen is only a composition of these pieces (PRD-18).
 | PAT-10 | Aggiungi | taps ⊕ anywhere | Capture sheet (PAT-60) opens, the current area's types first | `Capture` ✓ |
 | PAT-11 | Aggiungi qui | taps the last row «+ Nuovo …» of a list | the type's form opens prefilled (MOD-51) | `List` ✓ |
 | PAT-12 | Apri | taps a row or box anywhere on it | its object page or voce sheet | `List`, `Box` ✓ |
-| PAT-13 | Modifica | taps a value | it becomes editable in place; leaving saves; toast «Salvato · Annulla». No `/modifica` pages | `InPlace` ✓ |
+| PAT-13 | Modifica | taps a value (the name too) | it becomes editable in place; leaving saves; toast «Salvato · Annulla». No `/modifica` pages | `InPlace` ✓ |
 | PAT-14 | Salva | is composing (meal, set, new object) | one sticky primary at the bottom; «Annulla» beside it | `Composer` ✓, `ObjectForm` ✓ |
 | PAT-15 | Fatto / Salta | taps the pill on a previsto row | status changes, time = now (MOD-13), toast with Annulla | `act` pill ✓ |
 | PAT-16 | Parti da… | opens «Altro» on an object | a new object based on it, its form prefilled | `ObjectActions` ✓ |
@@ -77,7 +81,8 @@ A screen is only a composition of these pieces (PRD-18).
   doppioni» hint when the duplicate detector finds some (one detector: two names are twins
   when they are the same words without accents, case, punctuation, small words or order;
   never a pair he said are different). Kit ✓ `Elenco`, detector `core/catalog/twins.ts`; the
-  food and exercise detectors and the area pages move onto them in their types' changes.
+  food and exercise detectors and the area pages move onto them in their types' changes. Oggi ·
+  Elenco has its «Tracker» section (change 2026-11-06-tracker).
 
 ## 5. Numbers
 - **PAT-50** Every number shown is a `Metric` value through `F` (format, unit, 24 h). Kit: `F` ✓.
