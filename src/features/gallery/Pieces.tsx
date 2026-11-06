@@ -1,12 +1,13 @@
 "use client";
 /**
  * The phase 3 pieces in the `/kit` gallery (change 2026-11-06-guards, PAT-94): each with the
- * states that matter, example values only. `open` («?aperto=altro|conferma|perche|toast»)
+ * states that matter, example values only. `open` («?aperto=altro|conferma|perche|toast|unisci»)
  * shows a sheet or the toast at once, so the CI screenshots can photograph them.
  */
 import { useEffect, useState } from "react";
 import {
   InPlace,
+  MergeSheet,
   Banner,
   Confirm,
   EmptyState,
@@ -273,6 +274,24 @@ export function Pieces({ open }: { open: string | null }) {
         />
       </section>
 
+      <MergeSheet
+        open={open === "unisci"}
+        keep="Corsa"
+        candidates={EXERCISES}
+        hour={18}
+        findLabel="Cerca esercizio"
+        preview={async () => ["2 voci passano a «Corsa»."]}
+        onConfirm={async () => (say("Uniti"), null)}
+        onClose={() => undefined}
+        initial={{
+          other: EXERCISES[0]!,
+          lines: [
+            "2 voci passano a «Corsa».",
+            "1 posto nel Piano passa a «Corsa».",
+            `«Corsa» prende i valori che gli mancano e il nome «${EXERCISES[0]!.name}» come alias; «${EXERCISES[0]!.name}» va negli archiviati.`,
+          ],
+        }}
+      />
       <Confirm
         open={sheet === "conferma"}
         question="Unire «Run» in «Corsa»?"

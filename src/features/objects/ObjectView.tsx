@@ -4,9 +4,11 @@
  * the registry declares and the verbs it allows, each answered by a toast with «Annulla»
  * (PAT-21, PAT-74). Every type moves onto it in its own change (phase 4).
  */
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   InPlace,
+  MergeSheet,
   ObjectActions,
   ObjectPage,
   useToast,
@@ -31,6 +33,8 @@ export function ObjectView({
   title,
   meta,
   fields,
+  others,
+  typeName,
   verbs,
   archived,
   type,
@@ -38,11 +42,16 @@ export function ObjectView({
   run,
   save,
   revert,
+  mergePreview,
+  merge,
 }: {
   back: { label: string; href: string };
   title: string;
   meta: string;
   fields: readonly ObjectField[];
+  /** The other objects of its type, for «Unisci» (PAT-18). */
+  others: readonly { id: string; name: string }[];
+  typeName: string;
   verbs: readonly string[];
   archived: boolean;
   type: string;
@@ -55,10 +64,17 @@ export function ObjectView({
     value: string | number | boolean | null,
   ) => Promise<Answer>;
   revert: (u: Undo) => Promise<Answer>;
+  mergePreview: (type: string, keep: string, gone: string) => Promise<string[]>;
+  merge: (type: string, keep: string, gone: string) => Promise<Answer>;
 }) {
   const router = useRouter();
   const { say, toast } = useToast();
+  const [merging, setMerging] = useState(false);
+  const [hour] = useState(() => new Date().getHours());
+  const refusal = (r: string) =>
+    objects.refused[r as keyof typeof objects.refused] ?? objects.refused.other;
   const onVerb = async (v: ObjectVerb) => {
+    if (v === "merge") return setMerging(true);
     const r = await run(type, id, v);
     if (!r.ok) {
       const why = objects.refused[r.refused as keyof typeof objects.refused];
@@ -117,7 +133,27 @@ export function ObjectView({
           onVerb={(v) => void onVerb(v)}
         />
       }
-      toast={toast}
+      toast={
+        <>
+          <MergeSheet
+            open={merging}
+            keep={title}
+            candidates={others}
+            hour={hour}
+            findLabel={objects.find(typeName)}
+            preview={(o) => mergePreview(type, id, o.id)}
+            onConfirm={async (o) => {
+              const r = await merge(type, id, o.id);
+              if (!r.ok) return refusal(r.refused);
+              say(objects.merged);
+              router.refresh();
+              return null;
+            }}
+            onClose={() => setMerging(false)}
+          />
+          {toast}
+        </>
+      }
     />
   );
 }

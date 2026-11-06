@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CATALOG_TYPES, catalogType } from "@/core/kinds/catalog";
-import { fieldWord, objectFields } from "./present";
+import { fieldWord, mergeLines, objectFields } from "./present";
 
 describe("an object's values on its page (PAT-04, PAT-13, PAT-30, PAT-93)", () => {
   it("every declared field of every type has its word", () => {
@@ -36,5 +36,16 @@ describe("an object's values on its page (PAT-04, PAT-13, PAT-30, PAT-93)", () =
     });
     expect(rows[1]!.shown).toContain("km");
     expect(rows[2]).toMatchObject({ value: null, shown: "" });
+  });
+
+  it("says what a merge moves, in words, and what happens to the one that goes (PAT-18)", () => {
+    const l = mergeLines({ entries: 2, lines: 0, plans: 1 }, "Run", "Corsa");
+    expect(l).toHaveLength(3);
+    expect(l[0]).toMatch(/^2 voci passano a «Corsa»\.$/);
+    expect(l[1]).toMatch(/^1 posto nel Piano passa a «Corsa»\.$/);
+    expect(l[2]).toContain("«Run» va negli archiviati");
+    expect(mergeLines({ entries: 0, lines: 0, plans: 0 }, "Run", "Corsa")[0]).toContain(
+      "non si sposta niente",
+    );
   });
 });

@@ -49,6 +49,7 @@ export { EntryHeader, type EntryStatus } from "./EntryHeader";
 export { formFields, readForm, type FormFieldSpec, type FormValue } from "./form";
 export { ObjectForm } from "./ObjectForm";
 export { InPlace } from "./InPlace";
+export { MergeSheet } from "./MergeSheet";
 export { inPlaceCommit, type InPlaceCommit } from "./inplace";
 export { whySections, isUnknown, unknownWords, type WhyDeclaration } from "./why";
 export { Why } from "./Why";

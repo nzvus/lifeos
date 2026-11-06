@@ -57,3 +57,18 @@ export function objectFields(t: CatalogType, values: Values): ObjectField[] {
       return { spec, value: v, shown };
     });
 }
+
+/** «Unisci» (PAT-18): what moves when `gone` goes into `keep`, from `mergePreview`'s counts. */
+export function mergeLines(
+  n: { entries: number; lines: number; plans: number },
+  gone: string,
+  keep: string,
+): string[] {
+  const w = objects.merge;
+  const out: string[] = [];
+  for (const k of ["entries", "lines", "plans"] as const)
+    if (n[k] > 0) out.push(`${F.plural(n[k], w[k][0], w[k][1])} «${keep}».`);
+  if (out.length === 0) out.push(w.nothing(gone));
+  out.push(w.after(gone, keep));
+  return out;
+}

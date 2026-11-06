@@ -15,6 +15,21 @@ export const objects = {
     not_found: "Non c'è più",
     other: "Non riuscito",
   },
+  merged: "Uniti",
+  find: (type: string) => `Cerca ${type}`,
+  /** «Unisci» (PAT-18): what moves, as [one, many] for F.plural, then the kept one's name. */
+  merge: {
+    entries: ["voce passa a", "voci passano a"],
+    lines: [
+      "riga di un pasto o di una scheda passa a",
+      "righe di pasti o schede passano a",
+    ],
+    plans: ["posto nel Piano passa a", "posti nel Piano passano a"],
+    nothing: (gone: string) =>
+      `«${gone}» non è usato da nessuna parte: non si sposta niente.`,
+    after: (gone: string, keep: string) =>
+      `«${keep}» prende i valori che gli mancano e il nome «${gone}» come alias; «${gone}» va negli archiviati.`,
+  },
   fields: {
     exercise: { guide: "Guida" },
     route: {

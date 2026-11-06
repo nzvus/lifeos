@@ -10,7 +10,11 @@
        `Field`, leaving or Enter saves, Esc puts back, an error keeps it open; on the generic
        ObjectPage every declared field (empty ones too) through `act edit`, toast «Salvato ·
        Annulla»; gallery section «valori» photographed. Checked on `/corpo/tragitto/<id>`.
-3. [ ] PAT-18 `MergeSheet` (`act merge`, preview, confirm); gallery + photos; tests.
+3. [x] PAT-18 kit `MergeSheet`: «Quale è la stessa cosa?» with `Find` over the others, then
+       what moves in words (`mergeLines` from `mergePreview`), «Non si può annullare.»,
+       «Scegli un altro» / «Unisci» in tomato; `listObjects` in `core/verbs`; on the generic
+       page through `act merge`, toast «Uniti». Gallery `?aperto=unisci` photographed. Checked
+       on two local routes: the kept one took the missing duration, the other archived.
 4. [ ] PAT-19/43 Elenco sections, «Archiviati» filter, doppioni hint; gallery; tests.
 5. [ ] PAT-14/62 generic `Composer` from the food composer; gallery; tests.
 6. [ ] PAT-10/60 `Capture` over types and objects; gallery; tests.

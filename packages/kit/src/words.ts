@@ -40,6 +40,15 @@ export const WORDS = {
     fascia: "La fascia",
     version: "Versione della formula",
   },
+  merge: {
+    /** The first step's title: the one kept. */
+    into: (keep: string) => `Unisci a «${keep}»`,
+    pick: "Quale è la stessa cosa?",
+    /** The second step's title: which goes into which. */
+    which: (gone: string, keep: string) => `«${gone}» in «${keep}»`,
+    once: "Non si può annullare.",
+    other: "Scegli un altro",
+  },
   form: {
     required: "Serve un valore",
     number: "Scrivi un numero",

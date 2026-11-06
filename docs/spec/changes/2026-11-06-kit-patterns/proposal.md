@@ -26,11 +26,13 @@ yet: each type change moves its screens onto them and deletes the bespoke ones.
 
 **Decided by the agent** (inside the spec, cheap to reverse): PAT-63 Timer and its offline
 queue go to the change «esercizio e scheda», where the gym clock it replaces lives; this
-change's slices follow the list above, each pushed when green.
+change's slices follow the list above, each pushed when green. `Find` gets `all` (with nothing typed, every
+item, used first, then by name) for short choices such as «Unisci», where nothing has a habit
+yet; PAT-41's habit ranking stays the default.
 
 **Not in this change.** Moving any screen (the type changes do it); new patterns or words.
 
-**His OK.** 6 Nov, «ok».
+**His OK.** 6 Nov, «ok»; then «vai avanti senza chidermi conferme per ora» (6 Nov): the slices go on one after another, questions are written here and asked at the end.
 
 **Stop.** (a) Done: his OK. (b) A detail the spec leaves open that is a new pattern or
 word → written here as a question, the rest goes on. (c) At the end: the PR, photos of each

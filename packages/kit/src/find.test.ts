@@ -60,4 +60,18 @@ describe("Find (PAT-41): one matcher, one ranking", () => {
       "Panna",
     ]);
   });
+
+  it("with `all`, nothing typed lists every item, used first, then by name (PAT-41, PAT-18)", () => {
+    const items = [
+      { id: "b", name: "Bici", uses: 0 },
+      { id: "a", name: "A piedi" },
+      { id: "c", name: "Corsa", uses: 3 },
+    ];
+    expect(find(items, "", { hour: 9 }).map((i) => i.id)).toEqual(["c"]);
+    expect(find(items, "", { hour: 9, all: true }).map((i) => i.id)).toEqual([
+      "c",
+      "a",
+      "b",
+    ]);
+  });
 });
