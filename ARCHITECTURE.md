@@ -82,7 +82,7 @@ Export/import: Profilo → Esporta (DT-40); `scripts/load-export.ts` for a whole
 
 ## Delivery
 
-Vercel Hobby, project `lifeos-v2` (root directory = the repository root); production only
+Vercel Hobby, project `lifeos` (root directory = the repository root; named `lifeos-v2` until 6 Nov); production only
 from protected `main` with green CI (`ci.yml`: static = check.py + typecheck + lint, test,
 build with no secret, kit-shots; `check` holds the migration gate). `scripts/vercel-ignore.sh`
 builds production only when the app changed, previews only for schema changes or

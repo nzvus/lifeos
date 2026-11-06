@@ -78,7 +78,8 @@ Branches: `main` protected, status check `check` (from `ci.yml`) required.
 
 ## 7. Vercel **[verify]**
 
-Project `lifeos-v2`, Root Directory empty (the repository root), Next.js detected;
+Project `lifeos` (named `lifeos-v2` until 6 Nov), Root Directory empty (the repository root),
+Next.js detected;
 `vercel.json` sets the region and the ignore step (`scripts/vercel-ignore.sh`: production
 when the app changed, previews only for `drizzle/`, `src/core/db/` or a `*-preview` branch).
 
@@ -116,7 +117,8 @@ Done: the last v1 export (`LIFEOS/exports/v1/lifeos-export-2026-11-06.json`) ver
 against v2's; the Vercel project `lifeos` deleted; v1's code removed and v2 moved to the root.
 
 Left, by hand, once the PR of change `2026-11-06-retire-v1` is merged:
-1. Repository variable `APP_URL` = `https://lifeos-8ezd.vercel.app` (the agent sets it).
+1. Done 6 Nov: repository variable `APP_URL` = `https://lifeos-8ezd.vercel.app`; the Vercel
+   project renamed `lifeos`; production `/api/health` answers ok.
 2. Repository secret `DATABASE_URL_DIRECT` (v1's) deleted: Settings → Secrets → Actions.
 3. v1's tables dropped: Neon console → branch `production` → SQL Editor, database
    `neondb` → paste [retire-v1.sql](retire-v1.sql). It first refuses to run on any database
