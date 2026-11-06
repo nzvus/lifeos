@@ -2,6 +2,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Banner } from "./Banner";
+import { Composer } from "./Composer";
 import { Confirm } from "./Confirm";
 import { EmptyState } from "./EmptyState";
 import { Elenco } from "./Elenco";
@@ -35,6 +36,50 @@ describe("Sheet (PAT-23)", () => {
     expect(s).toContain('aria-label="Panca piana"');
     expect(s).toContain('class="k-dim" aria-label="Chiudi"');
     expect(order(s, "Panca piana", "corpo", "<b>x</b>")).toBe(true);
+  });
+});
+
+describe("Composer (PAT-62, PAT-14)", () => {
+  const line = {
+    key: "f1",
+    quantity: "80",
+    unit: "g",
+    step: 10,
+    entry: { fam: "food", title: "Pasta", value: "286 kcal" },
+  };
+  const props = {
+    candidates: [{ id: "f2", name: "Passata" }],
+    hour: 13,
+    findLabel: "Cerca un cibo",
+    toLine: () => line,
+    empty: "Cerca un cibo da aggiungere",
+    saveLabel: "Salva il pasto",
+    cancelHref: "/oggi",
+    action: noop,
+  };
+  it("the lines with their stepper and «Togli», the search under them, the totals, «Annulla» + «Salva» at the foot", () => {
+    const s = html(
+      <Composer {...props} initial={[line]} totals={(ls) => <b>{ls.length} righe</b>} />,
+    );
+    expect(
+      order(
+        s,
+        "Pasta",
+        "Togli",
+        'name="line.0.key"',
+        'name="line.0"',
+        "Cerca un cibo",
+        "1 righe",
+        "k-formfoot",
+        "Annulla",
+        "Salva il pasto",
+      ),
+    ).toBe(true);
+  });
+  it("with no line: says what to do, «Salva» is off", () => {
+    const s = html(<Composer {...props} />);
+    expect(s).toContain("Cerca un cibo da aggiungere");
+    expect(s).toMatch(/<button type="submit"[^>]*disabled/);
   });
 });
 

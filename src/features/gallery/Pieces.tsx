@@ -6,6 +6,7 @@
  */
 import { useEffect, useState } from "react";
 import {
+  Composer,
   Elenco,
   InPlace,
   MergeSheet,
@@ -171,6 +172,43 @@ export function Pieces({ open }: { open: string | null }) {
           verbs={["startFrom", "archive", "restore"]}
           archived
           onVerb={() => say("Ripristinata", () => undefined)}
+        />
+      </section>
+
+      <section className="k-section g3" id="compositore" aria-label="Compositore">
+        <h2>Compositore (PAT-62, PAT-14)</h2>
+        <Composer
+          candidates={EXERCISES}
+          hour={18}
+          findLabel="Cerca un esercizio"
+          toLine={(e) => ({
+            key: e.id,
+            quantity: "3",
+            unit: "serie",
+            step: 1,
+            entry: { fam: "train", title: e.name },
+          })}
+          initial={[
+            {
+              key: "1",
+              quantity: "4",
+              unit: "serie",
+              step: 1,
+              entry: { fam: "train", title: "Panca piana", meta: "Petto · 31 volte" },
+            },
+            {
+              key: "5",
+              quantity: "3",
+              unit: "serie",
+              step: 1,
+              entry: { fam: "train", title: "Squat", meta: "Gambe · 18 volte" },
+            },
+          ]}
+          totals={(ls) => <span className="k-body">{ls.length} esercizi</span>}
+          empty="Cerca un esercizio da aggiungere"
+          saveLabel="Salva la scheda"
+          cancelHref="/kit"
+          action={() => say("Salvato", () => undefined)}
         />
       </section>
 

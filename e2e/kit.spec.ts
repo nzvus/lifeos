@@ -5,6 +5,7 @@ import { expect, test } from "@playwright/test";
 const SECTIONS = [
   "cerca",
   "azioni",
+  "compositore",
   "elenco",
   "valori",
   "voce",

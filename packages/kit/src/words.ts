@@ -40,6 +40,10 @@ export const WORDS = {
     fascia: "La fascia",
     version: "Versione della formula",
   },
+  composer: {
+    remove: "Togli",
+    quantity: (name: string) => `Quantità di ${name}`,
+  },
   elenco: {
     active: "Attivi",
     archived: "Archiviati",

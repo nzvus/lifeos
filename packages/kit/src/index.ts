@@ -51,6 +51,8 @@ export { ObjectForm } from "./ObjectForm";
 export { InPlace } from "./InPlace";
 export { MergeSheet } from "./MergeSheet";
 export { Elenco, type ElencoRow, type ElencoSection } from "./Elenco";
+export { Composer, type ComposerLine } from "./Composer";
+export { addLine, readLines, removeLine, setQuantity } from "./composer";
 export { inPlaceCommit, type InPlaceCommit } from "./inplace";
 export { whySections, isUnknown, unknownWords, type WhyDeclaration } from "./why";
 export { Why } from "./Why";

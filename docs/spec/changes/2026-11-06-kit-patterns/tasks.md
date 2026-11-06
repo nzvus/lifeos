@@ -20,7 +20,11 @@
        `core/catalog/twins.ts` (`nameKey`, `nameTwins`: same words without accents, small words,
        order); gallery «elenco» photographed. The food/exercise detectors join it, and the area
        Elenco pages move onto it, in their types' changes. PAT-11 left `untested.txt`.
-5. [ ] PAT-14/62 generic `Composer` from the food composer; gallery; tests.
+5. [x] PAT-62/14 kit `Composer`: the lines as boxes (stepper in its unit, «Togli»), the search
+       under them (as the food composer), totals as they change, the type's own fields, sticky
+       `k-formfoot` «Annulla» + «Salva» (off with no line); a plain form read with `readLines`
+       (`addLine`/`removeLine`/`setQuantity`, tested). Gallery «compositore» photographed. The
+       food composer and the session move onto it in their types' changes.
 6. [ ] PAT-10/60 `Capture` over types and objects; gallery; tests.
 7. [ ] PAT-33 context line; PAT-52 judgement chip + fascia bar; gallery; tests.
 8. [ ] Delta into `patterns.md`; change archived; `verify` photos in the PR.
