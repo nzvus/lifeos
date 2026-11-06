@@ -51,7 +51,8 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
    (change `archive/2026-11-06-bar-everywhere`).
 4. **Rebuild v2 one type at a time** (strangler). Started 6 Nov: v2's backup fixed (#329, it
    had never run); v1 retired and v2 at the root (#330, change `archive/2026-11-06-retire-v1`).
-   Next: — patterns → habit/tracker → food and meal →
+   Kit patterns done 6 Nov (#332, #333, change `archive/2026-11-06-kit-patterns`). Next:
+   habit/tracker → food and meal →
    exercise and scheda → Piano (`plan_rules` returns here) → money/pantry; each PR counts pages,
    implementations and lines removed; v1 retired first (verified export, Neon untouched).
 

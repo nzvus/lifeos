@@ -34,4 +34,5 @@
        chip `Judge` (mark + number + word). PAT-33 kit `ContextLine` (MOD-53). Gallery
        «giudizio» photographed; the other kit photos unchanged. The day and object pages move
        their hand-written marks onto `Judge` in their types' changes.
-8. [ ] Delta into `patterns.md`; change archived; `verify` photos in the PR.
+8. [x] Delta into `patterns.md` (PAT-04, 10, 13, 14, 18, 19, 33, 41, 43, 52, 60, 62, 63); change
+       archived; photos of each piece at 390/320 dark in `e2e/kit.spec.ts-snapshots/`.
