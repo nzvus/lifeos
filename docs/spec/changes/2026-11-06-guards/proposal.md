@@ -37,3 +37,8 @@ showing every new piece at 390/320 px, dark.
   answers `undo: null` and is confirmed first (PAT-73). «Elimina» on an object is a soft delete
   (`deletedAt`), so it can be undone too. Trackers (`kinds` rows): archive/restore only until
   phase 4; specialised values (nutrients, sets) are not edited through `edit`.
+- Kit pieces: each is a pure module (tested in node) plus its component (markup tested with
+  `renderToStaticMarkup`); no DOM test library added. Sheets render in a portal on `<body>`
+  after the mount (a «Perché?» inside a paragraph broke hydration on 6 Nov). Find forgives one
+  typo from four letters on («cafe» finds «Caffè»). The gallery opens a sheet with
+  `/kit?aperto=altro|conferma|perche|toast`; the ObjectPage is at `/kit/oggetto`.

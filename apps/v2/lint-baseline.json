@@ -79,9 +79,6 @@
     }
   },
   "src/app/(app)/kit/page.tsx": {
-    "lifeos/no-hand-toast": {
-      "count": 1
-    },
     "lifeos/no-inline-style": {
       "count": 7
     }
