@@ -23,7 +23,9 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
 1. **Inventory and critical review** — every ledger line classified built / not built /
    contradicted / superseded (checked in the code); requests grouped by the need behind them,
    each kept / rethought / dropped with a reason; page × common-action matrix with photos; what
-   is good and stays. **STOP for his review.**
+   is good and stays. **STOP for his review.** — DONE 6 Nov: `docs/spec/audit-2026-11/`
+   (README, needs.md, ledger-A/B/C), photos in `LIFEOS/review/audit-2026-11/`, review page
+   https://claude.ai/artifact/2MDUZ21GU91cLkWBSZ9kCB (his answers in its db, collection `answers`).
 2. **One horizontal spec** — `docs/spec/`: `product.md` (principles, glossary, process rules),
    `model.md` (every object type once), `patterns.md` (every common verb once, with its kit
    component), `domains/*.md` (rules and formulas only), `changes/<id>/` deltas merged then
