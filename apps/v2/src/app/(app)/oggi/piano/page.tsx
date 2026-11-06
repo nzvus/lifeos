@@ -7,7 +7,7 @@
  * planned and what the model still plans, «+ previsto». Then «Le regole»:
  * the week type and the cycles, «Modelli».
  */
-import { Box, DateNav, F, NavBar, PageHeader, weekOf, AreaTabs } from "@lifeos/kit";
+import { Box, DateNav, F, PageHeader, weekOf, AreaTabs } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -31,7 +31,7 @@ import { daySlots } from "@/features/day/slots";
 import { WEEKDAYS } from "@/features/plan/model-form";
 import { dayRow } from "@/features/plan/week-rows";
 import { readFoodEstimates } from "@/core/food/catalog";
-import { AREA_HREF, tabHrefs } from "@/features/places";
+import { tabHrefs } from "@/features/places";
 import { changeDayModel, skipStep } from "../[[...day]]/plan-actions";
 import { copyYesterday, moveTraining, overrideStep } from "../../piano/actions";
 
@@ -362,9 +362,6 @@ export default async function PianoPage({
             />
           ))}
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
-      </div>
     </main>
   );
 }

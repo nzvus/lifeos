@@ -4,7 +4,7 @@
  * §10): the old `?vista=cibi|pasti|esercizi` goes there.
  */
 import { redirect } from "next/navigation";
-import { AreaTabs, NavBar, PageHeader } from "@lifeos/kit";
+import { AreaTabs, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -15,7 +15,7 @@ import { kindRegistry } from "@/core/kinds";
 import { readRoutes } from "@/core/movement/routes";
 import { readPantry } from "@/core/pantry";
 import { Library } from "@/features/library/Library";
-import { AREA_HREF, tabHrefs } from "@/features/places";
+import { tabHrefs } from "@/features/places";
 import { readLibrary } from "./library-data";
 
 const MOVED: Record<string, string> = {
@@ -72,9 +72,6 @@ export default async function LibreriaPage({
             : "casa → palestra, casa → lavoro: poi basta un tocco",
         }}
       />
-      <div className="k-nav k-stick">
-        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
-      </div>
     </main>
   );
 }

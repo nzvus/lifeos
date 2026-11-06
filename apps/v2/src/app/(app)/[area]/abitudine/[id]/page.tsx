@@ -3,12 +3,11 @@
  * day-templates.md slice d): its form, «In pausa» / «Riattiva».
  */
 import { notFound } from "next/navigation";
-import { F, NavBar, PageHeader } from "@lifeos/kit";
+import { F, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { readHabits } from "@/core/plans";
 import { HabitForm } from "@/features/plan/HabitForm";
-import { AREA_HREF } from "@/features/places";
 import { pauseHabit, saveHabitForm } from "./actions";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -61,9 +60,6 @@ export default async function HabitPage({ params }: { params: Promise<{ id: stri
           </button>
         </form>
       )}
-      <div className="k-nav k-stick">
-        <NavBar active="mente" hrefs={AREA_HREF} addHref="/aggiungi?area=mente" />
-      </div>
     </main>
   );
 }

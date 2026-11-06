@@ -13,7 +13,6 @@
 import {
   Box,
   F,
-  NavBar,
   Nutrients,
   PageHeader,
   RangeNav,
@@ -45,7 +44,7 @@ import {
 import { OpenBox } from "@/features/day/OpenBox";
 import { averageScore } from "@/features/progress/average";
 import { stepsDomain } from "@/features/progress/steps";
-import { AREA_HREF, tabHrefs, trackerHref } from "@/features/places";
+import { tabHrefs, trackerHref } from "@/features/places";
 import {
   period,
   periodPills,
@@ -459,9 +458,6 @@ export default async function AndamentoPage({
           ))}
         </List>
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
-      </div>
     </main>
   );
 }

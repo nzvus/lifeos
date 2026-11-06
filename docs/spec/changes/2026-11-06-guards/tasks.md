@@ -8,7 +8,7 @@
 3. [x] `i18n/` catalogue scaffold + glossary test (PAT-93).
 4. [x] Registry for catalog types (MOD-01/02) + `core/verbs` (PAT-24) with DB tests on PGlite.
 5. [x] Kit pieces (list in delta.md), each in the `/kit` gallery with its test.
-6. [ ] `(app)/layout.tsx` with NavBar and ⊕; pages stop mounting them (the one mechanical
+6. [x] `(app)/layout.tsx` with NavBar and ⊕; pages stop mounting them (the one mechanical
        move allowed here, since it touches no type) (PAT-01).
 7. [ ] Playwright screenshots of `/kit` in CI (PAT-94).
 8. [ ] patterns.md ✗ → ✓ for what was built; delta merged into the spec; this folder → `archive/`;

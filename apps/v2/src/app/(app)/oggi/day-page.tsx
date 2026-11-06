@@ -18,7 +18,6 @@ import {
   DateNav,
   F,
   Glyph,
-  NavBar,
   Nutrients,
   NutrientsL0,
   PageHeader,
@@ -752,13 +751,6 @@ export async function DayPage({
           <DayClose closed={closed} close={closeDay.bind(null, date)} />
         )}
       </section>
-      <div className="k-nav k-stick">
-        <NavBar
-          active={area}
-          hrefs={AREA_HREF}
-          addHref={"/aggiungi?giorno=" + date + (area === "oggi" ? "" : "&area=" + area)}
-        />
-      </div>
     </main>
   );
 }

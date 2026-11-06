@@ -23,7 +23,8 @@ export function NavBar({
   hrefs,
   addHref,
 }: {
-  active: Area;
+  /** Null on a page of no single area (no tick). */
+  active: Area | null;
   hrefs: Record<Area, string>;
   addHref: string;
 }) {

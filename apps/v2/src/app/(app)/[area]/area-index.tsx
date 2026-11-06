@@ -5,7 +5,7 @@
  * their kind's domain). Server component.
  */
 import { notFound } from "next/navigation";
-import { AREAS, AreaTabs, Box, NavBar, PageHeader } from "@lifeos/kit";
+import { AREAS, AreaTabs, Box, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { readUserKinds } from "@/core/day";
@@ -13,7 +13,6 @@ import { kindRegistry } from "@/core/kinds";
 import { listUserKinds } from "@/core/kinds/user";
 import { AREA_INDEX, EMPTY_TAB, type IndexTab } from "@/features/area-index";
 import {
-  AREA_HREF,
   AREA_NAME,
   areaOf,
   isDomainArea,
@@ -70,9 +69,6 @@ export async function AreaIndex({
           ))
         )}
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active={area} hrefs={AREA_HREF} addHref={"/aggiungi?area=" + area} />
-      </div>
     </main>
   );
 }

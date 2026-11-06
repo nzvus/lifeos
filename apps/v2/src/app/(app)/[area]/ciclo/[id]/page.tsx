@@ -4,14 +4,13 @@
  * Oggi), its rules, and the last two weeks' sessions that counted for it.
  */
 import { notFound } from "next/navigation";
-import { Box, F, NavBar, PageHeader, type BoxEntry } from "@lifeos/kit";
+import { Box, F, PageHeader, type BoxEntry } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { readCycleBook, readDayPlans, readSessionKeys } from "@/core/plans";
 import { CycleEditor } from "@/features/plan/CycleEditor";
-import { AREA_HREF } from "@/features/places";
 import { addStepForm, moveStepForm, saveCycleForm } from "./actions";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -112,9 +111,6 @@ export default async function CyclePage({ params }: { params: Promise<{ id: stri
           <Box key={i} entry={h} density="row" mode="times" />
         ))}
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active="corpo" hrefs={AREA_HREF} addHref="/aggiungi?area=corpo" />
-      </div>
     </main>
   );
 }

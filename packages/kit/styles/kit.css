@@ -4387,3 +4387,30 @@ button.k-link {
   margin: 8px 16px 0;
   padding-bottom: var(--sp-5);
 }
+/* PAT-01: the one NavBar and ⊕ come from (app)/layout.tsx, after the page, as wide as it; the
+   page's last thing stays clear of ⊕ (it was the second-last while the bar sat inside it). */
+.k-shell > .k-nav.k-stick {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container-page);
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.k-page:has(+ .k-nav) > :nth-last-child(2 of :not(.k-toastbar)) {
+  margin-bottom: 0;
+}
+.k-page:has(+ .k-nav) > :nth-last-child(1 of :not(.k-toastbar)) {
+  margin-bottom: 80px;
+}
+.k-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+/* the page fills what the bar leaves: 100dvh plus the bar would scroll past the end */
+.k-shell > .k-page:has(+ .k-nav) {
+  flex: 1 0 auto;
+  min-height: 0;
+}

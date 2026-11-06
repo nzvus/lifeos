@@ -6,7 +6,7 @@
  * In Mente · Andamento (map D, architecture.md §10); another area redirects there.
  */
 import { redirect } from "next/navigation";
-import { Box, F, NavBar, PageHeader } from "@lifeos/kit";
+import { Box, F, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -14,7 +14,6 @@ import { sleepOn } from "@/core/engines/sleep";
 import { addDays, logicalDay, type IsoDate } from "@/core/engines/time";
 import { readNumbers, readSpans, SLEEP_KINDS } from "@/core/goals";
 import { links, type Measure } from "@/features/progress/links";
-import { AREA_HREF } from "@/features/places";
 
 const DAYS = 90;
 
@@ -110,9 +109,6 @@ export default async function LinksPage({
           />
         ))}
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active="mente" hrefs={AREA_HREF} addHref="/aggiungi?area=mente" />
-      </div>
     </main>
   );
 }
