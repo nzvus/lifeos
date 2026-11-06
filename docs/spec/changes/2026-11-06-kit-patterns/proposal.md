@@ -30,6 +30,8 @@ change's slices follow the list above, each pushed when green.
 
 **Not in this change.** Moving any screen (the type changes do it); new patterns or words.
 
-**Stop.** (a) Now, for his OK. (b) A detail the spec leaves open that is a new pattern or
+**His OK.** 6 Nov, «ok».
+
+**Stop.** (a) Done: his OK. (b) A detail the spec leaves open that is a new pattern or
 word → written here as a question, the rest goes on. (c) At the end: the PR, photos of each
 new piece at 390/320 dark.

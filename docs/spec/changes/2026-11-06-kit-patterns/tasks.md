@@ -1,6 +1,11 @@
 # Tasks — 2026-11-06-kit-patterns
 
-1. [ ] PAT-04 family route + registry lookup; tests (unknown type → 404, `nuovo`, old routes).
+1. [x] PAT-04 family route `[area]/[type]/[id]` + `typeSlug`/`typeAtSlug` + `readObject`; the
+       generic ObjectPage (values in words, archive/restore/delete with toast «Annulla»); wrong
+       area → redirect, unknown type → 404; tests in catalog, verbs, objects. Found and fixed in
+       the kit: `ObjectPage` takes the toast inside the page (beside it, the shell's rules broke
+       and left an 80 px gap), and the toast sits above ⊕ (PAT-74). `nuovo` (PAT-11) moves to
+       the first type change: no type without its own folder has a generic form today.
 2. [ ] PAT-13 in-place edit (kit `Field` + `act edit`, toast); gallery + photos; tests.
 3. [ ] PAT-18 `MergeSheet` (`act merge`, preview, confirm); gallery + photos; tests.
 4. [ ] PAT-19/43 Elenco sections, «Archiviati» filter, doppioni hint; gallery; tests.

@@ -4,7 +4,7 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
-import { act, undo, type VerbResult } from "./index";
+import { act, readObject, undo, type VerbResult } from "./index";
 
 const ok = (r: VerbResult) => {
   if (!r.ok) throw new Error(`refused: ${r.refused} ${r.detail ?? ""}`);
@@ -256,5 +256,27 @@ describe("core/verbs: one function per verb (PAT-24, MOD-20)", () => {
       refused: "not_found",
     });
     expect((await item(mine.id)).archivedAt).toBeNull();
+  });
+
+  it("readObject reads one live object of its owner, with its declared values (PAT-04)", async () => {
+    const r = ok(
+      await act(db, a, "create", "route", null, {
+        name: "Casa–palestra",
+        values: { mode: "bike", distanceKm: 4.2 },
+      }),
+    );
+    expect(await readObject(db, a, "route", r.id)).toMatchObject({
+      type: "route",
+      name: "Casa–palestra",
+      archived: false,
+      values: { mode: "bike", distanceKm: 4.2, durationMin: null },
+    });
+    expect(await readObject(db, b, "route", r.id)).toBeNull();
+    expect(await readObject(db, a, "recipe", r.id)).toBeNull();
+    expect(await readObject(db, a, "tracker", r.id)).toBeNull();
+    ok(await act(db, a, "archive", "route", r.id, {}));
+    expect((await readObject(db, a, "route", r.id))?.archived).toBe(true);
+    ok(await act(db, a, "delete", "route", r.id, {}));
+    expect(await readObject(db, a, "route", r.id)).toBeNull();
   });
 });

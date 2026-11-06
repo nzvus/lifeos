@@ -116,6 +116,41 @@ export async function act<V extends ActVerb>(
   }
 }
 
+/** One catalog object as its ObjectPage shows it (PAT-30): name, state, declared values. */
+export type ObjectRead = {
+  type: string;
+  id: string;
+  name: string;
+  archived: boolean;
+  values: Values;
+};
+
+/** Reads one live catalog object of the owner (PAT-04); null if not hers, gone or not one. */
+export async function readObject(
+  db: Db,
+  owner: Owner,
+  type: string,
+  id: string,
+): Promise<ObjectRead | null> {
+  const t = catalogType(type);
+  if (!t || t.storage.table !== "catalog_items") return null;
+  const item = await readItem(db, owner, t, id);
+  if (!item || item.deletedAt) return null;
+  const values = await readValues(
+    db,
+    owner,
+    item.id,
+    t.fields.map((f) => f.key),
+  );
+  return {
+    type: t.key,
+    id: item.id,
+    name: item.name,
+    archived: !!item.archivedAt,
+    values,
+  };
+}
+
 /** «Annulla» (PAT-21): the undo a verb returned, run as a verb. */
 export function undo(db: Db, owner: Owner, u: Undo): Promise<VerbResult> {
   return act(db, owner, u.verb, u.type, u.id, u.payload);
