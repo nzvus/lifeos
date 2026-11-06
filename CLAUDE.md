@@ -8,7 +8,7 @@
 **Data:** all DB access via `core/` repositories; migrations are committed SQL from `drizzle-kit generate`, rehearsed on the PR's Neon branch, and applied to production only by the human-triggered CI job that dumps first — never `drizzle-kit push` on a shared DB, never auto-migrate on deploy (ADR-0003/0004).
 **Run:** `npm run dev` (needs `.env`, see `.env.example` and `docs/runbooks/setup.md`)
 **Test:** `npm test` (Vitest; DB tests run on PGlite with the real migrations — no database needed)
-**Lint/format:** `npm run lint` (includes ADR-0002 boundary rules), `npm run typecheck`, `npm run format`
+**Lint/format:** `npm run lint` (ADR-0002 boundaries, PAT-90 fitness rules with `apps/v2/lint-baseline.json`, jscpd PRD-53), `npm run typecheck`, `npm run format`; kit photos `npm run shots -w apps/v2` (PAT-94). Baselines only shrink.
 **Schema change:** edit `src/core/db/schema/*` → `npm run db:generate` → read the SQL in `drizzle/` → commit. Log entries are snapshots (ADR-0007, proposed).
 <!-- ADR-0001 rule: domain logic lives in core/ and must not import next/*. Route handlers and server actions call into core/, they don't contain logic. -->
 
@@ -105,7 +105,7 @@ for code quality, then for speed. Never for speed first.
   docs touched → next; `retro` skill at the end of each change.
 - Read `ARCHITECTURE.md` before design or code; PROJECT/ROADMAP/ADRs only when
   the task needs them, never bulk-loaded. ARCHITECTURE ≤ 150 lines, current
-  state only; a bloated doc → `compress` skill. New root-level docs need his OK.
+  state only; spec vs code → `audit` skill. New root-level docs need his OK.
 
 ## Conventions
 

@@ -257,8 +257,65 @@ def check_spec(root, files):
                    f"to the inbox, then update its line in «Notes folded»")
 
 
+REQ_ID = re.compile(r"\b((?:PRD|MOD|PAT|VIS|FD|TR|BD|PL|DT)-\d+)\b")
+UNTESTED = "docs/spec/untested.txt"
+TEST_DIRS = ("apps/v2", "packages/kit", "scripts")
+SKIP_DIRS = {"node_modules", ".next", ".pglite", ".pglite-e2e", "test-results", "playwright-report"}
+TEST_FILE = re.compile(r"\.(?:test|spec)\.(?:ts|tsx|mjs)$")
+
+
+def built_requirements(root):
+    """IDs whose block says «Today: built», or, in patterns.md, a kit piece ✓ with no ✗ left."""
+    built = {}
+    for f in spec_files(root):
+        rel = str(f.relative_to(root))
+        current, block = None, []
+        for i, line in enumerate(f.read_text(encoding="utf-8").splitlines() + [""], 1):
+            m = REQ_DEF.match(line)
+            ends = m or not line.strip() or line.startswith(("#", "- ", "| "))
+            if current and ends:
+                text = " ".join(block)
+                if "Today: built" in text or (rel.endswith("patterns.md") and "✓" in text and "✗" not in text):
+                    built[current[0]] = current[1]
+                current, block = None, []
+            if m:
+                current, block = (m.group(1), f"{rel}:{i}"), [line]
+            elif current:
+                block.append(line)
+    return built
+
+
+def cited_by_tests(root):
+    cited = set()
+    for d in TEST_DIRS:
+        for f in (root / d).rglob("*.*.*"):
+            if not SKIP_DIRS.intersection(f.parts) and TEST_FILE.search(f.name):
+                cited.update(REQ_ID.findall(f.read_text(encoding="utf-8", errors="ignore")))
+    return cited
+
+
+def check_built_needs_a_test(root, files):
+    """PRD-42: «built» means a test cites the ID; the untested baseline of 6 Nov may only shrink."""
+    if not (root / SPEC / "product.md").exists():
+        return
+    built, cited = built_requirements(root), cited_by_tests(root)
+    path = root / UNTESTED
+    listed = [l.split("#")[0].strip() for l in path.read_text(encoding="utf-8").splitlines()] if path.exists() else []
+    listed = {l for l in listed if l}
+    for rid, where in sorted(built.items()):
+        if rid not in cited and rid not in listed:
+            yield (ERR, where.split(":")[0], int(where.split(":")[1]),
+                   f"{rid} is «built» but no test under {', '.join(TEST_DIRS)} cites it (PRD-42)")
+    for rid in sorted(listed):
+        if rid in cited:
+            yield (ERR, UNTESTED, None, f"{rid} has a test now: remove it from the list (it may only shrink)")
+        elif rid not in built:
+            yield (ERR, UNTESTED, None, f"{rid} is not a «built» requirement: remove it from the list")
+
+
 CHECKS = [check_lengths, check_conflicts_and_empty, check_placeholders,
-          check_adrs, check_md_links, check_skills, check_todos, check_spec]
+          check_adrs, check_md_links, check_skills, check_todos, check_spec,
+          check_built_needs_a_test]
 
 
 # -------------------------------- runner --------------------------------------

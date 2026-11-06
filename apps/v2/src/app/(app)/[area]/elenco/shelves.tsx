@@ -5,7 +5,7 @@
  * a catalog's list with its search and sort (features/library), the pantry
  * or the routes. Decided by the agent (3 Nov, ledger UI-95). Server component.
  */
-import { AREAS, AreaTabs, Box, F, List, NavBar, PageHeader } from "@lifeos/kit";
+import { AREAS, AreaTabs, Box, F, List, PageHeader } from "@lifeos/kit";
 import { readNotTwins } from "@/core/account/not-twins";
 import { readExercises } from "@/core/training";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
@@ -124,9 +124,6 @@ export async function AreaShelves({
         </div>
       )}
       {body}
-      <div className="k-nav k-stick">
-        <NavBar active={area} hrefs={AREA_HREF} addHref={"/aggiungi?area=" + area} />
-      </div>
     </main>
   );
 }

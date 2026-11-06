@@ -16,7 +16,8 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts"],
+    // scripts/: the guards of change 2026-11-06-guards (hooks, check.py, the copy detector).
+    include: ["src/**/*.test.ts", "scripts/**/*.test.mjs"],
     // The migrations run once; each test database copies the result.
     globalSetup: ["src/core/testing/global-setup.ts"],
     // Each DB test file boots its own PGlite instance and applies every

@@ -7,16 +7,7 @@
  * Mente · Piano — the same sections under the area's title and tabs (decided
  * by the agent, 3 Nov, ledger UI-95).
  */
-import {
-  AREAS,
-  AreaTabs,
-  Box,
-  List,
-  NavBar,
-  PageHeader,
-  F,
-  type BoxEntry,
-} from "@lifeos/kit";
+import { AREAS, AreaTabs, Box, List, PageHeader, F, type BoxEntry } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import {
@@ -30,7 +21,7 @@ import {
 } from "@/core/plans";
 import { WEEKDAYS } from "@/features/plan/model-form";
 import { habitWhat, ruleWords } from "@/features/plan/habit-form";
-import { AREA_HREF, AREA_NAME, tabHrefs } from "@/features/places";
+import { AREA_NAME, tabHrefs } from "@/features/places";
 import { newModel } from "../../oggi/giornata/[id]/actions";
 import { newCycle } from "../../[area]/ciclo/[id]/actions";
 
@@ -246,13 +237,6 @@ export async function ModelsPage({ area }: { area?: ModelsArea }) {
           </List>
         </section>
       )}
-      <div className="k-nav k-stick">
-        <NavBar
-          active={area ?? "oggi"}
-          hrefs={AREA_HREF}
-          addHref={"/aggiungi" + (area ? "?area=" + area : "")}
-        />
-      </div>
     </main>
   );
 }

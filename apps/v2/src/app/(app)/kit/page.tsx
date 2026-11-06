@@ -24,6 +24,7 @@ import { ownerClock } from "@/app/_server/clock";
 import { readNumbers } from "@/core/goals";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { galleryAllowed } from "@/features/gallery/allowed";
+import { Pieces } from "@/features/gallery/Pieces";
 
 /** The colour tokens by what they mean (register S2): one colour, one meaning. */
 const MEANINGS: [string, string[]][] = [
@@ -167,9 +168,14 @@ const BOXES: [string, string, BoxEntry, "card" | "row"][] = [
   ],
 ];
 
-export default async function KitPage() {
-  if (!galleryAllowed(process.env.NODE_ENV)) notFound();
+export default async function KitPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ aperto?: string | string[] }>;
+}) {
+  if (!galleryAllowed(process.env.NODE_ENV, process.env.KIT_GALLERY)) notFound();
   const owner = await requireOwner();
+  const { aperto } = await searchParams;
   const db = await getDb();
   const { clock } = await ownerClock();
   const today = logicalDay(new Date(), clock);
@@ -388,32 +394,16 @@ export default async function KitPage() {
         />
       </section>
 
-      <section
-        className="k-section g3"
-        id="stati"
-        aria-label="Vuoto, caricamento, avviso"
-      >
-        <h2>Vuoto, caricamento, avviso</h2>
-        <div className="k-empty">
-          <Glyph of={{ fam: "food", kind: "meal" }} size="xl" decorative />
-          <span className="t">Ancora niente oggi</span>
-          <span className="k-body">Il primo pasto o un bicchiere d’acqua: tocca ⊕.</span>
-          <a className="k-btn primary" href="/aggiungi">
-            Aggiungi
-          </a>
-        </div>
+      <section className="k-section g3" id="stati" aria-label="Caricamento">
+        <h2>Caricamento</h2>
         <div className="k-stack g2" aria-hidden="true">
           <span className="k-skel title" />
           <span className="k-skel card" />
           <span className="k-skel row" />
         </div>
-        <div className="k-toast" role="status">
-          <span>Pranzo segnato come fatto</span>
-          <button type="button" className="k-btn link">
-            Annulla
-          </button>
-        </div>
       </section>
+
+      <Pieces open={typeof aperto === "string" ? aperto : null} />
     </main>
   );
 }

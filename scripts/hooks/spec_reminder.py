@@ -8,7 +8,7 @@ import json
 import re
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 CHANGES = ROOT / "docs/spec/changes"
 inbox = (CHANGES / "inbox.md").read_text(encoding="utf-8").splitlines() if (CHANGES / "inbox.md").exists() else []
 open_items = [l[2:] for l in inbox if re.match(r"^- \*\*(Q|W)-\d+\*\* ", l)]

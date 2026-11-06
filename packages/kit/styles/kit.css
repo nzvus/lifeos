@@ -4271,4 +4271,146 @@ button.k-link {
   align-self: flex-start;
   min-height: var(--touch);
 }
-.k-btn.link.danger{color:var(--tomato)}
+.k-btn.link.danger {
+  color: var(--tomato);
+}
+
+/* ---------- phase 3 pieces (change 2026-11-06-guards): Find, ObjectActions, EntryHeader, ObjectForm, Why, Unknown ---------- */
+.k-findrow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  min-height: var(--touch);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-row);
+  background: var(--sheet);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.k-findrow > * {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.k-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-3) 0;
+}
+.k-sbody > .k-btn.act {
+  justify-content: flex-start;
+  height: var(--touch);
+}
+.k-entryhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+.k-amount {
+  font-family: var(--font-display);
+  font-size: var(--fs-d3);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.k-status.done {
+  color: var(--herb);
+}
+.k-status.skipped {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.k-formfoot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-3) 0;
+  background: var(--paper);
+  border-top: 1px solid var(--hairline);
+}
+.k-why {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
+  min-width: var(--touch);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.k-whyrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px var(--sp-2);
+  min-width: 0;
+}
+.k-whyrow > .k-num {
+  margin-left: auto;
+}
+.k-whyrow > .k-meta {
+  flex-basis: 100%;
+}
+.k-unknown {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.k-unknown > .w {
+  font-family: var(--font-display);
+  font-size: var(--fs-d4);
+  font-weight: 600;
+  color: var(--muted);
+}
+/* PRD-12: these verbs are rows of their own, so 44 px, not the 36 px of a control inside a row */
+.k-actions > .k-btn.act,
+.k-entryhead .k-btn.act {
+  height: var(--touch);
+  min-width: var(--touch);
+}
+/* the object page's actions row keeps the page's gutter, like its sections (PAT-30) */
+.k-page > .k-actions {
+  margin: 8px 16px 0;
+  padding-bottom: var(--sp-5);
+}
+/* PAT-01: the one NavBar and ⊕ come from (app)/layout.tsx, after the page, as wide as it; the
+   page's last thing stays clear of ⊕ (it was the second-last while the bar sat inside it). */
+.k-shell > .k-nav.k-stick {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container-page);
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.k-page:has(+ .k-nav) > :nth-last-child(2 of :not(.k-toastbar)) {
+  margin-bottom: 0;
+}
+.k-page:has(+ .k-nav) > :nth-last-child(1 of :not(.k-toastbar)) {
+  margin-bottom: 80px;
+}
+.k-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+/* the page fills what the bar leaves: 100dvh plus the bar would scroll past the end */
+.k-shell > .k-page:has(+ .k-nav) {
+  flex: 1 0 auto;
+  min-height: 0;
+}

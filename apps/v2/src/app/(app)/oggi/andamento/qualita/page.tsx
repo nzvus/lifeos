@@ -4,14 +4,13 @@
  * what looks wrong (each opening its entry) and, for meals, the estimates.
  * Read only when opened: one narrow query per thing.
  */
-import { Box, F, NavBar, PageHeader } from "@lifeos/kit";
+import { Box, F, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { PER_SIDE_FACTORS, quality, UNIT_FACTORS } from "@/core/engines/quality";
 import { addDays, logicalDay } from "@/core/engines/time";
 import { readQualityEntries } from "@/core/quality/read";
-import { AREA_HREF } from "@/features/places";
 import { qualityBox } from "@/features/progress/quality";
 
 const DAYS = 30;
@@ -115,9 +114,6 @@ export default async function QualityPage() {
           </div>
         ))}
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
-      </div>
     </main>
   );
 }

@@ -35,3 +35,9 @@ __pycache__/
 
 # Vercel CLI link (`vercel link`): project ids, local only
 .vercel
+.claude/hooks-state/
+
+# Playwright (apps/v2/e2e): the e2e database, reports and failed shots
+.pglite-e2e/
+test-results/
+playwright-report/

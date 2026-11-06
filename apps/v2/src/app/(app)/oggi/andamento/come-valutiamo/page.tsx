@@ -10,7 +10,7 @@
  * a session and the day open their score where they are (Oggi, the gym).
  */
 import type { CSSProperties } from "react";
-import { Box, F, NavBar, PageHeader, type BoxEntry } from "@lifeos/kit";
+import { Box, F, PageHeader, type BoxEntry } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -26,7 +26,6 @@ import {
   weighScore,
   type ScoreContext,
 } from "@/features/day/score";
-import { AREA_HREF } from "@/features/places";
 import { MODELS, modelPage } from "@/features/progress/models";
 import { WeightsForm } from "@/features/progress/WeightsForm";
 import { resetWeights, saveWeightsForm } from "./actions";
@@ -153,9 +152,6 @@ export default async function ScoresPage({
         <h2>Le fonti</h2>
         <span className="k-body">{page.sources}</span>
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
-      </div>
     </main>
   );
 }

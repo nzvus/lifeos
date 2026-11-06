@@ -5,14 +5,13 @@
  * answer keeps what was logged (ADR-0007); «Sono diversi» is remembered.
  */
 import { notFound } from "next/navigation";
-import { NavBar, PageHeader } from "@lifeos/kit";
+import { PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { readNotTwins } from "@/core/account/not-twins";
 import { logicalDay } from "@/core/engines/time";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
-import { AREA_HREF } from "@/features/places";
 import { exerciseTwins, twinPairs } from "@/features/library/twins";
 import { readExercises } from "@/core/training";
 import { asBrand, asOne, asVariant, notTwins } from "./actions";
@@ -144,9 +143,6 @@ export default async function TwinsPage({
           ),
         )}
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active="cibo" hrefs={AREA_HREF} addHref="/aggiungi?area=cibo" />
-      </div>
     </main>
   );
 }

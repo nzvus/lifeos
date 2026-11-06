@@ -8,11 +8,13 @@
     "build": "next build",
     "start": "next start -p 3200",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . --suppressions-location lint-baseline.json",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "load:export": "tsx --env-file-if-exists=.env.local scripts/load-export.ts",
-    "import:sessions": "tsx --env-file-if-exists=.env.local scripts/import-sessions.ts"
+    "import:sessions": "tsx --env-file-if-exists=.env.local scripts/import-sessions.ts",
+    "shots": "playwright test",
+    "shots:update": "playwright test --update-snapshots"
   },
   "devDependencies": {
     "@types/big.js": "7.0.0",

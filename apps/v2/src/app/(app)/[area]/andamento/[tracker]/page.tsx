@@ -9,7 +9,7 @@
  * features/progress/tracker.
  */
 import { notFound, redirect } from "next/navigation";
-import { Box, Chart, List, NavBar, PageHeader, RangeNav } from "@lifeos/kit";
+import { Box, Chart, List, PageHeader, RangeNav } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -27,7 +27,7 @@ import {
 import { readSettings } from "@/core/account/settings";
 import type { ScoreContext } from "@/features/day/score";
 import { OpenBox } from "@/features/day/OpenBox";
-import { AREA_HREF, AREA_NAME, trackerArea } from "@/features/places";
+import { AREA_NAME, trackerArea } from "@/features/places";
 import {
   kindTracker,
   sleepTracker,
@@ -235,9 +235,6 @@ export default async function TrackerPage({
           </List>
         )}
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active={home} hrefs={AREA_HREF} addHref={"/aggiungi?area=" + home} />
-      </div>
     </main>
   );
 }

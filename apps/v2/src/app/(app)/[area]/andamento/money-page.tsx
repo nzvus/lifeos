@@ -5,7 +5,7 @@
  * movements day by day with each day's total. ⊕ → Spesa adds one.
  * It is Soldi · Andamento itself (map D, architecture.md §10: `/soldi/andamento`).
  */
-import { addDays, AreaTabs, Box, F, List, NavBar, PageHeader } from "@lifeos/kit";
+import { addDays, AreaTabs, Box, F, List, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -13,7 +13,7 @@ import { logicalDay } from "@/core/engines/time";
 import { readCategories, readMovements } from "@/core/money";
 import { monthMoney } from "@/core/money/month";
 import { categoryName } from "@/features/money/words";
-import { AREA_HREF, tabHrefs } from "@/features/places";
+import { tabHrefs } from "@/features/places";
 
 const MONTH = /^\d{4}-\d{2}$/;
 const eur = (cents: number) => F.num(Math.abs(cents) / 100, "€");
@@ -166,9 +166,6 @@ export async function MoneyPage({
           ))}
         </List>
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active="soldi" hrefs={AREA_HREF} addHref="/aggiungi?area=soldi" />
-      </div>
     </main>
   );
 }

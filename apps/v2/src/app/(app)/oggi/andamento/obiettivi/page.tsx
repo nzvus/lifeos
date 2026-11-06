@@ -6,7 +6,7 @@
  * days coloured), a week's hours (study); a goal nothing counts yet faded.
  * «+ Nuovo obiettivo» opens the editor.
  */
-import { Box, F, NavBar, PageHeader } from "@lifeos/kit";
+import { Box, F, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -22,7 +22,6 @@ import {
 import type { Db } from "@/core/db/db";
 import type { Owner } from "@/core/identity/owner";
 import { readDayModel } from "@/core/plans";
-import { AREA_HREF } from "@/features/places";
 import { goalRow, weekDays, type GoalProgress } from "@/features/progress/goal-rows";
 
 /** The kinds whose one field a per-day goal counts, by the goal's metric. */
@@ -122,9 +121,6 @@ export default async function GoalsPage() {
           + Nuovo obiettivo
         </a>
       </section>
-      <div className="k-nav k-stick">
-        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
-      </div>
     </main>
   );
 }

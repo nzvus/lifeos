@@ -5,7 +5,7 @@
  * day, the person's own meal split over the last 4 weeks as a hint.
  */
 import { notFound } from "next/navigation";
-import { NavBar, PageHeader, F } from "@lifeos/kit";
+import { PageHeader, F } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -24,7 +24,6 @@ import {
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { blockName, blockRow, sharesWords } from "@/features/plan/model-form";
 import { ModelEditor, type EditorBlock } from "@/features/plan/ModelEditor";
-import { AREA_HREF } from "@/features/places";
 import {
   archiveForm,
   copyForm,
@@ -171,9 +170,6 @@ export default async function ModelPage({ params }: { params: Promise<{ id: stri
           copy: copyForm.bind(null, id),
         }}
       />
-      <div className="k-nav k-stick">
-        <NavBar active="oggi" hrefs={AREA_HREF} addHref="/aggiungi" />
-      </div>
     </main>
   );
 }
