@@ -10,6 +10,6 @@
 5. [x] Kit pieces (list in delta.md), each in the `/kit` gallery with its test.
 6. [x] `(app)/layout.tsx` with NavBar and ⊕; pages stop mounting them (the one mechanical
        move allowed here, since it touches no type) (PAT-01).
-7. [ ] Playwright screenshots of `/kit` in CI (PAT-94).
+7. [x] Playwright screenshots of `/kit` in CI (PAT-94).
 8. [ ] patterns.md ✗ → ✓ for what was built; delta merged into the spec; this folder → `archive/`;
        photos; STOP for his review.

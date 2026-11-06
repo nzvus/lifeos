@@ -53,3 +53,7 @@ showing every new piece at 390/320 px, dark.
   page, ⊕ hidden while composing (a «Salva» on screen); (b) the bar on every page, the sticky
   «Salva» above ⊕; (c) sub-pages stay without the bar (PAT-01 says «the area pages»). The
   agent's pick: (a). Until he answers the layout keeps the 6 Nov set (`nav.ts`).
+- **Q-guards-2 (needs him, not a pick)** The CI job for the kit photos (PAT-94) is written in
+  `docs/runbooks/ui-audit.md`; the agent's token cannot push `.github/workflows/`. Either he
+  runs `! gh auth refresh -h github.com -s workflow` and the agent adds it, or he pastes it.
+  Until then `npm run shots -w apps/v2` runs locally (22 images, 390 and 320 px, dark).

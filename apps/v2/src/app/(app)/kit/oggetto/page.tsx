@@ -4,6 +4,6 @@ import { galleryAllowed } from "@/features/gallery/allowed";
 import { ObjectDemo } from "@/features/gallery/ObjectDemo";
 
 export default function KitObjectPage() {
-  if (!galleryAllowed(process.env.NODE_ENV)) notFound();
+  if (!galleryAllowed(process.env.NODE_ENV, process.env.KIT_GALLERY)) notFound();
   return <ObjectDemo />;
 }

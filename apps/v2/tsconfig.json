@@ -31,9 +31,10 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "scripts/**/*.ts",
+    "e2e/**/*.ts",
     "*.config.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "drizzle", ".pglite"]
+  "exclude": ["node_modules", "drizzle", ".pglite", ".pglite-e2e"]
 }

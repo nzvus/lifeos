@@ -35,7 +35,16 @@ const restrict = (groups) => ({
 
 export default tseslint.config(
   {
-    ignores: ["node_modules/**", "drizzle/**", ".next/**", ".pglite/**", "next-env.d.ts"],
+    ignores: [
+      "node_modules/**",
+      "drizzle/**",
+      ".next/**",
+      ".pglite/**",
+      ".pglite-e2e/**",
+      "test-results/**",
+      "playwright-report/**",
+      "next-env.d.ts",
+    ],
   },
   ...tseslint.configs.recommended,
   {

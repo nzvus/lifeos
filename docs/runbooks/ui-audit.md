@@ -62,3 +62,42 @@ DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:5433/postgres?sslmode=dis
 Sign up a throwaway user (the invite field is required by the form: type
 anything; the server ignores it with `SIGNUP_INVITES=false`). Everything
 is in memory and disappears with the server.
+
+## v2: the kit gallery photographed (PAT-94)
+
+`apps/v2/e2e/kit.spec.ts` photographs every phase 3 kit piece in the `/kit` gallery (each
+section, each sheet open, the ObjectPage at `/kit/oggetto`), dark, at 390 and 320 px, and
+compares with `apps/v2/e2e/kit.spec.ts-snapshots/`. It builds v2 for production on a fresh
+PGlite folder (`KIT_GALLERY=true` lets that build serve the gallery), so it needs no database
+and no secret. Stop any `next dev` of v2 first: both use `apps/v2/.next`.
+
+```sh
+npx playwright install chromium        # once
+npm run shots -w apps/v2               # compare; a failure writes the diff in apps/v2/test-results/
+npm run shots:update -w apps/v2        # after a wanted change: rewrite, then LOOK at each image
+```
+
+The CI job (in `.github/workflows/ci.yml`, beside `static`, `test`, `build`; `check` needs it):
+
+```yaml
+  kit-shots:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Kit photos (PAT-94)
+        run: npm run shots -w apps/v2
+        env:
+          CI: "1"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: kit-shots
+          path: apps/v2/test-results/
+```

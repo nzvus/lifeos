@@ -173,7 +173,7 @@ export default async function KitPage({
 }: {
   searchParams: Promise<{ aperto?: string | string[] }>;
 }) {
-  if (!galleryAllowed(process.env.NODE_ENV)) notFound();
+  if (!galleryAllowed(process.env.NODE_ENV, process.env.KIT_GALLERY)) notFound();
   const owner = await requireOwner();
   const { aperto } = await searchParams;
   const db = await getDb();

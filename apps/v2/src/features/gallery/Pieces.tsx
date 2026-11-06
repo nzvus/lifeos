@@ -147,7 +147,11 @@ export function Pieces({ open }: { open: string | null }) {
         {picked && <p className="k-meta">Scelto: {picked}</p>}
       </section>
 
-      <section className="k-section g3" id="azioni" aria-label="Azioni su una cosa che riusi">
+      <section
+        className="k-section g3"
+        id="azioni"
+        aria-label="Azioni su una cosa che riusi"
+      >
         <h2>Azioni su una cosa che riusi (PAT-16…23)</h2>
         <ObjectActions
           title="Panca piana"
