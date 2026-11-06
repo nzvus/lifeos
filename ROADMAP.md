@@ -30,7 +30,9 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
    `model.md` (every object type once), `patterns.md` (every common verb once, with its kit
    component), `domains/*.md` (rules and formulas only), `changes/<id>/` deltas merged then
    archived. The ledger is absorbed as sources and archived; v1 spec, dossiers, superseded ADRs
-   to `docs/archive/`. **STOP for his approval + ADR.**
+   to `docs/archive/`. **STOP for his approval + ADR.** — 2a WRITTEN 6 Nov (his phase 1 answers:
+   all 41 «d'accordo», PROD-40…43): `docs/spec/product.md`, `model.md`, `patterns.md`,
+   ADR-0061 (proposed). 2b (domains, ledger folded, archive) after his approval.
 3. **Guards in code** — kind registry for catalog objects (extends `core/kinds`), generic
    ObjectPage/List+Find/Form/Sheet/Undo/Picker/Empty in the kit, one verb layer in `core/`, one
    `(app)/layout.tsx`; lint bans ad-hoc search/forms/toasts and off-glossary words; requirement
