@@ -77,27 +77,5 @@ npm run shots -w apps/v2               # compare; a failure writes the diff in a
 npm run shots:update -w apps/v2        # after a wanted change: rewrite, then LOOK at each image
 ```
 
-The CI job (in `.github/workflows/ci.yml`, beside `static`, `test`, `build`; `check` needs it):
-
-```yaml
-  kit-shots:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - name: Kit photos (PAT-94)
-        run: npm run shots -w apps/v2
-        env:
-          CI: "1"
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: kit-shots
-          path: apps/v2/test-results/
-```
+CI runs the same command as the `kit-shots` job of `.github/workflows/ci.yml` (`check` needs it);
+on a failure the diffs are in its `kit-shots` artifact.
