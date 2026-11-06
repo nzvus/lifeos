@@ -208,12 +208,11 @@ as v1's, comes with v2's next migration.
    (Chrome): ⋮ → «Installa app» / «Aggiungi a schermata Home». iPhone
    (Safari): Condividi → «Aggiungi alla schermata Home». It opens on Oggi,
    without the browser's bars. Remove v1's icon from the home screen.
-3. **v2's backup, on or after 1 Nov** (Neon's transfer resets then).
-   Settings → Secrets and variables → Actions → New repository secret
-   `V2_DATABASE_URL_DIRECT` = v2's **direct** URL (§10 step 1). Then
-   `gh workflow enable backup.yml` and Actions → backup → Run workflow.
-   Check: the run has an artifact `db-backup-v2-…`. Restore drill as §9,
-   with v2's dump.
+3. **v2's backup.** `dump-v2` in `backup.yml` reads `DATABASE_URL_DIRECT` of the GitHub
+   environment `v2` (the one `migrate-v2.yml` uses; v2's **direct** URL, §10 step 1). Until
+   6 Nov it read a repository secret that was never set and skipped every day as «success»;
+   a missing secret now fails the run. Check: each run has an artifact `db-backup-v2-…`.
+   Restore drill as §9, with v2's dump.
 4. **After one or two weeks with nothing missing in v2.** One last v1
    export (Settings → Export) kept off the laptop too (the encrypted
    dumps expire after 30 days). Then, in this order:
