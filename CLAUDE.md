@@ -3,7 +3,7 @@
 <!-- ===== PROJECT-SPECIFIC BLOCK — fill in at kickoff ===== -->
 **Project:** Personal nutrition + training tracker; pilot app that drives a reusable fullstack webapp kit.
 **Domain:** webapp (responsive web; fullstack)
-**Stack:** TypeScript + Next.js (App Router), npm workspace (ADR-0001, ADR-0056); the kit `packages/kit` with its tokens (`docs/spec/patterns.md`); Postgres on Neon branch `v2` + Drizzle (ADR-0003, ADR-0057); Vercel Hobby (`lifeos-v2`) + GitHub Actions CI (ADR-0004); Better Auth, email+password, users and sessions in our own Postgres (ADR-0006). v1 retired 6 Nov (DT-42).
+**Stack:** TypeScript + Next.js (App Router), npm workspace (ADR-0001, ADR-0056); the kit `packages/kit` with its tokens (`docs/spec/patterns.md`); Postgres on Neon branch `v2` + Drizzle (ADR-0003, ADR-0057); Vercel Hobby (project `lifeos`) + GitHub Actions CI (ADR-0004); Better Auth, email+password, users and sessions in our own Postgres (ADR-0006). v1 retired 6 Nov (DT-42).
 **Layout:** `src/{app,features,core,i18n}` + `packages/kit` — one-way deps, no cross-slice imports, screens only from kit pieces (ADR-0002, PAT-90).
 **Data:** all DB access via `core/` repositories; migrations are committed SQL from `drizzle-kit generate`, applied to production only by the human-triggered `migrate-v2` job that dumps first — never `drizzle-kit push` on a shared DB, never auto-migrate on deploy (ADR-0003/0004).
 **Run:** `npm run dev` (:3200; needs `.env.local`, see `.env.example` and `docs/runbooks/setup.md` §3)
