@@ -1,6 +1,6 @@
 # ADR-0061: One horizontal spec (product, model, patterns) and a type registry drive every screen
 
-**Status:** proposed
+**Status:** accepted (6 Nov 2026, «Approvo, procedi»)
 **Date:** 2026-11-06
 
 ## Context

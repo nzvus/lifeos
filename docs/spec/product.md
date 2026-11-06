@@ -1,9 +1,11 @@
 # lifeos — product (the constitution)
 
-Status: **draft 2026-11-06, phase 2a** — waiting for the developer's approval (ROADMAP «Now»,
-PROD-39). With `model.md` and `patterns.md` it replaces, as the source of truth, the v1 spec
-(`docs/spec/01–08`), `docs/spec/v2/*`, the dossiers' «decided» parts and the ledger's D lines.
-Those stay as sources until phase 2b folds them in and archives them.
+Status: **approved 2026-11-06** (PROD-44, ADR-0061). With `model.md` and `patterns.md` it
+replaces, as the source of truth, the v1 spec
+(`docs/archive/spec-v1/01–08`), `docs/archive/spec-v2/*`, the dossiers' «decided» parts and the ledger's D lines.
+Those are archived in `docs/archive/` (phase 2b, 6 Nov) as sources; where each ledger line went
+is in `audit-2026-11/fold-*.md`. Domain rules: `domains/` (food, training, body, plan, data);
+the look: `visual.md`.
 
 Each rule has an ID that tests, PRs and changes cite (`PRD-07`). The source in brackets is a
 ledger ID, a phase 1 answer (`n06`, `c11`, `x03`: `audit-2026-11/needs.md`) or a document.
@@ -50,7 +52,7 @@ ledger ID, a phase 1 answer (`n06`, `c11`, `x03`: `audit-2026-11/needs.md`) or a
 | a thing you reuse | the type's own name: **cibo, prodotto, pasto, esercizio, scheda, tragitto, tracker** | «una cosa che riusi» | oggetto, item |
 | a gym session model | **scheda** | «gli esercizi di una sessione» | routine, modello, workout |
 | a gym visit | **sessione** | «quando ti alleni» | allenamento (as object) |
-| something planned that repeats | **blocco** *(proposed)* | «cosa, quando, ogni quanto» | modello, giornata tipo, settimana tipo |
+| something planned that repeats | **blocco** | «cosa, quando, ogni quanto» | modello, giornata tipo, settimana tipo |
 | blocks that advance one by one | **ciclo** | «una scheda dopo l'altra» | programma |
 | the plan of an area or of all | **Piano** (tab) | «cosa ti aspetta» | routine |
 | a 0–100 judgement | **voto** | — | punteggio, score |
@@ -59,8 +61,8 @@ ledger ID, a phase 1 answer (`n06`, `c11`, `x03`: `audit-2026-11/needs.md`) or a
 | the areas | **Corpo · Cibo · Oggi · Mente · Soldi** | — | places, Libreria |
 | the four tabs | **Diario · Piano · Elenco · Andamento** | — | — |
 
-«abitudine» *(open, Q2)*: either a blocco of a tracker («bere 2 l ogni giorno») with no word of
-its own, or kept as the word for that case. Words outside this table fail the glossary test.
+**abitudine** = a blocco whose object is a tracker («bere 2 l ogni giorno»): same structure,
+its own word because he recognises it (PROD-45). Words outside this table fail the glossary test.
 [CONTRA-04, PLAN-33, TRAIN-37, content.md §2]
 
 ## 4. Not now (his answers x01–x15, 6 Nov)
@@ -75,7 +77,7 @@ themes beyond dark · goals with no data (log them or remove them). Each comes b
 ## 5. How the spec works
 - **PRD-40** Three horizontal files (`product`, `model`, `patterns`) + `domains/<area>.md` for
   rules and formulas only. A rule lives in one file; others cite its ID. [PROD-37, PROD-39]
-- **PRD-41** A change is a folder `docs/spec/changes/<yyyy-mm-dd>-<name>/` with `proposal.md`
+- **PRD-41** A change is a folder `docs/spec/changes/YYYY-MM-DD-name/` with `proposal.md`
   (why, his words), `delta.md` (requirements ADDED / MODIFIED / REMOVED, WHEN/THEN) and
   `tasks.md`. Approved → built → the delta is merged into the spec and the folder moves to
   `changes/archive/`. One change open at a time. [PROD-38, OpenSpec model]

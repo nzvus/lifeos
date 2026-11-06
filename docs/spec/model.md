@@ -1,6 +1,6 @@
 # lifeos — model (every type of thing, declared once)
 
-Status: **draft 2026-11-06, phase 2a**, waiting for approval. Replaces `docs/spec/v2/concepts.md`,
+Status: **approved 2026-11-06** (PROD-44, ADR-0061). Replaces `docs/archive/spec-v2/concepts.md`,
 `kinds.md`, the model parts of `dossiers/objects.md`, `day-templates.md`, `plan.md`, and
 ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (audit 6 Nov).
 
@@ -92,7 +92,8 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
 - **MOD-42** **Obiettivo** (goal): metric + window + at least | at most | range | reach-by-date,
   dated history; progress, pace, ETA derived. The day's food targets are goals (dynamic from
   weight, deficit, protein g/kg, fat g/kg). [concepts §7, PLAN-31] — Today: goals are weight
-  only; the day targets live in the «Rec» model (Q3).
+  only; the day targets live in the «Rec» model → moved into Obiettivi, values unchanged, «Rec»
+  archived (PROD-45, phase 4).
 - **MOD-43** **Voto**: declared parts, each a metric against its fascia, with weight and source;
   versioned; a part without coverage is left out and said. One scale: ≥ 70 · ≥ 40 · < 40.
   [PROD-13, content §3] — Today: one engine (`core/engines/judgements`), parts per domain.
@@ -115,7 +116,8 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   [n08, PRD-21, PROD-42]
 - **MOD-54** **Energia**: expenditure learnt from intake and weight (calibrated, automatic,
   reversible); steps and sessions are inputs with their confidence, not separate models.
-  [n10, c06, c07, BODY-30]
+  Steps: the phone's count typed once a day; a native shell reading Health Connect is a future
+  change with its ADR, after phase 4 (BODY-32). [n10, c06, c07, BODY-30]
 - **MOD-55** Correlations: only the 6 default pairs, shown after ≥ 3 months of data. [n08, x08]
 
 ## 7. Time relations

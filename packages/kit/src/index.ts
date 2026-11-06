@@ -1,7 +1,7 @@
 /**
  * @lifeos/kit — one stylesheet (`styles/kit.css` + `styles/tokens.css`),
  * one icon registry, one formatter and the components every v2 screen is
- * made of (docs/spec/v2/kit.md). It mirrors the design boards one to one.
+ * made of (docs/spec/patterns.md). It mirrors the design boards one to one.
  */
 export { F, MET, PART, type Level, type State } from "./format";
 export { addDays, monthOf, weekOf } from "./calendar";

@@ -6,7 +6,7 @@
 > `Projects-artifacts/LIFEOS/considerations.txt` (Syncthing); the agent folds
 > it in here. The refactor plan, handoff, audit and feedback files of
 > 2026-10-09…11 were folded in and deleted; their sources are in
-> `docs/spec/sources.md`.
+> `docs/archive/spec-v1/sources.md`.
 
 ## Now: cleanup and one model (decided 2026-11-06) — features frozen until phase 3 closes
 The developer, 6 Nov: «la specifica è un casino, così come il codice e le versioni e i dati… le
@@ -32,7 +32,10 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
    archived. The ledger is absorbed as sources and archived; v1 spec, dossiers, superseded ADRs
    to `docs/archive/`. **STOP for his approval + ADR.** — 2a WRITTEN 6 Nov (his phase 1 answers:
    all 41 «d'accordo», PROD-40…43): `docs/spec/product.md`, `model.md`, `patterns.md`,
-   ADR-0061 (proposed). 2b (domains, ledger folded, archive) after his approval.
+   ADR-0061 — approved 6 Nov («Approvo, procedi», PROD-44/45). 2b DONE 6 Nov: `domains/`
+   food (FD), training (TR), body (BD), plan (PL), data (DT) + `visual.md` (VIS); all 377 ledger
+   lines folded (`audit-2026-11/fold-*.md`); ledger, spec v1/v2 and dossiers in `docs/archive/`;
+   `check.py` checks the spec, the SessionStart hook prints `changes/inbox.md` (Q-01…Q-08 open).
 3. **Guards in code** — kind registry for catalog objects (extends `core/kinds`), generic
    ObjectPage/List+Find/Form/Sheet/Undo/Picker/Empty in the kit, one verb layer in `core/`, one
    `(app)/layout.tsx`; lint bans ad-hoc search/forms/toasts and off-glossary words; requirement
@@ -46,15 +49,15 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
 
 ## Before: lifeos v2 build (ADR-0053, 2026-10-15 → 11-03) — paused 2026-11-06
 The developer: "un'app completa per tracciare tutto il mio quotidiano… temporalmente
-intelligente… astrarre e unificare al massimo". The v1 spec (`docs/spec/01–08`)
-describes today's app and its issues; the v2 target is `docs/spec/v2/`: one
+intelligente… astrarre e unificare al massimo". The v1 spec (`docs/archive/spec-v1/01–08`)
+describes today's app and its issues; the v2 target is `docs/archive/spec-v2/`: one
 timeline engine (kinds, entries, catalogs, templates, goals, metrics,
 judgements, decisions), a hybrid schema, a parallel app, design boards first.
 v1 gets fixes only; its open requests (gym auto mode, rests, coherent advice,
 compact rows, filters, meal roles, day templates, micronutrients, food identity,
 scanning) are placed in the v2 spec.
-1. **Target approval** — **approved 2026-10-16** («target approvato»): ADR-0053, `docs/spec/v2/*`, the design system and the
-   "lifeos v2" boards (links in `docs/spec/v2/README.md`). The boards keep
+1. **Target approval** — **approved 2026-10-16** («target approvato»): ADR-0053, `docs/archive/spec-v2/*`, the design system and the
+   "lifeos v2" boards (links in `docs/archive/spec-v2/README.md`). The boards keep
    taking the developer's comments while the code is written.
    - **Data refinement** (2026-10-16, migration.md «Refinement update»):
      audit of the 16 Oct export (135 items), corrections to approve, a
@@ -151,7 +154,7 @@ scanning) are placed in the v2 spec.
    - Obiettivi (s169, V-09): the goals in force with their progress (weight:
      now vs start, pace vs needed, ETA, on track; steps days on target;
      study hours a week) and «Nuovo obiettivo» (the pace derived and judged).
-   **From 2026-10-23: dossiers first** (`docs/spec/v2/method.md`, the
+   **From 2026-10-23: dossiers first** (`docs/archive/spec-v2/method.md`, the
    developer's considerations of 10-22): each domain designed whole —
    evidence, an audit of the data, model, acceptance tests — and reviewed
    before its code changes. Order: training → movement (routes, trips) →
@@ -223,7 +226,7 @@ In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 - **Security:** rotate the production DB password pasted on 2026-09-30, unless already done.
 - **Decisions:** ADR-0007 still `proposed`; "What I learned" missing in most ADRs; a retro for s71–s102 never run.
 
-## Backlog (v1 era; each item now lives in docs/spec/v2 or is dropped there)
+## Backlog (v1 era; each item now lives in docs/archive/spec-v2 or is dropped there)
 - Back-test of the learnt expenditure on the developer's export (refactor plan Phase 2)
 - Training: deload suggestion, one rest field (planned; actual derived) — ADR-0049 leftovers
 - Code: routes ≤ ~150 lines, logic in `core/`; drop `user_settings.target_*` (deprecated by ADR-0008)

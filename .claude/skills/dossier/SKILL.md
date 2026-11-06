@@ -1,11 +1,11 @@
 ---
 name: dossier
-description: Design one lifeos v2 domain whole before its code changes - research, audit of the developer's data, model, experience, acceptance tests - as docs/spec/v2/dossiers/<domain>.md. Use when the user says "dossier", or a request changes how a domain measures, advises or collects data.
+description: Design one lifeos v2 domain whole before its code changes - research, audit of the developer's data, model, experience, acceptance tests - as docs/archive/spec-v2/dossiers/<domain>.md. Use when the user says "dossier", or a request changes how a domain measures, advises or collects data.
 ---
 
 # Dossier for one domain
 
-The method and the sections are in `docs/spec/v2/method.md`; read it first,
+The method and the sections are in `docs/archive/spec-v2/method.md`; read it first,
 then only the spec pages the domain touches (`engines.md` sections,
 `kinds.md` rows, the domain's code).
 

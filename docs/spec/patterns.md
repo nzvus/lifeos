@@ -1,7 +1,7 @@
 # lifeos — patterns (every common verb and shape, once)
 
-Status: **draft 2026-11-06, phase 2a**, waiting for approval. Replaces, as truth,
-`docs/spec/v2/interaction.md`, `find.md`, `content.md` §3–4, `kit.md`, `shapes.md`,
+Status: **approved 2026-11-06** (PROD-44, ADR-0061). Replaces, as truth,
+`docs/archive/spec-v2/interaction.md`, `find.md`, `content.md` §3–4, `kit.md`, `shapes.md`,
 `design-register.md` and ADR-0058's pattern list. IDs: `PAT-nn`, written WHEN / THEN.
 «Kit» = the piece in `packages/kit` that realises it: ✓ exists · ✗ to build in phase 3.
 A screen is only a composition of these pieces (PRD-18).

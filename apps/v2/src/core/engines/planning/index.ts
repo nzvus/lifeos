@@ -1,4 +1,4 @@
-/** E3 Planning (docs/spec/v2/engines.md): models with `extends`, apply, swap, default times, cycles, rebase. */
+/** E3 Planning (docs/archive/spec-v2/engines.md): models with `extends`, apply, swap, default times, cycles, rebase. */
 export * from "./time";
 export * from "./model";
 export * from "./apply";

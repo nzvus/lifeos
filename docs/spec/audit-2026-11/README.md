@@ -9,6 +9,7 @@ spec della fase 2. Foto: `LIFEOS/review/audit-2026-11/` (77 pagine a 390 px + 7 
 | `ledger-A.md` | PROD, DATA, PLAN, PLAT, KEEP, CONTRA (136 righe) verificate nel codice |
 | `ledger-B.md` | FOOD, TRAIN, BODY, HOME (130 righe) |
 | `ledger-C.md` | UI (103 righe), ognuna marcata «pattern» o «schermata» |
+| `fold-*.md` | fase 2b: dove vive ora ognuna delle 377 righe del ledger (food, training, body, plan-data, ui-prod) |
 
 ## 1. Il ledger contro il codice (369 righe, verifiche a campione, ±3)
 

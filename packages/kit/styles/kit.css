@@ -1,4 +1,4 @@
-/* lifeos kit — the one stylesheet every board links (docs/spec/v2/kit.md).
+/* lifeos kit — the one stylesheet every board links (docs/spec/patterns.md).
    Components: Box, Skyline, Nutrients. Pages pass data, never colours or sizes. */
 :root {
   --t-box: 0.5s;
@@ -1659,7 +1659,7 @@
   height: 12px;
 }
 
-/* ---------- icons (docs/spec/v2/icons.md): one hue per domain, the Glyph sizes, the backdrop ---------- */
+/* ---------- icons (docs/archive/spec-v2/icons.md): one hue per domain, the Glyph sizes, the backdrop ---------- */
 .fam-sleep {
   --fam: var(--moment-dinner);
 }
@@ -1806,7 +1806,7 @@
   flex-shrink: 0;
 }
 
-/* ---------- shapes (docs/spec/v2/shapes.md): one role per control, the same states everywhere ---------- */
+/* ---------- shapes (docs/archive/spec-v2/shapes.md): one role per control, the same states everywhere ---------- */
 /* buttons by importance: primary (filled, one per screen, at the bottom) · secondary (outlined) · link (in a title, "›") · act (round, in a row) · icon (44, with a label) */
 .k-btn {
   display: inline-flex;
@@ -2047,7 +2047,7 @@
   padding-top: 0;
 }
 
-/* ---------- states of a screen (docs/spec/v2/content.md §4): empty, loading, error, confirm, toast ---------- */
+/* ---------- states of a screen (docs/archive/spec-v2/content.md §4): empty, loading, error, confirm, toast ---------- */
 .k-empty {
   display: flex;
   flex-direction: column;
@@ -2703,7 +2703,7 @@
   opacity: 0.45;
 }
 
-/* ---------- Find (docs/spec/v2/find.md): one search, sort and filter for every list ---------- */
+/* ---------- Find (docs/archive/spec-v2/find.md): one search, sort and filter for every list ---------- */
 .k-find {
   display: flex;
   flex-direction: column;
