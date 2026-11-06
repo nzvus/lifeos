@@ -20,21 +20,24 @@ A screen is only a composition of these pieces (PRD-18).
   registry-driven view filtered by area; Oggi = all areas. A tab with nothing shows the empty
   state of PAT-70, not a page of its own. Kit: `AreaTabs` ✓. [ADR-0059]
 - **PAT-04** Object addresses: `/{area}/{type}/{id}`; one route per family
-  (`[area]/[type]/[id]`), not one per type. Kit: route ✗ (15 per-object routes today).
+  (`[area]/[type]/[id]`), not one per type: the type is found by its word (`typeAtSlug`), a
+  wrong area redirects to the type's own, the page is the generic ObjectPage
+  (`features/objects/ObjectView`). Kit: route ✓ (`src/app/(app)/[area]/[type]/[id]`); the
+  per-type folders still served first leave as their types move (phase 4).
 
 ## 2. The verbs (one form each; the registry says which apply)
 | ID | Verb | WHEN he… | THEN | Kit |
 |---|---|---|---|---|
-| PAT-10 | Aggiungi | taps ⊕ anywhere | Capture sheet (PAT-60) opens, the current area's types first | `Capture` ✗ |
+| PAT-10 | Aggiungi | taps ⊕ anywhere | Capture sheet (PAT-60) opens, the current area's types first | `Capture` ✓ |
 | PAT-11 | Aggiungi qui | taps the last row «+ Nuovo …» of a list | the type's form opens prefilled (MOD-51) | `List` ✓ |
 | PAT-12 | Apri | taps a row or box anywhere on it | its object page or voce sheet | `List`, `Box` ✓ |
-| PAT-13 | Modifica | taps a value | it becomes editable in place; leaving saves; toast «Salvato · Annulla». No `/modifica` pages | `Field` ✓, in-place ✗ |
-| PAT-14 | Salva | is composing (meal, set, new object) | one sticky primary at the bottom; «Annulla» beside it | `Composer` ✗ |
+| PAT-13 | Modifica | taps a value | it becomes editable in place; leaving saves; toast «Salvato · Annulla». No `/modifica` pages | `InPlace` ✓ |
+| PAT-14 | Salva | is composing (meal, set, new object) | one sticky primary at the bottom; «Annulla» beside it | `Composer` ✓, `ObjectForm` ✓ |
 | PAT-15 | Fatto / Salta | taps the pill on a previsto row | status changes, time = now (MOD-13), toast with Annulla | `act` pill ✓ |
 | PAT-16 | Parti da… | opens «Altro» on an object | a new object based on it, its form prefilled | `ObjectActions` ✓ |
 | PAT-17 | Variante | opens «Altro» on an object with variants | a child that stores only its differences | `ObjectActions` ✓ |
-| PAT-18 | Unisci | opens «Altro» or a «doppioni» hint | pick the other, preview what moves, confirm (PAT-73) | `MergeSheet` ✗ |
-| PAT-19 | Archivia / Ripristina | opens «Altro» | archived at once + toast Annulla; Elenco has an «Archiviati» filter to restore | `ObjectActions` ✓, filter ✗ |
+| PAT-18 | Unisci | opens «Altro» or a «doppioni» hint | pick the other, preview what moves, confirm (PAT-73) | `MergeSheet` ✓ |
+| PAT-19 | Archivia / Ripristina | opens «Altro» | archived at once + toast Annulla; Elenco has an «Archiviati» filter to restore | `ObjectActions` ✓, `Elenco` filter ✓ |
 | PAT-20 | Elimina | opens «Altro» | a voce: trash + toast Annulla; an object: only if unused, else offer Archivia | `ObjectActions` ✓ |
 | PAT-21 | Annulla | taps the toast's action within 5 s | the last change is reverted exactly (the verb's undo, PAT-24) | `Toast` ✓ (4 copies to replace) |
 | PAT-22 | Salva come … | opens «Altro» on a voce | MOD-14 | `ObjectActions` ✓ |
@@ -57,19 +60,24 @@ A screen is only a composition of these pieces (PRD-18).
   The body below edits in place. Kit ✓ `EntryHeader`. [n02, FOOD-38, FOOD-47]
 - **PAT-32** A voce opens as a sheet with two levels: closed = one row with its key number;
   open = header + body + context line (MOD-53). Kit: `EntrySheet` ✓ (13 types) → all types.
-- **PAT-33** The context line under an open voce is generic (MOD-53). Kit ✗.
+- **PAT-33** The context line under an open voce is generic (MOD-53): its parts in words, one
+  line beside it, never inside the number. Kit ✓ `ContextLine`.
 
 ## 4. Lists and search
 - **PAT-40** Every list is `List`: 8 rows, then «Mostra altri (n)»; the rest scrolls in its own
   box; the whole row is the target. Kit ✓ (16 uses). [UI-41, UI-100]
 - **PAT-41** Every search is `Find`: one field, one matcher (accent-folding, aliases, typos),
   ranking «di solito a quest'ora» then use count then name; filters as chips; one typo forgiven
-  from four letters on. Kit ✓ `Find` (5 fields, 4 matchers, 3 `fold` to replace). [find.md,
-  needs §3]
+  from four letters on. For a short choice it may list every item with nothing typed (`all`,
+  «Unisci»), or given rows (`idle`, ⊕'s types). Kit ✓ `Find` (5 fields, 4 matchers, 3 `fold`
+  to replace). [find.md, needs §3; change 2026-11-06-kit-patterns]
 - **PAT-42** Sort is a chip row of the type's declared sort keys, never a drop-down. Kit ✓
   `SortChips`.
 - **PAT-43** Elenco of an area = its types as `List` sections + «Archiviati» + «Possibili
-  doppioni» hint when the duplicate detector finds some (one detector). Kit ✗.
+  doppioni» hint when the duplicate detector finds some (one detector: two names are twins
+  when they are the same words without accents, case, punctuation, small words or order;
+  never a pair he said are different). Kit ✓ `Elenco`, detector `core/catalog/twins.ts`; the
+  food and exercise detectors and the area pages move onto them in their types' changes.
 
 ## 5. Numbers
 - **PAT-50** Every number shown is a `Metric` value through `F` (format, unit, 24 h). Kit: `F` ✓.
@@ -77,7 +85,8 @@ A screen is only a composition of these pieces (PRD-18).
   declaration: formula in words, inputs with sources and confidence, coverage, source of the
   fascia, formula version. No page writes an explanation by hand. Kit ✓ `Why`. [n05, MOD-40]
 - **PAT-52** One judgement chip (`F.judge`): mark + number + word; one fascia bar (ruler with
-  min / buono / max). Kit: `Box` score ✓, chip unification ✗. [UI-102]
+  min / buono / max). Kit ✓ `Judge`, `Fascia` (+ `FasciaBar`, `scoreFascia`): Nutrients and a
+  score's parts draw the one ruler; hand-written marks move to `Judge` type by type. [UI-102]
 - **PAT-53** One `Chart` for every trend (period G/S/M/6M/A, points, trend line, fascia band);
   no SVG drawn in a feature. Kit: `Chart` ✓ (1 use, 5 hand-drawn today).
 - **PAT-54** One period navigator (swipe, arrows with a mouse, «↩ oggi»). Kit: `DateNav`,
@@ -88,17 +97,22 @@ A screen is only a composition of these pieces (PRD-18).
 ## 6. Forms and capture
 - **PAT-60** **Capture** (⊕): one `Find` over every type and object, ranked by habit at this
   hour; one tap logs with the proposal (MOD-51) and shows Annulla; an unknown thing becomes a
-  stima object at once. One door per type. [n01]
+  stima object at once. One door per type. With nothing typed it lists the types, the current
+  area's first. [n01] Kit ✓ `Capture` (`Find` with `idle`); `/aggiungi` moves onto it with the
+  first type change.
 - **PAT-61** **ObjectForm**: generated from the type's fields (labels, units, help, ranges);
   numbers with − / + steppers; time and date with one native picker each (no typed
   «AAAA-MM-GG»). A type adds a custom section only through its specialisation. Kit: `Field` ✓,
   `ObjectForm` ✓ (17 bespoke forms move in phase 4).
 - **PAT-62** **Composer** for types with lines (pasto, sessione): search + lines + totals +
-  sticky «Salva». Kit: food Composer ✓ → generic ✗.
+  sticky «Salva»: the lines, the search under them, the totals, the type's own fields, then
+  «Annulla» + «Salva». Kit ✓ `Composer` (`readLines`); the food composer and the session move
+  onto it in their types' changes.
 - **PAT-63** **Timer** capture for interval types (set, rest, run, study): states, saved instants,
   resume after closing, auto mode with assumed values marked (MOD-12); without network the voci
   wait on the phone and leave by themselves when it returns, shown «da inviare» (his pick 6 Nov,
-  UI-72). Kit: gym clock → ✗.
+  UI-72). Kit: gym clock → ✗, built in the change «esercizio e scheda» (decided by the agent,
+  change 2026-11-06-kit-patterns).
 - **PAT-64** **Scanner**: one barcode reader (camera, file) for every type with a barcode. [FOOD-43]
 
 ## 7. States and feedback

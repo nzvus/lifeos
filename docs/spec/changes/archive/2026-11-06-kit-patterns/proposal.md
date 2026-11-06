@@ -28,7 +28,8 @@ yet: each type change moves its screens onto them and deletes the bespoke ones.
 queue go to the change «esercizio e scheda», where the gym clock it replaces lives; this
 change's slices follow the list above, each pushed when green. `Find` gets `all` (with nothing typed, every
 item, used first, then by name) for short choices such as «Unisci», where nothing has a habit
-yet; PAT-41's habit ranking stays the default.
+yet; PAT-41's habit ranking stays the default. `Find` also gets `idle` (the rows shown with nothing typed), so
+⊕ lists the types at rest and searches types and objects together once he types.
 
 **Not in this change.** Moving any screen (the type changes do it); new patterns or words.
 

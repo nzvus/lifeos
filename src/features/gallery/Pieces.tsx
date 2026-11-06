@@ -1,12 +1,18 @@
 "use client";
 /**
  * The phase 3 pieces in the `/kit` gallery (change 2026-11-06-guards, PAT-94): each with the
- * states that matter, example values only. `open` («?aperto=altro|conferma|perche|toast|unisci»)
+ * states that matter, example values only. `open` («?aperto=altro|conferma|perche|toast|unisci|aggiungi»)
  * shows a sheet or the toast at once, so the CI screenshots can photograph them.
  */
 import { useEffect, useState } from "react";
 import {
+  Capture,
+  Composer,
+  ContextLine,
+  Elenco,
+  FasciaBar,
   InPlace,
+  Judge,
   MergeSheet,
   Banner,
   Confirm,
@@ -173,6 +179,75 @@ export function Pieces({ open }: { open: string | null }) {
         />
       </section>
 
+      <section className="k-section g3" id="compositore" aria-label="Compositore">
+        <h2>Compositore (PAT-62, PAT-14)</h2>
+        <Composer
+          candidates={EXERCISES}
+          hour={18}
+          findLabel="Cerca un esercizio"
+          toLine={(e) => ({
+            key: e.id,
+            quantity: "3",
+            unit: "serie",
+            step: 1,
+            entry: { fam: "train", title: e.name },
+          })}
+          initial={[
+            {
+              key: "1",
+              quantity: "4",
+              unit: "serie",
+              step: 1,
+              entry: { fam: "train", title: "Panca piana", meta: "Petto · 31 volte" },
+            },
+            {
+              key: "5",
+              quantity: "3",
+              unit: "serie",
+              step: 1,
+              entry: { fam: "train", title: "Squat", meta: "Gambe · 18 volte" },
+            },
+          ]}
+          totals={(ls) => <span className="k-body">{ls.length} esercizi</span>}
+          empty="Cerca un esercizio da aggiungere"
+          saveLabel="Salva la scheda"
+          cancelHref="/kit"
+          action={() => say("Salvato", () => undefined)}
+        />
+      </section>
+
+      <section className="k-section g3" id="elenco" aria-label="Elenco di un'area">
+        <h2>Elenco di un&apos;area (PAT-43, PAT-19)</h2>
+        <Elenco
+          archived={false}
+          filterHref={{ active: "/kit", archived: "/kit" }}
+          twins={{ count: 1, href: "/kit" }}
+          sections={[
+            {
+              key: "route",
+              title: "Tragitti",
+              rows: [
+                {
+                  id: "1",
+                  name: "Casa–palestra",
+                  meta: "in bici · 4,2 km",
+                  href: "/kit",
+                },
+                { id: "2", name: "Casa–lavoro", meta: "a piedi · 1,1 km", href: "/kit" },
+              ],
+              add: { label: "Nuovo tragitto", href: "/kit" },
+              empty: "Nessun tragitto",
+            },
+            {
+              key: "routine",
+              title: "Schede",
+              rows: [],
+              empty: "Nessuna scheda: creane una da una sessione.",
+            },
+          ]}
+        />
+      </section>
+
       <section
         className="k-section g3"
         id="valori"
@@ -245,6 +320,20 @@ export function Pieces({ open }: { open: string | null }) {
         />
       </section>
 
+      <section className="k-section g3" id="giudizio" aria-label="Giudizio e contesto">
+        <h2>Giudizio, fascia e contesto (PAT-52, PAT-33)</h2>
+        <div className="k-line base between">
+          <span className="k-body">Pranzo</span>
+          <Judge score={82} />
+        </div>
+        <div className="k-line base between">
+          <span className="k-body">Proteine</span>
+          <Judge score={55} shown="1,4 g/kg" />
+        </div>
+        <FasciaBar score={35} label="Fibre 35 su 100" />
+        <ContextLine parts={["5 h 30 di sonno", "caffè 40 min fa", "allenamento ieri"]} />
+      </section>
+
       <section className="k-section g3" id="numeri" aria-label="Perché e non so">
         <h2>Perché? e non so (PAT-51, PAT-55)</h2>
         <p className="k-body">
@@ -274,6 +363,64 @@ export function Pieces({ open }: { open: string | null }) {
         />
       </section>
 
+      <Capture
+        open={open === "aggiungi"}
+        area="Cibo"
+        hour={8}
+        types={[
+          {
+            id: "pasto",
+            name: "Pasto",
+            area: "Cibo",
+            uses: 90,
+            href: "/kit",
+            meta: "Cibo",
+          },
+          {
+            id: "acqua",
+            name: "Acqua",
+            area: "Cibo",
+            uses: 30,
+            href: "/kit",
+            meta: "Cibo",
+          },
+          {
+            id: "peso",
+            name: "Peso",
+            area: "Corpo",
+            uses: 40,
+            href: "/kit",
+            meta: "Corpo",
+          },
+          {
+            id: "sessione",
+            name: "Sessione",
+            area: "Corpo",
+            uses: 20,
+            href: "/kit",
+            meta: "Corpo",
+          },
+          {
+            id: "umore",
+            name: "Umore",
+            area: "Mente",
+            uses: 12,
+            href: "/kit",
+            meta: "Mente",
+          },
+          {
+            id: "spesa",
+            name: "Spesa",
+            area: "Soldi",
+            uses: 8,
+            href: "/kit",
+            meta: "Soldi",
+          },
+        ]}
+        objects={[{ id: "caffe", name: "Caffè", meta: "cibo", uses: 300, href: "/kit" }]}
+        onPick={(t) => say("Apri: " + t.name)}
+        onClose={() => undefined}
+      />
       <MergeSheet
         open={open === "unisci"}
         keep="Corsa"

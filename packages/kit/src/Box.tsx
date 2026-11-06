@@ -14,6 +14,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
+import { FasciaBar } from "./Fascia";
 import { F, MET, PART, type State } from "./format";
 
 export type BoxEntry = {
@@ -345,34 +346,7 @@ export function Box({
                       </span>
                       <span className="k-num b2">{v}</span>
                     </span>
-                    <span
-                      className="k-bar zoned"
-                      role="img"
-                      aria-label={q.name + " " + v + " su 100"}
-                    >
-                      <i style={{ width: v + "%", "--mix": "60%" } as CSSProperties} />
-                      <span
-                        className="k-ztip"
-                        aria-hidden="true"
-                        style={{ left: v + "%", background: band(v) }}
-                      />
-                      <span className="k-zrule" aria-hidden="true">
-                        <span
-                          className="z fair"
-                          style={{ left: PART + "%", width: MET - PART + "%" }}
-                        />
-                        <span
-                          className="z good"
-                          style={{ left: MET + "%", width: 100 - MET + "%" }}
-                        />
-                        <span className="tk" style={{ left: PART + "%" }}>
-                          <span>{PART}</span>
-                        </span>
-                        <span className="tk" style={{ left: MET + "%" }}>
-                          <span>{MET}</span>
-                        </span>
-                      </span>
-                    </span>
+                    <FasciaBar score={v} label={q.name + " " + v + " su 100"} />
                   </div>
                 );
               })}
