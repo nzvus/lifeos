@@ -43,6 +43,8 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
    screenshots per pattern; Claude Code hooks (lint+typecheck after edits, tests before stop,
    spec edits only inside a change), path rules in `.claude/rules/`, skills `change`/`audit`/
    `verify`/`retro`. **STOP for his review.**
+   Change folder `docs/spec/changes/2026-11-06-guards/` (proposal, delta, tasks: 8 slices) written
+   6 Nov; code starts after #326 is merged (no stacked PRs).
 4. **Rebuild v2 one type at a time** (strangler) — patterns → habit/tracker → food and meal →
    exercise and scheda → Piano (`plan_rules` returns here) → money/pantry; each PR counts pages,
    implementations and lines removed; v1 retired first (verified export, Neon untouched).

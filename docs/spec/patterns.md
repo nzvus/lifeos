@@ -8,7 +8,8 @@ A screen is only a composition of these pieces (PRD-18).
 
 ## 1. The page shell
 - **PAT-01** One `(app)/layout.tsx` holds NavBar (Corpo · Cibo · Oggi · Mente · Soldi) and ⊕;
-  pages never mount them. Kit: `NavBar` ✓, layout ✗ (copied in 17 pages today).
+  pages never mount them. One exception: a running gym session is full screen, left with «Finisci»
+  or «‹ Corpo» (TRAIN-10, his pick 6 Nov). Kit: `NavBar` ✓, layout ✗ (copied in 17 pages today).
 - **PAT-02** Every sub-page header: «‹ parent» naming the parent, title, one-line meta.
   One prop name (`back`). Kit: `PageHeader` ✓ (4 prop names today).
 - **PAT-03** An area page = the same four tabs, Diario · Piano · Elenco · Andamento, each a
@@ -83,7 +84,9 @@ A screen is only a composition of these pieces (PRD-18).
 - **PAT-62** **Composer** for types with lines (pasto, sessione): search + lines + totals +
   sticky «Salva». Kit: food Composer ✓ → generic ✗.
 - **PAT-63** **Timer** capture for interval types (set, rest, run, study): states, saved instants,
-  resume after closing, auto mode with assumed values marked (MOD-12). Kit: gym clock → ✗.
+  resume after closing, auto mode with assumed values marked (MOD-12); without network the voci
+  wait on the phone and leave by themselves when it returns, shown «da inviare» (his pick 6 Nov,
+  UI-72). Kit: gym clock → ✗.
 - **PAT-64** **Scanner**: one barcode reader (camera, file) for every type with a barcode. [FOOD-43]
 
 ## 7. States and feedback
@@ -99,7 +102,8 @@ A screen is only a composition of these pieces (PRD-18).
 - **PAT-80** Spacing, paddings and radii from tokens only; no inline `style`, no feature CSS.
   Every box measured at 390/360/320 (no overflow). [UI-84, L section]
 - **PAT-81** Words from the glossary (product.md §3); buttons say the verb; destructive verbs
-  name what they destroy; «tu», no exclamation marks. [content §2]
+  name what they destroy; «tu», no exclamation marks. Every UI string lives in one catalogue per
+  area (`i18n/`), never inline; the glossary test reads the catalogue (his pick 6 Nov, DT-61). [content §2]
 
 ## 9. The checks (phase 3 makes each one fail a PR)
 | Check | Enforces |

@@ -60,7 +60,7 @@ IDs `FD-nn`. Sources: ledger IDs, phase 1 answers (`n04`, `c08`, `x06`: `audit-2
   Garthe 2011] — Today: built.
 - **FD-22** Protein = g/kg × W (Rec 2.2; fascia FD-31); fat = g/kg × W (Rec 0.8) and ≥ 20 % kcal and ≥ 0.6
   g/kg; carbs the rest; fibre 14 g/1 000 kcal, at least 25 g; limits as FD-31. Reference weight = W, the
-  trend weight (supersedes E5 «target weight» and ranges §8b «last 7 days' weigh-ins»). [E5, targets §5,
+  trend weight, confirmed by him 6 Nov (supersedes E5 «target weight» and ranges §8b «last 7 days' weigh-ins»). [E5, targets §5,
   FOOD-02] — Today: built (fasce still read the 7-day weigh-ins).
 - **FD-23** Estimated continuously, changed weekly: the week's targets are made on the first open of a day
   in it, from MOD-54 over the 56 days before its Monday, and kept 7 days; no «accetta»; «Ricalcola la
@@ -215,6 +215,12 @@ IDs `FD-nn`. Sources: ledger IDs, phase 1 answers (`n04`, `c08`, `x06`: `audit-2
   marked as changed (MOD-11); composer search most eaten first with the last quantity (MOD-51); saved meals
   point at cibi with an optional preferred product; a voce keeps the product and formato used. [FOOD-20,
   FOOD-27, FOOD-31, FOOD-47, ADR-0055] — Today: built.
+
+- **FD-94** v1's meal ratings, free tags and food origin are kept as data (imported:
+  `rating:<factor>` on pasti, `tags` on voci, `origin` on cibi), never deleted; they come back in
+  phase 4 as generic fields of the pasto and cibo types (a voto 1–5, an etichetta, a choice), no
+  screen of their own. Fibre tolerance that grows with habit: not now. [FOOD-11, FOOD-14, FOOD-24;
+  his pick 6 Nov] — Today: data imported, no UI.
 
 ## 11. Not now (his answers, 6 Nov; product.md §4)
 Mean across brands, formats inside meals (x06) · macros judged by origin or absorption beyond

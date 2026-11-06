@@ -26,14 +26,14 @@ ledger ID, a phase 1 answer (`n06`, `c11`, `x03`: `audit-2026-11/needs.md`) or a
 |---|---|---|
 | PRD-10 | One object, one page, the same actions | P1, n03 |
 | PRD-11 | Edit where you read; it saves itself; «Salva» only while composing | P2, c11 |
-| PRD-12 | The whole surface is the target, never under 44 px | P3 |
+| PRD-12 | The whole surface is the target, never under 44 px; named exceptions only: 36 px controls inside a 44 px row, calendar cells 36 × 46 at 320 px (his pick 6 Nov) | P3, UI-89 |
 | PRD-13 | Decisions first: daily tasks in less than one screen | P4 |
 | PRD-14 | One primary action per screen; one form per verb | P5 |
 | PRD-15 | Lists and search from the kit | P6 |
 | PRD-16 | One map: five areas, the same four tabs everywhere | P7, ADR-0059 |
 | PRD-17 | Visible responses in his words; 24 h times | P8 |
 | PRD-18 | System first: screens are composed from patterns, never drawn | P9, n12 |
-| PRD-19 | Everything one tap away, never everything in view; two levels at most | c01, n12 |
+| PRD-19 | Everything one tap away, never everything in view; two levels at most, three only for the weather and the week strip (his pick 6 Nov) | c01, n12, UI-76, UI-80 |
 | PRD-20 | Fewer numbers, each with its «Perché?»; a number that serves no decision goes | n05, UI-73 |
 | PRD-21 | Context shown beside the fact, never folded into the number | n08, c02 |
 | PRD-22 | Never invent data: assumed values are low-confidence and stay out of trends until confirmed | c09, DATA-14 |

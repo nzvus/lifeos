@@ -218,7 +218,7 @@ FIRST_SPEC_ADR = 61  # ADR-0061 made the spec the source of truth; later ADRs mu
 def spec_files(root):
     base = root / SPEC
     return [f for f in sorted(base.rglob("*.md"))
-            if not any(part in ("archive", "audit-2026-11") for part in f.relative_to(base).parts)]
+            if not any(part in ("archive", "audit-2026-11", "changes") for part in f.relative_to(base).parts)]
 
 
 def check_spec(root, files):

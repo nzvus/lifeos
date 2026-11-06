@@ -152,8 +152,7 @@ E8, E9; `v2/schema.md`; `v2/migration.md`; `v2/dossiers/data-repair.md`; ADR-000
   (x12). Logic in a framework-free `core/`, feature slices without cross-slice imports, engines
   free of Drizzle, all lint-enforced. [PLAT-06, ADR-0001, ADR-0002, ADR-0019, DATA-16, PROD-20]
   — Today: built.
-- **DT-61** **Open** (contradiction, not decided): ADR-0002's «no literal values outside
-  `design/` and `i18n/`» holds in v1 only; v2 has Italian strings inline and no i18n folder.
-  Tokens for values are PAT-80; whether UI strings move to one catalogue or stay inline under the
-  glossary test (PAT-81) is a question for him in phase 3. [DATA-16, audit ledger-A] — Today:
-  contradicted.
+- **DT-61** No literal values outside tokens (PAT-80) and the string catalogue: UI strings move
+  to one catalogue per area (`i18n/`), type by type in phase 4; the glossary test reads it
+  (PAT-81; his pick 6 Nov «Catalogo unico»). [DATA-16, ADR-0002, audit ledger-A] — Today: not
+  built (v2 strings inline).
