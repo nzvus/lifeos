@@ -68,11 +68,19 @@ jobs:
       # Next's build cache between runs: only what changed is compiled again.
       - uses: actions/cache@v4
         with:
-          path: .next/cache
+          path: |
+            .next/cache
+            apps/v2/.next/cache
           key: next-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
           restore-keys: next-${{ hashFiles('package-lock.json') }}-
       - name: Production build
         run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+      # v2 too, with no secret, as Vercel builds a preview: a page that reads the
+      # environment before requireOwner() is prerendered and breaks it (6 Nov).
+      - name: Production build (v2)
+        run: npm run build -w apps/v2
         env:
           NEXT_TELEMETRY_DISABLED: "1"
 
