@@ -20,6 +20,7 @@ export function Find<T extends FindItem>({
   onPick,
   autoFocus = false,
   all = false,
+  idle,
 }: {
   items: readonly T[];
   /** What is searched, said in the field: «Cerca un cibo». */
@@ -31,10 +32,15 @@ export function Find<T extends FindItem>({
   autoFocus?: boolean;
   /** With nothing typed, every item, not only the habitual ones (a short choice: «Unisci»). */
   all?: boolean;
+  /** With nothing typed, these rows instead (⊕'s types, PAT-60); typing searches `items`. */
+  idle?: readonly T[];
 }) {
   const [q, setQ] = useState("");
   const [tag, setTag] = useState<string | null>(null);
-  const found = find(items, q, { hour, tag, all });
+  const found =
+    idle && !q.trim()
+      ? idle.filter((i) => !tag || (i.tags ?? []).includes(tag))
+      : find(items, q, { hour, tag, all });
   return (
     <div className="k-stack g2 k-find">
       <label className="k-search">

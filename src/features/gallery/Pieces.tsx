@@ -1,11 +1,12 @@
 "use client";
 /**
  * The phase 3 pieces in the `/kit` gallery (change 2026-11-06-guards, PAT-94): each with the
- * states that matter, example values only. `open` («?aperto=altro|conferma|perche|toast|unisci»)
+ * states that matter, example values only. `open` («?aperto=altro|conferma|perche|toast|unisci|aggiungi»)
  * shows a sheet or the toast at once, so the CI screenshots can photograph them.
  */
 import { useEffect, useState } from "react";
 import {
+  Capture,
   Composer,
   Elenco,
   InPlace,
@@ -345,6 +346,64 @@ export function Pieces({ open }: { open: string | null }) {
         />
       </section>
 
+      <Capture
+        open={open === "aggiungi"}
+        area="Cibo"
+        hour={8}
+        types={[
+          {
+            id: "pasto",
+            name: "Pasto",
+            area: "Cibo",
+            uses: 90,
+            href: "/kit",
+            meta: "Cibo",
+          },
+          {
+            id: "acqua",
+            name: "Acqua",
+            area: "Cibo",
+            uses: 30,
+            href: "/kit",
+            meta: "Cibo",
+          },
+          {
+            id: "peso",
+            name: "Peso",
+            area: "Corpo",
+            uses: 40,
+            href: "/kit",
+            meta: "Corpo",
+          },
+          {
+            id: "sessione",
+            name: "Sessione",
+            area: "Corpo",
+            uses: 20,
+            href: "/kit",
+            meta: "Corpo",
+          },
+          {
+            id: "umore",
+            name: "Umore",
+            area: "Mente",
+            uses: 12,
+            href: "/kit",
+            meta: "Mente",
+          },
+          {
+            id: "spesa",
+            name: "Spesa",
+            area: "Soldi",
+            uses: 8,
+            href: "/kit",
+            meta: "Soldi",
+          },
+        ]}
+        objects={[{ id: "caffe", name: "Caffè", meta: "cibo", uses: 300, href: "/kit" }]}
+        onPick={(t) => say("Apri: " + t.name)}
+        onClose={() => undefined}
+      />
       <MergeSheet
         open={open === "unisci"}
         keep="Corsa"

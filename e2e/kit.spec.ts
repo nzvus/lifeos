@@ -13,7 +13,7 @@ const SECTIONS = [
   "numeri",
   "stati-nuovi",
 ];
-const OPEN = ["altro", "conferma", "perche", "toast", "unisci"];
+const OPEN = ["altro", "conferma", "perche", "toast", "unisci", "aggiungi"];
 
 test("each piece of the gallery (PAT-94)", async ({ page }) => {
   await page.goto("/kit");
@@ -27,7 +27,7 @@ test("each piece of the gallery (PAT-94)", async ({ page }) => {
     await expect(page.locator("#" + id), id).toHaveScreenshot(`${id}.png`);
 });
 
-test("each sheet and the toast open (PAT-23, PAT-73, PAT-51, PAT-74, PAT-18)", async ({
+test("each sheet and the toast open (PAT-23, PAT-73, PAT-51, PAT-74, PAT-18, PAT-60)", async ({
   page,
 }) => {
   for (const o of OPEN) {

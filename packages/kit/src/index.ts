@@ -52,6 +52,7 @@ export { InPlace } from "./InPlace";
 export { MergeSheet } from "./MergeSheet";
 export { Elenco, type ElencoRow, type ElencoSection } from "./Elenco";
 export { Composer, type ComposerLine } from "./Composer";
+export { Capture, captureIdle, type CaptureItem } from "./Capture";
 export { addLine, readLines, removeLine, setQuantity } from "./composer";
 export { inPlaceCommit, type InPlaceCommit } from "./inplace";
 export { whySections, isUnknown, unknownWords, type WhyDeclaration } from "./why";

@@ -25,6 +25,9 @@
        `k-formfoot` «Annulla» + «Salva» (off with no line); a plain form read with `readLines`
        (`addLine`/`removeLine`/`setQuantity`, tested). Gallery «compositore» photographed. The
        food composer and the session move onto it in their types' changes.
-6. [ ] PAT-10/60 `Capture` over types and objects; gallery; tests.
+6. [x] PAT-60/10 kit `Capture`: one sheet, one `Find` over every type and object; with nothing
+       typed the types, the current area's first then by use (`captureIdle`), never the objects
+       until he types. `Find` gets `idle` (rows shown with nothing typed). Gallery
+       `?aperto=aggiungi` photographed. `/aggiungi` moves onto it with the first type change.
 7. [ ] PAT-33 context line; PAT-52 judgement chip + fascia bar; gallery; tests.
 8. [ ] Delta into `patterns.md`; change archived; `verify` photos in the PR.

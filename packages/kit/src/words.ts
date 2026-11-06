@@ -40,6 +40,10 @@ export const WORDS = {
     fascia: "La fascia",
     version: "Versione della formula",
   },
+  capture: {
+    title: "Aggiungi",
+    search: "Cosa aggiungi?",
+  },
   composer: {
     remove: "Togli",
     quantity: (name: string) => `Quantità di ${name}`,
