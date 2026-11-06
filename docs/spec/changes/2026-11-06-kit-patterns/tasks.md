@@ -1,0 +1,10 @@
+# Tasks — 2026-11-06-kit-patterns
+
+1. [ ] PAT-04 family route + registry lookup; tests (unknown type → 404, `nuovo`, old routes).
+2. [ ] PAT-13 in-place edit (kit `Field` + `act edit`, toast); gallery + photos; tests.
+3. [ ] PAT-18 `MergeSheet` (`act merge`, preview, confirm); gallery + photos; tests.
+4. [ ] PAT-19/43 Elenco sections, «Archiviati» filter, doppioni hint; gallery; tests.
+5. [ ] PAT-14/62 generic `Composer` from the food composer; gallery; tests.
+6. [ ] PAT-10/60 `Capture` over types and objects; gallery; tests.
+7. [ ] PAT-33 context line; PAT-52 judgement chip + fascia bar; gallery; tests.
+8. [ ] Delta into `patterns.md`; change archived; `verify` photos in the PR.
