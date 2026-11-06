@@ -42,7 +42,7 @@ describe("Claude Code hooks (PAT-91)", () => {
   });
 
   it("sends lint errors of an edited file back to the agent", () => {
-    const file = path.join(ROOT, "apps/v2/src/features/zz-guard-probe.tsx");
+    const file = path.join(ROOT, "src/features/zz-guard-probe.tsx");
     fs.writeFileSync(file, 'export const P = () => <input type="search" />;\n');
     try {
       const r = hook(
@@ -107,12 +107,12 @@ print(json.dumps([m for (_,_,_,m) in c.check_built_needs_a_test(Path(sys.argv[1]
   const fixture = (testCites, untested = "") => {
     const root = tmp();
     fs.mkdirSync(path.join(root, "docs/spec"), { recursive: true });
-    fs.mkdirSync(path.join(root, "apps/v2/src"), { recursive: true });
+    fs.mkdirSync(path.join(root, "src"), { recursive: true });
     fs.writeFileSync(
       path.join(root, "docs/spec/product.md"),
       "- **PRD-90** A rule. — Today: built.\n- **PRD-91** Another. — Today: not built.\n",
     );
-    fs.writeFileSync(path.join(root, "apps/v2/src/x.test.ts"), `// ${testCites}\n`);
+    fs.writeFileSync(path.join(root, "src/x.test.ts"), `// ${testCites}\n`);
     fs.writeFileSync(path.join(root, "docs/spec/untested.txt"), untested);
     return JSON.parse(probe(root));
   };
@@ -157,4 +157,28 @@ describe("the copy-paste detector (PRD-53)", () => {
     expect(drop.stderr).toContain("--save");
     expect(run(now.duplicatedLines).status).toBe(0);
   }, 60_000);
+});
+
+describe("one app at the root (DT-42)", () => {
+  it("v1 is gone: no apps/ workspace, the app's code and migrations at the root", () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+    expect(pkg.workspaces).toEqual(["packages/*"]);
+    expect(fs.existsSync(path.join(ROOT, "apps"))).toBe(false);
+    expect(fs.existsSync(path.join(ROOT, "src/app/(app)/layout.tsx"))).toBe(true);
+    expect(fs.existsSync(path.join(ROOT, ".github/workflows/migrate.yml"))).toBe(false);
+    const sqls = fs
+      .readdirSync(path.join(ROOT, "drizzle"))
+      .filter((f) => f.endsWith(".sql"));
+    expect(sqls.length).toBeGreaterThan(0);
+  });
+
+  it("backs up the app's database and nothing else (DT-34)", () => {
+    const backup = fs.readFileSync(
+      path.join(ROOT, ".github/workflows/backup.yml"),
+      "utf8",
+    );
+    expect(backup).toContain("environment: v2");
+    expect(backup).not.toContain("V2_DATABASE_URL_DIRECT");
+    expect(backup).not.toContain("purge-trash");
+  });
 });

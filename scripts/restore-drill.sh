@@ -29,10 +29,9 @@ pg_restore --no-owner --no-privileges --exit-on-error --dbname="$target" "$plain
 echo "restored $backup — row counts:"
 psql "$target" -c "
   select 'user' as table_name, count(*) from \"user\"
-  union all select 'ingredients', count(*) from ingredients
-  union all select 'meals', count(*) from meals
-  union all select 'meal_items', count(*) from meal_items
-  union all select 'log_entries', count(*) from log_entries
-  union all select 'log_entry_items', count(*) from log_entry_items
-  union all select 'user_settings', count(*) from user_settings
+  union all select 'catalog_items', count(*) from catalog_items
+  union all select 'entries', count(*) from entries
+  union all select 'entry_lines', count(*) from entry_lines
+  union all select 'training_sets', count(*) from training_sets
+  union all select 'settings', count(*) from settings
   union all select 'migrations applied', count(*) from drizzle.__drizzle_migrations;"

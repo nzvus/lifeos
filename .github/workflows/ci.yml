@@ -19,7 +19,7 @@ on:
 
 permissions:
   contents: read # least privilege: CI only reads the code
-  actions: read # the migration gate reads migrate.yml's runs
+  actions: read # the migration gate reads migrate-v2.yml's runs
 
 jobs:
   static:
@@ -68,19 +68,13 @@ jobs:
       # Next's build cache between runs: only what changed is compiled again.
       - uses: actions/cache@v4
         with:
-          path: |
-            .next/cache
-            apps/v2/.next/cache
+          path: .next/cache
           key: next-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
           restore-keys: next-${{ hashFiles('package-lock.json') }}-
+      # With no secret, as Vercel builds a preview: a page that reads the
+      # environment before requireOwner() is prerendered and breaks it (6 Nov).
       - name: Production build
         run: npm run build
-        env:
-          NEXT_TELEMETRY_DISABLED: "1"
-      # v2 too, with no secret, as Vercel builds a preview: a page that reads the
-      # environment before requireOwner() is prerendered and breaks it (6 Nov).
-      - name: Production build (v2)
-        run: npm run build -w apps/v2
         env:
           NEXT_TELEMETRY_DISABLED: "1"
 
@@ -98,14 +92,14 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - name: Kit photos (PAT-94)
-        run: npm run shots -w apps/v2
+        run: npm run shots
         env:
           CI: "1"
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: kit-shots
-          path: apps/v2/test-results/
+          path: test-results/
 
   check:
     needs: [static, test, build, kit-shots]
@@ -117,13 +111,13 @@ jobs:
           fetch-depth: 0 # the migration gate diffs against the PR's base
 
       # Deploy happens on merge, production migrations only by hand
-      # (migrate.yml), so a PR with a new migration must not be merged before
+      # (migrate-v2.yml), so a PR with a new migration must not be merged before
       # production has it: the code would query what doesn't exist yet
-      # (outages of 2026-09-30, PR #22, and 2026-10-01, PR #103 — that one
+      # (v1's outages of 2026-09-30, PR #22, and 2026-10-01, PR #103 — that one
       # had the "production-migrated" label, set by hand without the run).
-      # So the gate trusts no label: it passes only if a SUCCESSFUL migrate.yml
+      # So the gate trusts no label: it passes only if a SUCCESSFUL migrate-v2.yml
       # run used a commit that contains every new migration file of this PR.
-      # migrate.yml re-runs the failed gates when it finishes.
+      # migrate-v2.yml re-runs the failed gates when it finishes.
       - name: Migration gate
         if: github.event_name == 'pull_request'
         shell: bash # process substitution <(…)
@@ -134,18 +128,18 @@ jobs:
           # Compare with the base branch as it is NOW (a migration merged
           # since the PR was opened is not new any more, #38).
           git fetch --quiet origin "$BASE_REF"
-          new=$(comm -13 \
-            <(git ls-tree --name-only "origin/$BASE_REF" drizzle/ | grep '\.sql$' | sort) \
-            <(git ls-tree --name-only HEAD drizzle/ | grep '\.sql$' | sort))
+          # By file name, in drizzle/ or (before 6 Nov, when v2 lived there) apps/v2/drizzle/.
+          sqls() { git ls-tree --name-only "$1" drizzle/ apps/v2/drizzle/ | grep '\.sql$' | sed 's|.*/||' | sort -u; }
+          new=$(comm -13 <(sqls "origin/$BASE_REF") <(sqls HEAD))
           if [ -z "$new" ]; then echo "No new migration."; exit 0; fi
           echo "New migration(s): $new"
-          for sha in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow migrate.yml \
+          for sha in $(gh run list --repo "$GITHUB_REPOSITORY" --workflow migrate-v2.yml \
               --status success --limit 50 --json headSha -q '.[].headSha'); do
             git cat-file -e "$sha^{commit}" 2>/dev/null || git fetch --quiet origin "$sha" 2>/dev/null || continue
-            have=$(git ls-tree --name-only "$sha" drizzle/ | grep '\.sql$' | sort)
+            have=$(sqls "$sha")
             if [ -z "$(comm -23 <(echo "$new") <(echo "$have"))" ]; then
-              echo "Production was migrated by migrate.yml from $sha."; exit 0
+              echo "Production was migrated by migrate-v2.yml from $sha."; exit 0
             fi
           done
-          echo "::error::This PR adds a migration production doesn't have. Run: gh workflow run migrate.yml --ref ${{ github.head_ref }} -f confirm=\"migrate production\" — this check re-runs by itself when it succeeds."
+          echo "::error::This PR adds a migration production doesn't have. Run: gh workflow run migrate-v2.yml --ref ${{ github.head_ref }} -f confirm=\"migrate v2\" — this check re-runs by itself when it succeeds."
           exit 1

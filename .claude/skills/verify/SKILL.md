@@ -7,7 +7,7 @@ description: Check a lifeos v2 UI change on the phone before the PR - photos of 
 
 «Done» only after looking at the result, never from a green run (CLAUDE.md).
 
-1. Start v2 in the background: `cd apps/v2 && BETTER_AUTH_URL=http://localhost:3200 npx next
+1. Start v2 in the background: `BETTER_AUTH_URL=http://localhost:3200 npx next
    dev -p 3200` (stop it with TaskStop, then check `ps` for children; never pkill). Preview
    account: `agent-preview@example.invalid` / `preview-password-123` (dev database only).
 2. Kit pieces: open `/kit` (the gallery, PAT-94); every new or changed piece has an entry.

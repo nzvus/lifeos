@@ -47,9 +47,10 @@ for (const w of WIDTHS) {
         )
         .map((e) => `${e.tagName.toLowerCase()}.${e.className}`.slice(0, 80)),
     );
-    if (bad.length)
-      (console.log(`${w} #${id} overflows: ${bad.join(" | ")}`),
-        (overflow += bad.length));
+    if (bad.length) {
+      console.log(`${w} #${id} overflows: ${bad.join(" | ")}`);
+      overflow += bad.length;
+    }
   }
   for (const o of OPEN) {
     await p.goto(`${BASE}/kit?aperto=${o}`);

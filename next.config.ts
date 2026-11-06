@@ -1,29 +1,69 @@
 /**
- * next.config.ts — Next.js build/runtime configuration.
- *
- * Kept almost empty on purpose: every option here is framework-specific
- * behaviour that someone must remember after a three-week gap (ADR-0001's
- * "resumability" argument). Add options only with a comment saying why.
+ * next.config.ts — lifeos v2. Kept short, each option with its reason.
  */
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
-  // `pg` (the Postgres driver used by core/db/client.ts) uses Node APIs and
-  // optional native bindings; telling Next not to bundle it avoids build noise
-  // and keeps it as a plain `require` at runtime on Vercel's Node functions.
-  serverExternalPackages: ["pg"],
-  // `next dev` would otherwise append its own agent block to CLAUDE.md on
-  // every start; our agent instructions are hand-written and reviewed.
+  // Postgres drivers stay plain Node modules: pg's optional native bindings,
+  // and PGlite's WASM and data files, which a bundle would break.
+  serverExternalPackages: ["pg", "@electric-sql/pglite"],
+  // The kit is TypeScript source in the workspace (packages/kit): Next compiles it.
+  transpilePackages: ["@lifeos/kit"],
+  // `next dev` would otherwise write its own agent block into CLAUDE.md.
   agentRules: false,
-  // The assistant (ADR-0018) may send up to 4 photos, each shrunk to
-  // 1280 px JPEG (≈150–400 KB as a data URL): above the 1 MB default.
-  experimental: {
-    serverActions: { bodySizeLimit: "4mb" },
-    // Going back to a page seen in the last 30 s shows it at once from the
-    // browser's router cache instead of asking the server again
-    // (2026-10-03: "it takes 1 second to switch the pages"). Safe: every
-    // server action calls revalidatePath, which empties that cache.
-    staleTimes: { dynamic: 30 },
+  // The dev badge sits on the NavBar's first place on a phone: off.
+  devIndicators: false,
+  // Map D (ADR-0059): the old places are Oggi's tabs now; links and bookmarks keep working.
+  async redirects() {
+    return [
+      { source: "/piano", destination: "/oggi/piano", permanent: false },
+      { source: "/andamento", destination: "/oggi/andamento", permanent: false },
+      { source: "/libreria", destination: "/oggi/elenco", permanent: false },
+      // Map D slice 2 (architecture.md §10): Andamento's pages in their place; a tracker by
+      // its area is `app/(app)/andamento/[tracker]` (it needs the kind's domain).
+      ...["obiettivi", "qualita", "come-valutiamo"].map((p) => ({
+        source: `/andamento/${p}/:rest*`,
+        destination: `/oggi/andamento/${p}/:rest*`,
+        permanent: false,
+      })),
+      {
+        source: "/andamento/legami",
+        destination: "/mente/andamento/legami",
+        permanent: false,
+      },
+      { source: "/andamento/soldi", destination: "/soldi/andamento", permanent: false },
+      { source: "/impostazioni", destination: "/profilo", permanent: false },
+      {
+        source: "/impostazioni/:rest+",
+        destination: "/profilo/:rest+",
+        permanent: false,
+      },
+      // Map D slice 3: each object under its area.
+      ...[
+        ["/libreria/cibo", "/cibo/cibo"],
+        ["/libreria/pasto", "/cibo/pasto"],
+        ["/libreria/esercizio", "/corpo/esercizio"],
+        ["/libreria/tragitto", "/corpo/tragitto"],
+        ["/piano/ciclo", "/corpo/ciclo"],
+        ["/piano/abitudine", "/mente/abitudine"],
+        ["/piano/modello", "/oggi/giornata"],
+      ].map(([from, to]) => ({
+        source: from + "/:rest+",
+        destination: to + "/:rest+",
+        permanent: false,
+      })),
+      { source: "/palestra/:id", destination: "/corpo/sessione/:id", permanent: false },
+      {
+        source: "/libreria/dispensa",
+        destination: "/cibo/elenco?vista=dispensa",
+        permanent: false,
+      },
+      {
+        source: "/libreria/tragitto",
+        destination: "/corpo/elenco?vista=tragitti",
+        permanent: false,
+      },
+    ];
   },
 };
 

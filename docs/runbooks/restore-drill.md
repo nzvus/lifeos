@@ -10,7 +10,7 @@ change to `scripts/backup.sh` or the workflows.
 ```bash
 # 1. Download the newest backup artifact (web UI: Actions -> backup -> run -> Artifacts,
 #    or with GitHub CLI):
-gh run download --name db-backup-RUN_ID --dir /tmp/drill
+gh run download --name db-backup-v2-RUN_ID --dir /tmp/drill
 
 # 2. Start a throwaway Postgres in /tmp (does not touch any system database):
 initdb -D /tmp/drill-pg -U drill --auth=trust
@@ -21,9 +21,9 @@ createdb -h /tmp -p 5433 -U drill drill
 scripts/restore-drill.sh /tmp/drill/lifeos-*.dump.age ~/.config/lifeos/backup-key.txt \
   "postgres://drill@/drill?host=/tmp&port=5433"
 
-# 4. Compare with production (read-only query):
-PGSSLROOTCERT=system psql "$DATABASE_URL_DIRECT" -c "select (select count(*) from ingredients) ing,
-  (select count(*) from log_entries) entries, (select count(*) from log_entry_items) items"
+# 4. Compare with production, the direct URL of lifeos_v2 (read-only query):
+PGSSLROOTCERT=system psql "$DATABASE_URL_DIRECT" -c "select (select count(*) from catalog_items) items,
+  (select count(*) from entries) entries, (select count(*) from entry_lines) lines"
 
 # 5. Clean up:
 pg_ctl -D /tmp/drill-pg stop && rm -rf /tmp/drill-pg /tmp/drill

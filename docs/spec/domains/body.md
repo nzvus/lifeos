@@ -3,7 +3,7 @@
 Status: **draft 2026-11-06, phase 2b** (PRD-40). Only body rules, formulas, thresholds; the
 horizontal is cited (MOD-10/12 voce and confidence, MOD-40…44, MOD-54/55, PAT-51/55). IDs `BD-nn`.
 Sources: ledger IDs, phase 1 answers (`n10`, `x05`: `audit-2026-11/needs.md`), `v2/engines.md`,
-dossiers, ADRs. «Today» = `apps/v2/src`, read 6 Nov. Ledger fold: `audit-2026-11/fold-body.md`.
+dossiers, ADRs. «Today» = `src`, read 6 Nov. Ledger fold: `audit-2026-11/fold-body.md`.
 
 ## 1. Weight
 - **BD-01** One estimator for every screen: the E4 Kalman filter, state [W, c, cT, k], daily step

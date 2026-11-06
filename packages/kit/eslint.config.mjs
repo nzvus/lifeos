@@ -22,7 +22,7 @@ export default tseslint.config(
               message: "the kit never reads data",
             },
             {
-              group: ["@lifeos/v2", "@lifeos/v2/*", "../../apps/*"],
+              group: ["@lifeos/v2", "@lifeos/v2/*", "../../src/*"],
               message: "apps use the kit, not the reverse",
             },
           ],

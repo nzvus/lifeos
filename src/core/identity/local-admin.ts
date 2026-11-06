@@ -1,19 +1,11 @@
 /**
- * core/identity/local-admin.ts — get an Owner WITHOUT a login session, for
- * command-line scripts run on your own machine (e.g. scripts/import-fitforge.ts).
- *
- * Why this is acceptable: whoever runs such a script already holds the
- * database connection string, which grants full access to every row anyway.
- * The session requirement protects the WEB app, where requests come from
- * strangers; it adds nothing against someone who has the database password.
- *
- * Why it's a separate, loudly named file: the web app must never call it.
- * Nothing under src/app/ or src/features/ imports it — check with
- *   grep -rn "local-admin" src/app src/features
- * which must print nothing.
+ * core/identity/local-admin.ts — an Owner without a session, for scripts run
+ * on your own machine (as v1's). Whoever runs them already holds the
+ * database itself. The web app never imports this file:
+ *   grep -rn "local-admin" src/app src/features   → must print nothing.
  */
 import { eq } from "drizzle-orm";
-import type { Db } from "../db/client";
+import type { Db } from "../db/db";
 import { user } from "../db/schema";
 import { ownerFromVerifiedSession, type Owner } from "./owner";
 

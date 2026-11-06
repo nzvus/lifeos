@@ -5,7 +5,7 @@ Rules, formulas, defaults and edge cases of the Piano only. The shape of a blocc
 MOD-30…35; the tabs are PAT-03; the verbs are PAT-10…24; words are product.md §3. IDs: `PL-nn`.
 Sources in brackets: ledger IDs, his answers (`n09`, `c04`, `x04`: `audit-2026-11/needs.md`),
 `v2/engines.md` E1/E3, `v2/dossiers/plan.md` (decided 3 Nov, §9 all (a) except 9.6),
-`day-templates.md` (engines part). «Today» = `apps/v2` (6 Nov). Fold: `audit-2026-11/fold-plan-data.md`.
+`day-templates.md` (engines part). «Today» = the app (`src/`) (6 Nov). Fold: `audit-2026-11/fold-plan-data.md`.
 
 **What is gone** (his answers 6 Nov, x04, n09, c04): day models, «giornata tipo», «settimana
 tipo», week layouts, `extends`/rebase/«Scollega», merges of models, rules across areas

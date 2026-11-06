@@ -5,253 +5,43 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1790678486604,
-      "tag": "0000_init",
+      "when": 1792225695522,
+      "tag": "0000_v2_schema",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1790712166517,
-      "tag": "0001_day_profiles",
+      "when": 1792226186766,
+      "tag": "0001_cycle_step_label",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1790712178886,
-      "tag": "0002_backfill_standard_profile",
+      "when": 1793289210886,
+      "tag": "0002_data_repair_orphans",
       "breakpoints": true
     },
     {
       "idx": 3,
       "version": "7",
-      "when": 1790753954049,
-      "tag": "0003_planned_eaten_estimated",
+      "when": 1793301844039,
+      "tag": "0003_data_repair_intake",
       "breakpoints": true
     },
     {
       "idx": 4,
       "version": "7",
-      "when": 1790775140764,
-      "tag": "0004_user_theme",
+      "when": 1793302145822,
+      "tag": "0004_data_repair_roles",
       "breakpoints": true
     },
     {
       "idx": 5,
       "version": "7",
-      "when": 1790781044210,
-      "tag": "0005_moments",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1790782604010,
-      "tag": "0006_preferences",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1790784493277,
-      "tag": "0007_quality_tags_ratings",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1790789305941,
-      "tag": "0008_training",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1790811037758,
-      "tag": "0009_energy_model",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1790829689074,
-      "tag": "0010_exercise_pattern",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1790832015650,
-      "tag": "0011_set_done",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "7",
-      "when": 1790833703911,
-      "tag": "0012_trash",
-      "breakpoints": true
-    },
-    {
-      "idx": 13,
-      "version": "7",
-      "when": 1790835723533,
-      "tag": "0013_session_estimate",
-      "breakpoints": true
-    },
-    {
-      "idx": 14,
-      "version": "7",
-      "when": 1790862242451,
-      "tag": "0014_pantry",
-      "breakpoints": true
-    },
-    {
-      "idx": 15,
-      "version": "7",
-      "when": 1790869813664,
-      "tag": "0015_assistant",
-      "breakpoints": true
-    },
-    {
-      "idx": 16,
-      "version": "7",
-      "when": 1790872960330,
-      "tag": "0016_energy_correction",
-      "breakpoints": true
-    },
-    {
-      "idx": 17,
-      "version": "7",
-      "when": 1790890503723,
-      "tag": "0017_programs",
-      "breakpoints": true
-    },
-    {
-      "idx": 18,
-      "version": "7",
-      "when": 1790893437693,
-      "tag": "0018_slot_exercises_and_corrections",
-      "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "7",
-      "when": 1790922803810,
-      "tag": "0019_weigh_in_context",
-      "breakpoints": true
-    },
-    {
-      "idx": 20,
-      "version": "7",
-      "when": 1790934376934,
-      "tag": "0020_program_overrides",
-      "breakpoints": true
-    },
-    {
-      "idx": 21,
-      "version": "7",
-      "when": 1790938427907,
-      "tag": "0021_sleep_logs",
-      "breakpoints": true
-    },
-    {
-      "idx": 22,
-      "version": "7",
-      "when": 1790980044801,
-      "tag": "0022_invites",
-      "breakpoints": true
-    },
-    {
-      "idx": 23,
-      "version": "7",
-      "when": 1790981733454,
-      "tag": "0023_program_day_items",
-      "breakpoints": true
-    },
-    {
-      "idx": 24,
-      "version": "7",
-      "when": 1791043407045,
-      "tag": "0024_repair_dynamic_day_plans",
-      "breakpoints": true
-    },
-    {
-      "idx": 25,
-      "version": "7",
-      "when": 1791093754740,
-      "tag": "0025_money_ledger_and_left_out",
-      "breakpoints": true
-    },
-    {
-      "idx": 26,
-      "version": "7",
-      "when": 1791095922312,
-      "tag": "0026_receipt_line_weights",
-      "breakpoints": true
-    },
-    {
-      "idx": 27,
-      "version": "7",
-      "when": 1791105208040,
-      "tag": "0027_set_times_and_unilateral",
-      "breakpoints": true
-    },
-    {
-      "idx": 28,
-      "version": "7",
-      "when": 1791112045959,
-      "tag": "0028_day_checkins",
-      "breakpoints": true
-    },
-    {
-      "idx": 29,
-      "version": "7",
-      "when": 1791124756250,
-      "tag": "0029_ingredient_compounds",
-      "breakpoints": true
-    },
-    {
-      "idx": 30,
-      "version": "7",
-      "when": 1791576033645,
-      "tag": "0030_day_closures",
-      "breakpoints": true
-    },
-    {
-      "idx": 31,
-      "version": "7",
-      "when": 1791617511143,
-      "tag": "0031_goals_and_week_checkins",
-      "breakpoints": true
-    },
-    {
-      "idx": 32,
-      "version": "7",
-      "when": 1791628158623,
-      "tag": "0032_day_programs_moments_goal_targets",
-      "breakpoints": true
-    },
-    {
-      "idx": 33,
-      "version": "7",
-      "when": 1791629272028,
-      "tag": "0033_week_checkin_days",
-      "breakpoints": true
-    },
-    {
-      "idx": 34,
-      "version": "7",
-      "when": 1791632831963,
-      "tag": "0034_goals_weekly_check_in",
-      "breakpoints": true
-    },
-    {
-      "idx": 35,
-      "version": "7",
-      "when": 1791645908896,
-      "tag": "0035_sets_rir",
+      "when": 1793700800692,
+      "tag": "0005_data_repair_cost_snapshot",
       "breakpoints": true
     }
   ]

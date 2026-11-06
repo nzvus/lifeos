@@ -1,7 +1,7 @@
 ---
 paths:
-  - "apps/v2/src/app/**"
-  - "apps/v2/src/features/**"
+  - "src/app/**"
+  - "src/features/**"
 ---
 
 # Screens are compositions (PRD-18, PAT-90)
@@ -16,6 +16,6 @@ paths:
   the only exception.
 - Verbs (archive, delete, merge, start from…) go through `core/verbs` (PAT-24), not a new
   per-feature server action. NavBar and ⊕ live in `(app)/layout.tsx` only (PAT-01).
-- UI strings come from `apps/v2/src/i18n/<area>.ts`, words from `product.md` §3 (PAT-81).
+- UI strings come from `src/i18n/<area>.ts`, words from `product.md` §3 (PAT-81).
 - `lint-baseline.json` may only shrink: fix the file you touch, never add to the baseline.
 - Before the PR: the `verify` skill (photos 390/360/320 dark, ui-check).

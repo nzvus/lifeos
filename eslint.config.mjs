@@ -1,41 +1,15 @@
 /**
- * eslint.config.mjs — lint rules, including the ARCHITECTURE rules of
- * ADR-0001/0002 as machine checks ("an unenforced rule is only a promise").
- * `npm run lint` runs it; CI runs it on every push; editors show it live.
- *
- * Sections:
- *   1. Next.js + TypeScript recommended rules.
- *   2. Layer boundaries (eslint-plugin-boundaries): who may import whom.
- *        app      -> app, features, core, ui, design, i18n
- *        features -> core, ui, design, i18n, and ITSELF only (no other slice)
- *        ui       -> ui, design, i18n
- *        core     -> core only (and no framework packages at all)
- *        design, i18n -> themselves only (leaves)
- *   3. Values stay centralised (ADR-0002 rule 3): no hex colours, no
- *      Tailwind arbitrary values like p-[13px], no default text sizes or
- *      numeric border widths (ADR-0010 tokens) outside design/; no hard-coded
- *      user-facing text in JSX outside i18n/.
- *
- * Proof that the rules bite: docs/runbooks/lint-boundaries.md lists the
- * deliberate violations used to test them.
+ * lifeos v2 lint (ADR-0056). TypeScript's recommended rules, and the
+ * boundaries (one way: app → features → core; the kit from anywhere but core):
+ *   - core/ is framework-free (ADR-0001): no UI framework, no auth client,
+ *     no app, feature or kit;
+ *   - features/ never import app/ (server actions arrive as props);
+ *   - the engines are pure functions (ADR-0053): no database either.
+ *     Only core/db and the repositories use Drizzle (ADR-0057).
  */
-import boundaries from "eslint-plugin-boundaries";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
-import react from "eslint-plugin-react";
+import tseslint from "typescript-eslint";
+import { fitness, SCREEN_RULES } from "./eslint/fitness.mjs";
 
-/** Types of architectural element, matched by path. */
-const elements = [
-  { type: "app", pattern: "src/app" },
-  // A slice is two levels deep: features/<area>/<slice>, e.g. nutrition/meals.
-  { type: "feature", pattern: "src/features/*/*", capture: ["area", "slice"] },
-  { type: "core", pattern: "src/core" },
-  { type: "ui", pattern: "src/ui" },
-  { type: "design", pattern: "src/design" },
-  { type: "i18n", pattern: "src/i18n" },
-];
-
-/** Packages core/ may never import (ADR-0001: core is framework-free). */
 const FRAMEWORK = [
   "next",
   "next/*",
@@ -43,190 +17,97 @@ const FRAMEWORK = [
   "react-dom",
   "react/*",
   "better-auth/react",
-  "better-auth/next-js",
+  "better-auth/client",
+];
+const UPWARD = ["@/app/*", "@/features/*", "@lifeos/kit", "@lifeos/kit/*"];
+const DATABASE = [
+  "drizzle-orm",
+  "drizzle-orm/*",
+  "pg",
+  "@electric-sql/*",
+  "../db/*",
+  "../../db/*",
 ];
 
-const config = [
+const restrict = (groups) => ({
+  "no-restricted-imports": ["error", { patterns: groups }],
+});
+
+export default tseslint.config(
   {
     ignores: [
-      ".next/**",
       "node_modules/**",
+      "packages/**", // the kit lints itself (npm run lint -w packages/kit)
+      "docs/**",
+      "private/**",
+      "playwright-report/**",
       "drizzle/**",
+      ".next/**",
+      ".pglite/**",
+      ".pglite-e2e/**",
+      "test-results/**",
+      "playwright-report/**",
       "next-env.d.ts",
-      "apps/**",
-      "packages/**",
     ],
-  }, // apps/v2 lints itself (ADR-0056)
-
-  // --- 1. Next.js + TypeScript defaults ------------------------------------
-  ...nextVitals,
-  ...nextTs,
-
-  // Parameters/variables starting with "_" are intentionally unused (e.g. a
-  // server action's `_prev` state that React requires in the signature).
+  },
+  ...tseslint.configs.recommended,
   {
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "warn",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          destructuredArrayIgnorePattern: "^_",
-        },
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
     },
   },
-
-  // --- 2. Layer boundaries ----------------------------------------------------
-  {
-    files: ["src/**/*.{ts,tsx}"],
-    plugins: { boundaries },
-    settings: {
-      "boundaries/elements": elements,
-      // Let the plugin resolve "@/core/..." (tsconfig paths) to real files.
-      "import/resolver": { typescript: { alwaysTryTypes: true } },
-    },
-    rules: {
-      "boundaries/dependencies": [
-        "error",
-        {
-          default: "disallow",
-          policies: [
-            {
-              from: { element: { type: "app" } },
-              allow: {
-                to: {
-                  element: {
-                    types: { anyOf: ["app", "feature", "core", "ui", "design", "i18n"] },
-                  },
-                },
-              },
-            },
-            {
-              from: { element: { type: "feature" } },
-              allow: {
-                to: { element: { types: { anyOf: ["core", "ui", "design", "i18n"] } } },
-              },
-            },
-            // A slice may import its own files, never another slice's.
-            {
-              from: { element: { type: "feature" } },
-              allow: {
-                to: {
-                  element: {
-                    type: "feature",
-                    captured: {
-                      area: "{{ from.captured.area }}",
-                      slice: "{{ from.captured.slice }}",
-                    },
-                  },
-                },
-              },
-            },
-            {
-              from: { element: { type: "ui" } },
-              allow: { to: { element: { types: { anyOf: ["ui", "design", "i18n"] } } } },
-            },
-            {
-              from: { element: { type: "core" } },
-              allow: { to: { element: { type: "core" } } },
-            },
-            {
-              from: { element: { type: "design" } },
-              allow: { to: { element: { type: "design" } } },
-            },
-            {
-              from: { element: { type: "i18n" } },
-              allow: { to: { element: { type: "i18n" } } },
-            },
-          ],
-        },
-      ],
-    },
-  },
-
-  // core/: no framework packages, whatever the element rules say.
   {
     files: ["src/core/**/*.ts"],
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            { group: FRAMEWORK, message: "core/ must stay framework-free (ADR-0001)." },
-          ],
-        },
-      ],
-    },
+    rules: restrict([
+      { group: FRAMEWORK, message: "core/ is framework-free (ADR-0001)." },
+      { group: UPWARD, message: "core/ imports only core/ (ADR-0002)." },
+    ]),
   },
-
-  // --- 3. Values stay centralised ----------------------------------------------
+  {
+    files: ["src/features/**/*.{ts,tsx}"],
+    rules: restrict([
+      {
+        group: ["@/app/*"],
+        message: "features never import app/: actions arrive as props.",
+      },
+      {
+        group: DATABASE,
+        message: "features read data through core/'s repositories, from a page.",
+      },
+    ]),
+  },
+  // PAT-90 fitness rules (eslint/fitness.mjs): screens compose kit pieces and never compare a
+  // type key; the rest of core/ only the latter, except the specialisation folders and the
+  // registry (model.md §8, MOD-02). Breaches of 6 Nov: lint-baseline.json, may only shrink.
   {
     files: ["src/**/*.{ts,tsx}"],
-    ignores: ["src/design/**", "src/i18n/**", "src/**/*.test.ts", "src/core/testing/**"],
-    plugins: { react },
-    rules: {
-      "no-restricted-syntax": [
-        "error",
-        {
-          // Any string containing a hex colour like #1a2b3c or #fff.
-          selector: "Literal[value=/#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?\\b/]",
-          message: "Colours live in src/design/theme.css (ADR-0002 rule 3).",
-        },
-        {
-          // Tailwind arbitrary values: p-[13px], text-[#fff], w-[37%] ...
-          selector: "Literal[value=/(^|\\s)[a-z-]+-\\[[^\\]]+\\]/]",
-          message:
-            "No Tailwind arbitrary values; add a token in src/design/theme.css (ADR-0002 rule 3).",
-        },
-        {
-          selector: "TemplateElement[value.raw=/(^|\\s)[a-z-]+-\\[[^\\]]+\\]/]",
-          message:
-            "No Tailwind arbitrary values; add a token in src/design/theme.css (ADR-0002 rule 3).",
-        },
-        {
-          // A grid whose columns appear only at a breakpoint has an implicit
-          // column as wide as its widest row on phones: it pushes the page
-          // past the screen (design review B1, 2026-10-02). grid-cols-1 is
-          // minmax(0, 1fr), which shrinks.
-          selector:
-            "Literal[value=/(^|\\s)grid\\s(?!(.*\\s)?grid-cols-\\d)(?=.*[:@][a-z0-9]*:?grid-cols-)/]",
-          message:
-            "Give the grid a base column (grid-cols-1) before its responsive columns.",
-        },
-        {
-          // Type scale (ADR-0010): only the five named sizes of theme.css.
-          selector: "Literal[value=/(^|[\\s:])text-(xs|sm|base|lg|xl|[2-9]xl)(\\s|$)/]",
-          message: "Use text-title/section/item/body/meta (src/design/theme.css).",
-        },
-        {
-          selector:
-            "TemplateElement[value.raw=/(^|[\\s:])text-(xs|sm|base|lg|xl|[2-9]xl)(\\s|$)/]",
-          message: "Use text-title/section/item/body/meta (src/design/theme.css).",
-        },
-        {
-          // Rule thickness is a token (ADR-0010): rule-b-medium, not border-b-2.
-          selector: "Literal[value=/(^|[\\s:])border(-[trblxy])?-[0-9]+(\\s|$)/]",
-          message: "Use rule-*/rule-t-*/rule-b-*/rule-l-* (src/design/theme.css).",
-        },
-        {
-          selector:
-            "TemplateElement[value.raw=/(^|[\\s:])border(-[trblxy])?-[0-9]+(\\s|$)/]",
-          message: "Use rule-*/rule-t-*/rule-b-*/rule-l-* (src/design/theme.css).",
-        },
-      ],
-      // Text written directly between JSX tags must come from i18n/.
-      // Typographic symbols that carry no language are allowed.
-      "react/jsx-no-literals": [
-        "error",
-        {
-          noStrings: false,
-          allowedStrings: ["‹", "›", "·", "—", "×", "~", "(", ")", "/"],
-          ignoreProps: true,
-        },
-      ],
-    },
+    plugins: { lifeos: fitness },
   },
-];
-
-export default config;
+  {
+    files: ["src/app/**/*.{ts,tsx}", "src/features/**/*.{ts,tsx}"],
+    rules: SCREEN_RULES,
+  },
+  {
+    files: ["src/core/**/*.ts"],
+    ignores: ["src/core/{food,training,money,engines,kinds}/**"],
+    rules: { "lifeos/no-type-key-compare": "error" },
+  },
+  {
+    files: ["src/**/*.test.{ts,tsx}", "src/**/testing/**"],
+    rules: Object.fromEntries(Object.keys(SCREEN_RULES).map((r) => [r, "off"])),
+  },
+  {
+    files: ["src/core/engines/**/*.ts"],
+    rules: restrict([
+      { group: FRAMEWORK, message: "core/ is framework-free (ADR-0001)." },
+      { group: UPWARD, message: "core/ imports only core/ (ADR-0002)." },
+      {
+        group: DATABASE,
+        message: "engines are pure functions: no database (ADR-0053, ADR-0057).",
+      },
+    ]),
+  },
+);

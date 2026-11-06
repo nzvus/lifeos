@@ -1,1 +1,0 @@
-ALTER TABLE "money_lines" ALTER COLUMN "quantity" SET DATA TYPE numeric(9, 3);

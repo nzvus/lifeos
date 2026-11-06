@@ -9,7 +9,8 @@
 #
 # Secrets/variables (Settings -> Secrets and variables -> Actions), see
 # docs/runbooks/setup.md:
-#   secret   DATABASE_URL_DIRECT      Neon DIRECT url (no -pooler) of production
+#   env v2   DATABASE_URL_DIRECT      Neon DIRECT url (no -pooler) of branch `v2`
+#                                     (the GitHub environment `v2`, as migrate-v2.yml)
 #   secret   HEALTHCHECKS_BACKUP_URL  ping URL of the "backup" check
 #   variable AGE_RECIPIENT            your age PUBLIC key (not secret by nature)
 name: backup
@@ -24,10 +25,23 @@ permissions:
   contents: read
 
 jobs:
+  # The app's database (Neon branch `v2`; v1's dump retired with v1 on 6 Nov). Until 6 Nov
+  # this read a repository secret nobody had set and skipped «successfully»: a missing
+  # secret now fails the run, and only a stored dump pings the heartbeat.
   dump:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    environment: v2
     steps:
+      - name: Is the database set?
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::the v2 environment has no DATABASE_URL_DIRECT: no backup"
+            exit 1
+          fi
+
       - uses: actions/checkout@v7
 
       # pg_dump must be at least as new as the server; Neon may run 17 or 18,
@@ -49,15 +63,13 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
           AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
           # libpq (pg_dump) + sslmode=verify-full: trust the system CA store.
-          # The Node driver ignores this variable, so drizzle-kit is unaffected.
           PGSSLROOTCERT: system
         run: scripts/backup.sh out
 
-      # Stored as a workflow artifact, outside Neon (ADR-0003). 30 daily
-      # generations; each dump is small (tens of KB at this scale).
+      # Stored as a workflow artifact, outside Neon (ADR-0003): 30 daily generations.
       - uses: actions/upload-artifact@v7
         with:
-          name: db-backup-${{ github.run_id }}
+          name: db-backup-v2-${{ github.run_id }}
           path: out/*.dump.age
           retention-days: 30
           if-no-files-found: error
@@ -69,84 +81,9 @@ jobs:
         if: failure()
         run: curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECKS_BACKUP_URL }}/fail" || true
 
-  # v2's database (apps/v2, its own Neon branch), dumped the same way. Until
-  # the secret V2_DATABASE_URL_DIRECT is set the job says so and stops, green.
-  # It joins the heartbeat when v1 is retired (docs/runbooks/setup.md §11).
-  # v2's database: the `v2` environment's secret, the one migrate-v2.yml uses
-  # (no protection rule, so the schedule needs no approval). Until 6 Nov this
-  # read a repository secret nobody had set and skipped "successfully" every
-  # day: v2 had no backup at all. A missing secret now fails the run.
-  dump-v2:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    environment: v2
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
-    steps:
-      - name: Is v2's database set?
-        id: set
-        run: |
-          if [ -z "$DATABASE_URL" ]; then
-            echo "::error::the v2 environment has no DATABASE_URL_DIRECT: no v2 backup"
-            exit 1
-          fi
-          echo "go=true" >> "$GITHUB_OUTPUT"
-
-      - if: steps.set.outputs.go == 'true'
-        uses: actions/checkout@v7
-
-      - name: Install pg_dump 18 and age
-        if: steps.set.outputs.go == 'true'
-        run: |
-          sudo install -d /usr/share/postgresql-common/pgdg
-          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
-          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-client-18 age
-          echo "/usr/lib/postgresql/18/bin" >> "$GITHUB_PATH"
-
-      - name: Dump, verify, encrypt
-        if: steps.set.outputs.go == 'true'
-        env:
-          AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
-          PGSSLROOTCERT: system
-        run: scripts/backup.sh out
-
-      - if: steps.set.outputs.go == 'true'
-        uses: actions/upload-artifact@v7
-        with:
-          name: db-backup-v2-${{ github.run_id }}
-          path: out/*.dump.age
-          retention-days: 30
-          if-no-files-found: error
-
-  # The trash (ADR-0015): delete for good what has been there over 30 days.
-  # Only after today's dump is stored (needs: dump), so a purged record is
-  # still in the backups for 30 more days. A separate job: a failed purge
-  # shows as a failed run without silencing the backup heartbeat.
-  purge-trash:
-    needs: dump
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-
-      - name: Purge the trash
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
-        run: npm run trash:purge
-
   # healthchecks.io RECEIVES pings; it can't poll a URL itself. So this job
-  # asks the deployed app "are you working?" once a day and pings a second
-  # check only if the answer is yes (HTTP 200 = database reachable).
-  #   variable APP_URL               e.g. https://lifeos.vercel.app
+  # calls the app's /api/health (a real query, DT-34) and pings on success.
+  #   variable APP_URL               https://lifeos-8ezd.vercel.app (v2, since 6 Nov)
   #   secret   HEALTHCHECKS_APP_URL  ping URL of the "app" check
   app-health:
     runs-on: ubuntu-24.04

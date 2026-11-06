@@ -11,7 +11,7 @@
 //   --list     names each target under 44 px (page, element, text, size)
 //   --save     writes scripts/ui-baseline.json
 //   --compare  exits 1 when a page or task is worse than the baseline
-// Needs the dev server (`cd apps/v2 && npx next dev -p 3200`) and the local
+// Needs the dev server (`npx next dev -p 3200`) and the local
 // preview account (handoff: agent-preview@example.invalid).
 import { chromium, devices } from "playwright";
 import fs from "node:fs";
