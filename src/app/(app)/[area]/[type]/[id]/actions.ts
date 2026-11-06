@@ -23,6 +23,21 @@ export async function objectVerb(
   return r.ok ? { ok: true, undo: r.undo } : { ok: false, refused: r.refused };
 }
 
+/** PAT-13: one value saved in place; the answer's undo puts the previous one back. */
+export async function objectEdit(
+  type: string,
+  id: string,
+  key: string,
+  value: string | number | boolean | null,
+): Promise<VerbAnswer> {
+  const owner = await requireOwner();
+  const r = await act(await getDb(), owner, "edit", type, id, {
+    values: { [key]: value },
+  });
+  revalidatePath("/", "layout");
+  return r.ok ? { ok: true, undo: r.undo } : { ok: false, refused: r.refused };
+}
+
 export async function objectUndo(u: Undo): Promise<VerbAnswer> {
   const owner = await requireOwner();
   const r = await undo(await getDb(), owner, u);

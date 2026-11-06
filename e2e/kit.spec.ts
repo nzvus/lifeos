@@ -2,7 +2,7 @@
 // compared with the committed images. A changed piece shows here before it reaches a screen.
 import { expect, test } from "@playwright/test";
 
-const SECTIONS = ["cerca", "azioni", "voce", "modulo", "numeri", "stati-nuovi"];
+const SECTIONS = ["cerca", "azioni", "valori", "voce", "modulo", "numeri", "stati-nuovi"];
 const OPEN = ["altro", "conferma", "perche", "toast"];
 
 test("each piece of the gallery (PAT-94)", async ({ page }) => {

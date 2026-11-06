@@ -6,7 +6,10 @@
        the kit: `ObjectPage` takes the toast inside the page (beside it, the shell's rules broke
        and left an 80 px gap), and the toast sits above ⊕ (PAT-74). `nuovo` (PAT-11) moves to
        the first type change: no type without its own folder has a generic form today.
-2. [ ] PAT-13 in-place edit (kit `Field` + `act edit`, toast); gallery + photos; tests.
+2. [x] PAT-13 kit `InPlace` (+ `inPlaceCommit`, tests): a whole-row value, tapped → its
+       `Field`, leaving or Enter saves, Esc puts back, an error keeps it open; on the generic
+       ObjectPage every declared field (empty ones too) through `act edit`, toast «Salvato ·
+       Annulla»; gallery section «valori» photographed. Checked on `/corpo/tragitto/<id>`.
 3. [ ] PAT-18 `MergeSheet` (`act merge`, preview, confirm); gallery + photos; tests.
 4. [ ] PAT-19/43 Elenco sections, «Archiviati» filter, doppioni hint; gallery; tests.
 5. [ ] PAT-14/62 generic `Composer` from the food composer; gallery; tests.

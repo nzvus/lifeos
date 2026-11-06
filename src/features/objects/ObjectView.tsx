@@ -5,11 +5,17 @@
  * (PAT-21, PAT-74). Every type moves onto it in its own change (phase 4).
  */
 import { useRouter } from "next/navigation";
-import { ObjectActions, ObjectPage, useToast, type ObjectVerb } from "@lifeos/kit";
+import {
+  InPlace,
+  ObjectActions,
+  ObjectPage,
+  useToast,
+  type ObjectVerb,
+} from "@lifeos/kit";
 import type { Undo } from "@/core/verbs";
 import { common } from "@/i18n/common";
 import { objects } from "@/i18n/objects";
-import type { ValueRow } from "./present";
+import type { ObjectField } from "./present";
 
 type Answer = { ok: true; undo: Undo | null } | { ok: false; refused: string };
 
@@ -24,23 +30,30 @@ export function ObjectView({
   back,
   title,
   meta,
-  rows,
+  fields,
   verbs,
   archived,
   type,
   id,
   run,
+  save,
   revert,
 }: {
   back: { label: string; href: string };
   title: string;
   meta: string;
-  rows: readonly ValueRow[];
+  fields: readonly ObjectField[];
   verbs: readonly string[];
   archived: boolean;
   type: string;
   id: string;
   run: (type: string, id: string, verb: string) => Promise<Answer>;
+  save: (
+    type: string,
+    id: string,
+    key: string,
+    value: string | number | boolean | null,
+  ) => Promise<Answer>;
   revert: (u: Undo) => Promise<Answer>;
 }) {
   const router = useRouter();
@@ -66,23 +79,32 @@ export function ObjectView({
       title={title}
       meta={meta}
       values={
-        rows.length ? (
-          <dl className="k-stack g1">
-            {rows.map((r) => (
-              <div key={r.key} className="k-stack">
-                <dt className="k-label">{r.label}</dt>
-                <dd className="k-body">
-                  {r.href ? (
-                    <a href={r.href} target="_blank" rel="noreferrer">
-                      {r.value}
-                    </a>
-                  ) : (
-                    r.value
-                  )}
-                </dd>
-              </div>
+        fields.length ? (
+          <div className="k-stack">
+            {fields.map((f) => (
+              <InPlace
+                key={f.spec.key}
+                spec={f.spec}
+                value={f.value}
+                shown={f.shown}
+                onSave={async (v) => {
+                  const r = await save(type, id, f.spec.key, v);
+                  if (!r.ok)
+                    return (
+                      objects.refused[r.refused as keyof typeof objects.refused] ??
+                      objects.refused.other
+                    );
+                  const u = r.undo;
+                  say(
+                    common.states.saved,
+                    u ? () => revert(u).then(() => router.refresh()) : undefined,
+                  );
+                  router.refresh();
+                  return null;
+                }}
+              />
             ))}
-          </dl>
+          </div>
         ) : (
           <span className="k-body">{objects.noValues}</span>
         )

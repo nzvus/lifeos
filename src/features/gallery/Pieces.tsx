@@ -6,6 +6,7 @@
  */
 import { useEffect, useState } from "react";
 import {
+  InPlace,
   Banner,
   Confirm,
   EmptyState,
@@ -169,6 +170,41 @@ export function Pieces({ open }: { open: string | null }) {
           archived
           onVerb={() => say("Ripristinata", () => undefined)}
         />
+      </section>
+
+      <section
+        className="k-section g3"
+        id="valori"
+        aria-label="Valori modificabili sul posto"
+      >
+        <h2>Valori modificabili sul posto (PAT-13)</h2>
+        <div className="k-stack">
+          <InPlace
+            spec={ROUTE_FIELDS[0]!}
+            value="bike"
+            shown="Bici"
+            onSave={async () => (say("Salvato", () => undefined), null)}
+          />
+          <InPlace
+            spec={ROUTE_FIELDS[1]!}
+            value={4.2}
+            shown="4,2 km"
+            onSave={async () => (say("Salvato", () => undefined), null)}
+          />
+          <InPlace
+            spec={ROUTE_FIELDS[3]!}
+            value={null}
+            shown=""
+            onSave={async () => (say("Salvato", () => undefined), null)}
+          />
+          <InPlace
+            spec={ROUTE_FIELDS[2]!}
+            value={350}
+            shown="350 m"
+            initiallyEditing
+            onSave={async () => "Scrivi un numero intero"}
+          />
+        </div>
       </section>
 
       <section className="k-section g3" id="voce" aria-label="Testa di una voce">

@@ -4436,3 +4436,35 @@ button.k-link {
 .k-shell:has(> .k-nav):has(.k-pagefoot, .k-formfoot) .k-toastbar {
   bottom: calc(var(--nav-h, 65px) + 88px);
 }
+/* PAT-13: a value editable in place — at rest one whole-row target, label left, value right */
+.k-inplace {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-row);
+  width: 100%;
+  min-height: var(--touch);
+  padding: var(--space-row) 0;
+  border: 0;
+  border-bottom: var(--rule-medium) solid var(--hairline);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+}
+.k-inplace > .v {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.k-inplace.editing {
+  display: block;
+  padding: var(--space-row) 0;
+}
+.k-inplace:focus-visible {
+  outline: var(--rule-strong) solid var(--focus);
+  outline-offset: 2px;
+}
+.k-inplace:last-child {
+  border-bottom: 0;
+}

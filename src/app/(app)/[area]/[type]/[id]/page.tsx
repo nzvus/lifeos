@@ -10,9 +10,9 @@ import { getDb } from "@/app/_server/runtime";
 import { areaSlug, typeAtSlug } from "@/core/kinds/catalog";
 import { readObject } from "@/core/verbs";
 import { ObjectView } from "@/features/objects/ObjectView";
-import { valueRows } from "@/features/objects/present";
+import { objectFields } from "@/features/objects/present";
 import { objects } from "@/i18n/objects";
-import { objectUndo, objectVerb } from "./actions";
+import { objectEdit, objectUndo, objectVerb } from "./actions";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -34,12 +34,13 @@ export default async function ObjectRoute({
       back={{ label: t.area, href: `/${areaSlug(t)}/elenco` }}
       title={o.name}
       meta={o.archived ? `${t.name} · ${objects.archived}` : t.name}
-      rows={valueRows(t, o.values)}
+      fields={objectFields(t, o.values)}
       verbs={t.verbs.filter((v) => ["archive", "restore", "delete"].includes(v))}
       archived={o.archived}
       type={t.key}
       id={o.id}
       run={objectVerb}
+      save={objectEdit}
       revert={objectUndo}
     />
   );
