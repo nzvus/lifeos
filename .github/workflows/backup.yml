@@ -72,21 +72,25 @@ jobs:
   # v2's database (apps/v2, its own Neon branch), dumped the same way. Until
   # the secret V2_DATABASE_URL_DIRECT is set the job says so and stops, green.
   # It joins the heartbeat when v1 is retired (docs/runbooks/setup.md §11).
+  # v2's database: the `v2` environment's secret, the one migrate-v2.yml uses
+  # (no protection rule, so the schedule needs no approval). Until 6 Nov this
+  # read a repository secret nobody had set and skipped "successfully" every
+  # day: v2 had no backup at all. A missing secret now fails the run.
   dump-v2:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    environment: v2
     env:
-      DATABASE_URL: ${{ secrets.V2_DATABASE_URL_DIRECT }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL_DIRECT }}
     steps:
       - name: Is v2's database set?
         id: set
         run: |
           if [ -z "$DATABASE_URL" ]; then
-            echo "V2_DATABASE_URL_DIRECT is not set: no v2 backup today"
-            echo "go=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "go=true" >> "$GITHUB_OUTPUT"
+            echo "::error::the v2 environment has no DATABASE_URL_DIRECT: no v2 backup"
+            exit 1
           fi
+          echo "go=true" >> "$GITHUB_OUTPUT"
 
       - if: steps.set.outputs.go == 'true'
         uses: actions/checkout@v7
