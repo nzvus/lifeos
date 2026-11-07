@@ -22,6 +22,7 @@ export function Find<T extends FindItem>({
   all = false,
   idle,
   onQuery,
+  clearOnPick = false,
 }: {
   items: readonly T[];
   /** What is searched, said in the field: «Cerca un cibo». */
@@ -37,6 +38,8 @@ export function Find<T extends FindItem>({
   idle?: readonly T[];
   /** Told what is typed, as it changes (⊕ shows its own sections while the field is empty). */
   onQuery?: (q: string) => void;
+  /** The field empties after a pick (a composer adds one thing after another). */
+  clearOnPick?: boolean;
 }) {
   const [q, setQ] = useState("");
   const [tag, setTag] = useState<string | null>(null);
@@ -86,7 +89,13 @@ export function Find<T extends FindItem>({
               key={i.id}
               type="button"
               className="k-findrow"
-              onClick={() => onPick(i)}
+              onClick={() => {
+                onPick(i);
+                if (clearOnPick) {
+                  setQ("");
+                  onQuery?.("");
+                }
+              }}
             >
               <span className="k-title">{i.name}</span>
               {i.meta && <span className="k-meta">{i.meta}</span>}

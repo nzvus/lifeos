@@ -280,14 +280,6 @@
       "count": 2
     }
   },
-  "src/features/food/Composer.tsx": {
-    "lifeos/no-inline-style": {
-      "count": 1
-    },
-    "lifeos/no-search-input": {
-      "count": 1
-    }
-  },
   "src/features/food/IntakeForm.tsx": {
     "lifeos/no-raw-form": {
       "count": 1

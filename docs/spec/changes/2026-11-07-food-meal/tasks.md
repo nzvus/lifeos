@@ -12,7 +12,7 @@
 3. [x] Pasto on the generic page: `EXTRAS.recipe` (porzione with Registra and «Cambia i cibi»,
        cibi, Famiglia), `NEW_FORMS.recipe` («Parti da», «Variante»), `/componi` (`COMPOSERS`);
        the old pages deleted; `archiveRecipe` → `act archive` (test); photos 390/360/320.
-4. [ ] Food composer onto the kit `Composer` (PAT-62); composer tests; photos.
+4. [x] Food composer onto the kit `Composer` (PAT-62); composer tests; photos.
        - [x] 4a the form, the lines and the foot are the kit's: `Composer` takes the caller's
              lines (`lines` + `onLines`, `stamp`), a line's own part (`below`: the brand), its
              own search (`search`), a `head` and a titled section; «Salva» as the caller says
@@ -22,8 +22,14 @@
              Checked: photos before/after 390/320 (same but the foot), a meal logged end to
              end (123 ml × 2 porzioni, note, 130 kcal read back), «Salva» empty says «Aggiungi
              almeno un cibo», Pasti and Stima tabs.
-       - [ ] 4b its search is the kit `Find` (Cibi · Pasti as filters, the scanner and «Crea …»
-             beside it); the server reads `line.N` (`readLines`) instead of the JSON `lines`.
+       - [x] 4b its search is the kit `Find` (`FoodSearch`): Ingredienti one row per food with
+             its brands as aliases, the brand added only when the words name it (`pickedFood`,
+             as `collapseBrands`); at rest the most eaten; Pasti his saved meals with their
+             variants; «Dal codice a barre» and «Crea «…»» beside it; `Find clearOnPick`.
+             The tabs stay (Stima is a mode, not a filter) and the server keeps reading the
+             JSON `lines`, because the lines are off screen in Pasti and Stima (decided by the
+             agent). `RecipeResults` gone. Checked: idle, «pomodoro», pick empties the field,
+             «Crea», a saved meal adds 5 foods, saved to Oggi.
 5. [x] `/aggiungi` onto the kit `Capture` (PAT-60); tests; photos.
        - [x] its search is the kit `Find` (PAT-41): `AddSearch` on `Find` (`onQuery`), its own
              matcher `searchTargets` gone; `Find` draws no empty list; photos 390/320.
