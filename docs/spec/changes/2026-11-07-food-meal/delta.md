@@ -9,7 +9,16 @@
 - **PAT-16 / PAT-17** WHEN he opens «Altro» on an object whose type has a create form THEN
   «Parti da…» opens it prefilled from the object (`nuovo?da=<id>`) and, for a type with
   variants, «Variante» opens it as a child (`nuovo?variante=<id>`).
-- **PAT-43** «Today» line: Cibo · Elenco reads the one detector; «Possibili doppioni» opens the
-  `MergeSheet`.
-- **PAT-60** «Today» line: `/aggiungi` is the kit `Capture`.
+- **PAT-43** (Q-11 «a», his «scegli tu» 7 Nov) Elenco of an area = its types as `List`
+  sections + «Archiviati» + «Possibili doppioni» hint WHEN a detector finds some: the one name
+  detector (`core/catalog/twins.ts`: the same words without accents, case, punctuation, small
+  words or order) for every type, and for cibo and pasto also their proposals — «X è una marca
+  di Y» (a brand in the name) and «variante» (two pasti with mostly the same cibi; ADR-0060) —
+  never a pair he said are different. «Unisci» opens the `MergeSheet`.
+- **PAT-60** (Q-12 «a», his «scegli tu» 7 Nov) **Capture** (⊕): a sheet over any page, one
+  `Find` over every type and object; WHEN nothing is typed THEN it shows the day's ranked rows
+  first — previsti to tick (PAT-15), what he logs at this hour (MOD-51), schede to start, water
+  in one tap, the last meals — then the types, the current area's first; «Adesso · Previsto ·
+  Prima» says when what opens from it happened. One tap on a ranked row logs it with Annulla;
+  an unknown thing becomes a stima object at once (FD-92). One door per type. Kit `Capture`.
 - **PAT-62** «Today» line: the food composer is the kit `Composer`.

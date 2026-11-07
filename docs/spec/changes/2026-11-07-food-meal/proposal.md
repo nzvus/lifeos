@@ -51,14 +51,17 @@ the report with Q-11 and Q-12: taken as «go on with slice 4», not as an answer
 `/prodotto`, `nuovo`; pasto page, pasto `/modifica`), archive implementations −2
 (`archiveFood`, `archiveSaved`), merge implementations −1 (`mergeFood`).
 
+**Answered.** His words, 7 Nov, on Q-11 and Q-12: «scegli tu» → the agent's picks, (a) both;
+written into `delta.md` (PAT-43, PAT-60).
+
 **Questions for him (asked at the end; the work goes on without them).**
-- **Q-11** (slice 6) Cibo · Possibili doppioni today does more than PAT-43's one detector: it
+- **Q-11** (slice 6; answered: a) Cibo · Possibili doppioni today does more than PAT-43's one detector: it
   proposes «X è una marca di Y» (a brand in the name) and «variante» for two pasti with mostly
   the same cibi (ADR-0060 slice f, his 17 near-duplicates). (a) keep those proposals and add the
   name detector beside them; (b) only the one name detector, the brand and variant proposals
   go; (c) the name detector in Elenco, the proposals stay on the doppioni page. Agent's pick:
   (a) — the proposals answer FOOD-46 and the name rule alone misses «GELATO proteico» variants.
-- **Q-12** (slice 5) ⊕ today is a page whose empty state is ranked rows: today's previsti to
+- **Q-12** (slice 5; answered: a) ⊕ today is a page whose empty state is ranked rows: today's previsti to
   tick, what he eats at this hour, schede to start, water in one tap, the last meals; «Tutti i
   tipi» folded. PAT-60 says «with nothing typed it lists the types», and the kit `Capture` is a
   sheet. (a) ⊕ becomes the `Capture` sheet on every page, its empty state = those ranked rows,
