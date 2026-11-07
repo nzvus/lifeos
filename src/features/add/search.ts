@@ -1,11 +1,9 @@
 /**
- * features/add/search.ts — ⊕'s one search (V-02, the board Capture): the
- * kinds this person can enter, their foods, saved meals and routines, as
- * one list of targets; a query keeps those whose words all appear, a name
- * starting with it first, then kinds, foods, meals, routines. Pure.
+ * features/add/search.ts — ⊕'s targets (PAT-60): the kinds he can enter, his foods, saved meals
+ * and routines, each a door (`href`), as rows of the kit's one search (`Find`, PAT-41: one
+ * matcher for every search). Pure.
  */
-import type { GlyphOf } from "@lifeos/kit";
-import { fold } from "@/core/food/choices";
+import type { FindItem, GlyphOf } from "@lifeos/kit";
 
 export type AddTarget = {
   key: string;
@@ -17,19 +15,14 @@ export type AddTarget = {
   href: string;
 };
 
-const ORDER = ["tipo", "cibo", "pasto salvato", "allenamento"];
+export type AddRow = FindItem & { href: string };
 
-export function searchTargets(
-  targets: readonly AddTarget[],
-  query: string,
-  limit = 12,
-): AddTarget[] {
-  const words = fold(query).split(/\s+/).filter(Boolean);
-  if (words.length === 0) return [];
-  const rank = (t: AddTarget) =>
-    (fold(t.title).startsWith(words[0]!) ? 0 : 10) + ORDER.indexOf(t.sub);
-  return targets
-    .filter((t) => words.every((w) => fold(t.title + " " + t.sub).includes(w)))
-    .sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title, "it"))
-    .slice(0, limit);
-}
+/** Each target as a `Find` row: its name, what it is beside it (and found by it), its door. */
+export const findTargets = (targets: readonly AddTarget[]): AddRow[] =>
+  targets.map((t) => ({
+    id: t.key,
+    name: t.title,
+    aliases: [t.sub],
+    meta: t.sub,
+    href: t.href,
+  }));

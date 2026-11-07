@@ -269,6 +269,21 @@ describe("Find (PAT-41) and SortChips (PAT-42)", () => {
     expect(s).toContain('aria-pressed="false"');
   });
 
+  it("PAT-60 with an empty idle and nothing typed, no empty list under the field", () => {
+    const s = html(
+      <Find
+        label="Cerca"
+        hour={8}
+        items={[{ id: "1", name: "Acqua" }]}
+        idle={[]}
+        onPick={noop}
+      />,
+    );
+    expect(s).toContain('aria-label="Cerca"');
+    expect(s).not.toContain("k-findrow");
+    expect(s).not.toContain('role="list"');
+  });
+
   it("sort keys as chips, the current one pressed", () => {
     const s = html(
       <SortChips

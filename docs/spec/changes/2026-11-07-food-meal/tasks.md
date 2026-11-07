@@ -14,5 +14,9 @@
        the old pages deleted; `archiveRecipe` → `act archive` (test); photos 390/360/320.
 4. [ ] Food composer onto the kit `Composer` (PAT-62); composer tests; photos.
 5. [ ] `/aggiungi` onto the kit `Capture` (PAT-60); tests; photos.
-6. [ ] Cibo · Elenco twins onto `core/catalog/twins.ts` + `MergeSheet` (PAT-43); tests.
+       - [x] its search is the kit `Find` (PAT-41): `AddSearch` on `Find` (`onQuery`), its own
+             matcher `searchTargets` gone; `Find` draws no empty list; photos 390/320.
+       - [ ] the sheet and its empty state — waits for Q-12.
+6. [ ] Cibo · Elenco twins onto `core/catalog/twins.ts` + `MergeSheet` (PAT-43) — waits for
+       Q-11.
 7. [ ] Delta into the spec; counts in the PR; change archived.

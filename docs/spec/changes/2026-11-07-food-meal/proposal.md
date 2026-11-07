@@ -50,4 +50,19 @@ conferme per ora» (6 Nov); «procedi» (7 Nov) for this change.
 `/prodotto`, `nuovo`; pasto page, pasto `/modifica`), archive implementations −2
 (`archiveFood`, `archiveSaved`), merge implementations −1 (`mergeFood`).
 
+**Questions for him (asked at the end; the work goes on without them).**
+- **Q-11** (slice 6) Cibo · Possibili doppioni today does more than PAT-43's one detector: it
+  proposes «X è una marca di Y» (a brand in the name) and «variante» for two pasti with mostly
+  the same cibi (ADR-0060 slice f, his 17 near-duplicates). (a) keep those proposals and add the
+  name detector beside them; (b) only the one name detector, the brand and variant proposals
+  go; (c) the name detector in Elenco, the proposals stay on the doppioni page. Agent's pick:
+  (a) — the proposals answer FOOD-46 and the name rule alone misses «GELATO proteico» variants.
+- **Q-12** (slice 5) ⊕ today is a page whose empty state is ranked rows: today's previsti to
+  tick, what he eats at this hour, schede to start, water in one tap, the last meals; «Tutti i
+  tipi» folded. PAT-60 says «with nothing typed it lists the types», and the kit `Capture` is a
+  sheet. (a) ⊕ becomes the `Capture` sheet on every page, its empty state = those ranked rows,
+  then the types; (b) as PAT-60 reads: only the types, the ranked rows go; (c) keep the page,
+  its search is the kit `Find` (done in this change) and PAT-60 is rewritten to say so. Agent's
+  pick: (a) — one tap from anywhere, and the ranked rows are his «di solito a quest'ora».
+
 **Stop.** None inside his «procedi»; questions, if any, written here and asked at the end.
