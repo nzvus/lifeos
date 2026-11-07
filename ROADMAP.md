@@ -52,8 +52,9 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
 4. **Rebuild v2 one type at a time** (strangler). Started 6 Nov: v2's backup fixed (#329, it
    had never run); v1 retired and v2 at the root (#330, change `archive/2026-11-06-retire-v1`).
    Kit patterns done 6 Nov (#332, #333); tracker done (change `archive/2026-11-06-tracker`;
-   the abitudine moves with the Piano). Next: food and meal →
-   exercise and scheda → Piano (`plan_rules` returns here) → money/pantry; each PR counts pages,
+   the abitudine moves with the Piano); food and meal done 7 Nov (change
+   `archive/2026-11-07-food-meal`, #335–#337: cibo and pasto on the generic page, the composer
+   and ⊕ on the kit). Next: exercise and scheda → Piano (`plan_rules` returns here) → money/pantry; each PR counts pages,
    implementations and lines removed; v1 retired first (verified export, Neon untouched).
 
 ## Before: lifeos v2 build (ADR-0053, 2026-10-15 → 11-03) — paused 2026-11-06
@@ -250,6 +251,9 @@ In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
+
+### Phase 4 step 3: cibo and pasto onto the generic pieces — change 2026-11-07-food-meal (#335–#337, 7 Nov)
+Shipped: cibo/prodotto label values in the registry, edited in place with an exact undo (source kept); cibo and pasto on the generic ObjectPage, `/componi`; the food composer and ⊕ on the kit `Composer`, `Find`, `Capture`, ⊕ over the page (`@capture`); doppioni on the one name detector; pages −8 | Decisions: Q-11 and Q-12 «scegli tu» → (a) (PAT-43, PAT-60) | Lesson: he merges each PR within minutes — check the PR in its own call before every push and branch again from main; a shared kit piece inside a page (ObjectForm, Composer) must be photographed with its folds open and before/after | Carried over: nothing in the change; «In casa» waits for money/pantry.
 
 ### Refactor phases 4 and 6, the movement model, the Today review — s89–s102 (2026-10-10 → 10-11, no retro yet)
 Shipped: reps left per set and progression gated by them, readiness and volume notes (#171–#172, ADR-0049, migration 0035); Today as one page and one timeline of slots, entries, sessions and the day's events, entries edited in place, slot suggestions, one nutrient bar, score row (#173–#178, #180, ADR-0050); steps count from zero and the level is time on your feet, on the trend weight (#179, #182, ADR-0051); set times that survive a misclick (#181); week navigation and a month calendar (#182). Phases 0–3 of the 2026-10-09 plan were done before (see below) | Decisions: ADR-0049 A×4, ADR-0050 A; ADR-0051 delegated | Lesson: #178–#181 shipped in a hurry were sent back ("non volevo un lavoro così frettoloso"): check every touched surface on the phone against the developer's data | Carried over: retro; the spec.

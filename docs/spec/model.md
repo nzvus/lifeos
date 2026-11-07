@@ -30,7 +30,9 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   `EntrySheet` for 13; the 10 catalog types of §3 are declared in `core/kinds/catalog.ts`
   (`CatalogType`: area, hue, storage, family rule, fields, lines, capture, verbs, list,
   «Salva come» source; the assunzione is `intake_item`, a food with the `intake` flag) and
-  `core/verbs` reads them; screens move onto them in phase 4. The lint rule of PAT-90 fails a
+  `core/verbs` reads them; cibo and prodotto declare their label values per 100 as fields
+  (`LABEL_FIELDS`, edited in place), and the cibo and pasto screens read the registry (change
+  2026-11-07-food-meal); the other screens move onto it in phase 4. The lint rule of PAT-90 fails a
   new type-key comparison; the 148 of 6 Nov are in `lint-baseline.json`.
 
 ## 2. Voce (an entry)

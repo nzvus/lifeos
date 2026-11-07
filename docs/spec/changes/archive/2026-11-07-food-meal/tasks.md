@@ -46,4 +46,11 @@
 6. [x] Doppioni (Q-11 «a»): cibi and esercizi read the one name detector (`nameTwins`,
        `nameKey`) beside the brand and variant proposals; the food page's own `plain` match
        gone; tests cite PAT-43.
-7. [ ] Delta into the spec; counts in the PR; change archived.
+7. [x] Delta into the spec; counts in the PRs; change archived.
+
+Done 7 Nov in #335, #336, #337. Counts: pages −8 (`[area]/cibo/*`, `[area]/pasto/*`; one
+generic `/componi`); archive implementations −2, merge −1; bespoke search fields −2 (⊕, the
+composer) and matchers −1 (`searchTargets`); `ComposerFoot`, `RecipeResults`, `AddSearch`,
+`updateFood` deleted; lint-baseline −8 entries; jscpd 909 → 794; FD-93 out of `untested.txt`.
+Found: an `ObjectForm` inside a page hides ⊕ (memory «objectform-in-page»); a Composer that is
+the page's form needs the page's section CSS; ⊕ as a plain `<a>` could not open over the page.
