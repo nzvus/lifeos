@@ -60,6 +60,8 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
 | tragitto | Corpo | — | `route` |
 | tracker (his own type) | any | — | `kinds` rows |
 | categoria di spesa | Soldi | — | `money_category` |
+| blocco | Oggi (its own `area`) | — | `block` (MOD-36, ADR-0062; change 2026-11-07-piano) |
+| ciclo | Oggi | — | `cycle` (steps in `cycle_steps`; MOD-36) |
 - **MOD-20** Every catalog object has the same life: crea · parti da (based_on) · variante di
   (parent) · modifica in place · unisci · archivia · ripristina · elimina (only if unused, else
   archive). Archived = out of pickers, kept in history. [n03, PLAN-33, P1] — Today: 11 archive
@@ -86,7 +88,9 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
 - **MOD-35** Blocks hold real objects; kcal and protein shares are derived from the goal and
   only judge and advise. [c04, PLAN-34]
 - Today: `templates`, `template_blocks`, `cycle_steps`, `week_layouts`, `cycles_state`;
-  `plan_rules` parked on `archive/s247-v2-plan`. Mapping to the new shape = a phase 4 change.
+  `plan_rules` parked on `archive/s247-v2-plan` (not carried, PL-72). Storage of the new shape:
+  blocchi and cicli are catalog objects (ADR-0062, his «decidi tu» on Q-14, 7 Nov); the mapping
+  is change 2026-11-07-piano.
 
 ## 5. Numbers: metric, fascia, goal, voto, decision
 - **MOD-40** **Metrica**: declared once (source, filter, aggregate, window, transform, unit,

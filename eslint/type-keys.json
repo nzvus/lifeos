@@ -34,6 +34,8 @@
     "book",
     "project",
     "intake_item",
-    "tracker"
+    "tracker",
+    "block",
+    "cycle"
   ]
 }

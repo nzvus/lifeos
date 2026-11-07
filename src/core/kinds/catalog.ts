@@ -255,6 +255,55 @@ const DECLARED: CatalogTypeInput[] = [
   },
 ];
 
+/** When a blocco happens (PL-10): a clock time, relative to another blocco, after waking, before bed. */
+export const BLOCK_WHEN = ["time", "after", "before", "wake", "bed"] as const;
+
+/** What a blocco and a ciclo share: a form, the common verbs, the Piano's specialisation. */
+const PLAN_TYPE = {
+  capture: "form",
+  verbs: ["create", "startFrom", "edit", "archive", "restore", "delete", "undo"],
+  list: { sort: ["use", "name"], search: ["name"] },
+  specialisation: "core/plans",
+} as const satisfies Partial<CatalogTypeInput>;
+
+DECLARED.push(
+  {
+    key: "block",
+    name: "blocco",
+    area: "Oggi",
+    hue: "habit",
+    storage: { table: "catalog_items", catalog: "block" },
+    family: { rule: "none" },
+    // MOD-36 (ADR-0062): its object(s) are catalog_parts, or a type with defaults (`kind`).
+    fields: [
+      { key: "area", type: "choice", choices: [...AREAS], required: true },
+      { key: "when", type: "choice", choices: [...BLOCK_WHEN] },
+      { key: "at", type: "time" },
+      { key: "anchor", type: "ref", catalog: "block" },
+      { key: "offsetMin", type: "integer", unit: "min", min: -720, max: 720 },
+      { key: "durationMin", type: "duration", unit: "min", min: 0, max: 1440 },
+      { key: "recurrence", type: "text", required: true },
+      { key: "kind", type: "text" },
+      { key: "defaults", type: "text" },
+    ],
+    ...PLAN_TYPE,
+  },
+  {
+    key: "cycle",
+    name: "ciclo",
+    area: "Oggi",
+    hue: "habit",
+    storage: { table: "catalog_items", catalog: "cycle" },
+    family: { rule: "none" },
+    // MOD-36: its steps stay in cycle_steps / cycle_step_items (a step's items are blocchi).
+    fields: [
+      { key: "advance", type: "choice", choices: ["occurrence", "date"], required: true },
+      { key: "onSkip", type: "choice", choices: ["shift", "lose"], required: true },
+    ],
+    ...PLAN_TYPE,
+  },
+);
+
 /** The catalog types, checked when the module loads: a broken one fails every test. */
 export const CATALOG_TYPES: readonly CatalogType[] = DECLARED.map((t) =>
   catalogTypeSchema.parse(t),

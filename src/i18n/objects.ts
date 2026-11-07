@@ -45,6 +45,18 @@ export const objects = {
   },
   fields: {
     exercise: { guide: "Guida" },
+    block: {
+      area: "Area",
+      when: "Quando",
+      at: "Ora",
+      anchor: "Rispetto a",
+      offsetMin: "Scarto",
+      durationMin: "Durata",
+      recurrence: "Ogni quanto",
+      kind: "Tipo",
+      defaults: "Valori di partenza",
+    },
+    cycle: { advance: "Avanza", onSkip: "Se salti" },
     food: LABEL,
     product: LABEL,
     route: {
