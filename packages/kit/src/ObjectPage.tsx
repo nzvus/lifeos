@@ -27,7 +27,8 @@ export function ObjectPage({
   of?: GlyphOf;
   /** The values that matter, as editable rows (PAT-13). */
   values: ReactNode;
-  parts?: { title: string; node: ReactNode };
+  /** Its parts, each a titled section (a food's brands, what is at home). */
+  parts?: readonly { title: string; node: ReactNode }[];
   progress?: ReactNode;
   usedIn?: ReactNode;
   /** `ObjectActions`. */
@@ -46,12 +47,12 @@ export function ObjectPage({
       <section className="k-section g2" aria-label={title}>
         {values}
       </section>
-      {parts && (
-        <section className="k-section g2" aria-label={parts.title}>
-          <h2>{parts.title}</h2>
-          {parts.node}
+      {parts?.map((p) => (
+        <section key={p.title} className="k-section g2" aria-label={p.title}>
+          <h2>{p.title}</h2>
+          {p.node}
         </section>
-      )}
+      ))}
       {progress && (
         <section className="k-section g2" aria-label={WORDS.sections.progress}>
           <h2>{WORDS.sections.progress}</h2>

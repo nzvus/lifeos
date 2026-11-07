@@ -33,8 +33,10 @@ export function ObjectView({
   title,
   meta,
   fields,
+  judge,
   parts,
   progress,
+  usedIn,
   others,
   typeName,
   verbs,
@@ -53,9 +55,12 @@ export function ObjectView({
   title: string;
   meta: string;
   fields: readonly ObjectField[];
-  /** A type's own sections (its specialisation): its parts and its progress. */
-  parts?: { title: string; node: ReactNode };
+  /** A type's own sections (its specialisation): a judgement of its values (a food's voto),
+   *  its parts, its progress, where it is used. */
+  judge?: ReactNode;
+  parts?: readonly { title: string; node: ReactNode }[];
   progress?: ReactNode;
+  usedIn?: ReactNode;
   /** The other objects of its type, for «Unisci» (PAT-18). */
   others: readonly { id: string; name: string }[];
   typeName: string;
@@ -135,10 +140,12 @@ export function ObjectView({
               onSave={(v) => saved(save(type, id, f.spec.key, v))}
             />
           ))}
+          {judge}
         </div>
       }
       {...(parts ? { parts } : {})}
       {...(progress ? { progress } : {})}
+      {...(usedIn ? { usedIn } : {})}
       actions={
         <ObjectActions
           title={title}

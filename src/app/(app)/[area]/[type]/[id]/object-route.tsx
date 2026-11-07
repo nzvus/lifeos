@@ -43,13 +43,16 @@ export async function objectRoute(
   if (id === "nuovo") {
     const form = NEW_FORMS[t.key];
     if (!form) notFound();
-    return form.render({ label: t.area, href: `/${areaSlug(t)}/elenco` }, one(query));
+    return await form.render(
+      { label: t.area, href: `/${areaSlug(t)}/elenco` },
+      one(query),
+    );
   }
   if (!UUID.test(id)) notFound();
   const db = await getDb();
   const o = await readObject(db, owner, t.key, id);
   if (!o) notFound();
-  const extra = (await EXTRAS[t.key]?.(db, owner, o.id)) ?? {};
+  const extra = (await EXTRAS[t.key]?.(db, owner, o.id, one(query))) ?? {};
   const others = t.verbs.includes("merge")
     ? (await listObjects(db, owner, t.key)).filter((x) => x.id !== o.id)
     : [];
@@ -61,8 +64,10 @@ export async function objectRoute(
         .filter(Boolean)
         .join(" · ")}
       fields={objectFields(t, o.values)}
+      {...(extra.judge ? { judge: extra.judge } : {})}
       {...(extra.parts ? { parts: extra.parts } : {})}
       {...(extra.progress ? { progress: extra.progress } : {})}
+      {...(extra.usedIn ? { usedIn: extra.usedIn } : {})}
       others={others}
       typeName={t.name}
       verbs={pageVerbs(t, NEW_FORMS[t.key]?.from ?? [], others.length > 0)}

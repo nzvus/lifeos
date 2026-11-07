@@ -192,7 +192,7 @@ export function BarcodeBox({
             <a
               key={c.foodId}
               className="k-btn secondary"
-              href={"/cibo/cibo/" + c.foodId + "/prodotto?barcode=" + code}
+              href={"/cibo/prodotto/nuovo?di=" + c.foodId + "&barcode=" + code}
             >
               Sì, di «{c.name}»
             </a>

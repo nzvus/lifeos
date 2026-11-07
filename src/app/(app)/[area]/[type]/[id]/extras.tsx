@@ -8,15 +8,24 @@ import type { Owner } from "@/core/identity/owner";
 import { readUserKind } from "@/core/kinds/user";
 import { trackerHref } from "@/features/places";
 import { tracker, wordOf } from "@/i18n/tracker";
+import { foodExtra } from "./food-extra";
 
 export type Extra = {
   /** Said under the title, after the type's name. */
   meta?: string;
-  parts?: { title: string; node: React.ReactNode };
+  /** Under its values: their judgement (a food's voto per 100 kcal). */
+  judge?: React.ReactNode;
+  parts?: { title: string; node: React.ReactNode }[];
   progress?: React.ReactNode;
+  usedIn?: React.ReactNode;
 };
 
-type Build = (db: Db, owner: Owner, id: string) => Promise<Extra | null>;
+export type Build = (
+  db: Db,
+  owner: Owner,
+  id: string,
+  query: Readonly<Record<string, string | undefined>>,
+) => Promise<Extra | null>;
 
 const TYPE_WORD = Object.fromEntries(tracker.types);
 
@@ -27,25 +36,27 @@ const trackerExtra: Build = async (db, owner, id) => {
   const w = tracker.page;
   return {
     meta: `${wordOf(tracker.families, k.family)} · ${wordOf(tracker.shapes, k.shape).toLowerCase()}`,
-    parts: {
-      title: w.fields,
-      node:
-        k.fields.length === 0 ? (
-          <p className="k-meta">{w.noFields}</p>
-        ) : (
-          <ul className="k-stack g1 k-body">
-            {k.fields.map((f) => (
-              <li key={f.label}>
-                {f.label}{" "}
-                <span className="k-meta">
-                  · {TYPE_WORD[f.type] ?? f.type}
-                  {f.unit ? " · " + f.unit : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ),
-    },
+    parts: [
+      {
+        title: w.fields,
+        node:
+          k.fields.length === 0 ? (
+            <p className="k-meta">{w.noFields}</p>
+          ) : (
+            <ul className="k-stack g1 k-body">
+              {k.fields.map((f) => (
+                <li key={f.label}>
+                  {f.label}{" "}
+                  <span className="k-meta">
+                    · {TYPE_WORD[f.type] ?? f.type}
+                    {f.unit ? " · " + f.unit : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ),
+      },
+    ],
     progress: (
       <a className="k-btn link" href={trackerHref(k.key, k.domain)}>
         {w.open} ›
@@ -54,4 +65,4 @@ const trackerExtra: Build = async (db, owner, id) => {
   };
 };
 
-export const EXTRAS: Record<string, Build> = { tracker: trackerExtra };
+export const EXTRAS: Record<string, Build> = { tracker: trackerExtra, food: foodExtra };

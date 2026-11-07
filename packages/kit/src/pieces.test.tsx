@@ -307,7 +307,10 @@ describe("ObjectActions (PAT-16, PAT-17, PAT-19) and ObjectPage (PAT-30)", () =>
         title="Panca piana"
         meta="Petto · 12 sessioni"
         values={<p>VALORI</p>}
-        parts={{ title: "Varianti", node: <p>PARTI</p> }}
+        parts={[
+          { title: "Varianti", node: <p>PARTI</p> },
+          { title: "Marche", node: <p>MARCHE</p> },
+        ]}
         progress={<p>CURVA</p>}
         usedIn={<p>SCHEDE</p>}
         actions={<p>AZIONI</p>}
@@ -320,6 +323,9 @@ describe("ObjectActions (PAT-16, PAT-17, PAT-19) and ObjectPage (PAT-30)", () =>
         "Panca piana",
         "VALORI",
         "Varianti",
+        "PARTI",
+        "Marche",
+        "MARCHE",
         "Andamento",
         "CURVA",
         "Usato in",

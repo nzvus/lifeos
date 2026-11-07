@@ -1,4 +1,3 @@
-import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "../db/db";
 import * as s from "../db/schema";
@@ -9,8 +8,6 @@ import {
   createFood,
   createProduct,
   readFoodByBarcode,
-  updateFood,
-  valueChanges,
 } from "./edit";
 import { readFoodChoices } from "./catalog";
 
@@ -26,15 +23,6 @@ describe("a food's editor", () => {
       name: "empty",
       at: { kcal: "too_much", nova: "nova", salt: "number" },
     });
-  });
-
-  it("changes only what differs", () => {
-    expect(
-      valueChanges(
-        { kcal: "372.0000", protein: "13.5", fat: "7" },
-        { kcal: "372", protein: "14" },
-      ),
-    ).toEqual({ set: [["protein", "14"]], remove: ["fat"] });
   });
 
   let db: Db;
@@ -61,26 +49,6 @@ describe("a food's editor", () => {
     ]);
   });
   afterAll(() => close());
-
-  it("writes the changed values as typed, keeps the others' source, refuses a taken name", async () => {
-    expect(await updateFood(db, a, oats, "riso", {})).toBe("taken");
-    expect(await updateFood(db, b, oats, "Avena", {})).toBe("gone");
-    expect(
-      await updateFood(db, a, oats, "Fiocchi d'avena", { kcal: "372", protein: "13.5" }),
-    ).toBe("ok");
-    const rows = await db
-      .select({
-        field: s.catalogValues.field,
-        num: s.catalogValues.num,
-        source: s.catalogValues.source,
-      })
-      .from(s.catalogValues)
-      .where(and(eq(s.catalogValues.itemId, oats)));
-    expect(rows.sort((x, y) => x.field.localeCompare(y.field))).toEqual([
-      { field: "kcal", num: "372.0000", source: "CIQUAL" },
-      { field: "protein", num: "13.5000", source: "typed" },
-    ]);
-  });
 
   it("creates a food with its unit and values, unless the name is taken", async () => {
     expect(await createFood(db, a, "RISO", "g", {})).toBe("taken");

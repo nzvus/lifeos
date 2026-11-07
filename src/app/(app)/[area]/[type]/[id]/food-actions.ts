@@ -1,10 +1,16 @@
 "use server";
-/** Saving a food's editor (V-07): the session's owner, the form checked by core, then written. */
+/**
+ * A cibo's and a prodotto's create forms (`/cibo/cibo/nuovo`, `/cibo/prodotto/nuovo?di=`; PAT-04,
+ * PAT-11) and the food page's «In casa» (dossiers/pantry.md §6): the form checked by core, then
+ * written. Its values are edited in place through `core/verbs` (PAT-13), not here.
+ */
 import { revalidatePath } from "next/cache";
 import { F } from "@lifeos/kit";
 import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
+import { typedAmount, typedCents } from "@/features/library/pantry";
+import { logCount, logPurchase } from "@/core/pantry";
 import { SNAPSHOT_FIELDS } from "@/core/food/choices";
 import {
   checkFood,
@@ -12,11 +18,8 @@ import {
   createFormat,
   createProduct,
   productByBrand,
-  updateFood,
   type FoodValueError,
 } from "@/core/food/edit";
-import { archiveItem } from "@/core/catalog/archive";
-import { mergeItems } from "@/core/catalog/merge";
 import { isValidGtin } from "@/core/food/barcode";
 import { OFF_EXTRAS } from "@/core/food/off";
 import { ownerClock } from "@/app/_server/clock";
@@ -32,9 +35,8 @@ const WORDS: Record<FoodValueError, string> = {
   nova: "NOVA va da 1 a 4.",
 };
 
-/** Saves the food's form; `id` null creates a new one («Nuovo cibo»). */
+/** «Nuovo cibo»: creates it, then its page (or back to the composer). */
 export async function saveFood(
-  id: string | null,
   /** Where a new food goes once made (the composer), checked by the page. */
   back: string | null,
   prev: FoodFormState,
@@ -60,7 +62,7 @@ export async function saveFood(
     return again(errors);
   }
   const db = await getDb();
-  if (id === null && form["twinOk"] !== "yes") {
+  if (form["twinOk"] !== "yes") {
     // A likely duplicate is said once (ADR-0060 slice f); saving again goes on.
     const { clock } = await ownerClock();
     const near = likelyFoods(
@@ -79,57 +81,35 @@ export async function saveFood(
         n: prev.n + 1,
       };
   }
-  if (id === null) {
-    // What the barcode filled beyond the label (FOOD-48): micros, caffeine, the package.
-    const extra: Record<string, string> = {};
-    const bad: Record<string, string> = {};
-    for (const k of [...Object.keys(OFF_EXTRAS).map((x) => "x." + x), "packageSize"]) {
-      const raw = (form[k] ?? "").trim().replace(",", ".");
-      if (raw === "") continue;
-      if (!/^\d{1,6}(\.\d{1,3})?$/.test(raw)) bad[k] = WORDS.number;
-      else extra[k.replace(/^x\./, "")] = raw;
-    }
-    const brand = (form["brand"] ?? "").trim().replace(/\s+/g, " ").slice(0, 80);
-    if (Object.keys(bad).length > 0) return again(bad);
-    const unit = form["unit"] === "ml" ? "ml" : "g";
-    const barcode = isValidGtin(form["barcode"] ?? "") ? form["barcode"]! : null;
-    const { packageSize, ...values } = extra;
-    const made = await createFood(
-      db,
-      owner,
-      checked.name,
-      unit,
-      checked.values,
-      null,
-      values,
-    );
-    if (made === "taken") return again({ name: "Hai già un cibo con questo nome." });
-    // The brand is the food's first product (its values are the food's); the package and
-    // the barcode are its format (ADR-0060: a barcode is one size of one product).
-    await addBrandFormat(db, owner, made.id, unit, brand, packageSize ?? null, barcode);
-    revalidatePath("/", "layout");
-    redirect(back ?? "/cibo/cibo/" + made.id);
+  // What the barcode filled beyond the label (FOOD-48): micros, caffeine, the package.
+  const extra: Record<string, string> = {};
+  const bad: Record<string, string> = {};
+  for (const k of [...Object.keys(OFF_EXTRAS).map((x) => "x." + x), "packageSize"]) {
+    const raw = (form[k] ?? "").trim().replace(",", ".");
+    if (raw === "") continue;
+    if (!/^\d{1,6}(\.\d{1,3})?$/.test(raw)) bad[k] = WORDS.number;
+    else extra[k.replace(/^x\./, "")] = raw;
   }
-  const done = await updateFood(db, owner, id, checked.name, checked.values);
-  if (done === "gone") return again({ form: "Questo cibo non c’è più." });
-  if (done === "taken") return again({ name: "Hai già un cibo con questo nome." });
+  const brand = (form["brand"] ?? "").trim().replace(/\s+/g, " ").slice(0, 80);
+  if (Object.keys(bad).length > 0) return again(bad);
+  const unit = form["unit"] === "ml" ? "ml" : "g";
+  const barcode = isValidGtin(form["barcode"] ?? "") ? form["barcode"]! : null;
+  const { packageSize, ...values } = extra;
+  const made = await createFood(
+    db,
+    owner,
+    checked.name,
+    unit,
+    checked.values,
+    null,
+    values,
+  );
+  if (made === "taken") return again({ name: "Hai già un cibo con questo nome." });
+  // The brand is the food's first product (its values are the food's); the package and
+  // the barcode are its format (ADR-0060: a barcode is one size of one product).
+  await addBrandFormat(db, owner, made.id, unit, brand, packageSize ?? null, barcode);
   revalidatePath("/", "layout");
-  redirect("/cibo/cibo/" + id);
-}
-
-/** «Unisci» (capture.md §4): another food's meals, products and places move onto this one. */
-export async function mergeFood(keepId: string, goneId: string): Promise<void> {
-  await mergeItems(await getDb(), await requireOwner(), keepId, goneId);
-  revalidatePath("/", "layout");
-  revalidatePath("/", "layout");
-  redirect("/cibo/cibo/" + keepId);
-}
-
-/** Archives the food (and so its products): out of Libreria and the composer. */
-export async function archiveFood(id: string): Promise<void> {
-  await archiveItem(await getDb(), await requireOwner(), id, "food");
-  revalidatePath("/", "layout");
-  redirect("/cibo/elenco");
+  redirect(back ?? "/cibo/cibo/" + made.id);
 }
 
 /** Saves «Nuovo prodotto» of a food: the brand and the label's values. */
@@ -210,4 +190,57 @@ async function addBrandFormat(
     size,
     barcode,
   });
+}
+
+/** «In casa»: back to the food's page; a wrong value comes back as `?dispensa=<field>`. */
+const back = (foodId: string, error?: string) =>
+  "/cibo/cibo/" + foodId + (error ? "?dispensa=" + error : "") + "#dispensa";
+
+export async function bought(
+  foodId: string,
+  itemId: string,
+  data: FormData,
+): Promise<void> {
+  const owner = await requireOwner();
+  const str = (k: string) =>
+    typeof data.get(k) === "string" ? (data.get(k) as string) : "";
+  const quantity = typedAmount(str("quantity"));
+  const packages = typedAmount(str("packages"));
+  const price = typedCents(str("price"));
+  if (typeof quantity !== "string" || Number(quantity) <= 0)
+    redirect(back(foodId, "quantity"));
+  if (typeof packages === "number") redirect(back(foodId, "packages"));
+  if (Number.isNaN(price)) redirect(back(foodId, "price"));
+  const shop = str("shop").trim().slice(0, 60) || null;
+  const { clock } = await ownerClock();
+  const now = new Date();
+  await logPurchase(await getDb(), owner, {
+    itemId,
+    day: logicalDay(now, clock),
+    at: now,
+    quantity,
+    packages: packages as string | null,
+    priceCents: price,
+    shop,
+  });
+  revalidatePath("/", "layout");
+  redirect(back(foodId));
+}
+
+export async function counted(foodId: string, data: FormData): Promise<void> {
+  const owner = await requireOwner();
+  const q = typedAmount(
+    typeof data.get("left") === "string" ? (data.get("left") as string) : "",
+  );
+  if (typeof q !== "string") redirect(back(foodId, "left"));
+  const { clock } = await ownerClock();
+  const now = new Date();
+  await logCount(await getDb(), owner, {
+    foodId,
+    day: logicalDay(now, clock),
+    at: now,
+    quantity: q,
+  });
+  revalidatePath("/", "layout");
+  redirect(back(foodId));
 }

@@ -6,21 +6,25 @@
 import { PageHeader } from "@lifeos/kit";
 import { TrackerForm } from "@/features/account/TrackerForm";
 import { tracker } from "@/i18n/tracker";
+import { newFood, newProduct } from "./food-forms";
 import { createTracker } from "./tracker-actions";
 
 /** Where the form goes back to, and the address's query (`da`, `variante`, `di`). */
-type Render = (
+export type NewFormRender = (
   back: { label: string; href: string },
   query: Readonly<Record<string, string | undefined>>,
-) => React.ReactNode;
+) => React.ReactNode | Promise<React.ReactNode>;
 
 /**
  * A type's create form. `from`: the verbs it can start from an object (PAT-16 «Parti da»:
  * `?da=<id>`, PAT-17 «Variante»: `?variante=<id>`); the generic page offers only those.
  */
-export type NewForm = { render: Render; from?: readonly ("startFrom" | "variant")[] };
+export type NewForm = {
+  render: NewFormRender;
+  from?: readonly ("startFrom" | "variant")[];
+};
 
-const trackerNew: Render = (back) => (
+const trackerNew: NewFormRender = (back) => (
   <main className="k-page">
     <PageHeader title={tracker.page.newTitle} back={back} of={{ fam: "habit" }} />
     <section className="k-section g3" aria-label={tracker.page.newTitle}>
@@ -29,7 +33,11 @@ const trackerNew: Render = (back) => (
   </main>
 );
 
-export const NEW_FORMS: Record<string, NewForm> = { tracker: { render: trackerNew } };
+export const NEW_FORMS: Record<string, NewForm> = {
+  tracker: { render: trackerNew },
+  food: { render: newFood, from: ["startFrom"] },
+  product: { render: newProduct },
+};
 
 /** The query word of each starting verb (PAT-16, PAT-17). */
 export const FROM_QUERY = { startFrom: "da", variant: "variante" } as const;
