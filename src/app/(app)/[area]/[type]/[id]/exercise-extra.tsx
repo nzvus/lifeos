@@ -4,7 +4,7 @@
  * and best e1RM as «Andamento» (TR-21, TR-24), its sessions newest first with their work sets,
  * the schede that use it («Usato in»). Name and guide are its fields, edited in place.
  */
-import { F, List } from "@lifeos/kit";
+import { Box, F, List } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { logicalDay } from "@/core/engines/time";
 import { exerciseTrend } from "@/core/engines/training";
@@ -83,9 +83,12 @@ export const exerciseExtra: Build = async (db, owner, id) => {
       ) : (
         <List label={w.usedIn}>
           {usedIn.map((r) => (
-            <a key={r.id} className="k-link" href={"/corpo/scheda/" + r.id}>
-              {r.name}
-            </a>
+            <Box
+              key={r.id}
+              density="row"
+              rail={false}
+              entry={{ fam: "train", title: r.name, href: "/corpo/scheda/" + r.id }}
+            />
           ))}
         </List>
       ),
