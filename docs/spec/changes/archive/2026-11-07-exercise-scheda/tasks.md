@@ -25,4 +25,9 @@
        running) and keeps the gym's words. Proven by the HTML of 7 states before and after
        (identical); tests cite PAT-63; gallery `#timer` photos 390/320. The rest of PAT-63
        (resume from saved instants, offline queue) stays in `Gym.tsx` for now.
-5. [ ] Delta into the spec; counts in the PRs; change archived.
+5. [x] Delta into the spec; counts in the PRs; change archived.
+
+Done 7 Nov in #338. Counts: pages −5 (`[area]/esercizio/*`), merge −1 (`mergeExercise`),
+archive −1 (`archiveExercise`); new screens on the family route only (scheda page, nuovo,
+`/componi`); jscpd 794 → 772; lint-baseline −1 (GymClock's inline style, now the kit's).
+Q-13 moved to `changes/inbox.md`.

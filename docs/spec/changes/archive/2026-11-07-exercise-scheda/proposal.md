@@ -40,4 +40,5 @@ attività sheet; the session's own page beyond the Timer (see Q-13).
 **Count (each PR counts):** pages −4 expected (exercise page, `/unisci`, `nuovo`, layout),
 pages +0 for the scheda (served by the family route), merge implementations −1.
 
-**Stop.** None inside his «procedi»; Q-13 asked at the end.
+**Stop.** None inside his «procedi»; Q-13 asked at the end, moved to `changes/inbox.md` when
+the change was archived.
