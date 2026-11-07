@@ -16,6 +16,7 @@ import {
   setSuperset,
   substituteExercise,
   saveRoutineFromSession,
+  setRoutineExercises,
   readExercises,
   readHistory,
   readRoutines,
@@ -364,6 +365,20 @@ describe("a session in gym mode", () => {
     expect(await order()).toEqual([bench, curl]);
     await trashEntry(db, a, today);
     await trashEntry(db, a, again);
+  });
+
+  it("PAT-62 a scheda composed: his live exercises in his order, each once; another's is refused", async () => {
+    const order = async () =>
+      (await readRoutines(db, a, "2026-10-20", await readExercises(db, a)))
+        .find((r) => r.id === push)!
+        .exercises.map((e) => e.exerciseId);
+    expect(await setRoutineExercises(db, b, push, [curl])).toBe("gone");
+    expect(await setRoutineExercises(db, a, push, [])).toBe("empty");
+    expect(await setRoutineExercises(db, a, push, [push])).toBe("empty"); // not an exercise
+    expect(await setRoutineExercises(db, a, push, [curl, bench, curl])).toBe("ok");
+    expect(await order()).toEqual([curl, bench]);
+    expect(await setRoutineExercises(db, a, push, [bench, curl])).toBe("ok");
+    expect(await order()).toEqual([bench, curl]);
   });
 
   it("gives each exercise its last two sessions, leaving out the one being trained", async () => {

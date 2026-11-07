@@ -7,7 +7,8 @@
  */
 import { AREAS, AreaTabs, Box, F, List, PageHeader } from "@lifeos/kit";
 import { readNotTwins } from "@/core/account/not-twins";
-import { readExercises } from "@/core/training";
+import { readExercises, readRoutines } from "@/core/training";
+import { training } from "@/i18n/training";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import { exerciseTwins, twinPairs } from "@/features/library/twins";
 import { ownerClock } from "@/app/_server/clock";
@@ -22,7 +23,7 @@ import { MODE_WORDS } from "@/features/movement-words";
 import { AREA_HREF, AREA_NAME, tabHrefs } from "@/features/places";
 import { readLibrary } from "../../oggi/elenco/library-data";
 
-type Shelf = "cibi" | "pasti" | "dispensa" | "esercizi" | "tragitti";
+type Shelf = "cibi" | "pasti" | "dispensa" | "esercizi" | "schede" | "tragitti";
 export const SHELVES = {
   cibo: [
     ["cibi", "Cibi"],
@@ -31,6 +32,7 @@ export const SHELVES = {
   ],
   corpo: [
     ["esercizi", "Esercizi"],
+    ["schede", "Schede"],
     ["tragitti", "Tragitti"],
   ],
 } as const satisfies Record<string, readonly (readonly [Shelf, string])[]>;
@@ -74,6 +76,10 @@ export async function AreaShelves({
     const foods = await readPantry(db, owner, today, now);
     context = "cosa hai in casa · spesa ogni " + SHOP_EVERY_DAYS + " giorni";
     body = <Pantry foods={foods} />;
+  } else if (shelf === "schede") {
+    const routines = await readRoutines(db, owner, today, await readExercises(db, owner));
+    context = training.routine.shelf;
+    body = <Routines routines={routines} />;
   } else if (shelf === "tragitti") {
     const routes = await readRoutes(db, owner, addDays(today, -90));
     context = "quelli che fai spesso: da ⊕ basta un tocco";
@@ -173,6 +179,40 @@ function Pantry({ foods }: { foods: PantryFood[] }) {
         </section>
       )}
     </>
+  );
+}
+
+/** «Schede» (PAT-43, PAT-11; change 2026-11-07-exercise-scheda): the most used first. */
+function Routines({ routines }: { routines: Awaited<ReturnType<typeof readRoutines>> }) {
+  const w = training.routine;
+  return (
+    <section className="k-section g2" aria-label={w.list}>
+      {routines.length === 0 ? (
+        <p className="k-help">{w.none}</p>
+      ) : (
+        <List label={w.list}>
+          {[...routines]
+            .sort((a, b) => b.uses - a.uses || a.name.localeCompare(b.name, "it"))
+            .map((r) => (
+              <Box
+                key={r.id}
+                density="row"
+                rail={false}
+                entry={{
+                  fam: "train",
+                  of: { kind: "session" },
+                  title: r.name,
+                  meta: w.meta(r.exercises.length, r.uses),
+                  href: "/corpo/scheda/" + r.id,
+                }}
+              />
+            ))}
+        </List>
+      )}
+      <a className="k-link" href="/corpo/scheda/nuovo">
+        {w.add}
+      </a>
+    </section>
   );
 }
 

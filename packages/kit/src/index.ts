@@ -52,10 +52,19 @@ export { InPlace } from "./InPlace";
 export { MergeSheet } from "./MergeSheet";
 export { Elenco, type ElencoRow, type ElencoSection } from "./Elenco";
 export { Composer, type ComposerLine } from "./Composer";
+export { Timer } from "./Timer";
+export { timerClock, type TimerClock, type TimerPhase } from "./timer";
 export { Capture, captureIdle, type CaptureItem } from "./Capture";
 export { Fascia, FasciaBar, Judge, scoreFascia, type FasciaRuler } from "./Fascia";
 export { ContextLine } from "./ContextLine";
-export { addLine, readLines, removeLine, setQuantity } from "./composer";
+export {
+  addLine,
+  moveLine,
+  readLines,
+  readOrder,
+  removeLine,
+  setQuantity,
+} from "./composer";
 export { inPlaceCommit, type InPlaceCommit } from "./inplace";
 export { whySections, isUnknown, unknownWords, type WhyDeclaration } from "./why";
 export { Why } from "./Why";

@@ -22,6 +22,7 @@ import {
   ObjectActions,
   ObjectForm,
   SortChips,
+  Timer,
   Unknown,
   Why,
   useToast,
@@ -213,6 +214,83 @@ export function Pieces({ open }: { open: string | null }) {
           saveLabel="Salva la scheda"
           cancelHref="/kit"
           action={() => say("Salvato", () => undefined)}
+        />
+      </section>
+
+      <section
+        className="k-section g3"
+        id="compositore-ordine"
+        aria-label="Compositore in ordine"
+      >
+        <h2>Compositore senza quantità (PAT-62): una scheda</h2>
+        <Composer
+          counted={false}
+          candidates={EXERCISES}
+          hour={18}
+          findLabel="Cerca un esercizio"
+          toLine={(e) => ({
+            key: e.id,
+            quantity: "",
+            unit: "",
+            step: 1,
+            entry: { fam: "train", title: e.name },
+          })}
+          initial={[
+            {
+              key: "1",
+              quantity: "",
+              unit: "",
+              step: 1,
+              entry: { fam: "train", title: "Panca piana", meta: "Petto" },
+            },
+            {
+              key: "5",
+              quantity: "",
+              unit: "",
+              step: 1,
+              entry: { fam: "train", title: "Squat", meta: "Gambe" },
+            },
+            {
+              key: "6",
+              quantity: "",
+              unit: "",
+              step: 1,
+              entry: { fam: "train", title: "Rematore con bilanciere", meta: "Dorso" },
+            },
+          ]}
+          empty="Cerca un esercizio da aggiungere"
+          saveLabel="Salva la scheda"
+          cancelHref="/kit"
+          action={() => say("Salvato", () => undefined)}
+        />
+      </section>
+
+      <section className="k-section g3" id="timer" aria-label="Timer">
+        <h2>Timer (PAT-63)</h2>
+        <Timer
+          phase={{ kind: "countdown", from: 0, seconds: 90 }}
+          elapsed={32}
+          tone="rest"
+          label="Riposo"
+          help="recupero 1:30 · tua media 78 s"
+          stop={{
+            label: "Ferma il tempo",
+            onStop: () => say("Fermato", () => undefined),
+          }}
+        />
+        <Timer
+          phase={{ kind: "running", from: 0, seconds: 40 }}
+          elapsed={25}
+          tone="set"
+          label="Serie in corso"
+          help="in serie · prevista 0:40"
+        />
+        <Timer
+          phase={{ kind: "countdown", from: 0, seconds: 90 }}
+          elapsed={104}
+          tone="rest"
+          label="Riposo finito"
+          help="recupero finito da 0:14"
         />
       </section>
 

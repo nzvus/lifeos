@@ -28,8 +28,9 @@ A screen is only a composition of these pieces (PRD-18).
   Kit: route ✓ (`src/app/(app)/[area]/[type]/[id]`, mounted again as `oggi/[type]/[id]`
   because the `oggi` folder wins over `[area]`). Moved: the tracker (`/oggi/tracker/<id>`,
   change 2026-11-06-tracker; `/profilo/tipi` gone); cibo, prodotto and pasto (change
-  2026-11-07-food-meal; the `cibo/` and `pasto/` folders gone). The other per-type folders
-  leave as their types move (phase 4).
+  2026-11-07-food-meal; the `cibo/` and `pasto/` folders gone); esercizio and scheda (change
+  2026-11-07-exercise-scheda; the `esercizio/` folder gone, the scheda's `/componi`). The
+  other per-type folders leave as their types move (phase 4).
 
 ## 2. The verbs (one form each; the registry says which apply)
 | ID | Verb | WHEN he… | THEN | Kit |
@@ -88,7 +89,8 @@ A screen is only a composition of these pieces (PRD-18).
   box with the proposal as its first button (Uniscili · È una marca di · Variante di · Sono
   diversi); «Unisci» on an object's page is the `MergeSheet` (PAT-18). Kit ✓ `Elenco`, detector
   `core/catalog/twins.ts`, read by `features/library/twins.ts` for cibi and esercizi. Oggi ·
-  Elenco has its «Tracker» section (change 2026-11-06-tracker).
+  Elenco has its «Tracker» section (change 2026-11-06-tracker); Corpo · Elenco its «Schede»
+  (change 2026-11-07-exercise-scheda).
 
 ## 5. Numbers
 - **PAT-50** Every number shown is a `Metric` value through `F` (format, unit, 24 h). Kit: `F` ✓.
@@ -122,12 +124,17 @@ A screen is only a composition of these pieces (PRD-18).
   sticky «Salva»: the lines, the search under them, the totals, the type's own fields, then
   «Annulla» + «Salva». Kit ✓ `Composer` (`readLines`; the caller's `lines`, a line's `below`,
   its own `search`, `head`, `title`). The food composer is it (change 2026-11-07-food-meal;
-  its search `FoodSearch` on `Find`); the session moves onto it in its type's change.
+  its search `FoodSearch` on `Find`). WHEN a type's lines have no quantity (a scheda's
+  exercises) THEN its lines have no stepper and move up and down («Su» / «Giù»); the order is
+  what it posts (`counted={false}`, `readOrder`; the scheda's `RoutineComposer`, change
+  2026-11-07-exercise-scheda). Whether the session's gym mode is a Composer too is Q-13
+  (`changes/inbox.md`).
 - **PAT-63** **Timer** capture for interval types (set, rest, run, study): states, saved instants,
   resume after closing, auto mode with assumed values marked (MOD-12); without network the voci
   wait on the phone and leave by themselves when it returns, shown «da inviare» (his pick 6 Nov,
-  UI-72). Kit: gym clock → ✗, built in the change «esercizio e scheda» (decided by the agent,
-  change 2026-11-06-kit-patterns).
+  UI-72). Kit ✓ `Timer` (`timerClock`: countdown, running, at rest; change
+  2026-11-07-exercise-scheda): the gym clock (`GymClock`) is it; resume and the offline queue
+  still live in gym mode (`Gym.tsx`).
 - **PAT-64** **Scanner**: one barcode reader (camera, file) for every type with a barcode. [FOOD-43]
 
 ## 7. States and feedback

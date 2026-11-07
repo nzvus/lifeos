@@ -552,26 +552,83 @@ export async function saveRoutineFromSession(
       ),
     ];
     if (order.length === 0) return false;
-    const before = await tx
-      .select()
-      .from(catalogParts)
-      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, routine)));
-    const kept = new Map(before.map((p) => [p.partItemId, p]));
-    await tx
-      .delete(catalogParts)
-      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, routine)));
-    await tx.insert(catalogParts).values(
-      order.map((partItemId, position) => ({
-        userId: owner.id,
-        itemId: routine,
-        position,
-        partItemId,
-        quantity: kept.get(partItemId)?.quantity ?? null,
-        unit: kept.get(partItemId)?.unit ?? null,
-        defaults: kept.get(partItemId)?.defaults ?? {},
-      })),
-    );
+    await writeRoutineParts(tx as unknown as Db, owner, routine, order);
     return true;
+  });
+}
+
+/** A scheda's exercises written in this order; each kept one keeps its defaults (rest, setup). */
+async function writeRoutineParts(
+  tx: Db,
+  owner: Owner,
+  routine: string,
+  order: readonly string[],
+): Promise<void> {
+  const before = await tx
+    .select()
+    .from(catalogParts)
+    .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, routine)));
+  const kept = new Map(before.map((p) => [p.partItemId, p]));
+  await tx
+    .delete(catalogParts)
+    .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, routine)));
+  if (order.length === 0) return;
+  await tx.insert(catalogParts).values(
+    order.map((partItemId, position) => ({
+      userId: owner.id,
+      itemId: routine,
+      position,
+      partItemId,
+      quantity: kept.get(partItemId)?.quantity ?? null,
+      unit: kept.get(partItemId)?.unit ?? null,
+      defaults: kept.get(partItemId)?.defaults ?? {},
+    })),
+  );
+}
+
+/**
+ * A scheda composed (PAT-62; change 2026-11-07-exercise-scheda): its exercises, in his order,
+ * only his live ones, each once. "gone" when the scheda is not a live one of his, "empty" with
+ * no exercise left.
+ */
+export async function setRoutineExercises(
+  db: Db,
+  owner: Owner,
+  routineId: string,
+  exerciseIds: readonly string[],
+): Promise<"ok" | "gone" | "empty"> {
+  return db.transaction(async (tx) => {
+    const [r] = await tx
+      .select({ id: catalogItems.id })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.id, routineId),
+          eq(catalogItems.catalog, "routine"),
+          isNull(catalogItems.deletedAt),
+        ),
+      );
+    if (!r) return "gone";
+    const ids = [...new Set(exerciseIds)];
+    const live = ids.length
+      ? await tx
+          .select({ id: catalogItems.id })
+          .from(catalogItems)
+          .where(
+            and(
+              ownedBy(catalogItems, owner),
+              inArray(catalogItems.id, ids),
+              eq(catalogItems.catalog, "exercise"),
+              isNull(catalogItems.deletedAt),
+            ),
+          )
+      : [];
+    const ok = new Set(live.map((x) => x.id));
+    const order = ids.filter((id) => ok.has(id));
+    if (order.length === 0) return "empty";
+    await writeRoutineParts(tx as unknown as Db, owner, routineId, order);
+    return "ok";
   });
 }
 

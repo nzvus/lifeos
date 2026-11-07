@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { Banner } from "./Banner";
 import { Composer } from "./Composer";
 import { NavBar } from "./NavBar";
+import { Timer } from "./Timer";
 import { Confirm } from "./Confirm";
 import { EmptyState } from "./EmptyState";
 import { Elenco } from "./Elenco";
@@ -102,6 +103,34 @@ describe("Composer (PAT-62, PAT-14)", () => {
     const empty = html(<Composer {...props} empty={<p>VUOTO</p>} canSave />);
     expect(empty).toContain("<p>VUOTO</p>");
     expect(empty).not.toMatch(/<button type="submit"[^>]*disabled/);
+  });
+});
+
+describe("Composer without quantities (PAT-62)", () => {
+  it("an ordered list: no stepper, «Su» from the second line, «Giù» until the last", () => {
+    const l = (key: string, title: string) => ({
+      key,
+      quantity: "",
+      unit: "",
+      step: 1,
+      entry: { fam: "train", title },
+    });
+    const s = html(
+      <Composer
+        counted={false}
+        initial={[l("a", "Panca"), l("b", "Rematore")]}
+        empty="Cerca un esercizio"
+        saveLabel="Salva la scheda"
+        cancelHref="/corpo"
+        action={noop}
+      />,
+    );
+    expect(s).not.toContain('name="line.0"');
+    expect(s).toContain('name="line.1.key"');
+    expect(s).toContain("Sposta giù Panca");
+    expect(s).not.toContain("Sposta su Panca");
+    expect(s).toContain("Sposta su Rematore");
+    expect(s).not.toContain("Sposta giù Rematore");
   });
 });
 
@@ -475,5 +504,44 @@ describe("NavBar (PAT-01, PAT-60)", () => {
     expect(
       html(<NavBar active={null} hrefs={hrefs} addHref="/aggiungi" link={Mine} />),
     ).toContain('data-mine="yes"');
+  });
+});
+
+describe("Timer (PAT-63)", () => {
+  it("label, the clock with its length, the bar, the words; «Ferma» only while it runs by hand", () => {
+    const s = html(
+      <Timer
+        phase={{ kind: "countdown", from: 0, seconds: 90 }}
+        elapsed={30}
+        tone="rest"
+        label="Riposo"
+        help="recupero 1:30"
+        stop={{ label: "Ferma il tempo", onStop: noop }}
+      />,
+    );
+    expect(
+      order(
+        s,
+        "Riposo",
+        "1:00",
+        "di 1:30",
+        'class="bar"',
+        "recupero 1:30",
+        "Ferma il tempo",
+      ),
+    ).toBe(true);
+    const idle = html(
+      <Timer
+        phase={{ kind: "idle" }}
+        elapsed={0}
+        idle={null}
+        tone="idle"
+        label="Pronto"
+        help=""
+        stop={{ label: "Ferma", onStop: noop }}
+      />,
+    );
+    expect(idle).toContain("–");
+    expect(idle).not.toContain("Ferma");
   });
 });

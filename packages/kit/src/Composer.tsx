@@ -9,11 +9,19 @@
  *
  * Its lines are its own, or the caller's (`lines` + `onLines`) when something outside the list
  * changes them too (a food composer's «Porta … a …», a saved meal that adds several). A type
- * with a richer search (filters, a scanner, «Crea …») passes its `Find` as `search`.
+ * with a richer search (filters, a scanner, «Crea …») passes its `Find` as `search`. A type
+ * whose lines have no quantity (a scheda's exercises, `counted={false}`) gets no stepper but
+ * «Su» / «Giù»: its order is what it posts (`readOrder`).
  */
 import { useState, type ReactNode } from "react";
 import { Box, type BoxEntry } from "./Box";
-import { addLine, removeLine, setQuantity, type ComposerLineData } from "./composer";
+import {
+  addLine,
+  moveLine,
+  removeLine,
+  setQuantity,
+  type ComposerLineData,
+} from "./composer";
 import { Field } from "./Field";
 import { Find, type FindItem } from "./Find";
 import { WORDS } from "./words";
@@ -31,6 +39,7 @@ export function Composer<T extends FindItem>({
   lines: given,
   onLines,
   stamp = 0,
+  counted = true,
   candidates = [],
   hour = 12,
   findLabel = "",
@@ -54,6 +63,8 @@ export function Composer<T extends FindItem>({
   onLines?: (lines: ComposerLine[]) => void;
   /** Changed by the caller when it sets a quantity itself: the steppers start again from it. */
   stamp?: number;
+  /** Lines with a quantity (a stepper each); false: an ordered list, moved up and down. */
+  counted?: boolean;
   candidates?: readonly T[];
   hour?: number;
   findLabel?: string;
@@ -99,6 +110,28 @@ export function Composer<T extends FindItem>({
               rail={false}
               entry={l.entry}
               acts={[
+                ...(counted
+                  ? []
+                  : [
+                      ...(i > 0
+                        ? [
+                            {
+                              label: WORDS.composer.up,
+                              aria: WORDS.composer.moveUp(l.entry.title),
+                              onClick: () => set(moveLine(lines, l.key, -1)),
+                            },
+                          ]
+                        : []),
+                      ...(i < lines.length - 1
+                        ? [
+                            {
+                              label: WORDS.composer.down,
+                              aria: WORDS.composer.moveDown(l.entry.title),
+                              onClick: () => set(moveLine(lines, l.key, 1)),
+                            },
+                          ]
+                        : []),
+                    ]),
                 {
                   label: WORDS.composer.remove,
                   aria: WORDS.composer.remove + " " + l.entry.title,
@@ -107,17 +140,19 @@ export function Composer<T extends FindItem>({
               ]}
             >
               <input type="hidden" name={`line.${i}.key`} value={l.key} />
-              <Field
-                name={`line.${i}`}
-                label={WORDS.composer.quantity(l.entry.title)}
-                hideLabel
-                type="stepper"
-                unit={l.unit}
-                step={l.step}
-                defaultValue={l.quantity}
-                error={errors[`line.${i}`]}
-                onChange={(q) => set(setQuantity(lines, l.key, q))}
-              />
+              {counted && (
+                <Field
+                  name={`line.${i}`}
+                  label={WORDS.composer.quantity(l.entry.title)}
+                  hideLabel
+                  type="stepper"
+                  unit={l.unit}
+                  step={l.step}
+                  defaultValue={l.quantity}
+                  error={errors[`line.${i}`]}
+                  onChange={(q) => set(setQuantity(lines, l.key, q))}
+                />
+              )}
               {l.below}
             </Box>
           ))}

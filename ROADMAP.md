@@ -54,7 +54,8 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
    Kit patterns done 6 Nov (#332, #333); tracker done (change `archive/2026-11-06-tracker`;
    the abitudine moves with the Piano); food and meal done 7 Nov (change
    `archive/2026-11-07-food-meal`, #335–#337: cibo and pasto on the generic page, the composer
-   and ⊕ on the kit). Next: exercise and scheda → Piano (`plan_rules` returns here) → money/pantry; each PR counts pages,
+   and ⊕ on the kit); exercise and scheda done 7 Nov (change `archive/2026-11-07-exercise-scheda`,
+   #338: esercizio and scheda on the generic page, the scheda composed, the kit Timer). Next: Piano (`plan_rules` returns here) → money/pantry; each PR counts pages,
    implementations and lines removed; v1 retired first (verified export, Neon untouched).
 
 ## Before: lifeos v2 build (ADR-0053, 2026-10-15 → 11-03) — paused 2026-11-06
@@ -251,6 +252,9 @@ In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
+
+### Phase 4 step 4: esercizio and scheda onto the generic pieces — change 2026-11-07-exercise-scheda (#338, 7 Nov)
+Shipped: esercizio on the generic ObjectPage; the scheda with a page, «Inizia», its exercises composed on the kit Composer (lines without quantity, Su/Giù) and «Schede» in Corpo · Elenco; the kit Timer drawing the gym clock (same HTML in 7 states); pages −5 | Decisions: scheda «Parti da» only, no variants (decided by the agent); Q-13 to the inbox | Lesson: a refactor of a live screen is proven by recording its output before and after (HTML here, pixels for the composer) | Carried over: Q-13; a dev-only React key warning on the exercise page; TR-37 duration on the scheda page.
 
 ### Phase 4 step 3: cibo and pasto onto the generic pieces — change 2026-11-07-food-meal (#335–#337, 7 Nov)
 Shipped: cibo/prodotto label values in the registry, edited in place with an exact undo (source kept); cibo and pasto on the generic ObjectPage, `/componi`; the food composer and ⊕ on the kit `Composer`, `Find`, `Capture`, ⊕ over the page (`@capture`); doppioni on the one name detector; pages −8 | Decisions: Q-11 and Q-12 «scegli tu» → (a) (PAT-43, PAT-60) | Lesson: he merges each PR within minutes — check the PR in its own call before every push and branch again from main; a shared kit piece inside a page (ObjectForm, Composer) must be photographed with its folds open and before/after | Carried over: nothing in the change; «In casa» waits for money/pantry.

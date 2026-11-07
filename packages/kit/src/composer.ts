@@ -44,3 +44,28 @@ export function readLines(get: (name: string) => string | null): {
   }
   return { lines, errors };
 }
+
+/** A line one place up (`-1`) or down (`1`); at the ends it stays. */
+export function moveLine<L extends ComposerLineData>(
+  lines: readonly L[],
+  key: string,
+  by: -1 | 1,
+): L[] {
+  const i = lines.findIndex((l) => l.key === key);
+  const j = i + by;
+  if (i < 0 || j < 0 || j >= lines.length) return [...lines];
+  const out = [...lines];
+  [out[i], out[j]] = [out[j]!, out[i]!];
+  return out;
+}
+
+/** The posted lines of a composer without quantities (a scheda's exercises): keys in order. */
+export function readOrder(get: (name: string) => string | null): string[] {
+  const keys: string[] = [];
+  for (let i = 0; ; i++) {
+    const key = get(`line.${i}.key`);
+    if (key === null) break;
+    if (!keys.includes(key)) keys.push(key);
+  }
+  return keys;
+}

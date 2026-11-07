@@ -1,5 +1,5 @@
 "use server";
-/** Saving «Nuovo esercizio» (V-07): the session's owner, the form checked, then created. */
+/** «Nuovo esercizio» (`/corpo/esercizio/nuovo`, PAT-04, PAT-11): the form checked, then created. */
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
