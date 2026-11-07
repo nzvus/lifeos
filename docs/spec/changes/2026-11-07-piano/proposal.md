@@ -37,8 +37,10 @@ report that named the Piano as the next change).
   - Agent's pick: **(a)** — it is what PRD-03 and PL-70 ask («a new kind of thing is a
     registry entry»), and every horizontal piece already works on it.
 
+**Answered.** Q-14, his words 7 Nov: «decidi tu» → the agent's pick (a), recorded as ADR-0062
+(blocchi and cicli are catalog objects).
+
 **Not in this change.** PL-50…52 proposals and their checks (the proposal engine, a change of
 its own after this one); PL-62 week aggregation; plan layers (x04).
 
-**Stop.** Here, for Q-14. After his pick: delta and tasks, then slices; the migration runs
-only through his «migrate v2».
+**Stop.** Before the migration runs: it runs only through his «migrate v2» (he triggers it).
