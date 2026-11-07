@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Banner } from "./Banner";
 import { Composer } from "./Composer";
+import { NavBar } from "./NavBar";
 import { Confirm } from "./Confirm";
 import { EmptyState } from "./EmptyState";
 import { Elenco } from "./Elenco";
@@ -451,5 +452,28 @@ describe("Why (PAT-51) and Unknown (PAT-55)", () => {
     expect(html(<Unknown missing={["la cena"]} />)).toContain(
       'non so</span><span class="k-meta">Manca: la cena',
     );
+  });
+});
+
+describe("NavBar (PAT-01, PAT-60)", () => {
+  const hrefs = {
+    corpo: "/corpo",
+    cibo: "/cibo",
+    oggi: "/oggi",
+    mente: "/mente",
+    soldi: "/soldi",
+  };
+  it("⊕ is a plain link, or the app's own link component when given", () => {
+    expect(html(<NavBar active="cibo" hrefs={hrefs} addHref="/aggiungi" />)).toMatch(
+      /<a class="k-add k-fab" href="\/aggiungi"/,
+    );
+    const Mine = ({ children, ...p }: { children: React.ReactNode; href: string }) => (
+      <a data-mine="yes" {...p}>
+        {children}
+      </a>
+    );
+    expect(
+      html(<NavBar active={null} hrefs={hrefs} addHref="/aggiungi" link={Mine} />),
+    ).toContain('data-mine="yes"');
   });
 });

@@ -3,6 +3,7 @@
  * The NavBar and ⊕ of `(app)/layout.tsx` (PAT-01): the address says which, `nav.ts` decides.
  * Its height is published as `--nav-h`, so a sticky «Salva» sits just above it at any text size.
  */
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { NavBar } from "@lifeos/kit";
@@ -29,7 +30,7 @@ export function AppNav() {
   if (!nav) return null;
   return (
     <div className="k-nav k-stick" ref={ref}>
-      <NavBar active={nav.active} hrefs={AREA_HREF} addHref={nav.addHref} />
+      <NavBar active={nav.active} hrefs={AREA_HREF} addHref={nav.addHref} link={Link} />
     </div>
   );
 }

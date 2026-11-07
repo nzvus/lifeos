@@ -24,7 +24,7 @@
              almeno un cibo», Pasti and Stima tabs.
        - [ ] 4b its search is the kit `Find` (Cibi · Pasti as filters, the scanner and «Crea …»
              beside it); the server reads `line.N` (`readLines`) instead of the JSON `lines`.
-5. [ ] `/aggiungi` onto the kit `Capture` (PAT-60); tests; photos.
+5. [x] `/aggiungi` onto the kit `Capture` (PAT-60); tests; photos.
        - [x] its search is the kit `Find` (PAT-41): `AddSearch` on `Find` (`onQuery`), its own
              matcher `searchTargets` gone; `Find` draws no empty list; photos 390/320.
        - [x] (Q-12 «a») ⊕ is the kit `Capture`: its `Find`, at rest the page's ranked rows
@@ -32,8 +32,11 @@
              (`SheetInline`) so the page is the sheet from the first paint; `AddSearch` gone.
              Checked 390/320: opens from Cibo, «caffe» finds and hides the rows, cleared shows
              them again, «Chiudi» back to Cibo.
-       - [ ] over the page he is on: ⊕ a Next link (NavBar takes the app's link) and an
-             intercepted `/aggiungi` in an `(app)/@capture` slot.
+       - [x] over the page he is on: ⊕ is the app's link (`NavBar link`, Next's `Link`) and
+             `/aggiungi` is intercepted in the `(app)/@capture` slot (`[...rest]` empties it on
+             any other address). Checked: opens over Cibo with the page under it, «Chiudi»
+             back, a result opens the composer with no sheet, back again, `/aggiungi` loaded
+             directly, from Oggi.
 6. [x] Doppioni (Q-11 «a»): cibi and esercizi read the one name detector (`nameTwins`,
        `nameKey`) beside the brand and variant proposals; the food page's own `plain` match
        gone; tests cite PAT-43.

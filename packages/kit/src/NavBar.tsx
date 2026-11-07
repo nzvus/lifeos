@@ -4,6 +4,7 @@
  * page, and adds to the place you are on (architecture.md §10). Hrefs are the
  * app's, passed in once.
  */
+import type { ElementType } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
 
@@ -22,17 +23,20 @@ export function NavBar({
   active,
   hrefs,
   addHref,
+  link: AddLink = "a",
 }: {
   /** Null on a page of no single area (no tick). */
   active: Area | null;
   hrefs: Record<Area, string>;
   addHref: string;
+  /** The app's link for ⊕ (Next's `Link`), so Capture opens over the page he is on (PAT-60). */
+  link?: ElementType;
 }) {
   return (
     <>
-      <a className="k-add k-fab" href={addHref} aria-label="Aggiungi">
+      <AddLink className="k-add k-fab" href={addHref} aria-label="Aggiungi">
         <Glyph of={{ ui: "add" }} size="l" />
-      </a>
+      </AddLink>
       <nav className="k-navbar" aria-label="Navigazione principale">
         {AREAS.map(([key, name, of]) => (
           <a
