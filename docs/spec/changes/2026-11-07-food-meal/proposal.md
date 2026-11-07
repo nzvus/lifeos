@@ -4,7 +4,8 @@
 bespoke pages go; next after the tracker is «food and meal → Composer, Capture» (ROADMAP «Now»).
 PAT-60 says «`/aggiungi` moves onto it with the first type change», PAT-62 «the food composer
 and the session move onto it in their types' changes». His words: «vai avanti senza chidermi
-conferme per ora» (6 Nov); «procedi» (7 Nov) for this change.
+conferme per ora» (6 Nov); «procedi» (7 Nov) for this change; «vai avanti» (7 Nov, after
+the report with Q-11 and Q-12: taken as «go on with slice 4», not as an answer to them).
 
 **What.**
 1. **Registry** (MOD-01, MOD-02): cibo and prodotto declare their label values per 100 (kcal,

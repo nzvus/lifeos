@@ -81,6 +81,27 @@ describe("Composer (PAT-62, PAT-14)", () => {
     expect(s).toContain("Cerca un cibo da aggiungere");
     expect(s).toMatch(/<button type="submit"[^>]*disabled/);
   });
+  it("PAT-62 the caller's lines and slots: head first, a titled section, a line's own part, its own search, «Salva» as it says", () => {
+    const s = html(
+      <Composer
+        {...props}
+        lines={[{ ...line, below: <i>MARCA</i> }]}
+        onLines={noop}
+        head={<h1>TESTA</h1>}
+        title={{ label: "Ingredienti", node: "Ingredienti · 1" }}
+        search={<p>RICERCA</p>}
+        canSave={false}
+      />,
+    );
+    expect(
+      order(s, "TESTA", "Ingredienti · 1", "Pasta", 'name="line.0"', "MARCA", "RICERCA"),
+    ).toBe(true);
+    expect(s).not.toContain("Cerca un cibo"); // its own search replaces the plain one
+    expect(s).toMatch(/<button type="submit"[^>]*disabled/);
+    const empty = html(<Composer {...props} empty={<p>VUOTO</p>} canSave />);
+    expect(empty).toContain("<p>VUOTO</p>");
+    expect(empty).not.toMatch(/<button type="submit"[^>]*disabled/);
+  });
 });
 
 describe("Elenco (PAT-43, PAT-19, PAT-11)", () => {
