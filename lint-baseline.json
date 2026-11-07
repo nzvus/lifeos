@@ -4,16 +4,6 @@
       "count": 1
     }
   },
-  "src/app/(app)/[area]/cibo/[id]/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 3
-    }
-  },
-  "src/app/(app)/[area]/cibo/[id]/unisci/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 1
-    }
-  },
   "src/app/(app)/[area]/elenco/doppioni/page.tsx": {
     "lifeos/no-inline-style": {
       "count": 1
