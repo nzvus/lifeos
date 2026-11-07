@@ -1,11 +1,12 @@
 /**
- * features/library/twins.ts — «Possibili doppioni» (ADR-0060 slice f,
- * dossiers/objects.md §6, his 17 near-duplicates): pairs of foods whose names
- * share their head word, and pairs of saved meals that share most of their
- * foods, each with what the agent proposes (a brand of the other, one thing
- * to merge, a variant), never one he said are different. Pure.
+ * features/library/twins.ts — «Possibili doppioni» (PAT-43; ADR-0060 slice f, his 17
+ * near-duplicates; Q-11 «a», 7 Nov): the one name detector (`core/catalog/twins.ts`) for foods
+ * and exercises — the same words in any order, one thing to merge — and beside it the food
+ * proposals: a food with a brand in its name is a brand of the other, a saved meal sharing
+ * most of its foods is a variant. Never a pair he said are different. Pure.
  */
 import { brandInName } from "@/core/catalog/brand-of";
+import { nameKey, nameTwins, pairKey } from "@/core/catalog/twins";
 import { fold, type FoodChoice, type RecipeChoice } from "@/core/food/choices";
 import { foodTwins } from "./library";
 
@@ -23,7 +24,7 @@ export type Twin =
       child: { id: string; name: string };
     };
 
-const pair = (a: string, b: string) => [a, b].sort().join("|");
+const pair = pairKey;
 /** «Burro d'arachidi» and «Burro di arachidi» are the same words. */
 const plain = (n: string) =>
   fold(n)
@@ -61,9 +62,19 @@ export function twinPairs(
           propose: "brand",
           brand: brandInName(branded.name),
         });
-      else if (plain(a.name) === plain(b.name))
+      else if (nameKey(a.name) === nameKey(b.name))
         out.push({ kind: "food", a, b, propose: "merge", brand: null });
     }
+  }
+  // The one name detector (PAT-43): the same words in another order or with other small words
+  // («Arachidi, burro di» and «Burro d'arachidi») even when their head word differs.
+  const plainFoods = foods.flatMap((f) =>
+    f.productId === null && f.foodId ? [{ id: f.foodId, name: f.name }] : [],
+  );
+  for (const [a, b] of nameTwins(plainFoods, notTwins)) {
+    if (seen.has(pair(a.id, b.id))) continue;
+    seen.add(pair(a.id, b.id));
+    out.push({ kind: "food", a, b, propose: "merge", brand: null });
   }
   // Saved meals: a family is those with the same first word that share at least two
   // foods with the smallest of them, its base; the others are proposed as its variants.
@@ -107,7 +118,7 @@ export function exerciseTwins(
   notTwins: ReadonlySet<string>,
 ): { keep: { id: string; name: string }; gone: { id: string; name: string } }[] {
   const by = (n: string) => exercises.find((e) => fold(e.name).trim() === n);
-  return SAME_EXERCISE.flatMap(([en, it]) => {
+  const named = SAME_EXERCISE.flatMap(([en, it]) => {
     const gone = by(en);
     const keep = by(it);
     return gone && keep && !notTwins.has(pair(gone.id, keep.id))
@@ -119,4 +130,15 @@ export function exerciseTwins(
         ]
       : [];
   });
+  // The one name detector (PAT-43): the same words, the first one kept.
+  const seen = new Set(named.map((x) => pair(x.keep.id, x.gone.id)));
+  return [
+    ...named,
+    ...nameTwins(exercises, notTwins)
+      .filter(([a, b]) => !seen.has(pair(a.id, b.id)))
+      .map(([a, b]) => ({
+        keep: { id: a.id, name: a.name },
+        gone: { id: b.id, name: b.name },
+      })),
+  ];
 }

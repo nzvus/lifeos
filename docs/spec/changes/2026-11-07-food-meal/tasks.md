@@ -28,6 +28,7 @@
        - [x] its search is the kit `Find` (PAT-41): `AddSearch` on `Find` (`onQuery`), its own
              matcher `searchTargets` gone; `Find` draws no empty list; photos 390/320.
        - [ ] the sheet and its empty state — waits for Q-12.
-6. [ ] Cibo · Elenco twins onto `core/catalog/twins.ts` + `MergeSheet` (PAT-43) — waits for
-       Q-11.
+6. [x] Doppioni (Q-11 «a»): cibi and esercizi read the one name detector (`nameTwins`,
+       `nameKey`) beside the brand and variant proposals; the food page's own `plain` match
+       gone; tests cite PAT-43.
 7. [ ] Delta into the spec; counts in the PR; change archived.
