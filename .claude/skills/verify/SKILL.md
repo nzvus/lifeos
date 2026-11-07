@@ -11,6 +11,10 @@ description: Check a lifeos v2 UI change on the phone before the PR - photos of 
    dev -p 3200` (stop it with TaskStop, then check `ps` for children; never pkill). Preview
    account: `agent-preview@example.invalid` / `preview-password-123` (dev database only).
 2. Kit pieces: open `/kit` (the gallery, PAT-94); every new or changed piece has an entry.
+   A changed piece changes its gallery photos: stop the dev server, run `npm run shots`; for
+   each failing photo LOOK at expected vs actual, and when the change is the intended one,
+   `npx playwright test e2e/kit.spec.ts -g "<test>" --update-snapshots` and commit the photos
+   with the piece (retro 7 Nov: the CI found ⊕'s «Chiudi» after the push).
 3. Photos, dark, at 390, 360 and 320 px: the changed screens and an element crop of each changed
    box (memory «photograph every piece»: crops found defects full pages hid). Save them in the
    scratchpad and LOOK at each one: overflow inside a box, cut text, targets, contrast.
