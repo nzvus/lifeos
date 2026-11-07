@@ -8,9 +8,19 @@ import { TrackerForm } from "@/features/account/TrackerForm";
 import { tracker } from "@/i18n/tracker";
 import { createTracker } from "./tracker-actions";
 
-type NewForm = (back: { label: string; href: string }) => React.ReactNode;
+/** Where the form goes back to, and the address's query (`da`, `variante`, `di`). */
+type Render = (
+  back: { label: string; href: string },
+  query: Readonly<Record<string, string | undefined>>,
+) => React.ReactNode;
 
-const trackerNew: NewForm = (back) => (
+/**
+ * A type's create form. `from`: the verbs it can start from an object (PAT-16 «Parti da»:
+ * `?da=<id>`, PAT-17 «Variante»: `?variante=<id>`); the generic page offers only those.
+ */
+export type NewForm = { render: Render; from?: readonly ("startFrom" | "variant")[] };
+
+const trackerNew: Render = (back) => (
   <main className="k-page">
     <PageHeader title={tracker.page.newTitle} back={back} of={{ fam: "habit" }} />
     <section className="k-section g3" aria-label={tracker.page.newTitle}>
@@ -19,4 +29,7 @@ const trackerNew: NewForm = (back) => (
   </main>
 );
 
-export const NEW_FORMS: Record<string, NewForm> = { tracker: trackerNew };
+export const NEW_FORMS: Record<string, NewForm> = { tracker: { render: trackerNew } };
+
+/** The query word of each starting verb (PAT-16, PAT-17). */
+export const FROM_QUERY = { startFrom: "da", variant: "variante" } as const;

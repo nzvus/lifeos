@@ -47,6 +47,7 @@ export function ObjectView({
   rename,
   mergePreview,
   merge,
+  newHref,
 }: {
   back: { label: string; href: string };
   title: string;
@@ -73,6 +74,8 @@ export function ObjectView({
   rename: (type: string, id: string, name: string) => Promise<Answer>;
   mergePreview: (type: string, keep: string, gone: string) => Promise<string[]>;
   merge: (type: string, keep: string, gone: string) => Promise<Answer>;
+  /** The type's create form: «Parti da…» and «Variante» open it from this object (PAT-16, PAT-17). */
+  newHref: string;
 }) {
   const router = useRouter();
   const { say, toast } = useToast();
@@ -94,6 +97,8 @@ export function ObjectView({
   };
   const onVerb = async (v: ObjectVerb) => {
     if (v === "merge") return setMerging(true);
+    if (v === "startFrom" || v === "variant")
+      return router.push(`${newHref}?${v === "startFrom" ? "da" : "variante"}=${id}`);
     const r = await run(type, id, v);
     if (!r.ok) {
       const why = objects.refused[r.refused as keyof typeof objects.refused];

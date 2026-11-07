@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { MODES } from "../movement/routes";
+import { SNAPSHOT_FIELDS } from "../food/choices";
 import { BUILTIN_KINDS } from "./builtins";
 import {
   CATALOG_TYPES,
+  LABEL_FIELDS,
   catalogType,
   catalogTypeSchema,
   ROUTE_MODES,
@@ -85,9 +87,17 @@ describe("catalog types in the registry (MOD-01, MOD-02)", () => {
     expect(route.safeParse({ mode: "plane" }).success).toBe(false);
     expect(route.safeParse({ distanceKm: -1 }).success).toBe(false);
     expect(route.safeParse({ colour: "red" }).success).toBe(false); // undeclared: refused
-    expect(valuesSchema(catalogType("food")!).safeParse({ kcal: 100 }).success).toBe(
-      false,
-    );
+    const food = valuesSchema(catalogType("food")!);
+    expect(food.safeParse({ kcal: 100 }).success).toBe(true); // label values (MOD-02)
+    expect(food.safeParse({ kcal: 901 }).success).toBe(false);
+    expect(food.safeParse({ calcium: 120 }).success).toBe(false); // not a label value
+  });
+
+  it("MOD-02 the label fields are the values a food line snapshots (core/food)", () => {
+    expect(LABEL_FIELDS.map((f) => f.key)).toEqual([...SNAPSHOT_FIELDS]);
+    expect(catalogType("product")!.fields.map((f) => f.key)).toEqual([
+      ...SNAPSHOT_FIELDS,
+    ]);
   });
 
   it("route modes equal core/movement's", () => {

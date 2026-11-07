@@ -8,6 +8,8 @@ import { F } from "@lifeos/kit";
 import { fold, type FoodChoice, type RecipeChoice } from "@/core/food/choices";
 import { lineTotals } from "@/core/food/totals";
 import type { ExerciseSession } from "@/core/training";
+import { LABEL_FIELDS } from "@/core/kinds/catalog";
+import { objects } from "@/i18n/objects";
 
 export type LibraryRow = {
   key: string;
@@ -165,17 +167,11 @@ export function listRows(
 }
 
 /** A food's values per 100, in the label's order: [field, words, unit]. */
-export const FOOD_FIELDS: [string, string, string][] = [
-  ["kcal", "Energia", "kcal"],
-  ["protein", "Proteine", "g"],
-  ["carbs", "Carboidrati", "g"],
-  ["sugars", "di cui zuccheri", "g"],
-  ["fat", "Grassi", "g"],
-  ["saturatedFat", "di cui saturi", "g"],
-  ["fibre", "Fibre", "g"],
-  ["salt", "Sale", "g"],
-  ["nova", "NOVA", ""],
-];
+export const FOOD_FIELDS: [string, string, string][] = LABEL_FIELDS.map((f) => [
+  f.key,
+  objects.fields["food"]![f.key]!,
+  "unit" in f ? f.unit : "",
+]);
 
 export type FoodPage = {
   name: string;

@@ -58,6 +58,25 @@ export function objectFields(t: CatalogType, values: Values): ObjectField[] {
     });
 }
 
+/**
+ * The verbs an object's page offers (PAT-16…20): what its type declares, «Parti da» / «Variante»
+ * only when its create form can start from an object, «Unisci» only with another to merge into.
+ */
+export function pageVerbs(
+  t: CatalogType,
+  starts: readonly string[],
+  hasOthers: boolean,
+): string[] {
+  const page = [
+    ...starts,
+    "archive",
+    "restore",
+    "delete",
+    ...(hasOthers ? ["merge"] : []),
+  ];
+  return t.verbs.filter((v) => page.includes(v));
+}
+
 /** «Unisci» (PAT-18): what moves when `gone` goes into `keep`, from `mergePreview`'s counts. */
 export function mergeLines(
   n: { entries: number; lines: number; plans: number },

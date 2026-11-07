@@ -8,7 +8,7 @@ import { getDb } from "@/app/_server/runtime";
 import { areaSlug, typeAtSlug } from "@/core/kinds/catalog";
 import { listObjects, readObject } from "@/core/verbs";
 import { ObjectView } from "@/features/objects/ObjectView";
-import { objectFields } from "@/features/objects/present";
+import { objectFields, pageVerbs } from "@/features/objects/present";
 import { objects } from "@/i18n/objects";
 import {
   objectEdit,
@@ -21,10 +21,21 @@ import {
 import { EXTRAS } from "./extras";
 import { NEW_FORMS } from "./new-forms";
 
+export type Query = Readonly<Record<string, string | string[] | undefined>>;
+const one = (q: Query) =>
+  Object.fromEntries(
+    Object.entries(q).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]),
+  ) as Record<string, string | undefined>;
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** The page of one object at `/{area}/{type}/{id}` (also mounted by `oggi/[type]/[id]`). */
-export async function objectRoute(area: string, type: string, id: string) {
+export async function objectRoute(
+  area: string,
+  type: string,
+  id: string,
+  query: Query = {},
+) {
   const owner = await requireOwner();
   const t = typeAtSlug(type);
   if (!t) notFound();
@@ -32,7 +43,7 @@ export async function objectRoute(area: string, type: string, id: string) {
   if (id === "nuovo") {
     const form = NEW_FORMS[t.key];
     if (!form) notFound();
-    return form({ label: t.area, href: `/${areaSlug(t)}/elenco` });
+    return form.render({ label: t.area, href: `/${areaSlug(t)}/elenco` }, one(query));
   }
   if (!UUID.test(id)) notFound();
   const db = await getDb();
@@ -54,9 +65,8 @@ export async function objectRoute(area: string, type: string, id: string) {
       {...(extra.progress ? { progress: extra.progress } : {})}
       others={others}
       typeName={t.name}
-      verbs={t.verbs.filter((v) =>
-        ["archive", "restore", "delete", ...(others.length ? ["merge"] : [])].includes(v),
-      )}
+      verbs={pageVerbs(t, NEW_FORMS[t.key]?.from ?? [], others.length > 0)}
+      newHref={`/${areaSlug(t)}/${type}/nuovo`}
       archived={o.archived}
       type={t.key}
       id={o.id}

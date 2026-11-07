@@ -9,22 +9,17 @@ import { and, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { catalogItems, catalogValues } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
+import { LABEL_FIELDS } from "../kinds/catalog";
 import { SNAPSHOT_FIELDS } from "./choices";
 import { recipeName, type RecipeNameError } from "./recipes";
 
 export type FoodField = (typeof SNAPSHOT_FIELDS)[number];
 export type FoodValueError = "number" | "too_much" | "nova";
-const MAX: Record<FoodField, number> = {
-  kcal: 900,
-  protein: 100,
-  carbs: 100,
-  sugars: 100,
-  fat: 100,
-  saturatedFat: 100,
-  fibre: 100,
-  salt: 100,
-  nova: 4,
-};
+/** The limits the registry declares for the label values (MOD-01: one declaration). */
+const MAX = Object.fromEntries(LABEL_FIELDS.map((f) => [f.key, f.max])) as Record<
+  FoodField,
+  number
+>;
 
 /** Pure: the typed name and values, checked; "" means no value. */
 export function checkFood(

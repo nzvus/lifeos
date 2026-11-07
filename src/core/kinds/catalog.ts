@@ -102,6 +102,23 @@ const ALL: Verb[] = [
 ];
 const NAME = { sort: ["use", "name"], search: ["name", "aliases"] };
 
+/**
+ * A food's or product's label values per 100 g or ml (FD-04, FD-91) with the limits its editor
+ * checks (`core/food/edit.ts` reads them): editable in place on its page (PAT-13). The other
+ * nutrients stay with their source in `core/food` (model.md §8).
+ */
+export const LABEL_FIELDS = [
+  { key: "kcal", type: "number", unit: "kcal", min: 0, max: 900 },
+  { key: "protein", type: "number", unit: "g", min: 0, max: 100 },
+  { key: "carbs", type: "number", unit: "g", min: 0, max: 100 },
+  { key: "sugars", type: "number", unit: "g", min: 0, max: 100 },
+  { key: "fat", type: "number", unit: "g", min: 0, max: 100 },
+  { key: "saturatedFat", type: "number", unit: "g", min: 0, max: 100 },
+  { key: "fibre", type: "number", unit: "g", min: 0, max: 100 },
+  { key: "salt", type: "number", unit: "g", min: 0, max: 100 },
+  { key: "nova", type: "integer", min: 1, max: 4 },
+] as const satisfies CatalogTypeInput["fields"];
+
 const DECLARED: CatalogTypeInput[] = [
   {
     key: "food",
@@ -110,6 +127,7 @@ const DECLARED: CatalogTypeInput[] = [
     hue: "food",
     storage: { table: "catalog_items", catalog: "food" },
     family: { rule: "levels", parent: null },
+    fields: [...LABEL_FIELDS],
     capture: "form",
     verbs: ALL,
     list: NAME,
@@ -122,6 +140,7 @@ const DECLARED: CatalogTypeInput[] = [
     hue: "food",
     storage: { table: "catalog_items", catalog: "product" },
     family: { rule: "levels", parent: "food" },
+    fields: [...LABEL_FIELDS],
     capture: "form",
     verbs: ALL,
     list: { sort: ["use", "name"], search: ["name", "brand", "barcode"] },

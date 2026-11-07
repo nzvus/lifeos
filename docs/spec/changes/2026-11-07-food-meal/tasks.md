@@ -1,6 +1,6 @@
 # Tasks — 2026-11-07-food-meal
 
-1. [ ] Registry: cibo and prodotto label fields with today's limits; `act edit` on a food value
+1. [x] Registry: cibo and prodotto label fields with today's limits; `act edit` on a food value
        and its undo (db test, MOD-02, PAT-13, PAT-24); the generic «Parti da» / «Variante» open
        the type's create form (PAT-16, PAT-17).
 2. [ ] Cibo on the generic page: `EXTRAS.food` (voto, Così appare, Marche, Nei pasti salvati,

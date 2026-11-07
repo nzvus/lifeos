@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CATALOG_TYPES, catalogType } from "@/core/kinds/catalog";
-import { fieldWord, mergeLines, objectFields } from "./present";
+import { fieldWord, mergeLines, objectFields, pageVerbs } from "./present";
 
 describe("an object's values on its page (PAT-04, PAT-13, PAT-30, PAT-93)", () => {
   it("every declared field of every type has its word", () => {
@@ -47,5 +47,27 @@ describe("an object's values on its page (PAT-04, PAT-13, PAT-30, PAT-93)", () =
     expect(mergeLines({ entries: 0, lines: 0, plans: 0 }, "Run", "Corsa")[0]).toContain(
       "non si sposta niente",
     );
+  });
+});
+
+describe("the verbs of an object's page (PAT-16, PAT-17, PAT-18)", () => {
+  it("«Parti da» and «Variante» only when the create form starts from an object", () => {
+    const recipe = catalogType("recipe")!;
+    expect(pageVerbs(recipe, [], false)).toEqual(["archive", "restore", "delete"]);
+    expect(pageVerbs(recipe, ["startFrom", "variant"], true)).toEqual([
+      "startFrom",
+      "merge",
+      "archive",
+      "restore",
+      "delete",
+      "variant",
+    ]);
+    // A type without variants never offers «Variante», whatever its form says.
+    expect(pageVerbs(catalogType("food")!, ["startFrom", "variant"], false)).toEqual([
+      "startFrom",
+      "archive",
+      "restore",
+      "delete",
+    ]);
   });
 });
