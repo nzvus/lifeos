@@ -64,7 +64,7 @@ export async function objectRoute(
         .filter(Boolean)
         .join(" · ")}
       fields={objectFields(t, o.values)}
-      {...(extra.judge ? { judge: extra.judge } : {})}
+      {...(extra.summary ? { summary: extra.summary } : {})}
       {...(extra.parts ? { parts: extra.parts } : {})}
       {...(extra.progress ? { progress: extra.progress } : {})}
       {...(extra.usedIn ? { usedIn: extra.usedIn } : {})}

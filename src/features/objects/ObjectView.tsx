@@ -33,7 +33,7 @@ export function ObjectView({
   title,
   meta,
   fields,
-  judge,
+  summary,
   parts,
   progress,
   usedIn,
@@ -57,7 +57,7 @@ export function ObjectView({
   fields: readonly ObjectField[];
   /** A type's own sections (its specialisation): a judgement of its values (a food's voto),
    *  its parts, its progress, where it is used. */
-  judge?: ReactNode;
+  summary?: ReactNode;
   parts?: readonly { title: string; node: ReactNode }[];
   progress?: ReactNode;
   usedIn?: ReactNode;
@@ -140,7 +140,7 @@ export function ObjectView({
               onSave={(v) => saved(save(type, id, f.spec.key, v))}
             />
           ))}
-          {judge}
+          {summary}
         </div>
       }
       {...(parts ? { parts } : {})}

@@ -7,6 +7,7 @@ import { PageHeader } from "@lifeos/kit";
 import { TrackerForm } from "@/features/account/TrackerForm";
 import { tracker } from "@/i18n/tracker";
 import { newFood, newProduct } from "./food-forms";
+import { composeRecipe, newRecipe } from "./recipe-forms";
 import { createTracker } from "./tracker-actions";
 
 /** Where the form goes back to, and the address's query (`da`, `variante`, `di`). */
@@ -37,6 +38,15 @@ export const NEW_FORMS: Record<string, NewForm> = {
   tracker: { render: trackerNew },
   food: { render: newFood, from: ["startFrom"] },
   product: { render: newProduct },
+  recipe: { render: newRecipe, from: ["startFrom", "variant"] },
+};
+
+/**
+ * `/{area}/{type}/{id}/componi` (PAT-04, PAT-62): the Composer of a type with lines, by type
+ * key; composing its lines is not a value edited in place (PRD-11), so it keeps a page.
+ */
+export const COMPOSERS: Record<string, (id: string) => React.ReactNode> = {
+  recipe: composeRecipe,
 };
 
 /** The query word of each starting verb (PAT-16, PAT-17). */

@@ -54,4 +54,22 @@ export const food = {
   usedIn: {
     none: "In nessun pasto salvato.",
   },
+  meal: {
+    eaten: (n: number) => "mangiato " + F.plural(n, "volta", "volte"),
+    log: "Registra",
+    compose: "Cambia i cibi",
+    composeEstimate: "Cambia la stima",
+    serving: "Una porzione",
+    whole: "Il pasto",
+    estimate: "Una stima a mano: registrandolo conta come stima, con questi totali.",
+    foods: "Cibi",
+    family: "Famiglia",
+    variantOf: (base: string) => "variante di " + base,
+    sameAsBase: "uguale alla base",
+    variants: "Le sue varianti",
+    variant: (uses: number) =>
+      "variante · " + F.plural(uses, "volta", "volte") + " in 90 giorni",
+    familyHelp:
+      "Cambiando questo pasto cambiano anche le varianti, tranne quello che ognuna cambia; i pasti già registrati restano come erano.",
+  },
 } as const;

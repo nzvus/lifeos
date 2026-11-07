@@ -127,7 +127,7 @@ export const foodExtra: Build = async (db, owner, id, query) => {
   const spread = page.brands?.spread["kcal"];
   return {
     meta: [w.per100(page.unit), w.uses(uses)].join(" · "),
-    judge: (
+    summary: (
       <>
         {score && (
           <OpenBox

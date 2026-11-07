@@ -25,11 +25,6 @@
       "count": 1
     }
   },
-  "src/app/(app)/[area]/pasto/[id]/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 1
-    }
-  },
   "src/app/(app)/[area]/sessione/[id]/page.tsx": {
     "lifeos/no-type-key-compare": {
       "count": 1

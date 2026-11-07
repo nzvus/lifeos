@@ -9,12 +9,13 @@ import { readUserKind } from "@/core/kinds/user";
 import { trackerHref } from "@/features/places";
 import { tracker, wordOf } from "@/i18n/tracker";
 import { foodExtra } from "./food-extra";
+import { recipeExtra } from "./recipe-extra";
 
 export type Extra = {
   /** Said under the title, after the type's name. */
   meta?: string;
-  /** Under its values: their judgement (a food's voto per 100 kcal). */
-  judge?: React.ReactNode;
+  /** Under its values: their summary (a food's voto, a pasto's porzione and «Registra»). */
+  summary?: React.ReactNode;
   parts?: { title: string; node: React.ReactNode }[];
   progress?: React.ReactNode;
   usedIn?: React.ReactNode;
@@ -65,4 +66,8 @@ const trackerExtra: Build = async (db, owner, id) => {
   };
 };
 
-export const EXTRAS: Record<string, Build> = { tracker: trackerExtra, food: foodExtra };
+export const EXTRAS: Record<string, Build> = {
+  tracker: trackerExtra,
+  food: foodExtra,
+  recipe: recipeExtra,
+};

@@ -23,7 +23,7 @@ import {
 } from "@/core/food/recipes";
 import type { MealState } from "@/features/food/Composer";
 import { parseLines, RECIPE_WORDS } from "@/features/food/composer";
-import { formLines } from "../../aggiungi/pasto/meal-input";
+import { formLines } from "../../../aggiungi/pasto/meal-input";
 
 const NO_FOOD = "Aggiungi almeno un cibo, o scrivi una stima.";
 
