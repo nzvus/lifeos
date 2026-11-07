@@ -6,7 +6,7 @@
  * brands only when the words name one; saved meals show their variants
  * right under their base.
  */
-import { Box, F } from "@lifeos/kit";
+import { F } from "@lifeos/kit";
 import { fold, type FoodChoice, type RecipeChoice } from "@/core/food/choices";
 import { mealTotals } from "./composer";
 
@@ -88,53 +88,29 @@ export function withVariants(
   return out;
 }
 
-/** The saved meals found, each base followed by its variants («variante di …»). */
-export function RecipeResults({
-  found,
-  by,
-  onAdd,
-}: {
-  found: readonly RecipeChoice[];
-  by: ReadonlyMap<string, FoodChoice>;
-  onAdd: (r: RecipeChoice) => void;
-}) {
-  if (found.length === 0) return null;
+/** A saved meal as a search row says: its family, then its foods and kcal (or «stima»). */
+export function recipeMeta(
+  r: RecipeChoice,
+  variants: number,
+  under: string | null,
+  by: ReadonlyMap<string, FoodChoice>,
+): string {
   return (
-    <div className="k-stack g2" aria-label="Pasti salvati">
-      {withVariants(found).map(({ r, variants, under }) => (
-        <button key={r.key} type="button" className="k-pick" onClick={() => onAdd(r)}>
-          <Box
-            density="row"
-            rail={false}
-            entry={{
-              fam: "food",
-              of: { kind: "meal" },
-              title: r.name,
-              meta:
-                (under
-                  ? "variante di " + under + " · "
-                  : variants > 0
-                    ? F.plural(variants, "variante", "varianti") + " · "
-                    : "") +
-                (r.estimate
-                  ? "stima · " + F.num(Number(r.estimate["kcal"] ?? 0), "kcal")
-                  : F.plural(r.parts.length, "cibo", "cibi") +
-                    " · " +
-                    F.num(
-                      mealTotals(
-                        r.parts.map((p) => ({
-                          key: p.key,
-                          quantity: p.quantity,
-                        })),
-                        by,
-                      )["kcal"] ?? 0,
-                      "kcal",
-                    )),
-              value: "+",
-            }}
-          />
-        </button>
-      ))}
-    </div>
+    (under
+      ? "variante di " + under + " · "
+      : variants > 0
+        ? F.plural(variants, "variante", "varianti") + " · "
+        : "") +
+    (r.estimate
+      ? "stima · " + F.num(Number(r.estimate["kcal"] ?? 0), "kcal")
+      : F.plural(r.parts.length, "cibo", "cibi") +
+        " · " +
+        F.num(
+          mealTotals(
+            r.parts.map((p) => ({ key: p.key, quantity: p.quantity })),
+            by,
+          )["kcal"] ?? 0,
+          "kcal",
+        ))
   );
 }

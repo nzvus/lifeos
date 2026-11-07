@@ -23,11 +23,13 @@ A screen is only a composition of these pieces (PRD-18).
   (`[area]/[type]/[id]`), not one per type: the type is found by its word (`typeAtSlug`), a
   wrong area redirects to the type's own, the page is the generic ObjectPage
   (`features/objects/ObjectView`), its `nuovo` the type's create form; a type's own sections
-  come from one map by type key (`extras.tsx`, `new-forms.tsx`). Kit: route ✓
-  (`src/app/(app)/[area]/[type]/[id]`, mounted again as `oggi/[type]/[id]` because the `oggi`
-  folder wins over `[area]`). Moved: the tracker (`/oggi/tracker/<id>`, change
-  2026-11-06-tracker; `/profilo/tipi` gone). The other per-type folders leave as their types
-  move (phase 4).
+  come from one map by type key (`extras.tsx`, `new-forms.tsx`). WHEN a type has lines THEN
+  `/{area}/{type}/{id}/componi` is its Composer (PAT-62), from the same map (`COMPOSERS`).
+  Kit: route ✓ (`src/app/(app)/[area]/[type]/[id]`, mounted again as `oggi/[type]/[id]`
+  because the `oggi` folder wins over `[area]`). Moved: the tracker (`/oggi/tracker/<id>`,
+  change 2026-11-06-tracker; `/profilo/tipi` gone); cibo, prodotto and pasto (change
+  2026-11-07-food-meal; the `cibo/` and `pasto/` folders gone). The other per-type folders
+  leave as their types move (phase 4).
 
 ## 2. The verbs (one form each; the registry says which apply)
 | ID | Verb | WHEN he… | THEN | Kit |
@@ -38,8 +40,8 @@ A screen is only a composition of these pieces (PRD-18).
 | PAT-13 | Modifica | taps a value (the name too) | it becomes editable in place; leaving saves; toast «Salvato · Annulla». No `/modifica` pages | `InPlace` ✓ |
 | PAT-14 | Salva | is composing (meal, set, new object) | one sticky primary at the bottom; «Annulla» beside it | `Composer` ✓, `ObjectForm` ✓ |
 | PAT-15 | Fatto / Salta | taps the pill on a previsto row | status changes, time = now (MOD-13), toast with Annulla | `act` pill ✓ |
-| PAT-16 | Parti da… | opens «Altro» on an object | a new object based on it, its form prefilled | `ObjectActions` ✓ |
-| PAT-17 | Variante | opens «Altro» on an object with variants | a child that stores only its differences | `ObjectActions` ✓ |
+| PAT-16 | Parti da… | opens «Altro» on an object whose type's form can start from one | a new object based on it, its form prefilled (`nuovo?da=<id>`) | `ObjectActions` ✓ |
+| PAT-17 | Variante | opens «Altro» on an object with variants | a child that stores only its differences, its form (`nuovo?variante=<id>`) | `ObjectActions` ✓ |
 | PAT-18 | Unisci | opens «Altro» or a «doppioni» hint | pick the other, preview what moves, confirm (PAT-73) | `MergeSheet` ✓ |
 | PAT-19 | Archivia / Ripristina | opens «Altro» | archived at once + toast Annulla; Elenco has an «Archiviati» filter to restore | `ObjectActions` ✓, `Elenco` filter ✓ |
 | PAT-20 | Elimina | opens «Altro» | a voce: trash + toast Annulla; an object: only if unused, else offer Archivia | `ObjectActions` ✓ |
@@ -78,10 +80,14 @@ A screen is only a composition of these pieces (PRD-18).
 - **PAT-42** Sort is a chip row of the type's declared sort keys, never a drop-down. Kit ✓
   `SortChips`.
 - **PAT-43** Elenco of an area = its types as `List` sections + «Archiviati» + «Possibili
-  doppioni» hint when the duplicate detector finds some (one detector: two names are twins
-  when they are the same words without accents, case, punctuation, small words or order;
-  never a pair he said are different). Kit ✓ `Elenco`, detector `core/catalog/twins.ts`; the
-  food and exercise detectors and the area pages move onto them in their types' changes. Oggi ·
+  doppioni» hint WHEN a detector finds some: the one name detector (`core/catalog/twins.ts`:
+  the same words without accents, case, punctuation, small words or order) for every type, and
+  for cibo and pasto also their proposals — «X è una marca di Y» (a brand in the name) and
+  «variante» (two pasti with mostly the same cibi; ADR-0060) — never a pair he said are
+  different (his «scegli tu» on Q-11, 7 Nov). The hint opens «Possibili doppioni», one pair per
+  box with the proposal as its first button (Uniscili · È una marca di · Variante di · Sono
+  diversi); «Unisci» on an object's page is the `MergeSheet` (PAT-18). Kit ✓ `Elenco`, detector
+  `core/catalog/twins.ts`, read by `features/library/twins.ts` for cibi and esercizi. Oggi ·
   Elenco has its «Tracker» section (change 2026-11-06-tracker).
 
 ## 5. Numbers
@@ -100,19 +106,23 @@ A screen is only a composition of these pieces (PRD-18).
   `Unknown`.
 
 ## 6. Forms and capture
-- **PAT-60** **Capture** (⊕): one `Find` over every type and object, ranked by habit at this
-  hour; one tap logs with the proposal (MOD-51) and shows Annulla; an unknown thing becomes a
-  stima object at once. One door per type. With nothing typed it lists the types, the current
-  area's first. [n01] Kit ✓ `Capture` (`Find` with `idle`); `/aggiungi` moves onto it with the
-  first type change.
+- **PAT-60** **Capture** (⊕): a sheet over the page he is on, one `Find` over every type and
+  object; WHEN nothing is typed THEN it shows the day's ranked rows first — previsti to tick
+  (PAT-15), what he logs at this hour (MOD-51), schede to start, water in one tap, the last
+  meals — then the types, the current area's first; «Adesso · Previsto · Prima» says when what
+  opens from it happened. One tap on a ranked row logs it with Annulla; an unknown thing becomes
+  a stima object at once (FD-92). One door per type. [n01; his «scegli tu» on Q-12, 7 Nov] Kit ✓
+  `Capture` (`Find` + the caller's ranked rows); `/aggiungi` is it, intercepted in the
+  `(app)/@capture` slot so it opens over the page (⊕ is the app's link, `NavBar link`).
 - **PAT-61** **ObjectForm**: generated from the type's fields (labels, units, help, ranges);
   numbers with − / + steppers; time and date with one native picker each (no typed
   «AAAA-MM-GG»). A type adds a custom section only through its specialisation. Kit: `Field` ✓,
   `ObjectForm` ✓ (17 bespoke forms move in phase 4).
 - **PAT-62** **Composer** for types with lines (pasto, sessione): search + lines + totals +
   sticky «Salva»: the lines, the search under them, the totals, the type's own fields, then
-  «Annulla» + «Salva». Kit ✓ `Composer` (`readLines`); the food composer and the session move
-  onto it in their types' changes.
+  «Annulla» + «Salva». Kit ✓ `Composer` (`readLines`; the caller's `lines`, a line's `below`,
+  its own `search`, `head`, `title`). The food composer is it (change 2026-11-07-food-meal;
+  its search `FoodSearch` on `Find`); the session moves onto it in its type's change.
 - **PAT-63** **Timer** capture for interval types (set, rest, run, study): states, saved instants,
   resume after closing, auto mode with assumed values marked (MOD-12); without network the voci
   wait on the phone and leave by themselves when it returns, shown «da inviare» (his pick 6 Nov,

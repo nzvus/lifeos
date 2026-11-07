@@ -81,3 +81,39 @@ describe("Run and Corsa are one (TRAIN-37, R5)", () => {
     expect(exerciseTwins(ex, new Set(["c|r"]))).toEqual([]);
   });
 });
+
+describe("PAT-43 the one name detector beside the food proposals (Q-11 «a»)", () => {
+  it("the same words in another order are one food to merge, even with another head word", () => {
+    const pairs = twinPairs(
+      [f("a", "Burro d'arachidi"), f("b", "Arachidi, burro di"), f("c", "Burro")],
+      [],
+      new Set(),
+    );
+    expect(pairs).toEqual([
+      {
+        kind: "food",
+        a: { id: "a", name: "Burro d'arachidi" },
+        b: { id: "b", name: "Arachidi, burro di" },
+        propose: "merge",
+        brand: null,
+      },
+    ]);
+    expect(
+      twinPairs(
+        [f("a", "Burro d'arachidi"), f("b", "Arachidi, burro di")],
+        [],
+        new Set(["a|b"]),
+      ),
+    ).toEqual([]);
+  });
+  it("exercises with the same words are proposed too, never one he said is different", () => {
+    const ex = [
+      { id: "1", name: "Panca piana" },
+      { id: "2", name: "panca  PIANA" },
+    ];
+    expect(exerciseTwins(ex, new Set())).toEqual([
+      { keep: { id: "1", name: "Panca piana" }, gone: { id: "2", name: "panca  PIANA" } },
+    ]);
+    expect(exerciseTwins(ex, new Set(["1|2"]))).toEqual([]);
+  });
+});

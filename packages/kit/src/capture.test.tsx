@@ -54,4 +54,29 @@ describe("Capture (PAT-60, PAT-10)", () => {
     expect(s.indexOf("Pasto")).toBeLessThan(s.indexOf("Peso"));
     expect(s).not.toContain("Caffè");
   });
+
+  it("at rest the caller's ranked rows come first, then the types; «Chiudi» at the foot", () => {
+    const s = renderToStaticMarkup(
+      <SheetInline.Provider value>
+        <Capture
+          open
+          area={null}
+          meta="oggi"
+          types={types}
+          objects={objects}
+          hour={8}
+          label="Cerca tra 5 cose"
+          onPick={() => {}}
+          onClose={() => {}}
+        >
+          <p>PREVISTI DI OGGI</p>
+        </Capture>
+      </SheetInline.Provider>,
+    );
+    expect(s).toContain("Cerca tra 5 cose");
+    expect(s).toContain("oggi");
+    expect(s.indexOf("PREVISTI DI OGGI")).toBeLessThan(s.indexOf("Pasto"));
+    expect(s.indexOf("Pasto")).toBeLessThan(s.lastIndexOf("Chiudi"));
+    expect(s).not.toContain("Caffè");
+  });
 });

@@ -29,25 +29,20 @@ import {
   Composer as KitComposer,
   F,
   Field,
-  Glyph,
   Nutrients,
   PageHeader,
   type ComposerLine,
   type NutrientsData,
 } from "@lifeos/kit";
-import {
-  searchFoods,
-  searchRecipes,
-  type FoodChoice,
-  type RecipeChoice,
-} from "@/core/food/choices";
+import type { FoodChoice, RecipeChoice } from "@/core/food/choices";
 import type { FoodTargets } from "@/core/day";
 import type { WeightBook } from "@/core/account/weights";
 import type { MicroTarget } from "@/core/engines/targets";
 import { MEAL_ROLE_WORDS } from "@/features/day/words";
 import { MealWhen } from "./MealWhen";
 import { EstimateFields } from "./EstimateFields";
-import { BrandSelect, collapseBrands, RecipeResults } from "./LinePicks";
+import { BrandSelect } from "./LinePicks";
+import { FoodSearch } from "./FoodSearch";
 import { ESTIMATE_FIELDS, type EstimateField } from "@/core/food/meal";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
 import {
@@ -225,6 +220,7 @@ function Draft({
   // A quantity changed from outside its stepper («Porta … a …») remounts the steppers.
   const [rev, setRev] = useState(0);
   const [query, setQuery] = useState("");
+  const [hour] = useState(() => new Date().getHours());
   const [start, setStart] = useState(state.values["start"] ?? "");
   // A role taken from the time stays «Senza scelta»: moving the meal moves it.
   const [role, setRole] = useState(
@@ -251,18 +247,8 @@ function Draft({
   const totals = estimate
     ? estimateTotals(typed, servings)
     : mealTotals(lines, by, servings);
-  // With foods in the meal, a short list of the most eaten leaves room for the preview.
-  const found = collapseBrands(
-    searchFoods(
-      choices.filter((c) => !lines.some((l) => l.key === c.key)),
-      query,
-      query || lines.length === 0 ? 8 : 4,
-    ),
-    query,
-  );
   const at = clockMinute(start);
   const auto = at === null ? "" : mealRoleAt(at, roleBounds);
-  const foundRecipes = searchRecipes(recipes, query, tab === "meals" ? 12 : 0);
   const roleWord = ROLE_WORDS[role || auto];
   // The meal's block in the day's model: its bars, the gap, the meals that fit.
   const slot = slots[role || auto] ?? null;
@@ -345,10 +331,6 @@ function Draft({
     ]);
     setQuery("");
   };
-  const per100 = (c: FoodChoice) =>
-    c.per100["kcal"] === undefined
-      ? ""
-      : F.num(Number(c.per100["kcal"]), "kcal") + "/100";
   // The meal's foods as the kit Composer's lines (PAT-62): drawing, kcal, protein, NOVA, the
   // macro strip, the brand chip; the brand to choose under the stepper.
   const shown: ComposerLine[] = lines.map((l, i) => {
@@ -530,10 +512,9 @@ function Draft({
                 Cerca qui sotto e tocca un cibo; un pasto salvato è in «Pasti».
               </p>
             )}
-            {!estimate && tab === "meals" && foundRecipes.length === 0 && (
+            {!estimate && tab === "meals" && recipes.length === 0 && (
               <p className="k-help">
-                Nessun pasto salvato{query ? " con queste parole" : ""}: si salva da qui,
-                con «Salva anche come pasto».
+                Nessun pasto salvato: si salva da qui, con «Salva anche come pasto».
               </p>
             )}
             {!estimate && e["lines"] && lines.length === 0 && (
@@ -545,81 +526,25 @@ function Draft({
         }
         search={
           estimate ? null : (
-            <>
-              <div className="k-line g2">
-                <input
-                  className="k-text"
-                  style={{ flex: 1, minWidth: 0 }}
-                  type="search"
-                  placeholder={
-                    tab === "meals"
-                      ? "cerca tra " + F.plural(recipes.length, "pasto", "pasti")
-                      : "cerca tra " + F.plural(choices.length, "cibo", "cibi")
-                  }
-                  aria-label={
-                    tab === "meals" ? "Cerca un pasto salvato" : "Cerca un cibo"
-                  }
-                  value={query}
-                  onChange={(x) => setQuery(x.target.value)}
-                />
-                {tab === "foods" && (
-                  <a
-                    className="k-btn secondary icon"
-                    href={scanHref}
-                    aria-label="Un cibo nuovo dal codice a barre"
-                  >
-                    <Glyph of={{ ui: "scan" }} size="m" />
-                  </a>
-                )}
-              </div>
-              <RecipeResults found={foundRecipes} by={by} onAdd={addRecipe} />
-              {tab === "foods" && found.length > 0 && (
-                <div
-                  className="k-stack g2"
-                  aria-label={query ? "Risultati" : "I più mangiati"}
-                >
-                  {!query && <span className="k-cap">I cibi più mangiati</span>}
-                  {found.map((c) => (
-                    <button
-                      key={c.key}
-                      type="button"
-                      className="k-pick"
-                      onClick={() => add(c)}
-                    >
-                      <Box
-                        density="row"
-                        rail={false}
-                        entry={{
-                          fam: "food",
-                          ...(c.drawing ? { of: c.drawing } : {}),
-                          title: c.name,
-                          meta: [c.brand, per100(c)].filter(Boolean).join(" · "),
-                          value: "+",
-                        }}
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-              {tab === "foods" && query && found.length === 0 && (
-                <p className="k-help">
-                  Nessun cibo con queste parole nel catalogo.{" "}
-                  <a
-                    className="k-link"
-                    href={
-                      "/cibo/cibo/nuovo?nome=" +
-                      encodeURIComponent(query.trim()) +
-                      "&torna=" +
-                      encodeURIComponent(
-                        backHref.replace("/aggiungi?", "/aggiungi/pasto?"),
-                      )
-                    }
-                  >
-                    Crea «{query.trim()}»
-                  </a>
-                </p>
-              )}
-            </>
+            <FoodSearch
+              tab={tab}
+              choices={choices}
+              inMeal={new Set(lines.map((l) => l.key))}
+              recipes={recipes}
+              by={by}
+              hour={hour}
+              query={query}
+              onQuery={setQuery}
+              onFood={add}
+              onRecipe={addRecipe}
+              scanHref={scanHref}
+              createHref={(name) =>
+                "/cibo/cibo/nuovo?nome=" +
+                encodeURIComponent(name) +
+                "&torna=" +
+                encodeURIComponent(backHref.replace("/aggiungi?", "/aggiungi/pasto?"))
+              }
+            />
           )
         }
       >
