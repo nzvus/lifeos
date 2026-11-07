@@ -120,15 +120,16 @@ A screen is only a composition of these pieces (PRD-18).
   numbers with − / + steppers; time and date with one native picker each (no typed
   «AAAA-MM-GG»). A type adds a custom section only through its specialisation. Kit: `Field` ✓,
   `ObjectForm` ✓ (17 bespoke forms move in phase 4).
-- **PAT-62** **Composer** for types with lines (pasto, sessione): search + lines + totals +
+- **PAT-62** **Composer** for types with lines (pasto, scheda): search + lines + totals +
   sticky «Salva»: the lines, the search under them, the totals, the type's own fields, then
   «Annulla» + «Salva». Kit ✓ `Composer` (`readLines`; the caller's `lines`, a line's `below`,
   its own `search`, `head`, `title`). The food composer is it (change 2026-11-07-food-meal;
   its search `FoodSearch` on `Find`). WHEN a type's lines have no quantity (a scheda's
   exercises) THEN its lines have no stepper and move up and down («Su» / «Giù»); the order is
   what it posts (`counted={false}`, `readOrder`; the scheda's `RoutineComposer`, change
-  2026-11-07-exercise-scheda). Whether the session's gym mode is a Composer too is Q-13
-  (`changes/inbox.md`).
+  2026-11-07-exercise-scheda). A session is not composed: gym mode is its own full screen of
+  kit pieces (`Timer`, `Box`, `Find`; PAT-01's exception, TR-07) and follows its scheda (Q-13
+  «a», his «decidi tu» 7 Nov, change 2026-11-07-gym-mode-q13).
 - **PAT-63** **Timer** capture for interval types (set, rest, run, study): states, saved instants,
   resume after closing, auto mode with assumed values marked (MOD-12); without network the voci
   wait on the phone and leave by themselves when it returns, shown «da inviare» (his pick 6 Nov,
