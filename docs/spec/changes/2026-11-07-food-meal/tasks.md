@@ -13,6 +13,17 @@
        cibi, Famiglia), `NEW_FORMS.recipe` («Parti da», «Variante»), `/componi` (`COMPOSERS`);
        the old pages deleted; `archiveRecipe` → `act archive` (test); photos 390/360/320.
 4. [ ] Food composer onto the kit `Composer` (PAT-62); composer tests; photos.
+       - [x] 4a the form, the lines and the foot are the kit's: `Composer` takes the caller's
+             lines (`lines` + `onLines`, `stamp`), a line's own part (`below`: the brand), its
+             own search (`search`), a `head` and a titled section; «Salva» as the caller says
+             (`canSave`). The food foot is «Annulla» + «Salva»; «Porzioni» moves above it
+             among the meal's fields (PAT-62 order; decided by the agent). CSS: a Composer that
+             is the page's form lays out its sections like the page. `ComposerFoot` deleted.
+             Checked: photos before/after 390/320 (same but the foot), a meal logged end to
+             end (123 ml × 2 porzioni, note, 130 kcal read back), «Salva» empty says «Aggiungi
+             almeno un cibo», Pasti and Stima tabs.
+       - [ ] 4b its search is the kit `Find` (Cibi · Pasti as filters, the scanner and «Crea …»
+             beside it); the server reads `line.N` (`readLines`) instead of the JSON `lines`.
 5. [ ] `/aggiungi` onto the kit `Capture` (PAT-60); tests; photos.
        - [x] its search is the kit `Find` (PAT-41): `AddSearch` on `Find` (`onQuery`), its own
              matcher `searchTargets` gone; `Find` draws no empty list; photos 390/320.

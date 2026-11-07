@@ -284,16 +284,8 @@
     "lifeos/no-inline-style": {
       "count": 1
     },
-    "lifeos/no-raw-form": {
-      "count": 1
-    },
     "lifeos/no-search-input": {
       "count": 1
-    }
-  },
-  "src/features/food/EstimateFields.tsx": {
-    "lifeos/no-inline-style": {
-      "count": 2
     }
   },
   "src/features/food/IntakeForm.tsx": {
