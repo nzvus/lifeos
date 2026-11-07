@@ -6,6 +6,8 @@
 import { PageHeader } from "@lifeos/kit";
 import { TrackerForm } from "@/features/account/TrackerForm";
 import { tracker } from "@/i18n/tracker";
+import { ExerciseForm } from "@/features/library/ExerciseForm";
+import { saveExercise } from "./exercise-actions";
 import { newFood, newProduct } from "./food-forms";
 import { composeRecipe, newRecipe } from "./recipe-forms";
 import { createTracker } from "./tracker-actions";
@@ -39,6 +41,7 @@ export const NEW_FORMS: Record<string, NewForm> = {
   food: { render: newFood, from: ["startFrom"] },
   product: { render: newProduct },
   recipe: { render: newRecipe, from: ["startFrom", "variant"] },
+  exercise: { render: () => <ExerciseForm action={saveExercise} /> },
 };
 
 /**

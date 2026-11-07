@@ -15,16 +15,6 @@
       "count": 1
     }
   },
-  "src/app/(app)/[area]/esercizio/[id]/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 1
-    }
-  },
-  "src/app/(app)/[area]/esercizio/[id]/unisci/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 1
-    }
-  },
   "src/app/(app)/[area]/sessione/[id]/page.tsx": {
     "lifeos/no-type-key-compare": {
       "count": 1

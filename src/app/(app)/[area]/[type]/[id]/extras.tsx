@@ -9,6 +9,7 @@ import { readUserKind } from "@/core/kinds/user";
 import { trackerHref } from "@/features/places";
 import { tracker, wordOf } from "@/i18n/tracker";
 import { foodExtra } from "./food-extra";
+import { exerciseExtra } from "./exercise-extra";
 import { recipeExtra } from "./recipe-extra";
 
 export type Extra = {
@@ -70,4 +71,5 @@ export const EXTRAS: Record<string, Build> = {
   tracker: trackerExtra,
   food: foodExtra,
   recipe: recipeExtra,
+  exercise: exerciseExtra,
 };

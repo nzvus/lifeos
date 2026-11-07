@@ -1,8 +1,11 @@
 # Tasks — 2026-11-07-exercise-scheda
 
-1. [ ] Esercizio on the generic page: `EXTRAS.exercise` (Andamento, records, sessions, Usato
-       in, variants), `NEW_FORMS.exercise`; the old pages deleted, links updated; tests;
-       photos 390/360/320.
+1. [x] Esercizio on the generic page: `EXTRAS.exercise` (Andamento = trend + best e1RM,
+       sessions, «Usato in» the schede), `NEW_FORMS.exercise` (`ExerciseForm`); the
+       `esercizio/` folder deleted (page, `/unisci`, `nuovo`, layout); photos 390/320.
+       Open: in dev, React warns «each child in a list should have a unique key» on this page
+       only (not on cibo or pasto); it goes when either `parts` or `usedIn` is left out, and
+       stays with keyed rows and a constant `usedIn` — not found yet.
 2. [ ] Kit `Composer`: lines without quantity, move up/down (PAT-62); tests; gallery photos.
 3. [ ] Scheda on the generic page: `EXTRAS.routine` (exercises, duration, Inizia, Famiglia),
        `NEW_FORMS.routine` and `COMPOSERS.routine` on the kit `Composer`; Corpo · Elenco
