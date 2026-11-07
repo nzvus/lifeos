@@ -3,6 +3,19 @@
  * (MOD-01): a field shows its own `label` (a user kind) or its word here; one is required for
  * every declared field (objects.test.ts). PAT-93.
  */
+/** A food's or product's label values per 100 (FD-04): the words of the registry's LABEL_FIELDS. */
+const LABEL = {
+  kcal: "Energia",
+  protein: "Proteine",
+  carbs: "Carboidrati",
+  sugars: "di cui zuccheri",
+  fat: "Grassi",
+  saturatedFat: "di cui saturi",
+  fibre: "Fibre",
+  salt: "Sale",
+  nova: "NOVA",
+};
+
 export const objects = {
   values: "Valori",
   name: "Nome",
@@ -32,6 +45,8 @@ export const objects = {
   },
   fields: {
     exercise: { guide: "Guida" },
+    food: LABEL,
+    product: LABEL,
     route: {
       mode: "Mezzo",
       distanceKm: "Distanza",

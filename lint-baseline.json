@@ -4,16 +4,6 @@
       "count": 1
     }
   },
-  "src/app/(app)/[area]/cibo/[id]/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 3
-    }
-  },
-  "src/app/(app)/[area]/cibo/[id]/unisci/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 1
-    }
-  },
   "src/app/(app)/[area]/elenco/doppioni/page.tsx": {
     "lifeos/no-inline-style": {
       "count": 1
@@ -31,11 +21,6 @@
     }
   },
   "src/app/(app)/[area]/esercizio/[id]/unisci/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 1
-    }
-  },
-  "src/app/(app)/[area]/pasto/[id]/page.tsx": {
     "lifeos/no-raw-form": {
       "count": 1
     }
@@ -206,11 +191,6 @@
       "count": 1
     },
     "lifeos/no-raw-form": {
-      "count": 1
-    }
-  },
-  "src/features/add/AddSearch.tsx": {
-    "lifeos/no-search-input": {
       "count": 1
     }
   },

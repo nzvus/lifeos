@@ -33,8 +33,10 @@ export function ObjectView({
   title,
   meta,
   fields,
+  summary,
   parts,
   progress,
+  usedIn,
   others,
   typeName,
   verbs,
@@ -47,14 +49,18 @@ export function ObjectView({
   rename,
   mergePreview,
   merge,
+  newHref,
 }: {
   back: { label: string; href: string };
   title: string;
   meta: string;
   fields: readonly ObjectField[];
-  /** A type's own sections (its specialisation): its parts and its progress. */
-  parts?: { title: string; node: ReactNode };
+  /** A type's own sections (its specialisation): a judgement of its values (a food's voto),
+   *  its parts, its progress, where it is used. */
+  summary?: ReactNode;
+  parts?: readonly { title: string; node: ReactNode }[];
   progress?: ReactNode;
+  usedIn?: ReactNode;
   /** The other objects of its type, for «Unisci» (PAT-18). */
   others: readonly { id: string; name: string }[];
   typeName: string;
@@ -73,6 +79,8 @@ export function ObjectView({
   rename: (type: string, id: string, name: string) => Promise<Answer>;
   mergePreview: (type: string, keep: string, gone: string) => Promise<string[]>;
   merge: (type: string, keep: string, gone: string) => Promise<Answer>;
+  /** The type's create form: «Parti da…» and «Variante» open it from this object (PAT-16, PAT-17). */
+  newHref: string;
 }) {
   const router = useRouter();
   const { say, toast } = useToast();
@@ -94,6 +102,8 @@ export function ObjectView({
   };
   const onVerb = async (v: ObjectVerb) => {
     if (v === "merge") return setMerging(true);
+    if (v === "startFrom" || v === "variant")
+      return router.push(`${newHref}?${v === "startFrom" ? "da" : "variante"}=${id}`);
     const r = await run(type, id, v);
     if (!r.ok) {
       const why = objects.refused[r.refused as keyof typeof objects.refused];
@@ -130,10 +140,12 @@ export function ObjectView({
               onSave={(v) => saved(save(type, id, f.spec.key, v))}
             />
           ))}
+          {summary}
         </div>
       }
       {...(parts ? { parts } : {})}
       {...(progress ? { progress } : {})}
+      {...(usedIn ? { usedIn } : {})}
       actions={
         <ObjectActions
           title={title}

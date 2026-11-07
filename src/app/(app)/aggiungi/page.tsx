@@ -366,7 +366,7 @@ export default async function AddPage({
           </span>
         </div>
         <div className="k-sbody">
-          <AddSearch targets={targets}>
+          <AddSearch targets={targets} hour={Math.floor(now / 60)}>
             <section className="k-section" aria-label="Quando">
               <nav className="k-choice" aria-label="Quando">
                 {(

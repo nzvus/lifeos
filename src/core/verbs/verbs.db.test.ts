@@ -131,6 +131,41 @@ describe("core/verbs: one function per verb (PAT-24, MOD-20)", () => {
     });
   });
 
+  it("MOD-02/PAT-13 a food's label value edited in place: limits from the registry, undo keeps its source (MOD-12)", async () => {
+    const food = ok(await act(db, a, "create", "food", null, { name: "Yogurt greco" }));
+    await db.insert(s.catalogValues).values({
+      userId: a.id,
+      itemId: food.id,
+      field: "protein",
+      num: "9",
+      source: "off",
+      confidence: "0.9",
+    });
+    const e = ok(await act(db, a, "edit", "food", food.id, { values: { protein: 10 } }));
+    const row = async () =>
+      (
+        await db
+          .select()
+          .from(s.catalogValues)
+          .where(
+            and(
+              eq(s.catalogValues.itemId, food.id),
+              eq(s.catalogValues.field, "protein"),
+            ),
+          )
+      )[0]!;
+    expect(await row()).toMatchObject({ num: "10.0000", source: "typed" });
+    ok(await undo(db, a, e.undo!));
+    expect(await row()).toMatchObject({ num: "9.0000", source: "off" });
+    expect(Number((await row()).confidence)).toBe(0.9);
+    expect(
+      await act(db, a, "edit", "food", food.id, { values: { kcal: 1000 } }),
+    ).toMatchObject({ refused: "invalid" });
+    expect(
+      await act(db, a, "edit", "food", food.id, { values: { nova: 5 } }),
+    ).toMatchObject({ refused: "invalid" });
+  });
+
   it("PAT-19 «Archivia» ↔ «Ripristina», each the other's undo", async () => {
     const r = ok(await act(db, a, "create", "exercise", null, { name: "Trazioni" }));
     const arch = ok(await act(db, a, "archive", "exercise", r.id, {}));

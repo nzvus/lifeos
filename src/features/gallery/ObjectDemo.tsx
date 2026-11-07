@@ -23,16 +23,18 @@ export function ObjectDemo() {
           </span>
         </div>
       }
-      parts={{
-        title: "Varianti",
-        node: (
-          <EmptyState
-            glyph={{ fam: "train", kind: "session" }}
-            title="Nessuna variante"
-            body="Una variante tiene solo le differenze: presa stretta, manubri."
-          />
-        ),
-      }}
+      parts={[
+        {
+          title: "Varianti",
+          node: (
+            <EmptyState
+              glyph={{ fam: "train", kind: "session" }}
+              title="Nessuna variante"
+              body="Una variante tiene solo le differenze: presa stretta, manubri."
+            />
+          ),
+        },
+      ]}
       progress={<Unknown missing={["2 sessioni con lo stesso carico"]} />}
       usedIn={<span className="k-body">Push A · Push B</span>}
       actions={

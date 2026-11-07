@@ -269,6 +269,21 @@ describe("Find (PAT-41) and SortChips (PAT-42)", () => {
     expect(s).toContain('aria-pressed="false"');
   });
 
+  it("PAT-60 with an empty idle and nothing typed, no empty list under the field", () => {
+    const s = html(
+      <Find
+        label="Cerca"
+        hour={8}
+        items={[{ id: "1", name: "Acqua" }]}
+        idle={[]}
+        onPick={noop}
+      />,
+    );
+    expect(s).toContain('aria-label="Cerca"');
+    expect(s).not.toContain("k-findrow");
+    expect(s).not.toContain('role="list"');
+  });
+
   it("sort keys as chips, the current one pressed", () => {
     const s = html(
       <SortChips
@@ -307,7 +322,10 @@ describe("ObjectActions (PAT-16, PAT-17, PAT-19) and ObjectPage (PAT-30)", () =>
         title="Panca piana"
         meta="Petto · 12 sessioni"
         values={<p>VALORI</p>}
-        parts={{ title: "Varianti", node: <p>PARTI</p> }}
+        parts={[
+          { title: "Varianti", node: <p>PARTI</p> },
+          { title: "Marche", node: <p>MARCHE</p> },
+        ]}
         progress={<p>CURVA</p>}
         usedIn={<p>SCHEDE</p>}
         actions={<p>AZIONI</p>}
@@ -320,6 +338,9 @@ describe("ObjectActions (PAT-16, PAT-17, PAT-19) and ObjectPage (PAT-30)", () =>
         "Panca piana",
         "VALORI",
         "Varianti",
+        "PARTI",
+        "Marche",
+        "MARCHE",
         "Andamento",
         "CURVA",
         "Usato in",

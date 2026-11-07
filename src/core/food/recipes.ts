@@ -10,7 +10,6 @@
  * confidence and marked `estimate`, so logging it again is an estimate too.
  */
 import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
-import { archiveItem } from "../catalog/archive";
 import type { Db } from "../db/db";
 import { catalogItems, catalogParts, catalogValues } from "../db/schema";
 import type { CheckedLine } from "../entries";
@@ -349,11 +348,6 @@ export async function readRecipe(
     .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)))
     .orderBy(asc(catalogParts.position));
   return { name: r.name, parts };
-}
-
-/** Archives the recipe: out of the lists and the composer; logged meals stay "of" it. */
-export function archiveRecipe(db: Db, owner: Owner, id: string): Promise<boolean> {
-  return archiveItem(db, owner, id, "recipe");
 }
 
 /**

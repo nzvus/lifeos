@@ -1,61 +1,40 @@
 "use client";
 /**
- * ⊕'s one search (the board Capture): the field on top; while something
- * is typed, the targets that match (features/add/search) replace the
- * sheet's sections, which come from the server as children.
+ * ⊕'s one search (PAT-41, PAT-60; change 2026-11-07-food-meal): the kit's `Find` over the
+ * kinds he can enter, his foods, saved meals and routines; while something is typed its rows
+ * replace the sheet's sections, which come from the server as children. A row opens its door.
  */
 import { useState, type ReactNode } from "react";
-import { Box } from "@lifeos/kit";
-import { searchTargets, type AddTarget } from "./search";
+import { useRouter } from "next/navigation";
+import { Find } from "@lifeos/kit";
+import { add } from "@/i18n/add";
+import { findTargets, type AddTarget } from "./search";
 
 export function AddSearch({
   targets,
+  hour,
   children,
 }: {
   targets: AddTarget[];
+  hour: number;
   children: ReactNode;
 }) {
-  const [query, setQuery] = useState("");
-  const found = searchTargets(targets, query);
+  const router = useRouter();
+  const [typed, setTyped] = useState(false);
+  const items = findTargets(targets);
   return (
     <>
-      <section className="k-section" aria-label="Cerca">
-        <input
-          className="k-text"
-          type="search"
-          placeholder={"cerca tra " + targets.length + " cose"}
-          aria-label="Cerca cosa aggiungere"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+      <section className="k-section" aria-label={add.search.section}>
+        <Find
+          items={items}
+          idle={[]}
+          label={add.search.label(targets.length)}
+          hour={hour}
+          onQuery={(q) => setTyped(q.trim() !== "")}
+          onPick={(t) => router.push(t.href)}
         />
       </section>
-      {query.trim() === "" ? (
-        children
-      ) : (
-        <section className="k-section" aria-label="Risultati">
-          {found.length === 0 ? (
-            <p className="k-help">Niente con queste parole.</p>
-          ) : (
-            <div className="k-stack g2">
-              {found.map((t) => (
-                <a key={t.key} href={t.href} className="k-plain">
-                  <Box
-                    density="row"
-                    rail={false}
-                    entry={{
-                      fam: t.fam,
-                      ...(t.of ? { of: t.of } : {}),
-                      title: t.title,
-                      meta: t.sub,
-                      value: "›",
-                    }}
-                  />
-                </a>
-              ))}
-            </div>
-          )}
-        </section>
-      )}
+      {!typed && children}
     </>
   );
 }

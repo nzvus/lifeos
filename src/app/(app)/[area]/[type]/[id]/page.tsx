@@ -4,13 +4,15 @@
  * own folder (cibo, pasto, esercizio, tragitto…) is served by that folder until its change in
  * phase 4 moves it here and deletes the folder.
  */
-import { objectRoute } from "./object-route";
+import { objectRoute, type Query } from "./object-route";
 
 export default async function ObjectRoute({
   params,
+  searchParams,
 }: {
   params: Promise<{ area: string; type: string; id: string }>;
+  searchParams: Promise<Query>;
 }) {
   const { area, type, id } = await params;
-  return objectRoute(area, type, id);
+  return objectRoute(area, type, id, await searchParams);
 }

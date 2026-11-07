@@ -21,6 +21,7 @@ export function Find<T extends FindItem>({
   autoFocus = false,
   all = false,
   idle,
+  onQuery,
 }: {
   items: readonly T[];
   /** What is searched, said in the field: «Cerca un cibo». */
@@ -34,6 +35,8 @@ export function Find<T extends FindItem>({
   all?: boolean;
   /** With nothing typed, these rows instead (⊕'s types, PAT-60); typing searches `items`. */
   idle?: readonly T[];
+  /** Told what is typed, as it changes (⊕ shows its own sections while the field is empty). */
+  onQuery?: (q: string) => void;
 }) {
   const [q, setQ] = useState("");
   const [tag, setTag] = useState<string | null>(null);
@@ -53,7 +56,10 @@ export function Find<T extends FindItem>({
           placeholder={label}
           value={q}
           autoFocus={autoFocus}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e) => {
+            setQ(e.target.value);
+            onQuery?.(e.target.value);
+          }}
         />
       </label>
       {filters.length > 0 && (
@@ -71,8 +77,8 @@ export function Find<T extends FindItem>({
           ))}
         </div>
       )}
-      {found.length === 0 && q ? (
-        <p className="k-meta">{WORDS.noMatch}</p>
+      {found.length === 0 ? (
+        q && <p className="k-meta">{WORDS.noMatch}</p>
       ) : (
         <List label={label}>
           {found.map((i) => (

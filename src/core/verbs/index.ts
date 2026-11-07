@@ -34,7 +34,8 @@ export type Payloads = {
   create: { name: string; values?: Values; parentId?: string | null };
   startFrom: { name: string };
   variant: { name: string };
-  edit: { name?: string; values?: Values };
+  /** `sources`: only the undo passes them, to put back where each value came from (MOD-12). */
+  edit: { name?: string; values?: Values; sources?: Sources };
   /** `id` is the one that goes; `into` the one that stays. */
   merge: { into: string };
   archive: Record<string, never>;
@@ -45,6 +46,9 @@ export type Payloads = {
   saveAs: { name: string };
 };
 export type ActVerb = keyof Payloads;
+
+/** A value's provenance (MOD-12): its source and confidence, kept by an exact undo (PAT-21). */
+export type Sources = Record<string, { source: string; confidence: string }>;
 
 /** What `act` runs to revert a verb: the Toast keeps it for 5 s (PAT-21). */
 export type Undo = {
@@ -280,7 +284,13 @@ const asColumns = (v: string | number | boolean) =>
       ? { bool: v }
       : { text: v };
 
-async function writeValues(tx: Db, owner: Owner, itemId: string, values: Values) {
+async function writeValues(
+  tx: Db,
+  owner: Owner,
+  itemId: string,
+  values: Values,
+  sources: Sources = {},
+) {
   for (const [field, v] of Object.entries(values)) {
     await tx
       .delete(catalogValues)
@@ -294,7 +304,7 @@ async function writeValues(tx: Db, owner: Owner, itemId: string, values: Values)
     if (v !== null && v !== "")
       await tx
         .insert(catalogValues)
-        .values({ userId: owner.id, itemId, field, ...asColumns(v) });
+        .values({ userId: owner.id, itemId, field, ...asColumns(v), ...sources[field] });
   }
 }
 
@@ -304,6 +314,16 @@ async function readValues(
   itemId: string,
   fields: string[],
 ): Promise<Values> {
+  return (await readProvenance(db, owner, itemId, fields)).values;
+}
+
+/** The values with where each came from, for an exact undo of «Modifica» (MOD-12, PAT-21). */
+async function readProvenance(
+  db: Db,
+  owner: Owner,
+  itemId: string,
+  fields: string[],
+): Promise<{ values: Values; sources: Sources }> {
   const rows = fields.length
     ? await db
         .select()
@@ -316,10 +336,13 @@ async function readValues(
           ),
         )
     : [];
-  const out: Values = Object.fromEntries(fields.map((f) => [f, null]));
-  for (const r of rows)
-    out[r.field] = r.num !== null ? Number(r.num) : (r.bool ?? r.text ?? null);
-  return out;
+  const values: Values = Object.fromEntries(fields.map((f) => [f, null]));
+  const sources: Sources = {};
+  for (const r of rows) {
+    values[r.field] = r.num !== null ? Number(r.num) : (r.bool ?? r.text ?? null);
+    sources[r.field] = { source: r.source, confidence: r.confidence };
+  }
+  return { values, sources };
 }
 
 async function create(
@@ -432,20 +455,30 @@ async function edit(
   if (name === "") return refuse("invalid", "name");
   if (name && (await nameTaken(db, owner, item.catalog, item.parentId, name, item.id)))
     return refuse("name_taken");
-  const before = await readValues(db, owner, item.id, Object.keys(values.data));
+  const before = await readProvenance(db, owner, item.id, Object.keys(values.data));
   await db.transaction(async (tx) => {
     if (name)
       await tx
         .update(catalogItems)
         .set({ name })
         .where(and(ownedBy(catalogItems, owner), eq(catalogItems.id, item.id)));
-    await writeValues(tx as unknown as Db, owner, item.id, values.data as Values);
+    await writeValues(
+      tx as unknown as Db,
+      owner,
+      item.id,
+      values.data as Values,
+      p?.sources,
+    );
   });
   return done(item.id, {
     verb: "edit",
     type: t.key,
     id: item.id,
-    payload: { ...(name ? { name: item.name } : {}), values: before },
+    payload: {
+      ...(name ? { name: item.name } : {}),
+      values: before.values,
+      sources: before.sources,
+    },
   });
 }
 

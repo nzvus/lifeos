@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { act } from "../verbs";
 import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { readFoodChoices, readRecipeChoices, savedEstimates } from "./catalog";
 import {
-  archiveRecipe,
   createEstimateRecipe,
   createRecipe,
   createVariant,
@@ -128,9 +128,9 @@ describe("a saved meal, made and changed in the composer (FOOD-42)", () => {
     expect(row?.basedOnId).toBe(id);
   });
 
-  it("archives it out of reach", async () => {
-    expect(await archiveRecipe(db, b, id)).toBe(false);
-    expect(await archiveRecipe(db, a, id)).toBe(true);
+  it("PAT-19 «Archivia» (core/verbs) puts it out of reach, the owner's only", async () => {
+    expect(await act(db, b, "archive", "recipe", id, {})).toMatchObject({ ok: false });
+    expect(await act(db, a, "archive", "recipe", id, {})).toMatchObject({ ok: true });
     expect(await readRecipe(db, a, id)).toBeNull();
   });
 });

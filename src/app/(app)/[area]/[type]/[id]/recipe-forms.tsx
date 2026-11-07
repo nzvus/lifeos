@@ -1,8 +1,9 @@
 /**
- * The composer as the editor of a saved meal (ledger FOOD-42): new
- * (`/cibo/pasto/nuovo`, «Parti da…» with `?da=`) or changed
- * (`/cibo/pasto/<id>/modifica`). The person's foods and saved meals as
- * choices, today's targets for the meal's score, no day around it.
+ * A pasto's forms (PAT-04, PAT-62; change 2026-11-07-food-meal): the composer as the editor of
+ * a saved meal, new (`/cibo/pasto/nuovo`; «Parti da…» `?da=`, a copy that keeps `based_on`;
+ * «Variante» `?variante=`, ADR-0060: it keeps following its base) or its lines changed
+ * (`/cibo/pasto/<id>/componi`). His foods and saved meals as choices, today's targets for the
+ * meal's score, no day around it.
  */
 import { F } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
@@ -13,7 +14,9 @@ import { readTargetsFor } from "@/core/energy";
 import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
 import type { RecipeChoice } from "@/core/food/choices";
 import { Composer, type MealState } from "@/features/food/Composer";
-import { addContext } from "../../aggiungi/kinds";
+import { addContext } from "../../../aggiungi/kinds";
+import type { NewFormRender } from "./new-forms";
+import { createSaved, createVariantSaved, replaceSaved } from "./recipe-actions";
 
 /** A saved meal's foods or typed totals as the composer's starting values. */
 function startFrom(r: RecipeChoice | undefined, name: string) {
@@ -35,7 +38,7 @@ function startFrom(r: RecipeChoice | undefined, name: string) {
   };
 }
 
-export async function SavedComposer({
+async function SavedComposer({
   from,
   editing,
   backHref,
@@ -83,3 +86,31 @@ export async function SavedComposer({
     />
   );
 }
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const LIST = "/cibo/elenco?vista=pasti";
+
+/** `/cibo/pasto/nuovo`: «+ Nuovo pasto», «Parti da…» (`?da=`), «Variante» (`?variante=`). */
+export const newRecipe: NewFormRender = (_back, q) => {
+  const base = q["variante"] && UUID.test(q["variante"]) ? q["variante"] : null;
+  const from = base ?? (q["da"] && UUID.test(q["da"]) ? q["da"] : null);
+  return (
+    <SavedComposer
+      from={from}
+      editing={false}
+      variantOf={base}
+      backHref={from ? "/cibo/pasto/" + from : LIST}
+      action={base ? createVariantSaved.bind(null, base) : createSaved.bind(null, from)}
+    />
+  );
+};
+
+/** `/cibo/pasto/<id>/componi`: its name and lines (or totals) composed again (PAT-62). */
+export const composeRecipe = (id: string) => (
+  <SavedComposer
+    from={id}
+    editing
+    backHref={"/cibo/pasto/" + id}
+    action={replaceSaved.bind(null, id)}
+  />
+);
