@@ -3730,7 +3730,8 @@ button.k-link {
 }
 /* UI-78: colour separates — a page's sections sit on a surface lightly tinted by their
    area, no frame and no rule; the day's own panel the same; air between the boxes */
-.k-page > .k-section {
+.k-page > .k-section,
+.k-page > .k-composer > .k-section {
   margin: 8px 16px 0;
   padding: 12px;
   border-radius: var(--radius-surface);
@@ -3743,8 +3744,20 @@ button.k-link {
 .k-section > h2::before {
   content: none;
 }
-.k-page > .k-section > h2 {
+.k-page > .k-section > h2,
+.k-page > .k-composer > .k-section > h2 {
   color: var(--fam, var(--ink));
+}
+/* PAT-62: a Composer that is the page's form lays out its sections and its foot as the page
+   does (the food composer, a pasto's /componi) */
+.k-page > .k-composer {
+  gap: 0;
+  flex: 1;
+}
+.k-page > .k-composer > .k-formfoot {
+  z-index: 2;
+  margin-top: auto;
+  padding: 12px 16px 16px;
 }
 .k-shape:has(> .k-box.day) {
   filter: none;
