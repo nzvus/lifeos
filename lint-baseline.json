@@ -375,11 +375,6 @@
       "count": 1
     }
   },
-  "src/features/training/GymClock.tsx": {
-    "lifeos/no-inline-style": {
-      "count": 1
-    }
-  },
   "src/features/training/NextList.tsx": {
     "lifeos/no-search-input": {
       "count": 1

@@ -4,9 +4,10 @@
  * volta»): what the clock is now — the rest counting down (and its
  * overtime), the setup delay, the set running against its expected length
  * (one side at a time), else the session's time and the minutes left.
- * Split from Gym.tsx; the phase itself lives there.
+ * Split from Gym.tsx; the phase itself lives there. Drawn by the kit `Timer` (PAT-63); the
+ * gym's words and phases are this file's.
  */
-import { F } from "@lifeos/kit";
+import { F, Timer, type TimerPhase } from "@lifeos/kit";
 import type { Phase } from "./Gym";
 
 const clock = (s: number) => F.clock(Math.max(0, Math.floor(s)));
@@ -34,12 +35,6 @@ export function GymClock({
   auto: boolean;
   onStop: () => void;
 }) {
-  const big =
-    phase.kind === "rest" || phase.kind === "setup"
-      ? phase.seconds - elapsed
-      : phase.kind === "set"
-        ? elapsed
-        : sessionElapsed;
   const over = phase.kind === "rest" && elapsed > phase.seconds;
   const help =
     phase.kind === "rest"
@@ -70,29 +65,22 @@ export function GymClock({
           : started
             ? "Pronto per la serie"
             : "Prima di iniziare";
-  const tone = phase.kind === "idle" ? "idle" : phase.kind;
-  const share =
-    phase.kind !== "idle" && phase.seconds ? Math.min(1, elapsed / phase.seconds) : null;
+  // The gym's phases as the kit Timer's (PAT-63): setup and rest count down, a set runs.
+  const timer: TimerPhase =
+    phase.kind === "idle"
+      ? { kind: "idle" }
+      : phase.kind === "set"
+        ? { kind: "running", from: phase.from, seconds: phase.seconds }
+        : { kind: "countdown", from: phase.from, seconds: phase.seconds };
   return (
-    <div className={"k-gstate " + tone} role="timer" aria-live="off">
-      <span className="lab">{label}</span>
-      <span className="clk">
-        {over ? "+" + clock(elapsed - phase.seconds) : big === null ? "–" : clock(big)}
-        {(phase.kind === "rest" || phase.kind === "setup") && !over && (
-          <small> di {clock(phase.seconds)}</small>
-        )}
-      </span>
-      {share !== null && (
-        <span className="bar">
-          <i style={{ width: Math.round(share * 100) + "%" }} />
-        </span>
-      )}
-      <span className="k-help">{help}</span>
-      {phase.kind !== "idle" && !auto && (
-        <button type="button" className="k-btn secondary" onClick={onStop}>
-          Ferma il tempo
-        </button>
-      )}
-    </div>
+    <Timer
+      phase={timer}
+      elapsed={elapsed}
+      idle={sessionElapsed}
+      tone={phase.kind}
+      label={label}
+      help={help}
+      stop={auto ? null : { label: "Ferma il tempo", onStop }}
+    />
   );
 }

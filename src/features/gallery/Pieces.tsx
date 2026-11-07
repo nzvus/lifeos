@@ -22,6 +22,7 @@ import {
   ObjectActions,
   ObjectForm,
   SortChips,
+  Timer,
   Unknown,
   Why,
   useToast,
@@ -261,6 +262,35 @@ export function Pieces({ open }: { open: string | null }) {
           saveLabel="Salva la scheda"
           cancelHref="/kit"
           action={() => say("Salvato", () => undefined)}
+        />
+      </section>
+
+      <section className="k-section g3" id="timer" aria-label="Timer">
+        <h2>Timer (PAT-63)</h2>
+        <Timer
+          phase={{ kind: "countdown", from: 0, seconds: 90 }}
+          elapsed={32}
+          tone="rest"
+          label="Riposo"
+          help="recupero 1:30 · tua media 78 s"
+          stop={{
+            label: "Ferma il tempo",
+            onStop: () => say("Fermato", () => undefined),
+          }}
+        />
+        <Timer
+          phase={{ kind: "running", from: 0, seconds: 40 }}
+          elapsed={25}
+          tone="set"
+          label="Serie in corso"
+          help="in serie · prevista 0:40"
+        />
+        <Timer
+          phase={{ kind: "countdown", from: 0, seconds: 90 }}
+          elapsed={104}
+          tone="rest"
+          label="Riposo finito"
+          help="recupero finito da 0:14"
         />
       </section>
 

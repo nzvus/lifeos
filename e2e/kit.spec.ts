@@ -7,6 +7,7 @@ const SECTIONS = [
   "azioni",
   "compositore",
   "compositore-ordine",
+  "timer",
   "elenco",
   "valori",
   "voce",

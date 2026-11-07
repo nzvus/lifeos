@@ -19,6 +19,10 @@
        `writeRoutineParts`. Db test cites PAT-62. Checked: list, page, Giù + Salva and back,
        «Parti da» with its 8 exercises, an empty new one refused in words; 360/320 photos.
        Duration (TR-37) not shown yet: it needs the proposal per exercise (gym mode's).
-4. [ ] Kit `Timer` (PAT-63) from the gym clock; `GymClock` on it; tests; gym mode photos
-       before/after.
+4. [x] Kit `Timer` (PAT-63): `timerClock` (pure: countdown with what is left and how far
+       past, running against its expected length, the caller's clock at rest) and `Timer`
+       (the `k-gstate` box); `GymClock` maps the gym's phases (setup, rest → countdown; set →
+       running) and keeps the gym's words. Proven by the HTML of 7 states before and after
+       (identical); tests cite PAT-63; gallery `#timer` photos 390/320. The rest of PAT-63
+       (resume from saved instants, offline queue) stays in `Gym.tsx` for now.
 5. [ ] Delta into the spec; counts in the PRs; change archived.

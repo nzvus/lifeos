@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { Banner } from "./Banner";
 import { Composer } from "./Composer";
 import { NavBar } from "./NavBar";
+import { Timer } from "./Timer";
 import { Confirm } from "./Confirm";
 import { EmptyState } from "./EmptyState";
 import { Elenco } from "./Elenco";
@@ -503,5 +504,44 @@ describe("NavBar (PAT-01, PAT-60)", () => {
     expect(
       html(<NavBar active={null} hrefs={hrefs} addHref="/aggiungi" link={Mine} />),
     ).toContain('data-mine="yes"');
+  });
+});
+
+describe("Timer (PAT-63)", () => {
+  it("label, the clock with its length, the bar, the words; «Ferma» only while it runs by hand", () => {
+    const s = html(
+      <Timer
+        phase={{ kind: "countdown", from: 0, seconds: 90 }}
+        elapsed={30}
+        tone="rest"
+        label="Riposo"
+        help="recupero 1:30"
+        stop={{ label: "Ferma il tempo", onStop: noop }}
+      />,
+    );
+    expect(
+      order(
+        s,
+        "Riposo",
+        "1:00",
+        "di 1:30",
+        'class="bar"',
+        "recupero 1:30",
+        "Ferma il tempo",
+      ),
+    ).toBe(true);
+    const idle = html(
+      <Timer
+        phase={{ kind: "idle" }}
+        elapsed={0}
+        idle={null}
+        tone="idle"
+        label="Pronto"
+        help=""
+        stop={{ label: "Ferma", onStop: noop }}
+      />,
+    );
+    expect(idle).toContain("–");
+    expect(idle).not.toContain("Ferma");
   });
 });

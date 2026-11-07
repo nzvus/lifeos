@@ -52,6 +52,8 @@ export { InPlace } from "./InPlace";
 export { MergeSheet } from "./MergeSheet";
 export { Elenco, type ElencoRow, type ElencoSection } from "./Elenco";
 export { Composer, type ComposerLine } from "./Composer";
+export { Timer } from "./Timer";
+export { timerClock, type TimerClock, type TimerPhase } from "./timer";
 export { Capture, captureIdle, type CaptureItem } from "./Capture";
 export { Fascia, FasciaBar, Judge, scoreFascia, type FasciaRuler } from "./Fascia";
 export { ContextLine } from "./ContextLine";
