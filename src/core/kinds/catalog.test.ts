@@ -16,7 +16,7 @@ import {
 } from "./catalog";
 
 describe("catalog types in the registry (MOD-01, MOD-02)", () => {
-  it("declares the ten catalog types of model.md §3, each once", () => {
+  it("declares the twelve catalog types of model.md §3, each once (MOD-36: blocco, ciclo)", () => {
     expect(CATALOG_TYPES.map((t) => t.name)).toEqual([
       "cibo",
       "prodotto",
@@ -28,6 +28,8 @@ describe("catalog types in the registry (MOD-01, MOD-02)", () => {
       "tragitto",
       "tracker",
       "categoria di spesa",
+      "blocco",
+      "ciclo",
     ]);
     expect(new Set(CATALOG_TYPES.map((t) => t.key)).size).toBe(CATALOG_TYPES.length);
   });
