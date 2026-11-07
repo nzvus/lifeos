@@ -6,6 +6,7 @@ const SECTIONS = [
   "cerca",
   "azioni",
   "compositore",
+  "compositore-ordine",
   "elenco",
   "valori",
   "voce",

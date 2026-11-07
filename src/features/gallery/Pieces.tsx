@@ -216,6 +216,54 @@ export function Pieces({ open }: { open: string | null }) {
         />
       </section>
 
+      <section
+        className="k-section g3"
+        id="compositore-ordine"
+        aria-label="Compositore in ordine"
+      >
+        <h2>Compositore senza quantità (PAT-62): una scheda</h2>
+        <Composer
+          counted={false}
+          candidates={EXERCISES}
+          hour={18}
+          findLabel="Cerca un esercizio"
+          toLine={(e) => ({
+            key: e.id,
+            quantity: "",
+            unit: "",
+            step: 1,
+            entry: { fam: "train", title: e.name },
+          })}
+          initial={[
+            {
+              key: "1",
+              quantity: "",
+              unit: "",
+              step: 1,
+              entry: { fam: "train", title: "Panca piana", meta: "Petto" },
+            },
+            {
+              key: "5",
+              quantity: "",
+              unit: "",
+              step: 1,
+              entry: { fam: "train", title: "Squat", meta: "Gambe" },
+            },
+            {
+              key: "6",
+              quantity: "",
+              unit: "",
+              step: 1,
+              entry: { fam: "train", title: "Rematore con bilanciere", meta: "Dorso" },
+            },
+          ]}
+          empty="Cerca un esercizio da aggiungere"
+          saveLabel="Salva la scheda"
+          cancelHref="/kit"
+          action={() => say("Salvato", () => undefined)}
+        />
+      </section>
+
       <section className="k-section g3" id="elenco" aria-label="Elenco di un'area">
         <h2>Elenco di un&apos;area (PAT-43, PAT-19)</h2>
         <Elenco

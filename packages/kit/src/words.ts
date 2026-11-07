@@ -49,6 +49,10 @@ export const WORDS = {
   composer: {
     remove: "Togli",
     quantity: (name: string) => `Quantità di ${name}`,
+    up: "Su",
+    down: "Giù",
+    moveUp: (name: string) => `Sposta su ${name}`,
+    moveDown: (name: string) => `Sposta giù ${name}`,
   },
   elenco: {
     active: "Attivi",

@@ -105,6 +105,34 @@ describe("Composer (PAT-62, PAT-14)", () => {
   });
 });
 
+describe("Composer without quantities (PAT-62)", () => {
+  it("an ordered list: no stepper, «Su» from the second line, «Giù» until the last", () => {
+    const l = (key: string, title: string) => ({
+      key,
+      quantity: "",
+      unit: "",
+      step: 1,
+      entry: { fam: "train", title },
+    });
+    const s = html(
+      <Composer
+        counted={false}
+        initial={[l("a", "Panca"), l("b", "Rematore")]}
+        empty="Cerca un esercizio"
+        saveLabel="Salva la scheda"
+        cancelHref="/corpo"
+        action={noop}
+      />,
+    );
+    expect(s).not.toContain('name="line.0"');
+    expect(s).toContain('name="line.1.key"');
+    expect(s).toContain("Sposta giù Panca");
+    expect(s).not.toContain("Sposta su Panca");
+    expect(s).toContain("Sposta su Rematore");
+    expect(s).not.toContain("Sposta giù Rematore");
+  });
+});
+
 describe("Elenco (PAT-43, PAT-19, PAT-11)", () => {
   const sections = [
     {
