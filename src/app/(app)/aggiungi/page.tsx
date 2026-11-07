@@ -26,7 +26,7 @@ import {
   type AddCandidate,
 } from "@/features/add/rank";
 import { tickPlanned, waterNow } from "./rank-actions";
-import { AddSearch } from "@/features/add/AddSearch";
+import { CaptureSheet } from "@/features/add/CaptureSheet";
 import type { AddTarget } from "@/features/add/search";
 import { addContext } from "./kinds";
 import { AREA_HREF, AREA_NAME, areaOfFam, isDomainArea } from "@/features/places";
@@ -354,120 +354,105 @@ export default async function AddPage({
       </form>
     );
   return (
-    <div className="k-sheet-wrap k-screen">
-      <a className="k-dim" href={back} aria-label="Chiudi" />
-      <section className="k-sheet" role="dialog" aria-label="Aggiungi">
-        <span className="handle" />
-        <div className="k-sh">
-          <h2>Aggiungi</h2>
-          <span className="k-meta">
-            {(day === today ? "oggi" : F.Day(day)) +
-              (area ? " · " + AREA_NAME[area] : "")}
-          </span>
-        </div>
-        <div className="k-sbody">
-          <AddSearch targets={targets} hour={Math.floor(now / 60)}>
-            <section className="k-section" aria-label="Quando">
-              <nav className="k-choice" aria-label="Quando">
-                {(
-                  [
-                    [null, "Adesso"],
-                    ["previsto", "Previsto"],
-                    ["prima", "Prima"],
-                  ] as const
-                ).map(([k, label]) => (
-                  <a
-                    key={label}
-                    href={`/aggiungi?giorno=${day}` + (k ? "&stato=" + k : "")}
-                    aria-current={k === when ? "true" : undefined}
-                  >
-                    {label}
+    <CaptureSheet
+      targets={targets}
+      hour={Math.floor(now / 60)}
+      back={back}
+      meta={(day === today ? "oggi" : F.Day(day)) + (area ? " · " + AREA_NAME[area] : "")}
+    >
+      <section className="k-section" aria-label="Quando">
+        <nav className="k-choice" aria-label="Quando">
+          {(
+            [
+              [null, "Adesso"],
+              ["previsto", "Previsto"],
+              ["prima", "Prima"],
+            ] as const
+          ).map(([k, label]) => (
+            <a
+              key={label}
+              href={`/aggiungi?giorno=${day}` + (k ? "&stato=" + k : "")}
+              aria-current={k === when ? "true" : undefined}
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+      </section>
+      {ranked.length > 0 && (
+        <section className="k-section" aria-label="Per te">
+          <h2>
+            {when === null
+              ? "Per te"
+              : when === "previsto"
+                ? "Da prevedere"
+                : "Già fatto"}{" "}
+            <span className="k-meta">{isToday ? F.time(now) : F.Day(day)}</span>
+          </h2>
+          <div className="k-stack g2">{ranked.map(row)}</div>
+        </section>
+      )}
+      <details className="k-section k-fold" open={ranked.length === 0}>
+        <summary>
+          Tutti i tipi <span className="k-meta">{doors.length}</span>
+        </summary>
+        <div className="k-foldbody">
+          {groups.map((g) => (
+            <div key={g.name} className="k-stack g2">
+              <h3 className="k-label">{g.name}</h3>
+              <div className="k-grid">
+                {g.rows.map((r) => (
+                  <a key={r.key} href={r.href} className="k-plain">
+                    <Box entry={r.entry} density="row" rail={false} />
                   </a>
                 ))}
-              </nav>
-            </section>
-            {ranked.length > 0 && (
-              <section className="k-section" aria-label="Per te">
-                <h2>
-                  {when === null
-                    ? "Per te"
-                    : when === "previsto"
-                      ? "Da prevedere"
-                      : "Già fatto"}{" "}
-                  <span className="k-meta">{isToday ? F.time(now) : F.Day(day)}</span>
-                </h2>
-                <div className="k-stack g2">{ranked.map(row)}</div>
-              </section>
-            )}
-            <details className="k-section k-fold" open={ranked.length === 0}>
-              <summary>
-                Tutti i tipi <span className="k-meta">{doors.length}</span>
-              </summary>
-              <div className="k-foldbody">
-                {groups.map((g) => (
-                  <div key={g.name} className="k-stack g2">
-                    <h3 className="k-label">{g.name}</h3>
-                    <div className="k-grid">
-                      {g.rows.map((r) => (
-                        <a key={r.key} href={r.href} className="k-plain">
-                          <Box entry={r.entry} density="row" rail={false} />
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                ))}
               </div>
-            </details>
-            <section className="k-section" aria-label="Non trovi">
-              <h2>La ricerca non trova?</h2>
-              <div className="k-stack g2">
-                <a
-                  href={
-                    "/cibo/cibo/nuovo?torna=" +
-                    encodeURIComponent("/aggiungi/pasto?giorno=" + day)
-                  }
-                  className="k-plain"
-                >
-                  <Box
-                    density="row"
-                    rail={false}
-                    entry={{
-                      fam: "food",
-                      title: "Nuovo cibo",
-                      meta: "a mano, dall’etichetta",
-                      value: "›",
-                    }}
-                  />
-                </a>
-                <a href="/corpo/esercizio/nuovo" className="k-plain">
-                  <Box
-                    density="row"
-                    rail={false}
-                    entry={{ fam: "train", title: "Nuovo esercizio", value: "›" }}
-                  />
-                </a>
-                <a href="/oggi/tracker/nuovo" className="k-plain">
-                  <Box
-                    density="row"
-                    rail={false}
-                    entry={{
-                      fam: "habit",
-                      title: "Nuovo tracker",
-                      meta: "qualsiasi cosa: un numero, un voto, un segno",
-                      value: "›",
-                    }}
-                  />
-                </a>
-              </div>
-            </section>
-          </AddSearch>
+            </div>
+          ))}
         </div>
-        <div className="foot">
-          <a className="k-btn secondary k-grow" href={back}>
-            Chiudi
+      </details>
+      <section className="k-section" aria-label="Non trovi">
+        <h2>La ricerca non trova?</h2>
+        <div className="k-stack g2">
+          <a
+            href={
+              "/cibo/cibo/nuovo?torna=" +
+              encodeURIComponent("/aggiungi/pasto?giorno=" + day)
+            }
+            className="k-plain"
+          >
+            <Box
+              density="row"
+              rail={false}
+              entry={{
+                fam: "food",
+                title: "Nuovo cibo",
+                meta: "a mano, dall’etichetta",
+                value: "›",
+              }}
+            />
+          </a>
+          <a href="/corpo/esercizio/nuovo" className="k-plain">
+            <Box
+              density="row"
+              rail={false}
+              entry={{ fam: "train", title: "Nuovo esercizio", value: "›" }}
+            />
+          </a>
+          <a href="/oggi/tracker/nuovo" className="k-plain">
+            <Box
+              density="row"
+              rail={false}
+              entry={{
+                fam: "habit",
+                title: "Nuovo tracker",
+                meta: "qualsiasi cosa: un numero, un voto, un segno",
+                value: "›",
+              }}
+            />
           </a>
         </div>
       </section>
-    </div>
+    </CaptureSheet>
   );
 }

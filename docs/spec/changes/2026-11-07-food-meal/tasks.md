@@ -27,7 +27,13 @@
 5. [ ] `/aggiungi` onto the kit `Capture` (PAT-60); tests; photos.
        - [x] its search is the kit `Find` (PAT-41): `AddSearch` on `Find` (`onQuery`), its own
              matcher `searchTargets` gone; `Find` draws no empty list; photos 390/320.
-       - [ ] the sheet and its empty state — waits for Q-12.
+       - [x] (Q-12 «a») ⊕ is the kit `Capture`: its `Find`, at rest the page's ranked rows
+             (children) then the types, «Chiudi» at the foot; `CaptureSheet` draws it in place
+             (`SheetInline`) so the page is the sheet from the first paint; `AddSearch` gone.
+             Checked 390/320: opens from Cibo, «caffe» finds and hides the rows, cleared shows
+             them again, «Chiudi» back to Cibo.
+       - [ ] over the page he is on: ⊕ a Next link (NavBar takes the app's link) and an
+             intercepted `/aggiungi` in an `(app)/@capture` slot.
 6. [x] Doppioni (Q-11 «a»): cibi and esercizi read the one name detector (`nameTwins`,
        `nameKey`) beside the brand and variant proposals; the food page's own `plain` match
        gone; tests cite PAT-43.

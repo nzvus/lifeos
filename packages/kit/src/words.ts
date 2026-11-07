@@ -44,6 +44,7 @@ export const WORDS = {
   capture: {
     title: "Aggiungi",
     search: "Cosa aggiungi?",
+    types: "Tipi",
   },
   composer: {
     remove: "Togli",
