@@ -9,7 +9,7 @@ import { readUserKinds } from "@/core/day";
 import { areaSlug, typeOfItem, typeSlug } from "@/core/kinds/catalog";
 import { readBlockWhat } from "@/core/plans";
 import { readObject } from "@/core/verbs";
-import { NAMES } from "@/features/day/words";
+import { ACTIVITY, NAMES } from "@/features/day/words";
 import { plan } from "@/i18n/plan";
 import type { Build } from "./extras";
 
@@ -38,7 +38,10 @@ export const blockExtra: Build = async (db, owner, id) => {
     rows.push({
       fam: "habit",
       title: NAMES[what.kind] ?? mine.find((k) => k.key === what.kind)?.name ?? what.kind,
-      meta: w.kind,
+      // Its default values said with it: «tipo · Studio».
+      meta: [w.kind, ACTIVITY[what.defaults["category"] ?? ""]]
+        .filter(Boolean)
+        .join(" · "),
     });
   const rotation = what.items.length > 1;
   return {

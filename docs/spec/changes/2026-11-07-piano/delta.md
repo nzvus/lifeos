@@ -53,3 +53,6 @@
   models; «Salta», a step by hand, «Copia ieri», «Sposta l'allenamento» stay.
 - **PL-60** «Today» line: shares are no longer read (`features/day/slots.ts` gone); the food
   Composer's `slots` prop is unfed until a food blocco's real kcal judges its share.
+- **PL-44** «Today» line: «Ripeti nel Piano» on a logged voce's page opens «Nuovo blocco»
+  prefilled from it (`?voce=`; `blockSeedOf`), the blocco holding its object or type with its
+  category. «Salva come modello» is gone. *The words «Ripeti nel Piano» decided by the agent.*

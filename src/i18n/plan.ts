@@ -89,6 +89,8 @@ export const plan = {
     kind: "tipo",
     save: "Salva",
     newTitle: "Nuovo blocco",
+    /** PL-44 on a logged voce: a new blocco with its object, time and weekday. */
+    repeat: "Ripeti nel Piano",
     errors: {
       gone: "Questo blocco non c'è più.",
       invalid: "Uno di questi non c'è più: riapri il blocco e riprova.",

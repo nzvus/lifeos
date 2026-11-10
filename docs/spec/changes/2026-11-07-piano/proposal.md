@@ -67,6 +67,23 @@ Slice 2 (the migration, #341) needed neither.
 resto segui i tuoi consigli e continua» → the agent's picks: Q-15 (a) a kit field «Ogni
 quanto», Q-16 (a) the Composer with ordered lines and «+ Riposo».
 
+**Open (10 Nov, slice 4).**
+- **Q-17** How a previsto voce written from a blocco keeps its link (PL-40 «written as previsto
+  voci linked `from_block`, never twice», MOD-33; PL-70 «Elimina only when no voce links to
+  it», «past voci keep their link»). The schema's `entry_links` relation `from_block` points at
+  an *entry* on both sides, so it cannot point at a blocco (a catalog row).
+  - (a) **A `block_id` on the voce** (nullable, FK to his catalog row; schema migration 0009,
+    run by «migrate v2»): today's first read writes each uncovered blocco as a previsto with
+    it; «never twice» = a voce of that blocco that day exists, even trashed; Elimina of a
+    blocco checks it; Andamento can count a blocco's fatti (PL-21).
+  - (b) **No link on the voce**: the previsti stay computed on read (as now) and a decision
+    `block_written` (day, blocco) only stops a second write; PL-70's «Elimina only if no voce
+    links to it» cannot be checked.
+  - (c) **`entry_links.to_id` without its FK** so it may name a blocco: no migration of data,
+    but a link the database no longer checks.
+  - Agent's pick: **(a)**: one column, checked by the database, and it serves PL-21 and PL-70
+    too. Expensive to reverse (a schema change), so his to decide.
+
 **Not in this change.** PL-50…52 proposals and their checks (the proposal engine, a change of
 its own after this one); PL-62 week aggregation; plan layers (x04).
 

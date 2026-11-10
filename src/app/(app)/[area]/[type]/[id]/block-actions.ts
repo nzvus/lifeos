@@ -2,17 +2,20 @@
 /**
  * What a blocco holds, saved from its Composer (PL-01…03): the posted lines — objects with
  * servings, or one type (`kind:<key>`) — through `core/plans` `setBlockWhat`, then its page.
- * A refusal comes back with the lines as posted and its words.
+ * A refusal comes back with the lines as posted and its words. «Ripeti» (PL-44): a new blocco
+ * from its form, holding the voce's object or type at once, then its page.
  */
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { readLines } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { setBlockWhat } from "@/core/plans";
+import { blockSeedOf, setBlockWhat } from "@/core/plans";
+import type { NewObjectState } from "@/features/objects/NewObjectForm";
 import type { BlockLine, BlockState } from "@/features/plan/BlockComposer";
 import { whatOf } from "@/features/plan/block-keys";
 import { plan } from "@/i18n/plan";
+import { createObject } from "./create-object";
 
 const E = plan.block.errors;
 
@@ -46,4 +49,21 @@ export async function saveBlockWhat(
   if (done !== "ok") return again({ form: done === "gone" ? E.gone : E.invalid });
   revalidatePath("/", "layout");
   redirect("/oggi/blocco/" + id);
+}
+
+/** «Ripeti» (PL-44): the blocco made from its form, then what the voce `voceId` is of. */
+export async function createBlockFromVoce(
+  voceId: string,
+  prev: NewObjectState,
+  data: FormData,
+): Promise<NewObjectState> {
+  const made = await createObject("block", prev, data);
+  if ("errors" in made) return made;
+  const db = await getDb();
+  const owner = await requireOwner();
+  const seed = await blockSeedOf(db, owner, voceId);
+  // The voce gone meanwhile: the blocco is made, its what is chosen on its Composer.
+  const held = seed ? await setBlockWhat(db, owner, made.id, seed.what) : "gone";
+  revalidatePath("/", "layout");
+  redirect("/oggi/blocco/" + made.id + (held === "ok" ? "" : "/componi"));
 }

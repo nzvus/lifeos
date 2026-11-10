@@ -56,7 +56,14 @@
        blocchi at 20:00 and the ciclo's Legs at 20:42 (last Wednesday's time) on Oggi and on
        the Piano. **He runs «migrate v2»** for 0008, then the data is checked (three goals,
        «Rec» archived, the same kcal on Oggi).
-       Left: writing the previsti `from_block` on the first read of today (PL-40, MOD-33);
-       «Ripeti» → a new blocco (PL-44); a step's items as blocchi (PL-30, caffè with Push); the
-       food Composer's unfed `slots` (PL-60); dropping `templates` / `week_layouts` later.
+       «Ripeti» (PL-44, #?): «Ripeti nel Piano» on a voce's page (the meal Composer and the
+       entry sheet) opens «Nuovo blocco» from it (`?voce=`: its object's name or its
+       category's, its area, «a un'ora» at its time, its weekday) and the blocco holds the
+       voce's object with its servings, or its type with its category (`blockSeedOf`;
+       `setBlockWhat` keeps a type's defaults when the same type is saved again). Checked in
+       the browser: an activity «Studio» at 18:00 on a Monday → blocco «Studio», Mente, lun,
+       «tipo · Studio». The meal Composer's link was not clicked (no meal on the local account).
+       Left: writing the previsti on the first read of today (PL-40, MOD-33) — **waits for
+       Q-17** (how the voce keeps its blocco); a step's items as blocchi (PL-30, caffè with
+       Push); the food Composer's unfed `slots` (PL-60); dropping `templates` / `week_layouts`.
 5. [ ] Delta into the spec; change archived.
