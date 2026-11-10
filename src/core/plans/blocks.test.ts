@@ -6,6 +6,7 @@ import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { act } from "../verbs";
 import {
   blocksOn,
+  blockSeedOf,
   blockWhen,
   listBlocks,
   parseRecurrence,
@@ -177,7 +178,11 @@ describe("readBlocks (MOD-36)", () => {
     expect((await readBlockWhat(db, a, made.id))!.items).toHaveLength(2);
     // A type instead (PL-03: water is an abitudine): the objects go.
     expect(await setBlockWhat(db, a, made.id, { kind: "water" })).toBe("ok");
-    expect(await readBlockWhat(db, a, made.id)).toEqual({ items: [], kind: "water" });
+    expect(await readBlockWhat(db, a, made.id)).toEqual({
+      items: [],
+      kind: "water",
+      defaults: {},
+    });
     expect((await listBlocks(db, a, false)).map((x) => [x.name, x.area])).toContainEqual([
       "Cena",
       "Cibo",
@@ -185,5 +190,60 @@ describe("readBlocks (MOD-36)", () => {
     await act(db, a, "archive", "block", made.id, {});
     expect((await listBlocks(db, a, true)).map((x) => x.name)).toEqual(["Cena"]);
     expect(await listBlocks(db, b, true)).toEqual([]);
+  });
+
+  it("PL-44 «Ripeti»: a voce's object with its servings, or its type with its category; never another's", async () => {
+    const [pasto] = await db
+      .insert(s.catalogItems)
+      .values({ userId: a.id, catalog: "recipe", name: "AVENA, Marmellata" })
+      .returning({ id: s.catalogItems.id });
+    const voce = async (o: Owner, v: Partial<typeof s.entries.$inferInsert>) =>
+      (
+        await db
+          .insert(s.entries)
+          .values({ userId: o.id, kind: "meal", day: "2026-11-10", status: "done", ...v })
+          .returning({ id: s.entries.id })
+      )[0]!.id;
+    const start = new Date("2026-11-10T06:30:00Z");
+    const breakfast = await voce(a, { itemId: pasto!.id, startAt: start });
+    await db
+      .insert(s.entryValues)
+      .values({ userId: a.id, entryId: breakfast, field: "servings", num: "1.5" });
+    expect(await blockSeedOf(db, a, breakfast)).toEqual({
+      name: "AVENA, Marmellata",
+      kind: "meal",
+      day: "2026-11-10",
+      startAt: start,
+      what: { items: [{ id: pasto!.id, quantity: 1.5 }] },
+    });
+    const study = await voce(a, { kind: "activity" });
+    await db
+      .insert(s.entryValues)
+      .values({ userId: a.id, entryId: study, field: "category", text: "study" });
+    const seed = (await blockSeedOf(db, a, study))!;
+    expect(seed).toMatchObject({
+      name: null,
+      what: { kind: "activity", defaults: { category: "study" } },
+    });
+    expect(await blockSeedOf(db, b, study)).toBeNull();
+    // Its type and category held by a new blocco (PL-03).
+    const made = await act(db, a, "create", "block", null, {
+      name: "Studio",
+      values: { area: "Mente", recurrence: '{"type":"weekdays","days":[2]}' },
+    });
+    if (!made.ok) throw new Error(made.refused);
+    expect(await setBlockWhat(db, a, made.id, seed.what)).toBe("ok");
+    expect((await readBlocks(db, a)).find((x) => x.id === made.id)).toMatchObject({
+      kind: "activity",
+      defaults: { category: "study" },
+    });
+    // Its Composer saves the same type again (no defaults posted): the category stays.
+    expect(await setBlockWhat(db, a, made.id, { kind: "activity" })).toBe("ok");
+    expect((await readBlockWhat(db, a, made.id))!.defaults).toEqual({
+      category: "study",
+    });
+    // Another type: the category goes with the old one.
+    expect(await setBlockWhat(db, a, made.id, { kind: "water" })).toBe("ok");
+    expect((await readBlockWhat(db, a, made.id))!.defaults).toEqual({});
   });
 });

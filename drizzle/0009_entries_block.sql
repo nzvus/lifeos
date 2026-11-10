@@ -1,0 +1,3 @@
+ALTER TABLE "entries" ADD COLUMN "block_id" uuid;--> statement-breakpoint
+ALTER TABLE "entries" ADD CONSTRAINT "entries_block_fk" FOREIGN KEY ("block_id","user_id") REFERENCES "public"."catalog_items"("id","user_id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "entries_user_day_block_uq" ON "entries" USING btree ("user_id","day","block_id") WHERE "entries"."block_id" is not null;

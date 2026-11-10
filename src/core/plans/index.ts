@@ -4,3 +4,4 @@ export * from "./cycles-repo";
 export * from "./day-changes";
 export * from "./blocks";
 export * from "./day-blocks";
+export * from "./write-day";

@@ -212,6 +212,7 @@ describe("editing a logged entry", () => {
       end: new Date("2026-10-15T05:10:00Z"),
       minute: 430,
       item: null,
+      blockId: null,
       values: { quality: "4.0000", bedAt: "x" },
       lines: [],
       children: [],

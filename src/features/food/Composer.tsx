@@ -23,6 +23,7 @@
  * «Salva anche in Libreria» keeps it as a saved estimate, found by the
  * search like a saved meal and reopened here with its totals.
  */
+import { plan } from "@/i18n/plan";
 import { useActionState, useMemo, useState } from "react";
 import {
   Box,
@@ -80,6 +81,7 @@ export function Composer({
   recipes = [],
   initialRecipe = "",
   repeatHref,
+  planHref,
   extraChoices = [],
   initialLines = [],
   title = "Pasto",
@@ -102,6 +104,8 @@ export function Composer({
   initialRecipe?: string;
   /** A logged meal's «Registra di nuovo»: the composer for today, starting from it. */
   repeatHref?: string;
+  /** A logged meal's «Ripeti nel Piano» (PL-44): a new blocco from it. */
+  planHref?: string;
   /** A logged meal's own lines as choices (core/food `lineChoices`); not searched. */
   extraChoices?: FoodChoice[];
   initialLines?: DraftLine[];
@@ -145,6 +149,7 @@ export function Composer({
       recipes={recipes}
       initialRecipe={initialRecipe}
       repeatHref={repeatHref}
+      planHref={planHref}
       extraChoices={extraChoices}
       title={title}
       backLabel={backLabel}
@@ -170,6 +175,7 @@ function Draft({
   recipes,
   initialRecipe,
   repeatHref,
+  planHref,
   extraChoices,
   title,
   backLabel,
@@ -190,6 +196,7 @@ function Draft({
   recipes: RecipeChoice[];
   initialRecipe: string;
   repeatHref: string | undefined;
+  planHref: string | undefined;
   extraChoices: FoodChoice[];
   title: string;
   backLabel: string;
@@ -426,6 +433,11 @@ function Draft({
                 <a className="k-link" href={repeatHref}>
                   Registra di nuovo oggi
                 </a>
+                {planHref && (
+                  <a className="k-link" href={planHref}>
+                    {plan.block.repeat}
+                  </a>
+                )}
               </div>
             )}
             {recipeMode && (

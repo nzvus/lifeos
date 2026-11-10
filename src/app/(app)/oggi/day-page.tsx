@@ -64,7 +64,7 @@ import {
   rowBurns,
   tuneOf,
 } from "@/features/day/burn";
-import { planTag, cycleWords, readDayPlans } from "@/core/plans";
+import { planTag, cycleWords, readDayPlans, writeDayPlan } from "@/core/plans";
 import { DayPlanBar } from "@/features/day/DayPlanBar";
 import { planRows } from "./plan-rows";
 import { skipStep } from "./[[...day]]/plan-actions";
@@ -175,6 +175,8 @@ export async function DayPage({
   const scored = week.filter((d) => d <= today);
   // The viewed week's automatic targets, made on its first open (core/energy, dossiers/targets.md).
   const thisWeek = mondayOf(date) === mondayOf(today);
+  // Today's Piano written as previsti on its first read (PL-40): never a day to come or gone.
+  if (date === today) await writeDayPlan(db, owner, today, clock);
   const [days, micros, plans, , closed] = await Promise.all([
     loadDays(db, owner, week[0]!, to, known),
     readMicroTargets(db, owner, date),

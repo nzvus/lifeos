@@ -91,6 +91,7 @@ export default async function EntryEditPage({
         }))}
         title="Modifica pasto"
         repeatHref={"/aggiungi/pasto?da=" + id}
+        planHref={"/oggi/blocco/nuovo?voce=" + id}
         backLabel={dayLabel}
         day={item.day}
         dayLabel={dayLabel}
@@ -146,6 +147,7 @@ export default async function EntryEditPage({
       initial={initial}
       closeHref={dayHref}
       action={updateSheet.bind(null, id)}
+      planHref={"/oggi/blocco/nuovo?voce=" + id}
       boundaryMin={ctx.clock.boundaryMin}
       nowMin={item.day === ctx.today ? dayMinute(new Date(), item.day, ctx.clock) : null}
     />

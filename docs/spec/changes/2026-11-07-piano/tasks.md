@@ -56,7 +56,22 @@
        blocchi at 20:00 and the ciclo's Legs at 20:42 (last Wednesday's time) on Oggi and on
        the Piano. **He runs «migrate v2»** for 0008, then the data is checked (three goals,
        «Rec» archived, the same kcal on Oggi).
-       Left: writing the previsti `from_block` on the first read of today (PL-40, MOD-33);
-       «Ripeti» → a new blocco (PL-44); a step's items as blocchi (PL-30, caffè with Push); the
-       food Composer's unfed `slots` (PL-60); dropping `templates` / `week_layouts` later.
+       «Ripeti» (PL-44, #?): «Ripeti nel Piano» on a voce's page (the meal Composer and the
+       entry sheet) opens «Nuovo blocco» from it (`?voce=`: its object's name or its
+       category's, its area, «a un'ora» at its time, its weekday) and the blocco holds the
+       voce's object with its servings, or its type with its category (`blockSeedOf`;
+       `setBlockWhat` keeps a type's defaults when the same type is saved again). Checked in
+       the browser: an activity «Studio» at 18:00 on a Monday → blocco «Studio», Mente, lun,
+       «tipo · Studio». The meal Composer's link was not clicked (no meal on the local account).
+       Previsti written (PL-40, MOD-33; Q-17 (a)): `drizzle/0009` (schema: `entries.block_id`,
+       FK to his blocco on delete restrict, unique per user + day + blocco); `core/plans/
+       write-day.ts` `writeDayPlan` on Oggi's read of today: each blocco due and not covered →
+       a previsto with its `block_id`, source «template» (a pasto with its foods and servings,
+       a scheda as a planned session, a type with its defaults; by the catalog type's
+       `savedFrom`, MOD-14); never twice (a trashed voce counts; the index too); a tragitto, a
+       saved estimate, a type needing a value (Acqua's ml), a ciclo's step stay computed rows.
+       Tested on PGlite (three cases); in the browser: a daily «Studio» blocco written once on
+       two reads, «Togli i previsti (1)». **He runs «migrate v2»** for 0009 before the merge.
+       Left: a step's items as blocchi (PL-30, Q-18 (a): «nel ciclo»); the food Composer's
+       unfed `slots` (PL-60); dropping `templates` / `week_layouts`.
 5. [ ] Delta into the spec; change archived.

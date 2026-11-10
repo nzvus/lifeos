@@ -67,6 +67,39 @@ Slice 2 (the migration, #341) needed neither.
 resto segui i tuoi consigli e continua» → the agent's picks: Q-15 (a) a kit field «Ogni
 quanto», Q-16 (a) the Composer with ordered lines and «+ Riposo».
 
+**Asked (10 Nov, slice 4).**
+- **Q-17** How a previsto voce written from a blocco keeps its link (PL-40 «written as previsto
+  voci linked `from_block`, never twice», MOD-33; PL-70 «Elimina only when no voce links to
+  it», «past voci keep their link»). The schema's `entry_links` relation `from_block` points at
+  an *entry* on both sides, so it cannot point at a blocco (a catalog row).
+  - (a) **A `block_id` on the voce** (nullable, FK to his catalog row; schema migration 0009,
+    run by «migrate v2»): today's first read writes each uncovered blocco as a previsto with
+    it; «never twice» = a voce of that blocco that day exists, even trashed; Elimina of a
+    blocco checks it; Andamento can count a blocco's fatti (PL-21).
+  - (b) **No link on the voce**: the previsti stay computed on read (as now) and a decision
+    `block_written` (day, blocco) only stops a second write; PL-70's «Elimina only if no voce
+    links to it» cannot be checked.
+  - (c) **`entry_links.to_id` without its FK** so it may name a blocco: no migration of data,
+    but a link the database no longer checks.
+  - Agent's pick: **(a)**: one column, checked by the database, and it serves PL-21 and PL-70
+    too. Expensive to reverse (a schema change), so his to decide.
+
+- **Q-18** What a ciclo's step holds (PL-30: «each step holds zero or more blocchi … «Push» +
+  caffè 30 min prima»; acceptance 3: on Rest, no caffè). Today a step holds schede only (Q-16's
+  Composer searches schede), and a blocco must have an «ogni quanto».
+  - (a) **A step's lines are blocchi with «ogni quanto» = «nel ciclo»** (a sixth choice of
+    the kit's «Ogni quanto»: planned only when its step is due). The step's Composer searches
+    his blocchi and schede (a scheda picked becomes a blocco «nel ciclo» holding it); his
+    current steps' schede become such blocchi by a data migration (same names). The caffè is a
+    blocco «nel ciclo», «30 min prima di» the Push blocco.
+  - (b) **Steps stay schede**; the caffè is a normal blocco «30 min prima di» a blocco that
+    holds the gym, every day: on Rest it would still be planned (acceptance 3 fails).
+  - Agent's pick: **(a)**: it is what PL-30 and Q-16 («a step's line says its blocco») say,
+    with one new «Ogni quanto» choice (a pattern change: his to decide).
+
+**Answered.** Q-17 and Q-18, his picks 10 Nov (late, after «procedi»): Q-17 «block_id sulla
+voce (Recommended)» → (a); Q-18 «Blocchi «nel ciclo» (Recommended)» → (a).
+
 **Not in this change.** PL-50…52 proposals and their checks (the proposal engine, a change of
 its own after this one); PL-62 week aggregation; plan layers (x04).
 

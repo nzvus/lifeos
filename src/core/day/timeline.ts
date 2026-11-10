@@ -53,6 +53,8 @@ export type DayItem = {
   minute: DayMin | null;
   /** The catalog item it is "of", with its name and the values that pick its drawing. */
   item: { id: string; name: string; drawing: Record<string, string> } | null;
+  /** The blocco it was written from as a previsto (PL-40), else null. */
+  blockId: string | null;
   /** Field → value: numbers as exact strings, a ref as the item's id. */
   values: Record<string, Value>;
   lines: DayLine[];
@@ -127,6 +129,7 @@ export function composeDay(rows: DayRows, registry: KindRegistry): Day {
       start: e.startAt,
       end: e.endAt,
       minute,
+      blockId: e.blockId,
       item: e.itemId
         ? {
             id: e.itemId,

@@ -19,6 +19,7 @@ const item = (kind: string, over: Partial<DayItem> = {}): DayItem => ({
   end: null,
   minute: null,
   item: null,
+  blockId: null,
   values: {},
   lines: [],
   children: [],

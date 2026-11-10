@@ -7,6 +7,7 @@
  * hands back what was typed, and the form is drawn again from it. A sleep
  * says under its times which night it is, as it will be saved.
  */
+import { plan } from "@/i18n/plan";
 import { useActionState, useState } from "react";
 import { Field } from "@lifeos/kit";
 import { nightWords, type EntryForm } from "./entry-form";
@@ -29,6 +30,7 @@ export function EntrySheet({
   action,
   boundaryMin = 240,
   nowMin = null,
+  planHref,
 }: {
   form: EntryForm;
   day: string;
@@ -39,6 +41,8 @@ export function EntrySheet({
   initial: Record<string, string>;
   closeHref: string;
   action: (state: SaveState, data: FormData) => Promise<SaveState>;
+  /** A logged voce's «Ripeti nel Piano» (PL-44): a new blocco from it. */
+  planHref?: string;
 }) {
   const [state, submit, pending] = useActionState(action, {
     errors: {},
@@ -144,6 +148,11 @@ export function EntrySheet({
             <p className="k-help" role="alert">
               {e["form"]}
             </p>
+          )}
+          {planHref && (
+            <a className="k-link" href={planHref}>
+              {plan.block.repeat}
+            </a>
           )}
         </div>
         <div className="foot">

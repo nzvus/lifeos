@@ -7,7 +7,14 @@
  */
 import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { catalogItems, catalogParts, catalogValues, kinds } from "../db/schema";
+import {
+  catalogItems,
+  catalogParts,
+  catalogValues,
+  entries,
+  entryValues,
+  kinds,
+} from "../db/schema";
 import { plannedOn, type Recurrence } from "../engines/time/recurrence";
 import { parseRecurrence } from "../kinds/recurrence";
 import type { IsoDate } from "../engines/time";
@@ -166,6 +173,24 @@ export type BlockWhat = {
   items: { id: string; name: string; catalog: string; quantity: string | null }[];
   /** A type with defaults instead (a voce kind or his tracker's key, PL-01, PL-03). */
   kind: string | null;
+  /** The type's default values (an activity's category), when it is a type. */
+  defaults: Record<string, string>;
+};
+
+/** A blocco's `defaults` JSON as text values; anything else is none. */
+const parseDefaults = (text: string | null | undefined): Record<string, string> => {
+  try {
+    const d: unknown = text ? JSON.parse(text) : {};
+    return d && typeof d === "object" && !Array.isArray(d)
+      ? Object.fromEntries(
+          Object.entries(d).filter(
+            (e): e is [string, string] => typeof e[1] === "string",
+          ),
+        )
+      : {};
+  } catch {
+    return {};
+  }
 };
 
 /** What one blocco of his holds, for its page and its Composer; null when it is not his. */
@@ -187,18 +212,29 @@ export async function readBlockWhat(
       .innerJoin(catalogItems, eq(catalogItems.id, catalogParts.partItemId))
       .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)))
       .orderBy(catalogParts.position),
-    db
-      .select({ text: catalogValues.text })
-      .from(catalogValues)
-      .where(
-        and(
-          ownedBy(catalogValues, owner),
-          eq(catalogValues.itemId, id),
-          eq(catalogValues.field, "kind"),
-        ),
-      ),
+    typeOf(db, owner, id),
   ]);
-  return { items, kind: kind[0]?.text ?? null };
+  return { items, ...kind };
+}
+
+/** A blocco's type and its default values, when it holds a type (PL-01, PL-03). */
+async function typeOf(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<{ kind: string | null; defaults: Record<string, string> }> {
+  const rows = await db
+    .select({ field: catalogValues.field, text: catalogValues.text })
+    .from(catalogValues)
+    .where(
+      and(
+        ownedBy(catalogValues, owner),
+        eq(catalogValues.itemId, id),
+        inArray(catalogValues.field, ["kind", "defaults"]),
+      ),
+    );
+  const text = (f: string) => rows.find((v) => v.field === f)?.text ?? null;
+  return { kind: text("kind"), defaults: parseDefaults(text("defaults")) };
 }
 
 export type BlockListRow = {
@@ -244,12 +280,13 @@ export async function listBlocks(
 export const BLOCK_OBJECTS = ["recipe", "routine", "route"] as const;
 
 export type BlockWhatInput =
-  { kind: string } | { items: readonly { id: string; quantity: number | null }[] };
+  | { kind: string; defaults?: Readonly<Record<string, string>> }
+  | { items: readonly { id: string; quantity: number | null }[] };
 
 /**
  * What a blocco holds, replaced (PL-01…03): one or more objects of his, in order, each with its
- * servings (several = a rotation, PL-02) — or one type (a built-in voce kind or his tracker).
- * The other one is cleared. «gone»: not his blocco; «invalid»: an object, a type or a quantity
+ * servings (several = a rotation, PL-02) — or one type (a built-in voce kind or his tracker),
+ * with its default values (an activity's category, as `defaults` JSON). The other one is cleared. «gone»: not his blocco; «invalid»: an object, a type or a quantity
  * that is not his or not one.
  */
 export async function setBlockWhat(
@@ -285,6 +322,12 @@ export async function setBlockWhat(
         );
       if (mine.length !== ids.length) return "invalid";
     }
+    // The same type saved again (its Composer) keeps its default values (the category).
+    let kept: Record<string, string> = {};
+    if ("kind" in what && what.defaults === undefined) {
+      const before = await typeOf(tx, owner, id);
+      if (before.kind === what.kind) kept = before.defaults;
+    }
     await tx
       .delete(catalogParts)
       .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)));
@@ -297,10 +340,21 @@ export async function setBlockWhat(
           inArray(catalogValues.field, ["kind", "defaults"]),
         ),
       );
+    const defaults = ("kind" in what && what.defaults) || kept;
     if ("kind" in what)
-      await tx
-        .insert(catalogValues)
-        .values({ userId: owner.id, itemId: id, field: "kind", text: what.kind });
+      await tx.insert(catalogValues).values([
+        { userId: owner.id, itemId: id, field: "kind", text: what.kind },
+        ...(Object.keys(defaults).length > 0
+          ? [
+              {
+                userId: owner.id,
+                itemId: id,
+                field: "defaults",
+                text: JSON.stringify(defaults),
+              },
+            ]
+          : []),
+      ]);
     else
       await tx.insert(catalogParts).values(
         what.items.map((x, position) => ({
@@ -313,4 +367,69 @@ export async function setBlockWhat(
       );
     return "ok";
   });
+}
+
+/** What «Ripeti» puts in a new blocco (PL-44): the voce's object or type, its day and time. */
+export type BlockSeed = {
+  /** Its object's name; null for a voce of a type (the page names it by its kind). */
+  name: string | null;
+  kind: string;
+  day: IsoDate;
+  startAt: Date | null;
+  what: BlockWhatInput;
+};
+
+/**
+ * A voce of his as the seed of a blocco (PL-44, «Ripeti»): a pasto, a scheda or a tragitto it
+ * is of, with its servings — else its type, with an activity's category. Null when not his.
+ */
+export async function blockSeedOf(
+  db: Db,
+  owner: Owner,
+  voceId: string,
+): Promise<BlockSeed | null> {
+  const [v] = await db
+    .select({
+      kind: entries.kind,
+      day: entries.day,
+      startAt: entries.startAt,
+      itemId: entries.itemId,
+      name: catalogItems.name,
+      catalog: catalogItems.catalog,
+    })
+    .from(entries)
+    .leftJoin(
+      catalogItems,
+      and(eq(catalogItems.id, entries.itemId), eq(catalogItems.userId, entries.userId)),
+    )
+    .where(
+      and(ownedBy(entries, owner), eq(entries.id, voceId), isNull(entries.deletedAt)),
+    );
+  if (!v) return null;
+  const values = await db
+    .select({ field: entryValues.field, num: entryValues.num, text: entryValues.text })
+    .from(entryValues)
+    .where(
+      and(
+        ownedBy(entryValues, owner),
+        eq(entryValues.entryId, voceId),
+        inArray(entryValues.field, ["servings", "category"]),
+      ),
+    );
+  const of = (f: string) => values.find((x) => x.field === f);
+  const object =
+    v.itemId !== null &&
+    v.catalog !== null &&
+    (BLOCK_OBJECTS as readonly string[]).includes(v.catalog);
+  const servings = Number(of("servings")?.num ?? of("servings")?.text ?? "") || null;
+  const category = of("category")?.text ?? null;
+  return {
+    name: object ? v.name : null,
+    kind: v.kind,
+    day: v.day,
+    startAt: v.startAt,
+    what: object
+      ? { items: [{ id: v.itemId!, quantity: servings }] }
+      : { kind: v.kind, ...(category ? { defaults: { category } } : {}) },
+  };
 }

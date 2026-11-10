@@ -21,6 +21,7 @@ const meal = (
     end: null,
     minute,
     item: null,
+    blockId: null,
     values: servings ? { role, servings } : { role },
     lines: [
       {

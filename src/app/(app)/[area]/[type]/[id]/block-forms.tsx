@@ -4,38 +4,79 @@
  * to what it holds — and `/oggi/blocco/<id>/componi`, what it holds on the kit `Composer`.
  */
 import { notFound } from "next/navigation";
+import { F } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { readUserKinds } from "@/core/day";
 import { enterable } from "@/core/entries";
-import { localParts } from "@/core/engines/time";
+import { isoWeekday, localParts } from "@/core/engines/time";
 import { kindRegistry } from "@/core/kinds";
 import { catalogType, typeOfItem } from "@/core/kinds/catalog";
-import { BLOCK_OBJECTS, readBlockWhat } from "@/core/plans";
+import { BLOCK_OBJECTS, blockSeedOf, readBlockWhat } from "@/core/plans";
 import { listObjects, readObject } from "@/core/verbs";
-import { NAMES } from "@/features/day/words";
+import { ACTIVITY, NAMES } from "@/features/day/words";
+import { AREA_NAME, areaOf } from "@/features/places";
 import { NewObjectForm } from "@/features/objects/NewObjectForm";
 import { newFields } from "@/features/objects/present";
 import { BlockComposer, type BlockOption } from "@/features/plan/BlockComposer";
 import { KIND_KEY } from "@/features/plan/block-keys";
 import { plan } from "@/i18n/plan";
 import { objectCreate } from "./actions";
-import { saveBlockWhat } from "./block-actions";
+import { createBlockFromVoce, saveBlockWhat } from "./block-actions";
 import type { NewFormRender } from "./new-forms";
 import { readRefs } from "./refs";
 
-export const newBlock: NewFormRender = async (back) => {
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * «Ripeti» (PL-44, `?voce=<id>`): the form starts from the voce — its object's name (or its
+ * type's), its area, its time, its weekday — and the blocco holds the voce's object or type.
+ */
+async function fromVoce(id: string) {
+  const owner = await requireOwner();
+  const db = await getDb();
+  const [seed, { clock }, kinds] = await Promise.all([
+    blockSeedOf(db, owner, id),
+    ownerClock(),
+    readUserKinds(db, owner),
+  ]);
+  if (!seed) return null;
+  const k = kindRegistry(kinds).get(seed.kind);
+  const area = areaOf(k.domain);
+  return {
+    // Its object's name, else its category's word («Studio»), else its type's.
+    name:
+      seed.name ??
+      ACTIVITY[("kind" in seed.what && seed.what.defaults?.["category"]) || ""] ??
+      NAMES[seed.kind] ??
+      k.name ??
+      seed.kind,
+    area: area ? AREA_NAME[area] : "Oggi",
+    ...(seed.startAt
+      ? { when: "time", at: F.time(localParts(seed.startAt, clock.timeZone).minute) }
+      : {}),
+    recurrence: JSON.stringify({ type: "weekdays", days: [isoWeekday(seed.day)] }),
+  };
+}
+
+export const newBlock: NewFormRender = async (back, query) => {
   const t = catalogType("block")!;
   const refs = await readRefs(await getDb(), await requireOwner(), t);
+  const voce = query["voce"] && UUID.test(query["voce"]) ? query["voce"] : null;
+  const seeded = voce ? await fromVoce(voce) : null;
   return (
     <NewObjectForm
       title={plan.block.newTitle}
       back={back}
       fam="day"
       fields={newFields(t, refs)}
-      initial={{ area: "Oggi", recurrence: '{"type":"daily"}' }}
-      action={objectCreate.bind(null, "block", "componi")}
+      initial={seeded ?? { area: "Oggi", recurrence: '{"type":"daily"}' }}
+      action={
+        seeded && voce
+          ? createBlockFromVoce.bind(null, voce)
+          : objectCreate.bind(null, "block", "componi")
+      }
     />
   );
 };
