@@ -1,3 +1,19 @@
+/** A ciclo of his in the catalog (MOD-36), archived ones too (a past day may be changed). */
+async function ownsCycle(db: Db, owner: Owner, cycleId: string): Promise<boolean> {
+  const [c] = await db
+    .select({ id: catalogItems.id })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.id, cycleId),
+        eq(catalogItems.catalog, "cycle"),
+        isNull(catalogItems.deletedAt),
+      ),
+    );
+  return !!c;
+}
+
 /**
  * core/plans/day-changes.ts — changing one day only (dossiers/
  * day-templates.md §5 «Cambia la giornata», slice c):
@@ -8,9 +24,9 @@
  *   skip   a cycle's step skipped that day (`cycle_skip`, keyed by the
  *          cycle): E3 loses it or shifts it, by the cycle's rule.
  */
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { decisions, templates } from "../db/schema";
+import { catalogItems, decisions, templates } from "../db/schema";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 
@@ -59,17 +75,7 @@ export async function setCycleSkip(
   cycleId: string,
   skipped: boolean,
 ): Promise<boolean> {
-  const [c] = await db
-    .select({ id: templates.id })
-    .from(templates)
-    .where(
-      and(
-        ownedBy(templates, owner),
-        eq(templates.id, cycleId),
-        eq(templates.scope, "cycle"),
-      ),
-    );
-  if (!c) return false;
+  if (!(await ownsCycle(db, owner, cycleId))) return false;
   if (!skipped) {
     await db
       .delete(decisions)
@@ -103,17 +109,7 @@ export async function setCycleOverride(
   cycleId: string,
   position: number | null | undefined,
 ): Promise<boolean> {
-  const [c] = await db
-    .select({ id: templates.id })
-    .from(templates)
-    .where(
-      and(
-        ownedBy(templates, owner),
-        eq(templates.id, cycleId),
-        eq(templates.scope, "cycle"),
-      ),
-    );
-  if (!c) return false;
+  if (!(await ownsCycle(db, owner, cycleId))) return false;
   const where = and(
     ownedBy(decisions, owner),
     eq(decisions.kind, "cycle_override"),

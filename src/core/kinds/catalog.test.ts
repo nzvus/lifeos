@@ -118,3 +118,16 @@ describe("catalog types in the registry (MOD-01, MOD-02)", () => {
     expect(typeAtSlug("nessuno")).toBeNull();
   });
 });
+
+describe("a blocco's «ogni quanto» (PL-20, PAT-61)", () => {
+  it("the registry takes the engine's recurrence as JSON text, and refuses anything else", () => {
+    const s = valuesSchema(catalogType("block")!);
+    expect(
+      s.safeParse({ recurrence: '{"type":"weekdays","days":[1,3,5]}' }).success,
+    ).toBe(true);
+    expect(s.safeParse({ recurrence: '{"type":"timesPerWeek","n":9}' }).success).toBe(
+      false,
+    );
+    expect(s.safeParse({ recurrence: "ogni giorno" }).success).toBe(false);
+  });
+});

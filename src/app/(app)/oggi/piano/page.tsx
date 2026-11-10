@@ -356,7 +356,7 @@ export default async function PianoPage({
                 title: "Ciclo " + c.name,
                 value: F.plural(c.steps.length, "passo", "passi"),
                 meta: c.steps.map(stepName).join(" · "),
-                href: "/corpo/ciclo/" + c.id,
+                href: "/oggi/ciclo/" + c.id,
                 hrefLabel: "Apri il ciclo " + c.name,
               }}
             />

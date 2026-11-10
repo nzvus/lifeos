@@ -5,13 +5,23 @@
  * page and the server say the same thing.
  */
 import type { FieldProps } from "./Field";
+import { readRecurrence } from "./recurrence";
 import { WORDS } from "./words";
 
 export type FormFieldSpec = {
   key: string;
   label: string;
   type:
-    "number" | "integer" | "duration" | "boolean" | "choice" | "scale" | "text" | "time";
+    | "number"
+    | "integer"
+    | "duration"
+    | "boolean"
+    | "choice"
+    | "scale"
+    | "text"
+    | "time"
+    | "date"
+    | "recurrence";
   unit?: string;
   min?: number;
   max?: number;
@@ -79,6 +89,10 @@ export function formFields(
         };
       case "time":
         return { ...base, type: "time" };
+      case "date":
+        return { ...base, type: "date" };
+      case "recurrence":
+        return { ...base, type: "recurrence" };
       default:
         return { ...base, type: "text" };
     }
@@ -126,6 +140,16 @@ export function readForm(
       if (!(f.choices ?? []).some((c) => c.value === raw))
         errors[f.key] = WORDS.form.required;
       values[f.key] = raw;
+    } else if (f.type === "date") {
+      // A day from its native picker (PAT-61): ISO, never typed by hand.
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(raw) || Number.isNaN(Date.parse(raw)))
+        errors[f.key] = WORDS.form.date;
+      values[f.key] = raw;
+    } else if (f.type === "recurrence") {
+      // «Ogni quanto» (PAT-61): the JSON its piece posts, checked and written one way.
+      const r = readRecurrence(raw);
+      if (!r) errors[f.key] = WORDS.recurrence.invalid;
+      values[f.key] = r ? JSON.stringify(r) : raw;
     } else values[f.key] = raw;
   }
   return { values, errors };

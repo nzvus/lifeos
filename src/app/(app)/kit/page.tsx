@@ -351,6 +351,7 @@ export default async function KitPage({
           ]}
         />
         <Field name="ora" label="Ora" type="time" defaultValue="13:05" />
+        <Field name="giorno" label="Dal giorno" type="date" defaultValue="2026-11-10" />
         <Field name="nota" label="Nota" type="text" placeholder="Com’è andata" />
         <Field
           name="kg"
@@ -359,6 +360,45 @@ export default async function KitPage({
           defaultValue="0"
           unit="kg"
           error="Scrivi un peso tra 30 e 300 kg"
+        />
+      </section>
+      {/* «Ogni quanto» (PAT-61, PL-20): empty, then each kind with its own control. */}
+      <section className="k-section g3" id="ogni-quanto" aria-label="Ogni quanto">
+        <h2>Ogni quanto</h2>
+        <Field
+          name="mai"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          error="Scegli ogni quanto"
+        />
+        <Field
+          name="giorni"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          defaultValue={'{"type":"weekdays","days":[1,3,5]}'}
+        />
+        <Field
+          name="ogni"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          defaultValue={'{"type":"everyN","n":3,"start":"2026-11-10"}'}
+        />
+        <Field
+          name="volte"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          defaultValue={'{"type":"timesPerWeek","n":3}'}
+        />
+        <Field
+          name="date"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          defaultValue={'{"type":"onDates","dates":["2026-11-12","2026-11-15"]}'}
         />
       </section>
 

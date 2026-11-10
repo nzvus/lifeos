@@ -47,6 +47,9 @@ describe("reading what each day is supposed to be", () => {
     await db
       .insert(s.catalogItems)
       .values({ id: cycle, userId: a.id, catalog: "cycle", name: "PLPRR" });
+    await db
+      .insert(s.catalogValues)
+      .values({ userId: a.id, itemId: cycle, field: "start", text: "2026-10-20" });
     const [pull] = await db
       .insert(s.catalogItems)
       .values({ userId: a.id, catalog: "routine", name: "Pull" })

@@ -8,6 +8,10 @@
  * Tapping a chosen scale or choice again clears it, unless it is required.
  */
 import { useState } from "react";
+import { Recurrence } from "./Recurrence";
+import { Stepper } from "./Stepper";
+
+export { stepBy } from "./Stepper";
 
 export type FieldOption = { value: string; label: string; sub?: string };
 
@@ -16,7 +20,9 @@ export type FieldProps = {
   label: string;
   /** The label is read by screen readers but not shown (a stepper inside a box that names it). */
   hideLabel?: boolean;
-  type: "stepper" | "scale" | "choice" | "text" | "time";
+  type: "stepper" | "scale" | "choice" | "text" | "time" | "date" | "recurrence";
+  /** For a recurrence: the day «dal giorno» and a new date start from (ISO). */
+  today?: string;
   defaultValue?: string;
   unit?: string;
   step?: number;
@@ -34,14 +40,6 @@ const asSelect = (opts: FieldOption[]) =>
   opts.length > 4 ||
   opts.some((o) => o.label.length > 16) ||
   opts.reduce((n, o) => n + o.label.length, 0) > 34;
-
-/** "75,6" + 0,5 → "76,1": the stepper keeps the person's decimal comma. */
-export function stepBy(v: string, by: number): string {
-  const x = Number(v.replace(",", ".") || "0");
-  if (!Number.isFinite(x)) return v;
-  const next = Math.max(0, Math.round((x + by) * 100) / 100);
-  return String(next).replace(".", ",");
-}
 
 export function Field(p: FieldProps) {
   const [v, setValue] = useState(p.defaultValue ?? "");
@@ -62,36 +60,26 @@ export function Field(p: FieldProps) {
         {p.unit && p.type !== "stepper" && <span className="k-meta">{p.unit}</span>}
       </div>
       {p.type === "stepper" && (
-        <div className="k-step">
-          <button
-            type="button"
-            aria-label={p.label + ": meno " + (p.step ?? 1)}
-            onClick={() => setV(stepBy(v, -(p.step ?? 1)))}
-          >
-            −
-          </button>
-          <span className="v">
-            <input
-              id={id}
-              name={p.name}
-              className="k-stepin"
-              inputMode="decimal"
-              autoComplete="off"
-              value={v}
-              placeholder="–"
-              onChange={(e) => setV(e.target.value)}
-              aria-invalid={p.error ? true : undefined}
-            />
-            {p.unit && <span className="u">{p.unit}</span>}
-          </span>
-          <button
-            type="button"
-            aria-label={p.label + ": più " + (p.step ?? 1)}
-            onClick={() => setV(stepBy(v, p.step ?? 1))}
-          >
-            +
-          </button>
-        </div>
+        <Stepper
+          id={id}
+          name={p.name}
+          label={p.label}
+          value={v}
+          onChange={setV}
+          unit={p.unit}
+          step={p.step}
+          invalid={!!p.error}
+        />
+      )}
+      {p.type === "recurrence" && (
+        <Recurrence
+          id={id}
+          name={p.name}
+          label={p.label}
+          value={v}
+          onChange={setV}
+          today={p.today}
+        />
       )}
       {p.type === "scale" && (
         <div
@@ -148,12 +136,12 @@ export function Field(p: FieldProps) {
             ))}
           </div>
         ))}
-      {(p.type === "text" || p.type === "time") && (
+      {(p.type === "text" || p.type === "time" || p.type === "date") && (
         <input
           id={id}
           name={p.name}
           className="k-text"
-          type={p.type === "time" ? "time" : "text"}
+          type={p.type === "text" ? "text" : p.type}
           value={v}
           placeholder={p.placeholder}
           onChange={(e) => setV(e.target.value)}

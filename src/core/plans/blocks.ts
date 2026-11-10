@@ -6,40 +6,15 @@
  * `readBlocks` turns his rows into `Block`s; `blocksOn` is the pure Piano of one day from them.
  */
 import { and, eq, inArray, isNull } from "drizzle-orm";
-import { z } from "zod";
 import type { Db } from "../db/db";
 import { catalogItems, catalogParts, catalogValues } from "../db/schema";
 import { plannedOn, type Recurrence } from "../engines/time/recurrence";
+import { parseRecurrence } from "../kinds/recurrence";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 import { AREAS, BLOCK_WHEN, type Area } from "../kinds/catalog";
 
-const iso = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
-const recurrenceSchema: z.ZodType<Recurrence> = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("daily") }),
-  z.object({
-    type: z.literal("weekdays"),
-    days: z.array(z.number().int().min(1).max(7)).min(1),
-  }),
-  z.object({
-    type: z.literal("everyN"),
-    n: z.number().int().min(1).max(366),
-    start: iso,
-  }),
-  z.object({ type: z.literal("timesPerWeek"), n: z.number().int().min(1).max(7) }),
-  z.object({ type: z.literal("onDates"), dates: z.array(iso).min(1) }),
-]);
-
-/** A stored recurrence (JSON text) as the engine's, or null when it is not one. */
-export function parseRecurrence(text: string | null | undefined): Recurrence | null {
-  if (!text) return null;
-  try {
-    const r = recurrenceSchema.safeParse(JSON.parse(text));
-    return r.success ? r.data : null;
-  } catch {
-    return null;
-  }
-}
+export { parseRecurrence };
 
 export type BlockWhen =
   | { kind: "none" }

@@ -43,6 +43,10 @@ export const FIELD_TYPES = [
   "text",
   "ref",
   "time",
+  /** A day, ISO «YYYY-MM-DD», from its native picker (PAT-61). */
+  "date",
+  /** «Ogni quanto» (PL-20, PAT-61): the engine's `Recurrence` as JSON text. */
+  "recurrence",
 ] as const;
 
 const key = z.string().regex(/^[a-z][a-z0-9_]*$/, "lower_snake_case");

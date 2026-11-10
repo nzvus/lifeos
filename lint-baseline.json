@@ -112,7 +112,7 @@
       "count": 2
     },
     "lifeos/no-raw-form": {
-      "count": 2
+      "count": 1
     },
     "lifeos/no-type-key-compare": {
       "count": 2
@@ -306,11 +306,6 @@
   "src/features/money/MovementForm.tsx": {
     "lifeos/no-raw-form": {
       "count": 1
-    }
-  },
-  "src/features/plan/CycleEditor.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 2
     }
   },
   "src/features/plan/HabitForm.tsx": {

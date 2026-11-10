@@ -15,6 +15,7 @@ const SECTIONS = [
   "giudizio",
   "numeri",
   "stati-nuovi",
+  "ogni-quanto",
 ];
 const OPEN = ["altro", "conferma", "perche", "toast", "unisci", "aggiungi"];
 

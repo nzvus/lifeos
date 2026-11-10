@@ -3,7 +3,7 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
-import { addStep, createCycle } from "./cycles-repo";
+import { addStep, createCycle } from "./test-cycles";
 import { setCycleOverride, setCycleSkip, setDayModel } from "./day-changes";
 import { createModel, setWeekdays } from "./models-repo";
 import { readDayPlans } from "./read";

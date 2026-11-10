@@ -1009,6 +1009,16 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+/* «Ogni quanto»'s weekdays (PAT-61): two even rows, lun–gio and ven–dom, at every width */
+.k-chips.days {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.k-chips.days > .k-chip {
+  justify-content: center;
+  padding: 0;
+  min-width: 0;
+}
 .k-chip.on {
   background: var(--ink);
   color: var(--sheet);
