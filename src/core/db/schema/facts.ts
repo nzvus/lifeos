@@ -67,6 +67,8 @@ export const entries = pgTable(
     parentId: uuid("parent_id"),
     /** The catalog item it is "of": the exercise, the habit, the book… */
     itemId: uuid("item_id"),
+    /** The blocco it was written from as a previsto (PL-40, MOD-33; Q-17 (a)): one a day. */
+    blockId: uuid("block_id"),
     source: text("source").$type<(typeof SOURCES)[number]>().notNull().default("typed"),
     confidence: confidence("confidence").notNull().default("1"),
     note: text("note").notNull().default(""),
@@ -85,6 +87,16 @@ export const entries = pgTable(
       columns: [t.itemId, t.userId],
       foreignColumns: [catalogItems.id, catalogItems.userId],
     }).onDelete("restrict"),
+    // A blocco is deleted only when no voce links to it (PL-70): restrict.
+    foreignKey({
+      name: "entries_block_fk",
+      columns: [t.blockId, t.userId],
+      foreignColumns: [catalogItems.id, catalogItems.userId],
+    }).onDelete("restrict"),
+    // «Never twice» (PL-40): one voce per blocco per day, a trashed one included.
+    uniqueIndex("entries_user_day_block_uq")
+      .on(t.userId, t.day, t.blockId)
+      .where(sql`${t.blockId} is not null`),
     check("entries_status_ck", sql`${t.status} in ('planned', 'done', 'skipped')`),
     check(
       "entries_source_ck",

@@ -67,7 +67,7 @@ Slice 2 (the migration, #341) needed neither.
 resto segui i tuoi consigli e continua» → the agent's picks: Q-15 (a) a kit field «Ogni
 quanto», Q-16 (a) the Composer with ordered lines and «+ Riposo».
 
-**Open (10 Nov, slice 4).**
+**Asked (10 Nov, slice 4).**
 - **Q-17** How a previsto voce written from a blocco keeps its link (PL-40 «written as previsto
   voci linked `from_block`, never twice», MOD-33; PL-70 «Elimina only when no voce links to
   it», «past voci keep their link»). The schema's `entry_links` relation `from_block` points at
@@ -96,6 +96,9 @@ quanto», Q-16 (a) the Composer with ordered lines and «+ Riposo».
     holds the gym, every day: on Rest it would still be planned (acceptance 3 fails).
   - Agent's pick: **(a)**: it is what PL-30 and Q-16 («a step's line says its blocco») say,
     with one new «Ogni quanto» choice (a pattern change: his to decide).
+
+**Answered.** Q-17 and Q-18, his picks 10 Nov (late, after «procedi»): Q-17 «block_id sulla
+voce (Recommended)» → (a); Q-18 «Blocchi «nel ciclo» (Recommended)» → (a).
 
 **Not in this change.** PL-50…52 proposals and their checks (the proposal engine, a change of
 its own after this one); PL-62 week aggregation; plan layers (x04).

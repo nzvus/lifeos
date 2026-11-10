@@ -63,7 +63,15 @@
        `setBlockWhat` keeps a type's defaults when the same type is saved again). Checked in
        the browser: an activity «Studio» at 18:00 on a Monday → blocco «Studio», Mente, lun,
        «tipo · Studio». The meal Composer's link was not clicked (no meal on the local account).
-       Left: writing the previsti on the first read of today (PL-40, MOD-33) — **waits for
-       Q-17** (how the voce keeps its blocco); a step's items as blocchi (PL-30, caffè with
-       Push); the food Composer's unfed `slots` (PL-60); dropping `templates` / `week_layouts`.
+       Previsti written (PL-40, MOD-33; Q-17 (a)): `drizzle/0009` (schema: `entries.block_id`,
+       FK to his blocco on delete restrict, unique per user + day + blocco); `core/plans/
+       write-day.ts` `writeDayPlan` on Oggi's read of today: each blocco due and not covered →
+       a previsto with its `block_id`, source «template» (a pasto with its foods and servings,
+       a scheda as a planned session, a type with its defaults; by the catalog type's
+       `savedFrom`, MOD-14); never twice (a trashed voce counts; the index too); a tragitto, a
+       saved estimate, a type needing a value (Acqua's ml), a ciclo's step stay computed rows.
+       Tested on PGlite (three cases); in the browser: a daily «Studio» blocco written once on
+       two reads, «Togli i previsti (1)». **He runs «migrate v2»** for 0009 before the merge.
+       Left: a step's items as blocchi (PL-30, Q-18 (a): «nel ciclo»); the food Composer's
+       unfed `slots` (PL-60); dropping `templates` / `week_layouts`.
 5. [ ] Delta into the spec; change archived.

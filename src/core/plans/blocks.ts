@@ -212,19 +212,29 @@ export async function readBlockWhat(
       .innerJoin(catalogItems, eq(catalogItems.id, catalogParts.partItemId))
       .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)))
       .orderBy(catalogParts.position),
-    db
-      .select({ field: catalogValues.field, text: catalogValues.text })
-      .from(catalogValues)
-      .where(
-        and(
-          ownedBy(catalogValues, owner),
-          eq(catalogValues.itemId, id),
-          inArray(catalogValues.field, ["kind", "defaults"]),
-        ),
-      ),
+    typeOf(db, owner, id),
   ]);
-  const text = (f: string) => kind.find((v) => v.field === f)?.text ?? null;
-  return { items, kind: text("kind"), defaults: parseDefaults(text("defaults")) };
+  return { items, ...kind };
+}
+
+/** A blocco's type and its default values, when it holds a type (PL-01, PL-03). */
+async function typeOf(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<{ kind: string | null; defaults: Record<string, string> }> {
+  const rows = await db
+    .select({ field: catalogValues.field, text: catalogValues.text })
+    .from(catalogValues)
+    .where(
+      and(
+        ownedBy(catalogValues, owner),
+        eq(catalogValues.itemId, id),
+        inArray(catalogValues.field, ["kind", "defaults"]),
+      ),
+    );
+  const text = (f: string) => rows.find((v) => v.field === f)?.text ?? null;
+  return { kind: text("kind"), defaults: parseDefaults(text("defaults")) };
 }
 
 export type BlockListRow = {
@@ -315,18 +325,8 @@ export async function setBlockWhat(
     // The same type saved again (its Composer) keeps its default values (the category).
     let kept: Record<string, string> = {};
     if ("kind" in what && what.defaults === undefined) {
-      const before = await tx
-        .select({ field: catalogValues.field, text: catalogValues.text })
-        .from(catalogValues)
-        .where(
-          and(
-            ownedBy(catalogValues, owner),
-            eq(catalogValues.itemId, id),
-            inArray(catalogValues.field, ["kind", "defaults"]),
-          ),
-        );
-      const was = (f: string) => before.find((v) => v.field === f)?.text ?? null;
-      if (was("kind") === what.kind) kept = parseDefaults(was("defaults"));
+      const before = await typeOf(tx, owner, id);
+      if (before.kind === what.kind) kept = before.defaults;
     }
     await tx
       .delete(catalogParts)

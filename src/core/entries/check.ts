@@ -69,6 +69,8 @@ export type CheckedEntry = {
   itemId?: string | null;
   /** Below 1 for an estimate (0.60, as v1's estimated meals); typed entries are 1. */
   confidence?: string;
+  /** Written from a blocco as a previsto (PL-40): its source is «template». */
+  blockId?: string;
 };
 
 const TEXT_MAX = 500;

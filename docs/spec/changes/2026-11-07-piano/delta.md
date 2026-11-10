@@ -38,9 +38,12 @@
 - **PL-40** «Today» line: the Piano of a day is read from the blocchi (`core/plans/day-blocks.ts`
   `dayBlocks`: `blocksOn` + each ciclo's step with its scheda, placed by E3 `apply`, left out
   when covered by a voce of its object or of its type and category), shown on Oggi and Oggi ·
-  Piano as previsto rows «dal piano» / «dal ciclo» (`features/day/block-items.ts`); still
-  computed on read: writing them as previsti linked `from_block` on the first read of today is
-  not built. A blocco that holds nothing plans nothing. *Decided by the agent.*
+  Piano as previsto rows «dal piano» / «dal ciclo» (`features/day/block-items.ts`). On the
+  first read of today they are written as previsti carrying `entries.block_id` (Q-17 (a);
+  `write-day.ts`); what cannot be a voce by itself stays a computed row. A blocco that holds
+  nothing plans nothing. *Decided by the agent.*
+- **MOD-33** adds: the link is `entries.block_id` (FK, restrict: PL-70's «Elimina only when no
+  voce links to it»), one voce per blocco per day; `entry_links.from_block` is not used. [Q-17]
 - **PL-61 / MOD-42 / FD-20** «Today» line: the day's food targets read three goals
   (`metric.source` foodDeficit · proteinPerKg · fatPerKg, `core/goals/food.ts`), «Rec»'s values
   copied by `drizzle/0008` from its first day (past days keep their numbers, PL-41); the day

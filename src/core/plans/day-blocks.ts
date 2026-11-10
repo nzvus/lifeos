@@ -8,7 +8,7 @@
  * object, or of its type and category, PL-03). Computed on read, nothing stored (PL-41).
  * `dayBlocks` is pure; `readPlanInput` gathers what it needs in three narrow queries.
  */
-import { and, gte, inArray, isNull, lt } from "drizzle-orm";
+import { and, eq, gte, inArray, isNotNull, isNull, lt } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { catalogItems, entries } from "../db/schema";
 import { dayMinute } from "../day/timeline";
@@ -33,6 +33,8 @@ export type PlanVoce = {
   category: string | null;
   minute: number | null;
   status: "planned" | "done" | "skipped";
+  /** The blocco it was written from (PL-40), when it was. */
+  blockId?: string | null;
 };
 
 /** What a blocco, or a ciclo's step, still plans on the day. */
@@ -97,6 +99,8 @@ export function dayBlocks(p: {
   live?: ReadonlySet<string>;
   /** The day's voci, any status. */
   voci: readonly PlanVoce[];
+  /** The blocchi written on the day already, a trashed voce included: never twice (PL-40). */
+  written?: ReadonlySet<string>;
   /** The voci of the days before: the default time (PL-12) and the rotations' turn (PL-02). */
   history: readonly PlanVoce[];
   /** Each ciclo's step due that day, not a rest and not saltato (PL-31…33). */
@@ -106,7 +110,7 @@ export function dayBlocks(p: {
 }): PlannedBlock[] {
   // A blocco that holds nothing (no live object, no type) plans nothing.
   const due = blocksOn(p.blocks, p.day, lastDone(p.blocks, p.history), p.live).filter(
-    (d) => d.block.kind !== null || d.itemId !== null,
+    (d) => (d.block.kind !== null || d.itemId !== null) && !p.written?.has(d.block.id),
   );
   const kindOf = (b: Block, itemId: string | null) =>
     b.kind ?? (itemId ? p.kindOf(itemId) : null) ?? "";
@@ -132,6 +136,8 @@ export function dayBlocks(p: {
       const v = voci.find((x) => !used.has(x.id) && fits(x));
       if (v) used.set(v.id, key);
     };
+    // A voce written from a blocco is that blocco's, whatever it holds now.
+    for (const v of voci) if (v.blockId) used.set(v.id, "block:" + v.blockId);
     for (const { block: b } of due) take("block:" + b.id, (v) => covers(b, v));
     if (withSteps)
       for (const s of p.steps ?? []) {
@@ -213,7 +219,7 @@ export async function readPlanInput(
   stepItems: readonly string[] = [],
 ) {
   const from = addDays(day, -PLAN_HISTORY_DAYS);
-  const [blocks, past] = await Promise.all([
+  const [blocks, past, writtenRows] = await Promise.all([
     readBlocks(db, owner),
     db
       .select({
@@ -221,6 +227,7 @@ export async function readPlanInput(
         day: entries.day,
         kind: entries.kind,
         itemId: entries.itemId,
+        blockId: entries.blockId,
         startAt: entries.startAt,
         status: entries.status,
       })
@@ -233,6 +240,13 @@ export async function readPlanInput(
           isNull(entries.parentId),
           isNull(entries.deletedAt),
         ),
+      ),
+    // The blocchi written on the day already, a trashed voce included (PL-40: never twice).
+    db
+      .select({ blockId: entries.blockId })
+      .from(entries)
+      .where(
+        and(ownedBy(entries, owner), eq(entries.day, day), isNotNull(entries.blockId)),
       ),
   ]);
   const ids = [
@@ -270,6 +284,8 @@ export async function readPlanInput(
     category: null,
     minute: v.startAt ? dayMinute(v.startAt, v.day, clock) : null,
     status: v.status,
+    blockId: v.blockId,
   }));
-  return { blocks, items, history };
+  const written = new Set(writtenRows.flatMap((r) => (r.blockId ? [r.blockId] : [])));
+  return { blocks, items, history, written };
 }

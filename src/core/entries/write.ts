@@ -40,7 +40,8 @@ export async function createEntry(
         note: e.note,
         itemId: e.itemId ?? null,
         confidence: e.confidence ?? "1",
-        source: "typed",
+        blockId: e.blockId ?? null,
+        source: e.blockId ? "template" : "typed",
       })
       .returning({ id: entries.id });
     const id = row!.id;
