@@ -84,6 +84,19 @@ quanto», Q-16 (a) the Composer with ordered lines and «+ Riposo».
   - Agent's pick: **(a)**: one column, checked by the database, and it serves PL-21 and PL-70
     too. Expensive to reverse (a schema change), so his to decide.
 
+- **Q-18** What a ciclo's step holds (PL-30: «each step holds zero or more blocchi … «Push» +
+  caffè 30 min prima»; acceptance 3: on Rest, no caffè). Today a step holds schede only (Q-16's
+  Composer searches schede), and a blocco must have an «ogni quanto».
+  - (a) **A step's lines are blocchi with «ogni quanto» = «nel ciclo»** (a sixth choice of
+    the kit's «Ogni quanto»: planned only when its step is due). The step's Composer searches
+    his blocchi and schede (a scheda picked becomes a blocco «nel ciclo» holding it); his
+    current steps' schede become such blocchi by a data migration (same names). The caffè is a
+    blocco «nel ciclo», «30 min prima di» the Push blocco.
+  - (b) **Steps stay schede**; the caffè is a normal blocco «30 min prima di» a blocco that
+    holds the gym, every day: on Rest it would still be planned (acceptance 3 fails).
+  - Agent's pick: **(a)**: it is what PL-30 and Q-16 («a step's line says its blocco») say,
+    with one new «Ogni quanto» choice (a pattern change: his to decide).
+
 **Not in this change.** PL-50…52 proposals and their checks (the proposal engine, a change of
 its own after this one); PL-62 week aggregation; plan layers (x04).
 
