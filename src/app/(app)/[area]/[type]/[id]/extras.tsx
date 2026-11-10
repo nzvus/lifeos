@@ -9,6 +9,7 @@ import { readUserKind } from "@/core/kinds/user";
 import { trackerHref } from "@/features/places";
 import { tracker, wordOf } from "@/i18n/tracker";
 import { foodExtra } from "./food-extra";
+import { blockExtra } from "./block-extra";
 import { cycleExtra } from "./cycle-extra";
 import { exerciseExtra } from "./exercise-extra";
 import { recipeExtra } from "./recipe-extra";
@@ -76,4 +77,5 @@ export const EXTRAS: Record<string, Build> = {
   exercise: exerciseExtra,
   routine: routineExtra,
   cycle: cycleExtra,
+  block: blockExtra,
 };

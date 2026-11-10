@@ -5,3 +5,4 @@ export * from "./models-repo";
 export * from "./cycles-repo";
 export * from "./day-changes";
 export * from "./habits";
+export * from "./blocks";

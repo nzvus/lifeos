@@ -7,6 +7,7 @@ import { PageHeader } from "@lifeos/kit";
 import { TrackerForm } from "@/features/account/TrackerForm";
 import { tracker } from "@/i18n/tracker";
 import { ExerciseForm } from "@/features/library/ExerciseForm";
+import { composeBlock, newBlock } from "./block-forms";
 import { composeCycle, newCycle } from "./cycle-forms";
 import { saveExercise } from "./exercise-actions";
 import { newFood, newProduct } from "./food-forms";
@@ -46,6 +47,7 @@ export const NEW_FORMS: Record<string, NewForm> = {
   exercise: { render: () => <ExerciseForm action={saveExercise} /> },
   routine: { render: newRoutine, from: ["startFrom"] },
   cycle: { render: newCycle },
+  block: { render: newBlock },
 };
 
 /**
@@ -59,6 +61,7 @@ export const COMPOSERS: Record<
   recipe: composeRecipe,
   routine: composeRoutine,
   cycle: composeCycle,
+  block: composeBlock,
 };
 
 /** The query word of each starting verb (PAT-16, PAT-17). */

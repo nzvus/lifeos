@@ -22,7 +22,7 @@
        then the data is checked.
        Moved to slice 4: «Rec» targets → Obiettivi and «Rec» archived, with the code that
        reads the day's targets from Obiettivi (storing goals nothing reads would be a guess).
-3. [ ] Screens. Done: the kit's «Ogni quanto» (`Recurrence`, `recurrence.ts`, `Stepper` out of
+3. [x] Screens. Done: the kit's «Ogni quanto» (`Recurrence`, `recurrence.ts`, `Stepper` out of
        `Field`; gallery `#ogni-quanto`, photographed in CI), the registry's `recurrence` and
        `date` field types (`core/kinds/recurrence.ts`); the Piano, the cycle book and Salta /
        Sposta read the cicli from the catalog (`readCycles`, paused = archived); **the ciclo
@@ -32,8 +32,15 @@
        (`NewObjectForm` + `objectCreate`, generated from the registry, then its steps); the
        old editor gone (`/corpo/ciclo/<id>` redirects; `createCycle` / `saveCycle` /
        `addStep` / `moveStep` and their mirror removed). Checked in the browser: + Riposo saved,
-       Togli saved, a new ciclo with Push + Riposo. Next: the blocco page and form, «Blocchi»
-       and «Cicli» in Elenco; photos.
+       Togli saved, a new ciclo with Push + Riposo. **The blocco page**
+       `/oggi/blocco/<id>` (generic + `block-extra`: how often under its title, «Che cosa» or
+       «A turno», each row to its page), «Nuovo blocco» (generated, «Rispetto a» his other
+       blocchi: a `ref` field is a choice of his objects — *decided by the agent*), its
+       Composer (`BlockComposer`, `setBlockWhat`: pasti, schede, tragitti with servings, or one
+       type alone as a fixed line — kit `ComposerLine.fixed`); «Blocchi» and «Cicli» in Oggi ·
+       Elenco. Checked in the browser: a rotation of two pasti saved, «Acqua» replacing it.
+       Open detail: «Rispetto a» / «Scarto» show even when «Quando» is «a un'ora» (hiding a
+       field by another's value would be a new registry rule: not now).
 4. [ ] The Piano tabs and Oggi read the Piano of a day from blocchi (PL-40…43); the old reads
        retired; «Rec» targets → Obiettivi (PL-61, FD-20) with a repair, «Rec» archived; habits
        created since 0006 carried; photos before/after.

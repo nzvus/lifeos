@@ -22,6 +22,11 @@
   `/oggi/ciclo/<id>`; `componi` mounted under `oggi` too, `compose-route.tsx`).
 - **PAT-11** adds: a type with plain declared fields gets the generated form (`NewObjectForm`:
   its name and its fields, `objectCreate` through `core/verbs`); the ciclo is the first.
+- **PAT-30** adds: a `ref` field is a row like the others, a choice of his live objects of its
+  catalog, shown by name (`readRefs`); a field marked `internal` is stored, never a row (its
+  type's section edits it: a blocco's `kind`). *Decided by the agent.*
+- **PAT-62** adds: a line may be `fixed` — no stepper, its quantity posted as it is (a
+  blocco's type, PL-03).
 - **PAT-61** adds: a day is `Field type="date"` (registry field type `date`, ISO, native picker).
 - **PAT-62** adds: a ciclo's steps are composed as ordered lines (the scheda's
   `counted={false}`), with a fixed «+ Riposo» under the search that adds an empty step; a

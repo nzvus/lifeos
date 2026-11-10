@@ -5,13 +5,15 @@
  * `anchor` / `offsetMin` (PL-10) and whose how often is `recurrence` (the engine's, PL-20).
  * `readBlocks` turns his rows into `Block`s; `blocksOn` is the pure Piano of one day from them.
  */
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { catalogItems, catalogParts, catalogValues } from "../db/schema";
+import { catalogItems, catalogParts, catalogValues, kinds } from "../db/schema";
 import { plannedOn, type Recurrence } from "../engines/time/recurrence";
 import { parseRecurrence } from "../kinds/recurrence";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
+import { ownsItem, textValues } from "./items";
+import { BUILTIN_KINDS } from "../kinds/builtins";
 import { AREAS, BLOCK_WHEN, type Area } from "../kinds/catalog";
 
 export { parseRecurrence };
@@ -157,4 +159,158 @@ export function blocksOn(
       const at = last ? items.findIndex((i) => i.itemId === last) : -1;
       return { block: b, itemId: items[(at + 1) % items.length]!.itemId };
     });
+}
+
+export type BlockWhat = {
+  /** Its object, or a rotation's in order (PL-01, PL-02), each with its catalog and servings. */
+  items: { id: string; name: string; catalog: string; quantity: string | null }[];
+  /** A type with defaults instead (a voce kind or his tracker's key, PL-01, PL-03). */
+  kind: string | null;
+};
+
+/** What one blocco of his holds, for its page and its Composer; null when it is not his. */
+export async function readBlockWhat(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<BlockWhat | null> {
+  if (!(await ownsItem(db, owner, id, "block"))) return null;
+  const [items, kind] = await Promise.all([
+    db
+      .select({
+        id: catalogParts.partItemId,
+        name: catalogItems.name,
+        catalog: catalogItems.catalog,
+        quantity: catalogParts.quantity,
+      })
+      .from(catalogParts)
+      .innerJoin(catalogItems, eq(catalogItems.id, catalogParts.partItemId))
+      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)))
+      .orderBy(catalogParts.position),
+    db
+      .select({ text: catalogValues.text })
+      .from(catalogValues)
+      .where(
+        and(
+          ownedBy(catalogValues, owner),
+          eq(catalogValues.itemId, id),
+          eq(catalogValues.field, "kind"),
+        ),
+      ),
+  ]);
+  return { items, kind: kind[0]?.text ?? null };
+}
+
+export type BlockListRow = {
+  id: string;
+  name: string;
+  area: string | null;
+  recurrence: string | null;
+};
+
+/** His blocchi for Elenco (PL-70): live, or the archived ones; name, area and how often. */
+export async function listBlocks(
+  db: Db,
+  owner: Owner,
+  archived: boolean,
+): Promise<BlockListRow[]> {
+  const rows = await db
+    .select({ id: catalogItems.id, name: catalogItems.name })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "block"),
+        isNull(catalogItems.deletedAt),
+        archived ? isNotNull(catalogItems.archivedAt) : isNull(catalogItems.archivedAt),
+      ),
+    )
+    .orderBy(catalogItems.name);
+  if (rows.length === 0) return [];
+  const v = await textValues(
+    db,
+    owner,
+    rows.map((r) => r.id),
+    ["area", "recurrence"],
+  );
+  return rows.map((r) => ({
+    ...r,
+    area: v(r.id, "area"),
+    recurrence: v(r.id, "recurrence"),
+  }));
+}
+
+/** The catalog types a blocco may hold (PL-01): a pasto (or a variant), a scheda, a tragitto. */
+export const BLOCK_OBJECTS = ["recipe", "routine", "route"] as const;
+
+export type BlockWhatInput =
+  { kind: string } | { items: readonly { id: string; quantity: number | null }[] };
+
+/**
+ * What a blocco holds, replaced (PL-01…03): one or more objects of his, in order, each with its
+ * servings (several = a rotation, PL-02) — or one type (a built-in voce kind or his tracker).
+ * The other one is cleared. «gone»: not his blocco; «invalid»: an object, a type or a quantity
+ * that is not his or not one.
+ */
+export async function setBlockWhat(
+  db: Db,
+  owner: Owner,
+  id: string,
+  what: BlockWhatInput,
+): Promise<"ok" | "gone" | "invalid"> {
+  return db.transaction(async (tx) => {
+    if (!(await ownsItem(tx, owner, id, "block"))) return "gone";
+    if ("kind" in what) {
+      const own = await tx
+        .select({ key: kinds.key })
+        .from(kinds)
+        .where(and(ownedBy(kinds, owner), eq(kinds.key, what.kind)));
+      if (!BUILTIN_KINDS.some((k) => k.key === what.kind) && own.length === 0)
+        return "invalid";
+    } else {
+      const ids = what.items.map((x) => x.id);
+      if (ids.length === 0 || new Set(ids).size !== ids.length) return "invalid";
+      if (what.items.some((x) => x.quantity !== null && !(x.quantity > 0)))
+        return "invalid";
+      const mine = await tx
+        .select({ id: catalogItems.id })
+        .from(catalogItems)
+        .where(
+          and(
+            ownedBy(catalogItems, owner),
+            inArray(catalogItems.id, ids),
+            inArray(catalogItems.catalog, [...BLOCK_OBJECTS]),
+            isNull(catalogItems.deletedAt),
+          ),
+        );
+      if (mine.length !== ids.length) return "invalid";
+    }
+    await tx
+      .delete(catalogParts)
+      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)));
+    await tx
+      .delete(catalogValues)
+      .where(
+        and(
+          ownedBy(catalogValues, owner),
+          eq(catalogValues.itemId, id),
+          inArray(catalogValues.field, ["kind", "defaults"]),
+        ),
+      );
+    if ("kind" in what)
+      await tx
+        .insert(catalogValues)
+        .values({ userId: owner.id, itemId: id, field: "kind", text: what.kind });
+    else
+      await tx.insert(catalogParts).values(
+        what.items.map((x, position) => ({
+          userId: owner.id,
+          itemId: id,
+          position,
+          partItemId: x.id,
+          quantity: x.quantity === null ? null : String(x.quantity),
+        })),
+      );
+    return "ok";
+  });
 }

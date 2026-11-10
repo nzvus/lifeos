@@ -23,34 +23,12 @@ import { readCycles } from "./cycles-repo";
 import { inheritedTargets, type ModelRow } from "./models";
 import { dayPlans, type DayPlan, type PlanCycle } from "./plan";
 
-/** The day models as `inheritedTargets` reads them: an archived base still lends its targets. */
-const asRows = (
-  models: readonly {
-    id: string;
-    name: string;
-    scope: string;
-    targets: unknown;
-    extendsId: string | null;
-  }[],
-): ModelRow[] =>
-  models
-    .filter((m) => m.scope === "day")
-    .map((m) => ({
-      id: m.id,
-      name: m.name,
-      extendsId: m.extendsId,
-      targets: (m.targets as Record<string, unknown> | null) ?? null,
-      active: true,
-    }));
-
-export async function readDayPlans(
-  db: Db,
-  owner: Owner,
-  from: IsoDate,
-  to: IsoDate,
-  today: IsoDate,
-): Promise<Map<IsoDate, DayPlan>> {
-  const [models, week, fixed, cycles] = await Promise.all([
+/**
+ * The day models (archived ones too: a base still lends its targets, a fixed day keeps its
+ * model's name), the week layout and the days' fixed copies in a range: three narrow queries.
+ */
+async function readModelInput(db: Db, owner: Owner, from: IsoDate, to: IsoDate) {
+  return Promise.all([
     db
       .select({
         id: templates.id,
@@ -83,6 +61,38 @@ export async function readDayPlans(
           lte(decisions.day, to),
         ),
       ),
+  ]);
+}
+
+/** The day models as `inheritedTargets` reads them: an archived base still lends its targets. */
+const asRows = (
+  models: readonly {
+    id: string;
+    name: string;
+    scope: string;
+    targets: unknown;
+    extendsId: string | null;
+  }[],
+): ModelRow[] =>
+  models
+    .filter((m) => m.scope === "day")
+    .map((m) => ({
+      id: m.id,
+      name: m.name,
+      extendsId: m.extendsId,
+      targets: (m.targets as Record<string, unknown> | null) ?? null,
+      active: true,
+    }));
+
+export async function readDayPlans(
+  db: Db,
+  owner: Owner,
+  from: IsoDate,
+  to: IsoDate,
+  today: IsoDate,
+): Promise<Map<IsoDate, DayPlan>> {
+  const [[models, week, fixed], cycles] = await Promise.all([
+    readModelInput(db, owner, from, to),
     readCycles(db, owner, { live: true }),
   ]);
   const dayModels = new Map(
@@ -258,40 +268,7 @@ export async function readDayModels(
 ): Promise<
   Map<IsoDate, { name: string; targets: Record<string, unknown> | null } | null>
 > {
-  const [models, week, fixed] = await Promise.all([
-    db
-      .select({
-        id: templates.id,
-        name: templates.name,
-        scope: templates.scope,
-        targets: templates.targets,
-        extendsId: templates.extendsId,
-      })
-      .from(templates)
-      .where(
-        and(
-          ownedBy(templates, owner),
-          eq(templates.scope, "day"),
-          // Archived ones too: a base still lends its targets, a fixed day keeps its model's name.
-          isNull(templates.deletedAt),
-        ),
-      ),
-    db
-      .select({ weekday: weekLayouts.weekday, templateId: weekLayouts.templateId })
-      .from(weekLayouts)
-      .where(ownedBy(weekLayouts, owner)),
-    db
-      .select({ day: decisions.day, payload: decisions.payload })
-      .from(decisions)
-      .where(
-        and(
-          ownedBy(decisions, owner),
-          eq(decisions.kind, "day_targets"),
-          gte(decisions.day, from),
-          lte(decisions.day, to),
-        ),
-      ),
-  ]);
+  const [models, week, fixed] = await readModelInput(db, owner, from, to);
   const byId = new Map(
     models.map((m) => [
       m.id,

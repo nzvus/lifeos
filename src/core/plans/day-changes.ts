@@ -1,18 +1,5 @@
 /** A ciclo of his in the catalog (MOD-36), archived ones too (a past day may be changed). */
-async function ownsCycle(db: Db, owner: Owner, cycleId: string): Promise<boolean> {
-  const [c] = await db
-    .select({ id: catalogItems.id })
-    .from(catalogItems)
-    .where(
-      and(
-        ownedBy(catalogItems, owner),
-        eq(catalogItems.id, cycleId),
-        eq(catalogItems.catalog, "cycle"),
-        isNull(catalogItems.deletedAt),
-      ),
-    );
-  return !!c;
-}
+const ownsCycle = (db: Db, owner: Owner, id: string) => ownsItem(db, owner, id, "cycle");
 
 /**
  * core/plans/day-changes.ts — changing one day only (dossiers/
@@ -24,11 +11,12 @@ async function ownsCycle(db: Db, owner: Owner, cycleId: string): Promise<boolean
  *   skip   a cycle's step skipped that day (`cycle_skip`, keyed by the
  *          cycle): E3 loses it or shifts it, by the cycle's rule.
  */
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { catalogItems, decisions, templates } from "../db/schema";
+import { decisions, templates } from "../db/schema";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
+import { ownsItem } from "./items";
 
 export async function setDayModel(
   db: Db,

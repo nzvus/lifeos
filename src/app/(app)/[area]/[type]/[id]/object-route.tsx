@@ -20,6 +20,7 @@ import {
 } from "./actions";
 import { EXTRAS } from "./extras";
 import { NEW_FORMS } from "./new-forms";
+import { readRefs } from "./refs";
 
 export type Query = Readonly<Record<string, string | string[] | undefined>>;
 const one = (q: Query) =>
@@ -63,7 +64,7 @@ export async function objectRoute(
       meta={[t.name, extra.meta, o.archived ? objects.archived : null]
         .filter(Boolean)
         .join(" · ")}
-      fields={objectFields(t, o.values)}
+      fields={objectFields(t, o.values, await readRefs(db, owner, t, o.id))}
       {...(extra.summary ? { summary: extra.summary } : {})}
       {...(extra.parts ? { parts: extra.parts } : {})}
       {...(extra.progress ? { progress: extra.progress } : {})}

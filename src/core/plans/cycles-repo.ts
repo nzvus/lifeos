@@ -8,9 +8,10 @@
  */
 import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { catalogItems, catalogValues, cycleStepItems, cycleSteps } from "../db/schema";
+import { catalogItems, cycleStepItems, cycleSteps } from "../db/schema";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
+import { ownsItem, textValues } from "./items";
 
 export type CycleStepRow = {
   id: string;
@@ -66,25 +67,12 @@ export async function readCycles(
     )
     .orderBy(asc(catalogItems.name));
   if (rows.length === 0) return [];
-  const values = await db
-    .select({
-      itemId: catalogValues.itemId,
-      field: catalogValues.field,
-      text: catalogValues.text,
-    })
-    .from(catalogValues)
-    .where(
-      and(
-        ownedBy(catalogValues, owner),
-        inArray(
-          catalogValues.itemId,
-          rows.map((r) => r.id),
-        ),
-        inArray(catalogValues.field, ["advance", "onSkip", "start"]),
-      ),
-    );
-  const v = (id: string, field: string) =>
-    values.find((x) => x.itemId === id && x.field === field)?.text ?? null;
+  const v = await textValues(
+    db,
+    owner,
+    rows.map((r) => r.id),
+    ["advance", "onSkip", "start"],
+  );
   return rows.map((r) => {
     const start = v(r.id, "start");
     return {
@@ -194,18 +182,7 @@ export async function setCycleSteps(
   order: readonly StepRef[],
 ): Promise<"ok" | "gone" | "invalid"> {
   return db.transaction(async (tx) => {
-    const [c] = await tx
-      .select({ id: catalogItems.id })
-      .from(catalogItems)
-      .where(
-        and(
-          ownedBy(catalogItems, owner),
-          eq(catalogItems.id, cycleId),
-          eq(catalogItems.catalog, "cycle"),
-          isNull(catalogItems.deletedAt),
-        ),
-      );
-    if (!c) return "gone";
+    if (!(await ownsItem(tx, owner, cycleId, "cycle"))) return "gone";
     const have = await tx
       .select({ id: cycleSteps.id })
       .from(cycleSteps)
