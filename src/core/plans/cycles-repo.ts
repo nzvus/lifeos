@@ -6,11 +6,16 @@
  * E3's `cyclePlan`: a session of that routine counts for it) or nothing (a
  * rest). What each day holds stays derived (E3), never stored. Every query
  * `ownedBy` the owner.
+ *
+ * A ciclo is also a catalog «cycle» with the same id (MOD-36, ADR-0062): `cycle_steps` points
+ * there, so creating and saving one writes that row too (`mirror`) until the Piano reads the
+ * catalog only (change 2026-11-07-piano, slice 4).
  */
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
 import {
   catalogItems,
+  catalogValues,
   cycleStepItems,
   cycleSteps,
   cyclesState,
@@ -132,6 +137,53 @@ export async function readCycleBook(
   };
 }
 
+type CycleRules = {
+  name: string;
+  start: IsoDate;
+  active: boolean;
+  advance: "occurrence" | "date";
+  onSkip: "lose" | "shift";
+};
+
+/** Its catalog «cycle» row and values, created or brought up to date; paused = archived. */
+async function mirror(
+  tx: Pick<Db, "insert">,
+  owner: Owner,
+  id: string,
+  c: CycleRules,
+): Promise<void> {
+  await tx
+    .insert(catalogItems)
+    .values({
+      id,
+      userId: owner.id,
+      catalog: "cycle",
+      name: c.name,
+      archivedAt: c.active ? null : new Date(),
+    })
+    .onConflictDoUpdate({
+      target: catalogItems.id,
+      set: {
+        name: c.name,
+        archivedAt: c.active ? null : sql`coalesce(${catalogItems.archivedAt}, now())`,
+      },
+    });
+  await tx
+    .insert(catalogValues)
+    .values(
+      (["advance", "onSkip", "start"] as const).map((field) => ({
+        userId: owner.id,
+        itemId: id,
+        field,
+        text: c[field],
+      })),
+    )
+    .onConflictDoUpdate({
+      target: [catalogValues.itemId, catalogValues.field],
+      set: { text: sql`excluded.text` },
+    });
+}
+
 const ownedCycle = (owner: Owner, id: string) =>
   and(ownedBy(templates, owner), eq(templates.id, id), eq(templates.scope, "cycle"));
 
@@ -148,6 +200,13 @@ export async function createCycle(
       .values({ userId: owner.id, scope: "cycle", name, startDay: start })
       .returning({ id: templates.id });
     await tx.insert(cyclesState).values({ userId: owner.id, cycleId: c!.id });
+    await mirror(tx, owner, c!.id, {
+      name,
+      start,
+      active: true,
+      advance: "occurrence",
+      onSkip: "lose",
+    });
     return c!.id;
   });
 }
@@ -157,13 +216,7 @@ export async function saveCycle(
   db: Db,
   owner: Owner,
   id: string,
-  c: {
-    name: string;
-    start: IsoDate;
-    active: boolean;
-    advance: "occurrence" | "date";
-    onSkip: "lose" | "shift";
-  },
+  c: CycleRules,
 ): Promise<boolean> {
   return db.transaction(async (tx) => {
     const rows = await tx
@@ -179,6 +232,7 @@ export async function saveCycle(
         target: cyclesState.cycleId,
         set: { advance: c.advance, onSkip: c.onSkip },
       });
+    await mirror(tx, owner, id, c);
     return true;
   });
 }

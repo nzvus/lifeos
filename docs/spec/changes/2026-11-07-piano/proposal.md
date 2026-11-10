@@ -40,6 +40,9 @@ report that named the Piano as the next change).
 **Answered.** Q-14, his words 7 Nov: «decidi tu» → the agent's pick (a), recorded as ADR-0062
 (blocchi and cicli are catalog objects).
 
+His words, 7 Nov, after slice 1: «senti decidi tu, vai avanti senza di me» (PROD-39: go on
+inside the approved spec; anything new is written as a question, asked at the end).
+
 **Not in this change.** PL-50…52 proposals and their checks (the proposal engine, a change of
 its own after this one); PL-62 week aggregation; plan layers (x04).
 

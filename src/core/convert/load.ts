@@ -6,12 +6,13 @@
  * One transaction: a file that breaks a rule of the schema loads nothing.
  * `replaceFile` first takes out every row the owner has in those tables
  * (never the account and sign-in tables), in the same transaction: if the
- * load fails, what was there stays.
+ * load fails, what was there stays. A file made before the cicli moved to the catalog
+ * (v1's conversion, a v2 export before 0006) gets their catalog rows first (`withCycleItems`).
  */
 import { eq, getTableColumns, getTableName, sql, type Column } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT, PgTable } from "drizzle-orm/pg-core";
 import type { V2File, V2TableKey } from "./file";
-import { V2_TABLES } from "./file";
+import { V2_TABLES, withCycleItems } from "./file";
 
 const SELF: Partial<Record<V2TableKey, string[]>> = {
   catalog_items: ["parentId", "basedOnId"],
@@ -92,6 +93,7 @@ export async function replaceFile(
 }
 
 async function insertAll(tx: Tx, file: V2File, userId: string): Promise<void> {
+  const tables = withCycleItems(file.tables, file.exportedAt || new Date().toISOString());
   {
     for (const key of Object.keys(V2_TABLES) as V2TableKey[]) {
       const table = V2_TABLES[key];
@@ -99,7 +101,7 @@ async function insertAll(tx: Tx, file: V2File, userId: string): Promise<void> {
       const dates = Object.entries(columns)
         .filter(([, c]) => c.columnType === "PgTimestamp")
         .map(([k]) => k);
-      let rows = file.tables[key] as Record<string, unknown>[];
+      let rows = tables[key] as Record<string, unknown>[];
       const self = SELF[key];
       if (self) rows = parentsFirst(rows, self);
       const ready = rows.map((r) => {

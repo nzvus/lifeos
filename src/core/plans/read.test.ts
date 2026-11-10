@@ -43,6 +43,10 @@ describe("reading what each day is supposed to be", () => {
     );
     const cycle = await tpl(a, "cycle", "PLPRR", "2026-10-20");
     await db.insert(s.cyclesState).values({ userId: a.id, cycleId: cycle });
+    // Its catalog «cycle», the same id (MOD-36): cycle_steps points there.
+    await db
+      .insert(s.catalogItems)
+      .values({ id: cycle, userId: a.id, catalog: "cycle", name: "PLPRR" });
     const [pull] = await db
       .insert(s.catalogItems)
       .values({ userId: a.id, catalog: "routine", name: "Pull" })
