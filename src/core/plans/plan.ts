@@ -1,23 +1,11 @@
 /**
- * core/plans/plan.ts — what each day is supposed to be (dossiers/
- * day-templates.md §5, slice a): its day model and, from today on, the
- * cycles' steps due. Pure; `read.ts` gathers its input in a few queries.
- *   model  the day's fixed copy (a `day_targets` decision naming its
- *          model), else the week layout's model for that weekday, else none;
- *   cycle  each active cycle's step due (E3 `cyclePlan`) on today and the
- *          days after, with the step after it («poi Riposo»). Past days are
- *          what happened: no step is shown for them.
+ * core/plans/plan.ts — each day's ciclo steps (PL-31…33): from today on, each live ciclo's step
+ * due (E3 `cyclePlan`), with the step after it («poi Riposo»). Past days are what happened: no
+ * step is shown for them. Pure; `read.ts` gathers its input. The blocchi of a day are
+ * `day-blocks.ts`; day models are gone (MOD-32, PL-61; change 2026-11-07-piano).
  */
 import { cyclePlan, isRest, type Cycle, type Occurrence } from "../engines/planning";
-import { addDays, daysBetween, isoWeekday, type IsoDate } from "../engines/time";
-
-export type DayModelRef = {
-  id: string;
-  name: string;
-  from: "day" | "week";
-  /** Its targets (fixed numbers or dynamic parameters), for core/day's resolution. */
-  targets: Record<string, unknown> | null;
-};
+import { addDays, daysBetween, type IsoDate } from "../engines/time";
 
 export type CycleStepDue = {
   cycleId: string;
@@ -25,13 +13,15 @@ export type CycleStepDue = {
   /** The step's label, «Riposo» for a rest without one. */
   label: string;
   rest: boolean;
+  /** Its first object (the step's scheda), for the Piano of the day (PL-30, PL-40). */
+  itemId: string | null;
   late: boolean;
   skipped: boolean;
   /** The step due the day after, when planned. */
   next: string | null;
 };
 
-export type DayPlan = { model: DayModelRef | null; cycles: CycleStepDue[] };
+export type DayPlan = { cycles: CycleStepDue[] };
 
 export type PlanCycle = Cycle & { id: string; name: string };
 
@@ -39,14 +29,6 @@ export type PlanInput = {
   today: IsoDate;
   from: IsoDate;
   to: IsoDate;
-  /** Live day models by id. */
-  models: ReadonlyMap<string, string>;
-  /** Their targets, by id; absent ones have none. */
-  modelTargets?: ReadonlyMap<string, Record<string, unknown> | null>;
-  /** ISO weekday (1 Monday … 7 Sunday) → model id. */
-  week: ReadonlyMap<number, string>;
-  /** A day's fixed copy → the model it was made from. */
-  fixed: ReadonlyMap<IsoDate, string>;
   cycles: readonly PlanCycle[];
   done: readonly Occurrence[];
   overrides: ReadonlyMap<string, readonly { day: IsoDate; position: number | null }[]>;
@@ -57,20 +39,7 @@ const REST_WORD = "Riposo";
 
 export function dayPlans(input: PlanInput): Map<IsoDate, DayPlan> {
   const out = new Map<IsoDate, DayPlan>();
-  const modelOf = (day: IsoDate): DayModelRef | null => {
-    const own = input.fixed.get(day);
-    const ref = (id: string, from: DayModelRef["from"]): DayModelRef => ({
-      id,
-      name: input.models.get(id)!,
-      from,
-      targets: input.modelTargets?.get(id) ?? null,
-    });
-    if (own && input.models.has(own)) return ref(own, "day");
-    const w = input.week.get(isoWeekday(day));
-    return w && input.models.has(w) ? ref(w, "week") : null;
-  };
-  for (let d = input.from; d <= input.to; d = addDays(d, 1))
-    out.set(d, { model: modelOf(d), cycles: [] });
+  for (let d = input.from; d <= input.to; d = addDays(d, 1)) out.set(d, { cycles: [] });
 
   if (input.to < input.today) return out;
   // One more day than shown: the last day's «poi».
@@ -95,6 +64,7 @@ export function dayPlans(input: PlanInput): Map<IsoDate, DayPlan> {
         cycle: c.name,
         label: label(p.step),
         rest: isRest(p.step),
+        itemId: p.step.keys[0] ?? null,
         late: p.late,
         skipped: p.skipped,
         next: after && after.day === addDays(p.day, 1) ? label(after.step) : null,
@@ -104,11 +74,10 @@ export function dayPlans(input: PlanInput): Map<IsoDate, DayPlan> {
   return out;
 }
 
-/** «Giornata Rec · PLPRR: oggi Push, poi Riposo» — the words of a day's plan. */
+/** «PLPRR: oggi Push, poi Riposo» — the words of a day's plan. */
 export function planWords(plan: DayPlan | undefined, isToday: boolean): string {
   if (!plan) return "";
   const parts: string[] = [];
-  if (plan.model) parts.push("giornata «" + plan.model.name + "»");
   for (const c of plan.cycles)
     parts.push(
       c.cycle +
@@ -139,8 +108,7 @@ export function cycleWords(plan: DayPlan | undefined, isToday: boolean): string 
     .join(" · ");
 }
 
-/** A day's name in the week strip: its cycle's step (the first cycle), else its model. */
+/** A day's name in the week strip: its first ciclo's step. */
 export function planTag(plan: DayPlan | undefined): string {
-  if (!plan) return "";
-  return plan.cycles[0]?.label ?? plan.model?.name ?? "";
+  return plan?.cycles[0]?.label ?? "";
 }

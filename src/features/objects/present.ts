@@ -15,11 +15,13 @@ import { MODE_WORDS } from "../movement-words";
 const CHOICE_WORDS: Record<string, Record<string, Record<string, string>>> = {
   route: { mode: MODE_WORDS },
   cycle: { advance: plan.cycle.advance, onSkip: plan.cycle.onSkip },
+  block: { when: plan.block.when },
 };
 
 /** What a field means, under it while it is edited, per type and field. */
 const FIELD_HELP: Record<string, Record<string, string>> = {
   cycle: plan.cycle.help,
+  block: plan.block.help,
 };
 
 export type ObjectField = {
@@ -33,31 +35,44 @@ export function fieldWord(t: CatalogType, key: string): string | undefined {
 }
 
 /** A new object's form (PAT-11, PAT-61): its name, then the type's declared fields. */
-export function newFields(t: CatalogType): FormFieldSpec[] {
+export function newFields(t: CatalogType, refs: Refs = {}): FormFieldSpec[] {
   return [
     { key: "name", label: objects.name, type: "text", required: true },
-    ...objectFields(t, {}).map((f) => f.spec),
+    ...objectFields(t, {}, refs).map((f) => f.spec),
   ];
 }
 
-export function objectFields(t: CatalogType, values: Values): ObjectField[] {
+/** A `ref` field's choices: his objects of its catalog, by field key (the page reads them). */
+export type Refs = Readonly<Record<string, readonly { id: string; name: string }[]>>;
+
+export function objectFields(
+  t: CatalogType,
+  values: Values,
+  refs: Refs = {},
+): ObjectField[] {
   return t.fields
-    .filter((f) => f.type !== "ref")
+    .filter((f) => !f.internal && (f.type !== "ref" || refs[f.key]))
     .map((f) => {
-      const words = CHOICE_WORDS[t.key]?.[f.key] ?? {};
+      // A ref is a choice of his objects (PAT-30), shown by name (decided by the agent).
+      const of = refs[f.key];
+      const words = of
+        ? Object.fromEntries(of.map((o) => [o.id, o.name]))
+        : (CHOICE_WORDS[t.key]?.[f.key] ?? {});
       const spec: FormFieldSpec = {
         key: f.key,
         label: fieldWord(t, f.key) ?? f.key,
-        type: f.type as FormFieldSpec["type"],
+        type: of ? "choice" : (f.type as FormFieldSpec["type"]),
         ...(f.unit ? { unit: f.unit } : {}),
         ...(f.min !== undefined ? { min: f.min } : {}),
         ...(f.max !== undefined ? { max: f.max } : {}),
         ...(f.scale ? { scale: f.scale } : {}),
         ...(f.required ? { required: true } : {}),
         ...(FIELD_HELP[t.key]?.[f.key] ? { help: FIELD_HELP[t.key]![f.key]! } : {}),
-        ...(f.choices
-          ? { choices: f.choices.map((c) => ({ value: c, label: words[c] ?? c })) }
-          : {}),
+        ...(of
+          ? { choices: of.map((o) => ({ value: o.id, label: o.name })) }
+          : f.choices
+            ? { choices: f.choices.map((c) => ({ value: c, label: words[c] ?? c })) }
+            : {}),
       };
       const v = values[f.key] ?? null;
       const shown =

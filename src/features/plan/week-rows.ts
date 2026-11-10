@@ -1,6 +1,6 @@
 /**
  * features/plan/week-rows.ts — Piano's week as the board Plan draws it: one
- * row per day, «Rec» + the cycle's step in the title, what happened on a
+ * row per day, the ciclo's step in the title, what happened on a
  * past day (the sessions done) or what is planned on a coming one (the
  * step, the planned entries, the day's kcal), each opening its day. Pure.
  */
@@ -21,7 +21,6 @@ export function dayRow(p: {
   const past = p.day < p.today;
   const step = p.plan?.cycles.find((c) => !c.rest) ?? null;
   const rest = (p.plan?.cycles.length ?? 0) > 0 && !step;
-  const model = p.plan?.model?.name ?? null;
   const trains = past ? p.sessions.length > 0 : !!step;
   const label = F.Day(p.day);
   return {
@@ -29,12 +28,8 @@ export function dayRow(p: {
     ...(trains ? { sub: "strength" } : {}),
     time: F.dayShort(p.day),
     title:
-      [
-        model ? "«" + model + "»" : "",
-        past ? p.sessions.join(" + ") : step ? step.label : rest ? "Riposo" : "",
-      ]
-        .filter(Boolean)
-        .join(" + ") || "Senza modello",
+      (past ? p.sessions.join(" + ") : step ? step.label : rest ? "Riposo" : "") ||
+      "Nessun ciclo",
     value: past
       ? p.sessions.length
         ? "fatto"
@@ -57,7 +52,6 @@ export function dayRow(p: {
             : "",
       p.planned ? F.plural(p.planned, "previsto", "previsti") : "",
       p.kcal ? F.num(p.kcal, "kcal") : "",
-      p.plan?.model?.from === "day" ? "cambiato solo qui" : "",
     ]
       .filter(Boolean)
       .join(" · "),

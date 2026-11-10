@@ -1,9 +1,4 @@
 {
-  "src/app/(app)/[area]/abitudine/[id]/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 1
-    }
-  },
   "src/app/(app)/[area]/elenco/doppioni/page.tsx": {
     "lifeos/no-inline-style": {
       "count": 1
@@ -73,25 +68,15 @@
   },
   "src/app/(app)/oggi/day-page.tsx": {
     "lifeos/no-raw-form": {
-      "count": 3
+      "count": 2
     },
     "lifeos/no-type-key-compare": {
-      "count": 11
-    }
-  },
-  "src/app/(app)/oggi/giornata/[id]/actions.ts": {
-    "lifeos/no-type-key-compare": {
-      "count": 1
-    }
-  },
-  "src/app/(app)/oggi/giornata/[id]/page.tsx": {
-    "lifeos/no-type-key-compare": {
-      "count": 1
+      "count": 10
     }
   },
   "src/app/(app)/oggi/piano/page.tsx": {
     "lifeos/no-raw-form": {
-      "count": 5
+      "count": 4
     },
     "lifeos/no-type-key-compare": {
       "count": 2
@@ -103,17 +88,6 @@
     }
   },
   "src/app/(app)/piano/actions.ts": {
-    "lifeos/no-type-key-compare": {
-      "count": 2
-    }
-  },
-  "src/app/(app)/piano/modelli/models.tsx": {
-    "lifeos/no-inline-style": {
-      "count": 2
-    },
-    "lifeos/no-raw-form": {
-      "count": 1
-    },
     "lifeos/no-type-key-compare": {
       "count": 2
     }
@@ -161,11 +135,6 @@
       "count": 5
     }
   },
-  "src/core/plans/models-repo.ts": {
-    "lifeos/no-type-key-compare": {
-      "count": 3
-    }
-  },
   "src/features/account/AuthForm.tsx": {
     "lifeos/no-raw-form": {
       "count": 1
@@ -186,10 +155,7 @@
   },
   "src/features/day/DayPlanBar.tsx": {
     "lifeos/no-inline-style": {
-      "count": 4
-    },
-    "lifeos/no-raw-form": {
-      "count": 1
+      "count": 3
     }
   },
   "src/features/day/DayView.tsx": {
@@ -240,11 +206,6 @@
       "count": 2
     }
   },
-  "src/features/day/model-items.ts": {
-    "lifeos/no-type-key-compare": {
-      "count": 4
-    }
-  },
   "src/features/day/nutrients.ts": {
     "lifeos/no-type-key-compare": {
       "count": 1
@@ -263,11 +224,6 @@
   "src/features/day/score.ts": {
     "lifeos/no-type-key-compare": {
       "count": 13
-    }
-  },
-  "src/features/day/slots.ts": {
-    "lifeos/no-type-key-compare": {
-      "count": 2
     }
   },
   "src/features/food/IntakeForm.tsx": {
@@ -306,32 +262,6 @@
   "src/features/money/MovementForm.tsx": {
     "lifeos/no-raw-form": {
       "count": 1
-    }
-  },
-  "src/features/plan/HabitForm.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 1
-    }
-  },
-  "src/features/plan/ModelEditor.tsx": {
-    "lifeos/no-inline-style": {
-      "count": 4
-    },
-    "lifeos/no-raw-form": {
-      "count": 3
-    },
-    "lifeos/no-type-key-compare": {
-      "count": 2
-    }
-  },
-  "src/features/plan/from-day.ts": {
-    "lifeos/no-type-key-compare": {
-      "count": 2
-    }
-  },
-  "src/features/plan/model-form.ts": {
-    "lifeos/no-type-key-compare": {
-      "count": 13
     }
   },
   "src/features/progress/GoalForm.tsx": {

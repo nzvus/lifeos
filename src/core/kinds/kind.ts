@@ -68,6 +68,8 @@ export const fieldSchema = z
     min: z.number().optional(),
     max: z.number().optional(),
     required: z.boolean().default(false),
+    /** Stored, never shown as a value row: its type's own section edits it (a blocco's `kind`). */
+    internal: z.boolean().optional(),
   })
   .refine((f) => f.type !== "scale" || f.scale !== undefined, "a scale needs its top")
   .refine((f) => f.type !== "choice" || f.choices !== undefined, "a choice needs choices")

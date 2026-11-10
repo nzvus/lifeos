@@ -4,7 +4,16 @@ import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { act } from "../verbs";
-import { blocksOn, blockWhen, parseRecurrence, readBlocks, type Block } from "./blocks";
+import {
+  blocksOn,
+  blockWhen,
+  listBlocks,
+  parseRecurrence,
+  readBlocks,
+  readBlockWhat,
+  setBlockWhat,
+  type Block,
+} from "./blocks";
 
 const block = (id: string, items: string[], recurrence: Block["recurrence"]): Block => ({
   id,
@@ -116,5 +125,65 @@ describe("readBlocks (MOD-36)", () => {
       values: { area: "Oggi", recurrence: "ogni tanto" },
     });
     expect((await readBlocks(db, a)).map((x) => x.name)).toEqual(["Colazione"]);
+  });
+
+  it("PL-01 / PL-02 / PL-03 what it holds: objects in order with servings, or one type; never another's", async () => {
+    const made = await act(db, a, "create", "block", null, {
+      name: "Cena",
+      values: { area: "Cibo", recurrence: '{"type":"daily"}' },
+    });
+    if (!made.ok) throw new Error(made.refused);
+    const mk = async (o: Owner, catalog: string, name: string) =>
+      (
+        await db
+          .insert(s.catalogItems)
+          .values({ userId: o.id, catalog, name })
+          .returning({ id: s.catalogItems.id })
+      )[0]!.id;
+    const sugo = await mk(a, "recipe", "MERLUZZO al sugo");
+    const ceci = await mk(a, "recipe", "MERLUZZO con ceci e carote");
+    const food = await mk(a, "food", "Mela");
+    const theirs = await mk(b, "recipe", "Loro");
+    // A rotation (PL-02): two pasti, in his order.
+    expect(
+      await setBlockWhat(db, a, made.id, {
+        items: [
+          { id: ceci, quantity: 1 },
+          { id: sugo, quantity: 1.5 },
+        ],
+      }),
+    ).toBe("ok");
+    expect(
+      (await readBlockWhat(db, a, made.id))!.items.map((x) => [x.name, x.quantity]),
+    ).toEqual([
+      ["MERLUZZO con ceci e carote", "1.00"],
+      ["MERLUZZO al sugo", "1.50"],
+    ]);
+    // Not a type a blocco holds, another's, twice, a zero: refused, nothing changes.
+    for (const bad of [
+      { items: [{ id: food, quantity: 1 }] },
+      { items: [{ id: theirs, quantity: 1 }] },
+      {
+        items: [
+          { id: sugo, quantity: 1 },
+          { id: sugo, quantity: 1 },
+        ],
+      },
+      { items: [{ id: sugo, quantity: 0 }] },
+      { kind: "nessuno" },
+    ])
+      expect(await setBlockWhat(db, a, made.id, bad)).toBe("invalid");
+    expect(await setBlockWhat(db, b, made.id, { kind: "water" })).toBe("gone");
+    expect((await readBlockWhat(db, a, made.id))!.items).toHaveLength(2);
+    // A type instead (PL-03: water is an abitudine): the objects go.
+    expect(await setBlockWhat(db, a, made.id, { kind: "water" })).toBe("ok");
+    expect(await readBlockWhat(db, a, made.id)).toEqual({ items: [], kind: "water" });
+    expect((await listBlocks(db, a, false)).map((x) => [x.name, x.area])).toContainEqual([
+      "Cena",
+      "Cibo",
+    ]);
+    await act(db, a, "archive", "block", made.id, {});
+    expect((await listBlocks(db, a, true)).map((x) => x.name)).toEqual(["Cena"]);
+    expect(await listBlocks(db, b, true)).toEqual([]);
   });
 });

@@ -64,21 +64,10 @@ import {
   rowBurns,
   tuneOf,
 } from "@/features/day/burn";
-import {
-  planTag,
-  cycleWords,
-  readDayPlans,
-  habitsDue,
-  readHabits,
-  readModelBook,
-  resolveModel,
-  toModels,
-} from "@/core/plans";
-import { daySlots, slotFits } from "@/features/day/slots";
+import { planTag, cycleWords, readDayPlans } from "@/core/plans";
 import { DayPlanBar } from "@/features/day/DayPlanBar";
-import { habitItems, modelItems } from "@/features/day/model-items";
-import { kindRegistry } from "@/core/kinds";
-import { changeDayModel, saveDayAsModel, skipStep } from "./[[...day]]/plan-actions";
+import { planRows } from "./plan-rows";
+import { skipStep } from "./[[...day]]/plan-actions";
 import { readExercises, readRoutines } from "@/core/training";
 import { readFoodChoices, readFoodEstimates, readIntakeUses } from "@/core/food/catalog";
 import { foodIds, mealL0 } from "@/features/day/nutrients";
@@ -193,21 +182,12 @@ export async function DayPage({
     date <= today ? ensureWeekTargets(db, owner, date, clock) : null,
     date <= today ? readClosure(db, owner, date) : null,
   ]);
-  // Each day's targets: its own decision, its fixed model, or the week's with its model.
+  // Each day's targets: its own decision, else the week's with the food goals (PL-61).
   const dayTargets = new Map(
     await Promise.all(
-      [...new Set([...scored, date])].map(async (d) => {
-        const m = plans.get(d)?.model;
-        return [
-          d,
-          await readDayTargets(
-            db,
-            owner,
-            d,
-            m ? { name: m.name, targets: m.targets } : null,
-          ),
-        ] as const;
-      }),
+      [...new Set([...scored, date])].map(
+        async (d) => [d, await readDayTargets(db, owner, d)] as const,
+      ),
     ),
   );
   const day = days.find((d) => d.day === date)!;
@@ -338,15 +318,20 @@ export async function DayPage({
     timeOf: (d) => F.time(localParts(d, clock.timeZone).minute),
     creatine,
   };
-  // The day's model's meal blocks: each meal's bars against its block, the block's fit in its score.
-  const model = plans.get(date)?.model ?? null;
-  // Always read: «Cambia la giornata» offers the models (three narrow queries); the habits.
   // The hour the weather card speaks of: now today, midday on another day.
   const wxHour =
     date === today ? Math.floor(localParts(now, clock.timeZone).minute / 60) : 12;
-  const [book, habits, weather] = await Promise.all([
-    readModelBook(db, owner),
-    date >= today ? readHabits(db, owner) : [],
+  const [fromPlan, weather] = await Promise.all([
+    // Today and the days to come: what the Piano still plans, each opening its flow (PL-40).
+    date >= today
+      ? planRows(db, owner, {
+          day: date,
+          clock,
+          voci: items,
+          cycles: plans.get(date)?.cycles ?? [],
+          nowMinute,
+        })
+      : [],
     // The weather and the air of the day where the person lives (E11), when a city is set.
     readPlace(db, owner).then((p) =>
       p
@@ -356,15 +341,8 @@ export async function DayPage({
         : null,
     ),
   ]);
-  const blocks = model
-    ? (resolveModel(model.id, toModels(book.models, book.rows))?.blocks ?? [])
-    : [];
-  const slots = daySlots(blocks, targets);
-  const fits = slotFits(items, slots);
-  const slotOf = (i: (typeof items)[number]) =>
-    (i.subcategory && slots.get(i.subcategory)) || targets;
   const row = (i: (typeof items)[number]) => {
-    const l0 = mealL0(i, slotOf(i), kinds, weightOn(series, date), micros);
+    const l0 = mealL0(i, targets, kinds, weightOn(series, date), micros);
     // A meal of several foods lists them as its window's chips (L2), not again below.
     const d = details(i, { foods: (l0?.foods?.length ?? 0) < 2 });
     const shown = {
@@ -382,7 +360,7 @@ export async function DayPage({
           targets,
           kinds,
           micros,
-          fits.get(i.subcategory ?? "") ?? null,
+          null,
           mealWhen(i, items, weightOn(series, date)),
           known.weights,
         ) ??
@@ -516,37 +494,7 @@ export async function DayPage({
           add: addWater.bind(null, date),
         }
       : null;
-  // Today and the days to come: what the model still plans, each opening its flow.
-  const fromModel =
-    date >= today
-      ? modelItems({
-          day: date,
-          blocks,
-          items,
-          nowMinute,
-          step: (plans.get(date)?.cycles ?? [])[0]?.label ?? null,
-          slots,
-        }).concat(
-          habitItems({
-            day: date,
-            // The week's entries say what covers a habit («3 volte a settimana» counts them).
-            habits: habitsDue(
-              habits,
-              date,
-              days.flatMap((d) =>
-                [...d.timed, ...d.untimed].map((i) => ({
-                  day: d.day,
-                  kind: i.kind.key,
-                  category: i.kind.key === "activity" ? i.subcategory : null,
-                })),
-              ),
-            ),
-            nowMinute,
-            familyOf: (k) => kindRegistry().get(k).family,
-          }),
-        )
-      : [];
-  const planned = fromModel.filter((r) => area === "oggi" || areaOfFam(r.fam) === area);
+  const planned = fromPlan.filter((r) => area === "oggi" || areaOfFam(r.fam) === area);
   const todayStep = (plans.get(date)?.cycles ?? []).find(
     (c) => !c.rest && !c.skipped,
   )?.label;
@@ -575,16 +523,9 @@ export async function DayPage({
         extra={
           area !== "oggi" ? undefined : (
             <DayPlanBar
-              modelName={model?.name ?? null}
-              model={model?.id ?? ""}
-              fromDay={model?.from === "day"}
-              models={(book?.models ?? [])
-                .filter((m) => m.active)
-                .map((m) => ({ id: m.id, name: m.name }))}
               steps={(plans.get(date)?.cycles ?? [])
                 .filter((c) => !c.rest)
                 .map((c) => ({ cycleId: c.cycleId, label: c.label, skipped: c.skipped }))}
-              change={changeDayModel.bind(null, date)}
               skip={skipStep.bind(null, date)}
             />
           )
@@ -722,7 +663,7 @@ export async function DayPage({
               bringBackAll,
             }}
             water={null}
-            fromModel={planned}
+            fromPlan={planned}
             arrived={arrived}
             rows={rows}
             untimed={untimed}
@@ -739,13 +680,6 @@ export async function DayPage({
                 .map((i) => String(i.values["role"] ?? i.subcategory ?? "")),
             }}
           />
-        )}
-        {area === "oggi" && rows.some((r) => r.fam === "food" || r.fam === "train") && (
-          <form action={saveDayAsModel.bind(null, date)} className="k-line k-railed">
-            <button type="submit" className="k-btn secondary">
-              Salva come modello
-            </button>
-          </form>
         )}
         {area === "oggi" && date <= today && (
           <DayClose closed={closed} close={closeDay.bind(null, date)} />

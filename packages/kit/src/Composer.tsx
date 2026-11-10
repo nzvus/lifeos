@@ -32,6 +32,8 @@ export type ComposerLine = ComposerLineData & {
   step: number;
   /** Under its stepper, inside its box (a food's brand). */
   below?: ReactNode;
+  /** No stepper: its quantity posts as it is (a blocco's type has none to change). */
+  fixed?: boolean;
 };
 
 export function Composer<T extends FindItem>({
@@ -140,7 +142,10 @@ export function Composer<T extends FindItem>({
               ]}
             >
               <input type="hidden" name={`line.${i}.key`} value={l.key} />
-              {counted && (
+              {counted && l.fixed && (
+                <input type="hidden" name={`line.${i}`} value={l.quantity} />
+              )}
+              {counted && !l.fixed && (
                 <Field
                   name={`line.${i}`}
                   label={WORDS.composer.quantity(l.entry.title)}

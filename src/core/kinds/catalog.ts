@@ -284,8 +284,9 @@ DECLARED.push(
       { key: "offsetMin", type: "integer", unit: "min", min: -720, max: 720 },
       { key: "durationMin", type: "duration", unit: "min", min: 0, max: 1440 },
       { key: "recurrence", type: "recurrence", required: true },
-      { key: "kind", type: "text" },
-      { key: "defaults", type: "text" },
+      // «Che cosa» when it is a type, not an object (PL-01, PL-03): its Composer sets them.
+      { key: "kind", type: "text", internal: true },
+      { key: "defaults", type: "text", internal: true },
     ],
     ...PLAN_TYPE,
   },

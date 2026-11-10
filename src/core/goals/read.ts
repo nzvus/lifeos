@@ -38,26 +38,28 @@ export function inForce(all: readonly GoalRow[], day: IsoDate): Goal[] {
     .map(({ until: _until, ...g }) => g);
 }
 
-export async function readGoals(db: Db, owner: Owner, day: IsoDate): Promise<Goal[]> {
+/** All his goal rows, every day's (a goal changes from a day on: `inForce` picks the day's). */
+export async function readGoalRows(db: Db, owner: Owner): Promise<GoalRow[]> {
   const rows = await db.select().from(goals).where(ownedBy(goals, owner));
-  return inForce(
-    rows.map((r) => {
-      const metric = (r.metric ?? {}) as Record<string, unknown>;
-      return {
-        id: r.id,
-        source: typeof metric["source"] === "string" ? metric["source"] : "?",
-        metric,
-        target: r.target,
-        value: num(r.value),
-        low: num(r.low),
-        high: num(r.high),
-        by: r.byDate,
-        since: r.sinceDay,
-        until: r.untilDay,
-      };
-    }),
-    day,
-  );
+  return rows.map((r) => {
+    const metric = (r.metric ?? {}) as Record<string, unknown>;
+    return {
+      id: r.id,
+      source: typeof metric["source"] === "string" ? metric["source"] : "?",
+      metric,
+      target: r.target,
+      value: num(r.value),
+      low: num(r.low),
+      high: num(r.high),
+      by: r.byDate,
+      since: r.sinceDay,
+      until: r.untilDay,
+    };
+  });
+}
+
+export async function readGoals(db: Db, owner: Owner, day: IsoDate): Promise<Goal[]> {
+  return inForce(await readGoalRows(db, owner), day);
 }
 
 /** One numeric field of a kind's done entries from `from` to `to`, with their day. */

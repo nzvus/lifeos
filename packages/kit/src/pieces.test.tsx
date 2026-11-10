@@ -106,6 +106,35 @@ describe("Composer (PAT-62, PAT-14)", () => {
   });
 });
 
+describe("Composer, a fixed line (PAT-62)", () => {
+  it("has no stepper: its quantity posts hidden, its «Togli» stays", () => {
+    const s = html(
+      <Composer
+        initial={[
+          {
+            key: "kind:water",
+            quantity: "1",
+            unit: "",
+            step: 1,
+            fixed: true,
+            entry: { fam: "habit", title: "Acqua" },
+          },
+        ]}
+        candidates={[]}
+        hour={9}
+        findLabel="Cerca"
+        empty="—"
+        saveLabel="Salva"
+        cancelHref="/oggi"
+        action={noop}
+      />,
+    );
+    expect(s).toContain('<input type="hidden" name="line.0" value="1"/>');
+    expect(s).not.toContain("k-step");
+    expect(s).toContain("Togli");
+  });
+});
+
 describe("Composer without quantities (PAT-62)", () => {
   it("an ordered list: no stepper, «Su» from the second line, «Giù» until the last", () => {
     const l = (key: string, title: string) => ({

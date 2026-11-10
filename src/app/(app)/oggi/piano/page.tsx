@@ -1,38 +1,35 @@
 /**
- * Piano (flows.md §1, V-08; the board Plan): the week holding `?settimana=`
- * (today's when missing), one row per day (features/plan/week-rows): its
- * model and cycle step, what was done or is planned, its kcal. The day in
- * `?giorno=` (today in this week, else none) opens below: its model for this
- * day only, each cycle's step chosen by hand or a rest, «Salta», the entries
- * planned and what the model still plans, «+ previsto». Then «Le regole»:
- * the week type and the cycles, «Modelli».
+ * Oggi · Piano (flows.md §1, V-08; PAT-03, MOD-32, PL-40; change 2026-11-07-piano): the week
+ * holding `?settimana=` (today's when missing), one row per day (features/plan/week-rows): its
+ * ciclo step, what was done or is planned, its kcal. The day in `?giorno=` (today in this week,
+ * else none) opens below: each ciclo's step chosen by hand or a rest, «Salta», the voci planned
+ * and what the blocchi still plan (`../plan-rows`), «+ previsto». Then his blocchi and cicli
+ * (the kit `Elenco`, PL-70). Day models and the week type are gone.
  */
-import { Box, DateNav, F, PageHeader, weekOf, AreaTabs } from "@lifeos/kit";
+import { Box, DateNav, Elenco, F, PageHeader, weekOf, AreaTabs } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { loadDays, readRangeTargets } from "@/core/day";
 import { ensureWeekTargets } from "@/core/energy";
 import {
+  listBlocks,
   planTag,
   planWords,
   readCycleBook,
   readDayPlans,
-  readModelBook,
-  resolveModel,
-  toModels,
 } from "@/core/plans";
 import { logicalDay } from "@/core/engines/time";
 import { present } from "@/features/day/present";
 import { withCompounds } from "@/features/day/compounds";
 import { foodIds } from "@/features/day/nutrients";
-import { modelItems } from "@/features/day/model-items";
-import { daySlots } from "@/features/day/slots";
-import { WEEKDAYS } from "@/features/plan/model-form";
 import { dayRow } from "@/features/plan/week-rows";
+import { planSections } from "@/features/plan/plan-sections";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { tabHrefs } from "@/features/places";
-import { changeDayModel, skipStep } from "../[[...day]]/plan-actions";
+import { plan } from "@/i18n/plan";
+import { skipStep } from "../[[...day]]/plan-actions";
+import { planRows } from "../plan-rows";
 import { copyYesterday, moveTraining, overrideStep } from "../../piano/actions";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -57,10 +54,10 @@ export default async function PianoPage({
   );
   const open = wanted ?? (week.includes(today) ? today : null);
   // The whole week from one set of queries, not seven.
-  const [days, plans, book, { cycles }] = await Promise.all([
+  const [days, plans, blocks, { cycles }] = await Promise.all([
     loadDays(db, owner, week[0]!, week[6]!, known),
     readDayPlans(db, owner, week[0]!, week[6]!, today),
-    readModelBook(db, owner),
+    listBlocks(db, owner, false),
     readCycleBook(db, owner),
     // A week begun: its automatic targets, made when missing.
     week[0]! <= today ? ensureWeekTargets(db, owner, week[0]!, known.clock) : null,
@@ -68,50 +65,32 @@ export default async function PianoPage({
   // A coffee or creatine planned is drawn as on Oggi («Caffè ≈ 100 mg»), not as grams.
   const [compounds, targets] = await Promise.all([
     readFoodEstimates(db, owner, days.flatMap(foodIds)),
-    // Each day's kcal from its model and the week (dossiers/targets.md slice c).
-    readRangeTargets(
-      db,
-      owner,
-      week[0]!,
-      week[6]!,
-      new Map(
-        week.map((d) => {
-          const m = plans.get(d)?.model;
-          return [d, m ? { name: m.name, targets: m.targets } : null] as const;
-        }),
-      ),
-    ),
+    // Each day's kcal from the week and the food goals (PL-61).
+    readRangeTargets(db, owner, week[0]!, week[6]!),
   ]);
   const ctx = { compounds, doses: [], bed: null, creatine: null };
-  const models = toModels(book.models, book.rows);
-  // The header names the open day's model and cycles (the week's first day when none is open).
+  // The header names the open day's cycles (the week's first day when none is open).
   const headPlan = plans.get(open ?? week[0]!);
   const sheet = open ? days.find((d) => d.day === open) : undefined;
   const sheetPlan = open ? plans.get(open) : undefined;
   const items = sheet ? [...sheet.timed, ...sheet.untimed] : [];
-  const blocks = sheetPlan?.model
-    ? (resolveModel(sheetPlan.model.id, models)?.blocks ?? [])
-    : [];
-  const fromModel =
+  const fromPlan =
     open && open >= today
-      ? modelItems({
+      ? await planRows(db, owner, {
           day: open,
-          blocks,
-          items,
+          clock: known.clock,
+          voci: items,
+          cycles: sheetPlan?.cycles ?? [],
           nowMinute: null,
-          step: sheetPlan?.cycles.find((c) => !c.rest)?.label ?? null,
-          slots: daySlots(blocks, targets.get(open) ?? null),
         })
       : [];
   const stepName = (s: (typeof cycles)[number]["steps"][number]) =>
     s.label || s.items.map((i) => i.name).join(" + ") || "Riposo";
-  // «Sposta l'allenamento»: the day's planned session, else the model's training block.
+  // «Sposta l'allenamento»: the day's planned session, else the Piano's training row.
   const plannedSession = items.find(
     (i) => i.kind.key === "session" && i.status === "planned",
   );
-  const ghostSession = fromModel.find(
-    (m) => m.id.startsWith("model:") && m.fam === "train",
-  );
+  const ghostSession = fromPlan.find((m) => m.fam === "train");
   const due = sheetPlan?.cycles.find((c) => !c.rest);
   const dueRoutine = due
     ? cycles
@@ -126,12 +105,11 @@ export default async function PianoPage({
         title="Oggi"
         context={[
           F.week(week[0]!),
-          headPlan?.model ? "giornata «" + headPlan.model.name + "»" : "",
           ...(headPlan?.cycles ?? []).map((c) => "ciclo " + c.cycle),
         ]
           .filter(Boolean)
           .join(" · ")}
-        action={{ label: "Modelli", href: "/piano/modelli" }}
+        action={{ label: plan.elenco.addBlock, href: "/oggi/blocco/nuovo" }}
         of={{ place: "oggi" }}
       />
       <AreaTabs tab="piano" hrefs={tabHrefs("oggi")} />
@@ -177,28 +155,6 @@ export default async function PianoPage({
         <section className="k-section g3" aria-label="Il giorno">
           <h2>{open === today ? "Oggi" : F.Day(open)}</h2>
           <span className="k-meta">{planWords(sheetPlan, open === today)}</span>
-          {book.models.some((m) => m.active) && (
-            <form action={changeDayModel.bind(null, open)} className="k-line k-panel">
-              <select
-                className="k-select"
-                name="model"
-                defaultValue={sheetPlan?.model?.from === "day" ? sheetPlan.model.id : ""}
-                aria-label="Giornata tipo di questo giorno"
-              >
-                <option value="">come la settimana</option>
-                {book.models
-                  .filter((m) => m.active)
-                  .map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name}
-                    </option>
-                  ))}
-              </select>
-              <button type="submit" className="k-btn secondary">
-                Cambia
-              </button>
-            </form>
-          )}
           {open >= today &&
             (sheetPlan?.cycles ?? []).map((c) => {
               const cycle = cycles.find((x) => x.id === c.cycleId);
@@ -242,7 +198,7 @@ export default async function PianoPage({
               );
             })}
           <span className="k-help">
-            Cambia solo questo giorno: il modello e il ciclo restano come sono.
+            Cambia solo questo giorno: i blocchi e il ciclo restano come sono.
           </span>
           {items
             .filter((i) => i.status === "planned")
@@ -254,7 +210,7 @@ export default async function PianoPage({
                 entry={withCompounds(present(i), i, ctx)}
               />
             ))}
-          {fromModel.map((m) => (
+          {fromPlan.map((m) => (
             <Box key={m.id} density="row" mode="times" entry={m} />
           ))}
           {open >= today && (plannedSession || ghostSession) && (
@@ -307,60 +263,19 @@ export default async function PianoPage({
             >
               Apri il giorno
             </a>
-            {sheetPlan?.model && (
-              <a
-                className="k-btn secondary"
-                href={"/oggi/giornata/" + sheetPlan.model.id}
-              >
-                Apri il modello
-              </a>
-            )}
           </div>
         </section>
       )}
 
-      <section className="k-section g3" aria-label="Le regole">
-        <h2>
-          Le regole{" "}
-          <a className="k-link" href="/piano/modelli">
-            tutti i modelli ›
-          </a>
-        </h2>
-        <Box
-          density="row"
-          rail={false}
-          entry={{
-            fam: "day",
-            title: "Settimana tipo",
-            value: F.plural(book.week.size, "giorno", "giorni"),
-            meta: WEEKDAYS.map(
-              ([d, l]) =>
-                l +
-                " " +
-                (book.models.find((m) => m.id === book.week.get(d))?.name ?? "—"),
-            ).join(" · "),
-            href: "/piano/modelli",
-            hrefLabel: "Apri la settimana tipo",
+      <section className="k-section g3" aria-label={plan.elenco.blocks}>
+        <Elenco
+          archived={false}
+          filterHref={{
+            active: "/oggi/piano",
+            archived: "/oggi/elenco?archiviati=1#blocchi",
           }}
+          sections={planSections({ blocks, cycles, archived: false, area: null })}
         />
-        {cycles
-          .filter((c) => c.active)
-          .map((c) => (
-            <Box
-              key={c.id}
-              density="row"
-              rail={false}
-              entry={{
-                fam: "train",
-                sub: "strength",
-                title: "Ciclo " + c.name,
-                value: F.plural(c.steps.length, "passo", "passi"),
-                meta: c.steps.map(stepName).join(" · "),
-                href: "/oggi/ciclo/" + c.id,
-                hrefLabel: "Apri il ciclo " + c.name,
-              }}
-            />
-          ))}
       </section>
     </main>
   );

@@ -47,4 +47,52 @@ export const plan = {
       lines: "Aggiungi almeno un passo.",
     },
   },
+  /** The Piano's rows on a day (PL-40). */
+  day: {
+    fromPlan: "dal piano",
+    fromCycle: "dal ciclo",
+    open: (what: string) => "Segna " + what.toLowerCase(),
+  },
+  /** Oggi · Elenco's two sections (PL-70). */
+  elenco: {
+    blocks: "Blocchi",
+    cycles: "Cicli",
+    addBlock: "Nuovo blocco",
+    addCycle: "Nuovo ciclo",
+    emptyBlocks:
+      "Nessun blocco: un blocco è una cosa del Piano, con il suo quando e ogni quanto.",
+    emptyCycles: "Nessun ciclo: passi che si danno il turno, come la palestra.",
+    emptyArchived: "Niente di archiviato.",
+    steps: (n: number) => F.plural(n, "passo", "passi"),
+  },
+  block: {
+    when: {
+      time: "a un'ora",
+      after: "dopo un blocco",
+      before: "prima di un blocco",
+      wake: "dopo il risveglio",
+      bed: "prima di dormire",
+    },
+    help: {
+      when: "Senza un quando, il blocco prende l'ora a cui lo fai di solito quel giorno della settimana.",
+      offsetMin:
+        "Quanti minuti dopo (o prima): «30» con «prima di un blocco» è mezz'ora prima.",
+    },
+    what: "Che cosa",
+    rotation: "A turno",
+    rotationHelp: "Ogni giorno il successivo di quello che hai fatto l'ultima volta.",
+    compose: "Cambia che cosa",
+    find: "Cerca un pasto, una scheda, un tragitto o un tipo",
+    nothing: "Ancora niente: scegli un pasto, una scheda, un tragitto o un tipo.",
+    servings: (n: number) => F.plural(n, "porzione", "porzioni"),
+    servingUnit: "porz.",
+    kind: "tipo",
+    save: "Salva",
+    newTitle: "Nuovo blocco",
+    errors: {
+      gone: "Questo blocco non c'è più.",
+      invalid: "Uno di questi non c'è più: riapri il blocco e riprova.",
+      mixed: "Un tipo da solo, oppure uno o più pasti, schede, tragitti.",
+    },
+  },
 };

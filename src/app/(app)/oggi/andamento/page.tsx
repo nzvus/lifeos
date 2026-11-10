@@ -25,7 +25,6 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { dayMinute, loadDays, readMicroTargets, readRangeTargets } from "@/core/day";
 import { ensureWeekTargets, mondayOf } from "@/core/energy";
-import { readDayModels } from "@/core/plans";
 import { energyBoxes } from "@/features/progress/energy";
 import { addDays, daysBetween, logicalDay } from "@/core/engines/time";
 import { readFoodEstimates } from "@/core/food/catalog";
@@ -95,9 +94,8 @@ export default async function AndamentoPage({
     : (RANGES.find((n) => String(n) === giorni) ?? 7);
   const days = Array.from({ length: DAYS }, (_, i) => addDays(end, i - DAYS + 1));
   // The whole range in one set of queries (core/day `loadDays`), not one per day.
-  const [loaded, models, week] = await Promise.all([
+  const [loaded, week] = await Promise.all([
     loadDays(db, owner, days[0]!, end, known),
-    readDayModels(db, owner, days[0]!, end),
     // Every week of the period, made when missing (once each): their targets, and
     // the last one's energy for «Energia».
     Promise.all(
@@ -110,7 +108,7 @@ export default async function AndamentoPage({
   ]);
   const [targets, estimates, micros, weighings, goals, nights, profile] =
     await Promise.all([
-      readRangeTargets(db, owner, days[0]!, end, models),
+      readRangeTargets(db, owner, days[0]!, end),
       readFoodEstimates(db, owner, loaded.flatMap(foodIds)),
       readMicroTargets(db, owner, end),
       readNumbers(db, owner, "weigh_in", "weightKg", addDays(days[0]!, -27), end),

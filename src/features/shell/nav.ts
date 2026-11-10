@@ -18,11 +18,10 @@ export function navFor(pathname: string, search: URLSearchParams): Nav | null {
   const path = pathname.replace(/\/+$/, "") || "/";
   const [, first = "", second = "", third = ""] = path.split("/");
   if (isArea(first) && second === "sessione" && third) return null;
-  // The area of the page: its first segment; Piano and ⊕ say it in `?area=`; the gym is Corpo's.
-  const named = first === "piano" || first === "aggiungi" ? search.get("area") : first;
+  // The area of the page: its first segment; ⊕ says it in `?area=`; the gym is Corpo's.
+  const named = first === "aggiungi" ? search.get("area") : first;
   const area = isArea(named) ? named : first === "palestra" ? "corpo" : null;
-  // /piano/modelli without an area is the plan of all: Oggi, as the page said on 6 Nov.
-  const active = area ?? (first === "piano" ? "oggi" : null);
+  const active = area;
   const q = new URLSearchParams();
   if (isArea(first) && DATE.test(second)) q.set("giorno", second);
   if (area && area !== "oggi") q.set("area", area);

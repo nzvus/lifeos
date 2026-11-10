@@ -25,20 +25,15 @@ describe("one NavBar and ⊕ in (app)/layout.tsx (PAT-01)", () => {
 
   it("the pages under an area that had it on 6 Nov", () => {
     for (const p of [
-      "/mente/abitudine/x",
+      "/oggi/blocco/x",
       "/mente/andamento/legami",
       "/corpo/andamento/peso",
       "/corpo/ciclo/x",
       "/cibo/elenco/doppioni",
       "/oggi/andamento/qualita",
-      "/oggi/giornata/x",
+      "/corpo/piano",
     ])
       expect(at(p), p).not.toBeNull();
-    expect(at("/piano/modelli", "area=corpo")).toEqual({
-      active: "corpo",
-      addHref: "/aggiungi?area=corpo",
-    });
-    expect(at("/piano/modelli")).toEqual({ active: "oggi", addHref: "/aggiungi" });
   });
 
   it("every other page has it too (Q-09 «a»): forms, objects, ⊕, Profilo", () => {

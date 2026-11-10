@@ -15,8 +15,10 @@ import { kindRegistry } from "@/core/kinds";
 import { listUserKinds } from "@/core/kinds/user";
 import { readRoutes } from "@/core/movement/routes";
 import { readPantry } from "@/core/pantry";
+import { listBlocks, readCycleBook } from "@/core/plans";
 import { Library } from "@/features/library/Library";
 import { tabHrefs } from "@/features/places";
+import { planSections } from "@/features/plan/plan-sections";
 import { tracker, wordOf } from "@/i18n/tracker";
 import { readLibrary } from "./library-data";
 
@@ -38,12 +40,14 @@ export default async function LibreriaPage({
   const db = await getDb();
   const { clock, weights } = await ownerClock();
   const today = logicalDay(new Date(), clock);
-  const [lib, routes, pantry, userKinds, mine] = await Promise.all([
+  const [lib, routes, pantry, userKinds, mine, blocks, cycles] = await Promise.all([
     readLibrary(db, owner, today, clock, weights, false),
     readRoutes(db, owner, addDays(today, -90)),
     readPantry(db, owner, today, new Date()),
     readUserKinds(db, owner),
     listUserKinds(db, owner),
+    listBlocks(db, owner, archived),
+    readCycleBook(db, owner),
   ]);
   const w = tracker.page;
   const trackerRows = mine
@@ -105,6 +109,7 @@ export default async function LibreriaPage({
             add: { label: w.add, href: "/oggi/tracker/nuovo" },
             empty: archived ? w.emptyArchived : w.empty,
           },
+          ...planSections({ blocks, cycles: cycles.cycles, archived, area: null }),
         ]}
       />
     </main>

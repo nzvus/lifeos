@@ -1,9 +1,8 @@
 "use server";
 /**
- * Piano's day sheet (the board Plan, dossiers/day-templates.md slice c): a
- * cycle's step chosen by hand for one day, or a rest, or back to the
- * cycle's own; «Copia ieri»; «Sposta l'allenamento». The model of the day
- * and «Salta» reuse Oggi's actions.
+ * Oggi · Piano's day sheet (PL-32, PL-43): a ciclo's step chosen by hand for one day, or a
+ * rest, or back to the ciclo's own; «Copia ieri»; «Sposta l'allenamento». «Salta» reuses
+ * Oggi's action.
  */
 import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/app/_server/owner";

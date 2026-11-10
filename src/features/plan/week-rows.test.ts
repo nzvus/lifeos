@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import { dayRow } from "./week-rows";
 
 const plain = (s: unknown) => JSON.parse(JSON.stringify(s).replace(/ /g, " "));
-const model = { id: "rec", name: "Rec", from: "week" as const, targets: null };
 const step = (label: string, rest = false) => ({
   cycleId: "c",
   cycle: "PLPRR",
   label,
   rest,
+  itemId: null,
   late: false,
   skipped: false,
   next: null,
@@ -20,7 +20,7 @@ describe("Piano's week rows", () => {
         dayRow({
           day: "2026-10-22",
           today: "2026-10-24",
-          plan: { model, cycles: [] },
+          plan: { cycles: [] },
           sessions: ["Pull"],
           planned: 0,
           kcal: 2211,
@@ -30,19 +30,19 @@ describe("Piano's week rows", () => {
     ).toMatchObject({
       fam: "train",
       time: "gio 22",
-      title: "«Rec» + Pull",
+      title: "Pull",
       value: "fatto",
       faded: true,
     });
   });
 
-  it("a coming day: the model, the step, the planned, the kcal", () => {
+  it("a coming day: the step, the planned, the kcal", () => {
     expect(
       plain(
         dayRow({
           day: "2026-10-25",
           today: "2026-10-24",
-          plan: { model, cycles: [step("Push")] },
+          plan: { cycles: [step("Push")] },
           sessions: [],
           planned: 2,
           kcal: 2211,
@@ -50,7 +50,7 @@ describe("Piano's week rows", () => {
         }),
       ),
     ).toMatchObject({
-      title: "«Rec» + Push",
+      title: "Push",
       value: "previsto",
       meta: "Push dal ciclo PLPRR · 2 previsti · 2.211 kcal",
     });
@@ -58,12 +58,12 @@ describe("Piano's week rows", () => {
       dayRow({
         day: "2026-10-26",
         today: "2026-10-24",
-        plan: { model, cycles: [step("Riposo", true)] },
+        plan: { cycles: [step("Riposo", true)] },
         sessions: [],
         planned: 0,
         kcal: null,
         selected: false,
       }),
-    ).toMatchObject({ fam: "day", title: "«Rec» + Riposo" });
+    ).toMatchObject({ fam: "day", title: "Riposo" });
   });
 });

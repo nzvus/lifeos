@@ -13,7 +13,6 @@ import { readSettingsCounts } from "@/core/account/counts";
 import { readSettings } from "@/core/account/settings";
 import { readDayTargets } from "@/core/day";
 import { logicalDay } from "@/core/engines/time";
-import { readDayModel } from "@/core/plans";
 import { SettingsForm } from "@/features/account/SettingsForm";
 import { SignOut } from "@/features/account/SignOut";
 import { FromV1 } from "@/features/account/FromV1";
@@ -66,7 +65,7 @@ export default async function SettingsPage({
   });
   const [counts, targets, place] = await Promise.all([
     readSettingsCounts(db, owner, new Date()),
-    readDayModel(db, owner, today).then((m) => readDayTargets(db, owner, today, m)),
+    readDayTargets(db, owner, today),
     readPlace(db, owner),
   ]);
   // «Un foglio per tipo»: the specialised kinds, then those ⊕ enters (the person's own too).
