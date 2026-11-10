@@ -56,7 +56,7 @@ export const objects = {
       kind: "Tipo",
       defaults: "Valori di partenza",
     },
-    cycle: { advance: "Avanza", onSkip: "Se salti" },
+    cycle: { advance: "Avanza", onSkip: "Se salti", start: "Dal giorno" },
     food: LABEL,
     product: LABEL,
     route: {
