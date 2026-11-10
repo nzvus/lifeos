@@ -361,6 +361,45 @@ export default async function KitPage({
           error="Scrivi un peso tra 30 e 300 kg"
         />
       </section>
+      {/* «Ogni quanto» (PAT-61, PL-20): empty, then each kind with its own control. */}
+      <section className="k-section g3" id="ogni-quanto" aria-label="Ogni quanto">
+        <h2>Ogni quanto</h2>
+        <Field
+          name="mai"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          error="Scegli ogni quanto"
+        />
+        <Field
+          name="giorni"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          defaultValue={'{"type":"weekdays","days":[1,3,5]}'}
+        />
+        <Field
+          name="ogni"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          defaultValue={'{"type":"everyN","n":3,"start":"2026-11-10"}'}
+        />
+        <Field
+          name="volte"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          defaultValue={'{"type":"timesPerWeek","n":3}'}
+        />
+        <Field
+          name="date"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          defaultValue={'{"type":"onDates","dates":["2026-11-12","2026-11-15"]}'}
+        />
+      </section>
 
       <section className="k-section g3" id="grafici" aria-label="Grafici">
         <h2>Grafici</h2>

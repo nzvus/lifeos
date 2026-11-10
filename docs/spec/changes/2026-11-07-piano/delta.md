@@ -11,6 +11,16 @@
   `core/plans` turns these rows into the engine's input; no screen reads them directly.
 
 ## MODIFIED
+- **PAT-61** adds: WHEN a field says how often (a blocco's `recurrence`, PL-20) THEN it is
+  «Ogni quanto»: one choice (ogni giorno · certi giorni · ogni N giorni · N volte a settimana ·
+  in certe date) and that kind's own control (weekday chips in two rows, a stepper, native
+  date pickers), said in words under it («lun, mer, ven»); it posts the engine's `Recurrence`
+  as JSON text, checked by the kit and again by the registry. Kit ✓ `Recurrence` (in `Field`,
+  `type="recurrence"`), the stepper shared as `Stepper`. [Q-15 (a), his «segui i tuoi
+  consigli» 10 Nov]
+- **PAT-62** adds: a ciclo's steps are composed as ordered lines (the scheda's
+  `counted={false}`), with a fixed «+ Riposo» under the search that adds an empty step; a
+  step's line says its blocco or «Riposo». [Q-16 (a), 10 Nov]
 - **PL-70** «Today» line: blocchi and cicli are catalog objects (`block`, `cycle` in the
   registry): page, verbs, Elenco and archive are the generic ones.
 - **PL-72** «Today» line: the migration of this change (cicli kept with their ids, day models /

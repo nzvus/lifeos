@@ -121,6 +121,7 @@ function checkField(
       if (v.length > TEXT_MAX) return { error: "too_long" };
       return { value: { field: f.key, text: v } };
     case "ref":
+    case "recurrence": // a blocco's «ogni quanto» (PL-20), never a voce's
       return { error: "unsupported" };
   }
 }

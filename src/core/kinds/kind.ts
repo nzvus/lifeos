@@ -43,6 +43,8 @@ export const FIELD_TYPES = [
   "text",
   "ref",
   "time",
+  /** «Ogni quanto» (PL-20, PAT-61): the engine's `Recurrence` as JSON text. */
+  "recurrence",
 ] as const;
 
 const key = z.string().regex(/^[a-z][a-z0-9_]*$/, "lower_snake_case");

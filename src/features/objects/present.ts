@@ -4,7 +4,7 @@
  * field's own label), its value as shown (through `F`, a choice in its words, «» when empty)
  * and the form spec the kit's `InPlace` edits it with.
  */
-import { F, type FormFieldSpec } from "@lifeos/kit";
+import { F, readRecurrence, recurrenceText, type FormFieldSpec } from "@lifeos/kit";
 import type { CatalogType } from "@/core/kinds/catalog";
 import type { Values } from "@/core/verbs";
 import { objects } from "@/i18n/objects";
@@ -53,7 +53,9 @@ export function objectFields(t: CatalogType, values: Values): ObjectField[] {
               ? v
                 ? objects.yes
                 : objects.no
-              : (words[v] ?? v);
+              : f.type === "recurrence"
+                ? recurrenceText(readRecurrence(v)) || v
+                : (words[v] ?? v);
       return { spec, value: v, shown };
     });
 }

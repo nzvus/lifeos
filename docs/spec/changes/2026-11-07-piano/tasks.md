@@ -22,7 +22,9 @@
        then the data is checked.
        Moved to slice 4: «Rec» targets → Obiettivi and «Rec» archived, with the code that
        reads the day's targets from Obiettivi (storing goals nothing reads would be a guess).
-3. [ ] Screens: the blocco and ciclo pages (`EXTRAS`, `NEW_FORMS`), «Blocchi» and «Cicli» in
+3. [ ] Screens. Done: the kit's «Ogni quanto» (`Recurrence`, `recurrence.ts`, `Stepper` out of
+       `Field`; gallery `#ogni-quanto`, photographed in CI), the registry's `recurrence` field
+       type checked by `core/kinds/recurrence.ts`. Next: the blocco and ciclo pages (`EXTRAS`, `NEW_FORMS`), «Blocchi» and «Cicli» in
        Elenco; photos.
 4. [ ] The Piano tabs and Oggi read the Piano of a day from blocchi (PL-40…43); the old reads
        retired; «Rec» targets → Obiettivi (PL-61, FD-20) with a repair, «Rec» archived; habits

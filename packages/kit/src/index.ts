@@ -48,6 +48,16 @@ export { ObjectPage } from "./ObjectPage";
 export { EntryHeader, type EntryStatus } from "./EntryHeader";
 export { formFields, readForm, type FormFieldSpec, type FormValue } from "./form";
 export { ObjectForm } from "./ObjectForm";
+export { Recurrence } from "./Recurrence";
+export {
+  RECURRENCE_KINDS,
+  readRecurrence,
+  recurrenceText,
+  startOf,
+  type Recurrence as RecurrenceValue,
+  type RecurrenceKind,
+} from "./recurrence";
+export { Stepper, stepBy } from "./Stepper";
 export { InPlace } from "./InPlace";
 export { MergeSheet } from "./MergeSheet";
 export { Elenco, type ElencoRow, type ElencoSection } from "./Elenco";

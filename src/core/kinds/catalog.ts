@@ -10,6 +10,7 @@
  */
 import { z } from "zod";
 import { FAMILIES, fieldSchema } from "./kind";
+import { parseRecurrence } from "./recurrence";
 
 export const AREAS = ["Corpo", "Cibo", "Oggi", "Mente", "Soldi"] as const;
 export type Area = (typeof AREAS)[number];
@@ -282,7 +283,7 @@ DECLARED.push(
       { key: "anchor", type: "ref", catalog: "block" },
       { key: "offsetMin", type: "integer", unit: "min", min: -720, max: 720 },
       { key: "durationMin", type: "duration", unit: "min", min: 0, max: 1440 },
-      { key: "recurrence", type: "text", required: true },
+      { key: "recurrence", type: "recurrence", required: true },
       { key: "kind", type: "text" },
       { key: "defaults", type: "text" },
     ],
@@ -363,6 +364,8 @@ export function valuesSchema(t: CatalogType) {
       s = n;
     } else if (f.type === "boolean") s = z.boolean();
     else if (f.type === "choice") s = z.enum(f.choices as [string, ...string[]]);
+    else if (f.type === "recurrence")
+      s = z.string().refine((v) => parseRecurrence(v) !== null, "recurrence");
     else s = z.string().max(2000);
     shape[f.key] = s.nullable().optional();
   }
