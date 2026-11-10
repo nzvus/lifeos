@@ -76,8 +76,8 @@ export const plan = {
     rotation: "A turno",
     rotationHelp: "Ogni giorno il successivo di quello che hai fatto l'ultima volta.",
     compose: "Cambia che cosa",
-    find: "Cerca un oggetto o un tipo",
-    nothing: "Ancora niente: scegli un oggetto o un tipo.",
+    find: "Cerca un pasto, una scheda, un tragitto o un tipo",
+    nothing: "Ancora niente: scegli un pasto, una scheda, un tragitto o un tipo.",
     servings: (n: number) => F.plural(n, "porzione", "porzioni"),
     servingUnit: "porz.",
     kind: "tipo",
@@ -85,8 +85,8 @@ export const plan = {
     newTitle: "Nuovo blocco",
     errors: {
       gone: "Questo blocco non c'è più.",
-      invalid: "Un oggetto non c'è più: riapri il blocco e riprova.",
-      mixed: "Un tipo da solo, oppure uno o più oggetti.",
+      invalid: "Uno di questi non c'è più: riapri il blocco e riprova.",
+      mixed: "Un tipo da solo, oppure uno o più pasti, schede, tragitti.",
     },
   },
 };
