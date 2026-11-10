@@ -42,31 +42,81 @@ export type CycleRow = {
   steps: CycleStepRow[];
 };
 
+export type CycleHead = {
+  id: string;
+  name: string;
+  start: IsoDate | null;
+  /** Archived = paused: out of the Piano from today (PL-70). */
+  active: boolean;
+  advance: "occurrence" | "date";
+  onSkip: "lose" | "shift";
+};
+
+/**
+ * His cicli as the catalog holds them (MOD-36, ADR-0062): name, archived = paused, `advance` /
+ * `onSkip` / `start` from values (defaults as the engine's). `live` leaves the archived out.
+ */
+export async function readCycles(
+  db: Db,
+  owner: Owner,
+  { live = false }: { live?: boolean } = {},
+): Promise<CycleHead[]> {
+  const rows = await db
+    .select({
+      id: catalogItems.id,
+      name: catalogItems.name,
+      archivedAt: catalogItems.archivedAt,
+    })
+    .from(catalogItems)
+    .where(
+      and(
+        ownedBy(catalogItems, owner),
+        eq(catalogItems.catalog, "cycle"),
+        isNull(catalogItems.deletedAt),
+        ...(live ? [isNull(catalogItems.archivedAt)] : []),
+      ),
+    )
+    .orderBy(asc(catalogItems.name));
+  if (rows.length === 0) return [];
+  const values = await db
+    .select({
+      itemId: catalogValues.itemId,
+      field: catalogValues.field,
+      text: catalogValues.text,
+    })
+    .from(catalogValues)
+    .where(
+      and(
+        ownedBy(catalogValues, owner),
+        inArray(
+          catalogValues.itemId,
+          rows.map((r) => r.id),
+        ),
+        inArray(catalogValues.field, ["advance", "onSkip", "start"]),
+      ),
+    );
+  const v = (id: string, field: string) =>
+    values.find((x) => x.itemId === id && x.field === field)?.text ?? null;
+  return rows.map((r) => {
+    const start = v(r.id, "start");
+    return {
+      id: r.id,
+      name: r.name,
+      start: start && /^\d{4}-\d{2}-\d{2}$/.test(start) ? start : null,
+      active: r.archivedAt === null,
+      advance: v(r.id, "advance") === "date" ? "date" : "occurrence",
+      onSkip: v(r.id, "onSkip") === "shift" ? "shift" : "lose",
+    };
+  });
+}
+
 /** Every cycle with its steps, and the routines a step may hold: four queries. */
 export async function readCycleBook(
   db: Db,
   owner: Owner,
 ): Promise<{ cycles: CycleRow[]; routines: { id: string; name: string }[] }> {
   const [cycles, routines] = await Promise.all([
-    db
-      .select({
-        id: templates.id,
-        name: templates.name,
-        start: templates.startDay,
-        active: templates.active,
-        advance: cyclesState.advance,
-        onSkip: cyclesState.onSkip,
-      })
-      .from(templates)
-      .leftJoin(cyclesState, eq(cyclesState.cycleId, templates.id))
-      .where(
-        and(
-          ownedBy(templates, owner),
-          eq(templates.scope, "cycle"),
-          isNull(templates.deletedAt),
-        ),
-      )
-      .orderBy(asc(templates.name)),
+    readCycles(db, owner),
     db
       .select({ id: catalogItems.id, name: catalogItems.name })
       .from(catalogItems)
@@ -118,8 +168,8 @@ export async function readCycleBook(
       name: c.name,
       start: c.start,
       active: c.active,
-      advance: c.advance ?? "occurrence",
-      onSkip: c.onSkip ?? "lose",
+      advance: c.advance,
+      onSkip: c.onSkip,
       steps: steps
         .filter((s) => s.cycleId === c.id)
         .sort((a, b) => a.position - b.position)

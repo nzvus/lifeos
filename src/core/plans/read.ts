@@ -11,7 +11,6 @@ import {
   catalogItems,
   cycleStepItems,
   cycleSteps,
-  cyclesState,
   decisions,
   entries,
   templates,
@@ -20,6 +19,7 @@ import {
 import type { Occurrence } from "../engines/planning";
 import { addDays, isoWeekday, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
+import { readCycles } from "./cycles-repo";
 import { inheritedTargets, type ModelRow } from "./models";
 import { dayPlans, type DayPlan, type PlanCycle } from "./plan";
 
@@ -64,7 +64,7 @@ export async function readDayPlans(
       .where(
         and(
           ownedBy(templates, owner),
-          inArray(templates.scope, ["day", "cycle"]),
+          eq(templates.scope, "day"),
           isNull(templates.deletedAt),
         ),
       ),
@@ -83,25 +83,8 @@ export async function readDayPlans(
           lte(decisions.day, to),
         ),
       ),
-    db
-      .select({
-        id: templates.id,
-        start: templates.startDay,
-        advance: cyclesState.advance,
-        onSkip: cyclesState.onSkip,
-      })
-      .from(templates)
-      .leftJoin(cyclesState, eq(cyclesState.cycleId, templates.id))
-      .where(
-        and(
-          ownedBy(templates, owner),
-          eq(templates.scope, "cycle"),
-          eq(templates.active, true),
-          isNull(templates.deletedAt),
-        ),
-      ),
+    readCycles(db, owner, { live: true }),
   ]);
-  const names = new Map(models.map((m) => [m.id, m.name]));
   const dayModels = new Map(
     models.filter((m) => m.scope === "day" && m.active).map((m) => [m.id, m.name]),
   );
@@ -175,10 +158,10 @@ export async function readDayPlans(
       .join(" + ");
   const planCycles: PlanCycle[] = live.map((c) => ({
     id: c.id,
-    name: names.get(c.id) ?? "",
+    name: c.name,
     start: c.start!,
-    advance: c.advance ?? "occurrence",
-    onSkip: c.onSkip ?? "lose",
+    advance: c.advance,
+    onSkip: c.onSkip,
     steps: steps
       .filter((s) => s.cycleId === c.id)
       .map((s) => ({

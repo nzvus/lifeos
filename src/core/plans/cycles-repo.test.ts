@@ -5,6 +5,7 @@ import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { addStep, createCycle, moveStep, readCycleBook, saveCycle } from "./cycles-repo";
+import { act } from "../verbs";
 import { readDayPlans } from "./read";
 
 describe("cycles, written and read back", () => {
@@ -119,5 +120,26 @@ describe("cycles, written and read back", () => {
     expect((await catalog()).item.archivedAt).toEqual(archived);
     await saveCycle(db, a, id, { ...rules, active: true });
     expect((await catalog()).item.archivedAt).toBeNull();
+  });
+
+  it("PL-70: archived from its page (core/verbs), the ciclo leaves the Piano; restored, it is back", async () => {
+    const [legs] = await db
+      .insert(s.catalogItems)
+      .values({ userId: a.id, catalog: "routine", name: "Legs" })
+      .returning({ id: s.catalogItems.id });
+    const id = await createCycle(db, a, "Solo gambe", "2026-11-02");
+    await addStep(db, a, id, legs!.id);
+    const due = async () =>
+      (await readDayPlans(db, a, "2026-11-10", "2026-11-10", "2026-11-10"))
+        .get("2026-11-10")!
+        .cycles.map((c) => c.cycle);
+    expect(await due()).toContain("Solo gambe");
+    expect((await act(db, a, "archive", "cycle", id)).ok).toBe(true);
+    expect(await due()).not.toContain("Solo gambe");
+    expect((await readCycleBook(db, a)).cycles.find((c) => c.id === id)?.active).toBe(
+      false,
+    );
+    expect((await act(db, a, "restore", "cycle", id)).ok).toBe(true);
+    expect(await due()).toContain("Solo gambe");
   });
 });
