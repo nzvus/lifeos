@@ -118,6 +118,7 @@ function checkField(
       return { value: { field: f.key, text: v } };
     case "text":
     case "time":
+    case "date":
       if (v.length > TEXT_MAX) return { error: "too_long" };
       return { value: { field: f.key, text: v } };
     case "ref":

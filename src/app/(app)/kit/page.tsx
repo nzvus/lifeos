@@ -351,6 +351,7 @@ export default async function KitPage({
           ]}
         />
         <Field name="ora" label="Ora" type="time" defaultValue="13:05" />
+        <Field name="giorno" label="Dal giorno" type="date" defaultValue="2026-11-10" />
         <Field name="nota" label="Nota" type="text" placeholder="Com’è andata" />
         <Field
           name="kg"

@@ -1,26 +1,14 @@
 /**
- * core/plans/cycles-repo.ts — reading and writing cycles for Piano's
- * «Ciclo» editor (dossiers/day-templates.md slice c; the board
- * CycleEditor). A cycle is a template of scope `cycle` with its rules in
- * `cycles_state` and its ordered steps; a step holds a routine (its key for
- * E3's `cyclePlan`: a session of that routine counts for it) or nothing (a
- * rest). What each day holds stays derived (E3), never stored. Every query
- * `ownedBy` the owner.
- *
- * A ciclo is also a catalog «cycle» with the same id (MOD-36, ADR-0062): `cycle_steps` points
- * there, so creating and saving one writes that row too (`mirror`) until the Piano reads the
- * catalog only (change 2026-11-07-piano, slice 4).
+ * core/plans/cycles-repo.ts — his cicli (MOD-31, MOD-36, ADR-0062): a catalog «cycle» (name;
+ * archived = paused; `advance`, `onSkip`, `start` as values: made, renamed, archived through
+ * `core/verbs` like any object) whose ordered steps live in `cycle_steps` / `cycle_step_items`.
+ * A step holds a scheda (its key for E3's `cyclePlan`: a session of it counts) or nothing (a
+ * rest). What each day holds stays derived (E3), never stored. Every query `ownedBy` the owner.
+ * The old `templates` / `cycles_state` rows stay read-only (PL-72).
  */
 import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
-import {
-  catalogItems,
-  catalogValues,
-  cycleStepItems,
-  cycleSteps,
-  cyclesState,
-  templates,
-} from "../db/schema";
+import { catalogItems, catalogValues, cycleStepItems, cycleSteps } from "../db/schema";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 
@@ -187,200 +175,93 @@ export async function readCycleBook(
   };
 }
 
-type CycleRules = {
-  name: string;
-  start: IsoDate;
-  active: boolean;
-  advance: "occurrence" | "date";
-  onSkip: "lose" | "shift";
-};
+/** What a new rest step is called (v1's slot label; a kept one keeps its own, «Rest» too). */
+export const REST_LABEL = "Riposo";
 
-/** Its catalog «cycle» row and values, created or brought up to date; paused = archived. */
-async function mirror(
-  tx: Pick<Db, "insert">,
-  owner: Owner,
-  id: string,
-  c: CycleRules,
-): Promise<void> {
-  await tx
-    .insert(catalogItems)
-    .values({
-      id,
-      userId: owner.id,
-      catalog: "cycle",
-      name: c.name,
-      archivedAt: c.active ? null : new Date(),
-    })
-    .onConflictDoUpdate({
-      target: catalogItems.id,
-      set: {
-        name: c.name,
-        archivedAt: c.active ? null : sql`coalesce(${catalogItems.archivedAt}, now())`,
-      },
-    });
-  await tx
-    .insert(catalogValues)
-    .values(
-      (["advance", "onSkip", "start"] as const).map((field) => ({
-        userId: owner.id,
-        itemId: id,
-        field,
-        text: c[field],
-      })),
-    )
-    .onConflictDoUpdate({
-      target: [catalogValues.itemId, catalogValues.field],
-      set: { text: sql`excluded.text` },
-    });
-}
+/** A step as the Composer posts it: one kept (its id), a scheda's session, or a rest. */
+export type StepRef = { step: string } | { item: string } | { rest: true };
 
-const ownedCycle = (owner: Owner, id: string) =>
-  and(ownedBy(templates, owner), eq(templates.id, id), eq(templates.scope, "cycle"));
-
-/** A new cycle, starting `start`, by occurrence, a skipped step lost (v1's programs); its id. */
-export async function createCycle(
-  db: Db,
-  owner: Owner,
-  name: string,
-  start: IsoDate,
-): Promise<string> {
-  return db.transaction(async (tx) => {
-    const [c] = await tx
-      .insert(templates)
-      .values({ userId: owner.id, scope: "cycle", name, startDay: start })
-      .returning({ id: templates.id });
-    await tx.insert(cyclesState).values({ userId: owner.id, cycleId: c!.id });
-    await mirror(tx, owner, c!.id, {
-      name,
-      start,
-      active: true,
-      advance: "occurrence",
-      onSkip: "lose",
-    });
-    return c!.id;
-  });
-}
-
-/** Its name, start, rules and whether it plans. False for an unknown cycle. */
-export async function saveCycle(
-  db: Db,
-  owner: Owner,
-  id: string,
-  c: CycleRules,
-): Promise<boolean> {
-  return db.transaction(async (tx) => {
-    const rows = await tx
-      .update(templates)
-      .set({ name: c.name, startDay: c.start, active: c.active })
-      .where(ownedCycle(owner, id))
-      .returning({ id: templates.id });
-    if (rows.length === 0) return false;
-    await tx
-      .insert(cyclesState)
-      .values({ userId: owner.id, cycleId: id, advance: c.advance, onSkip: c.onSkip })
-      .onConflictDoUpdate({
-        target: cyclesState.cycleId,
-        set: { advance: c.advance, onSkip: c.onSkip },
-      });
-    await mirror(tx, owner, id, c);
-    return true;
-  });
-}
-
-async function stepsOf(tx: Pick<Db, "select">, owner: Owner, cycleId: string) {
-  return tx
-    .select({ id: cycleSteps.id, position: cycleSteps.position })
-    .from(cycleSteps)
-    .where(and(ownedBy(cycleSteps, owner), eq(cycleSteps.cycleId, cycleId)))
-    .orderBy(asc(cycleSteps.position));
-}
-
-/** A step at the end: a routine's session, or a rest (null). False when the cycle or routine is not the owner's. */
-export async function addStep(
+/**
+ * A ciclo's steps, in this order (PAT-62 with «+ Riposo», Q-16 (a)): kept steps keep their id,
+ * label and items, new ones hold a scheda of his or nothing (a rest, «Riposo»), the others go.
+ * Positions are numbered from 0 again; days changed by hand (`cycle_override`) keep their
+ * number. «gone»: not his ciclo; «invalid»: a step or a scheda that is not his.
+ */
+export async function setCycleSteps(
   db: Db,
   owner: Owner,
   cycleId: string,
-  routineId: string | null,
-): Promise<boolean> {
+  order: readonly StepRef[],
+): Promise<"ok" | "gone" | "invalid"> {
   return db.transaction(async (tx) => {
     const [c] = await tx
-      .select({ id: templates.id })
-      .from(templates)
-      .where(ownedCycle(owner, cycleId));
-    if (!c) return false;
-    let label = "Riposo";
-    if (routineId !== null) {
-      const [r] = await tx
-        .select({ name: catalogItems.name })
+      .select({ id: catalogItems.id })
+      .from(catalogItems)
+      .where(
+        and(
+          ownedBy(catalogItems, owner),
+          eq(catalogItems.id, cycleId),
+          eq(catalogItems.catalog, "cycle"),
+          isNull(catalogItems.deletedAt),
+        ),
+      );
+    if (!c) return "gone";
+    const have = await tx
+      .select({ id: cycleSteps.id })
+      .from(cycleSteps)
+      .where(and(ownedBy(cycleSteps, owner), eq(cycleSteps.cycleId, cycleId)));
+    const haveIds = new Set(have.map((x) => x.id));
+    const kept = order.flatMap((o) => ("step" in o ? [o.step] : []));
+    if (kept.some((id) => !haveIds.has(id)) || new Set(kept).size !== kept.length)
+      return "invalid";
+    const items = [...new Set(order.flatMap((o) => ("item" in o ? [o.item] : [])))];
+    if (items.length) {
+      const mine = await tx
+        .select({ id: catalogItems.id })
         .from(catalogItems)
         .where(
           and(
             ownedBy(catalogItems, owner),
-            eq(catalogItems.id, routineId),
+            inArray(catalogItems.id, items),
             eq(catalogItems.catalog, "routine"),
+            isNull(catalogItems.deletedAt),
           ),
         );
-      if (!r) return false;
-      label = "";
+      if (mine.length !== items.length) return "invalid";
     }
-    const steps = await stepsOf(tx, owner, cycleId);
-    const [s] = await tx
-      .insert(cycleSteps)
-      .values({
-        userId: owner.id,
-        cycleId,
-        position: steps.reduce((a, x) => Math.max(a, x.position + 1), 0),
-        label,
-      })
-      .returning({ id: cycleSteps.id });
-    if (routineId !== null)
-      await tx
-        .insert(cycleStepItems)
-        .values({ userId: owner.id, stepId: s!.id, position: 0, itemId: routineId });
-    return true;
-  });
-}
-
-/**
- * A step one place earlier (-1) or later (+1), or out (0): the others keep
- * their order, numbered from 0 again. Days already changed by hand to a
- * position (`cycle_override`) keep the number, so the step there may differ.
- */
-export async function moveStep(
-  db: Db,
-  owner: Owner,
-  cycleId: string,
-  stepId: string,
-  by: -1 | 0 | 1,
-): Promise<boolean> {
-  return db.transaction(async (tx) => {
-    const [c] = await tx
-      .select({ id: templates.id })
-      .from(templates)
-      .where(ownedCycle(owner, cycleId));
-    if (!c) return false;
-    const steps = await stepsOf(tx, owner, cycleId);
-    const at = steps.findIndex((s) => s.id === stepId);
-    if (at < 0) return false;
-    const order = steps.map((s) => s.id);
-    if (by === 0) {
-      order.splice(at, 1);
+    const gone = have.filter((x) => !kept.includes(x.id)).map((x) => x.id);
+    if (gone.length)
       await tx
         .delete(cycleSteps)
-        .where(and(ownedBy(cycleSteps, owner), eq(cycleSteps.id, stepId)));
-    } else {
-      const to = at + by;
-      if (to < 0 || to >= order.length) return true;
-      [order[at], order[to]] = [order[to]!, order[at]!];
-    }
-    // Positions are unique per cycle: first out of the way, then in their new order.
-    const at0 = steps.reduce((a, x) => Math.max(a, x.position + 1), 0) + order.length;
-    for (const pass of [at0, 0])
-      for (const [i, id] of order.entries())
+        .where(and(ownedBy(cycleSteps, owner), inArray(cycleSteps.id, gone)));
+    // Out of the way first: (cycle, position) is unique.
+    if (kept.length)
+      await tx
+        .update(cycleSteps)
+        .set({ position: sql`${cycleSteps.position} + 100000` })
+        .where(and(ownedBy(cycleSteps, owner), inArray(cycleSteps.id, kept)));
+    for (const [position, o] of order.entries()) {
+      if ("step" in o) {
         await tx
           .update(cycleSteps)
-          .set({ position: pass + i })
-          .where(and(ownedBy(cycleSteps, owner), eq(cycleSteps.id, id)));
-    return true;
+          .set({ position })
+          .where(and(ownedBy(cycleSteps, owner), eq(cycleSteps.id, o.step)));
+        continue;
+      }
+      const [st] = await tx
+        .insert(cycleSteps)
+        .values({
+          userId: owner.id,
+          cycleId,
+          position,
+          label: "rest" in o ? REST_LABEL : "",
+        })
+        .returning({ id: cycleSteps.id });
+      if ("item" in o)
+        await tx
+          .insert(cycleStepItems)
+          .values({ userId: owner.id, stepId: st!.id, position: 0, itemId: o.item });
+    }
+    return "ok";
   });
 }

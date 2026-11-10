@@ -106,6 +106,7 @@ export const WORDS = {
     required: "Serve un valore",
     number: "Scrivi un numero",
     whole: "Scrivi un numero intero",
+    date: "Scegli un giorno",
     between: (min: string, max: string) => `Scrivi un valore tra ${min} e ${max}`,
     yes: "Sì",
     no: "No",

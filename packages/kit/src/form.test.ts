@@ -73,3 +73,20 @@ describe("ObjectForm generated from fields (PAT-61)", () => {
     });
   });
 });
+
+describe("a day from its native picker (PAT-61)", () => {
+  it("is ISO from the picker, never typed by hand; anything else asks for a day", () => {
+    const spec = [{ key: "start", label: "Dal giorno", type: "date" as const }];
+    expect(readForm(spec, () => "2026-11-10")).toEqual({
+      values: { start: "2026-11-10" },
+      errors: {},
+    });
+    expect(readForm(spec, () => "10/11/2026").errors).toEqual({
+      start: "Scegli un giorno",
+    });
+    expect(formFields(spec, { start: "2026-11-10" })[0]).toMatchObject({
+      type: "date",
+      defaultValue: "2026-11-10",
+    });
+  });
+});

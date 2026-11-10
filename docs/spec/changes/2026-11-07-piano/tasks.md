@@ -23,9 +23,17 @@
        Moved to slice 4: «Rec» targets → Obiettivi and «Rec» archived, with the code that
        reads the day's targets from Obiettivi (storing goals nothing reads would be a guess).
 3. [ ] Screens. Done: the kit's «Ogni quanto» (`Recurrence`, `recurrence.ts`, `Stepper` out of
-       `Field`; gallery `#ogni-quanto`, photographed in CI), the registry's `recurrence` field
-       type checked by `core/kinds/recurrence.ts`. Next: the blocco and ciclo pages (`EXTRAS`, `NEW_FORMS`), «Blocchi» and «Cicli» in
-       Elenco; photos.
+       `Field`; gallery `#ogni-quanto`, photographed in CI), the registry's `recurrence` and
+       `date` field types (`core/kinds/recurrence.ts`); the Piano, the cycle book and Salta /
+       Sposta read the cicli from the catalog (`readCycles`, paused = archived); **the ciclo
+       page** `/oggi/ciclo/<id>` (generic ObjectPage + `cycle-extra`: steps with «oggi», its
+       rules in place with their words, «Andamento» of 14 days), `/oggi/ciclo/<id>/componi`
+       (`CycleComposer`, «+ Riposo», `setCycleSteps`; mounted under `oggi` too), «Nuovo ciclo»
+       (`NewObjectForm` + `objectCreate`, generated from the registry, then its steps); the
+       old editor gone (`/corpo/ciclo/<id>` redirects; `createCycle` / `saveCycle` /
+       `addStep` / `moveStep` and their mirror removed). Checked in the browser: + Riposo saved,
+       Togli saved, a new ciclo with Push + Riposo. Next: the blocco page and form, «Blocchi»
+       and «Cicli» in Elenco; photos.
 4. [ ] The Piano tabs and Oggi read the Piano of a day from blocchi (PL-40…43); the old reads
        retired; «Rec» targets → Obiettivi (PL-61, FD-20) with a repair, «Rec» archived; habits
        created since 0006 carried; photos before/after.

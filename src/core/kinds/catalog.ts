@@ -300,8 +300,8 @@ DECLARED.push(
     fields: [
       { key: "advance", type: "choice", choices: ["occurrence", "date"], required: true },
       { key: "onSkip", type: "choice", choices: ["shift", "lose"], required: true },
-      // The day it starts from (PL-31), ISO «YYYY-MM-DD»: there is no date field type yet.
-      { key: "start", type: "text" },
+      // The day it starts from (PL-31).
+      { key: "start", type: "date" },
     ],
     ...PLAN_TYPE,
   },
@@ -364,6 +364,7 @@ export function valuesSchema(t: CatalogType) {
       s = n;
     } else if (f.type === "boolean") s = z.boolean();
     else if (f.type === "choice") s = z.enum(f.choices as [string, ...string[]]);
+    else if (f.type === "date") s = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
     else if (f.type === "recurrence")
       s = z.string().refine((v) => parseRecurrence(v) !== null, "recurrence");
     else s = z.string().max(2000);

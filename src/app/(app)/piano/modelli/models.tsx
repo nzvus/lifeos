@@ -23,7 +23,7 @@ import { WEEKDAYS } from "@/features/plan/model-form";
 import { habitWhat, ruleWords } from "@/features/plan/habit-form";
 import { AREA_NAME, tabHrefs } from "@/features/places";
 import { newModel } from "../../oggi/giornata/[id]/actions";
-import { newCycle } from "../../[area]/ciclo/[id]/actions";
+import { plan } from "@/i18n/plan";
 
 /** Every section in Oggi's «Modelli»; an area's Piano shows only its own. */
 export type ModelsArea = "corpo" | "mente";
@@ -170,24 +170,16 @@ export async function ModelsPage({ area }: { area?: ModelsArea }) {
                           s.label || s.items.map((i) => i.name).join(" + ") || "Riposo",
                       )
                       .join(" · ") || "nessun passo",
-                  href: "/corpo/ciclo/" + c.id,
+                  href: "/oggi/ciclo/" + c.id,
                   hrefLabel: "Apri il ciclo " + c.name,
                   ...(c.active ? {} : { faded: true }),
                 }}
               />
             ))}
           </List>
-          <form action={newCycle} className="k-line k-panel">
-            <input
-              className="k-text"
-              name="name"
-              placeholder="Nuovo ciclo, per esempio: PPL"
-              aria-label="Nome del nuovo ciclo"
-            />
-            <button type="submit" className="k-btn primary">
-              Crea
-            </button>
-          </form>
+          <a className="k-btn secondary" href="/oggi/ciclo/nuovo">
+            {plan.cycle.newTitle}
+          </a>
         </section>
       )}
       {shows("habits") && (

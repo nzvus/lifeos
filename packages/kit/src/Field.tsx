@@ -20,7 +20,7 @@ export type FieldProps = {
   label: string;
   /** The label is read by screen readers but not shown (a stepper inside a box that names it). */
   hideLabel?: boolean;
-  type: "stepper" | "scale" | "choice" | "text" | "time" | "recurrence";
+  type: "stepper" | "scale" | "choice" | "text" | "time" | "date" | "recurrence";
   /** For a recurrence: the day «dal giorno» and a new date start from (ISO). */
   today?: string;
   defaultValue?: string;
@@ -136,12 +136,12 @@ export function Field(p: FieldProps) {
             ))}
           </div>
         ))}
-      {(p.type === "text" || p.type === "time") && (
+      {(p.type === "text" || p.type === "time" || p.type === "date") && (
         <input
           id={id}
           name={p.name}
           className="k-text"
-          type={p.type === "time" ? "time" : "text"}
+          type={p.type === "text" ? "text" : p.type}
           value={v}
           placeholder={p.placeholder}
           onChange={(e) => setV(e.target.value)}

@@ -8,11 +8,18 @@ import { F, readRecurrence, recurrenceText, type FormFieldSpec } from "@lifeos/k
 import type { CatalogType } from "@/core/kinds/catalog";
 import type { Values } from "@/core/verbs";
 import { objects } from "@/i18n/objects";
+import { plan } from "@/i18n/plan";
 import { MODE_WORDS } from "../movement-words";
 
 /** The words of a `choice` field's values, per type and field. */
 const CHOICE_WORDS: Record<string, Record<string, Record<string, string>>> = {
   route: { mode: MODE_WORDS },
+  cycle: { advance: plan.cycle.advance, onSkip: plan.cycle.onSkip },
+};
+
+/** What a field means, under it while it is edited, per type and field. */
+const FIELD_HELP: Record<string, Record<string, string>> = {
+  cycle: plan.cycle.help,
 };
 
 export type ObjectField = {
@@ -23,6 +30,14 @@ export type ObjectField = {
 
 export function fieldWord(t: CatalogType, key: string): string | undefined {
   return t.fields.find((f) => f.key === key)?.label ?? objects.fields[t.key]?.[key];
+}
+
+/** A new object's form (PAT-11, PAT-61): its name, then the type's declared fields. */
+export function newFields(t: CatalogType): FormFieldSpec[] {
+  return [
+    { key: "name", label: objects.name, type: "text", required: true },
+    ...objectFields(t, {}).map((f) => f.spec),
+  ];
 }
 
 export function objectFields(t: CatalogType, values: Values): ObjectField[] {
@@ -39,6 +54,7 @@ export function objectFields(t: CatalogType, values: Values): ObjectField[] {
         ...(f.max !== undefined ? { max: f.max } : {}),
         ...(f.scale ? { scale: f.scale } : {}),
         ...(f.required ? { required: true } : {}),
+        ...(FIELD_HELP[t.key]?.[f.key] ? { help: FIELD_HELP[t.key]![f.key]! } : {}),
         ...(f.choices
           ? { choices: f.choices.map((c) => ({ value: c, label: words[c] ?? c })) }
           : {}),
@@ -53,9 +69,11 @@ export function objectFields(t: CatalogType, values: Values): ObjectField[] {
               ? v
                 ? objects.yes
                 : objects.no
-              : f.type === "recurrence"
-                ? recurrenceText(readRecurrence(v)) || v
-                : (words[v] ?? v);
+              : f.type === "date" && /^\d{4}-\d{2}-\d{2}$/.test(v)
+                ? F.date(v)
+                : f.type === "recurrence"
+                  ? recurrenceText(readRecurrence(v)) || v
+                  : (words[v] ?? v);
       return { spec, value: v, shown };
     });
 }

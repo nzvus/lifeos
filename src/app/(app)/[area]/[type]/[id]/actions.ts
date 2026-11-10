@@ -1,11 +1,16 @@
 "use server";
 /** The verbs of the generic object page (PAT-04, PAT-24): one action, `core/verbs` does the rest. */
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { readForm } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { mergePreview } from "@/core/catalog/merge";
 import { act, readObject, undo, type Undo } from "@/core/verbs";
-import { mergeLines } from "@/features/objects/present";
+import { areaSlug, catalogType, typeSlug } from "@/core/kinds/catalog";
+import type { NewObjectState } from "@/features/objects/NewObjectForm";
+import { mergeLines, newFields } from "@/features/objects/present";
+import { objects } from "@/i18n/objects";
 
 /** The verbs this page runs itself; «Unisci» and «Parti da…» open their sheets (PAT-16, PAT-18). */
 const SIMPLE = new Set(["archive", "restore", "trash", "delete"] as const);
@@ -86,4 +91,42 @@ export async function objectUndo(u: Undo): Promise<VerbAnswer> {
   const r = await undo(await getDb(), owner, u);
   revalidatePath("/", "layout");
   return r.ok ? { ok: true, undo: null } : { ok: false, refused: r.refused };
+}
+
+/**
+ * PAT-11: a new object of a type with plain declared fields, through `core/verbs` create; then
+ * its page, or `then` under it (a ciclo goes on to its steps: «componi»). What was typed comes
+ * back with the field's words, or the refusal's.
+ */
+export async function objectCreate(
+  type: string,
+  then: string,
+  prev: NewObjectState,
+  data: FormData,
+): Promise<NewObjectState> {
+  const t = catalogType(type);
+  const specs = t ? newFields(t) : [];
+  const { values, errors } = readForm(specs, (k) =>
+    typeof data.get(k) === "string" ? String(data.get(k)) : null,
+  );
+  const again = (e: Record<string, string>): NewObjectState => ({
+    errors: e,
+    values,
+    n: prev.n + 1,
+  });
+  if (!t) return again({ form: objects.refused.other });
+  if (Object.keys(errors).length) return again(errors);
+  const { name, ...rest } = values;
+  const r = await act(await getDb(), await requireOwner(), "create", type, null, {
+    name: String(name ?? ""),
+    values: rest,
+  });
+  if (!r.ok)
+    return again(
+      r.refused === "name_taken"
+        ? { name: objects.refused.name_taken }
+        : { form: objects.refused.other },
+    );
+  revalidatePath("/", "layout");
+  redirect(`/${areaSlug(t)}/${typeSlug(t)}/${r.id}${then ? "/" + then : ""}`);
 }
