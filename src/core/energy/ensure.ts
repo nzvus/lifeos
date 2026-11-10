@@ -15,7 +15,6 @@ import type { GoalKind } from "../engines/targets";
 import { addDays, isoWeekday, type DayClock, type IsoDate } from "../engines/time";
 import { readDayTargets, type FoodTargets } from "../day/targets";
 import { readGoals } from "../goals/read";
-import { readDayModel } from "../plans/read";
 import { ownedBy, type Owner } from "../identity/owner";
 import { readEnergyRows } from "./read";
 import { WINDOW_DAYS, weekEnergy, type WeekEnergy, type WeekGoal } from "./week";
@@ -111,8 +110,8 @@ export async function recomputeWeekTargets(
 
 /**
  * A day's targets on a page that is not Oggi (the meal composer, an entry's
- * page): its week made first when missing, then the day's model and the
- * decisions, as Oggi reads them.
+ * page): its week made first when missing, then the decisions and the food
+ * goals, as Oggi reads them.
  */
 export async function readTargetsFor(
   db: Db,
@@ -121,9 +120,6 @@ export async function readTargetsFor(
   today: IsoDate,
   clock: DayClock,
 ): Promise<FoodTargets | null> {
-  const [, model] = await Promise.all([
-    day <= today ? ensureWeekTargets(db, owner, day, clock) : null,
-    readDayModel(db, owner, day),
-  ]);
-  return readDayTargets(db, owner, day, model);
+  if (day <= today) await ensureWeekTargets(db, owner, day, clock);
+  return readDayTargets(db, owner, day);
 }

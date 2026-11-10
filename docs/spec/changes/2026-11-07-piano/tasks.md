@@ -44,4 +44,19 @@
 4. [ ] The Piano tabs and Oggi read the Piano of a day from blocchi (PL-40…43); the old reads
        retired; «Rec» targets → Obiettivi (PL-61, FD-20) with a repair, «Rec» archived; habits
        created since 0006 carried; photos before/after.
+       Done: `drizzle/0008` (data; «Rec»'s deficit 200, protein 2.2, fat 0.8 g/kg → three goals
+       from 1 Oct, the day models archived, a habit → a blocco of its type with the same id;
+       stops on a fixed model in a week or a planned model block; tested on PGlite); the day's
+       targets from the goals (`dynamicTargets`, his numbers unchanged: 2211/167/61 on 19 Oct);
+       `dayBlocks` (PL-01/02/03/11/12/20/30/33 tests) and the rows on Oggi and Oggi · Piano;
+       each area's Piano = its blocchi on `Elenco` (Corpo with the cicli); gone: day models
+       (`models*.ts`, the model editor, «Modelli», `/oggi/giornata/<id>`), habits (`habits.ts`,
+       HabitForm, `/<area>/abitudine/<id>`), «Cambia la giornata», «Salva come modello», the
+       meal shares (`slots.ts`). Checked in the browser (local account): tomorrow's two Acqua
+       blocchi at 20:00 and the ciclo's Legs at 20:42 (last Wednesday's time) on Oggi and on
+       the Piano. **He runs «migrate v2»** for 0008, then the data is checked (three goals,
+       «Rec» archived, the same kcal on Oggi).
+       Left: writing the previsti `from_block` on the first read of today (PL-40, MOD-33);
+       «Ripeti» → a new blocco (PL-44); a step's items as blocchi (PL-30, caffè with Push); the
+       food Composer's unfed `slots` (PL-60); dropping `templates` / `week_layouts` later.
 5. [ ] Delta into the spec; change archived.

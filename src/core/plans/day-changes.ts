@@ -2,59 +2,17 @@
 const ownsCycle = (db: Db, owner: Owner, id: string) => ownsItem(db, owner, id, "cycle");
 
 /**
- * core/plans/day-changes.ts — changing one day only (dossiers/
- * day-templates.md §5 «Cambia la giornata», slice c):
- *   model  the day takes another day model: a `day_targets` decision naming
- *          it without numbers (the model's targets then apply, core/day);
- *          null goes back to the week's model. A v1 fixed copy with
- *          numbers is replaced: its numbers belonged to the old choice.
+ * core/plans/day-changes.ts — changing one day only (PL-32, PL-43; the day models' «Cambia la
+ * giornata» went with them, PL-61):
  *   skip   a cycle's step skipped that day (`cycle_skip`, keyed by the
  *          cycle): E3 loses it or shifts it, by the cycle's rule.
  */
 import { and, eq } from "drizzle-orm";
 import type { Db } from "../db/db";
-import { decisions, templates } from "../db/schema";
+import { decisions } from "../db/schema";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 import { ownsItem } from "./items";
-
-export async function setDayModel(
-  db: Db,
-  owner: Owner,
-  day: IsoDate,
-  modelId: string | null,
-): Promise<boolean> {
-  const where = and(
-    ownedBy(decisions, owner),
-    eq(decisions.kind, "day_targets"),
-    eq(decisions.day, day),
-    eq(decisions.key, ""),
-  );
-  if (modelId === null) {
-    await db.delete(decisions).where(where);
-    return true;
-  }
-  const [m] = await db
-    .select({ name: templates.name })
-    .from(templates)
-    .where(
-      and(
-        ownedBy(templates, owner),
-        eq(templates.id, modelId),
-        eq(templates.scope, "day"),
-      ),
-    );
-  if (!m) return false;
-  const payload = { profileId: modelId, profileName: m.name };
-  await db
-    .insert(decisions)
-    .values({ userId: owner.id, kind: "day_targets", day, key: "", payload })
-    .onConflictDoUpdate({
-      target: [decisions.userId, decisions.kind, decisions.day, decisions.key],
-      set: { payload },
-    });
-  return true;
-}
 
 export async function setCycleSkip(
   db: Db,

@@ -7,7 +7,7 @@
  * logged. A goal nothing counts yet is faded, «nessun dato». Pure.
  */
 import { F, type BoxEntry, type State } from "@lifeos/kit";
-import type { Goal, WeightProgress } from "@/core/goals";
+import { isFoodGoal, type Goal, type WeightProgress } from "@/core/goals";
 import { goalText, goalTitle } from "./goals";
 
 export type GoalProgress =
@@ -49,6 +49,12 @@ export function goalRow(
       ? { href: HREF[g.source]!, hrefLabel: "Apri " + goalTitle(g).toLowerCase() }
       : {}),
   };
+  // The day's food targets read it (FD-20…22, PL-61): it has no progress of its own.
+  if (prog === null && isFoodGoal(g))
+    return {
+      ...base,
+      meta: "entra negli obiettivi di ogni giorno, con il peso di tendenza",
+    };
   if (prog === null)
     return {
       ...base,

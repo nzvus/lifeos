@@ -1,34 +1,21 @@
 "use client";
 /**
- * The day's model in Oggi's header (the board Main: «Giornata «Rec» ▾»,
- * the cycle as the line under the title): what changes this day only
- * (dossiers/day-templates.md §5). The button opens a panel: another model
- * (or the week's again), and each cycle's step skipped, or back.
+ * The day's ciclo in Oggi's header (the cycle as the line under the title): what changes this
+ * day only (PL-43). The button opens a panel: each ciclo's step skipped, or back. Day models
+ * and «Cambia la giornata» are gone (PL-61, MOD-32; change 2026-11-07-piano).
  */
 import { useState, useTransition } from "react";
 
 export function DayPlanBar({
-  model,
-  modelName,
-  fromDay,
-  models,
   steps,
-  change,
   skip,
 }: {
-  /** The day's model id, "" for none. */
-  model: string;
-  modelName: string | null;
-  /** The model was chosen for this day (not the week's). */
-  fromDay: boolean;
-  models: { id: string; name: string }[];
   steps: { cycleId: string; label: string; skipped: boolean }[];
-  change: (d: FormData) => Promise<void>;
   skip: (cycleId: string, skipped: boolean) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
-  if (models.length === 0 && steps.length === 0) return null;
+  if (steps.length === 0) return null;
   return (
     <span style={{ position: "relative", zIndex: 20 }}>
       <button
@@ -36,13 +23,10 @@ export function DayPlanBar({
         className="k-back k-act-link"
         style={{ background: "none", border: 0, padding: 0, cursor: "pointer" }}
         aria-expanded={open}
-        aria-label={
-          (modelName ? "Giornata «" + modelName + "»" : "Nessun modello") +
-          ": tocca per cambiarla"
-        }
+        aria-label="Giornata: tocca per cambiarla"
         onClick={() => setOpen(!open)}
       >
-        {modelName ? "Giornata «" + modelName + "»" : "Giornata"} ▾
+        Giornata ▾
       </button>
       {open && (
         <div
@@ -57,33 +41,6 @@ export function DayPlanBar({
             width: "min(20rem, calc(100vw - 32px))",
           }}
         >
-          {models.length > 0 && (
-            <form
-              action={async (d) => {
-                await change(d);
-                setOpen(false);
-              }}
-              className="k-line g2"
-            >
-              <select
-                className="k-select"
-                style={{ flex: 1, minWidth: 0 }}
-                name="model"
-                defaultValue={fromDay ? model : ""}
-                aria-label="Il modello di questa giornata"
-              >
-                <option value="">come la settimana</option>
-                {models.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
-              <button type="submit" className="k-btn primary">
-                Salva
-              </button>
-            </form>
-          )}
           {steps.map((s) => (
             <button
               key={s.cycleId}

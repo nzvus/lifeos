@@ -17,11 +17,11 @@ import {
   readMinutes,
   readNumbers,
   weightProgress,
+  isFoodGoal,
   type Goal,
 } from "@/core/goals";
 import type { Db } from "@/core/db/db";
 import type { Owner } from "@/core/identity/owner";
-import { readDayModel } from "@/core/plans";
 import { goalRow, weekDays, type GoalProgress } from "@/features/progress/goal-rows";
 
 /** The kinds whose one field a per-day goal counts, by the goal's metric. */
@@ -86,12 +86,10 @@ export default async function GoalsPage() {
     Promise.all(
       goals.map(async (g) => ({ g, p: await progressOf(db, owner, g, today) })),
     ),
-    // What today asks, for the weight goal's «da qui»: the day's model and the week.
-    weight
-      ? readDayModel(db, owner, today).then((m) => readDayTargets(db, owner, today, m))
-      : null,
+    // What today asks, for the weight goal's «da qui»: the week and the food goals.
+    weight ? readDayTargets(db, owner, today) : null,
   ]);
-  const silent = shown.filter((s) => s.p === null).length;
+  const silent = shown.filter((s) => s.p === null && !isFoodGoal(s.g)).length;
   return (
     <main className="k-page has-bd">
       <PageHeader

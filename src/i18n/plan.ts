@@ -47,6 +47,12 @@ export const plan = {
       lines: "Aggiungi almeno un passo.",
     },
   },
+  /** The Piano's rows on a day (PL-40). */
+  day: {
+    fromPlan: "dal piano",
+    fromCycle: "dal ciclo",
+    open: (what: string) => "Segna " + what.toLowerCase(),
+  },
   /** Oggi · Elenco's two sections (PL-70). */
   elenco: {
     blocks: "Blocchi",

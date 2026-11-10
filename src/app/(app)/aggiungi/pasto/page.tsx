@@ -6,8 +6,6 @@
  * Nutrients against the targets in force) and the role bounds; the client
  * composes and posts to `saveMeal`.
  */
-import { readDayPlans, readModelBook, resolveModel, toModels } from "@/core/plans";
-import { daySlots } from "@/features/day/slots";
 import { F } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
@@ -39,7 +37,7 @@ export default async function MealPage({
     giorno?: string | string[];
     pasto?: string | string[];
     da?: string | string[];
-    /** From a model's block on Oggi: its meal role and time. */
+    /** From the Piano on Oggi (a blocco's time) or a meal group: its role and time. */
     ruolo?: string | string[];
     ora?: string | string[];
     cibo?: string | string[];
@@ -67,22 +65,6 @@ export default async function MealPage({
     micros,
   );
   const recipes = await readRecipeChoices(db, owner, today, choices);
-  // The day's model's meal blocks (day-templates): each role's targets, for the bars and the gap.
-  const model = (await readDayPlans(db, owner, day, day, today)).get(day)?.model ?? null;
-  const book = model ? await readModelBook(db, owner) : null;
-  const slots = Object.fromEntries(
-    [
-      ...daySlots(
-        book
-          ? (resolveModel(model!.id, toModels(book.models, book.rows))?.blocks ?? [])
-          : [],
-        targets,
-      ),
-    ].map(([role, t]) => [
-      role,
-      { kcal: t.kcal, protein: t.protein, carbs: t.carbs, fat: t.fat, fibre: t.fibre },
-    ]),
-  );
   // `?pasto=<recipe>` (a saved meal's «Registra»): the composer starts with its foods.
   const from = recipes.find((r) => r.recipeId === pasto);
   // `?da=<entry>` (a logged meal's «Registra di nuovo»): its foods at today's values.
@@ -140,12 +122,10 @@ export default async function MealPage({
       day={day}
       dayLabel={day === today ? "Oggi" : F.Day(day)}
       dayNutrients={whole?.nutrients ?? null}
-      slots={slots}
-      modelName={model?.name ?? null}
       refs={{ targets, micros, weights: (await ownerClock()).weights }}
       roleBounds={roleBounds}
       initial={{
-        // A model's block still to come is planned at its time; else now, eaten.
+        // A blocco still to come is planned at its time; else now, eaten.
         status:
           when === "previsto" ||
           (when === null && (day > today || (at !== null && day === today && at > now)))

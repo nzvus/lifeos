@@ -164,14 +164,12 @@ export function presentDay(
 /**
  * Where the day's targets come from, in words (dossiers/targets.md §5: every
  * number traceable): «dispendio ≈ 2.533 ± 224 kcal − 322 per il ritmo
- * dell'obiettivo (−0,5 %/sett.) · modello «Rec»».
+ * dell'obiettivo (−0,5 %/sett.)»; without a weight goal, the deficit of Obiettivi (FD-21).
  */
 export function targetWords(t: FoodTargets | null): string {
   if (t === null)
     return "obiettivi da calcolare: servono pesate e sesso, anno e altezza nelle impostazioni";
   if (t.from === "day") return "obiettivi fissati per questo giorno";
-  const model = t.basis?.model ? "modello «" + t.basis.model + "»" : "";
-  if (t.from === "model") return model + ": numeri fissi";
   const b = t.basis;
   if (!b?.expenditureKcal) return "obiettivi della settimana dal " + F.date(t.since);
   const deficit = b.deficitKcal ?? 0;
@@ -180,17 +178,16 @@ export function targetWords(t: FoodTargets | null): string {
       ? ""
       : (deficit > 0 ? " − " : " + ") +
         F.num(Math.abs(deficit), "kcal") +
-        (b.deficitFrom === "goal"
+        (b.deficitFrom === "pace"
           ? " per il ritmo dell'obiettivo" +
             (b.ratePctWeek != null ? " (" + F.n(b.ratePctWeek, 2) + " %/sett.)" : "")
-          : " del modello");
+          : " di deficit dai tuoi obiettivi");
   return (
     "dispendio " +
     F.approx(b.expenditureKcal, "kcal") +
     (b.sigmaKcal ? " ± " + F.num(b.sigmaKcal, "") : "") +
     why +
     (b.floored ? " · non sotto il metabolismo basale" : "") +
-    (model ? " · " + model : "") +
     " · dal " +
     F.date(t.since)
   );

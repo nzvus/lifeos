@@ -21,7 +21,7 @@ import {
   type BoxEntry,
   type NutrientsData,
 } from "@lifeos/kit";
-import type { ModelRow } from "./model-items";
+import type { PlanRow } from "./block-items";
 import { EntryRow, type RowIntent } from "./EntryRow";
 import {
   NONE,
@@ -81,7 +81,7 @@ export function DayView({
   now,
   actions,
   water = null,
-  fromModel = [],
+  fromPlan = [],
   arrived = null,
   clock,
 }: {
@@ -91,8 +91,8 @@ export function DayView({
   actions: DayActions;
   /** The day's water, one box in the timeline; its drinks are not rows. */
   water?: Water | null;
-  /** What the day's model still plans (model-items): shown with no filter on, each a link. */
-  fromModel?: ModelRow[];
+  /** What the Piano still plans (block-items, PL-40): shown with no filter on, each a link. */
+  fromPlan?: PlanRow[];
   /** An entry ticked done from ⊕ (capture.md §6): its toast, with «Annulla», on arrival. */
   arrived?: { id: string; text: string } | null;
   /** The parts of the day (UI-77): the day, whether it is over, its boundary, the
@@ -219,7 +219,7 @@ export function DayView({
     }
   };
   const active = sel.fam.length + sel.status.length > 0;
-  const ghosts: (Row & { minute: number })[] = fromModel.map((m) => ({
+  const ghosts: (Row & { minute: number })[] = fromPlan.map((m) => ({
     ...m,
     status: "planned",
   }));

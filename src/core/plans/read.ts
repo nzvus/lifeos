@@ -1,11 +1,10 @@
 /**
- * core/plans/read.ts — the input of `dayPlans` for a range of days: the live
- * day models, the week layout, the days' fixed copies, the active cycles
- * with their steps (a step without a label named by its items), and the
- * sessions done since the earliest cycle began.
+ * core/plans/read.ts — the input of `dayPlans` for a range of days: the live cicli with their
+ * steps (a step without a label named by its items), their skips and overrides, and the
+ * sessions done since the earliest ciclo began (PL-30…33). The blocchi are `day-blocks.ts`.
  * Narrow columns only (Neon bills the bytes): ids, names, days, positions.
  */
-import { and, eq, gte, inArray, isNull, lte } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull } from "drizzle-orm";
 import type { Db } from "../db/db";
 import {
   catalogItems,
@@ -13,76 +12,12 @@ import {
   cycleSteps,
   decisions,
   entries,
-  templates,
-  weekLayouts,
 } from "../db/schema";
 import type { Occurrence } from "../engines/planning";
-import { addDays, isoWeekday, type IsoDate } from "../engines/time";
+import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 import { readCycles } from "./cycles-repo";
-import { inheritedTargets, type ModelRow } from "./models";
 import { dayPlans, type DayPlan, type PlanCycle } from "./plan";
-
-/**
- * The day models (archived ones too: a base still lends its targets, a fixed day keeps its
- * model's name), the week layout and the days' fixed copies in a range: three narrow queries.
- */
-async function readModelInput(db: Db, owner: Owner, from: IsoDate, to: IsoDate) {
-  return Promise.all([
-    db
-      .select({
-        id: templates.id,
-        name: templates.name,
-        scope: templates.scope,
-        targets: templates.targets,
-        extendsId: templates.extendsId,
-        active: templates.active,
-      })
-      .from(templates)
-      .where(
-        and(
-          ownedBy(templates, owner),
-          eq(templates.scope, "day"),
-          isNull(templates.deletedAt),
-        ),
-      ),
-    db
-      .select({ weekday: weekLayouts.weekday, templateId: weekLayouts.templateId })
-      .from(weekLayouts)
-      .where(ownedBy(weekLayouts, owner)),
-    db
-      .select({ day: decisions.day, payload: decisions.payload })
-      .from(decisions)
-      .where(
-        and(
-          ownedBy(decisions, owner),
-          eq(decisions.kind, "day_targets"),
-          gte(decisions.day, from),
-          lte(decisions.day, to),
-        ),
-      ),
-  ]);
-}
-
-/** The day models as `inheritedTargets` reads them: an archived base still lends its targets. */
-const asRows = (
-  models: readonly {
-    id: string;
-    name: string;
-    scope: string;
-    targets: unknown;
-    extendsId: string | null;
-  }[],
-): ModelRow[] =>
-  models
-    .filter((m) => m.scope === "day")
-    .map((m) => ({
-      id: m.id,
-      name: m.name,
-      extendsId: m.extendsId,
-      targets: (m.targets as Record<string, unknown> | null) ?? null,
-      active: true,
-    }));
 
 export async function readDayPlans(
   db: Db,
@@ -91,18 +26,7 @@ export async function readDayPlans(
   to: IsoDate,
   today: IsoDate,
 ): Promise<Map<IsoDate, DayPlan>> {
-  const [[models, week, fixed], cycles] = await Promise.all([
-    readModelInput(db, owner, from, to),
-    readCycles(db, owner, { live: true }),
-  ]);
-  const dayModels = new Map(
-    models.filter((m) => m.scope === "day" && m.active).map((m) => [m.id, m.name]),
-  );
-  const fixedModels = new Map<IsoDate, string>();
-  for (const f of fixed) {
-    const p = f.payload as Record<string, unknown>;
-    if (typeof p["profileId"] === "string") fixedModels.set(f.day, p["profileId"]);
-  }
+  const cycles = await readCycles(db, owner, { live: true });
 
   const live = cycles.filter((c) => c.start !== null && c.start <= to);
   const ids = live.map((c) => c.id);
@@ -196,15 +120,6 @@ export async function readDayPlans(
     today,
     from,
     to,
-    models: dayModels,
-    // A model's targets with its bases' (key by key: core/plans/models).
-    modelTargets: new Map(
-      models
-        .filter((m) => m.scope === "day" && m.active)
-        .map((m) => [m.id, inheritedTargets(m.id, asRows(models)).targets]),
-    ),
-    week: new Map(week.map((w) => [w.weekday, w.templateId])),
-    fixed: fixedModels,
     cycles: planCycles,
     done: sessions,
     overrides,
@@ -253,49 +168,4 @@ export async function readSessionKeys(
     day: r.day,
     keys: [...(r.itemId ? [r.itemId] : []), ...(byParent.get(r.id) ?? [])],
   }));
-}
-
-/**
- * Each day's model with its targets, for a range (core/day's resolution on
- * pages that need no cycles): the day's fixed copy, else the week layout's.
- * Three small queries whatever the range.
- */
-export async function readDayModels(
-  db: Db,
-  owner: Owner,
-  from: IsoDate,
-  to: IsoDate,
-): Promise<
-  Map<IsoDate, { name: string; targets: Record<string, unknown> | null } | null>
-> {
-  const [models, week, fixed] = await readModelInput(db, owner, from, to);
-  const byId = new Map(
-    models.map((m) => [
-      m.id,
-      { name: m.name, targets: inheritedTargets(m.id, asRows(models)).targets },
-    ]),
-  );
-  const layout = new Map(week.map((w) => [w.weekday, w.templateId]));
-  const own = new Map(
-    fixed.map((f) => [f.day, (f.payload as Record<string, unknown>)["profileId"]]),
-  );
-  const out = new Map<
-    IsoDate,
-    { name: string; targets: Record<string, unknown> | null } | null
-  >();
-  for (let d = from; d <= to; d = addDays(d, 1)) {
-    const o = own.get(d);
-    const id = typeof o === "string" && byId.has(o) ? o : layout.get(isoWeekday(d));
-    out.set(d, (id && byId.get(id)) || null);
-  }
-  return out;
-}
-
-/** One day's model with its targets (`readDayModels` for one day). */
-export async function readDayModel(
-  db: Db,
-  owner: Owner,
-  day: IsoDate,
-): Promise<{ name: string; targets: Record<string, unknown> | null } | null> {
-  return (await readDayModels(db, owner, day, day)).get(day) ?? null;
 }

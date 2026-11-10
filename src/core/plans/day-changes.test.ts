@@ -4,8 +4,7 @@ import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { addStep, createCycle } from "./test-cycles";
-import { setCycleOverride, setCycleSkip, setDayModel } from "./day-changes";
-import { createModel, setWeekdays } from "./models-repo";
+import { setCycleOverride, setCycleSkip } from "./day-changes";
 import { readDayPlans } from "./read";
 
 describe("changing one day", () => {
@@ -22,20 +21,6 @@ describe("changing one day", () => {
     b = ownerFromVerifiedSession(await createTestUser(t.db, "b@example.test"));
   });
   afterAll(() => close());
-
-  it("another model for the day, then back to the week's", async () => {
-    const work = await createModel(db, a, "Lavoro", null);
-    const rest = await createModel(db, a, "Riposo", null);
-    await setWeekdays(db, a, work, [1, 2, 3, 4, 5, 6, 7]);
-    const day = "2026-10-21";
-    const model = async () => (await readDayPlans(db, a, day, day, day)).get(day)!.model;
-    expect(await model()).toMatchObject({ name: "Lavoro", from: "week" });
-    expect(await setDayModel(db, a, day, rest)).toBe(true);
-    expect(await model()).toMatchObject({ name: "Riposo", from: "day" });
-    expect(await setDayModel(db, b, day, rest)).toBe(false);
-    await setDayModel(db, a, day, null);
-    expect(await model()).toMatchObject({ name: "Lavoro" });
-  });
 
   it("a cycle's step skipped, and not", async () => {
     const id = await createCycle(db, a, "AB", "2026-10-20");

@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { ownerFromVerifiedSession } from "../identity/owner";
+import { readBlocks } from "../plans/blocks";
 import * as s from "./schema";
 import { createTestDb, createTestUser } from "./test-db";
 
@@ -325,5 +327,132 @@ describe("data repair PL-72: cicli into the catalog (MOD-36, ADR-0062)", () => {
     await expect(run()).rejects.toThrow(/block\(s\) of a day model/);
     await t.db.delete(s.templateBlocks).where(eq(s.templateBlocks.id, block!.id));
     await run();
+  });
+});
+
+const FOOD = repair("0008_data_repair_food_goals");
+
+describe("data repair PL-61, PL-72: «Rec» into Obiettivi, habits into blocchi (FD-20, PL-03)", () => {
+  let t: Awaited<ReturnType<typeof createTestDb>>;
+  let user: string;
+  beforeAll(async () => {
+    t = await createTestDb();
+    user = await createTestUser(t.db, "e@example.test");
+  });
+  afterAll(() => t.close());
+
+  const run = async () => {
+    for (const q of FOOD) await t.client.exec(q);
+  };
+  const template = async (v: Partial<typeof s.templates.$inferInsert>) =>
+    (
+      await t.db
+        .insert(s.templates)
+        .values({ userId: user, scope: "day", name: "?", ...v })
+        .returning({ id: s.templates.id })
+    )[0]!.id;
+
+  it("PL-61: «Rec»'s deficit, protein and fat become goals from its first day; «Rec» archived; twice = once", async () => {
+    // His shape (export 6 Nov): «Rec» dynamic on all seven weekdays, created 1 Oct; the first
+    // week of targets 5 Oct; «Come martedì 3» paused and in no week.
+    const rec = await template({
+      name: "Rec",
+      targets: {
+        mode: "dynamic",
+        fatGPerKg: "0.8",
+        deficitKcal: 200,
+        proteinGPerKg: "2.2",
+      },
+      createdAt: new Date("2026-10-01T16:32:30Z"),
+    });
+    await template({ name: "Come martedì 3", active: false });
+    await t.db.insert(s.weekLayouts).values(
+      [1, 2, 3, 4, 5, 6, 7].map((weekday) => ({
+        userId: user,
+        weekday,
+        templateId: rec,
+      })),
+    );
+    await t.db.insert(s.decisions).values({
+      userId: user,
+      kind: "week_targets",
+      day: "2026-10-05",
+      key: "",
+      payload: { source: "auto" },
+    });
+
+    await run();
+    await run();
+
+    const goals = await t.db.select().from(s.goals).where(eq(s.goals.userId, user));
+    expect(
+      goals
+        .map((g) => [
+          (g.metric as { source: string }).source,
+          Number(g.value),
+          g.sinceDay,
+          g.target,
+        ])
+        .sort(),
+    ).toEqual([
+      ["fatPerKg", 0.8, "2026-10-01", "at_least"],
+      ["foodDeficit", 200, "2026-10-01", "at_least"],
+      ["proteinPerKg", 2.2, "2026-10-01", "at_least"],
+    ]);
+    const models = await t.db
+      .select()
+      .from(s.templates)
+      .where(eq(s.templates.scope, "day"));
+    expect(models.every((m) => !m.active)).toBe(true);
+  });
+
+  it("PL-03: a habit becomes a blocco of its type with its time, duration and category", async () => {
+    const [h] = await t.db
+      .insert(s.templates)
+      .values({
+        userId: user,
+        scope: "block",
+        name: "Studio",
+        recurrence: { type: "weekdays", days: [1, 3, 5] },
+      })
+      .returning({ id: s.templates.id });
+    await t.db.insert(s.templateBlocks).values({
+      userId: user,
+      templateId: h!.id,
+      position: 0,
+      kind: "activity",
+      when: "absolute",
+      atMin: 21 * 60 + 5,
+      durationMin: 45,
+      defaults: { category: "study" },
+    });
+
+    await run();
+    await run();
+
+    const [b] = await readBlocks(t.db, ownerFromVerifiedSession(user));
+    expect(b).toMatchObject({
+      id: h!.id,
+      name: "Studio",
+      area: "Oggi",
+      kind: "activity",
+      defaults: { category: "study" },
+      when: { kind: "time", atMin: 21 * 60 + 5 },
+      durationMin: 45,
+      recurrence: { type: "weekdays", days: [1, 3, 5] },
+      items: [],
+    });
+  });
+
+  it("stops on a fixed day model in his week (its numbers have no goal: PL-72 «or nothing»)", async () => {
+    const fixed = await template({
+      name: "Rest",
+      targets: { mode: "fixed", kcal: "2000" },
+    });
+    await t.db
+      .update(s.weekLayouts)
+      .set({ templateId: fixed })
+      .where(eq(s.weekLayouts.weekday, 1));
+    await expect(run()).rejects.toThrow(/fixed day model/);
   });
 });

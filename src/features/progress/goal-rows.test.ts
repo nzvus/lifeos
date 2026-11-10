@@ -17,6 +17,27 @@ const goal = (over: Partial<Goal>): Goal => ({
 });
 
 describe("each goal as the board draws it", () => {
+  it("FD-22, PL-61: a food goal says what it feeds, not «nessun dato»", () => {
+    const row = plain(
+      goalRow(
+        goal({
+          source: "proteinPerKg",
+          metric: { source: "proteinPerKg", what: "proteine", unit: "g/kg", per: "day" },
+          target: "at_least",
+          value: 2.2,
+          by: null,
+        }),
+        null,
+      ),
+    );
+    expect(row).toMatchObject({
+      fam: "goal",
+      title: "Proteine: almeno 2,2 g/kg al giorno",
+      meta: "entra negli obiettivi di ogni giorno, con il peso di tendenza",
+    });
+    expect(row.faded).toBeUndefined();
+  });
+
   it("the weight: now → target, by when, the paces, how far along, what today asks", () => {
     const row = plain(
       goalRow(
