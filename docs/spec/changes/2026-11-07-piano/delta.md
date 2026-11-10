@@ -6,7 +6,7 @@
   kind or his tracker, with `defaults` as JSON — an abitudine, a walk of 30 min, PL-01, PL-03), its when (`when` ∈ time · after · before · wake · bed,
   `atMin`, `anchor` a blocco, `offsetMin`), how often (`recurrence`, the engine's `Recurrence`
   as JSON), `area` and `durationMin` as `catalog_values`; a ciclo is a catalog «cycle»
-  (`advance` ∈ occurrence · date, `onSkip` ∈ shift · lose) whose steps stay in `cycle_steps` /
+  (`advance` ∈ occurrence · date, `onSkip` ∈ shift · lose, `start` an ISO day) whose steps stay in `cycle_steps` /
   `cycle_step_items` (a step's items are blocchi). WHEN the Piano of a day is read THEN
   `core/plans` turns these rows into the engine's input; no screen reads them directly.
 

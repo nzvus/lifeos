@@ -5,14 +5,13 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import * as s from "./schema";
 import { createTestDb, createTestUser } from "./test-db";
 
-// The repair's SQL, as migrate applies it: statements split on drizzle's breakpoint.
-const SQL = readFileSync(
-  join(__dirname, "../../../drizzle/0002_data_repair_orphans.sql"),
-  "utf8",
-)
-  .split("--> statement-breakpoint")
-  .map((x) => x.trim())
-  .filter(Boolean);
+// A repair's SQL, as migrate applies it: statements split on drizzle's breakpoint.
+const repair = (name: string) =>
+  readFileSync(join(__dirname, "../../../drizzle/" + name + ".sql"), "utf8")
+    .split("--> statement-breakpoint")
+    .map((x) => x.trim())
+    .filter(Boolean);
+const SQL = repair("0002_data_repair_orphans");
 
 describe("data repair R1, R3 (data-repair.md)", () => {
   let t: Awaited<ReturnType<typeof createTestDb>>;
@@ -71,13 +70,7 @@ describe("data repair R1, R3 (data-repair.md)", () => {
 });
 
 // R6: single-food «meals» with no energy become «assunzioni» (capture.md §4).
-const R6 = readFileSync(
-  join(__dirname, "../../../drizzle/0003_data_repair_intake.sql"),
-  "utf8",
-)
-  .split("--> statement-breakpoint")
-  .map((x) => x.trim())
-  .filter(Boolean);
+const R6 = repair("0003_data_repair_intake");
 
 describe("data repair R6 (data-repair.md)", () => {
   let t: Awaited<ReturnType<typeof createTestDb>>;
@@ -158,13 +151,7 @@ describe("data repair R6 (data-repair.md)", () => {
 });
 
 // R2: a timed meal with no role takes its time's, `auto` (capture.md §4).
-const R2 = readFileSync(
-  join(__dirname, "../../../drizzle/0004_data_repair_roles.sql"),
-  "utf8",
-)
-  .split("--> statement-breakpoint")
-  .map((x) => x.trim())
-  .filter(Boolean);
+const R2 = repair("0004_data_repair_roles");
 
 describe("data repair R2 (data-repair.md §3)", () => {
   let t: Awaited<ReturnType<typeof createTestDb>>;
@@ -225,5 +212,118 @@ describe("data repair R2 (data-repair.md §3)", () => {
     expect(await vals(morning)).toEqual({ role: "breakfast", roleSource: "auto" });
     expect(await vals(chosen)).toEqual({ role: "breakfast" });
     expect(await vals(untimed)).toEqual({});
+  });
+});
+
+// PL-72 (change 2026-11-07-piano, MOD-36): his cicli become catalog «cycle» rows, same id.
+const CYCLES = repair("0006_data_repair_cycles_catalog");
+
+describe("data repair PL-72: cicli into the catalog (MOD-36, ADR-0062)", () => {
+  let t: Awaited<ReturnType<typeof createTestDb>>;
+  let user: string;
+  beforeAll(async () => {
+    t = await createTestDb();
+    user = await createTestUser(t.db, "d@example.test");
+  });
+  afterAll(() => t.close());
+
+  const run = async () => {
+    for (const q of CYCLES) await t.client.exec(q);
+  };
+  const template = async (v: Partial<typeof s.templates.$inferInsert>) =>
+    (
+      await t.db
+        .insert(s.templates)
+        .values({ userId: user, scope: "cycle", name: "?", ...v })
+        .returning({ id: s.templates.id })
+    )[0]!.id;
+  const catalog = async () =>
+    Object.fromEntries(
+      (
+        await t.db
+          .select()
+          .from(s.catalogItems)
+          .where(eq(s.catalogItems.catalog, "cycle"))
+      ).map((i) => [i.name, i]),
+    );
+  const values = async (id: string) =>
+    Object.fromEntries(
+      (
+        await t.db.select().from(s.catalogValues).where(eq(s.catalogValues.itemId, id))
+      ).map((v) => [v.field, v.text]),
+    );
+
+  it("PPLCR live with its rules, the paused ones archived, the deleted one deleted; same ids; twice = once", async () => {
+    // His shape (export 6 Nov): PPLCR active from 8 Oct; «Nuovo ciclo» and the v1 programs
+    // paused; RPPL deleted with no rules row.
+    const pplcr = await template({ name: "PPLCR", startDay: "2026-10-08" });
+    await t.db
+      .insert(s.cyclesState)
+      .values({ userId: user, cycleId: pplcr, advance: "occurrence", onSkip: "lose" });
+    const empty = await template({
+      name: "Nuovo ciclo",
+      startDay: "2026-10-25",
+      active: false,
+    });
+    await t.db
+      .insert(s.cyclesState)
+      .values({ userId: user, cycleId: empty, advance: "date", onSkip: "shift" });
+    const gone = new Date("2026-10-01T22:56:49Z");
+    const rppl = await template({ name: "RPPL", active: false, deletedAt: gone });
+
+    await run();
+    await run();
+
+    const c = await catalog();
+    expect(Object.keys(c).sort()).toEqual(["Nuovo ciclo", "PPLCR", "RPPL"]);
+    expect(c["PPLCR"]).toMatchObject({ id: pplcr, archivedAt: null, deletedAt: null });
+    expect(c["Nuovo ciclo"]!.id).toBe(empty);
+    expect(c["Nuovo ciclo"]!.archivedAt).not.toBeNull();
+    expect(c["RPPL"]).toMatchObject({ id: rppl, archivedAt: null, deletedAt: gone });
+    expect(await values(pplcr)).toEqual({
+      advance: "occurrence",
+      onSkip: "lose",
+      start: "2026-10-08",
+    });
+    expect(await values(empty)).toEqual({
+      advance: "date",
+      onSkip: "shift",
+      start: "2026-10-25",
+    });
+    expect(await values(rppl)).toEqual({ advance: "occurrence", onSkip: "lose" });
+    // 0007: a step points at the catalog «cycle» now.
+    await t.db
+      .insert(s.cycleSteps)
+      .values({ userId: user, cycleId: pplcr, position: 0, label: "Push" });
+  });
+
+  it("stops, changing nothing, on a live habit or a planned day model's block (PL-72 «or nothing»)", async () => {
+    const habit = await template({ scope: "block", name: "Acqua" });
+    await expect(run()).rejects.toThrow(/live habit/);
+    await t.db
+      .update(s.templates)
+      .set({ deletedAt: new Date() })
+      .where(eq(s.templates.id, habit));
+    await run();
+
+    const base = await template({ scope: "day", name: "Base" });
+    const rec = await template({ scope: "day", name: "Rec", extendsId: base });
+    await t.db
+      .insert(s.weekLayouts)
+      .values({ userId: user, weekday: 1, templateId: rec });
+    await run(); // models with no block carry nothing
+    const [block] = await t.db
+      .insert(s.templateBlocks)
+      .values({
+        userId: user,
+        templateId: base,
+        position: 0,
+        kind: "meal",
+        when: "unset",
+      })
+      .returning({ id: s.templateBlocks.id });
+    await expect(run()).rejects.toThrow(/block\(s\) of a day model/);
+    await t.db.delete(s.templateBlocks).where(eq(s.templateBlocks.id, block!.id));
+    await run();
   });
 });

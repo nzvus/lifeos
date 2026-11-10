@@ -4,8 +4,9 @@
  *
  *   templates ─┬─< template_blocks   a derived model stores only its differences:
  *              │                     base_block_id (changed fields) or removed
- *              ├─< cycle_steps       a cycle's steps, any models in order
- *              └── cycles_state      how a cycle advances
+ *              └── cycles_state      how a cycle advances (read-only since PL-72)
+ *   catalog_items «cycle» ─< cycle_steps   a ciclo's steps in order (MOD-36, ADR-0062;
+ *                                          the same id as its old `templates` row)
  *   week_layouts  weekday → model
  *   goals         a history by since_day
  *   decisions     what the person decided; never recomputed
@@ -154,10 +155,11 @@ export const cycleSteps = pgTable(
   },
   (t) => [
     unique("cycle_steps_id_user_uq").on(t.id, t.userId),
+    // A ciclo is a catalog «cycle» (MOD-36, ADR-0062): the same id as its old template row.
     foreignKey({
       name: "cycle_steps_cycle_fk",
       columns: [t.cycleId, t.userId],
-      foreignColumns: [templates.id, templates.userId],
+      foreignColumns: [catalogItems.id, catalogItems.userId],
     }).onDelete("cascade"),
     foreignKey({
       name: "cycle_steps_step_fk",

@@ -272,7 +272,12 @@ for (const entry of pages) {
       path:
         SHOTS +
         "/" +
-        (name.replace(/[^a-z0-9:]+/gi, "_").replace(/^_|_$/g, "") || "root") +
+        // no ":" (from /:id, /:day): Android cannot store it, and the shots
+        // land in ~/Syncthing, which then never finishes on the phone
+        (name
+          .replace(/:/g, "")
+          .replace(/[^a-z0-9]+/gi, "_")
+          .replace(/^_|_$/g, "") || "root") +
         ".png",
     });
     await p.setViewportSize({ width: W, height: 844 });

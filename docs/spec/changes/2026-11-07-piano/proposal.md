@@ -40,6 +40,33 @@ report that named the Piano as the next change).
 **Answered.** Q-14, his words 7 Nov: «decidi tu» → the agent's pick (a), recorded as ADR-0062
 (blocchi and cicli are catalog objects).
 
+His words, 7 Nov, after slice 1: «senti decidi tu, vai avanti senza di me» (PROD-39: go on
+inside the approved spec; anything new is written as a question, asked at the end).
+
+**Questions for him before slice 3 (new patterns: the agent does not pick them alone, PROD-39).**
+Slice 2 (the migration, #341) needed neither.
+- **Q-15** How «ogni quanto» is entered on a blocco's form (PL-20). PAT-61 has no field for it;
+  today only the habit editor has one, bespoke (`HabitForm`: a choice + weekday chips).
+  - (a) **A kit field «Ogni quanto»** (`Field type="recurrence"`): one choice (ogni giorno ·
+    certi giorni · ogni N giorni · N volte a settimana · in certe date) that opens its own
+    second control (weekday chips, a stepper, date pickers); `ObjectForm` uses it for any
+    field of that type, so the blocco's form stays generic (PAT-61) and the habit editor goes.
+  - (b) **The blocco's own form section** (a specialisation, like the scheda's): faster now,
+    but a second «ogni quanto» the day any other type needs one.
+  - Agent's pick: **(a)**.
+- **Q-16** How a ciclo's steps are edited, rests included (PL-30). A step holds zero or more
+  blocchi; zero = «Riposo», which is not an object, so the Composer (PAT-62) has nothing to search.
+  - (a) **The Composer with ordered lines** (as the scheda, `counted={false}`), plus a fixed
+    «+ Riposo» row under the search that adds an empty step; a step is one line, its label
+    the blocco's name or «Riposo».
+  - (b) **A list of steps on the ObjectPage** (PAT-30 parts), each step a row with «Su / Giù /
+    Togli» and «+ Passo» / «+ Riposo» at the end; no Composer.
+  - Agent's pick: **(a)** — one way to edit ordered lines, already built for the scheda.
+
+**Answered.** Q-15 and Q-16, his words 10 Nov (after running «migrate v2» for #341): «per il
+resto segui i tuoi consigli e continua» → the agent's picks: Q-15 (a) a kit field «Ogni
+quanto», Q-16 (a) the Composer with ordered lines and «+ Riposo».
+
 **Not in this change.** PL-50…52 proposals and their checks (the proposal engine, a change of
 its own after this one); PL-62 week aggregation; plan layers (x04).
 

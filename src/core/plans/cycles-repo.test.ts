@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "../db/db";
 import * as s from "../db/schema";
@@ -77,5 +78,46 @@ describe("cycles, written and read back", () => {
       label: "Pull",
     });
     expect((await readCycleBook(db, b)).cycles).toEqual([]);
+  });
+
+  it("MOD-36: a ciclo is also its catalog «cycle», same id, kept up to date; paused = archived", async () => {
+    const id = await createCycle(db, a, "Gambe", "2026-11-02");
+    const catalog = async () => {
+      const [item] = await db
+        .select()
+        .from(s.catalogItems)
+        .where(eq(s.catalogItems.id, id));
+      const values = await db
+        .select({ field: s.catalogValues.field, text: s.catalogValues.text })
+        .from(s.catalogValues)
+        .where(eq(s.catalogValues.itemId, id))
+        .orderBy(s.catalogValues.field);
+      return { item: item!, values };
+    };
+    let c = await catalog();
+    expect(c.item).toMatchObject({ catalog: "cycle", name: "Gambe", archivedAt: null });
+    expect(c.values).toEqual([
+      { field: "advance", text: "occurrence" },
+      { field: "onSkip", text: "lose" },
+      { field: "start", text: "2026-11-02" },
+    ]);
+    const rules = {
+      name: "Gambe 2",
+      start: "2026-11-03",
+      active: false,
+      advance: "date",
+      onSkip: "shift",
+    } as const;
+    await saveCycle(db, a, id, rules);
+    c = await catalog();
+    expect(c.item).toMatchObject({ name: "Gambe 2" });
+    const archived = c.item.archivedAt;
+    expect(archived).not.toBeNull();
+    expect(c.values.map((v) => v.text)).toEqual(["date", "shift", "2026-11-03"]);
+    // Saved again while paused: archived since the first time, not moved.
+    await saveCycle(db, a, id, rules);
+    expect((await catalog()).item.archivedAt).toEqual(archived);
+    await saveCycle(db, a, id, { ...rules, active: true });
+    expect((await catalog()).item.archivedAt).toBeNull();
   });
 });

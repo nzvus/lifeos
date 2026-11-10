@@ -9,7 +9,7 @@ import type { V1Export } from "./context";
 import { Out } from "./context";
 import { convertFacts } from "./facts";
 import type { V2File, V2TableKey } from "./file";
-import { V2_FORMAT, V2_VERSION } from "./file";
+import { V2_FORMAT, V2_VERSION, withCycleItems } from "./file";
 import { convertPlans } from "./plans";
 
 export const V1_VERSION = 21;
@@ -43,15 +43,17 @@ export function convert(v1: V1Export, now: Date = new Date()): V2File {
   out.notes.push(
     "v1 programs become cycles; no day model's training block is bound to one yet",
   );
+  // Its cicli are catalog «cycle» rows too (MOD-36), as repair 0006 makes them.
+  const tables = withCycleItems(out.tables, now.toISOString());
   const counts = Object.fromEntries(
-    Object.entries(out.tables).map(([k, v]) => [k, v.length]),
+    Object.entries(tables).map(([k, v]) => [k, v.length]),
   ) as Record<V2TableKey, number>;
   return {
     format: V2_FORMAT,
     version: V2_VERSION,
     exportedAt: now.toISOString(),
     account: v1.account,
-    tables: out.tables,
+    tables,
     report: {
       from: {
         format: v1.format,

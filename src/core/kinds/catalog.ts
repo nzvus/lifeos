@@ -299,6 +299,8 @@ DECLARED.push(
     fields: [
       { key: "advance", type: "choice", choices: ["occurrence", "date"], required: true },
       { key: "onSkip", type: "choice", choices: ["shift", "lose"], required: true },
+      // The day it starts from (PL-31), ISO «YYYY-MM-DD»: there is no date field type yet.
+      { key: "start", type: "text" },
     ],
     ...PLAN_TYPE,
   },

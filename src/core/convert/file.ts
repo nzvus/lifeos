@@ -70,6 +70,44 @@ export type V2File = {
   report: Report;
 };
 
+/**
+ * Each ciclo (a `templates` row of scope cycle) with no catalog «cycle» of the same id gets one,
+ * as repair 0006 makes them (MOD-36, PL-72): paused = archived, its rules and start as values.
+ */
+export function withCycleItems(t: V2Tables, at: string): V2Tables {
+  const have = new Set(t.catalog_items.map((r) => r.id));
+  const missing = t.templates.filter(
+    (r) => r.scope === "cycle" && r.id && !have.has(r.id),
+  );
+  if (missing.length === 0) return t;
+  const rules = new Map(t.cycles_state.map((r) => [r.cycleId, r]));
+  const values: RowOf<"catalog_values">[] = missing.flatMap((c) => {
+    const r = rules.get(c.id!);
+    return (
+      [
+        ["advance", r?.advance ?? "occurrence"],
+        ["onSkip", r?.onSkip ?? "lose"],
+        ["start", c.startDay ?? null],
+      ] as const
+    ).flatMap(([field, text]) => (text ? [{ itemId: c.id!, field, text }] : []));
+  });
+  return {
+    ...t,
+    catalog_items: [
+      ...t.catalog_items,
+      ...missing.map((c) => ({
+        id: c.id!,
+        catalog: "cycle",
+        name: c.name,
+        archivedAt: c.active === false && !c.deletedAt ? at : null,
+        deletedAt: c.deletedAt ?? null,
+        ...(c.createdAt ? { createdAt: c.createdAt } : {}),
+      })),
+    ],
+    catalog_values: [...t.catalog_values, ...values],
+  };
+}
+
 export function emptyTables(): V2Tables {
   return Object.fromEntries(
     Object.keys(V2_TABLES).map((k) => [k, []]),
