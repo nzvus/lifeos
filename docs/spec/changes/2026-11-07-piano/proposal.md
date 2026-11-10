@@ -63,6 +63,10 @@ Slice 2 (the migration, #341) needed neither.
     Togli» and «+ Passo» / «+ Riposo» at the end; no Composer.
   - Agent's pick: **(a)** — one way to edit ordered lines, already built for the scheda.
 
+**Answered.** Q-15 and Q-16, his words 10 Nov (after running «migrate v2» for #341): «per il
+resto segui i tuoi consigli e continua» → the agent's picks: Q-15 (a) a kit field «Ogni
+quanto», Q-16 (a) the Composer with ordered lines and «+ Riposo».
+
 **Not in this change.** PL-50…52 proposals and their checks (the proposal engine, a change of
 its own after this one); PL-62 week aggregation; plan layers (x04).
 
