@@ -295,6 +295,27 @@ describe("loading the file", () => {
       (await db.select().from(s.catalogItems).where(eq(s.catalogItems.userId, bystander)))
         .length,
     ).toBe(1);
+    // «Parti da» may close a loop (a pasto based on its own variant, his 6 Nov export): the
+    // file loads, the provenance is kept, and a second replace takes the loop out again (DT-40).
+    const looped = convert(fixture(), NOW);
+    const [a, b] = looped.tables.catalog_items.filter((i) => !i.parentId);
+    looped.tables.catalog_items = looped.tables.catalog_items.map((i) =>
+      i.id === a!.id
+        ? { ...i, basedOnId: b!.id }
+        : i.id === b!.id
+          ? { ...i, basedOnId: a!.id }
+          : i,
+    );
+    await replaceFile(db as never, looped, owner);
+    await replaceFile(db as never, looped, owner);
+    const after = await db
+      .select()
+      .from(s.catalogItems)
+      .where(eq(s.catalogItems.userId, owner));
+    expect(after.length).toBe(looped.tables.catalog_items.length);
+    expect(after.find((i) => i.id === a!.id)?.basedOnId).toBe(b!.id);
+    expect(after.find((i) => i.id === b!.id)?.basedOnId).toBe(a!.id);
+    await replaceFile(db as never, f, owner);
     // A file that breaks the schema replaces nothing: what was there stays.
     const broken = convert(fixture(), NOW);
     broken.tables.entries[0] = { ...broken.tables.entries[0]!, status: "nope" as never };

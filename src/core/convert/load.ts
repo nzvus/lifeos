@@ -8,17 +8,24 @@
  * (never the account and sign-in tables), in the same transaction: if the
  * load fails, what was there stays. A file made before the cicli moved to the catalog
  * (v1's conversion, a v2 export before 0006) gets their catalog rows first (`withCycleItems`).
+ * An item's `basedOnId` is provenance only (core/catalog/family.ts) and may close a loop — a
+ * pasto based on its own variant, his export of 6 Nov — so it is written after the rows are in,
+ * and unhooked before they go (DT-40, DT-41).
  */
-import { eq, getTableColumns, getTableName, sql, type Column } from "drizzle-orm";
+import { and, eq, getTableColumns, getTableName, sql, type Column } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT, PgTable } from "drizzle-orm/pg-core";
 import type { V2File, V2TableKey } from "./file";
 import { V2_TABLES, withCycleItems } from "./file";
 
 const SELF: Partial<Record<V2TableKey, string[]>> = {
-  catalog_items: ["parentId", "basedOnId"],
+  catalog_items: ["parentId"],
   entries: ["parentId"],
   template_blocks: ["anchorBlockId", "baseBlockId"],
   templates: ["extendsId"],
+};
+/** References that order nothing: written after the table's rows, emptied before they go. */
+const LATER: Partial<Record<V2TableKey, string[]>> = {
+  catalog_items: ["basedOnId"],
 };
 const CHUNK = 500;
 
@@ -72,6 +79,11 @@ export async function replaceFile(
       // (unhooking the references instead would break the live-name index).
       const name = sql.identifier(getTableName(table));
       const cols = getTableColumns(table);
+      for (const l of LATER[key] ?? [])
+        await tx.execute(
+          sql`update ${name} set ${sql.identifier(cols[l]!.name)} = null
+            where user_id = ${userId} and ${sql.identifier(cols[l]!.name)} is not null`,
+        );
       const pointed = sql.join(
         refs.map((r) => sql`c.${sql.identifier(cols[r]!.name)} = t.id`),
         sql` or `,
@@ -104,8 +116,10 @@ async function insertAll(tx: Tx, file: V2File, userId: string): Promise<void> {
       let rows = tables[key] as Record<string, unknown>[];
       const self = SELF[key];
       if (self) rows = parentsFirst(rows, self);
+      const later = LATER[key] ?? [];
       const ready = rows.map((r) => {
         const row: Record<string, unknown> = { ...r, userId };
+        for (const l of later) row[l] = null;
         for (const d of dates)
           if (typeof row[d] === "string") row[d] = new Date(row[d] as string);
         return row;
@@ -114,6 +128,14 @@ async function insertAll(tx: Tx, file: V2File, userId: string): Promise<void> {
         await tx
           .insert(table)
           .values(ready.slice(i, i + CHUNK) as (typeof table)["$inferInsert"][]);
+      const own = table as PgTable & { id: Column; userId: Column };
+      for (const l of later)
+        for (const r of rows)
+          if (typeof r[l] === "string")
+            await tx
+              .update(table)
+              .set({ [l]: r[l] } as never)
+              .where(and(eq(own.id, r["id"]), eq(own.userId, userId)));
     }
   }
 }

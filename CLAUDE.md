@@ -88,14 +88,11 @@ for code quality, then for speed. Never for speed first.
 
 ## Process rules (6 Nov 2026, PROD-35…39 — the cleanup plan in ROADMAP «Now»)
 
-- **Features are frozen** until phase 3 of the plan closes: only cleanup,
-  spec and guards; a bug fix that blocks his daily logging is the exception.
 - **Decide per pattern, never per screen.** A remark on one screen changes a
   pattern or an object type in the spec (and so every screen that uses it), or
   is dropped with a reason. Never a one-screen fix.
 - **One truth per decision.** Adding a document removes or archives one; a
   decision is written in one place and cited elsewhere by ID.
-- **Stop at the end of phases 1, 2 and 3** for his review (his pick, 6 Nov).
 - **Nothing unpushed at the end of a session** (parked → `archive/` + branch name).
 - **Exports** live only in `~/Syncthing/Documents/Projects-artifacts/LIFEOS/exports/`.
 
