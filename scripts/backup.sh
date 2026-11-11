@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/backup.sh — make ONE encrypted database backup (ADR-0003).
 #
-# Used by .github/workflows/backup.yml (daily) and migrate.yml (before every
+# Used by .github/workflows/backup.yml (daily) and migrate-v2.yml (before every
 # migration); can also be run by hand. Steps:
 #   1. pg_dump in "custom" format (-Fc): compressed, and restorable table by
 #      table with pg_restore. Portable: it restores onto ANY Postgres, not

@@ -31,7 +31,11 @@ psql "$target" -c "
   select 'user' as table_name, count(*) from \"user\"
   union all select 'catalog_items', count(*) from catalog_items
   union all select 'entries', count(*) from entries
+  union all select 'entry_values', count(*) from entry_values
   union all select 'entry_lines', count(*) from entry_lines
+  union all select 'catalog_values', count(*) from catalog_values
+  union all select 'goals', count(*) from goals
+  union all select 'cycle_steps', count(*) from cycle_steps
   union all select 'training_sets', count(*) from training_sets
   union all select 'settings', count(*) from settings
   union all select 'migrations applied', count(*) from drizzle.__drizzle_migrations;"

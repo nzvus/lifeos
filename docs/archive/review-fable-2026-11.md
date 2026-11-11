@@ -82,7 +82,7 @@ Dove non ho prove non parlo. Le domande per lui sono Q-19…Q-23 in `docs/spec/c
   phases 1, 2 and 3»: le fasi sono chiuse dal 6 Nov; (b) regola 3 «small steps, reviewable
   increments» contro «as few PRs as possible»; (c) «done = human has understood it» contro la
   memoria «no check questions»; (d) regola 1 «STOP and wait» contro «procedi senza di me» più
-  «decidi tu»; (e) l'intestazione dice ADR-0007 «proposed» mentre MOD-11 ci poggia sopra;
+  «decidi tu»; (e) ADR-0007 è ancora «proposed» mentre MOD-11 ci poggia sopra;
   (f) l'handoff «always current» dava #344 aperta dodici ore dopo il merge.
 - **Conseguenza.** L'agente spende contesto a rileggere regole e a tenere documenti allineati;
   tu rispondi «decidi tu» perché le domande sono troppe e troppo fini. Le regole in conflitto
@@ -108,12 +108,16 @@ processo · Q-23 tabelle del vecchio Piano. Testo, opzioni e raccomandazione in
 - Tabelle vere per serie di allenamento e soldi (MOD §8): è il confine giusto.
 
 ## 4. Correzioni piccole e sicure
-1. Loader: `basedOnId` in un secondo passo (vedi 1c). 1–2 h.
-2. `scripts/restore-drill.sh`: aggiungere ai conteggi `goals`, `cycle_steps`, `entry_values`.
-3. `scripts/backup.sh:4` cita `migrate.yml`: il file è `migrate-v2.yml`.
-4. `LIFEOS/exports/README.md`: «latest» è fermo al 4 Nov e dice `apps/v2`.
+1. Loader: `basedOnId` in un secondo passo (vedi 1c). **Fatto 11 Nov** (`core/convert/load.ts`,
+   `LATER`): gli export del 6 e del 10 Nov si caricano due volte di fila su PGlite (Replace
+   compreso), stesse righe, i 2 `basedOnId` tenuti.
+2. `scripts/restore-drill.sh`: conteggi di `goals`, `cycle_steps`, `entry_values`,
+   `catalog_values`. **Fatto.**
+3. `scripts/backup.sh:4` citava `migrate.yml`. **Fatto.**
+4. `LIFEOS/exports/README.md`: «latest» fermo al 4 Nov e `apps/v2`. **Fatto.**
 5. Il backup delle 03:17 UTC oggi è partito alle 10:57: controllare che la tolleranza di
    healthchecks.io copra il ritardo di GitHub, o l'allarme suonerà a vuoto e verrà ignorato.
-6. CLAUDE.md: togliere le due righe di fase scadute e «(ADR-0007, proposed)» — dopo Q-22.
+6. CLAUDE.md: le due righe di fase scadute. **Tolte 11 Nov.** ADR-0007 resta «proposed»:
+   accettarlo è una scelta sua.
 7. `day-page.tsx:179`: aprire Oggi scrive righe (`writeDayPlan`, Q-17 a). Va bene così, ma
    anche l'account di anteprima e ogni prefetch scrivono: un test che lo dica, niente altro.
