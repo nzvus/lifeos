@@ -67,7 +67,7 @@ for code quality, then for speed. Never for speed first.
   plan, or one `changes/<id>` once phase 2 exists). While its PR is open, add
   the next slices of the same change to it (check its state in its own call
   first). Split only a data migration that must merge after the code it needs.
-- **«Devo andare» / «procedi senza di me» = never stop, inside the approved
+- **«Devo andare» / «procedi senza di me» / `ap` = never stop, inside the approved
   spec and plan** (PROD-39, 6 Nov). Details the spec already implies: decide,
   write «decided by the agent» where it belongs, go on. A new pattern, a new
   object model, a new word or anything expensive to reverse (rule 1): never
