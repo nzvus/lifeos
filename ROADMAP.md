@@ -55,7 +55,9 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
    the abitudine moves with the Piano); food and meal done 7 Nov (change
    `archive/2026-11-07-food-meal`, #335–#337: cibo and pasto on the generic page, the composer
    and ⊕ on the kit); exercise and scheda done 7 Nov (change `archive/2026-11-07-exercise-scheda`,
-   #338: esercizio and scheda on the generic page, the scheda composed, the kit Timer). Next: Piano (`plan_rules` returns here) → money/pantry; each PR counts pages,
+   #338: esercizio and scheda on the generic page, the scheda composed, the kit Timer). Next: Piano (`plan_rules` returns here), then **a week of use only** (Q-20 (a), «ap yc» 12 Nov: 1
+   previsto and 0 blocchi in his data, 2 money movements ever): the next change comes from what
+   slowed his daily log that week; money/pantry wait for it; each PR counts pages,
    implementations and lines removed; v1 retired first (verified export, Neon untouched).
 
 ## Before: lifeos v2 build (ADR-0053, 2026-10-15 → 11-03) — paused 2026-11-06

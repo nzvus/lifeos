@@ -83,6 +83,10 @@ for code quality, then for speed. Never for speed first.
   the end.
 - **«Done» only after checking the effect** (the data, the screen, the
   export), never from a green run or a script's exit code alone.
+- **Migrations and one diff a week** (Q-21 (a), «ap yc» 12 Nov): a PR with a migration names
+  its SQL file and says in three lines what it changes; he reads that SQL before he runs
+  «migrate v2». Once a week the agent asks him to explain one diff of his choice (one check
+  question, rule 5). *Undo:* answer Q-21 (b) or (c).
 - **Keep the developer informed** while working: a short line on what you are
   doing; never go long silent stretches.
 
