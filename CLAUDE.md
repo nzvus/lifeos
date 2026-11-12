@@ -17,8 +17,7 @@
 
 <!-- ======================================================= -->
 
-**Read first, every session:** `~/.claude/plans/handoff-lifeos.md` (where we are), then
-`docs/spec/product.md`, `model.md`, `patterns.md` (ADR-0061),
+**Read first, every session:** `~/.claude/plans/handoff-lifeos.md`, `docs/spec/product.md`, `model.md`, `patterns.md` (ADR-0061),
 and the `domains/` or `visual.md` file you touch. Each rule has one home and an ID
 (PRD- MOD- PAT- VIS- FD- TR- BD- PL- DT-); cite the IDs you follow in every PR («Spec: PAT-13»).
 His words become a line at once: in the open change's `proposal.md`, or in
@@ -85,10 +84,8 @@ for code quality, then for speed. Never for speed first.
   the end.
 - **«Done» only after checking the effect** (the data, the screen, the
   export), never from a green run or a script's exit code alone.
-- **Migrations and one diff a week** (Q-21 (a), «ap yc» 12 Nov): a PR with a migration names
-  its SQL file and says in three lines what it changes; he reads that SQL before he runs
-  «migrate v2». Once a week the agent asks him to explain one diff of his choice (one check
-  question, rule 5). *Undo:* answer Q-21 (b) or (c).
+- **Migration SQL read, one diff a week** (Q-21 (a)): a migration PR says its SQL in three
+  lines; he reads it before «migrate v2». Weekly he explains one diff of his choice.
 - **Keep the developer informed** while working: a short line on what you are
   doing; never go long silent stretches.
 
