@@ -205,9 +205,9 @@ def check_todos(root, files):
         yield (INFO, ".", None, f"{len(hits)} TODO/FIXME markers: {listing}{more}")
 
 
-# The spec (docs/spec, ADR-0061) is the memory of every decision: the developer, 30 Oct,
+# The spec (docs/spec, ADR-0061) is the memory of every decision: the user, 30 Oct,
 # «molte scelte… ogni volta te le dimentichi». It must cite every ADR and dossier, each line needs
-# an ID, a status and a source, and the developer's raw notes must be folded in when they change.
+# an ID, a status and a source, and the user's raw notes must be folded in when they change.
 SPEC = "docs/spec"
 INBOX = "docs/spec/changes/inbox.md"
 REQ_DEF = re.compile(r"^(?:- \*\*|\| )((?:PRD|MOD|PAT|VIS|FD|TR|BD|PL|DT)-\d+)(?:\*\*| \|)")
@@ -247,7 +247,7 @@ def check_spec(root, files):
         for need in ("proposal.md", "delta.md", "tasks.md"):
             if not (folder / need).exists():
                 yield (ERR, str(folder.relative_to(root)), None, f"a change needs {need}")
-    # the developer's notes (outside the repo, so only where they exist): a changed file must be folded in
+    # the user's notes (outside the repo, so only where they exist): a changed file must be folded in
     inbox = (root / INBOX).read_text(encoding="utf-8") if (root / INBOX).exists() else ""
     for note in sorted(NOTES_DIR.glob("considerations*")) if NOTES_DIR.exists() else []:
         digest = __import__("hashlib").sha256(note.read_bytes()).hexdigest()[:12]

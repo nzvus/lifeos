@@ -1,6 +1,6 @@
 ---
 name: kickoff
-description: Interview the developer to fill in PROJECT.md at the start of a new project, then set up sprint 0. Use when the user says "kickoff", "start the project", or PROJECT.md is still the empty template.
+description: Interview the user to fill in PROJECT.md at the start of a new project, then set up sprint 0. Use when the user says "kickoff", "start the project", or PROJECT.md is still the empty template.
 ---
 
 # Project Kickoff

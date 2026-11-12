@@ -13,9 +13,9 @@ description: Run a structured decision process and record it as an ADR in docs/d
    the present state of the options (docs, benchmarks, adoption). Label
    each claim: official recommendation / industry convention / opinion.
 3. **Options:** present 2–4 options with honest pros/cons AND a
-   recommendation with reasoning. Weigh the developer's learning goals as a
+   recommendation with reasoning. Weigh the user's learning goals as a
    real factor, not just technical merit.
-4. **STOP.** The developer decides. Answer follow-ups; do not proceed
+4. **STOP.** The user decides. Answer follow-ups; do not proceed
    without an explicit choice.
 5. **Record:** write `docs/decisions/NNNN-<slug>.md` from `0000-template.md`
    (next sequential number). Leave "What I learned" empty — prompt the

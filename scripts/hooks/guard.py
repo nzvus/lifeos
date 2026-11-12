@@ -4,12 +4,12 @@
   pre-edit   PreToolUse Edit|Write|MultiEdit: an edit under docs/spec/ (except changes/) is
              blocked unless a change folder is open (PRD-41: the spec changes only through one).
   post-edit  PostToolUse Edit|Write|MultiEdit: prettier --write, then eslint on the file;
-             lint errors go back to the agent (exit 2).
+             lint errors go back to Claude (exit 2).
   stop       Stop: `vitest related` on the branch's changed files, then `tsc --noEmit` in each
              touched workspace (typecheck last: vitest does not typecheck). A failure blocks the
              stop once; a state that already passed is not run again.
 
-The developer, 6 Nov: «come ci assicuriamo che ricostruendo… non abbiamo di nuovo lo stesso
+The user, 6 Nov: «come ci assicuriamo che ricostruendo… non abbiamo di nuovo lo stesso
 problema?» (PROD-38). Hook input arrives as JSON on stdin (Claude Code hooks).
 """
 import hashlib
@@ -137,7 +137,7 @@ def stop(data: dict) -> int:
     reason = "Related tests or typecheck fail on the changed files (PAT-91):\n\n" + \
         "\n\n".join(failures)
     if data.get("stop_hook_active"):
-        # Already blocked once this turn: tell the developer, never loop.
+        # Already blocked once this turn: tell the user, never loop.
         print(json.dumps({"systemMessage": reason[:1500]}))
         return 0
     print(json.dumps({"decision": "block", "reason": reason}))
