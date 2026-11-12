@@ -1,9 +1,13 @@
 ---
 name: audit
 description: Check the lifeos spec against the code - each requirement's «Today» line, built vs untested, copies the guards baseline still lists - and report what drifted, like docs/spec/audit-2026-11. Use when the user says "audit", before closing a phase, or when the spec and the app seem to disagree.
+effort: high
 ---
 
 # Audit (PAT-92, PRD-42)
+
+Health check now:
+!`python3 scripts/check.py 2>&1 | tail -2`
 
 Read-only until he answers: the audit reports, it does not fix.
 
