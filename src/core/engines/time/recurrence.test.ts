@@ -18,6 +18,10 @@ describe("plannedOn", () => {
     ).toThrow(RangeError);
   });
 
+  it("«nel ciclo» plans no day by itself: its ciclo's step does (PL-30, Q-18 (a))", () => {
+    expect(plannedOn({ type: "inCycle" }, "2026-10-15")).toBe(false);
+  });
+
   it("N times a week plans no fixed day", () => {
     expect(plannedOn({ type: "timesPerWeek", n: 3 }, "2026-10-15")).toBe(false);
   });

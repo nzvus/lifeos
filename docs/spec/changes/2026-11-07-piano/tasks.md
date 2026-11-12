@@ -72,6 +72,15 @@
        saved estimate, a type needing a value (Acqua's ml), a ciclo's step stay computed rows.
        Tested on PGlite (three cases); in the browser: a daily «Studio» blocco written once on
        two reads, «Togli i previsti (1)». **He runs «migrate v2»** for 0009 before the merge.
-       Left: a step's items as blocchi (PL-30, Q-18 (a): «nel ciclo»); the food Composer's
-       unfed `slots` (PL-60); dropping `templates` / `week_layouts`.
+       «Nel ciclo» (PL-30, Q-18 (a), 12 Nov, autopilot): the sixth «Ogni quanto» choice (kit,
+       registry, engine `inCycle`); `setCycleSteps` turns a scheda picked into a blocco «nel
+       ciclo» (reused; « (ciclo)» on a name clash); `read.ts` takes a blocco's objects as the
+       step's keys and carries `blockIds`; `dayBlocks` plans a due step's blocchi with their
+       own when; the step Composer searches blocchi then schede. Tests: engine, kit, PGlite
+       (`cycles-repo.test.ts`), `day-blocks.test.ts` (acceptance 3: caffè 07:30, none on Rest,
+       moves to 08:10 after a fatto at 08:40). Checked in the browser: «Legs» picked twice →
+       one blocco «Legs», «blocco nel ciclo»; old step still «scheda». Gallery photos updated.
+       Left: Q-24 (a second blocco in a step); the data migration of his steps' schede into
+       blocchi «nel ciclo» (needs «migrate v2», so after Q-19); the food Composer's unfed
+       `slots` (PL-60); dropping `templates` / `week_layouts`.
 5. [ ] Delta into the spec; change archived.

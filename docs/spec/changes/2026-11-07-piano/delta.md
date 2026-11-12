@@ -27,6 +27,20 @@
   type's section edits it: a blocco's `kind`). *Decided by the agent.*
 - **PAT-62** adds: a line may be `fixed` — no stepper, its quantity posted as it is (a
   blocco's type, PL-03).
+- **PAT-61** adds: «Ogni quanto» has a sixth choice **«Nel ciclo»** (`{"type":"inCycle"}`):
+  no control of its own, said as «Nel Piano quando il passo del ciclo che lo tiene è di
+  turno»; gallery `#ogni-quanto`. [Q-18 (a)]
+- **PL-20** «Today» line: «nel ciclo» is the engine's `{ type: "inCycle" }`; `plannedOn` is
+  false for it (only a step plans it). [Q-18 (a)]
+- **PL-30** «Today» line: a step's item is a blocco «nel ciclo» (`cycle_step_items.item_id`,
+  no schema change). Saving the steps turns a scheda picked into his live blocco «nel ciclo»
+  holding it alone, else a new one (its name, Corpo, no time; a name his blocchi have takes
+  « (ciclo)», *decided by the agent*). The step's keys for E3 are its blocchi's objects (a
+  session of the scheda advances it, PL-31); on its day `dayBlocks` plans each of its blocchi
+  with its own when, shown «dal ciclo». Steps that still hold a scheda are read as before until
+  the data migration (Q-18 (a), after Q-19). [Q-18 (a)]
+- **PAT-62** adds: a ciclo's step Composer searches his blocchi «nel ciclo» first, then his
+  schede, each line said by what it is («blocco nel ciclo» · «scheda»). [Q-18 (a)]
 - **PAT-61** adds: a day is `Field type="date"` (registry field type `date`, ISO, native picker).
 - **PAT-62** adds: a ciclo's steps are composed as ordered lines (the scheda's
   `counted={false}`), with a fixed «+ Riposo» under the search that adds an empty step; a

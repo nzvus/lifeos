@@ -2,7 +2,8 @@
 /**
  * A ciclo's steps composed (PAT-62 + «+ Riposo», Q-16 (a); PL-30): its steps in order on the
  * kit's `Composer` without quantities («Su» / «Giù» / «Togli»); under the lines the search of
- * his schede and a fixed «+ Riposo» that adds an empty step. The same scheda may come back
+ * his blocchi «nel ciclo» and his schede (Q-18 (a): a scheda becomes such a blocco when saved)
+ * and a fixed «+ Riposo» that adds an empty step. The same scheda may come back
  * (Full body A, B, A): each line has its own key — a kept step its id, a new one `new.N.<what>`.
  * «Annulla» + «Salva». A refused save comes back with the lines as they were and its words.
  */
@@ -18,7 +19,13 @@ import {
 import { plan } from "@/i18n/plan";
 import { newStepKey } from "./cycle-keys";
 
-export type CycleStepLine = { key: string; itemId: string | null; label: string };
+export type CycleStepLine = {
+  key: string;
+  itemId: string | null;
+  label: string;
+  /** «blocco nel ciclo» or «scheda» (Q-18 (a)). */
+  meta?: string | undefined;
+};
 export type CycleState = {
   errors: Record<string, string>;
   lines: CycleStepLine[];
@@ -30,14 +37,14 @@ const w = plan.cycle;
 export function CycleComposer({
   title,
   back,
-  schede,
+  candidates,
   initial,
   hour,
   action,
 }: {
   title: string;
   back: { label: string; href: string };
-  schede: readonly FindItem[];
+  candidates: readonly FindItem[];
   initial: CycleStepLine[];
   hour: number;
   action: (prev: CycleState, data: FormData) => Promise<CycleState>;
@@ -48,14 +55,14 @@ export function CycleComposer({
     n: 0,
   });
   return (
-    <Draft key={state.n} {...{ title, back, schede, hour, state, submit, pending }} />
+    <Draft key={state.n} {...{ title, back, candidates, hour, state, submit, pending }} />
   );
 }
 
 function Draft({
   title,
   back,
-  schede,
+  candidates,
   hour,
   state,
   submit,
@@ -63,7 +70,7 @@ function Draft({
 }: {
   title: string;
   back: { label: string; href: string };
-  schede: readonly FindItem[];
+  candidates: readonly FindItem[];
   hour: number;
   state: CycleState;
   submit: (data: FormData) => void;
@@ -76,14 +83,14 @@ function Draft({
     unit: "",
     step: 1,
     entry: l.itemId
-      ? { fam: "train", sub: "strength", title: l.label, meta: w.scheda }
+      ? { fam: "train", sub: "strength", title: l.label, meta: l.meta ?? w.scheda }
       : { fam: "day", title: l.label || w.rest, meta: w.restMeta },
   });
   const [lines, setLines] = useState<ComposerLine[]>(() => state.lines.map(line));
-  const add = (itemId: string | null, label: string) =>
+  const add = (itemId: string | null, label: string, meta?: string | undefined) =>
     setLines((ls) => [
       ...ls,
-      line({ key: newStepKey(fresh.current++, itemId), itemId, label }),
+      line({ key: newStepKey(fresh.current++, itemId), itemId, label, meta }),
     ]);
   const e = state.errors;
   return (
@@ -92,17 +99,17 @@ function Draft({
         counted={false}
         lines={lines}
         onLines={setLines}
-        candidates={schede}
+        candidates={candidates}
         hour={hour}
         findLabel={w.find}
         search={
           <div className="k-stack g2">
             <Find
-              items={schede}
+              items={candidates}
               label={w.find}
               hour={hour}
               clearOnPick
-              onPick={(x) => add(x.id, x.name)}
+              onPick={(x) => add(x.id, x.name, x.meta)}
             />
             <button
               type="button"

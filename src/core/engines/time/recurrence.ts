@@ -2,7 +2,7 @@
  * E1 Time — recurrence (engines.md E1, concepts §5): daily, on chosen
  * weekdays, every N days, N times a week (flexible days), on dates.
  * "N times a week" plans nothing on fixed days; it counts done days in the
- * ISO week.
+ * ISO week. "In a ciclo" plans nothing by itself either: its ciclo's step does (PL-30).
  */
 import type { IsoDate } from "./date";
 import { daysBetween, isoWeekday } from "./date";
@@ -15,7 +15,9 @@ export type Recurrence =
   | { type: "weekdays"; days: number[] }
   | { type: "everyN"; n: number; start: IsoDate }
   | { type: "timesPerWeek"; n: number }
-  | { type: "onDates"; dates: IsoDate[] };
+  | { type: "onDates"; dates: IsoDate[] }
+  /** «nel ciclo» (PL-30, Q-18 (a)): no day of its own; planned when a ciclo's step holding it is due. */
+  | { type: "inCycle" };
 
 export const WEEKDAYS: Recurrence = { type: "weekdays", days: [1, 2, 3, 4, 5] };
 
@@ -36,6 +38,8 @@ export function plannedOn(rule: Recurrence, d: IsoDate): boolean {
       return false;
     case "onDates":
       return rule.dates.includes(d);
+    case "inCycle":
+      return false;
   }
 }
 

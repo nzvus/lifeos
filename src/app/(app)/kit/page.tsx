@@ -400,6 +400,13 @@ export default async function KitPage({
           today="2026-11-10"
           defaultValue={'{"type":"onDates","dates":["2026-11-12","2026-11-15"]}'}
         />
+        <Field
+          name="ciclo"
+          label="Ogni quanto"
+          type="recurrence"
+          today="2026-11-10"
+          defaultValue={'{"type":"inCycle"}'}
+        />
       </section>
 
       <section className="k-section g3" id="grafici" aria-label="Grafici">

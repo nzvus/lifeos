@@ -97,6 +97,23 @@ quanto», Q-16 (a) the Composer with ordered lines and «+ Riposo».
   - Agent's pick: **(a)**: it is what PL-30 and Q-16 («a step's line says its blocco») say,
     with one new «Ogni quanto» choice (a pattern change: his to decide).
 
+**Asked (12 Nov, autopilot, slice 4 «nel ciclo»).**
+- **Q-24** How a step gets its second blocco (PL-30 «Push» + caffè 30 min prima; acceptance 3).
+  Built (Q-18 (a)): a step's line is one blocco «nel ciclo», and the engine plans every blocco a
+  step holds, each with its own when (tested: caffè 07:30 before the Push at 08:00, nothing on
+  Rest). But the Composer has one line per *step*, so there is no way to put a second blocco in
+  the same step.
+  - (a) **A blocco «nel ciclo» anchored to another follows it**: the caffè is a blocco «Nel
+    ciclo», «30 min prima di» the Push blocco, and it is planned on the days its anchor is
+    planned. No new screen; the step keeps one line. A blocco «nel ciclo» with no anchor in
+    any step plans nothing (said under «Ogni quanto»).
+  - (b) **A step's line opens its own list** (tap «Push» → «Passo Push»: its blocchi on the
+    kit Composer, «+ blocco»): several blocchi per step, a new screen and a new route.
+  - (c) **A line «con il passo sopra»**: a Composer line may join the step above it (one more
+    control per line, steps no longer one line each).
+  - Agent's pick: **(a)**: the anchor already says what the caffè goes with, no new screen,
+    and acceptance 3 holds. It changes what «nel ciclo» means (a pattern: his to decide).
+
 **Answered.** Q-17 and Q-18, his picks 10 Nov (late, after «procedi»): Q-17 «block_id sulla
 voce (Recommended)» → (a); Q-18 «Blocchi «nel ciclo» (Recommended)» → (a).
 

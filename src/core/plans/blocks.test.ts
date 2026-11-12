@@ -36,6 +36,7 @@ describe("blocchi as the Piano reads them (MOD-36, ADR-0062)", () => {
     });
     expect(parseRecurrence('{"type":"weekdays","days":[9]}')).toBeNull();
     expect(parseRecurrence("ogni giorno")).toBeNull();
+    expect(parseRecurrence('{"type":"inCycle"}')).toEqual({ type: "inCycle" });
   });
   it("PL-10 a blocco's when from its values; an incomplete one is none", () => {
     expect(blockWhen({ when: "time", at: "07:30" })).toEqual({

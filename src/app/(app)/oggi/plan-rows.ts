@@ -55,7 +55,12 @@ export async function planRows(
       })),
       written: input.written,
       history: input.history,
-      steps: steps.map((c) => ({ cycleId: c.cycleId, label: c.label, itemId: c.itemId })),
+      steps: steps.map((c) => ({
+        cycleId: c.cycleId,
+        label: c.label,
+        itemId: c.itemId,
+        blockIds: c.blockIds,
+      })),
     }),
     items: input.items,
     nowMinute: p.nowMinute,

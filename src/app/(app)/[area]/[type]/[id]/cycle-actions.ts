@@ -1,7 +1,7 @@
 "use server";
 /**
  * A ciclo's steps saved from its Composer (PAT-62 + «+ Riposo», Q-16 (a)): the posted keys in
- * order — a kept step's id, or `new.N.<scheda id>` / `new.N.rest` — through
+ * order — a kept step's id, or `new.N.<blocco or scheda id>` / `new.N.rest` — through
  * `core/plans` `setCycleSteps`, then its page. A refusal comes back with the lines as posted.
  */
 import { revalidatePath } from "next/cache";
@@ -13,6 +13,7 @@ import { readCycleBook, setCycleSteps, type StepRef } from "@/core/plans";
 import type { CycleState, CycleStepLine } from "@/features/plan/CycleComposer";
 import { stepOf } from "@/features/plan/cycle-keys";
 import { plan } from "@/i18n/plan";
+import { stepCandidates, stepMeta } from "./cycle-steps";
 
 const E = plan.cycle.errors;
 export async function saveCycleSteps(
@@ -31,17 +32,27 @@ export async function saveCycleSteps(
   const steps = new Map(
     (book.cycles.find((c) => c.id === id)?.steps ?? []).map((s) => [s.id, s]),
   );
-  const schede = new Map(book.routines.map((r) => [r.id, r.name]));
-  const lines: CycleStepLine[] = keys.flatMap((key, i) => {
+  const candidates = new Map(stepCandidates(book).map((r) => [r.id, r]));
+  const lines = keys.flatMap((key, i): CycleStepLine[] => {
     const o = refs[i];
     if (!o) return [];
     if ("step" in o) {
       const s = steps.get(o.step);
       return s
-        ? [{ key, itemId: s.items[0]?.id ?? null, label: s.items[0]?.name ?? s.label }]
+        ? [
+            {
+              key,
+              itemId: s.items[0]?.id ?? null,
+              label: s.items[0]?.name ?? s.label,
+              meta: stepMeta(s.items[0]),
+            },
+          ]
         : [];
     }
-    if ("item" in o) return [{ key, itemId: o.item, label: schede.get(o.item) ?? "" }];
+    if ("item" in o) {
+      const c = candidates.get(o.item);
+      return [{ key, itemId: o.item, label: c?.name ?? "", meta: c?.meta }];
+    }
     return [{ key, itemId: null, label: plan.cycle.rest }];
   });
   const again = (errors: Record<string, string>): CycleState => ({

@@ -1,7 +1,8 @@
 /**
  * A ciclo's forms (PAT-04, PAT-11, PAT-62; change 2026-11-07-piano): `/oggi/ciclo/nuovo` — its
  * name and rules (the generated form, `NewObjectForm`), then on to its steps — and
- * `/oggi/ciclo/<id>/componi`, its steps on the kit `Composer` with «+ Riposo» (Q-16 (a)).
+ * `/oggi/ciclo/<id>/componi`, its steps on the kit `Composer` with «+ Riposo» (Q-16 (a)): his
+ * blocchi «nel ciclo» first, then his schede (Q-18 (a)).
  */
 import { notFound } from "next/navigation";
 import { ownerClock } from "@/app/_server/clock";
@@ -16,6 +17,7 @@ import { CycleComposer } from "@/features/plan/CycleComposer";
 import { plan } from "@/i18n/plan";
 import { objectCreate } from "./actions";
 import { saveCycleSteps } from "./cycle-actions";
+import { stepCandidates, stepMeta } from "./cycle-steps";
 import type { NewFormRender } from "./new-forms";
 
 export const newCycle: NewFormRender = async (back) => {
@@ -43,11 +45,12 @@ export const composeCycle = async (id: string) => {
     <CycleComposer
       title={c.name}
       back={{ label: c.name, href: "/oggi/ciclo/" + c.id }}
-      schede={book.routines}
+      candidates={stepCandidates(book)}
       initial={c.steps.map((s) => ({
         key: s.id,
         itemId: s.items[0]?.id ?? null,
         label: s.items[0]?.name ?? (s.label || plan.cycle.rest),
+        meta: stepMeta(s.items[0]),
       }))}
       hour={Math.floor(localParts(new Date(), clock.timeZone).minute / 60)}
       action={saveCycleSteps.bind(null, c.id)}
