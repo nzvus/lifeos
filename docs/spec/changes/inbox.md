@@ -5,6 +5,8 @@ source, unless a change is open (then into its `proposal.md`). Items: **W-nn** =
 turn into a change; **Q-nn** = a question only he can settle (never pick silently). When an item
 moves into a change or is answered, delete it here (git keeps the history). The SessionStart
 hook prints the open items.
+A request the agent would do another way stays here with **«proposed differently: …»** and the
+reason, never silently changed. Every «decided by the agent» note says how to undo it.
 
 ## Open
 Source of Q-19…Q-23: the outside review of 11 Nov, `docs/archive/review-fable-2026-11.md`
