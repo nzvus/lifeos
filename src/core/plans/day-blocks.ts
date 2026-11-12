@@ -2,7 +2,7 @@
  * core/plans/day-blocks.ts — the Piano of one day from his blocchi (PL-40, MOD-32; change
  * 2026-11-07-piano, slice 4): the blocchi whose frequency falls on it (`blocksOn`, PL-20, a
  * rotation's item by its last done one, PL-02) and each live ciclo's step due with its scheda
- * (PL-30, PL-33), placed by the planning engine (E3 `apply`: a clock time, «N min dopo/prima»
+ * (PL-30, PL-33) — its blocchi «nel ciclo» when it holds them (Q-18 (a)) —, placed by the planning engine (E3 `apply`: a clock time, «N min dopo/prima»
  * its anchor's fatto time first, then its previsto one, wake / bed, else the default time of
  * PL-10…12) and left out when the day already has its voce, any status (covered: a voce of its
  * object, or of its type and category, PL-03). Computed on read, nothing stored (PL-41).
@@ -53,7 +53,13 @@ export type PlannedBlock = {
   durationMin: number | null;
 };
 
-export type StepDue = { cycleId: string; label: string; itemId: string | null };
+export type StepDue = {
+  cycleId: string;
+  label: string;
+  itemId: string | null;
+  /** Its blocchi «nel ciclo» (Q-18 (a)): planned as blocchi, each with its own when. */
+  blockIds?: readonly string[];
+};
 
 const whenOf = (b: Block): When => {
   const w = b.when;
@@ -108,10 +114,30 @@ export function dayBlocks(p: {
   wake?: number;
   bed?: number;
 }): PlannedBlock[] {
+  // A step that holds blocchi «nel ciclo» plans them (PL-30, Q-18 (a)), each with its own
+  // when («30 min prima di» another); a step that holds a scheda plans it as the step's row.
+  const stepOf = new Map<string, StepDue>();
+  for (const s of p.steps ?? [])
+    for (const id of s.blockIds ?? []) if (!stepOf.has(id)) stepOf.set(id, s);
+  const last = lastDone(p.blocks, p.history);
   // A blocco that holds nothing (no live object, no type) plans nothing.
-  const due = blocksOn(p.blocks, p.day, lastDone(p.blocks, p.history), p.live).filter(
-    (d) => (d.block.kind !== null || d.itemId !== null) && !p.written?.has(d.block.id),
+  const due = [
+    ...blocksOn(p.blocks, p.day, last, p.live),
+    ...blocksOn(
+      p.blocks
+        .filter((b) => stepOf.has(b.id))
+        .map((b) => ({ ...b, recurrence: { type: "daily" } as const })),
+      p.day,
+      last,
+      p.live,
+    ),
+  ].filter(
+    (d, i, all) =>
+      (d.block.kind !== null || d.itemId !== null) &&
+      !p.written?.has(d.block.id) &&
+      all.findIndex((x) => x.block.id === d.block.id) === i,
   );
+  const stepRows = (p.steps ?? []).filter((s) => (s.blockIds ?? []).length === 0);
   const kindOf = (b: Block, itemId: string | null) =>
     b.kind ?? (itemId ? p.kindOf(itemId) : null) ?? "";
   const engine: EngineBlock[] = [
@@ -122,7 +148,7 @@ export function dayBlocks(p: {
       when: whenOf(b),
       durationMin: b.durationMin ?? undefined,
     })),
-    ...(p.steps ?? []).map((s) => ({
+    ...stepRows.map((s) => ({
       id: "step:" + s.cycleId,
       kind: (s.itemId ? p.kindOf(s.itemId) : null) ?? "",
       item: s.itemId ?? undefined,
@@ -140,7 +166,7 @@ export function dayBlocks(p: {
     for (const v of voci) if (v.blockId) used.set(v.id, "block:" + v.blockId);
     for (const { block: b } of due) take("block:" + b.id, (v) => covers(b, v));
     if (withSteps)
-      for (const s of p.steps ?? []) {
+      for (const s of stepRows) {
         const kind = s.itemId ? p.kindOf(s.itemId) : null;
         if (kind) take("step:" + s.cycleId, (v) => v.kind === kind);
       }
@@ -176,12 +202,12 @@ export function dayBlocks(p: {
     })(),
   );
   const byKey = new Map(due.map((d) => ["block:" + d.block.id, d.block]));
-  const steps = new Map((p.steps ?? []).map((s) => ["step:" + s.cycleId, s]));
+  const steps = new Map(stepRows.map((s) => ["step:" + s.cycleId, s]));
   return planned
     .map((e) => {
       const key = e.fromBlock!;
       const block = byKey.get(key) ?? null;
-      const step = steps.get(key);
+      const step = steps.get(key) ?? (block ? stepOf.get(block.id) : undefined);
       return {
         key,
         block,

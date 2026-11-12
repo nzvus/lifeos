@@ -204,4 +204,52 @@ describe("the Piano of a day from blocchi (PL-40)", () => {
       [],
     );
   });
+  it("PL-30 / PL-11 (Q-18 (a)): a step's blocchi «nel ciclo» are planned on its day only, the caffè 30 min before the Push", () => {
+    const inCycle = { type: "inCycle" } as const;
+    const push = block("b-push", {
+      area: "Corpo",
+      items: items("push"),
+      when: { kind: "time", atMin: 480 },
+      recurrence: inCycle,
+    });
+    const caffe = block("b-caffe", {
+      items: items("caffe"),
+      when: { kind: "before", anchorId: "b-push", offsetMin: 30 },
+      recurrence: inCycle,
+    });
+    const step = {
+      cycleId: "plprr",
+      label: "Push",
+      itemId: "push",
+      blockIds: ["b-push", "b-caffe"],
+    };
+    const planned = dayBlocks({
+      day: DAY,
+      blocks: [push, caffe],
+      kindOf,
+      voci: [],
+      history: [],
+      steps: [step],
+    });
+    expect(planned).toMatchObject([
+      { key: "block:b-caffe", itemId: "caffe", minute: 450, step: { label: "Push" } },
+      { key: "block:b-push", itemId: "push", minute: 480, step: { label: "Push" } },
+    ]);
+    // On Rest (no step due) a blocco «nel ciclo» plans nothing by itself.
+    expect(
+      dayBlocks({ day: DAY, blocks: [push, caffe], kindOf, voci: [], history: [] }),
+    ).toEqual([]);
+    // The session done at 08:40 covers the Push; the caffè follows its fatto time (PL-11).
+    const done = voce({ kind: "session", itemId: "push", minute: 520 });
+    expect(
+      dayBlocks({
+        day: DAY,
+        blocks: [push, caffe],
+        kindOf,
+        voci: [done],
+        history: [],
+        steps: [step],
+      }),
+    ).toMatchObject([{ key: "block:b-caffe", minute: 490 }]);
+  });
 });

@@ -77,6 +77,7 @@ export const WORDS = {
       everyN: "Ogni N giorni",
       timesPerWeek: "N volte a settimana",
       onDates: "In certe date",
+      inCycle: "Nel ciclo",
     },
     days: ["lun", "mar", "mer", "gio", "ven", "sab", "dom"],
     daysLong: [
@@ -100,6 +101,8 @@ export const WORDS = {
     timesText: (n: number) =>
       n === 1 ? "1 volta a settimana" : `${n} volte a settimana`,
     onText: (dates: string) => `il ${dates}`,
+    inCycle: "nel ciclo",
+    inCycleHelp: "Nel Piano quando il passo del ciclo che lo tiene è di turno",
     invalid: "Scegli ogni quanto",
   },
   form: {

@@ -1,13 +1,17 @@
 /**
  * core/plans/read.ts — the input of `dayPlans` for a range of days: the live cicli with their
  * steps (a step without a label named by its items), their skips and overrides, and the
- * sessions done since the earliest ciclo began (PL-30…33). The blocchi are `day-blocks.ts`.
+ * sessions done since the earliest ciclo began (PL-30…33). A step's item is a blocco «nel ciclo»
+ * (Q-18 (a)) or, until his steps are carried, a scheda: a blocco's objects are the step's keys
+ * (a session of its scheda counts, PL-31) and its id goes with the step to the Piano of the day.
+ * The blocchi are `day-blocks.ts`.
  * Narrow columns only (Neon bills the bytes): ids, names, days, positions.
  */
 import { and, eq, gte, inArray, isNull } from "drizzle-orm";
 import type { Db } from "../db/db";
 import {
   catalogItems,
+  catalogParts,
   cycleStepItems,
   cycleSteps,
   decisions,
@@ -16,7 +20,7 @@ import {
 import type { Occurrence } from "../engines/planning";
 import type { IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
-import { readCycles } from "./cycles-repo";
+import { inCycleBlocks, readCycles } from "./cycles-repo";
 import { dayPlans, type DayPlan, type PlanCycle } from "./plan";
 
 export async function readDayPlans(
@@ -70,23 +74,42 @@ export async function readDayPlans(
           readSessionKeys(db, owner, earliest),
         ]);
 
-  const keys = new Map<string, string[]>();
-  for (const i of items) keys.set(i.stepId, [...(keys.get(i.stepId) ?? []), i.itemId]);
   // A step without a label is named by what it holds (v1's programs: «Pull», «Legs»…).
   const itemIds = [...new Set(items.map((i) => i.itemId))];
-  const itemNames = new Map(
+  const itemRows =
     itemIds.length === 0
       ? []
-      : (
-          await db
-            .select({ id: catalogItems.id, name: catalogItems.name })
-            .from(catalogItems)
-            .where(and(ownedBy(catalogItems, owner), inArray(catalogItems.id, itemIds)))
-        ).map((r) => [r.id, r.name] as const),
-  );
+      : await db
+          .select({ id: catalogItems.id, name: catalogItems.name })
+          .from(catalogItems)
+          .where(and(ownedBy(catalogItems, owner), inArray(catalogItems.id, itemIds)));
+  const itemNames = new Map(itemRows.map((r) => [r.id, r.name] as const));
+  const blockIds = await inCycleBlocks(db, owner, itemIds);
+  // A blocco's objects, in order: what a session must carry to count for its step (PL-31).
+  const partsOf = new Map<string, string[]>();
+  if (blockIds.size > 0)
+    for (const r of await db
+      .select({ itemId: catalogParts.itemId, partItemId: catalogParts.partItemId })
+      .from(catalogParts)
+      .where(
+        and(ownedBy(catalogParts, owner), inArray(catalogParts.itemId, [...blockIds])),
+      )
+      .orderBy(catalogParts.itemId, catalogParts.position))
+      partsOf.set(r.itemId, [...(partsOf.get(r.itemId) ?? []), r.partItemId]);
+  const held = new Map<string, string[]>();
+  for (const i of items) held.set(i.stepId, [...(held.get(i.stepId) ?? []), i.itemId]);
+  const keysOf = (stepId: string) => [
+    ...new Set(
+      (held.get(stepId) ?? []).flatMap((id) =>
+        blockIds.has(id) ? (partsOf.get(id) ?? []) : [id],
+      ),
+    ),
+  ];
+  const blocksOf = (stepId: string) =>
+    (held.get(stepId) ?? []).filter((id) => blockIds.has(id));
   const labelOf = (s: { id: string; label: string }) =>
     s.label ||
-    (keys.get(s.id) ?? [])
+    (held.get(s.id) ?? [])
       .map((k) => itemNames.get(k))
       .filter(Boolean)
       .join(" + ");
@@ -100,9 +123,12 @@ export async function readDayPlans(
       .filter((s) => s.cycleId === c.id)
       .map((s) => ({
         position: s.position,
-        keys: keys.get(s.id) ?? [],
+        keys: keysOf(s.id),
         label: labelOf(s),
       })),
+    blocksAt: new Map(
+      steps.filter((s) => s.cycleId === c.id).map((s) => [s.position, blocksOf(s.id)]),
+    ),
   }));
   const overrides = new Map<string, { day: IsoDate; position: number | null }[]>();
   const skips = new Map<string, IsoDate[]>();

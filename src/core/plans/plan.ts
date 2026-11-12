@@ -15,6 +15,8 @@ export type CycleStepDue = {
   rest: boolean;
   /** Its first object (the step's scheda), for the Piano of the day (PL-30, PL-40). */
   itemId: string | null;
+  /** The blocchi «nel ciclo» it holds (Q-18 (a)): the Piano plans them, not the step's object. */
+  blockIds: string[];
   late: boolean;
   skipped: boolean;
   /** The step due the day after, when planned. */
@@ -23,7 +25,12 @@ export type CycleStepDue = {
 
 export type DayPlan = { cycles: CycleStepDue[] };
 
-export type PlanCycle = Cycle & { id: string; name: string };
+export type PlanCycle = Cycle & {
+  id: string;
+  name: string;
+  /** Each step's blocchi «nel ciclo», by position (Q-18 (a)); none for a scheda or a rest. */
+  blocksAt?: ReadonlyMap<number, readonly string[]>;
+};
 
 export type PlanInput = {
   today: IsoDate;
@@ -65,6 +72,7 @@ export function dayPlans(input: PlanInput): Map<IsoDate, DayPlan> {
         label: label(p.step),
         rest: isRest(p.step),
         itemId: p.step.keys[0] ?? null,
+        blockIds: [...(c.blocksAt?.get(p.step.position) ?? [])],
         late: p.late,
         skipped: p.skipped,
         next: after && after.day === addDays(p.day, 1) ? label(after.step) : null,

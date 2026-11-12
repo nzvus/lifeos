@@ -12,7 +12,9 @@ export type Recurrence =
   | { type: "weekdays"; days: number[] }
   | { type: "everyN"; n: number; start: string }
   | { type: "timesPerWeek"; n: number }
-  | { type: "onDates"; dates: string[] };
+  | { type: "onDates"; dates: string[] }
+  /** «nel ciclo» (PL-30, Q-18 (a)): planned only when a ciclo's step holding it is due. */
+  | { type: "inCycle" };
 
 export type RecurrenceKind = Recurrence["type"];
 export const RECURRENCE_KINDS: readonly RecurrenceKind[] = [
@@ -21,6 +23,7 @@ export const RECURRENCE_KINDS: readonly RecurrenceKind[] = [
   "everyN",
   "timesPerWeek",
   "onDates",
+  "inCycle",
 ];
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -64,12 +67,14 @@ export function readRecurrence(raw: string | null | undefined): Recurrence | nul
         return null;
       return { type: "onDates", dates: [...new Set(dates as string[])].sort() };
     }
+    case "inCycle":
+      return { type: "inCycle" };
     default:
       return null;
   }
 }
 
-/** «ogni giorno» · «lun, mer, ven» · «ogni 3 giorni dal 10 nov» · «3 volte a settimana» · «il 12 nov, 15 nov». */
+/** «ogni giorno» · «lun, mer, ven» · «ogni 3 giorni dal 10 nov» · «3 volte a settimana» · «il 12 nov, 15 nov» · «nel ciclo». */
 export function recurrenceText(r: Recurrence | null): string {
   const w = WORDS.recurrence;
   if (!r) return "";
@@ -84,6 +89,8 @@ export function recurrenceText(r: Recurrence | null): string {
       return w.timesText(r.n);
     case "onDates":
       return w.onText(r.dates.map((d) => F.date(d)).join(", "));
+    case "inCycle":
+      return w.inCycle;
   }
 }
 
@@ -105,5 +112,7 @@ export function startOf(
       return { type: "timesPerWeek", n: 3 };
     case "onDates":
       return { type: "onDates", dates: [today] };
+    case "inCycle":
+      return { type: "inCycle" };
   }
 }

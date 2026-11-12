@@ -4,7 +4,8 @@ import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { act } from "../verbs";
-import { readCycleBook, setCycleSteps } from "./cycles-repo";
+import { IN_CYCLE, readCycleBook, setCycleSteps } from "./cycles-repo";
+import { readBlocks } from "./blocks";
 import { readDayPlans } from "./read";
 import { addStep, createCycle } from "./test-cycles";
 
@@ -108,5 +109,52 @@ describe("cicli, written and read back (MOD-36, PL-30)", () => {
     expect((await book(id)).active).toBe(false);
     expect((await act(db, a, "restore", "cycle", id, {})).ok).toBe(true);
     expect(await due()).toContain("Solo gambe");
+  });
+  it("Q-18 (a) / PL-30: a scheda picked becomes one blocco «nel ciclo» holding it, reused; a session of it advances the step", async () => {
+    const legs = await routine(a, "Squat");
+    // A daily blocco «Squat» of his already: the new one takes « (ciclo)», names stay unique.
+    const daily = await act(db, a, "create", "block", null, {
+      name: "Squat",
+      values: { area: "Corpo", recurrence: '{"type":"daily"}' },
+    });
+    expect(daily.ok).toBe(true);
+    const id = await createCycle(db, a, "LR", "2026-10-20");
+    expect(
+      await setCycleSteps(db, a, id, [{ item: legs }, { rest: true }, { item: legs }]),
+    ).toBe("ok");
+    const steps = (await book(id)).steps;
+    const held = steps.flatMap((x) => x.items.map((i) => i.id));
+    expect(held).toHaveLength(2);
+    expect(new Set(held).size).toBe(1); // one blocco, held twice
+    const [blocco] = (await readBlocks(db, a)).filter((x) => x.id === held[0]);
+    expect(blocco).toMatchObject({
+      name: "Squat (ciclo)",
+      area: "Corpo",
+      recurrence: { type: "inCycle" },
+      items: [{ itemId: legs }],
+    });
+    // The step's keys are the blocco's objects: the 20th's step is Squat, with its blocco.
+    const plans = await readDayPlans(db, a, "2026-10-20", "2026-10-21", "2026-10-20");
+    expect(plans.get("2026-10-20")!.cycles[0]).toMatchObject({
+      label: "Squat (ciclo)",
+      itemId: legs,
+      blockIds: [held[0]],
+    });
+    // A session of the scheda on the 20th advances it: the 21st is the rest.
+    await db.insert(s.entries).values({
+      userId: a.id,
+      day: "2026-10-20",
+      kind: "session",
+      itemId: legs,
+      status: "done",
+    });
+    const next = await readDayPlans(db, a, "2026-10-21", "2026-10-21", "2026-10-21");
+    expect(next.get("2026-10-21")!.cycles[0]).toMatchObject({ rest: true });
+    // The blocco «nel ciclo» posted as it is; a daily blocco is not a step's line.
+    expect(await setCycleSteps(db, a, id, [{ item: held[0]! }])).toBe("ok");
+    expect(daily.ok && (await setCycleSteps(db, a, id, [{ item: daily.id }]))).toBe(
+      "invalid",
+    );
+    expect(IN_CYCLE).toBe('{"type":"inCycle"}');
   });
 });

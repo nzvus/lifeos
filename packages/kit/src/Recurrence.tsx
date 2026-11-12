@@ -1,7 +1,7 @@
 "use client";
 /**
  * Recurrence (PAT-61 «Ogni quanto», PL-20; Q-15 (a)): one choice of how often, then its own
- * second control — weekday chips (checkboxes: a tap on iOS does not move the focus, so the
+ * second control («Nel ciclo», Q-18 (a), has none: it says when it is planned) — weekday chips (checkboxes: a tap on iOS does not move the focus, so the
  * in-place editor stays open), a stepper, native date pickers. Posts the value as JSON text
  * under `name` (`recurrence.ts`); its sub-controls post under `name.*`, which forms ignore.
  * Controlled: `Field` holds the text.
@@ -175,7 +175,11 @@ export function Recurrence({
           </div>
         </div>
       )}
-      {r && <span className="k-meta">{recurrenceText(r)}</span>}
+      {r && (
+        <span className="k-meta">
+          {r.type === "inCycle" ? w.inCycleHelp : recurrenceText(r)}
+        </span>
+      )}
     </div>
   );
 }

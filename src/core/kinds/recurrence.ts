@@ -20,6 +20,7 @@ const recurrenceSchema: z.ZodType<Recurrence> = z.discriminatedUnion("type", [
   }),
   z.object({ type: z.literal("timesPerWeek"), n: z.number().int().min(1).max(7) }),
   z.object({ type: z.literal("onDates"), dates: z.array(iso).min(1) }),
+  z.object({ type: z.literal("inCycle") }),
 ]);
 
 /** A stored recurrence (JSON text) as the engine's, or null when it is not one. */

@@ -5,7 +5,7 @@ import { formFields, readForm } from "./form";
 import { readRecurrence, recurrenceText, startOf } from "./recurrence";
 
 describe("«Ogni quanto», the recurrence field (PAT-61, PL-20)", () => {
-  it("reads back the five kinds, in order, and refuses an incomplete one", () => {
+  it("reads back the six kinds, in order, and refuses an incomplete one", () => {
     expect(readRecurrence('{"type":"daily"}')).toEqual({ type: "daily" });
     expect(readRecurrence('{"type":"weekdays","days":[5,1,3,1]}')).toEqual({
       type: "weekdays",
@@ -23,6 +23,8 @@ describe("«Ogni quanto», the recurrence field (PAT-61, PL-20)", () => {
     expect(
       readRecurrence('{"type":"onDates","dates":["2026-11-15","2026-11-12"]}'),
     ).toEqual({ type: "onDates", dates: ["2026-11-12", "2026-11-15"] });
+    // PL-30, Q-18 (a): «nel ciclo» has no value of its own.
+    expect(readRecurrence('{"type":"inCycle"}')).toEqual({ type: "inCycle" });
     for (const bad of [
       "",
       "ogni giorno",
@@ -50,6 +52,23 @@ describe("«Ogni quanto», the recurrence field (PAT-61, PL-20)", () => {
     expect(recurrenceText({ type: "onDates", dates: ["2026-11-12", "2026-11-15"] })).toBe(
       "il 12 nov, 15 nov",
     );
+    expect(recurrenceText({ type: "inCycle" })).toBe("nel ciclo");
+  });
+
+  it("«Nel ciclo» (PL-30, Q-18 (a)) is the sixth choice and says when it is planned", () => {
+    expect(startOf("inCycle", { type: "daily" }, "2026-11-10")).toEqual({
+      type: "inCycle",
+    });
+    const html = renderToStaticMarkup(
+      <Field
+        name="r"
+        label="Ogni quanto"
+        type="recurrence"
+        defaultValue='{"type":"inCycle"}'
+      />,
+    );
+    expect(html).toContain("Nel ciclo</option>");
+    expect(html).toContain("quando il passo del ciclo che lo tiene è di turno");
   });
 
   it("a new kind starts from a default; the same kind keeps what he set", () => {

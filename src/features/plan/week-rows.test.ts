@@ -8,6 +8,7 @@ const step = (label: string, rest = false) => ({
   label,
   rest,
   itemId: null,
+  blockIds: [],
   late: false,
   skipped: false,
   next: null,
