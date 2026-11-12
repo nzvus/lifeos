@@ -456,3 +456,104 @@ describe("data repair PL-61, PL-72: «Rec» into Obiettivi, habits into blocchi 
     await expect(run()).rejects.toThrow(/fixed day model/);
   });
 });
+
+const STEPS = repair("0010_data_repair_step_blocks");
+
+describe("data repair PL-30: a step's scheda becomes a blocco «nel ciclo» (Q-18 (a))", () => {
+  let t: Awaited<ReturnType<typeof createTestDb>>;
+  let user: string;
+  beforeAll(async () => {
+    t = await createTestDb();
+    user = await createTestUser(t.db, "f@example.test");
+  });
+  afterAll(() => t.close());
+
+  const run = async () => {
+    for (const q of STEPS) await t.client.exec(q);
+  };
+  const item = async (catalog: string, name: string) =>
+    (
+      await t.db
+        .insert(s.catalogItems)
+        .values({ userId: user, catalog, name })
+        .returning({ id: s.catalogItems.id })
+    )[0]!.id;
+  const step = async (cycleId: string, position: number, itemId: string | null) => {
+    const [st] = await t.db
+      .insert(s.cycleSteps)
+      .values({ userId: user, cycleId, position, label: "" })
+      .returning({ id: s.cycleSteps.id });
+    if (itemId)
+      await t.db
+        .insert(s.cycleStepItems)
+        .values({ userId: user, stepId: st!.id, position: 0, itemId });
+    return st!.id;
+  };
+  const held = async () =>
+    (await t.db.select().from(s.cycleStepItems)).map((r) => [r.stepId, r.itemId]);
+
+  it("each scheda once, named as it (« (ciclo)» on a taken name), the steps point at it; an exercise stays; twice = once", async () => {
+    // His shape: PPLCR with Push, Pull, Legs, Cardio, Rest; Push twice in another ciclo; a
+    // paused ciclo's scheda stays a scheda (it becomes a blocco when he saves its steps).
+    const cycle = await item("cycle", "PPLCR");
+    const paused = await item("cycle", "Full body");
+    await t.db
+      .update(s.catalogItems)
+      .set({ archivedAt: new Date() })
+      .where(eq(s.catalogItems.id, paused));
+    const fullBody = await item("routine", "Full body A");
+    const s6 = await step(paused, 0, fullBody);
+    const other = await item("cycle", "Push twice");
+    const push = await item("routine", "Push");
+    const legs = await item("routine", "Legs");
+    const squat = await item("exercise", "Squat");
+    // A daily blocco «Legs» of his already: the new one is «Legs (ciclo)».
+    await item("block", "Legs");
+    const s1 = await step(cycle, 0, push);
+    const s2 = await step(cycle, 1, legs);
+    const s3 = await step(cycle, 2, null);
+    const s4 = await step(other, 0, push);
+    const s5 = await step(other, 1, squat);
+    await run();
+    const blocks = new Map(
+      (await readBlocks(t.db as never, ownerFromVerifiedSession(user))).map((b) => [
+        b.name,
+        b,
+      ]),
+    );
+    const bPush = blocks.get("Push")!;
+    const bLegs = blocks.get("Legs (ciclo)")!;
+    expect(bPush).toMatchObject({
+      area: "Corpo",
+      recurrence: { type: "inCycle" },
+      when: { kind: "none" },
+      items: [{ itemId: push, quantity: null }],
+    });
+    expect(bLegs.items).toEqual([{ itemId: legs, quantity: null }]);
+    const after = new Map((await held()) as [string, string][]);
+    expect(after.get(s1)).toBe(bPush.id);
+    expect(after.get(s4)).toBe(bPush.id); // one blocco for the same scheda
+    expect(after.get(s2)).toBe(bLegs.id);
+    expect(after.get(s5)).toBe(squat); // an exercise stays
+    expect(after.has(s3)).toBe(false); // the rest holds nothing
+    expect(after.get(s6)).toBe(fullBody); // a paused ciclo's scheda stays
+    expect(blocks.has("Full body A")).toBe(false);
+    const before = await held();
+    const count = (await t.db.select().from(s.catalogItems)).length;
+    await run();
+    expect(await held()).toEqual(before);
+    expect((await t.db.select().from(s.catalogItems)).length).toBe(count);
+  });
+
+  it("stops, writing nothing, when «X» and «X (ciclo)» are both his blocchi already", async () => {
+    const cycle = await item("cycle", "Corsa");
+    const run1 = await item("routine", "Run");
+    await item("block", "Run");
+    await item("block", "Run (ciclo)");
+    const st = await step(cycle, 0, run1);
+    const count = (await t.db.select().from(s.catalogItems)).length;
+    await expect(run()).rejects.toThrow(/taken by a blocco twice/);
+    expect((await t.db.select().from(s.catalogItems)).length).toBe(count);
+    expect(new Map((await held()) as [string, string][]).get(st)).toBe(run1);
+  });
+});
