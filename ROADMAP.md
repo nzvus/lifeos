@@ -2,20 +2,20 @@
 
 > One file: future (top), present (middle), past (bottom). Completed sprints
 > are compressed to a few lines by the `retro` skill — never deleted.
-> This is the ONE plan (2026-10-15). The developer's raw feedback goes to
-> `Projects-artifacts/LIFEOS/considerations.txt` (Syncthing); the agent folds
+> This is the ONE plan (2026-10-15). The user's raw feedback goes to
+> `Projects-artifacts/LIFEOS/considerations.txt` (Syncthing); Claude folds
 > it in here. The refactor plan, handoff, audit and feedback files of
 > 2026-10-09…11 were folded in and deleted; their sources are in
 > `docs/archive/spec-v1/sources.md`.
 
-## Now: cleanup and one model (decided 2026-11-06) — features frozen until phase 3 closes
-The developer, 6 Nov: «la specifica è un casino, così come il codice e le versioni e i dati… le
+## Now: cleanup and one model (decided 2026-11-06) — phases 0–3 closed 6 Nov; phase 4 (types one at a time) under way
+The user, 6 Nov: «la specifica è un casino, così come il codice e le versioni e i dati… le
 pagine sono eccessive e ridondanti… l'astrazione delle feature non è attuata… come ci assicuriamo
 che ricostruendo non abbiamo di nuovo lo stesso problema? Così è successo con v2» (ledger PROD-35…39).
 Audit 6 Nov: one decision written in 3–9 places; 5 of 10 sampled «decided» lines not built; every
 object type has its own form, actions, archive and page shell (17 bespoke forms, 11 archive/delete
 actions, 4 undo toasts, 5 search fields). Plan `~/.claude/plans/a-che-punto-siamo-deep-star.md`
-(approved): migrate v2, no v3; spec OpenSpec-style in the repo; the agent stops at the end of
+(approved): migrate v2, no v3; spec OpenSpec-style in the repo; Claude stops at the end of
 phases 1, 2, 3; v1 retired at the start of phase 4.
 0. **Freeze and secure** — branches with unmerged work pushed as `archive/*` (s247 Piano WIP with
    `plan_rules` + 0006 among them), 216 local branches deleted; every export in
@@ -55,7 +55,9 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
    the abitudine moves with the Piano); food and meal done 7 Nov (change
    `archive/2026-11-07-food-meal`, #335–#337: cibo and pasto on the generic page, the composer
    and ⊕ on the kit); exercise and scheda done 7 Nov (change `archive/2026-11-07-exercise-scheda`,
-   #338: esercizio and scheda on the generic page, the scheda composed, the kit Timer). Next: Piano (`plan_rules` returns here) → money/pantry; each PR counts pages,
+   #338: esercizio and scheda on the generic page, the scheda composed, the kit Timer). Next: Piano (`plan_rules` returns here), then **a week of use only** (Q-20 (a), «ap yc» 12 Nov: 1
+   previsto and 0 blocchi in his data, 2 money movements ever): the next change comes from what
+   slowed his daily log that week; money/pantry wait for it; each PR counts pages,
    implementations and lines removed; v1 retired first (verified export, Neon untouched).
 
 ## Before: lifeos v2 build (ADR-0053, 2026-10-15 → 11-03) — paused 2026-11-06
@@ -230,7 +232,7 @@ scanning) are placed in the v2 spec.
    is `npm run import:sessions` (setup.md §10 step 6).
 In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 
-## Open items owned by the developer
+## Open items owned by the user
 - **PRs to review and be able to explain** (CLAUDE.md rule 6, deferred): #126–#186; pick 3 to walk through.
 - **Habits the learnt expenditure needs (ADR-0041/0042):** weigh in every morning; close each day.
 - **Assistant:** off unless `ASSISTANT_ENABLED=true` ("no AI for now", 2026-10-09).

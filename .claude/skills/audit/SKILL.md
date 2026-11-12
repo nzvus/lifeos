@@ -5,6 +5,9 @@ description: Check the lifeos spec against the code - each requirement's «Today
 
 # Audit (PAT-92, PRD-42)
 
+Health check now:
+!`python3 scripts/check.py 2>&1 | tail -2`
+
 Read-only until he answers: the audit reports, it does not fix.
 
 1. Scope: one spec file (`product`, `model`, `patterns`, a `domains/` file) or all of them.

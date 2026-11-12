@@ -4,7 +4,8 @@
  * `core/verbs` like any object) whose ordered steps live in `cycle_steps` / `cycle_step_items`.
  * A step holds blocchi «nel ciclo» (Q-18 (a): their objects are its keys for E3's `cyclePlan`, a
  * session of the scheda counts) — older steps still hold the scheda itself — or nothing (a rest). What each day holds stays derived (E3), never stored. Every query `ownedBy` the owner.
- * The old `templates` / `cycles_state` rows stay read-only (PL-72).
+ * The old `templates` / `cycles_state` rows are read only by the export, old files' loading
+ * and merge until they are dropped (Q-23 (a)).
  */
 import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";

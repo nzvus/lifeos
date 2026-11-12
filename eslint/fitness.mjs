@@ -4,7 +4,7 @@
  * (MOD-02). Files that broke a rule on 6 Nov are counted in `lint-baseline.json` (ESLint bulk
  * suppressions): a listed file may not grow its count, and a fixed one leaves the list.
  *
- * The developer, 6 Nov: «come ci assicuriamo che ricostruendo… non abbiamo di nuovo lo stesso
+ * The user, 6 Nov: «come ci assicuriamo che ricostruendo… non abbiamo di nuovo lo stesso
  * problema?» (PROD-38).
  */
 import { readFileSync } from "node:fs";

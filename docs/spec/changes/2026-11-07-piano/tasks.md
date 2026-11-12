@@ -14,8 +14,8 @@
        (`withCycleItems`, also used by the v1 conversion). Habits / day models / week layouts →
        blocchi: none on his data (6 Nov: no habit, «Rec» holds no block, «Come martedì 3»
        paused and in no week), so the repair **stops** on a live habit or a planned block
-       instead of dropping it (*decided by the agent*, PL-72 «or nothing»). Step items stay
-       the schede until slice 4 reads a step's blocchi (*decided by the agent*: no screen
+       instead of dropping it (*decided by Claude*, PL-72 «or nothing»). Step items stay
+       the schede until slice 4 reads a step's blocchi (*decided by Claude*: no screen
        breaks before then). Tested on PGlite (`data-repair.test.ts`) and on his export of
        6 Nov loaded with main's code, then 0006 + 0007 applied (7 cicli, PPLCR live with its
        5 steps, the same steps due 10–16 Nov before and after). **He runs «migrate v2»**,
@@ -35,7 +35,7 @@
        Togli saved, a new ciclo with Push + Riposo. **The blocco page**
        `/oggi/blocco/<id>` (generic + `block-extra`: how often under its title, «Che cosa» or
        «A turno», each row to its page), «Nuovo blocco» (generated, «Rispetto a» his other
-       blocchi: a `ref` field is a choice of his objects — *decided by the agent*), its
+       blocchi: a `ref` field is a choice of his objects — *decided by Claude*), its
        Composer (`BlockComposer`, `setBlockWhat`: pasti, schede, tragitti with servings, or one
        type alone as a fixed line — kit `ComposerLine.fixed`); «Blocchi» and «Cicli» in Oggi ·
        Elenco. Checked in the browser: a rotation of two pasti saved, «Acqua» replacing it.
@@ -80,7 +80,16 @@
        (`cycles-repo.test.ts`), `day-blocks.test.ts` (acceptance 3: caffè 07:30, none on Rest,
        moves to 08:10 after a fatto at 08:40). Checked in the browser: «Legs» picked twice →
        one blocco «Legs», «blocco nel ciclo»; old step still «scheda». Gallery photos updated.
-       Left: Q-24 (a second blocco in a step); the data migration of his steps' schede into
+       Q-24 (a) (12 Nov, «ap yc»): a blocco «nel ciclo» anchored to a step's blocco comes
+       with it, chains too (`dayBlocks`; test: avena 07:00 → caffè 07:30 → Push 08:00, none on
+       Rest).
+       Q-23 (a) first half (12 Nov): no screen or Piano read uses `templates`,
+       `template_blocks`, `week_layouts`, `cycles_state` any more. What is left keeps data
+       safe until the drop and stays: the export (`account/export.ts`), old files' loading
+       (`convert/file.ts`, `load.ts`, DT-40), the v1 conversion (`convert/plans.ts`), and
+       merge re-pointing `template_blocks` (`catalog/merge.ts`, FK). The drop goes with its
+       migration, **asked of him** after Q-18's step migration and a verified export.
+       Left: the data migration of his steps' schede into
        blocchi «nel ciclo» (needs «migrate v2», so after Q-19); the food Composer's unfed
        `slots` (PL-60); dropping `templates` / `week_layouts`.
 5. [ ] Delta into the spec; change archived.

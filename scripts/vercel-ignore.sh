@@ -3,7 +3,7 @@
 # Exit 1 = build, exit 0 = skip.
 #
 # The deploy budget (100 a day): production builds only when something the app is
-# made of changed (not docs/, the spec, the agent's .claude/, CI's .github/).
+# made of changed (not docs/, the spec, Claude's .claude/, CI's .github/).
 # Previews only for a migration rehearsal or a branch named *-preview.
 set -u
 

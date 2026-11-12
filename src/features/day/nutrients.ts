@@ -403,9 +403,8 @@ function mealMicros(
 /**
  * A meal's nutrients: its thin macro bars (L0), and its window when its box
  * opens (L2: its foods, kcal, kinds, where each came from, notes, micros). What it brought (or will
- * bring, when planned), split into kinds, against the day's targets — a slot's targets
- * come with day templates (E5 `slotTargets`); without day targets the bars
- * share one scale. Null for a meal with nothing to show (a coffee).
+ * bring, when planned), split into kinds, against the day's targets (Obiettivi, PL-61); a
+ * slot's share is not stored (PL-60); without day targets the bars share one scale. Null for a meal with nothing to show (a coffee).
  */
 export function mealL0(
   meal: DayItem,

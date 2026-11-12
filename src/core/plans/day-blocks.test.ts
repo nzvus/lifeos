@@ -252,4 +252,54 @@ describe("the Piano of a day from blocchi (PL-40)", () => {
       }),
     ).toMatchObject([{ key: "block:b-caffe", minute: 490 }]);
   });
+
+  it("PL-30 / PL-11 (Q-24 (a)): a blocco «nel ciclo» anchored to a step's blocco comes with it, chains too; alone it plans nothing", () => {
+    const inCycle = { type: "inCycle" } as const;
+    const push = block("b-push", {
+      items: items("push"),
+      when: { kind: "time", atMin: 480 },
+      recurrence: inCycle,
+    });
+    const caffe = block("b-caffe", {
+      items: items("caffe"),
+      when: { kind: "before", anchorId: "b-push", offsetMin: 30 },
+      recurrence: inCycle,
+    });
+    const avena = block("b-avena", {
+      items: items("avena"),
+      when: { kind: "before", anchorId: "b-caffe", offsetMin: 30 },
+      recurrence: inCycle,
+    });
+    // A daily blocco anchored to the Push is planned by its own frequency, not by the step.
+    const daily = block("b-daily", {
+      items: items("merluzzo"),
+      when: { kind: "after", anchorId: "b-push", offsetMin: 60 },
+      recurrence: { type: "weekdays", days: [1] },
+    });
+    const all = [push, caffe, avena, daily];
+    const step = {
+      cycleId: "plprr",
+      label: "Push",
+      itemId: "push",
+      blockIds: ["b-push"],
+    };
+    expect(
+      dayBlocks({
+        day: DAY,
+        blocks: all,
+        kindOf,
+        voci: [],
+        history: [],
+        steps: [step],
+      }).map((x) => [x.key, x.minute, x.step?.label]),
+    ).toEqual([
+      ["block:b-avena", 420, "Push"],
+      ["block:b-caffe", 450, "Push"],
+      ["block:b-push", 480, "Push"],
+    ]);
+    // On Rest: none of them.
+    expect(dayBlocks({ day: DAY, blocks: all, kindOf, voci: [], history: [] })).toEqual(
+      [],
+    );
+  });
 });
