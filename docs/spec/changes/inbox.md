@@ -32,8 +32,8 @@ Source of Q-19…Q-23: the outside review of 11 Nov, `docs/archive/review-fable-
   (c) leave both until money/pantry.
 - **W-01** One name per idea in every repo (12 Nov, his words: «I do not like that the same thing is
   called differently elsewhere»; the list is `~/Projects/fleet/GLOSSARY.md`). Done outside the spec on
-  branch fleet/2026-11-12; left for the next change, since one is open (PRD-41): «decided by the agent» →
-  «decided by Claude» in `domains/plan.md` (3 places) and «the agent» → «Claude» in `patterns.md` (PAT-91 text).
+  branch fleet/2026-11-12. Left for the next change, since one is open (PRD-41): «decided by Claude»
+  in `domains/plan.md` (3 places; was the agent's wording) and «Claude» in `patterns.md` PAT-91 (was the same).
 
 ## Notes folded (his raw notes outside the repo; `check.py` warns when one changes)
 - considerations.txt 80c476d19294 — folded 30 Oct (file of 15 Oct)
