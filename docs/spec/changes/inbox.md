@@ -13,6 +13,10 @@ reason, never silently changed. Every «decided by Claude» note says how to und
 ROADMAP «Now», Q-21 → CLAUDE.md «Working agreements», Q-22 → CLAUDE.md rules 1 and 3 and done, Q-23/Q-24 →
 `changes/2026-11-07-piano/proposal.md`.)
 
+- **W-03** The user, 12 Nov: «you did not follow what was my original purposes, also, it is still
+  redundunt and confusing, and messy, and slow». He wants a full, deep review (design, code, UI,
+  process) and a refactor by Fable. The prompt is
+  `LIFEOS/review/fable-refactor-prompt.md`: purpose first, then review, then options. He picks.
 - **W-02** The user, 12 Nov: «lets skip q20». Q-20 (a) (a week of use only) is dropped; the next
   change is money/pantry as ROADMAP «Now» had it (Q-20 (b)). Goes into that change's proposal.
 - **Q-25** Drop the old Piano tables (`templates`, `template_blocks`, `week_layouts`,
