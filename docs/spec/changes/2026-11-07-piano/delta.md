@@ -16,7 +16,7 @@
   second copy of the backup key where the runbook says; the loader fix of the 6 Nov export is
   done (#345). *Undo:* a change picking (b) after the Piano, or (c) the risk written here.
   **Drill done 12 Nov: pass** (`docs/runbooks/restore-drill.md`, drill log). The second copy of
-  the backup key is left to the user.
+  the backup key is in the user's password manager (12 Nov).
 - **PAT-61** adds: WHEN a field says how often (a blocco's `recurrence`, PL-20) THEN it is
   «Ogni quanto»: one choice (ogni giorno · certi giorni · ogni N giorni · N volte a settimana ·
   in certe date) and that kind's own control (weekday chips in two rows, a stepper, native
