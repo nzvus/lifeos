@@ -102,7 +102,8 @@ export const WORDS = {
       n === 1 ? "1 volta a settimana" : `${n} volte a settimana`,
     onText: (dates: string) => `il ${dates}`,
     inCycle: "nel ciclo",
-    inCycleHelp: "Nel Piano quando il passo del ciclo che lo tiene è di turno",
+    inCycleHelp:
+      "Nel Piano quando il passo del ciclo che lo tiene è di turno, o con il blocco a cui è legato",
     invalid: "Scegli ogni quanto",
   },
   form: {

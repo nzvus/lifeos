@@ -17,7 +17,7 @@
 
 <!-- ======================================================= -->
 
-**Read first, every session:** `docs/spec/product.md`, `model.md`, `patterns.md` (ADR-0061),
+**Read first, every session:** `~/.claude/plans/handoff-lifeos.md`, `docs/spec/product.md`, `model.md`, `patterns.md` (ADR-0061),
 and the `domains/` or `visual.md` file you touch. Each rule has one home and an ID
 (PRD- MOD- PAT- VIS- FD- TR- BD- PL- DT-); cite the IDs you follow in every PR («Spec: PAT-13»).
 His words become a line at once: in the open change's `proposal.md`, or in
@@ -38,15 +38,16 @@ for code quality, then for speed. Never for speed first.
 1. **Decisions belong to the human.** For any decision that is expensive to
    reverse (stack, architecture style, data model, deployment, public API
    shape): present 2–3 options with trade-offs and a recommendation, then
-   STOP and wait. Record the outcome as an ADR (`docs/decisions/`).
-   Cheap-to-reverse decisions: decide yourself, note it in one line.
+   STOP and wait (after «procedi senza di me», «yc», «ap»: an open question, go on with work
+   needing no pick). Only these get an ADR (`docs/decisions/`, Q-22 (a)); cheap-to-reverse
+   ones: decide yourself, one line where it belongs (proposal, PR).
 2. **Explain proportionally to reversibility, not novelty.** Big decision →
    full trade-off analysis. New library for a small task → 2-3 sentences of
    context. Deep-dive only if asked.
-3. **Small steps.** Implement in reviewable increments (one feature slice or
-   one refactor at a time). After each step: what was done, why, what to
-   verify, what's next. No large uncontrolled multi-file changes without an
-   approved plan.
+3. **Small steps, few PRs.** Each commit is one reviewable slice; PRs follow «As few PRs as
+   possible»: where they pull apart, few PRs wins (Q-22 (a), *decided by Claude*).
+   After each step: what was done, why, what to verify, what's next. No large uncontrolled
+   multi-file changes without an approved plan.
 4. **Point out skipped engineering practice.** Missing tests, unclear commit,
    growing coupling, no error handling — say it, briefly, even unprompted.
 5. **Teach through review.** When the human writes code, review it like a
@@ -83,6 +84,8 @@ for code quality, then for speed. Never for speed first.
   the end.
 - **«Done» only after checking the effect** (the data, the screen, the
   export), never from a green run or a script's exit code alone.
+- **Migration SQL read, one diff a week** (Q-21 (a)): a migration PR says its SQL in three
+  lines; the user reads it before «migrate v2» and weekly explains one diff of their choice.
 - **Keep the user informed** while working: a short line on what you are
   doing; never go long silent stretches.
 
@@ -113,7 +116,8 @@ for code quality, then for speed. Never for speed first.
 - Run `python3 scripts/check.py` after any change to docs/ADRs and before
   declaring a slice done. Fix ERRORs immediately; report WARNs to the human.
 - Definition of done for any slice: implemented + tested + docs touched
-  updated + human has understood it (ask one check question if unsure).
+  updated + the PR says what to look at first. His understanding is checked by the weekly
+  diff he explains (Q-21 (a)), not by a question per slice.
 - **Tests and deploys** (2026-10-23; CI runs everything, so don't run it twice):
   - Locally: `npx vitest related --run <touched files>` and `typecheck` in the
     touched workspace only; `prettier --write` on touched files. The full

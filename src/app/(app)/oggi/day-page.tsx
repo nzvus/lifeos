@@ -220,7 +220,7 @@ export async function DayPage({
     ),
     date <= today ? readSettings(db, owner) : null,
   ]);
-  // The week strip names each day by its cycle's step or its model (day-templates.md §6).
+  // The week strip names each day by its ciclo's step (PL-33).
   const tags = Object.fromEntries(
     week.flatMap((d) => (planTag(plans.get(d)) ? [[d, planTag(plans.get(d))]] : [])),
   );

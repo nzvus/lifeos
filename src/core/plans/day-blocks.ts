@@ -119,6 +119,21 @@ export function dayBlocks(p: {
   const stepOf = new Map<string, StepDue>();
   for (const s of p.steps ?? [])
     for (const id of s.blockIds ?? []) if (!stepOf.has(id)) stepOf.set(id, s);
+  // A blocco «nel ciclo» anchored to one of them comes with it (Q-24 (a)): the caffè «30 min
+  // prima di» the Push. Chains follow (caffè before acqua before Push); a loop ends.
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const b of p.blocks) {
+      const w = b.when;
+      if (b.recurrence.type !== "inCycle" || stepOf.has(b.id)) continue;
+      if (w.kind !== "after" && w.kind !== "before") continue;
+      const s = stepOf.get(w.anchorId);
+      if (s) {
+        stepOf.set(b.id, s);
+        grew = true;
+      }
+    }
+  }
   const last = lastDone(p.blocks, p.history);
   // A blocco that holds nothing (no live object, no type) plans nothing.
   const due = [
