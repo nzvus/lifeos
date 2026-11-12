@@ -114,6 +114,13 @@ quanto», Q-16 (a) the Composer with ordered lines and «+ Riposo».
   - Agent's pick: **(a)**: the anchor already says what the caffè goes with, no new screen,
     and acceptance 3 holds. It changes what «nel ciclo» means (a pattern: his to decide).
 
+**Answered (12 Nov, «ap yc»: every recommendation taken).** Q-24 → **(a)**: a blocco «nel
+ciclo» anchored («N min prima/dopo di») to a blocco a step holds is planned with it. *Undo:* a
+change that picks (b) or (c); the code is `dayBlocks`' step expansion. From the inbox, Q-23 →
+**(a)**: retire the reads of `templates`, `template_blocks`, `week_layouts`, `cycles_state`
+now; **dropping the tables is a delete, outside «yc»: asked again** once Q-18's step
+migration has run and an export is verified. *Undo of the reads:* git revert of that slice.
+
 **Answered.** Q-17 and Q-18, his picks 10 Nov (late, after «procedi»): Q-17 «block_id sulla
 voce (Recommended)» → (a); Q-18 «Blocchi «nel ciclo» (Recommended)» → (a).
 

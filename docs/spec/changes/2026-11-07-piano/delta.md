@@ -11,6 +11,10 @@
   `core/plans` turns these rows into the engine's input; no screen reads them directly.
 
 ## MODIFIED
+- **DT-34** adds (Q-19 (a), «ap yc» 12 Nov): before the next «migrate v2» he runs the restore
+  drill of a v2 dump (`scripts/restore-drill.sh`, `docs/runbooks/restore-drill.md`) and puts a
+  second copy of the backup key where the runbook says; the loader fix of the 6 Nov export is
+  done (#345). *Undo:* a change picking (b) after the Piano, or (c) the risk written here.
 - **PAT-61** adds: WHEN a field says how often (a blocco's `recurrence`, PL-20) THEN it is
   «Ogni quanto»: one choice (ogni giorno · certi giorni · ogni N giorni · N volte a settimana ·
   in certe date) and that kind's own control (weekday chips in two rows, a stepper, native
@@ -38,7 +42,9 @@
   « (ciclo)», *decided by the agent*). The step's keys for E3 are its blocchi's objects (a
   session of the scheda advances it, PL-31); on its day `dayBlocks` plans each of its blocchi
   with its own when, shown «dal ciclo». Steps that still hold a scheda are read as before until
-  the data migration (Q-18 (a), after Q-19). [Q-18 (a)]
+  the data migration (Q-18 (a), after Q-19). A blocco «nel ciclo» anchored («N min prima/dopo
+  di») to a blocco a due step holds comes with it, chains too (the caffè before the Push;
+  «Nel ciclo» says so under it). [Q-18 (a), Q-24 (a)]
 - **PAT-62** adds: a ciclo's step Composer searches his blocchi «nel ciclo» first, then his
   schede, each line said by what it is («blocco nel ciclo» · «scheda»). [Q-18 (a)]
 - **PAT-61** adds: a day is `Field type="date"` (registry field type `date`, ISO, native picker).

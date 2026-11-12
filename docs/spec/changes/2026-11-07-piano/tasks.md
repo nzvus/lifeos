@@ -80,7 +80,10 @@
        (`cycles-repo.test.ts`), `day-blocks.test.ts` (acceptance 3: caffè 07:30, none on Rest,
        moves to 08:10 after a fatto at 08:40). Checked in the browser: «Legs» picked twice →
        one blocco «Legs», «blocco nel ciclo»; old step still «scheda». Gallery photos updated.
-       Left: Q-24 (a second blocco in a step); the data migration of his steps' schede into
+       Q-24 (a) (12 Nov, «ap yc»): a blocco «nel ciclo» anchored to a step's blocco comes
+       with it, chains too (`dayBlocks`; test: avena 07:00 → caffè 07:30 → Push 08:00, none on
+       Rest).
+       Left: the data migration of his steps' schede into
        blocchi «nel ciclo» (needs «migrate v2», so after Q-19); the food Composer's unfed
        `slots` (PL-60); dropping `templates` / `week_layouts`.
 5. [ ] Delta into the spec; change archived.
