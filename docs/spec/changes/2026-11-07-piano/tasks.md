@@ -83,6 +83,12 @@
        Q-24 (a) (12 Nov, «ap yc»): a blocco «nel ciclo» anchored to a step's blocco comes
        with it, chains too (`dayBlocks`; test: avena 07:00 → caffè 07:30 → Push 08:00, none on
        Rest).
+       Q-23 (a) first half (12 Nov): no screen or Piano read uses `templates`,
+       `template_blocks`, `week_layouts`, `cycles_state` any more. What is left keeps data
+       safe until the drop and stays: the export (`account/export.ts`), old files' loading
+       (`convert/file.ts`, `load.ts`, DT-40), the v1 conversion (`convert/plans.ts`), and
+       merge re-pointing `template_blocks` (`catalog/merge.ts`, FK). The drop goes with its
+       migration, **asked of him** after Q-18's step migration and a verified export.
        Left: the data migration of his steps' schede into
        blocchi «nel ciclo» (needs «migrate v2», so after Q-19); the food Composer's unfed
        `slots` (PL-60); dropping `templates` / `week_layouts`.
