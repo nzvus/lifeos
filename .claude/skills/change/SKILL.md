@@ -1,6 +1,6 @@
 ---
 name: change
-description: Change the lifeos spec through one folder - propose (proposal, delta, tasks), apply (build the slices with tests citing IDs), archive (merge the delta into the spec). Use when a request of the developer changes a pattern, type, word or rule, when he says "change" or "proposta", or when the inbox has an item to turn into work.
+description: Change the lifeos spec through one folder - propose (proposal, delta, tasks), apply (build the slices with tests citing IDs), archive (merge the delta into the spec). Use when a request of the user changes a pattern, type, word or rule, when he says "change" or "proposta", or when the inbox has an item to turn into work.
 ---
 
 # Change (PRD-41, PAT-92)
@@ -12,7 +12,7 @@ is open (the `pre-edit` hook blocks it otherwise).
 1. Read `docs/spec/product.md`, `model.md`, `patterns.md` and the `domains/` file touched.
 2. Create `docs/spec/changes/YYYY-MM-DD-name/`:
    - `proposal.md`: **Why** (his words, quoted, with date), **What**, **Not in this change**,
-     **Stop** (when the agent stops for his review).
+     **Stop** (when Claude stops for his review).
    - `delta.md`: `## ADDED` / `## MODIFIED` / `## REMOVED`, each requirement with its ID
      (new IDs: next free number in its file) written WHEN / THEN; a MODIFIED one is rewritten
      whole, not as a diff.

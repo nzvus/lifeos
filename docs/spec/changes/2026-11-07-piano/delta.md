@@ -28,7 +28,7 @@
   its name and its fields, `objectCreate` through `core/verbs`); the ciclo is the first.
 - **PAT-30** adds: a `ref` field is a row like the others, a choice of his live objects of its
   catalog, shown by name (`readRefs`); a field marked `internal` is stored, never a row (its
-  type's section edits it: a blocco's `kind`). *Decided by the agent.*
+  type's section edits it: a blocco's `kind`). *Decided by Claude.*
 - **PAT-62** adds: a line may be `fixed` — no stepper, its quantity posted as it is (a
   blocco's type, PL-03).
 - **PAT-61** adds: «Ogni quanto» has a sixth choice **«Nel ciclo»** (`{"type":"inCycle"}`):
@@ -39,7 +39,7 @@
 - **PL-30** «Today» line: a step's item is a blocco «nel ciclo» (`cycle_step_items.item_id`,
   no schema change). Saving the steps turns a scheda picked into his live blocco «nel ciclo»
   holding it alone, else a new one (its name, Corpo, no time; a name his blocchi have takes
-  « (ciclo)», *decided by the agent*). The step's keys for E3 are its blocchi's objects (a
+  « (ciclo)», *decided by Claude*). The step's keys for E3 are its blocchi's objects (a
   session of the scheda advances it, PL-31); on its day `dayBlocks` plans each of its blocchi
   with its own when, shown «dal ciclo». Steps that still hold a scheda are read as before until
   the data migration (Q-18 (a), after Q-19). A blocco «nel ciclo» anchored («N min prima/dopo
@@ -61,7 +61,7 @@
   Piano as previsto rows «dal piano» / «dal ciclo» (`features/day/block-items.ts`). On the
   first read of today they are written as previsti carrying `entries.block_id` (Q-17 (a);
   `write-day.ts`); what cannot be a voce by itself stays a computed row. A blocco that holds
-  nothing plans nothing. *Decided by the agent.*
+  nothing plans nothing. *Decided by Claude.*
 - **MOD-33** adds: the link is `entries.block_id` (FK, restrict: PL-70's «Elimina only when no
   voce links to it»), one voce per blocco per day; `entry_links.from_block` is not used. [Q-17]
 - **PL-61 / MOD-42 / FD-20** «Today» line: the day's food targets read three goals
@@ -69,7 +69,7 @@
   copied by `drizzle/0008` from its first day (past days keep their numbers, PL-41); the day
   models archived; no fixed-model branch left (`core/day/targets.ts` `dynamicTargets`).
   Obiettivi shows them as goal rows «entra negli obiettivi di ogni giorno». *One goal per number
-  and their sources decided by the agent.*
+  and their sources decided by Claude.*
 - **PAT-03** adds: an area's Piano tab is its blocchi (and Corpo's the cicli) on the kit
   `Elenco`; Oggi · Piano is the week of every area with the blocchi and cicli under it.
 - **PL-43** «Today» line: «Cambia la giornata» and «Salva come modello» are gone with the day
@@ -78,4 +78,4 @@
   Composer's `slots` prop is unfed until a food blocco's real kcal judges its share.
 - **PL-44** «Today» line: «Ripeti nel Piano» on a logged voce's page opens «Nuovo blocco»
   prefilled from it (`?voce=`; `blockSeedOf`), the blocco holding its object or type with its
-  category. «Salva come modello» is gone. *The words «Ripeti nel Piano» decided by the agent.*
+  category. «Salva come modello» is gone. *The words «Ripeti nel Piano» decided by Claude.*

@@ -92,7 +92,7 @@ and from the `app-health` job (`/api/health`, a real query): silence is the alar
 ## Cross-cutting concerns
 
 - **Config/secrets:** `app/_server/env.ts` (`.env.example`); Vercel env; GitHub environment
-  `v2` for backup and migrate; the age key only on the developer's machine.
+  `v2` for backup and migrate; the age key only on the user's machine.
 - **Auth:** Better Auth, email + password, DB sessions; sign-up only with `ALLOW_SIGNUP=true`.
 - **Time:** «today» from the user's timezone, never the server's clock.
 - **PWA:** `app/manifest.ts`, installable; no user data cached on the device (DT-60).

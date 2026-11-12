@@ -41,7 +41,7 @@ describe("Claude Code hooks (PAT-91)", () => {
     ).toBe(0);
   });
 
-  it("sends lint errors of an edited file back to the agent", () => {
+  it("sends lint errors of an edited file back to Claude", () => {
     const file = path.join(ROOT, "src/features/zz-guard-probe.tsx");
     fs.writeFileSync(file, 'export const P = () => <input type="search" />;\n');
     try {

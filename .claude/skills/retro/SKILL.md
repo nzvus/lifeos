@@ -5,7 +5,7 @@ description: Close a sprint - review outcomes against criteria, extract lessons,
 
 # Sprint Retrospective
 
-1. Read the current sprint in `ROADMAP.md` and `git log` since sprint start.
+1. Read the current sprint in `ROADMAP.md`, `git log` since sprint start, and the Open entries of `RULES_LOG.md` (two or more alike → offer `/tune-rules`).
 2. **Review against criteria:** for each slice and the review criteria —
    met / partially / missed, with evidence (tests, working demo). Be honest,
    not congratulatory.

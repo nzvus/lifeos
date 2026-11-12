@@ -1,7 +1,7 @@
 /**
  * Loads an export of the v2 app («lifeos-v2-export», core/account/export.ts)
  * into a LOCAL account, replacing what it has (core/convert/load.ts
- * `replaceFile`, one transaction). For looking at the developer's real days
+ * `replaceFile`, one transaction). For looking at the user's real days
  * on the local app (the visual study's boards): local PGlite only, never a
  * shared database. Stop the dev server first: a PGlite folder has one owner.
  *
