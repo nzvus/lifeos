@@ -53,7 +53,8 @@ IDs `FD-nn`. Sources: ledger IDs, phase 1 answers (`n04`, `c08`, `x06`: `audit-2
 ## 3. Targets of the day (goals, MOD-42)
 - **FD-20** The day's food targets are Obiettivi (MOD-42), dynamic: kcal = E(t) − deficit, never under the
   BMR (Mifflin–St Jeor) nor 1 200; E(t) and trend weight W from MOD-54. [E5, targets §5, PROD-45] — Today:
-  built in the «Rec» model; into Obiettivi, values unchanged, in phase 4.
+  built (three goals, `core/goals/food.ts`, read by `core/day/targets.ts` `dynamicTargets`;
+  «Rec»'s values copied by `drizzle/0008`, his numbers unchanged: 2211/167/61 on 19 Oct).
 - **FD-21** Deficit from the weight goal's pace (% BW/week): lose 0.5–1.0, gain 0.10–0.25, recomposition
   0.05–0.5; deficit = pace × W × ρ / 7; a recomposition deficit never over 500 kcal (Murphy & Koehler 2022);
   with no weight goal, the goal's own deficit (Rec: 200 kcal). [E5, v1 ADR-0045, targets §9.2; Helms 2014,

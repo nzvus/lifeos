@@ -18,7 +18,9 @@ A screen is only a composition of these pieces (PRD-18).
   One prop name (`back`). Kit: `PageHeader` ✓ (4 prop names today).
 - **PAT-03** An area page = the same four tabs, Diario · Piano · Elenco · Andamento, each a
   registry-driven view filtered by area; Oggi = all areas. A tab with nothing shows the empty
-  state of PAT-70, not a page of its own. Kit: `AreaTabs` ✓. [ADR-0059]
+  state of PAT-70, not a page of its own. Kit: `AreaTabs` ✓. [ADR-0059] An area's Piano tab is
+  its blocchi (Corpo's with the cicli) on the kit `Elenco`; Oggi · Piano is the week of every
+  area with the blocchi and cicli under it (change 2026-11-07-piano).
 - **PAT-04** Object addresses: `/{area}/{type}/{id}`; one route per family
   (`[area]/[type]/[id]`), not one per type: the type is found by its word (`typeAtSlug`), a
   wrong area redirects to the type's own, the page is the generic ObjectPage
@@ -29,14 +31,16 @@ A screen is only a composition of these pieces (PRD-18).
   because the `oggi` folder wins over `[area]`). Moved: the tracker (`/oggi/tracker/<id>`,
   change 2026-11-06-tracker; `/profilo/tipi` gone); cibo, prodotto and pasto (change
   2026-11-07-food-meal; the `cibo/` and `pasto/` folders gone); esercizio and scheda (change
-  2026-11-07-exercise-scheda; the `esercizio/` folder gone, the scheda's `/componi`). The
-  other per-type folders leave as their types move (phase 4).
+  2026-11-07-exercise-scheda; the `esercizio/` folder gone, the scheda's `/componi`); blocco and ciclo (change
+  2026-11-07-piano: `/oggi/blocco/<id>`, `/oggi/ciclo/<id>`; `[area]/ciclo/[id]` redirects there,
+  `componi` mounted under `oggi` too, `compose-route.tsx`). The other per-type folders leave as
+  their types move (phase 4).
 
 ## 2. The verbs (one form each; the registry says which apply)
 | ID | Verb | WHEN he… | THEN | Kit |
 |---|---|---|---|---|
 | PAT-10 | Aggiungi | taps ⊕ anywhere | Capture sheet (PAT-60) opens, the current area's types first | `Capture` ✓ |
-| PAT-11 | Aggiungi qui | taps the last row «+ Nuovo …» of a list | the type's form opens prefilled (MOD-51) | `List` ✓ |
+| PAT-11 | Aggiungi qui | taps the last row «+ Nuovo …» of a list | the type's form opens prefilled (MOD-51); a type with plain declared fields gets the generated form (`NewObjectForm`, `objectCreate` through `core/verbs`; ciclo, blocco) | `List` ✓ |
 | PAT-12 | Apri | taps a row or box anywhere on it | its object page or voce sheet | `List`, `Box` ✓ |
 | PAT-13 | Modifica | taps a value (the name too) | it becomes editable in place; leaving saves; toast «Salvato · Annulla». No `/modifica` pages | `InPlace` ✓ |
 | PAT-14 | Salva | is composing (meal, set, new object) | one sticky primary at the bottom; «Annulla» beside it | `Composer` ✓, `ObjectForm` ✓ |
@@ -61,7 +65,9 @@ A screen is only a composition of these pieces (PRD-18).
 - **PAT-30** **ObjectPage**, the same for every catalog type: header (PAT-02) · the values that
   matter as editable rows · its parts or lines · «Andamento» (progress, MOD-50) · «Usato in»
   · actions row at the end (Parti da, Variante, Archivia; «⋯» for the rest). Kit ✓ `ObjectPage`
-  (8 bespoke pages move in phase 4).
+  (8 bespoke pages move in phase 4). A `ref` field is a row like the others, a choice of his live
+  objects of its catalog, shown by name (`readRefs`); a field marked `internal` is stored, never a
+  row (its type's section edits it: a blocco's `kind`). *Decided by Claude.*
 - **PAT-31** **Voce header**, the same for every type: quanto (× servings / quantity) · quando
   (time, previsto/fatto/saltato) · ↺ only when its catalog object changed after it · «⋯».
   The body below edits in place. Kit ✓ `EntryHeader`. [n02, FOOD-38, FOOD-47]
@@ -119,7 +125,15 @@ A screen is only a composition of these pieces (PRD-18).
 - **PAT-61** **ObjectForm**: generated from the type's fields (labels, units, help, ranges);
   numbers with − / + steppers; time and date with one native picker each (no typed
   «AAAA-MM-GG»). A type adds a custom section only through its specialisation. Kit: `Field` ✓,
-  `ObjectForm` ✓ (17 bespoke forms move in phase 4).
+  `ObjectForm` ✓ (17 bespoke forms move in phase 4). A day is `Field type="date"` (registry
+  type `date`, ISO, native picker). WHEN a field says how often (a blocco's `recurrence`, PL-20)
+  THEN it is «Ogni quanto»: one choice (ogni giorno · certi giorni · ogni N giorni · N volte a
+  settimana · in certe date · nel ciclo) and that kind's own control (weekday chips in two rows,
+  a stepper, native date pickers; «Nel ciclo» none, it says «Nel Piano quando il passo del
+  ciclo che lo tiene è di turno, o con il blocco a cui è legato»), said in words under it («lun,
+  mer, ven»); it posts the engine's `Recurrence` as JSON text, checked by the kit and again by
+  the registry. Kit ✓ `Recurrence` (in `Field`, `type="recurrence"`; gallery `#ogni-quanto`),
+  the stepper shared as `Stepper`. [Q-15 (a), Q-18 (a), Q-24 (a)]
 - **PAT-62** **Composer** for types with lines (pasto, scheda): search + lines + totals +
   sticky «Salva»: the lines, the search under them, the totals, the type's own fields, then
   «Annulla» + «Salva». Kit ✓ `Composer` (`readLines`; the caller's `lines`, a line's `below`,
@@ -129,7 +143,12 @@ A screen is only a composition of these pieces (PRD-18).
   what it posts (`counted={false}`, `readOrder`; the scheda's `RoutineComposer`, change
   2026-11-07-exercise-scheda). A session is not composed: gym mode is its own full screen of
   kit pieces (`Timer`, `Box`, `Find`; PAT-01's exception, TR-07) and follows its scheda (Q-13
-  «a», his «decidi tu» 7 Nov, change 2026-11-07-gym-mode-q13).
+  «a», his «decidi tu» 7 Nov, change 2026-11-07-gym-mode-q13). A line may be `fixed`: no
+  stepper, its quantity posted as it is (a blocco's type, PL-03). A ciclo's steps are composed as
+  ordered lines (`counted={false}`) with a fixed «+ Riposo» under the search that adds an empty
+  step; the search offers his blocchi «nel ciclo» first, then his schede (a scheda picked
+  becomes such a blocco on save), each line said by what it is («blocco nel ciclo» · «scheda» ·
+  «Riposo»). [Q-16 (a), Q-18 (a)]
 - **PAT-63** **Timer** capture for interval types (set, rest, run, study): states, saved instants,
   resume after closing, auto mode with assumed values marked (MOD-12); without network the voci
   wait on the phone and leave by themselves when it returns, shown «da inviare» (his pick 6 Nov,

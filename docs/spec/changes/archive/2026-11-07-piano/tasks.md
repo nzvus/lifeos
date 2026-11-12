@@ -41,7 +41,7 @@
        Elenco. Checked in the browser: a rotation of two pasti saved, «Acqua» replacing it.
        Open detail: «Rispetto a» / «Scarto» show even when «Quando» is «a un'ora» (hiding a
        field by another's value would be a new registry rule: not now).
-4. [ ] The Piano tabs and Oggi read the Piano of a day from blocchi (PL-40…43); the old reads
+4. [x] The Piano tabs and Oggi read the Piano of a day from blocchi (PL-40…43); the old reads
        retired; «Rec» targets → Obiettivi (PL-61, FD-20) with a repair, «Rec» archived; habits
        created since 0006 carried; photos before/after.
        Done: `drizzle/0008` (data; «Rec»'s deficit 200, protein 2.2, fat 0.8 g/kg → three goals
@@ -89,7 +89,11 @@
        (`convert/file.ts`, `load.ts`, DT-40), the v1 conversion (`convert/plans.ts`), and
        merge re-pointing `template_blocks` (`catalog/merge.ts`, FK). The drop goes with its
        migration, **asked of him** after Q-18's step migration and a verified export.
-       Left: the data migration of his steps' schede into
-       blocchi «nel ciclo» (needs «migrate v2», so after Q-19); the food Composer's unfed
-       `slots` (PL-60); dropping `templates` / `week_layouts`.
-5. [ ] Delta into the spec; change archived.
+       Step migration (12 Nov): `drizzle/0010` (#349), dry-run on his 10 Nov export, run by his
+       «migrate v2» after the first v2 restore drill (pass) and the second key copy; checked on
+       a fresh backup restored locally: PPLCR = Push | Pull | Legs as blocchi «nel ciclo»,
+       Corsa (exercise) and Rest unchanged, 3 blocchi.
+       Not done here, carried: the food Composer's unfed `slots` (PL-60, ROADMAP «Now»);
+       dropping the old Piano tables (Q-25 in the inbox, a delete: his).
+5. [x] Delta into the spec (12 Nov: model MOD-33/36/42, patterns PAT-03/04/11/30/61/62, plan
+       PL-01…03/20/30/40/43/44/60/61/70/72, food FD-20, data DT-34); change archived.

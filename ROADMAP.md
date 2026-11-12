@@ -55,9 +55,9 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
    the abitudine moves with the Piano); food and meal done 7 Nov (change
    `archive/2026-11-07-food-meal`, #335–#337: cibo and pasto on the generic page, the composer
    and ⊕ on the kit); exercise and scheda done 7 Nov (change `archive/2026-11-07-exercise-scheda`,
-   #338: esercizio and scheda on the generic page, the scheda composed, the kit Timer). Next: Piano (`plan_rules` returns here), then **a week of use only** (Q-20 (a), «ap yc» 12 Nov: 1
-   previsto and 0 blocchi in his data, 2 money movements ever): the next change comes from what
-   slowed his daily log that week; money/pantry wait for it; each PR counts pages,
+   #338: esercizio and scheda on the generic page, the scheda composed, the kit Timer). Piano done 12 Nov (change `archive/2026-11-07-piano`, #339–#349: blocchi and cicli as catalog objects, «Ogni quanto», previsti with their blocco, «Rec» into Obiettivi, steps as blocchi «nel ciclo»; `plan_rules` not carried). Next: money/pantry (the week of use of Q-20 (a) dropped:
+   the user, 12 Nov, «lets skip q20»). Left from the Piano change (archived 12 Nov): a food blocco's
+   real kcal judging its share of the day (PL-60, the food Composer's unfed `slots`); each PR counts pages,
    implementations and lines removed; v1 retired first (verified export, Neon untouched).
 
 ## Before: lifeos v2 build (ADR-0053, 2026-10-15 → 11-03) — paused 2026-11-06
@@ -254,6 +254,9 @@ In parallel on v1: ADR-0052 B (merge) and C (CSV), if still wanted before v2.
 
 ## Done
 <!-- retro skill appends compressed entries here, newest first -->
+
+### Phase 4 step 5: the Piano — change 2026-11-07-piano (#339–#349, 7–12 Nov)
+Shipped: blocchi and cicli as catalog objects (MOD-36) on the generic page, «Nuovo blocco/ciclo» generated, the kit «Ogni quanto» (six kinds, «nel ciclo» last), the Piano of a day from blocchi on Oggi and Oggi · Piano, previsti written with `entries.block_id`, «Ripeti nel Piano», «Rec» → three Obiettivi (his 2211/167/61 kept), steps as blocchi «nel ciclo» with the caffè following its anchor; day models, habits and `slots.ts` gone; migrations 0006–0010 each dry-run on his export and checked after; the first v2 restore drill (pass) | Acceptance (plan.md): 2, 3 (tests), 4 and 6's targets met; 1 partial (no «18 % del giorno»: PL-60); 5 (PL-50) not in this change; 6's «Nuovo ciclo» deletable not checked | Decisions: Q-14…Q-18 his picks, Q-19…Q-24 by «yc» (logged with undo) | Lesson: a pure engine test (caffè 07:30 → 08:10) proved the pattern before any screen; a long report with IDs hid the one action he had to take | Carried over: PL-60 share (ROADMAP «Now»), Q-25 drop of the old tables, the item named for a weekday (PL-02).
 
 ### Phase 4 step 4: esercizio and scheda onto the generic pieces — change 2026-11-07-exercise-scheda (#338, 7 Nov)
 Shipped: esercizio on the generic ObjectPage; the scheda with a page, «Inizia», its exercises composed on the kit Composer (lines without quantity, Su/Giù) and «Schede» in Corpo · Elenco; the kit Timer drawing the gym clock (same HTML in 7 states); pages −5 | Decisions: scheda «Parti da» only, no variants (decided by the agent); Q-13 to the inbox | Lesson: a refactor of a live screen is proven by recording its output before and after (HTML here, pixels for the composer) | Carried over: Q-13; a dev-only React key warning on the exercise page; TR-37 duration on the scheda page.

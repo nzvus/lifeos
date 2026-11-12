@@ -110,7 +110,7 @@ describe("cicli, written and read back (MOD-36, PL-30)", () => {
     expect((await act(db, a, "restore", "cycle", id, {})).ok).toBe(true);
     expect(await due()).toContain("Solo gambe");
   });
-  it("Q-18 (a) / PL-30: a scheda picked becomes one blocco «nel ciclo» holding it, reused; a session of it advances the step", async () => {
+  it("Q-18 (a) / PL-30 / PL-31: a scheda picked becomes one blocco «nel ciclo» holding it, reused; a session of it advances the step", async () => {
     const legs = await routine(a, "Squat");
     // A daily blocco «Squat» of his already: the new one takes « (ciclo)», names stay unique.
     const daily = await act(db, a, "create", "block", null, {

@@ -15,19 +15,19 @@ proposal after a month of the simple Piano in use (PRD §4).
 ## 1. What a blocco holds
 - **PL-01** A blocco's *what* is one real object (a pasto or one of its variants, a scheda, an
   assunzione, a tragitto, a tracker) or a type with default values (a walk of 30 min), with a
-  quantity (servings). Never a percentage of the day. [PLAN-34, c04, MOD-30, MOD-35, plan.md §4]
-  — Today: not built (blocks are a meal role with shares or a session: `models-repo.ts`,
-  `ModelEditor.tsx`; real items parked on `archive/s247-v2-plan`).
+  quantity (servings). Never a percentage of the day. [PLAN-34, c04, MOD-30, MOD-35, plan.md §4] —
+  Today: built (`core/plans/blocks.ts` `readBlocks`: a catalog «block», its parts or a type with
+  defaults, MOD-36; tests `blocks.test.ts`).
 - **PL-02** A *rotation* is a blocco whose what is an ordered list of objects; the day takes the
-  item after the last one **done** (by that blocco's history), or the item named for that
-  weekday when he set one. An archived item is skipped and said once. [plan.md §5.3, §7, §9.3]
-  — Today: not built.
-- **PL-03** An **abitudine** is a blocco whose object is a tracker (water, steps, stretching,
-  his own types). Any type may be planned as a blocco; only the tracker kind is called
-  «abitudine». A due abitudine is *covered* by a voce of its type (and category, when it has
-  one) on that day, any status. [PROD-45, product §3, `core/plans/habits.ts`] — Today: partial
-  (habits are block templates; meals, sessions, money and pantry kinds excluded by
-  `NOT_HABIT_KINDS`, which goes once any type can be a blocco).
+  item after the last one **done** (by that blocco's history), or the item named for that weekday
+  when he set one. An archived item is skipped and said once. [plan.md §5.3, §7, §9.3] — Today:
+  partial (`blocksOn` + `lastDone`, an archived item skipped; the item named for a weekday not
+  built).
+- **PL-03** An **abitudine** is a blocco whose object is a tracker (water, steps, stretching, his
+  own types). Any type may be planned as a blocco; only the tracker kind is called «abitudine». A
+  due abitudine is *covered* by a voce of its type (and category, when it has one) on that day,
+  any status. [PROD-45, product §3, `core/plans/habits.ts`] — Today: built (a blocco of a type,
+  any type; covered by a voce of its type and category, `day-blocks.ts`).
 
 ## 2. When
 - **PL-10** A blocco's time is one of: a clock time · «N min dopo/prima di <blocco>» · after
@@ -48,23 +48,30 @@ proposal after a month of the simple Piano in use (PRD §4).
   move command for anchored voci).
 
 ## 3. How often
-- **PL-20** Frequency is one of: every day · weekdays (ISO, Monday 1) · every N days from a
-  start (N ≥ 1) · N times a week · on dates · a ciclo step. «N times a week» places nothing on
-  fixed days: it is due until the ISO week holds N covered days (today not counted). [E1,
-  DATA-04, RFC 5545 via plan.md §3, `engines/time/recurrence.ts`] — Today: built (engine;
-  used by habits only).
+- **PL-20** Frequency is one of: every day · weekdays (ISO, Monday 1) · every N days from a start
+  (N ≥ 1) · N times a week · on dates · a ciclo step. «N times a week» places nothing on fixed
+  days: it is due until the ISO week holds N covered days (today not counted). [E1, DATA-04, RFC
+  5545 via plan.md §3, `engines/time/recurrence.ts`] — Today: built
+  (`core/engines/time/recurrence.ts`; the registry field «Ogni quanto», PAT-61); a sixth kind «nel
+  ciclo» (`{ type: "inCycle" }`, Q-18 (a)): `plannedOn` is false, only a step plans it.
 - **PL-21** Adherence over a window: a fixed frequency counts the planned days done out of the
   planned days; «N times a week» counts covered days in one ISO week out of N. A saltato with a
   reason (sick, travel) can be set not to break a streak (DT-13). [E1, DATA-05] — Today: built
   (`progress`), not shown for blocchi.
 
 ## 4. Cicli
-- **PL-30** A ciclo is ordered steps; each step holds zero or more blocchi (no blocco = rest).
-  A step may hold the scheda *and* what goes with it («Push» + caffè 30 min prima), which is how
-  a pair across areas is planned now that rules across areas are deferred. [MOD-31, x04,
-  plan.md §2 (18 of 32 sessions had a coffee within 2 h before), schema `cycle_step_items`]
-  — Today: partial (steps hold one routine or rest; `cycle_step_items` allows several).
-  *Decided by the agent* (replaces the if-then rule of plan.md §8.3 inside MOD-31).
+- **PL-30** A ciclo is ordered steps; each step holds zero or more blocchi (no blocco = rest).  What
+  goes with one of them («Push» + caffè 30 min prima) is a blocco «nel ciclo» anchored to it,
+  planned on its days only (Q-24 (a)): how a pair across areas is planned now that rules across
+  areas are deferred. [MOD-31, x04, plan.md §2
+  (18 of 32 sessions had a coffee within 2 h before), schema `cycle_step_items`] — Today: built: a
+  step's item is a blocco «nel ciclo» (`cycle_step_items.item_id`); saving the steps turns a
+  scheda picked into his live blocco «nel ciclo» holding it alone, else a new one (its name,
+  Corpo, no time; « (ciclo)» on a taken name, *decided by Claude*); `drizzle/0010` did the same
+  for his live cicli (12 Nov). The step's keys for E3 are its blocchi's objects (PL-31); on its
+  day `dayBlocks` plans each of its blocchi with its own when, «dal ciclo»; a blocco «nel ciclo»
+  anchored to one of them comes with it, chains too (Q-24 (a)). *Decided by Claude* (replaces the
+  if-then rule of plan.md §8.3 inside MOD-31).
 - **PL-31** **Advance by occurrence** (the gym): a day with nothing that counts takes a rest due,
   else the step stays due and shows *late*; a voce of the due step advances it; a voce of a later
   step of the round marks it done ahead (passed when reached); a voce that fits no step is extra.
@@ -83,8 +90,13 @@ proposal after a month of the simple Piano in use (PRD §4).
   active ciclo's step; coming days computed on read, never stored. On the first read of a day as
   *today*, its blocchi are written as previsto voci linked `from_block` (MOD-33), never twice; a
   day never opened stays without previsti (no data: «non so», DT-03). [MOD-32/33, day-templates
-  §9.1, plan.md §7] — Today: partial (`apply` built; voci computed on the fly, matched by role).
-  *Decided by the agent*: reconciles MOD-33 («applying writes») with §9.1 («stored when touched»).
+  §9.1, plan.md §7] — Today: built (`core/plans/day-blocks.ts` `dayBlocks`: `blocksOn` + each
+  ciclo's step, placed by E3 `apply`, left out when covered; previsto rows «dal piano» / «dal
+  ciclo» on Oggi and Oggi · Piano, `features/day/block-items.ts`); on the first read of today each
+  blocco due is written as a previsto with `entries.block_id` (Q-17 (a), `write-day.ts`); what
+  cannot be a voce by itself (a tragitto, a type needing a value, a ciclo's step holding a scheda)
+  stays a computed row; a blocco that holds nothing plans nothing. *Decided by Claude*: reconciles
+  MOD-33 («applying writes») with §9.1 («stored when touched»).
 - **PL-41** Past days never change when a blocco or ciclo changes: what was written stays; the
   change applies from today on. [plan.md §7, day-templates §7] — Today: built (nothing stored).
 - **PL-42** A previsto voce on a past day is never turned into fatto or saltato by the app
@@ -95,13 +107,14 @@ proposal after a month of the simple Piano in use (PRD §4).
 - **PL-43** Day-only changes, each undoable (PAT-21) and stored as a decision: **Salta la
   giornata** (every blocco of the day saltato, cicli by their skip rule) · **Sposta** one blocco
   for this day · **Copia ieri** (yesterday's voci as today's previsti, same time, current catalog
-  values; a type the day already has is left). Fatto and saltato voci never change; only
-  previsti ahead of now are replaced, and never ones he typed by hand. [E3 `swap`, PLAN-04,
-  PLAN-07, KEEP-07, plan.md §7] — Today: partial (swap engine, «Copia ieri», cycle skip built;
-  «Cambia la giornata» changes a day model, which goes).
+  values; a type the day already has is left). Fatto and saltato voci never change; only previsti
+  ahead of now are replaced, and never ones he typed by hand. [E3 `swap`, PLAN-04, PLAN-07,
+  KEEP-07, plan.md §7] — Today: partial («Salta», a step by hand, «Copia ieri», «Sposta
+  l'allenamento» built; «Cambia la giornata» and «Salva come modello» gone with the day models).
 - **PL-44** **Ripeti** on any logged voce opens a new blocco with its object, time and weekday
   prefilled (PAT-22). «Salva come modello» for a whole day goes with day models. [plan.md §6,
-  PLAN-07, MOD-14] — Today: not built («Salva come modello» built: `features/plan/from-day.ts`).
+  PLAN-07, MOD-14] — Today: built («Ripeti nel Piano» on a logged voce's page opens «Nuovo blocco»
+  prefilled, `?voce=`, `blockSeedOf`; the words *decided by Claude*).
 
 ## 6. Proposals from history (the «intelligente» part)
 - **PL-50** The proposal engine (MOD-34, MOD-51) proposes a blocco when the same object (or
@@ -119,34 +132,41 @@ proposal after a month of the simple Piano in use (PRD §4).
   §5.6, MOD-52] — Today: not built. *Threshold decided by the agent* (the dossier's example).
 
 ## 7. Numbers the Piano shows (it judges, it sets nothing)
-- **PL-60** A food blocco shows its real kcal and protein and the share of the day it makes;
-  the share is derived from the day's targets (Obiettivi) and only judges and advises (pranzo
-  45 % delle kcal; post-workout protein vs 0.25–0.4 g/kg, FD). [c04, MOD-35, PLAN-34, plan.md
-  §5.4] — Today: partial (shares are still stored on blocks and used as slot targets,
-  `models.ts historyShares`, E5 `slotTargets`: to remove in phase 4).
-- **PL-61** The day's targets come from Obiettivi only (MOD-42): a planned session does not
-  raise them; the Piano shows the day's planned gap to them. «Rec»'s deficit 200 kcal, protein
-  2.2 g/kg, fat 0.8 g/kg are copied unchanged into Obiettivi, then «Rec» is archived. [PROD-45,
-  plan.md §9.5/9.6, BODY-02] — Today: not built (targets live on the «Rec» model).
+- **PL-60** A food blocco shows its real kcal and protein and the share of the day it makes; the
+  share is derived from the day's targets (Obiettivi) and only judges and advises (pranzo 45 %
+  delle kcal; post-workout protein vs 0.25–0.4 g/kg, FD). [c04, MOD-35, PLAN-34, plan.md §5.4] —
+  Today: partial (shares are no longer stored or read, `features/day/slots.ts` gone; the food
+  Composer's `slots` prop is unfed until a food blocco's real kcal judges its share).
+- **PL-61** The day's targets come from Obiettivi only (MOD-42): a planned session does not raise
+  them; the Piano shows the day's planned gap to them. «Rec»'s deficit 200 kcal, protein 2.2 g/kg,
+  fat 0.8 g/kg are copied unchanged into Obiettivi, then «Rec» is archived. [PROD-45, plan.md
+  §9.5/9.6, BODY-02] — Today: built (three goals, `metric.source` foodDeficit · proteinPerKg ·
+  fatPerKg, `core/goals/food.ts`, `core/day/targets.ts` `dynamicTargets`; «Rec»'s values copied by
+  `drizzle/0008` from its first day, PL-41; the day models archived; one goal per number *decided
+  by Claude*).
 - **PL-62** Aggregation: per day, planned / fatto / saltato per area; per week, adherence per
   area, the ciclo's progress, kcal planned vs target; filtering Oggi · Piano by area changes the
   counts (only that area's blocchi). [plan.md §5.6, §8.6, PLAN-33] — Today: not built.
 
 ## 8. Objects, words, migration
 - **PL-70** Blocchi and cicli are catalog objects with the common life (MOD-20): listed in the
-  area's Piano and Elenco, «Parti da», Archivia (out of the Piano from today, past voci keep
-  their link), Elimina only when no voce links to it (an empty, unused «Nuovo ciclo» can be
-  deleted; «Push» used in N sessions offers Archivia). No «Duplica». [PLAN-33, PLAN-14, plan.md
-  §8.7] — Today: partial (models and cycles archive; none deletes; «Duplica» still in
-  `ModelEditor.tsx`).
+  area's Piano and Elenco, «Parti da», Archivia (out of the Piano from today, past voci keep their
+  link), Elimina only when no voce links to it (an empty, unused «Nuovo ciclo» can be deleted;
+  «Push» used in N sessions offers Archivia). No «Duplica». [PLAN-33, PLAN-14, plan.md §8.7] —
+  Today: built (blocchi and cicli are catalog objects, `block` and `cycle` in the registry: page,
+  verbs, Elenco, archive are the generic ones).
 - **PL-71** Words in the UI: blocco, ciclo, scheda, abitudine, Piano. «Modello», «giornata
   tipo», «settimana tipo», «routine», «regola» never appear (the glossary test). [CONTRA-04,
   product §3, plan.md §8.8] — Today: not built («routine» ~149 code occurrences).
 - **PL-72** Phase 4 data change: week layouts and day models → their blocchi (with the weekdays
   they had) or nothing; «Rec» targets → Obiettivi (PL-61); PLPRR and the schede kept; the empty
   «Nuovo ciclo» and the inactive v1 programs archived; `extends`, shares and `plan_rules` not
-  carried; one idempotent repair run by his job (DT-33). [model.md §4 «Today», plan.md §4,
-  §9.6, day-templates §9.2] — Today: not built.
+  carried; one idempotent repair run by his job (DT-33). [model.md §4 «Today», plan.md §4, §9.6,
+  day-templates §9.2] — Today: built (`drizzle/0006`…`0010`, run by his «migrate v2» and checked
+  on his data: cicli kept with their ids, habits → blocchi, «Rec» → Obiettivi, day models
+  archived, step schede → blocchi «nel ciclo»). The old tables (`templates`, `template_blocks`,
+  `week_layouts`, `cycles_state`) are read only by the export, old files' loading and merge;
+  dropping them is asked (Q-23).
 
 ## Acceptance (his data; the IDs a test must cite)
 1. PL-01/40: «AVENA, Marmellata · ogni giorno 07:30» is previsto every day with its real kcal and
