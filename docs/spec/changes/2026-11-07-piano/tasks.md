@@ -14,8 +14,8 @@
        (`withCycleItems`, also used by the v1 conversion). Habits / day models / week layouts →
        blocchi: none on his data (6 Nov: no habit, «Rec» holds no block, «Come martedì 3»
        paused and in no week), so the repair **stops** on a live habit or a planned block
-       instead of dropping it (*decided by the agent*, PL-72 «or nothing»). Step items stay
-       the schede until slice 4 reads a step's blocchi (*decided by the agent*: no screen
+       instead of dropping it (*decided by Claude*, PL-72 «or nothing»). Step items stay
+       the schede until slice 4 reads a step's blocchi (*decided by Claude*: no screen
        breaks before then). Tested on PGlite (`data-repair.test.ts`) and on his export of
        6 Nov loaded with main's code, then 0006 + 0007 applied (7 cicli, PPLCR live with its
        5 steps, the same steps due 10–16 Nov before and after). **He runs «migrate v2»**,
@@ -35,7 +35,7 @@
        Togli saved, a new ciclo with Push + Riposo. **The blocco page**
        `/oggi/blocco/<id>` (generic + `block-extra`: how often under its title, «Che cosa» or
        «A turno», each row to its page), «Nuovo blocco» (generated, «Rispetto a» his other
-       blocchi: a `ref` field is a choice of his objects — *decided by the agent*), its
+       blocchi: a `ref` field is a choice of his objects — *decided by Claude*), its
        Composer (`BlockComposer`, `setBlockWhat`: pasti, schede, tragitti with servings, or one
        type alone as a fixed line — kit `ComposerLine.fixed`); «Blocchi» and «Cicli» in Oggi ·
        Elenco. Checked in the browser: a rotation of two pasti saved, «Acqua» replacing it.

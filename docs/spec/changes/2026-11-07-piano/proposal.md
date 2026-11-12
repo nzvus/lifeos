@@ -19,7 +19,7 @@ report that named the Piano as the next change).
 4. **Engine**: the Piano of a day from blocchi (PL-40…43) on the existing engines
    (`engines/planning`, recurrence, cycle advance with v1's 14 parity cases).
 
-**Questions for him (the agent stops here: a new data model and a migration, rule 1).**
+**Questions for him (Claude stops here: a new data model and a migration, rule 1).**
 - **Q-14** How a blocco is stored.
   - (a) **A catalog object** (`catalog_items` «block», its when/how-often/area as
     `catalog_values`, its object or rotation as `catalog_parts`) — PL-70 «blocchi and cicli are
@@ -37,13 +37,13 @@ report that named the Piano as the next change).
   - Agent's pick: **(a)** — it is what PRD-03 and PL-70 ask («a new kind of thing is a
     registry entry»), and every horizontal piece already works on it.
 
-**Answered.** Q-14, his words 7 Nov: «decidi tu» → the agent's pick (a), recorded as ADR-0062
+**Answered.** Q-14, his words 7 Nov: «decidi tu» → Claude's pick (a), recorded as ADR-0062
 (blocchi and cicli are catalog objects).
 
 His words, 7 Nov, after slice 1: «senti decidi tu, vai avanti senza di me» (PROD-39: go on
 inside the approved spec; anything new is written as a question, asked at the end).
 
-**Questions for him before slice 3 (new patterns: the agent does not pick them alone, PROD-39).**
+**Questions for him before slice 3 (new patterns: Claude does not pick them alone, PROD-39).**
 Slice 2 (the migration, #341) needed neither.
 - **Q-15** How «ogni quanto» is entered on a blocco's form (PL-20). PAT-61 has no field for it;
   today only the habit editor has one, bespoke (`HabitForm`: a choice + weekday chips).
@@ -64,7 +64,7 @@ Slice 2 (the migration, #341) needed neither.
   - Agent's pick: **(a)** — one way to edit ordered lines, already built for the scheda.
 
 **Answered.** Q-15 and Q-16, his words 10 Nov (after running «migrate v2» for #341): «per il
-resto segui i tuoi consigli e continua» → the agent's picks: Q-15 (a) a kit field «Ogni
+resto segui i tuoi consigli e continua» → Claude's picks: Q-15 (a) a kit field «Ogni
 quanto», Q-16 (a) the Composer with ordered lines and «+ Riposo».
 
 **Asked (10 Nov, slice 4).**

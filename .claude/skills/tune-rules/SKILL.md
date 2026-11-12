@@ -1,14 +1,12 @@
 ---
 name: tune-rules
-description: Turn recurring entries of docs/rules-log.md (and rules the developer keeps repeating) into evidence-based changes to CLAUDE.md, .claude/rules, a skill or a guard; apply only after he agrees. Use when he says "tune the rules", when /retro finds two or more alike entries, or when he repeats a standing rule.
-disable-model-invocation: true
-effort: high
+description: Turn recurring entries of RULES_LOG.md (and rules the user keeps repeating) into evidence-based changes to CLAUDE.md, .claude/rules, a skill or a guard; apply only after he agrees. Use when he says "tune the rules", when /retro finds two or more alike entries, or when he repeats a standing rule.
 ---
 
 # Tune the rules
 
 Open entries:
-!`sed -n '/^## Open/,/^## Applied/p' docs/rules-log.md`
+!`sed -n '/^## Open/,/^## Applied/p' RULES_LOG.md`
 
 ## Principles
 - Change rules only from evidence: an entry above, his words (inbox, a change's proposal.md), a review finding, a guard or check failure. A taste or a guess is not evidence.

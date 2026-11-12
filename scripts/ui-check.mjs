@@ -230,7 +230,7 @@ for (const entry of pages) {
       }
     }
     // A box's child past its right edge: a button, link, number, pill or line that sticks
-    // out (the water row's «+500», 30 Oct, never seen until the developer said it).
+    // out (the water row's «+500», 30 Oct, never seen until the user said it).
     let overflow = 0;
     for (const box of document.querySelectorAll(".k-box")) {
       const bb = box.getBoundingClientRect();

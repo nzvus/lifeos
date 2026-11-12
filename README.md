@@ -26,8 +26,8 @@ skills live on here and in `~/Projects/fleet`).
 |---|---|---|
 | ask for something, give an opinion, choose | the chat; it goes at once, in my words, into `docs/spec/changes/inbox.md` (W-nn) or the open change's `proposal.md` | the SessionStart hook shows open items; `/change` |
 | answer a question only I can settle | under its Q-nn in the inbox | the next session |
-| let the agent go on alone | «procedi senza di me» or `ap` | it decides inside the approved spec, writes «decided by the agent», parks the rest as Q-nn |
-| fix a rule I keep repeating | nothing: the agent logs it in `docs/rules-log.md` | `/retro` → `/tune-rules` |
+| let Claude go on alone | `ap` (or «procedi senza di me») | it decides inside the approved spec, writes «decided by Claude», parks the rest as Q-nn |
+| fix a rule I keep repeating | nothing: Claude logs it in `RULES_LOG.md` | `/retro` → `/tune-rules` |
 
 Claude keeps this table current in the same run whenever a file, rule or skill here changes.
 

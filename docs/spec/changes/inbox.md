@@ -1,12 +1,12 @@
 # Inbox — his words and open questions not yet in a change (PRD-43)
 
-Every request, opinion or choice of the developer goes here at once, in his words, with date and
+Every request, opinion or choice of the user goes here at once, in his words, with date and
 source, unless a change is open (then into its `proposal.md`). Items: **W-nn** = his words to
 turn into a change; **Q-nn** = a question only he can settle (never pick silently). When an item
 moves into a change or is answered, delete it here (git keeps the history). The SessionStart
 hook prints the open items.
-A request the agent would do another way stays here with **«proposed differently: …»** and the
-reason, never silently changed. Every «decided by the agent» note says how to undo it.
+A request Claude would do another way stays here with **«proposed differently: …»** and the
+reason, never silently changed. Every «decided by Claude» note says how to undo it.
 
 ## Open
 Source of Q-19…Q-23: the outside review of 11 Nov, `docs/archive/review-fable-2026-11.md`
@@ -30,6 +30,10 @@ Source of Q-19…Q-23: the outside review of 11 Nov, `docs/archive/review-fable-
   `cycles_state`) still hold rows and are still read. (a) retire reads, then drop them after
   Q-18 and a verified export — recommended; (b) retire the reads, keep the tables as history;
   (c) leave both until money/pantry.
+- **W-01** One name per idea in every repo (12 Nov, his words: «I do not like that the same thing is
+  called differently elsewhere»; the list is `~/Projects/fleet/GLOSSARY.md`). Done outside the spec on
+  branch fleet/2026-11-12; left for the next change, since one is open (PRD-41): «decided by the agent» →
+  «decided by Claude» in `domains/plan.md` (3 places) and «the agent» → «Claude» in `patterns.md` (PAT-91 text).
 
 ## Notes folded (his raw notes outside the repo; `check.py` warns when one changes)
 - considerations.txt 80c476d19294 — folded 30 Oct (file of 15 Oct)
