@@ -13,6 +13,12 @@ reason, never silently changed. Every «decided by Claude» note says how to und
 ROADMAP «Now», Q-21 → CLAUDE.md «Working agreements», Q-22 → CLAUDE.md rules 1 and 3 and done, Q-23/Q-24 →
 `changes/2026-11-07-piano/proposal.md`.)
 
+- **Q-25** Drop the old Piano tables (`templates`, `template_blocks`, `week_layouts`,
+  `cycles_state`; Q-23 (a)'s second half). Since 12 Nov nothing in the app reads them; only the
+  export, loading old files and merge still touch them, to keep their rows. Migration 0010 ran
+  and the backup restores (drill of 12 Nov). (a) a migration that drops them after your next
+  export, the export and loading code losing those tables too — recommended (it is a delete:
+  outside «yc», so your answer); (b) keep them as history; (c) decide after the week of use.
 - **W-01** One name per idea in every repo (12 Nov, his words: «I do not like that the same thing is
   called differently elsewhere»; the list is `~/Projects/fleet/GLOSSARY.md`). Done outside the spec on
   branch fleet/2026-11-12. Left for the next change, since one is open (PRD-41): «decided by Claude»

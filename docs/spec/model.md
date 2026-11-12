@@ -82,15 +82,26 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   (Corpo · Cibo · Mente · Soldi) and together in Oggi. No day types, week types, extends,
   merges or cross-layer rules now. [x04, plan.md §9.1, PLAN-35 deferred]
 - **MOD-33** Applying the Piano writes previsto voci linked to their blocco; moving a blocco
-  moves the voci relative to it (the pre-workout meal follows the session). [concepts §5]
+  moves the voci relative to it (the pre-workout meal follows the session). [concepts §5] — Today:
+  the link is `entries.block_id` (FK, restrict: PL-70's «Elimina only when no voce links to it»),
+  one voce per blocco per day; `entry_links.from_block` is not used (Q-17 (a)).
 - **MOD-34** «Intelligente» = the proposal engine (§6) proposes blocchi from his history and
   checks them against his goal and his presets; he accepts with one tap. [n09, PLAN-36]
 - **MOD-35** Blocks hold real objects; kcal and protein shares are derived from the goal and
   only judge and advise. [c04, PLAN-34]
-- Today: `templates`, `template_blocks`, `cycle_steps`, `week_layouts`, `cycles_state`;
-  `plan_rules` parked on `archive/s247-v2-plan` (not carried, PL-72). Storage of the new shape:
-  blocchi and cicli are catalog objects (ADR-0062, his «decidi tu» on Q-14, 7 Nov); the mapping
-  is change 2026-11-07-piano.
+- **MOD-36** Storage (ADR-0062): a blocco is a catalog «block» — its object (or a rotation's
+  objects, in order, each with its quantity) as `catalog_parts`, or a type (`kind`: a voce kind
+  or his tracker, with `defaults` as JSON — an abitudine, a walk of 30 min, PL-01, PL-03), its
+  when (`when` ∈ time · after · before · wake · bed, `atMin`, `anchor` a blocco, `offsetMin`),
+  how often (`recurrence`, the engine's `Recurrence` as JSON, «nel ciclo» included), `area` and
+  `durationMin` as `catalog_values`; a ciclo is a catalog «cycle» (`advance` ∈ occurrence ·
+  date, `onSkip` ∈ shift · lose, `start` an ISO day) whose steps stay in `cycle_steps` /
+  `cycle_step_items` (a step's items are blocchi «nel ciclo»). WHEN the Piano of a day is read
+  THEN `core/plans` turns these rows into the engine's input; no screen reads them directly.
+  [his «decidi tu» on Q-14, 7 Nov; change 2026-11-07-piano] — Today: built (`core/plans/
+  blocks.ts`, `cycles-repo.ts`, `drizzle/0006`…`0010`). The old `templates`, `template_blocks`,
+  `week_layouts`, `cycles_state` are read only by the export, old files' loading and merge;
+  dropping them is asked (Q-23). `plan_rules` parked on `archive/s247-v2-plan` (not carried).
 
 ## 5. Numbers: metric, fascia, goal, voto, decision
 - **MOD-40** **Metrica**: declared once (source, filter, aggregate, window, transform, unit,
@@ -101,9 +112,10 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   judgement is «non so». [n11, PLAN-26, PRD-23]
 - **MOD-42** **Obiettivo** (goal): metric + window + at least | at most | range | reach-by-date,
   dated history; progress, pace, ETA derived. The day's food targets are goals (dynamic from
-  weight, deficit, protein g/kg, fat g/kg). [concepts §7, PLAN-31] — Today: goals are weight
-  only; the day targets live in the «Rec» model → moved into Obiettivi, values unchanged, «Rec»
-  archived (PROD-45, phase 4).
+  weight, deficit, protein g/kg, fat g/kg). [concepts §7, PLAN-31] — Today: the day's food
+  targets read three goals (`metric.source` foodDeficit · proteinPerKg · fatPerKg,
+  `core/goals/food.ts`), «Rec»'s values copied by `drizzle/0008` from its first day; «Rec»
+  archived; Obiettivi shows them as goal rows «entra negli obiettivi di ogni giorno».
 - **MOD-43** **Voto**: declared parts, each a metric against its fascia, with weight and source;
   versioned; a part without coverage is left out and said. One scale: ≥ 70 · ≥ 40 · < 40.
   [PROD-13, content §3] — Today: one engine (`core/engines/judgements`), parts per domain.

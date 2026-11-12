@@ -102,12 +102,13 @@ E8, E9; `v2/schema.md`; `v2/migration.md`; `v2/dossiers/data-repair.md`; ADR-000
   (`drizzle/0002…0005`).
 - **DT-34** Backup: a daily `pg_dump` outside Neon (GitHub Actions, encrypted, several
   generations), a dead-man's switch on the backup and on `/api/health`, the restore drilled and
-  written down; a second copy of the backup key in the restore runbook. Neon's transfer budget
+  written down; a second copy of the backup key off this machine (the user's password manager). Neon's transfer budget
   (5 GB/month): narrow columns, measured locally with a counting proxy, never against Neon. The
   Neon project is never deleted. [ADR-0003, ADR-0004, DATA-12, DATA-17, PLAT-02] — Today:
   built (`backup.yml` dumps branch `v2` daily since 6 Nov, #329 — before that only v1 was
-  dumped; `/api/health`; `scripts/restore-drill.sh`); second key copy not built; no restore
-  drill of a v2 dump yet.
+  dumped; `/api/health`; `scripts/restore-drill.sh`); the first v2 drill passed 12 Nov
+  (Q-19 (a); counts equal to his 10 Nov export, `docs/runbooks/restore-drill.md`); the second
+  key copy made 12 Nov.
 
 ## 5. Export and import
 - **DT-40** One file, `lifeos-export` version 100 (the v2 line): every owned table, flat, in

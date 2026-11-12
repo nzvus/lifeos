@@ -55,9 +55,10 @@ phases 1, 2, 3; v1 retired at the start of phase 4.
    the abitudine moves with the Piano); food and meal done 7 Nov (change
    `archive/2026-11-07-food-meal`, #335–#337: cibo and pasto on the generic page, the composer
    and ⊕ on the kit); exercise and scheda done 7 Nov (change `archive/2026-11-07-exercise-scheda`,
-   #338: esercizio and scheda on the generic page, the scheda composed, the kit Timer). Next: Piano (`plan_rules` returns here), then **a week of use only** (Q-20 (a), «ap yc» 12 Nov: 1
+   #338: esercizio and scheda on the generic page, the scheda composed, the kit Timer). Piano done 12 Nov (change `archive/2026-11-07-piano`, #339–#349: blocchi and cicli as catalog objects, «Ogni quanto», previsti with their blocco, «Rec» into Obiettivi, steps as blocchi «nel ciclo»; `plan_rules` not carried). Next: **a week of use only** (Q-20 (a), «ap yc» 12 Nov: 1
    previsto and 0 blocchi in his data, 2 money movements ever): the next change comes from what
-   slowed his daily log that week; money/pantry wait for it; each PR counts pages,
+   slowed his daily log that week; money/pantry wait for it. Left from the Piano change (archived 12 Nov): a food blocco's
+   real kcal judging its share of the day (PL-60, the food Composer's unfed `slots`); each PR counts pages,
    implementations and lines removed; v1 retired first (verified export, Neon untouched).
 
 ## Before: lifeos v2 build (ADR-0053, 2026-10-15 → 11-03) — paused 2026-11-06
