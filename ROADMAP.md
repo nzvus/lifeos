@@ -8,7 +8,7 @@
 > 2026-10-09…11 were folded in and deleted; their sources are in
 > `docs/archive/spec-v1/sources.md`.
 
-## Now: cleanup and one model (decided 2026-11-06) — features frozen until phase 3 closes
+## Now: cleanup and one model (decided 2026-11-06) — phases 0–3 closed 6 Nov; phase 4 (types one at a time) under way
 The developer, 6 Nov: «la specifica è un casino, così come il codice e le versioni e i dati… le
 pagine sono eccessive e ridondanti… l'astrazione delle feature non è attuata… come ci assicuriamo
 che ricostruendo non abbiamo di nuovo lo stesso problema? Così è successo con v2» (ledger PROD-35…39).
