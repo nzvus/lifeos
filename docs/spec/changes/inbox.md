@@ -13,6 +13,19 @@ reason, never silently changed. Every «decided by Claude» note says how to und
 ROADMAP «Now», Q-21 → CLAUDE.md «Working agreements», Q-22 → CLAUDE.md rules 1 and 3 and done, Q-23/Q-24 →
 `changes/2026-11-07-piano/proposal.md`.)
 
+- **W-04** The user, 13 Nov, 19 comments on the three target-design pages (verbatim in
+  `LIFEOS/review/2026-11-13/comments-2026-11-13.md`; feature map of 543 rows beside it). The line that
+  sets the task: «tu adesso hai tutto il contesto necessario per provare a ricostruire tutto, sempre
+  partendo da questa base, ma essendo che molte funzionalità sono implementate male a livello ui e non
+  solo, devi capire come farle». Re-ordering is not enough: he wants each screen rethought. His points:
+  gym «rethink all this page completely» (timer always in view; warm-up proposed «in a conscious way»,
+  not on every exercise; «sides» instead of «per manubrio»; a done set re-stacks the order; progress,
+  rest, other days and energy feed the advice) · composer (ingredient card «badly done and excessive»;
+  «Pasto» automatic unless he picks; a planned meal has a time and a flag «overwrite or not» when done;
+  how to choose a meal's variants) · Oggi (more levels, «all informations … and even more»; many goals,
+  not one; the four tabs on every area are «ridondanti … molto confusionario»; the dock customisable;
+  the header interactive with the weather; a future day must plan that day, also intakes; scores
+  missing on some meals; skylines not drawn on the phone). Becomes the proposal of the refactor change.
 - **W-03** The user, 12 Nov: «you did not follow what was my original purposes, also, it is still
   redundunt and confusing, and messy, and slow». He wants a full, deep review (design, code, UI,
   process) and a refactor by Fable. The prompt is
