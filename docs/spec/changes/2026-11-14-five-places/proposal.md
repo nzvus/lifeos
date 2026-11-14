@@ -169,6 +169,17 @@
     - Not changed, found while looking: a voce inside a group cuts its title («Spuntir 1.145»),
       on main too. A dense row's head, its own slice.
 
+15. **Step (3), same branch and PR #353:** «Il giorno» on the same levels. Closed: head with the
+    voto and the kcal eaten, the energy strip (76 px; it remembers the level, closed at first,
+    VIS-70). Open: the costliest part, the dispendio line, kcal and the four macros with their
+    zone rulers, «Ricalcola la settimana». Doors: «Voto», «Limiti e micro» (the three limits,
+    vitamins and minerals), «Energia e obiettivo ≈ kcal» (the goal line, the energy split,
+    «La settimana in Andamento ›», the day's cost, creatine). Nothing under «Il giorno» stays
+    loose. Photos `levels-box/sheet-giorno-*.png`, script `giorno.mjs`. Decided by Claude:
+    closed at first (the 13 Nov drawing; was level 1, «Tutti i nutrienti»), undo: fallback in
+    `OpenBox.tsx`; cost and creatine behind the energy door, not chips of their own (six chips
+    would not fit one row at 320), undo: their lines back under the section in `day-page.tsx`.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

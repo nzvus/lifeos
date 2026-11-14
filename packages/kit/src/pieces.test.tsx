@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Banner } from "./Banner";
 import { Box } from "./Box";
+import { Nutrients } from "./Nutrients";
 import { Composer } from "./Composer";
 import { NavBar } from "./NavBar";
 import { Timer } from "./Timer";
@@ -651,5 +652,24 @@ describe("Box with levels (VIS-40, «Oggi a livelli»)", () => {
     expect(h).toContain("densità");
     expect(h).not.toContain("tutti i nutrienti");
     expect(draw(true, "nutrients")).toContain("tutti i nutrienti");
+  });
+});
+
+describe("Nutrients in two halves, for a day's doors (VIS-40, VIS-50)", () => {
+  const day = {
+    kcal: { v: 1800, t: 2100 },
+    macros: [{ key: "protein" as const, v: 120, t: 168 }],
+    limits: [{ key: "salt" as const, v: 4, t: 5 }],
+    micros: { summary: "6 su 11 coperti", groups: [] },
+  };
+  it("«main»: kcal and macros, no limits or vitamins; «rest» the other way round", () => {
+    const main = renderToStaticMarkup(<Nutrients data={day} part="main" />);
+    const rest = renderToStaticMarkup(<Nutrients data={day} part="rest" />);
+    expect(main).toContain("Proteine");
+    expect(main).not.toContain("Vitamine e minerali");
+    expect(main).not.toContain("k-nlims");
+    expect(rest).toContain("Vitamine e minerali");
+    expect(rest).toContain("k-nlims");
+    expect(rest).not.toContain("Proteine");
   });
 });

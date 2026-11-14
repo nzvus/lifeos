@@ -18,8 +18,8 @@ import {
   DateNav,
   F,
   Glyph,
+  energyStrip,
   Nutrients,
-  NutrientsL0,
   weekOf,
   AreaFilter,
   type Area,
@@ -27,6 +27,7 @@ import {
 } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
+import { common } from "@/i18n/common";
 import { getDb } from "@/app/_server/runtime";
 import {
   dayMinute,
@@ -599,12 +600,93 @@ export async function DayPage({
       )}
       {food && whole && (
         <section className="k-block g3" aria-label="Il giorno">
+          {/* Levels (VIS-40, «Oggi a livelli» step 3): closed = the verdict and where the energy
+              comes from; open = kcal and the four macros; the limits and vitamins, then the
+              energy, the goal, the cost and creatine, each behind a door. */}
           <OpenBox
-            entry={{ ...whole.entry, ...withScore(score) }}
-            levelKey="oggi.giorno"
-            compact={<NutrientsL0 data={whole.nutrients} />}
+            entry={{
+              ...whole.entry,
+              ...withScore(score),
+              // Closed, the head says the kcal eaten, as a meal's does.
+              ...(whole.nutrients.kcal ? { value: F.n(whole.nutrients.kcal.v, 0) } : {}),
+              strip: energyStrip(whole.nutrients),
+            }}
+            levelKey="oggi.giorno.livelli"
+            doors={[
+              {
+                key: "rest",
+                label: common.doors.limits,
+                panel: <Nutrients data={whole.nutrients} part="rest" />,
+              },
+              ...(priced ||
+              line ||
+              eatenCost ||
+              plannedCost ||
+              (creatine && !tookCreatine)
+                ? [
+                    {
+                      key: "energy",
+                      label: common.doors.energy,
+                      ...(priced
+                        ? { value: dayTotalText(priced, tune).replace(/\s*±.*/, "") }
+                        : {}),
+                      panel: (
+                        <div className="k-stack g3">
+                          {line && (
+                            <a
+                              className="k-line k-plain"
+                              href="/oggi/andamento/obiettivi"
+                            >
+                              <Glyph of={{ fam: "goal" }} size="m" />
+                              <span className="k-body">{line}</span>
+                            </a>
+                          )}
+                          {priced && (
+                            <div className="k-stack g2" aria-label="Energia del giorno">
+                              <p className="k-body">
+                                {dayBurnLine(
+                                  priced,
+                                  nowMinute === null ? null : nowMinute / 1440,
+                                  plannedBurn,
+                                  tune,
+                                )}
+                              </p>
+                              {dayPieces(priced, tune).map((e) => (
+                                <Box key={e.title} density="row" rail={false} entry={e} />
+                              ))}
+                              <a className="k-btn link" href="/oggi/andamento">
+                                La settimana in Andamento ›
+                              </a>
+                            </div>
+                          )}
+                          {(eatenCost || plannedCost) && (
+                            <p className="k-line g1 k-meta" aria-label="Costo del giorno">
+                              <Glyph of={{ fam: "money" }} size="s" />
+                              <span>
+                                {[
+                                  "Costo " + (eatenCost ?? "—"),
+                                  plannedCost ? "ancora da mangiare " + plannedCost : "",
+                                  wholeCost ? "a fine giornata " + wholeCost : "",
+                                ]
+                                  .filter(Boolean)
+                                  .join(" · ")}
+                              </span>
+                            </p>
+                          )}
+                          {creatine && !tookCreatine && (
+                            <p className="k-line g1 k-meta" aria-label="Creatina">
+                              <Glyph of={{ fam: "drink", kind: "supplement" }} size="s" />
+                              <span>Creatina · {creatineWords(creatine)}</span>
+                            </p>
+                          )}
+                        </div>
+                      ),
+                    },
+                  ]
+                : []),
+            ]}
           >
-            <Nutrients data={whole.nutrients} />
+            <Nutrients data={whole.nutrients} part="main" />
             {thisWeek && targets?.basis?.expenditureKcal !== undefined && (
               <form action={recomputeTargets} className="k-line end">
                 <button type="submit" className="k-btn link">
@@ -613,56 +695,6 @@ export async function DayPage({
               </form>
             )}
           </OpenBox>
-          {creatine && !tookCreatine && (
-            <p className="k-line g1 k-meta" aria-label="Creatina">
-              <Glyph of={{ fam: "drink", kind: "supplement" }} size="s" />
-              <span>Creatina · {creatineWords(creatine)}</span>
-            </p>
-          )}
-          {(eatenCost || plannedCost) && (
-            <p className="k-line g1 k-meta" aria-label="Costo del giorno">
-              <Glyph of={{ fam: "money" }} size="s" />
-              <span>
-                {[
-                  "Costo " + (eatenCost ?? "—"),
-                  plannedCost ? "ancora da mangiare " + plannedCost : "",
-                  wholeCost ? "a fine giornata " + wholeCost : "",
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </span>
-            </p>
-          )}
-          {priced && (
-            <details className="k-fold">
-              <summary>
-                Energia del giorno{" "}
-                <span className="k-meta">{dayTotalText(priced, tune)}</span>
-              </summary>
-              <div className="k-foldbody">
-                <p className="k-body">
-                  {dayBurnLine(
-                    priced,
-                    nowMinute === null ? null : nowMinute / 1440,
-                    plannedBurn,
-                    tune,
-                  )}
-                </p>
-                {dayPieces(priced, tune).map((e) => (
-                  <Box key={e.title} density="row" rail={false} entry={e} />
-                ))}
-                <a className="k-btn link" href="/oggi/andamento">
-                  La settimana in Andamento ›
-                </a>
-              </div>
-            </details>
-          )}
-          {line && (
-            <a className="k-line k-plain" href="/oggi/andamento/obiettivi">
-              <Glyph of={{ fam: "goal" }} size="m" />
-              <span className="k-body">{line}</span>
-            </a>
-          )}
         </section>
       )}
       <section className="k-section g3" aria-label="La giornata">
