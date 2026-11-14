@@ -107,9 +107,9 @@
       «Modifica» opens a sheet to pin, unpin and order. First step: the «assunzioni» (what «Al
       volo» holds today); water steps, a tracker or a saved meal as pins come after his word.
       Undo: drop the `dock` key; «Al volo» is the guesses again.
-    - Claude's reading, his to correct: «ap yc» answers the questions and says go on; it is not
-      taken as his OK on the look of the Oggi screen (design is never under «yc»), so the branch
-      still has no PR.
+    - Claude read «ap yc» as not covering the look of the Oggi screen. **He corrected it, 14 Nov:
+      «ap yc significa che approvo tutto quello che mi hai detto e cosnigliato».** The Oggi screen
+      and the dock are approved as shown; `.claude/rules/design.md` rule 3 says so now.
 11. **Built under «ap yc», 14 Nov** (branch `five-places-oggi`, commit 1cd7482; photos
     `oggi-proposal/sheet-dock.png`):
     - The dock (PAT-99): `core/account/dock.ts` keeps the pins in `settings.prefs.dock`; «Al volo»
