@@ -43,6 +43,9 @@
 - **14 Nov, on the first draft of `.claude/rules/design.md`:** «hm, not enough, you can infer from the
   screenshots». → the page now lists what each real screen holds, from the photos of the running
   app (12 Nov, `LIFEOS/review/2026-11-12/shots/`); 19 screens opened, the rest named as not opened.
+- **14 Nov, on the second draft:** «le animazioni, la visualizzazione dei range ottimali, la linea
+  temporale verticale, espandibile, limiti, micro... eccetera». → a section on what moves, opens and
+  judges, from the kit's stylesheet and the food rules (FD-30…41), since stills do not show it.
 
 ## Decided by Claude («yc», 13 Nov) — each with its undo
 1. The five places and names: Elenco · Piano · Oggi · Andamento · Obiettivi. Reason: each answers

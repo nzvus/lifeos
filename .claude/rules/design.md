@@ -133,6 +133,46 @@ photo: everything on it stays unless he says it goes.** Seen by Claude on 14 Nov
 - Not opened yet by Claude: the running gym session, a voce sheet, an object page, Cibo and Mente
   diaries, Sonno, Passi, Legami, Soldi, Profilo. Open the photo before touching any of them.
 
+## What moves, opens and judges — stills do not show it (his list, 14 Nov: «le animazioni, la
+visualizzazione dei range ottimali, la linea temporale verticale, espandibile, limiti, micro»)
+- **Animations** (all in `packages/kit/styles/kit.css`, all off under reduced motion; VIS-90):
+  - the **box drawing** in a Box's corner turns in once on load (from −50° and 0.6×), rests tilted,
+    and on open grows to 1.9× and turns into its richer cousin; each type has its own rest, «times»
+    and «big» pose (VIS-42). The page **backdrop** glyph enters the same way (VIS-80).
+  - the **sun and the moon** of each sky band rise once on load to their place on the day's arc
+    (`k-rise`, VIS-61).
+  - the **weather drawing** lives: clouds drift, the sun glows, the bolt flashes (VIS-75).
+  - a **level's new content** slides in when a piece goes to its next level: the weather line,
+    the week's 24-hour columns and their «now» mark (`k-lv-in`, VIS-70).
+  - everything that opens or closes uses the one timing `--t-box` ≈ 0.5 s: bars grow, a macro's
+    accordion opens, the rail widens, icons in the nutrient rows grow and tilt (VIS-50, VIS-90).
+  - loading is a shimmer skeleton of the level that comes; a waiting button spins (PAT-71).
+- **Optimal ranges (fasce)**: four levels, da evitare · pessimo · ok · **ottimo** (FD-30), each
+  number with its own edges and source (FD-31: protein 1.6–2.2 g/kg ottimo, fat 20–35 % E, carbs,
+  fibre ≥ 14 g/1 000 kcal and ≥ 25, …). Drawn as the zones ruler under the bar: every zone a
+  stretch, the grams written where a zone changes, the bar's tip in its zone's colour, the word
+  beside the number; «da evitare» hatched (VIS-52). A day still going is judged on eaten + planned
+  («→»), and an «at least» number is not called short before the day ends (FD-34). A meal gets a
+  fascia only for protein (FD-35). The source of each edge is in its «Perché?» (PAT-51).
+- **Limits**: zuccheri liberi, grassi saturi, sale (also trans, caffeine ≤ 400 mg, inulin) are
+  «less is better»: judged on the day and on the 7-day mean, the voto uses the mean, the bar
+  shows the week's mean as a tick («media della settimana») (FD-33, FD-36). They sit as three
+  small judged bars under the macros, named by their icon.
+- **Micros**: «Il giorno» level 1 opens every nutrient; a macro row is an accordion into its
+  kinds, where it came from and its notes; level 2 shows the foods as chips, and a tapped food
+  lights up in every bar (VIS-50). Vitamins and minerals are judged against EFSA's AR · PRI · UL
+  (FD-40); the line «n su m coperti · stime» today, to become «non so» below 80 % coverage
+  (FD-41, not built).
+- **The vertical timeline**: the rail has two modes, compact (20 px, times written vertically)
+  and «Orari» (64 px, horizontal times and icons), switched by the chip or by tapping any rail;
+  it gains space, never takes it (VIS-60). The sky bands cut it; a gap of two hours or more is a
+  dashed bar whose height says how long, with a link that fills it (VIS-61, VIS-62).
+- **Expandable, and remembered**: a tap goes to the next level, after the last back to 0, three
+  dots say where; the level is kept per piece, so the page opens the way he left it (VIS-70):
+  weather 0 · 1 · 2, «Il giorno» 0 · 1, the week 0 · 1 · 2, every Box closed · open.
+- «Eccetera»: this list is his examples, not the whole. Each piece's levels and motion are to be
+  photographed at every level before it is touched (`verify`), and added here when found missing.
+
 ## The model behind every screen (model.md)
 - A registry declares every type once; pages, forms, lists, search, verbs and charts read it; a
   new kind is a registry entry, never a new page (MOD-01, MOD-02, PRD-03).
