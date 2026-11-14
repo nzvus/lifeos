@@ -4563,3 +4563,8 @@ button.k-link {
 .k-block.k-top {
   padding-top: 12px;
 }
+/* a toast shown from inside a section of a page with a backdrop: its section rises over the
+   ones after it, or they cover «Annulla» (found on «Al volo», 14 Nov; PAT-74) */
+.k-page.has-bd > *:has(.k-toastbar) {
+  z-index: 4;
+}

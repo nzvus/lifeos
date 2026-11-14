@@ -39,6 +39,7 @@ import {
 } from "@/core/day";
 import { addDays, instantAt, localParts, logicalDay } from "@/core/engines/time";
 import { readSettings } from "@/core/account/settings";
+import { dockRow, readDock } from "@/core/account/dock";
 import { readPlace } from "@/core/account/place";
 import { weatherChips } from "@/app/_server/weather";
 import { WeatherCard } from "@/features/day/WeatherCard";
@@ -112,6 +113,7 @@ import {
   setServings,
   logIntake,
   removePlanned,
+  saveDockPins,
 } from "./[[...day]]/actions";
 import { DayClose } from "@/features/day/DayClose";
 import { goalLine } from "@/features/day/goal-line";
@@ -469,19 +471,28 @@ export async function DayPage({
   // «Al volo» (FOOD-44): his most used «assunzioni», one tap each, on Oggi and Cibo.
   const taken =
     food && date <= today ? await readIntakeUses(db, owner, addDays(today, -28)) : null;
-  const quick =
-    taken && taken.size > 0
+  // «Al volo» (PAT-99): his pins first, then the «assunzioni» taken most in 28 days. With
+  // neither there is no row (and no «Modifica»): the foods are not read for nothing.
+  const pins = taken ? await readDock(db, owner) : [];
+  const intakes =
+    taken && (taken.size > 0 || pins.length > 0)
       ? (await readFoodChoices(db, owner, today))
-          .filter((c) => c.intake && c.foodId && taken.has(c.foodId))
-          .sort((a, b) => taken.get(b.foodId!)! - taken.get(a.foodId!)!)
-          .slice(0, 4)
+          .filter((c) => c.intake && c.foodId)
           .map((c) => ({
             foodId: c.foodId!,
             name: c.name,
             dose: doseWords(c.intake!.dose, c.unit, c.intake!.doseName),
             ...(c.drawing ? { of: c.drawing } : {}),
           }))
+          .sort((a, b) => a.name.localeCompare(b.name, "it"))
       : [];
+  const guesses = intakes
+    .filter((c) => taken!.has(c.foodId))
+    .sort((a, b) => taken!.get(b.foodId)! - taken!.get(a.foodId)!)
+    .map((c) => c.foodId);
+  const quick = dockRow(pins, guesses, new Set(intakes.map((c) => c.foodId))).map((id) =>
+    intakes.find((c) => c.foodId === id)!,
+  );
   const water =
     date <= today && food
       ? {
@@ -563,8 +574,16 @@ export async function DayPage({
         />
         {/* The water near the top (P4: it was 680 px down), out of the times. */}
         {water && <WaterRow water={water} rail={false} />}
-        {quick.length > 0 && (
-          <QuickIntakes day={date} items={quick} log={logIntake} remove={removeEntry} />
+        {intakes.length > 0 && (
+          <QuickIntakes
+            day={date}
+            items={quick}
+            log={logIntake}
+            remove={removeEntry}
+            all={intakes}
+            pins={pins}
+            savePins={saveDockPins}
+          />
         )}
       </section>
       {routines.length > 0 && (
