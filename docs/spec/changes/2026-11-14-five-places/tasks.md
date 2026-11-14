@@ -10,6 +10,10 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
    - [x] Oggi built on branch `five-places-oggi`, photos in `LIFEOS/review/2026-11-14/oggi-proposal/`
      (14 Nov). Waiting for his word; then the next screen.
    - [x] The dock he edits (PAT-99, O5) on the same branch, tried in the app (14 Nov).
+   - [x] The dock as a strip above the bar; every place under the new bar with the area chips
+     (tasks 6 and 7 without the redirects), 14 Nov.
+   - [ ] From «Oggi a livelli»: closed voce one line + energy strip; detail behind chips; «Il
+     giorno» takes in the lines under it; parts that close (proposal §13).
 3. [ ] The composer on the grid (C1…C7: the amount is the control, «Pasto» automatic, planned time
    and «tieni le 12:30», variants).
 4. [ ] The gym on the grid (G1…G6: timer always in view, order follows what he does, warm-up

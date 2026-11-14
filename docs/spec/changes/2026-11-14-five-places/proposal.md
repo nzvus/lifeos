@@ -124,6 +124,24 @@
       painted under «Il giorno» and could not be tapped. Fixed for every toast in the kit's CSS;
       as its own PR #352 to main, since this branch cannot merge yet. «Al volo» now uses the kit
       `Toast` (lint baseline −2).
+13. **Built after his two lines of 14 Nov** («ap yc… approvo tutto», «il meglio del design attuale e
+    di quello che avevi pensato tu»); photos `oggi-proposal/v2/`:
+    - Every place under the new bar (PAT-03, PAT-95): the title is the place (Elenco, Piano,
+      Andamento), the tabs are gone, one row of area chips «Tutto · Cibo · Corpo · Mente · Soldi»
+      filters it, and the bar keeps the area when he changes place. `AreaTabs` is removed from the
+      kit, `AreaFilter` added.
+    - The dock is a strip stuck above the bar (from «Oggi a livelli», order A): the water drunk,
+      +250, +500, then his pins and the guesses, sideways, «Modifica» last. Tapping the water
+      count shows the water's box, which is back in the day's times with everything it had.
+    - Decided by Claude, each with its undo: «Allenati» (the cycle's next schede) shows on Oggi
+      too, since Corpo's diary is no longer on the bar (undo: one condition in `day-page.tsx`);
+      an area's diary (`/cibo`…) keeps working by address, with the area chips in place of the
+      weather (undo: redirect it to `/oggi`); the dock lifts ⊕ and the toast by 53 px.
+    - Still to build from «Oggi a livelli», in this order, each shown as photos: (1) a closed
+      voce as one line with the thin energy strip, today's closed box as its second level;
+      (2) detail behind chips, one open at a time («Voto», «Nutrienti», «Cibi», «Costo»);
+      (3) «Il giorno» taking in the loose lines under it (energia, obiettivo, costo, creatina) as
+      its chips; (4) the parts of the day that close, with their count and kcal.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

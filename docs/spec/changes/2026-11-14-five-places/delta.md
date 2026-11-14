@@ -28,6 +28,7 @@
   «previsto» voci. Kit: ✗.
 - **PAT-98** (patterns.md §3) A voto is shown as its number in the judgement's colour, with no
   word beside it; WHEN the app cannot score (PRD-23) THEN «–», the reason in its «Perché?». Kit: ✗.
-- **PAT-99** (patterns.md §6) The dock: «Al volo» shows what he pinned, in his order, then the
-  app's guesses up to four chips. WHEN he taps «Modifica» THEN a sheet lists the pins («Su»,
+- **PAT-99** (patterns.md §6) The dock: one strip stuck above the bar on Oggi, at every scroll
+  position: the water drunk with +250 and +500, then what he pinned, in his order, then the
+  app's guesses up to four chips, sideways. WHEN he taps «Modifica» THEN a sheet lists the pins («Su»,
   «Togli») and the other «assunzioni» («Fissa»); each tap saves. Pins live in his settings. Kit: ✗.
