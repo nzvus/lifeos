@@ -4,7 +4,7 @@
  * §10): the old `?vista=cibi|pasti|esercizi` goes there.
  */
 import { redirect } from "next/navigation";
-import { AreaTabs, Elenco, F, PageHeader } from "@lifeos/kit";
+import { AreaFilter, Elenco, F, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -17,7 +17,7 @@ import { readRoutes } from "@/core/movement/routes";
 import { readPantry } from "@/core/pantry";
 import { listBlocks, readCycleBook } from "@/core/plans";
 import { Library } from "@/features/library/Library";
-import { tabHrefs } from "@/features/places";
+import { areaHrefs, placeHead } from "@/features/places";
 import { planSections } from "@/features/plan/plan-sections";
 import { tracker, wordOf } from "@/i18n/tracker";
 import { readLibrary } from "./library-data";
@@ -73,11 +73,10 @@ export default async function LibreriaPage({
   return (
     <main className="k-page has-bd">
       <PageHeader
-        title="Oggi"
+        {...placeHead("elenco")}
         context="le cose che riusi: cibi, pasti, esercizi, dispensa, tragitti"
-        of={{ place: "oggi" }}
       />
-      <AreaTabs tab="elenco" hrefs={tabHrefs("oggi")} />
+      <AreaFilter area="oggi" hrefs={areaHrefs("elenco")} />
       <Library
         {...lib.lists}
         view={null}

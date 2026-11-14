@@ -515,14 +515,23 @@ describe("Why (PAT-51) and Unknown (PAT-55)", () => {
 
 describe("NavBar (PAT-01, PAT-60)", () => {
   const hrefs = {
-    corpo: "/corpo",
-    cibo: "/cibo",
+    elenco: "/oggi/elenco",
+    piano: "/oggi/piano",
     oggi: "/oggi",
-    mente: "/mente",
-    soldi: "/soldi",
+    andamento: "/oggi/andamento",
+    obiettivi: "/oggi/andamento/obiettivi",
   };
+  it("the five places by action, Oggi in the middle, the open one ticked (ADR-0063)", () => {
+    const bar = html(<NavBar active="piano" hrefs={hrefs} addHref="/aggiungi" />);
+    expect(
+      [...bar.matchAll(/class="k-place"[^>]*>.*?<\/svg><\/span>([^<]+)</g)].map(
+        (m) => m[1],
+      ),
+    ).toEqual(["Elenco", "Piano", "Oggi", "Andamento", "Obiettivi"]);
+    expect(bar).toMatch(/href="\/oggi\/piano" aria-current="page"/);
+  });
   it("⊕ is a plain link, or the app's own link component when given", () => {
-    expect(html(<NavBar active="cibo" hrefs={hrefs} addHref="/aggiungi" />)).toMatch(
+    expect(html(<NavBar active="elenco" hrefs={hrefs} addHref="/aggiungi" />)).toMatch(
       /<a class="k-add k-fab" href="\/aggiungi"/,
     );
     const Mine = ({ children, ...p }: { children: React.ReactNode; href: string }) => (

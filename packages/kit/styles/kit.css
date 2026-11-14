@@ -4275,12 +4275,17 @@ button.k-link {
   margin-bottom: 80px;
 }
 /* The four tabs of a place, the same row everywhere. */
-.k-areatabs {
-  margin: 0 16px;
-  gap: 0;
+/* AreaFilter (PAT-95): five chips in one row at every width, under a place's header */
+.k-areafilter {
+  margin: 0 16px 8px;
+  flex-wrap: nowrap;
+  gap: 4px;
 }
-.k-areatabs > .k-tab {
+.k-areafilter > .k-chip {
   flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  padding-inline: 0;
 }
 /* List (P6, UI-41, UI-100): the rest past 8 rows scroll in their own box, the page stays put. */
 .k-listmore {
@@ -4516,4 +4521,112 @@ button.k-link {
   display: inline-flex;
   align-items: baseline;
   gap: var(--space-unit);
+}
+
+/* DateNav as the page's header (PAT-01, change five-places; his O1, O6, O8): the day is the
+   title, its month, week and cycle on the line under it, then the weather, then the week. */
+.k-dnpage {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.k-dnpage > .k-wx {
+  margin-top: 8px;
+}
+.k-dnpage .top.lv {
+  justify-content: space-between;
+}
+.k-dnpage h1 {
+  margin: 0;
+  min-width: 0;
+}
+.k-dnpage .top.lv .ttl {
+  height: auto;
+  min-height: var(--touch);
+  font-size: var(--fs-d1);
+  line-height: var(--lh-d1);
+  white-space: nowrap;
+}
+.k-dnpage .sub {
+  min-height: 0;
+  align-items: center;
+}
+.k-dnpage .sub + .sub {
+  padding-bottom: 4px;
+}
+.k-dnpage .sub > .k-meta {
+  flex: 1;
+  min-width: 0;
+}
+.k-dnpage .sub > .k-meta::first-letter {
+  text-transform: uppercase;
+}
+.k-dnpage .sub .back,
+.k-dnpage .sub .lvb {
+  margin-left: 0;
+}
+.k-block.k-top {
+  padding-top: 12px;
+}
+/* a toast shown from inside a section of a page with a backdrop: its section rises over the
+   ones after it, or they cover «Annulla» (found on «Al volo», 14 Nov; PAT-74) */
+.k-page.has-bd > *:has(.k-toastbar) {
+  z-index: 4;
+}
+/* a place to jump to that adds no box of its own */
+.k-anchor {
+  display: contents;
+}
+/* The dock (PAT-99): one strip stuck above the bar, the water's steps and his pins, sideways.
+   ⊕ and the toast rise by its height (52 px: 36 px controls in a 44 px row, VIS-85). */
+.k-page > .k-dock {
+  position: sticky;
+  bottom: var(--nav-h, 65px);
+  z-index: 3;
+  margin-top: auto;
+  background: var(--sheet);
+  border-top: 1px solid var(--hairline);
+}
+.k-page.has-bd > .k-dock {
+  position: sticky;
+  z-index: 3;
+}
+.k-dockrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.k-dockrow::-webkit-scrollbar {
+  display: none;
+}
+.k-dockrow > * {
+  flex: 0 0 auto;
+}
+.k-dockwater {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--touch-dense);
+  font-family: var(--font-display);
+  font-size: var(--fs-b2);
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.k-dockedit {
+  color: var(--herb);
+}
+.k-shell:has(.k-dock) .k-add.k-fab {
+  bottom: calc(100% + 12px + 53px);
+}
+.k-shell:has(> .k-nav):has(.k-dock) .k-toastbar {
+  bottom: calc(var(--nav-h, 65px) + 53px + 80px);
 }

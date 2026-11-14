@@ -20,10 +20,8 @@ import {
   Glyph,
   Nutrients,
   NutrientsL0,
-  PageHeader,
   weekOf,
-  AreaTabs,
-  AREAS,
+  AreaFilter,
   type Area,
   type DayBars,
 } from "@lifeos/kit";
@@ -39,10 +37,10 @@ import {
 } from "@/core/day";
 import { addDays, instantAt, localParts, logicalDay } from "@/core/engines/time";
 import { readSettings } from "@/core/account/settings";
+import { dockRow, readDock } from "@/core/account/dock";
 import { readPlace } from "@/core/account/place";
 import { weatherChips } from "@/app/_server/weather";
 import { WeatherCard } from "@/features/day/WeatherCard";
-import { WaterRow } from "@/features/day/WaterRow";
 import { QuickIntakes } from "@/features/day/QuickIntakes";
 import { doseWords } from "@/features/day/intake-words";
 import { startGym } from "../palestra/actions";
@@ -112,10 +110,11 @@ import {
   setServings,
   logIntake,
   removePlanned,
+  saveDockPins,
 } from "./[[...day]]/actions";
 import { DayClose } from "@/features/day/DayClose";
 import { goalLine } from "@/features/day/goal-line";
-import { AREA_HREF, AREA_NAME, areaOf, areaOfFam, tabHrefs } from "@/features/places";
+import { AREA_HREF, areaOf, areaOfFam, areaHrefs } from "@/features/places";
 import { costWords, entryCost, sumCosts } from "@/core/food/cost";
 import { creatineWords } from "@/core/food/creatine";
 import { readCreatine } from "@/core/food/creatine-read";
@@ -469,19 +468,28 @@ export async function DayPage({
   // «Al volo» (FOOD-44): his most used «assunzioni», one tap each, on Oggi and Cibo.
   const taken =
     food && date <= today ? await readIntakeUses(db, owner, addDays(today, -28)) : null;
-  const quick =
-    taken && taken.size > 0
+  // «Al volo» (PAT-99): his pins first, then the «assunzioni» taken most in 28 days. With
+  // neither there is no row (and no «Modifica»): the foods are not read for nothing.
+  const pins = taken ? await readDock(db, owner) : [];
+  const intakes =
+    taken && (taken.size > 0 || pins.length > 0)
       ? (await readFoodChoices(db, owner, today))
-          .filter((c) => c.intake && c.foodId && taken.has(c.foodId))
-          .sort((a, b) => taken.get(b.foodId!)! - taken.get(a.foodId!)!)
-          .slice(0, 4)
+          .filter((c) => c.intake && c.foodId)
           .map((c) => ({
             foodId: c.foodId!,
             name: c.name,
             dose: doseWords(c.intake!.dose, c.unit, c.intake!.doseName),
             ...(c.drawing ? { of: c.drawing } : {}),
           }))
+          .sort((a, b) => a.name.localeCompare(b.name, "it"))
       : [];
+  const guesses = intakes
+    .filter((c) => taken!.has(c.foodId))
+    .sort((a, b) => taken!.get(b.foodId)! - taken!.get(a.foodId)!)
+    .map((c) => c.foodId);
+  const quick = dockRow(pins, guesses, new Set(intakes.map((c) => c.foodId))).map((id) =>
+    intakes.find((c) => c.foodId === id)!,
+  );
   const water =
     date <= today && food
       ? {
@@ -503,7 +511,7 @@ export async function DayPage({
   // Corpo today, nothing running: the two routines trained most, to start now (map D:
   // Palestra's «Inizia» on top of Corpo · Diario, architecture.md §10).
   const routines =
-    area === "corpo" &&
+    (area === "corpo" || area === "oggi") &&
     date === today &&
     !items.some((i) => i.kind.key === "session" && isRunning(i))
       ? (await readRoutines(db, owner, today, await readExercises(db, owner)))
@@ -518,23 +526,9 @@ export async function DayPage({
 
   return (
     <main className="k-page has-bd">
-      <PageHeader
-        title={AREA_NAME[area]}
-        of={area === "oggi" ? { place: "oggi" } : AREAS.find(([k]) => k === area)![2]}
-        context={area === "oggi" ? cycleLine : ""}
-        extra={
-          area !== "oggi" ? undefined : (
-            <DayPlanBar
-              steps={(plans.get(date)?.cycles ?? [])
-                .filter((c) => !c.rest)
-                .map((c) => ({ cycleId: c.cycleId, label: c.label, skipped: c.skipped }))}
-              skip={skipStep.bind(null, date)}
-            />
-          )
-        }
-      />
-      <AreaTabs tab="diario" hrefs={tabHrefs(area)} />
-      <section className="k-block g3">
+      {/* The day is the title, the weather under it (ADR-0063, PAT-01; his O6, O8). An area's
+          diary is the same page filtered: its chips lead back to «Tutto» (PAT-95). */}
+      <section className="k-block g3 k-top">
         <DateNav
           day={date}
           today={today}
@@ -545,15 +539,35 @@ export async function DayPage({
           levelKey="oggi.settimana"
           rhythm={weekRhythm(days, (d) => ({ ...sctx, date: d, now: null }), clock)}
           nowMinute={nowMinute}
+          page={{
+            of: { place: "oggi" },
+            context: area === "oggi" ? cycleLine : "",
+            extra: area === "oggi" && (
+              <DayPlanBar
+                steps={(plans.get(date)?.cycles ?? [])
+                  .filter((c) => !c.rest)
+                  .map((c) => ({
+                    cycleId: c.cycleId,
+                    label: c.label,
+                    skipped: c.skipped,
+                  }))}
+                skip={skipStep.bind(null, date)}
+              />
+            ),
+          }}
+          under={
+            area === "oggi" ? (
+              weather && (
+                <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
+              )
+            ) : (
+              <AreaFilter
+                area={area}
+                hrefs={areaHrefs("", date === today ? "" : "/" + date)}
+              />
+            )
+          }
         />
-        {/* The water near the top (P4: it was 680 px down), out of the times. */}
-        {water && <WaterRow water={water} rail={false} />}
-        {quick.length > 0 && (
-          <QuickIntakes day={date} items={quick} log={logIntake} remove={removeEntry} />
-        )}
-        {area === "oggi" && weather && (
-          <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
-        )}
       </section>
       {routines.length > 0 && (
         <section className="k-section g2" aria-label="Allenati">
@@ -664,7 +678,7 @@ export async function DayPage({
               removePlanned,
               bringBackAll,
             }}
-            water={null}
+            water={water}
             fromPlan={planned}
             arrived={arrived}
             rows={rows}
@@ -687,6 +701,22 @@ export async function DayPage({
           <DayClose closed={closed} close={closeDay.bind(null, date)} />
         )}
       </section>
+      {/* The dock (PAT-99): the water's steps and his pins, stuck above the bar on every scroll
+          position; the water's own box is in the day's times (it was at the top since P4). */}
+      {(water || intakes.length > 0) && (
+        <QuickIntakes
+          day={date}
+          items={quick}
+          log={logIntake}
+          remove={removeEntry}
+          all={intakes}
+          pins={pins}
+          savePins={saveDockPins}
+          water={
+            water ? { label: String(water.entry.value ?? ""), add: water.add } : null
+          }
+        />
+      )}
     </main>
   );
 }

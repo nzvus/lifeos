@@ -20,19 +20,11 @@ export type Water = {
 
 const AGAIN_MS = 10_000;
 
-export function WaterRow({
-  water,
-  mode = "compact",
-  onRail,
-  rail = true,
-}: {
-  water: Water;
-  mode?: "compact" | "times";
-  onRail?: () => void;
-  /** Off at the top of the day (P4, visual.md §5): no time rail there. */
-  rail?: boolean;
-}) {
-  const [open, setOpen] = useState(false);
+/**
+ * +250 and +500 ml as two actions (the box's and the dock's): the same amount tapped again
+ * within 10 s asks first («Ancora +500?»).
+ */
+export function useWaterSteps(addMl: Water["add"]) {
   const [busy, start] = useTransition();
   // The last drink added here, for 10 s: the same amount again is asked, not added.
   const [last, setLast] = useState<250 | 500 | null>(null);
@@ -43,7 +35,7 @@ export function WaterRow({
   }, [last]);
   const add = (ml: 250 | 500) => () =>
     start(async () => {
-      await water.add(ml);
+      await addMl(ml);
       setLast(ml);
     });
   const act = (ml: 250 | 500) =>
@@ -57,13 +49,30 @@ export function WaterRow({
           },
         }
       : { label: "+" + ml, aria: "Aggiungi " + ml + " ml", onClick: add(ml) };
+  return { busy, steps: [act(250), act(500)] };
+}
+
+export function WaterRow({
+  water,
+  mode = "compact",
+  onRail,
+  rail = true,
+}: {
+  water: Water;
+  mode?: "compact" | "times";
+  onRail?: () => void;
+  /** Off at the top of the day (P4, visual.md §5): no time rail there. */
+  rail?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const { busy, steps } = useWaterSteps(water.add);
   return (
     <Box
       entry={water.entry}
       mode={mode}
       rail={rail}
       {...(onRail ? { onRail } : {})}
-      acts={busy ? [] : [act(250), act(500)]}
+      acts={busy ? [] : steps}
       expanded={open}
       onToggle={() => setOpen(!open)}
     >

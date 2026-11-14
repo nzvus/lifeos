@@ -6,7 +6,7 @@
  * and what the blocchi still plan (`../plan-rows`), «+ previsto». Then his blocchi and cicli
  * (the kit `Elenco`, PL-70). Day models and the week type are gone.
  */
-import { Box, DateNav, Elenco, F, PageHeader, weekOf, AreaTabs } from "@lifeos/kit";
+import { Box, DateNav, Elenco, F, PageHeader, weekOf, AreaFilter } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -26,7 +26,7 @@ import { foodIds } from "@/features/day/nutrients";
 import { dayRow } from "@/features/plan/week-rows";
 import { planSections } from "@/features/plan/plan-sections";
 import { readFoodEstimates } from "@/core/food/catalog";
-import { tabHrefs } from "@/features/places";
+import { areaHrefs, placeHead } from "@/features/places";
 import { plan } from "@/i18n/plan";
 import { skipStep } from "../[[...day]]/plan-actions";
 import { planRows } from "../plan-rows";
@@ -102,7 +102,7 @@ export default async function PianoPage({
   return (
     <main className="k-page has-bd">
       <PageHeader
-        title="Oggi"
+        title={placeHead("piano").title}
         context={[
           F.week(week[0]!),
           ...(headPlan?.cycles ?? []).map((c) => "ciclo " + c.cycle),
@@ -110,9 +110,9 @@ export default async function PianoPage({
           .filter(Boolean)
           .join(" · ")}
         action={{ label: plan.elenco.addBlock, href: "/oggi/blocco/nuovo" }}
-        of={{ place: "oggi" }}
+        of={placeHead("piano").of}
       />
-      <AreaTabs tab="piano" hrefs={tabHrefs("oggi")} />
+      <AreaFilter area="oggi" hrefs={areaHrefs("piano")} />
       <section className="k-block g3">
         <DateNav
           mode="week"

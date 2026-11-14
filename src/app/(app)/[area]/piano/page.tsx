@@ -5,11 +5,11 @@
  * «Giornate tipo» and the habits' own list are gone: an abitudine is a blocco of its type (PL-03).
  */
 import { notFound } from "next/navigation";
-import { AREAS, AreaTabs, Elenco, PageHeader } from "@lifeos/kit";
+import { AreaFilter, Elenco, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { listBlocks, readCycleBook } from "@/core/plans";
-import { AREA_NAME, isDomainArea, tabHrefs } from "@/features/places";
+import { AREA_NAME, isDomainArea, areaHrefs, placeHead } from "@/features/places";
 import { planSections } from "@/features/plan/plan-sections";
 
 /** The areas whose Piano holds the cicli too (the gym's: Corpo). */
@@ -34,8 +34,8 @@ export default async function Page({
   const href = "/" + area + "/piano";
   return (
     <main className="k-page has-bd">
-      <PageHeader title={AREA_NAME[area]} of={AREAS.find(([k]) => k === area)![2]} />
-      <AreaTabs tab="piano" hrefs={tabHrefs(area)} />
+      <PageHeader {...placeHead("piano")} />
+      <AreaFilter area={area} hrefs={areaHrefs("piano")} />
       <Elenco
         archived={archived}
         filterHref={{ active: href, archived: href + "?archiviati=1" }}
