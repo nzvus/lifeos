@@ -70,6 +70,47 @@
    adjustable score weights and goals with no data, both «not now» in product.md §4; the five
    names are not in product.md §3; ⊕ per place against the one Capture (PAT-10, PAT-60).
 
+8. **14 Nov evening, «continua ap».** The first screen is built in the real app: Oggi, branch
+   `five-places-oggi` (commit da863c2, pushed, no PR: nothing merges before his word). Photos at
+   390/360/320 with his 9 Nov and today: `LIFEOS/review/2026-11-14/oggi-proposal/`.
+   - It changes: the bar is Elenco · Piano · Oggi · Andamento · Obiettivi, each opening the page
+     that exists today (PAT-01); Oggi has no tabs (O4, PAT-03); the day is the page's title and
+     still opens the month (O8, VIS-63); month and week on the line under it with «↩ oggi» and
+     the week's dots, the cycle on its own line with «Giornata ▾»; the weather sits under the
+     title with its three levels, no longer below «Al volo» (O6, VIS-75); the week strip uses the
+     full width (O1).
+   - It keeps, untouched: the week's levels (VIS-70), Acqua, «Al volo», «Il giorno» and all under
+     it, the rail and the sky bands, the floating ⊕ and the one Capture (PAT-10, PAT-60).
+   - Decided by Claude, cheap to undo: Elenco wears the books drawing and Obiettivi the goal's
+     target (undo: one line in `PLACES`, `packages/kit/src/NavBar.tsx`); a voce, the gym and ⊕'s
+     pages tick Oggi, an object's page ticks Elenco (undo: `placeOf` in `features/shell/nav.ts`).
+   - Not done, on purpose: ⊕ in the header with a verb (PAT-96) and the area chips (PAT-95) are
+     not drawn: both are questions below. The area diaries (`/cibo`, `/corpo`…) and the other four
+     places still have their old header and tabs: each is its own screen, one at a time.
+9. Questions for him, found while building (each with Claude's pick first):
+   - **Area filter on Oggi (PAT-95).** Oggi already has the chips per kind (Cibo 5 · Bere 1 ·
+     Allenamento 2…) that filter the day. (a, Claude's pick) keep those as Oggi's filter and add
+     no second row; (b) replace them with the five area chips of PAT-95.
+   - **⊕ (PAT-96 against PAT-10/60).** (a, Claude's pick) keep the floating ⊕ and the one Capture
+     sheet, which already ranks «Per te» for the hour; (b) ⊕ in each place's header with its verb.
+   - **The dock he edits (O5).** What he pins must be stored. (a, Claude's pick) a list of pins
+     in his settings (one migration), «Al volo» shows the pins first and then the app's guesses,
+     «Modifica» opens a sheet to pin, unpin and order; (b) no pins, only hide a guess.
+10. **14 Nov, after the Oggi photos and the three questions: «ap yc».** Taken as (a) on all three,
+    each with its undo:
+    - Oggi keeps its chips per kind as its filter; PAT-95's area chips are for the other places.
+      Undo: add `AreaFilter` to Oggi too.
+    - The floating ⊕ and the one Capture stay (PAT-10, PAT-60); PAT-96 is withdrawn and PAT-01
+      keeps ⊕ on the bar's corner. Undo: restore PAT-96 in `delta.md`.
+    - The dock holds his pins: stored in `settings.prefs.dock` (the column exists: no migration,
+      so less than the question said), shown first in «Al volo», then the app's guesses;
+      «Modifica» opens a sheet to pin, unpin and order. First step: the «assunzioni» (what «Al
+      volo» holds today); water steps, a tracker or a saved meal as pins come after his word.
+      Undo: drop the `dock` key; «Al volo» is the guesses again.
+    - Claude's reading, his to correct: «ap yc» answers the questions and says go on; it is not
+      taken as his OK on the look of the Oggi screen (design is never under «yc»), so the branch
+      still has no PR.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
