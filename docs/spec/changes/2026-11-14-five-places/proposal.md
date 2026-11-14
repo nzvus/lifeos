@@ -30,6 +30,12 @@
   grafici e vari e diversi».
 - **13 Nov, 21:38, to the three questions (names, order, where a future day is planned):** «yc per
   tutto, per il resto ho finito i token, quindi agisci di conseguenza».
+- **14 Nov, on the depth page** (https://claude.ai/artifact/K9s4HsQN74Uuc2okHshDWM): «nononono, why you
+  are continueing to ignore all the discussions that we had for v2». The page (and «Cinque luoghi»
+  before it) was drawn on Claude's own flat row, without reading the ledger, `needs.md` and
+  `visual.md`: it drops the grammar he picked piece by piece (bars by kind, zone rulers with gram
+  ticks, skylines, silhouettes, the rail, the weather card, P1–P9, two levels at most). Both pages
+  are rejected as drawn; decision 4 below is withdrawn.
 
 ## Decided by Claude («yc», 13 Nov) — each with its undo
 1. The five places and names: Elenco · Piano · Oggi · Andamento · Obiettivi. Reason: each answers
@@ -39,7 +45,7 @@
    own words). Undo: one line in PAT-01.
 3. A future day is planned in Piano; a future date in Oggi's week strip opens it there. Reason: O7,
    one planner for the day and the long term. Undo: PAT-97 dropped, Oggi walks forward.
-4. Drawn from scratch on one grid with the kit's colours, type and icons, not from today's pieces
+4. **Withdrawn 14 Nov (his words above).** Drawn from scratch on one grid with the kit's colours, type and icons, not from today's pieces
    (C6, twice «rifare tutto da capo»). Undo: go back to the app's real pieces.
 5. A voto is the coloured number alone; «–» where the app cannot score (F1). Undo: PAT-98 dropped.
 
