@@ -5,9 +5,13 @@
  * role, no score — with «Annulla» for 5 s. Under the water on Oggi and Cibo.
  * The dock he edits (PAT-99, his O5): «Modifica» opens a sheet with what he pinned («Su»,
  * «Togli») and the other «assunzioni» («Fissa»); each tap saves, the row follows.
+ * It is one strip stuck above the bar (Claude's 13 Nov «Oggi a livelli», order A; his «il
+ * meglio del design attuale e di quello che avevi pensato tu», 14 Nov): the water drunk with
+ * +250 / +500, then the chips, sideways; the water's own box lives in the day's times.
  */
 import { useState } from "react";
 import { Box, Glyph, Sheet, useToast, type GlyphOf } from "@lifeos/kit";
+import { useWaterSteps, type Water } from "./WaterRow";
 
 export type Quick = {
   foodId: string;
@@ -17,6 +21,8 @@ export type Quick = {
   of?: GlyphOf;
 };
 
+const NO_WATER: Water["add"] = async () => {};
+
 export function QuickIntakes({
   day,
   items,
@@ -25,7 +31,10 @@ export function QuickIntakes({
   all,
   pins,
   savePins,
+  water,
 }: {
+  /** The day's water: «3 / 2,9 l» and its two steps, first in the strip. */
+  water: { label: string; add: Water["add"] } | null;
   day: string;
   items: readonly Quick[];
   /** Every «assunzione» he could pin, and the ones he did, in his order. */
@@ -39,7 +48,8 @@ export function QuickIntakes({
   const [busy, setBusy] = useState<string | null>(null);
   const [edit, setEdit] = useState(false);
   const [mine, setMine] = useState<string[]>([...pins]);
-  if (all.length === 0) return null;
+  const drink = useWaterSteps(water?.add ?? NO_WATER);
+  if (all.length === 0 && !water) return null;
   const byId = new Map(all.map((q) => [q.foodId, q]));
   const pinned = mine.map((id) => byId.get(id)).filter((q): q is Quick => !!q);
   const others = all.filter((q) => !mine.includes(q.foodId));
@@ -54,13 +64,7 @@ export function QuickIntakes({
     meta: q.dose,
   });
   return (
-    <div className="k-stack g1" aria-label="Al volo">
-      <div className="k-line between">
-        <span className="k-cap">Al volo</span>
-        <button type="button" className="k-btn link" onClick={() => setEdit(true)}>
-          Modifica
-        </button>
-      </div>
+    <div className="k-dock" aria-label="Al volo">
       <Sheet
         open={edit}
         title="Al volo"
@@ -118,7 +122,36 @@ export function QuickIntakes({
           ))}
         </div>
       </Sheet>
-      <div className="k-chips">
+      <div className="k-dockrow">
+        {water && (
+          <>
+            <button
+              type="button"
+              className="k-dockwater"
+              aria-label={"Acqua " + water.label + ": mostra nel giorno"}
+              onClick={() =>
+                document
+                  .getElementById("acqua")
+                  ?.firstElementChild?.scrollIntoView({ block: "center" })
+              }
+            >
+              <Glyph of={{ fam: "drink", kind: "water" }} size="s" />
+              {water.label}
+            </button>
+            {drink.steps.map((a) => (
+              <button
+                key={a.label}
+                type="button"
+                className="k-btn act"
+                aria-label={a.aria}
+                disabled={drink.busy}
+                onClick={a.onClick}
+              >
+                {a.label}
+              </button>
+            ))}
+          </>
+        )}
         {items.map((q) => (
           <button
             key={q.foodId}
@@ -139,6 +172,15 @@ export function QuickIntakes({
             <span className="k-meta">{q.dose}</span>
           </button>
         ))}
+        {all.length > 0 && (
+          <button
+            type="button"
+            className="k-chip k-dockedit"
+            onClick={() => setEdit(true)}
+          >
+            Modifica
+          </button>
+        )}
       </div>
       {toast}
     </div>

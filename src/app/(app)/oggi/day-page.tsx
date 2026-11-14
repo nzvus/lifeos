@@ -20,10 +20,8 @@ import {
   Glyph,
   Nutrients,
   NutrientsL0,
-  PageHeader,
   weekOf,
   AreaFilter,
-  AREAS,
   type Area,
   type DayBars,
 } from "@lifeos/kit";
@@ -43,7 +41,6 @@ import { dockRow, readDock } from "@/core/account/dock";
 import { readPlace } from "@/core/account/place";
 import { weatherChips } from "@/app/_server/weather";
 import { WeatherCard } from "@/features/day/WeatherCard";
-import { WaterRow } from "@/features/day/WaterRow";
 import { QuickIntakes } from "@/features/day/QuickIntakes";
 import { doseWords } from "@/features/day/intake-words";
 import { startGym } from "../palestra/actions";
@@ -117,7 +114,7 @@ import {
 } from "./[[...day]]/actions";
 import { DayClose } from "@/features/day/DayClose";
 import { goalLine } from "@/features/day/goal-line";
-import { AREA_HREF, AREA_NAME, areaOf, areaOfFam, areaHrefs } from "@/features/places";
+import { AREA_HREF, areaOf, areaOfFam, areaHrefs } from "@/features/places";
 import { costWords, entryCost, sumCosts } from "@/core/food/cost";
 import { creatineWords } from "@/core/food/creatine";
 import { readCreatine } from "@/core/food/creatine-read";
@@ -571,19 +568,6 @@ export async function DayPage({
             )
           }
         />
-        {/* The water near the top (P4: it was 680 px down), out of the times. */}
-        {water && <WaterRow water={water} rail={false} />}
-        {intakes.length > 0 && (
-          <QuickIntakes
-            day={date}
-            items={quick}
-            log={logIntake}
-            remove={removeEntry}
-            all={intakes}
-            pins={pins}
-            savePins={saveDockPins}
-          />
-        )}
       </section>
       {routines.length > 0 && (
         <section className="k-section g2" aria-label="Allenati">
@@ -694,7 +678,7 @@ export async function DayPage({
               removePlanned,
               bringBackAll,
             }}
-            water={null}
+            water={water}
             fromPlan={planned}
             arrived={arrived}
             rows={rows}
@@ -717,6 +701,22 @@ export async function DayPage({
           <DayClose closed={closed} close={closeDay.bind(null, date)} />
         )}
       </section>
+      {/* The dock (PAT-99): the water's steps and his pins, stuck above the bar on every scroll
+          position; the water's own box is in the day's times (it was at the top since P4). */}
+      {(water || intakes.length > 0) && (
+        <QuickIntakes
+          day={date}
+          items={quick}
+          log={logIntake}
+          remove={removeEntry}
+          all={intakes}
+          pins={pins}
+          savePins={saveDockPins}
+          water={
+            water ? { label: String(water.entry.value ?? ""), add: water.add } : null
+          }
+        />
+      )}
     </main>
   );
 }

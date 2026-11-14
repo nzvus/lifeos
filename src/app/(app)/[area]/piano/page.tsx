@@ -5,7 +5,7 @@
  * «Giornate tipo» and the habits' own list are gone: an abitudine is a blocco of its type (PL-03).
  */
 import { notFound } from "next/navigation";
-import { AREAS, AreaFilter, Elenco, PageHeader } from "@lifeos/kit";
+import { AreaFilter, Elenco, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { listBlocks, readCycleBook } from "@/core/plans";

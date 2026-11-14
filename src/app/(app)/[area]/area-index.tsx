@@ -5,7 +5,7 @@
  * their kind's domain). Server component.
  */
 import { notFound } from "next/navigation";
-import { AREAS, AreaFilter, Box, PageHeader } from "@lifeos/kit";
+import { AreaFilter, Box, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { readUserKinds } from "@/core/day";

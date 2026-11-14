@@ -5,7 +5,7 @@
  * a catalog's list with its search and sort (features/library), the pantry
  * or the routes. Decided by the agent (3 Nov, ledger UI-95). Server component.
  */
-import { AREAS, AreaFilter, Box, F, List, PageHeader } from "@lifeos/kit";
+import { AreaFilter, Box, F, List, PageHeader } from "@lifeos/kit";
 import { readNotTwins } from "@/core/account/not-twins";
 import { readExercises, readRoutines } from "@/core/training";
 import { training } from "@/i18n/training";
