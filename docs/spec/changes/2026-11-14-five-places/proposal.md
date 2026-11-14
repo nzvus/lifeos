@@ -46,6 +46,9 @@
 - **14 Nov, on the second draft:** «le animazioni, la visualizzazione dei range ottimali, la linea
   temporale verticale, espandibile, limiti, micro... eccetera». → a section on what moves, opens and
   judges, from the kit's stylesheet and the food rules (FD-30…41), since stills do not show it.
+- **14 Nov:** «go, since i am finishing token, make sure you note everything so that next session you
+  can build. i hope you'll remember and act accordingly for my frustration in you forgetting the
+  discussions».
 
 ## Decided by Claude («yc», 13 Nov) — each with its undo
 1. The five places and names: Elenco · Piano · Oggi · Andamento · Obiettivi. Reason: each answers
