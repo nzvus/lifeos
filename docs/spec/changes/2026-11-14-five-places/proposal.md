@@ -110,6 +110,20 @@
     - Claude's reading, his to correct: «ap yc» answers the questions and says go on; it is not
       taken as his OK on the look of the Oggi screen (design is never under «yc»), so the branch
       still has no PR.
+11. **Built under «ap yc», 14 Nov** (branch `five-places-oggi`, commit 1cd7482; photos
+    `oggi-proposal/sheet-dock.png`):
+    - The dock (PAT-99): `core/account/dock.ts` keeps the pins in `settings.prefs.dock`; «Al volo»
+      has «Modifica», a `Sheet` of `Box` rows: «Fissati» («Su», «Togli»), «Altre assunzioni»
+      («Fissa»). Tried in the running app with his data: pin two, move one up, reload (kept),
+      log from a pin, unpin. Decided by Claude: at most 8 pins; with fewer than four the app's
+      guesses fill the row to four; a pin that is archived is skipped. Undo: `DOCK_MAX`,
+      `DOCK_ROW` in that file.
+    - Limit, to say plainly: with no «assunzione» taken in 28 days and nothing pinned, «Al volo»
+      (and so «Modifica») does not show, as today.
+    - Found while trying it, in production too: the toast's «Annulla» after an «Al volo» tap was
+      painted under «Il giorno» and could not be tapped. Fixed for every toast in the kit's CSS;
+      as its own PR #352 to main, since this branch cannot merge yet. «Al volo» now uses the kit
+      `Toast` (lint baseline −2).
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
