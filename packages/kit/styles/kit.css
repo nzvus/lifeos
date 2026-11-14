@@ -4660,3 +4660,37 @@ button.k-link {
   background: transparent;
   padding-left: 0;
 }
+/* a part of the day that closes («Oggi a livelli» step 4): the band is its button */
+button.k-part.toggle {
+  width: calc(100% + 24px);
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+}
+/* the words keep their room; the icons give theirs up first */
+.k-part.toggle .t {
+  flex-shrink: 0;
+}
+.k-part .ics {
+  display: inline-flex;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  gap: 2px;
+  align-items: center;
+}
+.k-part .ics .k-glyph {
+  position: static;
+  margin: 0;
+}
+.k-part .ics svg {
+  position: static;
+  width: 18px;
+  height: 18px;
+}
+@media (max-width: 380px) {
+  .k-part .ics,
+  .k-part .t .cnt {
+    display: none;
+  }
+}

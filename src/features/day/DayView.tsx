@@ -20,6 +20,7 @@ import {
   Nutrients,
   NutrientsL0,
   type BoxEntry,
+  type GlyphOf,
   type NutrientsData,
 } from "@lifeos/kit";
 import type { PlanRow } from "./block-items";
@@ -321,7 +322,13 @@ export function DayView({
               rows={shown}
               now={now}
               {...(parts && gap && clock
-                ? { parts, gap, gone: clock.gone, end: 1440 + clock.boundaryMin }
+                ? {
+                    parts,
+                    gap,
+                    gone: clock.gone,
+                    end: 1440 + clock.boundaryMin,
+                    sum: partSum,
+                  }
                 : {})}
               row={(r, mode, onRail) =>
                 r === waterRow && water ? (
@@ -404,6 +411,23 @@ export function DayView({
       )}
     </>
   );
+}
+
+/** A closed part of the day («Oggi a livelli» step 4): how many voci, their kcal, their icons. */
+function partSum(rows: Row[]) {
+  const n = rows.reduce((a, r) => a + (r.group?.length ?? 1), 0);
+  const kcal = rows.reduce((a, r) => a + (r.l0?.kcal?.v ?? 0), 0);
+  return {
+    text:
+      F.plural(n, "voce", "voci") +
+      (kcal > 0 ? " · " + F.num(Math.round(kcal), "kcal") : ""),
+    icons: rows.map((r): GlyphOf => ({
+      ...r.of,
+      fam: r.fam,
+      ...(r.sub ? { sub: r.sub } : {}),
+      title: r.title,
+    })),
+  };
 }
 
 /**

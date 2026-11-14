@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Banner } from "./Banner";
 import { Box } from "./Box";
+import { DayPart } from "./DayPart";
 import { Nutrients } from "./Nutrients";
 import { Composer } from "./Composer";
 import { NavBar } from "./NavBar";
@@ -671,5 +672,35 @@ describe("Nutrients in two halves, for a day's doors (VIS-40, VIS-50)", () => {
     expect(rest).toContain("Vitamine e minerali");
     expect(rest).toContain("k-nlims");
     expect(rest).not.toContain("Proteine");
+  });
+});
+
+describe("DayPart that closes (VIS-61, «Oggi a livelli» step 4)", () => {
+  const draw = (open: boolean) =>
+    renderToStaticMarkup(
+      <DayPart
+        name="Pomeriggio"
+        when="dalle 15:00"
+        open={open}
+        onToggle={() => {}}
+        summary="2 voci · 1.677 kcal"
+        icons={[{ fam: "food" }]}
+      />,
+    );
+  it("closed: a button that says how many voci and kcal, with their icons", () => {
+    const h = draw(false);
+    expect(h).toMatch(/^<button[^>]*aria-expanded="false"/);
+    expect(h).toContain('<span class="cnt">2 voci · </span>1.677 kcal');
+    expect(h).toContain('class="ics"');
+    expect(h).not.toContain("dalle 15:00</span>");
+  });
+  it("open: its hour again, no icons; without a toggle it stays a separator", () => {
+    const h = draw(true);
+    expect(h).toContain('aria-expanded="true"');
+    expect(h).toContain("dalle 15:00");
+    expect(h).not.toContain('class="ics"');
+    expect(renderToStaticMarkup(<DayPart name="Sera" when="dalle 18:30" />)).toContain(
+      'role="separator"',
+    );
   });
 });

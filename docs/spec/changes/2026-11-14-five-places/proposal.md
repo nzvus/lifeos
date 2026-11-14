@@ -180,6 +180,19 @@
     `OpenBox.tsx`; cost and creatine behind the energy door, not chips of their own (six chips
     would not fit one row at 320), undo: their lines back under the section in `day-page.tsx`.
 
+16. **Step (4), same PR #353:** the parts of the day close (VIS-61 in `delta.md`). His 9 Nov
+    timeline: Mattina, Mezzogiorno, Pomeriggio closed, Sera open (photos `levels-box/parts-*.png`,
+    `sheet-parts-bands.png`, script `parts.mjs`). Decided by Claude, each with its undo:
+    - Which part opens at first: the one with now, else the last with something (the 13 Nov
+      drawing); not remembered between visits, unlike VIS-70's levels, since it moves with the
+      hour. Undo: `firstOpen` in `Timeline.tsx`.
+    - The count counts a group's voci one by one; the kcal sums what is in the part, planned
+      included. Undo: `partSum` in `DayView.tsx`.
+    - Icons give way before words; at ≤ 380 px only the kcal shows. Undo: kit.css «a part of the
+      day that closes».
+    - With this, «Oggi a livelli» (1)–(4) is built; next in the queue: Piano plans a future day
+      (PAT-97), the composer, the gym.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

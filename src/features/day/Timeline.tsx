@@ -10,6 +10,10 @@
  * of their sky that cut the rail, drawn when begun or holding something;
  * two hours or more with nothing as a dashed bar that fills it (`gap`); the
  * day's end closes a day already gone.
+ *
+ * With `sum` too («Oggi a livelli» step 4): a part that holds something closes on a tap of
+ * its band, which then says how many voci and kcal and shows their icons. At first only
+ * the part where now is (a day gone: the last one with something) is open.
  */
 import { useState, type ReactNode } from "react";
 import {
@@ -19,6 +23,7 @@ import {
   Glyph,
   type BoxEntry,
   type DayPartName,
+  type GlyphOf,
 } from "@lifeos/kit";
 
 export type Part = { name: DayPartName; from: number; to: number };
@@ -32,6 +37,7 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
   gone = false,
   end,
   gap,
+  sum,
 }: {
   rows: R[];
   /** The current minute of the logical day, when the day is today. */
@@ -44,8 +50,12 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
   end?: number;
   /** Where a stretch with nothing leads: the meal missing at that hour, else ⊕. */
   gap?: (from: number, to: number) => { href: string; what: string };
+  /** A closed part's words («3 voci · 1.016 kcal») and icons, from its rows. */
+  sum?: (rows: R[]) => { text: string; icons: GlyphOf[] };
 }) {
   const [times, setTimes] = useState(false);
+  // Parts he opened or closed; the others follow `firstOpen`.
+  const [flip, setFlip] = useState<Record<string, boolean>>({});
   const toggle = () => setTimes(!times);
   const mode = times ? "times" : "compact";
   const line = now && (
@@ -110,6 +120,11 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
     );
     blank = [];
   };
+  const holds = (p: Part) => rows.some((r) => r.minute >= p.from && r.minute < p.to);
+  const firstOpen =
+    (now &&
+      parts.find((p) => now.minute >= p.from && now.minute < p.to && holds(p))?.name) ??
+    [...parts].reverse().find(holds)?.name;
   for (const p of parts) {
     const mine = rows.filter((r) => r.minute >= p.from && r.minute < p.to);
     const begun = gone || (now !== null && now.minute >= p.from);
@@ -120,9 +135,29 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
       continue;
     }
     flush();
+    const closes = sum !== undefined && mine.length > 0;
+    const isOpen = !closes || (flip[p.name] ?? p.name === firstOpen);
+    const said = closes && !isOpen ? sum(mine) : null;
     out.push(
-      <DayPart key={"p" + p.name} name={p.name} when={"dalle " + F.time(p.from)} />,
+      <DayPart
+        key={"p" + p.name}
+        name={p.name}
+        when={"dalle " + F.time(p.from)}
+        {...(closes
+          ? {
+              open: isOpen,
+              onToggle: () => setFlip((f) => ({ ...f, [p.name]: !isOpen })),
+              ...(said ? { summary: said.text, icons: said.icons } : {}),
+            }
+          : {})}
+      />,
     );
+    if (!isOpen) {
+      // Closed: its voci wait behind the band; now, if it is here, is not drawn below it.
+      last = mine[mine.length - 1]!.minute;
+      if (now && now.minute >= p.from && now.minute < p.to) nowDrawn = true;
+      continue;
+    }
     mine.forEach((r, i) => {
       if (last !== null && (now === null || r.minute <= now.minute))
         empty(last, r.minute, "g" + p.name + i);

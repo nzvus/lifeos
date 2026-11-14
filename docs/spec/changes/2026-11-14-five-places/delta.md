@@ -23,6 +23,11 @@
   the four thin bars) and a row of doors, «Voto» first, then «Nutrienti», «Cibi n», «Costo» —
   WHEN he taps a door THEN its panel opens below and any other closes; a door with nothing behind
   it is a plain chip. `card` (L3) or `row` (L4). Kit: `Box` (`doors`) ✓.
+- **VIS-61** (visual.md §7) Parts of the day as sky bands, as today, and a band that holds
+  something closes («Oggi a livelli» step 4, his «ap yc», 14 Nov): WHEN he taps it THEN its voci
+  hide behind it and it says how many and their kcal, with their icons («6 voci · 976 kcal»; at
+  ≤ 380 px the kcal only); a second tap opens it. At first only the part where now is (a day
+  gone: the last one holding something) is open. Kit: `DayPart` (`onToggle`) ✓.
 
 ## ADDED
 - **PAT-95** (patterns.md §1) The area filter: one row of chips, «Tutto» · Cibo · Corpo · Mente ·

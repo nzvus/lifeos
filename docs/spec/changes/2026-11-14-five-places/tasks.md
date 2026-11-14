@@ -15,7 +15,7 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
    - [x] From «Oggi a livelli» (1) and (2): closed voce one line + energy strip; detail behind
      doors, one open at a time (proposal §14, branch `oggi-levels`).
    - [x] (3) «Il giorno» takes in the lines under it (proposal §15).
-   - [ ] (4) Parts of the day that close, with their count and kcal (proposal §13).
+   - [x] (4) Parts of the day that close, with their count and kcal (proposal §16).
 3. [ ] The composer on the grid (C1…C7: the amount is the control, «Pasto» automatic, planned time
    and «tieni le 12:30», variants).
 4. [ ] The gym on the grid (G1…G6: timer always in view, order follows what he does, warm-up

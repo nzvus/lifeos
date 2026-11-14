@@ -6,6 +6,8 @@
  * a thin dashed bar in the rail's place and a link that fills it.
  */
 import type { CSSProperties } from "react";
+import { Glyph } from "./Glyph";
+import type { GlyphOf } from "./glyph";
 
 export type DayPartName = "Mattina" | "Mezzogiorno" | "Pomeriggio" | "Sera" | "Notte";
 
@@ -24,6 +26,10 @@ export function DayPart({
   label,
   when,
   empty = false,
+  open,
+  onToggle,
+  summary,
+  icons = [],
 }: {
   name: DayPartName | "Fine giornata";
   /** Parts merged into one band: «Mattina – Pomeriggio»; the sky is the first's. */
@@ -32,6 +38,14 @@ export function DayPart({
   when: string;
   /** A part already passed with nothing in it says so. */
   empty?: boolean;
+  /**
+   * A part that closes («Oggi a livelli» step 4): the band is a button; closed it says
+   * `summary` («3 voci · 1.016 kcal») and the voci's `icons` in place of its hour.
+   */
+  open?: boolean;
+  onToggle?: () => void;
+  summary?: string;
+  icons?: GlyphOf[];
 }) {
   const [a, b, f] = SKY[name];
   // Rounded: the server and the browser must write the same numbers (hydration).
@@ -42,11 +56,31 @@ export function DayPart({
   });
   const s = f === null ? null : at(f);
   const end = name === "Fine giornata";
+  const shut = onToggle !== undefined && !open;
+  const Tag = onToggle ? "button" : "div";
   return (
-    <div
-      className={"k-part" + (empty ? " empty" : "") + (end ? " end" : "")}
-      role="separator"
-      aria-label={(label ?? name) + (when ? ", " + when : "") + (empty ? ", niente" : "")}
+    <Tag
+      className={
+        "k-part" +
+        (empty ? " empty" : "") +
+        (end ? " end" : "") +
+        (onToggle ? " toggle" : "")
+      }
+      {...(onToggle
+        ? {
+            type: "button" as const,
+            onClick: onToggle,
+            "aria-expanded": !shut,
+            "aria-label":
+              (label ?? name) +
+              (shut && summary ? ", " + summary : when ? ", " + when : "") +
+              (shut ? ": tocca per aprire" : ": tocca per chiudere"),
+          }
+        : {
+            role: "separator",
+            "aria-label":
+              (label ?? name) + (when ? ", " + when : "") + (empty ? ", niente" : ""),
+          })}
       style={
         {
           "--sky-a": `var(${a})`,
@@ -55,7 +89,22 @@ export function DayPart({
       }
     >
       <span className="nm">{label ?? name}</span>
-      <span className="t">{empty ? (when ? "niente · " + when : "niente") : when}</span>
+      <span className="t">
+        {shut && summary
+          ? said(summary)
+          : empty
+            ? when
+              ? "niente · " + when
+              : "niente"
+            : when}
+      </span>
+      {shut && icons.length > 0 && (
+        <span className="ics" aria-hidden="true">
+          {icons.slice(0, 4).map((g, i) => (
+            <Glyph key={i} of={g} size="xs" />
+          ))}
+        </span>
+      )}
       <svg viewBox="0 0 120 44" aria-hidden="true">
         <path className="arc" d="M10 40 A50 30 0 0 1 110 40" />
         <line className="hz" x1="0" x2="120" y1="40" y2="40" />
@@ -94,7 +143,19 @@ export function DayPart({
           </g>
         )}
       </svg>
-    </div>
+    </Tag>
+  );
+}
+
+/** «2 voci · 1.677 kcal»: on a narrow phone the count gives way to the kcal (kit.css). */
+function said(summary: string) {
+  const at = summary.indexOf(" · ");
+  if (at < 0) return summary;
+  return (
+    <>
+      <span className="cnt">{summary.slice(0, at + 3)}</span>
+      {summary.slice(at + 3)}
+    </>
   );
 }
 

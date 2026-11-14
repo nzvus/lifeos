@@ -470,7 +470,7 @@ export function Box({
                     type="button"
                     className="k-chip k-door"
                     aria-pressed={d.key === door}
-                    onClick={() => onDoor?.(d.key)}
+                    onClick={onDoor ? () => onDoor(d.key) : undefined}
                   >
                     <span>{d.label}</span>
                     {d.value && <span className="k-meta">{d.value}</span>}
