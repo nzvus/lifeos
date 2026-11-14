@@ -10,7 +10,16 @@ export { ICONS } from "./icons.generated";
 export { Glyph, type GlyphSize } from "./Glyph";
 export { Box, type BoxAct, type BoxEntry } from "./Box";
 export { PageHeader } from "./PageHeader";
-export { NavBar, AreaTabs, AREAS, TABS, type Area, type Tab } from "./NavBar";
+export {
+  NavBar,
+  AreaTabs,
+  AREAS,
+  PLACES,
+  TABS,
+  type Area,
+  type Place,
+  type Tab,
+} from "./NavBar";
 export { DateNav, type DayBars, type Rhythm } from "./DateNav";
 export { useLevel, nextLevel, readLevel } from "./levels";
 export { DayPart, EmptyTime, type DayPartName } from "./DayPart";

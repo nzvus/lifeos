@@ -518,23 +518,15 @@ export async function DayPage({
 
   return (
     <main className="k-page has-bd">
-      <PageHeader
-        title={AREA_NAME[area]}
-        of={area === "oggi" ? { place: "oggi" } : AREAS.find(([k]) => k === area)![2]}
-        context={area === "oggi" ? cycleLine : ""}
-        extra={
-          area !== "oggi" ? undefined : (
-            <DayPlanBar
-              steps={(plans.get(date)?.cycles ?? [])
-                .filter((c) => !c.rest)
-                .map((c) => ({ cycleId: c.cycleId, label: c.label, skipped: c.skipped }))}
-              skip={skipStep.bind(null, date)}
-            />
-          )
-        }
-      />
-      <AreaTabs tab="diario" hrefs={tabHrefs(area)} />
-      <section className="k-block g3">
+      {/* Oggi (ADR-0063, PAT-01): the day is the title, the weather under it (his O6, O8); an
+          area's diary keeps its header and tabs until its own turn. */}
+      {area !== "oggi" && (
+        <>
+          <PageHeader title={AREA_NAME[area]} of={AREAS.find(([k]) => k === area)![2]} />
+          <AreaTabs tab="diario" hrefs={tabHrefs(area)} />
+        </>
+      )}
+      <section className={"k-block g3" + (area === "oggi" ? " k-top" : "")}>
         <DateNav
           day={date}
           today={today}
@@ -545,14 +537,34 @@ export async function DayPage({
           levelKey="oggi.settimana"
           rhythm={weekRhythm(days, (d) => ({ ...sctx, date: d, now: null }), clock)}
           nowMinute={nowMinute}
+          {...(area === "oggi"
+            ? {
+                page: {
+                  of: { place: "oggi" },
+                  context: cycleLine,
+                  extra: (
+                    <DayPlanBar
+                      steps={(plans.get(date)?.cycles ?? [])
+                        .filter((c) => !c.rest)
+                        .map((c) => ({
+                          cycleId: c.cycleId,
+                          label: c.label,
+                          skipped: c.skipped,
+                        }))}
+                      skip={skipStep.bind(null, date)}
+                    />
+                  ),
+                },
+                under: weather && (
+                  <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
+                ),
+              }
+            : {})}
         />
         {/* The water near the top (P4: it was 680 px down), out of the times. */}
         {water && <WaterRow water={water} rail={false} />}
         {quick.length > 0 && (
           <QuickIntakes day={date} items={quick} log={logIntake} remove={removeEntry} />
-        )}
-        {area === "oggi" && weather && (
-          <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
         )}
       </section>
       {routines.length > 0 && (

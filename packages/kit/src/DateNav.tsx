@@ -15,8 +15,14 @@
  * On a computer (ledger UI-98) the strip and the open month also move with
  * arrows on their sides (only with a mouse), ← → and the touchpad (`Swipe`);
  * the open month names itself and stays open on the month it moved to.
+ * As the page's header (`page`, change 2026-11-14-five-places, his O1 · O6 · O8): the day is
+ * the page's title, the gear beside it; the month and the week number on the line under it with
+ * «↩ oggi» and the level dots, then `context` with the page's control; `under` (the weather) sits between the title
+ * and the week. The place's name is on the bar, so the page does not repeat it.
  */
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { Glyph } from "./Glyph";
+import type { GlyphOf } from "./glyph";
 import { SideArrows, Swipe, useSideMove } from "./Swipe";
 import { useLevel } from "./levels";
 
@@ -53,7 +59,20 @@ export function DateNav({
   rhythm,
   nowMinute = null,
   levelKey,
+  page,
+  under,
 }: {
+  /** The strip is the page's header: the day is the title (needs `levelKey`). */
+  page?: {
+    of?: GlyphOf;
+    /** A line of its own under the month and the week (the cycle's step). */
+    context?: string;
+    /** A control of the page beside `context` (the day's «Giornata ▾»). */
+    extra?: ReactNode;
+    settingsHref?: string;
+  };
+  /** Between the title and the week (the weather's line and its levels). */
+  under?: ReactNode;
   /** Each day's 24 hours: the strip's third level. */
   rhythm?: Record<string, Rhythm>;
   /** The minute now, on today's column. */
@@ -117,9 +136,70 @@ export function DateNav({
       /* no storage */
     }
   };
+  const dots = (bars || rhythm) && (
+    <button
+      type="button"
+      className="lvb"
+      onClick={next}
+      aria-label={
+        "La settimana mostra " +
+        LEVELS[level] +
+        ": tocca per " +
+        LEVELS[(level + 1) % (max + 1)]
+      }
+    >
+      <span className="k-lv" aria-hidden="true">
+        {Array.from({ length: max + 1 }, (_, i) => (
+          <i key={i} className={i <= level ? "on" : ""} />
+        ))}
+      </span>
+    </button>
+  );
   return (
     <div className="k-dn">
-      {levelKey ? (
+      {levelKey && page ? (
+        <header className="k-dnpage">
+          <div className="top lv">
+            <h1 className="k-ph-t">
+              {page.of && <Glyph of={page.of} size="l" />}
+              <button
+                type="button"
+                className="ttl"
+                onClick={() => setMonth(!month)}
+                aria-expanded={month}
+                aria-label={
+                  title + ". Tocca per " + (month ? "chiudere" : "aprire") + " il mese"
+                }
+              >
+                {title}
+              </button>
+            </h1>
+            <a
+              className="k-btn icon"
+              href={page.settingsHref ?? "/profilo"}
+              aria-label="Profilo e impostazioni"
+            >
+              <Glyph of={{ ui: "settings" }} size="m" />
+            </a>
+          </div>
+          <div className="top lv sub">
+            <span className="k-meta">{sub}</span>
+            {away && (
+              <a className="back" href={href(today)}>
+                ↩ oggi
+              </a>
+            )}
+            {dots}
+          </div>
+          {(page.context || page.extra) && (
+            <div className="top lv sub">
+              <span className="k-meta">{page.context}</span>
+              {page.extra}
+            </div>
+          )}
+          {under}
+        </header>
+      ) : levelKey ? (
         <div className="top lv">
           <button
             type="button"
@@ -137,25 +217,7 @@ export function DateNav({
               {week ? "↩ questa settimana" : "↩ oggi"}
             </a>
           )}
-          {(bars || rhythm) && (
-            <button
-              type="button"
-              className="lvb"
-              onClick={next}
-              aria-label={
-                "La settimana mostra " +
-                LEVELS[level] +
-                ": tocca per " +
-                LEVELS[(level + 1) % (max + 1)]
-              }
-            >
-              <span className="k-lv" aria-hidden="true">
-                {Array.from({ length: max + 1 }, (_, i) => (
-                  <i key={i} className={i <= level ? "on" : ""} />
-                ))}
-              </span>
-            </button>
-          )}
+          {dots}
         </div>
       ) : (
         <div className="top">

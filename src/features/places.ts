@@ -4,7 +4,16 @@
  * every kind belongs to one area by its domain. Plain data: server pages pass
  * it to the kit.
  */
-import type { Area, Tab } from "@lifeos/kit";
+import type { Area, Place, Tab } from "@lifeos/kit";
+
+/** The five places by action (ADR-0063): each is the page that exists today, over every area. */
+export const PLACE_HREF: Record<Place, string> = {
+  elenco: "/oggi/elenco",
+  piano: "/oggi/piano",
+  oggi: "/oggi",
+  andamento: "/oggi/andamento",
+  obiettivi: "/oggi/andamento/obiettivi",
+};
 
 export const AREA_HREF: Record<Area, string> = {
   corpo: "/corpo",

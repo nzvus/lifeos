@@ -4517,3 +4517,49 @@ button.k-link {
   align-items: baseline;
   gap: var(--space-unit);
 }
+
+/* DateNav as the page's header (PAT-01, change five-places; his O1, O6, O8): the day is the
+   title, its month, week and cycle on the line under it, then the weather, then the week. */
+.k-dnpage {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.k-dnpage > .k-wx {
+  margin-top: 8px;
+}
+.k-dnpage .top.lv {
+  justify-content: space-between;
+}
+.k-dnpage h1 {
+  margin: 0;
+  min-width: 0;
+}
+.k-dnpage .top.lv .ttl {
+  height: auto;
+  min-height: var(--touch);
+  font-size: var(--fs-d1);
+  line-height: var(--lh-d1);
+  white-space: nowrap;
+}
+.k-dnpage .sub {
+  min-height: 0;
+  align-items: center;
+}
+.k-dnpage .sub + .sub {
+  padding-bottom: 4px;
+}
+.k-dnpage .sub > .k-meta {
+  flex: 1;
+  min-width: 0;
+}
+.k-dnpage .sub > .k-meta::first-letter {
+  text-transform: uppercase;
+}
+.k-dnpage .sub .back,
+.k-dnpage .sub .lvb {
+  margin-left: 0;
+}
+.k-block.k-top {
+  padding-top: 12px;
+}

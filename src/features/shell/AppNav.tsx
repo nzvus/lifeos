@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { NavBar } from "@lifeos/kit";
-import { AREA_HREF } from "../places";
+import { PLACE_HREF } from "../places";
 import { navFor } from "./nav";
 
 export function AppNav() {
@@ -30,7 +30,7 @@ export function AppNav() {
   if (!nav) return null;
   return (
     <div className="k-nav k-stick" ref={ref}>
-      <NavBar active={nav.active} hrefs={AREA_HREF} addHref={nav.addHref} link={Link} />
+      <NavBar active={nav.active} hrefs={PLACE_HREF} addHref={nav.addHref} link={Link} />
     </div>
   );
 }
