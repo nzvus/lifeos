@@ -1,13 +1,12 @@
 # Tasks — five places by action
 
-Design first (artifacts, sources in `LIFEOS/review/`); no code before his OK on each drawing.
+Design first, in the real app on a branch (no separate drawings); nothing merged before his OK on each screen.
 
 1. [x] The five places at rest on one grid — https://claude.ai/artifact/NZ96SciMLkM1pWy9V4AzgQ
    (rows and edges measured at 390/360/320).
-2. [ ] **Rejected by him 14 Nov: it ignores the v2 discussions; redo from the ledger, `needs.md`,
-   `visual.md` and the real kit pieces, one frame first.** Was: each place in depth, two frames a place (a line opened, what is behind it) —
-   https://claude.ai/artifact/K9s4HsQN74Uuc2okHshDWM (`LIFEOS/review/2026-11-14/design/depth.py`; edges 17 px,
-   no cut text, no sideways scroll at 390/360/320). Not drawn yet: O6 the weather opened, O8 the date title.
+2. [ ] One screen at a time in the real app, from the kit pieces, photographed at 390/360/320
+   (`.claude/rules/design.md`). First: Oggi with «Il giorno» opened. The two artifact pages of 13–14 Nov
+   are rejected (own flat rows; his words in the proposal).
 3. [ ] The composer on the grid (C1…C7: the amount is the control, «Pasto» automatic, planned time
    and «tieni le 12:30», variants).
 4. [ ] The gym on the grid (G1…G6: timer always in view, order follows what he does, warm-up

@@ -52,11 +52,19 @@
 4. **Withdrawn 14 Nov (his words above).** Drawn from scratch on one grid with the kit's colours, type and icons, not from today's pieces
    (C6, twice «rifare tutto da capo»). Undo: go back to the app's real pieces.
 5. A voto is the coloured number alone; «–» where the app cannot score (F1). Undo: PAT-98 dropped.
+6. **14 Nov, his «yc» on the way of working** (Claude's four recommendations taken):
+   one page «what v2 already decided» loaded in every session (`.claude/rules/design.md`, a draft
+   he corrects); no separate drawings, a proposal is the real app on a branch, photographed; one
+   screen at a time; «yc» and «ap» never cover design. Undo: delete that file's section «How we
+   design», or the file.
+7. Found while writing it, his to settle (listed in that file): ADR-0063's Obiettivi showed
+   adjustable score weights and goals with no data, both «not now» in product.md §4; the five
+   names are not in product.md §3; ⊕ per place against the one Capture (PAT-10, PAT-60).
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
-- Every place drawn in depth on the one grid (line → summary → detail), then the composer and the
-  gym on it, as artifacts with his data; his comments answered on the pages.
+- Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
+  of the real screen with his data (`.claude/rules/design.md`); then the composer and the gym.
 - Then the code, place by place, behind his OK on each drawing.
 
 ## Not in this change
