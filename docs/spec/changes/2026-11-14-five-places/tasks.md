@@ -4,7 +4,9 @@ Design first (artifacts, sources in `LIFEOS/review/`); no code before his OK on 
 
 1. [x] The five places at rest on one grid — https://claude.ai/artifact/NZ96SciMLkM1pWy9V4AzgQ
    (rows and edges measured at 390/360/320).
-2. [ ] Each place in depth on the same grid: line → summary → detail (Oggi first: O2, O3, O5, O6, O8).
+2. [x] Each place in depth on the same grid, two frames a place (a line opened, what is behind it) —
+   https://claude.ai/artifact/K9s4HsQN74Uuc2okHshDWM (`LIFEOS/review/2026-11-14/design/depth.py`; edges 17 px,
+   no cut text, no sideways scroll at 390/360/320). Not drawn yet: O6 the weather opened, O8 the date title.
 3. [ ] The composer on the grid (C1…C7: the amount is the control, «Pasto» automatic, planned time
    and «tieni le 12:30», variants).
 4. [ ] The gym on the grid (G1…G6: timer always in view, order follows what he does, warm-up
