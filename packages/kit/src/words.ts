@@ -20,6 +20,7 @@ export const WORDS = {
   refresh: "Aggiorna ai valori attuali",
   sections: { progress: "Andamento", usedIn: "Usato in" },
   less: "Meno",
+  score: "Voto",
   plus: "Di più",
   status: { planned: "previsto", done: "fatto", skipped: "saltato" },
   verbs: {

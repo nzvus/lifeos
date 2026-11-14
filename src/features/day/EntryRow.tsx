@@ -10,16 +10,19 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import {
   Box,
+  energyStrip,
   F,
   Nutrients,
   NutrientsL0,
   type BoxAct,
+  type BoxDoor,
   type BoxEntry,
   type NutrientsData,
 } from "@lifeos/kit";
 import type { Details } from "./details";
 import type { Status } from "./filter";
 import { stepServings } from "./servings";
+import { common } from "@/i18n/common";
 
 export type RowIntent = "done" | "skipped" | "planned" | "remove";
 
@@ -57,6 +60,8 @@ export function EntryRow({
   onServings?: (servings: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  // One door open at a time; a second tap on it shuts it («Oggi a livelli»).
+  const [door, setDoor] = useState<string | null>(null);
   // Shown at once, the server's value when it comes back (optimistic, UI-59).
   const [served, setServed] = useState(entry.servings ?? null);
   useEffect(() => setServed(entry.servings ?? null), [entry.servings]);
@@ -160,7 +165,7 @@ export function EntryRow({
       </span>
       <div className="over" style={{ transform: dx ? `translateX(${dx}px)` : undefined }}>
         <Box
-          entry={entry}
+          entry={entry.l0 ? { ...entry, strip: energyStrip(entry.l0) } : entry}
           density={density}
           rail={rail}
           mode={mode}
@@ -168,7 +173,13 @@ export function EntryRow({
           acts={acts}
           // Every box opens (the boards: «si apre come ogni riquadro»): a meal on its L1, all on their details.
           {...(entry.l0 || entry.details
-            ? { expanded: open, onToggle: () => setOpen((o) => !o) }
+            ? {
+                expanded: open,
+                onToggle: () => setOpen((o) => !o),
+                doors: mealDoors(entry.l0, entry.details),
+                door,
+                onDoor: (k: string) => setDoor((d) => (d === k ? null : k)),
+              }
             : {})}
         >
           {/* Opened: the multiplier and Elimina first, at the top (FOOD-38, FOOD-47); deleting
@@ -210,19 +221,50 @@ export function EntryRow({
               </button>
             </div>
           )}
-          {entry.l0 &&
-            (open ? (
-              <Nutrients data={entry.l0} />
-            ) : (
-              <div className="k-slot-l0">
-                <NutrientsL0 data={entry.l0} />
-              </div>
-            ))}
-          {open && entry.details && <EntryDetails d={entry.details} />}
+          {/* Level 1: what the closed box showed before, the four thin bars; a voce with no
+              nutrients shows its details here, a meal keeps them behind its doors. */}
+          {open && entry.l0 && (
+            <div className="k-slot-l0">
+              <NutrientsL0 data={entry.l0} />
+            </div>
+          )}
+          {open && !entry.l0 && entry.details && <EntryDetails d={entry.details} />}
         </Box>
       </div>
     </div>
   );
+}
+
+/**
+ * A meal's doors: every nutrient (its foods as chips that light their share, VIS-50), the
+ * foods with their amounts, then the cost or the rest. A voce without nutrients has none.
+ */
+function mealDoors(l0: NutrientsData | null | undefined, d: Details | null | undefined) {
+  if (!l0) return [];
+  const doors: BoxDoor[] = [
+    { key: "nutrients", label: common.doors.nutrients, panel: <Nutrients data={l0} /> },
+  ];
+  if (d && d.lines.length > 0)
+    doors.push({
+      key: "foods",
+      label: common.doors.foods,
+      value: String(l0.foods?.length || d.lines.length),
+      panel: <EntryDetails d={{ stats: [], lines: d.lines, foot: "" }} />,
+    });
+  const cost = d?.stats.find((s) => s.label === common.doors.cost);
+  // The cost is said on its chip, not again behind it.
+  const rest = d
+    ? { stats: d.stats.filter((s) => s !== cost), lines: [], foot: d.foot }
+    : null;
+  const more = rest && (rest.stats.length > 0 || rest.foot !== "");
+  if (cost || more)
+    doors.push({
+      key: "more",
+      label: cost ? common.doors.cost : common.doors.details,
+      ...(cost ? { value: cost.value } : {}),
+      ...(more ? { panel: <EntryDetails d={rest} /> } : {}),
+    });
+  return doors;
 }
 
 /** The open box's details: the numbers as tiles, then the lines, then where it comes from. */

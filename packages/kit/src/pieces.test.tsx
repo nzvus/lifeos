@@ -2,6 +2,9 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Banner } from "./Banner";
+import { Box } from "./Box";
+import { DayPart } from "./DayPart";
+import { Nutrients } from "./Nutrients";
 import { Composer } from "./Composer";
 import { NavBar } from "./NavBar";
 import { Timer } from "./Timer";
@@ -581,5 +584,123 @@ describe("Timer (PAT-63)", () => {
     );
     expect(idle).toContain("–");
     expect(idle).not.toContain("Ferma");
+  });
+});
+
+describe("Box with levels (VIS-40, «Oggi a livelli»)", () => {
+  const entry = {
+    fam: "food",
+    title: "Pranzo",
+    value: "445",
+    meta: "Gnocchi alla sorrentina",
+    strip: [
+      { w: 20, c: "var(--macro-protein)" },
+      { w: 30, c: "var(--macro-carbs)" },
+    ],
+    pills: [{ t: "a digiuno" }],
+    score: {
+      value: 25,
+      parts: [{ name: "densità", score: 0.18, weight: 1 }],
+      missing: [],
+    },
+  };
+  const doors = [
+    { key: "nutrients", label: "Nutrienti", panel: <p>tutti i nutrienti</p> },
+    { key: "more", label: "Costo", value: "≈ 1,10 €" },
+  ];
+  const draw = (expanded: boolean, door: string | null = null) =>
+    renderToStaticMarkup(
+      <Box
+        entry={entry}
+        expanded={expanded}
+        onToggle={() => {}}
+        doors={doors}
+        door={door}
+        onDoor={() => {}}
+        acts={[
+          { label: "Fatto", onClick: () => {} },
+          { label: "Salta", onClick: () => {} },
+        ]}
+      >
+        <p>quattro barre</p>
+      </Box>,
+    );
+
+  it("closed: the head, its strip and the line's actions, nothing else", () => {
+    const h = draw(false);
+    expect(h).toContain("k-lvstrip");
+    expect(h).toContain("Fatto");
+    expect(h).not.toContain("Gnocchi alla sorrentina");
+    expect(h).not.toContain("quattro barre");
+    expect(h).not.toContain("a digiuno");
+    expect(h).not.toContain("k-door");
+  });
+
+  it("open: what the closed box said, then the doors with «Voto» first, no panel", () => {
+    const h = draw(true);
+    expect(h).not.toContain("k-lvstrip");
+    expect(h).toContain("Gnocchi alla sorrentina");
+    expect(h).toContain("quattro barre");
+    expect(h.indexOf("Voto")).toBeLessThan(h.indexOf("Nutrienti"));
+    expect(h).not.toContain("k-doorpanel");
+    // A door with nothing behind it is a plain chip, not a button.
+    expect(h).toMatch(/<span class="k-chip k-door static"><span>Costo<\/span>/);
+  });
+
+  it("one door open at a time: its panel only", () => {
+    const h = draw(true, "voto");
+    expect(h).toContain("k-doorpanel");
+    expect(h).toContain("densità");
+    expect(h).not.toContain("tutti i nutrienti");
+    expect(draw(true, "nutrients")).toContain("tutti i nutrienti");
+  });
+});
+
+describe("Nutrients in two halves, for a day's doors (VIS-40, VIS-50)", () => {
+  const day = {
+    kcal: { v: 1800, t: 2100 },
+    macros: [{ key: "protein" as const, v: 120, t: 168 }],
+    limits: [{ key: "salt" as const, v: 4, t: 5 }],
+    micros: { summary: "6 su 11 coperti", groups: [] },
+  };
+  it("«main»: kcal and macros, no limits or vitamins; «rest» the other way round", () => {
+    const main = renderToStaticMarkup(<Nutrients data={day} part="main" />);
+    const rest = renderToStaticMarkup(<Nutrients data={day} part="rest" />);
+    expect(main).toContain("Proteine");
+    expect(main).not.toContain("Vitamine e minerali");
+    expect(main).not.toContain("k-nlims");
+    expect(rest).toContain("Vitamine e minerali");
+    expect(rest).toContain("k-nlims");
+    expect(rest).not.toContain("Proteine");
+  });
+});
+
+describe("DayPart that closes (VIS-61, «Oggi a livelli» step 4)", () => {
+  const draw = (open: boolean) =>
+    renderToStaticMarkup(
+      <DayPart
+        name="Pomeriggio"
+        when="dalle 15:00"
+        open={open}
+        onToggle={() => {}}
+        summary="2 voci · 1.677 kcal"
+        icons={[{ fam: "food" }]}
+      />,
+    );
+  it("closed: a button that says how many voci and kcal, with their icons", () => {
+    const h = draw(false);
+    expect(h).toMatch(/^<button[^>]*aria-expanded="false"/);
+    expect(h).toContain('<span class="cnt">2 voci · </span>1.677 kcal');
+    expect(h).toContain('class="ics"');
+    expect(h).not.toContain("dalle 15:00</span>");
+  });
+  it("open: its hour again, no icons; without a toggle it stays a separator", () => {
+    const h = draw(true);
+    expect(h).toContain('aria-expanded="true"');
+    expect(h).toContain("dalle 15:00");
+    expect(h).not.toContain('class="ics"');
+    expect(renderToStaticMarkup(<DayPart name="Sera" when="dalle 18:30" />)).toContain(
+      'role="separator"',
+    );
   });
 });

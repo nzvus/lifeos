@@ -13,14 +13,26 @@ import { Glyph } from "./Glyph";
 import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
 import { Fascia } from "./Fascia";
 
-export function Nutrients({ data }: { data: NutrientsData }) {
+/**
+ * `part`: «main» the kcal, the foods and the four macros; «rest» the limits and the vitamins
+ * and minerals (a day that keeps them behind a door, VIS-40); «all» by default.
+ */
+export function Nutrients({
+  data,
+  part = "all",
+}: {
+  data: NutrientsData;
+  part?: "all" | "main" | "rest";
+}) {
+  const main = part !== "rest";
+  const rest = part !== "main";
   const [open, setOpen] = useState<string | null>(null);
   const [sel, setSel] = useState<string | null>(null);
   const { kcal, foods, macros, limits, micros } = nutrientsL1(data, sel);
   const means = limits.some((l) => l.strip?.mean);
   return (
     <div className="k-stack g3">
-      {kcal && (
+      {main && kcal && (
         <div className="k-stack">
           <span className="k-line base between">
             <span className="k-line base">
@@ -38,7 +50,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
           )}
         </div>
       )}
-      {foods.length > 1 && (
+      {main && foods.length > 1 && (
         <div className="k-chips" aria-label="Cibi: tocca per evidenziarne il contributo">
           {foods.map((f, n) => (
             <button
@@ -56,7 +68,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
           ))}
         </div>
       )}
-      {macros.map((m) => {
+      {(main ? macros : []).map((m) => {
         const isOpen = open === m.key;
         const more = m.kinds.length + m.sources.length + m.extras.length > 0;
         return (
@@ -175,7 +187,7 @@ export function Nutrients({ data }: { data: NutrientsData }) {
           </div>
         );
       })}
-      {limits.length > 0 && (
+      {rest && limits.length > 0 && (
         <div className="k-grid k-nlims" style={{ "--cols": 3 } as CSSProperties}>
           {limits.map((l) => (
             <span key={l.key} className="k-stack g1" role="img" aria-label={l.aria}>
@@ -203,12 +215,12 @@ export function Nutrients({ data }: { data: NutrientsData }) {
           ))}
         </div>
       )}
-      {means && (
+      {rest && means && (
         <span className="k-help k-heatkey" aria-hidden="true">
           <b /> media della settimana
         </span>
       )}
-      {micros && (
+      {rest && micros && (
         <div className="k-nrow">
           <button
             type="button"

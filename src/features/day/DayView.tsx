@@ -13,12 +13,14 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Box,
+  energyStrip,
   F,
   Glyph,
   ICONS,
   Nutrients,
   NutrientsL0,
   type BoxEntry,
+  type GlyphOf,
   type NutrientsData,
 } from "@lifeos/kit";
 import type { PlanRow } from "./block-items";
@@ -35,6 +37,7 @@ import {
   type Status,
 } from "./filter";
 import { Timeline, type Part } from "./Timeline";
+import { common } from "@/i18n/common";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
 import { MEAL_ROLE_WORDS } from "./words";
 import { WaterRow, type Water } from "./WaterRow";
@@ -319,7 +322,13 @@ export function DayView({
               rows={shown}
               now={now}
               {...(parts && gap && clock
-                ? { parts, gap, gone: clock.gone, end: 1440 + clock.boundaryMin }
+                ? {
+                    parts,
+                    gap,
+                    gone: clock.gone,
+                    end: 1440 + clock.boundaryMin,
+                    sum: partSum,
+                  }
                 : {})}
               row={(r, mode, onRail) =>
                 r === waterRow && water ? (
@@ -404,6 +413,23 @@ export function DayView({
   );
 }
 
+/** A closed part of the day («Oggi a livelli» step 4): how many voci, their kcal, their icons. */
+function partSum(rows: Row[]) {
+  const n = rows.reduce((a, r) => a + (r.group?.length ?? 1), 0);
+  const kcal = rows.reduce((a, r) => a + (r.l0?.kcal?.v ?? 0), 0);
+  return {
+    text:
+      F.plural(n, "voce", "voci") +
+      (kcal > 0 ? " · " + F.num(Math.round(kcal), "kcal") : ""),
+    icons: rows.map((r): GlyphOf => ({
+      ...r.of,
+      fam: r.fam,
+      ...(r.sub ? { sub: r.sub } : {}),
+      title: r.title,
+    })),
+  };
+}
+
 /**
  * A role's meals as one box (the developer's pick, 2026-10-25): closed, the
  * whole meal's bars and score; open, its panel (each entry's foods as chips,
@@ -426,26 +452,39 @@ function GroupRow({
   onServings: (k: Row, servings: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [door, setDoor] = useState<string | null>(null);
   return (
     <div className="k-mgroup">
       <Box
         entry={{
           ...row,
           meta: kids.length + " voci" + (row.meta?.replace(/^\d+ voci/, "") ?? ""),
+          ...(row.l0 ? { strip: energyStrip(row.l0) } : {}),
         }}
         mode={mode}
         onRail={onRail}
         expanded={open}
         onToggle={() => setOpen(!open)}
+        // Levels as a single meal's («Oggi a livelli»): every nutrient behind its door.
+        doors={
+          row.l0
+            ? [
+                {
+                  key: "nutrients",
+                  label: common.doors.nutrients,
+                  panel: <Nutrients data={row.l0} />,
+                },
+              ]
+            : []
+        }
+        door={door}
+        onDoor={(k) => setDoor((d) => (d === k ? null : k))}
       >
-        {row.l0 &&
-          (open ? (
-            <Nutrients data={row.l0} />
-          ) : (
-            <div className="k-slot-l0">
-              <NutrientsL0 data={row.l0} />
-            </div>
-          ))}
+        {open && row.l0 && (
+          <div className="k-slot-l0">
+            <NutrientsL0 data={row.l0} />
+          </div>
+        )}
         {open && (
           <div className="k-stack g2 k-mkids">
             {kids.map((k) => (

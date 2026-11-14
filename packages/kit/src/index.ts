@@ -8,7 +8,7 @@ export { addDays, monthOf, weekOf } from "./calendar";
 export { resolveGlyph, type GlyphOf, type IconRegistry } from "./glyph";
 export { ICONS } from "./icons.generated";
 export { Glyph, type GlyphSize } from "./Glyph";
-export { Box, type BoxAct, type BoxEntry } from "./Box";
+export { Box, type BoxAct, type BoxDoor, type BoxEntry } from "./Box";
 export { PageHeader } from "./PageHeader";
 export { NavBar, AreaFilter, AREAS, PLACES, type Area, type Place } from "./NavBar";
 export { DateNav, type DayBars, type Rhythm } from "./DateNav";
@@ -23,6 +23,7 @@ export { Field, type FieldOption, type FieldProps } from "./Field";
 export { Nutrients, NutrientsL0 } from "./Nutrients";
 export {
   nutrientsL0,
+  energyStrip,
   nutrientsL1,
   heatLevel,
   HEAT_WORDS,

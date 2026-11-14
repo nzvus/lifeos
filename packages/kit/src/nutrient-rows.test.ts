@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { nutrientsL1 as rows, shade, type NutrientsData } from "./nutrient-rows";
+import {
+  energyStrip,
+  nutrientsL1 as rows,
+  shade,
+  type NutrientsData,
+} from "./nutrient-rows";
 
 /** F writes a no-break space between a number and its unit; the cases read plain. */
 const nutrientsL1 = (d: NutrientsData) =>
@@ -318,5 +323,30 @@ describe("the ruler under a judged bar (2026-10-25)", () => {
       ).ticks.map((t) => t.label),
     ).toEqual(["25", ""]);
     expect(s.tip).toBe("var(--heat-good)");
+  });
+});
+
+describe("energyStrip: a closed meal's strip (VIS-40)", () => {
+  const meal: NutrientsData = {
+    kcal: { v: 500, t: 2000 },
+    macros: [
+      { key: "protein", v: 25 },
+      { key: "carbs", v: 50 },
+      { key: "fat", v: 0 },
+      { key: "fiber", v: 50 },
+    ],
+  };
+  it("each macro's share of the energy, as long as the meal's share of the day", () => {
+    // 100 + 200 + 0 + 100 = 400 kcal from the macros; the meal is 500 / 2000 = 25 % of the day.
+    expect(energyStrip(meal)).toEqual([
+      { w: 6.3, c: "var(--macro-protein)" },
+      { w: 12.5, c: "var(--macro-carbs)" },
+      { w: 6.3, c: "var(--macro-fiber)" },
+    ]);
+  });
+  it("the whole width with no target, nothing with no energy", () => {
+    const w = energyStrip({ ...meal, kcal: { v: 500 } }).reduce((a, s) => a + s.w, 0);
+    expect(w).toBeCloseTo(100, 0);
+    expect(energyStrip({ macros: [{ key: "protein", v: 0 }] })).toEqual([]);
   });
 });

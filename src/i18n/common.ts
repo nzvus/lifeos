@@ -24,6 +24,15 @@ export const common = {
     more: "Altro",
     retry: "Riprova",
   },
+  /** The doors of an open voce («Oggi a livelli», VIS-40): one panel at a time. */
+  doors: {
+    nutrients: "Nutrienti",
+    foods: "Cibi",
+    cost: "Costo",
+    details: "Dettagli",
+    limits: "Limiti e micro",
+    energy: "Energia e obiettivo",
+  },
   states: {
     saved: "Salvato",
     archived: "Archiviato",

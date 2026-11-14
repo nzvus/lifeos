@@ -148,6 +148,51 @@
       (3) «Il giorno» taking in the loose lines under it (energia, obiettivo, costo, creatina) as
       its chips; (4) the parts of the day that close, with their count and kcal.
 
+14. **Built under «ap», 14 Nov night, steps (1) and (2) of «Oggi a livelli»** (branch
+    `oggi-levels`; photos `LIFEOS/review/2026-11-14/levels-box/`, script `shots.mjs`): the kit
+    `Box` has levels (VIS-40 in `delta.md`); every voce of the day and every group of a meal
+    uses them. His 9 Nov day: 4125 px on main, 3249 px here, nothing removed; a closed meal is
+    72 px (was ≈ 240), the opened Pranzo 342 px, with «Voto» open 750 px. Decided by Claude,
+    each with its undo:
+    - The strip's length is the meal's share of the day's kcal target, not of the day's biggest
+      meal (the 13 Nov drawing): it says something on its own. Undo: `energyStrip` in
+      `nutrient-rows.ts`.
+    - «Nutrienti» keeps the food chips that light their share in every bar (VIS-50); «Cibi»
+      lists each food with amount, kcal and cost. The drawing moved the chips to «Cibi», which
+      would cut the lighting. Undo: `mealDoors` in `EntryRow.tsx`.
+    - «− × 1 +» and «Elimina» stay at the top of level 1 (FOOD-38, FOOD-47), not inside «Cibi».
+    - The cost is said on its chip, not again in a tile behind it; with nothing else it is a
+      plain chip. A voce with no nutrients (a session, a weigh-in) shows its details at level 1,
+      no door to tap. Undo: `mealDoors`.
+    - At level 1 the strip gives way to the four thin bars; a session's muscle strip shows only
+      closed. Undo: one condition in `Box.tsx`.
+    - Not changed, found while looking: a voce inside a group cuts its title («Spuntir 1.145»),
+      on main too. A dense row's head, its own slice.
+
+15. **Step (3), same branch and PR #353:** «Il giorno» on the same levels. Closed: head with the
+    voto and the kcal eaten, the energy strip (76 px; it remembers the level, closed at first,
+    VIS-70). Open: the costliest part, the dispendio line, kcal and the four macros with their
+    zone rulers, «Ricalcola la settimana». Doors: «Voto», «Limiti e micro» (the three limits,
+    vitamins and minerals), «Energia e obiettivo ≈ kcal» (the goal line, the energy split,
+    «La settimana in Andamento ›», the day's cost, creatine). Nothing under «Il giorno» stays
+    loose. Photos `levels-box/sheet-giorno-*.png`, script `giorno.mjs`. Decided by Claude:
+    closed at first (the 13 Nov drawing; was level 1, «Tutti i nutrienti»), undo: fallback in
+    `OpenBox.tsx`; cost and creatine behind the energy door, not chips of their own (six chips
+    would not fit one row at 320), undo: their lines back under the section in `day-page.tsx`.
+
+16. **Step (4), same PR #353:** the parts of the day close (VIS-61 in `delta.md`). His 9 Nov
+    timeline: Mattina, Mezzogiorno, Pomeriggio closed, Sera open (photos `levels-box/parts-*.png`,
+    `sheet-parts-bands.png`, script `parts.mjs`). Decided by Claude, each with its undo:
+    - Which part opens at first: the one with now, else the last with something (the 13 Nov
+      drawing); not remembered between visits, unlike VIS-70's levels, since it moves with the
+      hour. Undo: `firstOpen` in `Timeline.tsx`.
+    - The count counts a group's voci one by one; the kcal sums what is in the part, planned
+      included. Undo: `partSum` in `DayView.tsx`.
+    - Icons give way before words; at ≤ 380 px only the kcal shows. Undo: kit.css «a part of the
+      day that closes».
+    - With this, «Oggi a livelli» (1)–(4) is built; next in the queue: Piano plans a future day
+      (PAT-97), the composer, the gym.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

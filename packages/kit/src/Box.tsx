@@ -16,6 +16,7 @@ import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
 import { FasciaBar } from "./Fascia";
 import { F, MET, PART, type State } from "./format";
+import { WORDS } from "./words";
 
 export type BoxEntry = {
   fam: string;
@@ -46,6 +47,15 @@ export type BoxEntry = {
   };
 };
 
+/** A door of an open Box: a chip that shows one panel, one open at a time («Oggi a livelli»). */
+export type BoxDoor = {
+  key: string;
+  label: string;
+  value?: string;
+  /** Nothing behind it: a plain chip that only says its value. */
+  panel?: ReactNode;
+};
+
 export type BoxAct = {
   label: string;
   aria?: string;
@@ -63,6 +73,9 @@ export function Box({
   children,
   expanded,
   onToggle,
+  doors,
+  door = null,
+  onDoor,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -74,7 +87,17 @@ export function Box({
   /** The box opens (the boards' head button): the caller holds the state and the content. */
   expanded?: boolean;
   onToggle?: () => void;
+  /**
+   * Levels (VIS-40, «Oggi a livelli»): closed = the head and its strip, nothing else but
+   * the line's actions; open = what it says, `children`, then these doors (and «Voto» for
+   * its score parts, first), one panel open at a time. Without `doors` it opens as before.
+   */
+  doors?: BoxDoor[];
+  door?: string | null;
+  onDoor?: (key: string) => void;
 }) {
+  const levels = doors !== undefined;
+  const shut = levels && !expanded;
   const dense = density === "row";
   // The score (UI-75, decided 30 Oct combining the developer's picks): the skyline
   // without a frame, each column as wide as its weight, as full as its score and in
@@ -132,6 +155,42 @@ export function Box({
         )}
       </span>
     ) : null;
+  const parts =
+    e.score && e.score.value !== null ? (
+      // Open: one row per criterion with the nutrients' own ruler (S12): filled to
+      // its score, the bands 40 and 70 under it, the tip in its band's colour.
+      <div className="k-parts">
+        {e.score.missing.length > 0 && (
+          <span className="k-meta">senza: {e.score.missing.join(", ")}</span>
+        )}
+        {e.score.parts.map((q) => {
+          const v = Math.round(q.score * 100);
+          const j = F.judge(v);
+          return (
+            <div key={q.name} className="k-stack g1">
+              <span className="k-line base between">
+                <span className="k-line base g1">
+                  <span className={j.cls} role="img" aria-label={j.aria} />
+                  <span className="k-body">{q.name}</span>
+                  <span className="k-help">pesa {Math.round(q.weight * 100)} %</span>
+                </span>
+                <span className="k-num b2">{v}</span>
+              </span>
+              <FasciaBar score={v} label={q.name + " " + v + " su 100"} />
+            </div>
+          );
+        })}
+      </div>
+    ) : null;
+  const allDoors: BoxDoor[] = levels
+    ? [
+        ...(parts && sc
+          ? [{ key: "voto", label: WORDS.score, value: String(sc.value), panel: parts }]
+          : []),
+        ...doors,
+      ]
+    : [];
+  const openDoor = allDoors.find((d) => d.key === door);
   const fam = " fam-" + e.fam + (e.sub ? " sub-" + e.sub : "");
   const of: GlyphOf = {
     ...e.of,
@@ -150,6 +209,22 @@ export function Box({
   // Only a link, nothing else to tap in it: the whole box is the link.
   const cover = !onToggle && !!e.href && acts.length === 0;
   const lineActs = inline ? [] : acts;
+  const actsLine =
+    lineActs.length > 0 ? (
+      <div className="k-line end g2 k-acts">
+        {lineActs.map((a) => (
+          <button
+            key={a.label}
+            type="button"
+            className={"k-btn act" + (a.danger ? " danger" : "")}
+            aria-label={a.aria ?? a.label}
+            onClick={a.onClick}
+          >
+            {a.label}
+          </button>
+        ))}
+      </div>
+    ) : null;
   return (
     <div
       className={
@@ -322,100 +397,96 @@ export function Box({
               </span>
             )}
           </div>
-          {say}
-          {e.meta && <span className="k-meta k-sub">{e.meta}</span>}
-          {expanded && e.score && e.score.value !== null && (
-            // Open: one row per criterion with the nutrients' own ruler (S12): filled to
-            // its score, the bands 40 and 70 under it, the tip in its band's colour.
-            <div className="k-parts">
-              {e.score.missing.length > 0 && (
-                <span className="k-meta">senza: {e.score.missing.join(", ")}</span>
-              )}
-              {e.score.parts.map((q) => {
-                const v = Math.round(q.score * 100);
-                const j = F.judge(v);
-                return (
-                  <div key={q.name} className="k-stack g1">
-                    <span className="k-line base between">
-                      <span className="k-line base g1">
-                        <span className={j.cls} role="img" aria-label={j.aria} />
-                        <span className="k-body">{q.name}</span>
-                        <span className="k-help">
-                          pesa {Math.round(q.weight * 100)} %
-                        </span>
-                      </span>
-                      <span className="k-num b2">{v}</span>
-                    </span>
-                    <FasciaBar score={v} label={q.name + " " + v + " su 100"} />
-                  </div>
-                );
-              })}
+          {!shut && say}
+          {!shut && e.meta && <span className="k-meta k-sub">{e.meta}</span>}
+          {!levels && expanded && parts}
+          {shut && e.strip && e.strip.length > 0 && (
+            // Closed: one line and its strip (for a meal, where its energy comes from).
+            <div className="k-ribbon k-lvstrip">
+              {e.strip.map((g, i) => (
+                <span key={i} style={{ width: g.w + "%", background: g.c }} />
+              ))}
             </div>
           )}
-          {children && <div className="k-bin">{children}</div>}
-          <div className="k-reveal on k-more">
-            <div>
-              {e.strip && e.strip.length > 0 && (
-                <div className="k-ribbon k-bstrip" style={{ width: "54%" }}>
-                  {e.strip.map((g, i) => (
-                    <span key={i} style={{ width: g.w + "%", background: g.c }} />
-                  ))}
-                </div>
-              )}
-              {e.pills && e.pills.length > 0 && (
-                <div className="k-chips k-bpills">
-                  {e.pills.map((p, i) => (
-                    <span
-                      key={i}
-                      className="k-pill"
-                      style={{
-                        color: p.state ? F.tone(p.state) : "var(--ink)",
-                        borderColor: p.state ? F.tone(p.state) : "var(--hairline)",
-                      }}
-                    >
-                      {p.of && <Glyph of={p.of} size="xs" />}
-                      {p.t}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {members.length > 0 && (
-                <span
-                  className="k-icons"
-                  role="img"
-                  aria-label={
-                    "Contiene: " +
-                    members
-                      .map((m) => m.title ?? "")
-                      .filter(Boolean)
-                      .join(", ")
-                  }
-                >
-                  {shown.map((m, i) => (
-                    <Glyph key={i} of={m} size="s" />
-                  ))}
-                  {members.length > 8 && (
-                    <span className="k-meta">{"+" + (members.length - 7)}</span>
-                  )}
-                </span>
-              )}
-              {lineActs.length > 0 && (
-                <div className="k-line end g2 k-acts">
-                  {lineActs.map((a) => (
-                    <button
-                      key={a.label}
-                      type="button"
-                      className={"k-btn act" + (a.danger ? " danger" : "")}
-                      aria-label={a.aria ?? a.label}
-                      onClick={a.onClick}
-                    >
-                      {a.label}
-                    </button>
-                  ))}
-                </div>
+          {shut && actsLine}
+          {!shut && children && <div className="k-bin">{children}</div>}
+          {!shut && (
+            <div className="k-reveal on k-more">
+              <div>
+                {!levels && e.strip && e.strip.length > 0 && (
+                  <div className="k-ribbon k-bstrip" style={{ width: "54%" }}>
+                    {e.strip.map((g, i) => (
+                      <span key={i} style={{ width: g.w + "%", background: g.c }} />
+                    ))}
+                  </div>
+                )}
+                {e.pills && e.pills.length > 0 && (
+                  <div className="k-chips k-bpills">
+                    {e.pills.map((p, i) => (
+                      <span
+                        key={i}
+                        className="k-pill"
+                        style={{
+                          color: p.state ? F.tone(p.state) : "var(--ink)",
+                          borderColor: p.state ? F.tone(p.state) : "var(--hairline)",
+                        }}
+                      >
+                        {p.of && <Glyph of={p.of} size="xs" />}
+                        {p.t}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {members.length > 0 && (
+                  <span
+                    className="k-icons"
+                    role="img"
+                    aria-label={
+                      "Contiene: " +
+                      members
+                        .map((m) => m.title ?? "")
+                        .filter(Boolean)
+                        .join(", ")
+                    }
+                  >
+                    {shown.map((m, i) => (
+                      <Glyph key={i} of={m} size="s" />
+                    ))}
+                    {members.length > 8 && (
+                      <span className="k-meta">{"+" + (members.length - 7)}</span>
+                    )}
+                  </span>
+                )}
+                {actsLine}
+              </div>
+            </div>
+          )}
+          {levels && expanded && allDoors.length > 0 && (
+            <div className="k-chips k-doors">
+              {allDoors.map((d) =>
+                d.panel ? (
+                  <button
+                    key={d.key}
+                    type="button"
+                    className="k-chip k-door"
+                    aria-pressed={d.key === door}
+                    onClick={onDoor ? () => onDoor(d.key) : undefined}
+                  >
+                    <span>{d.label}</span>
+                    {d.value && <span className="k-meta">{d.value}</span>}
+                  </button>
+                ) : (
+                  <span key={d.key} className="k-chip k-door static">
+                    <span>{d.label}</span>
+                    {d.value && <span className="k-meta">{d.value}</span>}
+                  </span>
+                ),
               )}
             </div>
-          </div>
+          )}
+          {levels && expanded && openDoor && (
+            <div className="k-doorpanel">{openDoor.panel}</div>
+          )}
         </div>
       </div>
     </div>

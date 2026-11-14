@@ -592,3 +592,25 @@ function foodSeg(
     dim,
   };
 }
+
+/** kcal per gram of each macro (fibre ≈ 2, EFSA). */
+const KCAL_PER_G: Record<MacroKey, number> = { protein: 4, carbs: 4, fat: 9, fiber: 2 };
+
+/**
+ * A closed meal's strip («Oggi a livelli», VIS-40): where its energy comes from, one stretch
+ * per macro in its colour, as long as its share of the day's kcal target (all of it when
+ * there is no target). Empty when nothing has energy.
+ */
+export function energyStrip(d: NutrientsData): { w: number; c: string }[] {
+  const k = d.macros.map((m) => ({ key: m.key, kcal: m.v * KCAL_PER_G[m.key] }));
+  const sum = k.reduce((a, m) => a + m.kcal, 0);
+  if (sum <= 0) return [];
+  const eaten = d.kcal?.v ?? sum;
+  const share = d.kcal?.t ? Math.min(1, eaten / d.kcal.t) : 1;
+  return k
+    .filter((m) => m.kcal > 0)
+    .map((m) => ({
+      w: Math.round((m.kcal / sum) * share * 1000) / 10,
+      c: "var(--macro-" + m.key + ")",
+    }));
+}
