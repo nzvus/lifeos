@@ -130,8 +130,9 @@ photo: everything on it stays unless he says it goes.** Seen by Claude on 14 Nov
   day's bars with the meal hatched); Annulla + Salva.
 - **Gym start**: «Da un modello» (each scheda: n esercizi · n volte in 90 giorni), «Inizia senza
   modello». Corpo · Diario: «Allenati» with the cycle's next schede, «Altri modelli ›».
-- Not opened yet by Claude: the running gym session, a voce sheet, an object page, Cibo and Mente
-  diaries, Sonno, Passi, Legami, Soldi, Profilo. Open the photo before touching any of them.
+- Not opened yet by Claude: Cibo and Mente
+  diaries, Sonno, Passi, Legami, Soldi, Profilo (the gym, a voce and an object page: see below).
+  Open the photo before touching any of them.
 
 ## What moves, opens and judges — stills do not show it (his list, 14 Nov: «le animazioni, la
 visualizzazione dei range ottimali, la linea temporale verticale, espandibile, limiti, micro»)
@@ -185,10 +186,36 @@ visualizzazione dei range ottimali, la linea temporale verticale, espandibile, l
   - Under «Il giorno»: «Creatina · scorte ≈ 46 % · in calo da 9 giorni», «Costo ≈ 4,60 €», «Energia
     del giorno ≈ 2.170 kcal ± 140 ⌄». Empty parts merge («Mattina – Pomeriggio · niente»). The day
     ends with the one primary «Chiudi la giornata».
-  - **Not photographed yet**: a macro's accordion open (the tap by name failed), a tapped food, a
-    Box open, a voce sheet, the gym running, an object page, the composer with lines. The local
-    account has little data: load his export first (memory dry-run-migration-on-export) so the
-    photos show his day.
+- **Seen with his data, 14 Nov evening** (his 10 Nov export in the local account, his 9 Nov;
+  photos and scripts in `LIFEOS/review/2026-11-14/levels/his-day/`):
+  - A macro open (tap the row, `.k-mrow`): its kinds as small rows with a bar and grams (Proteine:
+    qualità alta · media · bassa · senza stima; Carboidrati: amidi integrali · raffinati e tuberi ·
+    zuccheri di frutta e latte · zuccheri liberi judged · senza stima; Grassi: monoinsaturi ·
+    omega-6 judged · omega-3 judged · saturi judged; Fibre: insolubili · amido resistente ·
+    beta-glucani · pectine · inulina/FOS judged), then «DA DOVE»: the five top foods with a bar
+    and grams, «e altri n». Every macro can be open at once.
+  - A meal Box open: «senza: valore, adatto al blocco, momento»; one ruler per criterion with the
+    voto's mark, «pesa n %», the number, ticks at 40 and 70; «− × 1 +» and «Elimina»; the kcal bar
+    «445 / 2.105 kcal»; a chip per food («200 g · 306 kcal»); the four macros against the day, each
+    an accordion; vitamins; a tile «Costo ≈ 1,10 €». A tapped food: its chip turns ink, its share
+    stays lit in every bar and the rest dims. A session Box open: the criteria the same way.
+  - The voce page of a meal (`/voce/<id>`) is the composer with the meal loaded: «Registra di
+    nuovo oggi», «Ripeti nel Piano»; Ingredienti · Pasti · Stima; one card per ingredient (stepper,
+    «Marca», a bar, «Togli»); `Find`; «Pranzo, come sarà»; «La giornata con questo pasto» (the meal
+    hatched, «→» on each word); «Quando» (Mangiato · Previsto, Ora, the four roles, Nota, «Salva
+    anche come pasto»); Porzioni; sticky Annulla + Salva.
+  - The gym running: a dot per exercise; «Come ti senti?» 1…5; the exercise card (obiettivo,
+    andamento, l'ultima volta, each set a row, «R» for warm-up, «adesso», «Salta»); «Pronto per la
+    serie» (Riscaldamento chip, Ripetizioni and Carico steppers, «Inizia», the primary
+    «Riscaldamento fatto ✓»); «Tempi: li conta l'app · li avvio io»; «creatina: scorte ≈ 50 %»;
+    «Da fare» with «⋯» (fai dopo, cambia, salta); «Aggiungi esercizio»; sticky Esci · Finisci….
+    A finished one: sets with «riposo prima 1:02» and RIR, «La sessione finora» with its voto,
+    «Gli altri» (saltato, fatti), Esci · Riprendi.
+  - A food's object page: the label values as rows; «Voto per 100 kcal» Box; «Marche» with uses
+    and price; «In casa · Comprato»; «Usato in» with amounts; Parti da… · Archivia · ⋯.
+  - Motion, slowed to 8 %: on load the sun climbs its arc to its place and each corner drawing
+    turns in; a Box opens at once (no height animation) while its drawing cross-fades to the big
+    pose (`.k-art a1/a2`, opacity and transform). Not seen: a level's slide-in, the rail widening.
 - «Eccetera»: this list is his examples, not the whole. Each piece's levels and motion are to be
   photographed at every level before it is touched (`verify`), and added here when found missing.
 
