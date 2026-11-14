@@ -96,6 +96,20 @@
    - **The dock he edits (O5).** What he pins must be stored. (a, Claude's pick) a list of pins
      in his settings (one migration), «Al volo» shows the pins first and then the app's guesses,
      «Modifica» opens a sheet to pin, unpin and order; (b) no pins, only hide a guess.
+10. **14 Nov, after the Oggi photos and the three questions: «ap yc».** Taken as (a) on all three,
+    each with its undo:
+    - Oggi keeps its chips per kind as its filter; PAT-95's area chips are for the other places.
+      Undo: add `AreaFilter` to Oggi too.
+    - The floating ⊕ and the one Capture stay (PAT-10, PAT-60); PAT-96 is withdrawn and PAT-01
+      keeps ⊕ on the bar's corner. Undo: restore PAT-96 in `delta.md`.
+    - The dock holds his pins: stored in `settings.prefs.dock` (the column exists: no migration,
+      so less than the question said), shown first in «Al volo», then the app's guesses;
+      «Modifica» opens a sheet to pin, unpin and order. First step: the «assunzioni» (what «Al
+      volo» holds today); water steps, a tracker or a saved meal as pins come after his word.
+      Undo: drop the `dock` key; «Al volo» is the guesses again.
+    - Claude's reading, his to correct: «ap yc» answers the questions and says go on; it is not
+      taken as his OK on the look of the Oggi screen (design is never under «yc»), so the branch
+      still has no PR.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
