@@ -10,3 +10,4 @@ Entry, one line: `- YYYY-MM-DD · <CLAUDE.md|rule|skill|guard> · <what went wro
 - 2026-11-12 · guard · two PRs open at once each kept CLAUDE.md within its 130-line budget, together 133: check.py would have failed main after both merged · evidence: #348 + the process-diet branch · idea: when two branches touch a budgeted file, check the sum (or keep the edits on one branch: «few PRs»).
 
 ## Applied
+- 2026-11-14 · `.claude/rules/design.md` (new, always loaded) · each session drew from a summary and dropped the agreed v2 look and kit pieces; two artifact pages rejected · evidence: «why you are continueing to ignore all the discussions that we had for v2», «il modo in cui stiamo lavorando è sbagliato» · applied by his «yc»: one page of what v2 decided, no separate drawings, one screen at a time, yc/ap never cover design.
