@@ -248,6 +248,12 @@
     Not measurable this way, so not claimed fixed: «poco centrate», «scritte a caso» beyond loose
     text; a photo of each one he sees is enough to turn it into a check.
 
+22. **The planned sums written out (his (b) of §19), PR #355.** The kcal, each macro and each limit
+    say the total with what is planned after an arrow, as FD-34 already judges it: «0 → 306 /
+    2.105 kcal», «120 → 150,5 / 168 g»; «di cui 306 kcal previste» moves under the bar (at
+    320 px it ran into the target). Photos `LIFEOS/review/2026-11-14/planned/`. Decided by
+    Claude: the arrow's number in the muted ink of the plan (undo: `.k-plan` in kit.css).
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

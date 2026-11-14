@@ -325,8 +325,10 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
         const t = k.t ?? null;
         return {
           v: F.n(k.v, 0),
+          /** With what is planned, written out (FD-34 «→»; his 14 Nov: «devi fare la somma a mente»). */
+          withPlan: planned ? F.n(k.v + planned, 0) : null,
           t: t === null ? null : F.num(t, "kcal"),
-          left: planned ? F.signed(planned, "kcal") + " previste" : "",
+          left: planned ? "di cui " + F.num(planned, "kcal") + " previste" : "",
           /** No target, no bar: a bar needs something to be measured against. */
           bar:
             t === null
@@ -407,6 +409,7 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
       name: NAME[m.key],
       color: MACRO_COLOR[m.key],
       value: g(m.v),
+      withPlan: planned ? g(m.v + planned) : null,
       target: t === null ? null : F.num(t, "g"),
       mark: t === null ? null : pct(t, scale),
       segs,
@@ -489,6 +492,7 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
       key: l.key,
       name: l.name ?? LIMIT[l.key],
       v: g(l.v),
+      withPlan: planned ? g(l.v + planned) : null,
       t: F.num(l.t, "g"),
       w: Math.min(100, (l.v / scale) * 100).toFixed(0) + "%",
       /** The planned part after it, hatched; null without a plan. */

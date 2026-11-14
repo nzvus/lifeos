@@ -4717,3 +4717,11 @@ button.k-part.toggle {
     display: none;
   }
 }
+/* The total with what is planned (FD-34 «→»): the same number, in the planned voice */
+.k-plan {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.k-nowrap {
+  white-space: nowrap;
+}

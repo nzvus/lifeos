@@ -38,9 +38,11 @@ export function Nutrients({
             <span className="k-line base">
               <Glyph of={{ nutrient: "kcal" }} size="m" />
               <span className="k-num d2">{kcal.v}</span>
-              {kcal.t && <span className="k-meta">/ {kcal.t}</span>}
+              {kcal.withPlan && (
+                <span className="k-num d2 k-plan">→ {kcal.withPlan}</span>
+              )}
+              {kcal.t && <span className="k-meta k-nowrap">/ {kcal.t}</span>}
             </span>
-            <span className="k-meta">{kcal.left}</span>
           </span>
           {kcal.bar && (
             <span className="k-track" role="img" aria-label={kcal.aria}>
@@ -48,6 +50,8 @@ export function Nutrients({
               <span className="k-seg kcal planned" style={{ width: kcal.bar.pw }} />
             </span>
           )}
+          {/* Under the bar, never beside the number: at 320 px it ran into «/ 2.105 kcal». */}
+          {kcal.left && <span className="k-help">{kcal.left}</span>}
         </div>
       )}
       {main && foods.length > 1 && (
@@ -88,6 +92,7 @@ export function Nutrients({
                 </span>
                 <span className="k-num b2">
                   {m.value}
+                  {m.withPlan && <span className="k-plan"> → {m.withPlan}</span>}
                   {m.target && <span className="k-meta"> / {m.target}</span>}
                   {m.word && (
                     <span
@@ -198,6 +203,7 @@ export function Nutrients({
               </span>
               <span className="k-line g1">
                 <span className="k-num b2">{l.v}</span>
+                {l.withPlan && <span className="k-num b2 k-plan">→ {l.withPlan}</span>}
                 <span className="k-help">/ {l.t}</span>
               </span>
               <span className={"k-bar" + (l.strip ? " zoned" : "")}>

@@ -19,9 +19,18 @@ describe("Nutrients L1", () => {
     expect(kcal).toMatchObject({
       v: "1.738",
       t: "2.090 kcal",
-      left: "+262 kcal previste",
+      // The total with the plan written out (FD-34 «→»), not «+262» to add up in his head.
+      withPlan: "2.000",
+      left: "di cui 262 kcal previste",
       bar: { w: "83.2%", pw: "12.5%" },
     });
+    const m = nutrientsL1({
+      macros: [{ key: "protein", v: 120, planned: 30.5, t: 168 }],
+    }).macros[0];
+    expect(m).toMatchObject({ value: "120", withPlan: "150,5" });
+    expect(
+      nutrientsL1({ macros: [{ key: "protein", v: 120 }] }).macros[0]!.withPlan,
+    ).toBeNull();
     const over = nutrientsL1({ kcal: { v: 2200, planned: 300, t: 2000 }, macros: [] });
     expect(over.kcal?.bar).toEqual({ w: "100.0%", pw: "0.0%" });
   });
