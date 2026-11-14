@@ -9,6 +9,7 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
    are rejected (own flat rows; his words in the proposal).
    - [x] Oggi built on branch `five-places-oggi`, photos in `LIFEOS/review/2026-11-14/oggi-proposal/`
      (14 Nov). Waiting for his word; then the next screen.
+   - [x] The dock he edits (PAT-99, O5) on the same branch, tried in the app (14 Nov).
 3. [ ] The composer on the grid (C1…C7: the amount is the control, «Pasto» automatic, planned time
    and «tieni le 12:30», variants).
 4. [ ] The gym on the grid (G1…G6: timer always in view, order follows what he does, warm-up

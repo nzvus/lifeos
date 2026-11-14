@@ -13,8 +13,10 @@ dimentichi».
    (`verify` skill; memory local-signed-in-screenshots). No artifact with its own CSS or rows.
    A piece that does not exist yet is first a kit piece in the `/kit` gallery (PAT-94).
 2. **One screen at a time.** Show one, stop for his word, then the next.
-3. **«yc» and «ap» never cover design.** Dropping, replacing or redrawing anything below is a
-   question to him, with options built from the real pieces (PRD-51).
+3. **«yc» and «ap» never cover a design he has not seen.** Dropping, replacing or redrawing
+   anything below is a question to him, with options built from the real pieces (PRD-51). Once a
+   screen is shown as photos with a recommendation, «yc» approves it: «ap yc significa che approvo
+   tutto quello che mi hai detto e consigliato» (his words, 14 Nov).
 4. **Say what a change keeps.** Every proposal lists the IDs below it follows and the ones it
    asks to change. An ID it would break is named, never silently dropped.
 5. A handoff or a pasted summary is not context: this file and the spec file touched are.
