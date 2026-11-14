@@ -36,6 +36,10 @@
   `visual.md`: it drops the grammar he picked piece by piece (bars by kind, zone rulers with gram
   ticks, skylines, silhouettes, the rail, the weather card, P1–P9, two levels at most). Both pages
   are rejected as drawn; decision 4 below is withdrawn.
+- **14 Nov, right after:** «don't you v2 takes into account many many many more things ?» and «ogni
+  vola succede che ignori tutte le discussioni precedenti, a questo punto è evidente che il modo in
+  cui stiamo lavorando è sbagliato». → a question about the way of working, his to settle before
+  any more drawing (also for `/tune-rules`).
 
 ## Decided by Claude («yc», 13 Nov) — each with its undo
 1. The five places and names: Elenco · Piano · Oggi · Andamento · Obiettivi. Reason: each answers
