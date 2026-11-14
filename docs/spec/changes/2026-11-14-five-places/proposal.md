@@ -254,6 +254,23 @@
     320 px it ran into the target). Photos `LIFEOS/review/2026-11-14/planned/`. Decided by
     Claude: the arrow's number in the muted ink of the plan (undo: `.k-plan` in kit.css).
 
+23. **Asked, his to settle (his (c) and (d) of §19; page `LIFEOS/review/2026-11-14/crawl/index.html`,
+    opened in his browser).** Not built: an object-model change and a pattern change he has not
+    seen (CLAUDE.md rule 1, design.md rule 3).
+    - Q1 Planning model: (a, Claude's pick) «giornata tipo» (any previsti with times, any type)
+      + ciclo (which giornata tipo on which day); blocchi become lines of a giornata tipo;
+      «Salva questo giorno come giornata tipo»; a migration. (b) keep blocchi and cicli + «Salva
+      come tipo» making blocchi. (c) giornata tipo as a third type.
+    - Q2 Times: (a, Claude's pick) at planning «Ora: fissa · quando capita» per previsto (the
+      `timeMode = fixed` of `core/entries/write.ts` exists, with no field to set it); at
+      confirming «Fatto» follows it and the toast offers the other for 5 s («tieni le 20:00»),
+      which changes PAT-74. (b) a double tap or long press on «Fatto».
+    - Q3 Piano shows the cycle three times (strip, week list, Blocchi · Cicli): (a) strip + the
+      open day; the list only in Elenco.
+    - Q4 The interaction map (82 pages, every one linked; each place ×5 by area): Cestino as a
+      row in Profilo; «Qualità dei dati» merged into «Come valutiamo»; Legami hidden with no
+      data (PRD-02); the rest kept. And: which pages he never understood.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
