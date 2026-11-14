@@ -4,7 +4,7 @@
  * every kind belongs to one area by its domain. Plain data: server pages pass
  * it to the kit.
  */
-import type { Area, Tab } from "@lifeos/kit";
+import { PLACES, type Area, type Place } from "@lifeos/kit";
 
 export const AREA_HREF: Record<Area, string> = {
   corpo: "/corpo",
@@ -14,12 +14,35 @@ export const AREA_HREF: Record<Area, string> = {
   soldi: "/soldi",
 };
 
-export const tabHrefs = (area: Area): Record<Tab, string> => ({
-  diario: AREA_HREF[area],
-  piano: AREA_HREF[area] + "/piano",
-  elenco: AREA_HREF[area] + "/elenco",
-  andamento: AREA_HREF[area] + "/andamento",
+/** The places that take the area as a filter (PAT-95): `/{area}/{place}`, «Tutto» under `/oggi`. */
+export type FilteredPlace = "elenco" | "piano" | "andamento";
+
+/** The area chips of a place: the same place for each area; `rest` keeps a day (`/2026-11-05`). */
+export const areaHrefs = (
+  place: FilteredPlace | "",
+  rest = "",
+): Record<Area, string> => ({
+  oggi: "/oggi" + (place ? "/" + place : "") + rest,
+  cibo: "/cibo" + (place ? "/" + place : "") + rest,
+  corpo: "/corpo" + (place ? "/" + place : "") + rest,
+  mente: "/mente" + (place ? "/" + place : "") + rest,
+  soldi: "/soldi" + (place ? "/" + place : "") + rest,
 });
+
+/** The bar from a page of `area`: the chip stays when he changes place (PAT-95). */
+export const placeHrefs = (area: Area): Record<Place, string> => ({
+  elenco: AREA_HREF[area] + "/elenco",
+  piano: AREA_HREF[area] + "/piano",
+  oggi: "/oggi",
+  andamento: AREA_HREF[area] + "/andamento",
+  obiettivi: "/oggi/andamento/obiettivi",
+});
+
+/** A place's title and drawing, for its header (the bar's own words, `PLACES`). */
+export const placeHead = (place: Place) => {
+  const [, title, of] = PLACES.find(([k]) => k === place)!;
+  return { title, of };
+};
 
 /** The four areas besides Oggi, for the dynamic `[area]` routes. */
 export const AREAS_OF_DOMAINS = ["corpo", "cibo", "mente", "soldi"] as const;

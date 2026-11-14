@@ -24,6 +24,7 @@ import { logicalDay } from "@/core/engines/time";
 import { recomputeWeekTargets } from "@/core/energy";
 import { kindRegistry } from "@/core/kinds";
 import { readFoodChoices } from "@/core/food/catalog";
+import { saveDock } from "@/core/account/dock";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -178,4 +179,12 @@ export async function recomputeTargets(): Promise<void> {
   const { clock } = await ownerClock();
   await recomputeWeekTargets(db, owner, logicalDay(new Date(), clock), clock);
   revalidatePath("/", "layout");
+}
+
+/** The dock he edits (PAT-99): his pins of «Al volo», in his order; what was kept comes back. */
+export async function saveDockPins(pins: string[]): Promise<string[]> {
+  const owner = await requireOwner();
+  const kept = await saveDock(await getDb(), owner, pins);
+  revalidatePath("/", "layout");
+  return kept;
 }

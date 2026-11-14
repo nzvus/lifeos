@@ -323,7 +323,9 @@ export function DayView({
                 : {})}
               row={(r, mode, onRail) =>
                 r === waterRow && water ? (
-                  <WaterRow water={water} mode={mode} onRail={onRail} />
+                  <div id="acqua" className="k-anchor">
+                    <WaterRow water={water} mode={mode} onRail={onRail} />
+                  </div>
                 ) : r.group ? (
                   <GroupRow
                     row={r}
