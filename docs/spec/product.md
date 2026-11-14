@@ -30,7 +30,7 @@ ledger ID, a phase 1 answer (`n06`, `c11`, `x03`: `audit-2026-11/needs.md`) or a
 | PRD-13 | Decisions first: daily tasks in less than one screen | P4 |
 | PRD-14 | One primary action per screen; one form per verb | P5 |
 | PRD-15 | Lists and search from the kit | P6 |
-| PRD-16 | One map: five areas, the same four tabs everywhere | P7, ADR-0059 |
+| PRD-16 | One map: five areas, the same four tabs everywhere | P7, ADR-0059; to be replaced by ADR-0063 (change `2026-11-14-five-places`) |
 | PRD-17 | Visible responses in his words; 24 h times | P8 |
 | PRD-18 | System first: screens are composed from patterns, never drawn | P9, n12 |
 | PRD-19 | Everything one tap away, never everything in view; two levels at most, three only for the weather and the week strip (his pick 6 Nov) | c01, n12, UI-76, UI-80 |

@@ -1,6 +1,6 @@
 # ADR-0059: Four areas around Oggi, the same four tabs everywhere
 
-**Status:** accepted
+**Status:** superseded by ADR-0063 (the bar and the four tabs; the areas stay, as a filter)
 **Date:** 2026-10-30
 
 ## Context
