@@ -120,6 +120,9 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
     );
     blank = [];
   };
+  // A day to come (not gone, no now): planned here, so every part shows, an empty one as a
+  // gap that offers what is missing («+ Pranzo»), and every part starts open (PAT-97, O7).
+  const ahead = !gone && now === null;
   const holds = (p: Part) => rows.some((r) => r.minute >= p.from && r.minute < p.to);
   const firstOpen =
     (now &&
@@ -127,7 +130,7 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
     [...parts].reverse().find(holds)?.name;
   for (const p of parts) {
     const mine = rows.filter((r) => r.minute >= p.from && r.minute < p.to);
-    const begun = gone || (now !== null && now.minute >= p.from);
+    const begun = gone || ahead || (now !== null && now.minute >= p.from);
     if (!begun && mine.length === 0) continue;
     const passed = gone || (now !== null && now.minute >= p.to);
     if (mine.length === 0 && passed) {
@@ -136,7 +139,7 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
     }
     flush();
     const closes = sum !== undefined && mine.length > 0;
-    const isOpen = !closes || (flip[p.name] ?? p.name === firstOpen);
+    const isOpen = !closes || (flip[p.name] ?? (ahead || p.name === firstOpen));
     const said = closes && !isOpen ? sum(mine) : null;
     out.push(
       <DayPart
@@ -152,6 +155,7 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
           : {})}
       />,
     );
+    if (ahead && mine.length === 0) empty(p.from, p.to, "ga" + p.name);
     if (!isOpen) {
       // Closed: its voci wait behind the band; now, if it is here, is not drawn below it.
       last = mine[mine.length - 1]!.minute;

@@ -53,6 +53,8 @@ export const plan = {
   day: {
     fromPlan: "dal piano",
     fromCycle: "dal ciclo",
+    /** A previsto he added by hand: no blocco or ciclo puts it there again (PAT-97). */
+    onlyThisDay: "solo questo giorno",
     open: (what: string) => "Segna " + what.toLowerCase(),
   },
   /** Oggi · Elenco's two sections (PL-70). */

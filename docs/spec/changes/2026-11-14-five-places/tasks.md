@@ -24,6 +24,7 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 6. [ ] Kit: `NavBar` with the five places, `AreaFilter`, the place header with ⊕ (PAT-01, PAT-95,
    PAT-96) — tests citing the IDs, kit photos.
 7. [ ] Routes: five place routes, redirects from `[area]` tabs; `AreaTabs` removed (PAT-03).
-8. [ ] Piano plans a future day; Oggi's week strip opens it (PAT-97).
+8. [x] Piano plans a future day; Oggi's week strip opens it (PAT-97) — draft, proposal §17,
+   waiting for his word.
 9. [ ] Obiettivi: the goals together, the voto's weights; voto as a number (PAT-98).
 10. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.

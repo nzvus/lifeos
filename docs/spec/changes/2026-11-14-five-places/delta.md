@@ -38,7 +38,9 @@
 - **PAT-97** (patterns.md §1) A future day is planned in Piano, with the same lines as a real day,
   each saying where it comes from (blocco, ciclo, «solo questo giorno»). WHEN he taps a future date
   in Oggi's week strip THEN that day opens in Piano; WHEN the day comes THEN its lines are Oggi's
-  «previsto» voci. Kit: ✗.
+  «previsto» voci. WHEN the day is to come THEN every part of it shows, an empty one as a gap
+  that offers what is missing («+ Pranzo»), and every part starts open. Kit: `DateNav`
+  (`futureBase`) ✓; the day is Oggi's `DayPage` in Piano's frame.
 - **PAT-98** (patterns.md §3) A voto is shown as its number in the judgement's colour, with no
   word beside it; WHEN the app cannot score (PRD-23) THEN «–», the reason in its «Perché?». Kit: ✗.
 - **PAT-99** (patterns.md §6) The dock: one strip stuck above the bar on Oggi, at every scroll
