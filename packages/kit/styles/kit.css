@@ -2332,8 +2332,9 @@
   gap: var(--sp-2);
   padding: 0 16px;
 }
-/* two blocks in a row keep the gap of the boxes inside them (the weather touched «Il giorno», 3 Nov) */
-.k-page > .k-block + .k-block {
+/* VIS-04 «ricordati del padding tra le schedine»: one gap between any two cards or blocks of a
+   page, whatever their kind (was block + block only: «Il giorno» touched «Allenati», 14 Nov) */
+.k-page > :is(.k-block, .k-section) + :is(.k-block, .k-section) {
   margin-top: var(--sp-3);
 }
 
@@ -3227,7 +3228,7 @@ button.k-link {
   flex-direction: column;
   gap: 6px;
   padding: 12px 16px;
-  border: 1px solid var(--hairline);
+  /* colour separates, no frame (VIS-04): the only card on Oggi with a line round it */
   border-radius: var(--r-card);
   background: var(--sheet);
 }
@@ -4624,6 +4625,18 @@ button.k-link {
 .k-dockedit {
   color: var(--herb);
 }
+/* The dock is the page's last child: the room kept for ⊕ goes to what is above it, never under
+   the dock (it floated 80 px over the bar on a short page, ⊕ fell on it; 14 Nov), and a short
+   page still puts the dock on the bar. */
+.k-page:has(> .k-dock) {
+  min-height: calc(100dvh - var(--nav-h, 65px));
+}
+.k-page:has(+ .k-nav) > .k-dock:nth-last-child(1 of :not(.k-toastbar)) {
+  margin-bottom: 0;
+}
+.k-page:has(+ .k-nav):has(> .k-dock) > :nth-last-child(2 of :not(.k-toastbar)) {
+  margin-bottom: 80px;
+}
 .k-shell:has(.k-dock) .k-add.k-fab {
   bottom: calc(100% + 12px + 53px);
 }
@@ -4661,6 +4674,10 @@ button.k-link {
   padding-left: 0;
 }
 /* a part of the day that closes («Oggi a livelli» step 4): the band is its button */
+button.k-part.toggle:focus-visible {
+  outline: var(--ring) solid var(--focus);
+  outline-offset: -3px;
+}
 button.k-part.toggle {
   width: calc(100% + 24px);
   border: 0;

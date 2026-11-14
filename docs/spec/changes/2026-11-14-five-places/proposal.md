@@ -193,6 +193,22 @@
     - With this, «Oggi a livelli» (1)–(4) is built; next in the queue: Piano plans a future day
       (PAT-97), the composer, the gym.
 
+18. **14 Nov night, his photo of Oggi (production, desktop): «vedi i bug, e perché poi mi appaiano
+    "allenati", che è sta roba, poi il padding è fatto male, ma poi alcune cose hanno i contorni
+    altre no, bo, tutto con padding e dimensionamento fatto male, ma non esistono tool appositi
+    per evitare tutto questo?»** Measured, then fixed per pattern (branch `oggi-spacing`):
+    - One gap between any two cards or blocks of a page, 12 px (VIS-04); it was a rule for two
+      blocks only, so «Il giorno» touched «Allenati» (0 px) and cards were 8 px apart elsewhere.
+    - The weather card loses its line (VIS-04: colour separates); it was the only frame.
+    - The dock sits on the bar at the page's end and ⊕ above it: the 80 px kept for ⊕ had gone
+      under the dock, which then floated over the bar on a short page, ⊕ on top of it.
+    - A sky band tapped shows the kit's ring inside it, not the browser's white box.
+    - «Allenati» leaves Oggi (it stays on Corpo's diary): undoes the «decided by Claude» of §13.
+      Oggi starts the gym from the cycle's planned session («Inizia» on its box).
+    - The tool he asked for: `e2e/layout.spec.ts` (CI, every PR) measures every place at 390
+      and 320: the gap between cards, frames, and ⊕ / dock / bar covering one another. On
+      main's code it names each bug of his photo; `e2e/layout.ts` runs the same by hand.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
