@@ -170,6 +170,25 @@ visualizzazione dei range ottimali, la linea temporale verticale, espandibile, l
 - **Expandable, and remembered**: a tap goes to the next level, after the last back to 0, three
   dots say where; the level is kept per piece, so the page opens the way he left it (VIS-70):
   weather 0 · 1 · 2, «Il giorno» 0 · 1, the week 0 · 1 · 2, every Box closed · open.
+- **Seen in the running app, 14 Nov** (local preview account, a day with one meal; photos and the
+  script `lv2.mjs` in `LIFEOS/review/2026-11-14/levels/`, sheets `LA.png`, `LB.png`):
+  - Weather: 0 = one line «10° Coperto · 8°–10°» · 1 = the card (drawing, big temperature, the
+    day's range as a slider with now on it, umidità, aria, ore di luce, city) · 2 = adds the
+    temperature trace 00–23 with now, the air scale with its marker, the sun arc with its times.
+  - Week: 0 = the numbers · 1 = thin bars per area under each day · 2 = a 24-hour column per day
+    with a dot where a voce is; the Acqua box moves down, nothing else changes.
+  - «Il giorno»: 0 = skyline + voto + word, «è costata di più», dispendio ± with the goal's pace,
+    then four thin macro bars with grams and «Tutti i nutrienti ·» · 1 = the kcal bar, each macro
+    with its zones ruler and word, the three limits, «Vitamine e minerali n su m coperti», «Meno».
+  - Rail: compact = a thin coloured bar with «20:33» written vertically · «Orari» = «20:33»
+    horizontal with the type's icon in a ring; the chip then reads «Compatta».
+  - Under «Il giorno»: «Creatina · scorte ≈ 46 % · in calo da 9 giorni», «Costo ≈ 4,60 €», «Energia
+    del giorno ≈ 2.170 kcal ± 140 ⌄». Empty parts merge («Mattina – Pomeriggio · niente»). The day
+    ends with the one primary «Chiudi la giornata».
+  - **Not photographed yet**: a macro's accordion open (the tap by name failed), a tapped food, a
+    Box open, a voce sheet, the gym running, an object page, the composer with lines. The local
+    account has little data: load his export first (memory dry-run-migration-on-export) so the
+    photos show his day.
 - «Eccetera»: this list is his examples, not the whole. Each piece's levels and motion are to be
   photographed at every level before it is touched (`verify`), and added here when found missing.
 
