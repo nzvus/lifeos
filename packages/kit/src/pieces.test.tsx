@@ -2,6 +2,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Banner } from "./Banner";
+import { Box } from "./Box";
 import { Composer } from "./Composer";
 import { NavBar } from "./NavBar";
 import { Timer } from "./Timer";
@@ -581,5 +582,74 @@ describe("Timer (PAT-63)", () => {
     );
     expect(idle).toContain("–");
     expect(idle).not.toContain("Ferma");
+  });
+});
+
+describe("Box with levels (VIS-40, «Oggi a livelli»)", () => {
+  const entry = {
+    fam: "food",
+    title: "Pranzo",
+    value: "445",
+    meta: "Gnocchi alla sorrentina",
+    strip: [
+      { w: 20, c: "var(--macro-protein)" },
+      { w: 30, c: "var(--macro-carbs)" },
+    ],
+    pills: [{ t: "a digiuno" }],
+    score: {
+      value: 25,
+      parts: [{ name: "densità", score: 0.18, weight: 1 }],
+      missing: [],
+    },
+  };
+  const doors = [
+    { key: "nutrients", label: "Nutrienti", panel: <p>tutti i nutrienti</p> },
+    { key: "more", label: "Costo", value: "≈ 1,10 €" },
+  ];
+  const draw = (expanded: boolean, door: string | null = null) =>
+    renderToStaticMarkup(
+      <Box
+        entry={entry}
+        expanded={expanded}
+        onToggle={() => {}}
+        doors={doors}
+        door={door}
+        onDoor={() => {}}
+        acts={[
+          { label: "Fatto", onClick: () => {} },
+          { label: "Salta", onClick: () => {} },
+        ]}
+      >
+        <p>quattro barre</p>
+      </Box>,
+    );
+
+  it("closed: the head, its strip and the line's actions, nothing else", () => {
+    const h = draw(false);
+    expect(h).toContain("k-lvstrip");
+    expect(h).toContain("Fatto");
+    expect(h).not.toContain("Gnocchi alla sorrentina");
+    expect(h).not.toContain("quattro barre");
+    expect(h).not.toContain("a digiuno");
+    expect(h).not.toContain("k-door");
+  });
+
+  it("open: what the closed box said, then the doors with «Voto» first, no panel", () => {
+    const h = draw(true);
+    expect(h).not.toContain("k-lvstrip");
+    expect(h).toContain("Gnocchi alla sorrentina");
+    expect(h).toContain("quattro barre");
+    expect(h.indexOf("Voto")).toBeLessThan(h.indexOf("Nutrienti"));
+    expect(h).not.toContain("k-doorpanel");
+    // A door with nothing behind it is a plain chip, not a button.
+    expect(h).toMatch(/<span class="k-chip k-door static"><span>Costo<\/span>/);
+  });
+
+  it("one door open at a time: its panel only", () => {
+    const h = draw(true, "voto");
+    expect(h).toContain("k-doorpanel");
+    expect(h).toContain("densità");
+    expect(h).not.toContain("tutti i nutrienti");
+    expect(draw(true, "nutrients")).toContain("tutti i nutrienti");
   });
 });

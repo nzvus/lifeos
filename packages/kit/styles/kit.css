@@ -4630,3 +4630,33 @@ button.k-link {
 .k-shell:has(> .k-nav):has(.k-dock) .k-toastbar {
   bottom: calc(var(--nav-h, 65px) + 53px + 80px);
 }
+/* ---------- a Box with levels (VIS-40, «Oggi a livelli», 13 Nov): closed = one line and its strip;
+   open = doors, one panel at a time ---------- */
+.k-lvstrip {
+  height: var(--track);
+  margin-top: 8px;
+}
+.k-doors {
+  margin-top: 12px;
+  gap: 8px;
+}
+.k-door {
+  gap: 6px;
+}
+.k-door .k-meta {
+  font-variant-numeric: tabular-nums;
+}
+.k-doorpanel {
+  position: relative;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+.k-doorpanel > .k-parts {
+  margin-top: 0;
+}
+.k-door.static {
+  border-color: transparent;
+  background: transparent;
+  padding-left: 0;
+}

@@ -344,8 +344,8 @@ export async function DayPage({
   ]);
   const row = (i: (typeof items)[number]) => {
     const l0 = mealL0(i, targets, kinds, weightOn(series, date), micros);
-    // A meal of several foods lists them as its window's chips (L2), not again below.
-    const d = details(i, { foods: (l0?.foods?.length ?? 0) < 2 });
+    // Its foods with amounts, kcal and cost: a meal shows them behind its «Cibi» door.
+    const d = details(i);
     const shown = {
       ...withCompounds(present(i), i, ctx),
       // A night in pieces: its box speaks for the whole night.

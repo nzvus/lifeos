@@ -90,6 +90,13 @@ const SCORE = {
 };
 
 /** Example values, declared so: a board never passes them for the owner's (memory v2-boards-kit). */
+/** A Box with levels (VIS-40, «Oggi a livelli»): closed, open, one door open. */
+const LEVELS: [string, string, boolean, string | null][] = [
+  ["box-livello-0", "Box a livelli · chiuso: una riga e la striscia", false, null],
+  ["box-livello-1", "Box a livelli · aperto, con le porte", true, null],
+  ["box-livello-2", "Box a livelli · una porta aperta (Voto)", true, "voto"],
+];
+
 const BOXES: [string, string, BoxEntry, "card" | "row"][] = [
   [
     "box-pasto",
@@ -302,6 +309,38 @@ export default async function KitPage({
           <figcaption className="k-label">Box · col voto, aperto</figcaption>
           <Box entry={BOXES[3]![2]} expanded />
         </figure>
+        {LEVELS.map(([id, label, expanded, door]) => (
+          <div key={id} id={id} role="group" aria-label={label} className="k-stack g1">
+            <span className="k-label">{label}</span>
+            <Box
+              entry={{
+                ...BOXES[3]![2],
+                strip: [
+                  { w: 9, c: "var(--macro-protein)" },
+                  { w: 22, c: "var(--macro-carbs)" },
+                  { w: 6, c: "var(--macro-fat)" },
+                  { w: 2, c: "var(--macro-fiber)" },
+                ],
+              }}
+              expanded={expanded}
+              doors={[
+                {
+                  key: "nutrients",
+                  label: "Nutrienti",
+                  panel: <p className="k-meta">…</p>,
+                },
+                {
+                  key: "foods",
+                  label: "Cibi",
+                  value: "5",
+                  panel: <p className="k-meta">…</p>,
+                },
+                { key: "more", label: "Costo", value: "≈ 1,10 €" },
+              ]}
+              door={door}
+            />
+          </div>
+        ))}
       </section>
 
       <section className="k-section g2" id="parti" aria-label="Le parti del giorno">
