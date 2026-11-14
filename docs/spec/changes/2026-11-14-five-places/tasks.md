@@ -7,6 +7,8 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 2. [ ] One screen at a time in the real app, from the kit pieces, photographed at 390/360/320
    (`.claude/rules/design.md`). First: Oggi with «Il giorno» opened. The two artifact pages of 13–14 Nov
    are rejected (own flat rows; his words in the proposal).
+   - [x] Oggi built on branch `five-places-oggi`, photos in `LIFEOS/review/2026-11-14/oggi-proposal/`
+     (14 Nov). Waiting for his word; then the next screen.
 3. [ ] The composer on the grid (C1…C7: the amount is the control, «Pasto» automatic, planned time
    and «tieni le 12:30», variants).
 4. [ ] The gym on the grid (G1…G6: timer always in view, order follows what he does, warm-up
