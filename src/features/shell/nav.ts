@@ -12,7 +12,7 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const isArea = (s: string | null): s is Area =>
   !!s && (AREAS as readonly string[]).includes(s);
 
-export type Nav = { active: Place | null; addHref: string };
+export type Nav = { active: Place | null; addHref: string; area: Area };
 
 /** The place of an address (ADR-0063, PAT-03): what the page is for, whatever its area. */
 function placeOf(
@@ -49,5 +49,7 @@ export function navFor(pathname: string, search: URLSearchParams): Nav | null {
   if (isArea(first) && DATE.test(second)) q.set("giorno", second);
   if (area && area !== "oggi") q.set("area", area);
   const qs = q.toString();
-  return { active, addHref: "/aggiungi" + (qs ? "?" + qs : "") };
+  // The bar keeps the area of a page that filters by it (PAT-95); Oggi and the rest: every area.
+  const kept = isArea(first) && first !== "oggi" && active !== "oggi" ? first : "oggi";
+  return { active, addHref: "/aggiungi" + (qs ? "?" + qs : ""), area: kept };
 }

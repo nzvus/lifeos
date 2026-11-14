@@ -124,6 +124,11 @@
       painted under «Il giorno» and could not be tapped. Fixed for every toast in the kit's CSS;
       as its own PR #352 to main, since this branch cannot merge yet. «Al volo» now uses the kit
       `Toast` (lint baseline −2).
+12. **14 Nov, on the Oggi screen as built:** «si, diciamo che in realtà non hai cambiato molto, mi
+    sarebbe piaciuto prendere il meglio del design attuale e di quello che avevi pensato tu».
+    → Oggi is approved as a base but is too timid: the next version takes the best of today's
+    pieces and of Claude's 13 Nov target design for Oggi (the page he commented with O1…O10),
+    built from the real kit, shown as photos.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

@@ -5,7 +5,7 @@
  * a catalog's list with its search and sort (features/library), the pantry
  * or the routes. Decided by the agent (3 Nov, ledger UI-95). Server component.
  */
-import { AREAS, AreaTabs, Box, F, List, PageHeader } from "@lifeos/kit";
+import { AREAS, AreaFilter, Box, F, List, PageHeader } from "@lifeos/kit";
 import { readNotTwins } from "@/core/account/not-twins";
 import { readExercises, readRoutines } from "@/core/training";
 import { training } from "@/i18n/training";
@@ -20,7 +20,7 @@ import { readPantry, SHOP_EVERY_DAYS, type PantryFood } from "@/core/pantry";
 import { Library } from "@/features/library/Library";
 import { stockWords } from "@/features/library/pantry";
 import { MODE_WORDS } from "@/features/movement-words";
-import { AREA_HREF, AREA_NAME, tabHrefs } from "@/features/places";
+import { AREA_HREF, AREA_NAME, areaHrefs, placeHead } from "@/features/places";
 import { readLibrary } from "../../oggi/elenco/library-data";
 
 type Shelf = "cibi" | "pasti" | "dispensa" | "esercizi" | "schede" | "tragitti";
@@ -101,12 +101,8 @@ export async function AreaShelves({
   }
   return (
     <main className="k-page has-bd">
-      <PageHeader
-        title={AREA_NAME[area]}
-        context={context}
-        of={AREAS.find(([k]) => k === area)![2]}
-      />
-      <AreaTabs tab="elenco" hrefs={tabHrefs(area)} />
+      <PageHeader {...placeHead("elenco")} context={context} />
+      <AreaFilter area={area} hrefs={areaHrefs("elenco")} />
       <nav className="k-block" aria-label={"Elenchi di " + AREA_NAME[area]}>
         <div className="k-chips">
           {shelves.map(([k, label]) => (

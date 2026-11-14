@@ -5,9 +5,9 @@ const at = (path: string, search = "") => navFor(path, new URLSearchParams(searc
 
 describe("one NavBar and ⊕ in (app)/layout.tsx (PAT-01)", () => {
   it("the place ticked is what the page is for, whatever its area (ADR-0063); ⊕ adds to the area", () => {
-    expect(at("/oggi")).toEqual({ active: "oggi", addHref: "/aggiungi" });
-    expect(at("/cibo")).toEqual({ active: "oggi", addHref: "/aggiungi?area=cibo" });
-    expect(at("/corpo/elenco")).toEqual({
+    expect(at("/oggi")).toMatchObject({ active: "oggi", addHref: "/aggiungi" });
+    expect(at("/cibo")).toMatchObject({ active: "oggi", addHref: "/aggiungi?area=cibo" });
+    expect(at("/corpo/elenco")).toMatchObject({
       active: "elenco",
       addHref: "/aggiungi?area=corpo",
     });
@@ -19,8 +19,17 @@ describe("one NavBar and ⊕ in (app)/layout.tsx (PAT-01)", () => {
     expect(at("/andamento/peso")?.active).toBe("andamento");
   });
 
+  it("the bar keeps the area of a place that filters by it; Oggi is every area (PAT-95)", () => {
+    expect(at("/cibo/elenco")?.area).toBe("cibo");
+    expect(at("/soldi/andamento")?.area).toBe("soldi");
+    expect(at("/cibo/cibo/x")?.area).toBe("cibo");
+    expect(at("/cibo")?.area).toBe("oggi");
+    expect(at("/oggi/piano")?.area).toBe("oggi");
+    expect(at("/profilo")?.area).toBe("oggi");
+  });
+
   it("a past day: ⊕ adds to that day", () => {
-    expect(at("/oggi/2026-11-05")).toEqual({
+    expect(at("/oggi/2026-11-05")).toMatchObject({
       active: "oggi",
       addHref: "/aggiungi?giorno=2026-11-05",
     });
@@ -41,21 +50,24 @@ describe("one NavBar and ⊕ in (app)/layout.tsx (PAT-01)", () => {
   });
 
   it("every other page has it too (Q-09 «a»): forms, objects, ⊕, Profilo", () => {
-    expect(at("/cibo/cibo/x")).toEqual({
+    expect(at("/cibo/cibo/x")).toMatchObject({
       active: "elenco",
       addHref: "/aggiungi?area=cibo",
     });
     expect(at("/cibo/pasto/nuovo")?.active).toBe("elenco");
     expect(at("/corpo/esercizio/x/unisci")?.active).toBe("elenco");
-    expect(at("/oggi/andamento/obiettivi/nuovo")).toEqual({
+    expect(at("/oggi/andamento/obiettivi/nuovo")).toMatchObject({
       active: "obiettivi",
       addHref: "/aggiungi",
     });
     expect(at("/aggiungi/pasto", "area=cibo&giorno=2026-11-05")?.active).toBe("oggi");
-    expect(at("/palestra")).toEqual({ active: "oggi", addHref: "/aggiungi?area=corpo" });
-    expect(at("/voce/x")).toEqual({ active: "oggi", addHref: "/aggiungi" });
+    expect(at("/palestra")).toMatchObject({
+      active: "oggi",
+      addHref: "/aggiungi?area=corpo",
+    });
+    expect(at("/voce/x")).toMatchObject({ active: "oggi", addHref: "/aggiungi" });
     for (const p of ["/profilo", "/profilo/cestino", "/kit"])
-      expect(at(p), p).toEqual({ active: null, addHref: "/aggiungi" });
+      expect(at(p), p).toMatchObject({ active: null, addHref: "/aggiungi" });
   });
 
   it("never on a running gym session (TRAIN-10)", () => {

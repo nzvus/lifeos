@@ -22,7 +22,7 @@ import {
   NutrientsL0,
   PageHeader,
   weekOf,
-  AreaTabs,
+  AreaFilter,
   AREAS,
   type Area,
   type DayBars,
@@ -117,7 +117,7 @@ import {
 } from "./[[...day]]/actions";
 import { DayClose } from "@/features/day/DayClose";
 import { goalLine } from "@/features/day/goal-line";
-import { AREA_HREF, AREA_NAME, areaOf, areaOfFam, tabHrefs } from "@/features/places";
+import { AREA_HREF, AREA_NAME, areaOf, areaOfFam, areaHrefs } from "@/features/places";
 import { costWords, entryCost, sumCosts } from "@/core/food/cost";
 import { creatineWords } from "@/core/food/creatine";
 import { readCreatine } from "@/core/food/creatine-read";
@@ -514,7 +514,7 @@ export async function DayPage({
   // Corpo today, nothing running: the two routines trained most, to start now (map D:
   // Palestra's «Inizia» on top of Corpo · Diario, architecture.md §10).
   const routines =
-    area === "corpo" &&
+    (area === "corpo" || area === "oggi") &&
     date === today &&
     !items.some((i) => i.kind.key === "session" && isRunning(i))
       ? (await readRoutines(db, owner, today, await readExercises(db, owner)))
@@ -529,15 +529,9 @@ export async function DayPage({
 
   return (
     <main className="k-page has-bd">
-      {/* Oggi (ADR-0063, PAT-01): the day is the title, the weather under it (his O6, O8); an
-          area's diary keeps its header and tabs until its own turn. */}
-      {area !== "oggi" && (
-        <>
-          <PageHeader title={AREA_NAME[area]} of={AREAS.find(([k]) => k === area)![2]} />
-          <AreaTabs tab="diario" hrefs={tabHrefs(area)} />
-        </>
-      )}
-      <section className={"k-block g3" + (area === "oggi" ? " k-top" : "")}>
+      {/* The day is the title, the weather under it (ADR-0063, PAT-01; his O6, O8). An area's
+          diary is the same page filtered: its chips lead back to «Tutto» (PAT-95). */}
+      <section className="k-block g3 k-top">
         <DateNav
           day={date}
           today={today}
@@ -548,29 +542,34 @@ export async function DayPage({
           levelKey="oggi.settimana"
           rhythm={weekRhythm(days, (d) => ({ ...sctx, date: d, now: null }), clock)}
           nowMinute={nowMinute}
-          {...(area === "oggi"
-            ? {
-                page: {
-                  of: { place: "oggi" },
-                  context: cycleLine,
-                  extra: (
-                    <DayPlanBar
-                      steps={(plans.get(date)?.cycles ?? [])
-                        .filter((c) => !c.rest)
-                        .map((c) => ({
-                          cycleId: c.cycleId,
-                          label: c.label,
-                          skipped: c.skipped,
-                        }))}
-                      skip={skipStep.bind(null, date)}
-                    />
-                  ),
-                },
-                under: weather && (
-                  <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
-                ),
-              }
-            : {})}
+          page={{
+            of: { place: "oggi" },
+            context: area === "oggi" ? cycleLine : "",
+            extra: area === "oggi" && (
+              <DayPlanBar
+                steps={(plans.get(date)?.cycles ?? [])
+                  .filter((c) => !c.rest)
+                  .map((c) => ({
+                    cycleId: c.cycleId,
+                    label: c.label,
+                    skipped: c.skipped,
+                  }))}
+                skip={skipStep.bind(null, date)}
+              />
+            ),
+          }}
+          under={
+            area === "oggi" ? (
+              weather && (
+                <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
+              )
+            ) : (
+              <AreaFilter
+                area={area}
+                hrefs={areaHrefs("", date === today ? "" : "/" + date)}
+              />
+            )
+          }
         />
         {/* The water near the top (P4: it was 680 px down), out of the times. */}
         {water && <WaterRow water={water} rail={false} />}

@@ -17,7 +17,7 @@ import {
   PageHeader,
   RangeNav,
   type BoxEntry,
-  AreaTabs,
+  AreaFilter,
   List,
 } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
@@ -43,7 +43,7 @@ import {
 import { OpenBox } from "@/features/day/OpenBox";
 import { averageScore } from "@/features/progress/average";
 import { stepsDomain } from "@/features/progress/steps";
-import { tabHrefs, trackerHref } from "@/features/places";
+import { areaHrefs, placeHead, trackerHref } from "@/features/places";
 import {
   period,
   periodPills,
@@ -268,8 +268,8 @@ export default async function AndamentoPage({
   const later = addDays(end, DAYS);
   return (
     <main className="k-page has-bd">
-      <PageHeader title="Oggi" of={{ place: "oggi" }} />
-      <AreaTabs tab="andamento" hrefs={tabHrefs("oggi")} />
+      <PageHeader {...placeHead("andamento")} />
+      <AreaFilter area="oggi" hrefs={areaHrefs("andamento")} />
       <section className="k-section" aria-label="Obiettivi">
         <div className="k-line wrap g4">
           <a className="k-link" href="/oggi/andamento/obiettivi">

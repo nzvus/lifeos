@@ -5,7 +5,7 @@
  * their kind's domain). Server component.
  */
 import { notFound } from "next/navigation";
-import { AREAS, AreaTabs, Box, PageHeader } from "@lifeos/kit";
+import { AREAS, AreaFilter, Box, PageHeader } from "@lifeos/kit";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { readUserKinds } from "@/core/day";
@@ -16,7 +16,8 @@ import {
   AREA_NAME,
   areaOf,
   isDomainArea,
-  tabHrefs,
+  areaHrefs,
+  placeHead,
   trackerHref,
 } from "@/features/places";
 
@@ -53,8 +54,8 @@ export async function AreaIndex({
   const rows = [...AREA_INDEX[area][tab], ...own];
   return (
     <main className="k-page">
-      <PageHeader title={AREA_NAME[area]} of={AREAS.find(([k]) => k === area)![2]} />
-      <AreaTabs tab={tab} hrefs={tabHrefs(area)} />
+      <PageHeader {...placeHead(tab)} />
+      <AreaFilter area={area} hrefs={areaHrefs(tab)} />
       <section className="k-section g2" aria-label={AREA_NAME[area]}>
         {rows.length === 0 ? (
           <p className="k-empty k-meta">{EMPTY_TAB[tab]}</p>

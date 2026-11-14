@@ -67,25 +67,28 @@ export function NavBar({
   );
 }
 
-export type Tab = "diario" | "piano" | "elenco" | "andamento";
-
-/** The four tabs, the same in every place and in the same order (ADR-0059). */
-export const TABS: [Tab, string][] = [
-  ["diario", "Diario"],
-  ["piano", "Piano"],
-  ["elenco", "Elenco"],
-  ["andamento", "Andamento"],
+/** «Tutto» is Oggi's key: every area. */
+const FILTER: [Area, string][] = [
+  ["oggi", "Tutto"],
+  ["cibo", "Cibo"],
+  ["corpo", "Corpo"],
+  ["mente", "Mente"],
+  ["soldi", "Soldi"],
 ];
 
-export function AreaTabs({ tab, hrefs }: { tab: Tab; hrefs: Record<Tab, string> }) {
+/**
+ * AreaFilter (PAT-95): one row of chips under a place's header; the area is a filter of the
+ * place, never a page. Links, not state: each chip is the same place for that area.
+ */
+export function AreaFilter({ area, hrefs }: { area: Area; hrefs: Record<Area, string> }) {
   return (
-    <nav className="k-tabs k-areatabs" aria-label="Schede">
-      {TABS.map(([key, name]) => (
+    <nav className="k-chips k-areafilter" aria-label="Ambito">
+      {FILTER.map(([key, name]) => (
         <a
           key={key}
-          className="k-tab"
+          className={"k-chip" + (key === area ? " on" : "")}
           href={hrefs[key]}
-          aria-current={key === tab ? "page" : undefined}
+          aria-current={key === area ? "true" : undefined}
         >
           {name}
         </a>

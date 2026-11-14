@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DOMAINS } from "@/core/kinds/kind";
-import { areaOf, isDomainArea, tabHrefs } from "./places";
+import { areaHrefs, areaOf, isDomainArea, placeHrefs } from "./places";
 
 describe("map D", () => {
   it("puts every domain in one area (ADR-0059)", () => {
@@ -11,12 +11,21 @@ describe("map D", () => {
     expect(areaOf("money")).toBe("soldi");
   });
 
-  it("gives every place the same four tabs", () => {
-    expect(tabHrefs("cibo")).toEqual({
-      diario: "/cibo",
-      piano: "/cibo/piano",
+  it("an area is a filter of a place, and the bar keeps it (PAT-95, PAT-03)", () => {
+    expect(areaHrefs("elenco")).toEqual({
+      oggi: "/oggi/elenco",
+      cibo: "/cibo/elenco",
+      corpo: "/corpo/elenco",
+      mente: "/mente/elenco",
+      soldi: "/soldi/elenco",
+    });
+    expect(areaHrefs("", "/2026-11-05").cibo).toBe("/cibo/2026-11-05");
+    expect(placeHrefs("cibo")).toEqual({
       elenco: "/cibo/elenco",
+      piano: "/cibo/piano",
+      oggi: "/oggi",
       andamento: "/cibo/andamento",
+      obiettivi: "/oggi/andamento/obiettivi",
     });
     expect(isDomainArea("oggi")).toBe(false);
     expect(isDomainArea("corpo")).toBe(true);

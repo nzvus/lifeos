@@ -4275,12 +4275,17 @@ button.k-link {
   margin-bottom: 80px;
 }
 /* The four tabs of a place, the same row everywhere. */
-.k-areatabs {
-  margin: 0 16px;
-  gap: 0;
+/* AreaFilter (PAT-95): five chips in one row at every width, under a place's header */
+.k-areafilter {
+  margin: 0 16px 8px;
+  flex-wrap: nowrap;
+  gap: 4px;
 }
-.k-areatabs > .k-tab {
+.k-areafilter > .k-chip {
   flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  padding-inline: 0;
 }
 /* List (P6, UI-41, UI-100): the rest past 8 rows scroll in their own box, the page stays put. */
 .k-listmore {

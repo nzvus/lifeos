@@ -5,7 +5,7 @@
  * movements day by day with each day's total. ⊕ → Spesa adds one.
  * It is Soldi · Andamento itself (map D, architecture.md §10: `/soldi/andamento`).
  */
-import { addDays, AreaTabs, Box, F, List, PageHeader } from "@lifeos/kit";
+import { addDays, AreaFilter, Box, F, List, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -13,7 +13,7 @@ import { logicalDay } from "@/core/engines/time";
 import { readCategories, readMovements } from "@/core/money";
 import { monthMoney } from "@/core/money/month";
 import { categoryName } from "@/features/money/words";
-import { tabHrefs } from "@/features/places";
+import { areaHrefs, placeHead } from "@/features/places";
 
 const MONTH = /^\d{4}-\d{2}$/;
 const eur = (cents: number) => F.num(Math.abs(cents) / 100, "€");
@@ -52,12 +52,12 @@ export async function MoneyPage({
   return (
     <main className="k-page has-bd">
       <PageHeader
-        title="Soldi"
+        title={placeHead("andamento").title}
         context={F.month(first) + " " + first.slice(0, 4) + " · i movimenti, il mese"}
         action={{ label: "+ Spesa", href: "/aggiungi/spesa?area=soldi" }}
-        of={{ fam: "money" }}
+        of={placeHead("andamento").of}
       />
-      <AreaTabs tab="andamento" hrefs={tabHrefs("soldi")} />
+      <AreaFilter area="soldi" hrefs={areaHrefs("andamento")} />
       <section className="k-block g3">
         <div className="k-line between">
           <a className="k-link" href={link(prevFirst.slice(0, 7))}>
