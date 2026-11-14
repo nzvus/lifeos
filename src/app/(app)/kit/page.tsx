@@ -309,38 +309,6 @@ export default async function KitPage({
           <figcaption className="k-label">Box · col voto, aperto</figcaption>
           <Box entry={BOXES[3]![2]} expanded />
         </figure>
-        {LEVELS.map(([id, label, expanded, door]) => (
-          <div key={id} id={id} role="group" aria-label={label} className="k-stack g1">
-            <span className="k-label">{label}</span>
-            <Box
-              entry={{
-                ...BOXES[3]![2],
-                strip: [
-                  { w: 9, c: "var(--macro-protein)" },
-                  { w: 22, c: "var(--macro-carbs)" },
-                  { w: 6, c: "var(--macro-fat)" },
-                  { w: 2, c: "var(--macro-fiber)" },
-                ],
-              }}
-              expanded={expanded}
-              doors={[
-                {
-                  key: "nutrients",
-                  label: "Nutrienti",
-                  panel: <p className="k-meta">…</p>,
-                },
-                {
-                  key: "foods",
-                  label: "Cibi",
-                  value: "5",
-                  panel: <p className="k-meta">…</p>,
-                },
-                { key: "more", label: "Costo", value: "≈ 1,10 €" },
-              ]}
-              door={door}
-            />
-          </div>
-        ))}
       </section>
 
       <section className="k-section g2" id="parti" aria-label="Le parti del giorno">
@@ -490,6 +458,44 @@ export default async function KitPage({
       </section>
 
       <Pieces open={typeof aperto === "string" ? aperto : null} />
+
+      {/* After the photographed pieces (e2e/kit.spec.ts): a section added above them moves
+          them by a fraction of a pixel and fails their photos. */}
+      <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">
+        <h2>Box a livelli</h2>
+        {LEVELS.map(([id, label, expanded, door]) => (
+          <div key={id} id={id} role="group" aria-label={label} className="k-stack g1">
+            <span className="k-label">{label}</span>
+            <Box
+              entry={{
+                ...BOXES[3]![2],
+                strip: [
+                  { w: 9, c: "var(--macro-protein)" },
+                  { w: 22, c: "var(--macro-carbs)" },
+                  { w: 6, c: "var(--macro-fat)" },
+                  { w: 2, c: "var(--macro-fiber)" },
+                ],
+              }}
+              expanded={expanded}
+              doors={[
+                {
+                  key: "nutrients",
+                  label: "Nutrienti",
+                  panel: <p className="k-meta">…</p>,
+                },
+                {
+                  key: "foods",
+                  label: "Cibi",
+                  value: "5",
+                  panel: <p className="k-meta">…</p>,
+                },
+                { key: "more", label: "Costo", value: "≈ 1,10 €" },
+              ]}
+              door={door}
+            />
+          </div>
+        ))}
+      </section>
     </main>
   );
 }
