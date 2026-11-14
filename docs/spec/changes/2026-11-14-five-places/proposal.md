@@ -209,6 +209,45 @@
       and 320: the gap between cards, frames, and ⊕ / dock / bar covering one another. On
       main's code it names each bug of his photo; `e2e/layout.ts` runs the same by hand.
 
+19. **14 Nov night, his answer to the report of §17–§18 (verbatim):** «ap ma controlla meglio il
+    padding anche altrove perché gia vedo altri problemi simili. e poi sinceramente non ho capito
+    e non è intuitivo il funzionamento dei blocchi e cicli, poi che significa che vengono mostrati
+    sia in alto che in basso, poi nel piano nel "giorno" vengono mostrati i dati precisi delle
+    somme pianificate degli alimenti? perché in oggi non mostra la quantità raggiunta coi
+    pianificati, per lo meno solo graficamente con la barra ma attraverso i numeri dice solo " +
+    tot" quindi devi fare la somma a mente ed è scomodo. quello che voglio pianificare in generale
+    è questo: creare magari dei prototipi di giornata magari da mettere in ciclo, eventualmente, e
+    devo poter pianificare qualsiasi cosa, dai cibi, alle sessioni, alle semplici assunzioni, alle
+    pesate, eccetera. inoltre come ti avrò detto prima per quanto riguardava le cose che si
+    aggiungevano man mano, bisognerebbe mettere delle modalità per gli orari, ovvero se l'orario
+    previsto si sovrascrive o meno alla conferma o no, (vale anche per orari non messi, e quindi
+    cose fuori orario) e poi al momento della conferma, eventualmente, poter decidere se
+    effettivamente sovrascrivere o meno (non so se con doppio tocco o qualche altro sistema per
+    differenziare la cosa). quindi mettere questa feature in due momenti, sia alla pianificazione
+    sia all'effettivo completamento, in modo intelligente pero, non so bene come possa essere
+    implementato. inoltre continuo a vedere disallineamenti o cose poco centrare o scritte a caso
+    che rompono il design. comunque molte alte cose andrebbero cambiate, hai controllato dove
+    portano le varie interazioni? ci sono parecchie pagine che non ho mai usato o perché non le ho
+    mai capite o perché fanno schifo e ce ne siamo dimenticati o entrambe.»
+    Taken as: (a) padding and alignment checked on every page, not only Oggi; (b) the day's
+    numbers say the total with the planned, not «+ n»; (c) a map of where every interaction
+    leads, with the pages he never used; (d) planning: day prototypes, possibly in a ciclo, any
+    type planned, and time modes at planning and at confirming — an object-model decision,
+    asked with options before any code (CLAUDE.md rule 1).
+
+20. **14 Nov night: «ok i have to go, ap until you finish the token, for everything yc».** Every
+    recommendation below is taken and logged with its undo; what cannot be undone or reaches
+    production (migrations, deletes, merges) stays his.
+21. **Padding on every page, measured (his (a) of §19), same PR #355.** A crawl of the 82 pages
+    the app links to, with his data at 390 and 320 (`LIFEOS/review/2026-11-14/crawl/`): the
+    page's column is one (text at 28 px in a card, boxes at 16). Off it: Elenco, lying loose on
+    22 pages (its chips touched the screen's edge) and padded twice inside Piano's card. Fixed for
+    the pattern: Elenco is a page card itself, its groups have no padding of their own. The other
+    hits were link tap areas (4 px wider than their text on purpose) and a label hidden for
+    screen readers. The layout spec counts Elenco and ObjectActions as page pieces.
+    Not measurable this way, so not claimed fixed: «poco centrate», «scritte a caso» beyond loose
+    text; a photo of each one he sees is enough to turn it into a check.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

@@ -6,11 +6,13 @@
  * - gaps: two cards or blocks in a row are `--sp-3` apart, never 0, never a second value;
  * - frames: no card, block or weather card draws a line round itself (colour separates);
  * - stuck: at the page's end, ⊕, the dock and the bar never cover one another, and the dock
- *   sits on the bar (it floated 80 px over it, ⊕ on top of it).
+ *   sits on the bar (it floated 80 px over it, ⊕ on top of it);
+ * - loose: words lying on the page outside any card or header («scritte a caso», 14 Nov);
+ * - out: something that sticks out of its card's right edge.
  */
 export function measureLayout() {
   const main = document.querySelector("main.k-page");
-  if (!main) return { gaps: [], frames: [], stuck: [], want: 0 };
+  if (!main) return { gaps: [], frames: [], stuck: [], loose: [], out: [], want: 0 };
   const want = parseFloat(
     getComputedStyle(document.documentElement).getPropertyValue("--sp-3"),
   );
@@ -27,7 +29,7 @@ export function measureLayout() {
   const gaps: string[] = [];
   let prev: Element | null = null;
   for (const e of [...main.children].filter(shown)) {
-    const card = e.matches(".k-block, .k-section");
+    const card = e.matches(".k-block, .k-section, .k-elenco");
     if (card && prev) {
       const g = Math.round(
         e.getBoundingClientRect().top - prev.getBoundingClientRect().bottom,
@@ -38,7 +40,7 @@ export function measureLayout() {
   }
   const frames = [
     ...main.querySelectorAll(
-      ":scope > .k-section, :scope > .k-block, .k-wx, .k-page > .k-section .k-section",
+      ":scope > .k-section, :scope > .k-block, :scope > .k-elenco, .k-wx, .k-page > .k-section .k-section",
     ),
   ]
     .filter(shown)
@@ -50,6 +52,42 @@ export function measureLayout() {
       );
     })
     .map(name);
+  // The page's own pieces: cards, blocks, the header and its chips, the backdrop, the dock, a
+  // sheet's foot. Anything else straight in the page is loose.
+  const PIECES =
+    ".k-block, .k-section, .k-elenco, .k-actions, .k-ph, .k-areafilter, .k-backdrop, .k-dock, .k-toastbar, .k-nav, .k-pagefoot, .k-formfoot, .k-composer, .k-dn, .k-sheet, script, style, template";
+  const loose = [...main.children]
+    .filter(shown)
+    .filter((e) => !e.matches(PIECES) && (e.textContent ?? "").trim() !== "")
+    .map((e) => name(e) + " «" + (e.textContent ?? "").trim().slice(0, 40) + "»");
+  const out: string[] = [];
+  for (const card of main.querySelectorAll(
+    ":scope > .k-section, :scope > .k-block, :scope > .k-elenco",
+  )) {
+    const cb = card.getBoundingClientRect();
+    if (!cb.width || getComputedStyle(card).overflowX !== "visible") continue;
+    for (const el of card.querySelectorAll(
+      "button, a, input, select, .k-num, .k-pill, .k-chip, p, h2, h3",
+    )) {
+      if (
+        el.closest(
+          ".k-chips, .k-swipe, .k-scroll, [data-scroll], .k-week, .k-dn, .k-art, .k-part",
+        )
+      )
+        continue;
+      const e = el.getBoundingClientRect();
+      if (e.width && shown(el) && e.right > cb.right + 1)
+        out.push(
+          name(el) +
+            " «" +
+            (el.textContent ?? "").trim().slice(0, 24) +
+            "» +" +
+            Math.round(e.right - cb.right) +
+            " px in " +
+            name(card),
+        );
+    }
+  }
   window.scrollTo(0, document.documentElement.scrollHeight);
   const stuck: string[] = [];
   const floats = [".k-fab", ".k-dock", ".k-nav", ".k-pagefoot", ".k-formfoot"]
@@ -72,5 +110,5 @@ export function measureLayout() {
     if (Math.abs(hole) > 1)
       stuck.push(`the dock is ${hole} px off the bar at the page's end`);
   }
-  return { gaps, frames, stuck, want };
+  return { gaps, frames, stuck, loose, out: out.slice(0, 10), want };
 }

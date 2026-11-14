@@ -2334,7 +2334,7 @@
 }
 /* VIS-04 «ricordati del padding tra le schedine»: one gap between any two cards or blocks of a
    page, whatever their kind (was block + block only: «Il giorno» touched «Allenati», 14 Nov) */
-.k-page > :is(.k-block, .k-section) + :is(.k-block, .k-section) {
+.k-page > :is(.k-block, .k-section, .k-elenco) + :is(.k-block, .k-section, .k-elenco) {
   margin-top: var(--sp-3);
 }
 
@@ -3742,6 +3742,7 @@ button.k-link {
 /* UI-78: colour separates — a page's sections sit on a surface lightly tinted by their
    area, no frame and no rule; the day's own panel the same; air between the boxes */
 .k-page > .k-section,
+.k-page > .k-elenco,
 .k-page > .k-composer > .k-section {
   margin: 8px 16px 0;
   padding: 12px;
@@ -4507,6 +4508,11 @@ button.k-link {
 .k-elencotwins {
   min-height: var(--touch);
   text-decoration: none;
+}
+/* Elenco's groups are titled parts of one list, not cards: no padding of their own (in Piano's
+   card they were padded twice, loose on a page they lay without a fill; 14 Nov, measured) */
+.k-elenco > .k-section {
+  padding: 0;
 }
 .k-elenco a.k-findrow,
 .k-elenco a.k-elencotwins {
