@@ -85,6 +85,54 @@ dimentichi».
 - Checks that fail a PR: lint fitness rules, glossary test, jscpd, IDs cited by tests, kit photos
   (PAT-90…94). Baselines only shrink.
 
+## What the real screens hold today (his «you can infer from the screenshots», 14 Nov)
+From the photos of the running app with his data, 12 Nov: `LIFEOS/review/2026-11-12/shots/`
+(110 screens at 390 px; never a bare `ls` there, use `find`). **Before touching a screen, open its
+photo: everything on it stays unless he says it goes.** Seen by Claude on 14 Nov: the 19 below.
+- **Oggi · Diario**: date title + «↩ oggi» + level dots; week strip with bars per area and the
+  ciclo's step under each day (Legs, Rest, Corsa); Acqua box (skyline, voto, bar, +250 / +500);
+  «Al volo» chips (creatina, caffè); weather card with its levels; **«Il giorno»** (skyline, voto
+  with word, «è costata di più: …», dispendio ± with the goal's pace, kcal bar, each macro with
+  its zones ruler and gram ticks, zuccheri liberi · grassi saturi · sale each judged with a word,
+  the week's mean tick, «Vitamine e minerali n su m coperti», «Ricalcola la settimana», «Meno»);
+  «Costo ≈ € · n senza prezzo»; «Energia del giorno ≈ kcal ±»; the goal line («76,3 → 72,3 kg
+  entro il 20 dic · vai a … ne servono …»); counters per kind; «Orari»; then the day on the time
+  rail under sky bands (Mattina … Notte, sun arc): each voce a Box with silhouette, skyline chip,
+  «è costata di più: densità (27)», the four macro bars with grams, «× 1,5», «a digiuno»,
+  «integratore · scorte ≈ 63 %»; empty time «4 h 35 senza niente · + aggiungi / + Spuntino»;
+  «Fine giornata»; «Senza orario» (Passi ≈ kcal); «Giornata chiusa: manca qualcosa · Riapri».
+- **Oggi · Andamento**: doors «Obiettivi › Soldi › Legami › Qualità › Come valutiamo ›»; period
+  7 / 30 / 90 giorni / Mese; a month of judged days; «Il periodo» with voto; the macro rulers on
+  the period's mean; «Energia: quanto consumi, e da dove» (consumo appreso ±, base a riposo, la
+  giornata, passi, palestra serie per serie, digerire); «Gli ambiti» (a voto per area with its
+  costliest part); Peso; Allenamento (sessioni, serie allenanti, tempo); «I giorni».
+- **Obiettivi** (exists: Oggi · Andamento · Obiettivi): «8 obiettivi · 2 senza dati»; each a Box
+  with its pace («servono −0,88 kg/sett. · vai a +0,08»), «da qui: 2.105 kcal e 168 g al giorno»,
+  «fuori ritmo», a bar for the week («2 su 4»), «nessun dato · si conta quando c'è il suo
+  tracker»; «+ Nuovo obiettivo».
+- **Come valutiamo** (exists): chips per type (Pasto · Peso · Sonno · Acqua · Sessione · Giorno);
+  what the voto measures in words; «I criteri e il loro peso», each with a slider, its % and its
+  explanation with the source. **Qualità dei dati** (exists): per kind «21/30», what is missing.
+- **Peso** (Corpo · Andamento · Peso): period + judged month; «Il periodo» with voto, «a digiuno»,
+  «trend +1 kg»; three tiles Trend · Ritmo · Ne servono; the `Chart` with points, line without
+  water, uncertainty and the goal; «Cosa dice di te»; «Pesate» each with its voto; «come
+  valutiamo ›». Corpo · Andamento lists Peso · Sonno · Passi as doors.
+- **Oggi · Piano**: «sett. 46 · ciclo PPLCR»; the week; «La settimana, tocca un giorno per
+  cambiarlo» (each day's step: fatto solid, oggi «in ritardo», previsto hatched, with the day's
+  kcal); «Oggi»: «come da ciclo (Legs)» + Cambia, «Salta «Legs»», «Sposta l'allenamento alle»,
+  «+ previsto», «Copia i pasti di ieri», «Apri il giorno»; Blocchi; Cicli; Attivi · Archiviati.
+- **Cibo · Elenco**: chips Cibi · Pasti salvati · Dispensa; «Possibili doppioni (1) ›»; «+ Nuovo
+  cibo»; `Find`; «Ordina per»; each row kcal/100, skyline, voto, «1 prodotto»; «Mostra altri (111)».
+- **Aggiungi** (⊕'s sheet): «Cerca tra 153 cose»; Adesso · Previsto · Prima; «Per te» ranked for
+  the hour (meals «5 giorni su 28 a quest'ora», schede «inizia adesso», Acqua +500 ml, Passi).
+- **Meal composer**: Ingredienti · Pasti · Stima; search with brand and kcal/100; «Dal codice a
+  barre»; «Cena, come sarà» (the `Nutrients` of the meal); «La giornata con questo pasto» (the
+  day's bars with the meal hatched); Annulla + Salva.
+- **Gym start**: «Da un modello» (each scheda: n esercizi · n volte in 90 giorni), «Inizia senza
+  modello». Corpo · Diario: «Allenati» with the cycle's next schede, «Altri modelli ›».
+- Not opened yet by Claude: the running gym session, a voce sheet, an object page, Cibo and Mente
+  diaries, Sonno, Passi, Legami, Soldi, Profilo. Open the photo before touching any of them.
+
 ## The model behind every screen (model.md)
 - A registry declares every type once; pages, forms, lists, search, verbs and charts read it; a
   new kind is a registry entry, never a new page (MOD-01, MOD-02, PRD-03).
@@ -94,8 +142,11 @@ dimentichi».
   (MOD-50…54). Domain rules and formulas: `docs/spec/domains/`.
 
 ## Open against ADR-0063 (five places by action) — his to settle, found 14 Nov
-- «Obiettivi» as drawn showed adjustable score weights and goals with no data: both are «not
-  now» in product.md §4. The place may still stand; those two contents may not.
+- Obiettivi, «Come valutiamo», Qualità, Andamento per area and the Piano of a day already exist
+  and are richer than the two rejected artifact pages. The five places must be a new way to reach
+  what exists, never a redraw of it.
+- product.md §4 lists «adjustable score weights» as not now, yet «Come valutiamo» shows a slider
+  per criterion: which is true is his to say.
 - Words: product.md §3 lists «the areas» and «the four tabs»; «Libreria» and «places» are in the
   «Not» column. The five names need their line there.
 - PAT-10/PAT-60: ⊕ is one Capture sheet everywhere; ADR-0063 gives each place its own verb.

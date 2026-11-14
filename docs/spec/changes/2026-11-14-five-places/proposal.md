@@ -40,6 +40,9 @@
   vola succede che ignori tutte le discussioni precedenti, a questo punto è evidente che il modo in
   cui stiamo lavorando è sbagliato». → a question about the way of working, his to settle before
   any more drawing (also for `/tune-rules`).
+- **14 Nov, on the first draft of `.claude/rules/design.md`:** «hm, not enough, you can infer from the
+  screenshots». → the page now lists what each real screen holds, from the photos of the running
+  app (12 Nov, `LIFEOS/review/2026-11-12/shots/`); 19 screens opened, the rest named as not opened.
 
 ## Decided by Claude («yc», 13 Nov) — each with its undo
 1. The five places and names: Elenco · Piano · Oggi · Andamento · Obiettivi. Reason: each answers
