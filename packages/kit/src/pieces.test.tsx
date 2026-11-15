@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { Banner } from "./Banner";
 import { Box } from "./Box";
 import { DayPart } from "./DayPart";
+import { DateNav } from "./DateNav";
 import { Nutrients } from "./Nutrients";
 import { Composer } from "./Composer";
 import { NavBar } from "./NavBar";
@@ -702,5 +703,26 @@ describe("DayPart that closes (VIS-61, «Oggi a livelli» step 4)", () => {
     expect(renderToStaticMarkup(<DayPart name="Sera" when="dalle 18:30" />)).toContain(
       'role="separator"',
     );
+  });
+});
+
+describe("DateNav: a day to come opens in Piano (PAT-97)", () => {
+  const draw = (futureBase?: string) =>
+    renderToStaticMarkup(
+      <DateNav
+        day="2026-11-14"
+        today="2026-11-14"
+        hrefBase="/oggi/"
+        {...(futureBase ? { futureBase } : {})}
+      />,
+    );
+  it("a tap on a later day goes to Piano; today and the days before stay on Oggi", () => {
+    const h = draw("/oggi/piano?giorno=");
+    expect(h).toContain('href="/oggi/piano?giorno=2026-11-15"');
+    expect(h).toContain('href="/oggi/2026-11-13"');
+    expect(h).not.toContain('href="/oggi/piano?giorno=2026-11-14"');
+  });
+  it("without it every day opens on its own page", () => {
+    expect(draw()).toContain('href="/oggi/2026-11-15"');
   });
 });

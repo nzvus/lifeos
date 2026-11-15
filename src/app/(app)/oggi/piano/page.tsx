@@ -31,6 +31,7 @@ import { plan } from "@/i18n/plan";
 import { skipStep } from "../[[...day]]/plan-actions";
 import { planRows } from "../plan-rows";
 import { copyYesterday, moveTraining, overrideStep } from "../../piano/actions";
+import { DayPage } from "../day-page";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -99,8 +100,10 @@ export default async function PianoPage({
     : undefined;
   const sessionAt = plannedSession?.minute ?? ghostSession?.minute ?? null;
 
-  return (
-    <main className="k-page has-bd">
+  // A day to come is planned here with the same lines as a real day (PAT-97, his O7).
+  const ahead = open !== null && open > today;
+  const head = (
+    <>
       <PageHeader
         title={placeHead("piano").title}
         context={[
@@ -113,7 +116,7 @@ export default async function PianoPage({
         of={placeHead("piano").of}
       />
       <AreaFilter area="oggi" hrefs={areaHrefs("piano")} />
-      <section className="k-block g3">
+      <section className={"k-block g3" + (ahead ? " k-top" : "")}>
         <DateNav
           mode="week"
           day={open ?? week[0]!}
@@ -124,159 +127,190 @@ export default async function PianoPage({
           tags={Object.fromEntries(week.map((d) => [d, planTag(plans.get(d))]))}
         />
       </section>
-      <section className="k-section g3" aria-label="La settimana">
-        <h2>
-          La settimana <span className="k-meta">tocca un giorno per cambiarlo</span>
-        </h2>
-        <div className="k-stack g2">
-          {days.map((d) => (
-            <Box
-              key={d.day}
-              density="row"
-              mode="times"
-              entry={dayRow({
-                day: d.day,
-                today,
-                plan: plans.get(d.day),
-                sessions: [...d.timed, ...d.untimed]
-                  .filter((i) => i.kind.key === "session" && i.status === "done")
-                  .map((i) => i.item?.name ?? "Allenamento"),
-                planned: [...d.timed, ...d.untimed].filter((i) => i.status === "planned")
-                  .length,
-                kcal: targets.get(d.day)?.kcal ?? null,
-                selected: d.day === open,
-              })}
-            />
-          ))}
-        </div>
-      </section>
-
-      {open && sheet && (
-        <section className="k-section g3" aria-label="Il giorno">
-          <h2>{open === today ? "Oggi" : F.Day(open)}</h2>
-          <span className="k-meta">{planWords(sheetPlan, open === today)}</span>
-          {open >= today &&
-            (sheetPlan?.cycles ?? []).map((c) => {
-              const cycle = cycles.find((x) => x.id === c.cycleId);
-              if (!cycle) return null;
-              return (
-                <div key={c.cycleId} className="k-stack g2">
-                  <form
-                    action={overrideStep.bind(null, open, c.cycleId)}
-                    className="k-line k-panel"
-                  >
-                    <select
-                      className="k-select"
-                      name="step"
-                      defaultValue=""
-                      aria-label={"Passo del ciclo " + cycle.name}
-                    >
-                      <option value="">{"come da ciclo (" + c.label + ")"}</option>
-                      {cycle.steps
-                        .filter((s) => s.items.length > 0)
-                        .map((s) => (
-                          <option key={s.id} value={s.position}>
-                            {stepName(s)}
-                          </option>
-                        ))}
-                      <option value="rest">Riposo</option>
-                    </select>
-                    <button type="submit" className="k-btn secondary">
-                      Cambia
-                    </button>
-                  </form>
-                  {!c.rest && (
-                    <form action={skipStep.bind(null, open, c.cycleId, !c.skipped)}>
-                      <button type="submit" className="k-btn link">
-                        {c.skipped
-                          ? "Annulla il salto di «" + c.label + "»"
-                          : "Salta «" + c.label + "»"}
-                      </button>
-                    </form>
-                  )}
-                </div>
-              );
+    </>
+  );
+  const weekRows = (
+    <section className="k-section g3" aria-label="La settimana">
+      <h2>
+        La settimana <span className="k-meta">tocca un giorno per cambiarlo</span>
+      </h2>
+      <div className="k-stack g2">
+        {days.map((d) => (
+          <Box
+            key={d.day}
+            density="row"
+            mode="times"
+            entry={dayRow({
+              day: d.day,
+              today,
+              plan: plans.get(d.day),
+              sessions: [...d.timed, ...d.untimed]
+                .filter((i) => i.kind.key === "session" && i.status === "done")
+                .map((i) => i.item?.name ?? "Allenamento"),
+              planned: [...d.timed, ...d.untimed].filter((i) => i.status === "planned")
+                .length,
+              kcal: targets.get(d.day)?.kcal ?? null,
+              selected: d.day === open,
             })}
-          <span className="k-help">
-            Cambia solo questo giorno: i blocchi e il ciclo restano come sono.
-          </span>
-          {items
-            .filter((i) => i.status === "planned")
-            .map((i) => (
-              <Box
-                key={i.id}
-                density="row"
-                rail={false}
-                entry={withCompounds(present(i), i, ctx)}
-              />
-            ))}
-          {fromPlan.map((m) => (
-            <Box key={m.id} density="row" mode="times" entry={m} />
-          ))}
-          {open >= today && (plannedSession || ghostSession) && (
-            <form action={moveTraining.bind(null, open)} className="k-line k-panel">
-              <input type="hidden" name="entry" value={plannedSession?.id ?? ""} />
-              <input type="hidden" name="routine" value={dueRoutine ?? ""} />
-              <input
-                type="hidden"
-                name="minutes"
-                value={
-                  plannedSession?.start && plannedSession.end
-                    ? Math.round(
-                        (plannedSession.end.getTime() - plannedSession.start.getTime()) /
-                          60_000,
-                      )
-                    : ""
-                }
-              />
-              <label className="k-stack g1 k-grow">
-                <span className="k-help">Sposta l’allenamento alle</span>
-                <input
-                  className="k-text"
-                  type="time"
-                  name="at"
-                  required
-                  defaultValue={sessionAt === null ? "" : F.time(sessionAt)}
-                />
-              </label>
-              <button type="submit" className="k-btn secondary">
-                Sposta
-              </button>
-            </form>
-          )}
-          <div className="k-line wrap">
-            {open >= today && (
-              <a className="k-btn secondary" href={"/aggiungi?giorno=" + open}>
-                + previsto
-              </a>
-            )}
-            {open >= today && (
-              <form action={copyYesterday.bind(null, open)}>
+          />
+        ))}
+      </div>
+    </section>
+  );
+  const dayControls = open && sheet && (
+    <section
+      className="k-section g3"
+      aria-label={ahead ? "Il piano del giorno" : "Il giorno"}
+    >
+      <h2>{open === today ? "Oggi" : F.Day(open)}</h2>
+      <span className="k-meta">{planWords(sheetPlan, open === today)}</span>
+      {open >= today &&
+        (sheetPlan?.cycles ?? []).map((c) => {
+          const cycle = cycles.find((x) => x.id === c.cycleId);
+          if (!cycle) return null;
+          return (
+            <div key={c.cycleId} className="k-stack g2">
+              <form
+                action={overrideStep.bind(null, open, c.cycleId)}
+                className="k-line k-panel"
+              >
+                <select
+                  className="k-select"
+                  name="step"
+                  defaultValue=""
+                  aria-label={"Passo del ciclo " + cycle.name}
+                >
+                  <option value="">{"come da ciclo (" + c.label + ")"}</option>
+                  {cycle.steps
+                    .filter((s) => s.items.length > 0)
+                    .map((s) => (
+                      <option key={s.id} value={s.position}>
+                        {stepName(s)}
+                      </option>
+                    ))}
+                  <option value="rest">Riposo</option>
+                </select>
                 <button type="submit" className="k-btn secondary">
-                  Copia i pasti di ieri
+                  Cambia
                 </button>
               </form>
-            )}
-            <a
-              className="k-btn secondary"
-              href={open === today ? "/oggi" : "/oggi/" + open}
-            >
-              Apri il giorno
-            </a>
-          </div>
-        </section>
+              {!c.rest && (
+                <form action={skipStep.bind(null, open, c.cycleId, !c.skipped)}>
+                  <button type="submit" className="k-btn link">
+                    {c.skipped
+                      ? "Annulla il salto di «" + c.label + "»"
+                      : "Salta «" + c.label + "»"}
+                  </button>
+                </form>
+              )}
+            </div>
+          );
+        })}
+      <span className="k-help">
+        Cambia solo questo giorno: i blocchi e il ciclo restano come sono.
+      </span>
+      {!ahead &&
+        items
+          .filter((i) => i.status === "planned")
+          .map((i) => (
+            <Box
+              key={i.id}
+              density="row"
+              rail={false}
+              entry={withCompounds(present(i), i, ctx)}
+            />
+          ))}
+      {!ahead &&
+        fromPlan.map((m) => <Box key={m.id} density="row" mode="times" entry={m} />)}
+      {open >= today && (plannedSession || ghostSession) && (
+        <form action={moveTraining.bind(null, open)} className="k-line k-panel">
+          <input type="hidden" name="entry" value={plannedSession?.id ?? ""} />
+          <input type="hidden" name="routine" value={dueRoutine ?? ""} />
+          <input
+            type="hidden"
+            name="minutes"
+            value={
+              plannedSession?.start && plannedSession.end
+                ? Math.round(
+                    (plannedSession.end.getTime() - plannedSession.start.getTime()) /
+                      60_000,
+                  )
+                : ""
+            }
+          />
+          <label className="k-stack g1 k-grow">
+            <span className="k-help">Sposta l’allenamento alle</span>
+            <input
+              className="k-text"
+              type="time"
+              name="at"
+              required
+              defaultValue={sessionAt === null ? "" : F.time(sessionAt)}
+            />
+          </label>
+          <button type="submit" className="k-btn secondary">
+            Sposta
+          </button>
+        </form>
       )}
-
-      <section className="k-section g3" aria-label={plan.elenco.blocks}>
-        <Elenco
-          archived={false}
-          filterHref={{
-            active: "/oggi/piano",
-            archived: "/oggi/elenco?archiviati=1#blocchi",
-          }}
-          sections={planSections({ blocks, cycles, archived: false, area: null })}
-        />
-      </section>
+      <div className="k-line wrap">
+        {open >= today && (
+          <a className="k-btn secondary" href={"/aggiungi?giorno=" + open}>
+            + previsto
+          </a>
+        )}
+        {open >= today && (
+          <form action={copyYesterday.bind(null, open)}>
+            <button type="submit" className="k-btn secondary">
+              Copia i pasti di ieri
+            </button>
+          </form>
+        )}
+        {!ahead && (
+          <a
+            className="k-btn secondary"
+            href={open === today ? "/oggi" : "/oggi/" + open}
+          >
+            Apri il giorno
+          </a>
+        )}
+      </div>
+    </section>
+  );
+  const elenco = (
+    <section className="k-section g3" aria-label={plan.elenco.blocks}>
+      <Elenco
+        archived={false}
+        filterHref={{
+          active: "/oggi/piano",
+          archived: "/oggi/elenco?archiviati=1#blocchi",
+        }}
+        sections={planSections({ blocks, cycles, archived: false, area: null })}
+      />
+    </section>
+  );
+  if (ahead)
+    return (
+      <DayPage
+        params={Promise.resolve({ day: [open] })}
+        searchParams={Promise.resolve({})}
+        piano={{
+          head: (
+            <>
+              {head}
+              {dayControls}
+            </>
+          ),
+          foot: elenco,
+        }}
+      />
+    );
+  return (
+    <main className="k-page has-bd">
+      {head}
+      {weekRows}
+      {dayControls}
+      {elenco}
     </main>
   );
 }

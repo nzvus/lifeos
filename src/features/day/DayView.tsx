@@ -262,6 +262,8 @@ export function DayView({
           };
     });
   const chips = offered.fam.length + offered.status.length > 0;
+  // A day to come shows its parts even empty, each offering what to plan (PAT-97, his O7).
+  const ahead = !!clock && !clock.gone && !now;
 
   return (
     <>
@@ -313,11 +315,11 @@ export function DayView({
           )}
         </nav>
       )}
-      {shown.length === 0 && shownUntimed.length === 0 ? (
+      {shown.length === 0 && shownUntimed.length === 0 && !ahead ? (
         <p className="k-empty k-meta">Nessuna voce con questi filtri.</p>
       ) : (
         <>
-          {shown.length > 0 && (
+          {(shown.length > 0 || ahead) && (
             <Timeline
               rows={shown}
               now={now}

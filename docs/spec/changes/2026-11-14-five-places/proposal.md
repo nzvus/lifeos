@@ -193,6 +193,25 @@
     - With this, «Oggi a livelli» (1)–(4) is built; next in the queue: Piano plans a future day
       (PAT-97), the composer, the gym.
 
+17. **Under «ap», 14 Nov night: Piano plans a day to come (PAT-97; his O7), branch
+    `piano-future-day`, a draft PR for his word** (photos `LIFEOS/review/2026-11-14/piano-day/`,
+    script `shots.mjs`):
+    - On Oggi, a tap on a later day in the week strip or the month opens it in Piano; arrows
+      and swipe still walk through Oggi (PAT-97 speaks of a tap).
+    - Piano's page for a day to come shows Piano's header and week, the plan controls (the
+      ciclo's step, «Salta», «Sposta l'allenamento», «+ previsto», «Copia i pasti di ieri»),
+      then the same day as Oggi draws it: «Il giorno» with what is planned, the sky bands, the
+      rail, each previsto hatched; then the blocchi and cicli.
+    - Every part shows, an empty one as a gap that offers its meal («+ Colazione», «+ Pranzo»,
+      «+ Cena»), and all start open. Each previsto says where it comes from: «dal ciclo»,
+      «dal piano» (a blocco), «solo questo giorno» (put there by hand).
+    - Decided by Claude, each with its undo: Piano's day reuses Oggi's `DayPage` with a
+      `piano` frame instead of a second copy of the day (undo: the `ahead` branch in
+      `oggi/piano/page.tsx`); the week's rows and the old flat list give way to the day on a day
+      to come (undo: same branch); the provenance pill shows on Oggi's previsti too (undo:
+      `from` in `day-page.tsx`).
+    - Not touched, found: the ciclo's select is cut at 320 px («come da ciclo (R»); a time
+      field shows «11:59 PM» in an English browser; the night's gap offers «+ Spuntino».
 18. **14 Nov night, his photo of Oggi (production, desktop): «vedi i bug, e perché poi mi appaiano
     "allenati", che è sta roba, poi il padding è fatto male, ma poi alcune cose hanno i contorni
     altre no, bo, tutto con padding e dimensionamento fatto male, ma non esistono tool appositi
