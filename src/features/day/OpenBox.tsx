@@ -22,14 +22,17 @@ export function OpenBox({
   compact,
   levelKey,
   doors,
+  startOpen = false,
 }: {
   entry: BoxEntry;
   children?: ReactNode;
   compact?: ReactNode;
   levelKey?: string;
   doors?: BoxDoor[];
+  /** Alone on its own page (PAT-30 level 2): open at first. */
+  startOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   const [door, setDoor] = useState<string | null>(null);
   const [level, next] = useLevel(levelKey ?? "", 1, doors ? 0 : 1);
   if (doors)

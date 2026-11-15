@@ -245,6 +245,8 @@ export type MealPage = {
     quantity: string;
     unit: string;
     href: string | null;
+    /** What picks its drawing (VIS-30): the food's group. */
+    of: Record<string, string>;
   }[];
   totals: Record<string, number>;
   /** Its family (ADR-0060): the base it is a variant of, with what it changes; its variants. */
@@ -306,6 +308,7 @@ export function mealPage(
               quantity: p.quantity,
               unit: f.unit,
               href: f.foodId ? "/cibo/cibo/" + f.foodId : null,
+              of: f.drawing ?? {},
             },
           ]
         : [];

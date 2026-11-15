@@ -557,6 +557,14 @@
     their cibo; the label behind «Etichetta»; the order B1 → B2 → B4 → B3 → B5 → B6 → B7, then the
     same table for exercises and schede. Written as PAT-30 and PAT-43 in `delta.md`. Each B is
     built in the real app and shown as photos before it merges (design.md rule 1).
+48. **B1 built under his «ap yc», 15 Nov** (photos `LIFEOS/review/2026-11-15/b1/`): a saved
+    pasto's page opens on the box the day draws for a meal — voto with its criteria, the four
+    bars, the doors Nutrienti · Cibi · Costo — in place of its plain rows of totals and cibi.
+    The doors live in one module (`features/day/meal-doors.tsx`) used by both. Decided by Claude:
+    behind «Cibi» each cibo is a kit row that opens its page (B4 for this list); the box is open
+    at first on its own page; judged as a logged meal is (all the foods' estimates). Found: the
+    composer's «come sarà» judges a new meal with fewer estimates than the day does, so the same
+    meal can have no voto there (not changed here). Undo: `git revert` of the commit.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

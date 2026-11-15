@@ -12,17 +12,15 @@ import {
   Box,
   energyStrip,
   F,
-  Nutrients,
   NutrientsL0,
   type BoxAct,
-  type BoxDoor,
   type BoxEntry,
   type NutrientsData,
 } from "@lifeos/kit";
 import type { Details } from "./details";
+import { EntryDetails, mealDoors } from "./meal-doors";
 import type { Status } from "./filter";
 import { stepServings } from "./servings";
-import { common } from "@/i18n/common";
 
 export type RowIntent = "done" | "skipped" | "planned" | "remove";
 
@@ -231,63 +229,6 @@ export function EntryRow({
           {open && !entry.l0 && entry.details && <EntryDetails d={entry.details} />}
         </Box>
       </div>
-    </div>
-  );
-}
-
-/**
- * A meal's doors: every nutrient (its foods as chips that light their share, VIS-50), the
- * foods with their amounts, then the cost or the rest. A voce without nutrients has none.
- */
-function mealDoors(l0: NutrientsData | null | undefined, d: Details | null | undefined) {
-  if (!l0) return [];
-  const doors: BoxDoor[] = [
-    { key: "nutrients", label: common.doors.nutrients, panel: <Nutrients data={l0} /> },
-  ];
-  if (d && d.lines.length > 0)
-    doors.push({
-      key: "foods",
-      label: common.doors.foods,
-      value: String(l0.foods?.length || d.lines.length),
-      panel: <EntryDetails d={{ stats: [], lines: d.lines, foot: "" }} />,
-    });
-  const cost = d?.stats.find((s) => s.label === common.doors.cost);
-  // The cost is said on its chip, not again behind it.
-  const rest = d
-    ? { stats: d.stats.filter((s) => s !== cost), lines: [], foot: d.foot }
-    : null;
-  const more = rest && (rest.stats.length > 0 || rest.foot !== "");
-  if (cost || more)
-    doors.push({
-      key: "more",
-      label: cost ? common.doors.cost : common.doors.details,
-      ...(cost ? { value: cost.value } : {}),
-      ...(more ? { panel: <EntryDetails d={rest} /> } : {}),
-    });
-  return doors;
-}
-
-/** The open box's details: the numbers as tiles, then the lines, then where it comes from. */
-function EntryDetails({ d }: { d: Details }) {
-  return (
-    <div className="k-stack g2 k-details">
-      {d.stats.length > 0 && (
-        <div className="k-stats">
-          {d.stats.map((s) => (
-            <span key={s.label} className="k-stat">
-              <span className="k-help">{s.label}</span>
-              <span className="v">{s.value}</span>
-            </span>
-          ))}
-        </div>
-      )}
-      {d.lines.map((l, k) => (
-        <div key={k} className="k-line between">
-          <span className="k-body">{l.label}</span>
-          <span className="k-num k-right">{l.value}</span>
-        </div>
-      ))}
-      {d.foot && <span className="k-help">{d.foot}</span>}
     </div>
   );
 }

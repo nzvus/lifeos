@@ -92,7 +92,7 @@ che in elenco… è naturale pensare che tutto questo debba essere uniformato»)
 ## 4. Backlog — today minus target (each item removes more than it adds)
 | # | convergence | replaces | by | deletes (about) |
 |---|---|---|---|---|
-| B1 | a pasto's page and Elenco row show the day's meal box | `recipe-extra.tsx` hand rows (125 lines) | the box `EntryRow` already draws, moved out of `features/day` | 1 renderer, the plain totals |
+| B1 (page built 15 Nov, §48; the Elenco row comes with B2) | a pasto's page and Elenco row show the day's meal box | `recipe-extra.tsx` hand rows (125 lines) | the box `EntryRow` already draws, moved out of `features/day` | 1 renderer, the plain totals |
 | B2 | a row opens in place in the Elenco | page hop for reading | `Box` open, as on the day | 2 of the 3 pages in the table above |
 | B3 | Marche and formati nested under their cibo, each a row that opens | the Marche row that opens nothing | the same row at level 0/1 | — (adds the missing link and edit) |
 | B4 | «Usato in» and a pasto's cibi are rows | 2 hand-made `k-line` lists | `List` of rows | 2 hand lists |

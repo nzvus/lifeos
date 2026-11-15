@@ -5,7 +5,7 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **71** · kit pieces: **41**
+- routes: **42** · screen components outside the kit: **72** · kit pieces: **41**
 - components that take input (a form, a field): **37**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
@@ -182,6 +182,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `Composer` | 4 | features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx, features/plan/CycleComposer.tsx … (4) |
 | `Find` | 4 | features/food/FoodSearch.tsx, features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx … (4) |
 | `Elenco` | 3 | app/(app)/[area]/piano/piano-list.tsx, features/gallery/Pieces.tsx, app/(app)/oggi/elenco/page.tsx |
+| `NutrientsL0` | 3 | app/(app)/[area]/[type]/[id]/recipe-extra.tsx, features/day/DayView.tsx, features/day/EntryRow.tsx |
 | `ObjectActions` | 3 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
 | `ObjectForm` | 3 | features/gallery/Pieces.tsx, features/library/PantryActions.tsx, features/objects/NewObjectForm.tsx |
 | `Capture` | 2 | features/add/CaptureSheet.tsx, features/gallery/Pieces.tsx |
@@ -191,7 +192,6 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `EmptyTime` | 2 | features/day/Timeline.tsx, app/(app)/kit/page.tsx |
 | `InPlace` | 2 | features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
 | `MergeSheet` | 2 | features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
-| `NutrientsL0` | 2 | features/day/DayView.tsx, features/day/EntryRow.tsx |
 | `ObjectPage` | 2 | features/gallery/ObjectDemo.tsx, features/objects/ObjectView.tsx |
 | `RangeNav` | 2 | app/(app)/[area]/andamento/[tracker]/page.tsx, app/(app)/oggi/andamento/page.tsx |
 | `Sheet` | 2 | features/day/QuickIntakes.tsx, features/library/PantryActions.tsx |
@@ -219,8 +219,8 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/` | 0 | 0 |
 | `/(.)aggiungi` | 0 | 0 |
 | `/[...rest]` | 0 | 0 |
-| `/[area]/[[...day]]` | 10 | 2 |
-| `/[area]/[type]/[id]` | 32 | 16 |
+| `/[area]/[[...day]]` | 11 | 2 |
+| `/[area]/[type]/[id]` | 33 | 16 |
 | `/[area]/[type]/[id]/componi` | 20 | 13 |
 | `/[area]/andamento` | 2 | 0 |
 | `/[area]/andamento/[tracker]` | 1 | 0 |
@@ -242,8 +242,8 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/andamento/[tracker]` | 0 | 0 |
 | `/kit` | 1 | 1 |
 | `/kit/oggetto` | 1 | 0 |
-| `/oggi/[[...day]]` | 10 | 2 |
-| `/oggi/[type]/[id]` | 32 | 16 |
+| `/oggi/[[...day]]` | 11 | 2 |
+| `/oggi/[type]/[id]` | 33 | 16 |
 | `/oggi/[type]/[id]/componi` | 20 | 13 |
 | `/oggi/andamento` | 1 | 0 |
 | `/oggi/andamento/come-valutiamo` | 2 | 1 |
