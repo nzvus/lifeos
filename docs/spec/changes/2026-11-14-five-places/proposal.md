@@ -336,6 +336,21 @@
        the strip and the open day only (Q3).
     5. «Ora: fissa · quando capita» on every line and every previsto (Q2's second half).
 
+29. **«Salva come giornata tipo» built, 15 Nov, under «ap» (branch `giornata-tipo`).** Found while
+    building: a ciclo's step already holds blocchi «nel ciclo», each with its own time and any
+    type, and the Piano already plans them on the step's days — a step *is* a giornata tipo. So,
+    decided by Claude (undo: the type «day» of §28 instead): no new type; the giornata tipo is
+    the step. On Piano's day, «Salva come giornata «Legs»» turns the day's voci into the lines of
+    the step due that day: one line per object or type (eight glasses are one «Acqua»), nothing
+    twice; a meal of foods is first kept as a pasto «Cena · Legs» (reused when it exists), so the
+    line plans the real food; a step holding its scheda directly (his PPLCR) gets it into its
+    blocco first, or it would stop planning it; a step named by what it held keeps its name.
+    Tried on his 10 Nov export reloaded locally: today saved as «Legs» → Monday 16 plans «Legs»
+    and «Cena · Legs» at 21:00. Not on a rest step (it would stop being a rest); not on a past
+    day (the Piano has no step for it). Photos `LIFEOS/review/2026-11-15/giornata/`.
+    Next: slice 4 (Elenco: «Giornate tipo» and «Cicli», the word «blocco» off the screens) and
+    the time mode (§27).
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

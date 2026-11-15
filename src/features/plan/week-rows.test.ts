@@ -7,6 +7,7 @@ const step = (label: string, rest = false) => ({
   cycle: "PLPRR",
   label,
   rest,
+  position: 0,
   itemId: null,
   blockIds: [],
   late: false,

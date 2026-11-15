@@ -13,6 +13,8 @@ export type CycleStepDue = {
   /** The step's label, «Riposo» for a rest without one. */
   label: string;
   rest: boolean;
+  /** Its place in the ciclo: «Salva come giornata tipo» writes into that step (proposal §28). */
+  position: number;
   /** Its first object (the step's scheda), for the Piano of the day (PL-30, PL-40). */
   itemId: string | null;
   /** The blocchi «nel ciclo» it holds (Q-18 (a)): the Piano plans them, not the step's object. */
@@ -71,6 +73,7 @@ export function dayPlans(input: PlanInput): Map<IsoDate, DayPlan> {
         cycle: c.name,
         label: label(p.step),
         rest: isRest(p.step),
+        position: p.step.position,
         itemId: p.step.keys[0] ?? null,
         blockIds: [...(c.blocksAt?.get(p.step.position) ?? [])],
         late: p.late,

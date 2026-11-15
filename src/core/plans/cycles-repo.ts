@@ -241,7 +241,25 @@ export async function inCycleBlocks(
  * named as the scheda, in Corpo, with no time of its own (PL-12 places it). A name his other
  * blocchi have takes « (ciclo)» (*decided by the agent*: blocchi names stay unique, PAT-24).
  */
-async function inCycleBlockOf(
+/** His live blocchi's names, lower case: a new one stays unique (PAT-24). */
+export async function blockNames(tx: Db | Tx, owner: Owner): Promise<Set<string>> {
+  return new Set(
+    (
+      await tx
+        .select({ name: catalogItems.name })
+        .from(catalogItems)
+        .where(
+          and(
+            ownedBy(catalogItems, owner),
+            eq(catalogItems.catalog, "block"),
+            isNull(catalogItems.deletedAt),
+          ),
+        )
+    ).map((r) => r.name.toLowerCase()),
+  );
+}
+
+export async function inCycleBlockOf(
   tx: Tx,
   owner: Owner,
   routine: { id: string; name: string },
@@ -266,20 +284,7 @@ async function inCycleBlockOf(
     return held.length === 1 && held[0]!.partItemId === routine.id;
   });
   if (alone) return alone.id;
-  const names = new Set(
-    (
-      await tx
-        .select({ name: catalogItems.name })
-        .from(catalogItems)
-        .where(
-          and(
-            ownedBy(catalogItems, owner),
-            eq(catalogItems.catalog, "block"),
-            isNull(catalogItems.deletedAt),
-          ),
-        )
-    ).map((r) => r.name.toLowerCase()),
-  );
+  const names = await blockNames(tx, owner);
   let name = routine.name;
   for (let k = 1; names.has(name.toLowerCase()); k++)
     name = routine.name + (k === 1 ? " (ciclo)" : ` (ciclo ${k})`);

@@ -30,8 +30,14 @@ import { areaHrefs, placeHead } from "@/features/places";
 import { plan } from "@/i18n/plan";
 import { skipStep } from "../[[...day]]/plan-actions";
 import { planRows } from "../plan-rows";
-import { copyYesterday, moveTraining, overrideStep } from "../../piano/actions";
+import {
+  copyYesterday,
+  moveTraining,
+  overrideStep,
+  saveAsDayType,
+} from "../../piano/actions";
 import { DayPage } from "../day-page";
+import { SaveDayType } from "@/features/plan/SaveDayType";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -266,6 +272,17 @@ export default async function PianoPage({
             </button>
           </form>
         )}
+        {/* A giornata tipo is the ciclo's step (proposal §28): this day's voci become its lines,
+            planned on every day the step comes. Not on a rest: it would stop being one. */}
+        {(sheetPlan?.cycles ?? [])
+          .filter((c) => !c.rest)
+          .map((c) => (
+            <SaveDayType
+              key={c.cycleId}
+              label={"Salva come giornata «" + c.label + "»"}
+              save={saveAsDayType.bind(null, open, c.cycleId, c.position, c.label)}
+            />
+          ))}
         {!ahead && (
           <a
             className="k-btn secondary"

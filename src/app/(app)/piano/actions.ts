@@ -14,7 +14,10 @@ import { addDays, instantAt, logicalDay } from "@/core/engines/time";
 import { readFoodChoices } from "@/core/food/catalog";
 import { copyLines } from "@/core/food/copy";
 import { kindRegistry } from "@/core/kinds";
-import { setCycleOverride } from "@/core/plans";
+import { saveDayToStep, setCycleOverride } from "@/core/plans";
+import { MEAL_ROLE_WORDS, NAMES } from "@/features/day/words";
+import { createRecipe, recipeIdByName } from "@/core/food/recipes";
+import { AREA_NAME, areaOfFam } from "@/features/places";
 import { clockToDayMin } from "@/features/day/entry-form";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -128,5 +131,63 @@ export async function moveTraining(day: string, data: FormData): Promise<void> {
     });
   }
   revalidatePath("/", "layout");
+  revalidatePath("/", "layout");
+}
+
+/**
+ * «Salva come giornata «Legs»» (proposal §28, his «yc» on Q1 (a), 15 Nov): the day's voci,
+ * done or planned, become the lines of the ciclo's step due that day — a giornata tipo — so
+ * every day that step comes, they are planned at their times. Nothing written twice.
+ */
+export async function saveAsDayType(
+  day: string,
+  cycleId: string,
+  position: number,
+  label: string,
+): Promise<void> {
+  if (!ISO.test(day) || !Number.isInteger(position) || position < 0) return;
+  const owner = await requireOwner();
+  const db = await getDb();
+  const known = await ownerClock();
+  const loaded = await loadDay(db, owner, day, known);
+  const voci = [...loaded.timed, ...loaded.untimed]
+    .filter((i) => i.status !== "skipped")
+    .sort((a, b) => (a.minute ?? 1440) - (b.minute ?? 1440));
+  const reg = kindRegistry();
+  // A meal of foods (no pasto behind it) is kept as a pasto «Pranzo · Legs», reused when it
+  // exists, so the giornata tipo plans the real food and a second save adds nothing.
+  const objects = new Map<string, { id: string; name: string }>();
+  for (const m of voci) {
+    if (m.kind.key !== "meal" || m.item !== null || m.lines.length === 0) continue;
+    const role = MEAL_ROLE_WORDS[m.subcategory ?? ""] ?? NAMES["meal"] ?? "Pasto";
+    const name = role + " · " + label;
+    const id =
+      (await recipeIdByName(db, owner, name)) ??
+      (await createRecipe(
+        db,
+        owner,
+        name,
+        m.lines.map((l) => ({
+          itemId: l.itemId,
+          productId: l.productId,
+          name: l.name,
+          quantity: l.quantity,
+          unit: l.unit,
+          per100: l.values,
+        })),
+      ));
+    objects.set(m.id, { id, name });
+  }
+  await saveDayToStep(db, owner, {
+    objects,
+    label,
+    cycleId,
+    position,
+    voceIds: voci.map((i) => i.id),
+    timeZone: known.clock.timeZone,
+    nameOf: (k) => NAMES[k] ?? k,
+    // A blocco's area is a word of the registry (Corpo, Cibo, Oggi, Mente, Soldi).
+    areaOf: (k) => AREA_NAME[areaOfFam(reg.get(k).family) ?? "oggi"],
+  });
   revalidatePath("/", "layout");
 }
