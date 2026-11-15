@@ -532,7 +532,7 @@ export async function DayPage({
   // Corpo today, nothing running: the two routines trained most, to start now (map D:
   // Palestra's «Inizia» on top of Corpo · Diario, architecture.md §10).
   const routines =
-    (area === "corpo" || area === "oggi") &&
+    area === "corpo" &&
     date === today &&
     !items.some((i) => i.kind.key === "session" && isRunning(i))
       ? (await readRoutines(db, owner, today, await readExercises(db, owner)))

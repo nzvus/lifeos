@@ -28,6 +28,19 @@
   hide behind it and it says how many and their kcal, with their icons («6 voci · 976 kcal»; at
   ≤ 380 px the kcal only); a second tap opens it. At first only the part where now is (a day
   gone: the last one holding something) is open. Kit: `DayPart` (`onToggle`) ✓.
+- **VIS-43** (visual.md §5) Score chip: closed = unframed skyline coloured by band + the number in
+  its band's colour, **no word and no line under the head** (his 15 Nov: «"è costata di piu" non
+  mi serve, lo posso vedere dai voti»; F1 of 13 Nov). Open: one ruler per criterion. The word
+  stays in the chip's label for screen readers. Kit: `Box` ✓.
+- **VIS-52** (visual.md §6) The zones ruler under every judged bar — macros, limits, kinds and now
+  **kcal** — with no word beside the number: «le parole "ok", "pessimo" eccetera non le voglio…
+  ci sono gia le barre grafiche e i numeri e i colori e le forme» (his 15 Nov). Kit: `Nutrients` ✓.
+- **FD-31** (domains/food.md) A row for the day's kcal, the app's edges (FD-30 «*»), against the
+  day's target T: pessimo < 0.9 T · ok 0.9–0.95 T · **ottimo 0.95–1.05 T** · ok 1.05–1.1 T ·
+  pessimo > 1.1 T · da evitare > 1.25 T* (his 15 Nov: «la barra delle calorie dovrebbe colorarsi
+  anche lei in base ai range»). `kcalRange` in `core/engines/targets/ranges.ts`.
+- **PAT-51/§3** Where the day's targets come from («dispendio ≈ … per il ritmo dell'obiettivo»)
+  is said once, in Obiettivi, not under «Il giorno» (his 15 Nov).
 
 ## ADDED
 - **PAT-95** (patterns.md §1) The area filter: one row of chips, «Tutto» · Cibo · Corpo · Mente ·

@@ -133,28 +133,14 @@ export function Box({
           <span className="ln" style={{ bottom: MET + "%" }} />
         </span>
         <span className="n" aria-hidden="true">
+          {/* The number in its band's colour, no word (his 13 and 15 Nov, PAT-98): the
+              word stays in the chip's label for screen readers. */}
           <b style={{ color: judged.tone }}>{sc.value}</b>
-          <small>{SCORE_WORD[judged.level]}</small>
         </span>
       </span>
     ) : null;
-  // Under the head, one line: what would raise it, else the part that cost the most.
-  const low = sc
-    ? [...sc.parts].sort((a, b) => b.weight * (1 - b.score) - a.weight * (1 - a.score))[0]
-    : undefined;
-  const say =
-    sc && judged && sc.value !== null && (sc.action || (low && low.score < 1)) ? (
-      <span className="k-say">
-        <span className={judged.cls} role="img" aria-label={judged.aria} />
-        {sc.action ? (
-          <span className="k-body">{sc.action}</span>
-        ) : (
-          <span className="k-meta">
-            è costata di più: {low!.name} ({Math.round(low!.score * 100)})
-          </span>
-        )}
-      </span>
-    ) : null;
+  // No line under the head for the score: «è costata di più» is read from the voto and its
+  // rulers (his 15 Nov: «non mi serve, lo posso vedere dai voti»; VIS-43 changed).
   const parts =
     e.score && e.score.value !== null ? (
       // Open: one row per criterion with the nutrients' own ruler (S12): filled to
@@ -397,7 +383,6 @@ export function Box({
               </span>
             )}
           </div>
-          {!shut && say}
           {!shut && e.meta && <span className="k-meta k-sub">{e.meta}</span>}
           {!levels && expanded && parts}
           {shut && e.strip && e.strip.length > 0 && (

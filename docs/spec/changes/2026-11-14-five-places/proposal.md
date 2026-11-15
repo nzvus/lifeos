@@ -212,6 +212,103 @@
       `from` in `day-page.tsx`).
     - Not touched, found: the ciclo's select is cut at 320 px («come da ciclo (R»); a time
       field shows «11:59 PM» in an English browser; the night's gap offers «+ Spuntino».
+18. **14 Nov night, his photo of Oggi (production, desktop): «vedi i bug, e perché poi mi appaiano
+    "allenati", che è sta roba, poi il padding è fatto male, ma poi alcune cose hanno i contorni
+    altre no, bo, tutto con padding e dimensionamento fatto male, ma non esistono tool appositi
+    per evitare tutto questo?»** Measured, then fixed per pattern (branch `oggi-spacing`):
+    - One gap between any two cards or blocks of a page, 12 px (VIS-04); it was a rule for two
+      blocks only, so «Il giorno» touched «Allenati» (0 px) and cards were 8 px apart elsewhere.
+    - The weather card loses its line (VIS-04: colour separates); it was the only frame.
+    - The dock sits on the bar at the page's end and ⊕ above it: the 80 px kept for ⊕ had gone
+      under the dock, which then floated over the bar on a short page, ⊕ on top of it.
+    - A sky band tapped shows the kit's ring inside it, not the browser's white box.
+    - «Allenati» leaves Oggi (it stays on Corpo's diary): undoes the «decided by Claude» of §13.
+      Oggi starts the gym from the cycle's planned session («Inizia» on its box).
+    - The tool he asked for: `e2e/layout.spec.ts` (CI, every PR) measures every place at 390
+      and 320: the gap between cards, frames, and ⊕ / dock / bar covering one another. On
+      main's code it names each bug of his photo; `e2e/layout.ts` runs the same by hand.
+
+19. **14 Nov night, his answer to the report of §17–§18 (verbatim):** «ap ma controlla meglio il
+    padding anche altrove perché gia vedo altri problemi simili. e poi sinceramente non ho capito
+    e non è intuitivo il funzionamento dei blocchi e cicli, poi che significa che vengono mostrati
+    sia in alto che in basso, poi nel piano nel "giorno" vengono mostrati i dati precisi delle
+    somme pianificate degli alimenti? perché in oggi non mostra la quantità raggiunta coi
+    pianificati, per lo meno solo graficamente con la barra ma attraverso i numeri dice solo " +
+    tot" quindi devi fare la somma a mente ed è scomodo. quello che voglio pianificare in generale
+    è questo: creare magari dei prototipi di giornata magari da mettere in ciclo, eventualmente, e
+    devo poter pianificare qualsiasi cosa, dai cibi, alle sessioni, alle semplici assunzioni, alle
+    pesate, eccetera. inoltre come ti avrò detto prima per quanto riguardava le cose che si
+    aggiungevano man mano, bisognerebbe mettere delle modalità per gli orari, ovvero se l'orario
+    previsto si sovrascrive o meno alla conferma o no, (vale anche per orari non messi, e quindi
+    cose fuori orario) e poi al momento della conferma, eventualmente, poter decidere se
+    effettivamente sovrascrivere o meno (non so se con doppio tocco o qualche altro sistema per
+    differenziare la cosa). quindi mettere questa feature in due momenti, sia alla pianificazione
+    sia all'effettivo completamento, in modo intelligente pero, non so bene come possa essere
+    implementato. inoltre continuo a vedere disallineamenti o cose poco centrare o scritte a caso
+    che rompono il design. comunque molte alte cose andrebbero cambiate, hai controllato dove
+    portano le varie interazioni? ci sono parecchie pagine che non ho mai usato o perché non le ho
+    mai capite o perché fanno schifo e ce ne siamo dimenticati o entrambe.»
+    Taken as: (a) padding and alignment checked on every page, not only Oggi; (b) the day's
+    numbers say the total with the planned, not «+ n»; (c) a map of where every interaction
+    leads, with the pages he never used; (d) planning: day prototypes, possibly in a ciclo, any
+    type planned, and time modes at planning and at confirming — an object-model decision,
+    asked with options before any code (CLAUDE.md rule 1).
+
+20. **14 Nov night: «ok i have to go, ap until you finish the token, for everything yc».** Every
+    recommendation below is taken and logged with its undo; what cannot be undone or reaches
+    production (migrations, deletes, merges) stays his.
+21. **Padding on every page, measured (his (a) of §19), same PR #355.** A crawl of the 82 pages
+    the app links to, with his data at 390 and 320 (`LIFEOS/review/2026-11-14/crawl/`): the
+    page's column is one (text at 28 px in a card, boxes at 16). Off it: Elenco, lying loose on
+    22 pages (its chips touched the screen's edge) and padded twice inside Piano's card. Fixed for
+    the pattern: Elenco is a page card itself, its groups have no padding of their own. The other
+    hits were link tap areas (4 px wider than their text on purpose) and a label hidden for
+    screen readers. The layout spec counts Elenco and ObjectActions as page pieces.
+    Not measurable this way, so not claimed fixed: «poco centrate», «scritte a caso» beyond loose
+    text; a photo of each one he sees is enough to turn it into a check.
+
+22. **The planned sums written out (his (b) of §19), PR #355.** The kcal, each macro and each limit
+    say the total with what is planned after an arrow, as FD-34 already judges it: «0 → 306 /
+    2.105 kcal», «120 → 150,5 / 168 g»; «di cui 306 kcal previste» moves under the bar (at
+    320 px it ran into the target). Photos `LIFEOS/review/2026-11-14/planned/`. Decided by
+    Claude: the arrow's number in the muted ink of the plan (undo: `.k-plan` in kit.css).
+
+23. **Asked, his to settle (his (c) and (d) of §19; page `LIFEOS/review/2026-11-14/crawl/index.html`,
+    opened in his browser).** Not built: an object-model change and a pattern change he has not
+    seen (CLAUDE.md rule 1, design.md rule 3).
+    - Q1 Planning model: (a, Claude's pick) «giornata tipo» (any previsti with times, any type)
+      + ciclo (which giornata tipo on which day); blocchi become lines of a giornata tipo;
+      «Salva questo giorno come giornata tipo»; a migration. (b) keep blocchi and cicli + «Salva
+      come tipo» making blocchi. (c) giornata tipo as a third type.
+    - Q2 Times: (a, Claude's pick) at planning «Ora: fissa · quando capita» per previsto (the
+      `timeMode = fixed` of `core/entries/write.ts` exists, with no field to set it); at
+      confirming «Fatto» follows it and the toast offers the other for 5 s («tieni le 20:00»),
+      which changes PAT-74. (b) a double tap or long press on «Fatto».
+    - Q3 Piano shows the cycle three times (strip, week list, Blocchi · Cicli): (a) strip + the
+      open day; the list only in Elenco.
+    - Q4 The interaction map (82 pages, every one linked; each place ×5 by area): Cestino as a
+      row in Profilo; «Qualità dei dati» merged into «Come valutiamo»; Legami hidden with no
+      data (PRD-02); the rest kept. And: which pages he never understood.
+
+24. **15 Nov, his answer to §23 (verbatim):** «ap yc, pero considera che dalle grafiche che hai
+    mandato ci sono alcune cose che non mi piacciono, tipo il "è costata di piu" non mi serve, lo
+    posso vedere dai voti, il resto del testo mostrato anche, dovrebbe essere mostrato negli
+    obiettivi no? e poi ti avevo gia detto che le parole "ok", "pessimo" eccetera non le voglio,
+    occupano spazio inutile e ci sono gia le barre grafiche e i numeri e i colori e le forme a
+    farmi capire tutto. una cosa che manca è che la barra delle calorie dovrebbe colorarsi anche
+    lei in base ai range.»
+    Taken as: Q1–Q4 of §23 approved as recommended (a); «è costata di più» goes from every Box
+    (VIS-43); the day's dispendio sentence goes to Obiettivi; no judgement word beside any number
+    or bar (F1 of 13 Nov again; the words stay for screen readers); the kcal bar is coloured by
+    its zones like the macros.
+
+25. **Built under his «ap yc» of 15 Nov, PR #355** (photos `LIFEOS/review/2026-11-15/nowords/`):
+    no «è costata di più» and no judgement word beside any number or bar (0 left on his 9 Nov at
+    390 and 320); the targets' sentence moved from «Il giorno» to Obiettivi («Oggi: dispendio ≈
+    …»); the kcal bar has its zones ruler and coloured tip (VIS-43, VIS-52, FD-31 in `delta.md`).
+    Decided by Claude: the kcal edges ±5 / ±10 / +25 % are the app's, marked «*» in the source
+    (undo: `kcalRange`). His question «cosa dovrei fare con il draft della 354?»: merge #355
+    first; Claude then updates #354 on main and marks it ready (Q3 approved it).
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
