@@ -485,6 +485,14 @@
     daily goal (an Obiettivo), water is the first; set and changed from its chip's sheet. **3**
     no «Ancora +500?»: one tap logs, a short undo, and the amounts logged can be changed after,
     not only added. «Questa volta» to redo as the app's own Box (VIS-40), short labels («Salta»).
+40. **15 Nov, his words on the Box version (verbatim):** «ma fa ancora schifo e poi non vedi che i
+    numeri rispetto alle intestazioni e i bottoni sono sfalsati?». Measured: every Box head on
+    Oggi, Cibo · Elenco and the ciclo's page had title, number, score and action 2–9.5 px apart
+    (baseline alignment; a tiled row's title pushed down 6 px). Fixed in the kit for every
+    screen: the head centred; a narrow row whose value wraps keeps score and «›» on the name's
+    line. Guard: `e2e/layout.ts` `measureHeads` in `layout.spec.ts` fails a PR when a head is
+    more than 1.5 px out of line (shown failing on the old CSS). «ancora schifo» beyond the
+    alignment is asked of him (what exactly), not guessed.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
