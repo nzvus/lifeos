@@ -28,6 +28,7 @@ export const plan = {
         "Si perde: il ciclo va avanti come se l’avessi fatto. Slitta: il passo saltato resta il prossimo.",
     },
     steps: "Passi",
+    rules: "Regole",
     compose: "Cambia i passi",
     find: "Aggiungi una riga o una scheda",
     rest: "Riposo",

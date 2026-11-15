@@ -19,6 +19,8 @@ export function ObjectPage({
   usedIn,
   actions,
   toast,
+  first,
+  fold,
 }: {
   back: { label: string; href: string };
   title: string;
@@ -35,6 +37,13 @@ export function ObjectPage({
   actions: ReactNode;
   /** `useToast()`'s toast: inside the page, last, as the shell's rules expect (PAT-74). */
   toast?: ReactNode;
+  /** A section right under the header, before everything (a ciclo's «Questa volta»). */
+  first?: ReactNode;
+  /**
+   * The values folded under this word and put after the parts: a type whose parts matter more
+   * than its settings (a ciclo: its steps first, «Regole» folded; his 15 Nov «fatti male»).
+   */
+  fold?: string;
 }) {
   return (
     <main className="k-page k-objpage">
@@ -44,15 +53,30 @@ export function ObjectPage({
         {...(meta ? { context: meta } : {})}
         {...(of ? { of } : {})}
       />
-      <section className="k-section g2" aria-label={title}>
-        {values}
-      </section>
+      {first && (
+        <section className="k-section g2" aria-label={title}>
+          {first}
+        </section>
+      )}
+      {!fold && (
+        <section className="k-section g2" aria-label={title}>
+          {values}
+        </section>
+      )}
       {parts?.map((p) => (
         <section key={p.title} className="k-section g2" aria-label={p.title}>
           <h2>{p.title}</h2>
           {p.node}
         </section>
       ))}
+      {fold && (
+        <section className="k-section g2" aria-label={fold}>
+          <details className="k-fold">
+            <summary>{fold}</summary>
+            <div className="k-foldbody">{values}</div>
+          </details>
+        </section>
+      )}
       {progress && (
         <section className="k-section g2" aria-label={WORDS.sections.progress}>
           <h2>{WORDS.sections.progress}</h2>

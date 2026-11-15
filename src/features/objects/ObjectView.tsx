@@ -34,6 +34,8 @@ export function ObjectView({
   meta,
   fields,
   summary,
+  first,
+  fold,
   parts,
   progress,
   usedIn,
@@ -58,6 +60,9 @@ export function ObjectView({
   /** A type's own sections (its specialisation): a judgement of its values (a food's voto),
    *  its parts, its progress, where it is used. */
   summary?: ReactNode;
+  /** ObjectPage's `first` and `fold` (a ciclo: «Questa volta» first, «Regole» folded). */
+  first?: ReactNode;
+  fold?: string;
   parts?: readonly { title: string; node: ReactNode }[];
   progress?: ReactNode;
   usedIn?: ReactNode;
@@ -144,6 +149,8 @@ export function ObjectView({
         </div>
       }
       {...(parts ? { parts } : {})}
+      {...(first ? { first } : {})}
+      {...(fold ? { fold } : {})}
       {...(progress ? { progress } : {})}
       {...(usedIn ? { usedIn } : {})}
       actions={

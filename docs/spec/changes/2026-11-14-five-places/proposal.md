@@ -418,6 +418,13 @@
     (the page's redo). Decided by Claude: the ciclo's page is the ritmo's sheet (one place, no
     second screen); undo: a `Sheet` instead. Photo `ritmo/this-time-390.png`.
 
+33. **15 Nov, his «ap yc» again: the ciclo's page redone (§31's «fatti male»).** The kit's
+    ObjectPage gets two slots for any type (PAT-30): `first`, a section under the header, and
+    `fold`, the values folded under a word after the parts. The ciclo uses them: «Questa volta»
+    first (when reached from a tag), then «Passi» with «Cambia i passi» under them, then
+    «Regole» folded, then «Andamento». Photos `ritmo/ciclo-redo-390.png`. Not yet: reorder by
+    dragging (the editor's Su · Giù · Togli stays), «sposta» this time, «Ripeti…».
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
