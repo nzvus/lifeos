@@ -372,7 +372,10 @@ export async function DayPage({
       i.status !== "planned"
         ? null
         : step
-          ? { t: step.cycle + " · " + step.label, href: "/oggi/ciclo/" + step.cycleId }
+          ? {
+              t: step.cycle + " · " + step.label,
+              href: "/oggi/ciclo/" + step.cycleId + "?giorno=" + date,
+            }
           : i.blockId
             ? { t: plan.day.fromPlan, href: "/oggi/blocco/" + i.blockId }
             : { t: plan.day.onlyThisDay };

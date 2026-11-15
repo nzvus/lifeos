@@ -78,7 +78,7 @@ export function blockItems(p: {
                 t: [p.cycleName?.(b.step.cycleId), b.step.label]
                   .filter(Boolean)
                   .join(" · "),
-                href: "/oggi/ciclo/" + b.step.cycleId,
+                href: "/oggi/ciclo/" + b.step.cycleId + "?giorno=" + p.day,
               }
             : b.block
               ? {
