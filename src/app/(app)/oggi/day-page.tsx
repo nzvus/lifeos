@@ -363,16 +363,23 @@ export async function DayPage({
     };
     const burn = burnText(burns?.get(i.kind.key === "steps" ? "steps" : i.id), tune);
     // A previsto says where it comes from (PAT-97): a blocco, else he put it on this day only.
-    const from =
-      i.status === "planned"
-        ? i.blockId
-          ? plan.day.fromPlan
-          : plan.day.onlyThisDay
-        : null;
+    // A previsto says its ritmo as a tag that opens it (proposal §32): the ciclo's step that
+    // holds its blocco («PPLCR · Legs»), else its blocco; by hand: «solo questo giorno».
+    const step = i.blockId
+      ? plans.get(date)?.cycles.find((c) => c.blockIds.includes(i.blockId!))
+      : undefined;
+    const from: { t: string; href?: string } | null =
+      i.status !== "planned"
+        ? null
+        : step
+          ? { t: step.cycle + " · " + step.label, href: "/oggi/ciclo/" + step.cycleId }
+          : i.blockId
+            ? { t: plan.day.fromPlan, href: "/oggi/blocco/" + i.blockId }
+            : { t: plan.day.onlyThisDay };
     const pills = [
       ...(shown.pills ?? []),
       ...(burn ? [{ t: burn }] : []),
-      ...(from ? [{ t: from }] : []),
+      ...(from ? [from] : []),
     ];
     return {
       ...shown,
@@ -757,7 +764,7 @@ export async function DayPage({
             }}
           />
         )}
-        {area === "oggi" && date <= today && (
+        {area === "oggi" && date <= today && !piano && (
           <DayClose closed={closed} close={closeDay.bind(null, date)} />
         )}
       </section>

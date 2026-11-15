@@ -4733,3 +4733,10 @@ button.k-part.toggle {
 .k-toast > span {
   min-width: 0;
 }
+/* a pill that opens something (a ritmo's tag, proposal §32) says so with «›» */
+a.k-pill.link {
+  text-decoration: none;
+}
+a.k-pill.link::after {
+  content: " ›";
+}

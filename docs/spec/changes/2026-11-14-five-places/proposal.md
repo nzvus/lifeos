@@ -377,6 +377,40 @@
     giorno) still come before the steps, and «Cambia i passi» is a column of Su · Giù · Togli.
     Next, shown as photos before building: the steps first, rules folded; reorder by dragging.
 
+32. **15 Nov, his words on Piano (verbatim):** «si il widget intero del piano fa veramente schifo,
+    oltre che non capirsi per nulla. scusa ma non si puo fare diversamente? togliere anche quello e
+    fare in modo che ci sia solo una pianificazione come fosse una giornata in Oggi ma nel futuro,
+    e quindi puoi aggiungere cose e dove e quando vuoi ogni tipo di cosa, però aggiungiamo una
+    sorta magari di opzione di "periodizzazione" o qualcosa di simile, magari alle singole cose o
+    anche a loro combinazioni, e periodizzazioni configurabili, ogni tot magari, o magari facciamo
+    in modo che, come i cicli attuali, possiamo dargli un nome, e cosi possiamo configurare la
+    periodicità anche in funzione di altri cicli. solo che nella visualizzazione è di fatto solo un
+    tag che appare in quell'aggiunta alla timeline, e magari sotto oppure toccando quel tag non so,
+    puoi visualizzare e configurare,... bo»
+    Claude's reading, to build in slices shown as photos:
+    - **Piano = a day of Oggi in the future.** The card «Oggi/Il piano del giorno» (ciclo select,
+      «Salta», «Sposta l'allenamento», «+ previsto», «Copia i pasti di ieri», «Salva come giornata»,
+      «Apri il giorno») goes. A day to come is added to with ⊕ and the gaps, as Oggi.
+    - **A ritmo** (his «periodizzazione»): a name and a rule — ogni giorno · questi giorni della
+      settimana · ogni N giorni · a turno con altri (today's ciclo). It holds one thing or several
+      together (today's giornata tipo). Storage: today's blocco (rule = recurrence) and ciclo (a
+      turn); no migration expected.
+    - **On the timeline it is only a tag** on the voce («PPLCR · Legs», «ogni giorno», «lun · mer ·
+      ven») in place of «dal ciclo» / «dal piano»; tapping it opens a sheet to see and change the
+      ritmo: its rule, skip this time, move this time, the other things in it. A voce with no ritmo
+      offers «Ripeti…» there, to give it one (new, or an existing ritmo by name).
+    - Word: «ritmo» (his «periodizzazione» is the idea; one short word for the tag). To confirm.
+    **Slice 1, built (PR #357):** Piano is the header, the strip and `DayPage` for the day chosen
+    (today by default) — the card is gone, with its actions (`app/(app)/piano/actions.ts`,
+    `SaveDayType` deleted; `saveDayToStep` stays in core for the ritmo's «più cose insieme»; lint
+    baseline −13 lines). A planned line's «dal ciclo» is now its ritmo as a tag, «PPLCR · Legs ›»,
+    on the line even when its box is closed, opening the ciclo; a blocco's tag is its rule. The
+    day's closing stays in Oggi only. Photos `LIFEOS/review/2026-11-15/ritmo/`.
+    Lost until slice 2, said plainly: «Cambia» the step of one day, «Salta», «Sposta
+    l'allenamento», «Copia i pasti di ieri», «Salva come giornata». Slice 2: the tag opens a sheet
+    (this time: salta · sposta · cambia passo; always: the rule, the name, the other things in it)
+    and «Ripeti…» on a voce with no ritmo.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

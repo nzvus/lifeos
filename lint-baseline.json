@@ -74,21 +74,8 @@
       "count": 10
     }
   },
-  "src/app/(app)/oggi/piano/page.tsx": {
-    "lifeos/no-raw-form": {
-      "count": 4
-    },
-    "lifeos/no-type-key-compare": {
-      "count": 1
-    }
-  },
   "src/app/(app)/palestra/page.tsx": {
     "lifeos/no-raw-form": {
-      "count": 2
-    }
-  },
-  "src/app/(app)/piano/actions.ts": {
-    "lifeos/no-type-key-compare": {
       "count": 2
     }
   },
