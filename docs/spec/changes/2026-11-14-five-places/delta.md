@@ -68,11 +68,12 @@
 - **PAT-97** (patterns.md §1) Oggi holds every day, and what it shows follows the time: a past day
   what happened, today done before now and planned after it, a day to come only what is planned —
   each line saying where it comes from (its ritmo as a tag, else «solo questo giorno»), every part
-  shown, an empty one as a gap that offers what is missing («+ Pranzo»). Piano holds what repeats:
-  the week strip with each day's step (opening on the week of tomorrow) and the ritmi as the kit
-  `Elenco`; WHEN he taps a day there THEN it opens in Oggi. [his 15 Nov «la pagina piano non ha
-  senso nei giorni passati, mentre quella oggi non ha senso per quelli futuri, quindi tanto vale
-  unirle», «yc» on proposal §38, 1A] Kit: `DateNav` ✓, `Elenco` ✓; `futureBase` no longer used.
+  shown, an empty one as a gap that offers what is missing («+ Pranzo»). Piano holds only what
+  repeats — the ritmi as the kit `Elenco` (`PianoList`, the same page for Oggi and each area) —
+  and no days. [his 15 Nov «la pagina piano non ha senso nei giorni passati, mentre quella oggi
+  non ha senso per quelli futuri, quindi tanto vale unirle», «in piano a questo punto è inutile
+  avere le giornate o cose simili»; proposal §38, §42–§43] Kit: `DateNav` ✓, `Elenco` ✓;
+  `futureBase` no longer used.
 - **PAT-98** (patterns.md §3) A voto is shown as its number in the judgement's colour, with no
   word beside it; WHEN the app cannot score (PRD-23) THEN «–», the reason in its «Perché?». Kit: ✗.
 - **PAT-99** (patterns.md §6) The dock: one strip stuck above the bar on Oggi, at every scroll

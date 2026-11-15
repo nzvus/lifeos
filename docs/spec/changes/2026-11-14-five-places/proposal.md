@@ -501,6 +501,10 @@
     delta. Decided by Claude: the strip opens on the week of tomorrow (on a Sunday the next week,
     not one already over); «Nuovo ciclo» only at the end of «Cicli», not in the header too.
     Undo: `git revert` of the branch. Photos `LIFEOS/review/2026-11-15/oggi-piano/`.
+43. **15 Nov, his words on §42 (verbatim):** «ma che stai facendo, in piano a questo punto è
+    inutile avere le giornate o cose simili,». Done: Oggi · Piano has no week strip and no week in
+    its header; it is only what repeats (the ritmi as the kit `Elenco`), the same page as an
+    area's Piano with every area. Days live in Oggi alone.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
