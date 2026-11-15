@@ -30,6 +30,17 @@ ROADMAP «Now», Q-21 → CLAUDE.md «Working agreements», Q-22 → CLAUDE.md r
   called differently elsewhere»; the list is `~/Projects/fleet/GLOSSARY.md`). Done outside the spec on
   branch fleet/2026-11-12. Left for the next change, since one is open (PRD-41): «decided by Claude»
   in `domains/plan.md` (3 places; was the agent's wording) and «Claude» in `patterns.md` PAT-91 (was the same).
+- **W-04** His note of 15 Nov, written by him in `RULES_LOG.md` («aggiunto da me», kept there
+  verbatim): the Elenco and its object pages are old and not built from the kit («si potrebbero
+  semplicemente riusare le schede che si usano in oggi»); every place that changes a quantity is
+  sized and spaced badly; changing something in the Elenco takes too many pages; the Elenco should
+  show variants, brands and weights as a hierarchy and reuse the macro, micro, price and voto
+  views; every specific problem is systemic and its fix must reach every like place («regole
+  ferree… capita spesso che non le rispetti»); «dovremmo smetterla di implementare codice» — a
+  specification first, tracking how pages, actions and views converge; and the repo holds files
+  he believes useless or forgotten. His questions: «che ne pensi? come si potrebbe attuare… come
+  si fa di solito? che tool puoi usare?» — answered in the reply of 15 Nov with options; the pick
+  is his (CLAUDE.md rule 1).
 
 ## Notes folded (his raw notes outside the repo; `check.py` warns when one changes)
 - considerations.txt 80c476d19294 — folded 30 Oct (file of 15 Oct)

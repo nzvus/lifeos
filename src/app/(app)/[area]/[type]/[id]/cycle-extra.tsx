@@ -7,6 +7,7 @@
 import { Box, F, List, type BoxEntry } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { addDays, logicalDay } from "@/core/engines/time";
+import { typeOfItem } from "@/core/kinds/catalog";
 import { readCycleBook, readDayPlans, readSessionKeys } from "@/core/plans";
 import { plan } from "@/i18n/plan";
 import type { Build } from "./extras";
@@ -70,7 +71,25 @@ export const cycleExtra: Build = async (db, owner, id, query) => {
         .get(day)
         ?.cycles.find((x) => x.cycleId === id)
     : undefined;
-  const line = query["riga"] && LINE.test(query["riga"]) ? query["riga"] : null;
+  const asked = query["riga"] && LINE.test(query["riga"]) ? query["riga"] : null;
+  // The line he came from, only while it is of this day's step: once the day takes another
+  // step, a line of the old one is not on the day, and its «Ora» would move nothing he sees
+  // (audit 15 Nov). A step that holds its scheda directly is the line «step».
+  const elsewhere = new Set(
+    c.steps
+      .filter((s) => s.position !== that?.position)
+      .flatMap((s) => s.items.map((i) => i.id)),
+  );
+  const line =
+    asked === null || !that || that.rest
+      ? null
+      : asked === "step"
+        ? that.blockIds.length === 0
+          ? asked
+          : null
+        : elsewhere.has(asked)
+          ? null
+          : asked;
   // The line's name: its blocco «nel ciclo» in the day's step, or the step's own.
   const lineName = (l: string) =>
     (l === "step"
@@ -83,11 +102,9 @@ export const cycleExtra: Build = async (db, owner, id, query) => {
       <section className="k-stack g2" aria-label="Questa volta">
         <h3 className="k-label">{"Questa volta · " + F.Day(day)}</h3>
         <ThisTime
-          steps={c.steps.map((s) => ({
-            label: nameOf(s),
-            position: s.position,
-            rest: s.items.length === 0,
-          }))}
+          // The drawing comes from the data (VIS-30): the ciclo's type, a rest's the day's.
+          fam={that.rest ? "day" : (typeOfItem("cycle")?.hue ?? "day")}
+          steps={c.steps.map((s) => ({ label: nameOf(s), position: s.position }))}
           current={that.position}
           skipped={that.skipped}
           choose={chooseStep.bind(null, day, id)}

@@ -11,7 +11,7 @@
  *   start, and its end after it. `day` stays the day the person chose.
  */
 import type { DayClock, IsoDate } from "../engines/time";
-import { instantAt } from "../engines/time";
+import { instantAt, logicalDay } from "../engines/time";
 import type { Field, Kind } from "../kinds";
 
 export type EntryInput = {
@@ -133,6 +133,8 @@ export function checkEntry(
   kind: Kind,
   input: EntryInput,
   clock: DayClock,
+  /** Now, for MOD-15: a «fatto» on a day to come is previsto, with or without a time. */
+  now: Date = new Date(),
 ): { ok: true; entry: CheckedEntry } | { ok: false; errors: EntryErrors } {
   const errors: EntryErrors = {};
   const values: EntryValue[] = [];
@@ -160,7 +162,12 @@ export function checkEntry(
     entry: {
       kind: kind.key,
       day: input.day,
-      status: input.status,
+      // MOD-15, the day's half (the time's is `statusAt` on write): nothing on a day after
+      // today has happened yet, even with no time (his «non solo giorno», 15 Nov).
+      status:
+        input.status === "done" && input.day > logicalDay(now, clock)
+          ? "planned"
+          : input.status,
       startAt: at(input.startMin),
       endAt: interval ? at(input.endMin) : null,
       note: input.note.trim(),

@@ -212,6 +212,22 @@ describe("writing an entry", () => {
     expect(statusAt("done", at(-60), now)).toBe("done");
     expect(statusAt("done", null, now)).toBe("done");
     expect(statusAt("skipped", at(60), now)).toBe("skipped");
+    // The day's half, at the form's check: a day to come with no time is previsto too;
+    // today and a past day keep «fatto».
+    const rome = { timeZone: "Europe/Rome", boundaryMin: 240 };
+    const on = (day: string) => {
+      const r = checkEntry(
+        reg.get("water"),
+        { ...input({ startMin: null, values: { ml: "250" } }), day, status: "done" },
+        rome,
+        now,
+      );
+      if (!r.ok) throw new Error("expected a valid entry");
+      return r.entry.status;
+    };
+    expect(on("2026-11-16")).toBe("planned");
+    expect(on("2026-11-15")).toBe("done");
+    expect(on("2026-11-14")).toBe("done");
     // Written through the repository with the real clock: an hour from now is previsto.
     const c = checkEntry(
       reg.get("water"),

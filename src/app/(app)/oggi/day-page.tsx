@@ -167,7 +167,7 @@ export async function DayPage({
   piano?: { head: ReactNode; foot?: ReactNode };
   params: Promise<{ day?: string[] }>;
   /** `fatto=<id>`: an entry ticked done from ⊕, its toast with «Annulla» (capture.md §6). */
-  searchParams: Promise<{ fatto?: string | string[] }>;
+  searchParams: Promise<{ fatto?: string | string[]; previsto?: string | string[] }>;
 }) {
   const owner = await requireOwner();
   const db = await getDb();
@@ -460,14 +460,17 @@ export async function DayPage({
   // lower than what was already spent (his screenshot, 3 Nov).
   const wholeCost = food && plannedCost ? costOf("done", "planned") : null;
   // An entry ticked done from ⊕: its toast on arrival, with «Annulla».
-  const { fatto } = await searchParams;
+  const { fatto, previsto } = await searchParams;
   const ticked =
     typeof fatto === "string"
       ? items.find((i) => i.id === fatto && i.status === "done")
       : undefined;
   const arrived = ticked
     ? { id: ticked.id, text: present(ticked).title + " · fatto" }
-    : null;
+    : previsto === "1"
+      ? // MOD-15: saved as «fatto» at a time or on a day after now.
+        { text: "Salvato come previsto: è dopo adesso" }
+      : null;
   const timedRows = day.timed
     .filter(notWater)
     .map((i) => ({ ...row(i), minute: i.minute! }));
