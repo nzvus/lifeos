@@ -410,6 +410,13 @@
     l'allenamento», «Copia i pasti di ieri», «Salva come giornata». Slice 2: the tag opens a sheet
     (this time: salta · sposta · cambia passo; always: the rule, the name, the other things in it)
     and «Ripeti…» on a voce with no ritmo.
+    **Slice 2a, built (PR #357):** the tag opens the ciclo's page for that day (`?giorno=`) with
+    «Questa volta · lunedì 16»: the steps as chips (the day's on), a tap gives the day that step,
+    the same again gives back the ciclo's own; «Salta questa volta» / «Non saltare più». Tried on
+    his data: Monday Legs → Push → Legs, then skipped. Back now: «cambia passo», «salta». Still to
+    come: «sposta» this time, «Ripeti…», the rule and name on the page, «Questa volta» first
+    (the page's redo). Decided by Claude: the ciclo's page is the ritmo's sheet (one place, no
+    second screen); undo: a `Sheet` instead. Photo `ritmo/this-time-390.png`.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
