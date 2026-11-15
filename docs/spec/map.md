@@ -5,7 +5,7 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **70** · kit pieces: **41**
+- routes: **42** · screen components outside the kit: **71** · kit pieces: **41**
 - components that take input (a form, a field): **37**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
@@ -19,7 +19,7 @@ One row per component. The target is one way to type each of them (VIS-86, PAT-1
 |---|---|---|
 | `features/account/SettingsForm.tsx` | Field stepper · Field time | /profilo |
 | `features/day/EntrySheet.tsx` | Field time | /aggiungi/[kind], /voce/[id] |
-| `features/day/WaterRow.tsx` | Stepper | /[area]/[[...day]], /oggi/[[...day]], /oggi/piano |
+| `features/day/WaterRow.tsx` | Stepper | /[area]/[[...day]], /oggi/[[...day]] |
 | `features/food/Composer.tsx` | Field stepper | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /aggiungi/pasto, /oggi/[type]/[id]/componi … (6) |
 | `features/food/EstimateFields.tsx` | Field stepper | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /aggiungi/pasto, /oggi/[type]/[id]/componi … (6) |
 | `features/food/IntakeForm.tsx` | Field stepper | /aggiungi/assunzione/nuova |
@@ -41,7 +41,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 ### app · other (1)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `app/(app)/oggi/day-page.tsx` | 799 | AreaFilter, Box, DateNav, Glyph, Nutrients | 2 form | 3 |
+| `app/(app)/oggi/day-page.tsx` | 787 | AreaFilter, Box, DateNav, Glyph, Nutrients | 2 form | 2 |
 
 ### features/account (5)
 | component | lines | kit pieces | by hand | routes |
@@ -61,7 +61,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
 | `features/day/EntrySheet.tsx` | 170 | Field | 2 input, 1 form | 2 |
-| `features/day/WaterRow.tsx` | 126 | Box, Stepper | — | 3 |
+| `features/day/WaterRow.tsx` | 126 | Box, Stepper | — | 2 |
 
 ### features/food (6)
 | component | lines | kit pieces | by hand | routes |
@@ -172,21 +172,20 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | piece | used by (files) | where |
 |---|---|---|
 | `Box` | 32 | app/(app)/[area]/[type]/[id]/block-extra.tsx, app/(app)/[area]/[type]/[id]/cycle-extra.tsx, app/(app)/[area]/[type]/[id]/exercise-extra.tsx … (32) |
-| `PageHeader` | 30 | app/(app)/[area]/[type]/[id]/new-forms.tsx, app/(app)/[area]/andamento/money-page.tsx, app/(app)/[area]/area-index.tsx … (30) |
+| `PageHeader` | 29 | app/(app)/[area]/[type]/[id]/new-forms.tsx, app/(app)/[area]/andamento/money-page.tsx, app/(app)/[area]/area-index.tsx … (29) |
 | `Field` | 21 | features/account/SettingsForm.tsx, features/account/ThemePicker.tsx, features/account/TrackerForm.tsx … (21) |
 | `List` | 11 | app/(app)/[area]/[type]/[id]/block-extra.tsx, app/(app)/[area]/[type]/[id]/cycle-extra.tsx, app/(app)/[area]/[type]/[id]/exercise-extra.tsx … (11) |
 | `Glyph` | 10 | app/(app)/oggi/day-page.tsx, features/day/DayView.tsx, features/day/QuickIntakes.tsx … (10) |
-| `AreaFilter` | 8 | app/(app)/[area]/andamento/money-page.tsx, app/(app)/[area]/area-index.tsx, app/(app)/[area]/elenco/shelves.tsx … (8) |
+| `AreaFilter` | 7 | app/(app)/[area]/andamento/money-page.tsx, app/(app)/[area]/area-index.tsx, app/(app)/[area]/elenco/shelves.tsx … (7) |
 | `Nutrients` | 6 | app/(app)/[area]/[type]/[id]/food-extra.tsx, app/(app)/oggi/day-page.tsx, features/day/DayView.tsx … (6) |
 | `Banner` | 4 | features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx, features/plan/CycleComposer.tsx … (4) |
 | `Composer` | 4 | features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx, features/plan/CycleComposer.tsx … (4) |
 | `Find` | 4 | features/food/FoodSearch.tsx, features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx … (4) |
-| `Elenco` | 3 | features/gallery/Pieces.tsx, app/(app)/[area]/piano/page.tsx, app/(app)/oggi/elenco/page.tsx |
+| `Elenco` | 3 | app/(app)/[area]/piano/piano-list.tsx, features/gallery/Pieces.tsx, app/(app)/oggi/elenco/page.tsx |
 | `ObjectActions` | 3 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
 | `ObjectForm` | 3 | features/gallery/Pieces.tsx, features/library/PantryActions.tsx, features/objects/NewObjectForm.tsx |
 | `Capture` | 2 | features/add/CaptureSheet.tsx, features/gallery/Pieces.tsx |
 | `Chart` | 2 | app/(app)/[area]/andamento/[tracker]/page.tsx, app/(app)/kit/page.tsx |
-| `DateNav` | 2 | app/(app)/oggi/day-page.tsx, app/(app)/oggi/piano/page.tsx |
 | `DayPart` | 2 | features/day/Timeline.tsx, app/(app)/kit/page.tsx |
 | `EmptyState` | 2 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx |
 | `EmptyTime` | 2 | features/day/Timeline.tsx, app/(app)/kit/page.tsx |
@@ -200,6 +199,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `Unknown` | 2 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx |
 | `Confirm` | 1 | features/gallery/Pieces.tsx |
 | `ContextLine` | 1 | features/gallery/Pieces.tsx |
+| `DateNav` | 1 | app/(app)/oggi/day-page.tsx |
 | `EntryHeader` | 1 | features/gallery/Pieces.tsx |
 | `FasciaBar` | 1 | features/gallery/Pieces.tsx |
 | `Judge` | 1 | features/gallery/Pieces.tsx |
@@ -228,7 +228,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/[area]/ciclo/[id]` | 0 | 0 |
 | `/[area]/elenco` | 3 | 1 |
 | `/[area]/elenco/doppioni` | 0 | 0 |
-| `/[area]/piano` | 0 | 0 |
+| `/[area]/piano` | 1 | 0 |
 | `/[area]/sessione/[id]` | 7 | 5 |
 | `/[area]/tragitto/nuovo` | 1 | 1 |
 | `/aggiungi` | 1 | 1 |
@@ -251,7 +251,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/oggi/andamento/obiettivi/nuovo` | 1 | 1 |
 | `/oggi/andamento/qualita` | 0 | 0 |
 | `/oggi/elenco` | 1 | 1 |
-| `/oggi/piano` | 10 | 2 |
+| `/oggi/piano` | 1 | 0 |
 | `/palestra` | 0 | 0 |
 | `/profilo` | 4 | 3 |
 | `/profilo/cestino` | 0 | 0 |
