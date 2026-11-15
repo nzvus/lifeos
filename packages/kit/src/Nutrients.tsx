@@ -8,7 +8,6 @@
  * Pass plain data (server pages may render it).
  */
 import { useState, type CSSProperties } from "react";
-import { F } from "./format";
 import { Glyph } from "./Glyph";
 import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
 import { Fascia } from "./Fascia";
@@ -45,9 +44,15 @@ export function Nutrients({
             </span>
           </span>
           {kcal.bar && (
-            <span className="k-track" role="img" aria-label={kcal.aria}>
+            <span
+              className={"k-track" + (kcal.strip ? " zoned" : "")}
+              role="img"
+              aria-label={kcal.aria}
+            >
               <span className="k-seg kcal" style={{ width: kcal.bar.w }} />
               <span className="k-seg kcal planned" style={{ width: kcal.bar.pw }} />
+              {kcal.mark && <span className="k-mark" style={{ left: kcal.mark }} />}
+              {kcal.strip && <Fascia strip={kcal.strip} />}
             </span>
           )}
           {/* Under the bar, never beside the number: at 320 px it ran into «/ 2.105 kcal». */}
@@ -94,15 +99,6 @@ export function Nutrients({
                   {m.value}
                   {m.withPlan && <span className="k-plan"> → {m.withPlan}</span>}
                   {m.target && <span className="k-meta"> / {m.target}</span>}
-                  {m.word && (
-                    <span
-                      className="k-help"
-                      style={{ color: F.tone(m.state ?? undefined) }}
-                    >
-                      {" "}
-                      {m.word}
-                    </span>
-                  )}
                 </span>
               </span>
               <span
@@ -135,15 +131,6 @@ export function Nutrients({
                           <span className="k-body">
                             <span className="k-sw" style={{ background: k.c }} />
                             {k.name}
-                            {k.word && (
-                              <span
-                                className="k-help"
-                                style={{ color: F.tone(k.state ?? undefined) }}
-                              >
-                                {" "}
-                                {k.word}
-                              </span>
-                            )}
                           </span>
                           <span className={"k-bar" + (k.strip ? " zoned" : "")}>
                             <i style={{ width: k.w, background: k.fill }} />
@@ -212,11 +199,6 @@ export function Nutrients({
                 {l.strip && <Fascia strip={l.strip} />}
                 {l.strip?.mean && <b style={{ left: l.strip.mean }} />}
               </span>
-              {l.word && (
-                <span className="k-help" style={{ color: F.tone(l.state ?? undefined) }}>
-                  {l.word}
-                </span>
-              )}
             </span>
           ))}
         </div>

@@ -271,6 +271,26 @@
       row in Profilo; «Qualità dei dati» merged into «Come valutiamo»; Legami hidden with no
       data (PRD-02); the rest kept. And: which pages he never understood.
 
+24. **15 Nov, his answer to §23 (verbatim):** «ap yc, pero considera che dalle grafiche che hai
+    mandato ci sono alcune cose che non mi piacciono, tipo il "è costata di piu" non mi serve, lo
+    posso vedere dai voti, il resto del testo mostrato anche, dovrebbe essere mostrato negli
+    obiettivi no? e poi ti avevo gia detto che le parole "ok", "pessimo" eccetera non le voglio,
+    occupano spazio inutile e ci sono gia le barre grafiche e i numeri e i colori e le forme a
+    farmi capire tutto. una cosa che manca è che la barra delle calorie dovrebbe colorarsi anche
+    lei in base ai range.»
+    Taken as: Q1–Q4 of §23 approved as recommended (a); «è costata di più» goes from every Box
+    (VIS-43); the day's dispendio sentence goes to Obiettivi; no judgement word beside any number
+    or bar (F1 of 13 Nov again; the words stay for screen readers); the kcal bar is coloured by
+    its zones like the macros.
+
+25. **Built under his «ap yc» of 15 Nov, PR #355** (photos `LIFEOS/review/2026-11-15/nowords/`):
+    no «è costata di più» and no judgement word beside any number or bar (0 left on his 9 Nov at
+    390 and 320); the targets' sentence moved from «Il giorno» to Obiettivi («Oggi: dispendio ≈
+    …»); the kcal bar has its zones ruler and coloured tip (VIS-43, VIS-52, FD-31 in `delta.md`).
+    Decided by Claude: the kcal edges ±5 / ±10 / +25 % are the app's, marked «*» in the source
+    (undo: `kcalRange`). His question «cosa dovrei fare con il draft della 354?»: merge #355
+    first; Claude then updates #354 on main and marks it ready (Q3 approved it).
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

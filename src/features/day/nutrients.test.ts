@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { Day, DayItem, FoodTargets } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
 import { microTargets } from "@/core/engines/targets";
-import { mealL0, microsOf, presentDay } from "./nutrients";
+import { mealL0, microsOf, presentDay, targetWords } from "./nutrients";
 
 const reg = kindRegistry();
 const item = (kind: string, over: Partial<DayItem> = {}): DayItem => ({
@@ -83,12 +83,14 @@ describe("the day as a Box with Nutrients L1", () => {
       ),
       week,
     )!;
-    expect(d.entry).toEqual({
-      fam: "day",
-      title: "Il giorno",
-      meta: "obiettivi della settimana dal 10 ott",
-    });
-    expect(d.nutrients.kcal).toEqual({ v: 450, planned: 92, t: 2778 });
+    // Where the targets come from is said in Obiettivi now (his 15 Nov), not under the box.
+    expect(d.entry).toEqual({ fam: "day", title: "Il giorno" });
+    expect(targetWords(week)).toBe("obiettivi della settimana dal 10 ott");
+    // The kcal bar is coloured by its zones around the target: ottimo within ±5 %.
+    expect(d.nutrients.kcal).toMatchObject({ v: 450, planned: 92, t: 2778 });
+    expect(d.nutrients.kcal?.zones?.find((z) => z.level === "good")?.from).toBeCloseTo(
+      0.95 * 2778,
+    );
     expect(d.nutrients.macros.map((m) => [m.key, m.v, m.planned, m.t])).toEqual([
       ["protein", 13.5, 6.8, 154],
       ["carbs", 0, 0, 367],
@@ -143,7 +145,8 @@ describe("the day as a Box with Nutrients L1", () => {
       ]),
       null,
     )!;
-    expect(d.entry.meta).toBe(
+    expect(d.entry.meta).toBeUndefined();
+    expect(targetWords(null)).toBe(
       "obiettivi da calcolare: servono pesate e sesso, anno e altezza nelle impostazioni",
     );
     expect(d.nutrients.kcal).toEqual({ v: 0, planned: 0, t: null });

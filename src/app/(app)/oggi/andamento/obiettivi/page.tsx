@@ -11,6 +11,7 @@ import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { readDayTargets } from "@/core/day";
+import { targetWords } from "@/features/day/nutrients";
 import { addDays, logicalDay } from "@/core/engines/time";
 import {
   readGoals,
@@ -86,8 +87,8 @@ export default async function GoalsPage() {
     Promise.all(
       goals.map(async (g) => ({ g, p: await progressOf(db, owner, g, today) })),
     ),
-    // What today asks, for the weight goal's «da qui»: the week and the food goals.
-    weight ? readDayTargets(db, owner, today) : null,
+    // What today asks: the weight goal's «da qui», and where the day's targets come from.
+    readDayTargets(db, owner, today),
   ]);
   const silent = shown.filter((s) => s.p === null && !isFoodGoal(s.g)).length;
   return (
@@ -111,10 +112,13 @@ export default async function GoalsPage() {
             entry={goalRow(
               g,
               p,
-              targets ? { kcal: targets.kcal, protein: targets.protein } : null,
+              weight && targets ? { kcal: targets.kcal, protein: targets.protein } : null,
             )}
           />
         ))}
+        {/* Where today's kcal and grams come from: moved here from «Il giorno» (his 15 Nov: «il
+            resto del testo… dovrebbe essere mostrato negli obiettivi no?»). */}
+        <p className="k-help">Oggi: {targetWords(targets)}</p>
         <a className="k-btn secondary" href="/oggi/andamento/obiettivi/nuovo">
           + Nuovo obiettivo
         </a>
