@@ -510,6 +510,17 @@
     Parked for him: 1A (Oggi = every day, Piano = what repeats) and 2a (goals on every assunzione)
     change screens, so they are shown before they are built; «Questa volta» waits for what he
     finds ugly in it.
+44. **15 Nov, his note in `RULES_LOG.md` (inbox W-04) and his «ap yc» on the answer:** no feature
+    code; first a map of the whole app read from the code, then the target as tables for him to
+    review, then the difference as a backlog of convergences (foods and meals in Oggi and Elenco
+    first), then guards that a machine runs. Built: `scripts/map.mjs` → `docs/spec/map.md`
+    (`npm run map`; `--check` fails when stale, not yet in CI): 42 routes, 70 screen components,
+    41 kit pieces, 37 components that take input, 17 where a quantity, time or date is typed, 20
+    with a control made by hand. Decided by Claude: the map is a generated file (like
+    `lint-baseline.json`), not a decision document, so it replaces none; undo: delete both files.
+    Also by his «yc»: #362 stays open until the target tables say what Oggi and Piano are. He
+    asked for a new session (context) and not Fable for everything: the handoff says which step
+    needs which model.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
