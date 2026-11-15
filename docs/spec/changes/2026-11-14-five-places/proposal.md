@@ -543,6 +543,15 @@
     are kept (run by CI and by `verify`); `jscpd` kept (`scripts/cpd.mjs` runs it); 94 exports and
     34 types no one imports, not checked one by one; 16 of 64 ADRs cited by no live file
     (candidates to archive); 5 other files no one mentions. Deleting waits for his word.
+46. **15 Nov, «ap»: step 3 of §44 drafted, foods and meals** (`target.md` in this folder). Read
+    from the code: a cibo is drawn 9 ways and a pasto 6; the richest box (voto with criteria,
+    every nutrient, cost) exists only on the day, the pasto's own page has none of it; no screen
+    links to a marca's or formato's page. Proposed: row, box and page are one piece at three
+    levels for every catalog type, opened in place in the Elenco; a backlog B1…B8. Decided by
+    Claude: the draft is a file of this change, merged into `patterns.md` or dropped when he has
+    answered its five questions (undo: delete the file). Nothing built.
+    Step 5, first guard: `npm run lint` ends with `node scripts/map.mjs --check`, so CI's
+    `static` job fails on a stale map (decided by Claude; undo: drop it from the `lint` script).
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

@@ -11,7 +11,7 @@
     "build": "next build",
     "start": "next start -p 3200",
     "typecheck": "tsc --noEmit && npm run typecheck -w packages/kit",
-    "lint": "eslint . --suppressions-location lint-baseline.json && npm run lint -w packages/kit && node scripts/cpd.mjs",
+    "lint": "eslint . --suppressions-location lint-baseline.json && npm run lint -w packages/kit && node scripts/cpd.mjs && node scripts/map.mjs --check",
     "format": "prettier --write .",
     "test": "vitest run && npm test -w packages/kit",
     "test:watch": "vitest",
