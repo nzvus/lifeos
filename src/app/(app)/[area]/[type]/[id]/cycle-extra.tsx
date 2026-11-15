@@ -33,9 +33,11 @@ export const cycleExtra: Build = async (db, owner, id) => {
       fam: rest ? "day" : "train",
       ...(rest ? {} : { sub: "strength" }),
       title: i + 1 + " · " + nameOf(s),
-      meta: rest ? w.restMeta : w.scheda,
+      // A step is a giornata tipo (proposal §31): its righe, not «scheda».
+      meta: rest ? w.restMeta : s.items.map((x) => x.name).join(" · "),
       ...(due && due.label === nameOf(s) ? { value: w.today } : {}),
-      ...(scheda ? { href: "/corpo/scheda/" + scheda.id } : {}),
+      // An older step holding its scheda directly opens it; a riga's own page is not his to see.
+      ...(scheda && !scheda.inCycle ? { href: "/corpo/scheda/" + scheda.id } : {}),
     };
   });
   // The sessions that counted: one of the schede its steps hold.

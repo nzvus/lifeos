@@ -147,6 +147,31 @@ export async function setEntryStatus(
 }
 
 /**
+ * A voce with no object gets one (a meal of foods saved as a pasto, as «Salva anche come
+ * pasto» does on the composer): only when it has none; false when not his or already held.
+ */
+export async function linkEntryItem(
+  db: Db,
+  owner: Owner,
+  id: string,
+  itemId: string,
+): Promise<boolean> {
+  const rows = await db
+    .update(entries)
+    .set({ itemId })
+    .where(
+      and(
+        ownedBy(entries, owner),
+        eq(entries.id, id),
+        isNull(entries.itemId),
+        isNull(entries.deletedAt),
+      ),
+    )
+    .returning({ id: entries.id });
+  return rows.length === 1;
+}
+
+/**
  * A voce ticked done keeps the planned time it moved from (`plannedStart`): this swaps the
  * two, so «tieni le 20:00» puts the planned time back while it stays done, and the same call
  * again undoes it (his 14 Nov: «al momento della conferma… poter decidere se effettivamente

@@ -9,7 +9,7 @@ import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { ownerClock } from "@/app/_server/clock";
 import { loadDay } from "@/core/day";
-import { checkEntry, createEntry, moveEntry } from "@/core/entries";
+import { checkEntry, createEntry, linkEntryItem, moveEntry } from "@/core/entries";
 import { addDays, instantAt, logicalDay } from "@/core/engines/time";
 import { readFoodChoices } from "@/core/food/catalog";
 import { copyLines } from "@/core/food/copy";
@@ -154,14 +154,14 @@ export async function saveAsDayType(
     .filter((i) => i.status !== "skipped")
     .sort((a, b) => (a.minute ?? 1440) - (b.minute ?? 1440));
   const reg = kindRegistry();
-  // A meal of foods (no pasto behind it) is kept as a pasto «Pranzo · Legs», reused when it
+  // A meal of foods (no pasto behind it) is kept as a pasto «Pranzo (Legs)», reused when it
   // exists, so the giornata tipo plans the real food and a second save adds nothing.
   const objects = new Map<string, { id: string; name: string }>();
   for (const m of voci) {
     // Food lines with no pasto behind them (the registry's lines of a catalog, MOD-02).
     if (m.item !== null || m.lines.length === 0) continue;
     const role = MEAL_ROLE_WORDS[m.subcategory ?? ""] ?? NAMES[m.kind.key] ?? "Pasto";
-    const name = role + " · " + label;
+    const name = role + " (" + label + ")";
     const id =
       (await recipeIdByName(db, owner, name)) ??
       (await createRecipe(
@@ -178,6 +178,8 @@ export async function saveAsDayType(
         })),
       ));
     objects.set(m.id, { id, name });
+    // The day's meal is that pasto now (as «Salva anche come pasto»): the plan sees it covered.
+    await linkEntryItem(db, owner, m.id, id);
   }
   await saveDayToStep(db, owner, {
     objects,

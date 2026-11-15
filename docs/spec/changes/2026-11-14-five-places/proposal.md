@@ -362,6 +362,21 @@
     Left: «Ripeti nel Piano» on a voce still makes a loose blocco — next, it should add the voce as
     a riga of a giornata tipo. Photos `LIFEOS/review/2026-11-15/giornata/elenco-390.png`.
 
+31. **15 Nov, his answer on §30 (verbatim):** «si ma non mi piace per nulla che ci sia sopra e
+    sotto, e poi sono confusionari e ripetitivi anche da soli, fatti male». Built in PR #357, one
+    place per idea (photos `LIFEOS/review/2026-11-15/ciclo/`):
+    - Piano: the strip and the open day only. «La settimana» (the same seven days under the strip)
+      and the list at the bottom are gone (Q3); the day's plan line links «PPLCR ›». The week
+      rows' code (`features/plan/week-rows.ts`) is deleted, its lint suppression pruned.
+    - Elenco: one «Cicli» section; each ciclo one row with its giornate tipo in order, «Push →
+      Pull → Legs → Corsa → Rest». No second list of the same steps.
+    - The ciclo's page: each step shows its righe («Legs · Cena (Legs) · Acqua»), not «scheda».
+    - «Salva come giornata»: the day's meal of foods is linked to the pasto made from it (as «Salva
+      anche come pasto» does), so the day does not show it twice; the pasto is named «Cena (Legs)».
+    Not redone yet, his «fatti male» on the ciclo's page: the rules (Nome, Avanza, Se salti, Dal
+    giorno) still come before the steps, and «Cambia i passi» is a column of Su · Giù · Togli.
+    Next, shown as photos before building: the steps first, rules folded; reorder by dragging.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

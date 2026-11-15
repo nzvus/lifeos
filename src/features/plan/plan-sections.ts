@@ -45,22 +45,11 @@ export function planSections(p0: {
     : [];
   if (p0.cycles === null) return looseSection;
   const live = p0.cycles.filter((c) => c.active !== p0.archived);
+  // One place per idea (his 15 Nov: «non mi piace per nulla che ci sia sopra e sotto… ripetitivi»):
+  // a ciclo is one row, its giornate tipo in order as its words; no second list of the steps.
+  const stepName = (st: CycleRow["steps"][number]) =>
+    st.label || st.items.map((i) => i.name).join(" + ") || p.rest;
   return [
-    {
-      key: "giornate",
-      title: p.dayTypes,
-      rows: live.flatMap((c) =>
-        c.steps
-          .filter((st) => st.items.length > 0)
-          .map((st) => ({
-            id: st.id,
-            name: st.label || st.items.map((i) => i.name).join(" + "),
-            href: "/oggi/ciclo/" + c.id,
-            meta: c.name + " · " + p.lines(st.items.length),
-          })),
-      ),
-      empty: p0.archived ? p.emptyArchived : p.emptyDayTypes,
-    },
     ...looseSection,
     {
       key: "cicli",
@@ -69,7 +58,7 @@ export function planSections(p0: {
         id: c.id,
         name: c.name,
         href: "/oggi/ciclo/" + c.id,
-        meta: p.steps(c.steps.length),
+        meta: c.steps.map(stepName).join(" → "),
       })),
       add: { label: p.addCycle, href: "/oggi/ciclo/nuovo" },
       empty: p0.archived ? p.emptyArchived : p.emptyCycles,

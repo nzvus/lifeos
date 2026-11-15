@@ -62,6 +62,7 @@ export const plan = {
     blocks: "Giornate tipo",
     dayTypes: "Giornate tipo",
     loose: "Fuori dai cicli",
+    rest: "Riposo",
     lines: (n: number) => F.plural(n, "riga", "righe"),
     cycles: "Cicli",
     addCycle: "Nuovo ciclo",

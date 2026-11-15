@@ -6,25 +6,17 @@
  * and what the blocchi still plan (`../plan-rows`), «+ previsto». Then his blocchi and cicli
  * (the kit `Elenco`, PL-70). Day models and the week type are gone.
  */
-import { Box, DateNav, Elenco, F, PageHeader, weekOf, AreaFilter } from "@lifeos/kit";
+import { Box, DateNav, F, PageHeader, weekOf, AreaFilter } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { loadDays, readRangeTargets } from "@/core/day";
+import { loadDays } from "@/core/day";
 import { ensureWeekTargets } from "@/core/energy";
-import {
-  listBlocks,
-  planTag,
-  planWords,
-  readCycleBook,
-  readDayPlans,
-} from "@/core/plans";
+import { planTag, planWords, readCycleBook, readDayPlans } from "@/core/plans";
 import { logicalDay } from "@/core/engines/time";
 import { present } from "@/features/day/present";
 import { withCompounds } from "@/features/day/compounds";
 import { foodIds } from "@/features/day/nutrients";
-import { dayRow } from "@/features/plan/week-rows";
-import { planSections } from "@/features/plan/plan-sections";
 import { readFoodEstimates } from "@/core/food/catalog";
 import { areaHrefs, placeHead } from "@/features/places";
 import { plan } from "@/i18n/plan";
@@ -61,20 +53,15 @@ export default async function PianoPage({
   );
   const open = wanted ?? (week.includes(today) ? today : null);
   // The whole week from one set of queries, not seven.
-  const [days, plans, blocks, { cycles }] = await Promise.all([
+  const [days, plans, { cycles }] = await Promise.all([
     loadDays(db, owner, week[0]!, week[6]!, known),
     readDayPlans(db, owner, week[0]!, week[6]!, today),
-    listBlocks(db, owner, false),
     readCycleBook(db, owner),
     // A week begun: its automatic targets, made when missing.
     week[0]! <= today ? ensureWeekTargets(db, owner, week[0]!, known.clock) : null,
   ]);
   // A coffee or creatine planned is drawn as on Oggi («Caffè ≈ 100 mg»), not as grams.
-  const [compounds, targets] = await Promise.all([
-    readFoodEstimates(db, owner, days.flatMap(foodIds)),
-    // Each day's kcal from the week and the food goals (PL-61).
-    readRangeTargets(db, owner, week[0]!, week[6]!),
-  ]);
+  const compounds = await readFoodEstimates(db, owner, days.flatMap(foodIds));
   const ctx = { compounds, doses: [], bed: null, creatine: null };
   // The header names the open day's cycles (the week's first day when none is open).
   const headPlan = plans.get(open ?? week[0]!);
@@ -135,41 +122,21 @@ export default async function PianoPage({
       </section>
     </>
   );
-  const weekRows = (
-    <section className="k-section g3" aria-label="La settimana">
-      <h2>
-        La settimana <span className="k-meta">tocca un giorno per cambiarlo</span>
-      </h2>
-      <div className="k-stack g2">
-        {days.map((d) => (
-          <Box
-            key={d.day}
-            density="row"
-            mode="times"
-            entry={dayRow({
-              day: d.day,
-              today,
-              plan: plans.get(d.day),
-              sessions: [...d.timed, ...d.untimed]
-                .filter((i) => i.kind.key === "session" && i.status === "done")
-                .map((i) => i.item?.name ?? "Allenamento"),
-              planned: [...d.timed, ...d.untimed].filter((i) => i.status === "planned")
-                .length,
-              kcal: targets.get(d.day)?.kcal ?? null,
-              selected: d.day === open,
-            })}
-          />
-        ))}
-      </div>
-    </section>
-  );
   const dayControls = open && sheet && (
     <section
       className="k-section g3"
       aria-label={ahead ? "Il piano del giorno" : "Il giorno"}
     >
       <h2>{open === today ? "Oggi" : F.Day(open)}</h2>
-      <span className="k-meta">{planWords(sheetPlan, open === today)}</span>
+      <span className="k-line wrap g2">
+        <span className="k-meta">{planWords(sheetPlan, open === today)}</span>
+        {/* The ciclo is in one place, its page (his 15 Nov: «non mi piace… sopra e sotto»). */}
+        {(sheetPlan?.cycles ?? []).map((c) => (
+          <a key={c.cycleId} className="k-link" href={"/oggi/ciclo/" + c.cycleId}>
+            {c.cycle} ›
+          </a>
+        ))}
+      </span>
       {open >= today &&
         (sheetPlan?.cycles ?? []).map((c) => {
           const cycle = cycles.find((x) => x.id === c.cycleId);
@@ -294,18 +261,6 @@ export default async function PianoPage({
       </div>
     </section>
   );
-  const elenco = (
-    <section className="k-section g3" aria-label={plan.elenco.blocks}>
-      <Elenco
-        archived={false}
-        filterHref={{
-          active: "/oggi/piano",
-          archived: "/oggi/elenco?archiviati=1#giornate",
-        }}
-        sections={planSections({ blocks, cycles, archived: false, area: null })}
-      />
-    </section>
-  );
   if (ahead)
     return (
       <DayPage
@@ -318,16 +273,13 @@ export default async function PianoPage({
               {dayControls}
             </>
           ),
-          foot: elenco,
         }}
       />
     );
   return (
     <main className="k-page has-bd">
       {head}
-      {weekRows}
       {dayControls}
-      {elenco}
     </main>
   );
 }
