@@ -158,8 +158,9 @@ export async function saveAsDayType(
   // exists, so the giornata tipo plans the real food and a second save adds nothing.
   const objects = new Map<string, { id: string; name: string }>();
   for (const m of voci) {
-    if (m.kind.key !== "meal" || m.item !== null || m.lines.length === 0) continue;
-    const role = MEAL_ROLE_WORDS[m.subcategory ?? ""] ?? NAMES["meal"] ?? "Pasto";
+    // Food lines with no pasto behind them (the registry's lines of a catalog, MOD-02).
+    if (m.item !== null || m.lines.length === 0) continue;
+    const role = MEAL_ROLE_WORDS[m.subcategory ?? ""] ?? NAMES[m.kind.key] ?? "Pasto";
     const name = role + " · " + label;
     const id =
       (await recipeIdByName(db, owner, name)) ??
