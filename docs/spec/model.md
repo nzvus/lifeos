@@ -46,6 +46,10 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   estimate 0.6 · assumed (auto mode, defaults) 0.3. Assumed values are marked, never enter a
   trend or a judgement until confirmed. [PRD-22, c09]
 - **MOD-13** «Fatto» on a previsto voce sets its time to now unless he changes it. [n02, capture §2]
+- **MOD-15** A voce that starts after now is previsto, whatever the form said: saving «fatto» at a
+  later time stores previsto (one minute of slack for «adesso»). [his 15 Nov «essere sicuri che
+  quando si pianifica qualcosa in un orario futuro (non solo giorno) sia sempre pianificato»,
+  proposal §38–§39] — Today: `statusAt` in `core/entries/write.ts`, on create and update.
 - **MOD-14** Any voce can become a catalog object («Salva come …»): a meal → pasto, a session →
   scheda, a trip → tragitto, an estimate → cibo (stima). [n01, FOOD-16, FOOD-32]
 

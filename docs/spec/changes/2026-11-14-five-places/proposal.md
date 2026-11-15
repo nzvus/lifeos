@@ -493,6 +493,23 @@
     line. Guard: `e2e/layout.ts` `measureHeads` in `layout.spec.ts` fails a PR when a head is
     more than 1.5 px out of line (shown failing on the old CSS). «ancora schifo» beyond the
     alignment is asked of him (what exactly), not guessed.
+41. **15 Nov, his «aè», read as «ap»** (è sits beside p on the Italian keyboard, as «tc» → «yc» in
+    §34; undo: say so). Done from his «yc» on §38, needing no new design:
+    - **MOD-15**: a voce that starts after now is previsto whatever the form said (`statusAt` in
+      `core/entries/write.ts`, on create and update; one minute of slack for «adesso»).
+    - **Water (3)**: «Ancora +500?» gone; one tap logs and the toast says «Acqua · 500 ml ·
+      Annulla», as every assunzione's does. Open, the water box lists each drink with its time and
+      the kit's `Stepper` (± 50 ml), saved after a short pause (`setEntryNum`, any number field of
+      a built-in type within its bounds). Decided by Claude: «annulla così lunghi» read as the
+      long «Ancora +500?» question, the toast keeps the kit's time; undo: a shorter `TOAST_MS`.
+    - **Heads that do not fit** (found while photographing the water at 320: the skyline was
+      drawn over «Acqua», and a day «Mar 10» in Andamento at 390): a Box head wraps its score and
+      number to their own line, the title keeping about eight letters (a list row five); every
+      head's first line is 28 px, so «›» and the actions stay on the title's line. `measureHeads`
+      now also fails a title covered by its score.
+    Parked for him: 1A (Oggi = every day, Piano = what repeats) and 2a (goals on every assunzione)
+    change screens, so they are shown before they are built; «Questa volta» waits for what he
+    finds ugly in it.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

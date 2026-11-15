@@ -506,6 +506,10 @@
      different heights, and baseline left them 2–9 px apart (measured 15 Nov, VIS-40) */
   align-items: center;
   gap: 8px;
+  /* a head that does not fit puts its score and number on their own line, never over the
+     title (the skyline covered «Acqua» at 320 and a day «Mar 10» at 390, 15 Nov) */
+  flex-wrap: wrap;
+  row-gap: 4px;
   width: 100%;
   padding: 0;
   border: 0;
@@ -514,6 +518,31 @@
   cursor: pointer;
   color: inherit;
   font: inherit;
+}
+.k-head > .k-hlead {
+  /* the title keeps about eight letters before the head wraps; above that it shrinks with «…» */
+  flex: 1 1 8em;
+  /* every head's first line is one height (the skyline's 28), so title, score, number and «›»
+     share one centre, wrapped or not */
+  min-height: 28px;
+}
+.k-head > .k-hright {
+  margin-left: auto;
+}
+/* a list row (tile, name, value, score) stays on one line above 360: its name may shrink further */
+.k-row.dense .k-head > .k-hlead {
+  flex-basis: 5em;
+}
+/* a head that wrapped keeps its actions and «›» on the title's line: the line starts at the
+   top, the trail as tall as the head's first line (28; a list row's tile 32) */
+.k-box > .k-line:has(> .k-trail) {
+  align-items: flex-start;
+}
+.k-box > .k-line > .k-trail {
+  min-height: 28px;
+}
+.k-row.dense .k-box > .k-line > .k-trail {
+  min-height: 32px;
 }
 .k-head:focus-visible {
   outline: var(--ring) solid var(--fam);
@@ -4266,13 +4295,6 @@ button.k-link {
   }
   .k-row.dense .k-hlead {
     flex: 1 1 7em;
-  }
-  /* the value wrapped under the name: the score and «›» stay on the name's line (the tile's 32) */
-  .k-row.dense .k-box > .k-line {
-    align-items: flex-start;
-  }
-  .k-row.dense .k-trail {
-    min-height: 32px;
   }
   /* under the name, where «1 prodotto» starts: the tile (32) + the gap (8) */
   .k-row.dense .k-hlead.badged + .k-hright {

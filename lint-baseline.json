@@ -160,11 +160,6 @@
       "count": 1
     }
   },
-  "src/features/day/WaterRow.tsx": {
-    "lifeos/no-inline-style": {
-      "count": 1
-    }
-  },
   "src/features/day/WeatherCard.tsx": {
     "lifeos/no-inline-style": {
       "count": 2
