@@ -5,6 +5,18 @@
 import { F } from "@lifeos/kit";
 
 export const plan = {
+  /** «Questa volta» on a ritmo: one short word per action, the sentence for screen readers. */
+  thisTime: {
+    skip: "Salta",
+    skipAria: "Salta questa volta",
+    resume: "Riprendi",
+    resumeAria: "Non saltare più questa volta",
+    skipped: "saltato",
+    step: "Passo",
+    time: "Ora",
+    at: (line: string) => line + " alle",
+    back: "Torna all'ora del ciclo",
+  },
   cycle: {
     /** «5 passi · oggi Legs, poi Rest». */
     meta: (

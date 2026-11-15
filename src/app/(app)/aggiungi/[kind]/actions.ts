@@ -10,7 +10,13 @@ import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { dayMinute } from "@/core/day";
-import { checkEntry, createEntry, dailyTotalOf, updateEntry } from "@/core/entries";
+import {
+  checkEntry,
+  createEntry,
+  dailyTotalOf,
+  statusAt,
+  updateEntry,
+} from "@/core/entries";
 import type { SaveState } from "@/features/day/EntrySheet";
 import { errorWords, managedFields, readEntryForm } from "@/features/day/entry-form";
 import { addContext } from "../kinds";
@@ -29,17 +35,14 @@ export async function saveEntry(prev: SaveState, data: FormData): Promise<SaveSt
     n: prev.n + 1,
   });
   if (!kind) return again({ form: "Questo tipo non si può aggiungere da qui." });
-  const checked = checkEntry(
+  const asked = readEntryForm(
     kind,
-    readEntryForm(
-      kind,
-      ctx.day,
-      form,
-      ctx.clock.boundaryMin,
-      ctx.day === ctx.today ? dayMinute(new Date(), ctx.day, ctx.clock) : null,
-    ),
-    ctx.clock,
+    ctx.day,
+    form,
+    ctx.clock.boundaryMin,
+    ctx.day === ctx.today ? dayMinute(new Date(), ctx.day, ctx.clock) : null,
   );
+  const checked = checkEntry(kind, asked, ctx.clock);
   if (!checked.ok) return again(errorWords(checked.errors));
   // Steps are the phone's total so far: a new count replaces the day's, never adds to it.
   const total =
@@ -49,5 +52,12 @@ export async function saveEntry(prev: SaveState, data: FormData): Promise<SaveSt
   if (total) await updateEntry(db, owner, total, checked.entry, managedFields(kind));
   else await createEntry(db, owner, asNap(checked.entry, ctx.clock.timeZone));
   revalidatePath("/", "layout");
-  redirect(ctx.day === ctx.today ? "/oggi" : "/oggi/" + ctx.day);
+  // MOD-15: he said «fatto», it is after now → stored previsto, and the day says so on arrival.
+  const turned =
+    asked.status === "done" &&
+    statusAt(checked.entry.status, checked.entry.startAt) === "planned";
+  redirect(
+    (ctx.day === ctx.today ? "/oggi" : "/oggi/" + ctx.day) +
+      (turned ? "?previsto=1" : ""),
+  );
 }

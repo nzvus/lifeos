@@ -3,13 +3,21 @@
  * «Questa volta» on a ritmo (proposal §32, §36, §39): the day's step as the app's own Box
  * (VIS-40) — closed: its icon, the step, the line's time, one short action «Salta» (or
  * «Riprendi»); open: two doors, «Passo» (a drop-down, the list grows: VIS-85) and «Ora» («Sposta
- * questa volta», PL-43, with «↺» back to the ciclo's time). Each choice saves at once. His 15 Nov:
- * «fa ancora veramente schifo… tasti decentrati… scritte lunghe inutilmente».
+ * questa volta», PL-43, with «↺» back to the ciclo's time). Each choice saves; a field follows
+ * what was saved (keyed by its value: after «↺» it shows the ciclo's time again — the audit of
+ * 15 Nov found it kept the old one). Its icon is the page's to give (VIS-30), its words
+ * `i18n/plan` (PAT-81).
  */
 import { Box, Field } from "@lifeos/kit";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { plan } from "@/i18n/plan";
+
+const w = plan.thisTime;
+const CLOCK = /^\d{2}:\d{2}$/;
+const PAUSE_MS = 700;
 
 export function ThisTime({
+  fam,
   steps,
   current,
   skipped,
@@ -20,13 +28,15 @@ export function ThisTime({
   moved,
   move,
 }: {
-  steps: { label: string; position: number | null; rest: boolean }[];
+  /** The drawing's family, from the ciclo's type (a rest's: the day's). */
+  fam: string;
+  steps: { label: string; position: number | null }[];
   /** The step the day has now (its position, null for a rest). */
   current: number | null;
   skipped: boolean;
   choose: (position: number | null | undefined) => Promise<void>;
   skip: (skipped: boolean) => Promise<void>;
-  /** The line he came from (its tag), by name; null: no time to move. */
+  /** The line he came from (its tag), by name, when it is of this day's step; else null. */
   line: string | null;
   /** That line's time that day («HH:MM»), "" when not known. */
   at: string;
@@ -40,22 +50,33 @@ export function ThisTime({
   const [door, setDoor] = useState<string | null>("passo");
   const key = (p: number | null) => (p === null ? "rest" : String(p));
   const now = steps.find((s) => s.position === current);
-  const rest = current === null || !!now?.rest;
+  // The time is saved after a short pause, not at every digit typed.
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
+  const later = (v: string) => {
+    if (timer.current) clearTimeout(timer.current);
+    if (!move || !CLOCK.test(v) || v === at) return;
+    timer.current = setTimeout(() => start(() => move(v)), PAUSE_MS);
+  };
   return (
     <Box
       rail={false}
       entry={{
-        fam: rest ? "day" : "train",
-        ...(rest ? {} : { sub: "strength" }),
+        fam,
         title: now?.label ?? "—",
         ...(line && at ? { value: at } : {}),
         ...(line && line !== now?.label ? { meta: line } : {}),
-        ...(skipped ? { faded: true, pills: [{ t: "saltato" }] } : { planned: true }),
+        ...(skipped ? { faded: true, pills: [{ t: w.skipped }] } : { planned: true }),
       }}
       acts={[
         {
-          label: skipped ? "Riprendi" : "Salta",
-          aria: skipped ? "Non saltare più questa volta" : "Salta questa volta",
+          label: skipped ? w.resume : w.skip,
+          aria: skipped ? w.resumeAria : w.skipAria,
           onClick: () => start(() => skip(!skipped)),
         },
       ]}
@@ -66,12 +87,13 @@ export function ThisTime({
       doors={[
         {
           key: "passo",
-          label: "Passo",
+          label: w.step,
           value: now?.label ?? "—",
           panel: (
             <Field
+              key={key(current)}
               name="passo"
-              label="Passo"
+              label={w.step}
               hideLabel
               type="choice"
               grows
@@ -89,25 +111,24 @@ export function ThisTime({
           ? [
               {
                 key: "ora",
-                label: "Ora",
+                label: w.time,
                 value: at || "—",
                 panel: (
                   <div className="k-line bottom g2" aria-busy={pending}>
                     <Field
+                      key={at}
                       name="ora"
-                      label={line + " alle"}
+                      label={w.at(line)}
                       hideLabel
                       type="time"
                       defaultValue={at}
-                      onChange={(v) => {
-                        if (/^\d{2}:\d{2}$/.test(v) && v !== at) start(() => move(v));
-                      }}
+                      onChange={later}
                     />
                     {moved && (
                       <button
                         type="button"
                         className="k-btn link"
-                        aria-label="Torna all'ora del ciclo"
+                        aria-label={w.back}
                         disabled={pending}
                         onClick={() => start(() => move(""))}
                       >

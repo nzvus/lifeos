@@ -523,6 +523,27 @@
     its header; it is only what repeats (the ritmi as the kit `Elenco`), the same page as an
     area's Piano with every area. Days live in Oggi alone.
 
+44. **15 Nov, his note in `RULES_LOG.md` (inbox W-04) and his «ap yc» on the answer:** no feature
+    code; first a map of the whole app read from the code, then the target as tables for him to
+    review, then the difference as a backlog of convergences (foods and meals in Oggi and Elenco
+    first), then guards that a machine runs. Built: `scripts/map.mjs` → `docs/spec/map.md`
+    (`npm run map`; `--check` fails when stale, not yet in CI): 42 routes, 70 screen components,
+    41 kit pieces, 37 components that take input, 17 where a quantity, time or date is typed, 20
+    with a control made by hand. Decided by Claude: the map is a generated file (like
+    `lint-baseline.json`), not a decision document, so it replaces none; undo: delete both files.
+    Also by his «yc»: #362 stays open until the target tables say what Oggi and Piano are. He
+    asked for a new session (context) and not Fable for everything: the handoff says which step
+    needs which model.
+45. **15 Nov, his second «ap yc»:** (1) 2a taken as **(a)**: a goal «al giorno» on a food, set from
+    its chip and shown in Obiettivi; water keeps its computed target, shown the same way and
+    overridable. A decision only: no code until the target tables place it (§44). Undo: his word.
+    (2) Step 2 of §44 done as a list, nothing deleted (`LIFEOS/review/2026-11-15/dead/DEAD.md`):
+    `npx knip` named 5 code files, of which 3 are candidates (`core/catalog/archive.ts`,
+    `core/engines/metrics/index.ts`, `scripts/load-v2-export.ts` — the last one asked of him) and 2
+    are kept (run by CI and by `verify`); `jscpd` kept (`scripts/cpd.mjs` runs it); 94 exports and
+    34 types no one imports, not checked one by one; 16 of 64 ADRs cited by no live file
+    (candidates to archive); 5 other files no one mentions. Deleting waits for his word.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

@@ -20,6 +20,7 @@
     "load:export": "tsx --env-file-if-exists=.env.local scripts/load-export.ts",
     "import:sessions": "tsx --env-file-if-exists=.env.local scripts/import-sessions.ts",
     "shots": "playwright test",
+    "map": "node scripts/map.mjs",
     "shots:update": "playwright test --update-snapshots"
   },
   "dependencies": {

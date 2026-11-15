@@ -104,7 +104,7 @@ export function DayView({
   /** What the Piano still plans (block-items, PL-40): shown with no filter on, each a link. */
   fromPlan?: PlanRow[];
   /** An entry ticked done from ⊕ (capture.md §6): its toast, with «Annulla», on arrival. */
-  arrived?: { id: string; text: string } | null;
+  arrived?: { id?: string; text: string } | null;
   /** The parts of the day (UI-77): the day, whether it is over, its boundary, the
    *  person's meal-role bounds and the roles already eaten (what a gap offers). */
   clock?: {
@@ -128,7 +128,12 @@ export function DayView({
   // Once: the toast of what ⊕ ticked, and the address without `?fatto=` (a reload says nothing).
   useEffect(() => {
     if (!arrived) return;
-    say({ text: arrived.text, undo: () => actions.changeStatus(arrived.id, "planned") });
+    const id = arrived.id;
+    say(
+      id
+        ? { text: arrived.text, undo: () => actions.changeStatus(id, "planned") }
+        : { text: arrived.text },
+    );
     window.history.replaceState(null, "", window.location.pathname);
   }, []);
   const failed = () => say({ text: "Non è stato salvato. Riprova." });
