@@ -83,7 +83,11 @@ export const cycleExtra: Build = async (db, owner, id, query) => {
       <section className="k-stack g2" aria-label="Questa volta">
         <h3 className="k-label">{"Questa volta · " + F.Day(day)}</h3>
         <ThisTime
-          steps={c.steps.map((s) => ({ label: nameOf(s), position: s.position }))}
+          steps={c.steps.map((s) => ({
+            label: nameOf(s),
+            position: s.position,
+            rest: s.items.length === 0,
+          }))}
           current={that.position}
           skipped={that.skipped}
           choose={chooseStep.bind(null, day, id)}

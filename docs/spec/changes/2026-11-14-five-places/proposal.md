@@ -459,6 +459,32 @@
     does the ≤ 4 part; «Questa volta» bypassed it with hand-made chips. Fix: the rule whole in
     VIS-85, a `Field` that always drops down for a list he extends, «Questa volta» redrawn from
     `Field` only — shown to him before the PR moves on.
+38. **15 Nov, his words (verbatim), with the question «cosa proponi?»:** «inoltre quando clicco
+    +500 all'acqua si modifica in "ancora 500?" ma che senso ha. e poi se sotto vuoi mettere le
+    assunzioni, dovrebbero essere trattate tutte allo stesso modo, compresa l'acqua, quindi per
+    esempio non dovresti mostrare quella specie di obiettivo custom, a meno che non metti
+    l'opportunità di crearlo anche per le altre assunzioni e quindi di modificarlo anche. lo rendi
+    un tracker o qualcosa di simile, non so come funzionano, mai usati perché mai capiti. inoltre
+    ci sono delle incoerenze: la pagina piano non ha senso nei giorni passati, mentre quella oggi
+    non ha senso per quelli futuri, quindi tanto vale unirle e tra l'altro essere sicuri che quando
+    si pianifica qualcosa in un orario futuro (non solo giorno) sia sempre pianificato. di
+    conseguenza la pagina piano attuale deve essere diversa da adesso, non cosi ridondante come
+    Oggi, e immagino che anche Oggi a questo punto. cosa proponi?» — options in the reply, his to
+    pick (rule 1: merging two places is expensive to reverse).
+39. **15 Nov, his answer on §38 (verbatim):** «yc, 3 semplicemente evita di mettere annulla cosi
+    lunghi e permetti di poter modificare le quantità messe successivamente, e non solo
+    aggiungerle. inoltre "questa volta" fa ancora veramente schifo: "Tapping a row opens it in
+    place, leaving saves" si ma fa schifo e poi hai questa cattiva abitudine di buttare tasti
+    decentrati e con pessimo padding e spaziature e dimensioni e contorni pessimi, per esempio
+    adesso "salta questa volta" a parte che puo essere un semplice "skip" ma vabbe. hai anche
+    questa brutta abitudine di fare tasti con scritte lunghe inutilmente. ma poi non vedi che da
+    guardare fa schifo? non ci sono tool o skill o qualsiasi cosa che ti puo far migliorare lato
+    grafico? perché stai performando veramente male». Taken («yc»): **1A** Oggi holds every day
+    (past · today · future by the time), Piano only what repeats + the weeks ahead, a day there
+    opens in Oggi; a voce at a time after now is always previsto. **2a** any assunzione may have a
+    daily goal (an Obiettivo), water is the first; set and changed from its chip's sheet. **3**
+    no «Ancora +500?»: one tap logs, a short undo, and the amounts logged can be changed after,
+    not only added. «Questa volta» to redo as the app's own Box (VIS-40), short labels («Salta»).
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
