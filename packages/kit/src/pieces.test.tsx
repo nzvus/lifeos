@@ -726,3 +726,23 @@ describe("DateNav: a day to come opens in Piano (PAT-97)", () => {
     expect(draw()).toContain('href="/oggi/2026-11-15"');
   });
 });
+
+describe("ObjectPage with `first` and `fold` (PAT-30, a ciclo's page)", () => {
+  it("first under the header, the parts, then the values folded under their word", () => {
+    const h = renderToStaticMarkup(
+      <ObjectPage
+        back={{ label: "Oggi", href: "/oggi" }}
+        title="PPLCR"
+        values={<p>avanza a ogni sessione</p>}
+        parts={[{ title: "Passi", node: <p>Push, Pull, Legs</p> }]}
+        actions={null}
+        first={<p>Questa volta</p>}
+        fold="Regole"
+      />,
+    );
+    const at = (t: string) => h.indexOf(t);
+    expect(at("Questa volta")).toBeLessThan(at("Push, Pull, Legs"));
+    expect(at("Push, Pull, Legs")).toBeLessThan(at("<summary>Regole</summary>"));
+    expect(at("<summary>Regole</summary>")).toBeLessThan(at("avanza a ogni sessione"));
+  });
+});

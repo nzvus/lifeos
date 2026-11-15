@@ -69,6 +69,8 @@ export async function objectRoute(
       {...(extra.parts ? { parts: extra.parts } : {})}
       {...(extra.progress ? { progress: extra.progress } : {})}
       {...(extra.usedIn ? { usedIn: extra.usedIn } : {})}
+      {...(extra.first ? { first: extra.first } : {})}
+      {...(extra.fold ? { fold: extra.fold } : {})}
       others={others}
       typeName={t.name}
       verbs={pageVerbs(t, NEW_FORMS[t.key]?.from ?? [], others.length > 0)}

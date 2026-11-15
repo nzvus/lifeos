@@ -23,6 +23,9 @@ export type Extra = {
   parts?: { title: string; node: React.ReactNode }[];
   progress?: React.ReactNode;
   usedIn?: React.ReactNode;
+  /** Before everything (ObjectPage `first`), and the values folded under a word (`fold`). */
+  first?: React.ReactNode;
+  fold?: string;
 };
 
 export type Build = (

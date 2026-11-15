@@ -54,6 +54,7 @@ ledger ID, a phase 1 answer (`n06`, `c11`, `x03`: `audit-2026-11/needs.md`) or a
 | a gym visit | **sessione** | «quando ti alleni» | allenamento (as object) |
 | something planned that repeats | **blocco** | «cosa, quando, ogni quanto» | modello, settimana tipo |
 | a ciclo's step with its lines: a day's prototype | **giornata tipo** (its lines: **riga**) | «le voci che tornano quando torna quel passo» | prototipo, modello (his «yc», 15 Nov, proposal §29) |
+| what repeats, named, shown as a tag on its line | **ritmo** | «ogni giorno, lun · mer · ven, a turno» | periodizzazione, ricorrenza (his «yc», 15 Nov, proposal §32, §34) |
 | blocks that advance one by one | **ciclo** | «una scheda dopo l'altra» | programma |
 | the plan of an area or of all | **Piano** (tab) | «cosa ti aspetta» | routine |
 | a 0–100 judgement | **voto** | — | punteggio, score |

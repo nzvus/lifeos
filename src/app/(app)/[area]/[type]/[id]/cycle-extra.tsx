@@ -84,27 +84,28 @@ export const cycleExtra: Build = async (db, owner, id, query) => {
     ) : null;
   return {
     meta: w.meta(c.steps.length, due),
-    summary: (
-      <>
-        {thisTime}
-        <a className="k-btn secondary" href={"/oggi/ciclo/" + id + "/componi"}>
-          {w.compose}
-        </a>
-      </>
-    ),
+    // The steps first, its rules folded (his 15 Nov: «fatti male»; proposal §31–§32).
+    ...(thisTime ? { first: thisTime } : {}),
+    fold: w.rules,
     parts: [
       {
         title: w.steps,
-        node:
-          rows.length === 0 ? (
-            <p className="k-meta">{w.empty}</p>
-          ) : (
-            <List label={w.steps}>
-              {rows.map((r, i) => (
-                <Box key={i} density="row" rail={false} entry={r} />
-              ))}
-            </List>
-          ),
+        node: (
+          <>
+            {rows.length === 0 ? (
+              <p className="k-meta">{w.empty}</p>
+            ) : (
+              <List label={w.steps}>
+                {rows.map((r, i) => (
+                  <Box key={i} density="row" rail={false} entry={r} />
+                ))}
+              </List>
+            )}
+            <a className="k-btn secondary" href={"/oggi/ciclo/" + id + "/componi"}>
+              {w.compose}
+            </a>
+          </>
+        ),
       },
     ],
     progress: (
