@@ -125,6 +125,10 @@ for code quality, then for speed. Never for speed first.
   - DB tests only when the schema or a repository changes; the phone check
     only for new or changed UI.
   - Push when a slice of the change is complete (each push re-runs CI).
+  - **Never wait for CI in the foreground** (the user, 15 Nov: «when you wait for these kind of
+    things, can you do it in background so that you can continue working?»): start the wait
+    (`gh pr checks <n> --watch`, a long build, `npm run shots`) as a background command, go on
+    with the next slice, and read the result when it reports. A red result comes before new work.
   - Vercel: 100 deploys a day. The ignore script (`scripts/vercel-ignore.sh`)
     builds production only when the app changed, previews only for a migration
     or a `*-preview` branch.

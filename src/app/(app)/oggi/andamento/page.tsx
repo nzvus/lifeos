@@ -55,6 +55,9 @@ const RANGES = [7, 30, 90] as const;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const MONTH = /^\d{4}-\d{2}$/;
 
+/** The fewest days a pair needs on «Legami» (features/progress/links). */
+const LINKS_MIN_DAYS = 21;
+
 export default async function AndamentoPage({
   searchParams,
 }: {
@@ -68,6 +71,9 @@ export default async function AndamentoPage({
   const db = await getDb();
   const known = await ownerClock();
   const today = logicalDay(new Date(), known.clock);
+  const checkins = (
+    await readNumbers(db, owner, "checkin", "energy", addDays(today, -90), today)
+  ).length;
   const { fino: asked, giorni, mese } = await searchParams;
   const month =
     typeof mese === "string" && MONTH.test(mese) && mese <= today.slice(0, 7)
@@ -278,12 +284,14 @@ export default async function AndamentoPage({
           <a className="k-link" href="/soldi/andamento">
             Soldi ›
           </a>
-          <a className="k-link" href="/mente/andamento/legami">
-            Legami ›
-          </a>
-          <a className="k-link" href="/oggi/andamento/qualita">
-            Qualità ›
-          </a>
+          {/* Legami (correlations) only once its pairs can exist: 21 days of check-ins
+              (PRD-02; product.md §4 «correlations: not now»). Qualità lives in «Come
+              valutiamo» (his 15 Nov «yc»). */}
+          {checkins >= LINKS_MIN_DAYS && (
+            <a className="k-link" href="/mente/andamento/legami">
+              Legami ›
+            </a>
+          )}
           <a className="k-link" href="/oggi/andamento/come-valutiamo">
             Come valutiamo ›
           </a>

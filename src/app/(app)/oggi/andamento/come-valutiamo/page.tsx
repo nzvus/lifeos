@@ -9,6 +9,7 @@
  * The subject is the last weigh-in, night or water of the week; a meal,
  * a session and the day open their score where they are (Oggi, the gym).
  */
+import { QualitySection } from "../quality-section";
 import type { CSSProperties } from "react";
 import { Box, F, PageHeader, type BoxEntry } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
@@ -152,6 +153,7 @@ export default async function ScoresPage({
         <h2>Le fonti</h2>
         <span className="k-body">{page.sources}</span>
       </section>
+      <QualitySection />
     </main>
   );
 }

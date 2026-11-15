@@ -291,6 +291,13 @@
     (undo: `kcalRange`). His question «cosa dovrei fare con il draft della 354?»: merge #355
     first; Claude then updates #354 on main and marks it ready (Q3 approved it).
 
+26. **Q4 of §23, under his «ap yc»:** «Qualità dei dati» is the last section of «Come valutiamo»
+    («Con quali dati»; the old address redirects there); «Legami ›» shows on Andamento only with
+    21 days of check-ins (PRD-02, product.md §4 «correlations: not now»); Cestino was already a
+    row of Profilo: unchanged. Photos `LIFEOS/review/2026-11-15/pages/`. Undo: the door and the
+    redirect in `oggi/andamento/`. His 15 Nov rule «when you wait… do it in background» is in
+    CLAUDE.md (Tests and deploys).
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
