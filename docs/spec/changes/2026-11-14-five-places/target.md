@@ -1,4 +1,4 @@
-# The target, as tables — foods and meals first (draft, his to correct)
+# The target, as tables — foods and meals first (approved 15 Nov, §47)
 
 Step 3 of proposal §44. A draft by Claude, 15 Nov 2026: nothing here is decided until he says so
 (rule 1). He reviews tables, not screens. §1 is fact, read from the code and two photos of 12 Nov
@@ -105,7 +105,7 @@ Order proposed: B1 → B2 → B4 → B3 → B5 → B6 → B7, B8 with B1. Each i
 the real screen before merging (design.md rule 1). Line counts above are of today's files; what
 each PR really deletes is measured in the PR.
 
-## 5. His to settle (Claude's pick first)
+## 5. Settled: his «ap yc» of 15 Nov took (a) on all five (proposal §47)
 1. **Row = box = page at three levels** for every catalog type (§2). (a) yes, as written
    *(recommended: it is his «riusare le schede che si usano in oggi»)* · (b) keep a separate
    page layout, share only the pieces inside it · (c) something else.

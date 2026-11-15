@@ -552,6 +552,11 @@
     answered its five questions (undo: delete the file). Nothing built.
     Step 5, first guard: `npm run lint` ends with `node scripts/map.mjs --check`, so CI's
     `static` job fails on a stale map (decided by Claude; undo: drop it from the `lint` script).
+47. **15 Nov, his «ap yc» on `target.md`'s five questions:** all five taken as (a): row = box =
+    page at three levels; a tap opens in place in the Elenco; marche and formati nested under
+    their cibo; the label behind «Etichetta»; the order B1 → B2 → B4 → B3 → B5 → B6 → B7, then the
+    same table for exercises and schede. Written as PAT-30 and PAT-43 in `delta.md`. Each B is
+    built in the real app and shown as photos before it merges (design.md rule 1).
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
