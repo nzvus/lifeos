@@ -28,6 +28,8 @@ export type FormFieldSpec = {
   /** For a scale: its top (5 or 10). */
   scale?: number;
   choices?: readonly { value: string; label: string }[];
+  /** A list he extends: always a drop-down (VIS-85). */
+  grows?: boolean;
   required?: boolean;
   help?: string;
   step?: number;
@@ -77,7 +79,12 @@ export function formFields(
           })),
         };
       case "choice":
-        return { ...base, type: "choice", options: [...(f.choices ?? [])] };
+        return {
+          ...base,
+          type: "choice",
+          options: [...(f.choices ?? [])],
+          ...(f.grows ? { grows: true } : {}),
+        };
       case "boolean":
         return {
           ...base,

@@ -19,6 +19,8 @@ export type CycleStepDue = {
   itemId: string | null;
   /** The blocchi «nel ciclo» it holds (Q-18 (a)): the Piano plans them, not the step's object. */
   blockIds: string[];
+  /** «Sposta questa volta»: a line's minute that day, by blocco id («step» for its scheda). */
+  at: Readonly<Record<string, number>>;
   late: boolean;
   skipped: boolean;
   /** The step due the day after, when planned. */
@@ -42,6 +44,8 @@ export type PlanInput = {
   done: readonly Occurrence[];
   overrides: ReadonlyMap<string, readonly { day: IsoDate; position: number | null }[]>;
   skips: ReadonlyMap<string, readonly IsoDate[]>;
+  /** «Sposta questa volta» (PL-43): a day's time for a ciclo's step, by ciclo. */
+  times?: ReadonlyMap<string, readonly { day: IsoDate; at: Record<string, number> }[]>;
 };
 
 const REST_WORD = "Riposo";
@@ -76,6 +80,7 @@ export function dayPlans(input: PlanInput): Map<IsoDate, DayPlan> {
         position: p.step.position,
         itemId: p.step.keys[0] ?? null,
         blockIds: [...(c.blocksAt?.get(p.step.position) ?? [])],
+        at: input.times?.get(c.id)?.find((t) => t.day === p.day)?.at ?? {},
         late: p.late,
         skipped: p.skipped,
         next: after && after.day === addDays(p.day, 1) ? label(after.step) : null,

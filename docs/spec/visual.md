@@ -150,8 +150,10 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
 ## 11. Controls (look only; what they do: `patterns.md` §2, §6)
 - **VIS-85** Primary filled herb (one per screen, PRD-14; ⊕ counts) · secondary ink outline · link herb
   «›» in a section title, 44 px · act round 36 in a row · icon 44 with aria label; pressed 1 px down +
-  10 % ink, focus ring, disabled 40 %, busy spinner. Segmented ≤ 4 short options, else drop-down; chips
-  ink when on; tabs text with a 2 px tick; ⊕ the only filled circle. [UI-21, UI-22, UI-33, UI-89, UI-90,
+  10 % ink, focus ring, disabled 40 %, busy spinner. Segmented ≤ 4 short options, else drop-down; a
+  choice that can grow (a list he extends: steps, groups, categories) is always a drop-down, never a
+  row of chips that breaks the layout (`Field` `grows`; his 15 Nov «tendine per scelte che si
+  possono espandere», proposal §37; old kit.md §7); chips ink when on; tabs text with a 2 px tick; ⊕ the only filled circle. [UI-21, UI-22, UI-33, UI-89, UI-90,
   S8] — Today: built as classes (no `Button`).
 - **VIS-86** Fields: label 4 above, help 4 below; 44 high; error turns frame and help tomato; edited by
   him = herb dot + base value with «↺». [UI-24] — Today: built (`Field`).

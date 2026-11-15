@@ -434,6 +434,65 @@
     every width, smaller at ≤ 360 px (the Box head's 60 × 28 → 40 × 22, a row's 52 × 24 → 36 ×
     20); the title gives way (it ellipsizes). VIS-43's narrow line changed to say so. Undo: the
     `@media (max-width: 360px)` block in `kit.css` back to `display: none`.
+36. **15 Nov, his «yeah ok, go on» (ap): «sposta» this time, built.** The tag of a ciclo's line
+    now carries the line and its time (`&riga=…&ora=…`); «Questa volta» shows «Legs alle 06:43»,
+    «Sposta», and «↺ Ora del ciclo» once moved. Decided by Claude, each with its undo:
+    - **One line moves, not the whole step.** Tried on his data: Tuesday's Legs step holds Legs
+      06:43 and «Cena (Legs)» 21:00; shifting the step together would have put dinner at 08:47
+      the next morning. A line anchored to the moved one («30 min prima di») follows it; once
+      its anchor is done, it follows the fatto time (PL-11), not the move. Undo: shift by step.
+    - **Stored in the day's `cycle_override` row** as `at: { <blocco id or "step">: minute }`,
+      beside `position`; each is kept when the other changes, and an empty row is removed. No
+      migration (the `decisions.kind` check would have needed one for a new kind). Undo: drop
+      the `at` key.
+    - A ciclo's lines are never written as previsti (`inCycle` is never «planned on» a day), so
+      moving the computed line covers today too; a previsto written by hand keeps its own time.
+    Photos `LIFEOS/review/2026-11-15/sposta/`.
+37. **15 Nov, his words on §36's photos (verbatim):** «non mi piacciono per nulla, sono
+    disordinati, non centrati e belli da vedere, e poi non tengono conto del fatto che se aggiungo
+    tante cose graficmente diventa orribile. tempo fa esisteva una regola che ti imponeva di usare
+    tendine per scelte che si possono espandere, o robe simili che comunque tengono conto
+    dell'espandibilità. che fine ha fatto». Found: the old kit spec (`archive/spec-v2/kit.md` §7)
+    said «a choice that can grow (more than four options, or a list the person extends: day
+    types, groups, categories) is a drop-down, never a row of chips that breaks the layout»;
+    VIS-85 kept only «segmented ≤ 4, else drop-down», losing «a list he extends». `Field` still
+    does the ≤ 4 part; «Questa volta» bypassed it with hand-made chips. Fix: the rule whole in
+    VIS-85, a `Field` that always drops down for a list he extends, «Questa volta» redrawn from
+    `Field` only — shown to him before the PR moves on.
+38. **15 Nov, his words (verbatim), with the question «cosa proponi?»:** «inoltre quando clicco
+    +500 all'acqua si modifica in "ancora 500?" ma che senso ha. e poi se sotto vuoi mettere le
+    assunzioni, dovrebbero essere trattate tutte allo stesso modo, compresa l'acqua, quindi per
+    esempio non dovresti mostrare quella specie di obiettivo custom, a meno che non metti
+    l'opportunità di crearlo anche per le altre assunzioni e quindi di modificarlo anche. lo rendi
+    un tracker o qualcosa di simile, non so come funzionano, mai usati perché mai capiti. inoltre
+    ci sono delle incoerenze: la pagina piano non ha senso nei giorni passati, mentre quella oggi
+    non ha senso per quelli futuri, quindi tanto vale unirle e tra l'altro essere sicuri che quando
+    si pianifica qualcosa in un orario futuro (non solo giorno) sia sempre pianificato. di
+    conseguenza la pagina piano attuale deve essere diversa da adesso, non cosi ridondante come
+    Oggi, e immagino che anche Oggi a questo punto. cosa proponi?» — options in the reply, his to
+    pick (rule 1: merging two places is expensive to reverse).
+39. **15 Nov, his answer on §38 (verbatim):** «yc, 3 semplicemente evita di mettere annulla cosi
+    lunghi e permetti di poter modificare le quantità messe successivamente, e non solo
+    aggiungerle. inoltre "questa volta" fa ancora veramente schifo: "Tapping a row opens it in
+    place, leaving saves" si ma fa schifo e poi hai questa cattiva abitudine di buttare tasti
+    decentrati e con pessimo padding e spaziature e dimensioni e contorni pessimi, per esempio
+    adesso "salta questa volta" a parte che puo essere un semplice "skip" ma vabbe. hai anche
+    questa brutta abitudine di fare tasti con scritte lunghe inutilmente. ma poi non vedi che da
+    guardare fa schifo? non ci sono tool o skill o qualsiasi cosa che ti puo far migliorare lato
+    grafico? perché stai performando veramente male». Taken («yc»): **1A** Oggi holds every day
+    (past · today · future by the time), Piano only what repeats + the weeks ahead, a day there
+    opens in Oggi; a voce at a time after now is always previsto. **2a** any assunzione may have a
+    daily goal (an Obiettivo), water is the first; set and changed from its chip's sheet. **3**
+    no «Ancora +500?»: one tap logs, a short undo, and the amounts logged can be changed after,
+    not only added. «Questa volta» to redo as the app's own Box (VIS-40), short labels («Salta»).
+40. **15 Nov, his words on the Box version (verbatim):** «ma fa ancora schifo e poi non vedi che i
+    numeri rispetto alle intestazioni e i bottoni sono sfalsati?». Measured: every Box head on
+    Oggi, Cibo · Elenco and the ciclo's page had title, number, score and action 2–9.5 px apart
+    (baseline alignment; a tiled row's title pushed down 6 px). Fixed in the kit for every
+    screen: the head centred; a narrow row whose value wraps keeps score and «›» on the name's
+    line. Guard: `e2e/layout.ts` `measureHeads` in `layout.spec.ts` fails a PR when a head is
+    more than 1.5 px out of line (shown failing on the old CSS). «ancora schifo» beyond the
+    alignment is asked of him (what exactly), not guessed.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

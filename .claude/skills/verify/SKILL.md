@@ -21,3 +21,7 @@ description: Check a lifeos v2 UI change on the phone before the PR - photos of 
 4. `node scripts/ui-check.mjs --crawl --width 390` and again with `--width 320`; `--list` names
    targets under 44 px. A new failure is fixed, not added to `scripts/ui-baseline.json`.
 5. In the PR: what was photographed, what to look at first, and the photos' path if he asked.
+6. **Open it in his browser, every time** (his words 14 Nov, repeated 15 Nov «you did not write
+   down that rule apparently»): write `index.html` beside the photos (`LIFEOS/review/<date>/…`),
+   sheets first, one line each on what to look at, then `xdg-open` it. A path in the reply is
+   not enough. Local file only, never published (memory open-in-browser).

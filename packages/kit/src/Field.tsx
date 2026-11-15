@@ -4,7 +4,8 @@
  * and classes. In the app each Field is a named form control, so a form
  * posts plain FormData: the stepper's value is a text input, a scale or a
  * choice keeps its pick in a hidden input. A choice with more than four
- * options, or labels too long for a phone, is a drop-down (shapes.md §4).
+ * options, or labels too long for a phone, is a drop-down (shapes.md §4) — and so is, always, a
+ * list he extends (`grows`: steps, groups, categories), never a row of chips (VIS-85).
  * Tapping a chosen scale or choice again clears it, unless it is required.
  */
 import { useState } from "react";
@@ -27,6 +28,8 @@ export type FieldProps = {
   unit?: string;
   step?: number;
   options?: FieldOption[];
+  /** A list he extends (a ciclo's steps…): always a drop-down, at any length (VIS-85). */
+  grows?: boolean;
   required?: boolean;
   placeholder?: string;
   help?: string;
@@ -105,7 +108,7 @@ export function Field(p: FieldProps) {
         </div>
       )}
       {p.type === "choice" &&
-        (asSelect(opts) ? (
+        (p.grows || asSelect(opts) ? (
           <select
             id={id}
             name={p.name}
@@ -113,7 +116,7 @@ export function Field(p: FieldProps) {
             value={v}
             onChange={(e) => setV(e.target.value)}
           >
-            <option value="">–</option>
+            {!p.required && <option value="">–</option>}
             {opts.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}

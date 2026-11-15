@@ -259,7 +259,9 @@ export function Box({
               <Glyph of={{ fam: e.fam }} size="xl" />
             </span>
           </span>
-          <div className="k-line base g1">
+          {/* The head's parts on one centre line (his 15 Nov «i numeri rispetto alle
+              intestazioni e i bottoni sono sfalsati»): title, number, score and action. */}
+          <div className="k-line g1">
             {onToggle ? (
               <button
                 type="button"

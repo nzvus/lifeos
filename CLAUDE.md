@@ -86,8 +86,8 @@ for code quality, then for speed. Never for speed first.
   export), never from a green run or a script's exit code alone.
 - **Migration SQL read, one diff a week** (Q-21 (a)): a migration PR says its SQL in three
   lines; the user reads it before «migrate v2» and weekly explains one diff of their choice.
-- **Keep the user informed** while working: a short line on what you are
-  doing; never go long silent stretches.
+- **Keep the user informed**: a short line on what you are doing, never long silences; what
+  he should see opens in his browser (`index.html` + `xdg-open`, `verify` step 6; 14–15 Nov).
 
 ## Process rules (6 Nov 2026, PROD-35…39 — the cleanup plan in ROADMAP «Now»)
 

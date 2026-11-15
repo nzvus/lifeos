@@ -502,7 +502,9 @@
 .k-head {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  /* centre, never baseline: a title, a number in the display face, a score and a pill have
+     different heights, and baseline left them 2–9 px apart (measured 15 Nov, VIS-40) */
+  align-items: center;
   gap: 8px;
   width: 100%;
   padding: 0;
@@ -1774,10 +1776,7 @@
   min-width: 0;
 }
 .k-hlead.badged {
-  align-items: flex-start;
-}
-.k-hlead.badged > .k-title {
-  padding-top: 6px;
+  align-items: center;
 }
 .k-hlead.badged > .k-glyph:not(.tile) {
   width: 32px;
@@ -4267,6 +4266,13 @@ button.k-link {
   }
   .k-row.dense .k-hlead {
     flex: 1 1 7em;
+  }
+  /* the value wrapped under the name: the score and «›» stay on the name's line (the tile's 32) */
+  .k-row.dense .k-box > .k-line {
+    align-items: flex-start;
+  }
+  .k-row.dense .k-trail {
+    min-height: 32px;
   }
   /* under the name, where «1 prodotto» starts: the tile (32) + the gap (8) */
   .k-row.dense .k-hlead.badged + .k-hright {

@@ -7,7 +7,9 @@
 import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { setCycleOverride, setCycleSkip } from "@/core/plans";
+import { ownerClock } from "@/app/_server/clock";
+import { setCycleOverride, setCycleSkip, setCycleTime } from "@/core/plans";
+import { clockToDayMin } from "@/features/day/entry-form";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -35,5 +37,24 @@ export async function chooseStep(
   if (typeof position === "number" && !(Number.isInteger(position) && position >= 0))
     return;
   await setCycleOverride(await getDb(), await requireOwner(), day, cycleId, position);
+  revalidatePath("/", "layout");
+}
+
+/**
+ * «Sposta questa volta» (PL-43, proposal §36): one line of the ciclo's step that day at «HH:MM»
+ * (its blocco id, or "step"), what is anchored to it following; "" gives it back its own time.
+ */
+export async function moveStep(
+  day: string,
+  cycleId: string,
+  line: string,
+  at: string,
+): Promise<void> {
+  if (!ISO.test(day) || !UUID.test(cycleId) || !(line === "step" || UUID.test(line)))
+    return;
+  const atMin =
+    at === "" ? null : clockToDayMin(at, (await ownerClock()).clock.boundaryMin);
+  if (at !== "" && atMin === null) return;
+  await setCycleTime(await getDb(), await requireOwner(), day, cycleId, line, atMin);
   revalidatePath("/", "layout");
 }

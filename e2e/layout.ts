@@ -112,3 +112,50 @@ export function measureLayout() {
   }
   return { gaps, frames, stuck, loose, out: out.slice(0, 10), want };
 }
+
+/**
+ * heads: in every Box head, the title, the number, the score and the action sit on one centre
+ * line (VIS-40; his 15 Nov «non vedi che i numeri rispetto alle intestazioni e i bottoni sono
+ * sfalsati?» — baseline alignment had left them 2–9 px apart). A part more than 16 px away is on
+ * a line of its own (a narrow row's value wrapped under the name) and is not compared.
+ */
+export function measureHeads() {
+  const centre = (el: Element | null): number | null => {
+    if (!el || !(el as HTMLElement).offsetParent) return null;
+    let q = el.getBoundingClientRect();
+    if (!el.matches("button, .k-btn, .k-go, .k-vsky")) {
+      const t = [el, ...el.querySelectorAll("*")].find((x) =>
+        [...x.childNodes].some((n) => n.nodeType === 3 && n.textContent?.trim()),
+      );
+      if (t) {
+        const r = document.createRange();
+        r.selectNodeContents(t);
+        q = r.getBoundingClientRect();
+      }
+    }
+    return q.height > 0 ? q.top + q.height / 2 : null;
+  };
+  const off: string[] = [];
+  for (const box of document.querySelectorAll(".k-box")) {
+    const line = box.querySelector(":scope > .k-line");
+    if (!line) continue;
+    const title = centre(line.querySelector(".k-title"));
+    if (title === null) continue;
+    const parts = [
+      ".k-hright .k-num",
+      ".k-vsky",
+      ".k-vh .n b",
+      ".k-trail .k-btn",
+      ".k-trail .k-go",
+    ]
+      .map((s) => [s, centre(line.querySelector(s))] as const)
+      .filter((p): p is readonly [string, number] => p[1] !== null)
+      .filter(([, y]) => Math.abs(y - title) <= 16);
+    for (const [s, y] of parts)
+      if (Math.abs(y - title) > 1.5)
+        off.push(
+          `«${line.querySelector(".k-title")?.textContent?.slice(0, 20)}»: ${s} ${Math.round((y - title) * 10) / 10} px off the title`,
+        );
+  }
+  return off.slice(0, 10);
+}
