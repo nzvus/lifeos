@@ -103,6 +103,7 @@ import { readSessionScores } from "@/features/training/session-score";
 import { DayView } from "@/features/day/DayView";
 import {
   addWater,
+  setDrinkMl,
   bringBack,
   bringBackAll,
   changeStatus,
@@ -522,11 +523,12 @@ export async function DayPage({
           minute: lastDrink >= 0 ? lastDrink : (nowMinute ?? 12 * 60),
           drinks: drinks.map((i) => ({
             id: i.id,
-            label:
-              (i.minute !== null ? F.time(i.minute) + " · " : "") +
-              F.num(Number(i.values["ml"] ?? 0), "ml"),
+            time: i.minute !== null ? F.time(i.minute) : "—",
+            ml: Math.round(Number(i.values["ml"] ?? 0)),
           })),
           add: addWater.bind(null, date),
+          setMl: setDrinkMl,
+          remove: removeEntry,
         }
       : null;
   const planned = fromPlan.filter((r) => area === "oggi" || areaOfFam(r.fam) === area);

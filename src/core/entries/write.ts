@@ -21,6 +21,22 @@ const INSTANT = new Set(
     .map((k) => k.key),
 );
 
+/**
+ * A voce that starts after now cannot have happened (MOD-15, his 15 Nov «essere sicuri che
+ * quando si pianifica qualcosa in un orario futuro… sia sempre pianificato»): «fatto» at a
+ * later time is stored as previsto, whatever the form said. One minute of slack: «adesso»
+ * rounded up to the minute stays fatto. Saltato and previsto are kept.
+ */
+export function statusAt<S extends string>(
+  status: S,
+  startAt: Date | null | undefined,
+  now: Date = new Date(),
+): S | "planned" {
+  return status === "done" && startAt && startAt.getTime() > now.getTime() + 60_000
+    ? "planned"
+    : status;
+}
+
 /** Writes a checked entry typed by the person, with its lines and their snapshot; returns its id. */
 export async function createEntry(
   db: Db,
@@ -34,7 +50,7 @@ export async function createEntry(
         userId: owner.id,
         kind: e.kind,
         day: e.day,
-        status: e.status,
+        status: statusAt(e.status, e.startAt),
         startAt: e.startAt,
         endAt: e.endAt,
         note: e.note,
@@ -406,28 +422,52 @@ export async function setEntryServings(
   if (!/^\d{1,2}(\.\d{1,2})?$/.test(servings)) return undefined;
   const n = Number(servings);
   if (!(n > 0) || n > SERVINGS_MAX) return undefined;
+  const was = await replaceNum(
+    db,
+    owner,
+    id,
+    "servings",
+    (k) => SERVED.has(k),
+    n === 1 ? null : n,
+  );
+  if (was === undefined) return undefined;
+  return was != null && Number(was) !== 1 ? String(Number(was)) : null;
+}
+
+/**
+ * One number of a live voce replaced (null: removed) when its type `fits`, under a row lock.
+ * Answers the value it had (null: none), for «Annulla»; undefined when nothing changed.
+ */
+async function replaceNum(
+  db: Db,
+  owner: Owner,
+  id: string,
+  field: string,
+  fits: (kind: string) => boolean,
+  num: number | null,
+): Promise<string | null | undefined> {
   return db.transaction(async (tx) => {
     const [row] = await tx
       .select({ kind: entries.kind })
       .from(entries)
       .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)))
       .for("update");
-    if (!row || !SERVED.has(row.kind)) return undefined;
+    if (!row || !fits(row.kind)) return undefined;
     const where = and(
       ownedBy(entryValues, owner),
       eq(entryValues.entryId, id),
-      eq(entryValues.field, "servings"),
+      eq(entryValues.field, field),
     );
     const [was] = await tx
       .select({ num: entryValues.num })
       .from(entryValues)
       .where(where);
     await tx.delete(entryValues).where(where);
-    if (n !== 1)
+    if (num !== null)
       await tx
         .insert(entryValues)
-        .values({ userId: owner.id, entryId: id, field: "servings", num: String(n) });
-    return was?.num != null && Number(was.num) !== 1 ? String(Number(was.num)) : null;
+        .values({ userId: owner.id, entryId: id, field, num: String(num) });
+    return was?.num ?? null;
   });
 }
 
@@ -450,7 +490,7 @@ export async function updateEntry(
       .update(entries)
       .set({
         day: e.day,
-        status: e.status,
+        status: statusAt(e.status, e.startAt),
         startAt: e.startAt,
         endAt: e.endAt,
         note: e.note,
@@ -490,4 +530,35 @@ export async function updateEntry(
     }
     return true;
   });
+}
+
+/**
+ * One number of a voce changed where it shows (his 15 Nov «permetti di poter modificare le
+ * quantità messe successivamente, e non solo aggiungerle»): a drink's ml from the water's box.
+ * The field must be a number of the voce's built-in type and within its bounds (the registry,
+ * never a type named here; his own trackers would pass their kinds). Answers the value it had,
+ * for «Annulla» (null: it had none); undefined when nothing changed (not his, not that field, out of bounds).
+ */
+export async function setEntryNum(
+  db: Db,
+  owner: Owner,
+  id: string,
+  field: string,
+  value: number,
+): Promise<number | null | undefined> {
+  const reg = kindRegistry();
+  const fits = (kind: string) => {
+    const f = reg.has(kind)
+      ? reg.get(kind).fields.find((x) => x.key === field)
+      : undefined;
+    if (!f || (f.type !== "integer" && f.type !== "number")) return false;
+    if (!Number.isFinite(value) || (f.type === "integer" && !Number.isInteger(value)))
+      return false;
+    return !(
+      (f.min !== undefined && value < f.min) ||
+      (f.max !== undefined && value > f.max)
+    );
+  };
+  const was = await replaceNum(db, owner, id, field, fits, value);
+  return was === undefined ? undefined : was === null ? null : Number(was);
 }

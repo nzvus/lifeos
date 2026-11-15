@@ -15,6 +15,7 @@ import {
   checkEntry,
   createEntry,
   restoreEntry,
+  setEntryNum,
   setEntryServings,
   setEntryStatus,
   swapPlannedStart,
@@ -118,15 +119,25 @@ export async function closeDay(day: string, state: Closure | null): Promise<bool
   return true;
 }
 
-/** «+250 ml», «+500 ml» (kinds.md: water is quick): a water entry, now today, else the day only. */
-export async function addWater(day: string, ml: 250 | 500): Promise<void> {
-  if (!ISO.test(day) || (ml !== 250 && ml !== 500)) return;
+/** Who logs, and when: today or a past day, never a day to come (null). One tap's start. */
+async function loggingDay(day: string) {
   const owner = await requireOwner();
-  const db = await getDb();
   const { clock } = await ownerClock();
   const now = new Date();
   const today = logicalDay(now, clock);
-  if (day > today) return;
+  if (day > today) return null;
+  return { owner, db: await getDb(), clock, now, today };
+}
+
+/**
+ * «+250 ml», «+500 ml» (kinds.md: water is quick): a water entry, now today, else the day only.
+ * Answers its id, for the toast's «Annulla» (his 15 Nov: no «Ancora +500?»); null when none.
+ */
+export async function addWater(day: string, ml: 250 | 500): Promise<string | null> {
+  if (!ISO.test(day) || (ml !== 250 && ml !== 500)) return null;
+  const at = await loggingDay(day);
+  if (!at) return null;
+  const { owner, db, clock, now, today } = at;
   const checked = checkEntry(
     kindRegistry().get("water"),
     {
@@ -139,9 +150,21 @@ export async function addWater(day: string, ml: 250 | 500): Promise<void> {
     },
     clock,
   );
-  if (!checked.ok) return;
-  await createEntry(db, owner, checked.entry);
+  if (!checked.ok) return null;
+  const id = await createEntry(db, owner, checked.entry);
   revalidatePath("/", "layout");
+  return id;
+}
+
+/** A drink's ml changed from the water's box (MOD-11; his 15 Nov «modificare le quantità»). */
+export async function setDrinkMl(
+  id: string,
+  ml: number,
+): Promise<number | null | undefined> {
+  if (!UUID.test(id)) return undefined;
+  const was = await setEntryNum(await getDb(), await requireOwner(), id, "ml", ml);
+  if (was !== undefined) revalidatePath("/", "layout");
+  return was;
 }
 
 /**
@@ -151,12 +174,9 @@ export async function addWater(day: string, ml: 250 | 500): Promise<void> {
  */
 export async function logIntake(day: string, foodId: string): Promise<string | null> {
   if (!ISO.test(day) || !UUID.test(foodId)) return null;
-  const owner = await requireOwner();
-  const db = await getDb();
-  const { clock } = await ownerClock();
-  const now = new Date();
-  const today = logicalDay(now, clock);
-  if (day > today) return null;
+  const at = await loggingDay(day);
+  if (!at) return null;
+  const { owner, db, clock, now, today } = at;
   const c = (await readFoodChoices(db, owner, today)).find((x) => x.key === foodId);
   if (!c?.intake) return null;
   const checked = checkEntry(

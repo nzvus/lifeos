@@ -14,7 +14,9 @@ import {
   readTrash,
   restoreEntry,
   setEntryServings,
+  setEntryNum,
   setEntryStatus,
+  statusAt,
   swapPlannedStart,
   linkEntryItem,
   trashEntry,
@@ -181,6 +183,45 @@ describe("writing an entry", () => {
       values: { ml: "500.0000" },
     });
     expect((await loadDay(db, b, "2026-10-15")).timed).toEqual([]);
+  });
+
+  it("MOD-11: a drink's ml changed in place, within the type's bounds, only by its owner", async () => {
+    const c = checkEntry(
+      reg.get("water"),
+      input({ startMin: 9 * 60, values: { ml: "500" } }),
+      { timeZone: "Europe/Rome", boundaryMin: 240 },
+    );
+    if (!c.ok) throw new Error("expected a valid entry");
+    const id = await createEntry(db, a, c.entry);
+    const ml = async () => Number((await readEntry(db, a, id))?.values["ml"]);
+    expect(await setEntryNum(db, a, id, "ml", 300)).toBe(500);
+    expect(await ml()).toBe(300);
+    expect(await setEntryNum(db, b, id, "ml", 100)).toBeUndefined();
+    expect(await setEntryNum(db, a, id, "ml", 0)).toBeUndefined();
+    expect(await setEntryNum(db, a, id, "ml", 6000)).toBeUndefined();
+    expect(await setEntryNum(db, a, id, "ml", 2.5)).toBeUndefined();
+    expect(await setEntryNum(db, a, id, "nope", 10)).toBeUndefined();
+    expect(await ml()).toBe(300);
+  });
+
+  it("MOD-15: «fatto» at a time after now is stored previsto; adesso, the past and saltato stay", async () => {
+    const now = new Date("2026-11-15T15:00:00Z");
+    const at = (min: number) => new Date(now.getTime() + min * 60_000);
+    expect(statusAt("done", at(60), now)).toBe("planned");
+    expect(statusAt("done", at(1), now)).toBe("done"); // «adesso» rounded up to the minute
+    expect(statusAt("done", at(-60), now)).toBe("done");
+    expect(statusAt("done", null, now)).toBe("done");
+    expect(statusAt("skipped", at(60), now)).toBe("skipped");
+    // Written through the repository with the real clock: an hour from now is previsto.
+    const c = checkEntry(
+      reg.get("water"),
+      input({ startMin: 10 * 60, values: { ml: "250" } }),
+      { timeZone: "Europe/Rome", boundaryMin: 240 },
+    );
+    if (!c.ok) throw new Error("expected a valid entry");
+    const later = new Date(Date.now() + 3_600_000);
+    const id = await createEntry(db, a, { ...c.entry, status: "done", startAt: later });
+    expect((await readEntry(db, a, id))?.status).toBe("planned");
   });
 
   const planned = async (owner: Owner) => {
