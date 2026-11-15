@@ -21,7 +21,7 @@ export type Quick = {
   of?: GlyphOf;
 };
 
-const NO_WATER: Water["add"] = async () => {};
+const NO_WATER: Water["add"] = async () => null;
 
 export function QuickIntakes({
   day,
@@ -48,7 +48,7 @@ export function QuickIntakes({
   const [busy, setBusy] = useState<string | null>(null);
   const [edit, setEdit] = useState(false);
   const [mine, setMine] = useState<string[]>([...pins]);
-  const drink = useWaterSteps(water?.add ?? NO_WATER);
+  const drink = useWaterSteps(water?.add ?? NO_WATER, remove, say);
   if (all.length === 0 && !water) return null;
   const byId = new Map(all.map((q) => [q.foodId, q]));
   const pinned = mine.map((id) => byId.get(id)).filter((q): q is Quick => !!q);

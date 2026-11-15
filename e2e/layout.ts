@@ -151,6 +151,26 @@ export function measureHeads() {
       .map((s) => [s, centre(line.querySelector(s))] as const)
       .filter((p): p is readonly [string, number] => p[1] !== null)
       .filter(([, y]) => Math.abs(y - title) <= 16);
+    // nothing drawn over the title: the next part starts after the title's last letter
+    const tEl = line.querySelector(".k-title");
+    const right = line.querySelector(".k-hright");
+    if (tEl && right) {
+      const r = document.createRange();
+      r.selectNodeContents(tEl);
+      const text = r.getBoundingClientRect();
+      // a title cut with «…» ends at its own box, not at its full text
+      const t = {
+        top: text.top,
+        bottom: text.bottom,
+        right: Math.min(text.right, tEl.getBoundingClientRect().right),
+      };
+      const h = right.getBoundingClientRect();
+      const sameLine = h.top < t.bottom && h.bottom > t.top;
+      if (sameLine && h.left < t.right - 1)
+        off.push(
+          `«${tEl.textContent?.slice(0, 20)}»: covered by its score/number by ${Math.round(t.right - h.left)} px`,
+        );
+    }
     for (const [s, y] of parts)
       if (Math.abs(y - title) > 1.5)
         off.push(
