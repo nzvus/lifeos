@@ -521,6 +521,15 @@
     Also by his «yc»: #362 stays open until the target tables say what Oggi and Piano are. He
     asked for a new session (context) and not Fable for everything: the handoff says which step
     needs which model.
+45. **15 Nov, his second «ap yc»:** (1) 2a taken as **(a)**: a goal «al giorno» on a food, set from
+    its chip and shown in Obiettivi; water keeps its computed target, shown the same way and
+    overridable. A decision only: no code until the target tables place it (§44). Undo: his word.
+    (2) Step 2 of §44 done as a list, nothing deleted (`LIFEOS/review/2026-11-15/dead/DEAD.md`):
+    `npx knip` named 5 code files, of which 3 are candidates (`core/catalog/archive.ts`,
+    `core/engines/metrics/index.ts`, `scripts/load-v2-export.ts` — the last one asked of him) and 2
+    are kept (run by CI and by `verify`); `jscpd` kept (`scripts/cpd.mjs` runs it); 94 exports and
+    34 types no one imports, not checked one by one; 16 of 64 ADRs cited by no live file
+    (candidates to archive); 5 other files no one mentions. Deleting waits for his word.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
