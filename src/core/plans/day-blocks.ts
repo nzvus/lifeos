@@ -59,6 +59,9 @@ export type StepDue = {
   itemId: string | null;
   /** Its blocchi «nel ciclo» (Q-18 (a)): planned as blocchi, each with its own when. */
   blockIds?: readonly string[];
+  /** «Sposta questa volta» (PL-43): a line's minute that day, by blocco id («step» for the
+   *  scheda it holds directly); a line anchored to it follows. */
+  at?: Readonly<Record<string, number>>;
 };
 
 const whenOf = (b: Block): When => {
@@ -153,6 +156,11 @@ export function dayBlocks(p: {
       all.findIndex((x) => x.block.id === d.block.id) === i,
   );
   const stepRows = (p.steps ?? []).filter((s) => (s.blockIds ?? []).length === 0);
+  // «Sposta questa volta» (PL-43): that line at its new minute this day only.
+  const movedTo = (s: StepDue | undefined, line: string): When | null => {
+    const min = s?.at?.[line];
+    return min === undefined ? null : { type: "at", min };
+  };
   const kindOf = (b: Block, itemId: string | null) =>
     b.kind ?? (itemId ? p.kindOf(itemId) : null) ?? "";
   const engine: EngineBlock[] = [
@@ -160,14 +168,14 @@ export function dayBlocks(p: {
       id: "block:" + b.id,
       kind: kindOf(b, itemId),
       item: itemId ?? undefined,
-      when: whenOf(b),
+      when: movedTo(stepOf.get(b.id), b.id) ?? whenOf(b),
       durationMin: b.durationMin ?? undefined,
     })),
     ...stepRows.map((s) => ({
       id: "step:" + s.cycleId,
       kind: (s.itemId ? p.kindOf(s.itemId) : null) ?? "",
       item: s.itemId ?? undefined,
-      when: { type: "unset" } as When,
+      when: movedTo(s, "step") ?? ({ type: "unset" } as When),
     })),
   ];
   // Which voce covers which blocco (one voce, one blocco): the engine reads it as `fromBlock`.

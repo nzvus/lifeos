@@ -11,9 +11,11 @@ import { readCycleBook, readDayPlans, readSessionKeys } from "@/core/plans";
 import { plan } from "@/i18n/plan";
 import type { Build } from "./extras";
 import { ThisTime } from "@/features/plan/ThisTime";
-import { chooseStep, skipStep } from "../../../oggi/[[...day]]/plan-actions";
+import { chooseStep, moveStep, skipStep } from "../../../oggi/[[...day]]/plan-actions";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
+const CLOCK = /^\d{2}:\d{2}$/;
+const LINE = /^(step|[0-9a-f-]{36})$/;
 
 const w = plan.cycle;
 const HISTORY_DAYS = 14;
@@ -68,6 +70,14 @@ export const cycleExtra: Build = async (db, owner, id, query) => {
         .get(day)
         ?.cycles.find((x) => x.cycleId === id)
     : undefined;
+  const line = query["riga"] && LINE.test(query["riga"]) ? query["riga"] : null;
+  // The line's name: its blocco «nel ciclo» in the day's step, or the step's own.
+  const lineName = (l: string) =>
+    (l === "step"
+      ? null
+      : c.steps.flatMap((s) => s.items).find((i) => i.id === l)?.name) ??
+    that?.label ??
+    "";
   const thisTime =
     day && that ? (
       <section className="k-stack g2" aria-label="Questa volta">
@@ -79,6 +89,17 @@ export const cycleExtra: Build = async (db, owner, id, query) => {
           skipped={that.skipped}
           choose={chooseStep.bind(null, day, id)}
           skip={skipStep.bind(null, day, id)}
+          // The line tapped comes with the tag («&riga=», «&ora=»); moved, its new time.
+          line={line ? lineName(line) : null}
+          at={
+            line && that.at[line] !== undefined
+              ? F.time(that.at[line]!)
+              : query["ora"] && CLOCK.test(query["ora"])
+                ? query["ora"]
+                : ""
+          }
+          moved={!!line && that.at[line] !== undefined}
+          move={line ? moveStep.bind(null, day, id, line) : null}
         />
       </section>
     ) : null;

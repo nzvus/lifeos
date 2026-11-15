@@ -434,6 +434,20 @@
     every width, smaller at ≤ 360 px (the Box head's 60 × 28 → 40 × 22, a row's 52 × 24 → 36 ×
     20); the title gives way (it ellipsizes). VIS-43's narrow line changed to say so. Undo: the
     `@media (max-width: 360px)` block in `kit.css` back to `display: none`.
+36. **15 Nov, his «yeah ok, go on» (ap): «sposta» this time, built.** The tag of a ciclo's line
+    now carries the line and its time (`&riga=…&ora=…`); «Questa volta» shows «Legs alle 06:43»,
+    «Sposta», and «↺ Ora del ciclo» once moved. Decided by Claude, each with its undo:
+    - **One line moves, not the whole step.** Tried on his data: Tuesday's Legs step holds Legs
+      06:43 and «Cena (Legs)» 21:00; shifting the step together would have put dinner at 08:47
+      the next morning. A line anchored to the moved one («30 min prima di») follows it; once
+      its anchor is done, it follows the fatto time (PL-11), not the move. Undo: shift by step.
+    - **Stored in the day's `cycle_override` row** as `at: { <blocco id or "step">: minute }`,
+      beside `position`; each is kept when the other changes, and an empty row is removed. No
+      migration (the `decisions.kind` check would have needed one for a new kind). Undo: drop
+      the `at` key.
+    - A ciclo's lines are never written as previsti (`inCycle` is never «planned on» a day), so
+      moving the computed line covers today too; a previsto written by hand keeps its own time.
+    Photos `LIFEOS/review/2026-11-15/sposta/`.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

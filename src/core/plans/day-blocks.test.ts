@@ -253,6 +253,64 @@ describe("the Piano of a day from blocchi (PL-40)", () => {
     ).toMatchObject([{ key: "block:b-caffe", minute: 490 }]);
   });
 
+  it("PL-43: «Sposta questa volta» moves one line; what is anchored to it follows, the rest stays", () => {
+    const inCycle = { type: "inCycle" } as const;
+    const push = block("b-push", {
+      area: "Corpo",
+      items: items("push"),
+      when: { kind: "time", atMin: 480 },
+      recurrence: inCycle,
+    });
+    const caffe = block("b-caffe", {
+      items: items("caffe"),
+      when: { kind: "before", anchorId: "b-push", offsetMin: 30 },
+      recurrence: inCycle,
+    });
+    const cena = block("b-cena", {
+      items: items("merluzzo"),
+      when: { kind: "time", atMin: 1260 },
+      recurrence: inCycle,
+    });
+    const step = {
+      cycleId: "plprr",
+      label: "Push",
+      itemId: "push",
+      blockIds: ["b-push", "b-caffe", "b-cena"],
+      at: { "b-push": 18 * 60 + 30 },
+    };
+    const day = (voci: PlanVoce[]) =>
+      dayBlocks({
+        day: DAY,
+        blocks: [push, caffe, cena],
+        kindOf,
+        voci,
+        history: [],
+        steps: [step],
+      });
+    // The Push at 18:30, the caffè 30 min before it; the cena of the same step stays at 21:00.
+    expect(day([])).toMatchObject([
+      { key: "block:b-caffe", minute: 1080 },
+      { key: "block:b-push", minute: 1110 },
+      { key: "block:b-cena", minute: 1260 },
+    ]);
+    // The Push done at 08:40: the caffè follows the fatto time (PL-11), not the move.
+    expect(day([voce({ kind: "session", itemId: "push", minute: 520 })])).toMatchObject([
+      { key: "block:b-caffe", minute: 490 },
+      { key: "block:b-cena", minute: 1260 },
+    ]);
+    // A step that holds its scheda directly moves as «step».
+    expect(
+      dayBlocks({
+        day: DAY,
+        blocks: [],
+        kindOf,
+        voci: [],
+        history: [],
+        steps: [{ cycleId: "c", label: "Push", itemId: "push", at: { step: 1110 } }],
+      }),
+    ).toMatchObject([{ key: "step:c", minute: 1110 }]);
+  });
+
   it("PL-30 / PL-11 (Q-24 (a)): a blocco «nel ciclo» anchored to a step's blocco comes with it, chains too; alone it plans nothing", () => {
     const inCycle = { type: "inCycle" } as const;
     const push = block("b-push", {

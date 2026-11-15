@@ -60,6 +60,7 @@ export async function planRows(
         label: c.label,
         itemId: c.itemId,
         blockIds: c.blockIds,
+        at: c.at,
       })),
     }),
     items: input.items,

@@ -29,7 +29,8 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 9. [ ] Obiettivi: the goals together, the voto's weights; voto as a number (PAT-98).
 10. [x] Giornata tipo = the ciclo's step; «blocco» off the screens; one place per idea (§29–§31).
 10b. [ ] Ritmo (his «periodizzazione», §32): [x] slice 1 — Piano is a day, the tag on the line;
-    [~] slice 2 — 2a built: «Questa volta» (cambia passo, salta); to do: sposta, the tag's sheet (this time: salta · sposta · cambia passo; always: rule, name,
+    [~] slice 2 — 2a built: «Questa volta» (cambia passo, salta); 2b built: «sposta» one line
+    this time (§36); to do: the tag's sheet (always: rule, name,
     the things in it) and «Ripeti…» on a voce with no ritmo; [ ] forbid «blocco» in product.md
     §3; [ ] times at planning «fissa · quando capita» (§27 second half); [ ] the ciclo's page
     redone (steps first, rules folded, reorder by dragging, §31).

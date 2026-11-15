@@ -109,8 +109,9 @@ proposal after a month of the simple Piano in use (PRD §4).
   for this day · **Copia ieri** (yesterday's voci as today's previsti, same time, current catalog
   values; a type the day already has is left). Fatto and saltato voci never change; only previsti
   ahead of now are replaced, and never ones he typed by hand. [E3 `swap`, PLAN-04, PLAN-07,
-  KEEP-07, plan.md §7] — Today: partial («Salta», a step by hand, «Copia ieri», «Sposta
-  l'allenamento» built; «Cambia la giornata» and «Salva come modello» gone with the day models).
+  KEEP-07, plan.md §7] — Today: partial («Salta», a step by hand, «Sposta questa volta» one line
+  of a ciclo's step (`setCycleTime`, `features/plan/ThisTime.tsx`) built; «Copia ieri» left with
+  the Piano card (proposal §31); «Cambia la giornata» and «Salva come modello» gone with the day models).
 - **PL-44** **Ripeti** on any logged voce opens a new blocco with its object, time and weekday
   prefilled (PAT-22). «Salva come modello» for a whole day goes with day models. [plan.md §6,
   PLAN-07, MOD-14] — Today: built («Ripeti nel Piano» on a logged voce's page opens «Nuovo blocco»

@@ -132,14 +132,34 @@ export async function readDayPlans(
   }));
   const overrides = new Map<string, { day: IsoDate; position: number | null }[]>();
   const skips = new Map<string, IsoDate[]>();
+  const times = new Map<string, { day: IsoDate; at: Record<string, number> }[]>();
   for (const d of plansDecisions) {
     if (d.kind === "cycle_skip") skips.set(d.key, [...(skips.get(d.key) ?? []), d.day]);
     else {
-      const pos = (d.payload as Record<string, unknown>)["position"];
-      overrides.set(d.key, [
-        ...(overrides.get(d.key) ?? []),
-        { day: d.day, position: typeof pos === "number" ? pos : null },
-      ]);
+      // One row per day: the step chosen by hand («position», null a rest) and/or the time
+      // of «Sposta questa volta» per line («at»); a row with only a time keeps the ciclo's step.
+      const p = (d.payload ?? {}) as Record<string, unknown>;
+      if ("position" in p)
+        overrides.set(d.key, [
+          ...(overrides.get(d.key) ?? []),
+          {
+            day: d.day,
+            position: typeof p["position"] === "number" ? p["position"] : null,
+          },
+        ]);
+      const at = p["at"];
+      if (at && typeof at === "object")
+        times.set(d.key, [
+          ...(times.get(d.key) ?? []),
+          {
+            day: d.day,
+            at: Object.fromEntries(
+              Object.entries(at).filter(
+                (e): e is [string, number] => typeof e[1] === "number",
+              ),
+            ),
+          },
+        ]);
     }
   }
   return dayPlans({
@@ -150,6 +170,7 @@ export async function readDayPlans(
     done: sessions,
     overrides,
     skips,
+    times,
   });
 }
 

@@ -78,7 +78,15 @@ export function blockItems(p: {
                 t: [p.cycleName?.(b.step.cycleId), b.step.label]
                   .filter(Boolean)
                   .join(" · "),
-                href: "/oggi/ciclo/" + b.step.cycleId + "?giorno=" + p.day,
+                // the line and its time too: «Sposta questa volta» moves it (PL-43)
+                href:
+                  "/oggi/ciclo/" +
+                  b.step.cycleId +
+                  "?giorno=" +
+                  p.day +
+                  "&riga=" +
+                  (b.block?.id ?? "step") +
+                  (at ? "&ora=" + at : ""),
               }
             : b.block
               ? {
