@@ -510,6 +510,18 @@
     Parked for him: 1A (Oggi = every day, Piano = what repeats) and 2a (goals on every assunzione)
     change screens, so they are shown before they are built; «Questa volta» waits for what he
     finds ugly in it.
+42. **15 Nov, his «yc ap»: 1A built on its own branch, shown before merging** (design.md rule 3).
+    Oggi opens every date (the strip no longer sends a day to come to Piano; a planned line's
+    fallback link opens the day in Oggi). Oggi · Piano is what repeats: header, the week strip
+    (each day's step, a tap opens it in Oggi), the ritmi as the kit `Elenco` — the same shape as
+    an area's Piano, nothing drawn new. `DayPage` loses its `piano` frame. PAT-97 rewritten in the
+    delta. Decided by Claude: the strip opens on the week of tomorrow (on a Sunday the next week,
+    not one already over); «Nuovo ciclo» only at the end of «Cicli», not in the header too.
+    Undo: `git revert` of the branch. Photos `LIFEOS/review/2026-11-15/oggi-piano/`.
+43. **15 Nov, his words on §42 (verbatim):** «ma che stai facendo, in piano a questo punto è
+    inutile avere le giornate o cose simili,». Done: Oggi · Piano has no week strip and no week in
+    its header; it is only what repeats (the ritmi as the kit `Elenco`), the same page as an
+    area's Piano with every area. Days live in Oggi alone.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
