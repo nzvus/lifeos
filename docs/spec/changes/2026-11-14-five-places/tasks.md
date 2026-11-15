@@ -27,4 +27,5 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 8. [x] Piano plans a future day; Oggi's week strip opens it (PAT-97) — draft, proposal §17,
    waiting for his word.
 9. [ ] Obiettivi: the goals together, the voto's weights; voto as a number (PAT-98).
-10. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.
+10. [ ] Giornata tipo + ciclo, five slices (proposal §28); times at planning (§27 second half).
+11. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.

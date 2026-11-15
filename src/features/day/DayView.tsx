@@ -66,8 +66,15 @@ export type DayActions = {
   /** «Togli i previsti»: answers the ids that went to the trash. */
   removePlanned: (ids: string[]) => Promise<string[]>;
   bringBackAll: (ids: string[]) => Promise<boolean>;
+  /** «tieni le 20:00»: the planned time back on a voce ticked done; answers its time. */
+  swapTime?: (id: string) => Promise<string | null>;
 };
-type Toast = { text: string; undo?: () => Promise<unknown> };
+type Toast = {
+  text: string;
+  undo?: () => Promise<unknown>;
+  /** A second choice beside «Annulla» (PAT-74 changed, proposal §23 Q2). */
+  alt?: { label: string; run: () => Promise<unknown> };
+};
 
 const DONE_WORDS: Record<Status, string> = {
   done: "segnato fatto",
@@ -152,9 +159,32 @@ export function DayView({
       }
       const before = await actions.changeStatus(r.id, intent);
       if (before === null) return failed();
+      // Ticked done today from a planned time: it took now; the toast offers the planned one.
+      const swap = actions.swapTime;
+      const offer =
+        intent === "done" && before === "planned" && now && r.time && r.time !== now.label
+          ? r.time
+          : null;
       say({
-        text: "«" + r.title + "» " + DONE_WORDS[intent],
+        text:
+          "«" +
+          r.title +
+          "» " +
+          DONE_WORDS[intent] +
+          (offer ? " alle " + now!.label : ""),
         undo: () => actions.changeStatus(r.id, before),
+        ...(offer && swap
+          ? {
+              alt: {
+                label: "tieni le " + offer,
+                run: async () => {
+                  const at = await swap(r.id);
+                  if (at === null) return failed();
+                  say({ text: "«" + r.title + "» alle " + at, undo: () => swap(r.id) });
+                },
+              },
+            }
+          : {}),
       });
     } catch {
       if (intent === "remove") hide(r.id, false);
@@ -391,6 +421,23 @@ export function DayView({
         <div className="k-toastbar">
           <div className="k-toast" role="status">
             <span>{toast.text}</span>
+            {toast.alt && (
+              <button
+                type="button"
+                className="k-btn link"
+                onClick={async () => {
+                  const alt = toast.alt!;
+                  setToast(null);
+                  try {
+                    await alt.run();
+                  } catch {
+                    failed();
+                  }
+                }}
+              >
+                {toast.alt.label}
+              </button>
+            )}
             {toast.undo && (
               <button
                 type="button"

@@ -147,6 +147,54 @@ export async function setEntryStatus(
 }
 
 /**
+ * A voce ticked done keeps the planned time it moved from (`plannedStart`): this swaps the
+ * two, so «tieni le 20:00» puts the planned time back while it stays done, and the same call
+ * again undoes it (his 14 Nov: «al momento della conferma… poter decidere se effettivamente
+ * sovrascrivere o meno»). Returns the time it now has (ISO), or null with nothing to swap.
+ */
+export async function swapPlannedStart(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<string | null> {
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .select({ startAt: entries.startAt, status: entries.status })
+      .from(entries)
+      .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)))
+      .for("update");
+    if (!row?.startAt || row.status !== "done") return null;
+    const [kept] = await tx
+      .select({ text: entryValues.text })
+      .from(entryValues)
+      .where(
+        and(
+          ownedBy(entryValues, owner),
+          eq(entryValues.entryId, id),
+          eq(entryValues.field, PLANNED_START),
+        ),
+      );
+    if (!kept?.text) return null;
+    const next = new Date(kept.text);
+    await tx
+      .update(entryValues)
+      .set({ text: row.startAt.toISOString() })
+      .where(
+        and(
+          ownedBy(entryValues, owner),
+          eq(entryValues.entryId, id),
+          eq(entryValues.field, PLANNED_START),
+        ),
+      );
+    await tx
+      .update(entries)
+      .set({ startAt: next })
+      .where(and(ownedBy(entries, owner), eq(entries.id, id)));
+    return next.toISOString();
+  });
+}
+
+/**
  * The day's live done entry of a kind logged once a day as a running total
  * (steps: the phone's count, activity.md §4), if any: a new value replaces it.
  */

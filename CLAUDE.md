@@ -119,12 +119,12 @@ for code quality, then for speed. Never for speed first.
   updated + the PR says what to look at first. His understanding is checked by the weekly
   diff he explains (Q-21 (a)), not by a question per slice.
 - **Tests and deploys** (2026-10-23; CI runs everything, so don't run it twice):
-  - Locally: `npx vitest related --run <touched files>` and `typecheck` in the
-    touched workspace only; `prettier --write` on touched files. The full
-    `npm test`, lint and build run in CI, not before the push.
-  - DB tests only when the schema or a repository changes; the phone check
-    only for new or changed UI.
-  - Push when a slice of the change is complete (each push re-runs CI).
+  - Locally: `npx vitest related --run <touched files>` (kit tests from `packages/kit`) and
+    `typecheck` in the touched workspace; `prettier --write` on touched files; full `npm test`,
+    lint and build run in CI. DB tests only for schema/repository changes; the phone check only
+    for new or changed UI. Push when a slice of the change is complete (each push re-runs CI).
+  - **Wait for CI in the background** («do it in background so that you can continue working»,
+    15 Nov) and go on; a red result comes before new work.
   - Vercel: 100 deploys a day. The ignore script (`scripts/vercel-ignore.sh`)
     builds production only when the app changed, previews only for a migration
     or a `*-preview` branch.

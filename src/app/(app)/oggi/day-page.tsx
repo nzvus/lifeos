@@ -107,6 +107,7 @@ import {
   bringBack,
   bringBackAll,
   changeStatus,
+  swapTime,
   closeDay,
   recomputeTargets,
   removeEntry,
@@ -730,6 +731,7 @@ export async function DayPage({
           <DayView
             actions={{
               changeStatus,
+              swapTime,
               removeEntry,
               setServings,
               bringBack,

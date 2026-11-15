@@ -6,6 +6,7 @@
  * answer what Undo needs: the status it had, or whether it happened.
  */
 import { revalidatePath } from "next/cache";
+import { F } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -16,6 +17,7 @@ import {
   restoreEntry,
   setEntryServings,
   setEntryStatus,
+  swapPlannedStart,
   trashEntry,
   trashPlanned,
   type Status,
@@ -41,6 +43,21 @@ export async function changeStatus(id: string, status: Status): Promise<Status |
   });
   revalidatePath("/", "layout");
   return before;
+}
+
+/**
+ * «tieni le 20:00» after «Fatto» (proposal §23 Q2): the voce goes back to its planned time,
+ * still done; called again it takes the tick's time again. Answers the time it now has
+ * («20:00»), null when there was nothing to swap.
+ */
+export async function swapTime(id: string): Promise<string | null> {
+  if (!UUID.test(id)) return null;
+  const { clock } = await ownerClock();
+  const at = await swapPlannedStart(await getDb(), await requireOwner(), id);
+  if (at === null) return null;
+  revalidatePath("/", "layout");
+  const d = new Date(at);
+  return F.time(dayMinute(d, logicalDay(d, clock), clock) % 1440);
 }
 
 /** The day's −/+ on a meal or intake: answers the servings it had ("1" for none), null if not saved. */
