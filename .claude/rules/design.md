@@ -48,7 +48,7 @@ dimentichi».
   cup, spuntino bite, cena three rims, sonno moon bite), never where they break the row (VIS-41).
   The **box drawing** in the free corner, growing on open (VIS-42).
 - **Score chip**: closed = skyline coloured by band + number + word; open = one ruler per
-  criterion; at ≤ 360 px number and word only (VIS-43; his «skyline… una combinazione»). The mark
+  criterion; at ≤ 360 px the skyline smaller, never gone (VIS-43; his «skyline… una combinazione»). The mark
   for a voto: filled dot / half dot / ring (VIS-21). Never colour alone (VIS-20).
 - **One nutrient bar** everywhere («tutte le barre dei macro… un unico tipo»): `Nutrients` levels
   L0 four thin bars → L1 every nutrient → L2 foods × kinds; macros split by kind in fixed shades,

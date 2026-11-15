@@ -4246,10 +4246,31 @@ button.k-link {
   min-width: 2ch;
   text-align: right;
 }
+/* On a 360 px phone the skyline shrinks, never goes (VIS-43, his 15 Nov «only the number»). */
 @media (max-width: 360px) {
-  .k-head .k-vsky,
+  .k-head .k-vsky {
+    width: 40px;
+    height: 22px;
+  }
   .k-trail .k-sky.mini {
-    display: none;
+    width: 36px;
+    height: 20px;
+  }
+  .k-vsky .col,
+  .k-trail .k-sky.mini .col {
+    min-width: 3px;
+  }
+  /* a list row keeps its name readable: the value goes under it rather than cut it to «La…» */
+  .k-row.dense .k-head {
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  .k-row.dense .k-hlead {
+    flex: 1 1 7em;
+  }
+  /* under the name, where «1 prodotto» starts: the tile (32) + the gap (8) */
+  .k-row.dense .k-hlead.badged + .k-hright {
+    margin-left: 40px;
   }
   .k-month,
   .k-week {
