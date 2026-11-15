@@ -27,5 +27,10 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 8. [x] Piano plans a future day; Oggi's week strip opens it (PAT-97) — draft, proposal §17,
    waiting for his word.
 9. [ ] Obiettivi: the goals together, the voto's weights; voto as a number (PAT-98).
-10. [ ] Giornata tipo + ciclo, five slices (proposal §28); times at planning (§27 second half).
+10. [x] Giornata tipo = the ciclo's step; «blocco» off the screens; one place per idea (§29–§31).
+10b. [ ] Ritmo (his «periodizzazione», §32): [x] slice 1 — Piano is a day, the tag on the line;
+    [ ] slice 2 — the tag's sheet (this time: salta · sposta · cambia passo; always: rule, name,
+    the things in it) and «Ripeti…» on a voce with no ritmo; [ ] forbid «blocco» in product.md
+    §3; [ ] times at planning «fissa · quando capita» (§27 second half); [ ] the ciclo's page
+    redone (steps first, rules folded, reorder by dragging, §31).
 11. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.
