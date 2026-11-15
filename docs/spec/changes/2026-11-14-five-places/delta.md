@@ -41,8 +41,12 @@
   anche lei in base ai range»). `kcalRange` in `core/engines/targets/ranges.ts`.
 - **PAT-51/§3** Where the day's targets come from («dispendio ≈ … per il ritmo dell'obiettivo»)
   is said once, in Obiettivi, not under «Il giorno» (his 15 Nov).
+- **PAT-74** (patterns.md §7) The toast: one at a time above the bar, 5 s, «Annulla» and at most
+  **one other choice** when the act had two sensible outcomes: after «Fatto» on a previsto that
+  took the tick's time, «tieni le 20:00» puts the planned time back (still fatto); «Annulla»
+  after it swaps again (proposal §23 Q2, his «yc» 15 Nov). Choices never wrap. Kit: DayView's
+  toast ✓ (`swapPlannedStart`, `core/entries/write.ts`).
 
-## ADDED
 - **PAT-95** (patterns.md §1) The area filter: one row of chips, «Tutto» · Cibo · Corpo · Mente ·
   Soldi, under the header of every place but Oggi, which filters by kind with its own chips
   (his «yc», 14 Nov). WHEN he taps a chip THEN the place shows only that area's

@@ -4725,3 +4725,11 @@ button.k-part.toggle {
 .k-nowrap {
   white-space: nowrap;
 }
+/* a toast's choices stay one line each («tieni le 23:00», «Annulla»); the sentence wraps */
+.k-toast > .k-btn {
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.k-toast > span {
+  min-width: 0;
+}

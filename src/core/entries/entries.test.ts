@@ -14,6 +14,7 @@ import {
   restoreEntry,
   setEntryServings,
   setEntryStatus,
+  swapPlannedStart,
   trashEntry,
   moveEntry,
   trashPlanned,
@@ -218,6 +219,16 @@ describe("writing an entry", () => {
     expect(await minute()).toBe(8 * 60 + 30);
     expect(await setEntryStatus(db, a, id, "planned")).toBe("done");
     expect(await minute()).toBe(plannedAt);
+    // «tieni le 20:00» (proposal §23 Q2): the planned time back, still done; again = undo.
+    await setEntryStatus(db, a, id, "done", { at, today: "2026-10-16" });
+    expect(await swapPlannedStart(db, a, id)).not.toBeNull();
+    expect(await minute()).toBe(plannedAt);
+    expect(await swapPlannedStart(db, b, id)).toBeNull(); // not his
+    await swapPlannedStart(db, a, id);
+    expect(await minute()).toBe(8 * 60 + 30);
+    expect(await setEntryStatus(db, a, id, "planned")).toBe("done");
+    expect(await minute()).toBe(plannedAt);
+    expect(await swapPlannedStart(db, a, id)).toBeNull(); // planned: nothing to swap
     // Ticked on another day (yesterday's plan, today): the planned time stays.
     await setEntryStatus(db, a, id, "done", { at, today: "2026-10-17" });
     expect(await minute()).toBe(plannedAt);

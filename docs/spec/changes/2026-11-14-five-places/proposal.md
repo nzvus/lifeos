@@ -298,6 +298,13 @@
     redirect in `oggi/andamento/`. His 15 Nov rule «when you wait… do it in background» is in
     CLAUDE.md (Tests and deploys).
 
+27. **Q2 of §23, first half, PR #356:** at confirming. «Fatto» on a previsto of today takes the
+    tick's time as before (PL, «ora della spunta»); the toast now says it («segnato fatto alle
+    02:44») and offers «tieni le 23:00», which puts the planned time back and stays fatto;
+    «Annulla» then swaps again. Tried in the app (photos `LIFEOS/review/2026-11-15/times/`).
+    Still to build, the second half: at planning, «Ora: fissa · quando capita» per previsto
+    (the `timeMode = fixed` the tick already respects has no field to set it).
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
