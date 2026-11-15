@@ -1,18 +1,18 @@
 "use client";
 /**
- * «Questa volta» on a ritmo (proposal §32, slice 2; his 15 Nov «toccando quel tag… puoi
- * visualizzare e configurare»): the ciclo's steps as chips, the day's one on; a tap gives this
- * day that step (the same again: back to the ciclo's own); «Salta questa volta» or its undo; «Sposta» its lines to
- * another time that day (PL-43), «↺ Ora del ciclo» back.
- * The page's server actions come bound with the day and the ciclo; it re-reads after each.
+ * «Questa volta» on a ritmo (proposal §32, §36, §37; his 15 Nov «toccando quel tag… puoi
+ * visualizzare e configurare»): two values edited in place (PAT-13) — the day's step, a
+ * drop-down because he extends the list of steps (VIS-85, his «tendine per scelte che si possono
+ * espandere»), and the line's time («Sposta questa volta», PL-43) — then «Salta questa volta»
+ * or its undo, and «↺ Ora del ciclo» once the line was moved. The page's server actions come
+ * bound with the day and the ciclo; it re-reads after each.
  */
-import { Field } from "@lifeos/kit";
-import { useState, useTransition } from "react";
+import { InPlace } from "@lifeos/kit";
+import { useTransition } from "react";
 
 export function ThisTime({
   steps,
   current,
-  custom,
   skipped,
   choose,
   skip,
@@ -24,12 +24,10 @@ export function ThisTime({
   steps: { label: string; position: number | null }[];
   /** The step the day has now (its position, null for a rest). */
   current: number | null;
-  /** The day's step was chosen by hand: a tap on it goes back to the ciclo's own. */
-  custom: boolean;
   skipped: boolean;
   choose: (position: number | null | undefined) => Promise<void>;
   skip: (skipped: boolean) => Promise<void>;
-  /** The line he came from (its tag), by name; null: no «Sposta». */
+  /** The line he came from (its tag), by name; null: no time to move. */
   line: string | null;
   /** That line's time that day («HH:MM»), "" when not known. */
   at: string;
@@ -39,27 +37,39 @@ export function ThisTime({
   move: ((at: string) => Promise<void>) | null;
 }) {
   const [pending, start] = useTransition();
-  const [when, setWhen] = useState(at);
+  const key = (p: number | null) => (p === null ? "rest" : String(p));
+  const now = steps.find((s) => s.position === current);
   return (
     <div className="k-stack g2" aria-busy={pending}>
-      <div className="k-chips" role="group" aria-label="Il passo di questo giorno">
-        {steps.map((s) => {
-          const on = s.position === current;
-          return (
-            <button
-              key={String(s.position) + s.label}
-              type="button"
-              className="k-chip"
-              aria-pressed={on}
-              disabled={pending}
-              onClick={() => start(() => choose(on && custom ? undefined : s.position))}
-            >
-              {s.label}
-            </button>
-          );
-        })}
-      </div>
-      <div className="k-line">
+      <InPlace
+        spec={{
+          key: "passo",
+          label: "Passo",
+          type: "choice",
+          grows: true,
+          required: true,
+          choices: steps.map((s) => ({ value: key(s.position), label: s.label })),
+        }}
+        value={key(current)}
+        shown={now?.label ?? "—"}
+        onSave={async (v) => {
+          const s = steps.find((x) => key(x.position) === v);
+          if (s) await choose(s.position);
+          return null;
+        }}
+      />
+      {!skipped && line !== null && move && (
+        <InPlace
+          spec={{ key: "ora", label: line + " alle", type: "time" }}
+          value={at}
+          shown={at || "—"}
+          onSave={async (v) => {
+            if (typeof v === "string" && v !== "") await move(v);
+            return null;
+          }}
+        />
+      )}
+      <div className="k-line wrap g2">
         <button
           type="button"
           className="k-btn secondary"
@@ -68,36 +78,17 @@ export function ThisTime({
         >
           {skipped ? "Non saltare più" : "Salta questa volta"}
         </button>
-      </div>
-      {!skipped && line !== null && move && (
-        <div className="k-line bottom wrap g2">
-          <Field
-            name="ora"
-            label={line + " alle"}
-            type="time"
-            defaultValue={at}
-            onChange={setWhen}
-          />
+        {moved && move && (
           <button
             type="button"
-            className="k-btn secondary"
-            disabled={pending || when === "" || when === at}
-            onClick={() => start(() => move(when))}
+            className="k-btn link"
+            disabled={pending}
+            onClick={() => start(() => move(""))}
           >
-            Sposta
+            ↺ Ora del ciclo
           </button>
-          {moved && (
-            <button
-              type="button"
-              className="k-btn link"
-              disabled={pending}
-              onClick={() => start(() => move(""))}
-            >
-              ↺ Ora del ciclo
-            </button>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

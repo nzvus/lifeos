@@ -85,7 +85,6 @@ export const cycleExtra: Build = async (db, owner, id, query) => {
         <ThisTime
           steps={c.steps.map((s) => ({ label: nameOf(s), position: s.position }))}
           current={that.position}
-          custom
           skipped={that.skipped}
           choose={chooseStep.bind(null, day, id)}
           skip={skipStep.bind(null, day, id)}

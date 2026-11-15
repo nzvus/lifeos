@@ -448,6 +448,17 @@
     - A ciclo's lines are never written as previsti (`inCycle` is never «planned on» a day), so
       moving the computed line covers today too; a previsto written by hand keeps its own time.
     Photos `LIFEOS/review/2026-11-15/sposta/`.
+37. **15 Nov, his words on §36's photos (verbatim):** «non mi piacciono per nulla, sono
+    disordinati, non centrati e belli da vedere, e poi non tengono conto del fatto che se aggiungo
+    tante cose graficmente diventa orribile. tempo fa esisteva una regola che ti imponeva di usare
+    tendine per scelte che si possono espandere, o robe simili che comunque tengono conto
+    dell'espandibilità. che fine ha fatto». Found: the old kit spec (`archive/spec-v2/kit.md` §7)
+    said «a choice that can grow (more than four options, or a list the person extends: day
+    types, groups, categories) is a drop-down, never a row of chips that breaks the layout»;
+    VIS-85 kept only «segmented ≤ 4, else drop-down», losing «a list he extends». `Field` still
+    does the ≤ 4 part; «Questa volta» bypassed it with hand-made chips. Fix: the rule whole in
+    VIS-85, a `Field` that always drops down for a list he extends, «Questa volta» redrawn from
+    `Field` only — shown to him before the PR moves on.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

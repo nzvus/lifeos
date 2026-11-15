@@ -67,7 +67,8 @@ dimentichi».
   week have three (his pick 6 Nov).
 - **Weather**: 0 a line in the date row · 1 the card with the animated drawing · 2 hours, air, sun
   arc («b con a in espansione») (VIS-75). **Backdrop**: the domain glyph behind the header (VIS-80).
-- **Controls**: one filled primary per screen; act pills 36 in a 44 row; segmented ≤ 4; chips ink
+- **Controls**: one filled primary per screen; act pills 36 in a 44 row; segmented ≤ 4; a list he
+  extends is always a drop-down, never chips (`Field` `grows`, his 15 Nov); chips ink
   when on (VIS-85). Fields 44 high, label above, edited = herb dot + «↺» (VIS-86). Targets never
   under 44 px except the named ones (PRD-12, VIS-05). One motion timing (VIS-90).
 
