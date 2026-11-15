@@ -118,7 +118,7 @@ export default async function PianoPage({
         ]
           .filter(Boolean)
           .join(" · ")}
-        action={{ label: plan.elenco.addBlock, href: "/oggi/blocco/nuovo" }}
+        action={{ label: plan.elenco.addCycle, href: "/oggi/ciclo/nuovo" }}
         of={placeHead("piano").of}
       />
       <AreaFilter area="oggi" hrefs={areaHrefs("piano")} />
@@ -213,7 +213,7 @@ export default async function PianoPage({
           );
         })}
       <span className="k-help">
-        Cambia solo questo giorno: i blocchi e il ciclo restano come sono.
+        Cambia solo questo giorno: la giornata tipo e il ciclo restano come sono.
       </span>
       {!ahead &&
         items
@@ -300,7 +300,7 @@ export default async function PianoPage({
         archived={false}
         filterHref={{
           active: "/oggi/piano",
-          archived: "/oggi/elenco?archiviati=1#blocchi",
+          archived: "/oggi/elenco?archiviati=1#giornate",
         }}
         sections={planSections({ blocks, cycles, archived: false, area: null })}
       />

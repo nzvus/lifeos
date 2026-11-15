@@ -351,6 +351,17 @@
     Next: slice 4 (Elenco: «Giornate tipo» and «Cicli», the word «blocco» off the screens) and
     the time mode (§27).
 
+30. **15 Nov, his question: «ma non avevi detto che elimnavi i blocchi?».** Yes: (a) said blocchi
+    go. The idea is gone (a giornata tipo's lines live in the ciclo's step); the word left the
+    screens in this slice, PR #357: Elenco shows «Giornate tipo» (each step with its righe, to its
+    ciclo) and «Cicli»; Piano's header offers «Nuovo ciclo»; the ciclo's editor says «riga»; the
+    scores say «adatto al piano»; every area's Piano lists the giornate tipo. A blocco outside
+    every ciclo shows under «Fuori dai cicli» only while one exists (he has none); it can no
+    longer be created from Elenco. Still a blocco underneath (the storage of a riga: no
+    migration). product.md §3: «giornata tipo» and «riga» get their row (they were in «Not»).
+    Left: «Ripeti nel Piano» on a voce still makes a loose blocco — next, it should add the voce as
+    a riga of a giornata tipo. Photos `LIFEOS/review/2026-11-15/giornata/elenco-390.png`.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

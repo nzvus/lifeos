@@ -52,7 +52,10 @@
   (Q-18 (a)), each any voce type or object (a pasto, a scheda, creatina, a pesata, a tracker)
   with its time (and, to build, its time mode «fissa» · «quando capita»); no new type, no new
   table, no migration. A **ciclo** says which giornata tipo falls on which day; one used every
-  day is a ciclo of one step. `core/plans/day-type.ts` `saveDayToStep`. WHEN he taps
+  day is a ciclo of one step. `core/plans/day-type.ts` `saveDayToStep`. Words (product.md §3,
+  edited with this change): «giornata tipo» and «riga» get their row; «blocco» leaves the
+  screens (Elenco, Piano's header, the ciclo's editor, the scores' «adatto al piano») and is
+  forbidden once the last form of a loose blocco goes. WHEN he taps
   «Salva come giornata tipo» on a day THEN its voci become the lines of a new one. The word
   «blocco» leaves the screens; a line is a «riga» of its giornata tipo. Kit: ✗.
 

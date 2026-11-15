@@ -13,7 +13,7 @@ export const PART_WORDS: Record<string, string> = {
   density: "densità",
   limits: "limiti",
   value: "valore",
-  fit: "adatto al blocco",
+  fit: "adatto al piano",
   carbsQuality: "qualità dei carboidrati",
   fatQuality: "qualità dei grassi",
   satiety: "sazietà",

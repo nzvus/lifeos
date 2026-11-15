@@ -418,7 +418,7 @@ function Draft({
                       ? "salvata " + F.num(savedKcal, "kcal") + ", ora "
                       : "") +
                       F.num(totals["kcal"] ?? 0, "kcal") +
-                      (slot ? " di " + F.num(slot.kcal, "kcal") + " del blocco" : ""),
+                      (slot ? " di " + F.num(slot.kcal, "kcal") + " del piano" : ""),
                     slot && modelName ? "«" + modelName + "»" : "",
                   ]
               )
@@ -591,7 +591,7 @@ function Draft({
         {fitting.length > 0 && (
           <section className="k-section g3" aria-label="Pasti adatti">
             <h2>
-              {"Pasti adatti " + (roleWord ? "a " + roleWord.toLowerCase() : "al blocco")}{" "}
+              {"Pasti adatti " + (roleWord ? "a " + roleWord.toLowerCase() : "al piano")}{" "}
               <span className="k-meta">dai tuoi pasti</span>
             </h2>
             {fitting.map((f) => (
@@ -623,14 +623,14 @@ function Draft({
         )}
 
         {gap && (
-          <section className="k-section g3" aria-label="Per arrivare al blocco">
+          <section className="k-section g3" aria-label="Per arrivare al piano">
             <h2>Per arrivare al blocco</h2>
             <span className="k-meta">
               {gap.gap === 0
-                ? "Le proteine del blocco ci sono."
+                ? "Le proteine del piano ci sono."
                 : "Mancano " +
                   F.num(gap.gap, "g") +
-                  " di proteine per il blocco (" +
+                  " di proteine per il piano (" +
                   F.num(slot!.protein!, "g") +
                   ")" +
                   (gap.ideas.length ? ". Così, con quanto aggiungono:" : ".")}

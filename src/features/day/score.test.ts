@@ -162,7 +162,7 @@ describe("a meal's score on the day", () => {
     ]);
     expect(s.missing).toEqual([
       "valore",
-      "adatto al blocco",
+      "adatto al piano",
       "qualità dei grassi",
       "varietà",
       "momento",
