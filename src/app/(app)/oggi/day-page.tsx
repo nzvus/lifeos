@@ -13,7 +13,6 @@
  * score is computed from it, never stored.
  */
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
 import { plan } from "@/i18n/plan";
 import {
   Box,
@@ -156,14 +155,8 @@ export async function DayPage({
   area = "oggi",
   params,
   searchParams,
-  piano,
 }: {
   area?: Area;
-  /**
-   * A day to come opened in Piano (PAT-97): Piano's header and the day's plan controls in
-   * place of the date and the weather, the same day below; no dock, no closing.
-   */
-  piano?: { head: ReactNode; foot?: ReactNode };
   params: Promise<{ day?: string[] }>;
   /** `fatto=<id>`: an entry ticked done from ⊕, its toast with «Annulla» (capture.md §6). */
   searchParams: Promise<{ fatto?: string | string[] }>;
@@ -560,53 +553,49 @@ export async function DayPage({
     <main className="k-page has-bd">
       {/* The day is the title, the weather under it (ADR-0063, PAT-01; his O6, O8). An area's
           diary is the same page filtered: its chips lead back to «Tutto» (PAT-95). */}
-      {piano ? (
-        piano.head
-      ) : (
-        <section className="k-block g3 k-top">
-          <DateNav
-            day={date}
-            today={today}
-            hrefBase={AREA_HREF[area] + "/"}
-            // A day to come is planned in Piano (PAT-97, his O7).
-            futureBase="/oggi/piano?giorno="
-            scores={scores}
-            tags={tags}
-            bars={areaBars(bars, area)}
-            levelKey="oggi.settimana"
-            rhythm={weekRhythm(days, (d) => ({ ...sctx, date: d, now: null }), clock)}
-            nowMinute={nowMinute}
-            page={{
-              of: { place: "oggi" },
-              context: area === "oggi" ? cycleLine : "",
-              extra: area === "oggi" && (
-                <DayPlanBar
-                  steps={(plans.get(date)?.cycles ?? [])
-                    .filter((c) => !c.rest)
-                    .map((c) => ({
-                      cycleId: c.cycleId,
-                      label: c.label,
-                      skipped: c.skipped,
-                    }))}
-                  skip={skipStep.bind(null, date)}
-                />
-              ),
-            }}
-            under={
-              area === "oggi" ? (
-                weather && (
-                  <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
-                )
-              ) : (
-                <AreaFilter
-                  area={area}
-                  hrefs={areaHrefs("", date === today ? "" : "/" + date)}
-                />
+      <section className="k-block g3 k-top">
+        <DateNav
+          day={date}
+          today={today}
+          hrefBase={AREA_HREF[area] + "/"}
+          // Every day opens here, a day to come too (his «yc» on §38, 1A): Piano holds
+          // only what repeats.
+          scores={scores}
+          tags={tags}
+          bars={areaBars(bars, area)}
+          levelKey="oggi.settimana"
+          rhythm={weekRhythm(days, (d) => ({ ...sctx, date: d, now: null }), clock)}
+          nowMinute={nowMinute}
+          page={{
+            of: { place: "oggi" },
+            context: area === "oggi" ? cycleLine : "",
+            extra: area === "oggi" && (
+              <DayPlanBar
+                steps={(plans.get(date)?.cycles ?? [])
+                  .filter((c) => !c.rest)
+                  .map((c) => ({
+                    cycleId: c.cycleId,
+                    label: c.label,
+                    skipped: c.skipped,
+                  }))}
+                skip={skipStep.bind(null, date)}
+              />
+            ),
+          }}
+          under={
+            area === "oggi" ? (
+              weather && (
+                <WeatherCard w={weather.w} place={weather.p.name} hour={wxHour} />
               )
-            }
-          />
-        </section>
-      )}
+            ) : (
+              <AreaFilter
+                area={area}
+                hrefs={areaHrefs("", date === today ? "" : "/" + date)}
+              />
+            )
+          }
+        />
+      </section>
       {routines.length > 0 && (
         <section className="k-section g2" aria-label="Allenati">
           <h2>Allenati</h2>
@@ -767,14 +756,13 @@ export async function DayPage({
             }}
           />
         )}
-        {area === "oggi" && date <= today && !piano && (
+        {area === "oggi" && date <= today && (
           <DayClose closed={closed} close={closeDay.bind(null, date)} />
         )}
       </section>
       {/* The dock (PAT-99): the water's steps and his pins, stuck above the bar on every scroll
           position; the water's own box is in the day's times (it was at the top since P4). */}
-      {piano?.foot}
-      {!piano && (water || intakes.length > 0) && (
+      {(water || intakes.length > 0) && (
         <QuickIntakes
           day={date}
           items={quick}

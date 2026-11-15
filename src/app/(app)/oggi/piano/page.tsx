@@ -1,81 +1,81 @@
 /**
- * Oggi · Piano (PAT-97; proposal §31–§32, his 15 Nov): a day of Oggi in the future. The header,
- * the week strip (`?settimana=`, `?giorno=`), then the day (`DayPage` in Piano's frame): its voci,
- * what the cicli and blocchi plan (each line with its ritmo as a tag that opens it), the gaps
- * that offer what is missing. No card of controls, no list of the week or of the cicli: one
- * place per idea.
+ * Oggi · Piano (his «yc» on proposal §38, 1A — 15 Nov: «la pagina piano non ha senso nei giorni
+ * passati, mentre quella oggi non ha senso per quelli futuri… la pagina piano attuale deve essere
+ * diversa da adesso, non così ridondante come Oggi»): what repeats, and the weeks ahead. The week
+ * strip with each day's step (`?settimana=`; a day opens in Oggi, which holds every day), then
+ * the ritmi — cicli and the blocchi outside them — as the kit `Elenco`, the same as an area's
+ * Piano. No day page here any more: a day is planned in Oggi.
  */
-import { DateNav, F, PageHeader, weekOf, AreaFilter } from "@lifeos/kit";
+import { AreaFilter, DateNav, Elenco, F, PageHeader, weekOf } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { ensureWeekTargets } from "@/core/energy";
-import { planTag, readDayPlans } from "@/core/plans";
-import { logicalDay } from "@/core/engines/time";
+import { addDays, logicalDay } from "@/core/engines/time";
+import { listBlocks, planTag, readCycleBook, readDayPlans } from "@/core/plans";
 import { areaHrefs, placeHead } from "@/features/places";
-import { plan } from "@/i18n/plan";
-import { DayPage } from "../day-page";
+import { planSections } from "@/features/plan/plan-sections";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
 export default async function PianoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ settimana?: string | string[]; giorno?: string | string[] }>;
+  searchParams: Promise<{
+    settimana?: string | string[];
+    archiviati?: string | string[];
+  }>;
 }) {
-  const owner = await requireOwner();
-  const db = await getDb();
-  const known = await ownerClock();
+  const [owner, db, known] = await Promise.all([requireOwner(), getDb(), ownerClock()]);
   const today = logicalDay(new Date(), known.clock);
   const asked = await searchParams;
-  const wanted =
-    typeof asked.giorno === "string" && ISO.test(asked.giorno) ? asked.giorno : null;
+  const archived = asked.archiviati === "1";
+  // What is ahead: the week of tomorrow (on a Sunday, the next one) unless he asked for one.
   const week = weekOf(
-    wanted ??
-      (typeof asked.settimana === "string" && ISO.test(asked.settimana)
-        ? asked.settimana
-        : today),
+    typeof asked.settimana === "string" && ISO.test(asked.settimana)
+      ? asked.settimana
+      : addDays(today, 1),
   );
-  const open = wanted ?? (week.includes(today) ? today : week[0]!);
-  const [plans] = await Promise.all([
+  const [plans, blocks, book] = await Promise.all([
     readDayPlans(db, owner, week[0]!, week[6]!, today),
-    // A week begun: its automatic targets, made when missing.
-    week[0]! <= today ? ensureWeekTargets(db, owner, week[0]!, known.clock) : null,
+    listBlocks(db, owner, archived),
+    readCycleBook(db, owner),
   ]);
-  const head = (
-    <>
+  const day = week.includes(today) ? today : week[0]!;
+  return (
+    <main className="k-page has-bd">
       <PageHeader
         title={placeHead("piano").title}
         context={[
           F.week(week[0]!),
-          ...(plans.get(open)?.cycles ?? []).map((c) => "ciclo " + c.cycle),
+          ...(plans.get(day)?.cycles ?? []).map((c) => "ciclo " + c.cycle),
         ]
           .filter(Boolean)
           .join(" · ")}
-        action={{ label: plan.elenco.addCycle, href: "/oggi/ciclo/nuovo" }}
         of={placeHead("piano").of}
       />
       <AreaFilter area="oggi" hrefs={areaHrefs("piano")} />
       <section className="k-block g3 k-top">
+        {/* Each day with its step; a tap opens it in Oggi, past, today or to come (1A). */}
         <DateNav
           mode="week"
-          day={open}
+          day={day}
           today={today}
-          hrefBase="/oggi/piano?giorno="
+          hrefBase="/oggi/"
           weekBase="/oggi/piano?settimana="
           levelKey="piano.settimana"
           tags={Object.fromEntries(week.map((d) => [d, planTag(plans.get(d))]))}
         />
       </section>
-    </>
-  );
-  // His 15 Nov: «togliere anche quello… solo una pianificazione come fosse una giornata in
-  // Oggi ma nel futuro». What repeats is a tag on its line, opening its ritmo (proposal §32).
-  return (
-    <DayPage
-      params={Promise.resolve({ day: [open] })}
-      searchParams={Promise.resolve({})}
-      piano={{ head }}
-    />
+      <Elenco
+        archived={archived}
+        filterHref={{ active: "/oggi/piano", archived: "/oggi/piano?archiviati=1" }}
+        sections={planSections({
+          blocks,
+          cycles: book?.cycles ?? null,
+          archived,
+          area: null,
+        })}
+      />
+    </main>
   );
 }

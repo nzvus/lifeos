@@ -63,7 +63,7 @@ export function blockItems(p: {
               ? "&categoria=" + b.block.defaults["category"]
               : "") +
             (at ? "&ora=" + at : "")
-          : (object?.href ?? "/oggi/piano?giorno=" + p.day));
+          : (object?.href ?? "/oggi/" + p.day));
       return {
         id: b.key,
         minute,

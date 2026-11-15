@@ -65,12 +65,14 @@
   (his «yc», 14 Nov). WHEN he taps a chip THEN the place shows only that area's
   types and ⊕ offers them first; WHEN he changes place THEN the chip stays. An area is never a
   page. Kit: `AreaFilter` ✗.
-- **PAT-97** (patterns.md §1) A future day is planned in Piano, with the same lines as a real day,
-  each saying where it comes from (blocco, ciclo, «solo questo giorno»). WHEN he taps a future date
-  in Oggi's week strip THEN that day opens in Piano; WHEN the day comes THEN its lines are Oggi's
-  «previsto» voci. WHEN the day is to come THEN every part of it shows, an empty one as a gap
-  that offers what is missing («+ Pranzo»), and every part starts open. Kit: `DateNav`
-  (`futureBase`) ✓; the day is Oggi's `DayPage` in Piano's frame.
+- **PAT-97** (patterns.md §1) Oggi holds every day, and what it shows follows the time: a past day
+  what happened, today done before now and planned after it, a day to come only what is planned —
+  each line saying where it comes from (its ritmo as a tag, else «solo questo giorno»), every part
+  shown, an empty one as a gap that offers what is missing («+ Pranzo»). Piano holds what repeats:
+  the week strip with each day's step (opening on the week of tomorrow) and the ritmi as the kit
+  `Elenco`; WHEN he taps a day there THEN it opens in Oggi. [his 15 Nov «la pagina piano non ha
+  senso nei giorni passati, mentre quella oggi non ha senso per quelli futuri, quindi tanto vale
+  unirle», «yc» on proposal §38, 1A] Kit: `DateNav` ✓, `Elenco` ✓; `futureBase` no longer used.
 - **PAT-98** (patterns.md §3) A voto is shown as its number in the judgement's colour, with no
   word beside it; WHEN the app cannot score (PRD-23) THEN «–», the reason in its «Perché?». Kit: ✗.
 - **PAT-99** (patterns.md §6) The dock: one strip stuck above the bar on Oggi, at every scroll
