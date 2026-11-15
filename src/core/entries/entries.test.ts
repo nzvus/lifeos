@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "../db/db";
+import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { loadDay } from "../day";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
@@ -15,6 +16,7 @@ import {
   setEntryServings,
   setEntryStatus,
   swapPlannedStart,
+  linkEntryItem,
   trashEntry,
   moveEntry,
   trashPlanned,
@@ -219,6 +221,16 @@ describe("writing an entry", () => {
     expect(await minute()).toBe(8 * 60 + 30);
     expect(await setEntryStatus(db, a, id, "planned")).toBe("done");
     expect(await minute()).toBe(plannedAt);
+    // A voce with no object gets one, once, and only his (proposal §31).
+    const item = (
+      await db
+        .insert(s.catalogItems)
+        .values({ userId: a.id, catalog: "recipe", name: "Cena (Legs)" })
+        .returning({ id: s.catalogItems.id })
+    )[0]!.id;
+    expect(await linkEntryItem(db, b, id, item)).toBe(false);
+    expect(await linkEntryItem(db, a, id, item)).toBe(true);
+    expect(await linkEntryItem(db, a, id, item)).toBe(false);
     // «tieni le 20:00» (proposal §23 Q2): the planned time back, still done; again = undo.
     await setEntryStatus(db, a, id, "done", { at, today: "2026-10-16" });
     expect(await swapPlannedStart(db, a, id)).not.toBeNull();

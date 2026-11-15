@@ -6,7 +6,7 @@
  * time, else the object's page. Today only from an hour ago on: a breakfast missed at 21:00 is
  * not a plan any more; one with no time stays, at the end of the day (PL-12). Pure.
  */
-import { F, type BoxEntry } from "@lifeos/kit";
+import { F, readRecurrence, recurrenceText, type BoxEntry } from "@lifeos/kit";
 import type { PlanItem, PlannedBlock } from "@/core/plans";
 import { plan } from "@/i18n/plan";
 
@@ -37,6 +37,8 @@ export function blockItems(p: {
   kindName: (kind: string) => string;
   /** An object's family and page (its catalog type's hue and address, PAT-04). */
   objectOf: (catalog: string, id: string) => { fam: string; href: string } | null;
+  /** A ciclo's name by id, for the ritmo's tag («PPLCR · Legs», proposal §32). */
+  cycleName?: (cycleId: string) => string | undefined;
 }): PlanRow[] {
   const w = plan.day;
   return p.planned
@@ -68,8 +70,26 @@ export function blockItems(p: {
         fam: object?.fam ?? p.familyOf(b.kind),
         title,
         time: at ?? "—",
+        // The ritmo it comes from, as a tag that opens it (his 15 Nov: «solo un tag… toccando
+        // quel tag… puoi visualizzare e configurare»).
+        pills: [
+          b.step
+            ? {
+                t: [p.cycleName?.(b.step.cycleId), b.step.label]
+                  .filter(Boolean)
+                  .join(" · "),
+                href: "/oggi/ciclo/" + b.step.cycleId + "?giorno=" + p.day,
+              }
+            : b.block
+              ? {
+                  t:
+                    recurrenceText(readRecurrence(JSON.stringify(b.block.recurrence))) ||
+                    w.fromPlan,
+                  href: "/oggi/blocco/" + b.block.id,
+                }
+              : { t: w.fromPlan },
+        ],
         meta: [
-          b.step ? w.fromCycle : w.fromPlan,
           // The blocco's name when the row says its object («Cena» · MERLUZZO al sugo).
           item && b.block && b.block.name !== item.name ? b.block.name : "",
           b.block?.kind && !item ? p.kindName(b.block.kind) : "",

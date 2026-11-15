@@ -12,8 +12,6 @@ import { listBlocks, readCycleBook } from "@/core/plans";
 import { AREA_NAME, isDomainArea, areaHrefs, placeHead } from "@/features/places";
 import { planSections } from "@/features/plan/plan-sections";
 
-/** The areas whose Piano holds the cicli too (the gym's: Corpo). */
-const WITH_CYCLES = new Set(["corpo"]);
 
 export default async function Page({
   params,
@@ -29,7 +27,8 @@ export default async function Page({
   const db = await getDb();
   const [blocks, book] = await Promise.all([
     listBlocks(db, owner, archived),
-    WITH_CYCLES.has(area) ? readCycleBook(db, owner) : null,
+    // Giornate tipo span every area (proposal §30): every area's Piano lists them.
+    readCycleBook(db, owner),
   ]);
   const href = "/" + area + "/piano";
   return (

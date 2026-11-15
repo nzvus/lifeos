@@ -30,7 +30,8 @@ export type BoxEntry = {
   time?: string;
   planned?: boolean;
   faded?: boolean;
-  pills?: { t: string; state?: State; of?: GlyphOf }[];
+  /** `href`: a pill that opens something (a ritmo's tag, proposal §32). */
+  pills?: { t: string; state?: State; of?: GlyphOf; href?: string }[];
   /** A full-width strip of shares (muscles, water): width in %, colour token. */
   strip?: { w: number; c: string }[];
   /** What it is made of, in order (a session's exercises). */
@@ -393,6 +394,19 @@ export function Box({
               ))}
             </div>
           )}
+          {shut && e.pills?.some((p) => p.href) && (
+            // A ritmo's tag stays on the closed line (his 15 Nov: «solo un tag che appare in
+            // quell'aggiunta alla timeline»); the other pills wait for the open box.
+            <div className="k-chips k-bpills">
+              {e.pills
+                .filter((p) => p.href)
+                .map((p, i) => (
+                  <a key={i} className="k-pill link" href={p.href}>
+                    {p.t}
+                  </a>
+                ))}
+            </div>
+          )}
           {shut && actsLine}
           {!shut && children && <div className="k-bin">{children}</div>}
           {!shut && (
@@ -407,19 +421,27 @@ export function Box({
                 )}
                 {e.pills && e.pills.length > 0 && (
                   <div className="k-chips k-bpills">
-                    {e.pills.map((p, i) => (
-                      <span
-                        key={i}
-                        className="k-pill"
-                        style={{
-                          color: p.state ? F.tone(p.state) : "var(--ink)",
-                          borderColor: p.state ? F.tone(p.state) : "var(--hairline)",
-                        }}
-                      >
-                        {p.of && <Glyph of={p.of} size="xs" />}
-                        {p.t}
-                      </span>
-                    ))}
+                    {e.pills.map((p, i) => {
+                      const style = {
+                        color: p.state ? F.tone(p.state) : "var(--ink)",
+                        borderColor: p.state ? F.tone(p.state) : "var(--hairline)",
+                      };
+                      const inner = (
+                        <>
+                          {p.of && <Glyph of={p.of} size="xs" />}
+                          {p.t}
+                        </>
+                      );
+                      return p.href ? (
+                        <a key={i} className="k-pill link" style={style} href={p.href}>
+                          {inner}
+                        </a>
+                      ) : (
+                        <span key={i} className="k-pill" style={style}>
+                          {inner}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
                 {members.length > 0 && (

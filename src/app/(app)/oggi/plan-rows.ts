@@ -64,6 +64,7 @@ export async function planRows(
     }),
     items: input.items,
     nowMinute: p.nowMinute,
+    cycleName: (id) => p.cycles.find((c) => c.cycleId === id)?.cycle,
     familyOf: (k) => registry.get(k).family,
     kindName: (k) => NAMES[k] ?? registry.get(k).name ?? k,
     objectOf: (catalog, id) => {

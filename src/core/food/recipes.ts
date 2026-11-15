@@ -42,7 +42,16 @@ export async function recipeNameTaken(
   owner: Owner,
   name: string,
 ): Promise<boolean> {
-  const rows = await db
+  return (await recipeIdByName(db, owner, name)) !== null;
+}
+
+/** His live pasto of that name (any case), or null: «Salva come giornata tipo» reuses it. */
+export async function recipeIdByName(
+  db: Db,
+  owner: Owner,
+  name: string,
+): Promise<string | null> {
+  const [row] = await db
     .select({ id: catalogItems.id })
     .from(catalogItems)
     .where(
@@ -55,7 +64,7 @@ export async function recipeNameTaken(
       ),
     )
     .limit(1);
-  return rows.length > 0;
+  return row?.id ?? null;
 }
 
 /** Creates the recipe with its parts in one transaction; returns its id. */

@@ -10,11 +10,15 @@ import { addDays, logicalDay } from "@/core/engines/time";
 import { readCycleBook, readDayPlans, readSessionKeys } from "@/core/plans";
 import { plan } from "@/i18n/plan";
 import type { Build } from "./extras";
+import { ThisTime } from "@/features/plan/ThisTime";
+import { chooseStep, skipStep } from "../../../oggi/[[...day]]/plan-actions";
+
+const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
 const w = plan.cycle;
 const HISTORY_DAYS = 14;
 
-export const cycleExtra: Build = async (db, owner, id) => {
+export const cycleExtra: Build = async (db, owner, id, query) => {
   const today = logicalDay(new Date(), (await ownerClock()).clock);
   const [book, plans, done] = await Promise.all([
     readCycleBook(db, owner),
@@ -33,9 +37,11 @@ export const cycleExtra: Build = async (db, owner, id) => {
       fam: rest ? "day" : "train",
       ...(rest ? {} : { sub: "strength" }),
       title: i + 1 + " · " + nameOf(s),
-      meta: rest ? w.restMeta : w.scheda,
+      // A step is a giornata tipo (proposal §31): its righe, not «scheda».
+      meta: rest ? w.restMeta : s.items.map((x) => x.name).join(" · "),
       ...(due && due.label === nameOf(s) ? { value: w.today } : {}),
-      ...(scheda ? { href: "/corpo/scheda/" + scheda.id } : {}),
+      // An older step holding its scheda directly opens it; a riga's own page is not his to see.
+      ...(scheda && !scheda.inCycle ? { href: "/corpo/scheda/" + scheda.id } : {}),
     };
   });
   // The sessions that counted: one of the schede its steps hold.
@@ -55,12 +61,36 @@ export const cycleExtra: Build = async (db, owner, id) => {
       time: F.date(h.day),
       value: w.done,
     }));
+  // Reached from a line's tag on a day (proposal §32, slice 2): «Questa volta» for that day.
+  const day = query["giorno"] && ISO.test(query["giorno"]) ? query["giorno"] : null;
+  const that = day
+    ? (await readDayPlans(db, owner, day, day, today))
+        .get(day)
+        ?.cycles.find((x) => x.cycleId === id)
+    : undefined;
+  const thisTime =
+    day && that ? (
+      <section className="k-stack g2" aria-label="Questa volta">
+        <h3 className="k-label">{"Questa volta · " + F.Day(day)}</h3>
+        <ThisTime
+          steps={c.steps.map((s) => ({ label: nameOf(s), position: s.position }))}
+          current={that.position}
+          custom
+          skipped={that.skipped}
+          choose={chooseStep.bind(null, day, id)}
+          skip={skipStep.bind(null, day, id)}
+        />
+      </section>
+    ) : null;
   return {
     meta: w.meta(c.steps.length, due),
     summary: (
-      <a className="k-btn secondary" href={"/oggi/ciclo/" + id + "/componi"}>
-        {w.compose}
-      </a>
+      <>
+        {thisTime}
+        <a className="k-btn secondary" href={"/oggi/ciclo/" + id + "/componi"}>
+          {w.compose}
+        </a>
+      </>
     ),
     parts: [
       {

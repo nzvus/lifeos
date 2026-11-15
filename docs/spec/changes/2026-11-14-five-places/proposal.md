@@ -336,6 +336,88 @@
        the strip and the open day only (Q3).
     5. «Ora: fissa · quando capita» on every line and every previsto (Q2's second half).
 
+29. **«Salva come giornata tipo» built, 15 Nov, under «ap» (branch `giornata-tipo`).** Found while
+    building: a ciclo's step already holds blocchi «nel ciclo», each with its own time and any
+    type, and the Piano already plans them on the step's days — a step *is* a giornata tipo. So,
+    decided by Claude (undo: the type «day» of §28 instead): no new type; the giornata tipo is
+    the step. On Piano's day, «Salva come giornata «Legs»» turns the day's voci into the lines of
+    the step due that day: one line per object or type (eight glasses are one «Acqua»), nothing
+    twice; a meal of foods is first kept as a pasto «Cena · Legs» (reused when it exists), so the
+    line plans the real food; a step holding its scheda directly (his PPLCR) gets it into its
+    blocco first, or it would stop planning it; a step named by what it held keeps its name.
+    Tried on his 10 Nov export reloaded locally: today saved as «Legs» → Monday 16 plans «Legs»
+    and «Cena · Legs» at 21:00. Not on a rest step (it would stop being a rest); not on a past
+    day (the Piano has no step for it). Photos `LIFEOS/review/2026-11-15/giornata/`.
+    Next: slice 4 (Elenco: «Giornate tipo» and «Cicli», the word «blocco» off the screens) and
+    the time mode (§27).
+
+30. **15 Nov, his question: «ma non avevi detto che elimnavi i blocchi?».** Yes: (a) said blocchi
+    go. The idea is gone (a giornata tipo's lines live in the ciclo's step); the word left the
+    screens in this slice, PR #357: Elenco shows «Giornate tipo» (each step with its righe, to its
+    ciclo) and «Cicli»; Piano's header offers «Nuovo ciclo»; the ciclo's editor says «riga»; the
+    scores say «adatto al piano»; every area's Piano lists the giornate tipo. A blocco outside
+    every ciclo shows under «Fuori dai cicli» only while one exists (he has none); it can no
+    longer be created from Elenco. Still a blocco underneath (the storage of a riga: no
+    migration). product.md §3: «giornata tipo» and «riga» get their row (they were in «Not»).
+    Left: «Ripeti nel Piano» on a voce still makes a loose blocco — next, it should add the voce as
+    a riga of a giornata tipo. Photos `LIFEOS/review/2026-11-15/giornata/elenco-390.png`.
+
+31. **15 Nov, his answer on §30 (verbatim):** «si ma non mi piace per nulla che ci sia sopra e
+    sotto, e poi sono confusionari e ripetitivi anche da soli, fatti male». Built in PR #357, one
+    place per idea (photos `LIFEOS/review/2026-11-15/ciclo/`):
+    - Piano: the strip and the open day only. «La settimana» (the same seven days under the strip)
+      and the list at the bottom are gone (Q3); the day's plan line links «PPLCR ›». The week
+      rows' code (`features/plan/week-rows.ts`) is deleted, its lint suppression pruned.
+    - Elenco: one «Cicli» section; each ciclo one row with its giornate tipo in order, «Push →
+      Pull → Legs → Corsa → Rest». No second list of the same steps.
+    - The ciclo's page: each step shows its righe («Legs · Cena (Legs) · Acqua»), not «scheda».
+    - «Salva come giornata»: the day's meal of foods is linked to the pasto made from it (as «Salva
+      anche come pasto» does), so the day does not show it twice; the pasto is named «Cena (Legs)».
+    Not redone yet, his «fatti male» on the ciclo's page: the rules (Nome, Avanza, Se salti, Dal
+    giorno) still come before the steps, and «Cambia i passi» is a column of Su · Giù · Togli.
+    Next, shown as photos before building: the steps first, rules folded; reorder by dragging.
+
+32. **15 Nov, his words on Piano (verbatim):** «si il widget intero del piano fa veramente schifo,
+    oltre che non capirsi per nulla. scusa ma non si puo fare diversamente? togliere anche quello e
+    fare in modo che ci sia solo una pianificazione come fosse una giornata in Oggi ma nel futuro,
+    e quindi puoi aggiungere cose e dove e quando vuoi ogni tipo di cosa, però aggiungiamo una
+    sorta magari di opzione di "periodizzazione" o qualcosa di simile, magari alle singole cose o
+    anche a loro combinazioni, e periodizzazioni configurabili, ogni tot magari, o magari facciamo
+    in modo che, come i cicli attuali, possiamo dargli un nome, e cosi possiamo configurare la
+    periodicità anche in funzione di altri cicli. solo che nella visualizzazione è di fatto solo un
+    tag che appare in quell'aggiunta alla timeline, e magari sotto oppure toccando quel tag non so,
+    puoi visualizzare e configurare,... bo»
+    Claude's reading, to build in slices shown as photos:
+    - **Piano = a day of Oggi in the future.** The card «Oggi/Il piano del giorno» (ciclo select,
+      «Salta», «Sposta l'allenamento», «+ previsto», «Copia i pasti di ieri», «Salva come giornata»,
+      «Apri il giorno») goes. A day to come is added to with ⊕ and the gaps, as Oggi.
+    - **A ritmo** (his «periodizzazione»): a name and a rule — ogni giorno · questi giorni della
+      settimana · ogni N giorni · a turno con altri (today's ciclo). It holds one thing or several
+      together (today's giornata tipo). Storage: today's blocco (rule = recurrence) and ciclo (a
+      turn); no migration expected.
+    - **On the timeline it is only a tag** on the voce («PPLCR · Legs», «ogni giorno», «lun · mer ·
+      ven») in place of «dal ciclo» / «dal piano»; tapping it opens a sheet to see and change the
+      ritmo: its rule, skip this time, move this time, the other things in it. A voce with no ritmo
+      offers «Ripeti…» there, to give it one (new, or an existing ritmo by name).
+    - Word: «ritmo» (his «periodizzazione» is the idea; one short word for the tag). To confirm.
+    **Slice 1, built (PR #357):** Piano is the header, the strip and `DayPage` for the day chosen
+    (today by default) — the card is gone, with its actions (`app/(app)/piano/actions.ts`,
+    `SaveDayType` deleted; `saveDayToStep` stays in core for the ritmo's «più cose insieme»; lint
+    baseline −13 lines). A planned line's «dal ciclo» is now its ritmo as a tag, «PPLCR · Legs ›»,
+    on the line even when its box is closed, opening the ciclo; a blocco's tag is its rule. The
+    day's closing stays in Oggi only. Photos `LIFEOS/review/2026-11-15/ritmo/`.
+    Lost until slice 2, said plainly: «Cambia» the step of one day, «Salta», «Sposta
+    l'allenamento», «Copia i pasti di ieri», «Salva come giornata». Slice 2: the tag opens a sheet
+    (this time: salta · sposta · cambia passo; always: the rule, the name, the other things in it)
+    and «Ripeti…» on a voce with no ritmo.
+    **Slice 2a, built (PR #357):** the tag opens the ciclo's page for that day (`?giorno=`) with
+    «Questa volta · lunedì 16»: the steps as chips (the day's on), a tap gives the day that step,
+    the same again gives back the ciclo's own; «Salta questa volta» / «Non saltare più». Tried on
+    his data: Monday Legs → Push → Legs, then skipped. Back now: «cambia passo», «salta». Still to
+    come: «sposta» this time, «Ripeti…», the rule and name on the page, «Questa volta» first
+    (the page's redo). Decided by Claude: the ciclo's page is the ritmo's sheet (one place, no
+    second screen); undo: a `Sheet` instead. Photo `ritmo/this-time-390.png`.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

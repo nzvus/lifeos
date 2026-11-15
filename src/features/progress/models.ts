@@ -39,8 +39,8 @@ export const MODEL_WORDS: Record<string, Words> = {
         why: "Quanti nutrienti utili compri con un euro, dai prezzi dei tuoi acquisti.",
       },
       fit: {
-        name: "Adatto al suo blocco",
-        why: "Quanto copre la parte del giorno che il blocco chiede (kcal e proteine).",
+        name: "Adatto al piano",
+        why: "Quanto copre la parte del giorno che il piano gli dà (kcal e proteine).",
       },
       carbsQuality: {
         name: "Qualità dei carboidrati",
@@ -136,7 +136,7 @@ export const MODEL_WORDS: Record<string, Words> = {
     fam: "train",
     sub: "",
     intro:
-      "Se stai progredendo, se il volume è quello del blocco, se lo sforzo è nella zona utile e i riposi bastano.",
+      "Se stai progredendo, se il volume è quello del piano, se lo sforzo è nella zona utile e i riposi bastano.",
     parts: {
       progression: {
         name: "Progressione",
@@ -144,7 +144,7 @@ export const MODEL_WORDS: Record<string, Words> = {
       },
       volume: {
         name: "Volume",
-        why: "Serie allenanti contro quelle che il blocco chiede.",
+        why: "Serie allenanti contro quelle che il piano chiede.",
       },
       effort: {
         name: "Sforzo",
