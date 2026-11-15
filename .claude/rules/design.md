@@ -120,10 +120,11 @@ photo: everything on it stays unless he says it goes.** Seen by Claude on 14 Nov
   «trend +1 kg»; three tiles Trend · Ritmo · Ne servono; the `Chart` with points, line without
   water, uncertainty and the goal; «Cosa dice di te»; «Pesate» each with its voto; «come
   valutiamo ›». Corpo · Andamento lists Peso · Sonno · Passi as doors.
-- **Oggi · Piano**: «sett. 46 · ciclo PPLCR»; the week; «La settimana, tocca un giorno per
-  cambiarlo» (each day's step: fatto solid, oggi «in ritardo», previsto hatched, with the day's
-  kcal); «Oggi»: «come da ciclo (Legs)» + Cambia, «Salta «Legs»», «Sposta l'allenamento alle»,
-  «+ previsto», «Copia i pasti di ieri», «Apri il giorno»; Blocchi; Cicli; Attivi · Archiviati.
+- **Oggi · Piano** (changed 15 Nov, #362, his «in piano… è inutile avere le giornate»): only what
+  repeats — the cicli and the blocchi outside them as the kit `Elenco`, Attivi · Archiviati,
+  «+ Nuovo ciclo»; no week, no day (every day opens in Oggi; a ritmo's page holds «Questa volta»:
+  passo, salta, sposta). On the 12 Nov photo and not yet back anywhere: «+ previsto», «Copia i
+  pasti di ieri» (audit of 15 Nov, 6: lost, to restore in Oggi).
 - **Cibo · Elenco**: chips Cibi · Pasti salvati · Dispensa; «Possibili doppioni (1) ›»; «+ Nuovo
   cibo»; `Find`; «Ordina per»; each row kcal/100, skyline, voto, «1 prodotto»; «Mostra altri (111)».
 - **Aggiungi** (⊕'s sheet): «Cerca tra 153 cose»; Adesso · Previsto · Prima; «Per te» ranked for
