@@ -422,28 +422,52 @@ export async function setEntryServings(
   if (!/^\d{1,2}(\.\d{1,2})?$/.test(servings)) return undefined;
   const n = Number(servings);
   if (!(n > 0) || n > SERVINGS_MAX) return undefined;
+  const was = await replaceNum(
+    db,
+    owner,
+    id,
+    "servings",
+    (k) => SERVED.has(k),
+    n === 1 ? null : n,
+  );
+  if (was === undefined) return undefined;
+  return was != null && Number(was) !== 1 ? String(Number(was)) : null;
+}
+
+/**
+ * One number of a live voce replaced (null: removed) when its type `fits`, under a row lock.
+ * Answers the value it had (null: none), for «Annulla»; undefined when nothing changed.
+ */
+async function replaceNum(
+  db: Db,
+  owner: Owner,
+  id: string,
+  field: string,
+  fits: (kind: string) => boolean,
+  num: number | null,
+): Promise<string | null | undefined> {
   return db.transaction(async (tx) => {
     const [row] = await tx
       .select({ kind: entries.kind })
       .from(entries)
       .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)))
       .for("update");
-    if (!row || !SERVED.has(row.kind)) return undefined;
+    if (!row || !fits(row.kind)) return undefined;
     const where = and(
       ownedBy(entryValues, owner),
       eq(entryValues.entryId, id),
-      eq(entryValues.field, "servings"),
+      eq(entryValues.field, field),
     );
     const [was] = await tx
       .select({ num: entryValues.num })
       .from(entryValues)
       .where(where);
     await tx.delete(entryValues).where(where);
-    if (n !== 1)
+    if (num !== null)
       await tx
         .insert(entryValues)
-        .values({ userId: owner.id, entryId: id, field: "servings", num: String(n) });
-    return was?.num != null && Number(was.num) !== 1 ? String(Number(was.num)) : null;
+        .values({ userId: owner.id, entryId: id, field, num: String(num) });
+    return was?.num ?? null;
   });
 }
 
@@ -522,34 +546,19 @@ export async function setEntryNum(
   field: string,
   value: number,
 ): Promise<number | null | undefined> {
-  return db.transaction(async (tx) => {
-    const [row] = await tx
-      .select({ kind: entries.kind })
-      .from(entries)
-      .where(and(ownedBy(entries, owner), eq(entries.id, id), isNull(entries.deletedAt)))
-      .for("update");
-    if (!row) return undefined;
-    const reg = kindRegistry();
-    if (!reg.has(row.kind)) return undefined;
-    const f = reg.get(row.kind).fields.find((x) => x.key === field);
-    if (!f || (f.type !== "integer" && f.type !== "number")) return undefined;
+  const reg = kindRegistry();
+  const fits = (kind: string) => {
+    const f = reg.has(kind)
+      ? reg.get(kind).fields.find((x) => x.key === field)
+      : undefined;
+    if (!f || (f.type !== "integer" && f.type !== "number")) return false;
     if (!Number.isFinite(value) || (f.type === "integer" && !Number.isInteger(value)))
-      return undefined;
-    if ((f.min !== undefined && value < f.min) || (f.max !== undefined && value > f.max))
-      return undefined;
-    const where = and(
-      ownedBy(entryValues, owner),
-      eq(entryValues.entryId, id),
-      eq(entryValues.field, field),
+      return false;
+    return !(
+      (f.min !== undefined && value < f.min) ||
+      (f.max !== undefined && value > f.max)
     );
-    const [was] = await tx
-      .select({ num: entryValues.num })
-      .from(entryValues)
-      .where(where);
-    await tx.delete(entryValues).where(where);
-    await tx
-      .insert(entryValues)
-      .values({ userId: owner.id, entryId: id, field, num: String(value) });
-    return was?.num != null ? Number(was.num) : null;
-  });
+  };
+  const was = await replaceNum(db, owner, id, field, fits, value);
+  return was === undefined ? undefined : was === null ? null : Number(was);
 }

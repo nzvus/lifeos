@@ -119,18 +119,25 @@ export async function closeDay(day: string, state: Closure | null): Promise<bool
   return true;
 }
 
+/** Who logs, and when: today or a past day, never a day to come (null). One tap's start. */
+async function loggingDay(day: string) {
+  const owner = await requireOwner();
+  const { clock } = await ownerClock();
+  const now = new Date();
+  const today = logicalDay(now, clock);
+  if (day > today) return null;
+  return { owner, db: await getDb(), clock, now, today };
+}
+
 /**
  * «+250 ml», «+500 ml» (kinds.md: water is quick): a water entry, now today, else the day only.
  * Answers its id, for the toast's «Annulla» (his 15 Nov: no «Ancora +500?»); null when none.
  */
 export async function addWater(day: string, ml: 250 | 500): Promise<string | null> {
   if (!ISO.test(day) || (ml !== 250 && ml !== 500)) return null;
-  const owner = await requireOwner();
-  const db = await getDb();
-  const { clock } = await ownerClock();
-  const now = new Date();
-  const today = logicalDay(now, clock);
-  if (day > today) return null;
+  const at = await loggingDay(day);
+  if (!at) return null;
+  const { owner, db, clock, now, today } = at;
   const checked = checkEntry(
     kindRegistry().get("water"),
     {
@@ -167,12 +174,9 @@ export async function setDrinkMl(
  */
 export async function logIntake(day: string, foodId: string): Promise<string | null> {
   if (!ISO.test(day) || !UUID.test(foodId)) return null;
-  const owner = await requireOwner();
-  const db = await getDb();
-  const { clock } = await ownerClock();
-  const now = new Date();
-  const today = logicalDay(now, clock);
-  if (day > today) return null;
+  const at = await loggingDay(day);
+  if (!at) return null;
+  const { owner, db, clock, now, today } = at;
   const c = (await readFoodChoices(db, owner, today)).find((x) => x.key === foodId);
   if (!c?.intake) return null;
   const checked = checkEntry(
