@@ -305,6 +305,18 @@
     Still to build, the second half: at planning, «Ora: fissa · quando capita» per previsto
     (the `timeMode = fixed` the tick already respects has no field to set it).
 
+28. **Q1 of §23 (a), approved by his «yc», 15 Nov; planned, not built** (MOD-30…36 in `delta.md`).
+    Found while writing it: no migration is needed. The registry gains a catalog type «day»
+    (giornata tipo) whose parts are today's blocchi; ciclo steps already hold catalog items;
+    his data has 0 blocchi and 1 ciclo (PPLCR) of schede, so nothing to convert. Build order, one
+    slice at a time, each photographed:
+    1. Registry entry «giornata tipo» + its ObjectPage (lines with time and time mode).
+    2. «Salva come giornata tipo» on a day (Oggi and Piano) → its voci become lines.
+    3. `core/plans`: a ciclo step holding a giornata tipo expands into its lines on that day.
+    4. Elenco: «Giornate tipo» and «Cicli» (the word «blocco» leaves the screens); Piano shows
+       the strip and the open day only (Q3).
+    5. «Ora: fissa · quando capita» on every line and every previsto (Q2's second half).
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

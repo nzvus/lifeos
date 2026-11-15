@@ -46,7 +46,17 @@
   took the tick's time, «tieni le 20:00» puts the planned time back (still fatto); «Annulla»
   after it swaps again (proposal §23 Q2, his «yc» 15 Nov). Choices never wrap. Kit: DayView's
   toast ✓ (`swapPlannedStart`, `core/entries/write.ts`).
+- **MOD-30…32, MOD-36** (model.md §3) Planning by **giornata tipo** (his «yc» on Q1 (a), 15 Nov;
+  his 14 Nov «creare magari dei prototipi di giornata magari da mettere in ciclo… pianificare
+  qualsiasi cosa»). A **giornata tipo** is a catalog type («day»): lines, each any voce type or
+  object (a pasto, a scheda, creatina, a pesata, a tracker) with its time and its time mode
+  («fissa» · «quando capita»), stored as the blocchi of today (`catalog_parts` + `catalog_values`,
+  MOD-36): no new table, no migration. A **ciclo** says which giornata tipo falls on which day
+  (in turn, or by weekday); a step holds one giornata tipo (or, as today, a scheda). WHEN he taps
+  «Salva come giornata tipo» on a day THEN its voci become the lines of a new one. The word
+  «blocco» leaves the screens; a line is a «riga» of its giornata tipo. Kit: ✗.
 
+## ADDED
 - **PAT-95** (patterns.md §1) The area filter: one row of chips, «Tutto» · Cibo · Corpo · Mente ·
   Soldi, under the header of every place but Oggi, which filters by kind with its own chips
   (his «yc», 14 Nov). WHEN he taps a chip THEN the place shows only that area's
