@@ -90,8 +90,8 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   posizionarle», UI-83, S6] — Today: built.
 - **VIS-43** Score chip (look of PAT-52). Closed: unframed skyline coloured by band + number + word, one
   line under the head (the action if known, else the costliest part). Open: one ruler per criterion
-  (VIS-52), skyline small in the head (width = weight, fill = score, dashed at 70). ≤ 360 px: number and
-  word only; the number said once. [UI-03 «graficamente fanno schifo», UI-75 «a livello informativo
+  (VIS-52), skyline small in the head (width = weight, fill = score, dashed at 70). ≤ 360 px: the
+  skyline smaller, never gone (his 15 Nov, proposal §35); the number said once. [UI-03 «graficamente fanno schifo», UI-75 «a livello informativo
   meglio 1 e 3, una combinazione?» → agent, UI-102 «non vedo bene la miniatura delle valutazioni»,
   UI-89] — Today: built in `Box`; skyline in `features/day/score.ts`, not the kit (partial).
 

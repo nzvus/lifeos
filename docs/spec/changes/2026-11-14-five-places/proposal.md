@@ -428,6 +428,12 @@
 34. **15 Nov, his «tc» to «confirm «ritmo» or another word»:** read as «yc» (t beside y on the
     keyboard): «ritmo» is the word for his «periodizzazione». Undo: his other word, here and in
     product.md §3.
+35. **15 Nov, his words (with «ap»):** «btw on the phone the little votation cards do not appear,
+    only the number, i think because the rendering is too little». Cause: VIS-43 hid the skyline
+    at ≤ 360 px, and his phone is 360 px wide or less. Decided by Claude: the skyline stays at
+    every width, smaller at ≤ 360 px (the Box head's 60 × 28 → 40 × 22, a row's 52 × 24 → 36 ×
+    20); the title gives way (it ellipsizes). VIS-43's narrow line changed to say so. Undo: the
+    `@media (max-width: 360px)` block in `kit.css` back to `display: none`.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
