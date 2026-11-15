@@ -25,7 +25,10 @@ export default async function PianoPage({
     archiviati?: string | string[];
   }>;
 }) {
-  const [owner, db, known] = await Promise.all([requireOwner(), getDb(), ownerClock()]);
+  // The owner first: reading the session makes the page dynamic before the database is touched
+  // (in parallel, the build prerendered it and failed without the database's settings).
+  const owner = await requireOwner();
+  const [db, known] = await Promise.all([getDb(), ownerClock()]);
   const today = logicalDay(new Date(), known.clock);
   const asked = await searchParams;
   const archived = asked.archiviati === "1";
