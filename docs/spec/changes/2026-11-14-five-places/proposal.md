@@ -425,6 +425,10 @@
     «Regole» folded, then «Andamento». Photos `ritmo/ciclo-redo-390.png`. Not yet: reorder by
     dragging (the editor's Su · Giù · Togli stays), «sposta» this time, «Ripeti…».
 
+34. **15 Nov, his «tc» to «confirm «ritmo» or another word»:** read as «yc» (t beside y on the
+    keyboard): «ritmo» is the word for his «periodizzazione». Undo: his other word, here and in
+    product.md §3.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
