@@ -41,7 +41,7 @@ export type NutrientsData = {
     /** Macro → kind → grams; a key outside the macro's kinds («all») is drawn in its own colour. */
     macros: Partial<Record<MacroKey, Record<string, number>>>;
   }[];
-  kcal?: { v: number; planned?: number; t?: number | null };
+  kcal?: { v: number; planned?: number; t?: number | null; zones?: HeatZone[] };
   macros: {
     key: MacroKey;
     v: number;
@@ -323,18 +323,27 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
         const k = d.kcal;
         const planned = k.planned ?? 0;
         const t = k.t ?? null;
+        // With zones the bar reads like a macro's: room past the target, the zones ruler
+        // under it, the tip in its zone's colour (his 15 Nov); without, as before.
+        const scale =
+          t !== null && k.zones?.length ? Math.max(t * 1.3, (k.v + planned) * 1.05) : t;
+        const h = scale !== null ? heat(k.v, k.zones, scale, planned) : null;
         return {
           v: F.n(k.v, 0),
+          /** With what is planned, written out (FD-34 «→»; his 14 Nov: «devi fare la somma a mente»). */
+          withPlan: planned ? F.n(k.v + planned, 0) : null,
           t: t === null ? null : F.num(t, "kcal"),
-          left: planned ? F.signed(planned, "kcal") + " previste" : "",
+          left: planned ? "di cui " + F.num(planned, "kcal") + " previste" : "",
           /** No target, no bar: a bar needs something to be measured against. */
           bar:
-            t === null
+            t === null || scale === null
               ? null
               : {
-                  w: pct(Math.min(k.v, t), t),
-                  pw: pct(Math.min(planned, Math.max(0, t - k.v)), t),
+                  w: pct(Math.min(k.v, scale), scale),
+                  pw: pct(Math.min(planned, Math.max(0, scale - k.v)), scale),
                 },
+          strip: h?.strip ?? null,
+          mark: h?.strip && t !== null && scale !== null ? pct(t, scale) : null,
           aria:
             "Energia: " +
             F.num(k.v, "kcal") +
@@ -407,6 +416,7 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
       name: NAME[m.key],
       color: MACRO_COLOR[m.key],
       value: g(m.v),
+      withPlan: planned ? g(m.v + planned) : null,
       target: t === null ? null : F.num(t, "g"),
       mark: t === null ? null : pct(t, scale),
       segs,
@@ -489,6 +499,7 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
       key: l.key,
       name: l.name ?? LIMIT[l.key],
       v: g(l.v),
+      withPlan: planned ? g(l.v + planned) : null,
       t: F.num(l.t, "g"),
       w: Math.min(100, (l.v / scale) * 100).toFixed(0) + "%",
       /** The planned part after it, hatched; null without a plan. */

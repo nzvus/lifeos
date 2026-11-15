@@ -28,6 +28,7 @@ import {
   microRange,
   microState,
   proteinRange,
+  kcalRange,
   saltRange,
   saturatedRange,
   sugarsRange,
@@ -132,13 +133,15 @@ export function presentDay(
     entry: {
       fam: "day",
       title: "Il giorno",
-      meta: targetWords(targets),
+      // Where the targets come from is said in Obiettivi (his 15 Nov), not under the verdict.
     },
     nutrients: {
       kcal: {
         v: v(eaten, "kcal"),
         planned: v(planned, "kcal"),
         t: targets?.kcal ?? null,
+        // Coloured by its zones like a macro, only against a real target (his 15 Nov).
+        ...(targets?.kcal && basis ? { zones: kcalRange(basis).zones } : {}),
       },
       macros: MACROS.map(([key, f]) => ({
         key,

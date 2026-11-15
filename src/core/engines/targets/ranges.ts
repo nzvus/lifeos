@@ -99,6 +99,24 @@ export type DayBasis = {
 const pctE = (b: DayBasis, pct: number, kcalPerG: number) =>
   (b.kcal * pct) / 100 / kcalPerG;
 
+/**
+ * The day's kcal against its target (his 15 Nov: «la barra delle calorie dovrebbe colorarsi
+ * anche lei in base ai range»). No guideline sets these edges: they are the app's (FD-30 «*»),
+ * said in the source: ottimo within ±5 % of the target, ok to ±10 %, pessimo past it, da
+ * evitare past +25 %.
+ */
+export function kcalRange(b: DayBasis): Range {
+  const t = b.kcal;
+  return zones("kcal", "dell'app*: ottimo entro ±5 % dell'obiettivo, ok entro ±10 %", [
+    ["bad", 0],
+    ["fair", 0.9 * t],
+    ["good", 0.95 * t],
+    ["fair", 1.05 * t],
+    ["bad", 1.1 * t],
+    ["danger", 1.25 * t],
+  ]);
+}
+
 export function proteinRange(b: DayBasis): Range {
   const W = b.weightKg;
   if (W === null)
