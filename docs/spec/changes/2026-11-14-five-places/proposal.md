@@ -588,6 +588,13 @@
     type as «a voce due»; it cannot plan a time to hit (sveglia) nor an amount to reach (passi,
     acqua, an assunzione). Proposed: three shapes of «planned», declared per type; four
     questions, Claude's pick first. Nothing decided, nothing built.
+53. **16 Nov, his words on B2's photos (verbatim):** «ok mi piace, comunque in generale non pensi
+    che sarebbe meglio centrare le icone ogni volta invece di metterle in alto?». B2 is approved
+    as shown. The icons: a change to the kit `Box` head (VIS-40), so to every box at once —
+    Claude's view: yes while a box is shut (the icon centred on the title and its meta line);
+    open, it stays with the head line, or it would drift to the middle of a tall box. To build
+    in the kit and show as photos before it merges. The four planning questions of §52: not
+    answered yet.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
