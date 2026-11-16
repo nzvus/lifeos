@@ -95,7 +95,7 @@ che in elenco… è naturale pensare che tutto questo debba essere uniformato»)
 | B1 (page built 15 Nov, §48; the Elenco row comes with B2) | a pasto's page and Elenco row show the day's meal box | `recipe-extra.tsx` hand rows (125 lines) | the box `EntryRow` already draws, moved out of `features/day` | 1 renderer, the plain totals |
 | B2 (pasti built 16 Nov, §50; cibi with B3) | a row opens in place in the Elenco | page hop for reading | `Box` open, as on the day | 2 of the 3 pages in the table above |
 | B3 | Marche and formati nested under their cibo, each a row that opens | the Marche row that opens nothing | the same row at level 0/1 | — (adds the missing link and edit) |
-| B4 | «Usato in» and a pasto's cibi are rows | 2 hand-made `k-line` lists | `List` of rows | 2 hand lists |
+| B4 (built 16 Nov, §55; the cibi came with B1) | «Usato in» and a pasto's cibi are rows | 2 hand-made `k-line` lists | `List` of rows | 2 hand lists |
 | B5 | the composer's line is the cibo row | the composer's own card + `LinePicks` `<select>` | row + `Field` stepper + `Field` `grows` | 1 card, 1 select |
 | B6 | cibo and marca created by the generated form | `FoodForm` (209 lines, 3 inputs by hand) | `ObjectForm` + the barcode field | 1 form |
 | B7 | one typed-amount control | `Stepper` in `WaterRow`, the `<input>` in `BarcodeBox` | `Field` stepper | 2 variants |

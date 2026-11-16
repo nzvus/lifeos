@@ -52,6 +52,7 @@ export const food = {
     } as Record<string, string>,
   },
   usedIn: {
+    list: "I pasti salvati con questo cibo",
     none: "In nessun pasto salvato.",
   },
   meal: {

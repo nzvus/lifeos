@@ -269,132 +269,129 @@ export function Box({
           </span>
           {/* The head's parts on one centre line (his 15 Nov «i numeri rispetto alle
               intestazioni e i bottoni sono sfalsati»): title, number, score and action. */}
-          <div className="k-line g1">
-            {onToggle ? (
-              <button
-                type="button"
-                className="k-head"
-                onClick={onToggle}
-                aria-expanded={expanded ? "true" : "false"}
-                aria-label={
-                  e.title +
-                  (e.value ? " " + e.value : "") +
-                  (expanded ? ". Tocca per chiudere" : ". Tocca per aprire")
-                }
-              >
-                <span className={"k-hlead" + (badge ? " badged" : "")}>
-                  {badge ? (
-                    <Glyph of={of} size="m" tile={!!e.href} />
-                  ) : (
-                    <span className="k-glyph-lead">
-                      <Glyph of={of} size="s" />
-                    </span>
-                  )}
-                  <span className="k-label k-title">{e.title}</span>
+          <div className={"k-top" + (badge ? " badged" : "")}>
+            {/* The icon is centred on the title and its meta line while the box is shut; open,
+                it stays on the first line (his 16 Nov «centrare le icone… invece di metterle in
+                alto», VIS-40). The head reaches under it, so a tap on the icon opens too. */}
+            <span className="k-lead" aria-hidden="true">
+              {badge ? (
+                <Glyph of={of} size="m" tile={!!e.href} />
+              ) : (
+                <span className="k-glyph-lead">
+                  <Glyph of={of} size="s" />
                 </span>
-                <span className="k-hright">
-                  {chip}
-                  <span className="k-num d4">{e.value}</span>
-                </span>
-              </button>
-            ) : cover ? (
-              // A box that only leads somewhere is one link over its whole surface (P3,
-              // ledger UI-101: «i tracker non riesco a vederli quando li clicco»).
-              <a
-                className="k-head k-cover"
-                href={e.href}
-                aria-label={e.hrefLabel ?? e.title}
-              >
-                <span className={"k-hlead" + (badge ? " badged" : "")}>
-                  {badge ? (
-                    <Glyph of={of} size="m" tile />
-                  ) : (
-                    <span className="k-glyph-lead">
-                      <Glyph of={of} size="s" />
-                    </span>
-                  )}
-                  <span className="k-label k-title">{e.title}</span>
-                </span>
-                <span className="k-hright">
-                  {chip}
-                  <span className="k-num d4">{e.value}</span>
-                </span>
-              </a>
-            ) : (
-              <span className="k-head">
-                <span className={"k-hlead" + (badge ? " badged" : "")}>
-                  {badge ? (
-                    <Glyph of={of} size="m" tile={!!e.href} />
-                  ) : (
-                    <span className="k-glyph-lead">
-                      <Glyph of={of} size="s" />
-                    </span>
-                  )}
-                  <span className="k-label k-title">{e.title}</span>
-                </span>
-                <span className="k-hright">
-                  {chip}
-                  <span className="k-num d4">{e.value}</span>
-                </span>
-              </span>
-            )}
-            {(e.href || headActs.length > 0 || (dense && e.score)) && (
-              <span className="k-trail">
-                {dense && e.score && e.score.parts.length > 0 && (
-                  // A row's score: the board's mini skyline, beside its value.
-                  <span className="k-sky mini" aria-hidden="true">
-                    {e.score.parts.map((q) => (
-                      <span
-                        key={q.name}
-                        className="col"
-                        style={
-                          {
-                            flexGrow: q.weight,
-                            "--mix": Math.round(22 + q.score * 40) + "%",
-                          } as CSSProperties
-                        }
-                      >
-                        <span
-                          className="fill"
-                          style={{ height: Math.round(q.score * 100) + "%" }}
-                        />
-                      </span>
-                    ))}
-                    <span className="line" />
+              )}
+            </span>
+            <div className="k-line g1">
+              {onToggle ? (
+                <button
+                  type="button"
+                  className="k-head"
+                  onClick={onToggle}
+                  aria-expanded={expanded ? "true" : "false"}
+                  aria-label={
+                    e.title +
+                    (e.value ? " " + e.value : "") +
+                    (expanded ? ". Tocca per chiudere" : ". Tocca per aprire")
+                  }
+                >
+                  <span className={"k-hlead" + (badge ? " badged" : "")}>
+                    <span className="k-label k-title">{e.title}</span>
                   </span>
-                )}
-                {dense && e.score && e.score.value !== null && (
-                  // The number beside it, in its band's colour: kept when the drawing is
-                  // too small to read (≤ 360 px), never a row with no score at all (UI-102).
-                  <b className="k-vn" style={{ color: F.judge(e.score.value).tone }}>
-                    {e.score.value}
-                  </b>
-                )}
-                {headActs.map((a) => (
-                  <button
-                    key={a.label}
-                    type="button"
-                    className={"k-btn act" + (a.danger ? " danger" : "")}
-                    aria-label={a.aria ?? a.label}
-                    onClick={a.onClick}
-                  >
-                    {a.label}
-                  </button>
-                ))}
-                {e.href &&
-                  (cover ? (
-                    <span className="k-go" aria-hidden="true">
-                      ›
+                  <span className="k-hright">
+                    {chip}
+                    <span className="k-num d4">{e.value}</span>
+                  </span>
+                </button>
+              ) : cover ? (
+                // A box that only leads somewhere is one link over its whole surface (P3,
+                // ledger UI-101: «i tracker non riesco a vederli quando li clicco»).
+                <a
+                  className="k-head k-cover"
+                  href={e.href}
+                  aria-label={e.hrefLabel ?? e.title}
+                >
+                  <span className={"k-hlead" + (badge ? " badged" : "")}>
+                    <span className="k-label k-title">{e.title}</span>
+                  </span>
+                  <span className="k-hright">
+                    {chip}
+                    <span className="k-num d4">{e.value}</span>
+                  </span>
+                </a>
+              ) : (
+                <span className="k-head">
+                  <span className={"k-hlead" + (badge ? " badged" : "")}>
+                    <span className="k-label k-title">{e.title}</span>
+                  </span>
+                  <span className="k-hright">
+                    {chip}
+                    <span className="k-num d4">{e.value}</span>
+                  </span>
+                </span>
+              )}
+              {(e.href || headActs.length > 0 || (dense && e.score)) && (
+                <span className="k-trail">
+                  {dense && e.score && e.score.parts.length > 0 && (
+                    // A row's score: the board's mini skyline, beside its value.
+                    <span className="k-sky mini" aria-hidden="true">
+                      {e.score.parts.map((q) => (
+                        <span
+                          key={q.name}
+                          className="col"
+                          style={
+                            {
+                              flexGrow: q.weight,
+                              "--mix": Math.round(22 + q.score * 40) + "%",
+                            } as CSSProperties
+                          }
+                        >
+                          <span
+                            className="fill"
+                            style={{ height: Math.round(q.score * 100) + "%" }}
+                          />
+                        </span>
+                      ))}
+                      <span className="line" />
                     </span>
-                  ) : (
-                    <a className="k-go" href={e.href} aria-label={e.hrefLabel ?? e.title}>
-                      ›
-                    </a>
+                  )}
+                  {dense && e.score && e.score.value !== null && (
+                    // The number beside it, in its band's colour: kept when the drawing is
+                    // too small to read (≤ 360 px), never a row with no score at all (UI-102).
+                    <b className="k-vn" style={{ color: F.judge(e.score.value).tone }}>
+                      {e.score.value}
+                    </b>
+                  )}
+                  {headActs.map((a) => (
+                    <button
+                      key={a.label}
+                      type="button"
+                      className={"k-btn act" + (a.danger ? " danger" : "")}
+                      aria-label={a.aria ?? a.label}
+                      onClick={a.onClick}
+                    >
+                      {a.label}
+                    </button>
                   ))}
-              </span>
-            )}
+                  {e.href &&
+                    (cover ? (
+                      <span className="k-go" aria-hidden="true">
+                        ›
+                      </span>
+                    ) : (
+                      <a
+                        className="k-go"
+                        href={e.href}
+                        aria-label={e.hrefLabel ?? e.title}
+                      >
+                        ›
+                      </a>
+                    ))}
+                </span>
+              )}
+            </div>
+            {!shut && e.meta && <span className="k-meta k-sub">{e.meta}</span>}
           </div>
-          {!shut && e.meta && <span className="k-meta k-sub">{e.meta}</span>}
           {!levels && expanded && parts}
           {shut && e.strip && e.strip.length > 0 && (
             // Closed: one line and its strip (for a meal, where its energy comes from).

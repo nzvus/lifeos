@@ -28,7 +28,8 @@ test("one gap, no frames, nothing stuck over anything (VIS-04, PAT-01)", async (
 test("a Box head's title, number, score and action on one line (VIS-40)", async ({
   page,
 }) => {
-  for (const url of PLACES) {
+  // the gallery too: it holds every state of a Box (a meta line, a wrapped head, open, a row)
+  for (const url of [...PLACES, "/kit"]) {
     await page.goto(url);
     expect
       .soft(await page.evaluate(measureHeads), url + ": heads out of line")

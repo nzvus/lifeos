@@ -87,7 +87,7 @@ describe("Libreria's lists", () => {
     expect(r!.sub).toBe("Avena, Skyr");
   });
 
-  it("gives a food's page its products and the saved meals with it", () => {
+  it("gives a food's page its products and the saved meals with it, each to open (PAT-30)", () => {
     const all = [
       ...foods,
       { ...foods[1]!, key: "skyr:p", productId: "p", brand: "Lidl" },
@@ -108,7 +108,7 @@ describe("Libreria's lists", () => {
     expect(page).toMatchObject({
       name: "Skyr",
       products: [{ brand: "Lidl" }],
-      meals: [{ name: "Porridge", quantity: "150" }],
+      meals: [{ id: "1", name: "Porridge", quantity: "150" }],
     });
     expect(foodPage(all, [], "nope")).toBeNull();
   });

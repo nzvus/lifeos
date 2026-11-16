@@ -280,14 +280,24 @@ export const foodExtra: Build = async (db, owner, id, query) => {
       page.meals.length === 0 ? (
         <p className="k-help">{w.usedIn.none}</p>
       ) : (
-        <div className="k-stack g1">
+        // Each pasto is the row every list draws, its value how much of this cibo it has; a tap
+        // opens the pasto (PAT-30 level 0; target.md B4).
+        <List label={w.usedIn.list}>
           {page.meals.map((m) => (
-            <div key={m.name} className="k-line between">
-              <span className="k-body">{m.name}</span>
-              <span className="k-num">{F.num(Number(m.quantity), page.unit)}</span>
-            </div>
+            <Box
+              key={m.id}
+              density="row"
+              rail={false}
+              entry={{
+                fam: "food",
+                of: { kind: "meal" },
+                title: m.name,
+                value: F.num(Number(m.quantity), page.unit),
+                href: "/cibo/pasto/" + m.id,
+              }}
+            />
           ))}
-        </div>
+        </List>
       ),
   };
 };
