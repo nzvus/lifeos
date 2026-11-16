@@ -535,13 +535,13 @@
 }
 /* a head that wrapped keeps its actions and «›» on the title's line: the line starts at the
    top, the trail as tall as the head's first line (28; a list row's tile 32) */
-.k-box > .k-line:has(> .k-trail) {
+.k-top > .k-line:has(> .k-trail) {
   align-items: flex-start;
 }
-.k-box > .k-line > .k-trail {
+.k-top > .k-line > .k-trail {
   min-height: 28px;
 }
-.k-row.dense .k-box > .k-line > .k-trail {
+.k-row.dense .k-top > .k-line > .k-trail {
   min-height: 32px;
 }
 .k-head:focus-visible {
@@ -1546,7 +1546,6 @@
 .k-row.dense .k-art {
   display: none;
 }
-.k-row.dense .k-sub,
 .k-row.dense .k-more > div {
   padding-left: 38px;
 }
@@ -1807,15 +1806,13 @@
 .k-hlead.badged {
   align-items: center;
 }
-.k-hlead.badged > .k-glyph:not(.tile) {
+.k-top.badged > .k-lead > .k-glyph:not(.tile) {
   width: 32px;
   height: 32px;
 }
-.k-row.dense .k-sub,
 .k-row.dense .k-more > div {
   padding-left: 40px;
 }
-.k-row.dense .k-box:not(:has(.k-hlead.badged)) .k-sub,
 .k-row.dense .k-box:not(:has(.k-hlead.badged)) .k-more > div {
   padding-left: 0;
 }
@@ -3724,6 +3721,63 @@ button.k-link {
 .k-row.times .k-glyph-lead {
   display: none;
 }
+/* The head's icon is centred on the title and its meta line while the box is shut (also when
+   the head wraps at 320); open, it stays on the first line, or it would drift down a tall box
+   (his 16 Nov, VIS-40). The head and the meta are indented by the icon and its gap; the head
+   reaches under the icon, so the whole left edge still opens the box. */
+.k-top {
+  --indent: 24px;
+}
+.k-top.badged {
+  --indent: 40px;
+}
+.k-row.times .k-top:not(.badged) {
+  --indent: 0px;
+}
+.k-top > .k-lead {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: calc(var(--indent) - 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.k-box.is-open .k-top > .k-lead {
+  bottom: auto;
+  height: max(28px, var(--indent) - 8px);
+}
+.k-top .k-head,
+.k-top > .k-sub {
+  padding-left: var(--indent);
+}
+/* a list row's first line is as tall as its tile (32), so the name and the tile share a centre */
+.k-top.badged .k-hlead {
+  min-height: 32px;
+}
+/* beside an action pill (36) the first line is as tall as the pill, so both share a centre */
+.k-top > .k-line:has(> .k-trail > .k-btn) .k-hlead {
+  min-height: 36px;
+}
+/* the icon left the title's span: the widths at which a head wraps count it as before */
+.k-top .k-head > .k-hlead {
+  flex-basis: calc(8em - var(--indent));
+}
+.k-row.dense .k-top .k-head > .k-hlead {
+  flex-basis: calc(5em - var(--indent));
+}
+@media (max-width: 360px) {
+  .k-row.dense .k-top .k-head > .k-hlead {
+    flex-basis: calc(7em - var(--indent));
+  }
+  /* a list row's value that wrapped starts under the name, never at the far edge */
+  .k-row.dense .k-top.badged .k-hright {
+    margin-left: 0;
+  }
+}
 /* UI-79: the drawing behind, in the free corner under the value, never under words;
    only where the box has room (lines under the head, or open); it turns in once on load */
 .k-art,
@@ -3741,7 +3795,7 @@ button.k-link {
 .k-box .k-art.a1 {
   opacity: 0;
 }
-.k-box:is(:has(> .k-bin), :has(> .k-sub), .day):not(.is-open) .k-art.a1 {
+.k-box:is(:has(> .k-bin), :has(.k-top > .k-sub), .day):not(.is-open) .k-art.a1 {
   opacity: 0.12;
   animation: k-art-in var(--t-box) var(--ease) backwards;
 }
@@ -3808,9 +3862,6 @@ button.k-link {
 }
 .k-tlrow + .k-tlrow {
   margin-top: 4px;
-}
-.k-row:not(.times) .k-box:has(> .k-line .k-glyph-lead) > .k-sub {
-  padding-left: 24px;
 }
 /* UI-78: a fold reads like a section: no tick, no rule; on a page or a block it gets the tinted surface */
 .k-fold > summary {
@@ -3880,9 +3931,12 @@ button.k-link {
   background: transparent;
 }
 /* the drawing's corner stays free of words: the lines under the head stop before it (UI-79) */
-.k-row:not(.dense) .k-box:is(:has(> .k-bin), :has(> .k-sub), .day):not(.is-open) > .k-sub,
 .k-row:not(.dense)
-  .k-box:is(:has(> .k-bin), :has(> .k-sub), .day):not(.is-open)
+  .k-box:is(:has(> .k-bin), :has(.k-top > .k-sub), .day):not(.is-open)
+  .k-top
+  > .k-sub,
+.k-row:not(.dense)
+  .k-box:is(:has(> .k-bin), :has(.k-top > .k-sub), .day):not(.is-open)
   .k-bpills {
   padding-right: 36px;
 }
@@ -3978,7 +4032,7 @@ button.k-link {
   gap: 8px;
   margin-top: 4px;
 }
-.k-row:not(.times) .k-box:has(> .k-line .k-glyph-lead) > .k-say {
+.k-row:not(.times) .k-box:has(.k-glyph-lead) > .k-say {
   padding-left: 24px;
 }
 .k-parts {
@@ -4247,7 +4301,7 @@ a.k-head {
   inset: 0;
   border-radius: var(--r);
 }
-.k-box:has(> .k-line > .k-cover) :is(a:not(.k-cover), button, input, select, label) {
+.k-box:has(.k-cover) :is(a:not(.k-cover), button, input, select, label) {
   position: relative;
   z-index: 2;
 }
@@ -4295,10 +4349,6 @@ button.k-link {
   }
   .k-row.dense .k-hlead {
     flex: 1 1 7em;
-  }
-  /* under the name, where «1 prodotto» starts: the tile (32) + the gap (8) */
-  .k-row.dense .k-hlead.badged + .k-hright {
-    margin-left: 40px;
   }
   .k-month,
   .k-week {

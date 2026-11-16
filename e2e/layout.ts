@@ -136,9 +136,12 @@ export function measureHeads() {
     return q.height > 0 ? q.top + q.height / 2 : null;
   };
   const off: string[] = [];
+  let seen = 0;
   for (const box of document.querySelectorAll(".k-box")) {
-    const line = box.querySelector(":scope > .k-line");
-    if (!line) continue;
+    const top = box.querySelector(":scope > .k-top");
+    const line = top?.querySelector(":scope > .k-line");
+    if (!top || !line) continue;
+    seen++;
     const title = centre(line.querySelector(".k-title"));
     if (title === null) continue;
     const parts = [
@@ -176,6 +179,22 @@ export function measureHeads() {
         off.push(
           `«${line.querySelector(".k-title")?.textContent?.slice(0, 20)}»: ${s} ${Math.round((y - title) * 10) / 10} px off the title`,
         );
+    // the icon: centred on the head and its meta line while the box is shut, on the title's
+    // line when open (his 16 Nov «centrare le icone… invece di metterle in alto»)
+    const icon = top.querySelector(":scope > .k-lead .k-glyph");
+    const g = icon?.getBoundingClientRect();
+    if (g && g.height > 0) {
+      const y = g.top + g.height / 2;
+      const b = top.getBoundingClientRect();
+      const want = box.classList.contains("is-open") ? title : b.top + b.height / 2;
+      if (Math.abs(y - want) > 1.5)
+        off.push(
+          `«${tEl?.textContent?.slice(0, 20)}»: its icon ${Math.round((y - want) * 10) / 10} px off the centre`,
+        );
+    }
   }
+  // a page with boxes but none measured means the markup moved under this check
+  if (seen === 0 && document.querySelector(".k-box .k-title"))
+    off.push("no Box head was measured: the selectors no longer match the kit");
   return off.slice(0, 10);
 }
