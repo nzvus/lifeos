@@ -565,6 +565,13 @@
     at first on its own page; judged as a logged meal is (all the foods' estimates). Found: the
     composer's «come sarà» judges a new meal with fewer estimates than the day does, so the same
     meal can have no voto there (not changed here). Undo: `git revert` of the commit.
+49. **15–16 Nov, his words, added by him to `RULES_LOG.md` (verbatim):** «la pianificazione
+    inoltre va ripensata anche in funzione di come si possa applicare anche per cose come
+    sveglia, pesata, misure, passi, e altre cose.» Not decided by Claude (a model of the Piano is
+    his, rule 1): it becomes its own table in `target.md` — for each type, what «planned» means
+    (a time to wake, a weigh-in due, a count to reach) and where it is shown — drafted for his
+    pick before any Piano work. His «procede» of 16 Nov on B1's photos: B1 stays as shown (the
+    cibi as rows); B2 next.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

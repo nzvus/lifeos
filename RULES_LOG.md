@@ -30,5 +30,11 @@ lo stesso vale delle pianificazioni di cui parlavamo prima e i problemi con la p
 forse, infatti, dovremmo smetterla di implementare codice. dobbiamo implementare una specifica come nei primi passi del software engineering, che però tenga traccia della convergenza delle pagine o dei comportamenti, delle azioni o delle visualizzazioni in generale. cosi rifiniamo quella per bene, pensiamo a ogni cosa nel dettaglio in un linguaggio naturale o semiformale o non saprei, cosi che lo sguardo sia gia completo di suo e non abbiamo sorprese. che ne pensi? come si potrebbe attuare una cosa simile? come si fa di solito? che tool puoi usare? ovviamente quello che abbiamo fatto adesso non si butta, non ricadiamo in questo errore, ma non dobbiamo nemmeno riciclare tutto, anzi, il fatto è che in questa repo vedo un sacco di file, script, documentazione, screenshot, immagini, e sono convinto che la maggior parte sia inutile o deprecato, o probabilmente dimenticato e inutilizzato quando invece dovrebbe esserlo
 
 
+
+
+la pianificazione inoltre va ripensata anche in funzione di come si possa applicare anche per cose come sveglia, pesata, misure, passi, e altre cose.
+
+
+
 ## Applied
 - 2026-11-14 · `.claude/rules/design.md` (new, always loaded) · each session drew from a summary and dropped the agreed v2 look and kit pieces; two artifact pages rejected · evidence: «why you are continueing to ignore all the discussions that we had for v2», «il modo in cui stiamo lavorando è sbagliato» · applied by his «yc»: one page of what v2 decided, no separate drawings, one screen at a time, yc/ap never cover design.
