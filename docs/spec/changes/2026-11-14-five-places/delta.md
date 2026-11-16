@@ -58,6 +58,17 @@
   forbidden once the last form of a loose blocco goes. WHEN he taps
   «Salva come giornata tipo» on a day THEN its voci become the lines of a new one. The word
   «blocco» leaves the screens; a line is a «riga» of its giornata tipo. Kit: ✗.
+- **PAT-30** (patterns.md §3) One piece per catalog type at three levels (his «ap yc», 15 Nov, on
+  `target.md`; his «riusare le schede che si usano in oggi»): 0 the row = `Box` closed (icon ·
+  name · one value · score chip), in every list, search, ⊕, «Usato in», a pasto's cibi, Marche,
+  Dispensa; 1 the same Box open in place, its doors one at a time, a value edited by a tap
+  (PAT-13); 2 the page = the same open box alone, plus «Altro» (PAT-23). A pasto in the Elenco and
+  a meal on the day are one box: the day adds quanto, quando and status (PAT-31, VIS-22). A type
+  has one renderer and one editor; a second one fails the guard (PAT-90). A cibo's label values
+  sit behind the door «Etichetta», closed at first. Kit: `ObjectPage` ✓, the shared box ✗.
+- **PAT-43** (patterns.md §4) In an Elenco, WHEN he taps a row THEN it opens in place (PAT-30
+  level 1) and «Apri» goes to its page. Children are nested under their parent (MOD-21): a cibo's
+  marche, each with its formati; a pasto's varianti. Marche and formati have no shelf of their own.
 
 ## ADDED
 - **PAT-95** (patterns.md §1) The area filter: one row of chips, «Tutto» · Cibo · Corpo · Mente ·

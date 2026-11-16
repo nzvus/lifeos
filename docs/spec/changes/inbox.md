@@ -30,8 +30,8 @@ ROADMAP «Now», Q-21 → CLAUDE.md «Working agreements», Q-22 → CLAUDE.md r
   called differently elsewhere»; the list is `~/Projects/fleet/GLOSSARY.md`). Done outside the spec on
   branch fleet/2026-11-12. Left for the next change, since one is open (PRD-41): «decided by Claude»
   in `domains/plan.md` (3 places; was the agent's wording) and «Claude» in `patterns.md` PAT-91 (was the same).
-- **W-04** His note of 15 Nov, written by him in `RULES_LOG.md` («aggiunto da me», kept there
-  verbatim): the Elenco and its object pages are old and not built from the kit («si potrebbero
+- **W-04** His note of 15 Nov, written by him in `RULES_LOG.md` («aggiunto da me»; moved out of
+  that file on 16 Nov at his word, verbatim at the end of this inbox): the Elenco and its object pages are old and not built from the kit («si potrebbero
   semplicemente riusare le schede che si usano in oggi»); every place that changes a quantity is
   sized and spaced badly; changing something in the Elenco takes too many pages; the Elenco should
   show variants, brands and weights as a hierarchy and reuse the macro, micro, price and voto
@@ -45,3 +45,31 @@ ROADMAP «Now», Q-21 → CLAUDE.md «Working agreements», Q-22 → CLAUDE.md r
 ## Notes folded (his raw notes outside the repo; `check.py` warns when one changes)
 - considerations.txt 80c476d19294 — folded 30 Oct (file of 15 Oct)
 - considerations2 0fed8b127b3f — folded 30 Oct (file of 22 Oct)
+
+## W-04, his note verbatim (15 Nov; the last paragraph added 15–16 Nov)
+
+Moved from `RULES_LOG.md` on 16 Nov (his words: «toglile da li dato che mi hai detto che non ci
+devono stare»). `RULES_LOG.md` holds only one-line entries on where a rule failed; his words live
+here or in the open change's proposal.
+
+> aggiunto da me: molte pagine hanno versioni deprecate ancora, tipo quelle quando selezioni oggetti degli elenchi, che siano ingredienti, o pasti, o altre cose nell'elenco, hanno un design e feature fatte male e o inesistenti. anche l'elenco stesso. dovrebbe essere tutto uniformato con il kit, si potrebbero semplicemente riusare le schede che si usano in oggi o altrove, senza ripetere codice, e invece...
+>
+> inoltre capita molto spesso che graficamente ogni volta che la ui ti permette di modificare delle quantità sono dimensionate e spaziate male, oltre che icoerenti col design e gli allineamenti di tutta l'app e dei temi e stili della cosa di cui riguardano, del loro contesto eccetera.
+>
+> poi per modificare qualcosa nell'elenco devi passare 3000 pagine diverse, è troppo inutile e borioso oltre che brutto da vedere. anche l'elenco stesso è fatto malissimo. ti ricordi la regola del mostrare cose estendibili?
+>
+> ma poi l'elenco doveva essere piu intelligente, con una gestione gerarchica delle varianti, delle marche e delle grammature, e anche nella visualizzazioni dei macro, micro, prezzi, dei voti anche, tutte cose che stanno gia altrove e non vengono riutilizzate per nessun motivo
+>
+> dovremmo avere un approccio diverso in generale. ogni volta che configuriamo qualcosa di complesso, dovremmo pensare a come e dove si dovrebbe o potrebbe applicare o unificare o fondere in tutto il resto dell'app. mi spiego meglio,  ogni volta che emerge una problematica specifica, sicuramente è anche altrove ed è sistematica o comunque la sua soluzione, se riguarda un contesto simile, dovrebbe riguardare tutte quelle altre occorenze, di moto da unificare sempre di piu. mi hai capito? come puoi fare in modo di aggiungere regole ferree a riguardo? perché come ti dicevo anche quando aggiungi delle regole poi magari capita spesso che non le rispetti.
+> tornando al discorso di prima, il problema principale di questa app è che molte delle sue funzionalità sono reimplementate ogni volta in modo diverso a seconda del contesto quando è completamente non necessario, e la correzione dovrebbe essere sia dall'alto che dal basso, quindi sia avere un quadro generale di come e dove sono distribuite tutte le azioni e i design, ma anche ogni volta che si modifica qualcosa o si aggiunge, capire di conseguenza come potrebbe cambiare il resto dell'app, se possiamo sostituire quasi completamente altre parti con questa novità dopo opportuni cambiamenti a quest'ultima.
+>
+> pensa a questo esempio banale: i pasti vengono visualizzati sia in oggi che in elenco, cosi come la loro modifica, è naturale pensare che tutto questo debba essere uniformato.
+>
+> lo stesso vale delle pianificazioni di cui parlavamo prima e i problemi con la pagina Oggi e Piano. quindi o ripensiamo per l'ennesima volta a una divisione migliore di tutte le paine dell'app o non saprei.
+>
+> forse, infatti, dovremmo smetterla di implementare codice. dobbiamo implementare una specifica come nei primi passi del software engineering, che però tenga traccia della convergenza delle pagine o dei comportamenti, delle azioni o delle visualizzazioni in generale. cosi rifiniamo quella per bene, pensiamo a ogni cosa nel dettaglio in un linguaggio naturale o semiformale o non saprei, cosi che lo sguardo sia gia completo di suo e non abbiamo sorprese. che ne pensi? come si potrebbe attuare una cosa simile? come si fa di solito? che tool puoi usare? ovviamente quello che abbiamo fatto adesso non si butta, non ricadiamo in questo errore, ma non dobbiamo nemmeno riciclare tutto, anzi, il fatto è che in questa repo vedo un sacco di file, script, documentazione, screenshot, immagini, e sono convinto che la maggior parte sia inutile o deprecato, o probabilmente dimenticato e inutilizzato quando invece dovrebbe esserlo
+>
+>
+>
+>
+> la pianificazione inoltre va ripensata anche in funzione di come si possa applicare anche per cose come sveglia, pesata, misure, passi, e altre cose.

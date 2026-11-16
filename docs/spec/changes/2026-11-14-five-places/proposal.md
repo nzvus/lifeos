@@ -543,6 +543,58 @@
     are kept (run by CI and by `verify`); `jscpd` kept (`scripts/cpd.mjs` runs it); 94 exports and
     34 types no one imports, not checked one by one; 16 of 64 ADRs cited by no live file
     (candidates to archive); 5 other files no one mentions. Deleting waits for his word.
+46. **15 Nov, «ap»: step 3 of §44 drafted, foods and meals** (`target.md` in this folder). Read
+    from the code: a cibo is drawn 9 ways and a pasto 6; the richest box (voto with criteria,
+    every nutrient, cost) exists only on the day, the pasto's own page has none of it; no screen
+    links to a marca's or formato's page. Proposed: row, box and page are one piece at three
+    levels for every catalog type, opened in place in the Elenco; a backlog B1…B8. Decided by
+    Claude: the draft is a file of this change, merged into `patterns.md` or dropped when he has
+    answered its five questions (undo: delete the file). Nothing built.
+    Step 5, first guard: `npm run lint` ends with `node scripts/map.mjs --check`, so CI's
+    `static` job fails on a stale map (decided by Claude; undo: drop it from the `lint` script).
+47. **15 Nov, his «ap yc» on `target.md`'s five questions:** all five taken as (a): row = box =
+    page at three levels; a tap opens in place in the Elenco; marche and formati nested under
+    their cibo; the label behind «Etichetta»; the order B1 → B2 → B4 → B3 → B5 → B6 → B7, then the
+    same table for exercises and schede. Written as PAT-30 and PAT-43 in `delta.md`. Each B is
+    built in the real app and shown as photos before it merges (design.md rule 1).
+48. **B1 built under his «ap yc», 15 Nov** (photos `LIFEOS/review/2026-11-15/b1/`): a saved
+    pasto's page opens on the box the day draws for a meal — voto with its criteria, the four
+    bars, the doors Nutrienti · Cibi · Costo — in place of its plain rows of totals and cibi.
+    The doors live in one module (`features/day/meal-doors.tsx`) used by both. Decided by Claude:
+    behind «Cibi» each cibo is a kit row that opens its page (B4 for this list); the box is open
+    at first on its own page; judged as a logged meal is (all the foods' estimates). Found: the
+    composer's «come sarà» judges a new meal with fewer estimates than the day does, so the same
+    meal can have no voto there (not changed here). Undo: `git revert` of the commit.
+49. **15–16 Nov, his words, added by him to `RULES_LOG.md` (verbatim):** «la pianificazione
+    inoltre va ripensata anche in funzione di come si possa applicare anche per cose come
+    sveglia, pesata, misure, passi, e altre cose.» Not decided by Claude (a model of the Piano is
+    his, rule 1): it becomes its own table in `target.md` — for each type, what «planned» means
+    (a time to wake, a weigh-in due, a count to reach) and where it is shown — drafted for his
+    pick before any Piano work. His «procede» of 16 Nov on B1's photos: B1 stays as shown (the
+    cibi as rows); B2 next.
+50. **B2 built, 16 Nov, «Pasti salvati» first** (photos `LIFEOS/review/2026-11-16/b2/`): a row of
+    the Elenco opens in place with the meal's box — voto, the four bars, «Registra · Cambia i
+    cibi · Apri», the doors Voto · Nutrienti · Cibi · Costo; «Apri» goes to the page (PAT-43).
+    The box is now one kit piece, `MealBox` (its third place: day, page, Elenco — PRD-53), in
+    the gallery and photographed; a pasto is composed once (`oggi/elenco/meal-box.ts`) for the
+    page and the row. Decided by Claude: the doors' words come from the app (PAT-81); a row
+    keeps its criteria behind «Voto» (the kit `Box` showed that door only on a card); the three
+    actions are act pills, none filled (one primary per screen, VIS-85). Not yet: the «Cibi»
+    shelf (a cibo's box has other doors: B3), search as `Find`. Undo: `git revert`.
+51. **16 Nov, his words:** «ho scritto altre cose nel file, comunque toglile da li dato che mi hai
+    detto che non ci devono stare». Done: his note left `RULES_LOG.md` and is verbatim at the
+    end of `inbox.md` (W-04); its last paragraph is §49.
+52. **16 Nov, the planning table of §49 drafted** (`target.md` §6): the model already plans any
+    type as «a voce due»; it cannot plan a time to hit (sveglia) nor an amount to reach (passi,
+    acqua, an assunzione). Proposed: three shapes of «planned», declared per type; four
+    questions, Claude's pick first. Nothing decided, nothing built.
+53. **16 Nov, his words on B2's photos (verbatim):** «ok mi piace, comunque in generale non pensi
+    che sarebbe meglio centrare le icone ogni volta invece di metterle in alto?». B2 is approved
+    as shown. The icons: a change to the kit `Box` head (VIS-40), so to every box at once —
+    Claude's view: yes while a box is shut (the icon centred on the title and its meta line);
+    open, it stays with the head line, or it would drift to the middle of a tall box. To build
+    in the kit and show as photos before it merges. The four planning questions of §52: not
+    answered yet.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

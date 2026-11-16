@@ -1,80 +1,84 @@
 /**
  * A pasto's own sections on the generic ObjectPage (PAT-30; change 2026-11-07-food-meal), from
- * `core/food`, as parts: one porzione (or a stima's totals) with «Registra» (the one primary) and «Cambia
- * i cibi» (its Composer, PAT-62); its cibi; its Famiglia (variants, MOD-21, ADR-0060).
- * «Parti da», «Variante» and Archivia are the page's verbs (PAT-16, PAT-17, PAT-19).
+ * `core/food`. First the meal's box, the one the day draws for a meal (PAT-30 as modified by the
+ * change five-places, target.md B1): voto with its criteria, where its energy comes from, and
+ * behind its doors every nutrient, its cibi (each a row that opens its cibo) and what it costs —
+ * open at first, alone on its page. Under it «Registra» (the one primary) and «Cambia i cibi»
+ * (its Composer, PAT-62); then its Famiglia (variants, MOD-21, ADR-0060). «Parti da», «Variante»
+ * and Archivia are the page's verbs (PAT-16, PAT-17, PAT-19).
  */
-import { Box, F, List } from "@lifeos/kit";
+import { Box, F, List, MealBox } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
+import { readMicroTargets } from "@/core/day";
+import { readTargetsFor } from "@/core/energy";
 import { logicalDay } from "@/core/engines/time";
-import { readFoodChoices, readRecipeChoices } from "@/core/food/catalog";
-import { FOOD_FIELDS, mealPage } from "@/features/library/library";
+import {
+  readFoodChoices,
+  readFoodEstimates,
+  readRecipeChoices,
+} from "@/core/food/catalog";
+import { mealPage } from "@/features/library/library";
+import { MealFoods } from "@/features/library/MealFoods";
+import { common } from "@/i18n/common";
 import { food } from "@/i18n/food";
+import { mealBox } from "../../../oggi/elenco/meal-box";
 import type { Build } from "./extras";
 
 const w = food.meal;
 
 export const recipeExtra: Build = async (db, owner, id) => {
-  const today = logicalDay(new Date(), (await ownerClock()).clock);
+  const { clock, weights } = await ownerClock();
+  const today = logicalDay(new Date(), clock);
   const foods = await readFoodChoices(db, owner, today);
-  const page = mealPage(foods, await readRecipeChoices(db, owner, today, foods), id);
-  if (!page) return null;
-  const totals = FOOD_FIELDS.filter(
-    ([f]) => f !== "nova" && page.totals[f] !== undefined,
+  const recipes = await readRecipeChoices(db, owner, today, foods);
+  const page = mealPage(foods, recipes, id);
+  const recipe = recipes.find((r) => r.recipeId === id);
+  if (!page || !recipe) return null;
+  const [targets, micros] = await Promise.all([
+    readTargetsFor(db, owner, today, today, clock),
+    readMicroTargets(db, owner, today),
+  ]);
+  const by = new Map(foods.map((f) => [f.key, f]));
+  const estimates = await readFoodEstimates(
+    db,
+    owner,
+    recipe.parts.flatMap((l) => {
+      const f = by.get(l.key);
+      return f?.foodId ? [f.foodId] : [];
+    }),
   );
+  const box = mealBox(recipe, by, { targets, micros, estimates, weights });
   return {
     meta: w.eaten(page.uses),
+    first: (
+      <div className="k-stack g3">
+        <MealBox
+          startOpen
+          entry={{
+            fam: "food",
+            of: { kind: "meal" },
+            title: page.estimate ? w.whole : w.serving,
+            value: F.num(page.totals["kcal"] ?? 0, "kcal"),
+            ...(page.estimate ? { meta: "stima" } : {}),
+            ...(box.score ? { score: box.score } : {}),
+          }}
+          data={box.data}
+          labels={common.doors}
+          details={box.details}
+          foods={<MealFoods parts={box.parts} />}
+        />
+        {page.estimate && <p className="k-help">{w.estimate}</p>}
+        <div className="k-line g2 wrap">
+          <a className="k-btn primary" href={"/aggiungi/pasto?pasto=" + id}>
+            {w.log}
+          </a>
+          <a className="k-btn secondary" href={"/cibo/pasto/" + id + "/componi"}>
+            {page.estimate ? w.composeEstimate : w.compose}
+          </a>
+        </div>
+      </div>
+    ),
     parts: [
-      {
-        title: page.estimate ? w.whole : w.serving,
-        node: (
-          <div className="k-stack g2">
-            {page.estimate && <p className="k-help">{w.estimate}</p>}
-            <div className="k-stack g1">
-              {totals.map(([f, words, unit]) => (
-                <div key={f} className="k-line between">
-                  <span className="k-body">{words}</span>
-                  <span className="k-num">{F.num(page.totals[f]!, unit)}</span>
-                </div>
-              ))}
-            </div>
-            <div className="k-line g2 wrap">
-              <a className="k-btn primary" href={"/aggiungi/pasto?pasto=" + id}>
-                {w.log}
-              </a>
-              <a className="k-btn secondary" href={"/cibo/pasto/" + id + "/componi"}>
-                {page.estimate ? w.composeEstimate : w.compose}
-              </a>
-            </div>
-          </div>
-        ),
-      },
-      ...(page.estimate
-        ? []
-        : [
-            {
-              title: w.foods,
-              node: (
-                <div className="k-stack g1">
-                  {page.parts.map((p, i) => (
-                    <div key={i} className="k-line between">
-                      <span className="k-body">
-                        {p.href ? (
-                          <a className="k-link" href={p.href}>
-                            {p.name}
-                          </a>
-                        ) : (
-                          p.name
-                        )}
-                        {p.brand && <span className="k-meta"> · {p.brand}</span>}
-                      </span>
-                      <span className="k-num">{F.num(Number(p.quantity), p.unit)}</span>
-                    </div>
-                  ))}
-                </div>
-              ),
-            },
-          ]),
       ...(page.base || page.variants.length > 0
         ? [
             {

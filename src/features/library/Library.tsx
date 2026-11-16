@@ -10,9 +10,13 @@
  * above it, as links.
  */
 import { useState } from "react";
-import { Box, F, Field, List as KitList } from "@lifeos/kit";
+import { Box, F, Field, List as KitList, MealBox } from "@lifeos/kit";
+import { common } from "@/i18n/common";
+import { food } from "@/i18n/food";
+import { MealFoods } from "./MealFoods";
 import { listRows, sortValue, SORTS, type LibraryRow, type SortKey } from "./library";
 
+const w = food.meal;
 const UNITS: Partial<Record<SortKey, string>> = {
   kcal: "kcal",
   protein: "g",
@@ -87,14 +91,15 @@ export function Library({
   return <List lists={lists} first={view} alone={only ?? false} />;
 }
 
-function row(tab: Tab, r: LibraryRow, value: string) {
+/** A row's entry; `link` false when the row opens in place instead of going to its page. */
+function row(tab: Tab, r: LibraryRow, value: string, link = true) {
   return {
     ...SHELF_OF[tab],
     of: tab === "meals" ? { kind: "meal" } : (r.of ?? {}),
     title: r.name,
     ...(r.sub ? { meta: r.sub } : {}),
     value,
-    ...(r.href ? { href: r.href } : {}),
+    ...(link && r.href ? { href: r.href } : {}),
     ...(r.score ? { score: r.score } : {}),
   };
 }
@@ -351,9 +356,34 @@ function List({
       ) : (
         // 8 rows, then «Mostra altri (n)» (UI-41, UI-100); a new search or sort starts closed.
         <KitList key={tab + sort + query} label={TABS[tab].label}>
-          {rows.map((r) => (
-            <Box key={r.key} density="row" rail={false} entry={row(tab, r, value(r))} />
-          ))}
+          {rows.map((r) =>
+            r.meal ? (
+              // A pasto opens in place (PAT-43): the one meal box, «Apri» to its page.
+              <MealBox
+                key={r.key}
+                density="row"
+                entry={row(tab, r, value(r), false)}
+                data={r.meal.data}
+                labels={common.doors}
+                details={r.meal.details}
+                foods={<MealFoods parts={r.meal.parts} />}
+              >
+                <div className="k-line g2 wrap">
+                  <a className="k-btn act" href={"/aggiungi/pasto?pasto=" + r.meal.id}>
+                    {w.log}
+                  </a>
+                  <a className="k-btn act" href={"/cibo/pasto/" + r.meal.id + "/componi"}>
+                    {r.meal.estimate ? w.composeEstimate : w.compose}
+                  </a>
+                  <a className="k-btn act" href={"/cibo/pasto/" + r.meal.id}>
+                    {w.open}
+                  </a>
+                </div>
+              </MealBox>
+            ) : (
+              <Box key={r.key} density="row" rail={false} entry={row(tab, r, value(r))} />
+            ),
+          )}
         </KitList>
       )}
     </section>

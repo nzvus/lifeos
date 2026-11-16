@@ -9,6 +9,8 @@ export { resolveGlyph, type GlyphOf, type IconRegistry } from "./glyph";
 export { ICONS } from "./icons.generated";
 export { Glyph, type GlyphSize } from "./Glyph";
 export { Box, type BoxAct, type BoxDoor, type BoxEntry } from "./Box";
+export { MealBox } from "./MealBox";
+export { EntryDetails, mealDoors, type BoxDetails, type DoorWords } from "./meal-doors";
 export { PageHeader } from "./PageHeader";
 export { NavBar, AreaFilter, AREAS, PLACES, type Area, type Place } from "./NavBar";
 export { DateNav, type DayBars, type Rhythm } from "./DateNav";

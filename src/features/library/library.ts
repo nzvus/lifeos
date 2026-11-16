@@ -4,7 +4,7 @@
  * a row searched by its words and sorted by use, name, or a nutrient alone
  * or per 100 kcal (v1's metrics). Pure, so the list sorts as you tap.
  */
-import { F } from "@lifeos/kit";
+import { F, type BoxDetails, type NutrientsData } from "@lifeos/kit";
 import { fold, type FoodChoice, type RecipeChoice } from "@/core/food/choices";
 import { lineTotals } from "@/core/food/totals";
 import type { ExerciseSession } from "@/core/training";
@@ -31,6 +31,25 @@ export type LibraryRow = {
     parts: { name: string; score: number; weight: number }[];
     missing: string[];
   };
+  /** A saved pasto: what its box holds when it opens in place (PAT-43), from the page. */
+  meal?: {
+    id: string;
+    estimate: boolean;
+    data: NutrientsData;
+    details: BoxDetails;
+    parts: MealPart[];
+  };
+};
+
+/** One cibo of a pasto, as its row says it. */
+export type MealPart = {
+  name: string;
+  brand: string;
+  quantity: string;
+  unit: string;
+  href: string | null;
+  /** What picks its drawing (VIS-30): the food's group. */
+  of: Record<string, string>;
 };
 
 /** Libreria's lists by their `?vista=` (the index when absent). */
@@ -239,13 +258,7 @@ export type MealPage = {
   uses: number;
   /** A saved estimate: typed totals, no foods. */
   estimate: boolean;
-  parts: {
-    name: string;
-    brand: string;
-    quantity: string;
-    unit: string;
-    href: string | null;
-  }[];
+  parts: MealPart[];
   totals: Record<string, number>;
   /** Its family (ADR-0060): the base it is a variant of, with what it changes; its variants. */
   base: { id: string; name: string; changes: string[] } | null;
@@ -306,6 +319,7 @@ export function mealPage(
               quantity: p.quantity,
               unit: f.unit,
               href: f.foodId ? "/cibo/cibo/" + f.foodId : null,
+              of: f.drawing ?? {},
             },
           ]
         : [];

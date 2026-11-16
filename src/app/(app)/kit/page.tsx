@@ -16,8 +16,10 @@ import {
   F,
   Field,
   Glyph,
+  MealBox,
   type BoxEntry,
 } from "@lifeos/kit";
+import { common } from "@/i18n/common";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { ownerClock } from "@/app/_server/clock";
@@ -90,6 +92,12 @@ const SCORE = {
 };
 
 /** Example values, declared so: a board never passes them for the owner's (memory v2-boards-kit). */
+/** The one box of a meal (PAT-30, PAT-43), as a row: shut, and opened in place. */
+const MEALS: [string, boolean][] = [
+  ["Box di un pasto · riga chiusa", false],
+  ["Box di un pasto · aperto sul posto", true],
+];
+
 /** A Box with levels (VIS-40, «Oggi a livelli»): closed, open, one door open. */
 const LEVELS: [string, string, boolean, string | null][] = [
   ["box-livello-0", "Box a livelli · chiuso: una riga e la striscia", false, null],
@@ -493,6 +501,52 @@ export default async function KitPage({
               ]}
               door={door}
             />
+          </div>
+        ))}
+      </section>
+
+      <section className="k-section g2" id="pasto-box" aria-label="Il box di un pasto">
+        <h2>Il box di un pasto</h2>
+        {MEALS.map(([label, open]) => (
+          <div key={label} role="group" aria-label={label} className="k-stack g1">
+            <span className="k-label">{label}</span>
+            <MealBox
+              density="row"
+              startOpen={open}
+              entry={{
+                fam: "food",
+                of: { kind: "meal" },
+                title: "Porridge proteico: lamponi, cioccolato, nocciola",
+                value: F.num(533, "kcal"),
+                score: SCORE,
+              }}
+              data={{
+                macros: [
+                  { key: "protein", v: 31 },
+                  { key: "carbs", v: 58 },
+                  { key: "fat", v: 17 },
+                  { key: "fiber", v: 11 },
+                ],
+              }}
+              labels={common.doors}
+              details={{
+                stats: [{ label: common.doors.cost, value: "≈ 1,40 €" }],
+                lines: [
+                  { label: "Fiocchi d’avena", value: F.num(60, "g") },
+                  { label: "Latte scremato proteico", value: F.num(250, "ml") },
+                ],
+                foot: "",
+              }}
+            >
+              <div className="k-line g2 wrap">
+                <a className="k-btn act" href="#pasto-box">
+                  Registra
+                </a>
+                <a className="k-btn act" href="#pasto-box">
+                  Apri
+                </a>
+              </div>
+            </MealBox>
           </div>
         ))}
       </section>
