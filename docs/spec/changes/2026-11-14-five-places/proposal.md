@@ -595,6 +595,25 @@
     open, it stays with the head line, or it would drift to the middle of a tall box. To build
     in the kit and show as photos before it merges. The four planning questions of §52: not
     answered yet.
+54. **16 Nov, «ap»: the icons centred, built in the kit** (branch `target-b3`; photos
+    `LIFEOS/review/2026-11-16/icons/index.html`). The Box head's icon left the title's span: it
+    is one `k-lead` beside the head and its meta line (`k-top`), centred on both while the box is
+    shut — also when the head wraps at 320 — and on the first line when open. Nothing else moves:
+    the widths at which a head wraps, the indent of the meta, the tap area (the head reaches
+    under the icon). Decided by Claude: «centred» is on the head and the meta, not on the strip,
+    the pills or the buttons under them. Not merged before his word on the photos (design.md
+    rule 3). Undo: `git revert` of the commit.
+    Measured on his data, 225 boxes on 7 screens at 390/360/320, before and after: only the icon
+    moved, but for (1) 35 list rows at ≤ 360 px that show 40 px more of their name (an old rule
+    left that gap empty) and (2) a row's title now on its action pill's centre (2 px). Found: the
+    head guard of `e2e/layout.ts` read `.k-box > .k-line` and so measured nothing once the
+    markup moved, yet stayed green; it now fails when no head is measured, checks the icon's
+    centre, and runs on the gallery too. His to judge on the photos: «Acqua» on the day, whose
+    score wraps to the right under the title, so the centred icon stands beside an empty spot.
+55. **16 Nov, «ap»: B4 built** (same branch): a cibo's «Usato in» is a kit `List` of rows, each
+    pasto with how much of the cibo it has as its value, and a tap opens the pasto (before: plain
+    lines that opened nothing). A pasto's «Cibi» were made rows with B1 (§48), so B4's two hand
+    lists are gone. Undo: `git revert`.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

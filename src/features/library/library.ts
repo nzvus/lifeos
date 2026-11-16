@@ -208,7 +208,7 @@ export type FoodPage = {
   /** No brand chosen: the mean of how many brands, the spread per field, the uncertain ones. */
   brands: FoodChoice["brands"] | null;
   /** The saved meals with it, and how much of it each has. */
-  meals: { name: string; quantity: string }[];
+  meals: { id: string; name: string; quantity: string }[];
 };
 
 /** Cents per 100 g/ml → euro per kg/l. */
@@ -248,7 +248,7 @@ export function foodPage(
     brands: food.brands ?? null,
     meals: recipes.flatMap((r) => {
       const part = r.parts.find((p) => keys.has(p.key));
-      return part ? [{ name: r.name, quantity: part.quantity }] : [];
+      return part ? [{ id: r.recipeId, name: r.name, quantity: part.quantity }] : [];
     }),
   };
 }
