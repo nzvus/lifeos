@@ -118,3 +118,43 @@ each PR really deletes is measured in the PR.
    *(recommended: the page now opens on 9 rows before anything judged)* · (b) stay first.
 5. **The order** of §4, and whether exercises and schede follow the same table next
    *(recommended: yes, after B1–B2 are approved on foods and meals)*.
+
+## 6. Planning for everything — sveglia, pesata, misure, passi (draft, his to settle)
+
+His words (proposal §49): «la pianificazione inoltre va ripensata anche in funzione di come si
+possa applicare anche per cose come sveglia, pesata, misure, passi, e altre cose.» Read for this
+draft: MOD-30…36, PL-03, PL-10, PL-20, PL-21 and `core/plans/day-blocks.ts` by its header only.
+Not opened: where the wake time is set, the Obiettivi code.
+
+### Today
+The model already lets any type be planned (PL-03: a blocco = what + when + how often; a due
+abitudine is covered by any voce of its type that day). What it cannot say:
+| thing | what he means by «planned» | what a blocco can say today | the gap |
+|---|---|---|---|
+| a meal, a session | this, at about this time | what + when + how often → a previsto voce | none |
+| pesata, misure | due on these days, after waking | the same → a previsto voce | none in the model; no screen proposes it |
+| sveglia (and going to bed) | a time to hit | «after waking + N» only as an anchor for others | the time itself is not a planned thing, so it is not judged or changed per day |
+| passi | an amount to reach by the end of the day | nothing: a blocco has no amount | «how much» lives nowhere in the Piano |
+| acqua, creatina, caffè | an amount per day | water: a computed target; a food: the goal «al giorno» of §45, not built | the same amount would live in two places (Piano, Obiettivi) |
+
+### Proposed: «planned» has three shapes, declared once per type in the registry (MOD-01)
+| shape | for | what is planned | on the day (Oggi) | done when | judged by |
+|---|---|---|---|---|---|
+| **a voce due** | meal, session, pesata, misure, any tracker | what · when · how often | a previsto box at its time (VIS-22); one tap fills it | a voce of its type that day (PL-03) | adherence (PL-21) |
+| **a time to hit** | sveglia, going to bed | a clock time · how often (weekdays may differ) | a mark on the time rail; other things anchor to it (PL-10) | the sleep voce says when he woke | distance from the time |
+| **an amount to reach** | passi, acqua, an assunzione | how much · how often, no time | a bar towards the amount, under «Senza orario» or in its own box | the day's sum reaches it | the fascia of the amount (MOD-41) |
+
+One ritmo = what + its shape's fields + how often. A new kind is planned by declaring its shape,
+never by a new screen (MOD-02).
+
+### His to settle (Claude's pick first)
+1. **Three shapes** as above. (a) yes *(recommended: it is the smallest model that covers his
+   four examples)* · (b) only «a voce due»; times and amounts stay outside the Piano.
+2. **Where an amount lives.** (a) in the ritmo, and Obiettivi shows every «al giorno» amount by
+   reading the ritmi — one truth *(recommended; it settles §45's 2a the same way)* · (b) in
+   Obiettivi, and the Piano holds only what has a time.
+3. **Sveglia.** (a) a ritmo of the shape «a time to hit», changed for one day with «Questa
+   volta» like any other *(recommended)* · (b) it stays outside the Piano, as now.
+4. **Pesata and misure.** (a) proposed as ritmi by the app from what he already does (MOD-34),
+   accepted with one tap *(recommended)* · (b) only made by hand.
+

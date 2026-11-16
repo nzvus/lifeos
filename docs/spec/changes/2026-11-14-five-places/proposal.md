@@ -584,6 +584,10 @@
 51. **16 Nov, his words:** «ho scritto altre cose nel file, comunque toglile da li dato che mi hai
     detto che non ci devono stare». Done: his note left `RULES_LOG.md` and is verbatim at the
     end of `inbox.md` (W-04); its last paragraph is §49.
+52. **16 Nov, the planning table of §49 drafted** (`target.md` §6): the model already plans any
+    type as «a voce due»; it cannot plan a time to hit (sveglia) nor an amount to reach (passi,
+    acqua, an assunzione). Proposed: three shapes of «planned», declared per type; four
+    questions, Claude's pick first. Nothing decided, nothing built.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
