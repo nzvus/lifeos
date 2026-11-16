@@ -85,7 +85,15 @@ export async function AreaShelves({
     context = "quelli che fai spesso: da ⊕ basta un tocco";
     body = <Routes routes={routes} />;
   } else {
-    const lib = await readLibrary(db, owner, today, clock, weights, shelf === "cibi");
+    const lib = await readLibrary(
+      db,
+      owner,
+      today,
+      clock,
+      weights,
+      shelf === "cibi",
+      shelf === "pasti",
+    );
     context = lib.shelfLines[LIST[shelf]];
     body = (
       <Library

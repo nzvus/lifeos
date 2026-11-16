@@ -15,6 +15,7 @@ import {
 import { readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { foodScore } from "@/features/day/score";
+import { mealBox } from "./meal-box";
 import { readExerciseLog, readExercises } from "@/core/training";
 import {
   exerciseRows,
@@ -34,6 +35,8 @@ export async function readLibrary(
   clock: Parameters<typeof readTargetsFor>[4],
   weights: Parameters<typeof foodScore>[5],
   scoreFoods: boolean,
+  /** «Pasti salvati» shown: each row carries its box, to open in place (PAT-43). */
+  openMeals = false,
 ) {
   const foods = await readFoodChoices(db, owner, today);
   const [recipes, exercises, log] = await Promise.all([
@@ -41,33 +44,54 @@ export async function readLibrary(
     readExercises(db, owner),
     readExerciseLog(db, owner),
   ]);
-  const scored = scoreFoods
-    ? await Promise.all([
-        readTargetsFor(db, owner, today, today, clock),
-        readMicroTargets(db, owner, today),
-        readFoodEstimates(
-          db,
-          owner,
-          foods.flatMap((f) => (f.productId === null && f.foodId ? [f.foodId] : [])),
-        ),
-      ])
-    : null;
+  // Read once for whichever list is judged: the foods per 100 kcal, the pasti per porzione.
+  const refs =
+    scoreFoods || openMeals
+      ? await (async () => {
+          const [targets, micros, estimates] = await Promise.all([
+            readTargetsFor(db, owner, today, today, clock),
+            readMicroTargets(db, owner, today),
+            readFoodEstimates(
+              db,
+              owner,
+              foods.flatMap((f) => (f.productId === null && f.foodId ? [f.foodId] : [])),
+            ),
+          ]);
+          return { targets, micros, estimates, ...(weights ? { weights } : {}) };
+        })()
+      : null;
   const food = foodRows(foods).map((r) => {
     const id = r.href?.split("/").at(-1);
     const sc =
-      scored && id
+      scoreFoods && refs && id
         ? foodScore(
             Object.fromEntries(Object.entries(r.values).map(([k, v]) => [k, String(v)])),
-            scored[2].get(id),
-            scored[0],
-            scored[1],
+            refs.estimates.get(id),
+            refs.targets,
+            refs.micros,
             r.of?.["group"],
             weights,
           )
         : undefined;
     return sc ? { ...r, score: sc } : r;
   });
-  const meal = recipeRows(recipes, foods);
+  const by = new Map(foods.map((f) => [f.key, f]));
+  const meal = recipeRows(recipes, foods).map((r, i) => {
+    if (!openMeals || !refs) return r;
+    const recipe = recipes[i]!;
+    const box = mealBox(recipe, by, refs);
+    return {
+      ...r,
+      ...(box.score ? { score: box.score } : {}),
+      meal: {
+        id: recipe.recipeId,
+        estimate: recipe.estimate !== undefined,
+        data: box.data,
+        details: box.details,
+        parts: box.parts,
+      },
+    };
+  });
   const exercise = exerciseRows(exercises, log, (d) => F.Day(d));
   return {
     lists: { foods: food, meals: meal, exercises: exercise } satisfies Record<

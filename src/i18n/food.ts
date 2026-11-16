@@ -63,6 +63,8 @@ export const food = {
     whole: "Il pasto",
     estimate: "Una stima a mano: registrandolo conta come stima, con questi totali.",
     foods: "Cibi",
+    openFood: (name: string) => "Apri " + name,
+    open: "Apri",
     family: "Famiglia",
     variantOf: (base: string) => "variante di " + base,
     sameAsBase: "uguale alla base",

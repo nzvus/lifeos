@@ -572,6 +572,18 @@
     (a time to wake, a weigh-in due, a count to reach) and where it is shown — drafted for his
     pick before any Piano work. His «procede» of 16 Nov on B1's photos: B1 stays as shown (the
     cibi as rows); B2 next.
+50. **B2 built, 16 Nov, «Pasti salvati» first** (photos `LIFEOS/review/2026-11-16/b2/`): a row of
+    the Elenco opens in place with the meal's box — voto, the four bars, «Registra · Cambia i
+    cibi · Apri», the doors Voto · Nutrienti · Cibi · Costo; «Apri» goes to the page (PAT-43).
+    The box is now one kit piece, `MealBox` (its third place: day, page, Elenco — PRD-53), in
+    the gallery and photographed; a pasto is composed once (`oggi/elenco/meal-box.ts`) for the
+    page and the row. Decided by Claude: the doors' words come from the app (PAT-81); a row
+    keeps its criteria behind «Voto» (the kit `Box` showed that door only on a card); the three
+    actions are act pills, none filled (one primary per screen, VIS-85). Not yet: the «Cibi»
+    shelf (a cibo's box has other doors: B3), search as `Find`. Undo: `git revert`.
+51. **16 Nov, his words:** «ho scritto altre cose nel file, comunque toglile da li dato che mi hai
+    detto che non ci devono stare». Done: his note left `RULES_LOG.md` and is verbatim at the
+    end of `inbox.md` (W-04); its last paragraph is §49.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

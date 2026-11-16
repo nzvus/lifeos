@@ -171,8 +171,16 @@ export function Box({
     ) : null;
   const allDoors: BoxDoor[] = levels
     ? [
-        ...(parts && sc
-          ? [{ key: "voto", label: WORDS.score, value: String(sc.value), panel: parts }]
+        // A row has its voto in the head's chip (no `sc`); its criteria open behind the same door.
+        ...(parts && e.score && e.score.parts.length > 0
+          ? [
+              {
+                key: "voto",
+                label: WORDS.score,
+                value: String(e.score.value),
+                panel: parts,
+              },
+            ]
           : []),
         ...doors,
       ]

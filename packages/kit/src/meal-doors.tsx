@@ -1,11 +1,27 @@
 /**
- * What an open meal box holds, wherever the meal is met (PAT-30, target.md B1): the day's voce
- * (`EntryRow`) and a saved pasto's page draw the same doors from here.
+ * What an open meal box holds, wherever the meal is met (PAT-30, target.md B1–B2): the day's
+ * voce, a saved pasto's page and its row in the Elenco draw the same doors from here, through
+ * `MealBox`. Pure: no state, so a server page may call it too.
  */
 import type { ReactNode } from "react";
-import { Nutrients, type BoxDoor, type NutrientsData } from "@lifeos/kit";
-import { common } from "@/i18n/common";
-import type { Details } from "./details";
+import type { BoxDoor } from "./Box";
+import { Nutrients } from "./Nutrients";
+import type { NutrientsData } from "./nutrient-rows";
+
+/** The numbers as tiles, the lines, and where it comes from in words. */
+/** The doors' words, from the caller's catalogue (PAT-81): the kit knows no type. */
+export type DoorWords = {
+  nutrients: string;
+  foods: string;
+  cost: string;
+  details: string;
+};
+
+export type BoxDetails = {
+  stats: { label: string; value: string }[];
+  lines: { label: string; value: string }[];
+  foot: string;
+};
 
 /**
  * A meal's doors: every nutrient (its foods as chips that light their share, VIS-50), the
@@ -13,22 +29,23 @@ import type { Details } from "./details";
  */
 export function mealDoors(
   l0: NutrientsData | null | undefined,
-  d: Details | null | undefined,
+  d: BoxDetails | null | undefined,
   /** The «Cibi» panel when the place has more to say than amounts (a pasto: each a row that opens its cibo). */
-  foods?: ReactNode,
+  foods: ReactNode | undefined,
+  w: DoorWords,
 ) {
   if (!l0) return [];
   const doors: BoxDoor[] = [
-    { key: "nutrients", label: common.doors.nutrients, panel: <Nutrients data={l0} /> },
+    { key: "nutrients", label: w.nutrients, panel: <Nutrients data={l0} /> },
   ];
   if (d && d.lines.length > 0)
     doors.push({
       key: "foods",
-      label: common.doors.foods,
+      label: w.foods,
       value: String(l0.foods?.length || d.lines.length),
       panel: foods ?? <EntryDetails d={{ stats: [], lines: d.lines, foot: "" }} />,
     });
-  const cost = d?.stats.find((s) => s.label === common.doors.cost);
+  const cost = d?.stats.find((s) => s.label === w.cost);
   // The cost is said on its chip, not again behind it.
   const rest = d
     ? { stats: d.stats.filter((s) => s !== cost), lines: [], foot: d.foot }
@@ -37,7 +54,7 @@ export function mealDoors(
   if (cost || more)
     doors.push({
       key: "more",
-      label: cost ? common.doors.cost : common.doors.details,
+      label: cost ? w.cost : w.details,
       ...(cost ? { value: cost.value } : {}),
       ...(more ? { panel: <EntryDetails d={rest} /> } : {}),
     });
@@ -45,7 +62,7 @@ export function mealDoors(
 }
 
 /** The open box's details: the numbers as tiles, then the lines, then where it comes from. */
-export function EntryDetails({ d }: { d: Details }) {
+export function EntryDetails({ d }: { d: BoxDetails }) {
   return (
     <div className="k-stack g2 k-details">
       {d.stats.length > 0 && (

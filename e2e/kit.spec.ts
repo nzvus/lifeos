@@ -16,6 +16,7 @@ const SECTIONS = [
   "numeri",
   "stati-nuovi",
   "ogni-quanto",
+  "pasto-box",
 ];
 const OPEN = ["altro", "conferma", "perche", "toast", "unisci", "aggiungi"];
 

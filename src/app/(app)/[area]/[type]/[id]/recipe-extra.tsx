@@ -7,7 +7,7 @@
  * (its Composer, PAT-62); then its Famiglia (variants, MOD-21, ADR-0060). «Parti da», «Variante»
  * and Archivia are the page's verbs (PAT-16, PAT-17, PAT-19).
  */
-import { Box, energyStrip, F, List, NutrientsL0 } from "@lifeos/kit";
+import { Box, F, List, MealBox } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
 import { readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
@@ -17,19 +17,11 @@ import {
   readFoodEstimates,
   readRecipeChoices,
 } from "@/core/food/catalog";
-import { costWords, entryCost } from "@/core/food/cost";
-import { mealDoors } from "@/features/day/meal-doors";
-import { OpenBox } from "@/features/day/OpenBox";
-import {
-  mealFoods,
-  mealKinds,
-  mealNutrients,
-  mealTotals,
-} from "@/features/food/composer";
-import { linesScore } from "@/features/food/lines-score";
 import { mealPage } from "@/features/library/library";
+import { MealFoods } from "@/features/library/MealFoods";
 import { common } from "@/i18n/common";
 import { food } from "@/i18n/food";
+import { mealBox } from "../../../oggi/elenco/meal-box";
 import type { Build } from "./extras";
 
 const w = food.meal;
@@ -47,75 +39,20 @@ export const recipeExtra: Build = async (db, owner, id) => {
     readMicroTargets(db, owner, today),
   ]);
   const by = new Map(foods.map((f) => [f.key, f]));
-  const lines = recipe.parts;
-  // One porzione as the day would draw it once logged: the same builders as the composer's.
-  const l0 = page.estimate
-    ? mealNutrients(page.totals)
-    : mealNutrients(mealTotals(lines, by), mealKinds(lines, by), mealFoods(lines, by));
-  // Judged as the day judges a logged meal (`mealScore`): each food with all its estimates.
-  const used = lines.flatMap((l) => {
-    const f = by.get(l.key);
-    return f ? [{ line: l, food: f }] : [];
-  });
   const estimates = await readFoodEstimates(
     db,
     owner,
-    used.flatMap((u) => (u.food.foodId ? [u.food.foodId] : [])),
+    recipe.parts.flatMap((l) => {
+      const f = by.get(l.key);
+      return f?.foodId ? [f.foodId] : [];
+    }),
   );
-  const score = page.estimate
-    ? undefined
-    : linesScore(
-        used.map((u) => ({
-          quantity: u.line.quantity,
-          values: u.food.per100,
-          estimates: u.food.foodId ? estimates.get(u.food.foodId) : undefined,
-        })),
-        null,
-        targets,
-        micros,
-        null,
-        null,
-        weights?.["food"],
-      );
-  const cost = costWords(
-    entryCost(
-      used.map((u) => ({
-        quantity: u.line.quantity,
-        values: u.food.per100,
-        name: u.food.name,
-      })),
-    ),
-  );
-  const doors = mealDoors(
-    l0,
-    {
-      stats: cost ? [{ label: common.doors.cost, value: cost }] : [],
-      lines: page.parts.map((p) => ({ label: p.name, value: p.quantity })),
-      foot: "",
-    },
-    <List label={w.foods}>
-      {page.parts.map((p, i) => (
-        <Box
-          key={i}
-          density="row"
-          rail={false}
-          entry={{
-            fam: "food",
-            of: Object.keys(p.of).length > 0 ? p.of : { kind: "ingredient" },
-            title: p.name,
-            value: F.num(Number(p.quantity), p.unit),
-            ...(p.brand ? { meta: p.brand } : {}),
-            ...(p.href ? { href: p.href, hrefLabel: "Apri " + p.name } : {}),
-          }}
-        />
-      ))}
-    </List>,
-  );
+  const box = mealBox(recipe, by, { targets, micros, estimates, weights });
   return {
     meta: w.eaten(page.uses),
     first: (
       <div className="k-stack g3">
-        <OpenBox
+        <MealBox
           startOpen
           entry={{
             fam: "food",
@@ -123,15 +60,13 @@ export const recipeExtra: Build = async (db, owner, id) => {
             title: page.estimate ? w.whole : w.serving,
             value: F.num(page.totals["kcal"] ?? 0, "kcal"),
             ...(page.estimate ? { meta: "stima" } : {}),
-            ...(score ? { score } : {}),
-            strip: energyStrip(l0),
+            ...(box.score ? { score: box.score } : {}),
           }}
-          doors={doors}
-        >
-          <div className="k-slot-l0">
-            <NutrientsL0 data={l0} />
-          </div>
-        </OpenBox>
+          data={box.data}
+          labels={common.doors}
+          details={box.details}
+          foods={<MealFoods parts={box.parts} />}
+        />
         {page.estimate && <p className="k-help">{w.estimate}</p>}
         <div className="k-line g2 wrap">
           <a className="k-btn primary" href={"/aggiungi/pasto?pasto=" + id}>

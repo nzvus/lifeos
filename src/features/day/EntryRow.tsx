@@ -10,15 +10,15 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import {
   Box,
-  energyStrip,
+  EntryDetails,
   F,
-  NutrientsL0,
+  MealBox,
   type BoxAct,
   type BoxEntry,
   type NutrientsData,
 } from "@lifeos/kit";
+import { common } from "@/i18n/common";
 import type { Details } from "./details";
-import { EntryDetails, mealDoors } from "./meal-doors";
 import type { Status } from "./filter";
 import { stepServings } from "./servings";
 
@@ -58,8 +58,6 @@ export function EntryRow({
   onServings?: (servings: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  // One door open at a time; a second tap on it shuts it («Oggi a livelli»).
-  const [door, setDoor] = useState<string | null>(null);
   // Shown at once, the server's value when it comes back (optimistic, UI-59).
   const [served, setServed] = useState(entry.servings ?? null);
   useEffect(() => setServed(entry.servings ?? null), [entry.servings]);
@@ -143,6 +141,46 @@ export function EntryRow({
               ]
             : [];
 
+  // Opened: the multiplier and Elimina first, at the top (FOOD-38, FOOD-47); deleting is
+  // also a swipe to the left.
+  const serveRow = (
+    <div className="k-line between k-serve">
+      {served !== null && onServings ? (
+        <span className="k-line g2" role="group" aria-label="Porzioni">
+          <button
+            type="button"
+            className="k-btn act"
+            aria-label={"Meno porzioni di " + entry.title}
+            onClick={() => serve(-1)}
+          >
+            −
+          </button>
+          <span className="k-num" aria-live="polite">
+            {"×\u00a0" + F.input(Number(served), 2)}
+          </span>
+          <button
+            type="button"
+            className="k-btn act"
+            aria-label={"Più porzioni di " + entry.title}
+            onClick={() => serve(1)}
+          >
+            +
+          </button>
+        </span>
+      ) : (
+        <span />
+      )}
+      <button
+        type="button"
+        className="k-btn act danger"
+        aria-label={"Elimina " + entry.title}
+        onClick={() => onIntent("remove")}
+      >
+        Elimina
+      </button>
+    </div>
+  );
+
   return (
     <div
       className={"k-swipe" + (dx !== 0 ? " moving" : "")}
@@ -162,72 +200,37 @@ export function EntryRow({
         Elimina
       </span>
       <div className="over" style={{ transform: dx ? `translateX(${dx}px)` : undefined }}>
-        <Box
-          entry={entry.l0 ? { ...entry, strip: energyStrip(entry.l0) } : entry}
-          density={density}
-          rail={rail}
-          mode={mode}
-          {...(onRail ? { onRail } : {})}
-          acts={acts}
-          // Every box opens (the boards: «si apre come ogni riquadro»): a meal on its L1, all on their details.
-          {...(entry.l0 || entry.details
-            ? {
-                expanded: open,
-                onToggle: () => setOpen((o) => !o),
-                doors: mealDoors(entry.l0, entry.details),
-                door,
-                onDoor: (k: string) => setDoor((d) => (d === k ? null : k)),
-              }
-            : {})}
-        >
-          {/* Opened: the multiplier and Elimina first, at the top (FOOD-38, FOOD-47); deleting
-              is also a swipe to the left. */}
-          {open && (
-            <div className="k-line between k-serve">
-              {served !== null && onServings ? (
-                <span className="k-line g2" role="group" aria-label="Porzioni">
-                  <button
-                    type="button"
-                    className="k-btn act"
-                    aria-label={"Meno porzioni di " + entry.title}
-                    onClick={() => serve(-1)}
-                  >
-                    −
-                  </button>
-                  <span className="k-num" aria-live="polite">
-                    {"×\u00a0" + F.input(Number(served), 2)}
-                  </span>
-                  <button
-                    type="button"
-                    className="k-btn act"
-                    aria-label={"Più porzioni di " + entry.title}
-                    onClick={() => serve(1)}
-                  >
-                    +
-                  </button>
-                </span>
-              ) : (
-                <span />
-              )}
-              <button
-                type="button"
-                className="k-btn act danger"
-                aria-label={"Elimina " + entry.title}
-                onClick={() => onIntent("remove")}
-              >
-                Elimina
-              </button>
-            </div>
-          )}
-          {/* Level 1: what the closed box showed before, the four thin bars; a voce with no
-              nutrients shows its details here, a meal keeps them behind its doors. */}
-          {open && entry.l0 && (
-            <div className="k-slot-l0">
-              <NutrientsL0 data={entry.l0} />
-            </div>
-          )}
-          {open && !entry.l0 && entry.details && <EntryDetails d={entry.details} />}
-        </Box>
+        {entry.l0 ? (
+          // A meal: the one box of every place (PAT-30); the day adds its porzioni and «Elimina».
+          <MealBox
+            entry={entry}
+            data={entry.l0}
+            labels={common.doors}
+            details={entry.details ?? null}
+            density={density}
+            rail={rail}
+            mode={mode}
+            {...(onRail ? { onRail } : {})}
+            acts={acts}
+            top={serveRow}
+          />
+        ) : (
+          <Box
+            entry={entry}
+            density={density}
+            rail={rail}
+            mode={mode}
+            {...(onRail ? { onRail } : {})}
+            acts={acts}
+            // Every box opens (the boards: «si apre come ogni riquadro») on its details.
+            {...(entry.details
+              ? { expanded: open, onToggle: () => setOpen((o) => !o), doors: [] }
+              : {})}
+          >
+            {open && serveRow}
+            {open && entry.details && <EntryDetails d={entry.details} />}
+          </Box>
+        )}
       </div>
     </div>
   );
