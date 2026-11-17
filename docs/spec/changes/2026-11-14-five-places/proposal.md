@@ -642,6 +642,20 @@
     exercises and sessions is almost missing, less than v1, and must reuse the voti of the other
     views, richer. His question: «come pensi?». Next: the exercises and schede rows of
     `target.md` (step 3, a Fable step) take these in; nothing built from them yet.
+57. **17 Nov, his words after merging #366: «merged, ap yc».** By the global «yc» rule this takes
+    every recommendation still open to him: the four planning picks of `target.md` §6, all (a) —
+    (1) «planned» has three shapes declared per type in the registry (a voce due · a time to hit
+    · an amount to reach); (2) an amount «al giorno» lives in the ritmo and Obiettivi reads it,
+    one truth (so §45's 2a, a goal «al giorno» on a food, is built as a ritmo of the shape «an
+    amount to reach»); (3) sveglia is a ritmo «a time to hit», changed for one day with «Questa
+    volta»; (4) pesata and misure are proposed as ritmi by the app (MOD-34), accepted with one
+    tap. Spec only: nothing built; the model delta (MOD-30…36, PL-) is written when the Piano
+    rows of the target tables are drawn. Not taken: deleting the dead files and Q-25, which are
+    deletes and outside «yc». Undo: reply (b) on any of the four; this paragraph changes.
+58. **17 Nov, «ap»: exercises, schede and the session drafted** as `target.md` §7 (today, his
+    §56 notes against TR-, the three levels, five questions with Claude's pick first). Spec only;
+    by Opus, not Fable (cost, model-per-step); the gym's photos and `Gym.tsx` not opened, so his
+    note (1) is not checked yet. Undo: delete §7.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
