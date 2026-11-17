@@ -158,3 +158,71 @@ never by a new screen (MOD-02).
 4. **Pesata and misure.** (a) proposed as ritmi by the app from what he already does (MOD-34),
    accepted with one tap *(recommended)* · (b) only made by hand.
 
+
+## 7. Exercises, schede and the session (draft by Claude, 17 Nov, his to settle)
+
+His notes of 16 Nov (proposal §56). Read for this draft: `domains/training.md` whole, the
+registry entries (`core/kinds/catalog.ts`), `core/training/read.ts` and `write.ts` (types),
+`exercise-extra.tsx`, `routine-extra.tsx`, `shelves.tsx` and `Library.tsx` by grep,
+`features/progress/period.ts` by grep. **Not opened:** the gym and session photos, `Gym.tsx`
+(791 lines) and its parts, `advice.ts` beyond its header, his data. So §7.1 is fact from code;
+his first note (the proposal «based only on the first session») is not checked yet.
+
+### 7.1 Today
+| what | where it is drawn | shows | opens |
+|---|---|---|---|
+| esercizio, row | Corpo · Elenco «Esercizi» (`Library.tsx`, `Box` row) | name · uses or best e1RM | its page |
+| esercizio, page | `ObjectPage` + `exercise-extra.tsx` | sessions as hand-made `k-line` text «10×40, 8×40», best e1RM, a trend sentence, «Usato in» rows | sessions open nothing |
+| esercizio, in the gym | `Gym.tsx` card + `gym-parts.tsx` | obiettivo, andamento, l'ultima volta, a row per set | — |
+| esercizio, settings | `ExerciseSettings.tsx`, a link inside the gym | rest and setup, two steppers | — |
+| scheda, row | Elenco «Schede» (`shelves.tsx`) | name · uses | its page |
+| scheda, page | `routine-extra.tsx` | «Inizia», «Cambia gli esercizi», its exercises as rows «1. Squat» | each exercise's page |
+| sessione, on the day | `EntryRow` → `Box` | skyline + voto, criteria open | the session page |
+| Andamento | `period.ts` | sessions, working sets, minutes per week | — |
+
+What an esercizio knows (catalog values): `pattern` (one of the guides), `equipment`,
+`unilateral` (yes/no), `muscleGroups` (text, main first), `kind`, `restS`, `setupS`. The registry
+declares only `guide`: the rest is read by `core/training`, so the generated form and page
+cannot show or edit them (MOD-01 broken for this type).
+
+### 7.2 His notes against the spec
+| his note (§56) | the spec today | the gap |
+|---|---|---|
+| (4) increments: plates are not any weight | TR-02: 2,5 kg from 20 kg, else 1 kg; dumbbells by the rack | one global step; not his gym's real steps per exercise |
+| (4) one side at a time, or both sides with the load split in two | TR-01 side sx/dx; TR-02 «totale · per manubrio · per lato» as typed | `unilateral` is yes/no; «split in two» is a typing choice per set, not a fact of the exercise |
+| (4) muscle groups | TR-03, TR-25 read `muscleGroups` | a free text, no primary/secondary weight on the page, not editable from the app |
+| (4) warm-ups how, when, how much | TR-03 generated ramp | not shown on the exercise, not set per exercise |
+| (4) rest per exercise | TR-10…TR-13 (learnt, then defaults) | set only inside the gym; its source not on the exercise |
+| (4) adjusted in the session to the moment | TR-26 context, TR-33 readiness | partial; nothing changes the plan for the day except readiness |
+| (1) sets and reps from the first session only, sometimes absurd | TR-30/31: the last two sessions | to check on his data (not done) |
+| (1) progress measures strange | TR-20…24 | TR-20 comparable and TR-23 records not built; TR-21 adds RIR |
+| (7) Andamento almost missing | TR-24 trend, TR-50 voto | Andamento shows counts only: no per-exercise trend, no voto over time |
+| (6) periodisation of groups of blocks | PL-, ciclo (MOD-33) | a ciclo repeats steps; no phases (e.g. 4 weeks build, 1 light) |
+
+### 7.3 Target — the same three levels as §2
+| type | row value | doors when open | children (MOD-21) | form | verbs |
+|---|---|---|---|---|---|
+| esercizio | best e1RM or the last top set | Andamento (trend chart, records, comparable) · Carico (kind, steps, sides) · Muscoli (primary · secondary) · Riscaldamento · Recupero · Sessioni (each a row) · Usato in | its varianti | `ObjectForm` from the registry, every field above declared | crea · parti da · variante · unisci · archivia |
+| scheda | n esercizi · last done | Esercizi (each an esercizio row whose value is the sets × reps planned) · Volume per muscle (TR-25 fascia) · Durata (TR-37) · Sessioni | its varianti | `Composer` (the one editor of lines) | crea · parti da · variante · unisci · archivia · inizia |
+| sessione (voce) | voto | the same doors as its scheda, plus each exercise's sets done vs proposed, context (TR-26) | — | the gym (PAT-63) | fatto · riprendi · salva nella scheda · elimina |
+
+The gym itself (his notes 2 and 5) is a design he judges on photos: not drafted here; it comes
+after he settles 7.4, shown one screen at a time (design.md rules 1–2), with the layout check
+of `e2e/layout.ts` run on it (his «un controllo obbligatorio»: it exists for 5 pages; the gym
+is not one of them).
+
+### 7.4 His to settle (Claude's pick first)
+1. **The exercise's facts move into the registry** (pattern, equipment, muscles, sides, steps,
+   rest, setup, warm-up), so its form and page are generated. (a) yes *(recommended: MOD-01;
+   ends the one-off settings link)* · (b) keep them in `core/training` and add a page section.
+2. **Load steps.** (a) per exercise, defaulting from its equipment (bilanciere 2,5 kg, manubri
+   the rack, macchina 5 kg / its own, cavi 2,5) and editable *(recommended)* · (b) one list per
+   gym, chosen per exercise.
+3. **Sides.** (a) three values: both together · one side at a time (each side its own set, TR-13)
+   · both, load per side (the total = 2 × typed) *(recommended: his three cases)* · (b) keep
+   yes/no and the per-set typing.
+4. **Muscles.** (a) a primary and up to three secondary from a fixed list, secondary counted
+   × 0,5 as TR-25 already does *(recommended)* · (b) free text as now.
+5. **Order of work.** (a) first check his note (1) on his data and fix what is wrong (a bug,
+   no design); then 1–4 as one model change; then the exercise box (7.3) in the Elenco; then
+   the gym on photos; then Andamento *(recommended)* · (b) the gym first.

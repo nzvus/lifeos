@@ -652,6 +652,10 @@
     tap. Spec only: nothing built; the model delta (MOD-30…36, PL-) is written when the Piano
     rows of the target tables are drawn. Not taken: deleting the dead files and Q-25, which are
     deletes and outside «yc». Undo: reply (b) on any of the four; this paragraph changes.
+58. **17 Nov, «ap»: exercises, schede and the session drafted** as `target.md` §7 (today, his
+    §56 notes against TR-, the three levels, five questions with Claude's pick first). Spec only;
+    by Opus, not Fable (cost, model-per-step); the gym's photos and `Gym.tsx` not opened, so his
+    note (1) is not checked yet. Undo: delete §7.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
