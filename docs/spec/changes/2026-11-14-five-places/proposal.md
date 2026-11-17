@@ -614,6 +614,34 @@
     pasto with how much of the cibo it has as its value, and a tap opens the pasto (before: plain
     lines that opened nothing). A pasto's «Cibi» were made rows with B1 (§48), so B4's two hand
     lists are gone. Undo: `git revert`.
+56. **16 Nov, his notes on the gym, the Elenco and Andamento (verbatim, written by him at the
+    end of `inbox.md`, moved here 17 Nov since this change is open):**
+    > [07:32, 16/11/2026]: Mi pare che il calcolo delle serie e rep da fare si basi solo sulla prima scorsa, oltre che certe volte essere assurdo. Anche per i progressi, le misurazioni sono strane
+    > [07:34, 16/11/2026]: Inoltre come ti avevo gia detto per il resto dell'app, il design della gym session è fatto male, cose non allineate e centrate, buttate una sopra laltra, senza studio delle priorità e degli spazi e delle dimensioni e del padding. Questa cosa dovrebbe essere un controllo obligatorio ogni volta che si dusegna qualcosa dell app
+    > [07:36, 16/11/2026]: Inoltre, hai fatto un refactoring nell elenco per ingrediwnti e pasti, ma le altre xose nell elenco?
+    > [07:37, 16/11/2026]: Va tutto conformato
+    > [07:39, 16/11/2026]: Gli esercizi oltretutto vanno pensati bene, per quelli che hanno tonnellaggi veri e propri, si deve mettere la possibilità di poter specificare gli incrementi (in palestra non si possono aggiungere pesi a caso) e se sono asimetrici (vanno compiuti un lato alla volta) o simmetrici ma il peso si divide comunque in 2 e non è unico
+    > [07:40, 16/11/2026]: Va pensato ai gruppi muscolari toccati
+    > [07:41, 16/11/2026]: I riscaldamenti come e quando e quanto
+    > [07:41, 16/11/2026]: Pause consigliate a seconda degli esercizi
+    > [07:41, 16/11/2026]: E queste cose si aggiustano in sessione a seconda del contesto di quel momento
+    > [07:41, 16/11/2026]: E poi la sessione
+    > [07:42, 16/11/2026]: Va rifatta, anche qui lo studio del design di prima
+    > [07:44, 16/11/2026]: E la pianificazione tocca molto anche loro, per quanto la periodizzazione degli aggregati di blocchi (combinazioni di pasti o sessioni o singoli esercizi i ingredienti nella linea tel tempo, pianjficati insieme)
+    > [07:45, 16/11/2026]: L andamento degli esercizi e dell3 sessioni è praticamente inesistente, persino piu di v1
+    > [07:46, 16/11/2026]: Anche andamento va aggiustato e conformato e uniformato
+    > [07:47, 16/11/2026]: Riprebdendo in tutto e per tutto i voti nelle altre visualizzazioni, ma resi piu complessi e con piu dati o non so, come pensi?
+    What they ask, in short (Claude's reading, his to correct): (1) the next sets and reps come
+    from the first session only, sometimes absurd; progress measures look wrong; (2) the gym
+    session's layout is not aligned, spaced or ordered by priority — and a layout check must be
+    mandatory on every design; (3) B1–B2 conformed foods and meals in the Elenco, the other kinds
+    must follow; (4) an exercise needs its load steps (real plates), one side at a time or the
+    load split in two, muscle groups, warm-ups (how, when, how much), rest per exercise, all
+    adjusted in the session to the moment; (5) the session to redo with that design study;
+    (6) planning must cover them too, with periodisation of groups of blocks; (7) Andamento of
+    exercises and sessions is almost missing, less than v1, and must reuse the voti of the other
+    views, richer. His question: «come pensi?». Next: the exercises and schede rows of
+    `target.md` (step 3, a Fable step) take these in; nothing built from them yet.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
