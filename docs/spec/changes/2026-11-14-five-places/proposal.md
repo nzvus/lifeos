@@ -666,6 +666,21 @@
     «every set at the top», which his own drop makes impossible once the plan follows it (the
     plan would stay at the top for ever). After a step, the last set aims at the bottom of the
     range, the first higher by his drop. Undo: `git revert`; the rule is TR-30.
+61. **17 Nov, his words:** «do not wait for ci, i repeted this to you many times. btw i said "ap
+    yc" so you should not stop. in fact now i have to go so continue». Logged in `RULES_LOG.md`.
+62. **17 Nov, «ap»: an esercizio's facts are registry fields** (§7.4 q1–q4; same branch; photos
+    `LIFEOS/review/2026-11-17/exercise/index.html`). Its page now shows and edits in place:
+    Movimento, Attrezzo, Lati (insieme · un lato alla volta · insieme, carico per lato), Muscoli,
+    Salto di carico, Recupero, Posizionamento, Riscaldamento, Guida. The gym reads them: the
+    load step is his own, else from the equipment (manubri by pairs, macchina 5 kg, cavi 2,5 kg,
+    bilanciere as TR-02); «Riscaldamento: no» proposes no warm-up sets. No migration: the old
+    yes/no «un lato alla volta» is read as Lati when Lati is empty, and equipment saved in
+    Italian («manubri») is read as its key. Decided by Claude: the keys of Lati; macchina 5 kg
+    and cavi 2,5 kg as defaults. **Not built, open:** «carico per lato» does not yet change how
+    a set is typed in the gym (the gym's redesign); Muscoli is still the stored text («abs,
+    obliques»), a picker of one primary and three secondary is a new control he must see;
+    «Recupero e posizionamento» inside the gym stays until the gym is redone. Found: a React
+    key warning on every object page in dev, older than this change. Undo: `git revert`.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { stepFor } from "../engines/training";
 import { DEFAULT_TIMING, type Timing } from "../engines/training";
 import { adviseExercise } from "./advice";
 import { hardSetsBefore, type HistorySession, type HistorySet } from "./history";
@@ -181,7 +182,7 @@ describe("dumbbells go by the rack's pairs", () => {
     const a = adviseExercise({
       pattern: "horizontal_press",
       unilateral: false,
-      dumbbells: true,
+      step: (kg) => stepFor({ equipment: "dumbbell" }, kg),
       history: top,
       timing,
     });

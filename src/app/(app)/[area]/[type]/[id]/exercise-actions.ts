@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { GUIDES, type GuideKey } from "@/core/engines/training";
+import { GUIDES, SIDES, type GuideKey } from "@/core/engines/training";
 import { recipeName } from "@/core/food/recipes";
 import { createExercise, EQUIPMENT } from "@/core/training";
 import type { ExerciseFormState } from "@/features/library/ExerciseForm";
@@ -35,7 +35,7 @@ export async function saveExercise(
   const made = await createExercise(await getDb(), owner, name.name, {
     pattern,
     equipment,
-    unilateral: form["unilateral"] === "yes",
+    sides: SIDES.find((x) => x === form["sides"]) ?? "both",
   });
   if (made === "taken") return again({ name: "Hai già un esercizio con questo nome." });
   revalidatePath("/", "layout");

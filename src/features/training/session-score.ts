@@ -13,7 +13,7 @@ import { learnTiming, sessionParts, type ScoredExercise } from "@/core/engines/t
 import type { Owner } from "@/core/identity/owner";
 import type { WeightBook } from "@/core/account/weights";
 import { adviseExercise, readExercises, readTrainingHistory } from "@/core/training";
-import { sessionBox, usesDumbbells } from "./present";
+import { sessionBox, stepOf } from "./present";
 
 type Advice = ReturnType<typeof adviseExercise>;
 
@@ -84,7 +84,7 @@ export async function readSessionScores(
       const a = adviseExercise({
         pattern: e?.pattern ?? null,
         unilateral: e?.unilateral ?? false,
-        dumbbells: usesDumbbells(c.item?.name ?? "", e?.equipment ?? null),
+        step: stepOf(c.item?.name ?? "", e),
         history: c.item ? (history.byExercise.get(c.item.id) ?? []) : [],
         timing,
         settings: { restS: e?.restS ?? undefined, setupS: e?.setupS ?? undefined },

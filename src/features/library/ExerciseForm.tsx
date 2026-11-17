@@ -1,48 +1,21 @@
 "use client";
 /**
  * «Nuovo esercizio» (V-07): its name, its movement (the guide gym mode
- * progresses it by), its equipment, one side at a time or not. Saved by
+ * progresses it by), its equipment, how its sides work (target.md §7.4). Saved by
  * the action the page passes; errors in words; what was typed kept.
  */
 import { useActionState } from "react";
 import { Field, PageHeader } from "@lifeos/kit";
+import { EQUIPMENT_WORDS, PATTERN_WORDS, SIDES_WORDS } from "@/i18n/training";
+
+const options = (w: Record<string, string>) =>
+  Object.entries(w).map(([value, label]) => ({ value, label }));
 
 export type ExerciseFormState = {
   errors: Record<string, string>;
   values: Record<string, string>;
   n: number;
 };
-
-export const MOVEMENTS: [string, string][] = [
-  ["horizontal_press", "Spinta orizzontale (panca, chest press)"],
-  ["vertical_press", "Spinta verticale (lento avanti)"],
-  ["horizontal_pull", "Tirata orizzontale (rematore, pulley)"],
-  ["vertical_pull", "Tirata verticale (lat machine, trazioni)"],
-  ["squat", "Squat"],
-  ["leg_press", "Leg press"],
-  ["lunge", "Affondi"],
-  ["hinge", "Stacchi, hip thrust"],
-  ["fly", "Croci"],
-  ["rear_fly", "Croci inverse"],
-  ["lateral_raise", "Alzate laterali"],
-  ["curl", "Curl bicipiti"],
-  ["triceps_extension", "Tricipiti"],
-  ["leg_curl", "Leg curl"],
-  ["leg_extension", "Leg extension"],
-  ["calf_raise", "Polpacci"],
-  ["crunch", "Crunch, addominali"],
-  ["leg_raise", "Sollevamento gambe"],
-  ["plank", "Plank (a tempo)"],
-  ["run", "Corsa (a tempo)"],
-  ["bike", "Bici (a tempo)"],
-];
-export const EQUIPMENT_WORDS: [string, string][] = [
-  ["barbell", "Bilanciere"],
-  ["dumbbell", "Manubri"],
-  ["cable", "Cavi"],
-  ["machine", "Macchina"],
-  ["bodyweight", "Corpo libero"],
-];
 
 export function ExerciseForm({
   action,
@@ -51,7 +24,7 @@ export function ExerciseForm({
 }) {
   const [state, submit, pending] = useActionState(action, {
     errors: {},
-    values: { unilateral: "no" },
+    values: { sides: "both" },
     n: 0,
   });
   const v = state.values;
@@ -79,7 +52,7 @@ export function ExerciseForm({
           type="choice"
           defaultValue={v["pattern"] ?? ""}
           help="Decide serie, ripetizioni e recuperi proposti. Senza: ripete l’ultima volta."
-          options={MOVEMENTS.map(([value, label]) => ({ value, label }))}
+          options={options(PATTERN_WORDS).filter((o) => o.value !== "other")}
         />
         <Field
           name="equipment"
@@ -87,18 +60,15 @@ export function ExerciseForm({
           type="choice"
           defaultValue={v["equipment"] ?? ""}
           help="Con i manubri il carico si scrive per manubrio."
-          options={EQUIPMENT_WORDS.map(([value, label]) => ({ value, label }))}
+          options={options(EQUIPMENT_WORDS)}
         />
         <Field
-          name="unilateral"
-          label="Un lato alla volta"
+          name="sides"
+          label="Lati"
           type="choice"
           required
-          defaultValue={v["unilateral"] ?? "no"}
-          options={[
-            { value: "no", label: "No" },
-            { value: "yes", label: "Sì" },
-          ]}
+          defaultValue={v["sides"] ?? "both"}
+          options={options(SIDES_WORDS)}
         />
         {e["form"] && (
           <p className="k-help" role="alert">

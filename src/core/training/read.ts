@@ -14,7 +14,13 @@ import {
   entries,
   trainingSets,
 } from "../db/schema";
-import type { LastSet } from "../engines/training";
+import {
+  equipmentOf,
+  sidesOf,
+  type Equipment,
+  type LastSet,
+  type Sides,
+} from "../engines/training";
 import { addDays, type IsoDate } from "../engines/time";
 import { ownedBy, type Owner } from "../identity/owner";
 import { ALIASES } from "../catalog/merge";
@@ -23,8 +29,15 @@ export type ExerciseChoice = {
   id: string;
   name: string;
   pattern: string | null;
-  equipment: string | null;
+  /** Its equipment as a key (older Italian words read as their key, target.md §7.4). */
+  equipment: Equipment | null;
+  /** How its sides work; `unilateral` = one side at a time (TR-13), kept for its readers. */
+  sides: Sides;
   unilateral: boolean;
+  /** His own load step in kg, when set (TR-02); else `stepFor` uses the equipment. */
+  loadStepKg: number | null;
+  /** False: no warm-up sets proposed (TR-03). */
+  warmup: boolean;
   /** Its own rest and setup delay in seconds, when set. */
   restS: number | null;
   setupS: number | null;
@@ -81,6 +94,9 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
           "pattern",
           "equipment",
           "unilateral",
+          "sides",
+          "loadStepKg",
+          "warmup",
           "restS",
           "setupS",
           "muscleGroups",
@@ -96,8 +112,12 @@ export async function readExercises(db: Db, owner: Owner): Promise<ExerciseChoic
       id: i.id,
       name: i.name,
       pattern: v(i.id, "pattern")?.text ?? null,
-      equipment: v(i.id, "equipment")?.text ?? null,
-      unilateral: v(i.id, "unilateral")?.bool === true,
+      equipment: equipmentOf(v(i.id, "equipment")?.text),
+      ...((sides) => ({ sides, unilateral: sides === "one_at_a_time" }))(
+        sidesOf(v(i.id, "sides")?.text, v(i.id, "unilateral")?.bool === true),
+      ),
+      loadStepKg: numOf(v(i.id, "loadStepKg")?.num),
+      warmup: v(i.id, "warmup")?.bool !== false,
       restS: numOf(v(i.id, "restS")?.num),
       setupS: numOf(v(i.id, "setupS")?.num),
       muscles: (v(i.id, "muscleGroups")?.text ?? "")

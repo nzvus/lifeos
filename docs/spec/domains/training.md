@@ -17,8 +17,12 @@ Ledger fold: `audit-2026-11/fold-training.md`. Sources: **E6** `v2/engines.md` �
 - **TR-02** Loads are typed as lifted: «totale», «per manubrio» (× 2 shown), «per lato»; the
   stored load is always the total, with the text as typed and a «circa» flag. Load step:
   2,5 kg from 20 kg, else 1 kg. Dumbbells step by the rack's next pair: 1 kg a dumbbell under
-  10 kg, 2 kg from 10 kg (the total moves by twice that). [TRAIN-19, TRAIN-27, TRAIN-31, E6]
-  — Today: built (`schema/facts.ts` `loadEntry`, `progression.ts` `dumbbellStep`).
+  10 kg, 2 kg from 10 kg (the total moves by twice that). An exercise's own «Salto di carico»
+  wins; else by its equipment: manubri as above, macchina 5 kg, cavi 2,5 kg, anything else the
+  default (`target.md` §7.4, his «ap yc» of 17 Nov). Its «Lati»: insieme · un lato alla volta
+  (TR-13) · insieme with the load typed per side. [TRAIN-19, TRAIN-27, TRAIN-31, E6]
+  — Today: built (`schema/facts.ts` `loadEntry`, `equipment.ts` `stepFor`, `sidesOf`); «carico
+  per lato» not yet read by the gym's set form.
 - **TR-03** **Warm-ups are generated**, on by default, skippable: an exercise gets a ramp when
   no exercise done before it today had its primary muscle group as primary, and its first
   work load ≥ 2 × the load step. The ramp is his own when ≥ 5 past ramps of the same length

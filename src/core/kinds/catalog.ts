@@ -10,6 +10,7 @@
  */
 import { z } from "zod";
 import { FAMILIES, fieldSchema } from "./kind";
+import { EQUIPMENT, GUIDES, SIDES } from "../engines/training";
 import { parseRecurrence } from "./recurrence";
 
 export const AREAS = ["Corpo", "Cibo", "Oggi", "Mente", "Soldi"] as const;
@@ -192,7 +193,19 @@ const DECLARED: CatalogTypeInput[] = [
     hue: "train",
     storage: { table: "catalog_items", catalog: "exercise" },
     family: { rule: "variants" },
-    fields: [{ key: "guide", type: "text" }],
+    // What gym mode reads of it (target.md §7.4, his «ap yc» of 17 Nov): declared here so its
+    // page shows and edits them (MOD-01); empty = learnt or from the equipment (TR-02, TR-10).
+    fields: [
+      { key: "pattern", type: "choice", choices: [...Object.keys(GUIDES), "other"] },
+      { key: "equipment", type: "choice", choices: [...EQUIPMENT] },
+      { key: "sides", type: "choice", choices: [...SIDES] },
+      { key: "muscleGroups", type: "text" },
+      { key: "loadStepKg", type: "number", unit: "kg", min: 0.25, max: 20 },
+      { key: "restS", type: "integer", unit: "s", min: 0, max: 600 },
+      { key: "setupS", type: "integer", unit: "s", min: 0, max: 60 },
+      { key: "warmup", type: "boolean" },
+      { key: "guide", type: "text" },
+    ],
     capture: "form",
     verbs: [...ALL, "variant"],
     list: NAME,

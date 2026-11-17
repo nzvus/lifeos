@@ -4,6 +4,7 @@
  * suggested rest of an exercise (E6 `restAfter` on its guide's role), and
  * the step of its load stepper. Numbers through `F` (content.md).
  */
+import { stepFor, type Equipment } from "@/core/engines/training";
 import { F, type BoxEntry, type State } from "@lifeos/kit";
 import {
   dumbbellStep,
@@ -83,6 +84,18 @@ export function kgStep(kg: string, perDumbbell = false): number {
 /** Whether an exercise is timed (a plank, a run): its sets are seconds, not reps. */
 export function timed(pattern: string | null): boolean {
   return guideOf(pattern)?.progression === "time";
+}
+
+/**
+ * One tap of load for an exercise (TR-02, target.md §7.4): his own step, else its equipment —
+ * with no equipment set, dumbbells are still read from its name («Curl manubri»).
+ */
+export function stepOf(
+  name: string,
+  e: { equipment: Equipment | null; loadStepKg: number | null } | undefined,
+): (kg: number) => number {
+  const equipment = e?.equipment ?? (usesDumbbells(name, null) ? "dumbbell" : null);
+  return (kg) => stepFor({ equipment, loadStepKg: e?.loadStepKg ?? null }, kg);
 }
 
 /** Whether an exercise is done with dumbbells, from its equipment or its name. */

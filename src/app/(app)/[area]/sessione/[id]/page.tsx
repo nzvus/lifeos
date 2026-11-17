@@ -16,10 +16,8 @@ import { localParts, logicalDay } from "@/core/engines/time";
 import { score, SESSION } from "@/core/engines/judgements";
 import {
   DEFAULT_RAMP,
-  dumbbellStep,
   learnRamp,
   learnTiming,
-  loadStep,
   missingVolume,
   opensGroup,
   REST_FLOOR,
@@ -50,6 +48,7 @@ import {
   sessionBox,
   restSourceText,
   trendText,
+  stepOf,
   usesDumbbells,
 } from "@/features/training/present";
 import {
@@ -151,10 +150,11 @@ export default async function GymPage({
     const p = e?.pattern ?? null;
     const h = c.item ? (history.byExercise.get(c.item.id) ?? []) : [];
     const dumbbells = usesDumbbells(c.item?.name ?? "", e?.equipment ?? null);
+    const step = stepOf(c.item?.name ?? "", e);
     const a = adviseExercise({
       pattern: p,
       unilateral: e?.unilateral ?? false,
-      dumbbells,
+      step,
       history: h,
       timing,
       settings: { restS: e?.restS ?? undefined, setupS: e?.setupS ?? undefined },
@@ -168,18 +168,20 @@ export default async function GymPage({
     const heaviest = others
       .filter((o) => musclesOf(o.item?.id).some((m) => muscles.includes(m)))
       .flatMap((o) => o.sets.filter((t) => !t.warmup).map((t) => Number(t.loadKg ?? 0)));
-    const warmups = c.sets.some((t) => !t.warmup)
-      ? []
-      : warmupSets({
-          workKg,
-          step: workKg === null ? 1 : dumbbells ? dumbbellStep(workKg) : loadStep(workKg),
-          ramp,
-          opens: opensGroup(
-            muscles[0] ?? null,
-            new Set(others.map((o) => musclesOf(o.item?.id)[0] ?? "")),
-          ),
-          heaviestToday: heaviest.length ? Math.max(...heaviest) : null,
-        }).map((w) => ({ reps: w.reps, loadKg: String(w.loadKg) }));
+    // TR-03; «Riscaldamento: no» on the exercise (target.md §7.4) proposes none.
+    const warmups =
+      c.sets.some((t) => !t.warmup) || e?.warmup === false
+        ? []
+        : warmupSets({
+            workKg,
+            step: workKg === null ? 1 : step(workKg),
+            ramp,
+            opens: opensGroup(
+              muscles[0] ?? null,
+              new Set(others.map((o) => musclesOf(o.item?.id)[0] ?? "")),
+            ),
+            heaviestToday: heaviest.length ? Math.max(...heaviest) : null,
+          }).map((w) => ({ reps: w.reps, loadKg: String(w.loadKg) }));
     scored.push(one);
     return {
       entryId: c.id,

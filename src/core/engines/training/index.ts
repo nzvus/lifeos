@@ -8,4 +8,5 @@ export * from "./expected";
 export * from "./duration";
 export * from "./score";
 export * from "./warmups";
+export * from "./equipment";
 export { median, ols, slope } from "./stats";
