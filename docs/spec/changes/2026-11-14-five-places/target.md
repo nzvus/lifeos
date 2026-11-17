@@ -166,7 +166,7 @@ registry entries (`core/kinds/catalog.ts`), `core/training/read.ts` and `write.t
 `exercise-extra.tsx`, `routine-extra.tsx`, `shelves.tsx` and `Library.tsx` by grep,
 `features/progress/period.ts` by grep. **Not opened:** the gym and session photos, `Gym.tsx`
 (791 lines) and its parts, `advice.ts` beyond its header, his data. So §7.1 is fact from code;
-his first note (the proposal «based only on the first session») is not checked yet.
+his first note is checked on made-up histories (7.5), not yet on his data.
 
 ### 7.1 Today
 | what | where it is drawn | shows | opens |
@@ -194,7 +194,7 @@ cannot show or edit them (MOD-01 broken for this type).
 | (4) warm-ups how, when, how much | TR-03 generated ramp | not shown on the exercise, not set per exercise |
 | (4) rest per exercise | TR-10…TR-13 (learnt, then defaults) | set only inside the gym; its source not on the exercise |
 | (4) adjusted in the session to the moment | TR-26 context, TR-33 readiness | partial; nothing changes the plan for the day except readiness |
-| (1) sets and reps from the first session only, sometimes absurd | TR-30/31: the last two sessions | to check on his data (not done) |
+| (1) sets and reps from the first session only, sometimes absurd | TR-30/31: reps and load from the **last** session only (the one before only for a step down); sets = the more of the last two | **confirmed, 7.5** |
 | (1) progress measures strange | TR-20…24 | TR-20 comparable and TR-23 records not built; TR-21 adds RIR |
 | (7) Andamento almost missing | TR-24 trend, TR-50 voto | Andamento shows counts only: no per-exercise trend, no voto over time |
 | (6) periodisation of groups of blocks | PL-, ciclo (MOD-33) | a ciclo repeats steps; no phases (e.g. 4 weeks build, 1 light) |
@@ -226,3 +226,19 @@ is not one of them).
 5. **Order of work.** (a) first check his note (1) on his data and fix what is wrong (a bug,
    no design); then 1–4 as one model change; then the exercise box (7.3) in the Elenco; then
    the gym on photos; then Andamento *(recommended)* · (b) the gym first.
+
+### 7.5 His note (1), checked 17 Nov (`adviseExercise`, made-up histories, no data of his)
+| he did | the app proposes next | why |
+|---|---|---|
+| curl 8–12: 10, 9, 8 × 14 kg | 9, 8, 7 × 14 kg | TR-30 puts the weakest set + 1 (9) on the **first** set, then TR-31 takes the drop off again: the drop counts twice, so the plan is below what he did |
+| press: 12, 11, 10 × 60, then 10, 9, 8 × 60 | 9, 8, 7 × 60 | only the last session counts for reps and load (his «solo sulla prima scorsa») |
+| press: six sessions of 10, 9, 8 × 60 | 9, 8, 7 × 60, for ever | the same double count: he never gets a plan above what he does |
+
+So the spec rule itself (TR-30 + TR-31) is wrong, not only the code. Proposed fix, his to pick
+(question 6): the first set aims at **his last first set at that load + 1 rep** (up to the top of
+the range), each next set loses his learnt drop; the load goes up when every set reached the top
+in **both** of the last two sessions (one good day is not enough); a session clearly worse than
+the one before (another context, TR-26) does not lower the next plan.
+
+6. **TR-30/31 fix** as just written. (a) yes, with a test per row of the table above
+   *(recommended: it is a formula, cheap to undo, and the table proves it)* · (b) another rule.
