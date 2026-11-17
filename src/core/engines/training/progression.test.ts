@@ -29,30 +29,55 @@ describe("guides", () => {
   });
 });
 
-describe("nextTarget: double progression (v1 ADR-0028)", () => {
+describe("nextTarget: double progression on the first set (TR-30, fixed 17 Nov)", () => {
   const pull = GUIDES.vertical_pull;
-  it("all working sets at the top: one load step up, back to the bottom", () => {
-    expect(nextTarget(pull, [set(12, "40"), set(12, "40"), set(12, "40")])).toEqual({
+  const curl = GUIDES.curl;
+  const top3 = [set(12, "40"), set(11, "40"), set(10, "40")];
+  it("first set at the top, none under the range, in both of the last two: one step up", () => {
+    expect(nextTarget(pull, top3, top3)).toEqual({
       reason: "add_load",
       sets: 3,
       reps: [8, 12],
       loadKg: "42.5",
     });
   });
-  it("not there yet: same load, one more rep on the weakest set; warm-ups ignored", () => {
-    expect(
-      nextTarget(pull, [set(10, "20", { warmup: true }), set(11, "40"), set(9, "40")]),
-    ).toEqual({
-      reason: "add_reps",
-      sets: 2,
-      reps: [10, 12],
+  it("one good day is not enough: at the top once, the load holds", () => {
+    expect(nextTarget(pull, top3, [set(10, "40"), set(9, "40")])).toMatchObject({
+      reason: "hold",
+      reps: [12, 12],
       loadKg: "40",
     });
+    expect(nextTarget(pull, top3)).toMatchObject({ reason: "hold", loadKg: "40" });
   });
-  it("sets at different loads: progress from the heaviest", () => {
+  it("§7.5 row 1: 10 · 9 · 8 → the first set aims at 11, never under what he did", () => {
+    expect(nextTarget(curl, [set(10, "14"), set(9, "14"), set(8, "14")])).toEqual({
+      reason: "add_reps",
+      sets: 3,
+      reps: [11, 12],
+      loadKg: "14",
+    });
+  });
+  it("§7.5 row 2: a worse day after a better one keeps the better as the reference", () => {
+    const better = [set(12, "60"), set(11, "60"), set(10, "60")];
+    const worse = [set(10, "60"), set(9, "60"), set(8, "60")];
+    expect(nextTarget(curl, worse, better)).toMatchObject({
+      reps: [12, 12],
+      loadKg: "60",
+    });
+  });
+  it("the reference is the first set at the heaviest load; warm-ups ignored", () => {
+    expect(
+      nextTarget(pull, [set(10, "20", { warmup: true }), set(11, "40"), set(9, "40")]),
+    ).toEqual({ reason: "add_reps", sets: 2, reps: [12, 12], loadKg: "40" });
     expect(nextTarget(pull, [set(10, "40"), set(9, "42.5")])).toEqual({
       reason: "add_reps",
       sets: 2,
+      reps: [10, 12],
+      loadKg: "42.5",
+    });
+  });
+  it("another load the session before: only the last session counts", () => {
+    expect(nextTarget(pull, [set(9, "42.5")], [set(12, "40")])).toMatchObject({
       reps: [10, 12],
       loadKg: "42.5",
     });
@@ -74,9 +99,10 @@ describe("nextTarget: double progression (v1 ADR-0028)", () => {
     const raise = GUIDES.leg_raise;
     expect(nextTarget(raise, [set(10, null), set(9, null)])).toMatchObject({
       reason: "add_reps",
-      reps: [10, 15],
+      reps: [11, 15],
     });
-    expect(nextTarget(raise, [set(15, null), set(15, null)])).toMatchObject({
+    const top = [set(15, null), set(14, null)];
+    expect(nextTarget(raise, top, top)).toMatchObject({
       reason: "add_load",
       loadKg: null,
     });
@@ -99,7 +125,8 @@ describe("nextTarget: gated by reps left (v1 ADR-0049)", () => {
   const fly = GUIDES.fly;
   const at = (reps: number, rir: number | null) => set(reps, "50", { rir });
   it("the top of the range at a sane effort adds load", () => {
-    expect(nextTarget(pull, [at(12, 2), at(12, 1), at(12, 1)])).toMatchObject({
+    const s = [at(12, 2), at(12, 1), at(12, 1)];
+    expect(nextTarget(pull, s, s)).toMatchObject({
       reason: "add_load",
       loadKg: "52.5",
     });
@@ -119,16 +146,16 @@ describe("nextTarget: gated by reps left (v1 ADR-0049)", () => {
     });
   });
   it("an isolation exercise's last set may go to failure", () => {
-    expect(
-      nextTarget(fly, [
-        set(15, "10", { rir: 2 }),
-        set(15, "10", { rir: 1 }),
-        set(15, "10", { rir: 0 }),
-      ]),
-    ).toMatchObject({ reason: "add_load" });
+    const s = [
+      set(15, "10", { rir: 2 }),
+      set(15, "10", { rir: 1 }),
+      set(15, "10", { rir: 0 }),
+    ];
+    expect(nextTarget(fly, s, s)).toMatchObject({ reason: "add_load" });
   });
   it("without reps left, as before", () => {
-    expect(nextTarget(pull, [at(12, null), at(12, null)])).toMatchObject({
+    const s = [at(12, null), at(12, null)];
+    expect(nextTarget(pull, s, s)).toMatchObject({
       reason: "add_load",
     });
     expect(nextTarget(pull, [at(10, null), at(9, null)])).toMatchObject({
@@ -172,12 +199,14 @@ describe("the session as a whole", () => {
       guide: GUIDES.horizontal_press,
       muscles: chest,
       last: [set(10, "60"), set(10, "60"), set(10, "60")],
+      before: [set(10, "60"), set(10, "60"), set(10, "60")],
     },
     {
       exercise: "row",
       guide: GUIDES.horizontal_pull,
       muscles: back,
       last: [set(12, "50"), set(12, "50"), set(12, "50")],
+      before: [set(12, "50"), set(12, "50"), set(12, "50")],
     },
   ];
   it("a muscle under the band gets one more set where the session trains it directly", () => {

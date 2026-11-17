@@ -90,7 +90,8 @@ export function adviseExercise(p: {
   const h = p.history;
   const last = h.at(-1)?.sets.map(asLast);
   const before = h.at(-2)?.sets.map(asLast);
-  const proposal = proposeSets(p.pattern, last, before, p.dumbbells === true).sets;
+  const plan = proposeSets(p.pattern, last, before, p.dumbbells === true);
+  const proposal = plan.sets;
   // A session cut short does not lower the next one: as many sets as the more of the last two.
   const most = Math.max(
     0,
@@ -109,8 +110,20 @@ export function adviseExercise(p: {
       s.sets.filter((x) => !x.warmup).map((x) => ({ reps: x.reps, kg: kgOf(x) })),
     ),
   );
-  const proposed = base.map((s, i) =>
+  const dropped = base.map((s, i) =>
     s.reps === null ? s : { ...s, reps: Math.max(1, s.reps - Math.round(drop * i)) },
+  );
+  // After a step up, «back to the bottom» (TR-30) is the LAST set at the bottom of the range:
+  // the first starts higher by his drop, never over the top (decided by Claude, 17 Nov).
+  const range = guideOf(p.pattern)?.reps;
+  const lastReps = dropped.at(-1)?.reps ?? null;
+  const firstReps = dropped[0]?.reps ?? null;
+  const lift =
+    plan.reason === "add_load" && range && lastReps !== null && firstReps !== null
+      ? Math.max(0, Math.min(range[0] - lastReps, range[1] - firstReps))
+      : 0;
+  const proposed = dropped.map((s) =>
+    s.reps === null ? s : { ...s, reps: s.reps + lift },
   );
   const role: Role = guideOf(p.pattern)?.role ?? "compound";
 
