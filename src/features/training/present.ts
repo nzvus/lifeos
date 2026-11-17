@@ -201,11 +201,11 @@ export function contextText(c: SessionContext): string {
   return parts.length ? "Prima: " + parts.join(" · ") : "";
 }
 
-/** The best e1RM (with RIR) of the working sets; null without a loaded set of 1–12 reps. */
+/** The best e1RM (TR-21, no RIR) of the working sets; null without a loaded set of 1–12 reps. */
 export function bestE1rm(sets: readonly LastSet[]): number | null {
   const all = sets
     .filter((x) => !x.warmup && x.reps !== null && x.loadKg !== null)
-    .map((x) => e1rm(x.reps!, Number(x.loadKg), x.rir ?? null))
+    .map((x) => e1rm(x.reps!, Number(x.loadKg)))
     .filter((v): v is number => v !== null);
   return all.length ? Math.max(...all) : null;
 }

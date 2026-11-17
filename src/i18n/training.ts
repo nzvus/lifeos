@@ -72,7 +72,12 @@ export const EXERCISE_HELP: Record<string, string> = {
 export const training = {
   exercise: {
     sessions: (n: number) => F.plural(n, "sessione", "sessioni"),
-    best: "e1RM migliore",
+    best: "Forza stimata",
+    maxLoad: "Carico massimo",
+    recordAt: (kg: string) => "Record a " + kg,
+    recordReps: "Più ripetizioni",
+    reps: (n: number) => F.plural(n, "ripetizione", "ripetizioni"),
+    recordsSoon: "I record arrivano dalla terza sessione.",
     log: "Sessioni",
     never: "Ancora mai fatto.",
     noSet: "nessuna serie",

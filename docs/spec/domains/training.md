@@ -91,7 +91,7 @@ Ledger fold: `audit-2026-11/fold-training.md`. Sources: **E6** `v2/engines.md` �
   Today: not built (the gym shows «L'ultima volta» without the position class).
 - **TR-21** **e1RM** = load × (1 + reps / 30) (Epley), 1–12 reps; RIR **not** added (on ~12 %
   of sets: mixing breaks comparability). Corpo libero: reps; a tempo: seconds. [n06, TRAIN-25;
-  Reynolds 2006] — Today: partial (`sets.ts` `e1rm` adds RIR when present).
+  Reynolds 2006] — Today: built (`sets.ts` `e1rm`, RIR removed 17 Nov).
 - **TR-22** After a set, the row says its comparison in words, never a %: same load →
   «stesso carico, +2 ripetizioni» / «stesse ripetizioni» / «−1 ripetizione»; another load →
   «+2,5 kg, stesse ripetizioni». With no comparable: nothing. [n06, MOD-50, TRAIN-07] —
@@ -99,7 +99,8 @@ Ledger fold: `audit-2026-11/fold-training.md`. Sources: **E6** `v2/engines.md` �
 - **TR-23** **Records** per exercise, from confirmed working sets, all time, from its 3rd
   session: «forza stimata» (best e1RM, TR-21), «carico massimo», and «record a 40 kg»
   (most reps at that load); corpo libero: most reps; a tempo: longest. Presunte and «circa»
-  loads never set a record. [n06 («record a 40 kg»), MOD-50] — Today: not built.
+  loads never set a record. [n06 («record a 40 kg»), MOD-50] — Today: partial (`log.ts` `recordsOf`, shown with
+  their day in the esercizio's «Andamento»; «circa» loads not left out, a tempo not read).
 - **TR-24** **One trend per exercise**: best e1RM per exercise-session in its usual position
   class (others drawn beside, not fitted); 6 weeks, restarted after a gap > 21 days; < 3
   points → «servono 3 sessioni per un andamento» (PAT-55). Least squares; TE = residuals' SD ÷
