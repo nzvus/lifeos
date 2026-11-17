@@ -119,7 +119,7 @@ each PR really deletes is measured in the PR.
 5. **The order** of §4, and whether exercises and schede follow the same table next
    *(recommended: yes, after B1–B2 are approved on foods and meals)*.
 
-## 6. Planning for everything — sveglia, pesata, misure, passi (draft, his to settle)
+## 6. Planning for everything — sveglia, pesata, misure, passi (settled 17 Nov, §57)
 
 His words (proposal §49): «la pianificazione inoltre va ripensata anche in funzione di come si
 possa applicare anche per cose come sveglia, pesata, misure, passi, e altre cose.» Read for this
@@ -147,7 +147,7 @@ abitudine is covered by any voce of its type that day). What it cannot say:
 One ritmo = what + its shape's fields + how often. A new kind is planned by declaring its shape,
 never by a new screen (MOD-02).
 
-### His to settle (Claude's pick first)
+### Settled: his «ap yc» of 17 Nov took (a) on all four (proposal §57)
 1. **Three shapes** as above. (a) yes *(recommended: it is the smallest model that covers his
    four examples)* · (b) only «a voce due»; times and amounts stay outside the Piano.
 2. **Where an amount lives.** (a) in the ritmo, and Obiettivi shows every «al giorno» amount by
