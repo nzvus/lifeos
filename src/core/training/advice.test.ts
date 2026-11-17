@@ -81,11 +81,13 @@ describe("what gym mode proposes for an exercise", () => {
       history,
       timing,
     });
-    // Last time 10/10/9 at 60 kg in a 6–10 range: not all at the top → add reps from the weakest (9 → 10).
+    // 10/9/8 then 10/10/9 at 60 kg in a 6–10 range: the first set at the top and none under
+    // the range, twice → 62,5 kg (TR-30); his drop is 1 a set, so the LAST set sits at the
+    // bottom (6) and the first starts at 8 — never 9, 8, 7 at the old load (target.md §7.5).
     expect(a.proposed.map((s) => [s.reps, s.loadKg])).toEqual([
-      [10, "60"],
-      [9, "60"],
-      [8, "60"],
+      [8, "62.5"],
+      [7, "62.5"],
+      [6, "62.5"],
     ]);
   });
 
@@ -100,9 +102,33 @@ describe("what gym mode proposes for an exercise", () => {
     // Drops 1, 2, 2 (newest first): two of the last three ≥ 2 → +30 s.
     expect(a.restS).toBe(110);
     expect(a.restChange).toBe(30);
-    // 40 s for 10 reps: 4 s a rep, its own.
+    // 40 s for 10 reps: 4 s a rep, its own; the first proposed set is 8 reps.
     expect(a.secPerRep).toBe(4);
-    expect(a.setS).toBe(40);
+    expect(a.setS).toBe(32);
+  });
+
+  it("his note of 16 Nov (target.md §7.5, TR-30, TR-31): never a plan under what he did", () => {
+    const curl = (h: HistorySession[]) =>
+      adviseExercise({
+        pattern: "curl",
+        unilateral: false,
+        history: h,
+        timing,
+      }).proposed.map((s) => s.reps);
+    // Row 1: 10 · 9 · 8 → 11 · 10 · 9, no longer 9 · 8 · 7.
+    expect(curl([session("2026-11-01", sets("14", [10, 9, 8]))])).toEqual([11, 10, 9]);
+    // Row 2: a worse day after a better one: the better first set (12) is the reference.
+    expect(
+      curl([
+        session("2026-11-01", sets("14", [12, 11, 10])),
+        session("2026-11-05", sets("14", [10, 9, 8])),
+      ])[0],
+    ).toBe(12);
+    // Row 3: six sessions of 10 · 9 · 8: still 11 · 10 · 9, never the same plan going down.
+    const six = ["01", "03", "05", "07", "09", "11"].map((d) =>
+      session("2026-11-" + d, sets("14", [10, 9, 8])),
+    );
+    expect(curl(six)).toEqual([11, 10, 9]);
   });
 
   it("a session cut short does not lower the next: as many sets as the more of the last two", () => {
@@ -148,7 +174,10 @@ describe("what gym mode proposes for an exercise", () => {
 
 describe("dumbbells go by the rack's pairs", () => {
   it("10 · 10 · 10 at 2 × 15 kg in a 6–10 range → 2 × 17 kg, not 2 × 16.25", () => {
-    const top = [session("2026-10-15", sets("30", [10, 10, 10]))];
+    const top = [
+      session("2026-10-12", sets("30", [10, 10, 10])),
+      session("2026-10-15", sets("30", [10, 10, 10])),
+    ];
     const a = adviseExercise({
       pattern: "horizontal_press",
       unilateral: false,

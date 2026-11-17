@@ -14,13 +14,12 @@ describe("the sets gym mode proposes", () => {
     expect(proposeSets("horizontal_press", [set(8, "60"), set(7, "60")])).toEqual({
       reason: "add_reps",
       sets: [
-        { reps: 8, loadKg: "60", durationS: null },
-        { reps: 8, loadKg: "60", durationS: null },
+        { reps: 9, loadKg: "60", durationS: null },
+        { reps: 9, loadKg: "60", durationS: null },
       ],
     });
-    expect(
-      proposeSets("horizontal_press", [set(10, "60"), set(10, "60")]).sets[0],
-    ).toEqual({
+    const top = [set(10, "60"), set(10, "60")];
+    expect(proposeSets("horizontal_press", top, top).sets[0]).toEqual({
       reps: 6,
       loadKg: "62.5",
       durationS: null,

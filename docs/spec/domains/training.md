@@ -113,13 +113,21 @@ Ledger fold: `audit-2026-11/fold-training.md`. Sources: **E6** `v2/engines.md` �
 
 ## 4. Advice (the training parameters of MOD-51 and MOD-52)
 - **TR-30** **Proposal** for an exercise (MOD-51): double progression on its movement
-  pattern's guide (`GUIDES`) from the last two sessions: every working set at the top load at
-  the top of the range → one step up, back to the bottom; else weakest set + 1 rep; under the
-  range → hold. A tempo and cardio +10 %. No pattern: last sets; nothing: 3 × 10. [TRAIN-25,
-  TRAIN-29, E6; ACSM 2009] — Today: built (`nextTarget`, `proposeSets`).
+  pattern's guide (`GUIDES`), aimed at the **first** set. Reference: his first working set at
+  the top load of the last session, or of the one before when that was at the same load and
+  better (one bad day never lowers the plan). Up one step when, in **both** of the last two
+  sessions at that load, the first set reached the top of the range and no set fell under it;
+  then back to the bottom: the **last** set aims at the bottom (TR-31's drop puts the first
+  higher, never over the top). Else the first set aims at the reference + 1 rep, within the
+  range; under the range → hold at the bottom. A tempo and cardio +10 %. No pattern: last sets;
+  nothing: 3 × 10. [TRAIN-25, TRAIN-29, E6; ACSM 2009; his 16 Nov note, `target.md` §7.5 —
+  the old rule put the weakest set + 1 on the first set and took the drop off again: 10 · 9 · 8
+  → 9 · 8 · 7 for ever] — Today: built (`progression.ts` `nextTarget`, `advice.ts`;
+  `advice.test.ts` «his note of 16 Nov»).
 - **TR-31** The proposal applies to the **first** set; set i loses his learnt drop × i (median
-  over the last 6 sessions of reps lost per set at one load, ≥ 0). Number of sets = the more of
-  the last two sessions. [TRAIN-05, tr §5.5] — Today: built (`advice.ts`).
+  over the last 6 sessions of reps lost per set at one load, ≥ 0), so the drop is counted once.
+  Number of sets = the more of the last two sessions. [TRAIN-05, tr §5.5] — Today: built
+  (`advice.ts`).
 - **TR-32** **RIR** is one optional tap on the **last** set (0–4+), never a driver of progress.
   When given, it only gates the proposal: RIR 0 on a working set at the top load (except the
   last set of an isolation exercise) → same load; twice in a row → one step down. Effort band

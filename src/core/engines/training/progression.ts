@@ -152,26 +152,41 @@ export function nextTarget(
     return { reason: "add_time", sets, seconds: Math.round(sec * 1.1) };
   }
   if (work.length === 0) return { reason: "start", sets, reps: [lo, hi] };
-  const loaded = work.filter((s) => s.loadKg !== null);
-  const top = loaded.length ? Math.max(...loaded.map((s) => Number(s.loadKg))) : null;
-  const atTop = top === null ? work : loaded.filter((s) => Number(s.loadKg) === top);
-  const kg = top === null ? null : atTop[0]!.loadKg;
-  const reps = atTop.map((s) => s.reps ?? 0);
+  // TR-30 (fixed 17 Nov, target.md §7.5): the plan aims at the FIRST set; the next sets lose his
+  // learnt drop later (TR-31), so the drop is never counted twice. The reference is his best
+  // first set of the last two sessions at the same load: one bad day does not lower the plan.
+  const at = (sets: readonly LastSet[]) => {
+    const loaded = sets.filter((s) => s.loadKg !== null);
+    const top = loaded.length ? Math.max(...loaded.map((s) => Number(s.loadKg))) : null;
+    const same = top === null ? sets : loaded.filter((s) => Number(s.loadKg) === top);
+    return { top, text: same[0]?.loadKg ?? null, reps: same.map((s) => s.reps ?? 0) };
+  };
+  const now = at(work);
+  const prior = (before ?? []).filter((s) => !s.warmup);
+  const was = prior.length ? at(prior) : null;
+  const sameLoad = was !== null && was.top === now.top;
+  const kg = now.top === null ? null : now.text;
+  const reps = now.reps;
   const weakest = Math.min(...reps);
+  const first = sameLoad ? Math.max(reps[0]!, was!.reps[0]!) : reps[0]!;
+  // Up only when the first set reached the top and no set fell under the range, in BOTH of the
+  // last two sessions at this load (one good day is not enough).
+  const topped = (r: readonly number[]) => r[0]! >= hi && Math.min(...r) >= lo;
+  const ready = topped(reps) && sameLoad && topped(was!.reps);
+  const aim = (): [number, number] => [Math.min(hi, Math.max(lo, first + 1)), hi];
+  const why = (): "hold" | "add_reps" =>
+    first < lo || first >= hi ? "hold" : "add_reps";
   if (guide.progression === "reps" || kg === null) {
-    if (reps.every((r) => r >= hi))
-      return { reason: "add_load", sets, reps: [lo, hi], loadKg: null };
-    const target = Math.min(hi, weakest + 1);
-    return {
-      reason: target > weakest ? "add_reps" : "hold",
-      sets,
-      reps: [target, hi],
-      loadKg: null,
-    };
+    if (ready) return { reason: "add_load", sets, reps: [lo, hi], loadKg: null };
+    return { reason: why(), sets, reps: aim(), loadKg: null };
   }
   const n = Number(kg);
-  if (tooHard(guide, atTop)) {
-    const prior = (before ?? []).filter((s) => !s.warmup);
+  if (
+    tooHard(
+      guide,
+      work.filter((s) => s.loadKg !== null && Number(s.loadKg) === n),
+    )
+  ) {
     if (prior.length && tooHard(guide, prior)) {
       const down = Math.max(0, round2(n - step(Math.max(0, n - 0.01))));
       return { reason: "reduce", sets, reps: [lo, hi], loadKg: String(down) };
@@ -183,17 +198,12 @@ export function nextTarget(
       loadKg: kg,
     };
   }
-  if (reps.every((r) => r >= hi))
+  if (ready)
     return {
       reason: "add_load",
       sets,
       reps: [lo, hi],
       loadKg: String(round2(n + step(n))),
     };
-  return {
-    reason: weakest < lo ? "hold" : "add_reps",
-    sets,
-    reps: [Math.min(hi, Math.max(lo, weakest + 1)), hi],
-    loadKg: kg,
-  };
+  return { reason: why(), sets, reps: aim(), loadKg: kg };
 }

@@ -656,6 +656,16 @@
     §56 notes against TR-, the three levels, five questions with Claude's pick first). Spec only;
     by Opus, not Fable (cost, model-per-step); the gym's photos and `Gym.tsx` not opened, so his
     note (1) is not checked yet. Undo: delete §7.
+59. **17 Nov, his words after merging #367: «merged, ap yc».** This takes the six picks of
+    `target.md` §7.4, all (a): the exercise's facts into the registry; load steps per exercise
+    from its equipment; three kinds of sides; a primary and up to three secondary muscles; the
+    order of work starting with his note (1); the TR-30/31 fix of §7.5.
+60. **17 Nov, «ap»: TR-30/31 fixed** (branch `gym-progression`; `domains/training.md`). Built
+    as §7.5 says, with one change decided by Claude: the load goes up when the **first** set
+    reached the top and **no set fell under the range**, in both of the last two sessions — not
+    «every set at the top», which his own drop makes impossible once the plan follows it (the
+    plan would stay at the top for ever). After a step, the last set aims at the bottom of the
+    range, the first higher by his drop. Undo: `git revert`; the rule is TR-30.
 
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
