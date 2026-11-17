@@ -10,6 +10,7 @@
  * Auto mode saves its sets as assumed (`done` false: what was planned, not
  * yet said to be done); «Fine» confirms them. History reads only done sets.
  */
+import { EQUIPMENT, type Sides } from "../engines/training/equipment";
 import { and, count, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
 import {
@@ -448,18 +449,12 @@ export async function reopenSession(
   });
 }
 
-export const EQUIPMENT = [
-  "barbell",
-  "dumbbell",
-  "cable",
-  "machine",
-  "bodyweight",
-] as const;
+export { EQUIPMENT };
 
 /**
  * A new exercise (V-07): its name, unique among the owner's live exercises,
  * and what gym mode reads of it: the movement pattern (E6's guide), the
- * equipment, whether it is done one side at a time. "taken" if the name is.
+ * equipment, how its sides work (target.md §7.4). "taken" if the name is.
  */
 export async function createExercise(
   db: Db,
@@ -468,7 +463,7 @@ export async function createExercise(
   e: {
     pattern: GuideKey | null;
     equipment: (typeof EQUIPMENT)[number] | null;
-    unilateral: boolean;
+    sides: Sides;
   },
 ): Promise<{ id: string } | "taken"> {
   return db.transaction(async (tx) => {
@@ -499,7 +494,7 @@ export async function createExercise(
         ...(e.equipment
           ? [{ userId: owner.id, itemId: id, field: "equipment", text: e.equipment }]
           : []),
-        { userId: owner.id, itemId: id, field: "unilateral", bool: e.unilateral },
+        { userId: owner.id, itemId: id, field: "sides", text: e.sides },
       ]);
     return { id };
   });

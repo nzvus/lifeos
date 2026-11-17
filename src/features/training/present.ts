@@ -4,6 +4,7 @@
  * suggested rest of an exercise (E6 `restAfter` on its guide's role), and
  * the step of its load stepper. Numbers through `F` (content.md).
  */
+import { stepFor, type Equipment } from "@/core/engines/training";
 import { F, type BoxEntry, type State } from "@lifeos/kit";
 import {
   dumbbellStep,
@@ -83,6 +84,18 @@ export function kgStep(kg: string, perDumbbell = false): number {
 /** Whether an exercise is timed (a plank, a run): its sets are seconds, not reps. */
 export function timed(pattern: string | null): boolean {
   return guideOf(pattern)?.progression === "time";
+}
+
+/**
+ * One tap of load for an exercise (TR-02, target.md §7.4): his own step, else its equipment —
+ * with no equipment set, dumbbells are still read from its name («Curl manubri»).
+ */
+export function stepOf(
+  name: string,
+  e: { equipment: Equipment | null; loadStepKg: number | null } | undefined,
+): (kg: number) => number {
+  const equipment = e?.equipment ?? (usesDumbbells(name, null) ? "dumbbell" : null);
+  return (kg) => stepFor({ equipment, loadStepKg: e?.loadStepKg ?? null }, kg);
 }
 
 /** Whether an exercise is done with dumbbells, from its equipment or its name. */
@@ -188,11 +201,11 @@ export function contextText(c: SessionContext): string {
   return parts.length ? "Prima: " + parts.join(" · ") : "";
 }
 
-/** The best e1RM (with RIR) of the working sets; null without a loaded set of 1–12 reps. */
+/** The best e1RM (TR-21, no RIR) of the working sets; null without a loaded set of 1–12 reps. */
 export function bestE1rm(sets: readonly LastSet[]): number | null {
   const all = sets
     .filter((x) => !x.warmup && x.reps !== null && x.loadKg !== null)
-    .map((x) => e1rm(x.reps!, Number(x.loadKg), x.rir ?? null))
+    .map((x) => e1rm(x.reps!, Number(x.loadKg)))
     .filter((v): v is number => v !== null);
   return all.length ? Math.max(...all) : null;
 }

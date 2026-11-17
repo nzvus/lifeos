@@ -9,11 +9,18 @@ import type { CatalogType } from "@/core/kinds/catalog";
 import type { Values } from "@/core/verbs";
 import { objects } from "@/i18n/objects";
 import { plan } from "@/i18n/plan";
+import {
+  EQUIPMENT_WORDS,
+  EXERCISE_HELP,
+  PATTERN_WORDS,
+  SIDES_WORDS,
+} from "@/i18n/training";
 import { MODE_WORDS } from "../movement-words";
 
 /** The words of a `choice` field's values, per type and field. */
 const CHOICE_WORDS: Record<string, Record<string, Record<string, string>>> = {
   route: { mode: MODE_WORDS },
+  exercise: { pattern: PATTERN_WORDS, equipment: EQUIPMENT_WORDS, sides: SIDES_WORDS },
   cycle: { advance: plan.cycle.advance, onSkip: plan.cycle.onSkip },
   block: { when: plan.block.when },
 };
@@ -22,6 +29,7 @@ const CHOICE_WORDS: Record<string, Record<string, Record<string, string>>> = {
 const FIELD_HELP: Record<string, Record<string, string>> = {
   cycle: plan.cycle.help,
   block: plan.block.help,
+  exercise: EXERCISE_HELP,
 };
 
 export type ObjectField = {

@@ -5,12 +5,13 @@
 import { median } from "./stats";
 
 /**
- * e1RM with effort: load × (1 + (reps + RIR) / 30) (Epley with reps in reserve; Helms 2016).
- * Without RIR, Epley on the reps. Only 1–12 reps: beyond that the estimate is not useful.
+ * e1RM (TR-21): load × (1 + reps / 30) (Epley), 1–12 reps: beyond that the estimate is not
+ * useful. RIR is NOT added: he gives it on few sets, and mixing sets with and without it
+ * breaks the comparison between sessions (his «le misurazioni sono strane», 16 Nov).
  */
-export function e1rm(reps: number, kg: number, rir?: number | null): number | null {
+export function e1rm(reps: number, kg: number): number | null {
   if (!Number.isFinite(reps) || reps < 1 || reps > 12 || !(kg > 0)) return null;
-  return kg * (1 + (reps + Math.max(0, rir ?? 0)) / 30);
+  return kg * (1 + reps / 30);
 }
 
 /** How a load was typed. The stored load is always the total (03 T-10). */
@@ -54,7 +55,7 @@ export function setFlags(
     const mine = work.filter((s) => s.exercise === ex);
     const t = trend.get(ex);
     if (t === undefined || t <= 0) continue;
-    const best = Math.max(...mine.map((s) => e1rm(s.reps, s.kg, s.rir) ?? s.kg));
+    const best = Math.max(...mine.map((s) => e1rm(s.reps, s.kg) ?? s.kg));
     if (best >= t * (1 + JUMP))
       flags.push({ type: "jump", exercise: ex, byPct: Math.round((best / t - 1) * 100) });
     for (const s of mine) {

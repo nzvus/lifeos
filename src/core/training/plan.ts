@@ -6,13 +6,7 @@
  * Dumbbells step by the rack's next pair (E6 `dumbbellStep`).
  * Pure: the proposal only fills the steppers; what is lifted is typed.
  */
-import {
-  dumbbellStep,
-  GUIDES,
-  nextTarget,
-  type Guide,
-  type LastSet,
-} from "../engines/training";
+import { GUIDES, nextTarget, type Guide, type LastSet } from "../engines/training";
 
 export type ProposedSet = {
   reps: number | null;
@@ -28,7 +22,8 @@ export function proposeSets(
   pattern: string | null | undefined,
   last: readonly LastSet[] | undefined,
   before?: readonly LastSet[],
-  dumbbells = false,
+  /** One tap of load on the total (TR-02; `stepFor` from the exercise). */
+  step?: (kg: number) => number,
 ): { sets: ProposedSet[]; reason: string } {
   const guide = guideOf(pattern);
   const work = (last ?? []).filter((s) => !s.warmup);
@@ -47,8 +42,8 @@ export function proposeSets(
       reason: "hold",
     };
   }
-  const t = dumbbells
-    ? nextTarget(guide, last, before, dumbbellStep)
+  const t = step
+    ? nextTarget(guide, last, before, step)
     : nextTarget(guide, last, before);
   if ("reps" in t) {
     const reps = t.reps[0];

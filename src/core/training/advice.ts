@@ -81,8 +81,8 @@ function dropOf(sets: readonly HistorySet[]): number | null {
 export function adviseExercise(p: {
   pattern: string | null;
   unilateral: boolean;
-  /** Loads go by pairs of dumbbells. */
-  dumbbells?: boolean | undefined;
+  /** One tap of load on the total (TR-02): `stepFor` of the exercise; else TR-02's default. */
+  step?: ((kg: number) => number) | undefined;
   history: readonly HistorySession[];
   timing: Timing;
   settings?: ExerciseSettings | undefined;
@@ -90,7 +90,7 @@ export function adviseExercise(p: {
   const h = p.history;
   const last = h.at(-1)?.sets.map(asLast);
   const before = h.at(-2)?.sets.map(asLast);
-  const plan = proposeSets(p.pattern, last, before, p.dumbbells === true);
+  const plan = proposeSets(p.pattern, last, before, p.step);
   const proposal = plan.sets;
   // A session cut short does not lower the next one: as many sets as the more of the last two.
   const most = Math.max(

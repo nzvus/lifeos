@@ -3,6 +3,8 @@
  * (MOD-01): a field shows its own `label` (a user kind) or its word here; one is required for
  * every declared field (objects.test.ts). PAT-93.
  */
+import { EXERCISE_FIELDS } from "./training";
+
 /** A food's or product's label values per 100 (FD-04): the words of the registry's LABEL_FIELDS. */
 const LABEL = {
   kcal: "Energia",
@@ -44,7 +46,7 @@ export const objects = {
       `«${keep}» prende i valori che gli mancano e il nome «${gone}» come alias; «${gone}» va negli archiviati.`,
   },
   fields: {
-    exercise: { guide: "Guida" },
+    exercise: EXERCISE_FIELDS,
     block: {
       area: "Area",
       when: "Quando",

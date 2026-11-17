@@ -101,7 +101,7 @@ describe("a session in gym mode", () => {
   it("reads the routines with their exercises, and the exercises with their pattern", async () => {
     const exercises = await readExercises(db, a);
     expect(exercises.map((e) => [e.name, e.pattern, e.equipment])).toEqual([
-      ["Curl con manubri", null, "manubri"],
+      ["Curl con manubri", null, "dumbbell"], // «manubri» saved in Italian, read as its key
       ["Panca piana", "horizontal_press", null],
     ]);
     expect(await readRoutines(db, a, "2026-10-17", exercises)).toEqual([
@@ -401,14 +401,14 @@ describe("a session in gym mode", () => {
     const made = await createExercise(db, a, "Alzate laterali ai cavi", {
       pattern: "lateral_raise",
       equipment: "cable",
-      unilateral: true,
+      sides: "one_at_a_time",
     });
     expect(made).not.toBe("taken");
     expect(
       await createExercise(db, a, "alzate laterali ai cavi", {
         pattern: null,
         equipment: null,
-        unilateral: false,
+        sides: "both",
       }),
     ).toBe("taken");
     expect(
@@ -416,6 +416,7 @@ describe("a session in gym mode", () => {
     ).toMatchObject({
       pattern: "lateral_raise",
       equipment: "cable",
+      sides: "one_at_a_time",
       unilateral: true,
     });
   });

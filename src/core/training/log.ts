@@ -22,7 +22,7 @@ export function bestE1rm(sets: readonly LoggedSet[]): number | null {
   let best: number | null = null;
   for (const s of sets) {
     const x =
-      s.reps === null || s.loadKg === null ? null : e1rm(s.reps, Number(s.loadKg), s.rir);
+      s.reps === null || s.loadKg === null ? null : e1rm(s.reps, Number(s.loadKg));
     if (x !== null && (best === null || x > best)) best = x;
   }
   return best;
@@ -85,5 +85,55 @@ export async function readExerciseLog(
       { day: d.day, sets: own, best: bestE1rm(own) },
     ]);
   }
+  return out;
+}
+
+/**
+ * An exercise's records (TR-23), from its confirmed working sets, all time, shown from its
+ * 3rd session: «forza stimata» (best e1RM, TR-21), «carico massimo», and the most reps at his
+ * usual load («record a 40 kg»: the load he used in the most sessions, the heavier on a tie);
+ * with no load (corpo libero): the most reps. Each with its day. Null under 3 sessions.
+ * Not yet: «circa» loads left out, the longest time for an exercise a tempo (the log does not
+ * read them).
+ */
+export type ExerciseRecords = {
+  e1rm: { kg: number; day: IsoDate } | null;
+  load: { kg: number; reps: number; day: IsoDate } | null;
+  repsAt: { kg: number | null; reps: number; day: IsoDate } | null;
+};
+
+export function recordsOf(sessions: readonly ExerciseSession[]): ExerciseRecords | null {
+  if (sessions.length < 3) return null;
+  const out: ExerciseRecords = { e1rm: null, load: null, repsAt: null };
+  const usedOn = new Map<number, number>();
+  // Oldest first, so the first day a record was set is the one shown.
+  const old = [...sessions].sort((a, b) => a.day.localeCompare(b.day));
+  for (const s of old) {
+    if (s.best !== null && (out.e1rm === null || s.best > out.e1rm.kg))
+      out.e1rm = { kg: s.best, day: s.day };
+    const loads = new Set<number>();
+    for (const x of s.sets) {
+      if (x.loadKg === null || x.reps === null) continue;
+      const kg = Number(x.loadKg);
+      if (!(kg > 0)) continue;
+      loads.add(kg);
+      if (
+        out.load === null ||
+        kg > out.load.kg ||
+        (kg === out.load.kg && x.reps > out.load.reps)
+      )
+        out.load = { kg, reps: x.reps, day: s.day };
+    }
+    for (const kg of loads) usedOn.set(kg, (usedOn.get(kg) ?? 0) + 1);
+  }
+  const usual = [...usedOn].sort((a, b) => b[1] - a[1] || b[0] - a[0])[0]?.[0] ?? null;
+  for (const s of old)
+    for (const x of s.sets) {
+      if (x.reps === null) continue;
+      const kg = x.loadKg === null ? null : Number(x.loadKg);
+      if (usual === null ? kg !== null && kg > 0 : kg !== usual) continue;
+      if (out.repsAt === null || x.reps > out.repsAt.reps)
+        out.repsAt = { kg: usual, reps: x.reps, day: s.day };
+    }
   return out;
 }

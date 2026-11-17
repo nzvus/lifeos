@@ -159,9 +159,10 @@ describe("«forza stimata» (the board Gym's first context pill)", () => {
     rir,
   });
   it("today's best e1RM against last time's, good unless it fell over 2 %", () => {
-    // 8 × 30 kg at RIR 2: 30 × (1 + 10/30) = 40.
-    expect(bestE1rm([set(8, "30", 2), set(20, "10", null, true)])).toBe(40);
-    expect(strengthPill([set(8, "30", 2)], 39.2)).toEqual({
+    // 10 × 30 kg: 30 × (1 + 10/30) = 40; the RIR typed changes nothing (TR-21).
+    expect(bestE1rm([set(10, "30", 2), set(20, "10", null, true)])).toBe(40);
+    expect(bestE1rm([set(10, "30", null)])).toBe(40);
+    expect(strengthPill([set(10, "30", 2)], 39.2)).toEqual({
       t: "forza stimata 40\u00a0kg · +2\u00a0% dall’ultima volta",
       state: "good",
     });

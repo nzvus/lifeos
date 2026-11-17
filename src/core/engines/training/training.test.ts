@@ -4,9 +4,8 @@ import { deloadSuggestion, expectedSetS, readiness, restAfter } from "./rests";
 import type { SetForFlags } from "./sets";
 import { duplicateSessions, e1rm, setFlags, totalLoad } from "./sets";
 
-describe("e1RM with effort", () => {
-  it("Epley with reps in reserve; without RIR, Epley on reps; 1–12 reps only", () => {
-    expect(e1rm(8, 80, 2)).toBeCloseTo(106.67, 2); // 80 × (1 + 10/30)
+describe("e1RM (TR-21)", () => {
+  it("Epley on the reps, RIR never added; 1–12 reps only", () => {
     expect(e1rm(8, 80)).toBeCloseTo(101.33, 2);
     expect(e1rm(13, 80)).toBeNull();
     expect(e1rm(0, 80)).toBeNull();
