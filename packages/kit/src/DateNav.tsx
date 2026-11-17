@@ -51,7 +51,6 @@ export function DateNav({
   day,
   today,
   hrefBase,
-  futureBase,
   scores = {},
   tags = {},
   mode = "day",
@@ -89,11 +88,6 @@ export function DateNav({
   today: string;
   /** Prefix of a day's page: "/oggi/" → "/oggi/2026-10-15". */
   hrefBase: string;
-  /**
-   * PAT-97: a day after today, tapped in the strip or the month, opens here instead
-   * ("/oggi/piano?giorno="). Arrows and swipe still walk through `hrefBase`.
-   */
-  futureBase?: string;
   scores?: Record<string, number>;
   tags?: Record<string, string>;
 }) {
@@ -102,7 +96,6 @@ export function DateNav({
   const [stored, next] = useLevel(levelKey ?? "", max, 1);
   const level = levelKey ? stored : 1;
   const href = (d: string) => hrefBase + d;
-  const tap = (d: string) => (futureBase && d > today ? futureBase : hrefBase) + d;
   const bar = (d: string) => F.judge(scores[d]).tone;
   const week = mode === "week";
   const days = weekOf(day);
@@ -283,7 +276,7 @@ export function DateNav({
           return (
             <a
               key={d}
-              href={tap(d)}
+              href={href(d)}
               aria-current={current ? "date" : undefined}
               className={levelKey && d === today ? "today" : undefined}
               draggable={levelKey ? false : undefined}
@@ -343,7 +336,7 @@ export function DateNav({
               {m.days.map((d) => (
                 <a
                   key={d}
-                  href={tap(d)}
+                  href={href(d)}
                   className={
                     "c" + (d === today ? " today" : "") + (d > today ? " future" : "")
                   }

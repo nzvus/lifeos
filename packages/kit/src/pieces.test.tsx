@@ -706,24 +706,14 @@ describe("DayPart that closes (VIS-61, «Oggi a livelli» step 4)", () => {
   });
 });
 
-describe("DateNav: a day to come opens in Piano (PAT-97)", () => {
-  const draw = (futureBase?: string) =>
-    renderToStaticMarkup(
-      <DateNav
-        day="2026-11-14"
-        today="2026-11-14"
-        hrefBase="/oggi/"
-        {...(futureBase ? { futureBase } : {})}
-      />,
+describe("DateNav: every day opens in Oggi, a day to come too (PAT-97)", () => {
+  it("days before, today and after all link to their own Oggi page, never to Piano", () => {
+    const h = renderToStaticMarkup(
+      <DateNav day="2026-11-14" today="2026-11-14" hrefBase="/oggi/" />,
     );
-  it("a tap on a later day goes to Piano; today and the days before stay on Oggi", () => {
-    const h = draw("/oggi/piano?giorno=");
-    expect(h).toContain('href="/oggi/piano?giorno=2026-11-15"');
     expect(h).toContain('href="/oggi/2026-11-13"');
-    expect(h).not.toContain('href="/oggi/piano?giorno=2026-11-14"');
-  });
-  it("without it every day opens on its own page", () => {
-    expect(draw()).toContain('href="/oggi/2026-11-15"');
+    expect(h).toContain('href="/oggi/2026-11-15"');
+    expect(h).not.toContain("piano");
   });
 });
 

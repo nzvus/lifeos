@@ -6,8 +6,7 @@
  */
 import { redirect } from "next/navigation";
 import { PianoList } from "../../[area]/piano/piano-list";
-
-const ISO = /^\d{4}-\d{2}-\d{2}$/;
+import { oldDayLink } from "./old-day-link";
 
 export default async function PianoPage({
   searchParams,
@@ -15,7 +14,7 @@ export default async function PianoPage({
   searchParams: Promise<{ archiviati?: string | string[]; giorno?: string | string[] }>;
 }) {
   const asked = await searchParams;
-  if (typeof asked.giorno === "string" && ISO.test(asked.giorno))
-    redirect("/oggi/" + asked.giorno);
+  const day = oldDayLink(asked.giorno);
+  if (day) redirect(day);
   return <PianoList area="oggi" archived={asked.archiviati === "1"} />;
 }
