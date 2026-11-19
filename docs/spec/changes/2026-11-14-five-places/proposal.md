@@ -857,6 +857,15 @@
     mi fa impazzire questo stile». The tree's style is rejected; the content per level of
     expansion is decided first, as a table per type of information (bars-study §8, his 15 Nov
     «decidere per tabelle»), then the style from references he picks; no more drawings before.
+75. **20 Nov, his words:** «lo stile non puoi renderizzarmelo qui quindi non mi puoi far scegliere se
+    non me li fai vedere. per quanto riguarda la tabella, non mi va di leggerla, però posso dirti
+    che, ovviamente, l'estendibilità è un compromesso, sarebbe meglio avere meno livelli di
+    estendibilità ma con la più alta densità informativa ma allo stesso tempo semplice, bello da
+    vedere. dato che riuseremo e o modificheremo o comunque torneremo spesso su questo, bisogna
+    capire quando questi tradeoff determinano cosa. e poi anche le varie dimensioni di esposizione
+    dell'informazione, colori, dimensioni, pattern graficI, forme... cos'altro?». Styles are chosen
+    only from rendered samples; the trade-offs and the visual channels become written rules
+    (bars-study §9) so every later change follows them.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

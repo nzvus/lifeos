@@ -206,3 +206,58 @@ detail; L3 = in time and why («Perché?», Andamento). Everything that exists t
 Open questions for him, on this table:
 1. Rows to add or drop; anything misplaced (a part that should be one level up or down).
 2. Whether L3 opens in place or goes to Andamento.
+
+## 9. The encoding grammar — what decides what (draft, his 20 Nov)
+
+His rules: fewer levels, the highest density, yet simple and beautiful; and written trade-offs,
+since we will come back here often. Sources: Bertin's visual variables (*Semiology of Graphics*),
+Cleveland & McGill's ranking of how precisely a channel is read, Few's bullet graph, Tufte's
+data-ink.
+
+**The channels** (what can carry information), most precise first for amounts:
+
+| Channel | Reads well | Used here for |
+|---|---|---|
+| Position on a common scale | amounts, comparison | the value against target and zones |
+| Length | amounts | the fill |
+| Angle, slope | change | trends (Andamento) only |
+| Area, size | rough amounts, importance | the level: bigger = the summary |
+| Colour lightness (value) | order, intensity | a part's rank inside its family (kinds) |
+| Colour hue | identity, categories | what it is (protein, vitamins, a criterion) |
+| Shape | categories | the judgement mark ● ◐ ○; the type's silhouette |
+| Texture, pattern | categories, state | planned (hatch), not reached, «da evitare» |
+| Outline vs fill | state | planned vs done (VIS-22) |
+| Orientation | categories | — (kept free) |
+| Transparency, blur | uncertainty | estimates, «non so», low coverage |
+| Arrangement: enclosure, nesting, alignment | hierarchy, grouping | parts under their total; a group in one box |
+| Order | rank | the costliest first, worst first |
+| Motion | change of state | opening a level only (VIS-90) |
+| Text: number, word | exact value, meaning | one number and one word per measure |
+
+**One channel per idea, everywhere** (as one word per idea):
+
+- What it is → hue (never used for judgement).
+- How much → length/position on a scale shared within the page.
+- How it is judged → where it ends among the zones + the mark shape (colour of the mark only
+  doubles it).
+- Planned → texture (hatch) and outline; done → solid.
+- Uncertain → transparency, and «≈».
+- Part of a whole → placed under/inside its whole on the same scale.
+- Rank → order.
+
+**The trade-offs, decided by rules:**
+
+1. **Two levels at most** for a measure: L0 (closed) and L1 (open). A third only for a list that
+   grows (foods, sets), and then it is the condensed line (PAT-40), not a level.
+2. **L0 carries the judgement and the number**, always; the parts only if they fit in one line
+   at 360 px.
+3. **L1 carries everything else**, at the highest density that keeps one value per row readable
+   at 360 px; nothing hides behind a third tap.
+4. **Text costs space; channels do not**: a property goes to a channel before it gets words.
+   Words only for the one number, the one judgement word, and names that no shape or colour
+   can carry.
+5. **Size follows the level**, not the importance of the moment.
+6. **A rule is measured** (the layout guard): gaps, the 360 px fit, one number per measure.
+
+Next: the same block (the day's energy, its macros, the micros, a voto) rendered in a few
+styles in the gallery, photographed, for him to pick by eye.
