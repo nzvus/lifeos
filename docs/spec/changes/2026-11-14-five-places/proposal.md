@@ -825,6 +825,13 @@
     row (VIS-50/52: its bar, the target tick, the zones ruler with its amounts, the tip, the word),
     in its group's colour — the same piece, not a lookalike. **Built 19 Nov** (photos
     `LIFEOS/review/2026-11-19/micro-macro/`, a macro row above the micros).
+71. **19 Nov night, his words on the micros as macro rows:** «no non va bene, in effetti era meglio
+    prima. senti e se a questo punto, coerentemente con il sistema delle occorrenze, ripensiamo a
+    tutti i tipi di visualizzatori a barre dei nutrienti, limiti, voti e tutto quello che potrebbe
+    poi richiederlo? facciamo uno studio per unificare tutto e inserire tutte le funzionalità e
+    visualizzazioni che vengono richieste in un elemento base comune». A study first
+    (`bars-study.md` in this change): every bar in the app, what each needs, one base element;
+    options, his pick, then code. Which «prima» he prefers for the micros: asked with the study.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
