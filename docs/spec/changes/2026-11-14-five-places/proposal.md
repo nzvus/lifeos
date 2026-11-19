@@ -690,6 +690,48 @@
     Still open from §56 (7): a trend chart per exercise and the session's voto over time in
     Andamento — screens he must see. Undo: `git revert`.
 
+64. **19 Nov, «yc for everything»: his notes of 13–19 Nov, moved here from the inbox** (verbatim,
+    with Claude's pick under each; «yc» does not cover a design he has not seen, so each UI pick
+    is shown as photos first).
+    - «Quanto dovrebbero contare la durata dei recuperi per i riscaldamenti? Le durate non
+      dovrebbero essere piu dinamiche in base agli sforzi appena fatti?» (13 Nov) → a rule for
+      `domains/training.md` (rest after a warm-up set short, rest after a work set from its RIR
+      and load). Pick: a new TR row, built with the gym's redesign; numbers with their source.
+    - «Mezzogiorno meglio chiamarlo pomeriggio» (16 Nov) → **open question**: «Pomeriggio»
+      already names the snack band (VIS-61, from his meal-role bounds), so a rename collides.
+      Options: (a) the lunch and snack bands become one «Pomeriggio» (four bands) —
+      recommended; (b) the lunch band «Pranzo»; (c) another word of his.
+    - «non mi piace come viene indentato, spaziato il calendario della settimana in alto, anche
+      la sua modalità piu espansa, è brutta, va rifatta» (17 Nov) → the week strip (VIS-63) is
+      redone; its levels stay. Shown as photos, one level at a time.
+    - «la barra delle calorie puo cambiare colore in base ai range, e puo anche essere piu
+      graduale la sua palette» (17 Nov) → VIS-50/VIS-52 for kcal: the fill takes its zone's
+      colour, a graded ramp instead of a macro colour. Pick: build in the kit gallery, show.
+    - «non vedo piu le icone quando le fasce temporali della giornata sono minimizzate» (17 Nov)
+      → a regression of VIS-60/VIS-61: icons stay in a folded band. Pick: restore, no new design.
+    - «Quando clicco, i riquadri o i bottoni, non hanno le giuste interazioni… Molti pezzi
+      dovrebbero essere interagibili per intero e non solo da una freccia affianco, che dovrebbe
+      essere invece tolta. Inoltre l'effetto "tocco" fa lampeggiare male quelle sezioni»
+      (19 Nov) → a pattern for every piece (VIS-40, VIS-90): the whole Box is the target, the
+      side arrow goes, one pressed state without the flash. Pick: one kit change, so every
+      screen gets it; first in this change's queue, before the exercise box (§59 builds on it).
+    - «Le pagine e schede di aggiunta, come di modifica, dovrebbero tutte essere toccate dai
+      cambiamenti che stiamo apportando. Fosse per me renderei unica la pagina di
+      visualizzazione che quella di modifica. Ovviamente dovrebbe contenere tutto e anche opzioni
+      in piu, non meno» (19 Nov) → one page per object to see and edit (PAT-13 «InPlace» on
+      `ObjectPage`, PAT-30, PAT-61); the add pages follow. Pick: a delta to PAT-30/PAT-61,
+      object type by object type; nothing either page holds today is lost.
+    - «In voto, densità sarebbe proteica? E limiti? Sembra fatto male e poi che significa
+      "senza: valore, adatto al piano, momento"? E poi perché ci sono 2 righe? Come valutiamo
+      dovrebbe essere raggiungibile anche da li?» (19 Nov) → the meal's open voto (VIS-43,
+      PAT-51): each criterion named in his words («densità proteica»), the limits shown as
+      criteria, «senza: …» rewritten as «non contano ancora: …» with why, one line per
+      criterion, and a «Come valutiamo ›» link. The two lines: to check on his photo.
+    - «E poi i filtri sono spaziati male rispetto a sopra» (19 Nov) → the filter chips' gap to
+      the piece above: a spacing rule in `e2e/layout.ts`, never a one-screen fix.
+    Order (Claude's): the regression (icons) → taps (kit) → the voto → one page see/edit → week
+    strip → kcal bar → rests. Undo: move the lines back to the inbox.
+
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
