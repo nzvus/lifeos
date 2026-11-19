@@ -185,6 +185,10 @@ export type HeatStrip = {
   tip: string | null;
 };
 
+/** A micro's colour: its group's (`--crit-n`, in order), lighter for each next item. */
+export const microShade = (group: number, item: number, of: number) =>
+  `color-mix(in srgb, var(--crit-${(group % 6) + 1}) ${Math.round(100 - (item / Math.max(1, of)) * 55)}%, var(--sheet))`;
+
 /** A ramp through the zones' colours: each at its zone's middle, blended to the next. */
 export function kcalRamp(zones: HeatStrip["zones"]): string {
   let x = 0;
@@ -564,9 +568,9 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
   const micros = d.micros
     ? {
         summary: d.micros.summary,
-        groups: d.micros.groups.map((g) => ({
+        groups: d.micros.groups.map((g, gi) => ({
           name: g.name,
-          items: g.items.map((i) => {
+          items: g.items.map((i, ii) => {
             const scale =
               i.t === null
                 ? null
@@ -584,7 +588,13 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
                 scale === null
                   ? "0%"
                   : Math.min(100, (i.v / scale) * 100).toFixed(0) + "%",
-              color: F.tone(h.state ?? i.state),
+              /**
+               * Its identity, as a macro's kinds (his pick of 19 Nov): its group's colour, a
+               * lighter shade for each next one; the band is the zones line and the tip.
+               */
+              color: microShade(gi, ii, g.items.length),
+              /** Fine as it is: it may stand on the condensed line (PAT-40). */
+              ok: (h.state ?? i.state) === "good",
               strip: h.strip,
               aria:
                 i.name +

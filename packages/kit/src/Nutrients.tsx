@@ -10,7 +10,9 @@
 import { useState, type CSSProperties } from "react";
 import { Glyph } from "./Glyph";
 import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
+import { Condensed } from "./Condensed";
 import { Fascia } from "./Fascia";
+import { WORDS } from "./words";
 
 /**
  * `part`: «main» the kcal, the foods and the four macros; «rest» the limits and the vitamins
@@ -237,26 +239,56 @@ export function Nutrients({
           <div className={"k-reveal" + (open === "micro" ? " on" : "")}>
             <div>
               <div className="k-kinds g3">
-                {micros.groups.map((g) => (
-                  <div key={g.name} className="k-stack">
-                    <span className="k-cap">{g.name}</span>
-                    {g.items.map((i) => (
-                      <div
-                        key={i.name}
-                        className="k-krow k-microw"
-                        role="img"
-                        aria-label={i.aria}
-                      >
-                        <span className="k-body">{i.name}</span>
-                        <span className={"k-bar" + (i.strip ? " zoned" : "")}>
-                          <i style={{ width: i.w, background: i.color }} />
-                          {i.strip && <Fascia strip={i.strip} />}
-                        </span>
-                        <span className="k-num b3 k-right">{i.v}</span>
-                      </div>
-                    ))}
-                  </div>
-                ))}
+                {micros.groups.map((g) => {
+                  const row = (i: (typeof g.items)[number]) => (
+                    <div
+                      key={i.name}
+                      className="k-krow k-microw"
+                      role="img"
+                      aria-label={i.aria}
+                    >
+                      <span className="k-body">
+                        <span
+                          className="k-cid"
+                          style={{ background: i.color }}
+                          aria-hidden="true"
+                        />{" "}
+                        {i.name}
+                      </span>
+                      <span className={"k-bar" + (i.strip ? " zoned" : "")}>
+                        <i style={{ width: i.w, background: i.color }} />
+                        {i.strip && <Fascia strip={i.strip} />}
+                      </span>
+                      <span className="k-num b3 k-right">{i.v}</span>
+                    </div>
+                  );
+                  const fine = g.items.filter((i) => i.ok);
+                  return (
+                    <div key={g.name} className="k-stack">
+                      <span className="k-cap">{g.name}</span>
+                      {/* rows for what is not fine; the fine ones on one line (PAT-40, his 19 Nov) */}
+                      {g.items.filter((i) => !i.ok).map(row)}
+                      {fine.length > 0 && (
+                        <Condensed
+                          label={WORDS.fine}
+                          remember={"micro.ok." + g.name}
+                          names={fine.map((i) => (
+                            <>
+                              <span
+                                className="k-cid"
+                                style={{ background: i.color }}
+                                aria-hidden="true"
+                              />{" "}
+                              {i.name}
+                            </>
+                          ))}
+                        >
+                          <div className="k-stack">{fine.map(row)}</div>
+                        </Condensed>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

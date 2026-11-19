@@ -802,8 +802,20 @@
     reachable (PAT-40 today: 8 rows, then «Mostra altri»). **(1) built 19 Nov** (VIS-43, `Criteria.tsx`,
     gallery `#voto`, photos `LIFEOS/review/2026-11-19/voto-c/`): the Porridge's panel from ≈ 420
     px to 166. Decided by Claude: the six identity colours are the muscles' palette (checked for
-    contrast); a criterion's row only when it lost ≥ 0,5 points. A and B removed. (2) and (3):
-    options asked of him.
+    contrast); a criterion's row only when it lost ≥ 0,5 points. A and B removed. **His picks,
+    19 Nov:** (2) micros: a colour per group (vitamins, minerals, …), each micro a shade of it,
+    as a macro's kinds; full-length bars, zones under them, tip by zone, planned hatched.
+    (3) long lists: «condensed line, opens in place» — the items that matter most as rows
+    (worst first, or most used), the rest on one line naming every one («e altri 14: A · C ·
+    …»), which opens in place to the full list; the level remembered per piece (VIS-70). A
+    pattern for every list (PAT-40 changes), the voto's «Pieni» line its first use. His
+    words on it, 19 Nov: «si ma anche i "Non contano" andrebbero condensati» — the names on one
+    line, the reasons on open. **(2) and (3) built 19 Nov** (PAT-40, VIS-50; kit `Condensed`, photos
+    `LIFEOS/review/2026-11-19/condensed/`): micros in their group's shades, the fine ones on
+    «A posto»; the voto's «Pieni» and «Non contano» condensed; `List` past 8 rows names the rest
+    on one line (Elenco: «e altri 111: …»). Decided by Claude: the word «A posto» (fine: ok or
+    ottimo); two lines at most closed; micros have no planned part yet (no data). Not yet: the
+    other 15 `List` uses pass names (each falls back to «Mostra altri» until it does).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

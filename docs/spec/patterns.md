@@ -77,8 +77,13 @@ A screen is only a composition of these pieces (PRD-18).
   line beside it, never inside the number. Kit ✓ `ContextLine`.
 
 ## 4. Lists and search
-- **PAT-40** Every list is `List`: 8 rows, then «Mostra altri (n)»; the rest scrolls in its own
-  box; the whole row is the target. Kit ✓ (16 uses). [UI-41, UI-100]
+- **PAT-40** Every list is `List`: 8 rows, then the rest on one line that names every item («e
+  altri 14: A · C · …», two lines at most) and opens in place (`Condensed`), its state kept per
+  piece (VIS-70); the whole row is the target. Inside a piece the same rule: rows for what matters
+  (worst first: a voto's lost points, micros not fine), the rest on one condensed line (a voto's
+  «Pieni» and «Non contano», micros «A posto»). A list without names keeps «Mostra altri (n)».
+  Kit ✓ (16 uses; Elenco names its rows). [UI-41, UI-100; his pick of 19 Nov «condensare
+  l'informazione ma mostrarla anche interamente», «anche i "Non contano"»]
 - **PAT-41** Every search is `Find`: one field, one matcher (accent-folding, aliases, typos),
   ranking «di solito a quest'ora» then use count then name; filters as chips; one typo forgiven
   from four letters on. For a short choice it may list every item with nothing typed (`all`,

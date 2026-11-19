@@ -355,7 +355,13 @@ function List({
         </p>
       ) : (
         // 8 rows, then «Mostra altri (n)» (UI-41, UI-100); a new search or sort starts closed.
-        <KitList key={tab + sort + query} label={TABS[tab].label}>
+        // Past 8 rows the rest stand on one line naming each, opening in place (PAT-40, his 19 Nov).
+        <KitList
+          key={tab + sort + query}
+          label={TABS[tab].label}
+          names={rows.map((r) => r.name)}
+          remember={"elenco." + tab}
+        >
           {rows.map((r) =>
             r.meal ? (
               // A pasto opens in place (PAT-43): the one meal box, «Apri» to its page.

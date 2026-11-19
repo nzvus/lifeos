@@ -5000,3 +5000,51 @@ button.k-mrow:active {
   align-items: baseline;
   gap: 4px var(--sp-2);
 }
+/* ---------- Condensed (PAT-40, his pick of 19 Nov): one line naming every item, opens in place ---------- */
+.k-cline {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  min-height: var(--touch);
+  margin-block: -12px;
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--fs-b3);
+  text-align: left;
+  cursor: pointer;
+}
+.k-cmore {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.k-condensed-body {
+  margin-top: var(--sp-2);
+}
+.k-cnames {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.k-cline > .k-help {
+  flex: 0 0 auto;
+}
+.k-cline > .k-cmore {
+  margin-left: auto;
+}
+/* why a criterion does not count: its name whole, the reason wraps beside it */
+.k-clegend.why .nm {
+  flex: 0 0 auto;
+}
+.k-clegend.why .k-help {
+  flex: 1 1 auto;
+  white-space: normal;
+  text-align: right;
+}

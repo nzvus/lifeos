@@ -9,7 +9,8 @@
  * (his: «condensare l'informazione ma mostrarla anche interamente»). Then what does not count and
  * why, the hint, «Come valutiamo ›». The band is always also a mark (● ◐ ○), never colour alone.
  */
-import { Fragment, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
+import { Condensed } from "./Condensed";
 import { F, MET, PART } from "./format";
 import { WORDS } from "./words";
 
@@ -28,6 +29,12 @@ const pct = (x: number) => Math.round(x * 100);
 const band = (v: number) =>
   v >= MET ? "var(--heat-good)" : v >= PART ? "var(--heat-fair)" : "var(--heat-bad)";
 const id = (i: number) => ({ "--id": `var(--crit-${i})` }) as CSSProperties;
+
+/** «valore (manca il prezzo)» → its name and its reason. */
+const why = (m: string): [string, string] => {
+  const i = m.indexOf(" (");
+  return i < 0 ? [m, ""] : [m.slice(0, i), m.slice(i + 2).replace(/\)$/, "")];
+};
 
 function Mark({ v }: { v: number }) {
   const j = F.judge(v);
@@ -52,6 +59,19 @@ export function Criteria({
     .filter((q) => q.max - q.got >= 0.5)
     .sort((a, b) => b.max - b.got - (a.max - a.got));
   const full = parts.filter((q) => q.max - q.got < 0.5);
+  // One state per model, so every meal's voto opens alike (VIS-70).
+  const key = parts.map((q) => q.name).join("|");
+  const row = (q: (typeof parts)[number]) => (
+    <li key={q.name}>
+      <span className="k-cid" style={id(q.i)} aria-hidden="true" />
+      <Mark v={q.v} />
+      <span className="nm">{q.name}</span>
+      <span className="k-help">
+        {F.n(q.got, 0)} su {F.n(q.max, 0)}
+      </span>
+      <b className="k-num">{q.max - q.got >= 0.5 ? "−" + F.n(q.max - q.got, 0) : "✓"}</b>
+    </li>
+  );
   return (
     <div className={"k-parts k-critview" + (planned ? " planned" : "")}>
       <div
@@ -84,52 +104,47 @@ export function Criteria({
           </span>
         ))}
       </div>
-      {lost.length > 0 && (
-        <ul className="k-clegend">
-          {lost.map((q) => (
-            <li key={q.name}>
-              <span className="k-cid" style={id(q.i)} aria-hidden="true" />
-              <Mark v={q.v} />
-              <span className="nm">{q.name}</span>
-              <span className="k-help">
-                {F.n(q.got, 0)} su {F.n(q.max, 0)}
-              </span>
-              <b className="k-num">−{F.n(q.max - q.got, 0)}</b>
-            </li>
-          ))}
-        </ul>
-      )}
+      {lost.length > 0 && <ul className="k-clegend">{lost.map(row)}</ul>}
+      {/* The full ones on one line, every name in view; open, their rows (PAT-40). */}
       {full.length > 0 && (
-        <p className="k-cfull">
-          <span className="k-help">{WORDS.scoreFull}:</span>{" "}
-          {/* a name stays whole; the line breaks between names */}
-          {full.map((q, n) => (
-            <Fragment key={q.name}>
-              <span
-                className="k-nowrap"
-                aria-label={`${q.name}: pieno, ${WORDS.weighs(pct(q.weight))}`}
-              >
-                <span className="k-cid" style={id(q.i)} aria-hidden="true" /> {q.name}
-                {n < full.length - 1 ? " ·" : ""}
-              </span>{" "}
-            </Fragment>
+        <Condensed
+          label={WORDS.scoreFull}
+          remember={"voto.full." + key}
+          names={full.map((q) => (
+            <>
+              <span className="k-cid" style={id(q.i)} aria-hidden="true" /> {q.name}
+            </>
           ))}
-        </p>
+        >
+          <ul className="k-clegend">{full.map(row)}</ul>
+        </Condensed>
       )}
       {data.action && <p className="k-help">{data.action}</p>}
-      {(data.missing.length > 0 || data.how) && (
-        <div className="k-critfoot">
-          {data.missing.length > 0 && (
-            <span className="k-help">
-              {WORDS.scoreMissing}: {data.missing.join(" · ")}
-            </span>
-          )}
-          {data.how && (
-            <a className="k-link" href={data.how}>
-              {WORDS.scoreHow}
-            </a>
-          )}
-        </div>
+      {/* What does not count: the names on one line, the reasons on open (his 19 Nov «anche i
+          "Non contano" andrebbero condensati»). */}
+      {data.missing.length > 0 && (
+        <Condensed
+          label={WORDS.scoreMissing}
+          remember={"voto.missing." + key}
+          names={data.missing.map((m) => why(m)[0])}
+        >
+          <ul className="k-clegend why">
+            {data.missing.map((m) => {
+              const [name, reason] = why(m);
+              return (
+                <li key={m}>
+                  <span className="nm">{name}</span>
+                  {reason && <span className="k-help">{reason}</span>}
+                </li>
+              );
+            })}
+          </ul>
+        </Condensed>
+      )}
+      {data.how && (
+        <a className="k-link" href={data.how}>
+          {WORDS.scoreHow}
+        </a>
       )}
     </div>
   );

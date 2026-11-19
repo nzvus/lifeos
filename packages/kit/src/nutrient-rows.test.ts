@@ -107,7 +107,7 @@ describe("Nutrients L1", () => {
     ]);
   });
 
-  it("writes the micros against their targets, coloured by the page's state", () => {
+  it("writes the micros against their targets, each in its group's colour, the fine ones marked (his 19 Nov)", () => {
     const { micros } = nutrientsL1({
       macros: [],
       micros: {
@@ -124,11 +124,15 @@ describe("Nutrients L1", () => {
         ],
       },
     });
-    expect(micros!.groups[0]!.items.map((i) => [i.v, i.w, i.color])).toEqual([
-      ["4 / 15 µg", "27%", "var(--tomato)"],
-      ["120 / 110 mg", "100%", "var(--herb)"],
-      ["50 µg", "0%", "var(--ink)"],
+    expect(micros!.groups[0]!.items.map((i) => [i.v, i.w, i.ok])).toEqual([
+      ["4 / 15 µg", "27%", false],
+      ["120 / 110 mg", "100%", true],
+      ["50 µg", "0%", false],
     ]);
+    // a group's colour, lighter for each next item (as a macro's kinds)
+    const c = micros!.groups[0]!.items.map((i) => i.color);
+    expect(c[0]).toBe("color-mix(in srgb, var(--crit-1) 100%, var(--sheet))");
+    expect(c[1]).toContain("var(--crit-1) 82%");
   });
 
   it("judges the maxima as ceilings", () => {

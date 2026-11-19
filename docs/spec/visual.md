@@ -112,7 +112,10 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   bars, whole grams) · L0-ribbon · L1 (every nutrient, macro accordions) · L2 (foods × kinds). Macros
   split by kind in fixed shades; planned hatched; the target a moving tick; sugars, saturated, salt named
   by the icon; L1/L2 open like a Box, icons grow and tilt, a tapped food lights in every row.
-  [UI-68 «tutte le barre dei macro… un unico tipo», UI-50, UI-55, UI-31, UI-02, D5] The kcal bar has no macro colour: where it has zones its fill is a ramp through the zones'
+  [UI-68 «tutte le barre dei macro… un unico tipo», UI-50, UI-55, UI-31, UI-02, D5] Micros (his pick of 19 Nov): each its group's colour (vitamins,
+  minerals, …: `--crit-n` in order), lighter for each next one, as a macro's kinds; full-length
+  bar, zones under it, tip by zone; the fine ones on one condensed line (PAT-40). The kcal bar
+  has no macro colour: where it has zones its fill is a ramp through the zones'
   colours, each at its zone's middle, blended, ending in its zone's colour (his 17 Nov «può
   cambiare colore in base ai range… più graduale»). — Today: built.
 - **VIS-51** Bars by meaning, none hand-drawn: track (`--track` 6, `--tick` 2) · segments (`--segs` 8,
