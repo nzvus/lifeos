@@ -549,19 +549,11 @@
   outline-offset: 4px;
   border-radius: var(--r-mark);
 }
-.k-head .k-num,
-.k-go {
+.k-head .k-num {
   position: relative;
   z-index: 1;
   background: var(--sheet);
   border-radius: 4px;
-  padding: 0 4px;
-}
-.k-go {
-  color: var(--muted);
-  text-decoration: none;
-  font-family: var(--font-display);
-  font-size: var(--fs-d3);
   padding: 0 4px;
 }
 .k-row.times .k-more {
@@ -3918,18 +3910,6 @@ button.k-link {
 .k-head {
   min-width: 0;
 }
-/* the link to an item's page: a 44 × 44 target that reaches into the box's padding, the text does not move */
-.k-go {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: var(--touch);
-  min-height: var(--touch);
-  margin: -12px -12px -12px -4px;
-  padding: 0;
-  background: transparent;
-}
 /* the drawing's corner stays free of words: the lines under the head stop before it (UI-79) */
 .k-row:not(.dense)
   .k-box:is(:has(> .k-bin), :has(.k-top > .k-sub), .day):not(.is-open)
@@ -4842,4 +4822,23 @@ a.k-pill.link {
 }
 a.k-pill.link::after {
   content: " ›";
+}
+/* Taps (his 19 Nov: «molti pezzi dovrebbero essere interagibili per intero… l'effetto "tocco"
+   fa lampeggiare male»): no browser flash anywhere; a closed box that opens is one target over
+   its whole surface (Box's click); a piece that is its own button darkens a little while
+   pressed, nothing jumps or flashes. A press on a box's own button darkens only that button. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+.k-box:not(.is-open):has(button.k-head) {
+  cursor: pointer;
+}
+.k-box:not(.is-open):has(button.k-head):active:not(
+    :has(:is(a, button:not(.k-head), input, select, label):active)
+  ),
+.k-box:has(a.k-head:active),
+button.k-part.toggle:active,
+button.k-mrow:active {
+  /* the whole piece lightens evenly, numbers on their own patch too (a tint left them dark) */
+  filter: brightness(1.15);
 }

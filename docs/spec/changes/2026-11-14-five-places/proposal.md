@@ -714,7 +714,10 @@
       essere invece tolta. Inoltre l'effetto "tocco" fa lampeggiare male quelle sezioni»
       (19 Nov) → a pattern for every piece (VIS-40, VIS-90): the whole Box is the target, the
       side arrow goes, one pressed state without the flash. Pick: one kit change, so every
-      screen gets it; first in this change's queue, before the exercise box (§59 builds on it).
+      screen gets it; first in this change's queue, before the exercise box (§59 builds on it). **Built 19 Nov** (VIS-40; photos `LIFEOS/review/2026-11-19/taps/`): no «›» on any Box; a
+      closed box that opens opens from any spot; open, «Apri» leads to its page; no browser
+      flash, a press lightens the box. Not changed: a link-only box is a link over its title
+      line only (the line under it is not yet; `.k-top` is positioned to sit above the drawing).
     - «Le pagine e schede di aggiunta, come di modifica, dovrebbero tutte essere toccate dai
       cambiamenti che stiamo apportando. Fosse per me renderei unica la pagina di
       visualizzazione che quella di modifica. Ovviamente dovrebbe contenere tutto e anche opzioni

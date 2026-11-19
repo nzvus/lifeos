@@ -201,12 +201,20 @@ export function Box({
   // own line under the box: the head never pushes past the edge (the water row did).
   const inline = acts.length === 1 && acts[0]!.label.length <= 6;
   const headActs = inline ? acts : [];
-  // Only a link, nothing else to tap in it: the whole box is the link.
-  const cover = !onToggle && !!e.href && acts.length === 0;
+  // A box that leads somewhere and does not open: the whole box is the link, its actions
+  // stay above it (his 19 Nov: «interagibili per intero e non solo da una freccia»).
+  const cover = !onToggle && !!e.href;
   const lineActs = inline ? [] : acts;
+  // A box that opens and has a page: the page is «Apri», inside the open box, never an arrow.
+  const page = onToggle && e.href && expanded;
   const actsLine =
-    lineActs.length > 0 ? (
+    lineActs.length > 0 || page ? (
       <div className="k-line end g2 k-acts">
+        {page && (
+          <a className="k-btn act" href={e.href} aria-label={e.hrefLabel ?? e.title}>
+            Apri
+          </a>
+        )}
         {lineActs.map((a) => (
           <button
             key={a.label}
@@ -257,6 +265,17 @@ export function Box({
         <div
           className={
             "k-box " + e.fam + (e.sub ? " " + e.sub : "") + (expanded ? " is-open" : "")
+          }
+          // Closed, the whole box opens it, not only its head (his 19 Nov: «interagibili per
+          // intero»); a tap on its own buttons and links stays theirs. Open, only the head
+          // closes it, so a tap inside never shuts it.
+          onClick={
+            onToggle && !expanded
+              ? (ev) => {
+                  const t = ev.target as Element;
+                  if (!t.closest("a, button, input, select, textarea, label")) onToggle();
+                }
+              : undefined
           }
         >
           <span className="k-artclip" aria-hidden="true">
@@ -330,7 +349,7 @@ export function Box({
                   </span>
                 </span>
               )}
-              {(e.href || headActs.length > 0 || (dense && e.score)) && (
+              {(headActs.length > 0 || (dense && e.score)) && (
                 <span className="k-trail">
                   {dense && e.score && e.score.parts.length > 0 && (
                     // A row's score: the board's mini skyline, beside its value.
@@ -373,20 +392,6 @@ export function Box({
                       {a.label}
                     </button>
                   ))}
-                  {e.href &&
-                    (cover ? (
-                      <span className="k-go" aria-hidden="true">
-                        ›
-                      </span>
-                    ) : (
-                      <a
-                        className="k-go"
-                        href={e.href}
-                        aria-label={e.hrefLabel ?? e.title}
-                      >
-                        ›
-                      </a>
-                    ))}
                 </span>
               )}
             </div>
