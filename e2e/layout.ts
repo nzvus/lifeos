@@ -203,16 +203,21 @@ export function measureBoxLines() {
     getComputedStyle(document.documentElement).getPropertyValue("--sp-2"),
   );
   const off: string[] = [];
-  const LINES =
-    ":scope > .k-top, :scope > .k-bin, :scope > .k-lvstrip, :scope > .k-bpills," +
-    " :scope > .k-acts, :scope > .k-doors, :scope > .k-doorpanel, :scope > .k-more > div > *";
+  // every line of the box, whatever its class: its children in the flow, and the lines of
+  // the block that opens (`.k-more`), never the drawing
+  const linesOf = (box: Element) =>
+    [...box.children].flatMap((c) =>
+      c.matches(".k-more") ? [...c.querySelectorAll(":scope > div > *")] : [c],
+    );
   for (const box of document.querySelectorAll(".k-box")) {
     const title =
       box.querySelector(".k-title")?.textContent?.slice(0, 20) ?? box.className;
-    const lines = [...box.querySelectorAll(LINES)]
+    const lines = linesOf(box)
       .filter((e) => {
         const cs = getComputedStyle(e);
-        return cs.display !== "none" && cs.position !== "absolute";
+        return (
+          cs.display !== "none" && cs.position !== "absolute" && cs.position !== "fixed"
+        );
       })
       .map((e) => e.getBoundingClientRect())
       .filter((r) => r.height > 0)

@@ -559,8 +559,10 @@
   grid-template-rows: 0fr;
   opacity: 0;
 }
+/* the four bars use the box's width, grams on its right edge, like every other nutrient bar
+   (VIS-50; his 19 Nov: at 54 % the bars were short with a wide gap to the grams) */
 .k-slot-l0 {
-  width: 54%;
+  width: 100%;
 }
 
 /* ---------- skyline ---------- */

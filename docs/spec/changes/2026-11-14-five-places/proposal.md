@@ -749,6 +749,15 @@
     water head on one line (the title kept 8 em, now 6); the head number with no patch and no
     4 px inset; «›» gone as a Box value (Aggiungi, Palestra, gym start). Seen, not changed: the
     meal's four macro bars are short with a wide gap to the grams (Nutrients L0, its own pattern).
+66. **19 Nov night, his words:** «"Seen but not changed" yes solve it and remember all
+    visualizations occurrencies. and procede too» — the short macro bars with a wide gap to the
+    grams (Nutrients L0, VIS-50) are fixed in the piece, so every place that draws it changes,
+    each photographed; then on with §64's order (the meal's voto next). **Built 19 Nov:** the four
+    bars (`NutrientsL0` in `.k-slot-l0`, the only short one) use the box's width, grams on its
+    edge, in all four places that draw them: a meal open on Oggi, a pasto in Elenco, a pasto's
+    page, the gallery (photos `LIFEOS/review/2026-11-19/bars/`); the other nutrient bars («Il
+    giorno», the composer) were already full width. The corner drawing (9 % opacity) stays
+    below them. `measureBoxLines` now counts every line of a box, open too.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
