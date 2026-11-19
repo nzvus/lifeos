@@ -563,6 +563,27 @@ export default async function KitPage({
         <MeasureDays {...DAYS_EXAMPLE} />
       </section>
 
+      {/* Style samples (bars study §9, his 20 Nov: «lo stile non puoi renderizzarmelo… se non me
+          li fai vedere»): the same content, three skins. */}
+      <section className="k-section g3" id="stili" aria-label="Stili: campioni">
+        <h2>Stili · campioni</h2>
+        {(["pieno", "calmo", "denso"] as const).map((skin) => (
+          <div
+            key={skin}
+            id={"stile-" + skin}
+            role="group"
+            aria-label={skin}
+            className="k-stack g3"
+          >
+            <span className="k-label">{skin}</span>
+            <MeasureTree node={TREE_KCAL} skin={skin} />
+            <MeasureTree node={TREE_MICROS[0]!} skin={skin} />
+            <MeasureTree node={TREE_MICROS[1]!} skin={skin} />
+            <MeasureTree node={TREE_VOTO} skin={skin} />
+          </div>
+        ))}
+      </section>
+
       <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">
         <h2>Box a livelli</h2>
         {LEVELS.map(([id, label, expanded, door]) => (

@@ -5271,7 +5271,8 @@ button.k-mrow:active {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-  flex: 0 0 auto;
+  /* the gaps come out of the stretches: the tier never passes its parent */
+  flex: 0 1 auto;
 }
 .k-tt .seg > i {
   display: block;
@@ -5370,4 +5371,112 @@ button.k-mrow:active {
   font-size: 10px;
   line-height: 12px;
   color: var(--muted);
+}
+/* ---------- style samples (bars study §9, his 20 Nov): one structure, three skins ---------- */
+/* pieno: thick, rounded, saturated, big numbers */
+.k-tree.skin-pieno {
+  gap: 5px;
+}
+.k-tree.skin-pieno .k-thead .n {
+  font-size: var(--fs-d3);
+}
+.k-tree.skin-pieno .k-tb {
+  height: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.k-tree.skin-pieno .k-tb .act,
+.k-tree.skin-pieno .k-tb .plan {
+  top: 0;
+  bottom: 0;
+  border-radius: 8px;
+}
+.k-tree.skin-pieno .k-tb .tick {
+  top: 0;
+  bottom: 0;
+  width: 3px;
+}
+.k-tree.skin-pieno .k-tt {
+  gap: 3px;
+}
+.k-tree.skin-pieno .k-tt .seg > i {
+  height: 10px;
+  border-radius: 5px;
+}
+.k-tree.skin-pieno .k-tc .cell > i {
+  height: 16px;
+  border-radius: 5px;
+}
+/* calmo: thin soft lines with a glow, one big number, quiet words */
+.k-tree.skin-calmo {
+  gap: 6px;
+}
+.k-tree.skin-calmo .k-thead .nm {
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.k-tree.skin-calmo .k-thead .n {
+  font-size: var(--fs-d2);
+  font-weight: 600;
+}
+.k-tree.skin-calmo .k-tb {
+  height: 6px;
+}
+.k-tree.skin-calmo .k-tb .band {
+  background: transparent;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) var(--step), transparent);
+}
+.k-tree.skin-calmo .k-tb .act {
+  top: 1px;
+  bottom: 1px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, transparent, currentColor) !important;
+  color: var(--ink);
+  box-shadow: 0 0 10px 0 color-mix(in srgb, var(--ink) 25%, transparent);
+}
+.k-tree.skin-calmo .k-tt .seg > i {
+  height: 3px;
+  border-radius: 2px;
+}
+.k-tree.skin-calmo .k-tt .lb,
+.k-tree.skin-calmo .k-tc .lb {
+  opacity: 0.7;
+}
+.k-tree.skin-calmo .k-tc .cell > i {
+  height: 6px;
+  border-radius: 3px;
+}
+/* denso: compact rows, small aligned numbers, the most values per pixel */
+.k-tree.skin-denso {
+  gap: 2px;
+}
+.k-tree.skin-denso .k-thead {
+  font-size: 11px;
+  line-height: 12px;
+}
+.k-tree.skin-denso .k-thead .n {
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.k-tree.skin-denso .k-tb {
+  height: 6px;
+}
+.k-tree.skin-denso .k-tb .act {
+  top: 1px;
+  bottom: 1px;
+}
+.k-tree.skin-denso .k-tt .seg > i {
+  height: 4px;
+}
+.k-tree.skin-denso .k-tc .cell > i {
+  height: 7px;
+  border-radius: 1px;
+}
+.k-tree.skin-denso .k-tt .lb,
+.k-tree.skin-denso .k-tc .lb {
+  font-size: 9px;
+  line-height: 10px;
 }
