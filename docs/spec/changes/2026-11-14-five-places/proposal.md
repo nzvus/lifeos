@@ -868,6 +868,10 @@
     (bars-study §9) so every later change follows them.
 76. **20 Nov, his words on the grammar:** «e ovviamente è sempre preferibile usare quelle dimensioni
     che il testo, senza perdere informatività». Rule 4 of bars-study §9 made strict.
+77. **20 Nov, his words on the grammar:** «e poi alcune dimensioni si prestano meglio a rendere più
+    chiara la loro scala, il loro valore. ovviamente l'informazione massima è data dai numeri,
+    immagino, solo che anche loro vanno affiancati da altri dimensioni, più facilmente da altri
+    numeri o unità di misura. noi però non vogliamo troppo testo». Rule 7 of bars-study §9.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

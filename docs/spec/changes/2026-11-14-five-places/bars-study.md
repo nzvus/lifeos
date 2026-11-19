@@ -260,6 +260,14 @@ data-ink.
    «Perché?»).
 5. **Size follows the level**, not the importance of the moment.
 6. **A rule is measured** (the layout guard): gaps, the 360 px fit, one number per measure.
+7. **A number gets its scale from a channel, not from more text** (his 20 Nov: «l'informazione
+   massima è data dai numeri… vanno affiancati da altri dimensioni, più facilmente da altri numeri
+   o unità di misura. noi però non vogliamo troppo testo»): the one number stands beside a bar
+   whose length, target tick and zones say «of how much» and «how good»; the target as a number,
+   the edges' amounts and the source come on demand (open level, «Perché?»). A unit is written
+   once per group (its header) when every value shares it, never after each value. A channel
+   chosen for a property is the one that shows its scale best: position or length for amounts,
+   a mark for a state, order for rank.
 
 Next: the same block (the day's energy, its macros, the micros, a voto) rendered in a few
 styles in the gallery, photographed, for him to pick by eye.
