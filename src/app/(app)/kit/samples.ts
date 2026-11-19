@@ -3,7 +3,9 @@
  * the voto of the Porridge of 9 Nov and his water, his micros of 9 Nov, the same as form items.
  */
 import {
+  F,
   type BoxEntry,
+  type RidgeMeasure,
   type FormItem,
   type MNode,
   type NutrientsData,
@@ -425,3 +427,110 @@ export const DAYS_EXAMPLE = {
     { d: "L", v: 1450, plan: 650 },
   ],
 };
+
+/** Ridge (bars study §15): his 9 Nov as «Il giorno» showed it on 14 Nov (photos his-day/). */
+type Lv = "bad" | "fair" | "good" | "danger";
+const rg = (...e: [number, Lv][]) => e.map(([from, level]) => ({ from, level }));
+const rm = (
+  icon: string,
+  name: string,
+  v: number,
+  t: number,
+  color: string,
+  ranges: { from: number; level: Lv }[],
+  unit: string,
+  parts?: { v: number; color: string }[],
+): RidgeMeasure => ({
+  icon,
+  name,
+  v,
+  t,
+  color,
+  ranges,
+  ...(parts ? { parts } : {}),
+  n: F.n(v, v >= 100 ? 0 : 1),
+  label: F.num(v, unit) + " / " + F.num(t, unit),
+});
+const PR = "var(--macro-protein)";
+const prs = (p: number) => `color-mix(in srgb, ${PR} ${p}%, var(--sheet))`;
+export const RIDGE_9NOV: RidgeMeasure[] = [
+  rm(
+    "kcal",
+    "Energia",
+    3478,
+    2105,
+    "var(--ink)",
+    rg([0, "bad"], [1580, "fair"], [1895, "good"], [2631, "fair"], [3160, "bad"]),
+    "kcal",
+  ),
+  rm(
+    "protein",
+    "Proteine",
+    180.5,
+    168,
+    PR,
+    rg([0, "bad"], [63, "fair"], [121, "good"], [167, "fair"], [220, "bad"]),
+    "g",
+    [
+      { v: 96.2, color: PR },
+      { v: 51.9, color: prs(72) },
+      { v: 13.3, color: prs(52) },
+      { v: 19.1, color: prs(36) },
+    ],
+  ),
+  rm(
+    "carbs",
+    "Carboidrati",
+    442.9,
+    221,
+    "var(--macro-carbs)",
+    rg([0, "fair"], [228, "good"], [316, "fair"], [400, "bad"]),
+    "g",
+  ),
+  rm(
+    "fat",
+    "Grassi",
+    97.5,
+    61,
+    "var(--macro-fat)",
+    rg([0, "bad"], [35, "good"], [82, "fair"], [100, "bad"]),
+    "g",
+  ),
+  rm(
+    "fiber",
+    "Fibre",
+    46.7,
+    29,
+    "var(--macro-fiber)",
+    rg([0, "bad"], [21, "fair"], [29, "good"], [60, "fair"]),
+    "g",
+  ),
+  // less is better: the target is the ceiling (FD-33)
+  rm(
+    "sugars",
+    "Zuccheri liberi",
+    50.1,
+    52.6,
+    "var(--macro-carbs)",
+    rg([0, "good"], [26, "fair"], [53, "bad"]),
+    "g",
+  ),
+  rm(
+    "sat",
+    "Grassi saturi",
+    21.5,
+    23,
+    "var(--macro-fat)",
+    rg([0, "good"], [23, "fair"]),
+    "g",
+  ),
+  rm(
+    "salt",
+    "Sale",
+    6.5,
+    5,
+    "var(--muted)",
+    rg([0, "good"], [5, "fair"], [7.5, "bad"]),
+    "g",
+  ),
+];

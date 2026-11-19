@@ -12,6 +12,7 @@ import {
   DAYS_EXAMPLE,
   FORM_ITEMS,
   MICROS_9NOV,
+  RIDGE_9NOV,
   TREE_KCAL,
   TREE_MICROS,
   TREE_PLANNED,
@@ -31,6 +32,7 @@ import {
   Forms,
   MeasureDays,
   MeasureTree,
+  Ridge,
   Nutrients,
   type BoxEntry,
 } from "@lifeos/kit";
@@ -561,6 +563,13 @@ export default async function KitPage({
           <MeasureTree key={n.name} node={n} />
         ))}
         <MeasureDays {...DAYS_EXAMPLE} />
+      </section>
+
+      {/* Ridge (bars study §15, his 20 Nov «tu puoi fare di meglio»): the bar takes the shape of
+          its ranges; his 9 Nov as a ridgeline. */}
+      <section className="k-section g3" id="ridge" aria-label="Il giorno come crinale">
+        <h2>Il giorno come crinale</h2>
+        <Ridge measures={RIDGE_9NOV} unit="g" label="Il giorno" />
       </section>
 
       <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">

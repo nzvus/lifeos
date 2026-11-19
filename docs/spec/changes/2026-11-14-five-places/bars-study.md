@@ -414,3 +414,26 @@ macros, the three limits); the ranges blend behind each axis from colour to colo
 scale written once (50 · 100 · 150 · 200 % of each target); each axis end its icon and one number;
 a plan as a dashed outline. The solid (`Solid`) removed («tridimensionale per ora no»).
 Rejected 20 Nov («il poligono è orribile», proposal §85); `Radar` removed.
+
+## 15. The bar takes the shape of its ranges: the ridge (20 Nov, proposal §87)
+
+His words: nothing special in the real apps, «tu puoi fare di meglio». Claude's own idea, on the
+bar he likes (VIS-50/52): the bar is no longer a flat rectangle but a **hill shaped by its
+ranges**: tallest where the value is best («ottimo»), half where «ok», thin where «pessimo»,
+smoothed so the slopes are gradual (his «più graduali e sfumati»), its colour blending along it.
+His amount fills the hill from the left in its identity colour (split by its kinds, as protein's
+qualità); a plan is hatched after it.
+
+What each channel carries, once (§9 rule 4): **shape** = the ranges and the target (the peak; no
+tick, no words); **length** = his amount; **hue** = what it is; **position of the end on the
+slope** = the judgement; **numbers** = his amount (one, top left, in the hill's empty low corner)
+and the scale (the range edges under the hill, the unit once). Limits («less is better») are hills
+that start high and slope down; «at least» ones rise and stay up.
+
+Stacked, the hills form a **ridgeline**: every scale runs to twice its target, so every peak sits
+on one dashed vertical line; how far each fill passes that line is the day at a glance. The same
+piece can be one measure in a Box (one hill) or the day (all of them): one family for both.
+
+Decided by Claude, cheap to change: heights per level (ottimo 1, ok ½, pessimo ⅙, da evitare
+≈ 0); the scale ends at 2 × the target (a value past it shows an arrow at the right end).
+

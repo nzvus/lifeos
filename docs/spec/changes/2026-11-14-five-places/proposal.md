@@ -919,6 +919,9 @@
 86. **20 Nov, his pick:** «Look at real apps first» (of: improve the original · real apps · his
     reference). 10–15 screens from apps known for data views on one page; he marks what he likes;
     the bars are built only from that. Page: `LIFEOS/review/2026-11-20/app-reali/`.
+87. **20 Nov, his words on the real apps page:** «non vedo nulla di straordinario, tu puoi fare di
+    meglio». Claude's own idea, built: the bar takes the shape of its ranges (bars-study §15,
+    `Ridge`), photos `LIFEOS/review/2026-11-20/crinale/`.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
