@@ -5,7 +5,7 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **72** · kit pieces: **48**
+- routes: **42** · screen components outside the kit: **72** · kit pieces: **52**
 - components that take input (a form, a field): **37**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
@@ -200,13 +200,17 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `Confirm` | 1 | features/gallery/Pieces.tsx |
 | `ContextLine` | 1 | features/gallery/Pieces.tsx |
 | `DateNav` | 1 | app/(app)/oggi/day-page.tsx |
+| `DrillCard` | 1 | app/(app)/kit/page.tsx |
+| `DrillChart` | 1 | app/(app)/kit/page.tsx |
+| `DrillFace` | 1 | app/(app)/kit/page.tsx |
+| `DrillLegend` | 1 | app/(app)/kit/page.tsx |
+| `DrillPath` | 1 | app/(app)/kit/page.tsx |
 | `EntryDetails` | 1 | features/day/EntryRow.tsx |
 | `EntryHeader` | 1 | features/gallery/Pieces.tsx |
 | `FasciaBar` | 1 | features/gallery/Pieces.tsx |
 | `Forms` | 1 | app/(app)/kit/page.tsx |
 | `Judge` | 1 | features/gallery/Pieces.tsx |
 | `MeasureDays` | 1 | app/(app)/kit/page.tsx |
-| `MeasureForm` | 1 | app/(app)/kit/page.tsx |
 | `MeasureTree` | 1 | app/(app)/kit/page.tsx |
 | `NavBar` | 1 | features/shell/AppNav.tsx |
 | `NutrientsL0` | 1 | features/day/DayView.tsx |

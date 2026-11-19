@@ -890,6 +890,9 @@
     qualcosa di tridimensionale no? permettendomi di ruotarlo e vederlo meglio, o magari tu gestisci
     la rotazione e anche quella è una dimensione? non so come funziona». Next: real tools' pictures
     (review page), and an answer on 3D (rotation as OLAP's pivot, faces kept flat).
+82. **20 Nov, his words on the real tools page:** «yeah combine the best things of them. make a study
+    and some proposals». Study: bars-study §12; proposals in the gallery (`/kit#drill`), photos
+    `LIFEOS/review/2026-11-20/drill/`.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

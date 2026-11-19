@@ -326,3 +326,50 @@ What it changes in §9 (Claude's reading of his words, for his OK):
 - Each view can be pivoted (by macro · by meal · by part of the day) and sliced (planned · done),
   instead of drawing every dimension at once.
 
+## 12. The best of the real tools, combined (20 Nov, proposal §82)
+
+Pictures: `LIFEOS/review/2026-11-20/tool-reali/`. What each tool does best, and what we take:
+
+| Tool | Best at | We take |
+|---|---|---|
+| Few's bullet graph | one value against its target and ranges, a numbered scale under it | the bar on its ranges, the target tick, **the scale written** (0 · 1.000 · 2.000 · 3.000 kcal) |
+| MacroFactor | levels by tap: a card per nutrient → today · week · month → the days; floor · target · ceiling as numbers; «All contributors» | the card at level 0; **the edges written as numbers** on open; the foods with grams and % (drill-through) |
+| Power BI | every level an ordinary bar chart with an axis and the value on each bar; tap a bar to go down, back to go up | **one known form at every level**; a path «Energia › Proteine» to go back up |
+| OLAP | slice, dice, pivot | **pivot**: the same kcal by macro · by meal · by part of the day; slice: fatto · previsto |
+
+The rules this adds to §9 (rule 8, comprehensibility first):
+
+1. Every bar has a written scale in its unit; the unit is on the axis, never after each value.
+2. The ranges are drawn behind the bar **and named** («pessimo · ok · ottimo»), with the amounts at
+   their edges.
+3. The target is a tick with its number.
+4. Each level is a bar chart; a tap on a bar goes one level down; a path at the top goes back.
+5. A pivot changes which dimension is on the chart; the chart stays the same (flat). Its motion
+   may turn like a cube face (his «rotazione», §81).
+
+The Energia path on his 9 Nov (the numbers of his day as the app shows them):
+
+| Level | Shows | Scale |
+|---|---|---|
+| 0 | Energia: 3.478 kcal against 2.105, its ranges | 0 – 3.500 kcal |
+| 1 | the four macros, each against its own target and ranges | grams, one scale per macro |
+| 2 | Proteine: its kinds (alta 96,2 · media 51,9 · bassa 13,3 · senza stima 19,1 g) and where it came from (latte scremato 82 g, fiocchi d'avena 20,3, …) | grams |
+| pivot | the 3.478 kcal by meal (202 · 774 · 445 · 1.677 · 380) or by part of the day | kcal |
+
+Three proposals, all on these numbers, all following rules 1–5 (gallery `#drill`):
+
+- **A · Schede** (MacroFactor + Few): each level a stack of cards, each card one bullet with its
+  scale and its range names; open = the edges as numbers and the contributors.
+- **B · Grafico a livelli** (Power BI + Few): each level one bar chart with one shared axis, the
+  ranges behind each bar in grey steps, named once in a legend; the path on top.
+- **C · Gira il cubo** (B + pivot): B's level 0 with a switch «per macro · per pasto · per
+  momento», the chart turning like a cube face between them.
+
+Built 20 Nov (kit `Drill.tsx`: `DrillCard`, `DrillChart`, `DrillPath`, `DrillLegend`,
+`DrillFace`; photos `LIFEOS/review/2026-11-20/drill/`). Decided by Claude, cheap to change: when
+two edge numbers would touch, the axis keeps the target's; B's level 0 puts every row on «% of its
+target» so one axis serves kcal and grams (the grams are written beside the bar). Round 2
+(`MeasureForms`) removed. Note: the gallery's fat edges (35 · 82 · 100 g) come from the older sample
+and call 97,5 g «ok», while the app said «pessimo» on 14 Nov; the domain rule decides, not this
+drawing.
+

@@ -26,7 +26,16 @@ export { Nutrients, NutrientsL0 } from "./Nutrients";
 export { Criteria, type CriteriaData } from "./Criteria";
 export { Forms, type FormItem, type FormLook } from "./Forms";
 export { MeasureTree, MeasureDays, type MNode } from "./MeasureTree";
-export { MeasureForm, type FormStyle } from "./MeasureForms";
+export {
+  DrillCard,
+  DrillChart,
+  DrillFace,
+  DrillLegend,
+  DrillPath,
+  niceTicks,
+  type DrillRange,
+  type DrillRow,
+} from "./Drill";
 export {
   nutrientsL0,
   energyStrip,

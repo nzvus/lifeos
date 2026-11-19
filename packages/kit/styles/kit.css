@@ -5372,217 +5372,269 @@ button.k-mrow:active {
   line-height: 12px;
   color: var(--muted);
 }
-/* ---- style samples, round 2 (bars study §9 rules 1–7; MeasureForms): colonne · quadretti · rosa */
-.k-mf-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-3);
-}
-.k-mf {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-  padding: var(--sp-2);
-  border-radius: var(--r-2, 8px);
-  background: color-mix(in srgb, var(--ink) 4%, transparent);
-}
-.k-mf.wide {
-  grid-column: 1 / -1;
-}
-.k-mf-head {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  line-height: 1.1;
-}
-.k-mf-head .nm {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 11px;
-  color: var(--muted);
-}
-.k-mf-head .n {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--fs-d4);
-  white-space: nowrap;
-}
-/* colonne and quadretti: a total, then one column per part */
-.k-mf-cols,
-.k-mf-pips {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.k-mf-cols .plot,
-.k-mf-cols .lbs,
-.k-mf-pips .plot,
-.k-mf-pips .lbs {
-  display: grid;
-  grid-template-columns: 1.5fr repeat(var(--n), minmax(0, 1fr));
-  gap: 3px;
-}
-.k-mf-cols .plot {
-  height: 64px;
-  padding-top: 5px;
-}
-.k-mf-cols .col {
+/* ---- drill proposals (bars study §12; Drill.tsx): the scale, the ranges and the target written */
+.k-dr-track {
   position: relative;
-  border-radius: 2px 2px 0 0;
+  display: block;
+  height: 14px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
 }
-.k-mf-cols .col.tot {
-  margin-right: 3px;
+.k-dr-track.tint {
+  height: 22px;
 }
-.k-mf-cols .band {
+.k-dr-track .band {
   position: absolute;
-  left: 0;
-  right: 0;
+  top: 0;
+  bottom: 0;
+}
+.k-dr-track.tint .band {
+  background: color-mix(in srgb, var(--band) 16%, transparent);
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--band) 45%, transparent);
+}
+.k-dr-track.tint .band .nm {
+  position: absolute;
+  top: 1px;
+  left: 3px;
+  right: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 9px;
+  line-height: 10px;
+  color: color-mix(in srgb, var(--band) 80%, var(--ink));
+}
+.k-dr-track.grey .band,
+.k-dr-legend .band {
   background: color-mix(in srgb, var(--ink) var(--step), transparent);
 }
-.k-mf-cols .band.danger,
-.k-mf-pips .pip.danger {
+.k-dr-track.grey .band.danger,
+.k-dr-legend .band.danger {
   background: repeating-linear-gradient(
     135deg,
     color-mix(in srgb, var(--heat-bad) 35%, transparent) 0 2px,
     transparent 2px 5px
   );
 }
-.k-mf-cols .act,
-.k-mf-cols .plan,
-.k-mf-cols .cnt {
+.k-dr-track .fill,
+.k-dr-track .plan {
   position: absolute;
-  left: 3px;
-  right: 3px;
+  left: 0;
+  bottom: 3px;
+  height: 8px;
+  border-radius: 1px;
 }
-.k-mf-cols .tot .act,
-.k-mf-cols .tot .cnt {
-  left: 2px;
-  right: 2px;
+.k-dr-track.grey .fill,
+.k-dr-track.grey .plan {
+  top: 3px;
+  bottom: 3px;
+  height: auto;
 }
-.k-mf-cols .plan {
+.k-dr-track .plan {
   background: repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 4px);
   box-shadow: inset 0 0 0 1px currentColor;
 }
-.k-mf-cols .cnt,
-.k-mf-pips .cnt {
-  box-shadow: inset 0 0 0 1px var(--c);
-}
-.k-mf-cols .cnt.met,
-.k-mf-pips .cnt.met {
-  background: var(--c);
-}
-.k-mf-cols .cnt.part,
-.k-mf-pips .cnt.part {
-  background: linear-gradient(0deg, var(--c) 50%, transparent 50%);
-}
-.k-mf-cols .tick {
+.k-dr-track .tick {
   position: absolute;
-  left: -2px;
-  right: -2px;
-  height: 2px;
-  margin-bottom: -1px;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
   background: var(--ink);
 }
-.k-mf-cols .end {
-  position: absolute;
-  left: 50%;
-  width: 9px;
-  height: 9px;
-  transform: translate(-50%, 50%);
-  box-shadow: 0 0 0 2px var(--sheet);
-}
-.k-mf-cols .over::after {
-  content: "";
-  position: absolute;
-  top: -5px;
-  left: 3px;
-  right: 3px;
-  border-top: 2px dotted var(--muted);
-}
-.k-mf-cols .lbs > span,
-.k-mf-pips .lbs > span {
-  overflow: hidden;
-  white-space: nowrap;
-  text-align: center;
-  font-family: var(--font-display);
+.k-dr-axis {
+  position: relative;
+  display: block;
+  height: 13px;
+  margin-right: 22px;
   font-size: 10px;
-  line-height: 12px;
+  line-height: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.k-dr-axis > span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.k-dr-axis > span:first-child {
+  transform: none;
+}
+.k-dr-axis > span.end {
+  transform: translateX(-100%);
+}
+.k-dr-axis > .strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.k-dr-axis > .unit {
+  position: absolute;
+  right: -22px;
+  top: 0;
+  font-weight: 400;
+}
+/* A · Schede */
+.k-dr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-2, 8px);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+.k-dr-card .head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  font-size: var(--fs-b2);
+}
+.k-dr-card .head .nm {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.k-dr-card .head .v {
+  font-family: var(--font-display);
+  font-size: var(--fs-d4);
+  white-space: nowrap;
+}
+.k-dr-card .head .w,
+.k-dr-chart .v {
+  font-size: var(--fs-b3);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.k-dr-card .head .go,
+.k-dr-chart .go {
+  margin-left: 4px;
   color: var(--muted);
 }
-/* quadretti: a column of steps of 20 % */
-.k-mf-pips .pcol {
+/* B · Grafico a livelli */
+.k-dr-chart {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 30%) minmax(0, 1fr) max-content;
+  column-gap: 6px;
+  row-gap: 6px;
+  padding: var(--sp-2) 0;
+}
+.k-dr-chart .row {
+  display: contents;
+}
+.k-dr-chart .nm {
   display: flex;
-  flex-direction: column-reverse;
-  align-items: stretch;
-  gap: 2px;
+  align-items: center;
+  gap: 5px;
   min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: var(--fs-b3);
 }
-.k-mf-pips .pcol.tot {
-  margin-right: 3px;
-}
-.k-mf-pips .pip,
-.k-mf-pips .cnt {
-  display: block;
-  height: 5px;
-  border-radius: 1px;
-}
-.k-mf-pips .pcol.tot .cnt {
-  height: 9px;
-}
-.k-mf-pips .pip {
-  background:
-    linear-gradient(var(--c), var(--c)) 0 0 / var(--got) 100% no-repeat,
-    repeating-linear-gradient(135deg, var(--c) 0 2px, transparent 2px 4px) 0 0 /
-      var(--plan) 100% no-repeat,
-    color-mix(in srgb, var(--ink) var(--step), transparent);
-}
-.k-mf-pips .pip.t {
-  box-shadow: 0 -2px 0 0 var(--ink);
-}
-.k-mf-pips .pcol > .k-st {
-  align-self: center;
+.k-dr-chart .nm > i {
+  flex: 0 0 auto;
   width: 8px;
   height: 8px;
-  margin-bottom: 2px;
+  border-radius: 2px;
 }
-/* rosa: one polar shape per block */
-.k-mf-rose {
-  display: block;
-  width: 100%;
-  max-width: 180px;
-  margin: 0 auto;
+.k-dr-chart .v {
+  align-self: center;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
-.k-mf-rose .band {
-  fill: color-mix(in srgb, var(--ink) var(--step), transparent);
+.k-dr-chart .unit {
+  font-size: 10px;
+  line-height: 13px;
+  font-weight: 400;
+  color: var(--muted);
 }
-.k-mf-rose .band.danger {
-  fill: color-mix(in srgb, var(--heat-bad) 25%, transparent);
+.k-dr-track .gl,
+.k-dr-track .tl {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 1px;
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
 }
-.k-mf-rose .tick {
-  fill: var(--ink);
+.k-dr-track .tl {
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+  z-index: 1;
 }
-.k-mf-rose .hole {
-  fill: none;
+.k-dr-chart .k-dr-axis {
+  margin-right: 0;
 }
-.k-mf-rose .cnt {
-  stroke-width: 1px;
+.k-dr-chart .k-dr-axis > .unit {
+  right: auto;
+  left: calc(100% + 6px);
 }
-.k-mf-rose .cnt.part {
-  fill-opacity: 0.45;
+.k-dr-chart .grid {
+  position: absolute;
+  top: 0;
+  bottom: 22px;
+  left: 76px;
+  right: 52px;
+  pointer-events: none;
 }
-.k-mf-rose .mk {
-  fill: var(--m);
-  stroke: var(--sheet);
-  stroke-width: 1.5px;
+.k-dr-chart .gl,
+.k-dr-chart .tl {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
 }
-.k-mf-rose .mk.no {
-  fill: var(--sheet);
-  stroke: var(--m);
+.k-dr-chart .tl {
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+  z-index: 1;
 }
-.k-mf-rose .lb {
-  fill: var(--muted);
-  font-size: 13px;
-  font-family: var(--font-body, inherit);
+.k-dr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.k-dr-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.k-dr-legend .band {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+}
+.k-dr-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: var(--fs-b3);
+  color: var(--muted);
+}
+.k-dr-path .here {
+  color: var(--ink);
+  font-weight: 700;
+}
+.k-dr-path .sep {
+  margin-right: 4px;
+}
+/* C · the cube's face */
+.k-dr-cube {
+  perspective: 700px;
+}
+.k-dr-cube .face.turning {
+  transform: rotateY(var(--turn));
+  transform-origin: 50% 50% -120px;
+  transition: transform var(--t-box, 0.5s) ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .k-dr-cube .face {
+    transition: none;
+  }
 }

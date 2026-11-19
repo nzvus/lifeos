@@ -2,7 +2,15 @@
  * The gallery's samples on his own numbers (kept apart so the page stays under 800 lines):
  * the voto of the Porridge of 9 Nov and his water, his micros of 9 Nov, the same as form items.
  */
-import type { BoxEntry, FormItem, MNode, NutrientsData } from "@lifeos/kit";
+import {
+  F,
+  type BoxEntry,
+  type DrillRange,
+  type DrillRow,
+  type FormItem,
+  type MNode,
+  type NutrientsData,
+} from "@lifeos/kit";
 
 /** His numbers for the opened voto: the Porridge of 9 Nov (71), his water that day (80). */
 export const VOTO_SAMPLES: [string, string, BoxEntry][] = [
@@ -403,30 +411,6 @@ export const TREE_MICROS: MNode[] = (MICROS_9NOV.micros?.groups ?? []).map((g, g
     children: { adds: false, nodes: kids },
   };
 });
-/** An example, not his data (PRD-22): a day still going, eaten + planned, by macro. */
-export const TREE_KCAL_PLAN: MNode = {
-  ...TREE_KCAL,
-  name: "Energia, giornata in corso (esempio)",
-  v: 1450,
-  plan: 650,
-  label: "1.450 → 2.100 kcal",
-  children: {
-    adds: true,
-    nodes: TREE_KCAL.children!.nodes.map((c, i) => ({
-      ...c,
-      v: [380, 700, 330, 40][i]!,
-      plan: [160, 300, 170, 20][i]!,
-    })),
-  },
-};
-/** Style samples (bars study §9): the blocks and their one number each (units once). */
-export const STYLE_BLOCKS: [MNode, string][] = [
-  [TREE_KCAL, "3.478 kcal"],
-  [TREE_KCAL_PLAN, "1.450 → 2.100 kcal"],
-  [TREE_MICROS[0]!, "2 su 4"],
-  [TREE_MICROS[1]!, "4 su 7"],
-  [TREE_VOTO, "71"],
-];
 /** An example, not his data (PRD-22): seven days of kcal against 2.105, today with a plan. */
 export const DAYS_EXAMPLE = {
   name: "Energia, 7 giorni (esempio)",
@@ -444,3 +428,134 @@ export const DAYS_EXAMPLE = {
     { d: "L", v: 1450, plan: 650 },
   ],
 };
+
+/** Drill proposals (bars study §12): his 9 Nov as «Il giorno» shows it (photos of 14 Nov). */
+type R = DrillRange["level"];
+const rg = (...e: [number, R][]): DrillRange[] =>
+  e.map(([from, level]) => ({ from, level, name: RANGE_WORD[level] }));
+const RANGE_WORD: Record<R, string> = {
+  danger: "da evitare",
+  bad: "pessimo",
+  fair: "ok",
+  good: "ottimo",
+};
+export const DRILL_LEGEND = (["bad", "fair", "good"] as const).map((level) => ({
+  level,
+  name: RANGE_WORD[level],
+}));
+const wordOf = (v: number, ranges: DrillRange[]) =>
+  ranges.filter((r) => r.from <= v).pop()?.name ?? "";
+const row = (r: Omit<DrillRow, "word">): DrillRow => ({
+  ...r,
+  ...(r.ranges ? { word: wordOf(r.v + (r.plan ?? 0), r.ranges) } : {}),
+});
+export const DRILL_ENERGY = row({
+  name: "Energia",
+  v: 3478,
+  t: 2105,
+  color: "var(--ink)",
+  ranges: rg([0, "bad"], [1580, "fair"], [1895, "good"], [2631, "fair"], [3160, "bad"]),
+  opens: true,
+});
+export const DRILL_MACROS: DrillRow[] = [
+  row({
+    name: "Proteine",
+    v: 180.5,
+    t: 168,
+    color: "var(--macro-protein)",
+    ranges: rg([0, "bad"], [63, "fair"], [121, "good"], [167, "fair"], [220, "bad"]),
+    opens: true,
+  }),
+  row({
+    name: "Carboidrati",
+    v: 442.9,
+    t: 221,
+    color: "var(--macro-carbs)",
+    ranges: rg([0, "fair"], [228, "good"], [316, "fair"], [400, "bad"]),
+    opens: true,
+  }),
+  row({
+    name: "Grassi",
+    v: 97.5,
+    t: 61,
+    color: "var(--macro-fat)",
+    ranges: rg([0, "bad"], [35, "good"], [82, "fair"], [100, "bad"]),
+    opens: true,
+  }),
+  row({
+    name: "Fibre",
+    v: 46.7,
+    t: 29,
+    color: "var(--macro-fiber)",
+    ranges: rg([0, "bad"], [21, "fair"], [29, "good"], [60, "fair"]),
+    opens: true,
+  }),
+];
+const g1 = (v: number) => F.num(v, "g");
+/** B · level 0: every row as a share of its target, so one axis serves them all. */
+export const DRILL_SHARE: DrillRow[] = [DRILL_ENERGY, ...DRILL_MACROS].map((r) => {
+  const k = 100 / r.t!;
+  return {
+    ...r,
+    v: r.v * k,
+    t: 100,
+    label: r === DRILL_ENERGY ? F.num(r.v, "kcal") : g1(r.v),
+    ranges: r.ranges!.map((x) => ({ ...x, from: x.from * k })),
+  };
+});
+const P = "var(--macro-protein)";
+const pshade = (p: number) => `color-mix(in srgb, ${P} ${p}%, var(--sheet))`;
+export const DRILL_KINDS: DrillRow[] = [
+  { name: "qualità alta", v: 96.2, color: P },
+  { name: "qualità media", v: 51.9, color: pshade(70) },
+  { name: "qualità bassa", v: 13.3, color: pshade(50) },
+  { name: "senza stima", v: 19.1, color: pshade(35) },
+].map((r) => ({ ...r, label: g1(r.v) }));
+export const DRILL_FOODS: DrillRow[] = [
+  { name: "Latte scremato", v: 82 },
+  { name: "Fiocchi d'avena", v: 20.3 },
+  { name: "Mozzarella proteica", v: 14 },
+  { name: "Burro di arachidi", v: 12.9 },
+  { name: "Gnocchi di patate", v: 12 },
+  { name: "e altri 12", v: 39.3 },
+].map((r) => ({
+  ...r,
+  color: P,
+  label: g1(r.v) + " · " + F.n((r.v / 180.5) * 100, 0) + " %",
+}));
+/** C · the pivot: the same 3.478 kcal by macro, by meal, by part of the day. */
+const total: DrillRow = { ...DRILL_ENERGY, opens: false };
+const kc = (name: string, v: number, color: string): DrillRow => ({ name, v, color });
+export const DRILL_PIVOT: [string, DrillRow[]][] = [
+  [
+    "per macro",
+    [
+      total,
+      kc("Proteine", 722, "var(--macro-protein)"),
+      kc("Carboidrati", 1772, "var(--macro-carbs)"),
+      kc("Grassi", 877, "var(--macro-fat)"),
+      kc("Fibre", 93, "var(--macro-fiber)"),
+    ],
+  ],
+  [
+    "per pasto",
+    [
+      total,
+      kc("Preworkout", 202, "var(--crit-1)"),
+      kc("Colazione", 774, "var(--crit-2)"),
+      kc("Pranzo", 445, "var(--crit-3)"),
+      kc("Spuntino", 1677, "var(--crit-4)"),
+      kc("Cena", 380, "var(--crit-5)"),
+    ],
+  ],
+  [
+    "per momento",
+    [
+      total,
+      kc("Mattina", 976, "var(--crit-1)"),
+      kc("Mezzogiorno", 445, "var(--crit-3)"),
+      kc("Pomeriggio", 1677, "var(--crit-4)"),
+      kc("Sera", 380, "var(--crit-5)"),
+    ],
+  ],
+];

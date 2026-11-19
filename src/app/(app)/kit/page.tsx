@@ -12,7 +12,13 @@ import {
   DAYS_EXAMPLE,
   FORM_ITEMS,
   MICROS_9NOV,
-  STYLE_BLOCKS,
+  DRILL_ENERGY,
+  DRILL_FOODS,
+  DRILL_KINDS,
+  DRILL_LEGEND,
+  DRILL_MACROS,
+  DRILL_PIVOT,
+  DRILL_SHARE,
   TREE_KCAL,
   TREE_MICROS,
   TREE_PLANNED,
@@ -31,7 +37,11 @@ import {
   MealBox,
   Forms,
   MeasureDays,
-  MeasureForm,
+  DrillCard,
+  DrillChart,
+  DrillFace,
+  DrillLegend,
+  DrillPath,
   MeasureTree,
   Nutrients,
   type BoxEntry,
@@ -565,26 +575,67 @@ export default async function KitPage({
         <MeasureDays {...DAYS_EXAMPLE} />
       </section>
 
-      {/* Style samples, round 2 (bars study §9 rules 1–7; pieno · calmo · denso rejected 20 Nov):
-          the same four blocks, each form a different main channel. */}
-      <section className="k-section g3" id="stili" aria-label="Stili: campioni">
-        <h2>Stili · campioni</h2>
-        {(["colonne", "quadretti", "rosa"] as const).map((form) => (
-          <div
-            key={form}
-            id={"stile-" + form}
-            role="group"
-            aria-label={form}
-            className="k-stack g2"
-          >
-            <span className="k-label">{form}</span>
-            <div className="k-mf-grid">
-              {STYLE_BLOCKS.map(([node, number]) => (
-                <MeasureForm key={node.name} node={node} form={form} number={number} />
-              ))}
+      {/* Drill proposals (bars study §12, his 20 Nov «combine the best things of them»): the
+          Energia path of his 9 Nov, level by level, the scale and the ranges written. */}
+      <section className="k-section g3" id="drill" aria-label="Livelli: proposte">
+        <h2>Livelli · proposte</h2>
+
+        <div id="drill-a" role="group" aria-label="A · Schede" className="k-stack g2">
+          <span className="k-label">A · Schede — livello 0</span>
+          <DrillCard row={DRILL_ENERGY} unit="kcal" targetWord="obiettivo" />
+          <span className="k-label">livello 1 · tocca Energia</span>
+          <DrillPath label="percorso" steps={["Energia", "Macro"]} />
+          {DRILL_MACROS.map((r) => (
+            <DrillCard key={r.name} row={r} unit="g" targetWord="obiettivo" />
+          ))}
+          <span className="k-label">livello 2 · tocca Proteine</span>
+          <DrillPath label="percorso" steps={["Energia", "Proteine"]} />
+          <DrillCard row={DRILL_MACROS[0]!} unit="g" targetWord="obiettivo" />
+          <span className="k-label">di che qualità</span>
+          <DrillChart rows={DRILL_KINDS} unit="g" />
+          <span className="k-label">da dove</span>
+          <DrillChart rows={DRILL_FOODS} unit="g" />
+        </div>
+
+        <div
+          id="drill-b"
+          role="group"
+          aria-label="B · Grafico a livelli"
+          className="k-stack g2"
+        >
+          <span className="k-label">B · Grafico a livelli — livello 0</span>
+          <DrillPath label="percorso" steps={["Il giorno"]} />
+          <DrillChart rows={DRILL_SHARE} unit="%" targetLine={100} />
+          <DrillLegend items={DRILL_LEGEND} />
+          <span className="k-label">livello 1 · tocca Proteine</span>
+          <DrillPath label="percorso" steps={["Il giorno", "Proteine"]} />
+          <DrillChart rows={DRILL_KINDS} unit="g" />
+          <DrillChart rows={DRILL_FOODS} unit="g" />
+        </div>
+
+        <div
+          id="drill-c"
+          role="group"
+          aria-label="C · Gira il cubo"
+          className="k-stack g2"
+        >
+          <span className="k-label">C · Gira il cubo — le tre facce</span>
+          {DRILL_PIVOT.map(([face, rows], i) => (
+            <div key={face} className="k-stack g1">
+              <div className="k-choice" role="radiogroup" aria-label="vista">
+                {DRILL_PIVOT.map(([f]) => (
+                  <button key={f} type="button" role="radio" aria-checked={f === face}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+              <DrillFace turn={i === 1 ? -16 : 0}>
+                <DrillChart rows={rows} unit="kcal" />
+              </DrillFace>
+              {i === 1 && <span className="k-label">(mentre gira)</span>}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </section>
 
       <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">
