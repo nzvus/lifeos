@@ -128,3 +128,52 @@ Then: build `Meter` in the gallery with every kind as data, photographs, his loo
 above cost space («se glie lo togli in lunghezza è sempre brutto, se lo metti sopra dipende da
 quanto spazio togli»); he asks for other forms too, not only bars. Proposals V1 (thin words above,
 zones as the bar's background), V2 (tiles), V3 (rings) in the gallery `#forme`.
+
+## 7. His words of 20 Nov, what the research says, and the construct
+
+His words (proposal §73): metrics are aggregates feeding summary values that must be shown too
+(as in the macros and the voto); a construct for common categories (the micros' groups); single
+rings too scattered, single lines too much a list; plan and aggregates must show; ranges imply a
+judgement; Andamento will reuse it for denser, more specific aggregates, inferable from the drawing.
+
+What the research says (searched 20 Nov):
+
+- **Bullet graph** (Few's spec): a linear scale, the measure as a bar, a target tick, two to five
+  qualitative ranges as the bar's background; the ranges *are* the judgement (state and how far
+  into it); one hue in steps, not traffic lights; a compact footprint, better than radial
+  gauges.
+- **Icicle (partition) chart**: the whole spans the row, its parts split the row under it on the
+  same scale, depth top to bottom; rectangular, so precise comparison is easier than a sunburst;
+  good for 2–5 levels. The parts visibly add up to their total.
+- **Stacked bars alone** read shares badly (each part starts somewhere else); parts should be
+  readable on their own and comparable to the whole.
+- **Bar-in-bar and IBCS notation**: actual solid, plan outlined, forecast hatched — our VIS-22.
+- **Word-sized graphics** (Tufte): data-intense, design-simple, stacked with one fixed scale for
+  parallel comparison; the same marks then serve a series in time.
+- **MacroFactor**: each micro against floor, target and ceiling at once (our AR · PRI · UL,
+  FD-40). **Cronometer** is faulted for 82 bars at once: grouping and drill-down matter.
+
+The construct it points to — a **measure tree**, drawn by one piece:
+
+- A node: its value, its plan, its range (floor · target · ceiling → the zones), its identity
+  colour, its children, and whether the children **add up** to it.
+- A node is a **bullet**: the zones as its background in steps of one hue, the actual solid, the
+  plan outlined after it, the target tick, the mark (● ◐ ○) at its end. The judgement is where it
+  ends among the zones — the same everywhere.
+- Children that **add up** (kcal → macros → kinds; voto → criteria) are an **icicle tier** under
+  their parent, on the parent's scale: each as wide as its share, filled as far as it got, so the
+  total is seen as the sum of its parts.
+- Children that **do not add up** (a group of micros) are a **strip of equal cells** under their
+  parent, each cell its judgement (filled, half, empty, hatched when planned): every item in view
+  in one line, the group's summary on the parent bar; a tap opens a cell's own bullet.
+- **Levels**: 0 the node alone (a hair line), 1 with its children's tier, 2 with the next tier.
+- **Andamento**: the same node over days is a row of cells or a word-sized line on the same zones
+  as background; aggregates over a period are the same tree with the period's values.
+
+Next: a prototype on his data — kcal → macros → kinds, the voto → criteria, the micros by group,
+and one row of seven days — in the gallery, photographed; his look before `Meter` is built.
+
+Sources: Few, *Bullet Graph Design Specification* (Perceptual Edge); icicle charts
+(visualizing.org, D3 `partition`); the EU Data Visualisation Guide on stacked bars; Tufte,
+*Beautiful Evidence* and his sparkline notes; IBCS notation via Inforiver's docs; MacroFactor's
+help on floor, target and ceiling; reviews of Cronometer's 82 targets.

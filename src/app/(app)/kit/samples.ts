@@ -2,7 +2,7 @@
  * The gallery's samples on his own numbers (kept apart so the page stays under 800 lines):
  * the voto of the Porridge of 9 Nov and his water, his micros of 9 Nov, the same as form items.
  */
-import type { BoxEntry, FormItem, NutrientsData } from "@lifeos/kit";
+import type { BoxEntry, FormItem, MNode, NutrientsData } from "@lifeos/kit";
 
 /** His numbers for the opened voto: the Porridge of 9 Nov (71), his water that day (80). */
 export const VOTO_SAMPLES: [string, string, BoxEntry][] = [
@@ -207,3 +207,199 @@ export const FORM_ITEMS: FormItem[] = (MICROS_9NOV.micros?.groups ?? []).flatMap
       color: `color-mix(in srgb, var(--crit-${gi + 1}) ${Math.round(100 - (ii / g.items.length) * 55)}%, var(--sheet))`,
     })),
 );
+
+/** Bars study §7: the measure tree on his 9 Nov — kcal → macros, Proteine → kinds, the voto →
+ *  criteria, the micros by group; one row of days as an example (not his data, PRD-22). */
+const z = (...e: [number, "bad" | "fair" | "good" | "danger"][]) =>
+  e.map(([from, level]) => ({ from, level }));
+export const TREE_KCAL: MNode = {
+  name: "Energia",
+  v: 3478,
+  t: 2105,
+  color: "var(--ink)",
+  label: "3.478 / 2.105 kcal",
+  zones: z([0, "bad"], [1580, "fair"], [1895, "good"], [2631, "fair"], [3160, "bad"]),
+  children: {
+    adds: true,
+    nodes: [
+      {
+        name: "Proteine",
+        v: 722,
+        color: "var(--macro-protein)",
+        zones: z([0, "bad"], [252, "fair"], [484, "good"], [668, "fair"], [880, "bad"]),
+      },
+      {
+        name: "Carboidrati",
+        v: 1772,
+        color: "var(--macro-carbs)",
+        zones: z([0, "fair"], [912, "good"], [1264, "fair"], [1600, "bad"]),
+      },
+      {
+        name: "Grassi",
+        v: 877,
+        color: "var(--macro-fat)",
+        zones: z([0, "bad"], [315, "good"], [738, "fair"], [900, "bad"]),
+      },
+      {
+        name: "Fibre",
+        short: "Fib.",
+        v: 93,
+        color: "var(--macro-fiber)",
+        zones: z([0, "bad"], [42, "fair"], [58, "good"], [120, "fair"]),
+      },
+    ],
+  },
+};
+export const TREE_PLANNED: MNode = {
+  name: "Energia, giornata in corso",
+  v: 1450,
+  plan: 650,
+  t: 2105,
+  color: "var(--ink)",
+  label: "1.450 → 2.100 / 2.105 kcal",
+  zones: TREE_KCAL.zones!,
+};
+const shade = (c: string, p: number) => `color-mix(in srgb, ${c} ${p}%, var(--sheet))`;
+export const TREE_PROTEIN: MNode = {
+  name: "Proteine",
+  v: 180.5,
+  t: 168,
+  color: "var(--macro-protein)",
+  label: "180,5 / 168 g",
+  zones: z([0, "bad"], [63, "fair"], [121, "good"], [167, "fair"], [220, "bad"]),
+  children: {
+    adds: true,
+    nodes: [
+      { name: "qualità alta", short: "alta", v: 96.2, color: "var(--macro-protein)" },
+      {
+        name: "qualità media",
+        short: "media",
+        v: 51.9,
+        color: shade("var(--macro-protein)", 70),
+      },
+      {
+        name: "qualità bassa",
+        short: "bassa",
+        v: 13.3,
+        color: shade("var(--macro-protein)", 50),
+      },
+      {
+        name: "senza stima",
+        short: "?",
+        v: 19.1,
+        color: shade("var(--macro-protein)", 35),
+      },
+    ],
+  },
+};
+const crit = (i: number) => `var(--crit-${i})`;
+export const TREE_VOTO: MNode = {
+  name: "Voto del pasto (Porridge)",
+  v: 71,
+  max: 100,
+  color: "var(--heat-good)",
+  label: "71",
+  zones: z([0, "bad"], [40, "fair"], [70, "good"]),
+  children: {
+    adds: true,
+    nodes: [
+      {
+        name: "densità di nutrienti",
+        short: "densità",
+        v: 10,
+        max: 39,
+        color: crit(1),
+        zones: z([0, "bad"], [15.6, "fair"], [27.3, "good"]),
+      },
+      {
+        name: "limiti",
+        v: 26,
+        max: 26,
+        color: crit(2),
+        zones: z([0, "bad"], [10.4, "fair"], [18.2, "good"]),
+      },
+      {
+        name: "qualità dei carboidrati",
+        short: "carb.",
+        v: 11,
+        max: 11,
+        color: crit(3),
+        zones: z([0, "bad"], [4.4, "fair"], [7.7, "good"]),
+      },
+      {
+        name: "qualità dei grassi",
+        short: "grassi",
+        v: 9,
+        max: 9,
+        color: crit(4),
+        zones: z([0, "bad"], [3.6, "fair"], [6.3, "good"]),
+      },
+      {
+        name: "sazietà",
+        short: "saz.",
+        v: 8.9,
+        max: 9,
+        color: crit(5),
+        zones: z([0, "bad"], [3.6, "fair"], [6.3, "good"]),
+      },
+      {
+        name: "varietà",
+        short: "var.",
+        v: 6,
+        max: 6,
+        color: crit(6),
+        zones: z([0, "bad"], [2.4, "fair"], [4.2, "good"]),
+      },
+    ],
+  },
+};
+const cells = (
+  gi: number,
+  g: NonNullable<NutrientsData["micros"]>["groups"][number],
+): MNode[] =>
+  g.items.map((i, ii) => ({
+    name: i.name,
+    short: i.name.length > 4 ? i.name.slice(0, 3) : i.name,
+    v: i.v,
+    t: i.t ?? i.v,
+    unit: i.unit,
+    zones: i.zones ?? zonesTo(i.t ?? i.v),
+    color: shade(crit(gi + 1), Math.round(100 - (ii / g.items.length) * 45)),
+  }));
+export const TREE_MICROS: MNode[] = (MICROS_9NOV.micros?.groups ?? []).map((g, gi) => {
+  const kids = cells(gi, g);
+  const ok = kids.filter((k) => {
+    const lv =
+      k.zones && k.zones.length
+        ? k.zones.filter((zz) => zz.from <= k.v).pop()?.level
+        : "good";
+    return lv === "good";
+  }).length;
+  const share = Math.round((ok / kids.length) * 100);
+  return {
+    name: g.name,
+    v: share,
+    max: 100,
+    color: crit(gi + 1),
+    label: `${ok} su ${kids.length} a posto`,
+    zones: z([0, "bad"], [50, "fair"], [80, "good"]),
+    children: { adds: false, nodes: kids },
+  };
+});
+/** An example, not his data (PRD-22): seven days of kcal against 2.105, today with a plan. */
+export const DAYS_EXAMPLE = {
+  name: "Energia, 7 giorni (esempio)",
+  t: 2105,
+  zones: TREE_KCAL.zones!,
+  color: "var(--ink)",
+  label: "media 2.320 kcal",
+  days: [
+    { d: "M", v: 2050 },
+    { d: "M", v: 2410 },
+    { d: "G", v: 1980 },
+    { d: "V", v: 2890 },
+    { d: "S", v: 2200 },
+    { d: "D", v: 3478 },
+    { d: "L", v: 1450, plan: 650 },
+  ],
+};

@@ -8,7 +8,17 @@
  * photographed there. Development only, never linked, 404 in production.
  */
 import { notFound } from "next/navigation";
-import { FORM_ITEMS, MICROS_9NOV, VOTO_SAMPLES } from "./samples";
+import {
+  DAYS_EXAMPLE,
+  FORM_ITEMS,
+  MICROS_9NOV,
+  TREE_KCAL,
+  TREE_MICROS,
+  TREE_PLANNED,
+  TREE_PROTEIN,
+  TREE_VOTO,
+  VOTO_SAMPLES,
+} from "./samples";
 import {
   Box,
   Chart,
@@ -19,6 +29,8 @@ import {
   Glyph,
   MealBox,
   Forms,
+  MeasureDays,
+  MeasureTree,
   Nutrients,
   type BoxEntry,
 } from "@lifeos/kit";
@@ -531,6 +543,24 @@ export default async function KitPage({
             <Forms items={FORM_ITEMS} look={look} />
           </div>
         ))}
+      </section>
+
+      {/* Bars study §7 (his 20 Nov «aggregati… densità informativa»): one construct, a node
+          and its children under it, on his 9 Nov. */}
+      <section
+        className="k-section g3"
+        id="albero"
+        aria-label="Misure e aggregati: prototipo"
+      >
+        <h2>Misure e aggregati · prototipo</h2>
+        <MeasureTree node={TREE_KCAL} />
+        <MeasureTree node={TREE_PLANNED} />
+        <MeasureTree node={TREE_PROTEIN} />
+        <MeasureTree node={TREE_VOTO} />
+        {TREE_MICROS.map((n) => (
+          <MeasureTree key={n.name} node={n} />
+        ))}
+        <MeasureDays {...DAYS_EXAMPLE} />
       </section>
 
       <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">

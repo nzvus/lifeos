@@ -840,6 +840,18 @@
     bar; for the micros «prima» = the group-shade rows (Claude's reading: M1 had words on the bar).
     Next: proposals of other forms (thin words above with zones as the bar's background, tiles,
     rings) on his micros, photographed, his pick before `Meter` is built.
+73. **20 Nov, his words on the forms:** «ma il punto è che alcune metriche sono aggregati che
+    contribuiscono ad altri valori sommari che vanno visualizzati anch'essi. cosa che c'era nei
+    macro e nei voti. e si potrebbe creare un costrutto in generale per le categorie comuni, per
+    esempio mi parlavi delle categorie per i micro. i cerchi singoli sono troppo dispersivi, le
+    linee singole troppo effetto elenco. inoltre non tengono conto di pianificazione e aggregati?
+    inoltre i range inferiscono una sorta di valutazione quindi anche quello va pensato. questi
+    sistemi poi dovranno molto probabilmente essere riutilizzati nelle visualizzazioni degli
+    andamenti, che mostrerà dati anche molto più specifici e particolari, probabilmente di
+    aggregati di varie informazioni che sarebbe meglio poter far inferire da come vengono
+    renderizzati. densità informativa. magari online trovi qualcosa?». V1–V3 rejected (rings too
+    scattered, lines too much a list); the base element must show a hierarchy (parts → summary),
+    the plan, the ranges as judgement, and serve Andamento. Research first (bars-study §7).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

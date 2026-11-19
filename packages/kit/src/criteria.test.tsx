@@ -4,6 +4,7 @@ import { Box } from "./Box";
 import { Criteria } from "./Criteria";
 import { Forms } from "./Forms";
 import { List } from "./List";
+import { MeasureTree } from "./MeasureTree";
 
 // His pick of 19 Nov: C «punti», with the macros' grammar (VIS-43, VIS-50, VIS-52, VIS-22).
 describe("the opened voto: one bar of 100 points, the macros' grammar (VIS-43)", () => {
@@ -108,4 +109,57 @@ describe("forms without words on the bar: proposals (bars study §6; VIS-50, VIS
       expect(h).toContain("var(--heat-good)");
       expect(h).toContain("C: 80");
     });
+});
+
+describe("the measure tree: a bullet and its children under it (bars study §7; VIS-50, VIS-52, VIS-22)", () => {
+  const zones = [
+    { from: 0, level: "bad" as const },
+    { from: 40, level: "fair" as const },
+    { from: 70, level: "good" as const },
+  ];
+  it("children that add up sit on the parent's scale, each filled to what it got", () => {
+    const h = renderToStaticMarkup(
+      <MeasureTree
+        node={{
+          name: "Voto",
+          v: 71,
+          max: 100,
+          color: "x",
+          zones,
+          children: {
+            adds: true,
+            nodes: [
+              { name: "densità", v: 10, max: 39, color: "a" },
+              { name: "limiti", v: 26, max: 26, color: "b" },
+            ],
+          },
+        }}
+      />,
+    );
+    expect(h).toContain("k-tt");
+    expect(h).toContain("width:39%");
+    expect(h).toContain("--got:25.6");
+    expect(h).toContain("k-st met");
+  });
+  it("children judged alone are equal cells; a plan is outlined after the actual", () => {
+    const h = renderToStaticMarkup(
+      <MeasureTree
+        node={{
+          name: "Vitamine",
+          v: 50,
+          max: 100,
+          plan: 10,
+          color: "x",
+          zones,
+          children: {
+            adds: false,
+            nodes: [{ name: "D", v: 1, t: 15, color: "a", zones }],
+          },
+        }}
+      />,
+    );
+    expect(h).toContain("k-tc");
+    expect(h).toContain('class="cell no"');
+    expect(h).toContain('class="plan"');
+  });
 });
