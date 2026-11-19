@@ -916,6 +916,9 @@
     representations by purpose and moment, bars-study §14.
 85. **20 Nov, his words on the reworked polygon:** «il poligono è orribile». `Radar` removed; the
     families table (bars-study §14) stays a draft; the next step is asked before any drawing.
+86. **20 Nov, his pick:** «Look at real apps first» (of: improve the original · real apps · his
+    reference). 10–15 screens from apps known for data views on one page; he marks what he likes;
+    the bars are built only from that. Page: `LIFEOS/review/2026-11-20/app-reali/`.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
