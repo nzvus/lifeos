@@ -906,6 +906,14 @@
     colour says it); no text · bar · text on one line (the bar gets the full width, §67); controls
     small and fully readable; the original macro bars (VIS-50/52) are the base he likes. Next: a
     polygon and a real 3D solid, rotatable, on his 9 Nov.
+84. **20 Nov, his words on the polygon and the solid:** «ok tridimensionale per ora no, pero potresti
+    migliorare la visualizzazione del poligono pero, magari non deve essere necessariamente quello.
+    e poi le scale? i range piu graduali e sfumati? molto spazio è sprecato, cosi come molte
+    dimensioni.» Then: «e comunque va trovato qualcosa per le cose in generale», and: «si ma il
+    poligono si presta come cosa centrale, non per tante cose o sbaglio? ecco magari determinate
+    famiglie di rappresentatori hanno scopi e momenti divers». The solid dropped for now; the
+    polygon reworked as the one central overview (bars-study §14); the families of
+    representations by purpose and moment, bars-study §14.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

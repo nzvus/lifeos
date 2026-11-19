@@ -13,8 +13,6 @@ import {
   FORM_ITEMS,
   MICROS_9NOV,
   RADAR_9NOV,
-  SOLID_9NOV,
-  SOLID_VIEWS,
   TREE_KCAL,
   TREE_MICROS,
   TREE_PLANNED,
@@ -34,7 +32,6 @@ import {
   Forms,
   MeasureDays,
   Radar,
-  Solid,
   MeasureTree,
   Nutrients,
   type BoxEntry,
@@ -570,13 +567,10 @@ export default async function KitPage({
 
       {/* Shapes (bars study §13, his 20 Nov «qualche poligono o solido tridimensionale»): his
           9 Nov as a polygon and as a solid he turns; no words, the icons and the colours. */}
-      <section className="k-section g3" id="forme" aria-label="Forme">
-        <h2>Forme</h2>
+      <section className="k-section g3" id="poligoni" aria-label="Il giorno come poligono">
+        <h2>Il giorno come poligono</h2>
         <div id="poligono" role="group" aria-label="Il giorno come poligono">
           <Radar axes={RADAR_9NOV} label="Il giorno" />
-        </div>
-        <div id="solido" role="group" aria-label="Il giorno come solido">
-          <Solid data={SOLID_9NOV} viewLabels={SOLID_VIEWS} />
         </div>
       </section>
 

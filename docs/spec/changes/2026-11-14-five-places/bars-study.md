@@ -394,3 +394,23 @@ ones behind it, and perspective makes heights hard to compare; the solid is for 
 of a day, not for reading a number. Decided by Claude: the polygon shows only the green band
 (green and yellow together turned muddy); the radius is linear in the share, capped at 200 %.
 
+## 14. Families of representations: each a purpose and a moment (20 Nov, proposal §84)
+
+His words: the polygon suits the central thing, not many things; families of representations have
+different purposes and moments. A draft of the families (one per purpose; each used only in its
+moment), for his corrections:
+
+| Family | Purpose | Moment | Today / proposed |
+|---|---|---|---|
+| **Overview** (the polygon) | the shape of many measures at once, each against its target | once per screen, at the top: «Il giorno», a period in Andamento | `Radar`, proposed |
+| **One measure** (the original bar with its zones ruler, VIS-50/52) | how much, of how much, how good | a row inside a Box, level 1 | `Nutrients` rows, his favourite |
+| **Parts of a whole** (stacked kinds) | what a total is made of | opening one measure | the macro's kinds, the voto's criteria |
+| **Many of a kind** (cells) | a group of items each judged (micros) | level 1, condensed (PAT-40) | `Condensed` |
+| **Over time** (columns or a line on the zones) | change, trend | Andamento, level 3 | `Chart` |
+| **A verdict** (the skyline chip) | one voto, at a glance | a closed Box | `Judge` (VIS-43) |
+
+The polygon (`Radar`), reworked on his 20 Nov words: full width; eight axes (Energia, the four
+macros, the three limits); the ranges blend behind each axis from colour to colour, no words; the
+scale written once (50 · 100 · 150 · 200 % of each target); each axis end its icon and one number;
+a plan as a dashed outline. The solid (`Solid`) removed («tridimensionale per ora no»).
+

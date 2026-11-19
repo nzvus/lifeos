@@ -6,7 +6,6 @@ import {
   F,
   type BoxEntry,
   type RadarAxis,
-  type SolidData,
   type FormItem,
   type MNode,
   type NutrientsData,
@@ -429,24 +428,23 @@ export const DAYS_EXAMPLE = {
   ],
 };
 
-/** Shapes (bars study §13): his 9 Nov as «Il giorno» showed it on 14 Nov (photos his-day/). */
+/** The day as a polygon (bars study §13–14): his 9 Nov as «Il giorno» showed it on 14 Nov. */
 type Lv = "bad" | "fair" | "good" | "danger";
 const rg = (...e: [number, Lv][]) => e.map(([from, level]) => ({ from, level }));
 const ax = (
-  key: string,
+  icon: string,
   name: string,
   v: number,
   t: number,
-  color: string,
   ranges: { from: number; level: Lv }[],
   unit: string,
 ): RadarAxis => ({
-  key,
+  icon,
   name,
   v,
   t,
-  color,
   ranges,
+  n: F.n(v, v >= 100 ? 0 : 1),
   label: F.num(v, unit) + " / " + F.num(t, unit),
 });
 export const RADAR_9NOV: RadarAxis[] = [
@@ -455,7 +453,6 @@ export const RADAR_9NOV: RadarAxis[] = [
     "Energia",
     3478,
     2105,
-    "var(--ink)",
     rg([0, "bad"], [1580, "fair"], [1895, "good"], [2631, "fair"], [3160, "bad"]),
     "kcal",
   ),
@@ -464,7 +461,6 @@ export const RADAR_9NOV: RadarAxis[] = [
     "Proteine",
     180.5,
     168,
-    "var(--macro-protein)",
     rg([0, "bad"], [63, "fair"], [121, "good"], [167, "fair"], [220, "bad"]),
     "g",
   ),
@@ -473,7 +469,6 @@ export const RADAR_9NOV: RadarAxis[] = [
     "Carboidrati",
     442.9,
     221,
-    "var(--macro-carbs)",
     rg([0, "fair"], [228, "good"], [316, "fair"], [400, "bad"]),
     "g",
   ),
@@ -482,7 +477,6 @@ export const RADAR_9NOV: RadarAxis[] = [
     "Grassi",
     97.5,
     61,
-    "var(--macro-fat)",
     rg([0, "bad"], [35, "good"], [82, "fair"], [100, "bad"]),
     "g",
   ),
@@ -491,29 +485,18 @@ export const RADAR_9NOV: RadarAxis[] = [
     "Fibre",
     46.7,
     29,
-    "var(--macro-fiber)",
     rg([0, "bad"], [21, "fair"], [29, "good"], [60, "fair"]),
     "g",
   ),
+  // less is better: the target is the ceiling (FD-33)
+  ax(
+    "sugars",
+    "Zuccheri liberi",
+    50.1,
+    52.6,
+    rg([0, "good"], [26, "fair"], [53, "bad"]),
+    "g",
+  ),
+  ax("sat", "Grassi saturi", 21.5, 23, rg([0, "good"], [23, "fair"]), "g"),
+  ax("salt", "Sale", 6.5, 5, rg([0, "good"], [5, "fair"], [7.5, "bad"]), "g"),
 ];
-/** His five meals of 9 Nov, each macro in kcal (P × 4, C × 4, G × 9, F × 2), from the meal boxes. */
-const MEALS_9NOV: [string, string, number[]][] = [
-  ["Colazione 06:54", "breakfast", [6, 40, 2, 0]],
-  ["Colazione 10:04", "breakfast", [45, 81, 25, 16]],
-  ["Pranzo 12:19", "lunch", [20, 76, 6, 4]],
-  ["Spuntino 18:11", "snack", [89, 204, 50, 22]],
-  ["Cena 22:43", "dinner", [20, 43, 14, 4]],
-];
-const KCAL_PER_G = [4, 4, 9, 2];
-export const SOLID_9NOV: SolidData = {
-  label: "Il 9 novembre, kcal per pasto e per macro",
-  cols: MEALS_9NOV.map(([name, sub]) => ({ name, icon: { fam: "food", sub } })),
-  rows: [
-    { name: "Proteine", key: "protein", color: "var(--macro-protein)" },
-    { name: "Carboidrati", key: "carbs", color: "var(--macro-carbs)" },
-    { name: "Grassi", key: "fat", color: "var(--macro-fat)" },
-    { name: "Fibre", key: "fiber", color: "var(--macro-fiber)" },
-  ],
-  v: KCAL_PER_G.map((k, r) => MEALS_9NOV.map(([, , g]) => g[r]! * k)),
-};
-export const SOLID_VIEWS = ["di tre quarti", "per pasto", "per macro", "dall'alto"];
