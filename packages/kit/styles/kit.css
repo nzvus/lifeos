@@ -4810,10 +4810,14 @@ button.k-part.toggle {
   width: 18px;
   height: 18px;
 }
+/* his phone is ≤ 360 px: the icons shrink there, never go (VIS-61; his 17 Nov) */
 @media (max-width: 380px) {
-  .k-part .ics,
   .k-part .t .cnt {
     display: none;
+  }
+  .k-part .ics svg {
+    width: 14px;
+    height: 14px;
   }
 }
 /* The total with what is planned (FD-34 «→»): the same number, in the planned voice */
