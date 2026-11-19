@@ -872,6 +872,9 @@
     chiara la loro scala, il loro valore. ovviamente l'informazione massima è data dai numeri,
     immagino, solo che anche loro vanno affiancati da altri dimensioni, più facilmente da altri
     numeri o unità di misura. noi però non vogliamo troppo testo». Rule 7 of bars-study §9.
+78. **20 Nov, his words on the three styles:** «sì e tra l'altro nemmeno mi piacciono molto». Pieno,
+    calmo, denso rejected too. Open: the style, from new rendered samples that follow §9 (rules
+    1–7), started in a fresh session (his question on the context's size).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
