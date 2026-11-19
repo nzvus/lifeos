@@ -413,4 +413,4 @@ The polygon (`Radar`), reworked on his 20 Nov words: full width; eight axes (Ene
 macros, the three limits); the ranges blend behind each axis from colour to colour, no words; the
 scale written once (50 · 100 · 150 · 200 % of each target); each axis end its icon and one number;
 a plan as a dashed outline. The solid (`Solid`) removed («tridimensionale per ora no»).
-
+Rejected 20 Nov («il poligono è orribile», proposal §85); `Radar` removed.

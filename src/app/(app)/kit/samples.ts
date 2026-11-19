@@ -3,9 +3,7 @@
  * the voto of the Porridge of 9 Nov and his water, his micros of 9 Nov, the same as form items.
  */
 import {
-  F,
   type BoxEntry,
-  type RadarAxis,
   type FormItem,
   type MNode,
   type NutrientsData,
@@ -427,76 +425,3 @@ export const DAYS_EXAMPLE = {
     { d: "L", v: 1450, plan: 650 },
   ],
 };
-
-/** The day as a polygon (bars study §13–14): his 9 Nov as «Il giorno» showed it on 14 Nov. */
-type Lv = "bad" | "fair" | "good" | "danger";
-const rg = (...e: [number, Lv][]) => e.map(([from, level]) => ({ from, level }));
-const ax = (
-  icon: string,
-  name: string,
-  v: number,
-  t: number,
-  ranges: { from: number; level: Lv }[],
-  unit: string,
-): RadarAxis => ({
-  icon,
-  name,
-  v,
-  t,
-  ranges,
-  n: F.n(v, v >= 100 ? 0 : 1),
-  label: F.num(v, unit) + " / " + F.num(t, unit),
-});
-export const RADAR_9NOV: RadarAxis[] = [
-  ax(
-    "kcal",
-    "Energia",
-    3478,
-    2105,
-    rg([0, "bad"], [1580, "fair"], [1895, "good"], [2631, "fair"], [3160, "bad"]),
-    "kcal",
-  ),
-  ax(
-    "protein",
-    "Proteine",
-    180.5,
-    168,
-    rg([0, "bad"], [63, "fair"], [121, "good"], [167, "fair"], [220, "bad"]),
-    "g",
-  ),
-  ax(
-    "carbs",
-    "Carboidrati",
-    442.9,
-    221,
-    rg([0, "fair"], [228, "good"], [316, "fair"], [400, "bad"]),
-    "g",
-  ),
-  ax(
-    "fat",
-    "Grassi",
-    97.5,
-    61,
-    rg([0, "bad"], [35, "good"], [82, "fair"], [100, "bad"]),
-    "g",
-  ),
-  ax(
-    "fiber",
-    "Fibre",
-    46.7,
-    29,
-    rg([0, "bad"], [21, "fair"], [29, "good"], [60, "fair"]),
-    "g",
-  ),
-  // less is better: the target is the ceiling (FD-33)
-  ax(
-    "sugars",
-    "Zuccheri liberi",
-    50.1,
-    52.6,
-    rg([0, "good"], [26, "fair"], [53, "bad"]),
-    "g",
-  ),
-  ax("sat", "Grassi saturi", 21.5, 23, rg([0, "good"], [23, "fair"]), "g"),
-  ax("salt", "Sale", 6.5, 5, rg([0, "good"], [5, "fair"], [7.5, "bad"]), "g"),
-];

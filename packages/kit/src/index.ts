@@ -26,7 +26,6 @@ export { Nutrients, NutrientsL0 } from "./Nutrients";
 export { Criteria, type CriteriaData } from "./Criteria";
 export { Forms, type FormItem, type FormLook } from "./Forms";
 export { MeasureTree, MeasureDays, type MNode } from "./MeasureTree";
-export { Radar, type RadarAxis } from "./Radar";
 export {
   nutrientsL0,
   energyStrip,

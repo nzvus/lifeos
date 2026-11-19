@@ -12,7 +12,6 @@ import {
   DAYS_EXAMPLE,
   FORM_ITEMS,
   MICROS_9NOV,
-  RADAR_9NOV,
   TREE_KCAL,
   TREE_MICROS,
   TREE_PLANNED,
@@ -31,7 +30,6 @@ import {
   MealBox,
   Forms,
   MeasureDays,
-  Radar,
   MeasureTree,
   Nutrients,
   type BoxEntry,
@@ -563,15 +561,6 @@ export default async function KitPage({
           <MeasureTree key={n.name} node={n} />
         ))}
         <MeasureDays {...DAYS_EXAMPLE} />
-      </section>
-
-      {/* Shapes (bars study §13, his 20 Nov «qualche poligono o solido tridimensionale»): his
-          9 Nov as a polygon and as a solid he turns; no words, the icons and the colours. */}
-      <section className="k-section g3" id="poligoni" aria-label="Il giorno come poligono">
-        <h2>Il giorno come poligono</h2>
-        <div id="poligono" role="group" aria-label="Il giorno come poligono">
-          <Radar axes={RADAR_9NOV} label="Il giorno" />
-        </div>
       </section>
 
       <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">
