@@ -5372,111 +5372,217 @@ button.k-mrow:active {
   line-height: 12px;
   color: var(--muted);
 }
-/* ---------- style samples (bars study §9, his 20 Nov): one structure, three skins ---------- */
-/* pieno: thick, rounded, saturated, big numbers */
-.k-tree.skin-pieno {
-  gap: 5px;
+/* ---- style samples, round 2 (bars study §9 rules 1–7; MeasureForms): colonne · quadretti · rosa */
+.k-mf-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
 }
-.k-tree.skin-pieno .k-thead .n {
-  font-size: var(--fs-d3);
+.k-mf {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: var(--sp-2);
+  border-radius: var(--r-2, 8px);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
 }
-.k-tree.skin-pieno .k-tb {
-  height: 16px;
-  border-radius: 8px;
+.k-mf.wide {
+  grid-column: 1 / -1;
+}
+.k-mf-head {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.1;
+}
+.k-mf-head .nm {
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--muted);
 }
-.k-tree.skin-pieno .k-tb .act,
-.k-tree.skin-pieno .k-tb .plan {
-  top: 0;
-  bottom: 0;
-  border-radius: 8px;
+.k-mf-head .n {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-d4);
+  white-space: nowrap;
 }
-.k-tree.skin-pieno .k-tb .tick {
-  top: 0;
-  bottom: 0;
-  width: 3px;
-}
-.k-tree.skin-pieno .k-tt {
+/* colonne and quadretti: a total, then one column per part */
+.k-mf-cols,
+.k-mf-pips {
+  display: flex;
+  flex-direction: column;
   gap: 3px;
 }
-.k-tree.skin-pieno .k-tt .seg > i {
-  height: 10px;
-  border-radius: 5px;
+.k-mf-cols .plot,
+.k-mf-cols .lbs,
+.k-mf-pips .plot,
+.k-mf-pips .lbs {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(var(--n), minmax(0, 1fr));
+  gap: 3px;
 }
-.k-tree.skin-pieno .k-tc .cell > i {
-  height: 16px;
-  border-radius: 5px;
+.k-mf-cols .plot {
+  height: 64px;
+  padding-top: 5px;
 }
-/* calmo: thin soft lines with a glow, one big number, quiet words */
-.k-tree.skin-calmo {
-  gap: 6px;
+.k-mf-cols .col {
+  position: relative;
+  border-radius: 2px 2px 0 0;
 }
-.k-tree.skin-calmo .k-thead .nm {
-  color: var(--muted);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+.k-mf-cols .col.tot {
+  margin-right: 3px;
+}
+.k-mf-cols .band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: color-mix(in srgb, var(--ink) var(--step), transparent);
+}
+.k-mf-cols .band.danger,
+.k-mf-pips .pip.danger {
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--heat-bad) 35%, transparent) 0 2px,
+    transparent 2px 5px
+  );
+}
+.k-mf-cols .act,
+.k-mf-cols .plan,
+.k-mf-cols .cnt {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+}
+.k-mf-cols .tot .act,
+.k-mf-cols .tot .cnt {
+  left: 2px;
+  right: 2px;
+}
+.k-mf-cols .plan {
+  background: repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 4px);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.k-mf-cols .cnt,
+.k-mf-pips .cnt {
+  box-shadow: inset 0 0 0 1px var(--c);
+}
+.k-mf-cols .cnt.met,
+.k-mf-pips .cnt.met {
+  background: var(--c);
+}
+.k-mf-cols .cnt.part,
+.k-mf-pips .cnt.part {
+  background: linear-gradient(0deg, var(--c) 50%, transparent 50%);
+}
+.k-mf-cols .tick {
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  height: 2px;
+  margin-bottom: -1px;
+  background: var(--ink);
+}
+.k-mf-cols .end {
+  position: absolute;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  transform: translate(-50%, 50%);
+  box-shadow: 0 0 0 2px var(--sheet);
+}
+.k-mf-cols .over::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 3px;
+  right: 3px;
+  border-top: 2px dotted var(--muted);
+}
+.k-mf-cols .lbs > span,
+.k-mf-pips .lbs > span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+  font-family: var(--font-display);
   font-size: 10px;
-}
-.k-tree.skin-calmo .k-thead .n {
-  font-size: var(--fs-d2);
-  font-weight: 600;
-}
-.k-tree.skin-calmo .k-tb {
-  height: 6px;
-}
-.k-tree.skin-calmo .k-tb .band {
-  background: transparent;
-  border-bottom: 1px solid color-mix(in srgb, var(--ink) var(--step), transparent);
-}
-.k-tree.skin-calmo .k-tb .act {
-  top: 1px;
-  bottom: 1px;
-  border-radius: 3px;
-  background: linear-gradient(90deg, transparent, currentColor) !important;
-  color: var(--ink);
-  box-shadow: 0 0 10px 0 color-mix(in srgb, var(--ink) 25%, transparent);
-}
-.k-tree.skin-calmo .k-tt .seg > i {
-  height: 3px;
-  border-radius: 2px;
-}
-.k-tree.skin-calmo .k-tt .lb,
-.k-tree.skin-calmo .k-tc .lb {
-  opacity: 0.7;
-}
-.k-tree.skin-calmo .k-tc .cell > i {
-  height: 6px;
-  border-radius: 3px;
-}
-/* denso: compact rows, small aligned numbers, the most values per pixel */
-.k-tree.skin-denso {
-  gap: 2px;
-}
-.k-tree.skin-denso .k-thead {
-  font-size: 11px;
   line-height: 12px;
+  color: var(--muted);
 }
-.k-tree.skin-denso .k-thead .n {
-  font-family: var(--font-body);
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
+/* quadretti: a column of steps of 20 % */
+.k-mf-pips .pcol {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: 2px;
+  min-width: 0;
 }
-.k-tree.skin-denso .k-tb {
-  height: 6px;
+.k-mf-pips .pcol.tot {
+  margin-right: 3px;
 }
-.k-tree.skin-denso .k-tb .act {
-  top: 1px;
-  bottom: 1px;
-}
-.k-tree.skin-denso .k-tt .seg > i {
-  height: 4px;
-}
-.k-tree.skin-denso .k-tc .cell > i {
-  height: 7px;
+.k-mf-pips .pip,
+.k-mf-pips .cnt {
+  display: block;
+  height: 5px;
   border-radius: 1px;
 }
-.k-tree.skin-denso .k-tt .lb,
-.k-tree.skin-denso .k-tc .lb {
-  font-size: 9px;
-  line-height: 10px;
+.k-mf-pips .pcol.tot .cnt {
+  height: 9px;
+}
+.k-mf-pips .pip {
+  background:
+    linear-gradient(var(--c), var(--c)) 0 0 / var(--got) 100% no-repeat,
+    repeating-linear-gradient(135deg, var(--c) 0 2px, transparent 2px 4px) 0 0 /
+      var(--plan) 100% no-repeat,
+    color-mix(in srgb, var(--ink) var(--step), transparent);
+}
+.k-mf-pips .pip.t {
+  box-shadow: 0 -2px 0 0 var(--ink);
+}
+.k-mf-pips .pcol > .k-st {
+  align-self: center;
+  width: 8px;
+  height: 8px;
+  margin-bottom: 2px;
+}
+/* rosa: one polar shape per block */
+.k-mf-rose {
+  display: block;
+  width: 100%;
+  max-width: 180px;
+  margin: 0 auto;
+}
+.k-mf-rose .band {
+  fill: color-mix(in srgb, var(--ink) var(--step), transparent);
+}
+.k-mf-rose .band.danger {
+  fill: color-mix(in srgb, var(--heat-bad) 25%, transparent);
+}
+.k-mf-rose .tick {
+  fill: var(--ink);
+}
+.k-mf-rose .hole {
+  fill: none;
+}
+.k-mf-rose .cnt {
+  stroke-width: 1px;
+}
+.k-mf-rose .cnt.part {
+  fill-opacity: 0.45;
+}
+.k-mf-rose .mk {
+  fill: var(--m);
+  stroke: var(--sheet);
+  stroke-width: 1.5px;
+}
+.k-mf-rose .mk.no {
+  fill: var(--sheet);
+  stroke: var(--m);
+}
+.k-mf-rose .lb {
+  fill: var(--muted);
+  font-size: 13px;
+  font-family: var(--font-body, inherit);
 }

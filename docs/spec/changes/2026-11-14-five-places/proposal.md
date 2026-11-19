@@ -875,6 +875,9 @@
 78. **20 Nov, his words on the three styles:** «sì e tra l'altro nemmeno mi piacciono molto». Pieno,
     calmo, denso rejected too. Open: the style, from new rendered samples that follow §9 (rules
     1–7), started in a fresh session (his question on the context's size).
+79. **20 Nov, his words:** «leggi l'handoff e riparti dai campioni di stile delle barre». Round 2
+    built (bars-study §10): colonne · quadretti · rosa, each a different main channel on the same
+    blocks, photos `LIFEOS/review/2026-11-20/stili2/`. Open: his pick.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

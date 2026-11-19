@@ -269,5 +269,27 @@ data-ink.
    chosen for a property is the one that shows its scale best: position or length for amounts,
    a mark for a state, order for rank.
 
+## 10. Style samples, round 2 (20 Nov, Claude; his pick open)
+
+Pieno · calmo · denso were one structure (bullet + tier) in three skins, and all three were
+rejected; so round 2 changes the **main channel**, not the skin. Same blocks for all three: the
+day's energy by macro, a day still going (eaten + planned, an example, PRD-22), vitamins, minerals,
+a meal's voto by criterion. Kit `MeasureForm`, gallery `/kit#stili`, photos
+`LIFEOS/review/2026-11-20/stili2/` (390 · 360 · 320, no overflow).
+
+| Form | A block is | Total | Parts | Target | Judgement |
+|---|---|---|---|---|---|
+| **colonne** | one small column chart | a stacked column (done, then planned hatched); a group judged item by item: a stack of their marks | a column each, on its own zones (one hue in steps) | one line across, at the same height for all | where the column ends + the mark on its top |
+| **quadretti** | the same, counted in steps of 20 % | stacked squares, coloured by part | 10 squares each (5 for points) | a line between two squares | the mark above the column |
+| **rosa** | one polar shape | a ring in the middle, full circle = target, a second thin lap past it | a wedge each, its radius the amount | a circle | where the wedge ends + a mark there |
+
+Kept in all three: hue = what it is; length on a scale = how much; hatch = planned; one number per
+block in its header, the unit once (rule 7); the exact values in the label for screen readers
+(rule 4). Decided by Claude (cheap to change): a part with no target of its own is drawn against
+the middle of its «good» zone; amounts run to twice the target; minerals named by their symbol
+(Ca, Na, Fe…) so a column's name fits; a block with more than five parts takes the full width.
+Asked of him: which form, or which piece of each (for example the columns' total with the rosa's
+ring), before `Meter` is built.
+
 Next: the same block (the day's energy, its macros, the micros, a voto) rendered in a few
 styles in the gallery, photographed, for him to pick by eye.

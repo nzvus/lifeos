@@ -12,6 +12,7 @@ import {
   DAYS_EXAMPLE,
   FORM_ITEMS,
   MICROS_9NOV,
+  STYLE_BLOCKS,
   TREE_KCAL,
   TREE_MICROS,
   TREE_PLANNED,
@@ -30,6 +31,7 @@ import {
   MealBox,
   Forms,
   MeasureDays,
+  MeasureForm,
   MeasureTree,
   Nutrients,
   type BoxEntry,
@@ -563,23 +565,24 @@ export default async function KitPage({
         <MeasureDays {...DAYS_EXAMPLE} />
       </section>
 
-      {/* Style samples (bars study §9, his 20 Nov: «lo stile non puoi renderizzarmelo… se non me
-          li fai vedere»): the same content, three skins. */}
+      {/* Style samples, round 2 (bars study §9 rules 1–7; pieno · calmo · denso rejected 20 Nov):
+          the same four blocks, each form a different main channel. */}
       <section className="k-section g3" id="stili" aria-label="Stili: campioni">
         <h2>Stili · campioni</h2>
-        {(["pieno", "calmo", "denso"] as const).map((skin) => (
+        {(["colonne", "quadretti", "rosa"] as const).map((form) => (
           <div
-            key={skin}
-            id={"stile-" + skin}
+            key={form}
+            id={"stile-" + form}
             role="group"
-            aria-label={skin}
-            className="k-stack g3"
+            aria-label={form}
+            className="k-stack g2"
           >
-            <span className="k-label">{skin}</span>
-            <MeasureTree node={TREE_KCAL} skin={skin} />
-            <MeasureTree node={TREE_MICROS[0]!} skin={skin} />
-            <MeasureTree node={TREE_MICROS[1]!} skin={skin} />
-            <MeasureTree node={TREE_VOTO} skin={skin} />
+            <span className="k-label">{form}</span>
+            <div className="k-mf-grid">
+              {STYLE_BLOCKS.map(([node, number]) => (
+                <MeasureForm key={node.name} node={node} form={form} number={number} />
+              ))}
+            </div>
           </div>
         ))}
       </section>

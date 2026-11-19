@@ -224,25 +224,28 @@ export const TREE_KCAL: MNode = {
     nodes: [
       {
         name: "Proteine",
+        short: "Prot",
         v: 722,
         color: "var(--macro-protein)",
         zones: z([0, "bad"], [252, "fair"], [484, "good"], [668, "fair"], [880, "bad"]),
       },
       {
         name: "Carboidrati",
+        short: "Carb",
         v: 1772,
         color: "var(--macro-carbs)",
         zones: z([0, "fair"], [912, "good"], [1264, "fair"], [1600, "bad"]),
       },
       {
         name: "Grassi",
+        short: "Gras",
         v: 877,
         color: "var(--macro-fat)",
         zones: z([0, "bad"], [315, "good"], [738, "fair"], [900, "bad"]),
       },
       {
         name: "Fibre",
-        short: "Fib.",
+        short: "Fib",
         v: 93,
         color: "var(--macro-fiber)",
         zones: z([0, "bad"], [42, "fair"], [58, "good"], [120, "fair"]),
@@ -305,7 +308,7 @@ export const TREE_VOTO: MNode = {
     nodes: [
       {
         name: "densità di nutrienti",
-        short: "densità",
+        short: "dens.",
         v: 10,
         max: 39,
         color: crit(1),
@@ -313,6 +316,7 @@ export const TREE_VOTO: MNode = {
       },
       {
         name: "limiti",
+        short: "lim.",
         v: 26,
         max: 26,
         color: crit(2),
@@ -328,7 +332,7 @@ export const TREE_VOTO: MNode = {
       },
       {
         name: "qualità dei grassi",
-        short: "grassi",
+        short: "gras.",
         v: 9,
         max: 9,
         color: crit(4),
@@ -353,13 +357,26 @@ export const TREE_VOTO: MNode = {
     ],
   },
 };
+/** Minerals by their symbol, so a column's label fits (style samples, bars study §9). */
+const SYMBOL: Record<string, string> = {
+  Calcio: "Ca",
+  Sodio: "Na",
+  Selenio: "Se",
+  Ferro: "Fe",
+  Magnesio: "Mg",
+  Potassio: "K",
+  Iodio: "I",
+  Zinco: "Zn",
+  Fosforo: "P",
+  Rame: "Cu",
+};
 const cells = (
   gi: number,
   g: NonNullable<NutrientsData["micros"]>["groups"][number],
 ): MNode[] =>
   g.items.map((i, ii) => ({
     name: i.name,
-    short: i.name.length > 4 ? i.name.slice(0, 3) : i.name,
+    short: SYMBOL[i.name] ?? (i.name.length > 4 ? i.name.slice(0, 3) : i.name),
     v: i.v,
     t: i.t ?? i.v,
     unit: i.unit,
@@ -386,6 +403,30 @@ export const TREE_MICROS: MNode[] = (MICROS_9NOV.micros?.groups ?? []).map((g, g
     children: { adds: false, nodes: kids },
   };
 });
+/** An example, not his data (PRD-22): a day still going, eaten + planned, by macro. */
+export const TREE_KCAL_PLAN: MNode = {
+  ...TREE_KCAL,
+  name: "Energia, giornata in corso (esempio)",
+  v: 1450,
+  plan: 650,
+  label: "1.450 → 2.100 kcal",
+  children: {
+    adds: true,
+    nodes: TREE_KCAL.children!.nodes.map((c, i) => ({
+      ...c,
+      v: [380, 700, 330, 40][i]!,
+      plan: [160, 300, 170, 20][i]!,
+    })),
+  },
+};
+/** Style samples (bars study §9): the blocks and their one number each (units once). */
+export const STYLE_BLOCKS: [MNode, string][] = [
+  [TREE_KCAL, "3.478 kcal"],
+  [TREE_KCAL_PLAN, "1.450 → 2.100 kcal"],
+  [TREE_MICROS[0]!, "2 su 4"],
+  [TREE_MICROS[1]!, "4 su 7"],
+  [TREE_VOTO, "71"],
+];
 /** An example, not his data (PRD-22): seven days of kcal against 2.105, today with a plan. */
 export const DAYS_EXAMPLE = {
   name: "Energia, 7 giorni (esempio)",

@@ -147,18 +147,7 @@ function Cells({ nodes }: { nodes: MNode[] }) {
   );
 }
 
-/** Style samples (bars study §9, his 20 Nov «non me li fai vedere»): one structure, three skins. */
-export type TreeSkin = "pieno" | "calmo" | "denso";
-
-export function MeasureTree({
-  node,
-  depth = 2,
-  skin,
-}: {
-  node: MNode;
-  depth?: number;
-  skin?: TreeSkin;
-}) {
+export function MeasureTree({ node, depth = 2 }: { node: MNode; depth?: number }) {
   const scale = node.max ?? scaleOf(node);
   const kids = node.children;
   const aria =
@@ -169,11 +158,7 @@ export function MeasureTree({
       ? ", " + kids.nodes.map((c) => c.name + " " + (c.label ?? F.n(c.v, 0))).join(", ")
       : "");
   return (
-    <div
-      className={"k-tree" + (skin ? " skin-" + skin : "")}
-      role="img"
-      aria-label={aria}
-    >
+    <div className="k-tree" role="img" aria-label={aria}>
       <span className="k-thead">
         <span className="nm">{node.name}</span>
         <b className="n">{node.label ?? F.num(node.v, node.unit ?? "")}</b>

@@ -4,6 +4,7 @@ import { Box } from "./Box";
 import { Criteria } from "./Criteria";
 import { Forms } from "./Forms";
 import { List } from "./List";
+import { MeasureForm } from "./MeasureForms";
 import { MeasureTree } from "./MeasureTree";
 
 // His pick of 19 Nov: C «punti», with the macros' grammar (VIS-43, VIS-50, VIS-52, VIS-22).
@@ -161,5 +162,55 @@ describe("the measure tree: a bullet and its children under it (bars study §7; 
     expect(h).toContain("k-tc");
     expect(h).toContain('class="cell no"');
     expect(h).toContain('class="plan"');
+  });
+});
+
+describe("style samples, round 2: one block in three forms (bars study §9; VIS-50, VIS-52, VIS-22)", () => {
+  const zones = [
+    { from: 0, level: "bad" as const },
+    { from: 100, level: "good" as const },
+    { from: 300, level: "fair" as const },
+  ];
+  const node = {
+    name: "Energia",
+    v: 150,
+    plan: 50,
+    t: 200,
+    color: "x",
+    zones,
+    children: {
+      adds: true,
+      nodes: [
+        { name: "Proteine", v: 100, plan: 50, t: 100, color: "a", zones },
+        { name: "Grassi", v: 50, t: 100, color: "b", zones },
+      ],
+    },
+  };
+  for (const form of ["colonne", "quadretti", "rosa"] as const)
+    it(
+      form +
+        ": every part drawn, judged by a mark, the one number, the values for readers",
+      () => {
+        const h = renderToStaticMarkup(
+          <MeasureForm node={node} form={form} number="150 kcal" />,
+        );
+        expect(h).toContain("150 kcal");
+        expect(h).toContain("Proteine 100 → 150"); // aria: each part's value, never lost (rule 4)
+        expect(h).toMatch(/met|part|no/);
+      },
+    );
+  it("colonne: the total stacks its parts, done then planned (hatched)", () => {
+    const h = renderToStaticMarkup(<MeasureForm node={node} form="colonne" />);
+    expect(h.match(/class="plan"/g)!.length).toBeGreaterThanOrEqual(2);
+    expect(h).toContain('class="tick"');
+  });
+  it("a group judged item by item: its total is a count of marks", () => {
+    const h = renderToStaticMarkup(
+      <MeasureForm
+        node={{ ...node, children: { adds: false, nodes: node.children.nodes } }}
+        form="quadretti"
+      />,
+    );
+    expect(h.match(/class="cnt /g)).toHaveLength(2);
   });
 });
