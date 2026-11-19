@@ -185,6 +185,22 @@ export type HeatStrip = {
   tip: string | null;
 };
 
+/** A ramp through the zones' colours: each at its zone's middle, blended to the next. */
+export function kcalRamp(zones: HeatStrip["zones"]): string {
+  let x = 0;
+  const stops = zones
+    .map((z) => {
+      const w = parseFloat(z.w);
+      const mid = x + w / 2;
+      x += w;
+      return w > 0 ? `${z.c} ${mid.toFixed(1)}%` : null;
+    })
+    .filter((s): s is string => s !== null);
+  return stops.length > 1
+    ? `linear-gradient(to right, ${stops.join(", ")})`
+    : `linear-gradient(${stops[0] ?? "var(--kcal)"}, ${stops[0] ?? "var(--kcal)"})`;
+}
+
 const at = (v: number, scale: number) =>
   Math.max(0, Math.min(100, (v / scale) * 100)).toFixed(1) + "%";
 
@@ -343,6 +359,18 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
                   pw: pct(Math.min(planned, Math.max(0, scale - k.v)), scale),
                 },
           strip: h?.strip ?? null,
+          /**
+           * The fill as a ramp through the zones' colours, laid over the whole ruler (his 17 Nov:
+           * «la barra delle calorie può cambiare colore in base ai range… più graduale»): each
+           * zone's colour at its middle, blended between, so the fill ends in its zone's colour.
+           */
+          ramp:
+            h?.strip && scale !== null && k.v > 0
+              ? {
+                  image: kcalRamp(h.strip.zones),
+                  size: ((scale / Math.min(k.v, scale)) * 100).toFixed(1) + "% 100%",
+                }
+              : null,
           mark: h?.strip && t !== null && scale !== null ? pct(t, scale) : null,
           aria:
             "Energia: " +

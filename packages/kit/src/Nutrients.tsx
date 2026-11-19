@@ -49,7 +49,15 @@ export function Nutrients({
               role="img"
               aria-label={kcal.aria}
             >
-              <span className="k-seg kcal" style={{ width: kcal.bar.w }} />
+              <span
+                className="k-seg kcal"
+                style={{
+                  width: kcal.bar.w,
+                  ...(kcal.ramp
+                    ? { backgroundImage: kcal.ramp.image, backgroundSize: kcal.ramp.size }
+                    : {}),
+                }}
+              />
               <span className="k-seg kcal planned" style={{ width: kcal.bar.pw }} />
               {kcal.mark && <span className="k-mark" style={{ left: kcal.mark }} />}
               {kcal.strip && <Fascia strip={kcal.strip} />}

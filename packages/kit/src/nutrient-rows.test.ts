@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   energyStrip,
+  kcalRamp,
   nutrientsL1 as rows,
   shade,
   type NutrientsData,
@@ -357,5 +358,30 @@ describe("energyStrip: a closed meal's strip (VIS-40)", () => {
     const w = energyStrip({ ...meal, kcal: { v: 500 } }).reduce((a, s) => a + s.w, 0);
     expect(w).toBeCloseTo(100, 0);
     expect(energyStrip({ macros: [{ key: "protein", v: 0 }] })).toEqual([]);
+  });
+});
+
+describe("the kcal bar coloured by its zones, a gradual ramp (VIS-50, VIS-52; his 17 Nov)", () => {
+  const zones = [
+    { from: 0, level: "bad" as const },
+    { from: 1700, level: "fair" as const },
+    { from: 1900, level: "good" as const },
+    { from: 2300, level: "fair" as const },
+  ];
+  it("each zone's colour at its middle, blended to the next", () => {
+    const r = kcalRamp([
+      { w: "50%", c: "var(--heat-bad)", danger: false },
+      { w: "50%", c: "var(--heat-good)", danger: false },
+    ]);
+    expect(r).toBe(
+      "linear-gradient(to right, var(--heat-bad) 25.0%, var(--heat-good) 75.0%)",
+    );
+  });
+  it("a day with zones gets the ramp laid over the whole ruler; without zones, none", () => {
+    const k = rows({ kcal: { v: 2000, t: 2100, zones }, macros: [] }).kcal!;
+    expect(k.ramp!.image).toContain("var(--heat-good)");
+    // the fill is 2000 of a scale of max(2100 × 1.3, 2000 × 1.05) = 2730: the ramp is 136.5 %
+    expect(k.ramp!.size).toBe("136.5% 100%");
+    expect(rows({ kcal: { v: 2000, t: 2100 }, macros: [] }).kcal!.ramp).toBeNull();
   });
 });

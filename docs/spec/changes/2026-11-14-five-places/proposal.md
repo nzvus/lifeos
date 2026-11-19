@@ -706,7 +706,11 @@
       redone; its levels stay. Shown as photos, one level at a time.
     - «la barra delle calorie puo cambiare colore in base ai range, e puo anche essere piu
       graduale la sua palette» (17 Nov) → VIS-50/VIS-52 for kcal: the fill takes its zone's
-      colour, a graded ramp instead of a macro colour. Pick: build in the kit gallery, show.
+      colour, a graded ramp instead of a macro colour. Pick: build in the kit gallery, show. **Built 19 Nov**
+      (VIS-50; photos `LIFEOS/review/2026-11-19/kcal/`): the fill is a ramp through the zones'
+      colours laid over the whole ruler; without zones it stays ink. Decided by Claude: each
+      zone's colour at its middle (not hard edges); the planned part keeps its hatch. Undo:
+      `git revert`.
     - «non vedo piu le icone quando le fasce temporali della giornata sono minimizzate» (17 Nov)
       → a regression of VIS-60/VIS-61: icons stay in a folded band. Pick: restore, no new design.
     - «Quando clicco, i riquadri o i bottoni, non hanno le giuste interazioni… Molti pezzi
