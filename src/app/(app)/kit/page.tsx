@@ -18,7 +18,6 @@ import {
   Glyph,
   MealBox,
   type BoxEntry,
-  type CriteriaLook,
 } from "@lifeos/kit";
 import { common } from "@/i18n/common";
 import { requireOwner } from "@/app/_server/owner";
@@ -108,15 +107,11 @@ const LEVELS: [string, string, boolean, string | null][] = [
   ["box-livello-2", "Box a livelli · una porta aperta (Voto)", true, "voto"],
 ];
 
-/** His numbers for the voto proposals: the Porridge of 9 Nov (71) and his water that day (80). */
-const VOTO_LOOKS: [CriteriaLook, string][] = [
-  ["inbar", "A · nella barra"],
-  ["columns", "B · colonne"],
-  ["points", "C · punti"],
-];
-const VOTO_SAMPLES: [string, BoxEntry][] = [
+/** His numbers for the opened voto: the Porridge of 9 Nov (71), his water that day (80). */
+const VOTO_SAMPLES: [string, string, BoxEntry][] = [
   [
     "pasto",
+    "Un pasto (Porridge, 9 nov)",
     {
       fam: "food",
       of: { kind: "meal" },
@@ -143,6 +138,7 @@ const VOTO_SAMPLES: [string, BoxEntry][] = [
   ],
   [
     "acqua",
+    "L'acqua del giorno",
     {
       fam: "drink",
       sub: "water",
@@ -157,6 +153,30 @@ const VOTO_SAMPLES: [string, BoxEntry][] = [
         ],
         missing: [],
         how: "/oggi/andamento/come-valutiamo?modello=water",
+      },
+    },
+  ],
+  [
+    "previsto",
+    "Un pasto previsto (tratteggiato)",
+    {
+      fam: "food",
+      of: { kind: "meal" },
+      title: "Cena prevista",
+      value: "650 kcal",
+      planned: true,
+      score: {
+        value: 58,
+        parts: [
+          { name: "densità di nutrienti", score: 0.45, weight: 0.39 },
+          { name: "limiti", score: 0.6, weight: 0.26 },
+          { name: "qualità dei carboidrati", score: 0.8, weight: 0.11 },
+          { name: "qualità dei grassi", score: 0.7, weight: 0.09 },
+          { name: "sazietà", score: 0.9, weight: 0.09 },
+          { name: "varietà", score: 1, weight: 0.06 },
+        ],
+        missing: [],
+        how: "/oggi/andamento/come-valutiamo?modello=food",
       },
     },
   ],
@@ -525,41 +545,33 @@ export default async function KitPage({
 
       {/* After the photographed pieces (e2e/kit.spec.ts): a section added above them moves
           them by a fraction of a pixel and fails their photos. */}
-      {/* His 19 Nov: «i voti non mi piacciono per nulla… dammi un po' di proposte». Three looks
-          of the opened voto on his own numbers (the Porridge of 9 Nov, his water); his pick
-          becomes the only one. At the end of the page: nothing photographed moves. */}
-      <section
-        className="k-section g2"
-        id="voto-proposte"
-        aria-label="Il voto aperto: proposte"
-      >
-        <h2>Il voto aperto · proposte</h2>
-        {VOTO_LOOKS.map(([look, label]) =>
-          VOTO_SAMPLES.map(([key, entry]) => (
-            <div
-              key={look + key}
-              id={"voto-" + look + "-" + key}
-              role="group"
-              aria-label={label}
-              className="k-stack g1"
-            >
-              <span className="k-label">{label}</span>
-              <Box
-                entry={entry}
-                expanded
-                doors={[
-                  {
-                    key: "nutrients",
-                    label: "Nutrienti",
-                    panel: <p className="k-meta">…</p>,
-                  },
-                ]}
-                door="voto"
-                scoreLook={look}
-              />
-            </div>
-          )),
-        )}
+      {/* The voto opened (VIS-43, his pick of 19 Nov: C «punti» with the macros' grammar), on his
+          own numbers: the Porridge of 9 Nov, his water, and a planned meal (hatched). */}
+      <section className="k-section g2" id="voto" aria-label="Il voto aperto">
+        <h2>Il voto aperto</h2>
+        {VOTO_SAMPLES.map(([key, label, entry]) => (
+          <div
+            key={key}
+            id={"voto-" + key}
+            role="group"
+            aria-label={label}
+            className="k-stack g1"
+          >
+            <span className="k-label">{label}</span>
+            <Box
+              entry={entry}
+              expanded
+              doors={[
+                {
+                  key: "nutrients",
+                  label: "Nutrienti",
+                  panel: <p className="k-meta">…</p>,
+                },
+              ]}
+              door="voto"
+            />
+          </div>
+        ))}
       </section>
 
       <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">

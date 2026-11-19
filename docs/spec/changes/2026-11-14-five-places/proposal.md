@@ -787,6 +787,23 @@
     grown big, a legend), C «punti» (one bar of 100 points, what each criterion lost, the
     costliest first). Claude recommends **A**, with C's «−29» beside the number as an option.
     The app keeps the old panel until he picks (`Box` `scoreLook`).
+68. **19 Nov night, his pick and his words:** «la c è quella che preferisco, ma si potrebbe usare
+    lo stesso criterio per colori e range e forme che usiamo nei macro. cosa che tra l'altro
+    andrebbe fatta anche per i micro. colori per identificarli e pattern di riempimento delle
+    barre per identificarli così come range e interazioni con la pianificazione. inoltre
+    un'altra cosa fondamentale, è che si dovrebbero inserire gestioni più intelligenti del
+    design, tramite minimizzazione, estendibilità e scorrimento o altro, insomma per evitare
+    listoni e abusi di spazi. te ne avevo parlato già più volte nel caso degli oggetti
+    dell'elenco che possono aumentare all'infinito, ma vale anche semplicemente quando vengono
+    listati più di tot elementi. va pensato come condensare l'informazione ma mostrarla anche
+    interamente». Three things: (1) the voto is C «punti», drawn with the macros' grammar
+    (VIS-50/52: an identity colour and fill per part, the zones, the planned hatch); (2) the
+    micros the same; (3) a rule for any list past a few items: condensed, yet all of it
+    reachable (PAT-40 today: 8 rows, then «Mostra altri»). **(1) built 19 Nov** (VIS-43, `Criteria.tsx`,
+    gallery `#voto`, photos `LIFEOS/review/2026-11-19/voto-c/`): the Porridge's panel from ≈ 420
+    px to 166. Decided by Claude: the six identity colours are the muscles' palette (checked for
+    contrast); a criterion's row only when it lost ≥ 0,5 points. A and B removed. (2) and (3):
+    options asked of him.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

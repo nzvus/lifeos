@@ -14,8 +14,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
-import { Criteria, type CriteriaLook } from "./Criteria";
-import { FasciaBar } from "./Fascia";
+import { Criteria } from "./Criteria";
 import { F, MET, PART, type State } from "./format";
 import { WORDS } from "./words";
 
@@ -81,7 +80,6 @@ export function Box({
   doors,
   door = null,
   onDoor,
-  scoreLook,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -101,8 +99,6 @@ export function Box({
   doors?: BoxDoor[];
   door?: string | null;
   onDoor?: (key: string) => void;
-  /** A proposal for the opened voto (his 19 Nov, VIS-43): shown in the gallery until he picks. */
-  scoreLook?: CriteriaLook;
 }) {
   const levels = doors !== undefined;
   const shut = levels && !expanded;
@@ -149,44 +145,10 @@ export function Box({
     ) : null;
   // No line under the head for the score: «è costata di più» is read from the voto and its
   // rulers (his 15 Nov: «non mi serve, lo posso vedere dai voti»; VIS-43 changed).
+  // Open: the voto's criteria as one bar of 100 points (his pick of 19 Nov, VIS-43).
   const parts =
-    e.score && e.score.value !== null && scoreLook ? (
-      <Criteria data={e.score} look={scoreLook} />
-    ) : e.score && e.score.value !== null ? (
-      // Open: one row per criterion with the nutrients' own ruler (S12): filled to
-      // its score, the bands 40 and 70 under it, the tip in its band's colour.
-      // One line per criterion (his 19 Nov «perché ci sono 2 righe?»): mark, name and weight,
-      // its ruler, its number; then what does not count and why, then «Come valutiamo ›».
-      <div className="k-parts">
-        {e.score.parts.map((q) => {
-          const v = Math.round(q.score * 100);
-          const j = F.judge(v);
-          return (
-            <div key={q.name} className="k-crit">
-              <span className={j.cls} role="img" aria-label={j.aria} />
-              <span className="k-body">{q.name}</span>
-              <FasciaBar score={v} label={q.name + " " + v + " su 100"} />
-              {/* the number, its weight under it: the name keeps the room (two lines at most) */}
-              <span className="k-stack k-num-w">
-                <span className="k-num b2">{v}</span>
-                <span className="k-help k-nowrap">
-                  {WORDS.weighs(Math.round(q.weight * 100))}
-                </span>
-              </span>
-            </div>
-          );
-        })}
-        {e.score.missing.length > 0 && (
-          <p className="k-help">
-            {WORDS.scoreMissing}: {e.score.missing.join(" · ")}
-          </p>
-        )}
-        {e.score.how && (
-          <a className="k-link" href={e.score.how}>
-            {WORDS.scoreHow}
-          </a>
-        )}
-      </div>
+    e.score && e.score.value !== null ? (
+      <Criteria data={e.score} planned={!!e.planned} />
     ) : null;
   const allDoors: BoxDoor[] = levels
     ? [

@@ -22,6 +22,7 @@ export const WORDS = {
   less: "Meno",
   score: "Voto",
   scoreMissing: "Non contano",
+  scoreFull: "Pieni",
   scoreHow: "Come valutiamo ›",
   weighs: (pct: number) => `pesa ${pct} %`,
   plus: "Di più",

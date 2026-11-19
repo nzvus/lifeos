@@ -1,17 +1,18 @@
 /**
- * Criteria (VIS-43, PAT-51): a voto opened, one way of drawing its criteria. His 19 Nov: «i voti
- * non mi piacciono per nulla, prendono troppo spazio… la barra dovrebbe avere la priorità e
- * essere in tutta lunghezza… la parte di sinistra si può mettere sulla barra stessa… dammi un
- * po' di proposte». Three looks on the same data, shown side by side in the gallery; his pick
- * becomes the only one. Every look keeps: each criterion's name, score, weight and band (with
- * its mark, never colour alone, VIS-20/21), the edges 40 and 70, what cost the most, what does
- * not count and why, the hint, and «Come valutiamo ›».
+ * Criteria (VIS-43, PAT-51): a voto opened. His pick of 19 Nov, C «punti», drawn with the
+ * macros' grammar (VIS-50/52; his words: «lo stesso criterio per colori e range e forme che
+ * usiamo nei macro»): one bar of 100 points, a stretch per criterion as wide as its weight, in
+ * the criterion's own colour, filled as far as it scored; what it did not reach hatched; under
+ * each stretch its zones (under 40 · 40–70 · over 70) and the tip in its zone's colour; a voto
+ * still planned drawn hatched (VIS-22). Under the bar only the criteria that lost points get a
+ * row, the costliest first; the full ones share one line, so all of it is in view, condensed
+ * (his: «condensare l'informazione ma mostrarla anche interamente»). Then what does not count and
+ * why, the hint, «Come valutiamo ›». The band is always also a mark (● ◐ ○), never colour alone.
  */
-import type { CSSProperties } from "react";
-import { F } from "./format";
+import { Fragment, type CSSProperties } from "react";
+import { F, MET, PART } from "./format";
 import { WORDS } from "./words";
 
-export type CriteriaLook = "inbar" | "columns" | "points";
 export type CriteriaData = {
   value: number | null;
   parts: { name: string; score: number; weight: number }[];
@@ -20,157 +21,116 @@ export type CriteriaData = {
   action?: string;
 };
 
+/** Six identity colours, in the model's order (the muscles' palette, checked for contrast on
+ *  dark); a seventh criterion starts again. */
+const CRIT = 6;
 const pct = (x: number) => Math.round(x * 100);
-
-function Foot({ d }: { d: CriteriaData }) {
-  return (
-    <>
-      {d.action && <p className="k-help">{d.action}</p>}
-      {(d.missing.length > 0 || d.how) && (
-        <div className="k-critfoot">
-          {d.missing.length > 0 && (
-            <span className="k-help">
-              {WORDS.scoreMissing}: {d.missing.join(" · ")}
-            </span>
-          )}
-          {d.how && (
-            <a className="k-link" href={d.how}>
-              {WORDS.scoreHow}
-            </a>
-          )}
-        </div>
-      )}
-    </>
-  );
-}
+const band = (v: number) =>
+  v >= MET ? "var(--heat-good)" : v >= PART ? "var(--heat-fair)" : "var(--heat-bad)";
+const id = (i: number) => ({ "--id": `var(--crit-${i})` }) as CSSProperties;
 
 function Mark({ v }: { v: number }) {
   const j = F.judge(v);
   return <span className={j.cls} role="img" aria-label={j.aria} />;
 }
 
-/** A: one full-length bar per criterion, its words written on the bar (his idea). */
-function InBar({ d }: { d: CriteriaData }) {
-  return (
-    <div className="k-crits inbar">
-      {d.parts.map((q) => {
-        const v = pct(q.score);
-        return (
-          <div
-            key={q.name}
-            className="k-cbar"
-            role="img"
-            aria-label={`${q.name}: ${v} su 100, ${WORDS.weighs(pct(q.weight))}`}
-            style={{ "--v": v + "%", "--c": F.judge(v).tone } as CSSProperties}
-          >
-            <span className="fill" />
-            <span className="edge e40" />
-            <span className="edge e70" />
-            <span className="nm">
-              {q.name} <span className="w">{pct(q.weight)} %</span>
-            </span>
-            <span className="n">
-              <Mark v={v} />
-              {v}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/** A criterion as a stretch as wide as its weight, filled to its score in its band's colour. */
-function Stretch({ q, cls }: { q: CriteriaData["parts"][number]; cls: string }) {
-  const v = pct(q.score);
-  return (
-    <span
-      className={cls}
-      style={
-        { flexGrow: q.weight, "--v": v + "%", "--c": F.judge(v).tone } as CSSProperties
-      }
-    >
-      <span className="fill" />
-    </span>
-  );
-}
-
-/** B: the head's skyline grown big — width = weight, height = score — and a legend under it. */
-function Columns({ d }: { d: CriteriaData }) {
-  return (
-    <div className="k-crits columns">
-      <div className="k-ccols" aria-hidden="true">
-        <span className="edge e40" />
-        <span className="edge e70" />
-        {d.parts.map((q) => (
-          <Stretch key={q.name} q={q} cls="col" />
-        ))}
-      </div>
-      <ul className="k-clegend">
-        {d.parts.map((q) => {
-          const v = pct(q.score);
-          return (
-            <li key={q.name}>
-              <Mark v={v} />
-              <span className="nm">{q.name}</span>
-              <b className="k-num">{v}</b>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
-/** C: one bar of 100 points, a stretch per criterion as wide as its weight, filled as far as it
- *  scored: the filled length is the voto. Under it, what each lost, the costliest first. */
-function Points({ d }: { d: CriteriaData }) {
-  const rows = d.parts
-    .map((q) => ({
-      ...q,
-      v: pct(q.score),
-      max: q.weight * 100,
-      got: q.weight * q.score * 100,
-    }))
-    .sort((a, b) => b.max - b.got - (a.max - a.got));
-  return (
-    <div className="k-crits points">
-      <div className="k-cpts" role="img" aria-label={`${d.value ?? "—"} punti su 100`}>
-        {d.parts.map((q) => (
-          <Stretch key={q.name} q={q} cls="seg" />
-        ))}
-      </div>
-      <ul className="k-clegend lost">
-        {rows.map((q) => (
-          <li key={q.name}>
-            <Mark v={q.v} />
-            <span className="nm">{q.name}</span>
-            <span className="k-help">
-              {F.n(q.got, 0)} su {F.n(q.max, 0)}
-            </span>
-            <b className="k-num">
-              {q.max - q.got >= 0.5 ? "−" + F.n(q.max - q.got, 0) : "✓"}
-            </b>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 export function Criteria({
   data,
-  look = "inbar",
+  planned = false,
 }: {
   data: CriteriaData;
-  look?: CriteriaLook;
+  planned?: boolean;
 }) {
+  const parts = data.parts.map((q, i) => ({
+    ...q,
+    i: (i % CRIT) + 1,
+    v: pct(q.score),
+    max: q.weight * 100,
+    got: q.weight * q.score * 100,
+  }));
+  const lost = parts
+    .filter((q) => q.max - q.got >= 0.5)
+    .sort((a, b) => b.max - b.got - (a.max - a.got));
+  const full = parts.filter((q) => q.max - q.got < 0.5);
   return (
-    <div className="k-parts k-critview">
-      {look === "inbar" && <InBar d={data} />}
-      {look === "columns" && <Columns d={data} />}
-      {look === "points" && <Points d={data} />}
-      <Foot d={data} />
+    <div className={"k-parts k-critview" + (planned ? " planned" : "")}>
+      <div
+        className="k-cpts"
+        role="img"
+        aria-label={`${data.value ?? "—"} punti su 100${planned ? ", previsto" : ""}`}
+      >
+        {parts.map((q) => (
+          <span
+            key={q.name}
+            className="seg"
+            style={
+              {
+                ...id(q.i),
+                flexGrow: q.weight,
+                "--v": q.v + "%",
+                "--band": band(q.v),
+              } as CSSProperties
+            }
+          >
+            <span className="bar">
+              <span className="fill" />
+            </span>
+            <span className="zones" aria-hidden="true">
+              <span className="z bad" />
+              <span className="z fair" />
+              <span className="z good" />
+            </span>
+            <span className="tip" aria-hidden="true" />
+          </span>
+        ))}
+      </div>
+      {lost.length > 0 && (
+        <ul className="k-clegend">
+          {lost.map((q) => (
+            <li key={q.name}>
+              <span className="k-cid" style={id(q.i)} aria-hidden="true" />
+              <Mark v={q.v} />
+              <span className="nm">{q.name}</span>
+              <span className="k-help">
+                {F.n(q.got, 0)} su {F.n(q.max, 0)}
+              </span>
+              <b className="k-num">−{F.n(q.max - q.got, 0)}</b>
+            </li>
+          ))}
+        </ul>
+      )}
+      {full.length > 0 && (
+        <p className="k-cfull">
+          <span className="k-help">{WORDS.scoreFull}:</span>{" "}
+          {/* a name stays whole; the line breaks between names */}
+          {full.map((q, n) => (
+            <Fragment key={q.name}>
+              <span
+                className="k-nowrap"
+                aria-label={`${q.name}: pieno, ${WORDS.weighs(pct(q.weight))}`}
+              >
+                <span className="k-cid" style={id(q.i)} aria-hidden="true" /> {q.name}
+                {n < full.length - 1 ? " ·" : ""}
+              </span>{" "}
+            </Fragment>
+          ))}
+        </p>
+      )}
+      {data.action && <p className="k-help">{data.action}</p>}
+      {(data.missing.length > 0 || data.how) && (
+        <div className="k-critfoot">
+          {data.missing.length > 0 && (
+            <span className="k-help">
+              {WORDS.scoreMissing}: {data.missing.join(" · ")}
+            </span>
+          )}
+          {data.how && (
+            <a className="k-link" href={data.how}>
+              {WORDS.scoreHow}
+            </a>
+          )}
+        </div>
+      )}
     </div>
   );
 }

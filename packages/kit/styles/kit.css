@@ -1,6 +1,14 @@
 /* lifeos kit — the one stylesheet every board links (docs/spec/patterns.md).
    Components: Box, Skyline, Nutrients. Pages pass data, never colours or sizes. */
 :root {
+  /* a voto's criteria, each its own colour in the model's order (his 19 Nov: «colori per
+     identificarli», as the macros): the muscles' six, checked for contrast on dark */
+  --crit-1: var(--muscle-back);
+  --crit-2: var(--muscle-legs);
+  --crit-3: var(--muscle-shoulders);
+  --crit-4: var(--muscle-arms);
+  --crit-5: var(--muscle-core);
+  --crit-6: var(--muscle-chest);
   --t-box: 0.5s;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   /* shapes.md §2: one scale each; pages never pass sizes, radii or spacing */
@@ -4857,29 +4865,6 @@ button.k-mrow:active {
 .k-bin:not(:has(> :not(input[type="hidden"]))) {
   display: none;
 }
-/* a voto's criterion on one line (his 19 Nov «perché ci sono 2 righe?»): mark · name and its
-   weight · ruler · number; the name wraps in its own column, the ruler and number stay put */
-.k-crit {
-  display: grid;
-  /* the number column one width, so every ruler starts and ends at the same place */
-  grid-template-columns: auto minmax(0, 1fr) 28% 56px;
-  align-items: center;
-  column-gap: var(--sp-2);
-}
-.k-crit > .k-num-w {
-  align-items: flex-end;
-  text-align: right;
-}
-/* a narrow panel (320 px, beside the rail): the ruler gives room to the name first, so a name
-   keeps whole words on a line («durata vs bisogno» went one word per line, 19 Nov) */
-.k-parts {
-  container-type: inline-size;
-}
-@container (max-width: 270px) {
-  .k-crit {
-    grid-template-columns: auto minmax(0, 1fr) 20% 52px;
-  }
-}
 /* the day's filters and «Orari» share a line when they fit; else «Orari» goes under them, at
    the end (five chips and «Orari» need 354 px, his phone gives 334) */
 .k-tlhead {
@@ -4894,119 +4879,81 @@ button.k-mrow:active {
   margin-left: auto;
   flex: 0 0 auto;
 }
-/* ---------- Criteria (VIS-43 proposals, his 19 Nov «dammi un po' di proposte») ---------- */
+/* ---------- the voto opened: one bar of 100 points, the macros' grammar (VIS-43, his 19 Nov) ---------- */
 .k-critview {
   gap: var(--sp-2);
 }
-.k-critfoot {
+.k-cpts {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 4px var(--sp-2);
+  gap: 2px;
 }
-.k-crits {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-/* A: the words on the bar */
-.k-cbar {
+.k-cpts > .seg {
   position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-2);
-  height: 24px;
-  padding: 0 8px;
-  border-radius: var(--r-mark);
-  background: color-mix(in srgb, var(--ink) 7%, transparent);
-  overflow: hidden;
-  font-size: var(--fs-b3);
+  flex-direction: column;
+  gap: 2px;
+  flex-basis: 0;
+  min-width: 6px;
 }
-.k-cbar > .fill {
+/* the stretch: its own colour as far as it scored, the rest hatched in it (not reached) */
+.k-cpts .bar {
+  position: relative;
+  height: var(--track, 8px);
+  border-radius: 2px;
+  overflow: hidden;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--id) 30%, transparent) 0 2px,
+    transparent 2px 5px
+  );
+}
+.k-cpts .fill {
   position: absolute;
   inset: 0 auto 0 0;
   width: var(--v);
-  background: color-mix(in srgb, var(--c) 38%, transparent);
-  border-right: 2px solid var(--c);
+  background: var(--id);
 }
-.k-cbar > .edge,
-.k-ccols > .edge {
-  position: absolute;
-  background: color-mix(in srgb, var(--ink) 35%, transparent);
+/* planned (VIS-22): outline and hatch, never solid */
+.k-critview.planned .k-cpts .fill {
+  background: repeating-linear-gradient(135deg, var(--id) 0 2px, transparent 2px 4px);
+  box-shadow: inset 0 0 0 1px var(--id);
 }
-.k-cbar > .edge {
-  top: 0;
-  bottom: 0;
-  width: 1px;
-}
-.k-cbar > .e40 {
-  left: 40%;
-}
-.k-cbar > .e70 {
-  left: 70%;
-}
-.k-cbar > .nm,
-.k-cbar > .n {
-  position: relative;
-  white-space: nowrap;
-}
-.k-cbar > .nm {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-.k-cbar .w,
-.k-clegend .w {
-  color: var(--muted);
-  white-space: nowrap;
-}
-.k-cbar > .n {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-display);
-  font-weight: 700;
-}
-/* B: the skyline grown big */
-.k-ccols {
-  position: relative;
+/* its zones under it, as the macros' ruler (VIS-52): the right one green and thick */
+.k-cpts .zones {
   display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 72px;
+  height: 3px;
 }
-.k-ccols > .edge {
-  left: 0;
-  right: 0;
+.k-cpts .z {
   height: 1px;
-  z-index: 1;
 }
-.k-ccols > .e40 {
-  bottom: 40%;
+.k-cpts .z.bad {
+  flex: 40 0 0;
+  background: color-mix(in srgb, var(--heat-bad) 60%, transparent);
 }
-.k-ccols > .e70 {
-  bottom: 70%;
+.k-cpts .z.fair {
+  flex: 30 0 0;
+  background: var(--heat-fair);
 }
-.k-ccols > .col {
-  position: relative;
-  flex-basis: 0;
-  height: 100%;
-  border-radius: 3px 3px 0 0;
-  background: color-mix(in srgb, var(--ink) 6%, transparent);
+.k-cpts .z.good {
+  flex: 30 0 0;
+  height: 3px;
+  background: var(--heat-good);
 }
-.k-ccols > .col > .fill {
+/* the tip in its zone's colour, where the fill ends */
+.k-cpts .tip {
   position: absolute;
-  inset: auto 0 0 0;
-  height: var(--v);
-  border-radius: 3px 3px 0 0;
-  background: var(--c);
+  top: -2px;
+  left: clamp(0px, calc(var(--v) - 1.5px), calc(100% - 3px));
+  width: 3px;
+  height: calc(var(--track, 8px) + 4px);
+  border-radius: 1px;
+  background: var(--band);
+  box-shadow: 0 0 0 1px var(--sheet);
 }
 .k-clegend {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2px var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -5015,7 +4962,7 @@ button.k-mrow:active {
 .k-clegend > li {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 .k-clegend .nm {
@@ -5025,36 +4972,31 @@ button.k-mrow:active {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* C: a bar of 100 points */
-.k-cpts {
-  display: flex;
-  gap: 2px;
-  height: 16px;
+.k-clegend .k-help {
+  white-space: nowrap;
 }
-.k-cpts > .seg {
-  position: relative;
-  flex-basis: 0;
-  border-radius: 2px;
-  background: repeating-linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--ink) 10%, transparent) 0 3px,
-    transparent 3px 6px
-  );
-  overflow: hidden;
-}
-.k-cpts > .seg > .fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: var(--v);
-  background: var(--c);
-}
-.k-clegend.lost {
-  grid-template-columns: minmax(0, 1fr);
-}
-.k-clegend.lost .k-num {
+.k-clegend .k-num {
   min-width: 2.5em;
   text-align: right;
 }
-.k-clegend .k-help {
-  white-space: nowrap;
+/* a criterion's colour, as a macro's swatch */
+.k-cid {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--id);
+  vertical-align: -1px;
+}
+.k-cfull {
+  margin: 0;
+  font-size: var(--fs-b3);
+}
+.k-critfoot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px var(--sp-2);
 }
