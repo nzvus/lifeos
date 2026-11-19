@@ -520,7 +520,7 @@
   font: inherit;
 }
 .k-head > .k-hlead {
-  /* the title keeps about eight letters before the head wraps; above that it shrinks with «…» */
+  /* the title keeps about six letters before the head wraps; above that it shrinks with «…» */
   flex: 1 1 8em;
   /* every head's first line is one height (the skyline's 28), so title, score, number and «›»
      share one centre, wrapped or not */
@@ -549,12 +549,11 @@
   outline-offset: 4px;
   border-radius: var(--r-mark);
 }
+/* the number sits above the drawing, on the box's own surface: no patch of its own (it showed on
+   boxes with another surface) and no inset (it ended 4 px short of the edge), his 19 Nov */
 .k-head .k-num {
   position: relative;
   z-index: 1;
-  background: var(--sheet);
-  border-radius: 4px;
-  padding: 0 4px;
 }
 .k-row.times .k-more {
   grid-template-rows: 0fr;
@@ -1584,7 +1583,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 4px;
-  margin-top: 6px;
+  margin-top: var(--sp-2);
 }
 .k-icons .k-ico {
   position: relative;
@@ -2525,14 +2524,14 @@
   width: 128px;
 }
 .k-bin {
-  margin-top: 12px;
+  margin-top: var(--sp-2);
 }
 .k-slot-l0,
 .k-bribbon,
 .k-bstrip,
 .k-bpills,
 .k-baction {
-  margin-top: 8px;
+  margin-top: var(--sp-2);
 }
 .k-bstrip {
   height: var(--track);
@@ -3726,21 +3725,19 @@ button.k-link {
 .k-row.times .k-top:not(.badged) {
   --indent: 0px;
 }
+/* the icon sits on the first line, closed and open: it never moves when the box opens (his
+   19 Nov «le icone in alto a sinistra è meglio che stiano ferme»; replaces his 16 Nov centring) */
 .k-top > .k-lead {
   position: absolute;
   left: 0;
   top: 0;
-  bottom: 0;
+  height: max(28px, var(--indent) - 8px);
   z-index: 1;
   width: calc(var(--indent) - 8px);
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-}
-.k-box.is-open .k-top > .k-lead {
-  bottom: auto;
-  height: max(28px, var(--indent) - 8px);
 }
 .k-top .k-head,
 .k-top > .k-sub {
@@ -3756,7 +3753,7 @@ button.k-link {
 }
 /* the icon left the title's span: the widths at which a head wraps count it as before */
 .k-top .k-head > .k-hlead {
-  flex-basis: calc(8em - var(--indent));
+  flex-basis: calc(6em - var(--indent));
 }
 .k-row.dense .k-top .k-head > .k-hlead {
   flex-basis: calc(5em - var(--indent));
@@ -3883,6 +3880,15 @@ button.k-link {
 }
 .k-more > div:has(> .k-acts) > :not(.k-acts) {
   grid-column: 1;
+}
+/* a line with its actions is one line of the box: --sp-2 under the one above, as tall as the
+   pills, its bar centred on them (the water's +250 · +500 touched its head, 19 Nov) */
+.k-more > div:has(> .k-acts) {
+  margin-top: var(--sp-2);
+  row-gap: var(--sp-2);
+}
+.k-more > div:has(> .k-acts) > * {
+  margin-top: 0;
 }
 .k-more > div:has(> .k-acts) > .k-ribbon {
   width: 100% !important;
@@ -4732,10 +4738,10 @@ button.k-link {
    open = doors, one panel at a time ---------- */
 .k-lvstrip {
   height: var(--track);
-  margin-top: 8px;
+  margin-top: var(--sp-2);
 }
 .k-doors {
-  margin-top: 12px;
+  margin-top: var(--sp-2);
   gap: 8px;
 }
 .k-door {
@@ -4746,7 +4752,7 @@ button.k-link {
 }
 .k-doorpanel {
   position: relative;
-  margin-top: 12px;
+  margin-top: var(--sp-2);
   padding-top: 12px;
   border-top: 1px solid var(--hairline);
 }
@@ -4841,4 +4847,9 @@ button.k-part.toggle:active,
 button.k-mrow:active {
   /* the whole piece lightens evenly, numbers on their own patch too (a tint left them dark) */
   filter: brightness(1.15);
+}
+/* One gap between a box's lines (his 19 Nov «spaziature, padding, simmetrie»): every line under
+   the head sits --sp-2 below the one above, and an empty block takes no room (Passi had 23). */
+.k-bin:empty {
+  display: none;
 }

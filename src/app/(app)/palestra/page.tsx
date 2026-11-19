@@ -40,7 +40,6 @@ export default async function GymStartPage() {
                   meta:
                     F.plural(r.exercises.length, "esercizio", "esercizi") +
                     (r.uses ? " · " + r.uses + " volte in 90 giorni" : ""),
-                  value: "›",
                 }}
               />
             </button>

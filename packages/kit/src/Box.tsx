@@ -289,9 +289,9 @@ export function Box({
           {/* The head's parts on one centre line (his 15 Nov «i numeri rispetto alle
               intestazioni e i bottoni sono sfalsati»): title, number, score and action. */}
           <div className={"k-top" + (badge ? " badged" : "")}>
-            {/* The icon is centred on the title and its meta line while the box is shut; open,
-                it stays on the first line (his 16 Nov «centrare le icone… invece di metterle in
-                alto», VIS-40). The head reaches under it, so a tap on the icon opens too. */}
+            {/* The icon sits on the first line, shut and open: it never moves when the box
+                opens (his 19 Nov, replacing his 16 Nov centring; VIS-40). The head reaches
+                under it, so a tap on the icon opens too. */}
             <span className="k-lead" aria-hidden="true">
               {badge ? (
                 <Glyph of={of} size="m" tile={!!e.href} />

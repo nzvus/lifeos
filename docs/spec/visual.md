@@ -80,7 +80,10 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   details on open; `card` (L3) or `row` (L4). Taps (his 19 Nov «interagibili per intero… l'effetto
   "tocco" fa lampeggiare male»): closed, a tap anywhere opens it; open, its head closes it; no
   side arrow — a box that opens and has a page says «Apri» inside it; no browser flash, a press
-  lightens the piece. Inside by family: Nutrients L0 (food), muscle strip
+  lightens the piece. Spacing (his 19 Nov «spaziature, padding, simmetrie»): the icon sits on
+  the first line and never moves when the box opens; every line under the head is `--sp-2` below
+  the one above, an empty block takes no room; the head stays one line while the title keeps six
+  letters; numbers end at the box's edge, on its surface, no patch; no «›» as a value. Inside by family: Nutrients L0 (food), muscle strip
   (training), need bar (water). [UI-26, UI-29, UI-30, UI-33, UI-84 «il tasto di aggiunta dell'acqua ha
   sempre sbordato e non te ne sei mai reso conto»] — Today: built.
 - **VIS-41** Silhouettes (L3/L4, from the registry) change only corners, rims, corner bites — pranzo

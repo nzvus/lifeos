@@ -618,7 +618,6 @@ export async function DayPage({
                       F.plural(r.exercises.length, "esercizio", "esercizi") +
                       (r.uses ? " · " + r.uses + " volte in 90 giorni" : "") +
                       " · inizia adesso",
-                    value: "›",
                   }}
                 />
               </button>

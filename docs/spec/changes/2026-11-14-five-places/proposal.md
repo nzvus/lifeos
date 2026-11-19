@@ -735,6 +735,20 @@
     Order (Claude's): the regression (icons) → taps (kit) → the voto → one page see/edit → week
     strip → kcal bar → rests. Undo: move the lines back to the inbox.
 
+65. **19 Nov evening, his words on the tap photos:** «yeah ok yc, ma dalle foto che mi fai vedere
+    vedo che ci sono comunque quei problemi di spaziature, padding, simmetrie e posizionamenti
+    formattati male. inoltre quando si estendono, le icone in alto a sinistra è meglio che
+    stiano ferme, e non si decentrino. so che ti avevo detto diversamente prima, ma adesso
+    realizzo che è meglio fare diversamente. inoltre mi pare che ti avessi dato gia dei
+    feedback simili. un esempio è sulla scheda dell'acqua, vedi quanto è spaziata male? come
+    quella molte altre». The taps are approved. His 16 Nov «centrare le icone… invece di
+    metterle in alto» is replaced: a Box's icon does not move when it opens (VIS-40). The
+    spacing is a pattern, never a fix per box: measured on every Box (`e2e/layout.ts`). **Built 19 Nov**
+    (VIS-40; `LIFEOS/review/2026-11-19/spacing/`, before/after of 7 pages in `cmp/`): the icon on
+    the first line always; one `--sp-2` between a box's lines (they were 8 · 11 · 0 · 23); the
+    water head on one line (the title kept 8 em, now 6); the head number with no patch and no
+    4 px inset; «›» gone as a Box value (Aggiungi, Palestra, gym start). Seen, not changed: the
+    meal's four macro bars are short with a wide gap to the grams (Nutrients L0, its own pattern).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
