@@ -4894,3 +4894,167 @@ button.k-mrow:active {
   margin-left: auto;
   flex: 0 0 auto;
 }
+/* ---------- Criteria (VIS-43 proposals, his 19 Nov «dammi un po' di proposte») ---------- */
+.k-critview {
+  gap: var(--sp-2);
+}
+.k-critfoot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px var(--sp-2);
+}
+.k-crits {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+/* A: the words on the bar */
+.k-cbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--r-mark);
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  overflow: hidden;
+  font-size: var(--fs-b3);
+}
+.k-cbar > .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--v);
+  background: color-mix(in srgb, var(--c) 38%, transparent);
+  border-right: 2px solid var(--c);
+}
+.k-cbar > .edge,
+.k-ccols > .edge {
+  position: absolute;
+  background: color-mix(in srgb, var(--ink) 35%, transparent);
+}
+.k-cbar > .edge {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+.k-cbar > .e40 {
+  left: 40%;
+}
+.k-cbar > .e70 {
+  left: 70%;
+}
+.k-cbar > .nm,
+.k-cbar > .n {
+  position: relative;
+  white-space: nowrap;
+}
+.k-cbar > .nm {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.k-cbar .w,
+.k-clegend .w {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.k-cbar > .n {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+/* B: the skyline grown big */
+.k-ccols {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 72px;
+}
+.k-ccols > .edge {
+  left: 0;
+  right: 0;
+  height: 1px;
+  z-index: 1;
+}
+.k-ccols > .e40 {
+  bottom: 40%;
+}
+.k-ccols > .e70 {
+  bottom: 70%;
+}
+.k-ccols > .col {
+  position: relative;
+  flex-basis: 0;
+  height: 100%;
+  border-radius: 3px 3px 0 0;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.k-ccols > .col > .fill {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: var(--v);
+  border-radius: 3px 3px 0 0;
+  background: var(--c);
+}
+.k-clegend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px var(--sp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-b3);
+}
+.k-clegend > li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.k-clegend .nm {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* C: a bar of 100 points */
+.k-cpts {
+  display: flex;
+  gap: 2px;
+  height: 16px;
+}
+.k-cpts > .seg {
+  position: relative;
+  flex-basis: 0;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ink) 10%, transparent) 0 3px,
+    transparent 3px 6px
+  );
+  overflow: hidden;
+}
+.k-cpts > .seg > .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--v);
+  background: var(--c);
+}
+.k-clegend.lost {
+  grid-template-columns: minmax(0, 1fr);
+}
+.k-clegend.lost .k-num {
+  min-width: 2.5em;
+  text-align: right;
+}
+.k-clegend .k-help {
+  white-space: nowrap;
+}

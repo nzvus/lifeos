@@ -775,6 +775,18 @@
     page, the gallery (photos `LIFEOS/review/2026-11-19/bars/`); the other nutrient bars («Il
     giorno», the composer) were already full width. The corner drawing (9 % opacity) stays
     below them. `measureBoxLines` now counts every line of a box, open too.
+67. **19 Nov night, his words on the voto photos:** «i voti non mi piacciono per nulla, prendono
+    troppo spazio e sono spaziati male, anche qui la barra dovrebbe avere la priorità e essere in
+    tutta lunghezza se possibile, non dovrebbe esserci cosi tanto spazio tra di loro, inoltre la
+    parte di sinistra credo si possa mettere sulla barra stessa per guadagnare spazio. anzi in
+    realtà si potrebbe ripensare completamente. dammi un po di proposte che si presterebbero
+    bene, pensando a tutte le feature che dovrebbe avere, non trascurando quelle attuali». The
+    one-line criteria of §64 (VIS-43) are rejected; proposals in the `/kit` gallery, his pick. **Proposals built 19 Nov** (`packages/kit/src/Criteria.tsx`, gallery `#voto-proposte`,
+    photos `LIFEOS/review/2026-11-19/voto-proposte/index.html`, his numbers): A «nella barra»
+    (his idea: one full-length bar per criterion, the words on it), B «colonne» (the skyline
+    grown big, a legend), C «punti» (one bar of 100 points, what each criterion lost, the
+    costliest first). Claude recommends **A**, with C's «−29» beside the number as an option.
+    The app keeps the old panel until he picks (`Box` `scoreLook`).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

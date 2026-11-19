@@ -14,6 +14,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
+import { Criteria, type CriteriaLook } from "./Criteria";
 import { FasciaBar } from "./Fascia";
 import { F, MET, PART, type State } from "./format";
 import { WORDS } from "./words";
@@ -80,6 +81,7 @@ export function Box({
   doors,
   door = null,
   onDoor,
+  scoreLook,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -99,6 +101,8 @@ export function Box({
   doors?: BoxDoor[];
   door?: string | null;
   onDoor?: (key: string) => void;
+  /** A proposal for the opened voto (his 19 Nov, VIS-43): shown in the gallery until he picks. */
+  scoreLook?: CriteriaLook;
 }) {
   const levels = doors !== undefined;
   const shut = levels && !expanded;
@@ -146,7 +150,9 @@ export function Box({
   // No line under the head for the score: «è costata di più» is read from the voto and its
   // rulers (his 15 Nov: «non mi serve, lo posso vedere dai voti»; VIS-43 changed).
   const parts =
-    e.score && e.score.value !== null ? (
+    e.score && e.score.value !== null && scoreLook ? (
+      <Criteria data={e.score} look={scoreLook} />
+    ) : e.score && e.score.value !== null ? (
       // Open: one row per criterion with the nutrients' own ruler (S12): filled to
       // its score, the bands 40 and 70 under it, the tip in its band's colour.
       // One line per criterion (his 19 Nov «perché ci sono 2 righe?»): mark, name and weight,
