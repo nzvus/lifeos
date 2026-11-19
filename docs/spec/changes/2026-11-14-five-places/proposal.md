@@ -697,7 +697,7 @@
       dovrebbero essere piu dinamiche in base agli sforzi appena fatti?» (13 Nov) → a rule for
       `domains/training.md` (rest after a warm-up set short, rest after a work set from its RIR
       and load). Pick: a new TR row, built with the gym's redesign; numbers with their source.
-    - «Mezzogiorno meglio chiamarlo pomeriggio» (16 Nov) → **open question**: «Pomeriggio»
+    - «Mezzogiorno meglio chiamarlo pomeriggio» (16 Nov) → **answered «yc» 19 Nov = (a), built**; was: «Pomeriggio»
       already names the snack band (VIS-61, from his meal-role bounds), so a rename collides.
       Options: (a) the lunch and snack bands become one «Pomeriggio» (four bands) —
       recommended; (b) the lunch band «Pranzo»; (c) another word of his.

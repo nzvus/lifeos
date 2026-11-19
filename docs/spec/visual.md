@@ -115,7 +115,7 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   times and icons; bar 4 wide in the domain hue, on `--t-box`; it gains space, never takes it. [UI-50
   «una verticale colorata… con gli orari in verticale molto molto snelli», UI-77 «no, il tuo consiglio
   non mi piace», CONTRA-02, c13] — Today: built.
-- **VIS-61** Parts of the day: full-width sky bands (mattina … notte) from his meal-role bounds (MOD-60),
+- **VIS-61** Parts of the day: full-width sky bands (mattina · pomeriggio · sera · notte; lunch and snack share «pomeriggio», his 16 Nov) from his meal-role bounds (MOD-60),
   sun on the arc, moon at night, rising once; they cut the rail; drawn only when begun or holding
   something; empty passed parts merge into «niente». «Fine giornata» closes; untimed things below as
   cards. A role's meals grouped only if adjacent and ≤ 60 min apart. [UI-77 «per i separé volevo delle

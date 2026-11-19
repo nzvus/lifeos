@@ -322,8 +322,7 @@ export default async function KitPage({
       <section className="k-section g2" id="parti" aria-label="Le parti del giorno">
         <h2>Le parti del giorno</h2>
         <DayPart name="Mattina" when="dalle 05:00" />
-        <DayPart name="Mezzogiorno" when="dalle 12:00" />
-        <DayPart name="Pomeriggio" when="dalle 15:00" empty />
+        <DayPart name="Pomeriggio" when="dalle 12:00" empty />
         <EmptyTime
           minutes={150}
           label="2 h 30 senza niente"

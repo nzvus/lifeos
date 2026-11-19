@@ -270,14 +270,10 @@ export function DayView({
   // and that ⊕ offers at that hour (UI-77): a gap offers the meal missing then, else ⊕.
   const parts: Part[] | undefined = clock && [
     { name: "Mattina", from: clock.boundaryMin, to: clock.roleBounds.lunchFrom },
-    {
-      name: "Mezzogiorno",
-      from: clock.roleBounds.lunchFrom,
-      to: clock.roleBounds.snackFrom,
-    },
+    // Lunch and snack share one band (his 16 Nov; proposal §64 (a)).
     {
       name: "Pomeriggio",
-      from: clock.roleBounds.snackFrom,
+      from: clock.roleBounds.lunchFrom,
       to: clock.roleBounds.dinnerFrom,
     },
     { name: "Sera", from: clock.roleBounds.dinnerFrom, to: 1440 },
