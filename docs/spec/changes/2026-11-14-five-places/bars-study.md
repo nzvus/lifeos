@@ -269,7 +269,7 @@ data-ink.
    chosen for a property is the one that shows its scale best: position or length for amounts,
    a mark for a state, order for rank.
 
-## 10. Style samples, round 2 (20 Nov, Claude; his pick open)
+## 10. Style samples, round 2 (20 Nov, Claude; rejected, proposal §80)
 
 Pieno · calmo · denso were one structure (bullet + tier) in three skins, and all three were
 rejected; so round 2 changes the **main channel**, not the skin. Same blocks for all three: the
@@ -293,3 +293,36 @@ ring), before `Meter` is built.
 
 Next: the same block (the day's energy, its macros, the micros, a voto) rendered in a few
 styles in the gallery, photographed, for him to pick by eye.
+
+## 11. Many dimensions, the way databases show them (draft, his 20 Nov, proposal §80)
+
+What he remembered is OLAP (the «data cube» of business intelligence). A **measure** (kcal, grams,
+mg, points, litres) is looked at along **dimensions**, each a **hierarchy** of levels. One view
+shows few dimensions at once; the others are fixed or summed. The operations move between views:
+
+| Operation | What it does | In lifeos |
+|---|---|---|
+| Drill-down | one level more detail on a dimension | Energia → Proteine → qualità alta → the foods that gave it |
+| Roll-up (drill-up) | one level less, summing | foods → kinds → macro → the day's kcal; day → week → month (Andamento) |
+| Slice | fix one member of a dimension | only Cena; only what was planned; only 9 Nov |
+| Dice | keep a subset on several dimensions | the macros of pranzo and cena, this week |
+| Pivot | swap which dimension is on the axis | the day's kcal by macro ↔ the same kcal by meal ↔ by part of the day |
+| Drill-through | down to the raw rows | the voci (each meal, each food line) behind a number |
+
+The dimensions we have: **nutrient** (Energia → macro → kind; micros → group → micro), **time**
+(day → part of day → voce; day → week → month), **source** (voce → food → brand), **state**
+(planned · done). The target and the ranges are not a dimension: they are the **reference** each
+value is read against.
+
+What it changes in §9 (Claude's reading of his words, for his OK):
+
+- Rule 1 changes: as many levels as the dimension's hierarchy has; each tap is a drill-down, a
+  path at the top («Energia › Proteine») rolls back up (Shneiderman's mantra: overview first, zoom
+  and filter, details on demand).
+- New rule 8, **comprehensibility first**: each view is a chart form everyone already reads (a bar
+  chart, a line), one dimension on its axis; the scale is written on the axis (0, the target, the
+  ranges' edges with their amounts); the ranges named on the drawing, not only coloured; the unit
+  on the axis. Rule 4 (channels before text) never removes the scale.
+- Each view can be pivoted (by macro · by meal · by part of the day) and sliced (planned · done),
+  instead of drawing every dimension at once.
+

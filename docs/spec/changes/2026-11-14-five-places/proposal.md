@@ -878,6 +878,14 @@
 79. **20 Nov, his words:** «leggi l'handoff e riparti dai campioni di stile delle barre». Round 2
     built (bars-study §10): colonne · quadretti · rosa, each a different main channel on the same
     blocks, photos `LIFEOS/review/2026-11-20/stili2/`. Open: his pick.
+80. **20 Nov, his words on round 2:** «they all suck badly. non si capisce nulla ed e sono brutti. la
+    comprensibilità è importante, non solo come leggere la visualizzazione, ma anche far capire la
+    scala e eventuali range o comunque tutte le dimensioni che vuoi. e poi ti ho detto che non
+    necessariamente devi mostrare tutto in un livello, magari imposti piu livelli. hm, pensa alle
+    visualizzazioni nei database, dati con un sacco di dimensioni, come funziona li? … drill down
+    dig up». Colonne · quadretti · rosa rejected. The scale and the ranges must be readable on the
+    drawing; more levels are allowed (bars-study §9 rule 1 changes); the model comes from OLAP
+    (drill-down, roll-up, slice, dice, pivot): bars-study §11.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
