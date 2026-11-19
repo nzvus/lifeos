@@ -886,6 +886,10 @@
     dig up». Colonne · quadretti · rosa rejected. The scale and the ranges must be readable on the
     drawing; more levels are allowed (bars-study §9 rule 1 changes); the model comes from OLAP
     (drill-down, roll-up, slice, dice, pivot): bars-study §11.
+81. **20 Nov, his words:** «prima mostrami come lo fanno i tool reali. e poi tu potresti anche fare
+    qualcosa di tridimensionale no? permettendomi di ruotarlo e vederlo meglio, o magari tu gestisci
+    la rotazione e anche quella è una dimensione? non so come funziona». Next: real tools' pictures
+    (review page), and an answer on 3D (rotation as OLAP's pivot, faces kept flat).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
