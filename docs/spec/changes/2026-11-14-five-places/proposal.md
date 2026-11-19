@@ -852,6 +852,11 @@
     renderizzati. densità informativa. magari online trovi qualcosa?». V1–V3 rejected (rings too
     scattered, lines too much a list); the base element must show a hierarchy (parts → summary),
     the plan, the ranges as judgement, and serve Andamento. Research first (bars-study §7).
+74. **20 Nov, his words on the measure tree:** «non mi fa impazzire, e poi dovresti rivedere tutto
+    anche applicando diversi gradi di espandibilità. per ogni tipo di informazione. e comunque non
+    mi fa impazzire questo stile». The tree's style is rejected; the content per level of
+    expansion is decided first, as a table per type of information (bars-study §8, his 15 Nov
+    «decidere per tabelle»), then the style from references he picks; no more drawings before.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

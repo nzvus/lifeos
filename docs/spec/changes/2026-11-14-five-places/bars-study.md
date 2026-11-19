@@ -177,3 +177,32 @@ Sources: Few, *Bullet Graph Design Specification* (Perceptual Edge); icicle char
 (visualizing.org, D3 `partition`); the EU Data Visualisation Guide on stacked bars; Tufte,
 *Beautiful Evidence* and his sparkline notes; IBCS notation via Inforiver's docs; MacroFactor's
 help on floor, target and ceiling; reviews of Cronometer's 82 targets.
+
+## 8. Levels per type of information — the content first (draft for his corrections)
+
+His words, 20 Nov: «dovresti rivedere tutto anche applicando diversi gradi di espandibilità. per
+ogni tipo di informazione». Content only: what each level shows, never how it looks (the style
+comes after, from references he picks). A tap goes to the next level, remembered per piece
+(VIS-70). L0 = a glance (closed, one line); L1 = the summary with its parts; L2 = each part's
+detail; L3 = in time and why («Perché?», Andamento). Everything that exists today has a place
+(PRD-19 «tutto a un tocco»); nothing new is invented.
+
+| Type | L0 | L1 | L2 | L3 |
+|---|---|---|---|---|
+| Energia (the day's kcal) | eaten + planned against the target, judged | + where it came from: the four macros as kcal | + each macro's kinds; the foods that gave most | the week's days; dispendio ± and the goal's pace; «Perché?» of the target |
+| A macro (P · C · G · F) | grams / target, judged | + its kinds (quality, sources) | + the foods per kind; the range's amounts | its days; FD-31 edges with sources |
+| Limits (free sugars · saturated · salt) | three marks, judged on the 7-day mean | each: day and mean against the ceiling | the foods that gave most | its days; the ceiling's source (FD-33) |
+| Micros | «n su m a posto», judged | the groups (vitamins · minerals · other), each «n su m» | each micro against AR · PRI · UL (floor · target · ceiling) | its days; the source per edge (FD-40) |
+| A voto (meal · water · sleep · session · day · weigh-in) | number + word | its criteria, what each got of its weight | each criterion's own measure; what does not count and why | its votes over time; «Come valutiamo» |
+| Acqua | litres / need now, judged | + the drinks of the day; after training | the need's parts (base, training, heat) | its days |
+| Integratori (creatina, caffeina) | taken today; stock % | dose vs plan; stock days left | the doses' times | its days; FD-62 for caffeine at bedtime |
+| Sonno | hours / need, judged | + regularity, continuity, how he felt | the night's pieces and times awake | its nights |
+| Peso | trend kg, pace vs goal | the weigh-ins of the period | water vs fat (the line without water), uncertainty | the chart with the goal |
+| Passi | steps, kcal | the day's parts | — | its days |
+| Sessione (gym) | minutes, voto | the exercises, sets, volume per muscle | each set (load, reps, RIR, rest) | each exercise's records and trend (TR-21/23) |
+| Costo | € of the day, «n senza prezzo» | per meal | per food and brand | the month (Soldi) |
+| Obiettivi | on pace or not | each goal's pace and «da qui: …» | its weekly bar «2 su 4» | its history |
+
+Open questions for him, on this table:
+1. Rows to add or drop; anything misplaced (a part that should be one level up or down).
+2. Whether L3 opens in place or goes to Andamento.
