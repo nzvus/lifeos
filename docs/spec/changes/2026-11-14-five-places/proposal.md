@@ -832,6 +832,14 @@
     visualizzazioni che vengono richieste in un elemento base comune». A study first
     (`bars-study.md` in this change): every bar in the app, what each needs, one base element;
     options, his pick, then code. Which «prima» he prefers for the micros: asked with the study.
+72. **19 Nov night, his «yc» on the bars study and his words:** «yc, comunque la scritta sulla
+    barra non mi piace perché la rende troppo grossa, ma allo stesso tempo fuori le toglie spazio,
+    sia che sia a lato o sopra. se glie lo togli in lunghezza è sempre brutto, se lo metti sopra
+    dipende da quanto spazio togli. oppure potresti valutare altri tipi completamente diversi di
+    visualizzazione, non necessariamente barre». «yc» = (a) one `Meter`; sizes: no words on the
+    bar; for the micros «prima» = the group-shade rows (Claude's reading: M1 had words on the bar).
+    Next: proposals of other forms (thin words above with zones as the bar's background, tiles,
+    rings) on his micros, photographed, his pick before `Meter` is built.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

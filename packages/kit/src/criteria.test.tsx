@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Box } from "./Box";
 import { Criteria } from "./Criteria";
+import { Forms } from "./Forms";
 import { List } from "./List";
 
 // His pick of 19 Nov: C «punti», with the macros' grammar (VIS-43, VIS-50, VIS-52, VIS-22).
@@ -82,4 +83,29 @@ describe("a long list: one line naming the rest, opening in place (PAT-40, his p
     const h = renderToStaticMarkup(<List label="Cibi">{rows}</List>);
     expect(h).toContain("Mostra altri (4)");
   });
+});
+
+describe("forms without words on the bar: proposals (bars study §6; VIS-50, VIS-52)", () => {
+  const items = [
+    {
+      name: "C",
+      v: 80,
+      t: 110,
+      unit: "mg",
+      color: "var(--crit-1)",
+      zones: [
+        { from: 0, level: "bad" as const },
+        { from: 77, level: "fair" as const },
+        { from: 110, level: "good" as const },
+      ],
+    },
+  ];
+  for (const look of ["thin", "tiles", "rings"] as const)
+    it(look + ": the share, a mark, the zones behind, the amount in its label", () => {
+      const h = renderToStaticMarkup(<Forms items={items} look={look} />);
+      expect(h).toMatch(/73/);
+      expect(h).toContain("k-st part");
+      expect(h).toContain("var(--heat-good)");
+      expect(h).toContain("C: 80");
+    });
 });

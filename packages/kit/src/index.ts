@@ -24,6 +24,7 @@ export { Chart, chartGeometry, type ChartData } from "./Chart";
 export { Field, type FieldOption, type FieldProps } from "./Field";
 export { Nutrients, NutrientsL0 } from "./Nutrients";
 export { Criteria, type CriteriaData } from "./Criteria";
+export { Forms, type FormItem, type FormLook } from "./Forms";
 export {
   nutrientsL0,
   energyStrip,

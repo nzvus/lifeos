@@ -121,3 +121,10 @@ How each kind maps:
    the macro rows), or M1 «sulla barra».
 
 Then: build `Meter` in the gallery with every kind as data, photographs, his look, then move.
+
+## 6. His answers (19 Nov)
+
+«yc»: (a) one `Meter`. Sizes: no words on the bar («la rende troppo grossa»), and words beside or
+above cost space («se glie lo togli in lunghezza è sempre brutto, se lo metti sopra dipende da
+quanto spazio togli»); he asks for other forms too, not only bars. Proposals V1 (thin words above,
+zones as the bar's background), V2 (tiles), V3 (rings) in the gallery `#forme`.

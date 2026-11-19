@@ -5052,3 +5052,139 @@ button.k-mrow:active {
 .k-kinds.flat {
   padding-left: 0;
 }
+/* ---------- forms without words on the bar (bars study §6, his 19 Nov): proposals ---------- */
+.k-fthin {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.k-fthin .top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-b3);
+  line-height: 14px;
+}
+.k-fthin .nm,
+.k-ftiles .nm {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.k-fthin .n,
+.k-ftiles .n,
+.k-frings .n {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+/* the bar's own background is its zones (a bullet chart): no ruler line under it */
+.k-fthin .bar,
+.k-ftiles .bar {
+  position: relative;
+  display: block;
+  height: 5px;
+  margin-top: 3px;
+  border-radius: 3px;
+  overflow: visible;
+}
+.k-fthin .band,
+.k-ftiles .band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  opacity: 0.22;
+}
+.k-fthin .bar > i,
+.k-ftiles .bar > i {
+  position: absolute;
+  inset: 1px auto 1px 0;
+  border-radius: 2px;
+}
+.k-fthin .tick {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+}
+.k-fthin .tip {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px var(--sheet);
+}
+.k-ftiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.k-ftiles .tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 6px 8px 5px;
+  border-radius: var(--r-mark);
+  background: color-mix(in srgb, var(--id) 12%, var(--sheet));
+  font-size: var(--fs-b3);
+}
+.k-ftiles .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.k-ftiles .bar > i {
+  width: 0;
+  background: var(--id);
+}
+.k-frings {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 4px;
+}
+.k-frings .ring {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--fs-b3);
+  min-width: 0;
+}
+.k-frings svg {
+  width: 52px;
+  height: 52px;
+}
+.k-frings .band {
+  fill: none;
+  stroke-width: 3;
+  opacity: 0.3;
+}
+.k-frings .val {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.k-frings .tickdot {
+  fill: var(--ink);
+}
+.k-frings .n {
+  position: absolute;
+  top: 17px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: var(--fs-b3);
+}
+.k-frings .nm {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
