@@ -739,7 +739,12 @@
       criterion when the limits are known. Decided by Claude: the reasons' words; «pochi dati»
       and «mancano i dati» where the engine gives no reason. Undo: `git revert`.
     - «E poi i filtri sono spaziati male rispetto a sopra» (19 Nov) → the filter chips' gap to
-      the piece above: a spacing rule in `e2e/layout.ts`, never a one-screen fix.
+      the piece above: a spacing rule in `e2e/layout.ts`, never a one-screen fix. **Built 19 Nov**
+      (photos `LIFEOS/review/2026-11-19/filters/`): the day's filters and «Orari» are one
+      line when they fit, else «Orari» under them at the end; a band of the day has no margin
+      of its own, so filters → «Orari» → band → band are all 12 (they were 12 · 20 · 20).
+      Tried and dropped: a section inset of 16 like a box (the five chips no longer fit one
+      row at 360 and 390).
     Order (Claude's): the regression (icons) → taps (kit) → the voto → one page see/edit → week
     strip → kcal bar → rests. Undo: move the lines back to the inbox.
 

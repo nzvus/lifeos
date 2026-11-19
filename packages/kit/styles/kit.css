@@ -4032,7 +4032,9 @@ button.k-link {
   align-items: center;
   gap: 8px;
   height: 44px;
-  margin: 8px -12px 0;
+  /* no margin of its own: the section's one gap above it, like every other line (it was 8
+     more: 12 between the filters and «Orari», 20 from «Orari» to the band, 19 Nov) */
+  margin: 0 -12px;
   padding: 0 132px 0 12px;
   overflow: hidden;
   font-family: var(--font-display);
@@ -4877,4 +4879,18 @@ button.k-mrow:active {
   .k-crit {
     grid-template-columns: auto minmax(0, 1fr) 20% 52px;
   }
+}
+/* the day's filters and «Orari» share a line when they fit; else «Orari» goes under them, at
+   the end (five chips and «Orari» need 354 px, his phone gives 334) */
+.k-tlhead {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  row-gap: var(--sp-3);
+}
+.k-tlhead > .k-chips {
+  flex: 0 1 auto;
+}
+.k-tlhead > .k-chip:last-child {
+  margin-left: auto;
+  flex: 0 0 auto;
 }
