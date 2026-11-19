@@ -552,9 +552,9 @@ export default async function KitPage({
       <section
         className="k-section g3"
         id="albero"
-        aria-label="Misure e aggregati: prototipo"
+        aria-label="Misure e aggregati: prova"
       >
-        <h2>Misure e aggregati · prototipo</h2>
+        <h2>Misure e aggregati · prova</h2>
         <MeasureTree node={TREE_KCAL} />
         <MeasureTree node={TREE_PLANNED} />
         <MeasureTree node={TREE_PROTEIN} />
