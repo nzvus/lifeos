@@ -593,6 +593,12 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
                * lighter shade for each next one; the band is the zones line and the tip.
                */
               color: microShade(gi, ii, g.items.length),
+              /** As a macro's row (his 19 Nov «gli stessi criteri delle macro»): the amount, the
+               *  target after it, the target's tick on the bar. */
+              // the unit once, after the target, as a macro writes it («180,5 / 168 g»)
+              amount: i.t === null ? F.num(i.v, i.unit) : F.n(i.v, i.v < 10 ? 1 : 0),
+              target: i.t === null ? null : F.num(i.t, i.unit),
+              mark: scale === null || i.t === null ? null : pct(i.t, scale),
               /** Fine as it is: it may stand on the condensed line (PAT-40). */
               ok: (h.state ?? i.state) === "good",
               strip: h.strip,

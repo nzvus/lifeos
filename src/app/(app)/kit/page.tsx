@@ -17,7 +17,9 @@ import {
   Field,
   Glyph,
   MealBox,
+  Nutrients,
   type BoxEntry,
+  type NutrientsData,
 } from "@lifeos/kit";
 import { common } from "@/i18n/common";
 import { requireOwner } from "@/app/_server/owner";
@@ -181,6 +183,110 @@ const VOTO_SAMPLES: [string, string, BoxEntry][] = [
     },
   ],
 ];
+
+/** His micros of 9 Nov (the photo of 19 Nov): what was low, high, and fine. */
+const zonesTo = (t: number, ul?: number) => [
+  { from: 0, level: "bad" as const },
+  { from: t * 0.7, level: "fair" as const },
+  { from: t, level: "good" as const },
+  ...(ul ? [{ from: ul, level: "danger" as const }] : []),
+];
+const MICROS_9NOV: NutrientsData = {
+  macros: [],
+  micros: {
+    summary: "6 su 11 coperti · stime",
+    groups: [
+      {
+        name: "Vitamine",
+        items: [
+          {
+            name: "C",
+            v: 80,
+            t: 110,
+            unit: "mg",
+            state: "warn",
+            zones: zonesTo(110, 2000),
+          },
+          { name: "D", v: 1.2, t: 15, unit: "µg", state: "bad", zones: zonesTo(15, 100) },
+          { name: "B12", v: 6.1, t: 4, unit: "µg", state: "good", zones: zonesTo(4) },
+          {
+            name: "Folati",
+            v: 420,
+            t: 330,
+            unit: "µg",
+            state: "good",
+            zones: zonesTo(330, 1000),
+          },
+        ],
+      },
+      {
+        name: "Minerali",
+        items: [
+          {
+            name: "Calcio",
+            v: 2761,
+            t: 1000,
+            unit: "mg",
+            state: "bad",
+            zones: zonesTo(1000, 2500),
+          },
+          {
+            name: "Sodio",
+            v: 2586,
+            t: 2000,
+            unit: "mg",
+            state: "warn",
+            zones: [
+              { from: 0, level: "good" as const },
+              { from: 2000, level: "fair" as const },
+              { from: 3000, level: "bad" as const },
+            ],
+          },
+          {
+            name: "Selenio",
+            v: 64,
+            t: 70,
+            unit: "µg",
+            state: "warn",
+            zones: zonesTo(70, 300),
+          },
+          { name: "Ferro", v: 19, t: 11, unit: "mg", state: "good", zones: zonesTo(11) },
+          {
+            name: "Magnesio",
+            v: 520,
+            t: 350,
+            unit: "mg",
+            state: "good",
+            zones: zonesTo(350),
+          },
+          {
+            name: "Potassio",
+            v: 4100,
+            t: 3500,
+            unit: "mg",
+            state: "good",
+            zones: zonesTo(3500),
+          },
+          {
+            name: "Iodio",
+            v: 160,
+            t: 150,
+            unit: "µg",
+            state: "good",
+            zones: zonesTo(150, 600),
+          },
+        ],
+      },
+      {
+        name: "Altro",
+        items: [
+          { name: "Caffeina", v: 190, t: 400, unit: "mg", state: "good" },
+          { name: "Creatina", v: 5, t: 5, unit: "g", state: "good" },
+        ],
+      },
+    ],
+  },
+};
 
 const BOXES: [string, string, BoxEntry, "card" | "row"][] = [
   [
@@ -572,6 +678,13 @@ export default async function KitPage({
             />
           </div>
         ))}
+      </section>
+
+      {/* The micros as macro rows in their group's colours (his 19 Nov «gli stessi criteri delle
+          macro»), on his micros of 9 Nov. */}
+      <section className="k-section g2" id="micro" aria-label="I micro">
+        <h2>I micro</h2>
+        <Nutrients data={MICROS_9NOV} part="rest" />
       </section>
 
       <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">

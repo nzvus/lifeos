@@ -816,6 +816,15 @@
     on one line (Elenco: «e altri 111: …»). Decided by Claude: the word «A posto» (fine: ok or
     ottimo); two lines at most closed; micros have no planned part yet (no data). Not yet: the
     other 15 `List` uses pass names (each falls back to «Mostra altri» until it does).
+69. **19 Nov night, his words on the micros photo:** «i micro sono orribili, sempre stesso
+    problema, poco spazio alle barre, troppe scritte, spaziature pessime». The rule he set for the
+    voto (§67) holds for every bar: the bar first and full length, the words on it, few numbers,
+    tight rows. Proposals in the gallery (`#micro-proposte`), his pick.
+70. **19 Nov night, his words on M1/M2:** «ti avevo detto di usare gli stessi criteri delle
+    macro riguardo colori, range eccetera». M1 and M2 dropped: a micro is drawn by the macros' own
+    row (VIS-50/52: its bar, the target tick, the zones ruler with its amounts, the tip, the word),
+    in its group's colour — the same piece, not a lookalike. **Built 19 Nov** (photos
+    `LIFEOS/review/2026-11-19/micro-macro/`, a macro row above the micros).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

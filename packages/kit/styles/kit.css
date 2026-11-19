@@ -5048,3 +5048,7 @@ button.k-mrow:active {
   white-space: normal;
   text-align: right;
 }
+/* micros are macro rows (his 19 Nov): no indent of their own */
+.k-kinds.flat {
+  padding-left: 0;
+}

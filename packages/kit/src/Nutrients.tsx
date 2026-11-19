@@ -238,28 +238,33 @@ export function Nutrients({
           </button>
           <div className={"k-reveal" + (open === "micro" ? " on" : "")}>
             <div>
-              <div className="k-kinds g3">
+              <div className="k-kinds g3 flat">
                 {micros.groups.map((g) => {
+                  // A micro is a macro's row (VIS-50/52, his 19 Nov «gli stessi criteri delle
+                  // macro»): its name and amount / target, the full-width bar in its colour, the
+                  // target's tick, the zones ruler with its amounts, the tip in its zone's colour.
                   const row = (i: (typeof g.items)[number]) => (
                     <div
                       key={i.name}
-                      className="k-krow k-microw"
+                      className="k-mrow k-mmicro"
                       role="img"
                       aria-label={i.aria}
                     >
-                      <span className="k-body">
-                        <span
-                          className="k-cid"
-                          style={{ background: i.color }}
-                          aria-hidden="true"
-                        />{" "}
-                        {i.name}
+                      <span className="k-line between">
+                        <span className="k-label">{i.name}</span>
+                        <span className="k-num b2">
+                          {i.amount}
+                          {i.target && <span className="k-meta"> / {i.target}</span>}
+                        </span>
                       </span>
-                      <span className={"k-bar" + (i.strip ? " zoned" : "")}>
-                        <i style={{ width: i.w, background: i.color }} />
+                      <span className={"k-track" + (i.strip ? " zoned" : "")}>
+                        <span
+                          className="k-seg"
+                          style={{ width: i.w, background: i.color }}
+                        />
+                        {i.mark && <span className="k-mark" style={{ left: i.mark }} />}
                         {i.strip && <Fascia strip={i.strip} />}
                       </span>
-                      <span className="k-num b3 k-right">{i.v}</span>
                     </div>
                   );
                   const fine = g.items.filter((i) => i.ok);

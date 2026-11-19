@@ -389,3 +389,38 @@ describe("the kcal bar coloured by its zones, a gradual ramp (VIS-50, VIS-52; hi
     expect(rows({ kcal: { v: 2000, t: 2100 }, macros: [] }).kcal!.ramp).toBeNull();
   });
 });
+
+describe("a micro is a macro's row (VIS-50, VIS-52; his 19 Nov «gli stessi criteri delle macro»)", () => {
+  it("its amount / target with the unit once, the target's tick, the zones ruler", () => {
+    const { micros } = rows({
+      macros: [],
+      micros: {
+        summary: "",
+        groups: [
+          {
+            name: "Vitamine",
+            items: [
+              {
+                name: "C",
+                v: 80,
+                t: 110,
+                unit: "mg",
+                zones: [
+                  { from: 0, level: "bad" },
+                  { from: 77, level: "fair" },
+                  { from: 110, level: "good" },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+    const c = micros!.groups[0]!.items[0]!;
+    expect(c.amount).toBe("80");
+    expect(c.target!.replace(/ /g, " ")).toBe("110 mg");
+    // the tick at the target on a scale of max(80 × 1,05, 110 × 1,5) = 165
+    expect(c.mark).toBe("66.7%");
+    expect(c.strip!.ticks.length).toBeGreaterThan(0);
+  });
+});
