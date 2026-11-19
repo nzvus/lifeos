@@ -866,6 +866,8 @@
     dell'informazione, colori, dimensioni, pattern graficI, forme... cos'altro?». Styles are chosen
     only from rendered samples; the trade-offs and the visual channels become written rules
     (bars-study §9) so every later change follows them.
+76. **20 Nov, his words on the grammar:** «e ovviamente è sempre preferibile usare quelle dimensioni
+    che il testo, senza perdere informatività». Rule 4 of bars-study §9 made strict.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

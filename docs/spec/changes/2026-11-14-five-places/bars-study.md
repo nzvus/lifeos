@@ -253,9 +253,11 @@ data-ink.
    at 360 px.
 3. **L1 carries everything else**, at the highest density that keeps one value per row readable
    at 360 px; nothing hides behind a third tap.
-4. **Text costs space; channels do not**: a property goes to a channel before it gets words.
-   Words only for the one number, the one judgement word, and names that no shape or colour
-   can carry.
+4. **A channel always before text, never losing information** (his 20 Nov: «è sempre preferibile
+   usare quelle dimensioni che il testo, senza perdere informatività»): a property gets words only
+   when no channel can carry it; what a channel carries is never also written, unless it is the
+   one exact number. Every value stays reachable exactly (its label for screen readers, its
+   «Perché?»).
 5. **Size follows the level**, not the importance of the moment.
 6. **A rule is measured** (the layout guard): gaps, the 360 px fit, one number per measure.
 
