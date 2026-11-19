@@ -2,7 +2,7 @@
 // the bottom covers anything else, at 390 and 320 px (one project each). His 14 Nov: «il
 // padding è fatto male… alcune cose hanno i contorni altre no… non esistono tool appositi?».
 import { expect, test } from "@playwright/test";
-import { measureHeads, measureLayout } from "./layout";
+import { measureBoxLines, measureHeads, measureLayout } from "./layout";
 
 const PLACES = [
   "/oggi",
@@ -33,6 +33,17 @@ test("a Box head's title, number, score and action on one line (VIS-40)", async 
     await page.goto(url);
     expect
       .soft(await page.evaluate(measureHeads), url + ": heads out of line")
+      .toEqual([]);
+  }
+});
+
+test("a Box's lines one gap apart, its head on one line while it fits (VIS-40)", async ({
+  page,
+}) => {
+  for (const url of [...PLACES, "/kit"]) {
+    await page.goto(url);
+    expect
+      .soft(await page.evaluate(measureBoxLines), url + ": a Box's lines")
       .toEqual([]);
   }
 });

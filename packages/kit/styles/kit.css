@@ -4850,6 +4850,7 @@ button.k-mrow:active {
 }
 /* One gap between a box's lines (his 19 Nov «spaziature, padding, simmetrie»): every line under
    the head sits --sp-2 below the one above, and an empty block takes no room (Passi had 23). */
-.k-bin:empty {
+/* nothing to show (empty, or only a form's hidden keys, which still submit) */
+.k-bin:not(:has(> :not(input[type="hidden"]))) {
   display: none;
 }
