@@ -893,6 +893,19 @@
 82. **20 Nov, his words on the real tools page:** «yeah combine the best things of them. make a study
     and some proposals». Study: bars-study §12; proposals in the gallery (`/kit#drill`), photos
     `LIFEOS/review/2026-11-20/drill/`.
+83. **20 Nov, his words on A · B · C:** «tutti brutti e fatti male, oltre che certe dimensioni
+    mostrate in modo ridondante da piu vettori, i range per esempio, non mi serve che scrivi "ok" o
+    "pessimo" se lo vedo gia dai colori, oltre che ti ho detto che vorrei evitare il testo. lasciamo
+    poi perdere che continui ad avere problemi nel dimensionare i bottoni, li fai sempre troppo
+    grossi (in questo caso i per macro per pasto e per momento, oltre che non si leggono
+    interamente). poi non mi sembra di vedere nulla di tridimensionale. mi piaceva di piu la
+    visualizzazione dei macro originale. e poi ti avevo detto che non puoi mettere testo+barra+testo
+    su stessa linea, toglie troppo spazio alla barra. e poi speravo facessi cose piu interessanti
+    delle semplici barre, come qualche poligono o solido tridimensionale. non lo so». A · B · C
+    rejected. Rules: a property carried by a channel is never also written (no range words when the
+    colour says it); no text · bar · text on one line (the bar gets the full width, §67); controls
+    small and fully readable; the original macro bars (VIS-50/52) are the base he likes. Next: a
+    polygon and a real 3D solid, rotatable, on his 9 Nov.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

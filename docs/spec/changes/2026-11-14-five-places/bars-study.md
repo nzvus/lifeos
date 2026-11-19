@@ -372,4 +372,25 @@ target» so one axis serves kcal and grams (the grams are written beside the bar
 (`MeasureForms`) removed. Note: the gallery's fat edges (35 · 82 · 100 g) come from the older sample
 and call 97,5 g «ok», while the app said «pessimo» on 14 Nov; the domain rule decides, not this
 drawing.
+Rejected 20 Nov (proposal §83); `Drill.tsx` removed.
+
+## 13. Shapes: a polygon and a solid (20 Nov, proposal §83)
+
+His rules this round: nothing written that a channel shows; never text · bar · text on a line;
+small controls; something more interesting than bars. Two pieces, on his 9 Nov, no words:
+
+- **Polygon** (`Radar`): Energia and the four macros as five axes, each as a share of its own
+  target. The dashed regular pentagon is the target; the white shape is his day; the green band
+  is where each «ottimo» range lies; a dot in each macro's colour at its vertex; the macro icon at
+  each axis end. Rings at 50 · 150 · 200 % give the scale. The day reads as a shape: on 9 Nov it
+  is a big pentagon, past the target on every axis.
+- **Solid** (`Solid`): his five meals × the four macros as columns, each as tall as its kcal (the
+  grams of each meal box × 4 · 4 · 9 · 2). A drag turns it; three dots snap to front (by meal),
+  side (by macro), above (the top of each column shaded by its height, a heat map). Turning it is
+  the pivot of §11.
+
+Honest limits (Cleveland & McGill, §9): in the front and side views the tallest column hides the
+ones behind it, and perspective makes heights hard to compare; the solid is for seeing the shape
+of a day, not for reading a number. Decided by Claude: the polygon shows only the green band
+(green and yellow together turned muddy); the radius is linear in the share, capped at 200 %.
 
