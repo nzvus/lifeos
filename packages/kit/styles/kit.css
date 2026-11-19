@@ -2653,10 +2653,6 @@
   font-size: var(--fs-b2);
   color: #d6dcd8;
 }
-.k-crit {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--hairline);
-}
 .k-lock {
   display: inline-flex;
   color: var(--muted);
@@ -4758,8 +4754,11 @@ button.k-link {
   padding-top: 12px;
   border-top: 1px solid var(--hairline);
 }
+/* behind a door the panel's own line is the only one (two lines and two paddings, 19 Nov) */
 .k-doorpanel > .k-parts {
   margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 .k-door.static {
   border-color: transparent;
@@ -4855,4 +4854,27 @@ button.k-mrow:active {
 /* nothing to show (empty, or only a form's hidden keys, which still submit) */
 .k-bin:not(:has(> :not(input[type="hidden"]))) {
   display: none;
+}
+/* a voto's criterion on one line (his 19 Nov «perché ci sono 2 righe?»): mark · name and its
+   weight · ruler · number; the name wraps in its own column, the ruler and number stay put */
+.k-crit {
+  display: grid;
+  /* the number column one width, so every ruler starts and ends at the same place */
+  grid-template-columns: auto minmax(0, 1fr) 28% 56px;
+  align-items: center;
+  column-gap: var(--sp-2);
+}
+.k-crit > .k-num-w {
+  align-items: flex-end;
+  text-align: right;
+}
+/* a narrow panel (320 px, beside the rail): the ruler gives room to the name first, so a name
+   keeps whole words on a line («durata vs bisogno» went one word per line, 19 Nov) */
+.k-parts {
+  container-type: inline-size;
+}
+@container (max-width: 270px) {
+  .k-crit {
+    grid-template-columns: auto minmax(0, 1fr) 20% 52px;
+  }
 }

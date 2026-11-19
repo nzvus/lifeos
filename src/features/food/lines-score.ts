@@ -10,7 +10,7 @@ import type { MicroTarget } from "@/core/engines/targets";
 import { foodParts, partsOf, type MealWhen } from "@/core/food/score";
 
 export const PART_WORDS: Record<string, string> = {
-  density: "densità",
+  density: "densità di nutrienti",
   limits: "limiti",
   value: "valore",
   fit: "adatto al piano",
@@ -20,12 +20,21 @@ export const PART_WORDS: Record<string, string> = {
   variety: "varietà",
   timing: "momento",
 };
+/** Why a criterion does not count for this meal (his 19 Nov: «che significa "senza: …"?»). */
+const MISSING_WHY: Record<string, string> = {
+  value: "manca il prezzo",
+  fit: "non è un pasto del piano",
+  timing: "conta vicino all'allenamento o al sonno",
+};
 const LIMIT_WORDS: Record<string, string> = {
   sodium: "sale",
   saturated: "grassi saturi",
   freeSugars: "zuccheri liberi",
   trans: "grassi trans",
 };
+
+/** «Come valutiamo», one model at a time (`?modello=`). */
+const HOW = "/oggi/andamento/come-valutiamo?modello=";
 
 export function linesScore(
   lines: Parameters<typeof foodParts>[0],
@@ -66,6 +75,9 @@ export function linesScore(
       score: p.score,
       weight: p.weight,
     })),
-    missing: s.missing.map((k) => PART_WORDS[k] ?? k),
+    missing: s.missing.map(
+      (k) => (PART_WORDS[k] ?? k) + " (" + (MISSING_WHY[k] ?? "pochi dati") + ")",
+    ),
+    how: HOW + FOOD.id,
   };
 }

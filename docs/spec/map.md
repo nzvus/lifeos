@@ -41,7 +41,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 ### app · other (1)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `app/(app)/oggi/day-page.tsx` | 787 | AreaFilter, Box, DateNav, Glyph, Nutrients | 2 form | 2 |
+| `app/(app)/oggi/day-page.tsx` | 786 | AreaFilter, Box, DateNav, Glyph, Nutrients | 2 form | 2 |
 
 ### features/account (5)
 | component | lines | kit pieces | by hand | routes |

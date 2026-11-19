@@ -99,7 +99,10 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   (VIS-52), skyline small in the head (width = weight, fill = score, dashed at 70). ≤ 360 px: the
   skyline smaller, never gone (his 15 Nov, proposal §35); the number said once. [UI-03 «graficamente fanno schifo», UI-75 «a livello informativo
   meglio 1 e 3, una combinazione?» → agent, UI-102 «non vedo bene la miniatura delle valutazioni»,
-  UI-89] — Today: built in `Box`; skyline in `features/day/score.ts`, not the kit (partial).
+  UI-89] Open (his 19 Nov «perché ci sono 2 righe?… che significa "senza"… Come valutiamo dovrebbe
+  essere raggiungibile»): one line per criterion — mark · name · ruler · number with «pesa n %»
+  under it; then «Non contano: criterion (why)»; then «Come valutiamo ›». — Today: built in `Box`;
+  skyline in `features/day/score.ts`, not the kit (partial).
 
 ## 6. Nutrient bar and zones ruler
 - **VIS-50** One `Nutrients`, one shape {eaten, planned, band, target, state}: L0-box (four thin macro

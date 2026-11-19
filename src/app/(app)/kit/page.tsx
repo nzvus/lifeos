@@ -87,7 +87,9 @@ const SCORE = {
     { name: "orario", score: 0.9, weight: 0.1 },
     { name: "regolarità", score: 0.55, weight: 0.2 },
   ],
-  missing: [],
+  // one criterion that does not count, with why, and its page (his 19 Nov)
+  missing: ["come ti senti (mancano i dati)"],
+  how: "/oggi/andamento/come-valutiamo?modello=sleep",
   action: "ti sono mancati " + F.hm(70) + " per arrivare a " + F.num(7, "h"),
 };
 

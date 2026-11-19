@@ -109,7 +109,10 @@ describe("the day's score (dossiers/ranges.md §5)", () => {
       now: null,
     })!;
     expect(s.parts.map((p) => p.name)).toEqual(["obiettivi del giorno", "recupero"]);
-    expect(s.missing).toEqual(["abitudini", "proteine distribuite"]);
+    expect(s.missing).toEqual([
+      "abitudini (mancano i dati)",
+      "proteine distribuite (mancano i dati)",
+    ]);
     expect(s.parts[1]!.weight).toBeCloseTo(30 / 70);
   });
 

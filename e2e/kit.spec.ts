@@ -17,6 +17,8 @@ const SECTIONS = [
   "stati-nuovi",
   "ogni-quanto",
   "pasto-box",
+  // the voto open behind its door: one line per criterion, what does not count, its page
+  "box-livello-2",
 ];
 const OPEN = ["altro", "conferma", "perche", "toast", "unisci", "aggiungi"];
 

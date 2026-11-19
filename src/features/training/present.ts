@@ -356,8 +356,9 @@ export function sessionBox(
                 ? "sforzo (nessun RIR)"
                 : k === "rests"
                   ? "recuperi (non cronometrati)"
-                  : (PART_WORDS[k] ?? k),
+                  : (PART_WORDS[k] ?? k) + " (mancano i dati)",
             ),
+            how: "/oggi/andamento/come-valutiamo?modello=session",
           },
         }
       : {}),

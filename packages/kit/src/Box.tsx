@@ -42,7 +42,10 @@ export type BoxEntry = {
   score?: {
     value: number | null;
     parts: { name: string; score: number; weight: number }[];
+    /** Criteria that do not count here, each with why: «valore (manca il prezzo)». */
     missing: string[];
+    /** Its «Come valutiamo» page, the model's criteria and their sources. */
+    how?: string;
     /** What would raise it, in the day's words, when the app knows (UI-75). */
     action?: string;
   };
@@ -146,27 +149,37 @@ export function Box({
     e.score && e.score.value !== null ? (
       // Open: one row per criterion with the nutrients' own ruler (S12): filled to
       // its score, the bands 40 and 70 under it, the tip in its band's colour.
+      // One line per criterion (his 19 Nov «perché ci sono 2 righe?»): mark, name and weight,
+      // its ruler, its number; then what does not count and why, then «Come valutiamo ›».
       <div className="k-parts">
-        {e.score.missing.length > 0 && (
-          <span className="k-meta">senza: {e.score.missing.join(", ")}</span>
-        )}
         {e.score.parts.map((q) => {
           const v = Math.round(q.score * 100);
           const j = F.judge(v);
           return (
-            <div key={q.name} className="k-stack g1">
-              <span className="k-line base between">
-                <span className="k-line base g1">
-                  <span className={j.cls} role="img" aria-label={j.aria} />
-                  <span className="k-body">{q.name}</span>
-                  <span className="k-help">pesa {Math.round(q.weight * 100)} %</span>
-                </span>
-                <span className="k-num b2">{v}</span>
-              </span>
+            <div key={q.name} className="k-crit">
+              <span className={j.cls} role="img" aria-label={j.aria} />
+              <span className="k-body">{q.name}</span>
               <FasciaBar score={v} label={q.name + " " + v + " su 100"} />
+              {/* the number, its weight under it: the name keeps the room (two lines at most) */}
+              <span className="k-stack k-num-w">
+                <span className="k-num b2">{v}</span>
+                <span className="k-help k-nowrap">
+                  {WORDS.weighs(Math.round(q.weight * 100))}
+                </span>
+              </span>
             </div>
           );
         })}
+        {e.score.missing.length > 0 && (
+          <p className="k-help">
+            {WORDS.scoreMissing}: {e.score.missing.join(" · ")}
+          </p>
+        )}
+        {e.score.how && (
+          <a className="k-link" href={e.score.how}>
+            {WORDS.scoreHow}
+          </a>
+        )}
       </div>
     ) : null;
   const allDoors: BoxDoor[] = levels

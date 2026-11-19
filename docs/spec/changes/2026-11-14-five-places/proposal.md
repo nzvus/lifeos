@@ -729,7 +729,15 @@
       dovrebbe essere raggiungibile anche da li?» (19 Nov) → the meal's open voto (VIS-43,
       PAT-51): each criterion named in his words («densità proteica»), the limits shown as
       criteria, «senza: …» rewritten as «non contano ancora: …» with why, one line per
-      criterion, and a «Come valutiamo ›» link. The two lines: to check on his photo.
+      criterion, and a «Come valutiamo ›» link. The two lines: to check on his photo. **Built 19 Nov**
+      (VIS-43; photos `LIFEOS/review/2026-11-19/voto/`, gallery `box-livello-2` now photographed):
+      every voto (meal, water, sleep, weigh-in, session, day) opens one line per criterion —
+      mark, name, ruler, number with «pesa n %» under it; «Non contano: valore (manca il
+      prezzo) · momento (conta vicino all'allenamento o al sonno)…» after them; «Come valutiamo ›»
+      to the model's page. «densità» is «densità di nutrienti» (protein × quality, fibre,
+      vitamins, minerals, omega-3 per 100 kcal: not protein only); «limiti» was already a
+      criterion when the limits are known. Decided by Claude: the reasons' words; «pochi dati»
+      and «mancano i dati» where the engine gives no reason. Undo: `git revert`.
     - «E poi i filtri sono spaziati male rispetto a sopra» (19 Nov) → the filter chips' gap to
       the piece above: a spacing rule in `e2e/layout.ts`, never a one-screen fix.
     Order (Claude's): the regression (icons) → taps (kit) → the voto → one page see/edit → week

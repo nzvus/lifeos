@@ -758,3 +758,41 @@ describe("Box taps: the whole box, no side arrow (VIS-40; his 19 Nov)", () => {
     expect(open).toContain(">Apri</a>");
   });
 });
+
+describe("a voto open: one line per criterion, why some do not count, its page (VIS-43, PAT-51)", () => {
+  const entry = {
+    fam: "food",
+    title: "Cena",
+    value: "380",
+    score: {
+      value: 64,
+      parts: [
+        { name: "densità di nutrienti", score: 0.5, weight: 0.6 },
+        { name: "limiti", score: 0.8, weight: 0.4 },
+      ],
+      missing: ["valore (manca il prezzo)"],
+      how: "/oggi/andamento/come-valutiamo?modello=food",
+    },
+  };
+  const html = renderToStaticMarkup(
+    <Box
+      entry={entry}
+      expanded
+      onToggle={() => {}}
+      doors={[]}
+      door="voto"
+      onDoor={() => {}}
+    />,
+  );
+  it("each criterion is one row: mark, name and weight, ruler, number", () => {
+    expect(html.match(/class="k-crit"/g)).toHaveLength(2);
+    expect(html).toContain("pesa 60 %");
+  });
+  it("says what does not count and why, after the criteria, and links its page", () => {
+    expect(html).toContain("Non contano: valore (manca il prezzo)");
+    expect(html).not.toContain("senza:");
+    expect(html.indexOf("Non contano")).toBeGreaterThan(html.lastIndexOf("k-crit"));
+    expect(html).toContain('href="/oggi/andamento/come-valutiamo?modello=food"');
+    expect(html).toContain("Come valutiamo ›");
+  });
+});
