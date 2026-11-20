@@ -383,16 +383,20 @@ function List({
                 labels={common.doors}
                 details={r.meal.details}
                 foods={<MealFoods parts={r.meal.parts} />}
-              >
-                <div className="k-line g2 wrap">
-                  <a className="k-btn act" href={"/aggiungi/pasto?pasto=" + r.meal.id}>
-                    {w.log}
-                  </a>
-                  <a className="k-btn act" href={"/cibo/pasto/" + r.meal.id + "/componi"}>
-                    {r.meal.estimate ? w.composeEstimate : w.compose}
-                  </a>
-                </div>
-              </MealBox>
+                verbs={
+                  <>
+                    <a className="k-btn act" href={"/aggiungi/pasto?pasto=" + r.meal.id}>
+                      {w.log}
+                    </a>
+                    <a
+                      className="k-btn act"
+                      href={"/cibo/pasto/" + r.meal.id + "/componi"}
+                    >
+                      {r.meal.estimate ? w.composeEstimate : w.compose}
+                    </a>
+                  </>
+                }
+              />
             ) : r.food ? (
               // A cibo opens in place too (PAT-30 level 1, Deliver ③): its plan's doors, its page beside them.
               <ThingBox

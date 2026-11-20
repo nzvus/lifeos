@@ -30,6 +30,9 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   pills, chips, water +250/+500); calendar cells ≥ 36 × 46 at 320 px; rail 20 wide. Every box fits at
   390/360/320 and at 360 px with 120 % text. [UI-19, UI-59, UI-84, UI-89 agent, V7] — Today: built
   (10 targets under 44 at 390). Open: PRD-12 says never under 44.
+- **VIS-06** Scrollbars: none on touch; with a mouse only the sideways rows show a thin one (the
+  doors' row, tabs, the find bar, the dock), never a vertical one, which the wheel and the touchpad
+  replace (his 20 Nov, proposal §128). — Today: built (`kit.css` «scrollbars»).
 
 ## 2. Type and numbers
 - **VIS-10** Barlow for text, Barlow Condensed for titles and numbers; `--fs-d1…d4` 30/24/19/16,
@@ -81,7 +84,11 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   "tocco" fa lampeggiare male»): closed, a tap anywhere opens it; open, its head closes it; no
   side arrow — a box that opens and has a page shows, only open, an icon at the right end of its
   doors' row that goes to the page (his 20 Nov «rimuovere "apri"… in basso a destra sulla stessa
-  riga delle altre voci», proposal §127; the tap on the box is for its levels); no browser flash, a press
+  riga delle altre voci», proposal §127; the tap on the box is for its levels). Open, its doors and its
+  verbs («Registra», «Cambia i cibi», the day's acts) share **one row that scrolls sideways**, never
+  wrapping: doors, a hairline, verbs; the › stays put at the end; the chips slide in from the right
+  on open and the edge with more fades (his 20 Nov «invece di andare a capo… scorrere
+  orizzontalmente… con una animazione carina», §128); no browser flash, a press
   lightens the piece. Spacing (his 19 Nov «spaziature, padding, simmetrie»): the icon sits on
   the first line and never moves when the box opens; every line under the head is `--sp-2` below
   the one above, an empty block takes no room; the head stays one line while the title keeps six

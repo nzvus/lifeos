@@ -653,13 +653,17 @@ export default async function KitPage({
                 ],
                 foot: "",
               }}
-            >
-              <div className="k-line g2 wrap">
-                <a className="k-btn act" href="#pasto-box">
-                  Registra
-                </a>
-              </div>
-            </MealBox>
+              verbs={
+                <>
+                  <a className="k-btn act" href="#pasto-box">
+                    Registra
+                  </a>
+                  <a className="k-btn act" href="#pasto-box">
+                    Cambia i cibi
+                  </a>
+                </>
+              }
+            />
           </div>
         ))}
       </section>

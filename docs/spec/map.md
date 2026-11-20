@@ -84,7 +84,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/library/BarcodeBox.tsx` | 308 | Glyph | 2 input | 4 |
 | `features/library/ExerciseForm.tsx` | 90 | Field, PageHeader | 1 form | 4 |
 | `features/library/FoodForm.tsx` | 209 | Field, Glyph, PageHeader | 3 input, 1 form | 4 |
-| `features/library/Library.tsx` | 427 | Box, Field, MealBox, Nutrients, ThingBox | 2 input | 2 |
+| `features/library/Library.tsx` | 431 | Box, Field, MealBox, Nutrients, ThingBox | 2 input | 2 |
 | `features/library/PantryActions.tsx` | 56 | ObjectForm, Sheet | — | 2 |
 | `features/library/RouteForm.tsx` | 112 | Field, PageHeader | 1 form | 1 |
 

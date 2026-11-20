@@ -1276,6 +1276,16 @@
     questo perché quello serve per espandere i livelli. ora, in realtà sarebbe anche inutile
     "aprire" se come ti dicevo el cose si potessero modificare in place, tutte quante le sue
     caratteristiche».
+128. **20 Nov, his answer on the doors' row and the page:** «allora, vorrei evitare il piu possibile
+    in tutta l'app cose pop up o pagine in piu, è preferibile che tutto gia ci sia. per esempio, se
+    ci sono tanti bottoni, invece di andare a capo, si possono far scorrere orizzontalmente nella
+    schedina no? magari con una animazione carina. e magari ne approfittiamo meglio per pensare a
+    come spaziarli meglio, soprattutto con le cose che stanno sopra e sotto. ah e non mettermi su
+    telefono delle barre di scorrimento. su telefono non servono. da pc servono ma solo quelle
+    orizzontali immagino, perché quelle verticali possiamo toglierle anche dato che si puo usare la
+    rotella o il touchpad». Taken: no ⋯ sheet; an open box's doors and its verbs on **one row that
+    scrolls sideways**, never wrapping; no scrollbars on touch, only horizontal ones with a mouse.
+    Direction for the page (PAT-30 level 2): everything already in the box, as far as possible.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

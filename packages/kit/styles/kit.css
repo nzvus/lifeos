@@ -4459,7 +4459,6 @@ button.k-link {
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-right: 4px;
-  scrollbar-width: thin;
 }
 .k-listbtn {
   align-self: flex-start;
@@ -4822,9 +4821,90 @@ button.k-link {
   height: var(--track);
   margin-top: var(--sp-2);
 }
+/* an open box's doors and verbs: one row that scrolls sideways, never wrapping (his 20 Nov,
+   proposal §128); its page's › stays put at the end. The row bleeds to the box's padding so a
+   chip slides out under the edge, not against a margin. */
+.k-doorbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  margin-top: var(--sp-3);
+}
 .k-doors {
-  margin-top: var(--sp-2);
-  gap: 8px;
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--sp-3);
+  margin-inline-start: calc(-1 * var(--sp-3));
+  padding-inline: var(--sp-3) var(--sp-1);
+  padding-block: 2px;
+}
+.k-doors > * {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+/* between what it says (doors) and what it does (verbs) */
+.k-doorsep {
+  align-self: stretch;
+  width: 1px;
+  margin-block: 8px;
+  background: var(--hairline);
+}
+/* on open the chips come in from the right, one after the other (VIS-90's one timing) */
+.k-doors > * {
+  animation: k-door-in var(--t-box) var(--ease) both;
+}
+.k-doors > :nth-child(2) {
+  animation-delay: 40ms;
+}
+.k-doors > :nth-child(3) {
+  animation-delay: 80ms;
+}
+.k-doors > :nth-child(4) {
+  animation-delay: 120ms;
+}
+.k-doors > :nth-child(n + 5) {
+  animation-delay: 160ms;
+}
+@keyframes k-door-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+/* the edge where more is waiting fades out; only when the row really overflows */
+@supports (animation-timeline: scroll()) {
+  .k-doors {
+    animation: k-doors-edge linear both;
+    animation-timeline: scroll(self inline);
+  }
+  @keyframes k-doors-edge {
+    0% {
+      mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
+    }
+    2%,
+    98% {
+      mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 32px,
+        black calc(100% - 32px),
+        transparent
+      );
+    }
+    100% {
+      mask-image: linear-gradient(to right, transparent, black 32px);
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .k-doors > * {
+    animation: none;
+  }
 }
 .k-door {
   gap: 6px;
@@ -4850,7 +4930,8 @@ button.k-link {
   place-items: center;
   width: 44px;
   height: 44px;
-  margin: -4px -8px -4px auto;
+  flex: 0 0 auto;
+  margin: -4px -8px -4px 0;
   border-radius: 999px;
   color: var(--muted);
 }
@@ -5578,4 +5659,29 @@ button.k-mrow:active {
   font-size: 10px;
   line-height: 12px;
   color: var(--muted);
+}
+
+/* ---------- scrollbars (his 20 Nov, proposal §128): none on a phone; with a mouse only the
+   sideways ones, since the wheel and the touchpad scroll down without a bar ---------- */
+* {
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+@media (pointer: fine) {
+  .k-doors,
+  .k-tabs,
+  .k-findbar,
+  .k-dockrow {
+    scrollbar-width: thin;
+    scrollbar-color: var(--hairline) transparent;
+  }
+  .k-doors::-webkit-scrollbar,
+  .k-tabs::-webkit-scrollbar,
+  .k-findbar::-webkit-scrollbar,
+  .k-dockrow::-webkit-scrollbar {
+    display: block;
+    height: 6px;
+  }
 }

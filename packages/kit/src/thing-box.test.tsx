@@ -33,4 +33,19 @@ describe("ThingBox (PAT-30: the row, open in place, the page are one Box)", () =
     // One door at a time, none at first.
     expect(html).not.toContain("bars");
   });
+
+  it("open, its verbs share the doors' sideways row, after a line; the › stays outside it (his 20 Nov)", () => {
+    const html = renderToStaticMarkup(
+      <ThingBox
+        entry={entry}
+        doors={doors}
+        startOpen
+        verbs={<a href="/log">Registra</a>}
+      />,
+    );
+    const row = html.slice(html.indexOf('class="k-doors"'), html.indexOf('class="k-go"'));
+    expect(row.indexOf("NOVA")).toBeLessThan(row.indexOf("k-doorsep"));
+    expect(row.indexOf("k-doorsep")).toBeLessThan(row.indexOf("Registra"));
+    expect(html).toContain('class="k-doorbar"');
+  });
 });

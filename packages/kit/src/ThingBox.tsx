@@ -18,6 +18,8 @@ export type ThingBoxPlace = {
   mode?: "compact" | "times";
   onRail?: () => void;
   acts?: BoxAct[];
+  /** Open, the place's verbs on the doors' sideways row («Registra», «Cambia i cibi»). */
+  verbs?: ReactNode;
 };
 
 export function ThingBox({
@@ -30,6 +32,7 @@ export function ThingBox({
   mode,
   onRail,
   acts,
+  verbs,
 }: ThingBoxPlace & {
   entry: BoxEntry;
   /** Its level-1 doors, in its plan's order; «Voto» comes first from `entry.score`. */
@@ -51,6 +54,7 @@ export function ThingBox({
       expanded={open}
       onToggle={() => setOpen((o) => !o)}
       doors={doors}
+      {...(verbs ? { verbs } : {})}
       door={door}
       onDoor={(k: string) => setDoor((d) => (d === k ? null : k))}
     >
