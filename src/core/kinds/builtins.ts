@@ -33,6 +33,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "meal",
     family: "food",
+    class: "intake",
     domain: "food",
     shape: "instant",
     entry: "specialised",
@@ -52,6 +53,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "intake",
     family: "food",
+    class: "intake",
     domain: "food",
     shape: "instant",
     entry: "specialised",
@@ -65,6 +67,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "batch",
     family: "food",
+    class: "exchange",
     domain: "food",
     shape: "instant",
     entry: "specialised",
@@ -77,6 +80,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "water",
     family: "drink",
+    class: "intake",
     domain: "food",
     shape: "instant",
     entry: "quick",
@@ -89,6 +93,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "session",
     family: "train",
+    class: "activity",
     domain: "training",
     shape: "interval",
     entry: "specialised",
@@ -106,6 +111,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "session_exercise",
     family: "train",
+    class: "activity",
     domain: "training",
     shape: "interval",
     entry: "specialised",
@@ -120,6 +126,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "trip",
     family: "train",
+    class: "activity",
     domain: "training",
     shape: "interval",
     entry: "specialised",
@@ -138,6 +145,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "steps",
     family: "train",
+    class: "activity",
     domain: "training",
     shape: "instant",
     entry: "quick",
@@ -153,6 +161,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "activity",
     family: "habit",
+    class: "activity",
     domain: "work",
     shape: "interval",
     entry: "timer",
@@ -180,6 +189,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "reading",
     family: "mind",
+    class: "activity",
     domain: "work",
     shape: "interval",
     entry: "timer",
@@ -192,6 +202,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "weigh_in",
     family: "body",
+    class: "measurement",
     domain: "body",
     shape: "instant",
     entry: "quick",
@@ -214,6 +225,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "measurements",
     family: "body",
+    class: "measurement",
     domain: "body",
     shape: "instant",
     entry: "form",
@@ -224,6 +236,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "sleep",
     family: "sleep",
+    class: "state",
     domain: "sleep",
     shape: "interval",
     entry: "form",
@@ -239,6 +252,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "nap",
     family: "sleep",
+    class: "state",
     domain: "sleep",
     shape: "interval",
     entry: "timer",
@@ -248,6 +262,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "checkin",
     family: "mind",
+    class: "measurement",
     domain: "mind",
     shape: "instant",
     entry: "quick",
@@ -261,6 +276,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "journal",
     family: "mind",
+    class: "note",
     domain: "mind",
     shape: "instant",
     entry: "form",
@@ -270,6 +286,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "movement",
     family: "money",
+    class: "exchange",
     domain: "money",
     shape: "instant",
     entry: "specialised",
@@ -278,6 +295,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "purchase",
     family: "money",
+    class: "exchange",
     domain: "home",
     shape: "instant",
     entry: "form",
@@ -292,6 +310,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "stock_count",
     family: "money",
+    class: "exchange",
     domain: "home",
     shape: "instant",
     entry: "quick",
@@ -300,6 +319,7 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
   {
     key: "chore",
     family: "habit",
+    class: "activity",
     domain: "home",
     shape: "instant",
     entry: "quick",

@@ -37,7 +37,9 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 10c. [ ] The visual system (bars-study §16, proposal §88): [x] the study — ingredients, channels,
     context; [x] taken by «yc» (§89); the ridge rejected (§90), the meal-in-day bars reverted
     (§92); [x] a meal carries its limits; [x] the abstraction drafted (§17); [x] the visualization
-    engine drafted (§18) — his answers to §18.6; [ ] the guard (§18.5); [ ] the foundations measured
+    engine drafted (§18), taken by «yc» (§94); [x] slice 1: every type has a class, every field
+    a reading (`core/engines/view`, MOD-56/57); [ ] slice 2: views from a request (frame, level)
+    drawn by kit pieces, shown on three classes; [ ] the guard (§18.5); [ ] the foundations measured
     (spacing, sizes, padding, colour lightness/saturation);
     tests citing VIS-50/52/22; [ ] the delta (VIS-, PAT- rows) for what he approves.
 11. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.

@@ -972,6 +972,17 @@
     pattern, che gerarchie eccetera» — and: «è un motore di visualizzazione di dati». Answer:
     bars-study §18, the visualization engine (a horizontal engine like MOD-50…54), starting from
     «cosa altro?» over every class of thing the registry holds or will hold.
+94. **20 Nov, his «yc» on §18.6 and his rule:** «yc, la regola, come per tutto, è che più
+    implementiamo più ci rendiamo conto se tornare indietro e ripensare». Taken, each with its undo:
+    (1) the classes of §18.1 — intake · activity · state · measurement · exchange · note · context
+    (+ his trackers in one of them); sleep a *state*, how he feels a *measurement* (undo: edit
+    `CLASSES` in `core/kinds/kind.ts` and the builtins); (2) one hierarchy, class › type › object ›
+    part, the same depth everywhere (undo: model.md MOD-56); (3) frames own · day · session ·
+    period, «session» = the span of any activity (undo: MOD-56); (4) one family per reading
+    (§18.3) (undo: the reading table in `core/engines/view`); (5) the name «motore di
+    visualizzazione» (undo: product.md §3 when archived). Decided by Claude: a batch (cooking
+    portions for later) is an *exchange* (stock in), not an intake. Built in slices, each a step
+    he sees; any slice may send us back to rethink (his rule).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

@@ -74,6 +74,20 @@
   marche, each with its formati; a pasto's varianti. Marche and formati have no shelf of their own.
 
 ## ADDED
+- **MOD-56** (model.md §6) **Motore di visualizzazione**: every number drawn in the app is a
+  *measure* (registry) × a *frame* (own · day · session · period, chosen by the page; «session» =
+  the span of any activity) × a *level* (0 · 1 · 2); the engine reads the data, its references
+  (target, fascia, goal, past self, mean, record) and the page's request (frame, grouping, level,
+  drill · roll up · slice · pivot · compare), applies one set of rules (bars-study §16–§18) and gives
+  a view that only kit pieces draw. WHEN a page draws a number outside it THEN the lint fails (once
+  the guard is built). One hierarchy: class › type › object › part. [his 20 Nov, proposal
+  §88–§94]
+- **MOD-57** (model.md §1) Every type and tracker has a **class** — intake · activity · state ·
+  measurement · exchange · note · context — and every field a **reading** the engine knows
+  (number → amount; duration → time; scale → rating; boolean → done; choice → category; text →
+  presence; lines → composition; a voto → score), each with its aggregates over a frame. WHEN a
+  built-in type has no class THEN a test fails; a tracker takes its class from its family. [his
+  20 Nov «cosa altro?», proposal §93–§94]
 - **PAT-95** (patterns.md §1) The area filter: one row of chips, «Tutto» · Cibo · Corpo · Mente ·
   Soldi, under the header of every place but Oggi, which filters by kind with its own chips
   (his «yc», 14 Nov). WHEN he taps a chip THEN the place shows only that area's
