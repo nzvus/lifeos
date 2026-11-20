@@ -1127,6 +1127,11 @@
     magari fallimentare. dipende da cosa riuscirai a fare». Written in reframe §11–§13 and delta
     (MOD-15, product.md §4). Read by Claude: «yc» after 3 = item 6 (drop «step windows» from «not
     now»); «confermato» = counted as fatto at its planned time (undo: reframe §11).
+110. **20 Nov, his words:** «sicuro che non dobbiamo fare un reframing di nuovo in luce di queste
+    cose?» Answer: reframe §14 — not a new frame, two changes at its base: the state is derived from
+    time (the rail split by now; only saltato and confermato are acts), and the timeline holds two
+    kinds of thing, voci and **signals** (levels over time: movement, caffeine left, creatine
+    stores, daylight, weather), each signal a lane beside the rail. For his word.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

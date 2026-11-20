@@ -165,3 +165,24 @@ background (BODY-32), so this is the source until then.
 2. §12: the movement model after the instruments, designed with them in mind; the lane of quanta
    as a draft to rethink.
 3. Product.md §4: «step windows and a vertical movement layer» leave «not now».
+
+## 14. What his answers change in the frame (his «sicuro che non dobbiamo fare un reframing di nuovo
+in luce di queste cose?», 20 Nov, proposal §110)
+Not a new frame; two changes at its base:
+1. **The state is derived from time, not chosen** (§11). Previsto · fatto is a function of the
+   voce's time against now (+ the slack); only **saltato** and **confermato** are acts. So Il tempo
+   is one rail split by **now**: the past is what happened, the future what is planned — the Piano is
+   not a mode of the rail, it is its right side (§32 made literal). Layer 1 stores a time and the
+   two acts; the state is a measure (layer 2).
+2. **The timeline holds two kinds of thing**, where §2 said one:
+   | Kind | What | Today, each drawn its own way | Drawn as |
+   |---|---|---|---|
+   | **voce** | an event or a span: a meal, a session, a night, a trip | Boxes on the rail | the Box on the rail (§10) |
+   | **signal** | a level that changes over time, measured or derived | caffeine left (FD-61, a pill), creatine stores (FD-63, words), daylight (the sky bands, VIS-61), the weather (VIS-75), sleep as a state, **movement density** (his quanta, §12) | a **lane beside the rail**: one look for every signal (a band whose density or height is the level), on the same time axis |
+   Layer 1 gains **signals**: typed (his movement quanta), measured (a watch, later), or derived
+   from voci (caffeine from coffees, stores from doses, sedentary time from windows). A signal is
+   a registry entry like a type (PRD-03): a new one gets its lane with no new drawing.
+**What follows:** the rhythm instrument (§21.3) is the **rail with its lanes**; the movement model
+(§12) is the first signal built by hand, and it is why the instruments and movement «si
+influenzano» (§109.4): the rail is designed with lanes from the start. The four layers, the two
+spaces and the presets stand.
