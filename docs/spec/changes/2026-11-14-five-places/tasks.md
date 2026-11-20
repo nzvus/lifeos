@@ -35,7 +35,8 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
     §3; [ ] times at planning «fissa · quando capita» (§27 second half); [ ] the ciclo's page
     redone (steps first, rules folded, reorder by dragging, §31).
 10c. [ ] The visual system (bars-study §16, proposal §88): [x] the study — ingredients, channels,
-    context; [x] taken by «yc» (§89); [ ] one family at a time in the real app — the ridge in
-    Oggi rejected (§90), removed; [x] a meal carries its limits;
+    context; [x] taken by «yc» (§89); the ridge rejected (§90), the meal-in-day bars reverted
+    (§92); [x] a meal carries its limits; [x] the abstraction drafted (§17) — his OK; [ ] the
+    foundations measured (spacing, sizes, padding, colour lightness/saturation);
     tests citing VIS-50/52/22; [ ] the delta (VIS-, PAT- rows) for what he approves.
 11. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.

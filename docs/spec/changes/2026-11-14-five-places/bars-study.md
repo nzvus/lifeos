@@ -532,3 +532,55 @@ Rejected 20 Nov («comunque non mi piace», proposal §90): the ridge removed fr
 and the kit. Kept from it: a meal carries its limits (free sugars, saturated fat, salt) against
 the day's targets (`mealL0`), shown in its «Nutrienti» door.
 
+## 17. The abstraction: a measure, in a frame, at a level (20 Nov, proposal §92)
+
+His words: «io ti avevo chiesto di astrarre». One model; every number drawn in the app is an
+instance of it; no page and no type draws its own chart (PRD-03, MOD-01). Draft for his OK; no UI
+before it.
+
+### 17.1 The model
+**What is drawn = a measure × a frame × a level.**
+
+- **Measure** — declared once in the registry (MOD-40): its **value**, its **unit**, its
+  **reading** (one of four: an *amount* against references; a *score* 0–100, MOD-43; a *count*;
+  a *time*), and:
+  - its **references**: target, fascia → levels (MOD-41), goal (MOD-42), **past self** in the same
+    context (MOD-50), the window's mean, the record;
+  - its **composition**: *parts* that add up to it (a macro's kinds, a voto's criteria, a day's
+    meals, a session's sets) or *members* judged one by one (a group of micros);
+  - its **state**: done · planned · skipped (VIS-22), and its **certainty** (estimate, coverage →
+    «non so», MOD-41).
+- **Frame** — the whole it is measured against, chosen by the **page**, never by the type:
+  **own** (the object alone: a food per 100 g, a meal by itself), **day**, **session**,
+  **period** (a week, a month). The frame gives the **scale** (the frame's target), the **lit
+  share** (this item's part of the frame's total), and **which past self** it is compared with.
+- **Level** — how much is shown: **0** a glance (one line), **1** open (references written, the
+  composition with its legend), **2** a list that grows (foods, sets), condensed (PAT-40).
+
+**The one rule:** `view = family(reading, frame) at level`. Families (§14): an *amount* → a bar on
+the frame's scale; a *score* → the skyline chip (VIS-43); *parts* → the bar split, only from level
+1 and with its legend; *members* → cells, condensed; *over a period* → the trend chart; *past self*
+→ a ghost mark on the same bar. A page only says its frame; a type only declares its measures.
+
+### 17.2 Checked on four types
+| Type | Measures (reading) | Frame: own | Frame: day / session | Frame: period |
+|---|---|---|---|---|
+| **Food** (a meal) | kcal, macros, limits (amount); micros (members); voto (score) | the meal by itself (object page, «Nutrienti» door) | its share of the day: the day's scale, its part lit | the mean against the target, the trend |
+| **Gym** (a set → exercise → session) | load × reps, e1RM (amount); sets (count); session voto (score); duration (time) | the exercise's facts and record | **session**: each set against its past self (ghost) and the record; the session voto filling set by set | the exercise's trend (TR-24); sets per muscle per week vs 10–20 (TR-25) |
+| **Sleep** (a night) | hours vs need (amount); regularity (amount); voto (score) | the night by itself | its share of the day's 24 h on the rail | the week's mean and regularity, the trend |
+| **Water** (a drink → the day) | ml (amount) against the need now | the drink | the day's water, this drink lit | the mean per day |
+
+Nothing in the table needs code of its own: each cell is the rule applied.
+
+### 17.3 What the model decides (answers to his questions)
+- **The split bars in a meal** (his «perché sono frazionate?»): they are the macro's kinds (parts).
+  The model shows parts **only from level 1, with their legend**; at level 0 a bar is one colour.
+- **Context** (§16.4) is the frame: the timeline's frame is the day, the gym's is the session,
+  Andamento's is the period, an object's page is own.
+- **The same measure looks the same everywhere** (same bar, same colours, same references); only
+  the frame's scale and the lit share change.
+
+### 17.4 Not yet decided (his)
+The foundations he named (spacing, sizes, cards, padding, colour lightness and saturation) are the
+next step after this model: measured on the app, one scale each.
+

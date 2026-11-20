@@ -951,6 +951,19 @@
     salt»: «e ma dovrebbero portarli. comunque non mi piace». The ridge rejected and removed (kit,
     gallery, Oggi). A meal now carries its limits (free sugars, saturated fat, salt) against the
     day's targets, without a fascia of its own (FD-35: a meal is judged only on protein).
+91. **20 Nov, his answer on what failed in the ridge** (asked, several picks): «The hill shape» and
+    «Too tall, too much». Not picked: the blended colours, the meal inside its day. Claude then
+    built a meal's four bars on the day's scale (reverted, §92).
+92. **20 Nov, his words on it:** «ma il punto è che tu stai facendo ancora qualcosa di specifico, io
+    ti avevo chiesto di astrarre, non semplicemente di fare "meal" e poi perché sono frazionate le
+    barre dei macro nei singoli pasti? mostrano i contributi di ogni sottopasto? mi pare tu l'abbia
+    fatto solo a caso adesso. e poi non vedi che la spaziatura è fatta malissimo? anche le varie
+    dimensioni delle cose son gestite male, le schede, i padding, le luminosità e saturazioni dei
+    colori. e in ogni caso non avevo chiesto questo». The meal-in-day bars reverted. Answer on the
+    segments: they are the macro's kinds (VIS-50, older than this change), shades with no legend —
+    a defect he is right to see. Open, asked: the abstraction first (one model for every measure,
+    every page derives from it) and the foundations (spacing, sizes, cards, padding, colour
+    lightness and saturation) measured across the app.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
