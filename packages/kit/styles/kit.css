@@ -18,6 +18,8 @@
   --sp-4: 16px;
   --sp-5: 24px;
   --sp-6: 32px;
+  /* bars, cells, seams (bars-study §23.3) */
+  --r-bar: 2px;
   --r-mark: 4px;
   --r-control: 8px;
   --r-row: 12px;
@@ -126,9 +128,33 @@
   border-radius: var(--r-pill);
   font-family: var(--font-body);
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   border: 1px solid var(--hairline);
   color: var(--ink);
   background: var(--sheet);
+}
+/* Every native control speaks the page's font (bars-study §23.2: the Stepper's − + were Arial). */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+/* A control is as tall as its token, its border inside it (bars-study §23.2: a 1 px border made
+   the 36 px chips 38 px; one scale, 44 and 36, his «yc» 20 Nov). */
+.k-chip,
+.k-act,
+.k-btn,
+.k-icon-btn,
+.k-primary,
+.k-secondary,
+.k-search,
+.k-step,
+.k-tab,
+.k-dn .nav,
+.k-dn .ttl,
+.k-month .c {
+  box-sizing: border-box;
 }
 .k-chip {
   display: inline-flex;
@@ -139,6 +165,7 @@
   border-radius: var(--r-pill);
   font-family: var(--font-display);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 600;
   border: 1px solid var(--hairline);
   color: var(--ink);
@@ -198,7 +225,7 @@
   top: 2px;
   bottom: -12px;
   width: 4px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   background: var(--fam);
   transition: left var(--t-box) var(--ease);
 }
@@ -830,7 +857,7 @@
   display: inline-block;
   width: 9px;
   height: 9px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   margin-right: 5px;
   vertical-align: middle;
 }
@@ -969,6 +996,7 @@
 .k-back {
   font-family: var(--font-display);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 600;
   color: var(--muted);
   text-decoration: none;
@@ -1011,6 +1039,7 @@
 }
 .k-section > h2 a {
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 600;
   color: var(--herb);
   text-decoration: none;
@@ -1078,7 +1107,7 @@
 .k-sheet .handle {
   width: 40px;
   height: 4px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   background: var(--hairline);
   align-self: center;
 }
@@ -1101,6 +1130,7 @@
   color: var(--sheet);
   font-family: var(--font-display);
   font-size: var(--fs-d3);
+  line-height: var(--lh-d3);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -1118,6 +1148,7 @@
   color: var(--ink);
   font-family: var(--font-display);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -1190,7 +1221,7 @@
 .k-week .sc {
   width: 70%;
   height: 3px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
 }
 
 /* ---------- fields ---------- */
@@ -1223,7 +1254,9 @@
   padding: 0;
   border: 0;
   background: transparent;
+  font-family: var(--font-display);
   font-size: var(--fs-d3);
+  line-height: var(--lh-d3);
   color: var(--ink);
   cursor: pointer;
 }
@@ -1231,6 +1264,7 @@
   text-align: center;
   font-family: var(--font-display);
   font-size: var(--fs-d3);
+  line-height: var(--lh-d3);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -1240,6 +1274,7 @@
 .k-step .u {
   font-family: var(--font-body);
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   font-weight: 400;
   color: var(--muted);
 }
@@ -1259,6 +1294,7 @@
   gap: 0;
   font-family: var(--font-display);
   font-size: var(--fs-d3);
+  line-height: var(--lh-d3);
   font-weight: 600;
   color: var(--ink);
   cursor: pointer;
@@ -1314,7 +1350,7 @@
   position: absolute;
   top: 12px;
   height: 4px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   background: color-mix(in srgb, var(--herb) 30%, var(--paper));
 }
 .k-range input {
@@ -1401,6 +1437,7 @@
   background: var(--sheet);
   color: var(--ink);
   font-size: var(--fs-d3);
+  line-height: var(--lh-d3);
   padding: 0;
   cursor: pointer;
   flex-shrink: 0;
@@ -1414,6 +1451,7 @@
   background: transparent;
   font-family: var(--font-display);
   font-size: var(--fs-d3);
+  line-height: var(--lh-d3);
   font-weight: 700;
   color: var(--ink);
   display: flex;
@@ -1436,6 +1474,7 @@
 .k-month .h {
   font-family: var(--font-body);
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   color: var(--muted);
   text-align: center;
 }
@@ -1452,6 +1491,7 @@
   gap: 0;
   font-family: var(--font-display);
   font-size: var(--fs-b2);
+  line-height: var(--lh-b2);
   font-weight: 600;
   color: var(--ink);
   text-decoration: none;
@@ -1486,24 +1526,20 @@
   bottom: 3px;
   width: 14px;
   height: 3px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
 }
 .k-month .c.today.inrange {
   background: var(--ink);
   color: var(--sheet);
   border-color: var(--ink);
 }
-.k-step {
-  height: auto;
-  min-height: var(--touch);
-}
 .k-step .v {
+  /* the unit beside the number, one line: the stepper stays 44 px (bars-study §23.2: it grew to
+     52 and 66 with the unit under the number) */
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  line-height: 1.1;
-  padding: 4px 0;
+  gap: 3px;
   white-space: nowrap;
 }
 .k-step .u {
@@ -1560,7 +1596,7 @@
   flex-shrink: 0;
   width: 6px;
   height: 18px;
-  border-radius: 3px;
+  border-radius: var(--r-bar);
   background: var(--fam, var(--herb));
 }
 .k-section > h2 > .k-meta,
@@ -1633,7 +1669,7 @@
   flex-shrink: 0;
   width: 6px;
   height: 18px;
-  border-radius: 3px;
+  border-radius: var(--r-bar);
   background: var(--fam, var(--herb));
 }
 .k-fold > summary > .k-meta {
@@ -1857,6 +1893,7 @@
   color: var(--ink);
   font-family: var(--font-display);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -1869,6 +1906,7 @@
   background: var(--herb);
   color: var(--sheet);
   font-size: var(--fs-d3);
+  line-height: var(--lh-d3);
 }
 .k-btn.secondary {
   border-color: var(--ink);
@@ -1986,6 +2024,7 @@
   color: var(--muted);
   font-family: var(--font-display);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -2020,6 +2059,7 @@
   color: var(--muted);
   font-family: var(--font-display);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -2423,6 +2463,7 @@
 .k-nfood {
   font-family: var(--font-body);
   font-size: var(--fs-b2);
+  line-height: var(--lh-b2);
   font-weight: 400;
 }
 .k-nfood .k-sw {
@@ -2591,6 +2632,7 @@
   font-family: var(--font-display);
   font-weight: 700;
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   color: var(--tomato);
 }
 .k-now .line {
@@ -2659,6 +2701,7 @@
   bottom: 12px;
   font-family: var(--font-body);
   font-size: var(--fs-b2);
+  line-height: var(--lh-b2);
   color: #d6dcd8;
 }
 .k-lock {
@@ -2705,11 +2748,13 @@
 .kb-step {
   height: 28px;
   font-size: var(--fs-b2);
+  line-height: var(--lh-b2);
   border-color: color-mix(in srgb, var(--fam) 50%, var(--hairline));
 }
 .kb-arrow {
   color: var(--muted);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
 }
 .kb-gap {
   margin-left: 16px;
@@ -2816,6 +2861,19 @@ span.k-head {
   font: inherit;
   color: inherit;
   font-variant-numeric: tabular-nums;
+}
+/* the field as wide as its number, so the unit sits right after it (§23.2); a fixed width where
+   the browser cannot size a field to its content */
+.k-step .k-stepin {
+  width: 5ch;
+  max-width: 100%;
+}
+@supports (field-sizing: content) {
+  .k-step .k-stepin {
+    width: auto;
+    min-width: 2ch;
+    field-sizing: content;
+  }
 }
 .k-step .k-stepin:focus {
   outline: none;
@@ -2931,6 +2989,7 @@ span.k-head {
   color: var(--sheet);
   font-family: var(--font-display);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 600;
   opacity: 0;
   transition: opacity var(--t-box) var(--ease);
@@ -3018,6 +3077,7 @@ button.k-link {
   color: var(--muted);
   font-family: var(--font-display);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -3063,7 +3123,7 @@ button.k-link {
 .k-zrule > .z.good {
   top: 1px;
   height: 3px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   background: var(--heat-good);
 }
 .k-zrule > .z.fair {
@@ -3097,7 +3157,7 @@ button.k-link {
   top: -1px;
   bottom: -1px;
   width: 4px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   transform: translateX(-4px);
   box-shadow: 0 0 0 1.5px var(--sheet);
   z-index: 1;
@@ -3181,7 +3241,7 @@ button.k-link {
 }
 .k-wbars > i {
   width: 3px;
-  border-radius: 1.5px 1.5px 0 0;
+  border-radius: var(--r-bar) var(--r-bar) 0 0;
   min-height: 2px;
 }
 .k-wbars > i.none {
@@ -3232,14 +3292,14 @@ button.k-link {
   height: 18px;
   gap: 1.5px;
   overflow: hidden;
-  border-radius: 3px;
+  border-radius: var(--r-bar);
 }
 .k-sky.chip .col {
   background: color-mix(in srgb, var(--fam) 10%, var(--sheet));
 }
 .k-sky.chip .fill {
   background: color-mix(in srgb, var(--fam) 72%, var(--sheet));
-  border-radius: 1.5px 1.5px 0 0;
+  border-radius: var(--r-bar) var(--r-bar) 0 0;
 }
 .k-sky.chip .line {
   border-top: 1px dashed color-mix(in srgb, var(--ink) 45%, transparent);
@@ -3336,6 +3396,7 @@ button.k-link {
 }
 .k-wxhead .now small {
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   color: var(--muted);
   margin-top: 2px;
 }
@@ -3346,6 +3407,7 @@ button.k-link {
   align-items: center;
   gap: 6px;
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   font-variant-numeric: tabular-nums;
   color: var(--muted);
 }
@@ -3353,13 +3415,13 @@ button.k-link {
   position: relative;
   flex: 1;
   height: 5px;
-  border-radius: 3px;
+  border-radius: var(--r-bar);
   background: var(--hairline);
 }
 .k-wxhead .range .tr > i {
   position: absolute;
   inset: 0;
-  border-radius: 3px;
+  border-radius: var(--r-bar);
   background: linear-gradient(90deg, var(--macro-fat), var(--macro-carbs));
 }
 .k-wxhead .range .tr > b {
@@ -3404,6 +3466,7 @@ button.k-link {
   flex-wrap: wrap;
   gap: 2px 12px;
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
 }
 .k-wxline .mut {
   color: var(--muted);
@@ -3457,7 +3520,7 @@ button.k-link {
 .k-wxgrid .aqs {
   position: relative;
   height: 6px;
-  border-radius: 3px;
+  border-radius: var(--r-bar);
   box-shadow: 0 0 0 1px var(--hairline);
   background: linear-gradient(
     90deg,
@@ -3557,6 +3620,7 @@ button.k-link {
 .k-gsets > li > em {
   font-style: normal;
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3611,7 +3675,7 @@ button.k-link {
 }
 .k-gstate > .bar {
   height: 6px;
-  border-radius: 3px;
+  border-radius: var(--r-bar);
   background: color-mix(in srgb, var(--ink) 10%, transparent);
   overflow: hidden;
 }
@@ -3633,12 +3697,12 @@ button.k-link {
 }
 .k-range input::-webkit-slider-runnable-track {
   height: 4px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   background: color-mix(in srgb, var(--ink) 12%, transparent);
 }
 .k-range input::-moz-range-track {
   height: 4px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   background: color-mix(in srgb, var(--ink) 12%, transparent);
 }
 .k-range input::-webkit-slider-thumb {
@@ -3979,11 +4043,13 @@ button.k-link {
 .k-vh .n b {
   font-family: var(--font-display);
   font-size: var(--fs-d3);
+  line-height: var(--lh-d3);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 .k-vh .n small {
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   font-weight: 600;
   color: var(--muted);
   margin-top: 2px;
@@ -4047,6 +4113,7 @@ button.k-link {
   overflow: hidden;
   font-family: var(--font-display);
   font-size: var(--fs-b1);
+  line-height: var(--lh-b1);
   font-weight: 700;
   color: var(--ink);
   background: linear-gradient(
@@ -4066,6 +4133,7 @@ button.k-link {
   font-family: var(--font-body);
   font-weight: 400;
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -4138,6 +4206,7 @@ button.k-link {
   color: var(--muted);
   text-decoration: none;
   font-size: var(--fs-b2);
+  line-height: var(--lh-b2);
 }
 .k-gap a b {
   margin-left: auto;
@@ -4167,6 +4236,7 @@ button.k-link {
   padding: 0 4px;
   font-family: var(--font-display);
   font-size: var(--fs-b2);
+  line-height: var(--lh-b2);
   font-weight: 600;
   color: var(--herb);
   text-decoration: none;
@@ -4221,13 +4291,13 @@ button.k-link {
 .k-day24 .sl {
   left: 25%;
   width: 50%;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   background: color-mix(in srgb, var(--moment-dinner) 50%, transparent);
 }
 .k-day24 .tr {
   left: 16%;
   width: 68%;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   background: var(--muscle-legs);
 }
 .k-day24 .ml {
@@ -4274,7 +4344,7 @@ a.k-plain {
   min-width: var(--touch);
 }
 .k-step .k-stepin {
-  align-self: stretch;
+  /* the whole middle stays a target (PRD-12) */
   min-height: var(--touch);
 }
 .k-mrow {
@@ -4317,6 +4387,7 @@ button.k-link {
 .k-vn {
   font-family: var(--font-display);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   min-width: 2ch;
@@ -4441,6 +4512,7 @@ button.k-link {
 .k-amount {
   font-family: var(--font-display);
   font-size: var(--fs-d3);
+  line-height: var(--lh-d3);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -4496,6 +4568,7 @@ button.k-link {
 .k-unknown > .w {
   font-family: var(--font-display);
   font-size: var(--fs-d4);
+  line-height: var(--lh-d4);
   font-weight: 600;
   color: var(--muted);
 }
@@ -4713,6 +4786,7 @@ button.k-link {
   min-height: var(--touch-dense);
   font-family: var(--font-display);
   font-size: var(--fs-b2);
+  line-height: var(--lh-b2);
   font-weight: 700;
   color: var(--ink);
   white-space: nowrap;
@@ -4899,7 +4973,7 @@ button.k-mrow:active {
 .k-cpts .bar {
   position: relative;
   height: var(--track, 8px);
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   overflow: hidden;
   background: repeating-linear-gradient(
     135deg,
@@ -4958,6 +5032,7 @@ button.k-mrow:active {
   padding: 0;
   list-style: none;
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
 }
 .k-clegend > li {
   display: flex;
@@ -4985,13 +5060,14 @@ button.k-mrow:active {
   flex: 0 0 auto;
   width: 10px;
   height: 10px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   background: var(--id);
   vertical-align: -1px;
 }
 .k-cfull {
   margin: 0;
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
 }
 .k-critfoot {
   display: flex;
@@ -5014,6 +5090,7 @@ button.k-mrow:active {
   color: inherit;
   font: inherit;
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   text-align: left;
   cursor: pointer;
 }
@@ -5086,7 +5163,7 @@ button.k-mrow:active {
   display: block;
   height: 5px;
   margin-top: 3px;
-  border-radius: 3px;
+  border-radius: var(--r-bar);
   overflow: visible;
 }
 .k-fthin .band,
@@ -5100,7 +5177,7 @@ button.k-mrow:active {
 .k-ftiles .bar > i {
   position: absolute;
   inset: 1px auto 1px 0;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
 }
 .k-fthin .tick {
   position: absolute;
@@ -5133,6 +5210,7 @@ button.k-mrow:active {
   border-radius: var(--r-mark);
   background: color-mix(in srgb, var(--id) 12%, var(--sheet));
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
 }
 .k-ftiles .row {
   display: flex;
@@ -5155,6 +5233,7 @@ button.k-mrow:active {
   align-items: center;
   gap: 2px;
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
   min-width: 0;
 }
 .k-frings svg {
@@ -5181,6 +5260,7 @@ button.k-mrow:active {
   right: 0;
   text-align: center;
   font-size: var(--fs-b3);
+  line-height: var(--lh-b3);
 }
 .k-frings .nm {
   max-width: 100%;
@@ -5314,7 +5394,7 @@ button.k-mrow:active {
   display: block;
   width: 100%;
   height: 10px;
-  border-radius: 2px;
+  border-radius: var(--r-bar);
   box-shadow: inset 0 0 0 1px var(--c);
 }
 .k-tc .cell.met > i {
@@ -5355,7 +5435,7 @@ button.k-mrow:active {
   width: 100%;
   height: 26px;
   background: color-mix(in srgb, var(--ink) 6%, transparent);
-  border-radius: 2px 2px 0 0;
+  border-radius: var(--r-bar) var(--r-bar) 0 0;
 }
 /* the zones behind each day's column, as on the bar: the judgement is where it ends (§19.4) */
 .k-tdays .col > .band {
@@ -5376,7 +5456,7 @@ button.k-mrow:active {
   left: 0;
   right: 0;
   bottom: 0;
-  border-radius: 2px 2px 0 0;
+  border-radius: var(--r-bar) var(--r-bar) 0 0;
 }
 .k-tdays .col > i.plan {
   background: repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 4px);
@@ -5409,7 +5489,7 @@ button.k-mrow:active {
   display: block;
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 3px;
+  border-radius: var(--r-bar);
   box-shadow: inset 0 0 0 1.5px var(--c);
 }
 .k-done.day .cell {

@@ -1066,6 +1066,11 @@
     buttons in Profilo), radii (224 of 682 off scale), fills (35 lightness levels), and identity
     colours whose lightness and saturation vary inside a family. Proposed scales in §23.3; stop
     for his word.
+104. **20 Nov, his «tc» (read as «yc») on §23.3.** Applied on PR #371 and measured again on the
+    same screens, before · after (`LIFEOS/review/2026-11-20/foundations/index.html`); bars-study
+    §23.4 says what changed, two corrections to §23.2–23.3, and what is left. Undo: revert the
+    commit (tokens.css, kit.css, .prettierignore, the kit photos). Open, his: the gym's 52 px
+    stepper; the surfaces' ladder, shown before it is changed.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

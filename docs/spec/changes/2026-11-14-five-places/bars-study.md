@@ -1117,3 +1117,26 @@ counts: `LIFEOS/review/2026-11-20/foundations/` (`measured.json`, `measure.mjs`,
   it (e.g. −0.08, −0.16); judgement colours at one L and C too, so «good» is not quieter than «bad».
 Each scale becomes tokens in `tokens.css`; then a guard fails a value off its scale (as the
 lint does for hex). Nothing changes look before his word on 23.3.
+
+### 23.4 Applied (his «yc», 20 Nov, proposal §104) — and two corrections to 23.2–23.3
+Measured again on the same ten screens after the change (`foundations/index.html`, before · after):
+line heights left unset **334 → 3**; text in Arial **4 → 0**; buttons, chips and fields **7 heights
+→ 2** (44 × 29, 36 × 39; the 28 and 21 px left are the sliders of «Come valutiamo» and a hidden
+field, not buttons). What changed:
+- **Colours** (`tokens.css`, dark only; light untouched, he uses dark): the 14 identity colours
+  and herb · warn · tomato at OKLCH L 0.78 · C 0.112 — the highest chroma every hue reaches in
+  sRGB (the blues cannot reach 0.12) — each keeping its hue.
+- **Line heights**: each of the 45 rules that set a size token without its line height now uses
+  the matching `--lh-*` (the tokens existed).
+- **Controls**: `border-box` on the 12 control classes, so a 36 or 44 token is the height drawn
+  (the 1 px border made chips 38); every native control takes the page's font (`font: inherit`).
+- **Stepper**: the unit beside the number on one line, the field as wide as its number; 44 px
+  everywhere (it grew to 52 and 66 with the unit under it — audit of 15 Nov, item 10).
+- **Radii**: a `--r-bar: 2px` token; the 31 raw 1,5 · 2 · 3 px radii use it.
+Corrections: (1) 23.2's «4 buttons the browser draws itself, outside the kit» was wrong — they are
+the kit Stepper's − and +, in Arial because a button does not inherit the font; (2) 23.3's radii
+2 · 8 · 12 · 999 would have redrawn cards (16) and sheets (20), which VIS-02's tokens set and he
+never saw: the tokens are kept (4 · 8 · 12 · 16 · 20 · 999 + the new 2), only stray values moved.
+Not done: the surfaces' ladder and the `color-mix` steps (35 → 27 fill lightness levels from the
+colours alone) — a change of every tinted section, shown first. Open, his: the gym's big stepper
+(52 px, `.k-step.big`) is outside the two heights.
