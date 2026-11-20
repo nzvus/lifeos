@@ -749,6 +749,7 @@ export async function DayPage({
             now={
               nowMinute === null ? null : { minute: nowMinute, label: F.time(nowMinute) }
             }
+            day={food && whole ? whole.nutrients : null}
             clock={{
               date,
               gone: date < today,

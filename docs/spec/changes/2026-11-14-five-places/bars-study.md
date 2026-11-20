@@ -532,3 +532,9 @@ Rejected 20 Nov («comunque non mi piace», proposal §90): the ridge removed fr
 and the kit. Kept from it: a meal carries its limits (free sugars, saturated fat, salt) against
 the day's targets (`mealL0`), shown in its «Nutrienti» door.
 
+### 16.7 A meal inside its day, with his original bars (20 Nov, proposal §91)
+His answer on the ridge: not the hill shape, not so tall. So the meal's own four thin bars (one line
+each, same height) now run to the **day's** target: this meal's share in colour with its kinds,
+the rest of the day grey after it (`nutrientsL0(meal, day)`; the day reaches the boxes through
+`DayFrame`). Photos `LIFEOS/review/2026-11-20/pasto-nel-giorno/`. Waiting for his word.
+
