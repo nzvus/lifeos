@@ -35,8 +35,8 @@ place); the **places** (presets of the two spaces, reframe §3); the **engine** 
 | Zoom | Decides | Home |
 |---|---|---|
 | **Z1 purpose** | what lifeos is, the principles | `product.md` |
-| **Z2 system** | the layers, the two spaces, the grammar, the engine | `system.md` (from `reframe.md`) |
-| **Z3 patterns** | cards, instruments, interactions, look | `patterns.md`, `views.md` (from bars-study §21–§23), `visual.md` |
+| **Z2 system** | the layers, the two spaces, the grammar, the engine | `product.md` (the map, PRD-16) + `model.md` (the layers, MOD-56) — from `reframe.md` |
+| **Z3 patterns** | cards, instruments, interactions, look | `patterns.md` (interactions, cards) + `visual.md` (instruments and their channels, from bars-study §21–§23) |
 | **Z4 objects** | the ORCA tables | `orca/` (the catalog part of `model.md` moves here; its rules stay) |
 | **Z5 details** | formulas, ranges, sources | `domains/` |
 **Rule:** a decision is written at the highest zoom it changes. When a detail contradicts a level
@@ -68,7 +68,7 @@ necessario»).
 - one card per object (target.md B8's guard, extended to views); a page draws nothing of its own.
 
 ## 7. What it folds (one truth, PRD-40)
-`reframe.md` → `system.md` (Z2) · bars-study §21–§23 → `views.md` (Z3) · target.md's tables and
+`reframe.md` → `product.md` and `model.md` (Z2) · bars-study §21–§23 → `visual.md` (Z3) · target.md's tables and
 §22's channels → `orca/` (Z4) · `model.md` keeps its rules, gives its catalog to `orca/`. The
 proposal items stay as history. Nothing is lost: every row keeps its source.
 
@@ -84,6 +84,31 @@ inventory) by one Sonnet reader; tables, unification and design by Claude with h
    ADR-0064.
 2. The ORCA tables as **markdown tables** with a fixed schema that `check.py` reads (recommended:
    he can read them, git diffs them) — or YAML with a generated page.
-3. The **zoom levels and their homes** (§3), including `system.md` and `views.md`.
+3. The **zoom levels and their homes** (§3): no new file but `orca/` (§10).
 4. The two stops, **A** (tables) and **B** (photos), per round.
 5. The `change` skill and `check.py` updated as in §5–§6 before the first pass.
+
+## 10. How it sits on what already exists (his «come si configura con i framework che già ci
+sono?», 20 Nov, proposal §116)
+Nothing is replaced; each piece gets one job in the method. **New: only `docs/spec/orca/`** (the four
+tables), two headers in `proposal.md`, a triage step, and the checks of §6.
+| What exists | Its job in the method | Changes |
+|---|---|---|
+| `product.md` (PRD) | Z1 purpose; Z2's map (PRD-16) | the reframe's amendments land here at archive |
+| `model.md` (MOD) | Z2's layers and the engine (MOD-56); Z4's **rules** | its catalog of types moves to `orca/objects` |
+| `patterns.md` (PAT), `visual.md` (VIS) | Z3: interactions and cards; instruments and their channels | bars-study §21–§23 land in `visual.md` |
+| `domains/` | Z5: formulas, ranges, sources | none |
+| `orca/` (new) | Z4: objects, relationships, actions, attributes | the four tables |
+| ADRs (`docs/decisions/`) | any decision expensive to reverse, at any zoom | ADR-0064 records the method |
+| `changes/` + the `change` skill | **a change = one or more rounds**: proposal's «Why» = Discover; delta = Define (ORCA rows and IDs); «options» = Develop; tasks + apply = Deliver; its «Stop» = stops A and B | proposal gains **Zoom** and **ORCA cells**; the skill gains the triage |
+| `inbox.md` (INBOX) | the one door for his words | + triage (zoom, cells) when an item becomes a change |
+| `ROADMAP.md` «Now» | which round or change is next | none |
+| `map.md` (generated: routes, components, kit pieces) | Discover's **interface inventory** of the app as it is | none |
+| `check.py`, lint (PAT-90), kit photos (PAT-94), `e2e/layout`, `untested.txt` | the guards | + §6's ORCA checks in `check.py` |
+| skills `audit` · `verify` · `retro` · `tune-rules` · `adr` | audit = spec vs code (+ ORCA vs registry); verify = stop B's photos; retro = what a round taught; tune-rules = when the method itself fails (`RULES_LOG.md`); adr = ADR-0064 | `audit` reads `orca/` too |
+| `.claude/rules/design.md` | the session's reading guide: it **cites**, never decides | points to `orca/` and `visual.md` once they hold it |
+| the handoff, memory | where we are; working lessons | none |
+| «yc», «ap» (fleet GLOSSARY) | yc at stops A and B takes every recommendation; under ap a round runs, and a new object, pattern or level is parked as a question (CLAUDE.md rule 1) | none |
+| `PROJECT.md` (kickoff brief, 2026-09) | overlaps Z1 (`product.md`) | his call: archive it, or keep it as the kit's brief |
+| `docs/archive/` (ledger, v1/v2 specs) | Discover's sources (his older words) | none |
+| the drafts in this change: `reframe.md`, `bars-study.md`, `target.md`, `method.md` | inputs of the first round | folded into their homes when the change archives |

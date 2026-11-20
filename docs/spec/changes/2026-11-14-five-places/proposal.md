@@ -1174,6 +1174,12 @@
     taken as the direction («ok»). Answer: `method.md` in this change (draft) — the ORCA tables and
     their home, the zoom levels, a round's steps and stops, every future request through the same
     door, the checks, what it folds, the first pass; his to settle: its §9 (then ADR-0064).
+116. **20 Nov, his words:** «come si configura tutto questo con i framework che già ci sono?»
+    Answer: `method.md` §10 — each existing piece gets one job (product.md Z1–Z2, model.md Z2 rules
+    and Z4 rules, patterns.md and visual.md Z3, domains Z5, a change = rounds, inbox = the door,
+    map.md = the inventory, check.py = the guards, the skills by step); the only new home is
+    `docs/spec/orca/`. Corrected: no `system.md` nor `views.md` (they would duplicate product.md,
+    model.md and visual.md). His call: `PROJECT.md`, which overlaps product.md.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
