@@ -661,3 +661,58 @@ one-page drawing. Until then, Claude adds nothing visual that bypasses this desi
 4. **The families**: one per reading (18.3) — any reading he wants drawn otherwise.
 5. **The name**: «motore di visualizzazione» in product.md §3, or another word.
 
+
+## 19. Forms beyond the bar, yes/no, words in the bar, no dots (20 Nov, proposal §96)
+
+His words: «non mi piacciono per nulla i pallini · molte scritte potrebbero essere nelle barre
+stesse · alcuni tracker potrebbero essere dei binari … la creatina … la caffeina è diverso ·
+obiettivi con semplici "completato" e "non completato" · uno studio su altre forme di grafici».
+What slice 2 did wrong: it reused MeasureTree as it was and did not apply §16.3 (the end dot and
+the dot under each column repeat what the tip's colour already says). Draft for his corrections.
+
+### 19.1 Yes / no (a reading for any class, not only a boolean field)
+What only has two states carries one fact: **done or not**. It comes from the **measure**, not from
+the field's type (MOD-57 today reads only a boolean field as «done»):
+| What | Why yes/no | Not yes/no |
+|---|---|---|
+| a fixed dose (creatina 5 g, a medicine, a vitamin) | the amount never changes: only «presa / non presa» informs | caffeina: mg vary, a limit (≤ 400 mg) → an amount |
+| a habit, a task, a check-in done | done today or not | — |
+| a goal «fatto / non fatto» (yes, it exists: «2 su 4» in Obiettivi) | each day done or not; over a week a count against n | a goal on an amount (kg, g) |
+| a boolean field of his trackers («farmaco: sì») | — | — |
+Proposed rule: the registry may declare a measure's reading; the field type gives the default; an
+intake whose dose is fixed reads as *done* (undo: the default only). Drawn: **day** → the voce's own
+shape, previsto · fatto · saltato (VIS-22), no bar; **week** → seven cells, filled · outlined ·
+struck, the streak as their count; **month** → a calendar grid of the same cells; **goal** → n cells,
+the done ones filled («2 su 4» without the words).
+
+### 19.2 The forms, by the question they answer (Cleveland & McGill: position and length are read
+best, angle and area worst; Few, Tufte, Bertin, Munzner)
+| Reading · question | Today | Other forms | Best when | Avoid |
+|---|---|---|---|---|
+| amount · how much of the target | bullet bar | **unit chart** (a square per unit: 8 glasses of 250 ml); **sparkline** in the row | the unit is countable (water, sets ≤ 20) | a gauge or ring (angle) |
+| amount · over days | columns | **line on the fascia band**; **horizon chart** (many measures in little height); **calendar heat map** (a month, each day tinted by its zone) | a month or more; many measures at once | 3D, area |
+| parts of a whole | split bar | **waffle** 10 × 10 (shares); **icicle / treemap** (kcal → macro → kind → food, drilled); **flow** (foods → macros: where each gram came from) | a deep «what»; «da dove» | a pie (angle) |
+| members judged alone (micros) | cells | **one common axis** in % of each target, a short line each (a strip); a **heat grid** member × day | comparing 20 members at once | a dot per member |
+| time · a span | the rail | **span chart**: one row per night, bed → wake on a 24 h axis (regularity in one look); a **24 h clock** (time of day is a circle: the one place an angle is right) | sleep, fasting, a session's length | — |
+| rating 1–5 | — | a **5-step bar** (segments); over days a **heat strip**; the **distribution** (how many days at each step) | how he feels, effort | a mean with decimals |
+| category | — | a **100 % bar** of shares; over days a strip coloured by category | the kind of activity, of meal | a legend far from the bar |
+| score 0–100 | chip | over time a **line on the 40 · 70 band**; the criteria as a split bar | — | — |
+| compare (past self, two periods) | — | a **ghost** of last time on the same bar; a **slope chart** (this week ↔ last, one line per measure) | the gym, Andamento | a % (TR-22) |
+| spread, uncertainty | ± in words | a **band** around the line; a **strip** of the days' values (spread in one look) | weight, sleep regularity | hiding the value |
+
+### 19.3 Words in the bar
+The name inside the bar at its start, the value inside at its end, when the bar is long and its
+fill gives contrast; otherwise the value just after the end, on the same line. One line per measure
+instead of a title line above it; never «text · bar · text» (his rule, memory bars-content).
+Checked at 320 px; the colours' lightness measured for contrast (the foundations, §17.4).
+
+### 19.4 The dots
+Today: the end dot of MeasureTree, the dot under each day's column, the cells, and VIS-21's mark
+in the chip (filled · half · ring). Proposed: none on bars and columns (the judgement is where the
+bar ends among its ranges and the tip's colour, §16.3); the chip's mark is VIS-21 and his to keep
+or drop (his question, 19.5).
+
+### 19.5 For his corrections
+1. The dots: gone from bars and columns only, or also from the chip (VIS-21 changes)?
+2. 19.1: a fixed-dose intake reads as yes/no, a goal can be yes/no — right?
+3. 19.2: which forms to build next in the gallery on the engine (one family at a time).

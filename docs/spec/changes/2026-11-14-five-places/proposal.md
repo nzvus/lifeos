@@ -996,6 +996,16 @@
     presence give *none* until their slice, never a home-made drawing; the past-self ghost and
     the record are not drawn yet (MeasureTree has no ghost mark: a kit change, next slice).
     No real screen uses it yet: moving a screen onto it is a design he sees first.
+96. **20 Nov, his words on slice 2 (`/kit#motore`):** «non mi piacciono per nulla i pallini. molte
+    scritte potrebbero essere nelle barre stesse. inoltre alcune cose, alcuni tracker potrebbero
+    essere dei binari, come semplici si o no, e vale per qualsiasi cosa. pensa ad assunzioni come
+    la creatina: un valore costante che o prendo una volta o no al giorno. la caffeina è diverso.
+    anche il resto. ma potrebbero esserci obiettivi con semplici "completato" e "non completato"
+    immagino, no?. non lo so. in ogni caso dove sono tutti gli ingredienti e channel e tutto il
+    loro studio? e uno studio su altre forme di grafici oltre alle semplici barre?» Answer: the
+    ingredients and channels are bars-study §16.2–§16.3, the families §14; slice 2 did not apply
+    them (it reused MeasureTree, whose end dot repeats the tip's colour, against §16.3's «never a
+    word that repeats the colour»). The forms beyond bars: bars-study §19, for his corrections.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
