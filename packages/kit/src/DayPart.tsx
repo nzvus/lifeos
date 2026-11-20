@@ -45,7 +45,8 @@ export function DayPart({
   open?: boolean;
   onToggle?: () => void;
   summary?: string;
-  icons?: GlyphOf[];
+  /** A previsto's icon is drawn dashed (VIS-22's outline; his 20 Nov, reframe §11). */
+  icons?: (GlyphOf & { planned?: boolean })[];
 }) {
   const [a, b, f] = SKY[name];
   // Rounded: the server and the browser must write the same numbers (hydration).
@@ -100,9 +101,15 @@ export function DayPart({
       </span>
       {shut && icons.length > 0 && (
         <span className="ics" aria-hidden="true">
-          {icons.slice(0, 4).map((g, i) => (
-            <Glyph key={i} of={g} size="xs" />
-          ))}
+          {icons.slice(0, 4).map(({ planned, ...g }, i) =>
+            planned ? (
+              <span key={i} className="pl">
+                <Glyph of={g} size="xs" />
+              </span>
+            ) : (
+              <Glyph key={i} of={g} size="xs" />
+            ),
+          )}
         </span>
       )}
       <svg viewBox="0 0 120 44" aria-hidden="true">

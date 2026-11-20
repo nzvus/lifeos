@@ -39,9 +39,12 @@ export type FieldProps = {
   onChange?: (value: string) => void;
 };
 
+// A segmented choice only while every label fits whole at 320 px (his rule: labels always fully
+// readable; at 320 a third of the row holds about 11 characters — «Da confermare» did not).
 const asSelect = (opts: FieldOption[]) =>
   opts.length > 4 ||
   opts.some((o) => o.label.length > 16) ||
+  (opts.length >= 3 && opts.some((o) => o.label.length > 11)) ||
   opts.reduce((n, o) => n + o.label.length, 0) > 34;
 
 export function Field(p: FieldProps) {

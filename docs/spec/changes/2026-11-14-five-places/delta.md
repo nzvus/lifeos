@@ -16,7 +16,8 @@
   «Adesso · Previsto · Prima» and the composer's «Mangiato · Previsto» go); a voce with no time is
   previsto until done (no exceptions for now). The slack is a setting, 20 minutes by default; a
   past previsto never done follows a setting: saltato (default) · da confermare · confermato. In a
-  folded part of the day a previsto's icon is drawn dashed | his 15 and 20 Nov, reframe §11
+  folded part of the day a previsto's icon is drawn dashed | his 15 and 20 Nov, reframe §11 —
+  Today: built (`core/entries/timing.ts`, `core/account/timing.ts`, `readDays`; proposal §111)
 - **product.md §4** «Not now» loses «step windows and a vertical movement layer» (movement
   refactored, reframe §12) | his «yc», 20 Nov
 - **PAT-01** (patterns.md §1) One `(app)/layout.tsx` holds NavBar (Elenco · Piano · Oggi ·

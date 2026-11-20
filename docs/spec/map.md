@@ -48,7 +48,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 |---|---|---|---|---|
 | `features/account/AuthForm.tsx` | 77 | — | 2 input, 1 form | 2 |
 | `features/account/FromV1.tsx` | 134 | — | 1 input | 1 |
-| `features/account/SettingsForm.tsx` | 93 | Field | 1 form | 1 |
+| `features/account/SettingsForm.tsx` | 116 | Field | 1 form | 1 |
 | `features/account/ThemePicker.tsx` | 56 | Field | — | 1 |
 | `features/account/TrackerForm.tsx` | 156 | Field | 4 input, 1 select, 1 form | 4 |
 
@@ -66,12 +66,12 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 ### features/food (6)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `features/food/Composer.tsx` | 730 | Box, Field, Nutrients, PageHeader | 6 input | 6 |
+| `features/food/Composer.tsx` | 751 | Box, Field, Nutrients, PageHeader | 6 input | 6 |
 | `features/food/EstimateFields.tsx` | 81 | Field | — | 6 |
 | `features/food/FoodSearch.tsx` | 137 | Find, Glyph | — | 6 |
 | `features/food/IntakeForm.tsx` | 124 | Field, PageHeader | 1 form | 1 |
 | `features/food/LinePicks.tsx` | 117 | — | 1 select | 6 |
-| `features/food/MealWhen.tsx` | 131 | Field | 1 input | 6 |
+| `features/food/MealWhen.tsx` | 122 | Field | 2 input | 6 |
 
 ### features/gallery (1)
 | component | lines | kit pieces | by hand | routes |
@@ -138,13 +138,13 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/library/BarcodeBox.tsx` | 2 | 0 | 0 | 0 | 5 | 2 |
 | `app/(app)/oggi/day-page.tsx` | 0 | 0 | 0 | 2 | 2 | 0 |
 | `features/progress/WeightsForm.tsx` | 1 | 0 | 0 | 1 | 2 | 1 |
+| `features/food/MealWhen.tsx` | 2 | 0 | 0 | 0 | 1 | 0 |
 | `features/library/Library.tsx` | 2 | 0 | 0 | 0 | 1 | 0 |
 | `features/training/ActivitySheet.tsx` | 1 | 0 | 0 | 1 | 1 | 0 |
 | `features/training/NextList.tsx` | 1 | 0 | 0 | 0 | 7 | 0 |
 | `features/account/FromV1.tsx` | 1 | 0 | 0 | 0 | 1 | 0 |
 | `features/account/SettingsForm.tsx` | 0 | 0 | 0 | 1 | 1 | 0 |
 | `features/food/IntakeForm.tsx` | 0 | 0 | 0 | 1 | 1 | 0 |
-| `features/food/MealWhen.tsx` | 1 | 0 | 0 | 0 | 1 | 0 |
 | `features/library/ExerciseForm.tsx` | 0 | 0 | 0 | 1 | 1 | 0 |
 | `features/library/RouteForm.tsx` | 0 | 0 | 0 | 1 | 1 | 0 |
 | `features/progress/GoalForm.tsx` | 0 | 0 | 0 | 1 | 1 | 0 |

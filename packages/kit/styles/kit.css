@@ -4881,6 +4881,13 @@ button.k-part.toggle {
   width: 18px;
   height: 18px;
 }
+/* a previsto in a folded part: the same icon, its strokes dashed (VIS-22; his 20 Nov) */
+.k-part .ics .pl {
+  display: inline-flex;
+}
+.k-part .ics .pl svg * {
+  stroke-dasharray: 2.5 2;
+}
 /* his phone is ≤ 360 px: the icons shrink there, never go (VIS-61; his 17 Nov) */
 @media (max-width: 380px) {
   .k-part .t .cnt {

@@ -1132,6 +1132,21 @@
     time (the rail split by now; only saltato and confermato are acts), and the timeline holds two
     kinds of thing, voci and **signals** (levels over time: movement, caffeine left, creatine
     stores, daylight, weather), each signal a lane beside the rail. For his word.
+111. **20 Nov, his «yc» on §14; reframe §11 built** (PR #371; photos
+    `LIFEOS/review/2026-11-20/timing/`). The time decides the state: after now + the slack previsto,
+    at now or before fatto (`core/entries/timing.ts`, used by every write); the slack (20 min) and a
+    past previsto's fate (saltato · da confermare · confermato) as settings in Profilo
+    (`settings.prefs.timing`, no migration); ⊕ without «Adesso · Previsto · Prima»; the composer
+    without «Stato», its preview reading the time; a folded part draws a previsto's icon dashed.
+    Decided by Claude, each with its undo: (a) a past previsto's fate is **derived when the day is
+    read, never stored** — changing the setting changes the past days too (undo: `pastState` in
+    `readDays`); (b) what a ritmo writes keeps its previsto, only what he types takes its state from
+    the time (undo: `slack === null` in `createEntry`); (c) a session left «in corso» on a past day
+    is a previsto and follows the setting; (d) a voce typed with no time keeps what was asked; (e) a
+    gap's «+ aggiungi» still passes `&stato=` as a hint for the default time; (f) the kit rule: three
+    or more options with a label over 11 characters are a drop-down, so every label is whole at
+    320 px («Da confermare» was cut) (undo: `asSelect` in `Field.tsx`). Open, his: the dashed icon is
+    subtle at 18 px — enough, or a dashed ring around it?
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

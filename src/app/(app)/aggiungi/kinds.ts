@@ -1,4 +1,5 @@
 import { ownerClock } from "@/app/_server/clock";
+import type { Timing } from "@/core/entries/timing";
 /**
  * The kinds ⊕ can enter for this person (V-02): the built-ins and their own
  * kinds that `enterable` allows, without the archived ones; and the day the
@@ -22,10 +23,11 @@ export async function addContext(
   kinds: Kind[];
   clock: DayClock;
   roleBounds: RoleBounds;
+  timing: Timing;
   today: IsoDate;
   day: IsoDate;
 }> {
-  const [{ clock, roleBounds }, rows] = await Promise.all([
+  const [{ clock, roleBounds, timing }, rows] = await Promise.all([
     ownerClock(),
     readUserKinds(db, owner),
   ]);
@@ -35,5 +37,5 @@ export async function addContext(
   );
   const today = logicalDay(new Date(), clock);
   const day = typeof giorno === "string" && ISO.test(giorno) ? giorno : today;
-  return { kinds, clock, roleBounds, today, day };
+  return { kinds, clock, roleBounds, timing, today, day };
 }

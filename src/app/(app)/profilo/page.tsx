@@ -19,6 +19,7 @@ import { FromV1 } from "@/features/account/FromV1";
 import { ThemePicker } from "@/features/account/ThemePicker";
 import { savePlaceForm, saveSettingsForm } from "./actions";
 import { readPlace } from "@/core/account/place";
+import { readTiming } from "@/core/account/timing";
 import { readUserKinds } from "@/core/day";
 import { enterable } from "@/core/entries";
 import { kindRegistry } from "@/core/kinds";
@@ -63,10 +64,11 @@ export default async function SettingsPage({
     timeZone: s.timeZone,
     boundaryMin: s.boundaryMin,
   });
-  const [counts, targets, place] = await Promise.all([
+  const [counts, targets, place, timing] = await Promise.all([
     readSettingsCounts(db, owner, new Date()),
     readDayTargets(db, owner, today),
     readPlace(db, owner),
+    readTiming(db, owner),
   ]);
   // «Un foglio per tipo»: the specialised kinds, then those ⊕ enters (the person's own too).
   const userKinds = (await readUserKinds(db, owner)).filter((k) => !k.archivedAt);
@@ -122,6 +124,8 @@ export default async function SettingsPage({
             heightCm: s.heightCm === null ? "" : F.input(Number(s.heightCm), 1),
             timeZone: s.timeZone,
             boundary: F.time(s.boundaryMin),
+            slackMin: String(timing.slackMin),
+            pastPlanned: timing.pastPlanned,
           }}
         />
       </Section>

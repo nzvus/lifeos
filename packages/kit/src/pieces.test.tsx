@@ -704,6 +704,19 @@ describe("DayPart that closes (VIS-61, «Oggi a livelli» step 4)", () => {
       'role="separator"',
     );
   });
+  it("closed: a previsto's icon is the same icon, dashed (VIS-22; his 20 Nov)", () => {
+    const h = renderToStaticMarkup(
+      <DayPart
+        name="Sera"
+        when="dalle 18:30"
+        open={false}
+        onToggle={() => {}}
+        summary="2 voci"
+        icons={[{ fam: "food" }, { fam: "food", planned: true }]}
+      />,
+    );
+    expect(h.match(/class="pl"/g)).toHaveLength(1);
+  });
 });
 
 describe("DateNav: every day opens in Oggi, a day to come too (PAT-97)", () => {

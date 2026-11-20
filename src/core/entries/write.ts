@@ -13,6 +13,8 @@ import { ownedBy, type Owner } from "../identity/owner";
 import type { IsoDate } from "../engines/time";
 import { kindRegistry } from "../kinds";
 import type { CheckedEntry, CheckedLine } from "./check";
+import { readTiming } from "../account/timing";
+import { stateAt, TIMING_DEFAULTS } from "./timing";
 
 /** The built-in kinds logged at one instant: «Fatto» moves them to the tick. */
 const INSTANT = new Set(
@@ -22,19 +24,16 @@ const INSTANT = new Set(
 );
 
 /**
- * A voce that starts after now cannot have happened (MOD-15, his 15 Nov «essere sicuri che
- * quando si pianifica qualcosa in un orario futuro… sia sempre pianificato»): «fatto» at a
- * later time is stored as previsto, whatever the form said. One minute of slack: «adesso»
- * rounded up to the minute stays fatto. Saltato and previsto are kept.
+ * The time decides the state (MOD-15 as amended, reframe §11; his 15 and 20 Nov): after now + the
+ * slack a voce is previsto, at now or before it is fatto, whatever the form said. Saltato is kept.
  */
-export function statusAt<S extends string>(
+export function statusAt<S extends "planned" | "done" | "skipped">(
   status: S,
   startAt: Date | null | undefined,
   now: Date = new Date(),
-): S | "planned" {
-  return status === "done" && startAt && startAt.getTime() > now.getTime() + 60_000
-    ? "planned"
-    : status;
+  slackMin: number = TIMING_DEFAULTS.slackMin,
+): "planned" | "done" | "skipped" {
+  return stateAt(status, startAt, slackMin, now);
 }
 
 /** Writes a checked entry typed by the person, with its lines and their snapshot; returns its id. */
@@ -43,6 +42,9 @@ export async function createEntry(
   owner: Owner,
   e: CheckedEntry,
 ): Promise<string> {
+  // A voce a ritmo writes (blockId) keeps its previsto: only what he typed takes its state from
+  // the time.
+  const slack = e.blockId ? null : (await readTiming(db, owner)).slackMin;
   return db.transaction(async (tx) => {
     const [row] = await tx
       .insert(entries)
@@ -50,7 +52,8 @@ export async function createEntry(
         userId: owner.id,
         kind: e.kind,
         day: e.day,
-        status: statusAt(e.status, e.startAt),
+        status:
+          slack === null ? e.status : statusAt(e.status, e.startAt, undefined, slack),
         startAt: e.startAt,
         endAt: e.endAt,
         note: e.note,
@@ -485,12 +488,13 @@ export async function updateEntry(
   e: CheckedEntry,
   managed: readonly string[],
 ): Promise<boolean> {
+  const { slackMin } = await readTiming(db, owner);
   return db.transaction(async (tx) => {
     const done = await tx
       .update(entries)
       .set({
         day: e.day,
-        status: statusAt(e.status, e.startAt),
+        status: statusAt(e.status, e.startAt, undefined, slackMin),
         startAt: e.startAt,
         endAt: e.endAt,
         note: e.note,
