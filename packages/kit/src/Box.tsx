@@ -535,5 +535,5 @@ export function Box({
 }
 
 const SCORE_WORD = { met: "bene", part: "così così", no: "male", none: "" } as const;
-const band = (v: number) =>
+export const band = (v: number) =>
   v >= MET ? "var(--heat-good)" : v >= PART ? "var(--heat-fair)" : "var(--heat-bad)";

@@ -14,8 +14,7 @@ import { Box, F, Field, List as KitList, MealBox, type PlanAction } from "@lifeo
 import { useObjectVerbs, type VerbServer } from "@/features/objects/use-object-verbs";
 import { food } from "@/i18n/food";
 import { ExercisePlanBox, FoodPlanBox } from "./boxes";
-import { mealSlots } from "@/features/box/meal";
-import { partRows } from "./meal-rows";
+import { MEAL_WORDS, mealSlots } from "@/features/box/meal";
 import { listRows, sortValue, SORTS, type LibraryRow, type SortKey } from "./library";
 
 const w = food.meal;
@@ -390,11 +389,8 @@ function List({
                 density="row"
                 entry={row(tab, r, value(r))}
                 data={r.meal.data}
-                slots={mealSlots({
-                  data: r.meal.data,
-                  rows: partRows(r.meal.parts),
-                  details: r.meal.details,
-                })}
+                slots={mealSlots({ details: r.meal.details })}
+                words={MEAL_WORDS}
                 actions={[
                   {
                     key: "log",

@@ -43,6 +43,7 @@ import { dayMicros } from "@/core/food/micros";
 import { lineTotals } from "@/core/food/totals";
 import { mealCompounds } from "@/core/food/compounds";
 import { isEaten } from "@/core/kinds";
+import { foodScore } from "./score";
 
 /** The kit's macro → the field the snapshot and the targets use. */
 const MACROS: [MacroKey, "protein" | "carbs" | "fat" | "fibre"][] = [
@@ -357,6 +358,9 @@ function fibreNote(parts: Record<string, number> | undefined) {
 function mealFoods(
   meal: DayItem,
   estimates: ReadonlyMap<string, Record<string, string>>,
+  /** For each cibo's own voto per 100 kcal (MOD-61): a part scored as its whole is. */
+  targets: FoodTargets | null = null,
+  microTargets: readonly MicroTarget[] | null = null,
 ): NonNullable<NutrientsData["foods"]> {
   const servings = servingsOf(meal);
   return meal.lines.map((l) => {
@@ -365,8 +369,10 @@ function mealFoods(
     const whole = (m: Record<string, number>) =>
       estimates.size > 0 ? m : { all: Object.values(m).reduce((a, v) => a + v, 0) };
     const kcal = Number(lineTotals([l], servings)["kcal"] ?? 0);
+    const own = foodScore(l.values, est, targets, microTargets, est?.["group"])?.value;
     return {
       key: l.id,
+      ...(own != null ? { score: own } : {}),
       name: l.name || "Senza nome",
       amount:
         F.num(Number(l.quantity) * Number(servings ?? "1"), l.unit) +
@@ -429,7 +435,7 @@ export function mealL0(
     }),
     servingsOf(meal),
   );
-  const foods = mealFoods(meal, estimates);
+  const foods = mealFoods(meal, estimates, targets, microTargets);
   const known = estimates.size > 0;
   const micros = mealMicros(meal, estimates, microTargets);
   // Its limits, against the day's targets (his 20 Nov «dovrebbero portarli»); no fascia of its

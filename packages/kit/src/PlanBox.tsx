@@ -36,7 +36,13 @@ export type PlanSlot =
  * or a danger verb, drawn as an icon at the row's end (Elimina = the trash; `label` its aria).
  */
 export type PlanAction = { key: string; label: string } & (
-  | { onClick: () => void; aria?: string; danger?: "delete" }
+  | {
+      onClick: () => void;
+      aria?: string;
+      danger?: "delete";
+      /** A mode he switches (the bar's «Ingredienti» · «Nutrienti»): a chip, on or off. */
+      pressed?: boolean;
+    }
   | { href: string }
   | {
       step: { value: string; minus: string; plus: string };
@@ -99,7 +105,8 @@ export function ActionRow({ actions }: { actions: PlanAction[] }) {
           <button
             key={a.key}
             type="button"
-            className="k-btn act"
+            className={a.pressed === undefined ? "k-btn act" : "k-chip"}
+            {...(a.pressed === undefined ? {} : { "aria-pressed": a.pressed })}
             {...(a.aria ? { "aria-label": a.aria } : {})}
             onClick={a.onClick}
           >
@@ -171,6 +178,7 @@ export function PlanBox({
   variantsLabel = "",
   children,
   actions = [],
+  before,
   ...place
 }: ThingBoxPlace & {
   entry: BoxEntry;
@@ -185,6 +193,8 @@ export function PlanBox({
   children?: ReactNode;
   /** Open, first: what can be done to it here (PAT-101), from its rows in `orca/actions.md`. */
   actions?: PlanAction[];
+  /** Open, above the actions: the type's bars (PAT-102 zones 2 and 3). */
+  before?: ReactNode;
 }) {
   const vs = variants ?? [];
   const [key, setKey] = useState(() => picked ?? vs[0]?.key);
@@ -197,6 +207,7 @@ export function PlanBox({
   const rows = shown.flatMap((s) => ("words" in s && s.words.length > 0 ? [s] : []));
   return (
     <ThingBox {...place} entry={{ ...entry, ...(v?.head ?? {}) }} doors={doors}>
+      {before}
       <ActionRow actions={actions} />
       {children}
       {vs.length > 0 && (

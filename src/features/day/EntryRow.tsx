@@ -19,7 +19,7 @@ import {
   type NutrientsData,
   type PlanAction,
 } from "@lifeos/kit";
-import { mealSlots } from "@/features/box/meal";
+import { MEAL_WORDS, mealSlots } from "@/features/box/meal";
 import type { Details } from "./details";
 import type { Status } from "./filter";
 import { stepServings } from "./servings";
@@ -200,11 +200,8 @@ export function EntryRow({
           <MealBox
             entry={shown}
             data={entry.l0}
-            slots={mealSlots({
-              data: entry.l0,
-              details: entry.details ?? null,
-              stepper: true,
-            })}
+            slots={mealSlots({ details: entry.details ?? null, stepper: true })}
+            words={MEAL_WORDS}
             density={density}
             rail={rail}
             mode={mode}

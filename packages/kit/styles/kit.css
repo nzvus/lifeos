@@ -5751,3 +5751,60 @@ button.k-mrow:active {
     height: 6px;
   }
 }
+
+/* ---------- one bar for a thing made of parts (VIS-106) and its voto bar (VIS-107) ---------- */
+/* his 21 Nov (§139–§141): columns like the voto's skyline, each fill split into blocks by part
+   or by kind; a touched part lights, the rest dims; the voto bar is shorter, coloured by band,
+   with the «bene» line at 70 — never read as the macro bar */
+.k-pbar {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  width: 100%;
+  height: 36px;
+}
+.k-pbar.voto {
+  height: 22px;
+  gap: 2px;
+}
+.k-pbar .col {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  border-radius: var(--r-mark);
+  background: color-mix(in srgb, var(--ink) 5%, var(--sheet));
+  overflow: hidden;
+}
+.k-pbar .fill {
+  display: flex;
+  flex-direction: column-reverse;
+  width: 100%;
+  transition: height var(--t-box) var(--ease);
+}
+/* a piece as tall as its share, never more: a 1 px line of the sheet between pieces */
+.k-pbar .pc {
+  flex-basis: 0;
+  min-height: 0;
+  box-shadow: inset 0 1px 0 var(--sheet);
+  transition: opacity var(--t-box) var(--ease);
+}
+.k-pbar .pc.dim {
+  opacity: 0.22;
+}
+.k-pbar .pc.lit {
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+.k-pbar .pc:first-child {
+  box-shadow: none;
+}
+.k-pbar .ln {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1.5px dashed color-mix(in srgb, var(--ink) 55%, transparent);
+  pointer-events: none;
+}

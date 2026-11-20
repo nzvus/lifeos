@@ -9,7 +9,7 @@ export { resolveGlyph, type GlyphOf, type IconRegistry } from "./glyph";
 export { ICONS } from "./icons.generated";
 export { Glyph, type GlyphSize } from "./Glyph";
 export { Box, type BoxAct, type BoxDoor, type BoxEntry } from "./Box";
-export { MealBox } from "./MealBox";
+export { MealBox, type MealWords } from "./MealBox";
 export { ThingBox, type ThingBoxPlace } from "./ThingBox";
 export {
   ActionRow,
@@ -19,6 +19,14 @@ export {
   type PlanSlot,
   type PlanVariant,
 } from "./PlanBox";
+export {
+  PartsBar,
+  macroColumns,
+  partTones,
+  votoColumns,
+  type PartsColumn,
+  type PartsMode,
+} from "./PartsBar";
 export { ChipRow, type ChipItem } from "./ChipRow";
 export { EntryDetails, type BoxDetails } from "./meal-doors";
 export { PageHeader } from "./PageHeader";

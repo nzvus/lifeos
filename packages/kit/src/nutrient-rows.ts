@@ -38,6 +38,8 @@ export type NutrientsData = {
     /** Its quantity, as shown («200 g»). */
     amount: string;
     kcal: number;
+    /** Its own voto per 100 kcal (MOD-61: a part scored as its whole is), when judged. */
+    score?: number;
     /** Macro → kind → grams; a key outside the macro's kinds («all») is drawn in its own colour. */
     macros: Partial<Record<MacroKey, Record<string, number>>>;
   }[];
@@ -91,7 +93,7 @@ export const MACRO_COLOR: Record<MacroKey, string> = {
   fat: "var(--macro-fat)",
   fiber: "var(--macro-fiber)",
 };
-const NAME: Record<MacroKey, string> = {
+export const NAME: Record<MacroKey, string> = {
   protein: "Proteine",
   carbs: "Carboidrati",
   fat: "Grassi",
@@ -103,7 +105,7 @@ const LIMIT: Record<LimitKey, string> = {
   salt: "Sale",
 };
 /** Each macro's kinds: fixed order, fixed shade, so a kind looks the same everywhere. */
-const KINDS: Record<MacroKey, [string, string, number][]> = {
+export const KINDS: Record<MacroKey, [string, string, number][]> = {
   protein: [
     ["high", "qualità alta", 1],
     ["medium", "qualità media", 0.55],

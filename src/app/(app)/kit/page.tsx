@@ -18,6 +18,8 @@ import {
   TREE_PROTEIN,
   TREE_VOTO,
   VOTO_SAMPLES,
+  MEAL_SAMPLE,
+  MEAL_SCORE,
 } from "./samples";
 import { ENGINE_SAMPLES } from "./engine-samples";
 import {
@@ -38,7 +40,7 @@ import {
   type BoxEntry,
 } from "@lifeos/kit";
 import { common } from "@/i18n/common";
-import { mealSlots } from "@/features/box/meal";
+import { MEAL_WORDS, mealSlots } from "@/features/box/meal";
 import { ActionSample } from "./action-sample";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -640,45 +642,18 @@ export default async function KitPage({
                 of: { kind: "meal" },
                 title: "Porridge proteico: lamponi, cioccolato, nocciola",
                 value: F.num(533, "kcal"),
-                score: SCORE,
+                score: MEAL_SCORE,
                 href: "#pasto-box",
               }}
-              data={{
-                macros: [
-                  { key: "protein", v: 31 },
-                  { key: "carbs", v: 58 },
-                  { key: "fat", v: 17 },
-                  { key: "fiber", v: 11 },
-                ],
-              }}
+              data={MEAL_SAMPLE}
               slots={mealSlots({
-                data: {
-                  macros: [
-                    { key: "protein", v: 31 },
-                    { key: "carbs", v: 58 },
-                    { key: "fat", v: 17 },
-                    { key: "fiber", v: 11 },
-                  ],
-                },
-                details: {
-                  stats: [{ label: common.doors.cost, value: "≈ 1,40 €" }],
-                  lines: [
-                    { label: "Fiocchi d’avena", value: F.num(60, "g") },
-                    { label: "Latte scremato proteico", value: F.num(250, "ml") },
-                  ],
-                  foot: "aggiunto al volo",
-                },
+                details: { stats: [], lines: [], foot: "aggiunto al volo" },
               })}
-              verbs={
-                <>
-                  <a className="k-btn act" href="#pasto-box">
-                    Registra
-                  </a>
-                  <a className="k-btn act" href="#pasto-box">
-                    Cambia i cibi
-                  </a>
-                </>
-              }
+              words={MEAL_WORDS}
+              actions={[
+                { key: "log", label: "Registra", href: "#pasto-box" },
+                { key: "compose", label: "Cambia i cibi", href: "#pasto-box" },
+              ]}
             />
           </div>
         ))}

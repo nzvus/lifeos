@@ -1421,6 +1421,18 @@
     «utilizza questa cosa dei voti applicata anche al resto, esempio, esercizi singoli magari hanno
     voti, le sessioni quindi sono loro aggregati in qualche modo, quindi stesso pattern. e tutto
     questo ovviamente vale anche per discorsi futuri sull'andamento».
+142. **21 Nov, built on his «yc» of §141 (spec: PAT-102, VIS-106, VIS-107, MOD-61 in `delta.md`):**
+    `lineShares` (exact shares per criterion) and `split` on every meal voto; kit `PartsBar`
+    (macro bar · voto bar); the meal box on the anatomy — head, macro bar, voto bar, one row (mode
+    «Ingredienti» · «Nutrienti», then the actions), the mode's panel (ingredient chips each with
+    «voto n», or every nutrient's rows). Photos `LIFEOS/review/2026-11-21/anatomy/`; **waits for
+    his word**. Decided by Claude, each with its undo: (1) a macro column is full when the macro is
+    in proportion to the meal's energy against the day's targets (the day's whole target left every
+    meal's column almost empty; undo: scale = the day's target); (2) the mode decides the panel, no
+    «Cibi»/«Nutrienti» doors; (3) the ingredient chips do not open their cibo (the old rows did;
+    undo: `meal-rows.ts` in git); (4) a pasto's ingredients show no voto yet (the composer's foods
+    carry none; Oggi's do). Still a sixth row: «Voto n ›» (the criteria and the page) — to fold
+    into zone 3 when the voto bar opens its criteria. The other types keep §132's layout for now.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
