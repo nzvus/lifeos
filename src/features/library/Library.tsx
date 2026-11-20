@@ -13,6 +13,7 @@ import { useState } from "react";
 import { Box, F, Field, List as KitList, MealBox } from "@lifeos/kit";
 import { common } from "@/i18n/common";
 import { food } from "@/i18n/food";
+import { ExerciseBox } from "./ExerciseBox";
 import { FoodBox } from "./FoodBox";
 import { MealFoods } from "./MealFoods";
 import { listRows, sortValue, SORTS, type LibraryRow, type SortKey } from "./library";
@@ -390,6 +391,13 @@ function List({
                     </a>
                   </>
                 }
+              />
+            ) : r.exercise ? (
+              // An esercizio opens in place (PAT-30 level 1, Deliver ③): facts, e1RM trend.
+              <ExerciseBox
+                key={r.key}
+                r={{ ...r, exercise: r.exercise }}
+                entry={row(tab, r, value(r))}
               />
             ) : r.food ? (
               // A cibo opens in place too (PAT-30 level 1, Deliver ③); its marche redraw it (§130).

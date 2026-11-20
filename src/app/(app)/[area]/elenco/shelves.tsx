@@ -5,7 +5,7 @@
  * a catalog's list with its search and sort (features/library), the pantry
  * or the routes. Decided by the agent (3 Nov, ledger UI-95). Server component.
  */
-import { AreaFilter, Box, F, List, PageHeader } from "@lifeos/kit";
+import { AreaFilter, Box, ChipRow, F, List, PageHeader, ThingBox } from "@lifeos/kit";
 import { readNotTwins } from "@/core/account/not-twins";
 import { readExercises, readRoutines } from "@/core/training";
 import { training } from "@/i18n/training";
@@ -198,18 +198,28 @@ function Routines({ routines }: { routines: Awaited<ReturnType<typeof readRoutin
           {[...routines]
             .sort((a, b) => b.uses - a.uses || a.name.localeCompare(b.name, "it"))
             .map((r) => (
-              <Box
+              // A scheda opens in place to its esercizi (PAT-30 level 1, ATT-45; Deliver ③).
+              <ThingBox
                 key={r.id}
                 density="row"
-                rail={false}
+                doors={[]}
                 entry={{
                   fam: "train",
                   of: { kind: "session" },
                   title: r.name,
-                  meta: w.meta(r.exercises.length, r.uses),
+                  value: F.plural(r.exercises.length, "esercizio", "esercizi"),
+                  meta: w.used(r.uses),
                   href: "/corpo/scheda/" + r.id,
                 }}
-              />
+              >
+                <ChipRow
+                  label={w.list}
+                  items={r.exercises.map((x, i) => ({
+                    key: x.exerciseId + ":" + i,
+                    label: x.name,
+                  }))}
+                />
+              </ThingBox>
             ))}
         </List>
       )}

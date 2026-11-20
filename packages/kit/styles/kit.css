@@ -46,6 +46,12 @@
   --lh-hero: 42px;
   --touch: 44px;
   --touch-dense: 36px;
+  /* controls drawn smaller than their target (his 20 Nov «diminuire le proporzioni generali di
+     tutti i bottoni», §131): the look is 40 / 32 with 14 px words, the touch stays 44 (PRD-12) */
+  --ctl-h: 40px;
+  --ctl-dense: 32px;
+  --ctl-fs: var(--fs-b2);
+  --ctl-lh: 18px;
   --track: 6px;
   --segs: 8px;
   --tick: 2px;
@@ -160,12 +166,13 @@ textarea {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: var(--touch-dense);
+  height: var(--ctl-dense);
   padding: 0 12px;
   border-radius: var(--r-pill);
   font-family: var(--font-display);
-  font-size: var(--fs-d4);
-  line-height: var(--lh-d4);
+  font-size: var(--ctl-fs);
+  line-height: var(--ctl-lh);
+  position: relative;
   font-weight: 600;
   border: 1px solid var(--hairline);
   color: var(--ink);
@@ -176,6 +183,12 @@ textarea {
 .k-chip[aria-pressed="true"] {
   border-color: var(--ink);
   box-shadow: 0 0 0 1px var(--ink);
+}
+/* the touch target stays 44 high around a smaller control (PRD-12, VIS-05; §131) */
+:is(.k-btn, .k-chip)::before {
+  content: "";
+  position: absolute;
+  inset: min(0px, (100% - var(--touch)) / 2) 0;
 }
 
 /* ---------- reveal: every open/close in the kit, one timing ---------- */
@@ -1885,15 +1898,15 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: var(--touch);
-  padding: 0 16px;
+  height: var(--ctl-h);
+  padding: 0 12px;
   border: var(--rule-medium) solid transparent;
   border-radius: var(--r-control);
   background: transparent;
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: var(--fs-d4);
-  line-height: var(--lh-d4);
+  font-size: var(--ctl-fs);
+  line-height: var(--ctl-lh);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -1920,7 +1933,7 @@ textarea {
 }
 .k-btn.act {
   min-width: var(--touch);
-  height: var(--touch-dense);
+  height: var(--ctl-dense);
   padding: 0 12px;
   border-color: var(--hairline);
   border-radius: var(--r-pill);
@@ -4504,7 +4517,7 @@ button.k-link {
 }
 .k-sbody > .k-btn.act {
   justify-content: flex-start;
-  height: var(--touch);
+  height: var(--ctl-h);
 }
 .k-entryhead {
   display: flex;
@@ -4579,7 +4592,7 @@ button.k-link {
 /* PRD-12: these verbs are rows of their own, so 44 px, not the 36 px of a control inside a row */
 .k-actions > .k-btn.act,
 .k-entryhead .k-btn.act {
-  height: var(--touch);
+  height: var(--ctl-h);
   min-width: var(--touch);
 }
 /* the object page's actions row keeps the page's gutter, like its sections (PAT-30) */
@@ -4862,12 +4875,16 @@ button.k-link {
 }
 .k-hchip {
   gap: 6px;
-  min-height: var(--touch-dense);
+  min-height: var(--ctl-dense);
 }
 .k-hchip.static {
   border-color: var(--hairline);
   background: transparent;
   cursor: default;
+}
+.k-doorbar-fill {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 /* between what it says (doors) and what it does (verbs) */
 .k-doorsep {

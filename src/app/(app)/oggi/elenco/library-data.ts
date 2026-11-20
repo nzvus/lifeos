@@ -16,6 +16,7 @@ import { readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { foodScore } from "@/features/day/score";
 import { mealBox } from "./meal-box";
+import { EQUIPMENT_WORDS, PATTERN_WORDS } from "@/i18n/training";
 import { mealKinds, mealNutrients } from "@/features/food/composer";
 import { readExerciseLog, readExercises } from "@/core/training";
 import {
@@ -121,7 +122,15 @@ export async function readLibrary(
       },
     };
   });
-  const exercise = exerciseRows(exercises, log, (d) => F.Day(d));
+  const exercise = exerciseRows(
+    exercises,
+    log,
+    (d) => F.Day(d),
+    (x) => [
+      ...(x.pattern ? [PATTERN_WORDS[x.pattern] ?? x.pattern] : []),
+      ...(x.equipment ? [EQUIPMENT_WORDS[x.equipment] ?? x.equipment] : []),
+    ],
+  );
   return {
     lists: { foods: food, meals: meal, exercises: exercise } satisfies Record<
       LibraryView,

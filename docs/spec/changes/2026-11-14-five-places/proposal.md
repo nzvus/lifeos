@@ -1303,6 +1303,8 @@
     siamo focalizzati troppo su dettagli inutili». Taken: a marca is a choice that redraws the box;
     the default most used → best voto → first inserted; no label; tighter spacing; the › is
     temporary, gone when the page's content is in the box.
+131. **20 Nov, his word while Esercizi and Schede were built:** «comunque devi diminuire le
+    proporzioni generali di tutti i boittoni».
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

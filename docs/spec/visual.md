@@ -26,8 +26,9 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   its area, no frame or rule, title 19 in the area hue, padding 12, 8 px between sections · L3 card (16,
   1 px outline, 12/16) · L4 row (12, 8/12) · L5 control (8, 44) · L6 mark. No card in a card. [UI-18,
   UI-78 «il 3 è più bello chiaramente», «ricordati del padding tra le schedine», CONTRA-01] — Today: built.
-- **VIS-05** Target sizes (rule: PRD-12): `--touch` 44; `--touch-dense` 36 only inside a 44 px row (act
-  pills, chips, water +250/+500); calendar cells ≥ 36 × 46 at 320 px; rail 20 wide. Every box fits at
+- **VIS-05** Target sizes (rule: PRD-12): `--touch` 44 is what a finger hits; a button or chip drawn
+  smaller (`--ctl-h` 40, `--ctl-dense` 32, VIS-105) keeps a strip that tops it up to 44 (`::before`,
+  counted by `ui-check`); `--touch-dense` 36 only inside a 44 px row; calendar cells ≥ 36 × 46 at 320 px; rail 20 wide. Every box fits at
   390/360/320 and at 360 px with 120 % text. [UI-19, UI-59, UI-84, UI-89 agent, V7] — Today: built
   (10 targets under 44 at 390). Open: PRD-12 says never under 44.
 - **VIS-06** Scrollbars: none on touch; with a mouse only the sideways rows show a thin one (the
@@ -241,7 +242,9 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   left are one kit piece on the measured scale (VIS-105). [his §101, bars-study §21.7]
 - **VIS-105** **Foundations**: spacing 4 · 8 · 12 · 16 · 24 · 40 (2 only for seams); six type sizes,
   each with one line height, weights 400 · 600 · 700; radii 2 · 4 · 8 · 12 · 16 · 20 · 999; controls
-  44 (row, field, primary) and 36 (a pill in a 44 row), filled · outlined · quiet; identity colours
+  drawn 40 (primary, secondary) and 32 (a pill, a chip, a door) with 14 px words, a field 44, every
+  one touched over 44 (an invisible strip, PRD-12; his 20 Nov «diminuire le proporzioni generali di
+  tutti i bottoni», §131), filled · outlined · quiet; identity colours
   and herb · warn · tomato at one OKLCH lightness and chroma (L 0.78 · C 0.112 in dark), only the hue
   changes. [his «yc» 20 Nov, bars-study §23.3–§23.4] — Today: in `tokens.css` and the kit classes,
   no guard yet (a value off the scale should fail, as hex does); the surfaces' ladder not done; open:

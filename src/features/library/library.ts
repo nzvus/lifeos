@@ -59,6 +59,8 @@ export type LibraryRow = {
     parts: { name: string; score: number; weight: number }[];
     missing: string[];
   };
+  /** An esercizio: its best e1RM per session, oldest first, and its facts in words (§130 next). */
+  exercise?: { trend: { d: string; v: number }[]; facts: string[] };
   /** A cibo's marche, most used first: listed in its open box (his 20 Nov, §129). */
   products?: Product[];
   /** A cibo: what its box holds when it opens in place (PAT-30 level 1), 100 g of it. */
@@ -405,11 +407,21 @@ export function exerciseRows(
   }[],
   log: ReadonlyMap<string, readonly ExerciseSession[]>,
   dayWords: (day: string) => string,
+  /** Its facts' words (movimento, attrezzo), from the caller's catalogue (PAT-81). */
+  factWords: (x: {
+    pattern?: string | null;
+    equipment?: string | null;
+  }) => string[] = () => [],
 ): LibraryRow[] {
   return exercises.map((x) => {
     const sessions = log.get(x.id) ?? [];
     const last = sessions[0];
     const latest = sessions.find((s) => s.best !== null)?.best;
+    // The last 12 sessions with a best, oldest first: its trend (ATT-43).
+    const trend = sessions
+      .flatMap((s) => (s.best !== null ? [{ d: s.day, v: s.best }] : []))
+      .slice(0, 12)
+      .reverse();
     return {
       key: x.id,
       href: "/corpo/esercizio/" + x.id,
@@ -418,6 +430,7 @@ export function exerciseRows(
       ...(x.aliases?.length ? { also: x.aliases.join(" ") } : {}),
       uses: sessions.length,
       values: latest ? { e1rm: latest } : {},
+      exercise: { trend, facts: factWords(x) },
       of: {
         ...(x.pattern ? { pattern: x.pattern } : {}),
         ...(x.equipment ? { equipment: x.equipment } : {}),
