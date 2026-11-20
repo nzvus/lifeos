@@ -86,6 +86,7 @@ export function mealScore(
   if (meal.kind.key !== "meal") return undefined;
   return linesScore(
     meal.lines.map((l) => ({
+      key: l.id,
       quantity: l.quantity,
       values: l.values,
       estimates: l.itemId ? estimates.get(l.itemId) : undefined,

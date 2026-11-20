@@ -1380,6 +1380,47 @@
     until it is a box too). Not yet: the schede (a server list, no client verbs), rinomina and
     collegamenti in place (ACT-25, with the in-place edits). Photos `planbox/elenco-actions.png`;
     **waits for his word**.
+139. **21 Nov, his word on §134–§138 (rejected):** «hm, no non va bene, il problema è che la
+    posizione di ogni cosa dovrebbe essere astratta e uniformata, almeno delle cose comuni. e poi il
+    cibo è orribile così, spaziato in quel modo, la marca che crea tutto quello spazio. anche il resto
+    non va bene, mi chiedo poi quanto dovrà cambiare pensando alle modifiche in place. e poi in
+    realtà le azioni son collegate alle visualizzazioni, devo essere in grado di vedere i nutrienti
+    per modificarli, ma vorrei anche vedere i voti come cambiano dinamicamente, forse la cosa più
+    inutile sono i macro, che per i pasti invece di tutte quelle barre possono averne una unica come
+    quella attuale dei voti. e magari mostri sempre i pezzettini di ogni contributo di ogni
+    ingrediente a ogni macro, come avviene per la scheda generale immagino però su un piano diverso.
+    e tra l'altro, magari i blocchettini piccoli cambiano con il tipo di visualizzazione, per esempio
+    nutrienti/ingredienti. in effetti quelli che adesso chiamiamo nutrienti in realtà sono
+    ingredienti. i nutrienti sono le origini che creano i blocchettini attualmente nella scheda
+    generale di oggi. o e poi se si tocca e quindi si sta modificando uno degli ingredienti, la
+    barra illumina tutti i blocchettini che la riguardano (dato che in modalità modifica sarebbe in
+    visualizzazione ingredienti) e come ti dicevo, anche i voti devono essere visualizzati, magari in
+    una barra sotto a quella dei macro ma riconoscibilmente diversa. e allo stesso modo, alla
+    modifica e o al tocco di un ingrediente, i contributi apportati ai voti da quell'ingrediente si
+    illuminano? non lo so». Claude's reading, for his answer: (1) one **anatomy** for every Box, fixed
+    zones for what is common; (2) actions and views are one thing: editing needs the view it
+    changes, and the voto must move as he edits; (3) a meal's four macro bars become **one bar**
+    (like the voto's), its blocks always split by contributor, in two modes — by ingredient · by
+    nutrient kind (the «origins» of «Il giorno») — editing puts it in the ingredient mode; (4) a
+    touched ingredient lights its blocks (VIS-50 already says it for level 2) and, maybe, its part
+    of the voto, in a **voto bar** under the macro bar, drawn unlike it. Nothing more is built on
+    the box until he answers.
+140. **21 Nov, his word:** «be e non pensi che ci dovrebbe essere un collegamento diretto tra i voti
+    di un pasto e gli ingredienti che lo compongono? perché di fatti c'è. i singoli ingredienti hanno
+    voti, quindi si dovrebbe partire da quelli, o meglio si potrebbe, e robe di densità e altri
+    criteri usano anche quelli, quindi perché non evidenziare un legame che esiste». Claude was
+    wrong in §139 («an ingredient adds no fixed share»): `core/food/score.ts` `foodParts` builds
+    every criterion from **sums over the lines** — density from the nutrients' totals against the
+    meal's kcal, the limits from totals of salt, saturated fat, free sugars, trans — and a cibo is
+    scored by the same function on its own (its voto per 100 kcal). So each criterion's input is
+    each ingredient's amount added up, and per kcal the meal's value is the kcal-weighted mix of its
+    ingredients' values; only the last step (density capped at 100 %, the limits' 1…2 ramp) bends
+    it. The link exists and can be drawn exactly at the input level.
+141. **21 Nov, his «yc» on §139–§140 (all four: one anatomy; the voto bar split by ingredient, live;
+    spec first, then one meal box as photos, #372 stays open; «Ingredienti» · «Nutrienti»), and:**
+    «utilizza questa cosa dei voti applicata anche al resto, esempio, esercizi singoli magari hanno
+    voti, le sessioni quindi sono loro aggregati in qualche modo, quindi stesso pattern. e tutto
+    questo ovviamente vale anche per discorsi futuri sull'andamento».
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

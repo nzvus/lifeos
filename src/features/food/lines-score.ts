@@ -7,7 +7,7 @@ import type { BoxEntry } from "@lifeos/kit";
 import type { FoodTargets } from "@/core/day";
 import { FOOD, score, type Weights } from "@/core/engines/judgements";
 import type { MicroTarget } from "@/core/engines/targets";
-import { foodParts, partsOf, type MealWhen } from "@/core/food/score";
+import { foodParts, lineShares, partsOf, type MealWhen } from "@/core/food/score";
 
 export const PART_WORDS: Record<string, string> = {
   density: "densità di nutrienti",
@@ -48,23 +48,27 @@ export function linesScore(
   weights?: Weights,
 ): BoxEntry["score"] | undefined {
   if (targets === null) return undefined;
-  const parts = foodParts(
-    lines,
-    servings,
-    {
-      kcal: targets.kcal,
-      // A day without a protein or fibre target: that nutrient is left out of density.
-      protein: targets.protein ?? 0,
-      fibre: targets.fibre ?? 0,
-      micros: Object.fromEntries((microTargets ?? []).map((t) => [t.micro, t.value])),
-    },
-    when,
-  );
+  const refs = {
+    kcal: targets.kcal,
+    // A day without a protein or fibre target: that nutrient is left out of density.
+    protein: targets.protein ?? 0,
+    fibre: targets.fibre ?? 0,
+    micros: Object.fromEntries((microTargets ?? []).map((t) => [t.micro, t.value])),
+  };
+  const parts = foodParts(lines, servings, refs, when);
   // Without density (too few nutrients known) only the limits would speak: «no excess» is
   // not «good food» (a cake scored 100 on them alone). No score then.
   if (!parts || parts.density === null) return undefined;
   const s = score(FOOD, { ...partsOf(parts), fit }, weights);
   if (s.value === null) return undefined;
+  // Each line's share of each criterion's input (MOD-61): the link the voto bar draws.
+  const shares = lineShares(lines, servings, refs, when);
+  const split = (key: string) => {
+    const xs = shares[key] ?? [];
+    return xs.length === lines.length && lines.length > 1
+      ? { split: Object.fromEntries(lines.map((l, i) => [l.key ?? String(i), xs[i]!])) }
+      : {};
+  };
   // Over its allowance: the limit that decided it, by name.
   const worst = Object.entries(parts.detail.limits).sort((a, b) => b[1] - a[1])[0];
   const over = worst && worst[1] > 1 ? " · " + (LIMIT_WORDS[worst[0]] ?? worst[0]) : "";
@@ -74,6 +78,7 @@ export function linesScore(
       name: (PART_WORDS[p.key] ?? p.key) + (p.key === "limits" ? over : ""),
       score: p.score,
       weight: p.weight,
+      ...split(p.key),
     })),
     missing: s.missing.map(
       (k) => (PART_WORDS[k] ?? k) + " (" + (MISSING_WHY[k] ?? "pochi dati") + ")",

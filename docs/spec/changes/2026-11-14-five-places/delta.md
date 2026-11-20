@@ -109,6 +109,39 @@
   is a filter of Elenco (the formati in casa), with no planning. [his «yc» q7–q8, 20 Nov]
 
 ## ADDED
+- **PAT-102** (patterns.md) **One anatomy for every Box** (his §139, «yc» §141): the same zones in
+  the same order for every type, so what is common is always in one place — (1) the **head**: icon ·
+  name · value · voto chip (VIS-40, VIS-43); (2) the type's **one bar** (VIS-106); (3) the **voto
+  bar** (VIS-107); (4) **one sideways row** for the bar's mode, a choice (a cibo's marca: one chip
+  that opens its list, never its own row) and the actions (PAT-101); (5) the open **panel** of the
+  zone touched. A zone with nothing to say is left out, never kept empty; shut, a Box shows (1)
+  and a thin (2). Editing happens on the zone that shows the value (PAT-13): the parts' amounts in
+  (2)'s parts mode, with (3) recomputed as he types. WHEN a type's Box is drawn THEN its zones are
+  these, in this order, from `PlanBox` (§132), never placed by the type. [his 21 Nov, §139–§141]
+- **VIS-106** (visual.md) **One bar for a thing made of parts** (§139): a meal's four macro bars
+  become one bar like the voto's, its blocks always split by contributor; two modes — **by part**
+  (a meal: «Ingredienti»; a sessione: its esercizi; a day: its voci) and **by kind** (a meal:
+  «Nutrienti», the origins «Il giorno» draws today, VIS-50) — the mode a chip in zone (4). Editing
+  a part puts the bar in the by-part mode; a touched part lights its blocks and dims the rest
+  (VIS-50's light, now everywhere). The level-1 rows (each macro with its zones ruler, VIS-52) stay
+  behind the bar's door. [his 21 Nov]
+- **VIS-107** (visual.md) **The voto bar** (§139–§140): under the type's bar and drawn unlike it —
+  the skyline's columns (one per criterion, as wide as its weight, as full as its score, in its
+  band's colour, VIS-43) — each column split by part, a part's piece its share of that criterion's
+  input (MOD-61); each part carries its own voto chip; a touched or edited part lights its pieces
+  in both bars at once; while editing, the voto is recomputed live; «senza questo: 64 → 71» lives
+  in the «Perché?» (PAT-51), not on the bar. A criterion that does not come from the parts (a
+  meal's «momento», a price missing) is drawn whole, unsplit. [his 21 Nov]
+- **MOD-61** (model.md) **A whole's voto from its parts** (§140–§141): a part and its whole are
+  scored by the same model, and the whole's criterion inputs are its parts' amounts added up (a
+  meal ← its righe: density, limits, quality from totals, per kcal the kcal-weighted mix — exact
+  today in `core/food/score.ts`); the same for a sessione ← its esercizi (progression, volume,
+  effort, rests over their sets: an esercizio gets its own voto), a day ← its voci, a period ← its
+  days (Andamento). The engine gives each part's share of each criterion's input, so a view draws
+  the link (VIS-107); only the last step (a cap, a ramp) is the whole's own. WHEN a whole is judged
+  THEN each part's share of each criterion is known, or the criterion says it is not split.
+  [his 21 Nov: «i singoli ingredienti hanno voti, quindi si dovrebbe partire da quelli»; «esercizi
+  singoli… le sessioni quindi sono loro aggregati… vale anche… sull'andamento»]
 - **PAT-101** (patterns.md) **The box's actions row** (his §135, «yc» 20 Nov): open, every Box draws
   the actions of its object that `orca/actions.md` places «on its card» as one sideways row (the
   `ChipRow` look, never wrapping, VIS-06), above the choices row (a cibo's marche) and the doors;
