@@ -82,7 +82,9 @@ themes beyond dark · goals with no data (log them or remove them). Each comes b
 - **PRD-41** A change is a folder `docs/spec/changes/YYYY-MM-DD-name/` with `proposal.md`
   (why, his words), `delta.md` (requirements ADDED / MODIFIED / REMOVED, WHEN/THEN) and
   `tasks.md`. Approved → built → the delta is merged into the spec and the folder moves to
-  `changes/archive/`. One change open at a time. [PROD-38, OpenSpec model]
+  `changes/archive/`. One change open at a time. A change runs as one or more rounds of
+  ADR-0064 (ORCA tables in `orca/`, Double Diamond, zoom Z1–Z5, stops A and B); its proposal
+  says its **Zoom** and its **ORCA cells**. [PROD-38, OpenSpec model, ADR-0064]
 - **PRD-42** A requirement is «built» only when a test cites its ID. `check.py` reads «Today:
   built» in the spec (in `patterns.md`: a kit ✓ with no ✗) and fails when no test under
   `src`, `e2e`, `eslint`, `packages/kit` or `scripts` names the ID, unless the ID is in

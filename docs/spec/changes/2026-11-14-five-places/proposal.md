@@ -1,5 +1,8 @@
 # Five places by action — proposal (ADR-0063)
 
+**Zoom:** Z4 → Z3 → Z2 and back (round 1 of ADR-0064, `method.md` §8).
+**ORCA cells:** every row of `docs/spec/orca/` — round 1 writes all four tables (stop A).
+
 ## Why (the user's words)
 - **12 Nov (W-03):** «you did not follow what was my original purposes, also, it is still redundunt
   and confusing, and messy, and slow». The design part of that is this change; the code and process
@@ -1188,6 +1191,18 @@
     before the first pass; (6) `PROJECT.md` archived to `docs/archive/` (its pitch is in product.md
     §1), done with step (5) since the `adr` skill and `check.py` read it (undo: `git mv` back).
     Next, in a new session: ADR-0064 → `change` skill + `check.py` + `orca/` schema → round 1 at Z4.
+118. **20 Nov, the method set up** (his «leggi l'handoff e imposta il metodo: ADR-0064, poi skill
+    change e check.py, poi il round 1»). Done: ADR-0064; PRD-41 cites it; `docs/spec/orca/` with its
+    schema (README) and four empty tables; `check.py` checks the schema, the links to OBJ rows, every
+    registry key (`eslint/type-keys.json`) against `objects`, the proposal's **Zoom** and **ORCA
+    cells**, and (changes from 21 Nov) that each delta row cites a cell or a zoom; the `change`
+    skill gains the triage and the rounds; `PROJECT.md` and the `kickoff` skill archived. Decided by
+    Claude, each with its undo: (a) prefixes REL- ACT- ATT- beside OBJ- (undo: rename in
+    `orca/README.md` and `check.py`); (b) instrument «word» and question «name» for a name or a
+    note, which no instrument draws (undo: drop them from `ORCA_VALUES`); (c) an empty table is not
+    checked until round 1 writes it (undo: the `if objects` guard); (d) the kickoff skill archived
+    with `PROJECT.md`, which it filled (undo: `git mv` back). Not yet a check: «one card per
+    object» (method §6) — a code guard, built in round 1's Deliver.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

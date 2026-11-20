@@ -10,7 +10,8 @@ Health check now:
 
 Read-only until he answers: the audit reports, it does not fix.
 
-1. Scope: one spec file (`product`, `model`, `patterns`, a `domains/` file) or all of them.
+1. Scope: one spec file (`product`, `model`, `patterns`, a `domains/` file) or all of them; the `orca/`
+   tables too (ADR-0064): each ✓ row against the registry and the screens, ○ rows built since.
 2. For each requirement: read the code its «Today» line names; mark **ok** (code does it, a
    test cites the ID), **untested** (code does it, no test cites the ID), **drift** (code does
    something else: say what, with `file:line`), **missing**.

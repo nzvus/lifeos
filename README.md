@@ -13,7 +13,6 @@ skills live on here and in `~/Projects/fleet`).
 | File | What it tells you |
 |---|---|
 | `CLAUDE.md` | Rules and conventions for anyone (human or agent) working here |
-| `PROJECT.md` | What is being built and why; invariants; non-goals |
 | `ARCHITECTURE.md` | How the code is shaped right now (2-minute read) |
 | `ROADMAP.md` | Backlog, current sprint, what's done |
 | `docs/spec/` | The specification: every feature, datum, formula and source; issues and proposals per area |
