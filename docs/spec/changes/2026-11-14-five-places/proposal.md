@@ -1169,6 +1169,11 @@
     dicendo? anche più complessi e standardizzati? non possiamo seguire quelli?» Answer: yes — the
     methods he describes exist (chat, 20 Nov); reframe §16 (one card first) is withdrawn; his to
     pick: the method.
+115. **20 Nov, his words:** «ok, inizia a pensare a come vada preimpostato tutto questo framework,
+    anche per cambiamenti futuri a tutto il progetto». Read as: OOUX/ORCA in Double Diamond rounds
+    taken as the direction («ok»). Answer: `method.md` in this change (draft) — the ORCA tables and
+    their home, the zoom levels, a round's steps and stops, every future request through the same
+    door, the checks, what it folds, the first pass; his to settle: its §9 (then ADR-0064).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
