@@ -1071,6 +1071,16 @@
     §23.4 says what changed, two corrections to §23.2–23.3, and what is left. Undo: revert the
     commit (tokens.css, kit.css, .prettierignore, the kit photos). Open, his: the gym's 52 px
     stepper; the surfaces' ladder, shown before it is changed.
+105. **20 Nov, his words:** «yc. in ogni caso non conta molto tutto questo, o per lo meno solo come
+    pre step. anche perché solo le pagine Oggi e Come valutiamo e Elenco per ora vanno bene. tutte
+    le altre sono obsolete, o forse te ne sei dimenticato. oltretutto vale anche per tutte le altre
+    che non hai mostrato. non contando poi che ovviamente stiamo lavorando su un sistema di
+    visualizzazione che toccherà ovviamente anche le card di Oggi, Elenco e Come valutiamo». Taken:
+    (1) «yc» on the gym's stepper = the first option, it stays 52 px (undo: `.k-step.big` 44);
+    (2) **the current pages are Oggi, Come valutiamo and Elenco; every other page is obsolete**
+    (written nowhere before: now in `.claude/rules/design.md`); the foundations (§23) are a pre-step;
+    the visual system (§21–§22) is built on the cards of those three pages. Measuring seven
+    obsolete pages in §23 was wasted work; the counts stand only for the shared kit.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
