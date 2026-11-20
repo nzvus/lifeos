@@ -185,6 +185,26 @@ export type HeatStrip = {
   tip: string | null;
 };
 
+/** A micro's colour: its group's (`--crit-n`, in order), lighter for each next item. */
+export const microShade = (group: number, item: number, of: number) =>
+  `color-mix(in srgb, var(--crit-${(group % 6) + 1}) ${Math.round(100 - (item / Math.max(1, of)) * 55)}%, var(--sheet))`;
+
+/** A ramp through the zones' colours: each at its zone's middle, blended to the next. */
+export function kcalRamp(zones: HeatStrip["zones"]): string {
+  let x = 0;
+  const stops = zones
+    .map((z) => {
+      const w = parseFloat(z.w);
+      const mid = x + w / 2;
+      x += w;
+      return w > 0 ? `${z.c} ${mid.toFixed(1)}%` : null;
+    })
+    .filter((s): s is string => s !== null);
+  return stops.length > 1
+    ? `linear-gradient(to right, ${stops.join(", ")})`
+    : `linear-gradient(${stops[0] ?? "var(--kcal)"}, ${stops[0] ?? "var(--kcal)"})`;
+}
+
 const at = (v: number, scale: number) =>
   Math.max(0, Math.min(100, (v / scale) * 100)).toFixed(1) + "%";
 
@@ -343,6 +363,18 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
                   pw: pct(Math.min(planned, Math.max(0, scale - k.v)), scale),
                 },
           strip: h?.strip ?? null,
+          /**
+           * The fill as a ramp through the zones' colours, laid over the whole ruler (his 17 Nov:
+           * «la barra delle calorie può cambiare colore in base ai range… più graduale»): each
+           * zone's colour at its middle, blended between, so the fill ends in its zone's colour.
+           */
+          ramp:
+            h?.strip && scale !== null && k.v > 0
+              ? {
+                  image: kcalRamp(h.strip.zones),
+                  size: ((scale / Math.min(k.v, scale)) * 100).toFixed(1) + "% 100%",
+                }
+              : null,
           mark: h?.strip && t !== null && scale !== null ? pct(t, scale) : null,
           aria:
             "Energia: " +
@@ -536,9 +568,9 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
   const micros = d.micros
     ? {
         summary: d.micros.summary,
-        groups: d.micros.groups.map((g) => ({
+        groups: d.micros.groups.map((g, gi) => ({
           name: g.name,
-          items: g.items.map((i) => {
+          items: g.items.map((i, ii) => {
             const scale =
               i.t === null
                 ? null
@@ -556,7 +588,19 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
                 scale === null
                   ? "0%"
                   : Math.min(100, (i.v / scale) * 100).toFixed(0) + "%",
-              color: F.tone(h.state ?? i.state),
+              /**
+               * Its identity, as a macro's kinds (his pick of 19 Nov): its group's colour, a
+               * lighter shade for each next one; the band is the zones line and the tip.
+               */
+              color: microShade(gi, ii, g.items.length),
+              /** As a macro's row (his 19 Nov «gli stessi criteri delle macro»): the amount, the
+               *  target after it, the target's tick on the bar. */
+              // the unit once, after the target, as a macro writes it («180,5 / 168 g»)
+              amount: i.t === null ? F.num(i.v, i.unit) : F.n(i.v, i.v < 10 ? 1 : 0),
+              target: i.t === null ? null : F.num(i.t, i.unit),
+              mark: scale === null || i.t === null ? null : pct(i.t, scale),
+              /** Fine as it is: it may stand on the condensed line (PAT-40). */
+              ok: (h.state ?? i.state) === "good",
               strip: h.strip,
               aria:
                 i.name +

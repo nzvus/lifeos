@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   energyStrip,
+  kcalRamp,
   nutrientsL1 as rows,
   shade,
   type NutrientsData,
@@ -106,7 +107,7 @@ describe("Nutrients L1", () => {
     ]);
   });
 
-  it("writes the micros against their targets, coloured by the page's state", () => {
+  it("writes the micros against their targets, each in its group's colour, the fine ones marked (his 19 Nov)", () => {
     const { micros } = nutrientsL1({
       macros: [],
       micros: {
@@ -123,11 +124,15 @@ describe("Nutrients L1", () => {
         ],
       },
     });
-    expect(micros!.groups[0]!.items.map((i) => [i.v, i.w, i.color])).toEqual([
-      ["4 / 15 µg", "27%", "var(--tomato)"],
-      ["120 / 110 mg", "100%", "var(--herb)"],
-      ["50 µg", "0%", "var(--ink)"],
+    expect(micros!.groups[0]!.items.map((i) => [i.v, i.w, i.ok])).toEqual([
+      ["4 / 15 µg", "27%", false],
+      ["120 / 110 mg", "100%", true],
+      ["50 µg", "0%", false],
     ]);
+    // a group's colour, lighter for each next item (as a macro's kinds)
+    const c = micros!.groups[0]!.items.map((i) => i.color);
+    expect(c[0]).toBe("color-mix(in srgb, var(--crit-1) 100%, var(--sheet))");
+    expect(c[1]).toContain("var(--crit-1) 82%");
   });
 
   it("judges the maxima as ceilings", () => {
@@ -357,5 +362,65 @@ describe("energyStrip: a closed meal's strip (VIS-40)", () => {
     const w = energyStrip({ ...meal, kcal: { v: 500 } }).reduce((a, s) => a + s.w, 0);
     expect(w).toBeCloseTo(100, 0);
     expect(energyStrip({ macros: [{ key: "protein", v: 0 }] })).toEqual([]);
+  });
+});
+
+describe("the kcal bar coloured by its zones, a gradual ramp (VIS-50, VIS-52; his 17 Nov)", () => {
+  const zones = [
+    { from: 0, level: "bad" as const },
+    { from: 1700, level: "fair" as const },
+    { from: 1900, level: "good" as const },
+    { from: 2300, level: "fair" as const },
+  ];
+  it("each zone's colour at its middle, blended to the next", () => {
+    const r = kcalRamp([
+      { w: "50%", c: "var(--heat-bad)", danger: false },
+      { w: "50%", c: "var(--heat-good)", danger: false },
+    ]);
+    expect(r).toBe(
+      "linear-gradient(to right, var(--heat-bad) 25.0%, var(--heat-good) 75.0%)",
+    );
+  });
+  it("a day with zones gets the ramp laid over the whole ruler; without zones, none", () => {
+    const k = rows({ kcal: { v: 2000, t: 2100, zones }, macros: [] }).kcal!;
+    expect(k.ramp!.image).toContain("var(--heat-good)");
+    // the fill is 2000 of a scale of max(2100 × 1.3, 2000 × 1.05) = 2730: the ramp is 136.5 %
+    expect(k.ramp!.size).toBe("136.5% 100%");
+    expect(rows({ kcal: { v: 2000, t: 2100 }, macros: [] }).kcal!.ramp).toBeNull();
+  });
+});
+
+describe("a micro is a macro's row (VIS-50, VIS-52; his 19 Nov «gli stessi criteri delle macro»)", () => {
+  it("its amount / target with the unit once, the target's tick, the zones ruler", () => {
+    const { micros } = rows({
+      macros: [],
+      micros: {
+        summary: "",
+        groups: [
+          {
+            name: "Vitamine",
+            items: [
+              {
+                name: "C",
+                v: 80,
+                t: 110,
+                unit: "mg",
+                zones: [
+                  { from: 0, level: "bad" },
+                  { from: 77, level: "fair" },
+                  { from: 110, level: "good" },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+    const c = micros!.groups[0]!.items[0]!;
+    expect(c.amount).toBe("80");
+    expect(c.target!.replace(/ /g, " ")).toBe("110 mg");
+    // the tick at the target on a scale of max(80 × 1,05, 110 × 1,5) = 165
+    expect(c.mark).toBe("66.7%");
+    expect(c.strip!.ticks.length).toBeGreaterThan(0);
   });
 });

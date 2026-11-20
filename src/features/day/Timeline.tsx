@@ -38,6 +38,7 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
   end,
   gap,
   sum,
+  lead,
 }: {
   rows: R[];
   /** The current minute of the logical day, when the day is today. */
@@ -52,6 +53,8 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
   gap?: (from: number, to: number) => { href: string; what: string };
   /** A closed part's words («3 voci · 1.016 kcal») and icons, from its rows. */
   sum?: (rows: R[]) => { text: string; icons: GlyphOf[] };
+  /** What shares the first line with «Orari» (the day's filters): one line, not two. */
+  lead?: ReactNode;
 }) {
   const [times, setTimes] = useState(false);
   // Parts he opened or closed; the others follow `firstOpen`.
@@ -64,8 +67,11 @@ export function Timeline<R extends BoxEntry & { minute: number }>({
       <span className="line" />
     </div>
   );
+  // The filters and «Orari» on one line (his 19 Nov «i filtri sono spaziati male rispetto a
+  // sopra»: «Orari» stood alone on a second line); «Orari» keeps the line's end.
   const chip = (
-    <div className="k-line end">
+    <div className="k-line g2 k-tlhead">
+      {lead}
       <button type="button" className="k-chip" onClick={toggle} aria-pressed={times}>
         <Glyph of={{ ui: "time" }} size="s" />
         {times ? "Compatta" : "Orari"}

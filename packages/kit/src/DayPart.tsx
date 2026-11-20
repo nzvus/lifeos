@@ -9,13 +9,13 @@ import type { CSSProperties } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
 
-export type DayPartName = "Mattina" | "Mezzogiorno" | "Pomeriggio" | "Sera" | "Notte";
+export type DayPartName = "Mattina" | "Pomeriggio" | "Sera" | "Notte";
 
 /** Each part's sky (two colour tokens) and the sun's place on the arc (null: the moon). */
 const SKY: Record<DayPartName | "Fine giornata", [string, string, number | null]> = {
   Mattina: ["--macro-carbs", "--moment-breakfast", 0.2],
-  Mezzogiorno: ["--macro-fat", "--macro-carbs", 0.5],
-  Pomeriggio: ["--macro-carbs", "--warn", 0.75],
+  // one band from lunch to dinner (his 16 Nov, «Mezzogiorno meglio chiamarlo pomeriggio»)
+  Pomeriggio: ["--macro-fat", "--warn", 0.6],
   Sera: ["--warn", "--moment-dinner", 0.96],
   Notte: ["--moment-dinner", "--moment-dinner", null],
   "Fine giornata": ["--moment-dinner", "--hairline", null],

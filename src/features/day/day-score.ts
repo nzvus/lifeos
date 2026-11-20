@@ -137,7 +137,8 @@ export function dayScore(p: {
       score: q.score,
       weight: q.weight,
     })),
-    missing: s.missing.map((k) => WORDS[k] ?? k),
+    missing: s.missing.map((k) => (WORDS[k] ?? k) + " (mancano i dati)"),
+    how: "/oggi/andamento/come-valutiamo?modello=day",
   };
 }
 

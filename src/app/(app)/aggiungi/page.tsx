@@ -199,7 +199,7 @@ export default async function AddPage({
           ]
             .filter(Boolean)
             .join(" · "),
-          value: act.type === "done" ? "Fatto" : "›",
+          value: act.type === "done" ? "Fatto" : "",
           planned: false,
         },
         act,
@@ -230,7 +230,6 @@ export default async function AddPage({
         F.plural(r.exercises.length, "esercizio", "esercizi") +
         (r.uses ? " · " + r.uses + " volte in 90 giorni" : "") +
         " · inizia adesso",
-      value: "›",
     },
     act: { type: "gym", routineId: r.id },
     reason: "routine",
@@ -246,7 +245,7 @@ export default async function AddPage({
     entry: {
       ...kindEntry.get(key)!.entry,
       meta: F.plural(n, "volta", "volte") + " in 7 giorni",
-      value: key === "water" && oneTap ? "+500 ml" : "›",
+      value: key === "water" && oneTap ? "+500 ml" : "",
     },
     act:
       key === "water" && oneTap
@@ -428,7 +427,6 @@ export default async function AddPage({
                 fam: "food",
                 title: "Nuovo cibo",
                 meta: "a mano, dall’etichetta",
-                value: "›",
               }}
             />
           </a>
@@ -436,7 +434,7 @@ export default async function AddPage({
             <Box
               density="row"
               rail={false}
-              entry={{ fam: "train", title: "Nuovo esercizio", value: "›" }}
+              entry={{ fam: "train", title: "Nuovo esercizio" }}
             />
           </a>
           <a href="/oggi/tracker/nuovo" className="k-plain">
@@ -447,7 +445,6 @@ export default async function AddPage({
                 fam: "habit",
                 title: "Nuovo tracker",
                 meta: "qualsiasi cosa: un numero, un voto, un segno",
-                value: "›",
               }}
             />
           </a>

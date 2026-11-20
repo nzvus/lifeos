@@ -10,7 +10,9 @@
 import { useState, type CSSProperties } from "react";
 import { Glyph } from "./Glyph";
 import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
+import { Condensed } from "./Condensed";
 import { Fascia } from "./Fascia";
+import { WORDS } from "./words";
 
 /**
  * `part`: «main» the kcal, the foods and the four macros; «rest» the limits and the vitamins
@@ -49,7 +51,15 @@ export function Nutrients({
               role="img"
               aria-label={kcal.aria}
             >
-              <span className="k-seg kcal" style={{ width: kcal.bar.w }} />
+              <span
+                className="k-seg kcal"
+                style={{
+                  width: kcal.bar.w,
+                  ...(kcal.ramp
+                    ? { backgroundImage: kcal.ramp.image, backgroundSize: kcal.ramp.size }
+                    : {}),
+                }}
+              />
               <span className="k-seg kcal planned" style={{ width: kcal.bar.pw }} />
               {kcal.mark && <span className="k-mark" style={{ left: kcal.mark }} />}
               {kcal.strip && <Fascia strip={kcal.strip} />}
@@ -228,27 +238,62 @@ export function Nutrients({
           </button>
           <div className={"k-reveal" + (open === "micro" ? " on" : "")}>
             <div>
-              <div className="k-kinds g3">
-                {micros.groups.map((g) => (
-                  <div key={g.name} className="k-stack">
-                    <span className="k-cap">{g.name}</span>
-                    {g.items.map((i) => (
-                      <div
-                        key={i.name}
-                        className="k-krow k-microw"
-                        role="img"
-                        aria-label={i.aria}
-                      >
-                        <span className="k-body">{i.name}</span>
-                        <span className={"k-bar" + (i.strip ? " zoned" : "")}>
-                          <i style={{ width: i.w, background: i.color }} />
-                          {i.strip && <Fascia strip={i.strip} />}
+              <div className="k-kinds g3 flat">
+                {micros.groups.map((g) => {
+                  // A micro is a macro's row (VIS-50/52, his 19 Nov «gli stessi criteri delle
+                  // macro»): its name and amount / target, the full-width bar in its colour, the
+                  // target's tick, the zones ruler with its amounts, the tip in its zone's colour.
+                  const row = (i: (typeof g.items)[number]) => (
+                    <div
+                      key={i.name}
+                      className="k-mrow k-mmicro"
+                      role="img"
+                      aria-label={i.aria}
+                    >
+                      <span className="k-line between">
+                        <span className="k-label">{i.name}</span>
+                        <span className="k-num b2">
+                          {i.amount}
+                          {i.target && <span className="k-meta"> / {i.target}</span>}
                         </span>
-                        <span className="k-num b3 k-right">{i.v}</span>
-                      </div>
-                    ))}
-                  </div>
-                ))}
+                      </span>
+                      <span className={"k-track" + (i.strip ? " zoned" : "")}>
+                        <span
+                          className="k-seg"
+                          style={{ width: i.w, background: i.color }}
+                        />
+                        {i.mark && <span className="k-mark" style={{ left: i.mark }} />}
+                        {i.strip && <Fascia strip={i.strip} />}
+                      </span>
+                    </div>
+                  );
+                  const fine = g.items.filter((i) => i.ok);
+                  return (
+                    <div key={g.name} className="k-stack">
+                      <span className="k-cap">{g.name}</span>
+                      {/* rows for what is not fine; the fine ones on one line (PAT-40, his 19 Nov) */}
+                      {g.items.filter((i) => !i.ok).map(row)}
+                      {fine.length > 0 && (
+                        <Condensed
+                          label={WORDS.fine}
+                          remember={"micro.ok." + g.name}
+                          names={fine.map((i) => (
+                            <>
+                              <span
+                                className="k-cid"
+                                style={{ background: i.color }}
+                                aria-hidden="true"
+                              />{" "}
+                              {i.name}
+                            </>
+                          ))}
+                        >
+                          <div className="k-stack">{fine.map(row)}</div>
+                        </Condensed>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

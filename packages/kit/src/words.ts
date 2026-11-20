@@ -21,6 +21,11 @@ export const WORDS = {
   sections: { progress: "Andamento", usedIn: "Usato in" },
   less: "Meno",
   score: "Voto",
+  scoreMissing: "Non contano",
+  scoreFull: "Pieni",
+  fine: "A posto",
+  scoreHow: "Come valutiamo ›",
+  weighs: (pct: number) => `pesa ${pct} %`,
   plus: "Di più",
   status: { planned: "previsto", done: "fatto", skipped: "saltato" },
   verbs: {

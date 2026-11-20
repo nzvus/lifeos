@@ -123,7 +123,7 @@ export function measureHeads() {
   const centre = (el: Element | null): number | null => {
     if (!el || !(el as HTMLElement).offsetParent) return null;
     let q = el.getBoundingClientRect();
-    if (!el.matches("button, .k-btn, .k-go, .k-vsky")) {
+    if (!el.matches("button, .k-btn, .k-vsky")) {
       const t = [el, ...el.querySelectorAll("*")].find((x) =>
         [...x.childNodes].some((n) => n.nodeType === 3 && n.textContent?.trim()),
       );
@@ -144,13 +144,7 @@ export function measureHeads() {
     seen++;
     const title = centre(line.querySelector(".k-title"));
     if (title === null) continue;
-    const parts = [
-      ".k-hright .k-num",
-      ".k-vsky",
-      ".k-vh .n b",
-      ".k-trail .k-btn",
-      ".k-trail .k-go",
-    ]
+    const parts = [".k-hright .k-num", ".k-vsky", ".k-vh .n b", ".k-trail .k-btn"]
       .map((s) => [s, centre(line.querySelector(s))] as const)
       .filter((p): p is readonly [string, number] => p[1] !== null)
       .filter(([, y]) => Math.abs(y - title) <= 16);
@@ -179,14 +173,13 @@ export function measureHeads() {
         off.push(
           `«${line.querySelector(".k-title")?.textContent?.slice(0, 20)}»: ${s} ${Math.round((y - title) * 10) / 10} px off the title`,
         );
-    // the icon: centred on the head and its meta line while the box is shut, on the title's
-    // line when open (his 16 Nov «centrare le icone… invece di metterle in alto»)
+    // the icon: on the title's line, shut and open, so it never moves when the box opens
+    // (his 19 Nov «le icone in alto a sinistra è meglio che stiano ferme»)
     const icon = top.querySelector(":scope > .k-lead .k-glyph");
     const g = icon?.getBoundingClientRect();
     if (g && g.height > 0) {
       const y = g.top + g.height / 2;
-      const b = top.getBoundingClientRect();
-      const want = box.classList.contains("is-open") ? title : b.top + b.height / 2;
+      const want = title;
       if (Math.abs(y - want) > 1.5)
         off.push(
           `«${tEl?.textContent?.slice(0, 20)}»: its icon ${Math.round((y - want) * 10) / 10} px off the centre`,
@@ -196,5 +189,60 @@ export function measureHeads() {
   // a page with boxes but none measured means the markup moved under this check
   if (seen === 0 && document.querySelector(".k-box .k-title"))
     off.push("no Box head was measured: the selectors no longer match the kit");
+  return off.slice(0, 10);
+}
+
+/**
+ * A Box's lines (his 19 Nov: «problemi di spaziature, padding, simmetrie… come la scheda
+ * dell'acqua»; measured 8 · 11 · 0 · 23 px on four boxes): every line under the head starts
+ * `--sp-2` below the one above; lines side by side (a bar beside its actions) count as one.
+ * Also a head that wrapped while its title had room left (the water's, 19 Nov).
+ */
+export function measureBoxLines() {
+  const want = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue("--sp-2"),
+  );
+  const off: string[] = [];
+  // every line of the box, whatever its class: its children in the flow, and the lines of
+  // the block that opens (`.k-more`), never the drawing
+  const linesOf = (box: Element) =>
+    [...box.children].flatMap((c) =>
+      c.matches(".k-more") ? [...c.querySelectorAll(":scope > div > *")] : [c],
+    );
+  for (const box of document.querySelectorAll(".k-box")) {
+    const title =
+      box.querySelector(".k-title")?.textContent?.slice(0, 20) ?? box.className;
+    const lines = linesOf(box)
+      .filter((e) => {
+        const cs = getComputedStyle(e);
+        return (
+          cs.display !== "none" && cs.position !== "absolute" && cs.position !== "fixed"
+        );
+      })
+      .map((e) => e.getBoundingClientRect())
+      .filter((r) => r.height > 0)
+      .sort((a, b) => a.top - b.top);
+    let bottom: number | null = null;
+    for (const r of lines) {
+      if (bottom !== null && r.top >= bottom - 0.5) {
+        const g = Math.round((r.top - bottom) * 10) / 10;
+        if (Math.abs(g - want) > 1)
+          off.push(`«${title}»: lines ${g} px apart (want ${want})`);
+      }
+      bottom = bottom === null ? r.bottom : Math.max(bottom, r.bottom);
+    }
+    const lead = box.querySelector(":scope > .k-top .k-hlead");
+    const right = box.querySelector(":scope > .k-top .k-hright");
+    const t = box.querySelector(":scope > .k-top .k-title");
+    if (lead && right && t) {
+      const a = lead.getBoundingClientRect();
+      const b = right.getBoundingClientRect();
+      const short = (t as HTMLElement).scrollWidth <= (t as HTMLElement).clientWidth;
+      const head = box.querySelector(":scope > .k-top .k-head")!.getBoundingClientRect();
+      const room = head.right - a.left - (t as HTMLElement).scrollWidth - 8 - b.width;
+      if (b.top >= a.bottom - 4 && short && room > 0)
+        off.push(`«${title}»: head wrapped with ${Math.round(room)} px left on its line`);
+    }
+  }
   return off.slice(0, 10);
 }

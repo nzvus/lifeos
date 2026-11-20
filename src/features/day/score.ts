@@ -177,7 +177,8 @@ function boxScore(
       score: p.score,
       weight: p.weight,
     })),
-    missing: s.missing.map((k) => words[k] ?? k),
+    missing: s.missing.map((k) => (words[k] ?? k) + " (mancano i dati)"),
+    how: "/oggi/andamento/come-valutiamo?modello=" + model.id,
   };
 }
 

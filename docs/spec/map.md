@@ -5,12 +5,12 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **72** · kit pieces: **43**
+- routes: **42** · screen components outside the kit: **72** · kit pieces: **48**
 - components that take input (a form, a field): **37**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
 - components with an inline `style`: **8**
-- kit pieces no screen uses: **5** · components no route reaches: **0**
+- kit pieces no screen uses: **6** · components no route reaches: **0**
 
 ## 1. Where a quantity, a time or a date is typed
 One row per component. The target is one way to type each of them (VIS-86, PAT-13, PAT-61).
@@ -41,7 +41,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 ### app · other (1)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `app/(app)/oggi/day-page.tsx` | 787 | AreaFilter, Box, DateNav, Glyph, Nutrients | 2 form | 2 |
+| `app/(app)/oggi/day-page.tsx` | 786 | AreaFilter, Box, DateNav, Glyph, Nutrients | 2 form | 2 |
 
 ### features/account (5)
 | component | lines | kit pieces | by hand | routes |
@@ -84,7 +84,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/library/BarcodeBox.tsx` | 308 | Glyph | 2 input | 4 |
 | `features/library/ExerciseForm.tsx` | 90 | Field, PageHeader | 1 form | 4 |
 | `features/library/FoodForm.tsx` | 209 | Field, Glyph, PageHeader | 3 input, 1 form | 4 |
-| `features/library/Library.tsx` | 392 | Box, Field, MealBox | 2 input | 2 |
+| `features/library/Library.tsx` | 398 | Box, Field, MealBox | 2 input | 2 |
 | `features/library/PantryActions.tsx` | 56 | ObjectForm, Sheet | — | 2 |
 | `features/library/RouteForm.tsx` | 112 | Field, PageHeader | 1 form | 1 |
 
@@ -177,7 +177,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `List` | 12 | app/(app)/[area]/[type]/[id]/block-extra.tsx, app/(app)/[area]/[type]/[id]/cycle-extra.tsx, app/(app)/[area]/[type]/[id]/exercise-extra.tsx … (12) |
 | `Glyph` | 10 | app/(app)/oggi/day-page.tsx, features/day/DayView.tsx, features/day/QuickIntakes.tsx … (10) |
 | `AreaFilter` | 7 | app/(app)/[area]/andamento/money-page.tsx, app/(app)/[area]/area-index.tsx, app/(app)/[area]/elenco/shelves.tsx … (7) |
-| `Nutrients` | 5 | app/(app)/[area]/[type]/[id]/food-extra.tsx, app/(app)/oggi/day-page.tsx, features/day/DayView.tsx … (5) |
+| `Nutrients` | 6 | app/(app)/[area]/[type]/[id]/food-extra.tsx, app/(app)/oggi/day-page.tsx, features/day/DayView.tsx … (6) |
 | `Banner` | 4 | features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx, features/plan/CycleComposer.tsx … (4) |
 | `Composer` | 4 | features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx, features/plan/CycleComposer.tsx … (4) |
 | `Find` | 4 | features/food/FoodSearch.tsx, features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx … (4) |
@@ -203,12 +203,17 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `EntryDetails` | 1 | features/day/EntryRow.tsx |
 | `EntryHeader` | 1 | features/gallery/Pieces.tsx |
 | `FasciaBar` | 1 | features/gallery/Pieces.tsx |
+| `Forms` | 1 | app/(app)/kit/page.tsx |
 | `Judge` | 1 | features/gallery/Pieces.tsx |
+| `MeasureDays` | 1 | app/(app)/kit/page.tsx |
+| `MeasureTree` | 1 | app/(app)/kit/page.tsx |
 | `NavBar` | 1 | features/shell/AppNav.tsx |
 | `NutrientsL0` | 1 | features/day/DayView.tsx |
+| `Ridge` | 1 | app/(app)/kit/page.tsx |
 | `SortChips` | 1 | features/gallery/Pieces.tsx |
 | `Stepper` | 1 | features/day/WaterRow.tsx |
 | `Why` | 1 | features/gallery/Pieces.tsx |
+| `Criteria` | 0 | **no screen** (inside the kit only, or unused) |
 | `Fascia` | 0 | **no screen** (inside the kit only, or unused) |
 | `Recurrence` | 0 | **no screen** (inside the kit only, or unused) |
 | `SheetInline` | 0 | **no screen** (inside the kit only, or unused) |

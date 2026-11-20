@@ -77,7 +77,13 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
 ## 5. The Box
 - **VIS-40** One Box for every item (PAT-12: whole surface). Head = icon · title · value or score chip ·
   at most one short action; more, or a long one, on their own line bottom right. One line per row,
-  details on open; `card` (L3) or `row` (L4). Inside by family: Nutrients L0 (food), muscle strip
+  details on open; `card` (L3) or `row` (L4). Taps (his 19 Nov «interagibili per intero… l'effetto
+  "tocco" fa lampeggiare male»): closed, a tap anywhere opens it; open, its head closes it; no
+  side arrow — a box that opens and has a page says «Apri» inside it; no browser flash, a press
+  lightens the piece. Spacing (his 19 Nov «spaziature, padding, simmetrie»): the icon sits on
+  the first line and never moves when the box opens; every line under the head is `--sp-2` below
+  the one above, an empty block takes no room; the head stays one line while the title keeps six
+  letters; numbers end at the box's edge, on its surface, no patch; no «›» as a value. Inside by family: Nutrients L0 (food), muscle strip
   (training), need bar (water). [UI-26, UI-29, UI-30, UI-33, UI-84 «il tasto di aggiunta dell'acqua ha
   sempre sbordato e non te ne sei mai reso conto»] — Today: built.
 - **VIS-41** Silhouettes (L3/L4, from the registry) change only corners, rims, corner bites — pranzo
@@ -93,14 +99,26 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   (VIS-52), skyline small in the head (width = weight, fill = score, dashed at 70). ≤ 360 px: the
   skyline smaller, never gone (his 15 Nov, proposal §35); the number said once. [UI-03 «graficamente fanno schifo», UI-75 «a livello informativo
   meglio 1 e 3, una combinazione?» → agent, UI-102 «non vedo bene la miniatura delle valutazioni»,
-  UI-89] — Today: built in `Box`; skyline in `features/day/score.ts`, not the kit (partial).
+  UI-89] Open (his pick of 19 Nov, C «punti», with the macros' grammar): one bar of 100 points,
+  a stretch per criterion as wide as its weight, in the criterion's own colour (`--crit-n`, the
+  model's order), filled to its score, the rest hatched; its zones under it, the tip in its zone's
+  colour; planned hatched (VIS-22); a row only for what lost points («10 su 39 −29», costliest
+  first), the full ones on one «Pieni» line; then the hint, «Non contano: criterion (why)»,
+  «Come valutiamo ›». — Today: built in `Box`;
+  skyline in `features/day/score.ts`, not the kit (partial).
 
 ## 6. Nutrient bar and zones ruler
 - **VIS-50** One `Nutrients`, one shape {eaten, planned, band, target, state}: L0-box (four thin macro
   bars, whole grams) · L0-ribbon · L1 (every nutrient, macro accordions) · L2 (foods × kinds). Macros
   split by kind in fixed shades; planned hatched; the target a moving tick; sugars, saturated, salt named
   by the icon; L1/L2 open like a Box, icons grow and tilt, a tapped food lights in every row.
-  [UI-68 «tutte le barre dei macro… un unico tipo», UI-50, UI-55, UI-31, UI-02, D5] — Today: built.
+  [UI-68 «tutte le barre dei macro… un unico tipo», UI-50, UI-55, UI-31, UI-02, D5] Micros (his picks of 19 Nov): a micro is a macro's row — name, amount / target with
+  the unit once, the full-width bar, the target's tick, the zones ruler with its amounts, the tip
+  by zone — in its group's colour (vitamins, minerals, …: `--crit-n` in order), lighter for each
+  next one; the fine ones on one condensed «A posto» line (PAT-40). The kcal bar
+  has no macro colour: where it has zones its fill is a ramp through the zones'
+  colours, each at its zone's middle, blended, ending in its zone's colour (his 17 Nov «può
+  cambiare colore in base ai range… più graduale»). — Today: built.
 - **VIS-51** Bars by meaning, none hand-drawn: track (`--track` 6, `--tick` 2) · segments (`--segs` 8,
   1 px gaps) · skyline · time rail (VIS-60); full width. [UI-23, UI-64] — Today: built (skyline: VIS-43).
 - **VIS-52** Zones «nella stessa barra… attaccata e sottile»: fill eaten, then planned hatched; under it a
@@ -115,7 +133,7 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   times and icons; bar 4 wide in the domain hue, on `--t-box`; it gains space, never takes it. [UI-50
   «una verticale colorata… con gli orari in verticale molto molto snelli», UI-77 «no, il tuo consiglio
   non mi piace», CONTRA-02, c13] — Today: built.
-- **VIS-61** Parts of the day: full-width sky bands (mattina … notte) from his meal-role bounds (MOD-60),
+- **VIS-61** Parts of the day: full-width sky bands (mattina · pomeriggio · sera · notte; lunch and snack share «pomeriggio», his 16 Nov) from his meal-role bounds (MOD-60),
   sun on the arc, moon at night, rising once; they cut the rail; drawn only when begun or holding
   something; empty passed parts merge into «niente». «Fine giornata» closes; untimed things below as
   cards. A role's meals grouped only if adjacent and ≤ 60 min apart. [UI-77 «per i separé volevo delle

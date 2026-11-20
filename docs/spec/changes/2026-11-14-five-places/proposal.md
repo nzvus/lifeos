@@ -690,6 +690,238 @@
     Still open from §56 (7): a trend chart per exercise and the session's voto over time in
     Andamento — screens he must see. Undo: `git revert`.
 
+64. **19 Nov, «yc for everything»: his notes of 13–19 Nov, moved here from the inbox** (verbatim,
+    with Claude's pick under each; «yc» does not cover a design he has not seen, so each UI pick
+    is shown as photos first).
+    - «Quanto dovrebbero contare la durata dei recuperi per i riscaldamenti? Le durate non
+      dovrebbero essere piu dinamiche in base agli sforzi appena fatti?» (13 Nov) → a rule for
+      `domains/training.md` (rest after a warm-up set short, rest after a work set from its RIR
+      and load). Pick: a new TR row, built with the gym's redesign; numbers with their source.
+    - «Mezzogiorno meglio chiamarlo pomeriggio» (16 Nov) → **answered «yc» 19 Nov = (a), built**; was: «Pomeriggio»
+      already names the snack band (VIS-61, from his meal-role bounds), so a rename collides.
+      Options: (a) the lunch and snack bands become one «Pomeriggio» (four bands) —
+      recommended; (b) the lunch band «Pranzo»; (c) another word of his.
+    - «non mi piace come viene indentato, spaziato il calendario della settimana in alto, anche
+      la sua modalità piu espansa, è brutta, va rifatta» (17 Nov) → the week strip (VIS-63) is
+      redone; its levels stay. Shown as photos, one level at a time.
+    - «la barra delle calorie puo cambiare colore in base ai range, e puo anche essere piu
+      graduale la sua palette» (17 Nov) → VIS-50/VIS-52 for kcal: the fill takes its zone's
+      colour, a graded ramp instead of a macro colour. Pick: build in the kit gallery, show. **Built 19 Nov**
+      (VIS-50; photos `LIFEOS/review/2026-11-19/kcal/`): the fill is a ramp through the zones'
+      colours laid over the whole ruler; without zones it stays ink. Decided by Claude: each
+      zone's colour at its middle (not hard edges); the planned part keeps its hatch. Undo:
+      `git revert`.
+    - «non vedo piu le icone quando le fasce temporali della giornata sono minimizzate» (17 Nov)
+      → a regression of VIS-60/VIS-61: icons stay in a folded band. Pick: restore, no new design.
+    - «Quando clicco, i riquadri o i bottoni, non hanno le giuste interazioni… Molti pezzi
+      dovrebbero essere interagibili per intero e non solo da una freccia affianco, che dovrebbe
+      essere invece tolta. Inoltre l'effetto "tocco" fa lampeggiare male quelle sezioni»
+      (19 Nov) → a pattern for every piece (VIS-40, VIS-90): the whole Box is the target, the
+      side arrow goes, one pressed state without the flash. Pick: one kit change, so every
+      screen gets it; first in this change's queue, before the exercise box (§59 builds on it). **Built 19 Nov** (VIS-40; photos `LIFEOS/review/2026-11-19/taps/`): no «›» on any Box; a
+      closed box that opens opens from any spot; open, «Apri» leads to its page; no browser
+      flash, a press lightens the box. Not changed: a link-only box is a link over its title
+      line only (the line under it is not yet; `.k-top` is positioned to sit above the drawing).
+    - «Le pagine e schede di aggiunta, come di modifica, dovrebbero tutte essere toccate dai
+      cambiamenti che stiamo apportando. Fosse per me renderei unica la pagina di
+      visualizzazione che quella di modifica. Ovviamente dovrebbe contenere tutto e anche opzioni
+      in piu, non meno» (19 Nov) → one page per object to see and edit (PAT-13 «InPlace» on
+      `ObjectPage`, PAT-30, PAT-61); the add pages follow. Pick: a delta to PAT-30/PAT-61,
+      object type by object type; nothing either page holds today is lost.
+    - «In voto, densità sarebbe proteica? E limiti? Sembra fatto male e poi che significa
+      "senza: valore, adatto al piano, momento"? E poi perché ci sono 2 righe? Come valutiamo
+      dovrebbe essere raggiungibile anche da li?» (19 Nov) → the meal's open voto (VIS-43,
+      PAT-51): each criterion named in his words («densità proteica»), the limits shown as
+      criteria, «senza: …» rewritten as «non contano ancora: …» with why, one line per
+      criterion, and a «Come valutiamo ›» link. The two lines: to check on his photo. **Built 19 Nov**
+      (VIS-43; photos `LIFEOS/review/2026-11-19/voto/`, gallery `box-livello-2` now photographed):
+      every voto (meal, water, sleep, weigh-in, session, day) opens one line per criterion —
+      mark, name, ruler, number with «pesa n %» under it; «Non contano: valore (manca il
+      prezzo) · momento (conta vicino all'allenamento o al sonno)…» after them; «Come valutiamo ›»
+      to the model's page. «densità» is «densità di nutrienti» (protein × quality, fibre,
+      vitamins, minerals, omega-3 per 100 kcal: not protein only); «limiti» was already a
+      criterion when the limits are known. Decided by Claude: the reasons' words; «pochi dati»
+      and «mancano i dati» where the engine gives no reason. Undo: `git revert`.
+    - «E poi i filtri sono spaziati male rispetto a sopra» (19 Nov) → the filter chips' gap to
+      the piece above: a spacing rule in `e2e/layout.ts`, never a one-screen fix. **Built 19 Nov**
+      (photos `LIFEOS/review/2026-11-19/filters/`): the day's filters and «Orari» are one
+      line when they fit, else «Orari» under them at the end; a band of the day has no margin
+      of its own, so filters → «Orari» → band → band are all 12 (they were 12 · 20 · 20).
+      Tried and dropped: a section inset of 16 like a box (the five chips no longer fit one
+      row at 360 and 390).
+    Order (Claude's): the regression (icons) → taps (kit) → the voto → one page see/edit → week
+    strip → kcal bar → rests. Undo: move the lines back to the inbox.
+
+65. **19 Nov evening, his words on the tap photos:** «yeah ok yc, ma dalle foto che mi fai vedere
+    vedo che ci sono comunque quei problemi di spaziature, padding, simmetrie e posizionamenti
+    formattati male. inoltre quando si estendono, le icone in alto a sinistra è meglio che
+    stiano ferme, e non si decentrino. so che ti avevo detto diversamente prima, ma adesso
+    realizzo che è meglio fare diversamente. inoltre mi pare che ti avessi dato gia dei
+    feedback simili. un esempio è sulla scheda dell'acqua, vedi quanto è spaziata male? come
+    quella molte altre». The taps are approved. His 16 Nov «centrare le icone… invece di
+    metterle in alto» is replaced: a Box's icon does not move when it opens (VIS-40). The
+    spacing is a pattern, never a fix per box: measured on every Box (`e2e/layout.ts`). **Built 19 Nov**
+    (VIS-40; `LIFEOS/review/2026-11-19/spacing/`, before/after of 7 pages in `cmp/`): the icon on
+    the first line always; one `--sp-2` between a box's lines (they were 8 · 11 · 0 · 23); the
+    water head on one line (the title kept 8 em, now 6); the head number with no patch and no
+    4 px inset; «›» gone as a Box value (Aggiungi, Palestra, gym start). Seen, not changed: the
+    meal's four macro bars are short with a wide gap to the grams (Nutrients L0, its own pattern).
+66. **19 Nov night, his words:** «"Seen but not changed" yes solve it and remember all
+    visualizations occurrencies. and procede too» — the short macro bars with a wide gap to the
+    grams (Nutrients L0, VIS-50) are fixed in the piece, so every place that draws it changes,
+    each photographed; then on with §64's order (the meal's voto next). **Built 19 Nov:** the four
+    bars (`NutrientsL0` in `.k-slot-l0`, the only short one) use the box's width, grams on its
+    edge, in all four places that draw them: a meal open on Oggi, a pasto in Elenco, a pasto's
+    page, the gallery (photos `LIFEOS/review/2026-11-19/bars/`); the other nutrient bars («Il
+    giorno», the composer) were already full width. The corner drawing (9 % opacity) stays
+    below them. `measureBoxLines` now counts every line of a box, open too.
+67. **19 Nov night, his words on the voto photos:** «i voti non mi piacciono per nulla, prendono
+    troppo spazio e sono spaziati male, anche qui la barra dovrebbe avere la priorità e essere in
+    tutta lunghezza se possibile, non dovrebbe esserci cosi tanto spazio tra di loro, inoltre la
+    parte di sinistra credo si possa mettere sulla barra stessa per guadagnare spazio. anzi in
+    realtà si potrebbe ripensare completamente. dammi un po di proposte che si presterebbero
+    bene, pensando a tutte le feature che dovrebbe avere, non trascurando quelle attuali». The
+    one-line criteria of §64 (VIS-43) are rejected; proposals in the `/kit` gallery, his pick. **Proposals built 19 Nov** (`packages/kit/src/Criteria.tsx`, gallery `#voto-proposte`,
+    photos `LIFEOS/review/2026-11-19/voto-proposte/index.html`, his numbers): A «nella barra»
+    (his idea: one full-length bar per criterion, the words on it), B «colonne» (the skyline
+    grown big, a legend), C «punti» (one bar of 100 points, what each criterion lost, the
+    costliest first). Claude recommends **A**, with C's «−29» beside the number as an option.
+    The app keeps the old panel until he picks (`Box` `scoreLook`).
+68. **19 Nov night, his pick and his words:** «la c è quella che preferisco, ma si potrebbe usare
+    lo stesso criterio per colori e range e forme che usiamo nei macro. cosa che tra l'altro
+    andrebbe fatta anche per i micro. colori per identificarli e pattern di riempimento delle
+    barre per identificarli così come range e interazioni con la pianificazione. inoltre
+    un'altra cosa fondamentale, è che si dovrebbero inserire gestioni più intelligenti del
+    design, tramite minimizzazione, estendibilità e scorrimento o altro, insomma per evitare
+    listoni e abusi di spazi. te ne avevo parlato già più volte nel caso degli oggetti
+    dell'elenco che possono aumentare all'infinito, ma vale anche semplicemente quando vengono
+    listati più di tot elementi. va pensato come condensare l'informazione ma mostrarla anche
+    interamente». Three things: (1) the voto is C «punti», drawn with the macros' grammar
+    (VIS-50/52: an identity colour and fill per part, the zones, the planned hatch); (2) the
+    micros the same; (3) a rule for any list past a few items: condensed, yet all of it
+    reachable (PAT-40 today: 8 rows, then «Mostra altri»). **(1) built 19 Nov** (VIS-43, `Criteria.tsx`,
+    gallery `#voto`, photos `LIFEOS/review/2026-11-19/voto-c/`): the Porridge's panel from ≈ 420
+    px to 166. Decided by Claude: the six identity colours are the muscles' palette (checked for
+    contrast); a criterion's row only when it lost ≥ 0,5 points. A and B removed. **His picks,
+    19 Nov:** (2) micros: a colour per group (vitamins, minerals, …), each micro a shade of it,
+    as a macro's kinds; full-length bars, zones under them, tip by zone, planned hatched.
+    (3) long lists: «condensed line, opens in place» — the items that matter most as rows
+    (worst first, or most used), the rest on one line naming every one («e altri 14: A · C ·
+    …»), which opens in place to the full list; the level remembered per piece (VIS-70). A
+    pattern for every list (PAT-40 changes), the voto's «Pieni» line its first use. His
+    words on it, 19 Nov: «si ma anche i "Non contano" andrebbero condensati» — the names on one
+    line, the reasons on open. **(2) and (3) built 19 Nov** (PAT-40, VIS-50; kit `Condensed`, photos
+    `LIFEOS/review/2026-11-19/condensed/`): micros in their group's shades, the fine ones on
+    «A posto»; the voto's «Pieni» and «Non contano» condensed; `List` past 8 rows names the rest
+    on one line (Elenco: «e altri 111: …»). Decided by Claude: the word «A posto» (fine: ok or
+    ottimo); two lines at most closed; micros have no planned part yet (no data). Not yet: the
+    other 15 `List` uses pass names (each falls back to «Mostra altri» until it does).
+69. **19 Nov night, his words on the micros photo:** «i micro sono orribili, sempre stesso
+    problema, poco spazio alle barre, troppe scritte, spaziature pessime». The rule he set for the
+    voto (§67) holds for every bar: the bar first and full length, the words on it, few numbers,
+    tight rows. Proposals in the gallery (`#micro-proposte`), his pick.
+70. **19 Nov night, his words on M1/M2:** «ti avevo detto di usare gli stessi criteri delle
+    macro riguardo colori, range eccetera». M1 and M2 dropped: a micro is drawn by the macros' own
+    row (VIS-50/52: its bar, the target tick, the zones ruler with its amounts, the tip, the word),
+    in its group's colour — the same piece, not a lookalike. **Built 19 Nov** (photos
+    `LIFEOS/review/2026-11-19/micro-macro/`, a macro row above the micros).
+71. **19 Nov night, his words on the micros as macro rows:** «no non va bene, in effetti era meglio
+    prima. senti e se a questo punto, coerentemente con il sistema delle occorrenze, ripensiamo a
+    tutti i tipi di visualizzatori a barre dei nutrienti, limiti, voti e tutto quello che potrebbe
+    poi richiederlo? facciamo uno studio per unificare tutto e inserire tutte le funzionalità e
+    visualizzazioni che vengono richieste in un elemento base comune». A study first
+    (`bars-study.md` in this change): every bar in the app, what each needs, one base element;
+    options, his pick, then code. Which «prima» he prefers for the micros: asked with the study.
+72. **19 Nov night, his «yc» on the bars study and his words:** «yc, comunque la scritta sulla
+    barra non mi piace perché la rende troppo grossa, ma allo stesso tempo fuori le toglie spazio,
+    sia che sia a lato o sopra. se glie lo togli in lunghezza è sempre brutto, se lo metti sopra
+    dipende da quanto spazio togli. oppure potresti valutare altri tipi completamente diversi di
+    visualizzazione, non necessariamente barre». «yc» = (a) one `Meter`; sizes: no words on the
+    bar; for the micros «prima» = the group-shade rows (Claude's reading: M1 had words on the bar).
+    Next: proposals of other forms (thin words above with zones as the bar's background, tiles,
+    rings) on his micros, photographed, his pick before `Meter` is built.
+73. **20 Nov, his words on the forms:** «ma il punto è che alcune metriche sono aggregati che
+    contribuiscono ad altri valori sommari che vanno visualizzati anch'essi. cosa che c'era nei
+    macro e nei voti. e si potrebbe creare un costrutto in generale per le categorie comuni, per
+    esempio mi parlavi delle categorie per i micro. i cerchi singoli sono troppo dispersivi, le
+    linee singole troppo effetto elenco. inoltre non tengono conto di pianificazione e aggregati?
+    inoltre i range inferiscono una sorta di valutazione quindi anche quello va pensato. questi
+    sistemi poi dovranno molto probabilmente essere riutilizzati nelle visualizzazioni degli
+    andamenti, che mostrerà dati anche molto più specifici e particolari, probabilmente di
+    aggregati di varie informazioni che sarebbe meglio poter far inferire da come vengono
+    renderizzati. densità informativa. magari online trovi qualcosa?». V1–V3 rejected (rings too
+    scattered, lines too much a list); the base element must show a hierarchy (parts → summary),
+    the plan, the ranges as judgement, and serve Andamento. Research first (bars-study §7).
+74. **20 Nov, his words on the measure tree:** «non mi fa impazzire, e poi dovresti rivedere tutto
+    anche applicando diversi gradi di espandibilità. per ogni tipo di informazione. e comunque non
+    mi fa impazzire questo stile». The tree's style is rejected; the content per level of
+    expansion is decided first, as a table per type of information (bars-study §8, his 15 Nov
+    «decidere per tabelle»), then the style from references he picks; no more drawings before.
+75. **20 Nov, his words:** «lo stile non puoi renderizzarmelo qui quindi non mi puoi far scegliere se
+    non me li fai vedere. per quanto riguarda la tabella, non mi va di leggerla, però posso dirti
+    che, ovviamente, l'estendibilità è un compromesso, sarebbe meglio avere meno livelli di
+    estendibilità ma con la più alta densità informativa ma allo stesso tempo semplice, bello da
+    vedere. dato che riuseremo e o modificheremo o comunque torneremo spesso su questo, bisogna
+    capire quando questi tradeoff determinano cosa. e poi anche le varie dimensioni di esposizione
+    dell'informazione, colori, dimensioni, pattern graficI, forme... cos'altro?». Styles are chosen
+    only from rendered samples; the trade-offs and the visual channels become written rules
+    (bars-study §9) so every later change follows them.
+76. **20 Nov, his words on the grammar:** «e ovviamente è sempre preferibile usare quelle dimensioni
+    che il testo, senza perdere informatività». Rule 4 of bars-study §9 made strict.
+77. **20 Nov, his words on the grammar:** «e poi alcune dimensioni si prestano meglio a rendere più
+    chiara la loro scala, il loro valore. ovviamente l'informazione massima è data dai numeri,
+    immagino, solo che anche loro vanno affiancati da altri dimensioni, più facilmente da altri
+    numeri o unità di misura. noi però non vogliamo troppo testo». Rule 7 of bars-study §9.
+78. **20 Nov, his words on the three styles:** «sì e tra l'altro nemmeno mi piacciono molto». Pieno,
+    calmo, denso rejected too. Open: the style, from new rendered samples that follow §9 (rules
+    1–7), started in a fresh session (his question on the context's size).
+79. **20 Nov, his words:** «leggi l'handoff e riparti dai campioni di stile delle barre». Round 2
+    built (bars-study §10): colonne · quadretti · rosa, each a different main channel on the same
+    blocks, photos `LIFEOS/review/2026-11-20/stili2/`. Open: his pick.
+80. **20 Nov, his words on round 2:** «they all suck badly. non si capisce nulla ed e sono brutti. la
+    comprensibilità è importante, non solo come leggere la visualizzazione, ma anche far capire la
+    scala e eventuali range o comunque tutte le dimensioni che vuoi. e poi ti ho detto che non
+    necessariamente devi mostrare tutto in un livello, magari imposti piu livelli. hm, pensa alle
+    visualizzazioni nei database, dati con un sacco di dimensioni, come funziona li? … drill down
+    dig up». Colonne · quadretti · rosa rejected. The scale and the ranges must be readable on the
+    drawing; more levels are allowed (bars-study §9 rule 1 changes); the model comes from OLAP
+    (drill-down, roll-up, slice, dice, pivot): bars-study §11.
+81. **20 Nov, his words:** «prima mostrami come lo fanno i tool reali. e poi tu potresti anche fare
+    qualcosa di tridimensionale no? permettendomi di ruotarlo e vederlo meglio, o magari tu gestisci
+    la rotazione e anche quella è una dimensione? non so come funziona». Next: real tools' pictures
+    (review page), and an answer on 3D (rotation as OLAP's pivot, faces kept flat).
+82. **20 Nov, his words on the real tools page:** «yeah combine the best things of them. make a study
+    and some proposals». Study: bars-study §12; proposals in the gallery (`/kit#drill`), photos
+    `LIFEOS/review/2026-11-20/drill/`.
+83. **20 Nov, his words on A · B · C:** «tutti brutti e fatti male, oltre che certe dimensioni
+    mostrate in modo ridondante da piu vettori, i range per esempio, non mi serve che scrivi "ok" o
+    "pessimo" se lo vedo gia dai colori, oltre che ti ho detto che vorrei evitare il testo. lasciamo
+    poi perdere che continui ad avere problemi nel dimensionare i bottoni, li fai sempre troppo
+    grossi (in questo caso i per macro per pasto e per momento, oltre che non si leggono
+    interamente). poi non mi sembra di vedere nulla di tridimensionale. mi piaceva di piu la
+    visualizzazione dei macro originale. e poi ti avevo detto che non puoi mettere testo+barra+testo
+    su stessa linea, toglie troppo spazio alla barra. e poi speravo facessi cose piu interessanti
+    delle semplici barre, come qualche poligono o solido tridimensionale. non lo so». A · B · C
+    rejected. Rules: a property carried by a channel is never also written (no range words when the
+    colour says it); no text · bar · text on one line (the bar gets the full width, §67); controls
+    small and fully readable; the original macro bars (VIS-50/52) are the base he likes. Next: a
+    polygon and a real 3D solid, rotatable, on his 9 Nov.
+84. **20 Nov, his words on the polygon and the solid:** «ok tridimensionale per ora no, pero potresti
+    migliorare la visualizzazione del poligono pero, magari non deve essere necessariamente quello.
+    e poi le scale? i range piu graduali e sfumati? molto spazio è sprecato, cosi come molte
+    dimensioni.» Then: «e comunque va trovato qualcosa per le cose in generale», and: «si ma il
+    poligono si presta come cosa centrale, non per tante cose o sbaglio? ecco magari determinate
+    famiglie di rappresentatori hanno scopi e momenti divers». The solid dropped for now; the
+    polygon reworked as the one central overview (bars-study §14); the families of
+    representations by purpose and moment, bars-study §14.
+85. **20 Nov, his words on the reworked polygon:** «il poligono è orribile». `Radar` removed; the
+    families table (bars-study §14) stays a draft; the next step is asked before any drawing.
+86. **20 Nov, his pick:** «Look at real apps first» (of: improve the original · real apps · his
+    reference). 10–15 screens from apps known for data views on one page; he marks what he likes;
+    the bars are built only from that. Page: `LIFEOS/review/2026-11-20/app-reali/`.
+87. **20 Nov, his words on the real apps page:** «non vedo nulla di straordinario, tu puoi fare di
+    meglio». Claude's own idea, built: the bar takes the shape of its ranges (bars-study §15,
+    `Ridge`), photos `LIFEOS/review/2026-11-20/crinale/`.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

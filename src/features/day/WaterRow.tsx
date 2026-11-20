@@ -64,13 +64,13 @@ function Drink({ d, setMl }: { d: Water["drinks"][number]; setMl: Water["setMl"]
   return (
     <div className="k-line between g2">
       {/* Its page still one tap away: there he removes it or changes its time (audit 15 Nov:
-          the link was dropped with the stepper). */}
+          the link was dropped with the stepper); the time is the link, no «›» (his 19 Nov). */}
       <a
         className="k-link k-body"
         href={"/voce/" + d.id}
         aria-label={"Apri la bevuta delle " + d.time}
       >
-        {d.time} ›
+        {d.time}
       </a>
       <Stepper
         id={"ml-" + d.id}

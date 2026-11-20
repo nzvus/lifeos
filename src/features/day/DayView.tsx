@@ -270,14 +270,10 @@ export function DayView({
   // and that ⊕ offers at that hour (UI-77): a gap offers the meal missing then, else ⊕.
   const parts: Part[] | undefined = clock && [
     { name: "Mattina", from: clock.boundaryMin, to: clock.roleBounds.lunchFrom },
-    {
-      name: "Mezzogiorno",
-      from: clock.roleBounds.lunchFrom,
-      to: clock.roleBounds.snackFrom,
-    },
+    // Lunch and snack share one band (his 16 Nov; proposal §64 (a)).
     {
       name: "Pomeriggio",
-      from: clock.roleBounds.snackFrom,
+      from: clock.roleBounds.lunchFrom,
       to: clock.roleBounds.dinnerFrom,
     },
     { name: "Sera", from: clock.roleBounds.dinnerFrom, to: 1440 },
@@ -300,64 +296,71 @@ export function DayView({
   // A day to come shows its parts even empty, each offering what to plan (PAT-97, his O7).
   const ahead = !!clock && !clock.gone && !now;
 
+  const filters = chips ? (
+    <nav className="k-chips" aria-label="Filtra la giornata">
+      {offered.fam.map((f) => {
+        const label = ICONS.domains[f.value]?.label ?? f.value;
+        return (
+          <button
+            key={f.value}
+            type="button"
+            className="k-chip"
+            aria-pressed={sel.fam.includes(f.value)}
+            aria-label={label + ", " + f.count}
+            onClick={() => choose("fam", f.value)}
+          >
+            <Glyph of={{ fam: f.value }} size="s" />
+            <span className="k-meta">{f.count}</span>
+          </button>
+        );
+      })}
+      {offered.status.map((s) => (
+        <button
+          key={s.value}
+          type="button"
+          className="k-chip"
+          aria-pressed={sel.status.includes(s.value)}
+          onClick={() => choose("status", s.value)}
+        >
+          {STATUS_LABEL[s.value as Status]}
+          <span className="k-meta">{s.count}</span>
+        </button>
+      ))}
+      {active && (
+        <button
+          type="button"
+          className="k-chip"
+          onClick={() => {
+            setSel(NONE);
+            try {
+              localStorage.removeItem(KEY);
+            } catch {
+              // Nothing remembered to clear.
+            }
+          }}
+        >
+          Azzera
+        </button>
+      )}
+    </nav>
+  ) : null;
+
   return (
     <>
-      {chips && (
-        <nav className="k-chips" aria-label="Filtra la giornata">
-          {offered.fam.map((f) => {
-            const label = ICONS.domains[f.value]?.label ?? f.value;
-            return (
-              <button
-                key={f.value}
-                type="button"
-                className="k-chip"
-                aria-pressed={sel.fam.includes(f.value)}
-                aria-label={label + ", " + f.count}
-                onClick={() => choose("fam", f.value)}
-              >
-                <Glyph of={{ fam: f.value }} size="s" />
-                <span className="k-meta">{f.count}</span>
-              </button>
-            );
-          })}
-          {offered.status.map((s) => (
-            <button
-              key={s.value}
-              type="button"
-              className="k-chip"
-              aria-pressed={sel.status.includes(s.value)}
-              onClick={() => choose("status", s.value)}
-            >
-              {STATUS_LABEL[s.value as Status]}
-              <span className="k-meta">{s.count}</span>
-            </button>
-          ))}
-          {active && (
-            <button
-              type="button"
-              className="k-chip"
-              onClick={() => {
-                setSel(NONE);
-                try {
-                  localStorage.removeItem(KEY);
-                } catch {
-                  // Nothing remembered to clear.
-                }
-              }}
-            >
-              Azzera
-            </button>
-          )}
-        </nav>
-      )}
       {shown.length === 0 && shownUntimed.length === 0 && !ahead ? (
-        <p className="k-empty k-meta">Nessuna voce con questi filtri.</p>
+        <>
+          {filters}
+          <p className="k-empty k-meta">Nessuna voce con questi filtri.</p>
+        </>
       ) : (
         <>
+          {/* no timeline (only untimed things): the filters stand alone */}
+          {!(shown.length > 0 || ahead) && filters}
           {(shown.length > 0 || ahead) && (
             <Timeline
               rows={shown}
               now={now}
+              lead={filters}
               {...(parts && gap && clock
                 ? {
                     parts,

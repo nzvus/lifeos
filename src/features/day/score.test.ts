@@ -124,7 +124,9 @@ describe("a food's score, per 100 kcal (meal-score.md §8)", () => {
     };
     const s = foodScore(bread, breadEst, targets, micros)!;
     expect(s.value).toBeLessThan(50);
-    expect(s.parts.find((p) => p.name === "densità")!.score).toBeLessThan(0.3);
+    expect(s.parts.find((p) => p.name === "densità di nutrienti")!.score).toBeLessThan(
+      0.3,
+    );
   });
   it("none for water or coffee, nor without the day's targets", () => {
     expect(foodScore({ kcal: "2" }, undefined, targets, micros)).toBeUndefined();
@@ -155,18 +157,19 @@ describe("a meal's score on the day", () => {
       microTargets({ sex: "male", age: 24 }),
     )!;
     expect(s.parts.map((p) => p.name)).toEqual([
-      "densità",
+      "densità di nutrienti",
       "limiti",
       "qualità dei carboidrati",
       "sazietà",
     ]);
     expect(s.missing).toEqual([
-      "valore",
-      "adatto al piano",
-      "qualità dei grassi",
-      "varietà",
-      "momento",
+      "valore (manca il prezzo)",
+      "adatto al piano (non è un pasto del piano)",
+      "qualità dei grassi (pochi dati)",
+      "varietà (pochi dati)",
+      "momento (conta vicino all'allenamento o al sonno)",
     ]);
+    expect(s.how).toBe("/oggi/andamento/come-valutiamo?modello=food");
     expect(s.value).toBeGreaterThanOrEqual(70);
     expect(s.parts.reduce((a, p) => a + p.weight, 0)).toBeCloseTo(1, 10);
   });
@@ -246,7 +249,7 @@ describe("a weigh-in's score", () => {
     const w = weighIn({ fasted: false });
     const s = weighScore(w, [breakfast, w], { ...ctx, weightGoal: null })!;
     expect(s.parts.find((p) => p.name === "pesata affidabile")!.score).toBeCloseTo(0.38);
-    expect(s.missing).toEqual(["ritmo vs obiettivo"]);
+    expect(s.missing).toEqual(["ritmo vs obiettivo (mancano i dati)"]);
   });
 
   it("none for a planned weigh-in", () => {
@@ -268,7 +271,10 @@ describe("a night's score", () => {
 
   it("regularity named missing with fewer than three nights before", () => {
     const s = sleepScore(night, [night], { ...ctx, nights: ctx.nights!.slice(1) })!;
-    expect(s.missing).toEqual(["regolarità", "notte senza risvegli"]);
+    expect(s.missing).toEqual([
+      "regolarità (mancano i dati)",
+      "notte senza risvegli (mancano i dati)",
+    ]);
   });
 
   it("a broken night is one night: the hours of both pieces, the time awake scored", () => {

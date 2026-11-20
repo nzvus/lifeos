@@ -9,6 +9,18 @@
  */
 import { notFound } from "next/navigation";
 import {
+  DAYS_EXAMPLE,
+  FORM_ITEMS,
+  MICROS_9NOV,
+  RIDGE_9NOV,
+  TREE_KCAL,
+  TREE_MICROS,
+  TREE_PLANNED,
+  TREE_PROTEIN,
+  TREE_VOTO,
+  VOTO_SAMPLES,
+} from "./samples";
+import {
   Box,
   Chart,
   DayPart,
@@ -17,6 +29,11 @@ import {
   Field,
   Glyph,
   MealBox,
+  Forms,
+  MeasureDays,
+  MeasureTree,
+  Ridge,
+  Nutrients,
   type BoxEntry,
 } from "@lifeos/kit";
 import { common } from "@/i18n/common";
@@ -87,7 +104,9 @@ const SCORE = {
     { name: "orario", score: 0.9, weight: 0.1 },
     { name: "regolarità", score: 0.55, weight: 0.2 },
   ],
-  missing: [],
+  // one criterion that does not count, with why, and its page (his 19 Nov)
+  missing: ["come ti senti (mancano i dati)"],
+  how: "/oggi/andamento/come-valutiamo?modello=sleep",
   action: "ti sono mancati " + F.hm(70) + " per arrivare a " + F.num(7, "h"),
 };
 
@@ -322,8 +341,7 @@ export default async function KitPage({
       <section className="k-section g2" id="parti" aria-label="Le parti del giorno">
         <h2>Le parti del giorno</h2>
         <DayPart name="Mattina" when="dalle 05:00" />
-        <DayPart name="Mezzogiorno" when="dalle 12:00" />
-        <DayPart name="Pomeriggio" when="dalle 15:00" empty />
+        <DayPart name="Pomeriggio" when="dalle 12:00" empty />
         <EmptyTime
           minutes={150}
           label="2 h 30 senza niente"
@@ -469,6 +487,91 @@ export default async function KitPage({
 
       {/* After the photographed pieces (e2e/kit.spec.ts): a section added above them moves
           them by a fraction of a pixel and fails their photos. */}
+      {/* The voto opened (VIS-43, his pick of 19 Nov: C «punti» with the macros' grammar), on his
+          own numbers: the Porridge of 9 Nov, his water, and a planned meal (hatched). */}
+      <section className="k-section g2" id="voto" aria-label="Il voto aperto">
+        <h2>Il voto aperto</h2>
+        {VOTO_SAMPLES.map(([key, label, entry]) => (
+          <div
+            key={key}
+            id={"voto-" + key}
+            role="group"
+            aria-label={label}
+            className="k-stack g1"
+          >
+            <span className="k-label">{label}</span>
+            <Box
+              entry={entry}
+              expanded
+              doors={[
+                {
+                  key: "nutrients",
+                  label: "Nutrienti",
+                  panel: <p className="k-meta">…</p>,
+                },
+              ]}
+              door="voto"
+            />
+          </div>
+        ))}
+      </section>
+
+      {/* The micros as macro rows in their group's colours (his 19 Nov «gli stessi criteri delle
+          macro»), on his micros of 9 Nov. */}
+      <section className="k-section g2" id="micro" aria-label="I micro">
+        <h2>I micro</h2>
+        <Nutrients data={MICROS_9NOV} part="rest" />
+      </section>
+
+      {/* Bars study §6 (his 19 Nov: no words on the bar; «altri tipi… non necessariamente
+          barre»): three forms on his micros of 9 Nov, every item shown (not condensed). */}
+      <section className="k-section g2" id="forme" aria-label="Forme: proposte">
+        <h2>Forme · proposte</h2>
+        {(
+          [
+            ["thin", "V1 · sottile (le fasce come sfondo)"],
+            ["tiles", "V2 · tessere"],
+            ["rings", "V3 · anelli"],
+          ] as const
+        ).map(([look, label]) => (
+          <div
+            key={look}
+            id={"forma-" + look}
+            role="group"
+            aria-label={label}
+            className="k-stack g1"
+          >
+            <span className="k-label">{label}</span>
+            <Forms items={FORM_ITEMS} look={look} />
+          </div>
+        ))}
+      </section>
+
+      {/* Bars study §7 (his 20 Nov «aggregati… densità informativa»): one construct, a node
+          and its children under it, on his 9 Nov. */}
+      <section
+        className="k-section g3"
+        id="albero"
+        aria-label="Misure e aggregati: prova"
+      >
+        <h2>Misure e aggregati · prova</h2>
+        <MeasureTree node={TREE_KCAL} />
+        <MeasureTree node={TREE_PLANNED} />
+        <MeasureTree node={TREE_PROTEIN} />
+        <MeasureTree node={TREE_VOTO} />
+        {TREE_MICROS.map((n) => (
+          <MeasureTree key={n.name} node={n} />
+        ))}
+        <MeasureDays {...DAYS_EXAMPLE} />
+      </section>
+
+      {/* Ridge (bars study §15, his 20 Nov «tu puoi fare di meglio»): the bar takes the shape of
+          its ranges; his 9 Nov as a ridgeline. */}
+      <section className="k-section g3" id="ridge" aria-label="Il giorno come crinale">
+        <h2>Il giorno come crinale</h2>
+        <Ridge measures={RIDGE_9NOV} unit="g" label="Il giorno" />
+      </section>
+
       <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">
         <h2>Box a livelli</h2>
         {LEVELS.map(([id, label, expanded, door]) => (

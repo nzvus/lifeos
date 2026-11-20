@@ -1,6 +1,14 @@
 /* lifeos kit — the one stylesheet every board links (docs/spec/patterns.md).
    Components: Box, Skyline, Nutrients. Pages pass data, never colours or sizes. */
 :root {
+  /* a voto's criteria, each its own colour in the model's order (his 19 Nov: «colori per
+     identificarli», as the macros): the muscles' six, checked for contrast on dark */
+  --crit-1: var(--muscle-back);
+  --crit-2: var(--muscle-legs);
+  --crit-3: var(--muscle-shoulders);
+  --crit-4: var(--muscle-arms);
+  --crit-5: var(--muscle-core);
+  --crit-6: var(--muscle-chest);
   --t-box: 0.5s;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   /* shapes.md §2: one scale each; pages never pass sizes, radii or spacing */
@@ -520,7 +528,7 @@
   font: inherit;
 }
 .k-head > .k-hlead {
-  /* the title keeps about eight letters before the head wraps; above that it shrinks with «…» */
+  /* the title keeps about six letters before the head wraps; above that it shrinks with «…» */
   flex: 1 1 8em;
   /* every head's first line is one height (the skyline's 28), so title, score, number and «›»
      share one centre, wrapped or not */
@@ -549,27 +557,20 @@
   outline-offset: 4px;
   border-radius: var(--r-mark);
 }
-.k-head .k-num,
-.k-go {
+/* the number sits above the drawing, on the box's own surface: no patch of its own (it showed on
+   boxes with another surface) and no inset (it ended 4 px short of the edge), his 19 Nov */
+.k-head .k-num {
   position: relative;
   z-index: 1;
-  background: var(--sheet);
-  border-radius: 4px;
-  padding: 0 4px;
-}
-.k-go {
-  color: var(--muted);
-  text-decoration: none;
-  font-family: var(--font-display);
-  font-size: var(--fs-d3);
-  padding: 0 4px;
 }
 .k-row.times .k-more {
   grid-template-rows: 0fr;
   opacity: 0;
 }
+/* the four bars use the box's width, grams on its right edge, like every other nutrient bar
+   (VIS-50; his 19 Nov: at 54 % the bars were short with a wide gap to the grams) */
 .k-slot-l0 {
-  width: 54%;
+  width: 100%;
 }
 
 /* ---------- skyline ---------- */
@@ -1592,7 +1593,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 4px;
-  margin-top: 6px;
+  margin-top: var(--sp-2);
 }
 .k-icons .k-ico {
   position: relative;
@@ -2533,14 +2534,14 @@
   width: 128px;
 }
 .k-bin {
-  margin-top: 12px;
+  margin-top: var(--sp-2);
 }
 .k-slot-l0,
 .k-bribbon,
 .k-bstrip,
 .k-bpills,
 .k-baction {
-  margin-top: 8px;
+  margin-top: var(--sp-2);
 }
 .k-bstrip {
   height: var(--track);
@@ -2659,10 +2660,6 @@
   font-family: var(--font-body);
   font-size: var(--fs-b2);
   color: #d6dcd8;
-}
-.k-crit {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--hairline);
 }
 .k-lock {
   display: inline-flex;
@@ -3734,21 +3731,19 @@ button.k-link {
 .k-row.times .k-top:not(.badged) {
   --indent: 0px;
 }
+/* the icon sits on the first line, closed and open: it never moves when the box opens (his
+   19 Nov «le icone in alto a sinistra è meglio che stiano ferme»; replaces his 16 Nov centring) */
 .k-top > .k-lead {
   position: absolute;
   left: 0;
   top: 0;
-  bottom: 0;
+  height: max(28px, var(--indent) - 8px);
   z-index: 1;
   width: calc(var(--indent) - 8px);
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-}
-.k-box.is-open .k-top > .k-lead {
-  bottom: auto;
-  height: max(28px, var(--indent) - 8px);
 }
 .k-top .k-head,
 .k-top > .k-sub {
@@ -3764,7 +3759,7 @@ button.k-link {
 }
 /* the icon left the title's span: the widths at which a head wraps count it as before */
 .k-top .k-head > .k-hlead {
-  flex-basis: calc(8em - var(--indent));
+  flex-basis: calc(6em - var(--indent));
 }
 .k-row.dense .k-top .k-head > .k-hlead {
   flex-basis: calc(5em - var(--indent));
@@ -3892,6 +3887,15 @@ button.k-link {
 .k-more > div:has(> .k-acts) > :not(.k-acts) {
   grid-column: 1;
 }
+/* a line with its actions is one line of the box: --sp-2 under the one above, as tall as the
+   pills, its bar centred on them (the water's +250 · +500 touched its head, 19 Nov) */
+.k-more > div:has(> .k-acts) {
+  margin-top: var(--sp-2);
+  row-gap: var(--sp-2);
+}
+.k-more > div:has(> .k-acts) > * {
+  margin-top: 0;
+}
 .k-more > div:has(> .k-acts) > .k-ribbon {
   width: 100% !important;
 }
@@ -3917,18 +3921,6 @@ button.k-link {
 }
 .k-head {
   min-width: 0;
-}
-/* the link to an item's page: a 44 × 44 target that reaches into the box's padding, the text does not move */
-.k-go {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: var(--touch);
-  min-height: var(--touch);
-  margin: -12px -12px -12px -4px;
-  padding: 0;
-  background: transparent;
 }
 /* the drawing's corner stays free of words: the lines under the head stop before it (UI-79) */
 .k-row:not(.dense)
@@ -4048,7 +4040,9 @@ button.k-link {
   align-items: center;
   gap: 8px;
   height: 44px;
-  margin: 8px -12px 0;
+  /* no margin of its own: the section's one gap above it, like every other line (it was 8
+     more: 12 between the filters and «Orari», 20 from «Orari» to the band, 19 Nov) */
+  margin: 0 -12px;
   padding: 0 132px 0 12px;
   overflow: hidden;
   font-family: var(--font-display);
@@ -4752,10 +4746,10 @@ button.k-link {
    open = doors, one panel at a time ---------- */
 .k-lvstrip {
   height: var(--track);
-  margin-top: 8px;
+  margin-top: var(--sp-2);
 }
 .k-doors {
-  margin-top: 12px;
+  margin-top: var(--sp-2);
   gap: 8px;
 }
 .k-door {
@@ -4766,12 +4760,15 @@ button.k-link {
 }
 .k-doorpanel {
   position: relative;
-  margin-top: 12px;
+  margin-top: var(--sp-2);
   padding-top: 12px;
   border-top: 1px solid var(--hairline);
 }
+/* behind a door the panel's own line is the only one (two lines and two paddings, 19 Nov) */
 .k-doorpanel > .k-parts {
   margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 .k-door.static {
   border-color: transparent;
@@ -4810,10 +4807,14 @@ button.k-part.toggle {
   width: 18px;
   height: 18px;
 }
+/* his phone is ≤ 360 px: the icons shrink there, never go (VIS-61; his 17 Nov) */
 @media (max-width: 380px) {
-  .k-part .ics,
   .k-part .t .cnt {
     display: none;
+  }
+  .k-part .ics svg {
+    width: 14px;
+    height: 14px;
   }
 }
 /* The total with what is planned (FD-34 «→»): the same number, in the planned voice */
@@ -4838,4 +4839,593 @@ a.k-pill.link {
 }
 a.k-pill.link::after {
   content: " ›";
+}
+/* Taps (his 19 Nov: «molti pezzi dovrebbero essere interagibili per intero… l'effetto "tocco"
+   fa lampeggiare male»): no browser flash anywhere; a closed box that opens is one target over
+   its whole surface (Box's click); a piece that is its own button darkens a little while
+   pressed, nothing jumps or flashes. A press on a box's own button darkens only that button. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+.k-box:not(.is-open):has(button.k-head) {
+  cursor: pointer;
+}
+.k-box:not(.is-open):has(button.k-head):active:not(
+    :has(:is(a, button:not(.k-head), input, select, label):active)
+  ),
+.k-box:has(a.k-head:active),
+button.k-part.toggle:active,
+button.k-mrow:active {
+  /* the whole piece lightens evenly, numbers on their own patch too (a tint left them dark) */
+  filter: brightness(1.15);
+}
+/* One gap between a box's lines (his 19 Nov «spaziature, padding, simmetrie»): every line under
+   the head sits --sp-2 below the one above, and an empty block takes no room (Passi had 23). */
+/* nothing to show (empty, or only a form's hidden keys, which still submit) */
+.k-bin:not(:has(> :not(input[type="hidden"]))) {
+  display: none;
+}
+/* the day's filters and «Orari» share a line when they fit; else «Orari» goes under them, at
+   the end (five chips and «Orari» need 354 px, his phone gives 334) */
+.k-tlhead {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  row-gap: var(--sp-3);
+}
+.k-tlhead > .k-chips {
+  flex: 0 1 auto;
+}
+.k-tlhead > .k-chip:last-child {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+/* ---------- the voto opened: one bar of 100 points, the macros' grammar (VIS-43, his 19 Nov) ---------- */
+.k-critview {
+  gap: var(--sp-2);
+}
+.k-cpts {
+  display: flex;
+  gap: 2px;
+}
+.k-cpts > .seg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-basis: 0;
+  min-width: 6px;
+}
+/* the stretch: its own colour as far as it scored, the rest hatched in it (not reached) */
+.k-cpts .bar {
+  position: relative;
+  height: var(--track, 8px);
+  border-radius: 2px;
+  overflow: hidden;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--id) 30%, transparent) 0 2px,
+    transparent 2px 5px
+  );
+}
+.k-cpts .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--v);
+  background: var(--id);
+}
+/* planned (VIS-22): outline and hatch, never solid */
+.k-critview.planned .k-cpts .fill {
+  background: repeating-linear-gradient(135deg, var(--id) 0 2px, transparent 2px 4px);
+  box-shadow: inset 0 0 0 1px var(--id);
+}
+/* its zones under it, as the macros' ruler (VIS-52): the right one green and thick */
+.k-cpts .zones {
+  display: flex;
+  height: 3px;
+}
+.k-cpts .z {
+  height: 1px;
+}
+.k-cpts .z.bad {
+  flex: 40 0 0;
+  background: color-mix(in srgb, var(--heat-bad) 60%, transparent);
+}
+.k-cpts .z.fair {
+  flex: 30 0 0;
+  background: var(--heat-fair);
+}
+.k-cpts .z.good {
+  flex: 30 0 0;
+  height: 3px;
+  background: var(--heat-good);
+}
+/* the tip in its zone's colour, where the fill ends */
+.k-cpts .tip {
+  position: absolute;
+  top: -2px;
+  left: clamp(0px, calc(var(--v) - 1.5px), calc(100% - 3px));
+  width: 3px;
+  height: calc(var(--track, 8px) + 4px);
+  border-radius: 1px;
+  background: var(--band);
+  box-shadow: 0 0 0 1px var(--sheet);
+}
+.k-clegend {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-b3);
+}
+.k-clegend > li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.k-clegend .nm {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.k-clegend .k-help {
+  white-space: nowrap;
+}
+.k-clegend .k-num {
+  min-width: 2.5em;
+  text-align: right;
+}
+/* a criterion's colour, as a macro's swatch */
+.k-cid {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--id);
+  vertical-align: -1px;
+}
+.k-cfull {
+  margin: 0;
+  font-size: var(--fs-b3);
+}
+.k-critfoot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px var(--sp-2);
+}
+/* ---------- Condensed (PAT-40, his pick of 19 Nov): one line naming every item, opens in place ---------- */
+.k-cline {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  min-height: var(--touch);
+  margin-block: -12px;
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--fs-b3);
+  text-align: left;
+  cursor: pointer;
+}
+.k-cmore {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.k-condensed-body {
+  margin-top: var(--sp-2);
+}
+.k-cnames {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.k-cline > .k-help {
+  flex: 0 0 auto;
+}
+.k-cline > .k-cmore {
+  margin-left: auto;
+}
+/* why a criterion does not count: its name whole, the reason wraps beside it */
+.k-clegend.why .nm {
+  flex: 0 0 auto;
+}
+.k-clegend.why .k-help {
+  flex: 1 1 auto;
+  white-space: normal;
+  text-align: right;
+}
+/* micros are macro rows (his 19 Nov): no indent of their own */
+.k-kinds.flat {
+  padding-left: 0;
+}
+/* ---------- forms without words on the bar (bars study §6, his 19 Nov): proposals ---------- */
+.k-fthin {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.k-fthin .top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-b3);
+  line-height: 14px;
+}
+.k-fthin .nm,
+.k-ftiles .nm {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.k-fthin .n,
+.k-ftiles .n,
+.k-frings .n {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+/* the bar's own background is its zones (a bullet chart): no ruler line under it */
+.k-fthin .bar,
+.k-ftiles .bar {
+  position: relative;
+  display: block;
+  height: 5px;
+  margin-top: 3px;
+  border-radius: 3px;
+  overflow: visible;
+}
+.k-fthin .band,
+.k-ftiles .band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  opacity: 0.22;
+}
+.k-fthin .bar > i,
+.k-ftiles .bar > i {
+  position: absolute;
+  inset: 1px auto 1px 0;
+  border-radius: 2px;
+}
+.k-fthin .tick {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+}
+.k-fthin .tip {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px var(--sheet);
+}
+.k-ftiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.k-ftiles .tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 6px 8px 5px;
+  border-radius: var(--r-mark);
+  background: color-mix(in srgb, var(--id) 12%, var(--sheet));
+  font-size: var(--fs-b3);
+}
+.k-ftiles .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.k-ftiles .bar > i {
+  width: 0;
+  background: var(--id);
+}
+.k-frings {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 4px;
+}
+.k-frings .ring {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--fs-b3);
+  min-width: 0;
+}
+.k-frings svg {
+  width: 52px;
+  height: 52px;
+}
+.k-frings .band {
+  fill: none;
+  stroke-width: 3;
+  opacity: 0.3;
+}
+.k-frings .val {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.k-frings .tickdot {
+  fill: var(--ink);
+}
+.k-frings .n {
+  position: absolute;
+  top: 17px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: var(--fs-b3);
+}
+.k-frings .nm {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* ---------- MeasureTree (bars study §7): a bullet, its children under it — prototype ---------- */
+.k-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.k-thead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  font-size: var(--fs-b3);
+  line-height: 14px;
+}
+.k-thead .nm {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.k-thead .n {
+  font-family: var(--font-display);
+  font-weight: 700;
+  white-space: nowrap;
+}
+/* the bullet: zones as its background in steps of one hue, the actual inside, plan outlined */
+.k-tb {
+  position: relative;
+  display: block;
+  height: 10px;
+}
+.k-tb .band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: color-mix(in srgb, var(--ink) var(--step), transparent);
+}
+.k-tb .band.danger {
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--heat-bad) 35%, transparent) 0 2px,
+    transparent 2px 5px
+  );
+}
+.k-tb .act,
+.k-tb .plan {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  border-radius: 1px;
+}
+.k-tb .plan {
+  background: repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 4px);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.k-tb .tick {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+}
+.k-tb .end {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 2px var(--sheet);
+}
+/* children that add up: a tier on the parent's scale */
+.k-tt {
+  display: flex;
+  gap: 1px;
+  min-width: 0;
+}
+.k-tt .seg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  /* the gaps come out of the stretches: the tier never passes its parent */
+  flex: 0 1 auto;
+}
+.k-tt .seg > i {
+  display: block;
+  height: 6px;
+  background:
+    linear-gradient(var(--c), var(--c)) 0 0 / var(--got) 100% no-repeat,
+    repeating-linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--c) 35%, transparent) 0 2px,
+      transparent 2px 4px
+    );
+}
+.k-tt .lb,
+.k-tc .lb {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 10px;
+  line-height: 12px;
+  color: var(--muted);
+}
+/* children judged alone: equal cells, the judgement as the fill */
+.k-tc {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+.k-tc .cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.k-tc .cell > i {
+  display: block;
+  width: 100%;
+  height: 10px;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--c);
+}
+.k-tc .cell.met > i {
+  background: var(--c);
+}
+.k-tc .cell.part > i {
+  background: linear-gradient(90deg, var(--c) 50%, transparent 50%);
+}
+.k-tc .cell.planned > i {
+  background: repeating-linear-gradient(135deg, var(--c) 0 2px, transparent 2px 4px);
+}
+/* over days: word-sized columns on the target line */
+.k-tdays {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 3px;
+  height: 52px;
+}
+.k-tdays .col > .tick {
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  z-index: 1;
+  height: 1px;
+  background: var(--ink);
+}
+.k-tdays .day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.k-tdays .col {
+  position: relative;
+  width: 100%;
+  height: 26px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  border-radius: 2px 2px 0 0;
+}
+.k-tdays .col > i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 2px 2px 0 0;
+}
+.k-tdays .col > i.plan {
+  background: repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 4px);
+}
+.k-tdays .lb {
+  font-size: 10px;
+  line-height: 12px;
+  color: var(--muted);
+}
+/* ---- ridge (bars study §15; Ridge.tsx): the bar takes the shape of its ranges ---- */
+.k-ridge {
+  position: relative;
+  width: 100%;
+}
+.k-ridge svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.k-ridge .zone {
+  opacity: 0.38;
+}
+.k-ridge .edge {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ink) 35%, transparent);
+  stroke-width: 0.6;
+}
+.k-ridge .plan {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 6;
+  stroke-dasharray: 1.5 2.5;
+  opacity: 0.8;
+}
+.k-ridge .peakline {
+  stroke: var(--ink);
+  stroke-width: 0.8;
+  stroke-dasharray: 2 2;
+  opacity: 0.6;
+}
+.k-ridge .tick,
+.k-ridge .unit {
+  fill: var(--muted);
+  font-size: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.k-ridge .more {
+  fill: var(--ink);
+}
+.k-ridge .lab {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transform: translateY(-100%);
+  color: var(--muted);
+  line-height: 1;
+}
+.k-ridge .lab b {
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }

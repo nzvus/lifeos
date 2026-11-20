@@ -14,7 +14,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
-import { FasciaBar } from "./Fascia";
+import { Criteria } from "./Criteria";
 import { F, MET, PART, type State } from "./format";
 import { WORDS } from "./words";
 
@@ -42,7 +42,10 @@ export type BoxEntry = {
   score?: {
     value: number | null;
     parts: { name: string; score: number; weight: number }[];
+    /** Criteria that do not count here, each with why: «valore (manca il prezzo)». */
     missing: string[];
+    /** Its «Come valutiamo» page, the model's criteria and their sources. */
+    how?: string;
     /** What would raise it, in the day's words, when the app knows (UI-75). */
     action?: string;
   };
@@ -142,32 +145,10 @@ export function Box({
     ) : null;
   // No line under the head for the score: «è costata di più» is read from the voto and its
   // rulers (his 15 Nov: «non mi serve, lo posso vedere dai voti»; VIS-43 changed).
+  // Open: the voto's criteria as one bar of 100 points (his pick of 19 Nov, VIS-43).
   const parts =
     e.score && e.score.value !== null ? (
-      // Open: one row per criterion with the nutrients' own ruler (S12): filled to
-      // its score, the bands 40 and 70 under it, the tip in its band's colour.
-      <div className="k-parts">
-        {e.score.missing.length > 0 && (
-          <span className="k-meta">senza: {e.score.missing.join(", ")}</span>
-        )}
-        {e.score.parts.map((q) => {
-          const v = Math.round(q.score * 100);
-          const j = F.judge(v);
-          return (
-            <div key={q.name} className="k-stack g1">
-              <span className="k-line base between">
-                <span className="k-line base g1">
-                  <span className={j.cls} role="img" aria-label={j.aria} />
-                  <span className="k-body">{q.name}</span>
-                  <span className="k-help">pesa {Math.round(q.weight * 100)} %</span>
-                </span>
-                <span className="k-num b2">{v}</span>
-              </span>
-              <FasciaBar score={v} label={q.name + " " + v + " su 100"} />
-            </div>
-          );
-        })}
-      </div>
+      <Criteria data={e.score} planned={!!e.planned} />
     ) : null;
   const allDoors: BoxDoor[] = levels
     ? [
@@ -201,12 +182,20 @@ export function Box({
   // own line under the box: the head never pushes past the edge (the water row did).
   const inline = acts.length === 1 && acts[0]!.label.length <= 6;
   const headActs = inline ? acts : [];
-  // Only a link, nothing else to tap in it: the whole box is the link.
-  const cover = !onToggle && !!e.href && acts.length === 0;
+  // A box that leads somewhere and does not open: the whole box is the link, its actions
+  // stay above it (his 19 Nov: «interagibili per intero e non solo da una freccia»).
+  const cover = !onToggle && !!e.href;
   const lineActs = inline ? [] : acts;
+  // A box that opens and has a page: the page is «Apri», inside the open box, never an arrow.
+  const page = onToggle && e.href && expanded;
   const actsLine =
-    lineActs.length > 0 ? (
+    lineActs.length > 0 || page ? (
       <div className="k-line end g2 k-acts">
+        {page && (
+          <a className="k-btn act" href={e.href} aria-label={e.hrefLabel ?? e.title}>
+            Apri
+          </a>
+        )}
         {lineActs.map((a) => (
           <button
             key={a.label}
@@ -258,6 +247,17 @@ export function Box({
           className={
             "k-box " + e.fam + (e.sub ? " " + e.sub : "") + (expanded ? " is-open" : "")
           }
+          // Closed, the whole box opens it, not only its head (his 19 Nov: «interagibili per
+          // intero»); a tap on its own buttons and links stays theirs. Open, only the head
+          // closes it, so a tap inside never shuts it.
+          onClick={
+            onToggle && !expanded
+              ? (ev) => {
+                  const t = ev.target as Element;
+                  if (!t.closest("a, button, input, select, textarea, label")) onToggle();
+                }
+              : undefined
+          }
         >
           <span className="k-artclip" aria-hidden="true">
             <span className="k-art a1">
@@ -270,9 +270,9 @@ export function Box({
           {/* The head's parts on one centre line (his 15 Nov «i numeri rispetto alle
               intestazioni e i bottoni sono sfalsati»): title, number, score and action. */}
           <div className={"k-top" + (badge ? " badged" : "")}>
-            {/* The icon is centred on the title and its meta line while the box is shut; open,
-                it stays on the first line (his 16 Nov «centrare le icone… invece di metterle in
-                alto», VIS-40). The head reaches under it, so a tap on the icon opens too. */}
+            {/* The icon sits on the first line, shut and open: it never moves when the box
+                opens (his 19 Nov, replacing his 16 Nov centring; VIS-40). The head reaches
+                under it, so a tap on the icon opens too. */}
             <span className="k-lead" aria-hidden="true">
               {badge ? (
                 <Glyph of={of} size="m" tile={!!e.href} />
@@ -330,7 +330,7 @@ export function Box({
                   </span>
                 </span>
               )}
-              {(e.href || headActs.length > 0 || (dense && e.score)) && (
+              {(headActs.length > 0 || (dense && e.score)) && (
                 <span className="k-trail">
                   {dense && e.score && e.score.parts.length > 0 && (
                     // A row's score: the board's mini skyline, beside its value.
@@ -373,20 +373,6 @@ export function Box({
                       {a.label}
                     </button>
                   ))}
-                  {e.href &&
-                    (cover ? (
-                      <span className="k-go" aria-hidden="true">
-                        ›
-                      </span>
-                    ) : (
-                      <a
-                        className="k-go"
-                        href={e.href}
-                        aria-label={e.hrefLabel ?? e.title}
-                      >
-                        ›
-                      </a>
-                    ))}
                 </span>
               )}
             </div>

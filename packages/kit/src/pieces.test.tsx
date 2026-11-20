@@ -736,3 +736,25 @@ describe("ObjectPage with `first` and `fold` (PAT-30, a ciclo's page)", () => {
     expect(at("<summary>Regole</summary>")).toBeLessThan(at("avanza a ogni sessione"));
   });
 });
+
+describe("Box taps: the whole box, no side arrow (VIS-40; his 19 Nov)", () => {
+  const entry = { fam: "food", title: "Pranzo", value: "445", href: "/voce/1" };
+  const act = { label: "+1", onClick: () => {} };
+  it("a box that only leads somewhere is one link, even with an action", () => {
+    const html = renderToStaticMarkup(<Box entry={entry} acts={[act]} />);
+    expect(html).toContain('class="k-head k-cover"');
+    expect(html).not.toContain("›");
+  });
+  it("a box that opens has no arrow; open, its page is «Apri» inside it", () => {
+    const shut = renderToStaticMarkup(
+      <Box entry={entry} expanded={false} onToggle={() => {}} doors={[]} />,
+    );
+    expect(shut).not.toContain("›");
+    expect(shut).not.toContain("Apri");
+    const open = renderToStaticMarkup(
+      <Box entry={entry} expanded onToggle={() => {}} doors={[]} />,
+    );
+    expect(open).toContain('href="/voce/1"');
+    expect(open).toContain(">Apri</a>");
+  });
+});
