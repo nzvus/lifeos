@@ -33,6 +33,14 @@ export const common = {
     limits: "Limiti e micro",
     energy: "Energia e obiettivo",
   },
+  /** A Box's slots by their key in the plan (`core/engines/view/box.ts`; Deliver ③, §132). */
+  slots: {
+    nutrients: "Nutrienti",
+    nova: "NOVA",
+    e1rm: "e1RM",
+    facts: "Fatti",
+    exercises: "Esercizi",
+  } as Record<string, string>,
   states: {
     saved: "Salvato",
     archived: "Archiviato",

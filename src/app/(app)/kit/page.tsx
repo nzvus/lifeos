@@ -29,8 +29,7 @@ import {
   Field,
   Glyph,
   MealBox,
-  ThingBox,
-  ChipRow,
+  PlanBox,
   Forms,
   MeasureDays,
   MeasureTree,
@@ -674,8 +673,7 @@ export default async function KitPage({
         {THINGS.map(([label, open]) => (
           <div key={label} role="group" aria-label={label} className="k-stack g1">
             <span className="k-label">{label}</span>
-            <ThingBox
-              density="row"
+            <PlanBox
               startOpen={open}
               entry={{
                 fam: "food",
@@ -685,36 +683,65 @@ export default async function KitPage({
                 score: SCORE,
                 href: "#cosa-box",
               }}
-              doors={[
+              variantsLabel="Marche"
+              picked="b"
+              variants={[
+                ["a", "Esselunga", 4.2, 372, "1"],
+                ["b", "Quaker", 5.9, 379, "1"],
+                ["c", "Coop", null, 368, "3"],
+              ].map(([key, label, perKg, kcal, nova]) => ({
+                key: String(key),
+                label: String(label),
+                ...(perKg ? { meta: F.num(Number(perKg), "€") + "/kg" } : {}),
+                head: { value: F.num(Number(kcal), "kcal") + "/100" },
+                slots: [
+                  {
+                    key: "nutrients",
+                    label: common.doors.nutrients,
+                    value: F.num(100, "g"),
+                    nutrients: {
+                      macros: [
+                        { key: "protein", v: 13 },
+                        { key: "carbs", v: 59 },
+                        { key: "fat", v: 7 },
+                        { key: "fiber", v: 10 },
+                      ],
+                    },
+                  },
+                  { key: "nova", label: "NOVA", word: String(nova) },
+                ],
+              }))}
+            />
+            <PlanBox
+              startOpen={open}
+              entry={{
+                fam: "train",
+                of: { kind: "exercise" },
+                title: "Panca piana con bilanciere",
+                href: "#cosa-box",
+              }}
+              slots={[
                 {
-                  key: "nutrients",
-                  label: common.doors.nutrients,
-                  value: F.num(100, "g"),
-                  panel: (
-                    <Nutrients
-                      data={{
-                        macros: [
-                          { key: "protein", v: 13 },
-                          { key: "carbs", v: 59 },
-                          { key: "fat", v: 7 },
-                          { key: "fiber", v: 10 },
-                        ],
-                      }}
-                    />
-                  ),
+                  key: "e1rm",
+                  label: "e1RM",
+                  value: F.num(85, "kg"),
+                  caption: "e1RM, le ultime 4 sessioni",
+                  trend: {
+                    x: ["3 nov", "", "", "17 nov"],
+                    y: [80, 82.5, 83, 85],
+                    unit: "kg",
+                    lo: 80,
+                    hi: 85,
+                    decimals: 1,
+                  },
                 },
-                { key: "nova", label: "NOVA", value: "1" },
+                {
+                  key: "facts",
+                  label: "Fatti",
+                  words: ["Spinta orizzontale", "Bilanciere", "Petto"],
+                },
               ]}
-            >
-              <ChipRow
-                label="Marche"
-                items={[
-                  { key: "a", label: "Esselunga", value: F.num(4.2, "€") + "/kg" },
-                  { key: "b", label: "Quaker", value: F.num(5.9, "€") + "/kg" },
-                  { key: "c", label: "Coop" },
-                ]}
-              />
-            </ThingBox>
+            />
           </div>
         ))}
       </section>

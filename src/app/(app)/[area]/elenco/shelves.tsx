@@ -5,7 +5,8 @@
  * a catalog's list with its search and sort (features/library), the pantry
  * or the routes. Decided by the agent (3 Nov, ledger UI-95). Server component.
  */
-import { AreaFilter, Box, ChipRow, F, List, PageHeader, ThingBox } from "@lifeos/kit";
+import { AreaFilter, Box, F, List, PageHeader, PlanBox } from "@lifeos/kit";
+import { planSlots } from "@/features/box/slots";
 import { readNotTwins } from "@/core/account/not-twins";
 import { readExercises, readRoutines } from "@/core/training";
 import { training } from "@/i18n/training";
@@ -199,10 +200,11 @@ function Routines({ routines }: { routines: Awaited<ReturnType<typeof readRoutin
             .sort((a, b) => b.uses - a.uses || a.name.localeCompare(b.name, "it"))
             .map((r) => (
               // A scheda opens in place to its esercizi (PAT-30 level 1, ATT-45; Deliver ③).
-              <ThingBox
+              <PlanBox
                 key={r.id}
-                density="row"
-                doors={[]}
+                slots={planSlots("routine", {
+                  exercises: { words: r.exercises.map((x) => x.name) },
+                })}
                 entry={{
                   fam: "train",
                   of: { kind: "session" },
@@ -211,15 +213,7 @@ function Routines({ routines }: { routines: Awaited<ReturnType<typeof readRoutin
                   meta: w.used(r.uses),
                   href: "/corpo/scheda/" + r.id,
                 }}
-              >
-                <ChipRow
-                  label={w.list}
-                  items={r.exercises.map((x, i) => ({
-                    key: x.exerciseId + ":" + i,
-                    label: x.name,
-                  }))}
-                />
-              </ThingBox>
+              />
             ))}
         </List>
       )}

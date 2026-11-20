@@ -1315,6 +1315,18 @@
     marche) are **variants** of the same `PlanBox`, each with its own head and slots, one picked by
     the caller's rule (undo: `FoodBox`); (c) then Oggi's voci and Obiettivi through the same
     builder, then **stop B**: one page with every type's Box closed and open.
+133. **20 Nov, §132 built (a) and (b), decided by Claude:** kit `PlanBox` (slots `word` · `words` ·
+    `trend` · `nutrients`, and `variants`) and `features/box/slots.ts` (`planSlots`: the plan's
+    order, i18n labels by slot key, throws on a shape that is not the slot's instrument; `words`
+    may also list a composition's members, so a scheda's esercizi are names). Cibi, Esercizi and
+    Schede now go through it; `FoodBox`, `ExerciseBox`, `box-doors.ts` are gone. Photos before and
+    after are pixel-identical (`LIFEOS/review/2026-11-20/planbox/`). **Open, his (blocks (c)):**
+    the meal's Box shows Nutrienti · Cibi · Costo open, but its plan (`orca/attributes.md`, ATT-06…
+    ATT-10) says lines · limits · servings · context at level 1 and cost at level 2. Which is
+    true? (a) the plan, recommended: the meal box redraws by it (Cibi = lines, limits as bars,
+    cost moves to its page) — a change on Oggi, shown as photos first; (b) the box: the table
+    changes to match today's doors. The obiettivo's plan (pace → bar, reachedOn → fan) needs two
+    more shapes; Obiettivi is history (§105), so it waits for (c)'s answer.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
