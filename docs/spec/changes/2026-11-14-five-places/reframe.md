@@ -210,7 +210,29 @@ sideways):**
 «Al volo» as the shortest path for the few he takes daily (creatina, caffè, acqua), the time
 deciding the state (§11). **Le cose** (the catalog) follows the same rule: a new cibo is added at
 the end of its list, in place.
-**His to settle:** (1) this direction, and that ⊕ and the Aggiungi page go; (2) whether «Al volo»
-stays as the one shortcut; (3) when: before the instruments (it changes every card's edit state)
-or after them. Recommendation: (1) yes; (2) yes; (3) **with** the instruments, card by card — the
-card's levels and its edit state are one design, so each card is built once.
+**Settled, his «yc» (proposal §113):** this direction, ⊕ and the Aggiungi page go; «Al volo»
+stays; built with the instruments, card by card.
+
+## 16. The first card: a meal — content only (proposal §113)
+Why first: it is the densest card (intake class, made of parts), it lives in both spaces (Il tempo
+at frame day, Le cose at frame own: one card, target.md B1), and it holds every in-place edit of
+§15. Rules it follows: VIS-40…43 (the Box), PAT-13 (in place), PAT-32 (levels), §21 (instruments,
+every channel), §22.1 (his data per channel), §11 (time decides the state). Content only: what each
+level holds and how it is changed; no look until his word.
+
+| Level | What it holds (instrument · channels) | Changed in place |
+|---|---|---|
+| **0, closed** (one line + one row) | head: silhouette (pranzo, cena…) · name · kcal · voto chip (verdict, VIS-43); under it the four macros as **reach** bars, one row (hue = macro, length = grams, hatch = still previsto, shade = kind only from level 1, R15) | tap opens; the time is not shown here (the rail says it) |
+| **1, open** | its **parts**: one row per ingredient (icon by food group, name, grams, kcal); the four macro bars with their zones ruler (VIS-52), the day's target tick; the three limits (free sugars, saturated, salt); the voto's criteria (score opened, «Come valutiamo ›»); the context line (PAT-33: «pre-allenamento», «a digiuno») | **grams**: tap → stepper in the row · **+ ingrediente** at the end of the rows → a search row opens there · **ora**: tap → the time field in place (the state follows, §11) · **saltato**: one short action · a food tapped → lit in every bar, the rest dimmed (highlight) |
+| **2, drill** | a macro's **kinds** (qualità, amidi, zuccheri…) and **da dove** (the foods, ordered); the **micros** as a strip of cells (members, condensed PAT-40); the cost; a food → its own card in Le cose (frame own) | the same edits, on the row drilled into |
+
+**In Le cose** (a saved pasto, frame own): the same card per serving; no day target, no
+judgement by the day (§17.1); the rows are the recipe's, edited the same way; «Usato in» drills
+into Il tempo filtered to it.
+
+**His to settle (content, before any drawing):**
+1. Level 0's macro bars: on the **meal's own scale** (as today) or as its **share of the day** —
+   the day's target as the scale, the meal's part lit (the frame rule of §16.4; reverted on 20 Nov
+   only because it answered another question, §92)?
+2. An ingredient row: grams and kcal only, or also its **macro split** as a thin bar (hue shares)?
+3. Limits and micros: level 1, or level 2?

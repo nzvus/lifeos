@@ -1156,6 +1156,10 @@
     serve o non so. insomma magari poi ci pensiamo. o forse andrebbe fatto un reframing di nuovo».
     Answer: reframe §15 — not a new frame: it completes §4 (one grammar) with «add where it will
     show», and it removes ⊕ and the Aggiungi page (PAT-01, PAT-10, PAT-60, ADR-0063's per-place ⊕).
+113. **20 Nov, his «yc» on reframe §15.** Taken, each with its undo: (1) everything in place; ⊕, the
+    Capture sheet and the Aggiungi page go (undo: PAT-01/10/60 as they are); (2) «Al volo» stays as
+    the one shortcut (undo: §15 «Kept»); (3) built with the instruments, card by card (undo: §8.4's
+    order). First card: the meal — reframe §16, content only, for his word before any drawing.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
