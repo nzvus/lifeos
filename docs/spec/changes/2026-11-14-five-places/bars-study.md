@@ -584,3 +584,80 @@ Nothing in the table needs code of its own: each cell is the rule applied.
 The foundations he named (spacing, sizes, cards, padding, colour lightness and saturation) are the
 next step after this model: measured on the app, one scale each.
 
+## 18. The visualization engine (20 Nov, proposal §93)
+
+His words: «è un motore di visualizzazione di dati»; every class of thing, not four examples;
+«cosa altro?» first; everything added later passes through it. §17's measure × frame × level is
+the engine's core; this section gives it its inputs, its rules and its guard. Draft: the classes,
+the hierarchy and the patterns are his to set (§18.6) before anything is built.
+
+### 18.1 Cosa altro? — every class of thing, from the registry (20 voce types + his trackers)
+Grouped by **what a thing is**, not by type; each class covers today's types and the future ones.
+
+| Class | What it is | Today | Tomorrow (examples) |
+|---|---|---|---|
+| **Assunzione** (intake) | something taken in, with an amount | meal, intake (coffee, creatine), water, batch | alcohol, a medicine, any supplement |
+| **Attività** (activity) | something done over a span, with effort or output | session (and its exercises), trip (walk, run, bike), steps, activity (by category), reading, chore | sport, work, study, meditation, any movement |
+| **Stato** (state) | a span he is *in* | sleep, nap | fasting, illness, travel |
+| **Misura** (measurement) | a reading at an instant | weigh-in, body measurements, check-in (how he feels) | heart rate, blood pressure, glucose, temperature |
+| **Scambio** (exchange) | money or stock moving | money movement, purchase, stock count | budget, subscriptions |
+| **Nota** (note) | words | journal | voice notes |
+| **Contesto** (context, not his) | the world around | weather | daylight, a calendar event |
+| **Tracker** (his own) | any of the above, made by him | «Nuovo tracker» (a family, instant or span, ≤ 6 fields) | anything |
+
+Plus what is **made from** these: the day, the session, the week, a period (aggregates); a goal
+(MOD-42); a voto (MOD-43); the plan (previsto).
+
+### 18.2 What the engine reads (inputs)
+1. **Data**, from the registry (MOD-01), the same for built-ins and his trackers: the class, the
+   shape (instant · span), the fields. Each field type has a **reading** the engine knows how to
+   draw, so a new tracker is drawn with no new code:
+   | Field type | Reading | Aggregates over a frame |
+   |---|---|---|
+   | number, integer (with a unit) | amount | sum · mean · last · max |
+   | duration · a span's length | time | sum · mean |
+   | scale (1–5) | rating | mean · distribution |
+   | boolean | done / not done | count · streak · share of days |
+   | choice | category | count per category · share |
+   | text | presence | count |
+   | lines (a meal's foods, a session's exercises) | composition | the parts of a total |
+   | a computed voto | score 0–100 | mean · worst · trend |
+2. **References**: target, fascia (MOD-41), goal (MOD-42), past self in the same context (MOD-50),
+   the window's mean, the record — each optional; the engine draws only what exists (PRD-22).
+3. **The request** from the page: the **frame** (own · day · session · period), the
+   **dimension** to group by (what · when · where from · state · context — OLAP, §11), the
+   **level** (0 · 1 · 2), and an **operation** (drill · roll up · slice · pivot · compare).
+
+### 18.3 The rules (the grammar)
+- The **family** follows the reading and the frame (§17.1): amount → bar on the frame's scale;
+  time/span → a stretch on the time rail; rating → a mark on its scale; done/not done → cells
+  (a streak); category → a split bar of shares; score → the skyline chip; composition → the
+  total split, from level 1, with its legend; over a period → the trend chart; past self → a ghost
+  mark.
+- The **channels** (§16.3): one channel per idea; colour for identity, never for judgement twice.
+- **Comprehensibility** (rule 8): the scale, the target and the range edges readable on the
+  drawing; nothing written that a channel already shows; no text · bar · text on one line.
+- **Foundations**: every view uses the kit's tokens for spacing, size, padding and colour
+  (lightness and saturation measured, §17.4).
+- **Honesty**: estimates marked, «non so» below coverage (MOD-41), assumed values never judged
+  (MOD-12).
+
+### 18.4 What it gives (output)
+A **view description**, not a drawing: which kit piece, its data, its scale and references, its
+level. Only kit pieces draw (PRD-18, PAT-53). The page puts the view where it belongs.
+
+### 18.5 The guard: everything added passes through it
+Once §18.6 is settled: (a) a registry test fails a type or tracker that does not declare its
+class and its measures (reading, aggregate, references); (b) the lint of PAT-90 fails a page that
+draws a number outside the engine; (c) a new kit piece is a new family of the engine, never a
+one-page drawing. Until then, Claude adds nothing visual that bypasses this design.
+
+### 18.6 His to set (patterns, hierarchies)
+1. **The classes** of 18.1: right, missing, merged? (Sleep as a *state*; how he feels as a
+   *measurement*.)
+2. **The hierarchy**: class › type › object › part (e.g. Attività › session › exercise › set;
+   Assunzione › meal › food › kind). The same depth everywhere?
+3. **The frames**: own · day · session · period — is «session» the general «span of an activity»?
+4. **The families**: one per reading (18.3) — any reading he wants drawn otherwise.
+5. **The name**: «motore di visualizzazione» in product.md §3, or another word.
+

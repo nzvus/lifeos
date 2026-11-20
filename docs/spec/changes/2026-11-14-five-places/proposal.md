@@ -964,6 +964,14 @@
     a defect he is right to see. Open, asked: the abstraction first (one model for every measure,
     every page derives from it) and the foundations (spacing, sizes, cards, padding, colour
     lightness and saturation) measured across the app.
+93. **20 Nov, his words on the model of §17:** «non è solo quello però. non solo acqua, tutte le
+    assunzioni, non solo sonno, misure. non solo gym, ma tutte le attività, non solo di esercizi.
+    tutto il movimento e future altre attività o tracker generici. cosa altro? devi partire da
+    questa domanda. e poi assicurarti che ogni cosa che verrà aggiunta passi per questa astrazione e
+    le sue prerogative. finché ovviamente non le settiamo e capiamo come costruirla, con che
+    pattern, che gerarchie eccetera» — and: «è un motore di visualizzazione di dati». Answer:
+    bars-study §18, the visualization engine (a horizontal engine like MOD-50…54), starting from
+    «cosa altro?» over every class of thing the registry holds or will hold.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

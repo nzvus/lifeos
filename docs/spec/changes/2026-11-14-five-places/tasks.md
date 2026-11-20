@@ -36,7 +36,8 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
     redone (steps first, rules folded, reorder by dragging, §31).
 10c. [ ] The visual system (bars-study §16, proposal §88): [x] the study — ingredients, channels,
     context; [x] taken by «yc» (§89); the ridge rejected (§90), the meal-in-day bars reverted
-    (§92); [x] a meal carries its limits; [x] the abstraction drafted (§17) — his OK; [ ] the
-    foundations measured (spacing, sizes, padding, colour lightness/saturation);
+    (§92); [x] a meal carries its limits; [x] the abstraction drafted (§17); [x] the visualization
+    engine drafted (§18) — his answers to §18.6; [ ] the guard (§18.5); [ ] the foundations measured
+    (spacing, sizes, padding, colour lightness/saturation);
     tests citing VIS-50/52/22; [ ] the delta (VIS-, PAT- rows) for what he approves.
 11. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.
