@@ -1208,6 +1208,19 @@
     relationships, 48 actions, 60 attributes. Decided by Claude (undo in `round-1.md` «Define»):
     actions and attributes only for objects with his data (PRD-02); forms `part` and `frame` added;
     what is not an object. Waiting for his word on `round-1.md` «For his word» q1–q9.
+120. **20 Nov, his «yc» on `round-1.md` q1–q9: stop A passed.** Taken, each with its undo: (1) the
+    ORCA tables as written (undo: edit the rows); (2) an assunzione refers to a pasto salvato, the
+    cibo's `intake` flag goes — FD-64 in the delta (undo: the delta row; OBJ-26 back to ◐); (3)
+    «marca» (undo: OBJ-23 and the words row); (4) «percorso» for the saved route (undo: same); (5)
+    «movimento» is the body's, money reads «uscita» · «entrata» (undo: OBJ-19); (6) sessione, sonno,
+    pesata on screen (undo: the words row); (7) Come valutiamo's sliders stay, «adjustable weights»
+    leave «not now» (undo: the §4 row); (8) Dispensa = a filter of Elenco, no planning (undo:
+    same); (9) «ritmo» only what repeats, a goal's pace has no noun (undo: ATT-51's name). Next:
+    Develop (`round-1.md`).
+121. **20 Nov, Develop of round 1** (`round-1.md` «Develop»): one look per form (Box · row · lane ·
+    channel · container · preset), cells = many members, one grammar in three spots, the Z2
+    consequences. Decided by Claude (undo there): the obiettivo also a Box in Obiettivi; cells as
+    the many-member form. His word: q10 (the question in the registry), q11 (the order of Deliver).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

@@ -90,6 +90,22 @@
   level 1) and «Apri» goes to its page. Children are nested under their parent (MOD-21): a cibo's
   marche, each with its formati; a pasto's varianti. Marche and formati have no shelf of their own.
 
+- **FD-64** (domains/food.md, Z5; OBJ-02, OBJ-25, OBJ-26) An assunzione refers to a **pasto
+  salvato** (one cibo or a few, a dose): one tap logs it × 1, with no role and no voto, counted in
+  nutrients, compounds and fluids; a pasto salvato is proposed as an assunzione at ≤ 4 kcal/100 or
+  with caffeine/creatine. The `intake` flag on a cibo (`intake_item`) goes. WHEN a flagged cibo
+  exists THEN it becomes a pasto salvato of that cibo. [his «yc» q2, 20 Nov: his 52 assunzioni
+  already point to pasti salvati]
+- **product.md §3, words** (Z1; OBJ-05, OBJ-10, OBJ-12, OBJ-19, OBJ-23, OBJ-29, OBJ-58) a brand
+  of a cibo: **marca** (Not: prodotto) · a saved route: **percorso**, the trip on it: **tragitto**
+  · money out or in: **uscita** · **entrata**, by its sign (Not: movimento, which is the body's,
+  reframe §12) · on screen the spec's words **sessione**, **sonno**, **pesata** (Not: Allenamento,
+  Sveglia, Peso as the voce) · **ritmo** = only what repeats; a goal's pace has no noun («vai a
+  −0,3 kg/sett.»). [his «yc» q3–q6, q9, 20 Nov; W-01]
+- **product.md §4, not now** (Z1) «adjustable score weights» leaves the list: «Come valutiamo»
+  keeps a slider per criterio (his «va bene», 20 Nov). «A pantry that plans» stays; the Dispensa
+  is a filter of Elenco (the formati in casa), with no planning. [his «yc» q7–q8, 20 Nov]
+
 ## ADDED
 - **MOD-56** (model.md §6) **Motore di visualizzazione**: every number drawn in the app is a
   *measure* (registry) × a *frame* (own · day · session · period, chosen by the page; «session» =

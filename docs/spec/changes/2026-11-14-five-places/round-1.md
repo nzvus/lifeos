@@ -713,7 +713,7 @@ Spec objects with no registry key:
 13. **Product.md §4 «step windows»** dropped (reframe §13) vs product.md text unchanged until the delta merges.
 
 ---
-# Define — the four tables and the conflicts (Claude, 20 Nov) — STOP A: his word
+# Define — the four tables and the conflicts (Claude, 20 Nov) — stop A passed: his «yc», q1–q9 all (a) (proposal §120)
 
 The tables are `docs/spec/orca/` (78 objects, 62 relationships, 48 actions, 60 attributes);
 `check.py` passes on them (all 34 registry keys have an OBJ row).
@@ -773,3 +773,59 @@ any, and «Oggi» is a place, not an area (PAT-95).
 
 After stop A: **Develop** — what the objects share (one card per form, one instrument per
 question, one action grammar), up to Z3 (patterns.md, visual.md) and Z2 (product.md, model.md).
+
+---
+# Develop — what the objects share (Claude, 20 Nov, after stop A)
+
+Counted from the tables, not drawn: forms voce 19 · object 16 · signal 16 · place 10 · part 7 ·
+reference 7 · frame 3; attributes at level 0: 30, 1: 27, 2: 3; actions on the thing's own card
+23 of 48, at a time on the rail 9, at the end of a list 5, in Palestra 5, the rest 6.
+
+## D1. One look per form (Z3) — derived from settled rules, no new pattern
+| Form | Drawn as | Rule it follows |
+|---|---|---|
+| voce, object | **the Box** — one card, frame day in il tempo, frame own in le cose; its level-0 attributes in the closed line, level 1 and 2 on open | VIS-40…43, reframe §10, target.md B1 |
+| part | **a row inside its parent's card** (riga, serie, criterio, nutriente, prezzo, giornata tipo's line) | PAT-13 rows, VIS-50 |
+| signal | **a lane beside the rail** at frame day; its own instrument elsewhere (tank, line) | reframe §14 |
+| reference | **never a card: a channel** on the instrument it judges — tick (target), ruler (fascia), ghost (l'ultima volta, mean), notch (record), line or fan (obiettivo) | bars-study §21.1, §21.3 |
+| frame | **the container**: giorno = «Il giorno» + the rail; parte del giorno = a sky band; periodo = the same instruments rolled up | VIS-60…63, reframe §3 |
+| place | **a preset**, draws nothing of its own | reframe §3, ADR-0063 |
+The obiettivo is the one reference with a card too: in Obiettivi it is a Box (ACT-41, ACT-42);
+everywhere else it is a channel. Decided by Claude (undo: OBJ-58 only a channel).
+
+## D2. One instrument per question (Z3)
+The attributes use 11 instruments for 12 questions; «name» is a word, no instrument. **Cells**
+answer three questions (yes/no, ritmo's «ogni quanto», micros «n su m»): they are the form any
+instrument takes **when it has many members** (VIS-50's strip). Decided by Claude, from §21.3
+and §22.3 (undo: a separate instrument per question).
+**New, his word (q10):** each registry field declares its **question**, defaulting from its
+reading (amount → reach, time → rhythm, score → verdict, composition → composition, rating ·
+category · presence → name); the engine (MOD-56) picks the instrument from the question, and a
+test keeps the registry equal to `orca/attributes`. Today the engine has rules per type.
+
+## D3. One grammar for acting (Z3) — reframe §15 in three spots
+1. **On the thing's card**: change, skip, start from, merge, archive, drill, compare, why.
+2. **Where it will show**: at a time on the rail (a voce; the time makes it previsto or fatto),
+   at the end of a list or of a card's parts (an object, a riga, a marca).
+3. **Two named shortcuts**: «Al volo» (the dock, PAT-99) and Palestra (a sessione live, PAT-63).
+No ⊕, no page for an action. Already his (§112–§113); `check.py` already refuses ⊕ in `actions`.
+
+## D4. Up a zoom (Z2) — follows from D1–D3, settled before
+- MOD-01's family «voce | catalog» → voce · object · part · signal (reframe §14, his §110); the
+  frame and place are not registry types.
+- The signals with no key (caffeina rimasta, scorte, movimento, meteo, luce del giorno) become
+  registry entries (reframe §14: «a signal is a registry entry like a type»).
+- `model.md` §3's catalog table moves to `orca/objects` (method §7).
+
+## For his word (Claude's pick first)
+10. **The question in the registry** (D2): (a) each field declares its question, the engine picks
+    the instrument, a test keeps registry = `orca/attributes` (recommended: one home, no rules per
+    type); (b) the engine keeps rules per type, the table is only documentation.
+11. **The order of Deliver** — each slice reaches every place at once:
+    (a) recommended: ① the docs fold, no UI (product.md, model.md, patterns.md, visual.md take
+    reframe, bars-study §21–§23, target.md and these tables; `round-1.md` archived) → ② the
+    registry: families, questions, signals (core, tests) → ③ **the Box from the registry** for every
+    voce, object and obiettivo (kit; photos, **stop B**) → ④ the three spots for adding, ⊕ and
+    Aggiungi removed (photos, stop B) → ⑤ the lanes: caffeine, the creatine tank, movement
+    (photos, stop B).
+    (b) the Box first (③ before ①–②), so he sees something sooner, with the docs after.

@@ -17,8 +17,7 @@
 | REL-13 | OBJ-39 | made of | OBJ-40 | 1..n | FD-07 (snapshot) |
 | REL-14 | OBJ-22 | refers to | OBJ-37 | 0..n | FD-94 |
 | REL-15 | OBJ-01 | refers to | OBJ-25 | 0..1 | MOD-14 (logged from, or saved as) |
-| REL-16 | OBJ-02 | refers to | OBJ-26 | 0..1 | FD-64 (his data: to a pasto salvato) |
-| REL-17 | OBJ-26 | refers to | OBJ-22 | 1 | ADR-0060 (a flagged cibo) |
+| REL-16 | OBJ-02 | refers to | OBJ-25 | 0..1 | his «yc» q2 20 Nov (his 52 do so) |
 | REL-18 | OBJ-05 | made of | OBJ-06 | 1..n | TR-01 |
 | REL-19 | OBJ-06 | made of | OBJ-07 | 0..n | TR-01, TR-05 (none = saltato) |
 | REL-20 | OBJ-06 | refers to | OBJ-27 | 1 | TR-01 |

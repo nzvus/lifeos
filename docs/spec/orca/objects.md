@@ -20,17 +20,17 @@
 | OBJ-16 | attività | a span of work, study, leisure… | voce | activity | activity | ◐ | builtins.ts; 0 |
 | OBJ-17 | lettura | a reading span of a libro | voce | activity | reading | ◐ | builtins.ts; 0 |
 | OBJ-18 | faccenda | a chore done | voce | activity | chore | ◐ | builtins.ts; 0 |
-| OBJ-19 | movimento di soldi | money in or out, signed | voce | exchange | movement | ◐ | DT-50; 2 |
+| OBJ-19 | uscita · entrata | money out or in, named by its sign | voce | exchange | movement | ◐ | DT-50, his «yc» q5 20 Nov; 2 |
 | OBJ-20 | spesa | what a shopping trip brought in | voce | exchange | purchase | ◐ | MOD-22, product.md §4; 0 |
 | OBJ-21 | scorta | a count of what is at home | voce | exchange | stock_count | ◐ | product.md §4; 0 |
 | OBJ-22 | cibo | a food, its nutrients per 100 | object | intake | food | ✓ | FD-01…07; 144 |
-| OBJ-23 | prodotto | a brand of a cibo (he says «marca») | object | intake | product | ✓ | FD-01, FD-02; 72 |
+| OBJ-23 | marca | a brand of a cibo | object | intake | product | ✓ | FD-01, FD-02, his «yc» q3 20 Nov; 72 |
 | OBJ-24 | formato | a package of a prodotto: size, barcode, price | object | intake | format | ✓ | FD-03; 74 |
 | OBJ-25 | pasto salvato | a meal kept to log again, with variants | object | intake | recipe | ✓ | MOD-20, FD-53; 24 |
-| OBJ-26 | assunzione salvata | a cibo flagged as taken, with its dose | object | intake | intake_item | ◐ | FD-64, ADR-0060; 0 flagged, his 52 point to pasti salvati |
+| OBJ-26 | assunzione salvata | a cibo flagged as taken: goes, an assunzione refers to a pasto salvato | object | intake | intake_item | ✗ | FD-64, his «yc» q2 20 Nov; 0 flagged |
 | OBJ-27 | esercizio | a gym movement, with its facts and variants | object | activity | exercise | ✓ | TR-01…37, proposal §62; 70 |
 | OBJ-28 | scheda | the esercizi of a sessione, a model | object | activity | routine | ✓ | product.md §3; 9 |
-| OBJ-29 | percorso | a named route to repeat a tragitto | object | activity | route | ✓ | BD-43; 5 |
+| OBJ-29 | percorso | a named route to repeat a tragitto | object | activity | route | ✓ | BD-43, his «yc» q4 20 Nov; 5 |
 | OBJ-30 | ritmo | what repeats: a voce due, a time to hit, an amount to reach (stored as a blocco) | object | — | block | ◐ | product.md §3, target.md §6, MOD-30; 3 |
 | OBJ-31 | ciclo | ritmi that advance step by step | object | — | cycle | ✓ | MOD-31, PL-30…33; 6 |
 | OBJ-32 | giornata tipo | a step of a ciclo with its righe (rest = none) | part | — | — | ✓ | PL-30, delta MOD-30…32; 34 steps |
@@ -49,7 +49,7 @@
 | OBJ-45 | progresso | an esercizio against its past: e1RM, trend | signal | — | — | ◐ | MOD-50, TR-20…24 |
 | OBJ-46 | caffeina rimasta | caffeine left, halving every 5 h | signal | — | — | ◐ | FD-61, FD-62 |
 | OBJ-47 | scorte di creatina | creatine stores, 0–100 % | signal | — | — | ✓ | FD-63 |
-| OBJ-48 | finestre di movimento | windows moving · on one's feet · seated; sedentary time | signal | — | — | ○ | reframe §12, his 20 Nov |
+| OBJ-48 | movimento | windows moving · on one's feet · seated; sedentary time | signal | — | — | ○ | reframe §12, his 20 Nov |
 | OBJ-49 | meteo | the weather of his city, live | signal | context | — | ✓ | BD-61, VIS-75 |
 | OBJ-50 | luce del giorno | sun and moon, the sky bands | signal | context | — | ✓ | VIS-61 |
 | OBJ-51 | volume per muscolo | working serie per muscle per week | signal | — | — | ✓ | TR-25 |

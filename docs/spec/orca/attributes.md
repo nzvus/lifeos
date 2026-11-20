@@ -52,7 +52,7 @@
 | ATT-48 | OBJ-47 | scorte | amount | stock | tank | 0 | fascia | ◐ | FD-63 (words today) |
 | ATT-49 | OBJ-46 | caffeina rimasta | amount | rhythm | rail | 1 | fascia | ○ | FD-61, FD-62 (a pill today) |
 | ATT-50 | OBJ-43 | energia del giorno | amount | composition | parts | 1 | — | ✓ | MOD-54, BD-20…24 |
-| ATT-51 | OBJ-58 | ritmo dell'obiettivo | amount | reach | bar | 0 | goal | ✓ | MOD-42, bars-study §22.11; 9 |
+| ATT-51 | OBJ-58 | vai a (kg/sett.) | amount | reach | bar | 0 | goal | ✓ | MOD-42, bars-study §22.11; 9 |
 | ATT-52 | OBJ-58 | data raggiunta | time | prediction | fan | 1 | goal | ✓ | bars-study §22.8 |
 | ATT-53 | OBJ-66 | energia e macro del giorno | amount | reach | bar | 0 | target | ✓ | bars-study §22.13 |
 | ATT-54 | OBJ-66 | il giorno ancora in corso | amount | prediction | fan | 0 | target | ◐ | FD-34 |
