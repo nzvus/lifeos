@@ -1180,6 +1180,14 @@
     map.md = the inventory, check.py = the guards, the skills by step); the only new home is
     `docs/spec/orca/`. Corrected: no `system.md` nor `views.md` (they would duplicate product.md,
     model.md and visual.md). His call: `PROJECT.md`, which overlaps product.md.
+117. **20 Nov, his «yc» on method §9 and §10.** Taken, each with its undo: (1) OOUX/ORCA in Double
+    Diamond rounds is the project's method, to be recorded as ADR-0064 (undo: the ADR superseded);
+    (2) the ORCA tables as markdown tables with a fixed schema `check.py` reads (undo: YAML + a
+    generated page); (3) zoom Z1–Z5 in the existing homes, only `docs/spec/orca/` new (undo: method
+    §3); (4) stops A (tables) and B (photos) per round; (5) the `change` skill and `check.py` updated
+    before the first pass; (6) `PROJECT.md` archived to `docs/archive/` (its pitch is in product.md
+    §1), done with step (5) since the `adr` skill and `check.py` read it (undo: `git mv` back).
+    Next, in a new session: ADR-0064 → `change` skill + `check.py` + `orca/` schema → round 1 at Z4.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

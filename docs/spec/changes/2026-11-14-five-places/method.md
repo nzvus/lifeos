@@ -79,7 +79,8 @@ and the obsolete ones as history, his export) → Define (the four tables, all o
 and pattern docs, then the first slices — by layer, every place at once, B). Mechanical sweeps (the
 inventory) by one Sonnet reader; tables, unification and design by Claude with him.
 
-## 9. His to settle
+## 9. Settled by his «yc», 20 Nov (proposal §117) — all five as recommended; `PROJECT.md` archived
+(with step 5)
 1. **OOUX/ORCA in Double Diamond rounds** as the project's method (recommended), recorded as
    ADR-0064.
 2. The ORCA tables as **markdown tables** with a fixed schema that `check.py` reads (recommended:
