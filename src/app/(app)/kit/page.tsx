@@ -39,6 +39,7 @@ import {
 } from "@lifeos/kit";
 import { common } from "@/i18n/common";
 import { mealSlots } from "@/features/box/meal";
+import { ActionSample } from "./action-sample";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { ownerClock } from "@/app/_server/clock";
@@ -619,6 +620,11 @@ export default async function KitPage({
             />
           </div>
         ))}
+      </section>
+
+      <section className="k-section g2" id="azioni-box" aria-label="Le azioni di un box">
+        <h2>Le azioni di un box</h2>
+        <ActionSample />
       </section>
 
       <section className="k-section g2" id="pasto-box" aria-label="Il box di un pasto">

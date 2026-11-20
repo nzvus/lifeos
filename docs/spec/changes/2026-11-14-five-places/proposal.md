@@ -1339,6 +1339,28 @@
     place has the − × + stepper (the day); (5) the day's cibi are drawn as a pasto's are, one Box
     row each: the amount the value, «kcal · ≈ €» its second line (undo: text lines). Open: the
     day's lines carry no food group, so each has the plain ingredient icon (VIS-31 wants its group).
+135. **20 Nov, his words on the §134 photos:** «il moltiplicatore compare 3 volte. elimina può
+    diventare una icona di cestino. entrambe le azioni possono essere spostate nello stesso punto,
+    come le marche nei cibi, sopra le voci a scorrimento orizzontale come altro scorrimento
+    orizzontale ma dedicato alle azioni. oppure no. essendo azioni, e essendo anche la modifica e
+    aggiunta di ingredienti altre azioni, dovremmo studiarle insieme a quei cambiamenti in place.
+    nell'elenco poi ci sarebbe proprio l'opportunità di cambiare tutto, collegamenti con parti
+    parenti, fusioni, cambi di nome, eccetera. poiché nella timeline ti ricordo che non modifichi
+    il pasto vero in elenco. questo tipo di cambiamenti poi immagino possano essere astratti anche
+    per categorie non sul cibo necessariamente. ma non so come questo influisce sul piano».
+    Claude's reading: the actions are `orca/actions.md` (48 rows, by object and place); a voce
+    changes only itself (a snapshot, ADR-0007: porzioni, + ingrediente, salta, elimina, «salva come
+    pasto»), a catalog object changes its life (MOD-20: rinomina, unisci, variante, parti da,
+    collegamenti, archivia). Question to him: how this enters the plan (reply of 20 Nov).
+136. **20 Nov, his «yc» on §135 = (a): actions join the box before Stop B.** Spec: PAT-101 in
+    `delta.md`, ACT-49 (delete a voce) and ACT-03's place in `orca/actions.md`; `delete` joins the
+    action words (README, check.py), for a voce only — decided by Claude (undo: drop it and
+    ACT-49). Built: kit `ActionRow` in `PlanBox` (`actions`), first when open; the day's meal and
+    every other day box draw porzioni once (the stepper, drawn 32, touched 44; the «× n» pill
+    dropped where it steps) and the trash at the end (undo: `serveRow` in git). Photos:
+    `LIFEOS/review/2026-11-20/planbox/meal-actions*.png`; **waits for his word** on the meal box.
+    Next: the Elenco objects' actions row (MOD-20 verbs, `ObjectActions`' «Altro» into it), the
+    voce's righe in place (ACT-03), then Stop B. ④ keeps only where adding happens.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

@@ -19,6 +19,8 @@ import type { NutrientsData } from "./nutrient-rows";
 import { ThingBox, type ThingBoxPlace } from "./ThingBox";
 import { Box, type BoxDoor, type BoxEntry } from "./Box";
 import { List } from "./List";
+import { Glyph } from "./Glyph";
+import { WORDS } from "./words";
 import type { ReactNode } from "react";
 
 type Base = { key: string; label: string };
@@ -28,6 +30,86 @@ export type PlanSlot =
   | (Base & { trend: ChartData; value: string; caption?: string })
   | (Base & { nutrients: NutrientsData; value?: string })
   | (Base & { rows: BoxEntry[]; value?: string });
+
+/**
+ * One of the box's actions (PAT-101): a verb (a button or a link), a value he steps (porzioni),
+ * or a danger verb, drawn as an icon at the row's end (Elimina = the trash; `label` its aria).
+ */
+export type PlanAction = { key: string; label: string } & (
+  | { onClick: () => void; aria?: string; danger?: "delete" }
+  | { href: string }
+  | {
+      step: { value: string; minus: string; plus: string };
+      onMinus: () => void;
+      onPlus: () => void;
+    }
+);
+
+/** The actions row (PAT-101): sideways, never wrapping; the danger verbs last, as icons. */
+export function ActionRow({ actions }: { actions: PlanAction[] }) {
+  if (actions.length === 0) return null;
+  const danger = (a: PlanAction) => "danger" in a && !!a.danger;
+  const ordered = [...actions.filter((a) => !danger(a)), ...actions.filter(danger)];
+  return (
+    <div className="k-hrow k-actrow" role="group" aria-label={WORDS.actions}>
+      {ordered.map((a) =>
+        "step" in a ? (
+          <span
+            key={a.key}
+            className="k-line g1 k-step"
+            role="group"
+            aria-label={a.label}
+          >
+            <button
+              type="button"
+              className="k-btn act"
+              aria-label={a.step.minus}
+              onClick={a.onMinus}
+            >
+              −
+            </button>
+            <span className="k-num" aria-live="polite">
+              {a.step.value}
+            </span>
+            <button
+              type="button"
+              className="k-btn act"
+              aria-label={a.step.plus}
+              onClick={a.onPlus}
+            >
+              +
+            </button>
+          </span>
+        ) : "href" in a ? (
+          <a key={a.key} className="k-btn act" href={a.href}>
+            {a.label}
+          </a>
+        ) : a.danger ? (
+          <button
+            key={a.key}
+            type="button"
+            className="k-btn act icon danger"
+            aria-label={a.aria ?? a.label}
+            title={a.label}
+            onClick={a.onClick}
+          >
+            <Glyph of={{ ui: a.danger }} decorative />
+          </button>
+        ) : (
+          <button
+            key={a.key}
+            type="button"
+            className="k-btn act"
+            {...(a.aria ? { "aria-label": a.aria } : {})}
+            onClick={a.onClick}
+          >
+            {a.label}
+          </button>
+        ),
+      )}
+    </div>
+  );
+}
 
 export type PlanVariant = {
   key: string;
@@ -88,6 +170,7 @@ export function PlanBox({
   picked,
   variantsLabel = "",
   children,
+  actions = [],
   ...place
 }: ThingBoxPlace & {
   entry: BoxEntry;
@@ -100,6 +183,8 @@ export function PlanBox({
   variantsLabel?: string;
   /** Open, before the variants and the names (a meal's four thin bars, a place's own line). */
   children?: ReactNode;
+  /** Open, first: what can be done to it here (PAT-101), from its rows in `orca/actions.md`. */
+  actions?: PlanAction[];
 }) {
   const vs = variants ?? [];
   const [key, setKey] = useState(() => picked ?? vs[0]?.key);
@@ -112,6 +197,7 @@ export function PlanBox({
   const rows = shown.flatMap((s) => ("words" in s && s.words.length > 0 ? [s] : []));
   return (
     <ThingBox {...place} entry={{ ...entry, ...(v?.head ?? {}) }} doors={doors}>
+      <ActionRow actions={actions} />
       {children}
       {vs.length > 0 && (
         <ChipRow

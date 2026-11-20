@@ -75,3 +75,38 @@ describe("PlanBox (PAT-30, VIS-102: a slot is drawn by its instrument, never by 
     expect(html).toMatch(/aria-pressed="true"[^>]*>.*?Quaker/);
   });
 });
+
+describe("ActionRow (PAT-101: the box's actions, one sideways row, danger last as an icon)", () => {
+  const noop = () => {};
+  it("open, the actions come first; a stepped value once; the trash last with its word as aria", () => {
+    const html = renderToStaticMarkup(
+      <PlanBox
+        entry={entry}
+        startOpen
+        slots={[{ key: "nova", label: "NOVA", word: "1" }]}
+        actions={[
+          { key: "delete", label: "Elimina", danger: "delete", onClick: noop },
+          {
+            key: "servings",
+            label: "Porzioni",
+            step: { value: "× 0,5", minus: "Meno", plus: "Più" },
+            onMinus: noop,
+            onPlus: noop,
+          },
+        ]}
+      />,
+    );
+    const row = html.slice(html.indexOf('aria-label="Azioni"'));
+    expect(html.indexOf('aria-label="Azioni"')).toBeLessThan(html.indexOf("k-doors"));
+    expect(row.indexOf("× 0,5")).toBeLessThan(row.indexOf('aria-label="Elimina"'));
+    expect(html.match(/× 0,5/g)).toHaveLength(1);
+    expect(html).not.toContain(">Elimina<");
+  });
+
+  it("shut, no actions are drawn", () => {
+    const html = renderToStaticMarkup(
+      <PlanBox entry={entry} actions={[{ key: "x", label: "Registra", href: "/x" }]} />,
+    );
+    expect(html).not.toContain("Azioni");
+  });
+});

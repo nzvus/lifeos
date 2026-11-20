@@ -5,7 +5,7 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **72** · kit pieces: **53**
+- routes: **42** · screen components outside the kit: **73** · kit pieces: **54**
 - components that take input (a form, a field): **37**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
@@ -155,7 +155,6 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/day/QuickIntakes.tsx` | 0 | 0 | 0 | 0 | 4 | 0 |
 | `features/training/FinishSheet.tsx` | 0 | 0 | 0 | 0 | 4 | 1 |
 | `features/training/SetForm.tsx` | 0 | 0 | 0 | 0 | 4 | 0 |
-| `features/day/EntryRow.tsx` | 0 | 0 | 0 | 0 | 3 | 1 |
 | `features/training/gym-parts.tsx` | 0 | 0 | 0 | 0 | 3 | 1 |
 | `features/day/DayPlanBar.tsx` | 0 | 0 | 0 | 0 | 2 | 3 |
 | `features/day/WeatherCard.tsx` | 0 | 0 | 0 | 0 | 2 | 2 |
@@ -167,6 +166,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/plan/CycleComposer.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
 | `features/plan/ThisTime.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
 | `features/training/StartButton.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
+| `features/day/EntryRow.tsx` | 0 | 0 | 0 | 0 | 0 | 1 |
 
 ## 4. The kit's pieces and who uses them
 | piece | used by (files) | where |
@@ -186,6 +186,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `ObjectActions` | 3 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
 | `ObjectForm` | 3 | features/gallery/Pieces.tsx, features/library/PantryActions.tsx, features/objects/NewObjectForm.tsx |
 | `PlanBox` | 3 | app/(app)/[area]/elenco/shelves.tsx, features/library/boxes.tsx, app/(app)/kit/page.tsx |
+| `ActionRow` | 2 | app/(app)/kit/action-sample.tsx, features/day/EntryRow.tsx |
 | `Capture` | 2 | features/add/CaptureSheet.tsx, features/gallery/Pieces.tsx |
 | `Chart` | 2 | app/(app)/[area]/andamento/[tracker]/page.tsx, app/(app)/kit/page.tsx |
 | `DayPart` | 2 | features/day/Timeline.tsx, app/(app)/kit/page.tsx |
@@ -252,7 +253,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/aggiungi/spesa` | 1 | 1 |
 | `/aggiungi/tragitto` | 0 | 0 |
 | `/andamento/[tracker]` | 0 | 0 |
-| `/kit` | 1 | 1 |
+| `/kit` | 2 | 1 |
 | `/kit/oggetto` | 1 | 0 |
 | `/oggi/[[...day]]` | 10 | 2 |
 | `/oggi/[type]/[id]` | 32 | 16 |

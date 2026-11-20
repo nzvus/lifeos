@@ -9,6 +9,7 @@
  */
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import {
+  ActionRow,
   Box,
   EntryDetails,
   F,
@@ -16,6 +17,7 @@ import {
   type BoxAct,
   type BoxEntry,
   type NutrientsData,
+  type PlanAction,
 } from "@lifeos/kit";
 import { mealSlots } from "@/features/box/meal";
 import type { Details } from "./details";
@@ -141,45 +143,38 @@ export function EntryRow({
               ]
             : [];
 
-  // Opened: the multiplier and Elimina first, at the top (FOOD-38, FOOD-47); deleting is
-  // also a swipe to the left.
-  const serveRow = (
-    <div className="k-line between k-serve">
-      {served !== null && onServings ? (
-        <span className="k-line g2" role="group" aria-label="Porzioni">
-          <button
-            type="button"
-            className="k-btn act"
-            aria-label={"Meno porzioni di " + entry.title}
-            onClick={() => serve(-1)}
-          >
-            −
-          </button>
-          <span className="k-num" aria-live="polite">
-            {"×\u00a0" + F.input(Number(served), 2)}
-          </span>
-          <button
-            type="button"
-            className="k-btn act"
-            aria-label={"Più porzioni di " + entry.title}
-            onClick={() => serve(1)}
-          >
-            +
-          </button>
-        </span>
-      ) : (
-        <span />
-      )}
-      <button
-        type="button"
-        className="k-btn act danger"
-        aria-label={"Elimina " + entry.title}
-        onClick={() => onIntent("remove")}
-      >
-        Elimina
-      </button>
-    </div>
-  );
+  // Opened, the meal's actions row (PAT-101, ACT-03, ACT-49): the porzioni once, as a stepper,
+  // and the trash at its end; deleting is also a swipe to the left (FOOD-47).
+  const stepping = served !== null && !!onServings;
+  const actions: PlanAction[] = [
+    ...(stepping
+      ? [
+          {
+            key: "servings",
+            label: "Porzioni",
+            step: {
+              value: "×\u00a0" + F.input(Number(served), 2),
+              minus: "Meno porzioni di " + entry.title,
+              plus: "Più porzioni di " + entry.title,
+            },
+            onMinus: () => serve(-1),
+            onPlus: () => serve(1),
+          },
+        ]
+      : []),
+    {
+      key: "delete",
+      label: "Elimina",
+      aria: "Elimina " + entry.title,
+      danger: "delete" as const,
+      onClick: () => onIntent("remove"),
+    },
+  ];
+  // The «× n» pill says what the stepper already says: once only (his §135).
+  const shown =
+    stepping && entry.pills
+      ? { ...entry, pills: entry.pills.filter((p) => !p.t.startsWith("×\u00a0")) }
+      : entry;
 
   return (
     <div
@@ -203,7 +198,7 @@ export function EntryRow({
         {entry.l0 ? (
           // A meal: the one box of every place (PAT-30); the day adds its porzioni and «Elimina».
           <MealBox
-            entry={entry}
+            entry={shown}
             data={entry.l0}
             slots={mealSlots({
               data: entry.l0,
@@ -215,11 +210,11 @@ export function EntryRow({
             mode={mode}
             {...(onRail ? { onRail } : {})}
             acts={acts}
-            top={serveRow}
+            actions={actions}
           />
         ) : (
           <Box
-            entry={entry}
+            entry={shown}
             density={density}
             rail={rail}
             mode={mode}
@@ -230,7 +225,7 @@ export function EntryRow({
               ? { expanded: open, onToggle: () => setOpen((o) => !o), doors: [] }
               : {})}
           >
-            {open && serveRow}
+            {open && <ActionRow actions={actions} />}
             {open && entry.details && <EntryDetails d={entry.details} />}
           </Box>
         )}

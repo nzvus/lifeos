@@ -273,7 +273,7 @@ ORCA_VALUES = {
     ("objects", "Status"): {"✓", "◐", "○", "✗"},
     ("relationships", "Relation"): {"made of", "contains", "refers to", "derived from"},
     ("relationships", "How many"): {"1", "0..1", "0..n", "1..n"},
-    ("actions", "Action"): {"log", "plan", "change", "skip", "start from", "merge", "archive",
+    ("actions", "Action"): {"log", "plan", "change", "skip", "start from", "merge", "archive", "delete",
                             "filter", "drill", "compare", "why"},
     ("attributes", "Reading"): {"amount", "time", "rating", "done", "category", "presence",
                                 "composition", "score"},

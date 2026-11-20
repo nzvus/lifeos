@@ -25,7 +25,7 @@ or a spec ID). Status: ✓ built · ◐ partly · ○ decided, not built · ✗ 
   **How many**: `1`, `0..1`, `0..n`, `1..n`.
 
 ## actions.md — `| ID | Object | Action | Where | Source |`
-- **Action**: log · plan · change · skip · start from · merge · archive · filter · drill ·
+- **Action**: log · plan · change · skip · start from · merge · archive · delete (a voce only; an object is archived, MOD-20) · filter · drill ·
   compare · why. **Where**: in place — the card, row or instrument it is done on; never ⊕ and
   never a page of its own (his 20 Nov, proposal §112–§113).
 

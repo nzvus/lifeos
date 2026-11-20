@@ -109,6 +109,18 @@
   is a filter of Elenco (the formati in casa), with no planning. [his «yc» q7–q8, 20 Nov]
 
 ## ADDED
+- **PAT-101** (patterns.md) **The box's actions row** (his §135, «yc» 20 Nov): open, every Box draws
+  the actions of its object that `orca/actions.md` places «on its card» as one sideways row (the
+  `ChipRow` look, never wrapping, VIS-06), above the choices row (a cibo's marche) and the doors;
+  the head keeps at most its one short act (VIS-40). A value he steps (porzioni) is drawn **once**,
+  as its stepper in that row where the place can step it, else as the «× n» pill. A danger
+  verb is an icon at the row's end (Elimina = the trash icon, its word the aria-label), never a
+  word button. A **voce's** actions touch only that voce (a snapshot, ADR-0007: porzioni, righe,
+  ora, salta, elimina, «salva come pasto», «ripeti…»); a **catalog object's** are its life (MOD-20:
+  rinomina, collega, unisci, variante, parti da, archivia), the same row in its Elenco card —
+  `ObjectActions`' «Altro» becomes this row. The same for every type: a type gives its rows in
+  `actions.md`, never a hand-made button (PAT-81). WHEN a Box opens THEN its actions row comes
+  from `actions.md`, and no value shows twice. [his 20 Nov, proposal §135]
 - **MOD-56** (model.md §6) **Motore di visualizzazione**: every number drawn in the app is a
   *measure* (registry) × a *frame* (own · day · session · period, chosen by the page; «session» =
   the span of any activity) × a *level* (0 · 1 · 2); the engine reads the data, its references

@@ -11,7 +11,14 @@ export { Glyph, type GlyphSize } from "./Glyph";
 export { Box, type BoxAct, type BoxDoor, type BoxEntry } from "./Box";
 export { MealBox } from "./MealBox";
 export { ThingBox, type ThingBoxPlace } from "./ThingBox";
-export { PlanBox, slotDoor, type PlanSlot, type PlanVariant } from "./PlanBox";
+export {
+  ActionRow,
+  PlanBox,
+  slotDoor,
+  type PlanAction,
+  type PlanSlot,
+  type PlanVariant,
+} from "./PlanBox";
 export { ChipRow, type ChipItem } from "./ChipRow";
 export { EntryDetails, type BoxDetails } from "./meal-doors";
 export { PageHeader } from "./PageHeader";
