@@ -85,7 +85,9 @@
 - **MOD-57** (model.md §1) Every type and tracker has a **class** — intake · activity · state ·
   measurement · exchange · note · context — and every field a **reading** the engine knows
   (number → amount; duration → time; scale → rating; boolean → done; choice → category; text →
-  presence; lines → composition; a voto → score), each with its aggregates over a frame. WHEN a
+  presence; lines → composition; a voto → score), each with its aggregates over a frame; a measure
+  may read as **yes / no** whatever its field (a fixed-dose intake, a habit, a goal «n volte»;
+  bars-study §19.1, his «yc» 20 Nov). WHEN a
   built-in type has no class THEN a test fails; a tracker takes its class from its family. [his
   20 Nov «cosa altro?», proposal §93–§94]
 - **PAT-95** (patterns.md §1) The area filter: one row of chips, «Tutto» · Cibo · Corpo · Mente ·

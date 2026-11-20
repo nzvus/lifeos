@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { viewOf, type MeasureInput } from "./view";
+import {
+  intakeReading,
+  streakOf,
+  viewOf,
+  type DayState,
+  type MeasureInput,
+} from "./view";
 
 // MOD-56 (bars-study §17–18; his «yc», 20 Nov): a request (frame, level) gives a view.
 const WATER: MeasureInput = {
@@ -88,7 +94,75 @@ describe("the engine gives a view from a request (MOD-56)", () => {
 
   it("a reading not built yet says so instead of a home-made drawing", () => {
     expect(
-      viewOf({ name: "Fatto", reading: "done", v: 1 }, { frame: "day", level: 0 }),
+      viewOf({ name: "Tipo", reading: "category", v: 1 }, { frame: "day", level: 0 }),
     ).toEqual({ piece: "none", reason: "not-built" });
+  });
+});
+
+// Bars-study §19.1 (his 20 Nov: «alcuni tracker potrebbero essere dei binari … vale per qualsiasi
+// cosa … obiettivi con semplici "completato" e "non completato"»; his «yc»).
+describe("yes / no, for any class (MOD-56, VIS-22)", () => {
+  const W = ["lu", "ma", "me", "gi", "ve", "sa", "do"];
+  const week = (s: DayState[]) => s.map((x, i) => ({ d: W[i]!, s: x }));
+
+  it("a day is the voce's own state, never a bar", () => {
+    const creatina: MeasureInput = { name: "Creatina", reading: "done", v: 1 };
+    expect(viewOf(creatina, { frame: "day", level: 0 })).toMatchObject({
+      piece: "state",
+      state: "done",
+    });
+    expect(
+      viewOf({ ...creatina, state: "planned" }, { frame: "day", level: 0 }),
+    ).toMatchObject({ state: "planned" });
+  });
+
+  it("a week is a cell a day with its streak; a month a calendar", () => {
+    const states = week(["done", "missed", "done", "done", "done", "skipped", "planned"]);
+    expect(streakOf(states)).toBe(0);
+    expect(streakOf(week(["missed", "done", "done", "planned"]))).toBe(2);
+    const v = viewOf(
+      { name: "Creatina", reading: "done", v: null, states },
+      {
+        frame: "period",
+        level: 0,
+      },
+    );
+    expect(v).toMatchObject({ piece: "cells", grid: "week" });
+    const month = Array.from({ length: 30 }, (_, i) => ({
+      d: String(i + 1),
+      s: "done" as const,
+    }));
+    expect(
+      viewOf(
+        { name: "C", reading: "done", v: null, states: month },
+        { frame: "period", level: 0 },
+      ),
+    ).toMatchObject({ grid: "month", streak: 30 });
+  });
+
+  it("a goal «n volte» is n cells, the done ones filled", () => {
+    const v = viewOf(
+      {
+        name: "Palestra 4 volte",
+        reading: "done",
+        v: null,
+        refs: { target: 4 },
+        states: week(["done", "missed", "done", "missed", "missed", "missed", "planned"]),
+      },
+      { frame: "period", level: 0 },
+    );
+    expect(v.piece === "cells" && v.cells.map((c) => c.s)).toEqual([
+      "done",
+      "done",
+      "missed",
+      "missed",
+    ]);
+  });
+
+  it("a fixed dose reads as yes / no; caffeine, judged, stays an amount", () => {
+    expect(intakeReading([5, 5, 5, 5], false)).toBe("done");
+    expect(intakeReading([5, 3, 5], false)).toBe("amount");
+    expect(intakeReading([80, 80, 80], true)).toBe("amount");
+    expect(intakeReading([5, 5], false)).toBe("amount");
   });
 });

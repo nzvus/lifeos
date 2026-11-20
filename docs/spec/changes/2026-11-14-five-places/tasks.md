@@ -39,8 +39,9 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
     (§92); [x] a meal carries its limits; [x] the abstraction drafted (§17); [x] the visualization
     engine drafted (§18), taken by «yc» (§94); [x] slice 1: every type has a class, every field
     a reading (`core/engines/view`, MOD-56/57); [x] slice 2: views from a request (frame, level)
-    drawn by kit pieces, shown on three classes (`MeasureView`, `/kit#motore`, §95); [ ] slice 3:
-    done · category · presence, the past-self ghost and the record; [ ] the guard (§18.5); [ ] the foundations measured
+    drawn by kit pieces, shown on three classes (`MeasureView`, `/kit#motore`, §95); [x] slice 3a: yes / no
+    for any class, no dots on bars (`Done`, §97); [ ] slice 3b: category · presence, words in the
+    bar (§19.3), the past-self ghost and the record; [ ] the guard (§18.5); [ ] the foundations measured
     (spacing, sizes, padding, colour lightness/saturation);
     tests citing VIS-50/52/22; [ ] the delta (VIS-, PAT- rows) for what he approves.
 11. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.

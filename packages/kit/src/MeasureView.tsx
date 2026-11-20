@@ -1,14 +1,15 @@
 /**
  * MeasureView (MOD-56, PAT-52): draws a view the visualization engine gave — a page never
  * picks the drawing, it asks the engine with its frame and level and hands the view here. Each
- * piece is an existing kit piece: a bar with its parts (MeasureTree), a column a day
- * (MeasureDays), the judgement chip (Judge), «non so» (Unknown). The kit knows no type: the
+ * piece is a kit piece: a bar with its parts (MeasureTree), a column a day (MeasureDays), the
+ * judgement chip (Judge), yes / no as cells (Done), «non so» (Unknown). The kit knows no type: the
  * spec is plain data (names, numbers, tokens).
  */
 import { Judge } from "./Fascia";
 import { F } from "./format";
 import { MeasureDays, MeasureTree, type MNode } from "./MeasureTree";
 import type { HeatZone } from "./nutrient-rows";
+import { DoneCells, DoneDay, type DoneState } from "./Done";
 import { Unknown } from "./Unknown";
 import { WORDS } from "./words";
 
@@ -30,6 +31,17 @@ export type MeasureViewSpec =
       color: string;
     }
   | { piece: "chip"; level: Lv; name: string; score: number }
+  | { piece: "state"; level: Lv; name: string; state: DoneState; color: string }
+  | {
+      piece: "cells";
+      level: Lv;
+      name: string;
+      grid: "week" | "month" | "goal";
+      cells: { d: string; s: DoneState }[];
+      streak: number;
+      color: string;
+      lead: number;
+    }
   | { piece: "unknown"; level: Lv; name: string; missing: string[] }
   | { piece: "none"; reason: string };
 
@@ -83,6 +95,19 @@ export function MeasureView({ view }: { view: MeasureViewSpec }) {
           label={
             WORDS.mean + " " + F.num(mean(view.days.map((x) => x.v)), view.unit ?? "")
           }
+        />
+      );
+    case "state":
+      return <DoneDay name={view.name} state={view.state} color={view.color} />;
+    case "cells":
+      return (
+        <DoneCells
+          name={view.name}
+          grid={view.grid}
+          cells={view.cells}
+          streak={view.streak}
+          color={view.color}
+          lead={view.lead}
         />
       );
     case "tree":

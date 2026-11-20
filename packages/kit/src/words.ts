@@ -29,6 +29,10 @@ export const WORDS = {
   weighs: (pct: number) => `pesa ${pct} %`,
   plus: "Di più",
   status: { planned: "previsto", done: "fatto", skipped: "saltato" },
+  /** A yes / no day with nothing logged or planned (Done). */
+  missed: "niente",
+  doneOf: (n: number, of: number) => `fatto ${n} su ${of}`,
+  streak: (n: number) => `${n} di fila`,
   verbs: {
     startFrom: "Parti da…",
     variant: "Variante",

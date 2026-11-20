@@ -27,6 +27,7 @@ export { Criteria, type CriteriaData } from "./Criteria";
 export { Forms, type FormItem, type FormLook } from "./Forms";
 export { MeasureTree, MeasureDays, type MNode } from "./MeasureTree";
 export { MeasureView, measureLabel, type MeasureViewSpec } from "./MeasureView";
+export { DoneCells, DoneDay, type DoneState } from "./Done";
 export {
   nutrientsL0,
   energyStrip,

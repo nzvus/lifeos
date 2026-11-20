@@ -1006,6 +1006,21 @@
     ingredients and channels are bars-study §16.2–§16.3, the families §14; slice 2 did not apply
     them (it reused MeasureTree, whose end dot repeats the tip's colour, against §16.3's «never a
     word that repeats the colour»). The forms beyond bars: bars-study §19, for his corrections.
+97. **20 Nov, his «yc» on bars-study §19.5** (the three recommendations), built on PR #371,
+    photos `/kit#motore`. Each with its undo: (1) **no dots** on bars and day columns — the end
+    dot, the dot under each column and on each part are gone; the columns get the zone bands the
+    bars have, so the judgement is where a column ends; the chip keeps VIS-21's mark (undo:
+    `git revert` of the MeasureTree hunk); (2) **yes / no for any class** — `done` is a reading
+    the engine draws (`doneView` in `core/engines/view/view.ts`): a day is one cell in VIS-22's
+    shape (fatto solid, previsto hatched, saltato struck, niente a faint outline), a week seven
+    cells, a month a calendar from its weekday, a goal «n volte» n cells with the done ones
+    filled; a fixed dose reads as yes / no: `intakeReading` says *done* when three logs or more
+    all have the same dose and the intake is not judged by a limit (caffeine's ≤ 400 mg stays an
+    amount) (undo: `intakeReading` returns «amount»); (3) built first: kit `Done` (`DoneDay`,
+    `DoneCells`). Decided by Claude: a streak is written only from three days («3 di fila»),
+    since a calendar does not show it at a glance; nothing else is written that the cells show;
+    the goal's cells have no day labels (undo: `Done.tsx`). Not yet wired: no screen reads
+    `intakeReading` from his logs; words in the bar (§19.3) not built.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

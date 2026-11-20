@@ -4,8 +4,8 @@
  * (`MeasureView`, PRD-18, PAT-53). The one rule (bars-study §17.1): `view = family(reading,
  * frame) at level`. Pure; the data comes in already computed (the metrics engine's job).
  *
- * Built in this slice: amount, time, rating, composition, score (the readings of intakes,
- * activities and states). done · category · presence give `none` until their slice.
+ * Built: amount, time, rating, composition, score (slice 2); done — yes / no for any class
+ * (slice 3, bars-study §19.1). category · presence give `none` until their slice.
  */
 import type { Reading } from "./readings";
 
@@ -28,6 +28,9 @@ export type Part = {
   color?: string;
 };
 
+/** A day of a yes / no measure, in VIS-22's states; «missed» = nothing logged, nothing planned. */
+export type DayState = "done" | "planned" | "skipped" | "missed";
+
 /** One measure with everything already computed for the frame asked. */
 export type MeasureInput = {
   name: string;
@@ -46,6 +49,11 @@ export type MeasureInput = {
   partsAdd?: boolean;
   /** Over a period: one value per day. */
   days?: { d: string; v: number; plan?: number }[];
+  /** Yes / no: today's state (frame day), or one per day (frame period). */
+  state?: DayState;
+  states?: { d: string; s: DayState }[];
+  /** A month's first weekday (Monday 0): blank cells before its first day. */
+  lead?: number;
   /** Coverage below its need → «non so» (MOD-41, PRD-23). */
   coverage?: { have: number; need: number; missing: string[] };
 };
@@ -79,6 +87,22 @@ export type View =
     }
   /** A score at a glance: mark + number + word (Judge, VIS-43). */
   | { piece: "chip"; level: Level; name: string; score: number }
+  /** Yes / no in a day: the voce's own shape, previsto · fatto · saltato (VIS-22), no bar. */
+  | { piece: "state"; level: Level; name: string; state: DayState; color: string }
+  /**
+   * Yes / no over a period: a cell a day (a week in a row, a month as a calendar), or a goal's
+   * n cells with the done ones filled; the streak = the done days that end the period.
+   */
+  | {
+      piece: "cells";
+      level: Level;
+      name: string;
+      grid: "week" | "month" | "goal";
+      cells: { d: string; s: DayState }[];
+      streak: number;
+      color: string;
+      lead: number;
+    }
   /** Below coverage: «non so» and what is missing (Unknown, PAT-55). */
   | { piece: "unknown"; level: Level; name: string; missing: string[] }
   /** Nothing to draw: no data, or a reading not built yet. */
@@ -91,7 +115,69 @@ export const SCORE_ZONES: Zone[] = [
   { from: 40, level: "fair" },
   { from: 70, level: "good" },
 ];
-const DRAWN: Reading[] = ["amount", "time", "rating", "composition", "score"];
+const DRAWN: Reading[] = ["amount", "time", "rating", "composition", "score", "done"];
+
+/** The done days that end the period (a planned or missed today does not break it yet). */
+export function streakOf(states: { s: DayState }[]): number {
+  const last = states.at(-1)?.s;
+  let i = states.length - (last === "planned" || last === "missed" ? 2 : 1);
+  let n = 0;
+  for (; i >= 0 && states[i]!.s === "done"; i--) n++;
+  return n;
+}
+
+/**
+ * An intake's reading from its logs (bars-study §19.1, his «la creatina: un valore costante che o
+ * prendo una volta o no al giorno. la caffeina è diverso»): a dose that never changes (three logs
+ * at least) says only «presa / non presa»; a judged one (caffeine's ≤ 400 mg) stays an amount.
+ */
+export function intakeReading(doses: number[], judged: boolean): "done" | "amount" {
+  if (judged || doses.length < 3) return "amount";
+  return doses.every((x) => x === doses[0]) ? "done" : "amount";
+}
+
+function doneView(m: MeasureInput, req: ViewRequest, color: string): View {
+  const { frame, level } = req;
+  if (frame !== "period") {
+    const state = m.state ?? (m.v === null ? null : m.v > 0 ? "done" : "missed");
+    if (!state) return { piece: "none", reason: "no-data" };
+    return { piece: "state", level, name: m.name, state, color };
+  }
+  const states = m.states ?? [];
+  if (!states.length) return { piece: "none", reason: "no-data" };
+  const streak = streakOf(states);
+  const n = m.refs?.target;
+  if (n !== undefined) {
+    // A goal «n volte»: n cells, the done ones first and filled; more done than n stay shown.
+    const done = states.filter((x) => x.s === "done").length;
+    const cells = Array.from({ length: Math.max(n, done) }, (_, i) => ({
+      d: "",
+      s: (i < done ? "done" : "missed") as DayState,
+    }));
+    return {
+      piece: "cells",
+      level,
+      name: m.name,
+      grid: "goal",
+      cells,
+      streak,
+      color,
+      lead: 0,
+    };
+  }
+  const grid = states.length > 7 ? "month" : "week";
+  const lead = grid === "month" ? (m.lead ?? 0) : 0;
+  return {
+    piece: "cells",
+    level,
+    name: m.name,
+    grid,
+    cells: states,
+    streak,
+    color,
+    lead,
+  };
+}
 
 function partNode(p: Part, color: string): ViewNode {
   return {
@@ -110,6 +196,7 @@ export function viewOf(m: MeasureInput, req: ViewRequest): View {
   if (m.coverage && m.coverage.have < m.coverage.need)
     return { piece: "unknown", level, name: m.name, missing: m.coverage.missing };
   const color = m.color ?? INK;
+  if (m.reading === "done") return doneView(m, req, color);
   const score = m.reading === "score";
 
   if (frame === "period") {

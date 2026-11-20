@@ -90,6 +90,42 @@ const SLEEP_GAP: MeasureInput = {
   coverage: { have: 0, need: 1, missing: ["la notte di ieri"] },
 };
 
+// Yes / no (bars-study §19.1): creatine is a fixed dose, taken or not; a habit; a goal «n volte».
+type S = "done" | "planned" | "skipped" | "missed";
+const days = (ss: S[]) => ss.map((s, i) => ({ d: WEEK[i]!, s }));
+const CREATINA: MeasureInput = {
+  name: "Creatina",
+  reading: "done",
+  v: 1,
+  color: "var(--macro-protein)",
+  states: days(["done", "done", "missed", "done", "done", "done", "planned"]),
+};
+// November 2026 to the 20th: the 1st is a Sunday (lead 6).
+const NOV: S[] = "ddmdddddmddsdddddddd"
+  .split("")
+  .map((c) => (c === "d" ? "done" : c === "s" ? "skipped" : "missed"));
+const CREATINA_MESE: MeasureInput = {
+  ...CREATINA,
+  states: NOV.map((s, i) => ({ d: String(i + 1), s })),
+  lead: 6,
+};
+const STRETCHING: MeasureInput = {
+  name: "Stretching",
+  reading: "done",
+  v: null,
+  state: "skipped",
+  color: "var(--muscle-core)",
+  states: days(["done", "skipped", "missed", "done", "missed", "missed", "planned"]),
+};
+const PALESTRA: MeasureInput = {
+  name: "Palestra 4 volte a settimana",
+  reading: "done",
+  v: null,
+  refs: { target: 4 },
+  color: "var(--muscle-legs)",
+  states: days(["done", "missed", "done", "missed", "missed", "missed", "planned"]),
+};
+
 const req = (frame: ViewRequest["frame"], level: ViewRequest["level"]): ViewRequest => ({
   frame,
   level,
@@ -125,4 +161,26 @@ export const ENGINE_SAMPLES: { cls: string; asked: string; view: MeasureViewSpec
   { cls: "Stato", asked: "giorno · livello 0", view: viewOf(SLEEP, req("day", 0)) },
   { cls: "Stato", asked: "periodo", view: viewOf(SLEEP, req("period", 0)) },
   { cls: "Stato", asked: "copertura bassa", view: viewOf(SLEEP_GAP, req("day", 0)) },
+  { cls: "Assunzione, sì / no", asked: "giorno", view: viewOf(CREATINA, req("day", 0)) },
+  {
+    cls: "Assunzione, sì / no",
+    asked: "settimana",
+    view: viewOf(CREATINA, req("period", 0)),
+  },
+  {
+    cls: "Assunzione, sì / no",
+    asked: "mese",
+    view: viewOf(CREATINA_MESE, req("period", 0)),
+  },
+  { cls: "Attività, sì / no", asked: "giorno", view: viewOf(STRETCHING, req("day", 0)) },
+  {
+    cls: "Attività, sì / no",
+    asked: "settimana",
+    view: viewOf(STRETCHING, req("period", 0)),
+  },
+  {
+    cls: "Obiettivo, sì / no",
+    asked: "settimana",
+    view: viewOf(PALESTRA, req("period", 0)),
+  },
 ];

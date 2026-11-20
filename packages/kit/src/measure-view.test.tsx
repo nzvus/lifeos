@@ -59,3 +59,83 @@ describe("MeasureView draws an engine view (PAT-52, MOD-56)", () => {
     );
   });
 });
+
+// Bars-study §19 (his 20 Nov, «yc»): yes / no for any class; no dots on bars and columns.
+describe("Done: yes / no in the voce's own shape, and no dots (VIS-22, MOD-56)", () => {
+  const W = ["lu", "ma", "me"];
+  it("a day is one cell in its state, named for a screen reader", () => {
+    const h = html({
+      piece: "state",
+      level: 0,
+      name: "Creatina",
+      state: "planned",
+      color: "x",
+    });
+    expect(h).toContain('class="cell planned"');
+    expect(h).toContain('aria-label="previsto"');
+  });
+
+  it("a week labels its days; a goal does not; a streak is said from three", () => {
+    const cells = W.map((d) => ({ d, s: "done" as const }));
+    const week = html({
+      piece: "cells",
+      level: 0,
+      name: "C",
+      grid: "week",
+      cells,
+      streak: 3,
+      color: "x",
+      lead: 0,
+    });
+    expect(week).toContain(">lu<");
+    expect(week).toContain("3 di fila");
+    const goal = html({
+      piece: "cells",
+      level: 0,
+      name: "G",
+      grid: "goal",
+      cells,
+      streak: 2,
+      color: "x",
+      lead: 0,
+    });
+    expect(goal).not.toContain(">lu<");
+    expect(goal).not.toContain("di fila");
+    expect(goal).toContain("fatto 3 su 3");
+  });
+
+  it("a month starts on its weekday", () => {
+    const m = html({
+      piece: "cells",
+      level: 0,
+      name: "C",
+      grid: "month",
+      cells: [{ d: "1", s: "done" }],
+      streak: 1,
+      color: "x",
+      lead: 6,
+    });
+    expect(m.match(/class="blank"/g)).toHaveLength(6);
+  });
+
+  it("bars and day columns carry no judgement dot", () => {
+    const node = {
+      name: "A",
+      v: 1,
+      t: 2,
+      color: "x",
+      zones: [{ from: 0, level: "bad" as const }],
+    };
+    expect(html({ piece: "tree", level: 0, node, depth: 0 })).not.toContain("k-st");
+    const days = html({
+      piece: "days",
+      level: 0,
+      name: "A",
+      days: [{ d: "lu", v: 1 }],
+      zones: node.zones,
+      color: "x",
+    });
+    expect(days).not.toContain("k-st");
+    expect(days).toContain('class="band"');
+  });
+});
