@@ -21,6 +21,8 @@ import {
   Glyph,
   energyStrip,
   Nutrients,
+  Ridge,
+  ridgeOf,
   weekOf,
   AreaFilter,
   type Area,
@@ -716,6 +718,9 @@ export async function DayPage({
                 : []),
             ]}
           >
+            {/* The day at a glance (bars study §15–16): each measure a hill shaped by its
+                ranges, the peaks aligned; his original bars under it, unchanged. */}
+            <Ridge measures={ridgeOf(whole.nutrients)} unit="g" label="Il giorno" />
             <Nutrients data={whole.nutrients} part="main" />
             {thisWeek && targets?.basis?.expenditureKcal !== undefined && (
               <form action={recomputeTargets} className="k-line end">
@@ -749,6 +754,7 @@ export async function DayPage({
             now={
               nowMinute === null ? null : { minute: nowMinute, label: F.time(nowMinute) }
             }
+            day={food && whole ? whole.nutrients : null}
             clock={{
               date,
               gone: date < today,

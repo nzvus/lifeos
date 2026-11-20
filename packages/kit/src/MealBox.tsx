@@ -10,6 +10,7 @@ import { useState, type ReactNode } from "react";
 import { Box, type BoxAct, type BoxEntry } from "./Box";
 import { mealDoors, type BoxDetails, type DoorWords } from "./meal-doors";
 import { NutrientsL0 } from "./Nutrients";
+import { Ridge, type RidgeMeasure } from "./Ridge";
 import { energyStrip, type NutrientsData } from "./nutrient-rows";
 
 export function MealBox({
@@ -19,6 +20,7 @@ export function MealBox({
   details,
   foods,
   top,
+  inDay,
   children,
   startOpen = false,
   density,
@@ -38,6 +40,11 @@ export function MealBox({
   foods?: ReactNode;
   /** Open, before the bars. */
   top?: ReactNode;
+  /**
+   * Its frame on the day's timeline (bars study §16.4): the day's ridge with this meal lit; shown
+   * open in place of its own four bars, which stay behind the «Nutrienti» door.
+   */
+  inDay?: { measures: RidgeMeasure[]; label: string } | null;
   /** Open, after the bars. */
   children?: ReactNode;
   /** Alone on its own page (PAT-30 level 2): open at first. */
@@ -67,7 +74,11 @@ export function MealBox({
     >
       {top}
       <div className="k-slot-l0">
-        <NutrientsL0 data={data} />
+        {inDay?.measures.length ? (
+          <Ridge measures={inDay.measures} unit="g" label={inDay.label} />
+        ) : (
+          <NutrientsL0 data={data} />
+        )}
       </div>
       {children}
     </Box>

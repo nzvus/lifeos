@@ -41,7 +41,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 ### app · other (1)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `app/(app)/oggi/day-page.tsx` | 786 | AreaFilter, Box, DateNav, Glyph, Nutrients | 2 form | 2 |
+| `app/(app)/oggi/day-page.tsx` | 792 | AreaFilter, Box, DateNav, Glyph, Nutrients, Ridge | 2 form | 2 |
 
 ### features/account (5)
 | component | lines | kit pieces | by hand | routes |
@@ -185,6 +185,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `Elenco` | 3 | app/(app)/[area]/piano/piano-list.tsx, features/gallery/Pieces.tsx, app/(app)/oggi/elenco/page.tsx |
 | `ObjectActions` | 3 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
 | `ObjectForm` | 3 | features/gallery/Pieces.tsx, features/library/PantryActions.tsx, features/objects/NewObjectForm.tsx |
+| `Ridge` | 3 | app/(app)/oggi/day-page.tsx, features/day/DayView.tsx, app/(app)/kit/page.tsx |
 | `Capture` | 2 | features/add/CaptureSheet.tsx, features/gallery/Pieces.tsx |
 | `Chart` | 2 | app/(app)/[area]/andamento/[tracker]/page.tsx, app/(app)/kit/page.tsx |
 | `DayPart` | 2 | features/day/Timeline.tsx, app/(app)/kit/page.tsx |
@@ -209,7 +210,6 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `MeasureTree` | 1 | app/(app)/kit/page.tsx |
 | `NavBar` | 1 | features/shell/AppNav.tsx |
 | `NutrientsL0` | 1 | features/day/DayView.tsx |
-| `Ridge` | 1 | app/(app)/kit/page.tsx |
 | `SortChips` | 1 | features/gallery/Pieces.tsx |
 | `Stepper` | 1 | features/day/WaterRow.tsx |
 | `Why` | 1 | features/gallery/Pieces.tsx |

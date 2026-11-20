@@ -23,7 +23,8 @@ export type RidgeMeasure = {
   ranges: { from: number; level: Level }[];
   color: string;
   /** Its parts, adding up to `v` (a macro's kinds), each in its own shade. */
-  parts?: { v: number; color: string }[];
+  /** `dim`: the rest of a whole, after the part in focus (a meal inside its day). */
+  parts?: { v: number; color: string; dim?: boolean }[];
   /** The one number («181»); the unit is the group's. */
   n: string;
   label: string;
@@ -127,7 +128,9 @@ export function Ridge({
           const hill = hillPath(profile(m), y0);
           const x = (v: number) => Math.min(W, (v / top) * W);
           let acc = 0;
-          const parts = m.parts?.length ? m.parts : [{ v: m.v, color: m.color }];
+          const parts: { v: number; color: string; dim?: boolean }[] = m.parts?.length
+            ? m.parts
+            : [{ v: m.v, color: m.color }];
           return (
             <g key={m.name}>
               <clipPath id={`${id}c${i}`}>
@@ -146,6 +149,7 @@ export function Ridge({
                       width={Math.max(0, x(acc) - x0)}
                       height={HILL + 1}
                       style={{ fill: p.color }}
+                      className={p.dim ? "dim" : undefined}
                     />
                   );
                 })}

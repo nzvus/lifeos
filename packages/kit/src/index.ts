@@ -31,6 +31,7 @@ export {
   nutrientsL0,
   energyStrip,
   nutrientsL1,
+  ridgeOf,
   heatLevel,
   HEAT_WORDS,
   type HeatLevel,

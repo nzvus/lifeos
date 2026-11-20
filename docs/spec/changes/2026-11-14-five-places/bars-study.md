@@ -520,3 +520,12 @@ and the frames it can be put in (day, session, period); a page says which frame 
 Then: one family at a time, drawn in the real app on his data (the ridge, §15, is the proposal for
 «amount against its ranges»).
 
+### 16.6 Built first (20 Nov, his «yc, then draw», proposal §89)
+Oggi on his 9 Nov, in the real app (branch `visual-system`), photos
+`LIFEOS/review/2026-11-20/crinale-oggi/`: **«Il giorno» open** shows the ridge (energy, macros,
+limits) above his original bars, unchanged (VIS-50/52 kept); **a meal open** on the timeline shows
+the day's ridge with this meal's share first in its colour and the rest of the day grey after it
+(the context rule, §16.4); the meal's own four bars stay behind its «Nutrienti» door. Kit
+`ridgeOf(day, meal?)`; the day reaches the boxes through `DayFrame` (features/day). Decided by
+Claude: a share a meal does not carry (its limits) is drawn all grey, never as the meal's.
+
