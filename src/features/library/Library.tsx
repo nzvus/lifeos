@@ -12,6 +12,7 @@
 import { useState } from "react";
 import {
   Box,
+  ChipRow,
   F,
   Field,
   List as KitList,
@@ -101,13 +102,16 @@ export function Library({
   return <List lists={lists} first={view} alone={only ?? false} />;
 }
 
-/** A row's entry: a row that opens in place keeps its page for the icon beside its doors. */
-function row(tab: Tab, r: LibraryRow, value: string) {
+/**
+ * A row's entry: a row that opens in place keeps its page for the icon beside its doors. `sub`
+ * false when its open box lists what the line only counts (a cibo's marche, §129).
+ */
+function row(tab: Tab, r: LibraryRow, value: string, sub = true) {
   return {
     ...SHELF_OF[tab],
     of: tab === "meals" ? { kind: "meal" } : (r.of ?? {}),
     title: r.name,
-    ...(r.sub ? { meta: r.sub } : {}),
+    ...(sub && r.sub ? { meta: r.sub } : {}),
     value,
     ...(r.href ? { href: r.href } : {}),
     ...(r.score ? { score: r.score } : {}),
@@ -402,7 +406,7 @@ function List({
               <ThingBox
                 key={r.key}
                 density="row"
-                entry={row(tab, r, value(r))}
+                entry={row(tab, r, value(r), !r.products)}
                 doors={planDoors("food", {
                   nutrients: {
                     label: common.doors.nutrients,
@@ -418,7 +422,19 @@ function List({
                       }
                     : {}),
                 })}
-              />
+              >
+                {r.products && (
+                  // Its marche, most used first, in place of «n prodotti» (his 20 Nov, §129).
+                  <ChipRow
+                    label={food.brands.title}
+                    items={r.products.map((p) => ({
+                      key: p.key,
+                      label: p.name,
+                      ...(p.perKg !== null ? { value: F.num(p.perKg, "€") + "/kg" } : {}),
+                    }))}
+                  />
+                )}
+              </ThingBox>
             ) : (
               <Box key={r.key} density="row" rail={false} entry={row(tab, r, value(r))} />
             ),

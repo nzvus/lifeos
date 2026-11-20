@@ -31,6 +31,8 @@ export type LibraryRow = {
     parts: { name: string; score: number; weight: number }[];
     missing: string[];
   };
+  /** A cibo's marche, most used first: listed in its open box (his 20 Nov, §129). */
+  products?: { key: string; name: string; uses: number; perKg: number | null }[];
   /** A cibo: what its box holds when it opens in place (PAT-30 level 1), 100 g of it. */
   food?: { data: NutrientsData; nova?: number };
   /** A saved pasto: what its box holds when it opens in place (PAT-43), from the page. */
@@ -117,6 +119,24 @@ export function foodRows(foods: readonly FoodChoice[]): LibraryRow[] {
               : own.length + " prodotti",
         uses: f.uses + own.reduce((n, p) => n + p.uses, 0),
         values: nums(f.per100),
+        ...(own.length
+          ? {
+              products: [...own]
+                .sort((a, b) => b.uses - a.uses)
+                .map((p) => {
+                  // Its own price only: one equal to the cibo's is inherited, not seen (PRD-22).
+                  const own = p.per100["cents"] !== f.per100["cents"];
+                  const c = Number(p.per100["cents"]);
+                  return {
+                    key: p.key,
+                    name: p.brand ?? p.name,
+                    uses: p.uses,
+                    // cents per 100 g → € per kg
+                    perKg: own && Number.isFinite(c) && c > 0 ? c / 10 : null,
+                  };
+                }),
+            }
+          : {}),
         ...(f.drawing ? { of: f.drawing } : {}),
       };
     });

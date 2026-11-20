@@ -3809,9 +3809,14 @@ button.k-link {
   justify-content: center;
   pointer-events: none;
 }
-.k-top .k-head,
-.k-top > .k-sub {
+.k-top .k-head {
   padding-left: var(--indent);
+}
+/* the words under the title start at the box's edge, under the icon, a step below the head
+   (his 20 Nov «allineate completamente a sinistra, anche sotto l'icona… spaziati bene», §129) */
+.k-top > .k-sub {
+  padding-left: 0;
+  margin-top: var(--sp-2);
 }
 /* a list row's first line is as tall as its tile (32), so the name and the tile share a centre */
 .k-top.badged .k-hlead {
@@ -4830,7 +4835,8 @@ button.k-link {
   gap: var(--sp-1);
   margin-top: var(--sp-3);
 }
-.k-doors {
+.k-doors,
+.k-hrow {
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
@@ -4843,9 +4849,26 @@ button.k-link {
   padding-inline: var(--sp-3) var(--sp-1);
   padding-block: 2px;
 }
-.k-doors > * {
+.k-doors > *,
+.k-hrow > * {
   flex: 0 0 auto;
   scroll-snap-align: start;
+}
+/* a thing's members (his 20 Nov, §129): the same sideways row, small; its label opens it */
+.k-hrow {
+  flex: none;
+  align-items: center;
+  margin-top: var(--sp-3);
+}
+.k-hrow-label {
+  color: var(--muted);
+}
+.k-hchip {
+  gap: 6px;
+  min-height: 32px;
+  border-color: var(--hairline);
+  background: transparent;
+  cursor: default;
 }
 /* between what it says (doors) and what it does (verbs) */
 .k-doorsep {
@@ -4855,19 +4878,24 @@ button.k-link {
   background: var(--hairline);
 }
 /* on open the chips come in from the right, one after the other (VIS-90's one timing) */
-.k-doors > * {
+.k-doors > *,
+.k-hrow > * {
   animation: k-door-in var(--t-box) var(--ease) both;
 }
-.k-doors > :nth-child(2) {
+.k-doors > :nth-child(2),
+.k-hrow > :nth-child(2) {
   animation-delay: 40ms;
 }
-.k-doors > :nth-child(3) {
+.k-doors > :nth-child(3),
+.k-hrow > :nth-child(3) {
   animation-delay: 80ms;
 }
-.k-doors > :nth-child(4) {
+.k-doors > :nth-child(4),
+.k-hrow > :nth-child(4) {
   animation-delay: 120ms;
 }
-.k-doors > :nth-child(n + 5) {
+.k-doors > :nth-child(n + 5),
+.k-hrow > :nth-child(n + 5) {
   animation-delay: 160ms;
 }
 @keyframes k-door-in {
@@ -4878,7 +4906,8 @@ button.k-link {
 }
 /* the edge where more is waiting fades out; only when the row really overflows */
 @supports (animation-timeline: scroll()) {
-  .k-doors {
+  .k-doors,
+  .k-hrow {
     animation: k-doors-edge linear both;
     animation-timeline: scroll(self inline);
   }
@@ -4902,7 +4931,8 @@ button.k-link {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .k-doors > * {
+  .k-doors > *,
+  .k-hrow > * {
     animation: none;
   }
 }
@@ -5671,6 +5701,7 @@ button.k-mrow:active {
 }
 @media (pointer: fine) {
   .k-doors,
+  .k-hrow,
   .k-tabs,
   .k-findbar,
   .k-dockrow {
@@ -5678,6 +5709,7 @@ button.k-mrow:active {
     scrollbar-color: var(--hairline) transparent;
   }
   .k-doors::-webkit-scrollbar,
+  .k-hrow::-webkit-scrollbar,
   .k-tabs::-webkit-scrollbar,
   .k-findbar::-webkit-scrollbar,
   .k-dockrow::-webkit-scrollbar {

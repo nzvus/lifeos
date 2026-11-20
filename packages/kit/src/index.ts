@@ -11,6 +11,7 @@ export { Glyph, type GlyphSize } from "./Glyph";
 export { Box, type BoxAct, type BoxDoor, type BoxEntry } from "./Box";
 export { MealBox } from "./MealBox";
 export { ThingBox, type ThingBoxPlace } from "./ThingBox";
+export { ChipRow, type ChipItem } from "./ChipRow";
 export { EntryDetails, mealDoors, type BoxDetails, type DoorWords } from "./meal-doors";
 export { PageHeader } from "./PageHeader";
 export { NavBar, AreaFilter, AREAS, PLACES, type Area, type Place } from "./NavBar";

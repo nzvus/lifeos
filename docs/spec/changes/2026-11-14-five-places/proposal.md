@@ -1286,6 +1286,11 @@
     rotella o il touchpad». Taken: no ⋯ sheet; an open box's doors and its verbs on **one row that
     scrolls sideways**, never wrapping; no scrollbars on touch, only horizontal ones with a mouse.
     Direction for the page (PAT-30 level 2): everything already in the box, as far as possible.
+129. **20 Nov, his word on the sideways row:** «ecco a questo punto il cibo aperto invece di avere "1
+    prodotto" per esempio, puo avere un'altra piccola sezione a scorrimento orizzontale che li
+    elenca. inoltre non so se a questo punto sia meglio per questo genere di testi e per esempio
+    anche le descrizioni sotto i pasti, di averle allineate completamente a sinistra, anche sotto
+    l'icona. pero spaziati bene comunque».
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

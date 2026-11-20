@@ -5,7 +5,7 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **72** · kit pieces: **51**
+- routes: **42** · screen components outside the kit: **72** · kit pieces: **52**
 - components that take input (a form, a field): **37**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
@@ -84,7 +84,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/library/BarcodeBox.tsx` | 308 | Glyph | 2 input | 4 |
 | `features/library/ExerciseForm.tsx` | 90 | Field, PageHeader | 1 form | 4 |
 | `features/library/FoodForm.tsx` | 209 | Field, Glyph, PageHeader | 3 input, 1 form | 4 |
-| `features/library/Library.tsx` | 431 | Box, Field, MealBox, Nutrients, ThingBox | 2 input | 2 |
+| `features/library/Library.tsx` | 447 | Box, ChipRow, Field, MealBox, Nutrients, ThingBox | 2 input | 2 |
 | `features/library/PantryActions.tsx` | 56 | ObjectForm, Sheet | — | 2 |
 | `features/library/RouteForm.tsx` | 112 | Field, PageHeader | 1 form | 1 |
 
@@ -187,6 +187,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `ObjectForm` | 3 | features/gallery/Pieces.tsx, features/library/PantryActions.tsx, features/objects/NewObjectForm.tsx |
 | `Capture` | 2 | features/add/CaptureSheet.tsx, features/gallery/Pieces.tsx |
 | `Chart` | 2 | app/(app)/[area]/andamento/[tracker]/page.tsx, app/(app)/kit/page.tsx |
+| `ChipRow` | 2 | features/library/Library.tsx, app/(app)/kit/page.tsx |
 | `DayPart` | 2 | features/day/Timeline.tsx, app/(app)/kit/page.tsx |
 | `EmptyState` | 2 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx |
 | `EmptyTime` | 2 | features/day/Timeline.tsx, app/(app)/kit/page.tsx |

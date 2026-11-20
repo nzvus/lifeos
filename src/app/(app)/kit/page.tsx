@@ -30,6 +30,7 @@ import {
   Glyph,
   MealBox,
   ThingBox,
+  ChipRow,
   Forms,
   MeasureDays,
   MeasureTree,
@@ -704,7 +705,16 @@ export default async function KitPage({
                 },
                 { key: "nova", label: "NOVA", value: "1" },
               ]}
-            />
+            >
+              <ChipRow
+                label="Marche"
+                items={[
+                  { key: "a", label: "Esselunga", value: F.num(4.2, "€") + "/kg" },
+                  { key: "b", label: "Quaker", value: F.num(5.9, "€") + "/kg" },
+                  { key: "c", label: "Coop" },
+                ]}
+              />
+            </ThingBox>
           </div>
         ))}
       </section>
