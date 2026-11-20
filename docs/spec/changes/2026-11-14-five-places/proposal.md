@@ -922,6 +922,27 @@
 87. **20 Nov, his words on the real apps page:** «non vedo nulla di straordinario, tu puoi fare di
     meglio». Claude's own idea, built: the bar takes the shape of its ranges (bars-study §15,
     `Ridge`), photos `LIFEOS/review/2026-11-20/crinale/`.
+88. **20 Nov, his notes in the inbox (08:53–10:22), moved here:**
+    «Per esempio anche le barre della palestra, per ogni esercizio che sto facendo potresti
+    mostrare valutazioni dinamiche dei progressi dell'esercizio singolo e poi anche voti cumulativi
+    dinamici sull'intera sessione» · «E poi in schede di andamento e progressione esterne, anche
+    aggregati nel tempo» · «Sempre con feature olap ma migliorate e adattate al nostro contesto» ·
+    «Quindi il cambiamento che dobbiamo attuare riguarda grafici sia su valutazioni su dati storici,
+    che predizione di andamento eccetera, statistiche altre e cosa altro?» · «Quindi ricapitoliamo
+    tutti gli ingredienti che riguardano questo cambiamento» · «Di questi ingredienti dobbiamo
+    identificare i vettori che meglio si prestano a ogni dimensione e alle loro combinazioni. E per
+    prestazioni si intende soprattutto quel discorso che ti facevo su comprensibilità della scala,
+    dei range eccetera» · «Hm in effetti c'è un'altra cosa che non abbiamo valutato: il contesto in
+    cui viene mostrato: per esempio nella timeline giornaliera, ha più senso mostrare quei valori che
+    sono dinamici rispetto a oggi, e non quelli costanti, come possono essere quelli generali di un
+    pasto. Però anche quelli non vanno ignorati, e se richiesti mostrati. Magari va data una
+    priorità e mostrato come quelli dinamici cambiano quelli costanti. E questo si applica non solo
+    al cibo. Ma come si generalizza e si uniforma a tutto il resto di quello di cui abbiamo
+    discusso?» (typos fixed, words his). With «procede» (20 Nov). Answer: bars-study §16, the
+    ingredients, their channels, the context rule; for his corrections before any drawing.
+    Decided by Claude (cheap to undo): this stays inside the open change five-places (one change
+    open at a time, PRD-41), as its visual-system part; it can move to its own change folder when
+    five-places closes.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

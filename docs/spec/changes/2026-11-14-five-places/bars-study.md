@@ -437,3 +437,86 @@ piece can be one measure in a Box (one hill) or the day (all of them): one famil
 Decided by Claude, cheap to change: heights per level (ottimo 1, ok ½, pessimo ⅙, da evitare
 ≈ 0); the scale ends at 2 × the target (a value past it shows an arrow at the right end).
 
+## 16. One visual system: the ingredients, their channels, the context (20 Nov, proposal §88)
+
+His questions: what does this change cover (history, prediction, statistics, what else); recap
+every ingredient; for each, the channel that shows it best — «performance» meaning above all that
+the scale and the ranges are understood; and the context a value is shown in. Draft for his
+corrections; no drawing before his word.
+
+### 16.1 What the change covers
+Every place a number is drawn: **the day** (Oggi: a voce, «Il giorno», the timeline), **a session
+live** (the gym: each exercise against its past, the session's voto as it fills), **an object**
+(a food, an exercise, a ciclo: its own values and its use), **Andamento** (aggregates over time,
+by period, by area), and **prediction** (the day still going, the session's end, a goal's ETA,
+the weight's trend). Plus what he asked «cosa altro?»: **comparison** (this vs last time, this
+period vs the last), **statistics** (mean, spread, best, streak, coverage), and later
+**correlations** (MOD-55, after 3 months).
+
+### 16.2 The ingredients (the data cube, §11)
+- **Measures** (what is counted): amounts (kcal, g, mg, kg, min, ml, steps, €), work (load ×
+  reps, e1RM, TR-21), a voto (0–100, MOD-43), a rate (kg/week, sets/week), a share (% of a whole).
+- **References** (what a measure is read against): the **target**; the **fascia** — minimo ·
+  buono · massimo (MOD-41), our ranges; the **goal** (at least · at most · range · by a date,
+  MOD-42); **his past self** in the same context (MOD-50, TR-20: same exercise, position, load;
+  same meal at the same hour); the **window's mean** (the 7-day mean of the limits, FD-33); the
+  **record** (TR-23).
+- **Dimensions** (what we slice and drill by): **what** (type → object → part → kind: Energia →
+  macro → kind → food; session → exercise → set; voto → criterion); **when** (now → part of the
+  day → day → week → month; in a session: set → exercise → session); **where from** (voce → food
+  → brand); **state** (previsto · fatto · saltato, VIS-22); **context** (pre/post workout, the night
+  before: MOD-60).
+- **Derived**: **progress** (vs his past self), **trend** (the slope over weeks, TR-24),
+  **prediction** (eaten + planned «→», FD-34; the session's expected end; ETA of a goal),
+  **uncertainty** (±, «stima», coverage below threshold = «non so», MOD-41), **statistics**
+  (mean, spread, best, streak), **judgement** (where it ends among the fascia; the voto).
+- **Operations** (OLAP adapted, §11): **drill** down a «what» or «when» by a tap; **roll up**
+  in time (day → week → month); **slice** by state or context (only planned, only pre-workout);
+  **pivot** the same total by another dimension (by macro ↔ by meal ↔ by part of the day);
+  **compare** two members (this session vs the last; this week vs the last).
+
+### 16.3 The best channel for each (Bertin; Cleveland & McGill; his rules 4 and 7)
+One channel per idea, everywhere; a number only for the one exact value; the scale always
+readable.
+
+| Ingredient | Channel | How its scale is understood | Never |
+|---|---|---|---|
+| amount | **length** from a common zero | the reference drawn on the same scale | angle, area |
+| target | the **peak** of the shape (§15) or a tick | it *is* the scale's landmark | a written «obiettivo» |
+| fascia (ranges) | the **shape** (height) + **colour blending** along the scale | the edges' numbers under it, once | range words beside the colour |
+| judgement | **where it ends** among the ranges | — (read off the shape) | a word that repeats the colour |
+| identity (which nutrient, which criterion) | **hue** | the icon once | hue for judgement |
+| parts of a whole | the length **split** in shades of the hue | the parts add up to the whole | separate rows for parts |
+| planned · predicted | **hatch** after the done part; a prediction as a **dashed** continuation that widens with its uncertainty | on the same scale | a separate bar |
+| uncertainty | **transparency** or a **band's width** | the band is the ± | hiding the value |
+| his past self (progress) | a **ghost mark** of last time on the same scale; the gap's **direction** | the same scale as now | a % (TR-22, MOD-50) |
+| record | a **notch** at the best ever | on the same scale | — |
+| trend over time | **slope** of a line over the ranges as a background band | the band is the fascia | 3D, angle-only gauges |
+| count (sets, voci) | **discrete units** (dots, cells) | they can be counted | a number when ≤ 7 |
+| time of day | **vertical position** on the rail (VIS-60) | the hours on the rail | — |
+| rank, priority | **order** | top first | — |
+| level of detail | **size** (L0 small → L1 larger) | — | size for importance |
+
+### 16.4 The context: what a value shows first depends on where it is shown (his 10:22)
+Every value has two frames: its **own** (constant: a meal's macros, a food per 100 g, an
+exercise's record) and the frame of **where it is shown** (dynamic: what it does to today, to
+this session, to this period). **The place picks the frame shown first; the other is one tap
+away; and the dynamic one is drawn on top of the constant one**, so he sees how today changes it:
+
+| Where | First (dynamic) | On request (constant) | Drawn as |
+|---|---|---|---|
+| the day's timeline (a meal) | its share of the day: the slice it adds to each of the day's hills, the day's judgement after it | the meal's own values and its own voto | the meal's part lit inside the day's shape |
+| the gym, live (an exercise) | this set against last time and the record; the session's voto filling set by set; the expected end | the exercise's facts and its long trend | the ghost of last time on the same scale; the session's voto as a growing fill |
+| an object's page (a food, an exercise) | its own values | how it is used in his days («usato in»), its share of his weeks | own first, use under it |
+| Andamento (a period) | the aggregate against the goal, its trend and prediction | each day, each voce (drill) | the period's shape over the days' band |
+
+This is one rule for every type (PRD-03): the registry says, for each type, its constant values
+and the frames it can be put in (day, session, period); a page says which frame it is.
+
+### 16.5 For his corrections
+1. Anything missing or wrong in 16.1–16.2 (his «cosa altro?»).
+2. The channel table: any row he would draw another way.
+3. The context rule (16.4): the frame per place.
+Then: one family at a time, drawn in the real app on his data (the ridge, §15, is the proposal for
+«amount against its ranges»).
+

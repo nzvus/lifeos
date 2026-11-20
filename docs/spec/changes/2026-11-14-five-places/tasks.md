@@ -34,4 +34,7 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
     the things in it) and «Ripeti…» on a voce with no ritmo; [ ] forbid «blocco» in product.md
     §3; [ ] times at planning «fissa · quando capita» (§27 second half); [ ] the ciclo's page
     redone (steps first, rules folded, reorder by dragging, §31).
+10c. [ ] The visual system (bars-study §16, proposal §88): [x] the study — ingredients, channels,
+    context; [ ] his corrections; [ ] one family at a time in the real app (the ridge first, §15),
+    tests citing VIS-50/52/22; [ ] the delta (VIS-, PAT- rows) for what he approves.
 11. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.
