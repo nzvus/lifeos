@@ -1047,6 +1047,12 @@
 100. **20 Nov, his principle:** «la cosa fondamentale è condensare il più possibile informazione,
     senza perdere in comprensibilità e bellezza». Taken as the first rule of the visual system
     (bars-study §21.0); §21 written on it.
+101. **20 Nov, his words:** «ah dimenticavo, anche drill down e dig up no? o altre azioni come i
+    filtri, quelle sono fondamentali no? offrono letteralmente livelli in più di informazione, più
+    viste, sullo stesso elemento no? però ti ricordo che odio come fai i bottoni, li dimensioni e
+    colori e contorni sempre male con tutto il resto». Answer: bars-study §21.7 — the actions are
+    part of every instrument; the instrument itself is the control wherever it can be; the few
+    controls left are one kit piece measured with the foundations.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

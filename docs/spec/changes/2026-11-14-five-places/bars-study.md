@@ -926,10 +926,37 @@ and level pick the question; the engine picks the instrument and fills **every c
 has** (21.0's tests decide when one more channel costs comprehension). Slices 1–3a stay: readings,
 frames, levels and yes / no are inputs to this.
 
+### 21.7 The actions: more views of the same instrument (his §101)
+His words: «drill down e dig up… i filtri… offrono letteralmente livelli in più di informazione,
+più viste, sullo stesso elemento». So an instrument is not a picture but **a picture plus the
+actions on it**; each action is one more view, and the density rule (21.0) counts them: what an
+action can show need not be drawn at once.
+
+| Action | What it gives | How it is done, on the instrument itself |
+|---|---|---|
+| **Drill down** | the part becomes the whole (Energia → Proteine → qualità alta → its foods) | tap a part |
+| **Roll up** («dig up») | back to the whole | the path above it («Energia › Proteine»), or a tap on the whole |
+| **Filter / slice** | only some of it (only Cena, only what was planned, only pre-workout) | tap a part of the legend, or of the rail; tap again to clear |
+| **Highlight** | one thing lit in every instrument of the page, the rest dimmed (a food, today on VIS-50) | tap it anywhere |
+| **Pivot** | the same total by another dimension (by macro ↔ by meal ↔ by part of the day) | swipe sideways on the instrument (one gesture, VIS-63's swipe already moves time) |
+| **Time window** | roll up in time (day → week → month), or move it | the period's own switch; a swipe moves it |
+| **Compare** | last time, the record, another period beside it | the ghost is on by default where it exists; a tap on it opens the gap |
+| **Sort** | by amount, by time, by judgement | where a list grows (PAT-42) |
+| **Why** | the source of every edge and number | «Perché?» (PAT-51) |
+Levels are what drill and roll up walk through: as many as the data has (C2, §99).
+
+**Controls** (his «odio come fai i bottoni, li dimensioni e colori e contorni sempre male con tutto
+il resto»): wherever the instrument can be tapped, swiped or held, it **is** the control — no button
+beside it. The few controls that remain (a period switch, a path, a clear-filter) are **one kit
+piece**, sized, coloured and outlined from the foundations' measured scale (21.0, beauty) in
+relation to the instrument they sit by: never drawn per screen, checked on the photo against their
+neighbours (height, weight of the outline, the gap to the instrument).
+
 ### 21.6 Next, one stop each
 1. His word on this section.
 2. Each instrument specified on his data: its questions, its channels, its free room, its levels —
    content only (merging §8).
-3. The foundations measured (21.0, beauty).
+3. The foundations measured (21.0, beauty), **controls included**: one scale for their heights,
+   outlines and colours against the instruments.
 4. The bar rebuilt as the reference with its free channels added one at a time (moments, the
    tail, the ghost), each shown and tested by 21.0; then the fan, the rail, the tank.
