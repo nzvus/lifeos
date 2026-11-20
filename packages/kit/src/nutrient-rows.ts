@@ -449,7 +449,8 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
       key: m.key,
       name: NAME[m.key],
       color: MACRO_COLOR[m.key],
-      value: g(m.v),
+      // Its unit with the target, else on the number itself (VIS-11: never a bare number).
+      value: t === null ? F.num(m.v, "g") : g(m.v),
       withPlan: planned ? g(m.v + planned) : null,
       target: t === null ? null : F.num(t, "g"),
       mark: t === null ? null : pct(t, scale),

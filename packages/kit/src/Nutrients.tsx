@@ -21,15 +21,27 @@ import { WORDS } from "./words";
 export function Nutrients({
   data,
   part = "all",
+  lit,
+  chips = true,
+  onTap,
 }: {
   data: NutrientsData;
   part?: "all" | "main" | "rest";
+  /** The part lit by its place, the rest dimmed (a meal in its day, §143); overrides a tap. */
+  lit?: string | null;
+  /** false: no row of parts to tap (the meal box lights its part itself). */
+  chips?: boolean;
+  /** A tap on the bars goes to the next level (drill down · roll up, VIS-70; §143). */
+  onTap?: () => void;
 }) {
   const main = part !== "rest";
   const rest = part !== "main";
   const [open, setOpen] = useState<string | null>(null);
   const [sel, setSel] = useState<string | null>(null);
-  const { kcal, foods, macros, limits, micros } = nutrientsL1(data, sel);
+  const { kcal, foods, macros, limits, micros } = nutrientsL1(
+    data,
+    lit !== undefined ? lit : sel,
+  );
   const means = limits.some((l) => l.strip?.mean);
   return (
     <div className="k-stack g3">
@@ -69,7 +81,7 @@ export function Nutrients({
           {kcal.left && <span className="k-help">{kcal.left}</span>}
         </div>
       )}
-      {main && foods.length > 1 && (
+      {main && chips && foods.length > 1 && (
         <div className="k-chips" aria-label="Cibi: tocca per evidenziarne il contributo">
           {foods.map((f, n) => (
             <button
@@ -95,8 +107,10 @@ export function Nutrients({
             <button
               type="button"
               className="k-mrow"
-              onClick={more ? () => setOpen(isOpen ? null : m.key) : undefined}
-              aria-expanded={more ? isOpen : undefined}
+              onClick={
+                onTap ? onTap : more ? () => setOpen(isOpen ? null : m.key) : undefined
+              }
+              aria-expanded={!onTap && more ? isOpen : undefined}
             >
               <span className="k-line between">
                 <span className="k-line">

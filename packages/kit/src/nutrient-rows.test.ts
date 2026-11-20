@@ -42,7 +42,9 @@ describe("Nutrients L1", () => {
       macros: [{ key: "protein", v: 50.25 }],
     });
     expect(kcal).toMatchObject({ t: null, bar: null, aria: "Energia: 900 kcal" });
-    expect(macros[0]).toMatchObject({ value: "50,3", target: null, mark: null });
+    // VIS-11: without a target the unit goes on the number itself.
+    expect(macros[0]).toMatchObject({ target: null, mark: null });
+    expect(macros[0]!.value).toMatch(/^50,3\sg$/);
     expect(macros[0]!.segs).toEqual([
       { w: "95.2%", bg: shade("protein", 1), planned: false, dim: false },
     ]);

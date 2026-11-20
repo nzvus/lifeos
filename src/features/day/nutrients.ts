@@ -573,3 +573,48 @@ export function microsOf(
     groups,
   };
 }
+
+/**
+ * The day's bars with each meal as a part (his 21 Nov, §143): «Il giorno»'s own data, eaten and
+ * planned, its macros drawn per meal so a meal's box can show the day with its own share lit
+ * (VIS-50's light) — the level above the meal's (drill down · roll up, VIS-70).
+ */
+export function dayByMeal(
+  day: NutrientsData,
+  items: readonly DayItem[],
+  estimates: ReadonlyMap<string, Record<string, string>>,
+  name: (i: DayItem) => string,
+): NutrientsData {
+  const known = estimates.size > 0;
+  const whole = (m: Record<string, number>) =>
+    known ? m : { all: Object.values(m).reduce((a, v) => a + v, 0) };
+  return {
+    ...day,
+    foods: items
+      // What was eaten or will be, made of lines (a meal; a coffee has none).
+      .filter((i) => isEaten(i.kind.key) && i.lines.length > 0 && i.status !== "skipped")
+      .map((i) => {
+        const servings = servingsOf(i);
+        const k = macroKinds(
+          i.lines.map((l) => {
+            const est = l.itemId ? estimates.get(l.itemId) : undefined;
+            return est ? { ...l, estimates: est } : l;
+          }),
+          servings,
+        );
+        const kcal = Number(lineTotals(i.lines, servings)["kcal"] ?? 0);
+        return {
+          key: i.id,
+          name: name(i),
+          amount: F.num(Math.round(kcal), "kcal"),
+          kcal,
+          macros: {
+            protein: whole(k.protein),
+            carbs: whole(k.carbs),
+            fat: whole(k.fat),
+            fiber: whole(k.fibre),
+          },
+        };
+      }),
+  };
+}

@@ -30,13 +30,8 @@ export function mealSlots({
   });
 }
 
-/** The box's words (PAT-81): its two modes and its two bars (VIS-106, VIS-107). */
-export const MEAL_WORDS = {
-  parts: common.modes.parts,
-  kinds: common.modes.kinds,
-  macros: common.modes.macros,
-  voto: common.modes.voto,
-};
+/** The box's words (PAT-81): its two levels, the day and the meal (§143). */
+export const MEAL_WORDS = { day: common.levels.day, meal: common.levels.meal };
 
 /** The cost a box no longer shows (ATT-11, level 2): for the page that holds the box. */
 export const mealCost = (details?: BoxDetails | null) =>

@@ -1,36 +1,48 @@
 "use client";
 /**
  * The one box of a meal (PAT-30, PAT-102; target.md B1–B2): the same on the day, on a saved
- * pasto's page and in the Elenco, in the anatomy every Box shares (his 21 Nov, §139–§141):
- * (1) the head with the strip of where its energy comes from; open, (2) its macros as one bar
- * (VIS-106) and (3) its voto as a bar split by ingredient (VIS-107); (4) one sideways row — the
- * mode, «Ingredienti» · «Nutrienti», then the place's actions (PAT-101); (5) what the mode shows:
- * the ingredients as chips, each with its own voto, a tap lighting its blocks in both bars; or
- * every nutrient's row (VIS-50). Its other slots (context, porzioni) follow, by `PlanBox`.
+ * pasto's page and in the Elenco. Closed: the head and the strip of where its energy comes from.
+ * Open (his 21 Nov, §143): the day's own bars — «Il giorno»'s component, its sizes — at two levels
+ * a tap on them moves between (drill down · roll up, VIS-70): **the day**, eaten and planned,
+ * with this meal's share lit and the rest dimmed; **the meal**, its own total, each ingredient a
+ * part of it. Then one row of actions (PAT-101), then its other slots (context, porzioni).
+ * A place without the day (a pasto, the Elenco) has only the meal's level.
  */
 import { useState, type ReactNode } from "react";
 import type { BoxEntry } from "./Box";
-import { ChipRow } from "./ChipRow";
-import { F } from "./format";
-import { WORDS } from "./words";
 import { Nutrients } from "./Nutrients";
 import { energyStrip, type NutrientsData } from "./nutrient-rows";
-import {
-  macroColumns,
-  PartsBar,
-  partTones,
-  votoColumns,
-  type PartsMode,
-} from "./PartsBar";
 import { PlanBox, type PlanAction, type PlanSlot } from "./PlanBox";
 import type { ThingBoxPlace } from "./ThingBox";
 
-/** The box's words, from the caller's catalogue (PAT-81). */
-export type MealWords = { parts: string; kinds: string; macros: string; voto: string };
+/** The levels' words, from the caller's catalogue (PAT-81). */
+export type MealWords = { day: string; meal: string };
+
+/**
+ * The meal's level starts from the meal's own total (his §143: «parte invece dal totale del
+ * pasto»): each bar is the meal's amount, full, split by its ingredients; no day's target, no
+ * zones, no mark — those belong to the day's level.
+ */
+export function ownTotal(d: NutrientsData): NutrientsData {
+  return {
+    ...(d.foods ? { foods: d.foods } : {}),
+    ...(d.kcal ? { kcal: { v: d.kcal.v } } : {}),
+    // No target: the macros share one scale, the meal's largest full («/ 20 g of 20 g» said nothing).
+    macros: d.macros.map((m) => ({
+      key: m.key,
+      v: m.v,
+      ...(m.planned !== undefined ? { planned: m.planned } : {}),
+      ...(m.parts ? { parts: m.parts } : {}),
+      ...(m.sources ? { sources: m.sources } : {}),
+    })),
+  };
+}
 
 export function MealBox({
   entry,
   data,
+  day,
+  lit,
   slots,
   actions = [],
   words,
@@ -38,83 +50,58 @@ export function MealBox({
   ...place
 }: ThingBoxPlace & {
   entry: BoxEntry;
-  /** Its nutrients and, by part, its foods: the strip, the bar, the panels. */
+  /** The meal's nutrients, each ingredient a part (`foods`). */
   data: NutrientsData;
+  /** The day's, each meal a part (`foods`), when the place has the day. */
+  day?: NutrientsData | undefined;
+  /** This meal's key among the day's parts. */
+  lit?: string;
   /** Its plan's other level-1 slots (context, porzioni), from the caller. */
   slots: PlanSlot[];
-  /** What can be done to it here (PAT-101), after the mode. */
+  /** What can be done to it here (PAT-101). */
   actions?: PlanAction[];
   words: MealWords;
   /** Open, after everything (a place's own line). */
   children?: ReactNode;
 }) {
-  const hasParts = (data.foods?.length ?? 0) > 1;
-  const [mode, setMode] = useState<PartsMode>(hasParts ? "parts" : "kinds");
-  const [lit, setLit] = useState<string | null>(null);
-  const light = (k: string) => setLit((x) => (x === k ? null : k));
-  const tones = partTones(data);
-  const modes: PlanAction[] = hasParts
-    ? (
-        [
-          ["parts", words.parts],
-          ["kinds", words.kinds],
-        ] as const
-      ).map(([m, label]) => ({
-        key: m,
-        label,
-        pressed: mode === m,
-        onClick: () => {
-          setMode(m);
-          setLit(null);
-        },
-      }))
-    : [];
+  const levels = day ? 2 : 1;
+  const [level, setLevel] = useState(0);
+  const next = () => setLevel((l) => (l + 1) % levels);
+  const atDay = day !== undefined && level === 0;
   return (
     <PlanBox
       {...place}
       entry={{ ...entry, strip: energyStrip(data) }}
       slots={slots}
-      actions={[...modes, ...actions]}
+      actions={actions}
       before={
-        <div className="k-stack g1 k-bars">
-          <PartsBar
-            kind="amount"
-            label={words.macros}
-            columns={macroColumns(data, mode)}
-            lit={mode === "parts" ? lit : null}
-            onPart={light}
-          />
-          {entry.score && entry.score.parts.length > 0 && (
-            <PartsBar
-              kind="voto"
-              label={words.voto}
-              columns={votoColumns(entry.score, tones)}
-              lit={lit}
-              onPart={light}
-            />
+        <div className="k-stack g1">
+          {levels > 1 && (
+            <button
+              type="button"
+              className="k-btn link k-lvbtn"
+              onClick={next}
+              aria-label={(atDay ? words.day : words.meal) + ": tocca per cambiare"}
+            >
+              {atDay ? words.day : words.meal}
+              <span className="k-lv" aria-hidden="true">
+                {[0, 1].map((i) => (
+                  <i key={i} className={i <= level ? "on" : ""} />
+                ))}
+              </span>
+            </button>
           )}
+          <Nutrients
+            key={atDay ? "day" : "meal"}
+            data={atDay ? day! : ownTotal(data)}
+            part="main"
+            chips={false}
+            {...(atDay && lit ? { lit } : {})}
+            {...(levels > 1 ? { onTap: next } : {})}
+          />
         </div>
       }
     >
-      {mode === "parts" && hasParts ? (
-        <ChipRow
-          label={words.parts}
-          {...(lit ? { selected: lit } : {})}
-          onPick={light}
-          items={(data.foods ?? []).map((f) => ({
-            key: f.key,
-            label: f.name,
-            // Its own voto with its word, never a bare number (VIS-11).
-            value:
-              f.amount +
-              (f.score !== undefined
-                ? " · " + WORDS.score.toLowerCase() + " " + F.n(f.score, 0)
-                : ""),
-          }))}
-        />
-      ) : (
-        <Nutrients data={data} />
-      )}
       {children}
     </PlanBox>
   );

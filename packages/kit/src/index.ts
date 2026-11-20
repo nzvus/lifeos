@@ -19,14 +19,6 @@ export {
   type PlanSlot,
   type PlanVariant,
 } from "./PlanBox";
-export {
-  PartsBar,
-  macroColumns,
-  partTones,
-  votoColumns,
-  type PartsColumn,
-  type PartsMode,
-} from "./PartsBar";
 export { ChipRow, type ChipItem } from "./ChipRow";
 export { EntryDetails, type BoxDetails } from "./meal-doors";
 export { PageHeader } from "./PageHeader";

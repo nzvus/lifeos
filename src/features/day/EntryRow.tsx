@@ -42,6 +42,9 @@ export function EntryRow({
   /** `l0`: a meal's thin macro bars (the boards' L0); `details`: what the open box shows. */
   entry: BoxEntry & {
     l0?: NutrientsData | null;
+    /** A meal: the day's bars with each meal as a part (§143), and its own key among them. */
+    day?: NutrientsData;
+    id?: string;
     details?: Details | null;
     /** A session in progress: «Riprendi» instead of «Fatto» and «Salta». */
     running?: boolean;
@@ -202,6 +205,8 @@ export function EntryRow({
             data={entry.l0}
             slots={mealSlots({ details: entry.details ?? null, stepper: true })}
             words={MEAL_WORDS}
+            day={entry.day}
+            {...(entry.id ? { lit: entry.id } : {})}
             density={density}
             rail={rail}
             mode={mode}

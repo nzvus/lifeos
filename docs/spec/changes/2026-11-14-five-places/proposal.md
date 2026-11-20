@@ -1433,6 +1433,33 @@
     undo: `meal-rows.ts` in git); (4) a pasto's ingredients show no voto yet (the composer's foods
     carry none; Oggi's do). Still a sixth row: «Voto n ›» (the criteria and the page) — to fold
     into zone 3 when the voto bar opens its criteria. The other types keep §132's layout for now.
+143. **21 Nov, his word on §142 (rejected):** «non ci siamo affatto, innanzitutto nell'ultima scheda
+    mostri i macro 2 volte, poi le spaziature sono fatte a caso, in nutrienti mostri ancora quelli
+    che sono di fatto gli ingredienti ma in un rendering vecchio e come dicevo ancora il duplicato
+    dei macro. poi le barre fanno schifo. okay facciamo così, hai presente drill down e dig up o quel
+    che è? se tocchi sulle barre scorri tra queste visualizzazioni, una mostra le porzioni dei macro
+    illuminate che riguardano quelle del pasto rispetto quelle totali del piano, comprese quelle
+    pianificate, quindi prende pari pari quella generale ma con quelle evidenziate, una seconda,
+    parte invece dal totale del pasto e fa la stessa cosa ma con i suoi ingredienti. per la barra di
+    voto lo stesso. ora però il problema è anche un altro, la forma dovrebbe essere più simile a
+    quella usata nei macro attuali comuni. quando riprende quella generale, deve riprendere quindi
+    anche tutte le dimensioni che dovrebbe usare. quando si va all'altro livello… be capiamo, ma
+    sempre qualcosa di simile». Claude's reading: the `PartsBar` skyline goes; the meal's bars are
+    the day's own macro bars («Il giorno», same component, same sizes); a tap on them moves between
+    two levels (drill down · roll up, VIS-70): (1) **the day**, eaten + planned, with this meal's
+    share lit and the rest dimmed; (2) **the meal**, its own total, its ingredients' shares the same
+    way; the voto bar the same two levels. No mode chips, no second copy of the macros.
+144. **21 Nov, built on §143:** the `PartsBar` skyline is gone. The meal box draws «Il giorno»'s
+    own `Nutrients` (same component, same sizes) at two levels a tap on the bars moves between,
+    named «Nella giornata» · «Il pasto» with the level dots (VIS-70): the day, eaten + planned, each
+    meal a part (`dayByMeal`), this meal lit and the rest dimmed; the meal from its own total
+    (no day target, zones or limits: the macros share one scale), its ingredients as its parts.
+    No mode chips, no ingredient chips, macros drawn once. Decided by Claude: a macro's number
+    without a target carries its unit (VIS-11); a number too wide for its row moves whole under
+    the name (a box on the rail at 320). Open: the voto's two levels (the day's voto by voce needs
+    MOD-61 for the day); which ingredient is which at the meal level (lit when editing it, with
+    the in-place edits); the box's «›» column narrows its bars. Photos
+    `LIFEOS/review/2026-11-21/levels/`; **waits for his word**.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

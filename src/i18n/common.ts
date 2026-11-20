@@ -33,13 +33,8 @@ export const common = {
     limits: "Limiti e micro",
     energy: "Energia e obiettivo",
   },
-  /** A Box's bar and its two modes (VIS-106, VIS-107; his 21 Nov, §139–§141). */
-  modes: {
-    parts: "Ingredienti",
-    kinds: "Nutrienti",
-    macros: "Macro",
-    voto: "Voto",
-  },
+  /** A meal's bars at two levels, a tap between them (drill down · roll up; his 21 Nov, §143). */
+  levels: { day: "Nella giornata", meal: "Il pasto" },
   /** A Box's slots by their key in the plan (`core/engines/view/box.ts`; Deliver ③, §132). */
   slots: {
     nutrients: "Nutrienti",
