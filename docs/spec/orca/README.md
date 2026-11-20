@@ -13,7 +13,9 @@ or a spec ID). Status: ✓ built · ◐ partly · ○ decided, not built · ✗ 
 ## objects.md — `| ID | Name | What it is | Form | Class | Key | Status | Source |`
 - **Form**: `voce` (logged in time) · `object` (a catalog thing, reused) · `signal` (computed:
   a voto, a stima, a trend) · `reference` (what a number is judged against: fascia, obiettivo,
-  target) · `place` (a preset of the two spaces, reframe §3).
+  target) · `part` (inside a voce or an object: a riga, a serie) · `frame` (a span things are
+  read over: giorno, parte del giorno, periodo; MOD-56) · `place` (a preset of the two spaces,
+  reframe §3).
 - **Class** (MOD-57): intake · activity · state · measurement · exchange · note · context, or `—`.
 - **Key**: the registry key in code (`eslint/type-keys.json`), several with `,`, or `—`.
 - Checked: every registry key has a row; a `voce` or `object` row ✓ or ◐ has keys that exist.

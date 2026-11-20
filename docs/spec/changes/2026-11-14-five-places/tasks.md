@@ -45,3 +45,5 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
     (spacing, sizes, padding, colour lightness/saturation);
     tests citing VIS-50/52/22; [ ] the delta (VIS-, PAT- rows) for what he approves.
 11. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.
+11. [ ] The method (ADR-0064): [x] ADR, `change` skill, `check.py`, `orca/` schema (§118);
+    round 1: [x] Discover, [x] Define → **stop A** (`round-1.md`, §119); [ ] Develop; [ ] Deliver → stop B.

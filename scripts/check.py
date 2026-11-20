@@ -268,7 +268,7 @@ ORCA_SCHEMA = {
                    "References", "Data", "Source"],
 }
 ORCA_VALUES = {
-    ("objects", "Form"): {"voce", "object", "signal", "reference", "place"},
+    ("objects", "Form"): {"voce", "object", "part", "frame", "signal", "reference", "place"},
     ("objects", "Class"): {"intake", "activity", "state", "measurement", "exchange", "note", "context", "—"},
     ("objects", "Status"): {"✓", "◐", "○", "✗"},
     ("relationships", "Relation"): {"made of", "contains", "refers to", "derived from"},

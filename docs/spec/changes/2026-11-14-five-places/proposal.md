@@ -1203,6 +1203,11 @@
     checked until round 1 writes it (undo: the `if objects` guard); (d) the kickoff skill archived
     with `PROJECT.md`, which it filled (undo: `git mv` back). Not yet a check: «one card per
     object» (method §6) — a code guard, built in round 1's Deliver.
+119. **20 Nov, round 1 to stop A.** Discover: `round-1.md` (one Sonnet reader; 102 things, 13
+    conflicts, his export of 19 Nov counted). Define: `docs/spec/orca/` written — 78 objects, 62
+    relationships, 48 actions, 60 attributes. Decided by Claude (undo in `round-1.md` «Define»):
+    actions and attributes only for objects with his data (PRD-02); forms `part` and `frame` added;
+    what is not an object. Waiting for his word on `round-1.md` «For his word» q1–q9.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
