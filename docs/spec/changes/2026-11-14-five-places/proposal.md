@@ -1093,6 +1093,12 @@
     one of each, places only compose), §32 (Piano = a day of Oggi in the future), §93–§94 (one
     engine, everything through it). The Oggi and Elenco changes were examples of the unification,
     not the target; every place, current or to come, is built from the same engine.
+107. **20 Nov, his words:** «ok, facciamo un passo indietro, un re framing. ripensando veramente a
+    tutto». Answer: `reframe.md` in this change (draft): four layers (things, measures, views,
+    places), two spaces (Il tempo, Le cose) with ADR-0063's five as presets, one interaction
+    grammar, the constitution's amendments, the process by layer. If he takes it, its parts
+    move to their homes (model.md, `views.md` absorbing bars-study §21–§23, the presets table) and
+    the file goes (one truth, PRD-40). His to settle: its §9.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
