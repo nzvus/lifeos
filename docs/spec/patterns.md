@@ -8,19 +8,32 @@ entry in the `/kit` gallery (`/kit/oggetto` for the ObjectPage), photographed by
 A screen is only a composition of these pieces (PRD-18).
 
 ## 1. The page shell
-- **PAT-01** One `(app)/layout.tsx` holds NavBar (Corpo · Cibo · Oggi · Mente · Soldi) and ⊕ on
-  every page; pages never mount them. WHEN a sticky «Salva» is on the page (PAT-14, PAT-61) THEN
-  ⊕ is hidden and the «Salva» sits just above the bar (his answer to Q-09, 6 Nov: «a»). ⊕'s own
-  sheets cover the bar. One exception: a running gym session is full screen, left with
-  «Finisci» or «‹ Corpo» (TRAIN-10, his pick 6 Nov). Kit: `NavBar` ✓, layout ✓
-  (`(app)/layout.tsx`, `features/shell/nav.ts`; the bar's height is `--nav-h`).
+- **PAT-01** One `(app)/layout.tsx` holds the NavBar on every page; pages never mount it: Elenco ·
+  Piano · **Oggi** · Andamento · Obiettivi, Oggi the middle item and the start page (ADR-0063). **No
+  ⊕** and no Aggiungi page: everything is added where it will show (PAT-100; his 20 Nov, proposal
+  §112–§113). WHEN a sticky «Salva» is on the page (PAT-14, PAT-61) THEN it sits just above the
+  bar. One exception: a running sessione (Palestra) is full screen, left with «Finisci» or «‹ Oggi».
+  On desktop the bar is a side rail, same five, same order. Kit: `NavBar` ✗ (today: the five areas
+  and ⊕ in the layout).
 - **PAT-02** Every sub-page header: «‹ parent» naming the parent, title, one-line meta.
   One prop name (`back`). Kit: `PageHeader` ✓ (4 prop names today).
-- **PAT-03** An area page = the same four tabs, Diario · Piano · Elenco · Andamento, each a
-  registry-driven view filtered by area; Oggi = all areas. A tab with nothing shows the empty
-  state of PAT-70, not a page of its own. Kit: `AreaTabs` ✓. [ADR-0059] An area's Piano tab is
-  its blocchi (Corpo's with the cicli) on the kit `Elenco`; Oggi · Piano is the week of every
-  area with the blocchi and cicli under it (change 2026-11-07-piano).
+- **PAT-03** A place is a **preset** of the two spaces (PRD-16) answering one question over every
+  type: Elenco «Cosa ho?» = le cose · Piano «Cosa farò?» = il tempo after now · Oggi «Cosa sto
+  facendo?» = il tempo, a day · Andamento «Come sta andando?» = il tempo, a week or more ·
+  Obiettivi «Dove vado?» = il tempo with the obiettivi as channels and as Boxes. A place draws
+  nothing of its own; WHEN a type has nothing in a place THEN it has no line there. The four tabs
+  are gone. Kit: `AreaTabs` removed ✗. [ADR-0063, reframe §3, his «yc per ora» 20 Nov]
+- **PAT-95** The area filter: one row of chips, «Tutto» · Cibo · Corpo · Mente · Soldi, under the
+  header of every place but Oggi, which filters by kind with its own chips (his «yc», 14 Nov).
+  WHEN he taps a chip THEN the place shows only that area's types; WHEN he changes place THEN the
+  chip stays. An area is never a page. Kit: `AreaFilter` ✗.
+- **PAT-97** Oggi holds every day, and what it shows follows the time: a past day what happened,
+  today done before now and planned after it, a day to come only what is planned — each line
+  saying where it comes from (its ritmo as a tag, else «solo questo giorno»), every part shown, an
+  empty one as a gap that offers what is missing («+ Pranzo»). The Piano is the same rail after now
+  (reframe §14), and the ritmi and cicli it holds, as the kit `Elenco`. [his 15 Nov «tanto vale
+  unirle», proposal §38, §42–§43; his 20 Nov] Kit: `DateNav` ✓, `Elenco` ✓, the Piano as the rail's
+  future ✗ (today `PianoList` only).
 - **PAT-04** Object addresses: `/{area}/{type}/{id}`; one route per family
   (`[area]/[type]/[id]`), not one per type: the type is found by its word (`typeAtSlug`), a
   wrong area redirects to the type's own, the page is the generic ObjectPage
@@ -39,7 +52,7 @@ A screen is only a composition of these pieces (PRD-18).
 ## 2. The verbs (one form each; the registry says which apply)
 | ID | Verb | WHEN he… | THEN | Kit |
 |---|---|---|---|---|
-| PAT-10 | Aggiungi | taps ⊕ anywhere | Capture sheet (PAT-60) opens, the current area's types first | `Capture` ✓ |
+| PAT-10 | Aggiungi | taps where the thing will show (PAT-100) | a search row opens there, ranked for the hour | `Capture` to remove ✗ |
 | PAT-11 | Aggiungi qui | taps the last row «+ Nuovo …» of a list | the type's form opens prefilled (MOD-51); a type with plain declared fields gets the generated form (`NewObjectForm`, `objectCreate` through `core/verbs`; ciclo, blocco) | `List` ✓ |
 | PAT-12 | Apri | taps a row or box anywhere on it | its object page or voce sheet | `List`, `Box` ✓ |
 | PAT-13 | Modifica | taps a value (the name too) | it becomes editable in place; leaving saves; toast «Salvato · Annulla». No `/modifica` pages | `InPlace` ✓ |
@@ -62,12 +75,16 @@ A screen is only a composition of these pieces (PRD-18).
   it type by type in phase 4.
 
 ## 3. Object page and voce
-- **PAT-30** **ObjectPage**, the same for every catalog type: header (PAT-02) · the values that
-  matter as editable rows · its parts or lines · «Andamento» (progress, MOD-50) · «Usato in»
-  · actions row at the end (Parti da, Variante, Archivia; «⋯» for the rest). Kit ✓ `ObjectPage`
-  (8 bespoke pages move in phase 4). A `ref` field is a row like the others, a choice of his live
-  objects of its catalog, shown by name (`readRefs`); a field marked `internal` is stored, never a
-  row (its type's section edits it: a blocco's `kind`). *Decided by Claude.*
+- **PAT-30** One piece per type at three levels (his «ap yc», 15 Nov; his «riusare le schede che si
+  usano in oggi»): 0 the row = the `Box` closed (icon · name · one value · score chip), in every
+  list, search, «Usato in», a pasto's cibi, Marche, Dispensa; 1 the same Box open in place, its
+  doors one at a time, a value edited by a tap (PAT-13); 2 the page = the same open Box alone, plus
+  «Altro» (PAT-23). A pasto salvato in Elenco and a pasto on the day are one Box: the day adds
+  quanto, quando and the state (PAT-31, VIS-22). A type has one renderer and one editor; a second
+  fails the guard (PAT-90). A cibo's label values sit behind the door «Etichetta», closed at first.
+  A `ref` field is a row, a choice of his live objects of its catalog (`readRefs`); a field marked
+  `internal` is stored, never a row. Kit: `ObjectPage` ✓, the shared Box from the registry ✗
+  (Deliver ③).
 - **PAT-31** **Voce header**, the same for every type: quanto (× servings / quantity) · quando
   (time, previsto/fatto/saltato) · ↺ only when its catalog object changed after it · «⋯».
   The body below edits in place. Kit ✓ `EntryHeader`. [n02, FOOD-38, FOOD-47]
@@ -99,17 +116,23 @@ A screen is only a composition of these pieces (PRD-18).
   different (his «scegli tu» on Q-11, 7 Nov). The hint opens «Possibili doppioni», one pair per
   box with the proposal as its first button (Uniscili · È una marca di · Variante di · Sono
   diversi); «Unisci» on an object's page is the `MergeSheet` (PAT-18). Kit ✓ `Elenco`, detector
-  `core/catalog/twins.ts`, read by `features/library/twins.ts` for cibi and esercizi. Oggi ·
-  Elenco has its «Tracker» section (change 2026-11-06-tracker); Corpo · Elenco its «Schede»
-  (change 2026-11-07-exercise-scheda).
+  `core/catalog/twins.ts`, read by `features/library/twins.ts` for cibi and esercizi. WHEN he taps
+  a row THEN it opens in place (PAT-30 level 1) and «Apri» goes to its page; children are nested
+  under their parent (MOD-21): a cibo's marche, each with its formati; a pasto salvato's varianti;
+  marche and formati have no shelf of their own. The Dispensa is a filter of Elenco (the formati in
+  casa; product.md §4).
 
 ## 5. Numbers
 - **PAT-50** Every number shown is a `Metric` value through `F` (format, unit, 24 h). Kit: `F` ✓.
 - **PAT-51** **Perché?**: tapping a number opens one sheet generated from its metric
   declaration: formula in words, inputs with sources and confidence, coverage, source of the
-  fascia, formula version. No page writes an explanation by hand. Kit ✓ `Why`. [n05, MOD-40]
-- **PAT-52** One judgement chip (`F.judge`): mark + number + word; one fascia bar (ruler with
-  min / buono / max). Kit ✓ `Judge`, `Fascia` (+ `FasciaBar`, `scoreFascia`): Nutrients and a
+  fascia, formula version. No page writes an explanation by hand; where the day's targets come from
+  («dispendio ≈ … per il ritmo dell'obiettivo») is said once, in Obiettivi (his 15 Nov). Kit ✓
+  `Why`. [n05, MOD-40]
+- **PAT-98** A voto is its number in the judgement's colour, with no word beside it; WHEN the app
+  cannot score (PRD-23) THEN «–», the reason in its «Perché?». Kit: ✗.
+- **PAT-52** One judgement chip (`F.judge`): mark + number, no word beside it (PAT-98); one fascia bar
+  (the zones ruler: da evitare · pessimo · ok · ottimo, FD-30). Kit ✓ `Judge`, `Fascia` (+ `FasciaBar`, `scoreFascia`): Nutrients and a
   score's parts draw the one ruler; hand-written marks move to `Judge` type by type. [UI-102]
 - **PAT-53** One `Chart` for every trend (period G/S/M/6M/A, points, trend line, fascia band);
   no SVG drawn in a feature. Kit: `Chart` ✓ (1 use, 5 hand-drawn today).
@@ -119,14 +142,26 @@ A screen is only a composition of these pieces (PRD-18).
   `Unknown`.
 
 ## 6. Forms and capture
-- **PAT-60** **Capture** (⊕): a sheet over the page he is on, one `Find` over every type and
-  object; WHEN nothing is typed THEN it shows the day's ranked rows first — previsti to tick
-  (PAT-15), what he logs at this hour (MOD-51), schede to start, water in one tap, the last
-  meals — then the types, the current area's first; «Adesso · Previsto · Prima» says when what
-  opens from it happened. One tap on a ranked row logs it with Annulla; an unknown thing becomes
-  a stima object at once (FD-92). One door per type. [n01; his «scegli tu» on Q-12, 7 Nov] Kit ✓
-  `Capture` (`Find` + the caller's ranked rows); `/aggiungi` is it, intercepted in the
-  `(app)/@capture` slot so it opens over the page (⊕ is the app's link, `NavBar link`).
+- **PAT-60** **Adding in place** replaces Capture: nothing covers the page; what appears pushes the
+  rest down or slides sideways. A voce is added on the rail at its time (a gap, «adesso», or
+  «Senza orario» at the day's end): a search row opens there, one `Find`, with what he logs at that
+  hour ranked first (MOD-51: previsti to tick, the usual at this hour, schede, acqua, the last
+  pasti); one tap logs with Annulla; the time makes it previsto or fatto (MOD-15), no «Adesso ·
+  Previsto · Prima». A riga is added at the end of its card's righe, an object at the end of its
+  list in Elenco, a new kind of thing at the end of the search's results («Nuovo tipo», MOD-01). An
+  unknown thing becomes a stima object at once (FD-92). [his 20 Nov «on place negli stessi posti in
+  cui si visualizza… togliessimo quell'orribile bottone +», reframe §15] Kit: `Capture` and
+  `/aggiungi` to remove ✗ (Deliver ④).
+- **PAT-99** The dock («Al volo»): one strip stuck above the bar on Oggi: the water drunk with +250
+  and +500, then what he pinned, in his order, then the app's guesses up to four chips, sideways.
+  WHEN he taps «Modifica» THEN a sheet lists the pins («Su», «Togli») and the other assunzioni
+  («Fissa»); each tap saves. Pins live in his settings. The one shortcut kept (his «yc», §113).
+  Kit: ✗.
+- **PAT-100** **One grammar, three spots** (his §112–§113; `round-1.md` D3): on the thing's card —
+  change, skip, start from, merge, archive, drill, compare, why; where it will show — at a time on
+  the rail, at the end of a list or of a card's parts; two named shortcuts — the dock (PAT-99) and
+  Palestra (PAT-63). No ⊕, no page for an action; `orca/actions` lists each action's spot and
+  `check.py` refuses ⊕ there. Kit: ✗.
 - **PAT-61** **ObjectForm**: generated from the type's fields (labels, units, help, ranges);
   numbers with − / + steppers; time and date with one native picker each (no typed
   «AAAA-MM-GG»). A type adds a custom section only through its specialisation. Kit: `Field` ✓,
@@ -169,8 +204,11 @@ A screen is only a composition of these pieces (PRD-18).
 - **PAT-72** Error saving: banner with «Riprova», what was typed stays. Kit ✓ `Banner`.
 - **PAT-73** Confirm only what cannot be undone: a sheet asking in words, «Annulla» + the
   destructive verb. Never `window.confirm`. Kit ✓ `Confirm`.
-- **PAT-74** Toast: one at a time above the NavBar, 5 s, action only for Annulla. Kit ✓ `Toast`,
-  `useToast`.
+- **PAT-74** Toast: one at a time above the NavBar, 5 s, «Annulla» and at most **one other choice**
+  when the act had two sensible outcomes: after «Fatto» on a previsto that took the tick's time,
+  «tieni le 20:00» puts the planned time back (still fatto); «Annulla» after it swaps again (his
+  «yc» 15 Nov, proposal §23 Q2). Choices never wrap. Kit ✓ `Toast`, `useToast`, DayView's toast
+  (`swapPlannedStart`, `core/entries/write.ts`).
 
 ## 8. Layout and words
 - **PAT-80** Spacing, paddings and radii from tokens only; no inline `style`, no feature CSS.

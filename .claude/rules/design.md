@@ -7,6 +7,11 @@ Why it exists (his words, 14 Nov): «ogni volta succede che ignori tutte le disc
 il modo in cui stiamo lavorando è sbagliato». The same on 30 Oct: «molte scelte… ogni volta te le
 dimentichi».
 
+## Since 20 Nov: the method (ADR-0064) holds the truth this file used to gather
+Every thing, its relationships, actions and attributes: `docs/spec/orca/`. The layers: PRD-04; the
+instruments and their channels: `visual.md` §13; one grammar, three spots, no ⊕: PAT-60, PAT-100.
+Where a line below disagrees with them, they win (the lines below are 14–20 Nov history).
+
 ## How we design (his «yc», 14 Nov; undo: delete this section)
 1. **No separate drawings.** A proposal is the real app changed on a branch, built from
    `packages/kit`, shown as photos of the real screen at 390/360/320, dark, with his data

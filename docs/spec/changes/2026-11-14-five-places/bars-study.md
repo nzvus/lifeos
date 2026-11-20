@@ -1,5 +1,7 @@
 # Bars study — one base element for every bar (§71)
 
+> **Folded 20 Nov (round 1, Deliver ①; proposal §123):** §21 → `visual.md` §13 (VIS-100…104); §21.5 → MOD-58; §22 → `orca/attributes`; §23.3–§23.4 → VIS-105. History only: the spec wins.
+
 His words, 19 Nov: «ripensiamo a tutti i tipi di visualizzatori a barre dei nutrienti, limiti, voti
 e tutto quello che potrebbe poi richiederlo? facciamo uno studio per unificare tutto e inserire
 tutte le funzionalità e visualizzazioni che vengono richieste in un elemento base comune».

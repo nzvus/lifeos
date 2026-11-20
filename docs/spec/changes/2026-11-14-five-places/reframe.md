@@ -1,5 +1,7 @@
 # Reframe — lifeos rethought from the ground (draft by Claude, 20 Nov, proposal §107)
 
+> **Folded 20 Nov (round 1, Deliver ①; proposal §123):** §1–§3 → product.md PRD-04, PRD-16; §7 → PRD-03, PRD-19, PRD-20; §10 → VIS-40; §11 → MOD-15; §12, §14 → MOD-01 (signals), VIS-64; §15 → PAT-60, PAT-100. §8's `views.md` became `visual.md` §13. History only: the spec wins.
+
 His words: «ok, facciamo un passo indietro, un re framing. ripensando veramente a tutto». Read for
 it: product.md (the constitution), model.md and patterns.md by headline, ADR-0063, target.md,
 proposal §32 · §64–§106, bars-study §16–§23, inbox W-04, `.claude/rules/design.md`. Nothing here

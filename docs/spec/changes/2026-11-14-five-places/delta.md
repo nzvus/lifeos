@@ -1,5 +1,7 @@
 # Delta — five places by action (ADR-0063)
 
+> **Merged into the spec 20 Nov (round 1, Deliver ①; proposal §123)**, each row with an honest «Today:» (built, or which Deliver step builds it). Corrected while merging: PAT-01 and PAT-95 lose ⊕ (his §113); PAT-97's «Piano holds no days» became «the Piano is the rail after now» (reframe §14). New: PRD-04, MOD-58, VIS-64, VIS-100…105, PAT-60 (adding in place), PAT-100. Kept until the change archives.
+
 ## MODIFIED
 - **PRD-16** (product.md §2) One map: two spaces — Il tempo (one timeline: window and position
   are actions) and Le cose (the catalog) — and the bar's five places by action (ADR-0063) as their

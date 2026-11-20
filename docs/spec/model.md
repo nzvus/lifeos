@@ -9,10 +9,12 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   ```
   Type
     key, name (his word), area (Corpo|Cibo|Oggi|Mente|Soldi), icon, colour
-    family        voce (logged in time) | catalog (reused)
+    family        voce (logged in time) | object (reused) | part (inside one) | signal (a level over time)
+    class         intake | activity | state | measurement | exchange | note | context   (MOD-57)
     shape         instant | interval                       (voce only)
     fields[]      key, label, type, unit, range, required, default, help
                   type ∈ number|integer|duration|boolean|choice|scale|text|ref(type)|time
+                  reading, question (MOD-57, MOD-58)
     lines?        ref(catalog type) + quantity              (meal → foods, session → exercises)
     family rules  levels (food › product › format) | variants (base + differences)   (catalog)
     capture       quick (one tap) | form | composer | timer
@@ -23,7 +25,11 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
     relations[]   time windows that matter (§7)
     ranges[]      fasce with sources (§5)
   ```
-  A user's own tracker is a row with the same shape. [PROD-03, PROD-08, PROD-36]
+  A user's own tracker is a row with the same shape; a **signal** (caffeina rimasta, scorte, movimento,
+  meteo, luce del giorno) is a row too, typed, measured or derived from voci, drawn as a lane beside
+  the rail (VIS-64). The list of every type, with its relationships, actions and attributes, is
+  `orca/` (ADR-0064); the registry in code must match `orca/objects` (`check.py`). [PROD-03, PROD-08,
+  PROD-36, reframe §14]
 - **MOD-02** Pages, forms, lists, search, verbs, charts and engines read the registry; no
   code compares a type key outside its own specialisation folder (today ~114 comparisons).
   [n12, n13] — Today: `core/kinds` (zod `Kind`, `kindRegistry`, 20 voce types) drives
@@ -34,6 +40,19 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   (`LABEL_FIELDS`, edited in place), and the cibo and pasto screens read the registry (change
   2026-11-07-food-meal); the other screens move onto it in phase 4. The lint rule of PAT-90 fails a
   new type-key comparison; the 148 of 6 Nov are in `lint-baseline.json`.
+- **MOD-57** Every type and tracker has a **class** — intake · activity · state · measurement ·
+  exchange · note · context — and every field a **reading** the engine knows (number → amount;
+  duration → time; scale → rating; boolean → done; choice → category; text → presence; lines →
+  composition; a voto → score), each with its aggregates over a frame; a measure may read as **yes /
+  no** whatever its field (a fixed-dose intake, a habit, a goal «n volte»). WHEN a built-in type has
+  no class THEN a test fails; a tracker takes its class from its family. [his 20 Nov, proposal
+  §93–§94, bars-study §19.1] — Today: built (`core/engines/view`, slice 1 of #371).
+- **MOD-58** Every field declares the **question** it answers (reach · prediction · trend · yes/no ·
+  rhythm · stock · comparison · composition · source · spread · verdict · name), defaulting from its
+  reading (amount → reach, time → rhythm, score → verdict, composition → composition, rating ·
+  category · presence → name); the engine (MOD-56) picks the instrument from the question
+  (VIS-102). WHEN the registry and `orca/attributes` disagree on a field's question THEN a
+  test fails. [his «yc» q10, 20 Nov, proposal §122] — Today: not built (Deliver ②).
 
 ## 2. Voce (an entry)
 - **MOD-10** A voce: `type, start, end?, day (logical, boundary 04:00), status, values, lines[],
@@ -46,28 +65,23 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   estimate 0.6 · assumed (auto mode, defaults) 0.3. Assumed values are marked, never enter a
   trend or a judgement until confirmed. [PRD-22, c09]
 - **MOD-13** «Fatto» on a previsto voce sets its time to now unless he changes it. [n02, capture §2]
-- **MOD-15** A voce that starts after now, or sits on a day after today with or without a time, is
-  previsto whatever the form said: saving «fatto» there stores previsto (one minute of slack for
-  «adesso») and the day says so on arrival («Salvato come previsto: è dopo adesso»). [his 15 Nov «essere sicuri che
-  quando si pianifica qualcosa in un orario futuro (non solo giorno) sia sempre pianificato»,
-  proposal §38–§39] — Today: the time in `statusAt` (`core/entries/write.ts`, create and update), the
-  day in `checkEntry`; the toast from the kind's form (`?previsto=1`), not yet from the composer.
-- **MOD-14** Any voce can become a catalog object («Salva come …»): a meal → pasto, a session →
-  scheda, a trip → tragitto, an estimate → cibo (stima). [n01, FOOD-16, FOOD-32]
+- **MOD-15** **The time decides the state**: after now (beyond the slack) a voce is previsto, at
+  now or before it is fatto, whatever was tapped; no control asks it (PAT-60's «Adesso · Previsto ·
+  Prima» and the composer's «Mangiato · Previsto» go); a voce with no time is previsto until done.
+  The slack is a setting, 20 minutes by default; a past previsto never done follows a setting:
+  saltato (default) · da confermare · confermato. In a folded part of the day a previsto's icon is
+  drawn dashed. [his 15 Nov «essere sicuri che quando si pianifica qualcosa in un orario futuro…
+  sia sempre pianificato», his 20 Nov; reframe §11, proposal §38–§39, §108–§111] — Today: built
+  (`core/entries/timing.ts`, `core/account/timing.ts`, `readDays`); the forms' state controls still
+  shown until Deliver ④.
+- **MOD-14** Any voce can become a catalog object («Salva come …»): a pasto → pasto salvato, a
+  sessione → scheda, a tragitto → percorso, an estimate → cibo (stima). [n01, FOOD-16, FOOD-32]
 
 ## 3. Catalog objects
-| Type | Area | Family rules | Today |
-|---|---|---|---|
-| cibo › prodotto › formato | Cibo | levels; value read from formato, else prodotto, else cibo | `catalog_items` food/product/format, ADR-0055/0060 |
-| pasto (saved meal) | Cibo | variants of a base | `recipe` |
-| assunzione (caffè, creatina…) | Cibo | — | intake, ADR-0060 |
-| esercizio | Corpo | variants | `exercise` |
-| scheda | Corpo | variants | `routine` (word wrong, CONTRA-04) |
-| tragitto | Corpo | — | `route` |
-| tracker (his own type) | any | — | `kinds` rows |
-| categoria di spesa | Soldi | — | `money_category` |
-| blocco | Oggi (its own `area`) | — | `block` (MOD-36, ADR-0062; change 2026-11-07-piano) |
-| ciclo | Oggi | — | `cycle` (steps in `cycle_steps`; MOD-36) |
+Every object, with its form, class, registry key and status, is a row of `orca/objects` (OBJ-22…37;
+ADR-0064): cibo › marca › formato (levels, ADR-0055/0060), pasto salvato and esercizio and scheda
+(variants), percorso, tracker, categoria di spesa, ritmo (`block`, MOD-36), ciclo (`cycle`). An
+assunzione is a pasto salvato logged with its dose (FD-64; the `intake_item` flag goes).
 - **MOD-20** Every catalog object has the same life: crea · parti da (based_on) · variante di
   (parent) · modifica in place · unisci · archivia · ripristina · elimina (only if unused, else
   archive). Archived = out of pickers, kept in history. [n03, PLAN-33, P1] — Today: 11 archive
@@ -78,15 +92,21 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   Formats inside meals and the mean across brands wait for a real case. [x06, c08]
 
 ## 4. Piano: blocks and cycles (replaces «Model»)
-- **MOD-30** A **blocco** = what (a catalog object, a rotation of objects, or a type with
-  defaults) + when (a time, «N min after <blocco>», after wake / before bed) + how often (every
-  day, weekdays, every N days, N times a week, dates) + area. A habit is a blocco of a tracker.
-  [n09, PLAN-34, PLAN-36]
-- **MOD-31** A **ciclo** = blocchi that advance one step per occurrence or per date; on skip:
-  shift or lose. The gym cycle is the reference case. [plan.md, TRAIN]
-- **MOD-32** The Piano of a day = the blocchi that fall on it, from every area, shown by area
-  (Corpo · Cibo · Mente · Soldi) and together in Oggi. No day types, week types, extends,
-  merges or cross-layer rules now. [x04, plan.md §9.1, PLAN-35 deferred]
+- **MOD-30** A **ritmo** (stored as a `block`; the word «blocco» is off the screens) = what (a
+  catalog object, a rotation of objects, or a type with defaults) + when (a time, «N min after
+  <ritmo>», after wake / before bed) + how often (every day, weekdays, every N days, N times a
+  week, dates, «nel ciclo») + area. An abitudine is a ritmo of a tracker. [n09, PLAN-34, PLAN-36;
+  his «yc» 15 Nov, proposal §29–§34]
+- **MOD-31** A **giornata tipo** is a ciclo's step: its righe are its ritmi «nel ciclo», each any
+  voce type or object (a pasto, a scheda, creatina, a pesata, a tracker) with its time; a step with
+  none is rest. A **ciclo** says which giornata tipo falls on which day, advancing one step per
+  occurrence or per date; on skip: shift or lose; one used every day is a ciclo of one step. WHEN he
+  taps «Salva come giornata tipo» on a day THEN its voci become the righe of a new one. No new type,
+  no new table. [his 14–15 Nov, proposal §29] — Today: `core/plans/day-type.ts` `saveDayToStep`, no
+  button (audit 15 Nov, 6).
+- **MOD-32** What is planned for a day = the ritmi and the giornata tipo that fall on it, from every
+  area, shown in il tempo after now (the Piano is the rail's right side, PRD-16). No week types,
+  extends, merges or cross-layer rules now. [x04, reframe §14, PLAN-35 deferred]
 - **MOD-33** Applying the Piano writes previsto voci linked to their blocco; moving a blocco
   moves the voci relative to it (the pre-workout meal follows the session). [concepts §5] — Today:
   the link is `entries.block_id` (FK, restrict: PL-70's «Elimina only when no voce links to it»),
@@ -113,8 +133,8 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
 - **MOD-40** **Metrica**: declared once (source, filter, aggregate, window, transform, unit,
   formula version, sources); computed on read; every shown number is one. Its «Perché?» is
   generated from the declaration (patterns.md §5). [n05, concepts §6, PRD-20]
-- **MOD-41** **Fascia**: minimo / buono / massimo with its source, the same for every measured
-  thing; **coverage**: the share of the window that has data; below the declared threshold the
+- **MOD-41** **Fascia**: four levels, da evitare · pessimo · ok · ottimo, each edge with its source
+  (FD-30), the same for every measured thing; **coverage**: the share of the window that has data; below the declared threshold the
   judgement is «non so». [n11, PLAN-26, PRD-23]
 - **MOD-42** **Obiettivo** (goal): metric + window + at least | at most | range | reach-by-date,
   dated history; progress, pace, ETA derived. The day's food targets are goals (dynamic from
@@ -146,6 +166,15 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   reversible); steps and sessions are inputs with their confidence, not separate models.
   Steps: the phone's count typed once a day; a native shell reading Health Connect is a future
   change with its ADR, after phase 4 (BODY-32). [n10, c06, c07, BODY-30]
+- **MOD-56** **Motore di visualizzazione**: every number drawn in the app is a *measure* (registry) ×
+  a *frame* (own · day · session · period, chosen by the place; «session» = the span of any
+  activity) × a *level* (0 · 1 · 2); the engine reads the data, its references (target, fascia,
+  goal, past self, mean, record) and the request (frame, grouping, level, drill · roll up · slice ·
+  pivot · compare), picks the instrument by the field's question (MOD-58, VIS-102) and gives
+  a view that only kit pieces draw. WHEN a page draws a number outside it THEN the lint fails (once
+  the guard is built). One hierarchy: class › type › object › part. [his 20 Nov, proposal §88–§94]
+  — Today: built for views from a request (`core/engines/view`, slices 1–3a of #371); the lint
+  guard not built.
 - **MOD-55** Correlations: only the 6 default pairs, shown after ≥ 3 months of data. [n08, x08]
 
 ## 7. Time relations

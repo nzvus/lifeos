@@ -83,7 +83,11 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   lightens the piece. Spacing (his 19 Nov «spaziature, padding, simmetrie»): the icon sits on
   the first line and never moves when the box opens; every line under the head is `--sp-2` below
   the one above, an empty block takes no room; the head stays one line while the title keeps six
-  letters; numbers end at the box's edge, on its surface, no patch; no «›» as a value. Inside by family: Nutrients L0 (food), muscle strip
+  letters; numbers end at the box's edge, on its surface, no patch; no «›» as a value. Levels (his
+  «ap yc», 14 Nov): closed = the head and one thin strip; open = what it says and a row of doors
+  («Voto», «Nutrienti», «Cibi n», «Costo»), one panel open at a time. The same Box is every voce,
+  object and obiettivo, at frame day in il tempo and frame own in le cose; a part is a row inside it
+  (reframe §10, `round-1.md` D1). Inside by family: Nutrients L0 (food), muscle strip
   (training), need bar (water). [UI-26, UI-29, UI-30, UI-33, UI-84 «il tasto di aggiunta dell'acqua ha
   sempre sbordato e non te ne sei mai reso conto»] — Today: built.
 - **VIS-41** Silhouettes (L3/L4, from the registry) change only corners, rims, corner bites — pranzo
@@ -94,8 +98,9 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   head, never under words or in dense rows; turns in once on load; on open grows ≈ 1.9× into a richer
   cousin. [UI-50, UI-79 «mi piacevano anche i disegni in sfondo con animazioni… ripensa a come
   posizionarle», UI-83, S6] — Today: built.
-- **VIS-43** Score chip (look of PAT-52). Closed: unframed skyline coloured by band + number + word, one
-  line under the head (the action if known, else the costliest part). Open: one ruler per criterion
+- **VIS-43** Score chip (look of PAT-52). Closed: unframed skyline coloured by band + the number in its
+  band's colour, **no word and no line under the head** (his 15 Nov «"è costata di piu" non mi serve,
+  lo posso vedere dai voti»); the word stays in the chip's label for screen readers. Open: one ruler per criterion
   (VIS-52), skyline small in the head (width = weight, fill = score, dashed at 70). ≤ 360 px: the
   skyline smaller, never gone (his 15 Nov, proposal §35); the number said once. [UI-03 «graficamente fanno schifo», UI-75 «a livello informativo
   meglio 1 e 3, una combinazione?» → agent, UI-102 «non vedo bene la miniatura delle valutazioni»,
@@ -124,8 +129,10 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
 - **VIS-52** Zones «nella stessa barra… attaccata e sottile»: fill eaten, then planned hatched; under it a
   thin ruler with every zone and the grams at each change; the tip in its zone's colour (his «C + D»,
   25 Oct): `--heat-good` · `--heat-fair` · `--heat-bad` · `--heat-danger` hatched. A limit ticks the
-  week's mean; guideline kinds (free sugars, saturated, trans, ω-3/6, inulin) on their own scale; the
-  word («ottimo», «ok», «pessimo», «da evitare») judges eaten + planned, «→» when the plan counts.
+  week's mean; guideline kinds (free sugars, saturated, trans, ω-3/6, inulin) on their own scale; no
+  word beside the number (his 15 Nov «le parole "ok", "pessimo" eccetera non le voglio… ci sono gia le
+  barre grafiche e i numeri e i colori e le forme»); the zones judge eaten + planned. The kcal bar has
+  its zones too (FD-31).
   [UI-32, UI-65, UI-03, D1, memory heat-strip-design] — Today: built.
 
 ## 7. The day view (Oggi and every Diario)
@@ -135,7 +142,10 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   non mi piace», CONTRA-02, c13] — Today: built.
 - **VIS-61** Parts of the day: full-width sky bands (mattina · pomeriggio · sera · notte; lunch and snack share «pomeriggio», his 16 Nov) from his meal-role bounds (MOD-60),
   sun on the arc, moon at night, rising once; they cut the rail; drawn only when begun or holding
-  something; empty passed parts merge into «niente». «Fine giornata» closes; untimed things below as
+  something; empty passed parts merge into «niente». A band that holds something closes: WHEN he taps it THEN
+  its voci hide behind it and it says how many and their kcal with their icons («6 voci · 976 kcal»;
+  ≤ 380 px the kcal only), a previsto's icon dashed (MOD-15); a second tap opens it; at first only
+  the part where now is is open (his «ap yc», 14 Nov). «Fine giornata» closes; untimed things below as
   cards. A role's meals grouped only if adjacent and ≤ 60 min apart. [UI-77 «per i separé volevo delle
   barre con disegni» → agent, UI-89, UI-42] — Today: built (`DayPart`).
 - **VIS-62** Empty time ≥ 2 h passed: «una barra grigia sottile tratteggiata… se toccata può essere
@@ -146,13 +156,18 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   (per area) · 2 each day's 24-hour column (96 px, guides 6/12/18, now red). With a mouse small ‹ › and
   ← →; month and Andamento's period alike. [UI-76 «com'è attualmente in v2 è il migliore, al di là
   delle frecce…», «questo è il migliore», UI-87, UI-93, UI-98, D3] — Today: built.
+- **VIS-64** **Lanes**: every signal (MOD-01) is a lane beside the rail on the same time axis, one
+  look for all — a band whose density or height is the level (caffeina rimasta fading to bedtime,
+  scorte, movimento's quanta, sonno as a state, daylight). A new signal gets its lane with no new
+  drawing; the rail is designed with lanes from the start. [reframe §12, §14; his 20 Nov] — Today:
+  not built (Deliver ⑤).
 
 ## 8. Levels of expansion
 - **VIS-70** A piece with levels 0…n (`useLevel`): a tap goes to the next, after the last back to 0;
   three dots say the level; remembered per piece (localStorage). Weather, «Il giorno» (0 four thin bars,
   1 every nutrient), the week. [UI-80 «al massimo facciamo più gradi di espandibilità… che viene
-  ricordata nelle aperture delle pagine», UI-82, UI-86 agent] — Today: built. Open: PRD-19 says two
-  levels at most; weather and week have three.
+  ricordata nelle aperture delle pagine», UI-82, UI-86 agent] — Today: built. As many levels as the data has, at
+  most two in view (PRD-19).
 
 ## 9. Weather
 - **VIS-75** 0 a line in the date row · 1 the card (animated drawing, temperature trace) · 2 hours, air
@@ -180,3 +195,40 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
 - **VIS-90** One timing `--t-box` ≈ 0.5 s on `--ease` for every open and close, nothing on its own clock;
   motion explains (bars grow, accordions open, the rail widens, drawings turn in once);
   `prefers-reduced-motion`: off or a switch. [UI-28, UI-50, S17] — Today: built.
+
+## 13. Instruments (the views layer, PRD-04; from bars-study §21–§23)
+- **VIS-100** His first rule (his 20 Nov, §100): **condense as much information as possible without
+  losing comprehensibility or beauty.** Checked on every photo: density (facts per pixel of
+  height), comprehensibility (each question answered by one glance at one channel; the number is
+  the one exact value), beauty (tokens only, one hue per identity, edges aligned). [bars-study §21.0]
+- **VIS-101** **Channels**: the macro bar carries nine (hue = which, shade = its kind, length = how
+  much, hatch = plan, tick = target, ruler = ranges, edge amounts, tip colour = judgement, the
+  numbers); free ones — thickness, transparency (certainty), position of the pieces (when), a fading
+  tail (an effect over time), a ghost (last time), a notch (record), a mean tick — are added one at a
+  time, each tested by VIS-100. A new fact takes a free **separable** channel (length + hue, length +
+  hatch, position + shape, length + a mark), never an integral pair (width + height, two hues on one
+  mark), or a new instrument. [bars-study §21.1–§21.2, Bertin, Garner]
+- **VIS-102** **One instrument per question** (MOD-58): reach → the **bar** · prediction → the **fan**
+  (done solid, plan hatched, a forecast widening) · trend → a **line over the range band** · yes/no →
+  **cells** · rhythm → the **rail** (VIS-60) and its lanes (VIS-64) · stock → the **tank** · comparison
+  → the **ghost** on any of them · composition → **parts on the whole's scale** · source → **ordered
+  rows** · spread → a **band** · verdict → the **skyline chip** (VIS-43) · name → a word. Any of them
+  with many members becomes **cells** (VIS-50's strip). A reference (target, fascia, goal, mean, past
+  self, record) is never a card: it is a channel of the instrument it judges. [bars-study §21.3;
+  `round-1.md` D1–D2] — Today: bar, rail, cells, skyline, rows, line built; fan in Peso; tank, lanes
+  not built.
+- **VIS-103** Instruments **combine** on a shared axis, each dropping the channels it no longer needs:
+  the day = reach bars on the rhythm rail; a period = trend lines over one time axis with the yes/no
+  cells under them; a session = its serie as reach bars with the ghost, on its own rail. [§21.4]
+- **VIS-104** **The instrument is the control**: drill (tap a part) · roll up (the path, or the whole)
+  · filter (a legend part or the rail; again clears) · highlight (one thing lit everywhere, the rest
+  dimmed) · pivot (swipe sideways: by macro ↔ by meal ↔ by part of the day) · time window (day → week →
+  month) · compare (the ghost, a tap opens the gap) · sort (PAT-42) · why (PAT-51). The few controls
+  left are one kit piece on the measured scale (VIS-105). [his §101, bars-study §21.7]
+- **VIS-105** **Foundations**: spacing 4 · 8 · 12 · 16 · 24 · 40 (2 only for seams); six type sizes,
+  each with one line height, weights 400 · 600 · 700; radii 2 · 4 · 8 · 12 · 16 · 20 · 999; controls
+  44 (row, field, primary) and 36 (a pill in a 44 row), filled · outlined · quiet; identity colours
+  and herb · warn · tomato at one OKLCH lightness and chroma (L 0.78 · C 0.112 in dark), only the hue
+  changes. [his «yc» 20 Nov, bars-study §23.3–§23.4] — Today: in `tokens.css` and the kit classes,
+  no guard yet (a value off the scale should fail, as hex does); the surfaces' ladder not done; open:
+  the gym's 52 px stepper.

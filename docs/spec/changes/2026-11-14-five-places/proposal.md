@@ -1221,6 +1221,23 @@
     channel · container · preset), cells = many members, one grammar in three spots, the Z2
     consequences. Decided by Claude (undo there): the obiettivo also a Box in Obiettivi; cells as
     the many-member form. His word: q10 (the question in the registry), q11 (the order of Deliver).
+122. **20 Nov, his «yc» on q10–q11.** Taken, each with its undo: (10) each registry field declares
+    its question, the engine picks the instrument from it, a test keeps the registry equal to
+    `orca/attributes` (undo: the engine's rules per type); (11) Deliver in order ① docs fold → ②
+    registry → ③ the Box (stop B) → ④ adding in place, ⊕ out (stop B) → ⑤ lanes (stop B) (undo:
+    another order). Started ①.
+123. **20 Nov, Deliver ① done: the docs fold** (his «yc» q11). product.md (PRD-03, PRD-04 new,
+    PRD-16, PRD-19, PRD-20, §3 words, §4), model.md (MOD-01 families and signals, MOD-14, MOD-15,
+    §3 → `orca/`, MOD-30…32, MOD-41, MOD-56, MOD-57, MOD-58 new), visual.md (VIS-40, VIS-43, VIS-52,
+    VIS-61, VIS-64 new, VIS-70, §13 VIS-100…105 new), patterns.md (PAT-01, PAT-03, PAT-10, PAT-30,
+    PAT-43, PAT-51, PAT-52, PAT-60 → adding in place, PAT-74, PAT-95, PAT-97, PAT-98, PAT-99, PAT-100
+    new), food.md (FD-31's kcal row, FD-64), plan.md (PL-71). Decided by Claude, each with its undo:
+    (a) PAT-01 and PAT-95 lose ⊕, which the delta still had (his §113 is newer; undo: the delta's
+    text); (b) PAT-97: the Piano is the rail after now, not «no days» (reframe §14; undo: same);
+    (c) new «Not» words with a bracket (prodotto, sveglia, movimento) are not enforced by the
+    glossary test until the screens are renamed in ④, as «allenamento (as object)» already was
+    (undo: drop the brackets); (d) the drafts keep a «folded» header and stay in the change until it
+    archives (PRD-41) rather than moving now (undo: `git mv` to `docs/archive/`). Next: ② the registry.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

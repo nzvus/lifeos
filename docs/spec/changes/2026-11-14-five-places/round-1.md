@@ -1,5 +1,7 @@
 # Round 1 (ADR-0064) — Discover: raw inventory (Sonnet sweep, 20 Nov), then Define (stop A, at the end)
 
+> **Folded 20 Nov (Deliver ①; proposal §123):** the tables are `docs/spec/orca/`; D1–D3 → VIS-40, VIS-102, PAT-100; D4 → MOD-01, MOD-58. Kept here as round 1's record until the change archives (PRD-41).
+
 Every object he knows by name, collected with its sources. Nothing is chosen here; conflicts are
 listed, not settled. Counts are computed from the export (rule: no estimates). «Live» = not in the
 trash (`deletedAt` empty). The export is `lifeos-2026-11-19.json` (format `lifeos-v2-export`, v1,

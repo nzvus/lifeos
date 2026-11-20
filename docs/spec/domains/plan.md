@@ -156,8 +156,9 @@ proposal after a month of the simple Piano in use (PRD §4).
   «Push» used in N sessions offers Archivia). No «Duplica». [PLAN-33, PLAN-14, plan.md §8.7] —
   Today: built (blocchi and cicli are catalog objects, `block` and `cycle` in the registry: page,
   verbs, Elenco, archive are the generic ones).
-- **PL-71** Words in the UI: blocco, ciclo, scheda, abitudine, Piano. «Modello», «giornata
-  tipo», «settimana tipo», «routine», «regola» never appear (the glossary test). [CONTRA-04,
+- **PL-71** Words in the UI: ritmo, ciclo, giornata tipo (its righe), scheda, abitudine, Piano.
+  «Blocco» leaves the screens (his «yc» 15 Nov, proposal §29–§31); «modello», «settimana tipo»,
+  «routine», «regola» never appear (the glossary test). [CONTRA-04,
   product §3, plan.md §8.8] — Today: not built («routine» ~149 code occurrences).
 - **PL-72** Phase 4 data change: week layouts and day models → their blocchi (with the weekdays
   they had) or nothing; «Rec» targets → Obiettivi (PL-61); PLPRR and the schede kept; the empty
