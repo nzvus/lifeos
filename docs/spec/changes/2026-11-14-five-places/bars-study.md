@@ -1063,3 +1063,57 @@ giorno» by macro ↔ by meal ↔ by part of the day ○.
    tank and its forecast; the drinks along the water bar; the pivot of «Il giorno».
 3. Nothing marked ✗ is drawn until its data exists; absorption of macros is «not now».
 Then step 21.6.3: the foundations measured, controls included.
+
+## 23. The foundations, measured (step 21.6.3; his «yc», 20 Nov)
+
+How: ten screens of the running app with his 10 Nov export (Oggi 9 Nov, Andamento, Obiettivi,
+Come valutiamo, Piano, Cibo · Elenco, Peso, Palestra, Aggiungi, Profilo), 390 px, dark, every
+element closed as the page opens; the browser's computed values of 3.266 elements; colours
+converted to OKLCH (L = lightness, C = chroma, i.e. saturation). Data, scripts, photos and the full
+counts: `LIFEOS/review/2026-11-20/foundations/` (`measured.json`, `measure.mjs`, `analyse.py`,
+`foundations.md`). Levels opened, sheets and the gallery are not in this pass.
+
+### 23.1 What is consistent already
+- **Spacing**: of 1.788 padding, 1.292 gap and 228 margin values, all but 107 sit on 0 · 4 · 8 ·
+  12 · 16 · 24 · 40 px. Off it: gaps of 2 px (63, the tiers' seams), 6 and 10 px (6); paddings of
+  1, 2, 20, 32, 36 and 132 px (19; 132 = room for the box drawing, VIS-42); margins of 2, 6, 80 and
+  779 px (19).
+- **Font sizes**: 6 — 12 · 14 · 16 · 19 · 24 · 30 px. **Text colours**: 6 (ink L 0.94, muted
+  0.72, herb 0.76, warn 0.78, tomato 0.74, dark text on light 0.24). **Borders**: 1 px (204 of 205).
+
+### 23.2 What is not (where his «dimensioni gestite male» comes from)
+1. **Line heights**: 334 of 765 text elements have none set («normal»), so the same 12 or 16 px
+   text sits in boxes of different heights; 32 distinct text styles for 6 sizes.
+2. **Controls** (his «odio come fai i bottoni»): 112 controls in **22 looks** and **9 heights** — 21,
+   28, 36, **38**, 44, 52, 66, 68, 130 px. The chips are 38 px on Andamento and Come valutiamo,
+   36 elsewhere (VIS-85 says 36 in a 44 row). Radii on controls: 0, 4, 8, 999 px.
+   **Profilo has 4 buttons the browser draws itself**: Arial 19 px, radius 4 px, outside the kit.
+3. **Radii**: 10 values; 224 of 682 outside 2 · 8 · 12 · 999 px (4 px × 134, 16 px × 36, 1,5 px
+   × 28, 50 % × 19, 20 px × 5, 3 px × 2).
+4. **Fills**: 49 distinct colours, **35 lightness levels** — the surfaces (L 0.20 paper, 0.24 sheet,
+   0.26 in three tints, 0.32, 0.36) and every `color-mix` at its own percentage.
+5. **Identity colours are uneven inside a family** (measured on the dark tokens):
+   | Family | Lightness L | Chroma C (saturation) | The odd one |
+   |---|---|---|---|
+   | macro (4) | 0.73 – 0.82 | 0.092 – 0.146 | fat (C 0.092) looks duller; protein (L 0.73) darker; carbs (L 0.82) brightest |
+   | moment (4) | 0.78 – 0.82 | 0.077 – 0.138 | breakfast (C 0.077) dull, snack (0.138) loud |
+   | muscle (6) | 0.76 – 0.81 | 0.093 – 0.128 (back, core 0.093) | back and core duller |
+   | judgement | herb 0.76 · warn 0.78 · tomato 0.74 | herb 0.092 · warn 0.132 · tomato 0.129 | herb (good) quieter than bad |
+   Hue should be the only thing that changes inside a family (identity, §16.3); today lightness and
+   saturation change too, so one member always pops or fades for no reason.
+
+### 23.3 Proposed scales (one each; for his word)
+- **Spacing**: keep 4 · 8 · 12 · 16 · 24 · 40; 2 px only for seams inside an instrument.
+- **Type**: the 6 sizes, each with **one line height** (12/16, 14/20, 16/22, 19/24, 24/28, 30/34)
+  and three weights (400 text, 600 labels, 700 numbers and titles; the one 800 dropped).
+- **Radii**: 2 (bars and cells) · 8 (controls and fields) · 12 (cards) · 999 (pills).
+- **Controls**: one kit piece, two heights — **44** (a row, a field, the primary) and **36** (a
+  pill inside a 44 row) — three looks: filled (the one primary), outlined 1 px hairline, quiet
+  (text only); radius from the scale above; the 4 Profilo buttons moved into it.
+- **Surfaces**: a ladder of fixed lightness steps (paper 0.20 · sheet 0.24 · raised 0.28 · line
+  0.36), each area tint mixed to the same L; mixes done in OKLCH at fixed steps, not per piece.
+- **Identity colours**: per family **one lightness and one chroma**, only the hue changes (proposed
+  L 0.78 · C 0.12 for macros, moments, muscles in dark); their kinds as fixed lightness steps from
+  it (e.g. −0.08, −0.16); judgement colours at one L and C too, so «good» is not quieter than «bad».
+Each scale becomes tokens in `tokens.css`; then a guard fails a value off its scale (as the
+lint does for hex). Nothing changes look before his word on 23.3.

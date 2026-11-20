@@ -1060,6 +1060,12 @@
     tip's colour doubles it, VIS-20 holds (undo: §20.3 C4); C5 the interest comes from density and
     the actions, the shapes stay ones everyone reads (undo: §20.3 C5). Then step 21.6.2 done:
     bars-study §22, every type on his data, content only; stop for his word.
+103. **20 Nov, his «yc» on §22.** Step 21.6.3 done: the foundations measured on ten screens with
+    his data (bars-study §23). Spacing is already on a 4-px scale (all but 107 of 3.308 values);
+    what is uneven: line heights (334 of 765 unset), controls (22 looks, 9 heights; 4 browser
+    buttons in Profilo), radii (224 of 682 off scale), fills (35 lightness levels), and identity
+    colours whose lightness and saturation vary inside a family. Proposed scales in §23.3; stop
+    for his word.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
