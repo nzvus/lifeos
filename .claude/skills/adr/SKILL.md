@@ -6,8 +6,8 @@ description: Run a structured decision process and record it as an ADR in docs/d
 # Decision Process → ADR
 
 1. **Frame:** state the decision as a question and confirm it with the
-   developer. Read `PROJECT.md` (constraints, invariants, learning goals)
-   and any related prior ADRs. If the decision is actually cheap to
+   developer. Read `docs/spec/product.md` (purpose, principles), `ARCHITECTURE.md`
+   (invariants) and any related prior ADRs; say the decision's zoom (ADR-0064). If the decision is actually cheap to
    reverse, say so and suggest skipping the ADR.
 2. **Research:** if current ecosystem knowledge matters, search the web for
    the present state of the options (docs, benchmarks, adoption). Label

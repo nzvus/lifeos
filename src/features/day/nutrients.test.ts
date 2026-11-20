@@ -236,6 +236,24 @@ describe("a meal's thin bars (L0)", () => {
     expect(planned.macros[0]).toMatchObject({ v: 6.5, t: null });
   });
 
+  it("a meal carries its limits against the day's targets, with no fascia of its own (FD-35)", () => {
+    const salty = line("Pane", "100", {
+      kcal: "260",
+      protein: "8",
+      carbs: "50",
+      fat: "3",
+      fibre: "3",
+      sugars: "4",
+      saturatedFat: "1",
+      salt: "1.2",
+    });
+    const m = mealL0(item("meal", { lines: [salty] }), week)!;
+    expect(m.limits?.map((l) => l.key)).toEqual(["sugars", "sat", "salt"]);
+    expect(m.limits?.find((l) => l.key === "salt")?.v).toBeCloseTo(1.2);
+    expect(m.limits?.every((l) => l.t > 0 && !l.zones)).toBe(true);
+    expect(mealL0(item("meal", { lines: [salty] }), null)!.limits).toBeUndefined();
+  });
+
   it("nothing to draw for a coffee, nor for what is not a meal", () => {
     expect(
       mealL0(item("meal", { lines: [line("Caffè", "30", { kcal: "2" })] }), week),

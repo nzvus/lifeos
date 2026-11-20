@@ -162,8 +162,20 @@ for (const entry of pages) {
         "a[href], button, input, select, [role=button], summary",
       ),
     ].filter(visible);
-    const small = targets.filter((el) => {
+    // The target is the drawn box plus the strip a smaller control keeps around it (`::before`,
+    // his 20 Nov §131: drawn 32–40, touched 44; PRD-12).
+    const hit = (el) => {
       const r = el.getBoundingClientRect();
+      const b = getComputedStyle(el, "::before");
+      if (b.content === "none" || b.position !== "absolute") return r;
+      const grow = (v) => Math.max(0, -(parseFloat(v) || 0));
+      return {
+        width: r.width + grow(b.left) + grow(b.right),
+        height: r.height + grow(b.top) + grow(b.bottom),
+      };
+    };
+    const small = targets.filter((el) => {
+      const r = hit(el);
       return r.width < 44 || r.height < 44;
     });
     const primary = targets.filter((el) =>

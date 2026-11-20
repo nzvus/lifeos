@@ -1,5 +1,8 @@
 # Five places by action — proposal (ADR-0063)
 
+**Zoom:** Z4 → Z3 → Z2 and back (round 1 of ADR-0064, `method.md` §8).
+**ORCA cells:** every row of `docs/spec/orca/` — round 1 writes all four tables (stop A).
+
 ## Why (the user's words)
 - **12 Nov (W-03):** «you did not follow what was my original purposes, also, it is still redundunt
   and confusing, and messy, and slow». The design part of that is this change; the code and process
@@ -922,6 +925,396 @@
 87. **20 Nov, his words on the real apps page:** «non vedo nulla di straordinario, tu puoi fare di
     meglio». Claude's own idea, built: the bar takes the shape of its ranges (bars-study §15,
     `Ridge`), photos `LIFEOS/review/2026-11-20/crinale/`.
+88. **20 Nov, his notes in the inbox (08:53–10:22), moved here:**
+    «Per esempio anche le barre della palestra, per ogni esercizio che sto facendo potresti
+    mostrare valutazioni dinamiche dei progressi dell'esercizio singolo e poi anche voti cumulativi
+    dinamici sull'intera sessione» · «E poi in schede di andamento e progressione esterne, anche
+    aggregati nel tempo» · «Sempre con feature olap ma migliorate e adattate al nostro contesto» ·
+    «Quindi il cambiamento che dobbiamo attuare riguarda grafici sia su valutazioni su dati storici,
+    che predizione di andamento eccetera, statistiche altre e cosa altro?» · «Quindi ricapitoliamo
+    tutti gli ingredienti che riguardano questo cambiamento» · «Di questi ingredienti dobbiamo
+    identificare i vettori che meglio si prestano a ogni dimensione e alle loro combinazioni. E per
+    prestazioni si intende soprattutto quel discorso che ti facevo su comprensibilità della scala,
+    dei range eccetera» · «Hm in effetti c'è un'altra cosa che non abbiamo valutato: il contesto in
+    cui viene mostrato: per esempio nella timeline giornaliera, ha più senso mostrare quei valori che
+    sono dinamici rispetto a oggi, e non quelli costanti, come possono essere quelli generali di un
+    pasto. Però anche quelli non vanno ignorati, e se richiesti mostrati. Magari va data una
+    priorità e mostrato come quelli dinamici cambiano quelli costanti. E questo si applica non solo
+    al cibo. Ma come si generalizza e si uniforma a tutto il resto di quello di cui abbiamo
+    discusso?» (typos fixed, words his). With «procede» (20 Nov). Answer: bars-study §16, the
+    ingredients, their channels, the context rule; for his corrections before any drawing.
+    Decided by Claude (cheap to undo): this stays inside the open change five-places (one change
+    open at a time, PRD-41), as its visual-system part; it can move to its own change folder when
+    five-places closes.
+89. **20 Nov, his pick** (asked «come procediamo?»): «yc, then draw» — the study of §88 taken as
+    written, corrections later on the real screens. First screen: Oggi, the ridge as «Il giorno»'s
+    overview on his 9 Nov, and a meal open showing its slice lit inside the day's ridge (the
+    context rule, bars-study §16.4); photographed; then stop for his word.
+90. **20 Nov, his words on the ridge in Oggi:** on «meals don't carry sugars, saturated fat and
+    salt»: «e ma dovrebbero portarli. comunque non mi piace». The ridge rejected and removed (kit,
+    gallery, Oggi). A meal now carries its limits (free sugars, saturated fat, salt) against the
+    day's targets, without a fascia of its own (FD-35: a meal is judged only on protein).
+91. **20 Nov, his answer on what failed in the ridge** (asked, several picks): «The hill shape» and
+    «Too tall, too much». Not picked: the blended colours, the meal inside its day. Claude then
+    built a meal's four bars on the day's scale (reverted, §92).
+92. **20 Nov, his words on it:** «ma il punto è che tu stai facendo ancora qualcosa di specifico, io
+    ti avevo chiesto di astrarre, non semplicemente di fare "meal" e poi perché sono frazionate le
+    barre dei macro nei singoli pasti? mostrano i contributi di ogni sottopasto? mi pare tu l'abbia
+    fatto solo a caso adesso. e poi non vedi che la spaziatura è fatta malissimo? anche le varie
+    dimensioni delle cose son gestite male, le schede, i padding, le luminosità e saturazioni dei
+    colori. e in ogni caso non avevo chiesto questo». The meal-in-day bars reverted. Answer on the
+    segments: they are the macro's kinds (VIS-50, older than this change), shades with no legend —
+    a defect he is right to see. Open, asked: the abstraction first (one model for every measure,
+    every page derives from it) and the foundations (spacing, sizes, cards, padding, colour
+    lightness and saturation) measured across the app.
+93. **20 Nov, his words on the model of §17:** «non è solo quello però. non solo acqua, tutte le
+    assunzioni, non solo sonno, misure. non solo gym, ma tutte le attività, non solo di esercizi.
+    tutto il movimento e future altre attività o tracker generici. cosa altro? devi partire da
+    questa domanda. e poi assicurarti che ogni cosa che verrà aggiunta passi per questa astrazione e
+    le sue prerogative. finché ovviamente non le settiamo e capiamo come costruirla, con che
+    pattern, che gerarchie eccetera» — and: «è un motore di visualizzazione di dati». Answer:
+    bars-study §18, the visualization engine (a horizontal engine like MOD-50…54), starting from
+    «cosa altro?» over every class of thing the registry holds or will hold.
+94. **20 Nov, his «yc» on §18.6 and his rule:** «yc, la regola, come per tutto, è che più
+    implementiamo più ci rendiamo conto se tornare indietro e ripensare». Taken, each with its undo:
+    (1) the classes of §18.1 — intake · activity · state · measurement · exchange · note · context
+    (+ his trackers in one of them); sleep a *state*, how he feels a *measurement* (undo: edit
+    `CLASSES` in `core/kinds/kind.ts` and the builtins); (2) one hierarchy, class › type › object ›
+    part, the same depth everywhere (undo: model.md MOD-56); (3) frames own · day · session ·
+    period, «session» = the span of any activity (undo: MOD-56); (4) one family per reading
+    (§18.3) (undo: the reading table in `core/engines/view`); (5) the name «motore di
+    visualizzazione» (undo: product.md §3 when archived). Decided by Claude: a batch (cooking
+    portions for later) is an *exchange* (stock in), not an intake. Built in slices, each a step
+    he sees; any slice may send us back to rethink (his rule).
+95. **20 Nov, slice 2 of the engine built** (his «leggi l'handoff e fai lo slice 2 del motore di
+    visualizzazione»): `viewOf(measure, {frame, level})` in `core/engines/view/view.ts` gives a
+    view description; the kit's `MeasureView` draws it with the pieces that exist (MeasureTree,
+    MeasureDays, Judge, Unknown); gallery «Il motore · tre classi» (`/kit#motore`, photographed)
+    shows water, a session and sleep. Decided by Claude, each with its undo: (a) at frame *own* an
+    object is not judged by the day's target or zones, a score keeps its 0–100 ruler (undo:
+    `judged` in `view.ts`); (b) level 0 hides the parts (§17.3), level 1 shows them named (undo:
+    `depth` in `view.ts`); (c) a score at level 0 is the chip, open it is its criteria on the
+    0–100 bar (undo: the `score` branch); (d) over a period a day without data is absent, never
+    a zero, and the line says the mean (undo: `MeasureView` «days»); (e) done · category ·
+    presence give *none* until their slice, never a home-made drawing; the past-self ghost and
+    the record are not drawn yet (MeasureTree has no ghost mark: a kit change, next slice).
+    No real screen uses it yet: moving a screen onto it is a design he sees first.
+96. **20 Nov, his words on slice 2 (`/kit#motore`):** «non mi piacciono per nulla i pallini. molte
+    scritte potrebbero essere nelle barre stesse. inoltre alcune cose, alcuni tracker potrebbero
+    essere dei binari, come semplici si o no, e vale per qualsiasi cosa. pensa ad assunzioni come
+    la creatina: un valore costante che o prendo una volta o no al giorno. la caffeina è diverso.
+    anche il resto. ma potrebbero esserci obiettivi con semplici "completato" e "non completato"
+    immagino, no?. non lo so. in ogni caso dove sono tutti gli ingredienti e channel e tutto il
+    loro studio? e uno studio su altre forme di grafici oltre alle semplici barre?» Answer: the
+    ingredients and channels are bars-study §16.2–§16.3, the families §14; slice 2 did not apply
+    them (it reused MeasureTree, whose end dot repeats the tip's colour, against §16.3's «never a
+    word that repeats the colour»). The forms beyond bars: bars-study §19, for his corrections.
+97. **20 Nov, his «yc» on bars-study §19.5** (the three recommendations), built on PR #371,
+    photos `/kit#motore`. Each with its undo: (1) **no dots** on bars and day columns — the end
+    dot, the dot under each column and on each part are gone; the columns get the zone bands the
+    bars have, so the judgement is where a column ends; the chip keeps VIS-21's mark (undo:
+    `git revert` of the MeasureTree hunk); (2) **yes / no for any class** — `done` is a reading
+    the engine draws (`doneView` in `core/engines/view/view.ts`): a day is one cell in VIS-22's
+    shape (fatto solid, previsto hatched, saltato struck, niente a faint outline), a week seven
+    cells, a month a calendar from its weekday, a goal «n volte» n cells with the done ones
+    filled; a fixed dose reads as yes / no: `intakeReading` says *done* when three logs or more
+    all have the same dose and the intake is not judged by a limit (caffeine's ≤ 400 mg stays an
+    amount) (undo: `intakeReading` returns «amount»); (3) built first: kit `Done` (`DoneDay`,
+    `DoneCells`). Decided by Claude: a streak is written only from three days («3 di fila»),
+    since a calendar does not show it at a glance; nothing else is written that the cells show;
+    the goal's cells have no day labels (undo: `Done.tsx`). Not yet wired: no screen reads
+    `intakeReading` from his logs; words in the bar (§19.3) not built.
+98. **20 Nov, his words:** «mi sento di star sprecando token. non è quello che voglio. assolutamente
+    no. allora, dobbiamo lavorare alla specifica. devi pensare e pensare e pensare meglio a come
+    poter combinare tutte le informazioni e le richieste che ti ho fatto». Answer: building stops;
+    one synthesis of every request on the visual system (bars-study §20), for his corrections.
+99. **20 Nov, his answer on §20.3:** C1 «è che non sei in grado né di fare dentro né fuori. perciò
+    mi contraddico… parlo di compromessi». C2 «non necessariamente solo due. vedi il tuo problema è
+    che ogni volta è come se usassi solo una metrica singola per rappresentare qualcosa. quando
+    potresti usarne tante contemporaneamente per mostrare tante cose. vedi le barre attuali dei
+    macro. nella loro semplicità mostrano attraverso il colore la loro categoria, la loro
+    gradazione il sottotipo di nutriente o la loro qualità, il tratteggio la pianificazione, la
+    linea dei range sotto, con dimensione e colore e cifre. le cifre sopra per specificare meglio
+    la scala delle barre. che altro? … si possono aggiungere anche altre dimensioni allo stesso,
+    come avevi fatto con le collinette, aggiungendo così altri livelli di informazione (momenti,
+    durate degli assorbimenti probabilmente, non so) … tutto questo solo in una barra, non capisci?
+    e aveva ancora margine di aggiunta senza perdere di comprensibilità. immagina adesso con altri
+    tipi di visualizzatori diversi dalle semplici barre. o magari anche con loro aggregati, come hai
+    fatto con i voti … immagino che continui ad usare le barre perché sono gli elementi che si
+    prestano meglio alla comprensibilità e allo stacking … offre un'ottima prestazione dunque per
+    "qualcosa che vuoi raggiungere". ma non come predizione, come andamento, come sì o no, e cosa
+    altro? non so se mi hai capito. non so se hai capito dove voglio arrivare». Answer (chat):
+    every visualizer an instrument like the macro bar, many channels at once; the bar is the one
+    for «reach»; other purposes need their own (prediction, trend, yes / no, rhythm, stock,
+    comparison, composition, source, spread, verdict), each as dense; they combine.
+100. **20 Nov, his principle:** «la cosa fondamentale è condensare il più possibile informazione,
+    senza perdere in comprensibilità e bellezza». Taken as the first rule of the visual system
+    (bars-study §21.0); §21 written on it.
+101. **20 Nov, his words:** «ah dimenticavo, anche drill down e dig up no? o altre azioni come i
+    filtri, quelle sono fondamentali no? offrono letteralmente livelli in più di informazione, più
+    viste, sullo stesso elemento no? però ti ricordo che odio come fai i bottoni, li dimensioni e
+    colori e contorni sempre male con tutto il resto». Answer: bars-study §21.7 — the actions are
+    part of every instrument; the instrument itself is the control wherever it can be; the few
+    controls left are one kit piece measured with the foundations.
+102. **20 Nov, his «yc» on §21 and §20.3 C3–C5.** Taken, each with its undo: §21 (instruments by
+    question, each as dense as the macro bar; the actions; the instrument is the control) is the
+    visual system (undo: bars-study §21 marked rejected); C3 the edges' amounts are written, the
+    range names never (undo: §20.3 C3); C4 judgement = where it ends among lightness steps, the
+    tip's colour doubles it, VIS-20 holds (undo: §20.3 C4); C5 the interest comes from density and
+    the actions, the shapes stay ones everyone reads (undo: §20.3 C5). Then step 21.6.2 done:
+    bars-study §22, every type on his data, content only; stop for his word.
+103. **20 Nov, his «yc» on §22.** Step 21.6.3 done: the foundations measured on ten screens with
+    his data (bars-study §23). Spacing is already on a 4-px scale (all but 107 of 3.308 values);
+    what is uneven: line heights (334 of 765 unset), controls (22 looks, 9 heights; 4 browser
+    buttons in Profilo), radii (224 of 682 off scale), fills (35 lightness levels), and identity
+    colours whose lightness and saturation vary inside a family. Proposed scales in §23.3; stop
+    for his word.
+104. **20 Nov, his «tc» (read as «yc») on §23.3.** Applied on PR #371 and measured again on the
+    same screens, before · after (`LIFEOS/review/2026-11-20/foundations/index.html`); bars-study
+    §23.4 says what changed, two corrections to §23.2–23.3, and what is left. Undo: revert the
+    commit (tokens.css, kit.css, .prettierignore, the kit photos). Open, his: the gym's 52 px
+    stepper; the surfaces' ladder, shown before it is changed.
+105. **20 Nov, his words:** «yc. in ogni caso non conta molto tutto questo, o per lo meno solo come
+    pre step. anche perché solo le pagine Oggi e Come valutiamo e Elenco per ora vanno bene. tutte
+    le altre sono obsolete, o forse te ne sei dimenticato. oltretutto vale anche per tutte le altre
+    che non hai mostrato. non contando poi che ovviamente stiamo lavorando su un sistema di
+    visualizzazione che toccherà ovviamente anche le card di Oggi, Elenco e Come valutiamo». Taken:
+    (1) «yc» on the gym's stepper = the first option, it stays 52 px (undo: `.k-step.big` 44);
+    (2) **the current pages are Oggi, Come valutiamo and Elenco; every other page is obsolete**
+    (written nowhere before: now in `.claude/rules/design.md`); the foundations (§23) are a pre-step;
+    the visual system (§21–§22) is built on the cards of those three pages. Measuring seven
+    obsolete pages in §23 was wasted work; the counts stand only for the shared kit.
+106. **20 Nov, his words:** «aspetta, come non ti ricordi? ne avevamo parlato? e poi scusa non lo
+    vedi? la pagina piano è inesistente e porta a cose inutili, lo stesso vale per andamento e le
+    altre. hanno pochissimo di tutto quello di cui avevamo discusso… è importante perché i
+    cambiamenti che attuiamo toccheranno anche quelli futuri in quelle pagine. anche solo parlando
+    del prossimo piano "macro bar in Oggi's «Il giorno», rebuilt as the reference": non ti ricordi
+    che avevamo detto di pensare a un motore di visualizzazione unico? avevamo attuato cambiamenti
+    parziali in oggi e elenco appositamente per unificare, ma questo va fatto ovunque e per ogni
+    cosa, era solo un esempio e comunque come vedi parziale o solo rappresentativo». What Claude
+    failed to connect: W-04 (15 Nov, «every specific problem is systemic»), target.md (one type,
+    one of each, places only compose), §32 (Piano = a day of Oggi in the future), §93–§94 (one
+    engine, everything through it). The Oggi and Elenco changes were examples of the unification,
+    not the target; every place, current or to come, is built from the same engine.
+107. **20 Nov, his words:** «ok, facciamo un passo indietro, un re framing. ripensando veramente a
+    tutto». Answer: `reframe.md` in this change (draft): four layers (things, measures, views,
+    places), two spaces (Il tempo, Le cose) with ADR-0063's five as presets, one interaction
+    grammar, the constitution's amendments, the process by layer. If he takes it, its parts
+    move to their homes (model.md, `views.md` absorbing bars-study §21–§23, the presets table) and
+    the file goes (one truth, PRD-40). His to settle: its §9.
+108. **20 Nov, his «yc per ora» on reframe §9, and his words:** «comunque hai controllato eventuali
+    spec… quando hai rifatto le card di oggi e elenco? … ogni cosa che si mette in un orario
+    successivo a tot minuti è obbligatoriamente pianificato, qualcosa che si mette prima o adesso
+    è sempre già fatto e non pianificato. quindi in teoria possiamo togliere i bottoni, dato che si
+    basa tutto sull'orario. e se si mette qualcosa fuori orario? … potremmo dire sempre pianificata
+    finché non viene eseguita, mentre potremmo pensare a cosa debba poter rimanere fuori orario come
+    eccezioni? … i passi li uso così principalmente, ma da svariate precedenti discussioni (trovale)
+    … un refactoring delle attività in generale, esercizi, percorsi, monitoraggio del movimento
+    (tutti dati funzione dei momenti che vengono usati nel calcolo dell'effettiva sedentarietà della
+    giornata, settimana, mese…) … anche tutto questo va inserito nel quadro generale». Answer:
+    reframe §9 settled with undo; §10 the card (checked against VIS-40…43, PAT-30…33, target.md;
+    the reframe had read only target.md); §11 time decides the state (MOD-15 extended); §12 the
+    movement model from his 29 Oct, 3 Nov (BODY-31) and BODY-27 words; §13 his to settle.
+109. **20 Nov, his answers on reframe §13:** «1 possono essere settate dalle impostazioni, ma per ora
+    mettiamo 20 minuti? 2 anche questo da impostazioni, di default saltato (aggiungi una terza
+    opzione di confermato) ah, e dovrebbero essere mostrate delle icone anche per le cose
+    pianificate quando in oggi si minimizzano le fasce temporali. magari icone uguali ma
+    tratteggiate? non so. 3 non lo so, per ora nulla? yc 4 dopo ma sempre in mente e pensando a come
+    le due cose si influenzano. 5 un modo diverso di aggiungere il monitoraggio a mano, (per ora
+    finché non la rendiamo una app vera) magari puoi manualmente aggiungere tot quanti di attività
+    misurata in passi o minuti di camminata nelle varie fasce orarie in modo comodo e senza aprire
+    altre pagine e o pop up e o occupare troppo spazio. stavo pensando a una riga parallela a quella
+    temporale in cui inserire tramite tocco questi quanti che vengono quindi inseriti nella timeline
+    e in un design intelligente aggregati o meno. rendendo quella linea più densa a seconda di
+    quanti quanti ci sono in quegli intorni. vabbe magari ci ripensiamo dopo con calma, è una bozza
+    magari fallimentare. dipende da cosa riuscirai a fare». Written in reframe §11–§13 and delta
+    (MOD-15, product.md §4). Read by Claude: «yc» after 3 = item 6 (drop «step windows» from «not
+    now»); «confermato» = counted as fatto at its planned time (undo: reframe §11).
+110. **20 Nov, his words:** «sicuro che non dobbiamo fare un reframing di nuovo in luce di queste
+    cose?» Answer: reframe §14 — not a new frame, two changes at its base: the state is derived from
+    time (the rail split by now; only saltato and confermato are acts), and the timeline holds two
+    kinds of thing, voci and **signals** (levels over time: movement, caffeine left, creatine
+    stores, daylight, weather), each signal a lane beside the rail. For his word.
+111. **20 Nov, his «yc» on §14; reframe §11 built** (PR #371; photos
+    `LIFEOS/review/2026-11-20/timing/`). The time decides the state: after now + the slack previsto,
+    at now or before fatto (`core/entries/timing.ts`, used by every write); the slack (20 min) and a
+    past previsto's fate (saltato · da confermare · confermato) as settings in Profilo
+    (`settings.prefs.timing`, no migration); ⊕ without «Adesso · Previsto · Prima»; the composer
+    without «Stato», its preview reading the time; a folded part draws a previsto's icon dashed.
+    Decided by Claude, each with its undo: (a) a past previsto's fate is **derived when the day is
+    read, never stored** — changing the setting changes the past days too (undo: `pastState` in
+    `readDays`); (b) what a ritmo writes keeps its previsto, only what he types takes its state from
+    the time (undo: `slack === null` in `createEntry`); (c) a session left «in corso» on a past day
+    is a previsto and follows the setting; (d) a voce typed with no time keeps what was asked; (e) a
+    gap's «+ aggiungi» still passes `&stato=` as a hint for the default time; (f) the kit rule: three
+    or more options with a label over 11 characters are a drop-down, so every label is whole at
+    320 px («Da confermare» was cut) (undo: `asSelect` in `Field.tsx`). Open, his: the dashed icon is
+    subtle at 18 px — enough, or a dashed ring around it?
+112. **20 Nov, his words:** «ah, una cosa importantissima, molte modifiche e aggiunte preferirei
+    fossero quasi principalmente on place negli stessi posti in cui si visualizza. se togliessimo
+    quell'orribile bottone + e quella pagina aggiungi orribile sarebbe ottimo. per variazioni di cifre
+    di ingredienti, aggiunta di nuovi, con loro ricerca, o aggiunta di categorie diverse magari alla
+    timeline si possono fare cose a comparsa e barre di ricerca a comparsa che ne pensi? ma non che
+    coprono, intendo li on place. usiamo visualizzazioni a scorrimento verticale e orizzontale se
+    serve o non so. insomma magari poi ci pensiamo. o forse andrebbe fatto un reframing di nuovo».
+    Answer: reframe §15 — not a new frame: it completes §4 (one grammar) with «add where it will
+    show», and it removes ⊕ and the Aggiungi page (PAT-01, PAT-10, PAT-60, ADR-0063's per-place ⊕).
+113. **20 Nov, his «yc» on reframe §15.** Taken, each with its undo: (1) everything in place; ⊕, the
+    Capture sheet and the Aggiungi page go (undo: PAT-01/10/60 as they are); (2) «Al volo» stays as
+    the one shortcut (undo: §15 «Kept»); (3) built with the instruments, card by card (undo: §8.4's
+    order). First card: the meal — reframe §16, content only, for his word before any drawing.
+114. **20 Nov, his words on §16:** «aspetta ma in che senso? di nuovo fare una cosa nello specifico?
+    non è meglio pensare e ragionare in dettaglio a tutte le cose che servono per ogni cosa, poi fare
+    un passo indietro per un reframing per capire le cose in comune e cosa unificare, poi ancora un
+    passo indietro su un livello gerarchico superiore, eccetera. e poi tornare nel dettaglio per
+    capire come rifinire e poi di nuovo indietro dove e quando necessario. insomma evitiamo di rifare
+    gli stessi errori. non esistono modus operandi, pattern, robe simili a quella che ti sto
+    dicendo? anche più complessi e standardizzati? non possiamo seguire quelli?» Answer: yes — the
+    methods he describes exist (chat, 20 Nov); reframe §16 (one card first) is withdrawn; his to
+    pick: the method.
+115. **20 Nov, his words:** «ok, inizia a pensare a come vada preimpostato tutto questo framework,
+    anche per cambiamenti futuri a tutto il progetto». Read as: OOUX/ORCA in Double Diamond rounds
+    taken as the direction («ok»). Answer: `method.md` in this change (draft) — the ORCA tables and
+    their home, the zoom levels, a round's steps and stops, every future request through the same
+    door, the checks, what it folds, the first pass; his to settle: its §9 (then ADR-0064).
+116. **20 Nov, his words:** «come si configura tutto questo con i framework che già ci sono?»
+    Answer: `method.md` §10 — each existing piece gets one job (product.md Z1–Z2, model.md Z2 rules
+    and Z4 rules, patterns.md and visual.md Z3, domains Z5, a change = rounds, inbox = the door,
+    map.md = the inventory, check.py = the guards, the skills by step); the only new home is
+    `docs/spec/orca/`. Corrected: no `system.md` nor `views.md` (they would duplicate product.md,
+    model.md and visual.md). His call: `PROJECT.md`, which overlaps product.md.
+117. **20 Nov, his «yc» on method §9 and §10.** Taken, each with its undo: (1) OOUX/ORCA in Double
+    Diamond rounds is the project's method, to be recorded as ADR-0064 (undo: the ADR superseded);
+    (2) the ORCA tables as markdown tables with a fixed schema `check.py` reads (undo: YAML + a
+    generated page); (3) zoom Z1–Z5 in the existing homes, only `docs/spec/orca/` new (undo: method
+    §3); (4) stops A (tables) and B (photos) per round; (5) the `change` skill and `check.py` updated
+    before the first pass; (6) `PROJECT.md` archived to `docs/archive/` (its pitch is in product.md
+    §1), done with step (5) since the `adr` skill and `check.py` read it (undo: `git mv` back).
+    Next, in a new session: ADR-0064 → `change` skill + `check.py` + `orca/` schema → round 1 at Z4.
+118. **20 Nov, the method set up** (his «leggi l'handoff e imposta il metodo: ADR-0064, poi skill
+    change e check.py, poi il round 1»). Done: ADR-0064; PRD-41 cites it; `docs/spec/orca/` with its
+    schema (README) and four empty tables; `check.py` checks the schema, the links to OBJ rows, every
+    registry key (`eslint/type-keys.json`) against `objects`, the proposal's **Zoom** and **ORCA
+    cells**, and (changes from 21 Nov) that each delta row cites a cell or a zoom; the `change`
+    skill gains the triage and the rounds; `PROJECT.md` and the `kickoff` skill archived. Decided by
+    Claude, each with its undo: (a) prefixes REL- ACT- ATT- beside OBJ- (undo: rename in
+    `orca/README.md` and `check.py`); (b) instrument «word» and question «name» for a name or a
+    note, which no instrument draws (undo: drop them from `ORCA_VALUES`); (c) an empty table is not
+    checked until round 1 writes it (undo: the `if objects` guard); (d) the kickoff skill archived
+    with `PROJECT.md`, which it filled (undo: `git mv` back). Not yet a check: «one card per
+    object» (method §6) — a code guard, built in round 1's Deliver.
+119. **20 Nov, round 1 to stop A.** Discover: `round-1.md` (one Sonnet reader; 102 things, 13
+    conflicts, his export of 19 Nov counted). Define: `docs/spec/orca/` written — 78 objects, 62
+    relationships, 48 actions, 60 attributes. Decided by Claude (undo in `round-1.md` «Define»):
+    actions and attributes only for objects with his data (PRD-02); forms `part` and `frame` added;
+    what is not an object. Waiting for his word on `round-1.md` «For his word» q1–q9.
+120. **20 Nov, his «yc» on `round-1.md` q1–q9: stop A passed.** Taken, each with its undo: (1) the
+    ORCA tables as written (undo: edit the rows); (2) an assunzione refers to a pasto salvato, the
+    cibo's `intake` flag goes — FD-64 in the delta (undo: the delta row; OBJ-26 back to ◐); (3)
+    «marca» (undo: OBJ-23 and the words row); (4) «percorso» for the saved route (undo: same); (5)
+    «movimento» is the body's, money reads «uscita» · «entrata» (undo: OBJ-19); (6) sessione, sonno,
+    pesata on screen (undo: the words row); (7) Come valutiamo's sliders stay, «adjustable weights»
+    leave «not now» (undo: the §4 row); (8) Dispensa = a filter of Elenco, no planning (undo:
+    same); (9) «ritmo» only what repeats, a goal's pace has no noun (undo: ATT-51's name). Next:
+    Develop (`round-1.md`).
+121. **20 Nov, Develop of round 1** (`round-1.md` «Develop»): one look per form (Box · row · lane ·
+    channel · container · preset), cells = many members, one grammar in three spots, the Z2
+    consequences. Decided by Claude (undo there): the obiettivo also a Box in Obiettivi; cells as
+    the many-member form. His word: q10 (the question in the registry), q11 (the order of Deliver).
+122. **20 Nov, his «yc» on q10–q11.** Taken, each with its undo: (10) each registry field declares
+    its question, the engine picks the instrument from it, a test keeps the registry equal to
+    `orca/attributes` (undo: the engine's rules per type); (11) Deliver in order ① docs fold → ②
+    registry → ③ the Box (stop B) → ④ adding in place, ⊕ out (stop B) → ⑤ lanes (stop B) (undo:
+    another order). Started ①.
+123. **20 Nov, Deliver ① done: the docs fold** (his «yc» q11). product.md (PRD-03, PRD-04 new,
+    PRD-16, PRD-19, PRD-20, §3 words, §4), model.md (MOD-01 families and signals, MOD-14, MOD-15,
+    §3 → `orca/`, MOD-30…32, MOD-41, MOD-56, MOD-57, MOD-58 new), visual.md (VIS-40, VIS-43, VIS-52,
+    VIS-61, VIS-64 new, VIS-70, §13 VIS-100…105 new), patterns.md (PAT-01, PAT-03, PAT-10, PAT-30,
+    PAT-43, PAT-51, PAT-52, PAT-60 → adding in place, PAT-74, PAT-95, PAT-97, PAT-98, PAT-99, PAT-100
+    new), food.md (FD-31's kcal row, FD-64), plan.md (PL-71). Decided by Claude, each with its undo:
+    (a) PAT-01 and PAT-95 lose ⊕, which the delta still had (his §113 is newer; undo: the delta's
+    text); (b) PAT-97: the Piano is the rail after now, not «no days» (reframe §14; undo: same);
+    (c) new «Not» words with a bracket (prodotto, sveglia, movimento) are not enforced by the
+    glossary test until the screens are renamed in ④, as «allenamento (as object)» already was
+    (undo: drop the brackets); (d) the drafts keep a «folded» header and stay in the change until it
+    archives (PRD-41) rather than moving now (undo: `git mv` to `docs/archive/`). Next: ② the registry.
+124. **20 Nov, Deliver ② done: the registry.** Every field answers a question (MOD-58: `QUESTIONS`,
+    the field's optional `question`, `questionOf`, `INSTRUMENT_OF`); each measure carries its question
+    and instrument; the overrides the tables chose (weight, waist, mood · energy · stress → trend;
+    servings, stima, the pesata's conditions, NOVA → name); the signals are registry entries
+    (`core/kinds/signals.ts`, `type-keys.json` «signal», OBJ-46…50 keyed); `orca/attributes` gains a
+    **Field** column and `questions.test.ts` fails when a row's instrument or a field's question
+    differs from the code (checked by breaking ATT-27). Decided by Claude, each with its undo: (a)
+    done → yes/no as a default, which MOD-58 had not listed (undo: `DEFAULT_QUESTION`); (b) the
+    form in code is the existing split — `Kind`, `CatalogType`, `child`, `Signal` — not a new field
+    (undo: add `form` to the schema); (c) FD-64's code (the flag → pasti salvati) moves to ④, since
+    it changes what the dock and the search row offer (undo: do it here). Next: ③ the Box, stop B.
+125. **20 Nov, Deliver ③a: the Box's plan, no UI.** `core/engines/view/box.ts`: `BOX_PLAN` gives each
+    voce, object and the obiettivo its slots by level (0 the closed head after icon and name, 1 open
+    in place, 2 the page) with the instrument of each, from `orca/attributes`'s Level column;
+    `box.test.ts` keeps code = table both ways (checked by moving ATT-38 to level 0). Decided by
+    Claude, each with its undo: (a) ATT-61 cibo «kcal per 100» and ATT-62 pasto salvato «kcal» at
+    level 0, since PAT-30 and target.md §2 give the closed row «one value» and the table had none
+    (undo: drop the two rows and slots); (b) a type with no rows has the empty plan — icon and name
+    closed, its fields as rows open (PRD-02; undo: a default per family); (c) the obiettivo's plan
+    goes by the key `goal`, as it has no registry type (undo: a registry type). Next: ③b the kit Box
+    draws the plan, Elenco first (photos), then Oggi → stop B.
+126. **20 Nov, his «go on with this model, i cannot use fable»; Deliver ③b, first screen: Elenco ·
+    Cibi.** A cibo opens in place as a pasto salvato already did (PAT-30 level 1): kit `ThingBox`
+    (the open/door state for any thing; `MealBox` is now it with a meal's doors), doors from the
+    plan (`features/box-doors.ts` `planDoors`): Voto · Nutrienti (100 g) · NOVA, «Apri» inside.
+    Decided by Claude, each with its undo: (a) the icon's tile only on a row that is a link, so a
+    row that opens matches the pasti (undo: `tile={!!e.href}` in `Box`); (b) «1 prodotto» shows
+    only open, as `Box` levels already do for every meta (undo: none needed, the rule exists).
+    Seen, not new: at 320 px «53 kcal/100» drops under the name (it did before). Photos
+    `LIFEOS/review/2026-11-20/box/index.html`. **Stop B for this screen: his word.**
+127. **20 Nov, his word on §126 (Elenco · Cibi):** «puoi rimuovere "apri" da tutti per guadagnare
+    spazio? e non so aggiungere magari un qualcosa in basso a destra sulla stessa riga delle altre
+    voci, di modo da guadagnare spazio. che se cliccata lo apre. appare pero solo quando estesa. a
+    cos'altro si puo applicare?. questo non contraddice quello che ti avevo detto prima riguardo al
+    rimuovere frecce e cose varie e implementare una interazione a tocco su tutta la schedina,
+    questo perché quello serve per espandere i livelli. ora, in realtà sarebbe anche inutile
+    "aprire" se come ti dicevo el cose si potessero modificare in place, tutte quante le sue
+    caratteristiche».
+128. **20 Nov, his answer on the doors' row and the page:** «allora, vorrei evitare il piu possibile
+    in tutta l'app cose pop up o pagine in piu, è preferibile che tutto gia ci sia. per esempio, se
+    ci sono tanti bottoni, invece di andare a capo, si possono far scorrere orizzontalmente nella
+    schedina no? magari con una animazione carina. e magari ne approfittiamo meglio per pensare a
+    come spaziarli meglio, soprattutto con le cose che stanno sopra e sotto. ah e non mettermi su
+    telefono delle barre di scorrimento. su telefono non servono. da pc servono ma solo quelle
+    orizzontali immagino, perché quelle verticali possiamo toglierle anche dato che si puo usare la
+    rotella o il touchpad». Taken: no ⋯ sheet; an open box's doors and its verbs on **one row that
+    scrolls sideways**, never wrapping; no scrollbars on touch, only horizontal ones with a mouse.
+    Direction for the page (PAT-30 level 2): everything already in the box, as far as possible.
+129. **20 Nov, his word on the sideways row:** «ecco a questo punto il cibo aperto invece di avere "1
+    prodotto" per esempio, puo avere un'altra piccola sezione a scorrimento orizzontale che li
+    elenca. inoltre non so se a questo punto sia meglio per questo genere di testi e per esempio
+    anche le descrizioni sotto i pasti, di averle allineate completamente a sinistra, anche sotto
+    l'icona. pero spaziati bene comunque».
+130. **20 Nov, his word on the marche:** «ok, ma se fai le marche come bottoni dovresti fare in modo
+    che sia interagibile, quindi se tocchi una, la scheda si aggiorna con i dati di quella
+    specifica. di conseguenza deve essere selezionata una di default, magari quella piu usata, e se
+    mai usate, quella con miglior valutazioni, e se pari, la prima inserita. inoltre c'è troppo
+    spazio sopra e sotto, dimensionato male. e non mi piace "marche" scritto cosi. preferisco
+    un'altra icona allineata a quella di sopra. o magari niente, meglio pure. comunque stiamo
+    facendo cose troppo piccole, oltretutto la freccia ti avevo detto che sarebbe dovuta scomparire
+    se vogliamo fare tutto in place. ma immagino che riguardi i prossimi step quindi tu l'abbia
+    tenuta come cosa momentanea. ok, detto questo aggiusta queste piccolezze e andiamo avanti. ci
+    siamo focalizzati troppo su dettagli inutili». Taken: a marca is a choice that redraws the box;
+    the default most used → best voto → first inserted; no label; tighter spacing; the › is
+    temporary, gone when the page's content is in the box.
+131. **20 Nov, his word while Esercizi and Schede were built:** «comunque devi diminuire le
+    proporzioni generali di tutti i boittoni».
+132. **20 Nov, his «ma stiamo procedendo col piano del framework?», then «yc».** Claude's answer: ③b
+    drifted into one component per type (`FoodBox`, `ExerciseBox`, schede by hand). Taken (his «yc»),
+    decided by Claude, each with its undo: (a) **one builder**: the kit's `PlanBox` draws a slot by
+    its instrument (word → a chip, many words → a `ChipRow`, trend → `Chart` behind a door,
+    composition of nutrients → `Nutrients` behind a door), never by type; `features/box/slots.ts`
+    orders a type's slots by its plan and refuses one whose shape is not its instrument's; a type
+    gives only data (undo: the per-type boxes in git); (b) a thing's children he picks (a cibo's
+    marche) are **variants** of the same `PlanBox`, each with its own head and slots, one picked by
+    the caller's rule (undo: `FoodBox`); (c) then Oggi's voci and Obiettivi through the same
+    builder, then **stop B**: one page with every type's Box closed and open.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

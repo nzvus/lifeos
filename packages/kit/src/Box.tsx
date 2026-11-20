@@ -78,6 +78,7 @@ export function Box({
   expanded,
   onToggle,
   doors,
+  verbs,
   door = null,
   onDoor,
 }: {
@@ -97,6 +98,8 @@ export function Box({
    * its score parts, first), one panel open at a time. Without `doors` it opens as before.
    */
   doors?: BoxDoor[];
+  /** Open, the place's verbs (links or buttons) after the doors, on the same sideways row. */
+  verbs?: ReactNode;
   door?: string | null;
   onDoor?: (key: string) => void;
 }) {
@@ -186,27 +189,41 @@ export function Box({
   // stay above it (his 19 Nov: «interagibili per intero e non solo da una freccia»).
   const cover = !onToggle && !!e.href;
   const lineActs = inline ? [] : acts;
-  // A box that opens and has a page: the page is «Apri», inside the open box, never an arrow.
-  const page = onToggle && e.href && expanded;
+  // A box that opens and has a page: an icon at the end of its doors' row, only open (his 20 Nov
+  // «rimuovere "apri"… in basso a destra sulla stessa riga delle altre voci»; VIS-40). The tap on
+  // the whole box still opens its levels; this one goes to its page.
+  const page = onToggle && e.href && expanded ? e.href : null;
+  const go = page ? (
+    <a className="k-go" href={page} aria-label={e.hrefLabel ?? "Apri " + e.title}>
+      <Glyph of={{ ui: "link" }} size="m" />
+    </a>
+  ) : null;
+  const actButtons = lineActs.map((a) => (
+    <button
+      key={a.label}
+      type="button"
+      className={"k-btn act" + (a.danger ? " danger" : "")}
+      aria-label={a.aria ?? a.label}
+      onClick={a.onClick}
+    >
+      {a.label}
+    </button>
+  ));
+  // Open with levels, the doors and every verb share one row that scrolls sideways (his 20 Nov
+  // «invece di andare a capo, si possono far scorrere orizzontalmente»); else their own line.
+  const bar = levels && expanded;
+  const lone =
+    bar &&
+    !!go &&
+    !!children &&
+    allDoors.length === 0 &&
+    !verbs &&
+    actButtons.length === 0;
   const actsLine =
-    lineActs.length > 0 || page ? (
+    !bar && (lineActs.length > 0 || go) ? (
       <div className="k-line end g2 k-acts">
-        {page && (
-          <a className="k-btn act" href={e.href} aria-label={e.hrefLabel ?? e.title}>
-            Apri
-          </a>
-        )}
-        {lineActs.map((a) => (
-          <button
-            key={a.label}
-            type="button"
-            className={"k-btn act" + (a.danger ? " danger" : "")}
-            aria-label={a.aria ?? a.label}
-            onClick={a.onClick}
-          >
-            {a.label}
-          </button>
-        ))}
+        {go}
+        {actButtons}
       </div>
     ) : null;
   return (
@@ -275,7 +292,8 @@ export function Box({
                 under it, so a tap on the icon opens too. */}
             <span className="k-lead" aria-hidden="true">
               {badge ? (
-                <Glyph of={of} size="m" tile={!!e.href} />
+                // The tile says «this row is a link» (UI-81): a row that opens in place has none.
+                <Glyph of={of} size="m" tile={cover} />
               ) : (
                 <span className="k-glyph-lead">
                   <Glyph of={of} size="s" />
@@ -401,7 +419,14 @@ export function Box({
             </div>
           )}
           {shut && actsLine}
-          {!shut && children && <div className="k-bin">{children}</div>}
+          {!shut && children && !lone && <div className="k-bin">{children}</div>}
+          {lone && (
+            // Nothing but its members and its page: the › ends the members' row, no line of its own.
+            <div className="k-doorbar">
+              <div className="k-doorbar-fill">{children}</div>
+              {go}
+            </div>
+          )}
           {!shut && (
             <div className="k-reveal on k-more">
               <div>
@@ -461,29 +486,39 @@ export function Box({
               </div>
             </div>
           )}
-          {levels && expanded && allDoors.length > 0 && (
-            <div className="k-chips k-doors">
-              {allDoors.map((d) =>
-                d.panel ? (
-                  <button
-                    key={d.key}
-                    type="button"
-                    className="k-chip k-door"
-                    aria-pressed={d.key === door}
-                    onClick={onDoor ? () => onDoor(d.key) : undefined}
-                  >
-                    <span>{d.label}</span>
-                    {d.value && <span className="k-meta">{d.value}</span>}
-                  </button>
-                ) : (
-                  <span key={d.key} className="k-chip k-door static">
-                    <span>{d.label}</span>
-                    {d.value && <span className="k-meta">{d.value}</span>}
-                  </span>
-                ),
-              )}
-            </div>
-          )}
+          {bar &&
+            !lone &&
+            (allDoors.length > 0 || go || actButtons.length > 0 || verbs) && (
+              <div className="k-doorbar">
+                <div className="k-doors">
+                  {allDoors.map((d) =>
+                    d.panel ? (
+                      <button
+                        key={d.key}
+                        type="button"
+                        className="k-chip k-door"
+                        aria-pressed={d.key === door}
+                        onClick={onDoor ? () => onDoor(d.key) : undefined}
+                      >
+                        <span>{d.label}</span>
+                        {d.value && <span className="k-meta">{d.value}</span>}
+                      </button>
+                    ) : (
+                      <span key={d.key} className="k-chip k-door static">
+                        <span>{d.label}</span>
+                        {d.value && <span className="k-meta">{d.value}</span>}
+                      </span>
+                    ),
+                  )}
+                  {(verbs || actButtons.length > 0) && allDoors.length > 0 && (
+                    <span className="k-doorsep" aria-hidden="true" />
+                  )}
+                  {verbs}
+                  {actButtons}
+                </div>
+                {go}
+              </div>
+            )}
           {levels && expanded && openDoor && (
             <div className="k-doorpanel">{openDoor.panel}</div>
           )}

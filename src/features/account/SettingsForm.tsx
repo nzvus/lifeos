@@ -77,6 +77,29 @@ export function SettingsForm({
         error={e["boundary"]}
         help="Uno spuntino all’1:30 conta per il giorno prima se la giornata inizia alle 4:00."
       />
+      <Field
+        name="slackMin"
+        label="Vale come adesso"
+        type="stepper"
+        unit="min"
+        step={5}
+        defaultValue={v["slackMin"] ?? "20"}
+        error={e["slackMin"]}
+        help="Quello che metti entro questi minuti da adesso è fatto; dopo, è previsto."
+      />
+      <Field
+        name="pastPlanned"
+        label="Un previsto non fatto"
+        type="choice"
+        required
+        defaultValue={v["pastPlanned"] ?? "skipped"}
+        options={[
+          { value: "skipped", label: "Saltato" },
+          { value: "unconfirmed", label: "Da confermare" },
+          { value: "confirmed", label: "Confermato" },
+        ]}
+        help="Cosa diventa quando la sua giornata è finita."
+      />
       <div className="k-line g3">
         <button type="submit" className="k-btn primary" aria-busy={pending}>
           Salva

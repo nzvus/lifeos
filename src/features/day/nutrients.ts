@@ -432,6 +432,31 @@ export function mealL0(
   const foods = mealFoods(meal, estimates);
   const known = estimates.size > 0;
   const micros = mealMicros(meal, estimates, microTargets);
+  // Its limits, against the day's targets (his 20 Nov «dovrebbero portarli»); no fascia of its
+  // own: a meal is judged only on protein (FD-35).
+  const dayKcal = targets?.kcal ?? null;
+  const limits: NonNullable<NutrientsData["limits"]> = dayKcal
+    ? [
+        known
+          ? {
+              key: "sugars",
+              name: "Zuccheri liberi",
+              v: kinds.carbs["free"] ?? 0,
+              t: (dayKcal * 0.1) / 4,
+            }
+          : {
+              key: "sugars",
+              v: v("sugars"),
+              t: targets?.sugars ?? (dayKcal * 45) / 1000,
+            },
+        {
+          key: "sat",
+          v: v("saturatedFat"),
+          t: targets?.saturatedFat ?? (dayKcal * 0.1) / 9,
+        },
+        { key: "salt", v: v("salt"), t: targets?.salt ?? 5 },
+      ]
+    : [];
   const NOTE = {
     protein: () => leucineNote(kinds.protein),
     carbs: () => carbsNote(kinds.carbs),
@@ -450,6 +475,7 @@ export function mealL0(
       ...(known ? NOTE[f]() : {}),
     })),
     ...(micros ? { micros } : {}),
+    ...(limits.length ? { limits } : {}),
   };
 }
 

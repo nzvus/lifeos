@@ -43,9 +43,9 @@ function scaleOf(n: MNode) {
 }
 const pc = (x: number, of: number) => Math.max(0, Math.min(100, (x / of) * 100));
 
-function Bullet({ n, scale }: { n: MNode; scale: number }) {
-  const level = n.zones ? (heatLevel(n.v + (n.plan ?? 0), n.zones) ?? "fair") : null;
-  const bands = (n.zones ?? []).map((z, i, a) => {
+/** A measure's zones on its scale: where each starts, how long, how dark (no dot: §19.4). */
+function bandsOf(zones: HeatZone[], scale: number) {
+  return zones.map((z, i, a) => {
     const from = Math.min(z.from, scale);
     const to = Math.min(scale, a[i + 1]?.from ?? scale);
     return {
@@ -55,6 +55,10 @@ function Bullet({ n, scale }: { n: MNode; scale: number }) {
       danger: z.level === "danger",
     };
   });
+}
+
+function Bullet({ n, scale }: { n: MNode; scale: number }) {
+  const bands = bandsOf(n.zones ?? [], scale);
   return (
     <span className="k-tb">
       {bands.map((b, i) => (
@@ -84,13 +88,6 @@ function Bullet({ n, scale }: { n: MNode; scale: number }) {
       {n.t !== undefined && (
         <span className="tick" style={{ left: pc(n.t, scale) + "%" }} />
       )}
-      {level && (
-        <span
-          className={"end k-st " + MARK[level]}
-          style={{ left: pc(n.v + (n.plan ?? 0), scale) + "%" }}
-          aria-hidden="true"
-        />
-      )}
     </span>
   );
 }
@@ -102,7 +99,6 @@ function Tier({ nodes, scale }: { nodes: MNode[]; scale: number }) {
       {nodes.map((c) => {
         const w = pc(c.max ?? c.v, scale);
         const got = c.max ? pc(c.v, c.max) : 100;
-        const level = c.zones ? heatLevel(c.v, c.zones) : null;
         return (
           <span
             key={c.name}
@@ -113,10 +109,7 @@ function Tier({ nodes, scale }: { nodes: MNode[]; scale: number }) {
             title={c.name}
           >
             <i />
-            <span className="lb">
-              {level && <span className={"k-st " + MARK[level]} aria-hidden="true" />}
-              {c.short ?? c.name}
-            </span>
+            <span className="lb">{c.short ?? c.name}</span>
           </span>
         );
       })}
@@ -186,12 +179,16 @@ export function MeasureDays({
 }: {
   name: string;
   days: { d: string; v: number; plan?: number }[];
-  t: number;
+  t?: number;
   zones: HeatZone[];
   color: string;
   label: string;
 }) {
-  const scale = Math.max(t * 1.3, ...days.map((x) => (x.v + (x.plan ?? 0)) * 1.05));
+  const scale = Math.max(
+    (t ?? 0) * 1.3,
+    ...days.map((x) => (x.v + (x.plan ?? 0)) * 1.05),
+  );
+  const bands = bandsOf(zones, scale);
   return (
     <div className="k-tree" role="img" aria-label={name + ": " + label}>
       <span className="k-thead">
@@ -200,11 +197,25 @@ export function MeasureDays({
       </span>
       <span className="k-tdays">
         {days.map((x) => {
-          const level = heatLevel(x.v + (x.plan ?? 0), zones) ?? "fair";
           return (
             <span key={x.d} className="day">
               <span className="col">
-                <span className="tick" style={{ bottom: pc(t, scale) + "%" }} />
+                {bands.map((b, i) => (
+                  <span
+                    key={"b" + i}
+                    className={"band" + (b.danger ? " danger" : "")}
+                    style={
+                      {
+                        bottom: b.left + "%",
+                        height: b.w + "%",
+                        "--step": b.step + "%",
+                      } as CSSProperties
+                    }
+                  />
+                ))}
+                {t !== undefined && (
+                  <span className="tick" style={{ bottom: pc(t, scale) + "%" }} />
+                )}
                 <i style={{ height: pc(x.v, scale) + "%", background: color }} />
                 {x.plan ? (
                   <i
@@ -217,7 +228,6 @@ export function MeasureDays({
                   />
                 ) : null}
               </span>
-              <span className={"k-st " + MARK[level]} aria-hidden="true" />
               <span className="lb">{x.d}</span>
             </span>
           );

@@ -118,7 +118,7 @@ export const LABEL_FIELDS = [
   { key: "saturatedFat", type: "number", unit: "g", min: 0, max: 100 },
   { key: "fibre", type: "number", unit: "g", min: 0, max: 100 },
   { key: "salt", type: "number", unit: "g", min: 0, max: 100 },
-  { key: "nova", type: "integer", min: 1, max: 4 },
+  { key: "nova", type: "integer", min: 1, max: 4, question: "name" },
 ] as const satisfies CatalogTypeInput["fields"];
 
 const DECLARED: CatalogTypeInput[] = [

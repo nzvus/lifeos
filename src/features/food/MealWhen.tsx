@@ -1,6 +1,7 @@
 "use client";
 /**
- * The composer's «Quando» (V-04): eaten or planned, the time, the meal's
+ * The composer's «Quando» (V-04): the time — which alone says eaten or planned (MOD-15 as amended,
+ * his 20 Nov: «possiamo togliere i bottoni, dato che si basa tutto sull'orario») —, the meal's
  * role (from the time unless chosen), a note, «Salva anche come pasto»
  * with its name. Inputs of the composer's form; the state is the composer's.
  */
@@ -18,7 +19,7 @@ export function MealWhen({
   canSave,
   saveAs,
   estName,
-  onStatus,
+  status,
   onStart,
   onRole,
   onSaveAs,
@@ -36,7 +37,8 @@ export function MealWhen({
   canSave: boolean;
   saveAs: boolean;
   estName: string;
-  onStatus: (v: string) => void;
+  /** Eaten or planned, from the time (`plannedAt`); sent with the form, never asked. */
+  status: "done" | "planned";
   onStart: (v: string) => void;
   onRole: (v: string) => void;
   onSaveAs: (v: boolean) => void;
@@ -44,18 +46,7 @@ export function MealWhen({
   return (
     <section className="k-section g4" aria-label="Quando">
       <h2>Quando</h2>
-      <Field
-        name="status"
-        label="Stato"
-        type="choice"
-        required
-        defaultValue={values["status"] ?? "done"}
-        onChange={onStatus}
-        options={[
-          { value: "done", label: "Mangiato" },
-          { value: "planned", label: "Previsto" },
-        ]}
-      />
+      <input type="hidden" name="status" value={status} />
       <Field
         name="start"
         label="Ora"

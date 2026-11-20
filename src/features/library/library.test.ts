@@ -204,6 +204,39 @@ describe("an exercise found by a merged name («Unisci»)", () => {
   });
 });
 
+describe("an esercizio's box (PAT-30 level 1, ATT-43, ATT-44; Deliver ③)", () => {
+  it("its trend is the best e1RM per session, oldest first, sessions with none left out", () => {
+    const log = new Map([
+      [
+        "p",
+        [
+          { day: "2026-11-17", sets: [], best: 82 },
+          { day: "2026-11-10", sets: [], best: null },
+          { day: "2026-11-03", sets: [], best: 80 },
+        ],
+      ],
+    ]);
+    const [row] = exerciseRows(
+      [
+        {
+          id: "p",
+          name: "Panca piana",
+          pattern: "horizontal_press",
+          equipment: "barbell",
+        },
+      ],
+      log as never,
+      (d) => d,
+      (x) => [x.pattern ?? "", x.equipment ?? ""],
+    );
+    expect(row!.exercise!.trend).toEqual([
+      { d: "2026-11-03", v: 80 },
+      { d: "2026-11-17", v: 82 },
+    ]);
+    expect(row!.exercise!.facts).toEqual(["horizontal_press", "barbell"]);
+  });
+});
+
 describe("foodTwins («Unisci»)", () => {
   const f = (foodId: string, name: string, productId: string | null = null) =>
     ({

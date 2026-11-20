@@ -22,6 +22,53 @@ export const FAMILIES = [
 ] as const;
 export type Family = (typeof FAMILIES)[number];
 
+/**
+ * What a thing *is* (MOD-57, bars-study §18.1; his «yc», 20 Nov): the class the visualization
+ * engine (MOD-56) reads to draw it, whatever its type. A tracker takes its class from its family.
+ */
+export const CLASSES = [
+  "intake",
+  "activity",
+  "state",
+  "measurement",
+  "exchange",
+  "note",
+  "context",
+] as const;
+export type KindClass = (typeof CLASSES)[number];
+
+/**
+ * The question a field answers (MOD-58, VIS-102; his «yc» q10, 20 Nov): the engine picks the
+ * instrument from it. A field says it only when its reading's default is not what he reads.
+ */
+export const QUESTIONS = [
+  "reach",
+  "prediction",
+  "trend",
+  "yes/no",
+  "rhythm",
+  "stock",
+  "comparison",
+  "composition",
+  "source",
+  "spread",
+  "verdict",
+  "name",
+] as const;
+export type Question = (typeof QUESTIONS)[number];
+
+/** A tracker's class when it does not say one: from its family (MOD-57). */
+export const FAMILY_CLASS: Record<Family, KindClass> = {
+  food: "intake",
+  drink: "intake",
+  train: "activity",
+  habit: "activity",
+  sleep: "state",
+  body: "measurement",
+  mind: "measurement",
+  money: "exchange",
+};
+
 export const DOMAINS = [
   "food",
   "training",
@@ -70,6 +117,8 @@ export const fieldSchema = z
     required: z.boolean().default(false),
     /** Stored, never shown as a value row: its type's own section edits it (a blocco's `kind`). */
     internal: z.boolean().optional(),
+    /** The question it answers, when not its reading's default (MOD-58). */
+    question: z.enum(QUESTIONS).optional(),
   })
   .refine((f) => f.type !== "scale" || f.scale !== undefined, "a scale needs its top")
   .refine((f) => f.type !== "choice" || f.choices !== undefined, "a choice needs choices")
@@ -91,6 +140,8 @@ export const kindSchema = z
     /** The person's own name for it (a user kind: the row's `name`). */
     name: z.string().min(1).max(40).optional(),
     family: z.enum(FAMILIES),
+    /** What it is (MOD-57); a built-in says it, a tracker takes its family's. */
+    class: z.enum(CLASSES).optional(),
     domain: z.enum(DOMAINS),
     shape: z.enum(["instant", "interval"]),
     entry: z.enum(["quick", "form", "timer", "specialised"]),
@@ -119,3 +170,7 @@ export const kindSchema = z
 export type KindInput = z.input<typeof kindSchema>;
 export type Kind = z.output<typeof kindSchema>;
 export type Field = z.output<typeof fieldSchema>;
+
+/** A kind's class: its own, else its family's (MOD-57). */
+export const classOf = (k: Pick<Kind, "class" | "family">): KindClass =>
+  k.class ?? FAMILY_CLASS[k.family];

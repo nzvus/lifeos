@@ -8,7 +8,8 @@
  */
 import { and, getTableColumns, gte, inArray, isNull, lte, sql } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
-import { addDays, type DayClock, type IsoDate } from "../engines/time";
+import { addDays, logicalDay, type DayClock, type IsoDate } from "../engines/time";
+import { pastState, timingOf, type Timing } from "../entries/timing";
 import type { Db } from "../db/db";
 import {
   catalogItems,
@@ -85,7 +86,12 @@ export function roleBoundsOf(prefs: Record<string, unknown>): RoleBounds {
 export async function readClock(
   db: Db,
   owner: Owner,
-): Promise<{ clock: DayClock; roleBounds: RoleBounds; weights: WeightBook }> {
+): Promise<{
+  clock: DayClock;
+  roleBounds: RoleBounds;
+  weights: WeightBook;
+  timing: Timing;
+}> {
   const [set] = await db
     .select({
       timeZone: settings.timezone,
@@ -99,6 +105,8 @@ export async function readClock(
     roleBounds: roleBoundsOf(set?.prefs ?? {}),
     // The person's weights for the scores (V-16), read with the rest of prefs.
     weights: weightsOf(set?.prefs ?? {}),
+    // The slack and what a past previsto becomes (reframe §11).
+    timing: timingOf(set?.prefs),
   };
 }
 
@@ -118,7 +126,7 @@ export function readUserKinds(db: Db, owner: Owner): Promise<UserKindRow[]> {
     .where(ownedBy(kinds, owner));
 }
 
-export type ClockRead = { clock: DayClock; roleBounds: RoleBounds };
+export type ClockRead = { clock: DayClock; roleBounds: RoleBounds; timing: Timing };
 
 export async function readDay(
   db: Db,
@@ -142,7 +150,7 @@ export async function readDays(
   to: IsoDate,
   known?: ClockRead,
 ): Promise<DayRows[]> {
-  const [{ clock, roleBounds }, dayEntries, userKinds] = await Promise.all([
+  const [{ clock, roleBounds, timing }, stored, userKinds] = await Promise.all([
     known ?? readClock(db, owner),
     db
       .select(ownerless(entries))
@@ -159,6 +167,14 @@ export async function readDays(
       ),
     readUserKinds(db, owner),
   ]);
+  // A previsto whose day is over and was never done shows as his setting says (saltato by
+  // default · da confermare · confermato): derived here, never stored (reframe §11, §14).
+  const today = logicalDay(new Date(), clock);
+  const policy = timing.pastPlanned;
+  const dayEntries = stored.map((e) => ({
+    ...e,
+    status: pastState(e.status, e.day, today, policy),
+  }));
   const ids = dayEntries.map((e) => e.id);
   const days: IsoDate[] = [];
   for (let d = from; d <= to; d = addDays(d, 1)) days.push(d);

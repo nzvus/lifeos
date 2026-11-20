@@ -13,6 +13,8 @@ import { useState } from "react";
 import { Box, F, Field, List as KitList, MealBox } from "@lifeos/kit";
 import { common } from "@/i18n/common";
 import { food } from "@/i18n/food";
+import { ExerciseBox } from "./ExerciseBox";
+import { FoodBox } from "./FoodBox";
 import { MealFoods } from "./MealFoods";
 import { listRows, sortValue, SORTS, type LibraryRow, type SortKey } from "./library";
 
@@ -91,15 +93,18 @@ export function Library({
   return <List lists={lists} first={view} alone={only ?? false} />;
 }
 
-/** A row's entry; `link` false when the row opens in place instead of going to its page. */
-function row(tab: Tab, r: LibraryRow, value: string, link = true) {
+/**
+ * A row's entry: a row that opens in place keeps its page for the icon beside its doors. `sub`
+ * false when its open box lists what the line only counts (a cibo's marche, §129).
+ */
+function row(tab: Tab, r: LibraryRow, value: string, sub = true) {
   return {
     ...SHELF_OF[tab],
     of: tab === "meals" ? { kind: "meal" } : (r.of ?? {}),
     title: r.name,
-    ...(r.sub ? { meta: r.sub } : {}),
+    ...(sub && r.sub ? { meta: r.sub } : {}),
     value,
-    ...(link && r.href ? { href: r.href } : {}),
+    ...(r.href ? { href: r.href } : {}),
     ...(r.score ? { score: r.score } : {}),
   };
 }
@@ -364,28 +369,44 @@ function List({
         >
           {rows.map((r) =>
             r.meal ? (
-              // A pasto opens in place (PAT-43): the one meal box, «Apri» to its page.
+              // A pasto opens in place (PAT-43): the one meal box; its page from the doors' row.
               <MealBox
                 key={r.key}
                 density="row"
-                entry={row(tab, r, value(r), false)}
+                entry={row(tab, r, value(r))}
                 data={r.meal.data}
                 labels={common.doors}
                 details={r.meal.details}
                 foods={<MealFoods parts={r.meal.parts} />}
-              >
-                <div className="k-line g2 wrap">
-                  <a className="k-btn act" href={"/aggiungi/pasto?pasto=" + r.meal.id}>
-                    {w.log}
-                  </a>
-                  <a className="k-btn act" href={"/cibo/pasto/" + r.meal.id + "/componi"}>
-                    {r.meal.estimate ? w.composeEstimate : w.compose}
-                  </a>
-                  <a className="k-btn act" href={"/cibo/pasto/" + r.meal.id}>
-                    {w.open}
-                  </a>
-                </div>
-              </MealBox>
+                verbs={
+                  <>
+                    <a className="k-btn act" href={"/aggiungi/pasto?pasto=" + r.meal.id}>
+                      {w.log}
+                    </a>
+                    <a
+                      className="k-btn act"
+                      href={"/cibo/pasto/" + r.meal.id + "/componi"}
+                    >
+                      {r.meal.estimate ? w.composeEstimate : w.compose}
+                    </a>
+                  </>
+                }
+              />
+            ) : r.exercise ? (
+              // An esercizio opens in place (PAT-30 level 1, Deliver ③): facts, e1RM trend.
+              <ExerciseBox
+                key={r.key}
+                r={{ ...r, exercise: r.exercise }}
+                entry={row(tab, r, value(r))}
+              />
+            ) : r.food ? (
+              // A cibo opens in place too (PAT-30 level 1, Deliver ③); its marche redraw it (§130).
+              <FoodBox
+                key={r.key}
+                r={{ ...r, food: r.food }}
+                entry={row(tab, r, value(r), !r.products)}
+                value={(values) => value({ ...r, values })}
+              />
             ) : (
               <Box key={r.key} density="row" rail={false} entry={row(tab, r, value(r))} />
             ),

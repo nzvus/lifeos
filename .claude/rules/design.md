@@ -7,6 +7,11 @@ Why it exists (his words, 14 Nov): «ogni volta succede che ignori tutte le disc
 il modo in cui stiamo lavorando è sbagliato». The same on 30 Oct: «molte scelte… ogni volta te le
 dimentichi».
 
+## Since 20 Nov: the method (ADR-0064) holds the truth this file used to gather
+Every thing, its relationships, actions and attributes: `docs/spec/orca/`. The layers: PRD-04; the
+instruments and their channels: `visual.md` §13; one grammar, three spots, no ⊕: PAT-60, PAT-100.
+Where a line below disagrees with them, they win (the lines below are 14–20 Nov history).
+
 ## How we design (his «yc», 14 Nov; undo: delete this section)
 1. **No separate drawings.** A proposal is the real app changed on a branch, built from
    `packages/kit`, shown as photos of the real screen at 390/360/320, dark, with his data
@@ -89,6 +94,11 @@ dimentichi».
   (PAT-90…94). Baselines only shrink.
 
 ## What the real screens hold today (his «you can infer from the screenshots», 14 Nov)
+**Current, his 20 Nov (proposal §105–§106): only Oggi, Come valutiamo and Elenco «vanno bene»;
+every other page is obsolete** — it holds almost nothing of what was decided (Piano = a day of
+Oggi in the future, §32; one type drawn one way, target.md; W-04). Read the lines below on those
+pages as history, never as a base. The visual engine (bars-study §21–§22) is built **once for
+every place**, current and future; the Oggi and Elenco changes were examples, never the target.
 From the photos of the running app with his data, 12 Nov: `LIFEOS/review/2026-11-12/shots/`
 (110 screens at 390 px; never a bare `ls` there, use `find`). **Before touching a screen, open its
 photo: everything on it stays unless he says it goes.** Seen by Claude on 14 Nov: the 19 below.

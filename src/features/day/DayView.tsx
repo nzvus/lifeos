@@ -478,11 +478,12 @@ function partSum(rows: Row[]) {
     text:
       F.plural(n, "voce", "voci") +
       (kcal > 0 ? " · " + F.num(Math.round(kcal), "kcal") : ""),
-    icons: rows.map((r): GlyphOf => ({
+    icons: rows.map((r): GlyphOf & { planned?: boolean } => ({
       ...r.of,
       fam: r.fam,
       ...(r.sub ? { sub: r.sub } : {}),
       title: r.title,
+      ...(r.status === "planned" ? { planned: true } : {}),
     })),
   };
 }

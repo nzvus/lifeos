@@ -1,5 +1,7 @@
 # The target, as tables — foods and meals first (approved 15 Nov, §47)
 
+> **Folded 20 Nov (round 1, Deliver ①; proposal §123):** the one-piece-per-type rules → PAT-30, PAT-43, VIS-40; the type tables → `orca/`. History only: the spec wins.
+
 Step 3 of proposal §44. A draft by Claude, 15 Nov 2026: nothing here is decided until he says so
 (rule 1). He reviews tables, not screens. §1 is fact, read from the code and two photos of 12 Nov
 (`cibo_elenco_390`, `cibo_cibo_…_390`); §2–§4 are the proposal; §5 is what he must settle.

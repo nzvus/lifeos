@@ -6,7 +6,7 @@
  * The snapshot a line keeps (ADR-0007) is taken from here, on the server:
  * never from values a client sends.
  */
-import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import type { Db } from "../db/db";
 import {
   catalogItems,
@@ -57,7 +57,9 @@ export async function readFoodChoices(
         isNull(catalogItems.deletedAt),
         isNull(catalogItems.archivedAt),
       ),
-    );
+    )
+    // Products keep the order they were made in: «the first inserted» breaks a tie (§130).
+    .orderBy(asc(catalogItems.createdAt), asc(catalogItems.id));
   if (items.length === 0) return [];
   const [values, uses, prices] = await Promise.all([
     db

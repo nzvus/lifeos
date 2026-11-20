@@ -18,8 +18,13 @@ ledger ID, a phase 1 answer (`n06`, `c11`, `x03`: `audit-2026-11/needs.md`) or a
   water (17 Oct → 4 Nov data). A pattern is proven on the core before a domain grows; a domain
   without data gets no new structure. [n13, needs §0]
 - **PRD-03** Every macro- and micro-function is an instance of a few horizontal mechanisms
-  (`model.md`, `patterns.md`). A new kind of thing is a registry entry, never a new page or a
-  new engine. [PROD-36, PROD-41, PROD-42]
+  (`model.md`, `patterns.md`). A new kind of thing is a registry entry, and a new kind of view an
+  engine entry (MOD-56), never a new page or a page's drawing. [PROD-36, PROD-41, PROD-42, reframe §7]
+- **PRD-04** **Four layers**, each built once, every place derived from them: **things** (voci,
+  objects and their parts, signals: `orca/`, `model.md`) · **measures** (every number over a frame,
+  with its references, certainty and voto: MOD-40…57) · **views** (question × frame × level → an
+  instrument, VIS-102) · **places** (presets of the two spaces, PRD-16). A change is made in
+  the lowest layer it belongs to and reaches every place at once. [reframe §2, his «yc» 20 Nov]
 
 ## 2. Principles (each has a check in `patterns.md` §9)
 | ID | Principle | Source |
@@ -30,11 +35,11 @@ ledger ID, a phase 1 answer (`n06`, `c11`, `x03`: `audit-2026-11/needs.md`) or a
 | PRD-13 | Decisions first: daily tasks in less than one screen | P4 |
 | PRD-14 | One primary action per screen; one form per verb | P5 |
 | PRD-15 | Lists and search from the kit | P6 |
-| PRD-16 | One map: five areas, the same four tabs everywhere | P7, ADR-0059; to be replaced by ADR-0063 (change `2026-11-14-five-places`) |
+| PRD-16 | One map: two spaces — **il tempo** (one timeline; its window and position are actions) and **le cose** (the catalog) — and the bar's five places by action as their presets; the area is a filter | P7, ADR-0063, reframe §3 (his «yc per ora», 20 Nov) |
 | PRD-17 | Visible responses in his words; 24 h times | P8 |
 | PRD-18 | System first: screens are composed from patterns, never drawn | P9, n12 |
-| PRD-19 | Everything one tap away, never everything in view; two levels at most, three only for the weather and the week strip (his pick 6 Nov) | c01, n12, UI-76, UI-80 |
-| PRD-20 | Fewer numbers, each with its «Perché?»; a number that serves no decision goes | n05, UI-73 |
+| PRD-19 | Everything one tap away, never everything in view; as many levels as the data has (drill), at most two in view at once | c01, n12, his §99 |
+| PRD-20 | Fewer written numbers, more information in channels: condense as much as possible without losing comprehensibility or beauty; each number with its «Perché?» | n05, his §100 |
 | PRD-21 | Context shown beside the fact, never folded into the number | n08, c02 |
 | PRD-22 | Never invent data: assumed values are low-confidence and stay out of trends until confirmed | c09, DATA-14 |
 | PRD-23 | No judgement without coverage: below the threshold the app says «non so» | n11 |
@@ -49,29 +54,34 @@ ledger ID, a phase 1 answer (`n06`, `c11`, `x03`: `audit-2026-11/needs.md`) or a
 |---|---|---|---|
 | a thing logged in time | **voce** | «una cosa fatta, a un'ora» | record, log |
 | state of a voce | **previsto · fatto · saltato** | — | pianificato, completato |
-| a thing you reuse | the type's own name: **cibo, prodotto, pasto, esercizio, scheda, tragitto, tracker** | «una cosa che riusi» | oggetto, item |
+| a thing you reuse | the type's own name: **cibo, marca, formato, pasto salvato, esercizio, scheda, percorso, tracker** | «una cosa che riusi» | oggetto, item |
+| a brand of a cibo | **marca** | «la marca che compri» | prodotto (his «yc» q3, 20 Nov) |
+| a trip, and the route it repeats | **tragitto** (the voce) · **percorso** (the object) | «il percorso di casa-lavoro» | — (his «yc» q4) |
+| money out, money in | **uscita** · **entrata**, by the sign | — | movimento (the body's, reframe §12; his «yc» q5) |
 | a gym session model | **scheda** | «gli esercizi di una sessione» | routine, modello, workout |
 | a gym visit | **sessione** | «quando ti alleni» | allenamento (as object) |
-| something planned that repeats | **blocco** | «cosa, quando, ogni quanto» | modello, settimana tipo |
+| a night | **sonno** | «quanto e come hai dormito» | sveglia (as the voce; his «yc» q6) |
+| a weighing | **pesata** | «il peso di stamattina» | — («Peso» stays the measure's name; his «yc» q6) |
 | a ciclo's step with its lines: a day's prototype | **giornata tipo** (its lines: **riga**) | «le voci che tornano quando torna quel passo» | prototipo, modello (his «yc», 15 Nov, proposal §29) |
-| what repeats, named, shown as a tag on its line | **ritmo** | «ogni giorno, lun · mer · ven, a turno» | periodizzazione, ricorrenza (his «yc», 15 Nov, proposal §32, §34) |
-| blocks that advance one by one | **ciclo** | «una scheda dopo l'altra» | programma |
-| the plan of an area or of all | **Piano** (tab) | «cosa ti aspetta» | routine |
+| what repeats, named, shown as a tag on its line (stored as a `block`) | **ritmo** — only this; a goal's pace has no noun («vai a −0,3 kg/sett.») | «ogni giorno, lun · mer · ven, a turno» | settimana tipo, periodizzazione, ricorrenza (his «yc», 15 Nov §32, §34; 20 Nov q9) |
+| giornate tipo that advance one by one | **ciclo** | «una scheda dopo l'altra» | programma |
+| il tempo after now | **Piano** (place) | «cosa ti aspetta» | routine |
 | a 0–100 judgement | **voto** | — | punteggio, score |
-| a range with a source | **fascia** | «il minimo, il buono, il massimo» | range, soglia |
+| a range with a source | **fascia**: da evitare · pessimo · ok · ottimo (FD-30) | «dove sta il numero» | range, soglia |
 | a number the app computed | **stima** (pill) | «calcolato da …» | — |
-| the areas | **Corpo · Cibo · Oggi · Mente · Soldi** | — | places, Libreria |
-| the four tabs | **Diario · Piano · Elenco · Andamento** | — | — |
+| the areas (a filter, never a page) | **Cibo · Corpo · Mente · Soldi** | — | Libreria |
+| the two spaces | **il tempo** · **le cose** | — | — |
+| the five places | **Elenco · Piano · Oggi · Andamento · Obiettivi** | — | — |
 
-**abitudine** = a blocco whose object is a tracker («bere 2 l ogni giorno»): same structure,
+**abitudine** = a ritmo whose object is a tracker («bere 2 l ogni giorno»): same structure,
 its own word because he recognises it (PROD-45). Words outside this table fail the glossary test.
 [CONTRA-04, PLAN-33, TRAIN-37, content.md §2]
 
 ## 4. Not now (his answers x01–x15, 6 Nov)
 Receipt reading · bank/PayPal import and monthly reports · a pantry that plans (expiry,
-places, minimums) · plan layers with cross rules · step windows and a vertical movement layer ·
+places, minimums; the Dispensa is only a filter of Elenco, his «yc» q8) · plan layers with cross rules ·
 the mean across brands and formats inside meals · macros judged by absorption beyond DIAAS ·
-chosen correlations, recovery and readiness scores · hunger 1–5 · adjustable score weights ·
+chosen correlations, recovery and readiness scores · hunger 1–5 ·
 weather saved as entries · several users, friends, packs · Obsidian, home automation, rewards ·
 themes beyond dark · goals with no data (log them or remove them). Each comes back only as a
 `changes/` proposal with data that asks for it. [PROD-40]
@@ -82,7 +92,9 @@ themes beyond dark · goals with no data (log them or remove them). Each comes b
 - **PRD-41** A change is a folder `docs/spec/changes/YYYY-MM-DD-name/` with `proposal.md`
   (why, his words), `delta.md` (requirements ADDED / MODIFIED / REMOVED, WHEN/THEN) and
   `tasks.md`. Approved → built → the delta is merged into the spec and the folder moves to
-  `changes/archive/`. One change open at a time. [PROD-38, OpenSpec model]
+  `changes/archive/`. One change open at a time. A change runs as one or more rounds of
+  ADR-0064 (ORCA tables in `orca/`, Double Diamond, zoom Z1–Z5, stops A and B); its proposal
+  says its **Zoom** and its **ORCA cells**. [PROD-38, OpenSpec model, ADR-0064]
 - **PRD-42** A requirement is «built» only when a test cites its ID. `check.py` reads «Today:
   built» in the spec (in `patterns.md`: a kit ✓ with no ✗) and fails when no test under
   `src`, `e2e`, `eslint`, `packages/kit` or `scripts` names the ID, unless the ID is in

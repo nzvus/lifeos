@@ -12,7 +12,6 @@ import {
   DAYS_EXAMPLE,
   FORM_ITEMS,
   MICROS_9NOV,
-  RIDGE_9NOV,
   TREE_KCAL,
   TREE_MICROS,
   TREE_PLANNED,
@@ -20,6 +19,7 @@ import {
   TREE_VOTO,
   VOTO_SAMPLES,
 } from "./samples";
+import { ENGINE_SAMPLES } from "./engine-samples";
 import {
   Box,
   Chart,
@@ -29,10 +29,12 @@ import {
   Field,
   Glyph,
   MealBox,
+  ThingBox,
+  ChipRow,
   Forms,
   MeasureDays,
   MeasureTree,
-  Ridge,
+  MeasureView,
   Nutrients,
   type BoxEntry,
 } from "@lifeos/kit";
@@ -112,6 +114,10 @@ const SCORE = {
 
 /** Example values, declared so: a board never passes them for the owner's (memory v2-boards-kit). */
 /** The one box of a meal (PAT-30, PAT-43), as a row: shut, and opened in place. */
+const THINGS: [string, boolean][] = [
+  ["Box di una cosa · riga chiusa", false],
+  ["Box di una cosa · aperta sul posto", true],
+];
 const MEALS: [string, boolean][] = [
   ["Box di un pasto · riga chiusa", false],
   ["Box di un pasto · aperto sul posto", true],
@@ -565,11 +571,18 @@ export default async function KitPage({
         <MeasureDays {...DAYS_EXAMPLE} />
       </section>
 
-      {/* Ridge (bars study §15, his 20 Nov «tu puoi fare di meglio»): the bar takes the shape of
-          its ranges; his 9 Nov as a ridgeline. */}
-      <section className="k-section g3" id="ridge" aria-label="Il giorno come crinale">
-        <h2>Il giorno come crinale</h2>
-        <Ridge measures={RIDGE_9NOV} unit="g" label="Il giorno" />
+      {/* The visualization engine, slice 2 (MOD-56): three classes, each asked with a frame and
+          a level; every drawing below is the engine's, none picked here. */}
+      <section className="k-section g3" id="motore" aria-label="Il motore: tre classi">
+        <h2>Il motore · tre classi</h2>
+        {ENGINE_SAMPLES.map((s, i) => (
+          <div key={i} className="k-stack">
+            <span className="k-meta">
+              {s.cls} · {s.asked}
+            </span>
+            <MeasureView view={s.view} />
+          </div>
+        ))}
       </section>
 
       <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">
@@ -622,6 +635,7 @@ export default async function KitPage({
                 title: "Porridge proteico: lamponi, cioccolato, nocciola",
                 value: F.num(533, "kcal"),
                 score: SCORE,
+                href: "#pasto-box",
               }}
               data={{
                 macros: [
@@ -640,16 +654,67 @@ export default async function KitPage({
                 ],
                 foot: "",
               }}
+              verbs={
+                <>
+                  <a className="k-btn act" href="#pasto-box">
+                    Registra
+                  </a>
+                  <a className="k-btn act" href="#pasto-box">
+                    Cambia i cibi
+                  </a>
+                </>
+              }
+            />
+          </div>
+        ))}
+      </section>
+
+      <section className="k-section g2" id="cosa-box" aria-label="Il box di una cosa">
+        <h2>Il box di una cosa</h2>
+        {THINGS.map(([label, open]) => (
+          <div key={label} role="group" aria-label={label} className="k-stack g1">
+            <span className="k-label">{label}</span>
+            <ThingBox
+              density="row"
+              startOpen={open}
+              entry={{
+                fam: "food",
+                of: { kind: "ingredient", group: "cereals" },
+                title: "Fiocchi d’avena integrali",
+                value: F.num(372, "kcal") + "/100",
+                score: SCORE,
+                href: "#cosa-box",
+              }}
+              doors={[
+                {
+                  key: "nutrients",
+                  label: common.doors.nutrients,
+                  value: F.num(100, "g"),
+                  panel: (
+                    <Nutrients
+                      data={{
+                        macros: [
+                          { key: "protein", v: 13 },
+                          { key: "carbs", v: 59 },
+                          { key: "fat", v: 7 },
+                          { key: "fiber", v: 10 },
+                        ],
+                      }}
+                    />
+                  ),
+                },
+                { key: "nova", label: "NOVA", value: "1" },
+              ]}
             >
-              <div className="k-line g2 wrap">
-                <a className="k-btn act" href="#pasto-box">
-                  Registra
-                </a>
-                <a className="k-btn act" href="#pasto-box">
-                  Apri
-                </a>
-              </div>
-            </MealBox>
+              <ChipRow
+                label="Marche"
+                items={[
+                  { key: "a", label: "Esselunga", value: F.num(4.2, "€") + "/kg" },
+                  { key: "b", label: "Quaker", value: F.num(5.9, "€") + "/kg" },
+                  { key: "c", label: "Coop" },
+                ]}
+              />
+            </ThingBox>
           </div>
         ))}
       </section>

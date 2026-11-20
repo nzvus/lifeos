@@ -11,6 +11,34 @@ import type { ExerciseSession } from "@/core/training";
 import { LABEL_FIELDS } from "@/core/kinds/catalog";
 import { objects } from "@/i18n/objects";
 
+/** A marca of a cibo as its open box shows it; `box` from the page, when the list is judged. */
+export type Product = {
+  key: string;
+  name: string;
+  uses: number;
+  perKg: number | null;
+  /** Its label per 100: a cibo's values with its own on top. */
+  values: Record<string, number>;
+  box?: { score?: LibraryRow["score"]; data: NutrientsData; nova?: number };
+};
+
+/**
+ * The marca a cibo's box shows first (his 20 Nov, §130): the most used; if none was ever used,
+ * the best voto; on a tie, the first made (the list keeps that order).
+ */
+export function pickProduct(ps: readonly Product[]): Product | undefined {
+  let best: Product | undefined;
+  const voto = (p: Product) => p.box?.score?.value ?? -1;
+  for (const p of ps)
+    if (
+      !best ||
+      p.uses > best.uses ||
+      (p.uses === best.uses && best.uses === 0 && voto(p) > voto(best))
+    )
+      best = p;
+  return best;
+}
+
 export type LibraryRow = {
   key: string;
   /** Its page, when it has one. */
@@ -31,6 +59,12 @@ export type LibraryRow = {
     parts: { name: string; score: number; weight: number }[];
     missing: string[];
   };
+  /** An esercizio: its best e1RM per session, oldest first, and its facts in words (§130 next). */
+  exercise?: { trend: { d: string; v: number }[]; facts: string[] };
+  /** A cibo's marche, most used first: listed in its open box (his 20 Nov, §129). */
+  products?: Product[];
+  /** A cibo: what its box holds when it opens in place (PAT-30 level 1), 100 g of it. */
+  food?: { data: NutrientsData; nova?: number };
   /** A saved pasto: what its box holds when it opens in place (PAT-43), from the page. */
   meal?: {
     id: string;
@@ -115,6 +149,24 @@ export function foodRows(foods: readonly FoodChoice[]): LibraryRow[] {
               : own.length + " prodotti",
         uses: f.uses + own.reduce((n, p) => n + p.uses, 0),
         values: nums(f.per100),
+        ...(own.length
+          ? {
+              // In the order they were made (his «la prima inserita»); the box picks the first shown.
+              products: own.map((p) => {
+                // Its own price only: one equal to the cibo's is inherited, not seen (PRD-22).
+                const mine = p.per100["cents"] !== f.per100["cents"];
+                const c = Number(p.per100["cents"]);
+                return {
+                  key: p.key,
+                  name: p.brand ?? p.name,
+                  uses: p.uses,
+                  // cents per 100 g → € per kg
+                  perKg: mine && Number.isFinite(c) && c > 0 ? c / 10 : null,
+                  values: nums(p.per100),
+                };
+              }),
+            }
+          : {}),
         ...(f.drawing ? { of: f.drawing } : {}),
       };
     });
@@ -355,11 +407,21 @@ export function exerciseRows(
   }[],
   log: ReadonlyMap<string, readonly ExerciseSession[]>,
   dayWords: (day: string) => string,
+  /** Its facts' words (movimento, attrezzo), from the caller's catalogue (PAT-81). */
+  factWords: (x: {
+    pattern?: string | null;
+    equipment?: string | null;
+  }) => string[] = () => [],
 ): LibraryRow[] {
   return exercises.map((x) => {
     const sessions = log.get(x.id) ?? [];
     const last = sessions[0];
     const latest = sessions.find((s) => s.best !== null)?.best;
+    // The last 12 sessions with a best, oldest first: its trend (ATT-43).
+    const trend = sessions
+      .flatMap((s) => (s.best !== null ? [{ d: s.day, v: s.best }] : []))
+      .slice(0, 12)
+      .reverse();
     return {
       key: x.id,
       href: "/corpo/esercizio/" + x.id,
@@ -368,6 +430,7 @@ export function exerciseRows(
       ...(x.aliases?.length ? { also: x.aliases.join(" ") } : {}),
       uses: sessions.length,
       values: latest ? { e1rm: latest } : {},
+      exercise: { trend, facts: factWords(x) },
       of: {
         ...(x.pattern ? { pattern: x.pattern } : {}),
         ...(x.equipment ? { equipment: x.equipment } : {}),

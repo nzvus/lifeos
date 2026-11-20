@@ -704,6 +704,19 @@ describe("DayPart that closes (VIS-61, «Oggi a livelli» step 4)", () => {
       'role="separator"',
     );
   });
+  it("closed: a previsto's icon is the same icon, dashed (VIS-22; his 20 Nov)", () => {
+    const h = renderToStaticMarkup(
+      <DayPart
+        name="Sera"
+        when="dalle 18:30"
+        open={false}
+        onToggle={() => {}}
+        summary="2 voci"
+        icons={[{ fam: "food" }, { fam: "food", planned: true }]}
+      />,
+    );
+    expect(h.match(/class="pl"/g)).toHaveLength(1);
+  });
 });
 
 describe("DateNav: every day opens in Oggi, a day to come too (PAT-97)", () => {
@@ -745,7 +758,7 @@ describe("Box taps: the whole box, no side arrow (VIS-40; his 19 Nov)", () => {
     expect(html).toContain('class="k-head k-cover"');
     expect(html).not.toContain("›");
   });
-  it("a box that opens has no arrow; open, its page is «Apri» inside it", () => {
+  it("a box that opens has no arrow; open, its page is an icon at the end of its doors (his 20 Nov)", () => {
     const shut = renderToStaticMarkup(
       <Box entry={entry} expanded={false} onToggle={() => {}} doors={[]} />,
     );
@@ -754,7 +767,7 @@ describe("Box taps: the whole box, no side arrow (VIS-40; his 19 Nov)", () => {
     const open = renderToStaticMarkup(
       <Box entry={entry} expanded onToggle={() => {}} doors={[]} />,
     );
-    expect(open).toContain('href="/voce/1"');
-    expect(open).toContain(">Apri</a>");
+    expect(open).toContain('class="k-go" href="/voce/1"');
+    expect(open).not.toContain(">Apri</a>");
   });
 });

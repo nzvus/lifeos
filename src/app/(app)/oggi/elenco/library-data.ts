@@ -16,6 +16,8 @@ import { readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { foodScore } from "@/features/day/score";
 import { mealBox } from "./meal-box";
+import { EQUIPMENT_WORDS, PATTERN_WORDS } from "@/i18n/training";
+import { mealKinds, mealNutrients } from "@/features/food/composer";
 import { readExerciseLog, readExercises } from "@/core/training";
 import {
   exerciseRows,
@@ -60,22 +62,50 @@ export async function readLibrary(
           return { targets, micros, estimates, ...(weights ? { weights } : {}) };
         })()
       : null;
-  const food = foodRows(foods).map((r) => {
-    const id = r.href?.split("/").at(-1);
+  const by = new Map(foods.map((f) => [f.key, f]));
+  // One thing judged and drawn per 100 g: a cibo, or one of its marche (PAT-30, §130).
+  const judge = (
+    key: string,
+    values: Record<string, number>,
+    id: string | undefined,
+    group?: string,
+  ) => {
     const sc =
       scoreFoods && refs && id
         ? foodScore(
-            Object.fromEntries(Object.entries(r.values).map(([k, v]) => [k, String(v)])),
+            Object.fromEntries(Object.entries(values).map(([k, v]) => [k, String(v)])),
             refs.estimates.get(id),
             refs.targets,
             refs.micros,
-            r.of?.["group"],
+            group,
             weights,
           )
         : undefined;
-    return sc ? { ...r, score: sc } : r;
+    return {
+      ...(sc ? { score: sc } : {}),
+      data: mealNutrients(values, mealKinds([{ key, quantity: "100" }], by)),
+      ...(values["nova"] ? { nova: values["nova"] } : {}),
+    };
+  };
+  const food = foodRows(foods).map((r) => {
+    const id = r.href?.split("/").at(-1);
+    if (!scoreFoods) return r;
+    const own = judge(r.key, r.values, id, r.of?.["group"]);
+    // A cibo opens in place (PAT-30 level 1, Deliver ③); each marca redraws it when picked (§130).
+    return {
+      ...r,
+      ...(own.score ? { score: own.score } : {}),
+      food: { data: own.data, ...(own.nova ? { nova: own.nova } : {}) },
+      ...(r.products
+        ? {
+            products: r.products.map((p) => ({
+              ...p,
+              box: judge(p.key, p.values, id, r.of?.["group"]),
+            })),
+          }
+        : {}),
+    };
   });
-  const by = new Map(foods.map((f) => [f.key, f]));
   const meal = recipeRows(recipes, foods).map((r, i) => {
     if (!openMeals || !refs) return r;
     const recipe = recipes[i]!;
@@ -92,7 +122,15 @@ export async function readLibrary(
       },
     };
   });
-  const exercise = exerciseRows(exercises, log, (d) => F.Day(d));
+  const exercise = exerciseRows(
+    exercises,
+    log,
+    (d) => F.Day(d),
+    (x) => [
+      ...(x.pattern ? [PATTERN_WORDS[x.pattern] ?? x.pattern] : []),
+      ...(x.equipment ? [EQUIPMENT_WORDS[x.equipment] ?? x.equipment] : []),
+    ],
+  );
   return {
     lists: { foods: food, meals: meal, exercises: exercise } satisfies Record<
       LibraryView,

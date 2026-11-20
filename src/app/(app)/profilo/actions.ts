@@ -6,6 +6,8 @@ import { getDb } from "@/app/_server/runtime";
 import { checkSettings, saveSettings, type SettingsInput } from "@/core/account/settings";
 import { redirect } from "next/navigation";
 import { savePlace } from "@/core/account/place";
+import { saveTiming } from "@/core/account/timing";
+import { SLACK_RANGE, type PastPlanned } from "@/core/entries/timing";
 import { geocodeUrl, readGeocode } from "@/core/engines/environment";
 import type { SettingsState } from "@/features/account/SettingsForm";
 
@@ -40,13 +42,24 @@ export async function saveSettingsForm(
     },
     new Date().getUTCFullYear(),
   );
-  if (!checked.ok) {
+  // The time decides the state (MOD-15 as amended): the slack and what a past previsto becomes.
+  const slack = Number(form["slackMin"] ?? "");
+  const slackOk =
+    Number.isInteger(slack) && slack >= SLACK_RANGE.min && slack <= SLACK_RANGE.max;
+  if (!checked.ok || !slackOk) {
     const errors: Record<string, string> = {};
-    for (const [k, code] of Object.entries(checked.errors))
-      if (code) errors[k] = WORDS[k as keyof SettingsInput][code];
+    if (!checked.ok)
+      for (const [k, code] of Object.entries(checked.errors))
+        if (code) errors[k] = WORDS[k as keyof SettingsInput][code];
+    if (!slackOk)
+      errors["slackMin"] = `Minuti interi, da ${SLACK_RANGE.min} a ${SLACK_RANGE.max}.`;
     return { errors, values: form, saved: false, n: prev.n + 1 };
   }
   await saveSettings(await getDb(), owner, checked.profile);
+  await saveTiming(await getDb(), owner, {
+    slackMin: slack,
+    pastPlanned: form["pastPlanned"] as PastPlanned,
+  });
   revalidatePath("/", "layout");
   return { errors: {}, values: form, saved: true, n: prev.n + 1 };
 }

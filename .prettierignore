@@ -6,3 +6,5 @@ node_modules/
 package-lock.json
 # Docs are hand-formatted, and accepted ADRs must never change.
 *.md
+# The tokens: contrast.test.ts reads its blocks by their one-line selectors.
+packages/kit/styles/tokens.css

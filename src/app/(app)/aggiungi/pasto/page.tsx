@@ -51,10 +51,10 @@ export default async function MealPage({
   const db = await getDb();
   const { giorno, pasto, da, ruolo, ora, cibo, stato, per } = await searchParams;
   const when = stato === "previsto" || stato === "prima" ? stato : null;
-  const { clock, roleBounds, day, today } = await addContext(db, owner, giorno);
+  const { clock, roleBounds, timing, day, today } = await addContext(db, owner, giorno);
   const [choices, dayData, targets, micros] = await Promise.all([
     readFoodChoices(db, owner, today),
-    loadDay(db, owner, day, { clock, roleBounds }),
+    loadDay(db, owner, day, { clock, roleBounds, timing }),
     readTargetsFor(db, owner, day, today, clock),
     readMicroTargets(db, owner, day),
   ]);
@@ -88,6 +88,7 @@ export default async function MealPage({
   const now = F.time(localParts(new Date(), clock.timeZone).minute);
   return (
     <Composer
+      when={{ today, clock, slackMin: timing.slackMin }}
       choices={choices}
       recipes={recipes}
       {...(from?.estimate

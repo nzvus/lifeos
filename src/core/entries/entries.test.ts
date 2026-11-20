@@ -3,6 +3,7 @@ import type { Db } from "../db/db";
 import * as s from "../db/schema";
 import { createTestDb, createTestUser } from "../db/test-db";
 import { loadDay } from "../day";
+import { logicalDay } from "../engines/time";
 import { ownerFromVerifiedSession, type Owner } from "../identity/owner";
 import { kindRegistry, type KindInput, kindSchema } from "../kinds";
 import {
@@ -204,7 +205,7 @@ describe("writing an entry", () => {
     expect(await ml()).toBe(300);
   });
 
-  it("MOD-15: «fatto» at a time after now is stored previsto; adesso, the past and saltato stay", async () => {
+  it("MOD-15: the time decides — after now + 20 min previsto, at now or before fatto; saltato stays", async () => {
     const now = new Date("2026-11-15T15:00:00Z");
     const at = (min: number) => new Date(now.getTime() + min * 60_000);
     expect(statusAt("done", at(60), now)).toBe("planned");
@@ -212,6 +213,10 @@ describe("writing an entry", () => {
     expect(statusAt("done", at(-60), now)).toBe("done");
     expect(statusAt("done", null, now)).toBe("done");
     expect(statusAt("skipped", at(60), now)).toBe("skipped");
+    // His 20 Nov: at now or before it is fatto, whatever was tapped; the slack is 20 minutes.
+    expect(statusAt("planned", at(-60), now)).toBe("done");
+    expect(statusAt("done", at(15), now)).toBe("done");
+    expect(statusAt("done", at(25), now)).toBe("planned");
     // The day's half, at the form's check: a day to come with no time is previsto too;
     // today and a past day keep «fatto».
     const rome = { timeZone: "Europe/Rome", boundaryMin: 240 };
@@ -231,7 +236,11 @@ describe("writing an entry", () => {
     // Written through the repository with the real clock: an hour from now is previsto.
     const c = checkEntry(
       reg.get("water"),
-      input({ startMin: 10 * 60, values: { ml: "250" } }),
+      input({
+        day: logicalDay(new Date(), rome),
+        startMin: 10 * 60,
+        values: { ml: "250" },
+      }),
       { timeZone: "Europe/Rome", boundaryMin: 240 },
     );
     if (!c.ok) throw new Error("expected a valid entry");
@@ -244,7 +253,7 @@ describe("writing an entry", () => {
     const c = checkEntry(
       reg.get("water"),
       input({
-        day: "2026-10-16",
+        day: "2099-10-16",
         status: "planned",
         startMin: 600,
         values: { ml: "250" },
@@ -255,7 +264,7 @@ describe("writing an entry", () => {
     return createEntry(db, owner, c.entry);
   };
   const statusOn = async (owner: Owner, id: string) =>
-    (await loadDay(db, owner, "2026-10-16")).timed.find((i) => i.id === id)?.status;
+    (await loadDay(db, owner, "2099-10-16")).timed.find((i) => i.id === id)?.status;
 
   it("ticks a planned entry done, says what it was, and can put it back", async () => {
     const id = await planned(a);
@@ -269,10 +278,10 @@ describe("writing an entry", () => {
   it("«ora della spunta»: ticked done today it takes the tick's time; Undo puts the planned one back", async () => {
     const id = await planned(a);
     const minute = async () =>
-      (await loadDay(db, a, "2026-10-16")).timed.find((i) => i.id === id)?.minute;
+      (await loadDay(db, a, "2099-10-16")).timed.find((i) => i.id === id)?.minute;
     const plannedAt = await minute();
-    const at = new Date("2026-10-16T06:30:00Z"); // 08:30 in Rome
-    expect(await setEntryStatus(db, a, id, "done", { at, today: "2026-10-16" })).toBe(
+    const at = new Date("2099-10-16T06:30:00Z"); // 08:30 in Rome
+    expect(await setEntryStatus(db, a, id, "done", { at, today: "2099-10-16" })).toBe(
       "planned",
     );
     expect(await minute()).toBe(8 * 60 + 30);
@@ -289,7 +298,7 @@ describe("writing an entry", () => {
     expect(await linkEntryItem(db, a, id, item)).toBe(true);
     expect(await linkEntryItem(db, a, id, item)).toBe(false);
     // «tieni le 20:00» (proposal §23 Q2): the planned time back, still done; again = undo.
-    await setEntryStatus(db, a, id, "done", { at, today: "2026-10-16" });
+    await setEntryStatus(db, a, id, "done", { at, today: "2099-10-16" });
     expect(await swapPlannedStart(db, a, id)).not.toBeNull();
     expect(await minute()).toBe(plannedAt);
     expect(await swapPlannedStart(db, b, id)).toBeNull(); // not his
@@ -346,7 +355,7 @@ describe("writing an entry", () => {
 
   it("moves a planned entry, not a done one nor another person's", async () => {
     const id = await planned(a);
-    const at = new Date("2026-10-16T16:00:00Z");
+    const at = new Date("2099-10-16T16:00:00Z");
     expect(await moveEntry(db, a, id, at, null)).toBe(true);
     expect(await moveEntry(db, b, id, at, null)).toBe(false);
     await setEntryStatus(db, a, id, "done");
@@ -383,7 +392,7 @@ describe("writing an entry", () => {
     const first = checkEntry(
       weigh,
       input({
-        day: "2026-10-16",
+        day: "2099-10-16",
         startMin: 480,
         values: { weightKg: "75,6", waistCm: "80" },
       }),
@@ -394,7 +403,7 @@ describe("writing an entry", () => {
     const edit = checkEntry(
       weigh,
       input({
-        day: "2026-10-16",
+        day: "2099-10-16",
         startMin: 500,
         values: { weightKg: "75,2" },
         note: "dopo",

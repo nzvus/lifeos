@@ -21,4 +21,19 @@ describe("a choice (VIS-85)", () => {
     // Required: no empty «–» to pick.
     expect(grows).not.toContain(">–<");
   });
+  it("VIS-85: three options with a label longer than 11 characters are a drop-down (whole at 320 px)", () => {
+    const three = (b: string) => [
+      { value: "a", label: "Saltato" },
+      { value: "b", label: b },
+      { value: "c", label: "Fatto" },
+    ];
+    const long = renderToStaticMarkup(
+      <Field name="x" label="X" type="choice" options={three("Da confermare")} />,
+    );
+    expect(long).toContain("<select");
+    const short = renderToStaticMarkup(
+      <Field name="x" label="X" type="choice" options={three("Previsto")} />,
+    );
+    expect(short).not.toContain("<select");
+  });
 });

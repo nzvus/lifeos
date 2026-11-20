@@ -79,6 +79,7 @@ IDs `FD-nn`. Sources: ledger IDs, phase 1 answers (`n04`, `c08`, `x06`: `audit-2
 
 | Number | pessimo | ok | **ottimo** | ok | pessimo | da evitare | Source |
 |---|---|---|---|---|---|---|---|
+| kcal (T = the day's target) | < 0.9 T | 0.9–0.95 T | **0.95–1.05 T** | 1.05–1.1 T | > 1.1 T | > 1.25 T* | the app's edges (FD-30 «*»); his 15 Nov «la barra delle calorie dovrebbe colorarsi anche lei in base ai range»; `kcalRange` |
 | protein g | < 0.83 W | 0.83–1.6 W | **1.6–2.2 W** (2.3–3.1 × lean mass) | 2.2–3.0 W | > 3.0 W | — | EFSA 2012; Morton 2018 doi:10.1136/bjsports-2017-097608; Helms 2014 doi:10.1186/1550-2783-11-20 |
 | fat g | < 15 % E | 15–20 % E | **20–35 % E** | 35–40 % E | > 40 % E | — | EFSA 2010 doi:10.2903/j.efsa.2010.1461 |
 | carbs g | < 3 W | — | **3 W – 60 % E** (5–7 W hard day) | 60–65 % E | > 65 % E | — | EFSA 2010; Thomas 2016 doi:10.1249/MSS.0000000000000852 |
@@ -158,12 +159,15 @@ IDs `FD-nn`. Sources: ledger IDs, phase 1 answers (`n04`, `c08`, `x06`: `audit-2
   in calo da 3 giorni»), and on a session. Supersedes «days ≥ 3 g of 28» (FOOD-02, FOOD-18, ranges §5).
   [FOOD-40, compounds §5; Hultman 1996 doi:10.1152/jappl.1996.81.1.232; Kreider 2017
   doi:10.1186/s12970-017-0173-z] — Today: built; water note on early weigh-ins not built.
-- **FD-64** An item is an assunzione when proposed at ≤ 4 kcal/100 (EU «energy-free», Reg. (EC) 1924/2006
-  Annex) or carrying caffeine/creatine, always editable; it has a dose (1 capsula, 3 g); one tap logs dose ×
-  1 (capture «quick», MOD-01) with no role and no voto, counted in nutrients, compounds and fluids; taken
-  inside a meal it stays a meal line; logged alone with > 20 kcal/100 it asks once «ha calorie: lo segno
-  come pasto?». [FOOD-03, FOOD-05, FOOD-44, objects §4 §5 §9.4, ADR-0060] — Today: built except the «pasto?»
-  question.
+- **FD-64** An assunzione refers to a **pasto salvato** (one cibo or a few, with its dose: 1 capsula, 3 g),
+  proposed as one at ≤ 4 kcal/100 (EU «energy-free», Reg. (EC) 1924/2006 Annex) or carrying
+  caffeine/creatine, always editable; one tap logs dose × 1 (capture «quick», MOD-01) with no role and no
+  voto, counted in nutrients, compounds and fluids; taken inside a pasto it stays a riga; logged alone with
+  > 20 kcal/100 it asks once «ha calorie: lo segno come pasto?». The `intake` flag on a cibo
+  (`intake_item`) goes: WHEN a flagged cibo exists THEN it becomes a pasto salvato of that cibo. [FOOD-03,
+  FOOD-05, FOOD-44, objects §4 §5 §9.4; his «yc» q2, 20 Nov: his 52 assunzioni already point to pasti
+  salvati] — Today: built on the flag (`core/food/intake.ts`); the move to pasti salvati in Deliver ④, with
+  the dock and the search row that offer them (proposal §124).
 
 ## 8. Water
 - **FD-70** Need = EFSA AI of total water (2.5 l men, 2.0 women; ≈ 20 % from food) + sweat per session 0.5 /

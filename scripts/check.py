@@ -11,6 +11,7 @@ easy for agents (or humans) to introduce silently:
   - broken relative markdown links
   - malformed .claude skill files
   - empty files, TODO/FIXME inventory
+  - the spec: unique IDs, cited ADRs, complete changes, built = tested, ORCA tables (ADR-0064)
 
 Usage:
     python scripts/check.py            # check repo (parent of scripts/)
@@ -34,7 +35,6 @@ CFG = {
     "doc_budgets": {              # per-file line budgets (error if exceeded)
         "ARCHITECTURE.md": 160,
         "CLAUDE.md": 130,
-        "PROJECT.md": 120,
         "docs/spec/domains/food.md": 260,  # domain rules: split the domain past this
     },
     "doc_default_warn_lines": 300,  # any other .md beyond this -> warn
@@ -210,7 +210,7 @@ def check_todos(root, files):
 # an ID, a status and a source, and the user's raw notes must be folded in when they change.
 SPEC = "docs/spec"
 INBOX = "docs/spec/changes/inbox.md"
-REQ_DEF = re.compile(r"^(?:- \*\*|\| )((?:PRD|MOD|PAT|VIS|FD|TR|BD|PL|DT)-\d+)(?:\*\*| \|)")
+REQ_DEF = re.compile(r"^(?:- \*\*|\| )((?:PRD|MOD|PAT|VIS|FD|TR|BD|PL|DT|OBJ|REL|ACT|ATT)-\d+)(?:\*\*| \|)")
 NOTES_DIR = Path.home() / "Syncthing/Documents/Projects-artifacts/LIFEOS"
 FIRST_SPEC_ADR = 61  # ADR-0061 made the spec the source of truth; later ADRs must be cited in it
 
@@ -257,7 +257,122 @@ def check_spec(root, files):
                    f"to the inbox, then update its line in «Notes folded»")
 
 
-REQ_ID = re.compile(r"\b((?:PRD|MOD|PAT|VIS|FD|TR|BD|PL|DT)-\d+)\b")
+# The method (ADR-0064): the ORCA tables in docs/spec/orca/ have a fixed schema; a change says its
+# zoom and its ORCA cells. A table with no rows is not checked yet (round 1 writes them).
+ORCA = "docs/spec/orca"
+ORCA_SCHEMA = {
+    "objects": ["ID", "Name", "What it is", "Form", "Class", "Key", "Status", "Source"],
+    "relationships": ["ID", "From", "Relation", "To", "How many", "Source"],
+    "actions": ["ID", "Object", "Action", "Where", "Source"],
+    "attributes": ["ID", "Object", "Attribute", "Field", "Reading", "Question", "Instrument", "Level",
+                   "References", "Data", "Source"],
+}
+ORCA_VALUES = {
+    ("objects", "Form"): {"voce", "object", "part", "frame", "signal", "reference", "place"},
+    ("objects", "Class"): {"intake", "activity", "state", "measurement", "exchange", "note", "context", "—"},
+    ("objects", "Status"): {"✓", "◐", "○", "✗"},
+    ("relationships", "Relation"): {"made of", "contains", "refers to", "derived from"},
+    ("relationships", "How many"): {"1", "0..1", "0..n", "1..n"},
+    ("actions", "Action"): {"log", "plan", "change", "skip", "start from", "merge", "archive",
+                            "filter", "drill", "compare", "why"},
+    ("attributes", "Reading"): {"amount", "time", "rating", "done", "category", "presence",
+                                "composition", "score"},
+    ("attributes", "Question"): {"reach", "prediction", "trend", "yes/no", "rhythm", "stock",
+                                 "comparison", "composition", "source", "spread", "verdict", "name"},
+    ("attributes", "Instrument"): {"bar", "fan", "line", "cells", "rail", "tank", "ghost", "parts",
+                                   "rows", "band", "skyline", "word"},
+    ("attributes", "Level"): {"0", "1", "2"},
+    ("attributes", "Data"): {"✓", "◐", "○", "✗"},
+}
+ORCA_REFS = {("relationships", "From"), ("relationships", "To"), ("actions", "Object"),
+             ("attributes", "Object")}
+METHOD_SINCE = "2026-11-21"  # changes opened from this day on cite zoom and ORCA cells per delta row
+
+
+def orca_rows(path):
+    """(header, [(line, {column: cell})]) of the first table whose header starts with «| ID |»."""
+    header, rows = None, []
+    for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        cells = [c.strip() for c in line.strip().strip("|").split("|")] if line.startswith("|") else None
+        if cells is None:
+            if header and rows:
+                break
+            continue
+        if header is None and cells[0] == "ID":
+            header = cells
+        elif header and not set(line) <= set("|- :"):
+            rows.append((i, dict(zip(header, cells + [""] * (len(header) - len(cells))))))
+    return header, rows
+
+
+def check_orca(root, files):
+    """ADR-0064, method §6: the four tables keep their schema and point at each other and the registry."""
+    base = root / ORCA
+    if not base.is_dir():
+        yield (ERR, ORCA, None, "missing: docs/spec/orca/ (the ORCA tables, ADR-0064)")
+        return
+    tables = {}
+    for name, cols in ORCA_SCHEMA.items():
+        path, rel = base / f"{name}.md", f"{ORCA}/{name}.md"
+        if not path.exists():
+            yield (ERR, rel, None, f"missing ORCA table {name}.md (schema: {ORCA}/README.md)")
+            continue
+        header, rows = orca_rows(path)
+        if header != cols:
+            yield (ERR, rel, None, f"header must be | {' | '.join(cols)} |")
+            continue
+        tables[name] = rows
+        prefix = {"objects": "OBJ", "relationships": "REL", "actions": "ACT", "attributes": "ATT"}[name]
+        for i, row in rows:
+            if not re.fullmatch(rf"{prefix}-\d+", row["ID"]):
+                yield (ERR, rel, i, f"ID must be {prefix}-nn, not {row['ID']!r}")
+            if not row["Source"]:
+                yield (ERR, rel, i, f"{row['ID']} has no Source (his words and date, or a spec ID)")
+            for col in cols:
+                allowed = ORCA_VALUES.get((name, col))
+                if allowed and row[col] not in allowed:
+                    yield (ERR, rel, i, f"{row['ID']} {col} {row[col]!r} is not one of: {', '.join(sorted(allowed))}")
+                if not row[col] and col != "Source":
+                    yield (ERR, rel, i, f"{row['ID']} has an empty {col}")
+            if name == "actions" and ("⊕" in row["Where"] or row["Where"].lower().startswith("page")):
+                yield (ERR, rel, i, f"{row['ID']} is done on ⊕ or a page of its own: an action is in place")
+    objects = {row["ID"] for _, row in tables.get("objects", [])}
+    if objects:
+        for (name, col) in sorted(ORCA_REFS):
+            for i, row in tables.get(name, []):
+                if row[col] not in objects:
+                    yield (ERR, f"{ORCA}/{name}.md", i, f"{row['ID']} {col} {row[col]!r} is not an OBJ of objects.md")
+        keys_file = root / "eslint/type-keys.json"
+        if keys_file.exists():
+            import json
+            data = json.loads(keys_file.read_text(encoding="utf-8"))
+            registry = set(data.get("voce", [])) | set(data.get("catalog", [])) | set(data.get("signal", []))
+            named = {}
+            for i, row in tables["objects"]:
+                for key in (k.strip() for k in row["Key"].split(",")):
+                    if key and key != "—":
+                        named[key] = (i, row)
+            for key in sorted(registry - set(named)):
+                yield (ERR, f"{ORCA}/objects.md", None, f"registry key {key!r} has no OBJ row")
+            for key, (i, row) in sorted(named.items()):
+                if key not in registry and row["Form"] in ("voce", "object", "signal") and row["Status"] in ("✓", "◐"):
+                    yield (ERR, f"{ORCA}/objects.md", i, f"{row['ID']} is {row['Status']} but {key!r} is not in the registry")
+    changes = root / SPEC / "changes"
+    for folder in sorted(p for p in changes.iterdir() if p.is_dir() and p.name != "archive") if changes.exists() else []:
+        rel = str(folder.relative_to(root))
+        proposal = folder / "proposal.md"
+        text = proposal.read_text(encoding="utf-8") if proposal.exists() else ""
+        for head in ("**Zoom:**", "**ORCA cells:**"):
+            if head not in text:
+                yield (ERR, f"{rel}/proposal.md", None, f"a change says {head} (ADR-0064, method §5)")
+        delta = folder / "delta.md"
+        if folder.name[:10] >= METHOD_SINCE and delta.exists():
+            for i, line in enumerate(delta.read_text(encoding="utf-8").splitlines(), 1):
+                if REQ_DEF.match(line) and not re.search(r"\b(?:OBJ|REL|ACT|ATT)-\d+\b|\bZ[1-5]\b", line):
+                    yield (ERR, f"{rel}/delta.md", i, "a delta row cites the ORCA cell or the zoom it changes (method §6)")
+
+
+REQ_ID = re.compile(r"\b((?:PRD|MOD|PAT|VIS|FD|TR|BD|PL|DT|OBJ|REL|ACT|ATT)-\d+)\b")
 UNTESTED = "docs/spec/untested.txt"
 TEST_DIRS = ("src", "e2e", "eslint", "packages/kit", "scripts")
 SKIP_DIRS = {"node_modules", ".next", ".pglite", ".pglite-e2e", "test-results", "playwright-report"}
@@ -315,7 +430,7 @@ def check_built_needs_a_test(root, files):
 
 CHECKS = [check_lengths, check_conflicts_and_empty, check_placeholders,
           check_adrs, check_md_links, check_skills, check_todos, check_spec,
-          check_built_needs_a_test]
+          check_built_needs_a_test, check_orca]
 
 
 # -------------------------------- runner --------------------------------------

@@ -81,6 +81,7 @@ export default async function EntryEditPage({
       : {};
     return (
       <Composer
+        when={{ today: ctx.today, clock: ctx.clock, slackMin: ctx.timing.slackMin }}
         choices={choices}
         recipes={recipes}
         initialRecipe={item.item?.id ?? ""}

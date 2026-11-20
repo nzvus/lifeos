@@ -1,8 +1,27 @@
 # Delta — five places by action (ADR-0063)
 
+> **Merged into the spec 20 Nov (round 1, Deliver ①; proposal §123)**, each row with an honest «Today:» (built, or which Deliver step builds it). Corrected while merging: PAT-01 and PAT-95 lose ⊕ (his §113); PAT-97's «Piano holds no days» became «the Piano is the rail after now» (reframe §14). New: PRD-04, MOD-58, VIS-64, VIS-100…105, PAT-60 (adding in place), PAT-100. Kept until the change archives.
+
 ## MODIFIED
-- **PRD-16** (product.md §2) One map: five places by action around Oggi; the area is a filter |
-  P7, ADR-0063
+- **PRD-16** (product.md §2) One map: two spaces — Il tempo (one timeline: window and position
+  are actions) and Le cose (the catalog) — and the bar's five places by action (ADR-0063) as their
+  presets; the area is a filter | P7, ADR-0063, reframe §3 (his «yc per ora», 20 Nov)
+- **PRD-03** (product.md §1) … a new kind of thing is a registry entry, and a new kind of view an
+  engine entry (MOD-56), never a new page or a page's drawing | reframe §7
+- **PRD-19** (product.md §2) Everything one tap away, never everything in view; as many levels as
+  the data has (drill), at most two in view at once | his §99, reframe §7
+- **PRD-20** (product.md §2) Fewer written numbers, more information in channels (condense as much
+  as possible without losing comprehensibility or beauty, his §100); each number with its
+  «Perché?» | reframe §7
+- **MOD-15** (model.md §2) The time decides the state: after now (beyond the slack) a voce is
+  previsto, at now or before it is fatto, whatever was tapped; no control asks it (PAT-60's
+  «Adesso · Previsto · Prima» and the composer's «Mangiato · Previsto» go); a voce with no time is
+  previsto until done (no exceptions for now). The slack is a setting, 20 minutes by default; a
+  past previsto never done follows a setting: saltato (default) · da confermare · confermato. In a
+  folded part of the day a previsto's icon is drawn dashed | his 15 and 20 Nov, reframe §11 —
+  Today: built (`core/entries/timing.ts`, `core/account/timing.ts`, `readDays`; proposal §111)
+- **product.md §4** «Not now» loses «step windows and a vertical movement layer» (movement
+  refactored, reframe §12) | his «yc», 20 Nov
 - **PAT-01** (patterns.md §1) One `(app)/layout.tsx` holds NavBar (Elenco · Piano · Oggi ·
   Andamento · Obiettivi, Oggi the middle item and the start page) on every page; pages never mount
   it. ⊕ floats above the bar's corner on every page and opens the one Capture (PAT-10, PAT-60;
@@ -73,7 +92,39 @@
   level 1) and «Apri» goes to its page. Children are nested under their parent (MOD-21): a cibo's
   marche, each with its formati; a pasto's varianti. Marche and formati have no shelf of their own.
 
+- **FD-64** (domains/food.md, Z5; OBJ-02, OBJ-25, OBJ-26) An assunzione refers to a **pasto
+  salvato** (one cibo or a few, a dose): one tap logs it × 1, with no role and no voto, counted in
+  nutrients, compounds and fluids; a pasto salvato is proposed as an assunzione at ≤ 4 kcal/100 or
+  with caffeine/creatine. The `intake` flag on a cibo (`intake_item`) goes. WHEN a flagged cibo
+  exists THEN it becomes a pasto salvato of that cibo. [his «yc» q2, 20 Nov: his 52 assunzioni
+  already point to pasti salvati]
+- **product.md §3, words** (Z1; OBJ-05, OBJ-10, OBJ-12, OBJ-19, OBJ-23, OBJ-29, OBJ-58) a brand
+  of a cibo: **marca** (Not: prodotto) · a saved route: **percorso**, the trip on it: **tragitto**
+  · money out or in: **uscita** · **entrata**, by its sign (Not: movimento, which is the body's,
+  reframe §12) · on screen the spec's words **sessione**, **sonno**, **pesata** (Not: Allenamento,
+  Sveglia, Peso as the voce) · **ritmo** = only what repeats; a goal's pace has no noun («vai a
+  −0,3 kg/sett.»). [his «yc» q3–q6, q9, 20 Nov; W-01]
+- **product.md §4, not now** (Z1) «adjustable score weights» leaves the list: «Come valutiamo»
+  keeps a slider per criterio (his «va bene», 20 Nov). «A pantry that plans» stays; the Dispensa
+  is a filter of Elenco (the formati in casa), with no planning. [his «yc» q7–q8, 20 Nov]
+
 ## ADDED
+- **MOD-56** (model.md §6) **Motore di visualizzazione**: every number drawn in the app is a
+  *measure* (registry) × a *frame* (own · day · session · period, chosen by the page; «session» =
+  the span of any activity) × a *level* (0 · 1 · 2); the engine reads the data, its references
+  (target, fascia, goal, past self, mean, record) and the page's request (frame, grouping, level,
+  drill · roll up · slice · pivot · compare), applies one set of rules (bars-study §16–§18) and gives
+  a view that only kit pieces draw. WHEN a page draws a number outside it THEN the lint fails (once
+  the guard is built). One hierarchy: class › type › object › part. [his 20 Nov, proposal
+  §88–§94]
+- **MOD-57** (model.md §1) Every type and tracker has a **class** — intake · activity · state ·
+  measurement · exchange · note · context — and every field a **reading** the engine knows
+  (number → amount; duration → time; scale → rating; boolean → done; choice → category; text →
+  presence; lines → composition; a voto → score), each with its aggregates over a frame; a measure
+  may read as **yes / no** whatever its field (a fixed-dose intake, a habit, a goal «n volte»;
+  bars-study §19.1, his «yc» 20 Nov). WHEN a
+  built-in type has no class THEN a test fails; a tracker takes its class from its family. [his
+  20 Nov «cosa altro?», proposal §93–§94]
 - **PAT-95** (patterns.md §1) The area filter: one row of chips, «Tutto» · Cibo · Corpo · Mente ·
   Soldi, under the header of every place but Oggi, which filters by kind with its own chips
   (his «yc», 14 Nov). WHEN he taps a chip THEN the place shows only that area's

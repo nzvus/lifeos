@@ -1,6 +1,6 @@
 /**
  * ⊕ Aggiungi (V-02; capture.md §5–§6): one search on top (features/add),
- * «Adesso · Previsto · Prima», then at most eight ranked rows
+ * at most eight ranked rows
  * (features/add/rank): today's planned items not done (one tap: done, at the
  * tick's time), what is usual at this hour, the routines most trained (start
  * now), the kinds of the last seven days (water in one tap), the last meals.
@@ -47,20 +47,21 @@ export default async function AddPage({
   const owner = await requireOwner();
   const db = await getDb();
   const asked = await searchParams;
-  const { kinds, day, today, clock, roleBounds } = await addContext(
+  const { kinds, day, today, clock, roleBounds, timing } = await addContext(
     db,
     owner,
     asked.giorno,
   );
-  // «Adesso · Previsto · Prima» (the board Capture): what opens from here is done now,
-  // planned, or done earlier with its time to say; carried as `&stato=` to each sheet.
+  // No «Adesso · Previsto · Prima» any more (MOD-15 as amended, his 20 Nov): the time typed in
+  // the sheet says done or planned. A gap of the day may still pass `&stato=` as a hint for the
+  // sheet's default time.
   const when = asked.stato === "previsto" || asked.stato === "prima" ? asked.stato : null;
   const st = when ? "&stato=" + when : "";
   // The last three days, newest first, from one set of queries.
   // The last seven days, newest first, from one set of queries: today's planned
   // items, the kinds logged lately and the last meals feed the ranked rows.
   const days = (
-    await loadDays(db, owner, addDays(today, -6), today, { clock, roleBounds })
+    await loadDays(db, owner, addDays(today, -6), today, { clock, roleBounds, timing })
   ).reverse();
   const recent = days
     .slice(0, 3)
@@ -359,25 +360,6 @@ export default async function AddPage({
       back={back}
       meta={(day === today ? "oggi" : F.Day(day)) + (area ? " · " + AREA_NAME[area] : "")}
     >
-      <section className="k-section" aria-label="Quando">
-        <nav className="k-choice" aria-label="Quando">
-          {(
-            [
-              [null, "Adesso"],
-              ["previsto", "Previsto"],
-              ["prima", "Prima"],
-            ] as const
-          ).map(([k, label]) => (
-            <a
-              key={label}
-              href={`/aggiungi?giorno=${day}` + (k ? "&stato=" + k : "")}
-              aria-current={k === when ? "true" : undefined}
-            >
-              {label}
-            </a>
-          ))}
-        </nav>
-      </section>
       {ranked.length > 0 && (
         <section className="k-section" aria-label="Per te">
           <h2>

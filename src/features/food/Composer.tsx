@@ -46,6 +46,7 @@ import { BrandSelect } from "./LinePicks";
 import { FoodSearch } from "./FoodSearch";
 import { ESTIMATE_FIELDS, type EstimateField } from "@/core/food/meal";
 import { mealRoleAt, type RoleBounds } from "@/core/kinds/registry";
+import { plannedAt } from "@/core/entries/timing";
 import {
   clockMinute,
   closeTheGap,
@@ -97,6 +98,7 @@ export function Composer({
   backHref,
   action,
   saved,
+  when,
 }: {
   choices: FoodChoice[];
   recipes?: RecipeChoice[];
@@ -132,6 +134,12 @@ export function Composer({
   /** A saved meal made or changed here (FOOD-42): its name, no day, no time, saved
    *  without logging anything; its foods are one serving. */
   saved?: { name: string; variantOf?: string };
+  /** Today and the timing (MOD-15): the time typed says eaten or planned. */
+  when?: {
+    today: string;
+    clock: { timeZone: string; boundaryMin: number };
+    slackMin: number;
+  };
 }) {
   const [state, submit, pending] = useActionState(action, {
     errors: {},
@@ -162,6 +170,7 @@ export function Composer({
       roleBounds={roleBounds}
       backHref={backHref}
       saved={saved}
+      when={when}
     />
   );
 }
@@ -188,6 +197,7 @@ function Draft({
   roleBounds,
   backHref,
   saved,
+  when,
 }: {
   state: MealState;
   submit: (data: FormData) => void;
@@ -213,6 +223,13 @@ function Draft({
   roleBounds: RoleBounds;
   backHref: string;
   saved: { name: string; variantOf?: string } | undefined;
+  when:
+    | {
+        today: string;
+        clock: { timeZone: string; boundaryMin: number };
+        slackMin: number;
+      }
+    | undefined;
 }) {
   // A saved meal (FOOD-42): its name instead of the day's «when».
   const recipeMode = saved !== undefined;
@@ -229,6 +246,11 @@ function Draft({
   const [query, setQuery] = useState("");
   const [hour] = useState(() => new Date().getHours());
   const [start, setStart] = useState(state.values["start"] ?? "");
+  // The time alone says eaten or planned (MOD-15 as amended; reframe §11).
+  const status: "done" | "planned" =
+    when && plannedAt(day, start, when.today, when.clock, when.slackMin)
+      ? "planned"
+      : "done";
   // A role taken from the time stays «Senza scelta»: moving the meal moves it.
   const [role, setRole] = useState(
     state.values["roleSource"] === "auto" ? "" : (state.values["role"] ?? ""),
@@ -239,7 +261,6 @@ function Draft({
   const [estimate, setEstimate] = useState(state.values["estimate"] === "yes");
   // The tab: Ingredienti or Pasti (Stima is `estimate`).
   const [tab, setTab] = useState<"foods" | "meals">("foods");
-  const [status, setStatus] = useState(state.values["status"] ?? "done");
   const [typed, setTyped] = useState<Partial<Record<EstimateField, string>>>(() =>
     Object.fromEntries(ESTIMATE_FIELDS.map((f) => [f, state.values["est." + f] ?? ""])),
   );
@@ -703,7 +724,7 @@ function Draft({
             canSave={estimate ? !ofEstimate : lines.length > 0}
             saveAs={saveAs}
             estName={estName}
-            onStatus={setStatus}
+            status={status}
             onStart={setStart}
             onRole={setRole}
             onSaveAs={setSaveAs}

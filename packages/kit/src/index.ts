@@ -10,6 +10,8 @@ export { ICONS } from "./icons.generated";
 export { Glyph, type GlyphSize } from "./Glyph";
 export { Box, type BoxAct, type BoxDoor, type BoxEntry } from "./Box";
 export { MealBox } from "./MealBox";
+export { ThingBox, type ThingBoxPlace } from "./ThingBox";
+export { ChipRow, type ChipItem } from "./ChipRow";
 export { EntryDetails, mealDoors, type BoxDetails, type DoorWords } from "./meal-doors";
 export { PageHeader } from "./PageHeader";
 export { NavBar, AreaFilter, AREAS, PLACES, type Area, type Place } from "./NavBar";
@@ -26,7 +28,8 @@ export { Nutrients, NutrientsL0 } from "./Nutrients";
 export { Criteria, type CriteriaData } from "./Criteria";
 export { Forms, type FormItem, type FormLook } from "./Forms";
 export { MeasureTree, MeasureDays, type MNode } from "./MeasureTree";
-export { Ridge, type RidgeMeasure } from "./Ridge";
+export { MeasureView, measureLabel, type MeasureViewSpec } from "./MeasureView";
+export { DoneCells, DoneDay, type DoneState } from "./Done";
 export {
   nutrientsL0,
   energyStrip,

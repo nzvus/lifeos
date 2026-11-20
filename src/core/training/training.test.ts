@@ -202,13 +202,13 @@ describe("a session in gym mode", () => {
 
   it("reopens a finished session: in progress again, no end, no minutes", async () => {
     const id = await startSession(db, a, {
-      day: "2026-10-17",
-      startAt: new Date("2026-10-17T16:00:00Z"),
+      day: "2099-10-17",
+      startAt: new Date("2099-10-17T16:00:00Z"),
       routineId: push,
       exerciseIds: [bench],
     });
     expect(await reopenSession(db, a, id)).toBe(false); // not finished yet
-    await finishSession(db, a, id, new Date("2026-10-17T16:30:00Z"));
+    await finishSession(db, a, id, new Date("2099-10-17T16:30:00Z"));
     expect(await reopenSession(db, b, id)).toBe(false);
     expect(await reopenSession(db, a, id)).toBe(true);
     const open = (await readEntry(db, a, id))!;
