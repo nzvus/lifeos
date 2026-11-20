@@ -983,6 +983,19 @@
     visualizzazione» (undo: product.md §3 when archived). Decided by Claude: a batch (cooking
     portions for later) is an *exchange* (stock in), not an intake. Built in slices, each a step
     he sees; any slice may send us back to rethink (his rule).
+95. **20 Nov, slice 2 of the engine built** (his «leggi l'handoff e fai lo slice 2 del motore di
+    visualizzazione»): `viewOf(measure, {frame, level})` in `core/engines/view/view.ts` gives a
+    view description; the kit's `MeasureView` draws it with the pieces that exist (MeasureTree,
+    MeasureDays, Judge, Unknown); gallery «Il motore · tre classi» (`/kit#motore`, photographed)
+    shows water, a session and sleep. Decided by Claude, each with its undo: (a) at frame *own* an
+    object is not judged by the day's target or zones, a score keeps its 0–100 ruler (undo:
+    `judged` in `view.ts`); (b) level 0 hides the parts (§17.3), level 1 shows them named (undo:
+    `depth` in `view.ts`); (c) a score at level 0 is the chip, open it is its criteria on the
+    0–100 bar (undo: the `score` branch); (d) over a period a day without data is absent, never
+    a zero, and the line says the mean (undo: `MeasureView` «days»); (e) done · category ·
+    presence give *none* until their slice, never a home-made drawing; the past-self ghost and
+    the record are not drawn yet (MeasureTree has no ghost mark: a kit change, next slice).
+    No real screen uses it yet: moving a screen onto it is a design he sees first.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

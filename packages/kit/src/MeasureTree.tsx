@@ -186,12 +186,15 @@ export function MeasureDays({
 }: {
   name: string;
   days: { d: string; v: number; plan?: number }[];
-  t: number;
+  t?: number;
   zones: HeatZone[];
   color: string;
   label: string;
 }) {
-  const scale = Math.max(t * 1.3, ...days.map((x) => (x.v + (x.plan ?? 0)) * 1.05));
+  const scale = Math.max(
+    (t ?? 0) * 1.3,
+    ...days.map((x) => (x.v + (x.plan ?? 0)) * 1.05),
+  );
   return (
     <div className="k-tree" role="img" aria-label={name + ": " + label}>
       <span className="k-thead">
@@ -204,7 +207,9 @@ export function MeasureDays({
           return (
             <span key={x.d} className="day">
               <span className="col">
-                <span className="tick" style={{ bottom: pc(t, scale) + "%" }} />
+                {t !== undefined && (
+                  <span className="tick" style={{ bottom: pc(t, scale) + "%" }} />
+                )}
                 <i style={{ height: pc(x.v, scale) + "%", background: color }} />
                 {x.plan ? (
                   <i

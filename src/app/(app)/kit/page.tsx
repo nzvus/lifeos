@@ -19,6 +19,7 @@ import {
   TREE_VOTO,
   VOTO_SAMPLES,
 } from "./samples";
+import { ENGINE_SAMPLES } from "./engine-samples";
 import {
   Box,
   Chart,
@@ -31,6 +32,7 @@ import {
   Forms,
   MeasureDays,
   MeasureTree,
+  MeasureView,
   Nutrients,
   type BoxEntry,
 } from "@lifeos/kit";
@@ -561,6 +563,20 @@ export default async function KitPage({
           <MeasureTree key={n.name} node={n} />
         ))}
         <MeasureDays {...DAYS_EXAMPLE} />
+      </section>
+
+      {/* The visualization engine, slice 2 (MOD-56): three classes, each asked with a frame and
+          a level; every drawing below is the engine's, none picked here. */}
+      <section className="k-section g3" id="motore" aria-label="Il motore: tre classi">
+        <h2>Il motore · tre classi</h2>
+        {ENGINE_SAMPLES.map((s, i) => (
+          <div key={i} className="k-stack">
+            <span className="k-meta">
+              {s.cls} · {s.asked}
+            </span>
+            <MeasureView view={s.view} />
+          </div>
+        ))}
       </section>
 
       <section className="k-section g2" id="box-livelli" aria-label="Box a livelli">
