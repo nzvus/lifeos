@@ -1053,6 +1053,13 @@
     colori e contorni sempre male con tutto il resto». Answer: bars-study §21.7 — the actions are
     part of every instrument; the instrument itself is the control wherever it can be; the few
     controls left are one kit piece measured with the foundations.
+102. **20 Nov, his «yc» on §21 and §20.3 C3–C5.** Taken, each with its undo: §21 (instruments by
+    question, each as dense as the macro bar; the actions; the instrument is the control) is the
+    visual system (undo: bars-study §21 marked rejected); C3 the edges' amounts are written, the
+    range names never (undo: §20.3 C3); C4 judgement = where it ends among lightness steps, the
+    tip's colour doubles it, VIS-20 holds (undo: §20.3 C4); C5 the interest comes from density and
+    the actions, the shapes stay ones everyone reads (undo: §20.3 C5). Then step 21.6.2 done:
+    bars-study §22, every type on his data, content only; stop for his word.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

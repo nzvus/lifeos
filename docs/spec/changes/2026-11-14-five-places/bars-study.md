@@ -960,3 +960,106 @@ neighbours (height, weight of the outline, the gap to the instrument).
    outlines and colours against the instruments.
 4. The bar rebuilt as the reference with its free channels added one at a time (moments, the
    tail, the ghost), each shown and tested by 21.0; then the fan, the rail, the tank.
+
+## 22. Every type on his data: its instruments, channels, levels and actions (content only)
+
+Step 21.6.2, after his «yc» (proposal §102). Content only: what each channel holds, never how it
+looks. Merges §8 (levels per type) into §21's instruments. Each channel names its data and whether
+it exists today: **✓** built, **◐** partly built (the rule's «Today: partial»), **○** the data
+exists but is not drawn, **✗** no data (never drawn until it exists, PRD-22). Every ✓ checked
+against its rule's «Today:» line, 20 Nov. Places: **T** the day's timeline (frame day), **G** the gym live (frame
+session), **O** an object's page (own), **A** Andamento (period).
+
+### 22.1 Energia and the macros (the reference, 21.1)
+- **Reach** (T, O): hue = the macro ✓; shade = its kinds (qualità alta · media · bassa; amidi
+  integrali · raffinati · zuccheri…) ✓; length = grams ✓; hatch = planned ✓; tick = target ✓;
+  ruler = FD-31 ranges with their grams ✓; tip = judgement ✓; free channels taken: **position of
+  each piece along the fill = which meal gave it** ○ (the meal's grams exist per voce), **ghost =
+  the week's mean** ○ (built for the limits, FD-33), **transparency = estimated foods** ○ (stima).
+- **Prediction** (T, the day still going): done solid → planned hatched (FD-34) ✓ → forecast from
+  his usual evenings ✗ (no model).
+- **Composition** (T): a meal lit inside the day's bar, the rest grey ○ (R22).
+- **Source** (T, L2): the foods per kind, ordered, with grams ✓ («DA DOVE»).
+- **Trend** (A): the period's mean on its ranges ✓; a line per day over the band ○.
+- Levels (drill): Energia → the four macros → a macro's kinds → the foods → the voce. Actions:
+  highlight a food everywhere ✓, filter fatto · previsto ○, pivot by macro ↔ by meal ↔ by part of
+  the day ○, time window day → week → month ✓ (A).
+- Not now: absorption timing of macros (product.md §4, x07): the «durate degli assorbimenti» he
+  imagined have no model; only caffeine and creatine have one (below).
+
+### 22.2 Limits (free sugars · saturated fat · salt; caffeine, trans, inulin)
+- **Reach** (T): the ceiling as the scale's landmark ✓; length = today ✓; tick = the 7-day mean ✓
+  (FD-33); ruler = ranges ✓; hatch = planned ✓; free: position of the pieces = which meal ○.
+- **Source**: the foods that gave most ✓. **Trend** (A): the mean over the band ○.
+
+### 22.3 Micros (vitamins, minerals)
+- **Reach per member** in a **strip of cells** (T, L1): one cell per micro, its fill = the share of
+  its PRI ✓, its shade = below AR · between · above UL (FD-40) ◐ (AR only for A, C, folate, Ca, Fe); the group's bar above = «n su m»
+  ✓. Free: transparency = coverage below 80 % («non so», FD-41) ✗ (not built).
+- Drill: group → micro → its foods. Trend (A): a grid micro × day ○.
+
+### 22.4 Caffeine (an intake with a curve)
+- **Rhythm** (T): each coffee where it happened on the rail ✓; thickness = mg ✓; **a fading tail =
+  caffeine left, FD-61 (½ every 5 h)** ○, reaching bedtime with its FD-62 judgement at the end ✓
+  (computed, drawn today only as a pill).
+- **Reach** (T): the day's mg against 400 ✓, one dose against 200 ✓.
+- **Trend** (A): mg per day, the bedtime level per night ○.
+
+### 22.5 Creatine (yes / no + a stock)
+- **Yes / no** (T, A): taken · planned · skipped, the week, the month, the streak ✓ (§97; reading
+  from its fixed dose, `intakeReading`) — not wired to his logs yet ○.
+- **Stock** (T): the **tank** = stores S_t (FD-63) ✓ computed; its trend «in calo da 9 giorni» ✓
+  (words today); when it would fall under 90 % without doses ○ (a forecast from FD-63, no new
+  data needed).
+
+### 22.6 Water
+- **Reach** (T): litres against the need now ✓; ruler = ranges ✓; free: **position of the drinks
+  along the fill = when** ✓ (each drink has its time), thickness after training ○.
+- **Rhythm** (T): each drink on the rail ✓. **Trend** (A): litres per day ✓ (columns).
+
+### 22.7 Sleep (a state)
+- **Rhythm** (T, A): the night as a stretch bed → wake on the rail ✓; shade = how he felt ○ (the
+  check-in exists); free: the pieces awake ✗ (no data).
+- **Reach**: hours against need ✓. **Spread** (A): bed and wake times against the 7 nights before = regularity
+  ✓ (computed, `engines/sleep`). **Verdict**: the voto ✓.
+
+### 22.8 Weight (a measurement)
+- **Trend** (A, O): the readings as marks ✓; the line without water (EMA, data.md) ✓; transparency
+  = σ ✓; the goal line ✓; **Prediction** = the fan to the goal date ✓ (pace and «ne servono»
+  computed); ghost = the same weeks last year ✗ (not enough data yet).
+- **Spread**: the day-to-day water noise ✓.
+
+### 22.9 The gym (an activity; frame session)
+- **Reach per set** (G): length = load × reps or e1RM (TR-21) ✓; **ghost = last time** ◐ («L'ultima
+  volta» exists; in the same position, TR-20, not built); **notch = the record** (TR-23) ◐; hatch = the sets still planned ✓; shade =
+  warm-up · working ✓; free: the rest before it as the gap to the next set ✓ («riposo prima»).
+- **Rhythm** (G): the session on its own rail, each set where it happened ✓.
+- **Composition**: sets per muscle (TR-25, 10–20 a week) ✓. **Trend** (A, O): e1RM per exercise
+  (TR-24) ◐. **Verdict**: the session's voto filling set by set ✓.
+- Drill: session → exercise → set. Actions: compare this ↔ last ✓, filter by muscle ○.
+
+### 22.10 Steps and activities
+- **Reach** (T): steps against the target ✓; kcal ≈ ✓. **Rhythm**: a walk, a run, a ride on the
+  rail ✓ (trips). **Trend** (A): per day ✓.
+
+### 22.11 Goals
+- **Reach** (A): each goal's pace against what is needed ✓ («servono −0,88 kg/sett. · vai a
+  +0,08»). **Yes / no**: a goal «n volte» = its n cells ✓ (§97). **Prediction**: the date reached at
+  this pace ✓ (weight). Drill: goal → its measure's instrument.
+
+### 22.12 Cost and money
+- **Reach / composition** (T): € of the day by meal ✓, «n senza prezzo» = transparency ○.
+  **Source**: per food and brand ✓. **Stock** (money, pantry): not now (product.md §4, x03).
+
+### 22.13 The day (the instruments combined, 21.4)
+The **rhythm rail** carries every voce where and when it happened ✓; each voce's **reach** bars on
+it ✓; caffeine's tail ○; sleep's stretch ✓; the empty times ✓; the **verdict** for the whole ✓.
+Actions: highlight a food across the day ✓, filter by kind ✓ («Orari», the kind chips), pivot «Il
+giorno» by macro ↔ by meal ↔ by part of the day ○.
+
+### 22.14 What this shows (for his word)
+1. Most channels the rule wants **already have data** (✓); the work is drawing them, not computing.
+2. Free channels with data waiting (○): a macro's pieces by meal; caffeine's tail; creatine's
+   tank and its forecast; the drinks along the water bar; the pivot of «Il giorno».
+3. Nothing marked ✗ is drawn until its data exists; absorption of macros is «not now».
+Then step 21.6.3: the foundations measured, controls included.
