@@ -101,15 +101,15 @@ export function Library({
   return <List lists={lists} first={view} alone={only ?? false} />;
 }
 
-/** A row's entry; `link` false when the row opens in place instead of going to its page. */
-function row(tab: Tab, r: LibraryRow, value: string, link = true) {
+/** A row's entry: a row that opens in place keeps its page for the icon beside its doors. */
+function row(tab: Tab, r: LibraryRow, value: string) {
   return {
     ...SHELF_OF[tab],
     of: tab === "meals" ? { kind: "meal" } : (r.of ?? {}),
     title: r.name,
     ...(r.sub ? { meta: r.sub } : {}),
     value,
-    ...(link && r.href ? { href: r.href } : {}),
+    ...(r.href ? { href: r.href } : {}),
     ...(r.score ? { score: r.score } : {}),
   };
 }
@@ -374,11 +374,11 @@ function List({
         >
           {rows.map((r) =>
             r.meal ? (
-              // A pasto opens in place (PAT-43): the one meal box, «Apri» to its page.
+              // A pasto opens in place (PAT-43): the one meal box; its page from the doors' row.
               <MealBox
                 key={r.key}
                 density="row"
-                entry={row(tab, r, value(r), false)}
+                entry={row(tab, r, value(r))}
                 data={r.meal.data}
                 labels={common.doors}
                 details={r.meal.details}
@@ -391,20 +391,14 @@ function List({
                   <a className="k-btn act" href={"/cibo/pasto/" + r.meal.id + "/componi"}>
                     {r.meal.estimate ? w.composeEstimate : w.compose}
                   </a>
-                  <a className="k-btn act" href={"/cibo/pasto/" + r.meal.id}>
-                    {w.open}
-                  </a>
                 </div>
               </MealBox>
             ) : r.food ? (
-              // A cibo opens in place too (PAT-30 level 1, Deliver ③): its plan's doors, «Apri».
+              // A cibo opens in place too (PAT-30 level 1, Deliver ③): its plan's doors, its page beside them.
               <ThingBox
                 key={r.key}
                 density="row"
-                entry={{
-                  ...row(tab, r, value(r), false),
-                  ...(r.href ? { href: r.href } : {}),
-                }}
+                entry={row(tab, r, value(r))}
                 doors={planDoors("food", {
                   nutrients: {
                     label: common.doors.nutrients,

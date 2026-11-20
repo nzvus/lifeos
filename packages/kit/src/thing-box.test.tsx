@@ -21,11 +21,15 @@ describe("ThingBox (PAT-30: the row, open in place, the page are one Box)", () =
     expect(html).not.toContain("Apri");
   });
 
-  it("open, its plan's doors in order and «Apri» to its page (level 2)", () => {
+  it("open, its plan's doors in order, its page an icon at the row's end (level 2; his 20 Nov)", () => {
     const html = renderToStaticMarkup(<ThingBox entry={entry} doors={doors} startOpen />);
     expect(html.indexOf("Nutrienti")).toBeLessThan(html.indexOf("NOVA"));
-    expect(html).toContain('href="/cibo/cibo/1"');
-    expect(html).toContain("Apri");
+    // No «Apri» button: the icon sits after the last door, inside the doors' row.
+    expect(html).not.toContain(">Apri<");
+    const row = html.slice(html.indexOf("k-doors"));
+    expect(row.indexOf("NOVA")).toBeLessThan(
+      row.indexOf('class="k-go" href="/cibo/cibo/1"'),
+    );
     // One door at a time, none at first.
     expect(html).not.toContain("bars");
   });

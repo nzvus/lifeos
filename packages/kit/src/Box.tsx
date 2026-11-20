@@ -186,16 +186,19 @@ export function Box({
   // stay above it (his 19 Nov: «interagibili per intero e non solo da una freccia»).
   const cover = !onToggle && !!e.href;
   const lineActs = inline ? [] : acts;
-  // A box that opens and has a page: the page is «Apri», inside the open box, never an arrow.
-  const page = onToggle && e.href && expanded;
+  // A box that opens and has a page: an icon at the end of its doors' row, only open (his 20 Nov
+  // «rimuovere "apri"… in basso a destra sulla stessa riga delle altre voci»; VIS-40). The tap on
+  // the whole box still opens its levels; this one goes to its page.
+  const page = onToggle && e.href && expanded ? e.href : null;
+  const go = page ? (
+    <a className="k-go" href={page} aria-label={e.hrefLabel ?? "Apri " + e.title}>
+      <Glyph of={{ ui: "link" }} size="m" />
+    </a>
+  ) : null;
   const actsLine =
-    lineActs.length > 0 || page ? (
+    lineActs.length > 0 || (go && !levels) ? (
       <div className="k-line end g2 k-acts">
-        {page && (
-          <a className="k-btn act" href={e.href} aria-label={e.hrefLabel ?? e.title}>
-            Apri
-          </a>
-        )}
+        {!levels && go}
         {lineActs.map((a) => (
           <button
             key={a.label}
@@ -462,7 +465,7 @@ export function Box({
               </div>
             </div>
           )}
-          {levels && expanded && allDoors.length > 0 && (
+          {levels && expanded && (allDoors.length > 0 || go) && (
             <div className="k-chips k-doors">
               {allDoors.map((d) =>
                 d.panel ? (
@@ -483,6 +486,7 @@ export function Box({
                   </span>
                 ),
               )}
+              {go}
             </div>
           )}
           {levels && expanded && openDoor && (

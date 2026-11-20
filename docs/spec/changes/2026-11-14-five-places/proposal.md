@@ -1268,6 +1268,14 @@
     only open, as `Box` levels already do for every meta (undo: none needed, the rule exists).
     Seen, not new: at 320 px «53 kcal/100» drops under the name (it did before). Photos
     `LIFEOS/review/2026-11-20/box/index.html`. **Stop B for this screen: his word.**
+127. **20 Nov, his word on §126 (Elenco · Cibi):** «puoi rimuovere "apri" da tutti per guadagnare
+    spazio? e non so aggiungere magari un qualcosa in basso a destra sulla stessa riga delle altre
+    voci, di modo da guadagnare spazio. che se cliccata lo apre. appare pero solo quando estesa. a
+    cos'altro si puo applicare?. questo non contraddice quello che ti avevo detto prima riguardo al
+    rimuovere frecce e cose varie e implementare una interazione a tocco su tutta la schedina,
+    questo perché quello serve per espandere i livelli. ora, in realtà sarebbe anche inutile
+    "aprire" se come ti dicevo el cose si potessero modificare in place, tutte quante le sue
+    caratteristiche».
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

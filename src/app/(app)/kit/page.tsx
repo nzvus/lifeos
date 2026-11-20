@@ -634,6 +634,7 @@ export default async function KitPage({
                 title: "Porridge proteico: lamponi, cioccolato, nocciola",
                 value: F.num(533, "kcal"),
                 score: SCORE,
+                href: "#pasto-box",
               }}
               data={{
                 macros: [
@@ -656,9 +657,6 @@ export default async function KitPage({
               <div className="k-line g2 wrap">
                 <a className="k-btn act" href="#pasto-box">
                   Registra
-                </a>
-                <a className="k-btn act" href="#pasto-box">
-                  Apri
                 </a>
               </div>
             </MealBox>

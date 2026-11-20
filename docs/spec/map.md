@@ -5,7 +5,7 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **72** · kit pieces: **50**
+- routes: **42** · screen components outside the kit: **72** · kit pieces: **51**
 - components that take input (a form, a field): **37**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
@@ -84,7 +84,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/library/BarcodeBox.tsx` | 308 | Glyph | 2 input | 4 |
 | `features/library/ExerciseForm.tsx` | 90 | Field, PageHeader | 1 form | 4 |
 | `features/library/FoodForm.tsx` | 209 | Field, Glyph, PageHeader | 3 input, 1 form | 4 |
-| `features/library/Library.tsx` | 398 | Box, Field, MealBox | 2 input | 2 |
+| `features/library/Library.tsx` | 427 | Box, Field, MealBox, Nutrients, ThingBox | 2 input | 2 |
 | `features/library/PantryActions.tsx` | 56 | ObjectForm, Sheet | — | 2 |
 | `features/library/RouteForm.tsx` | 112 | Field, PageHeader | 1 form | 1 |
 
@@ -177,7 +177,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `List` | 12 | app/(app)/[area]/[type]/[id]/block-extra.tsx, app/(app)/[area]/[type]/[id]/cycle-extra.tsx, app/(app)/[area]/[type]/[id]/exercise-extra.tsx … (12) |
 | `Glyph` | 10 | app/(app)/oggi/day-page.tsx, features/day/DayView.tsx, features/day/QuickIntakes.tsx … (10) |
 | `AreaFilter` | 7 | app/(app)/[area]/andamento/money-page.tsx, app/(app)/[area]/area-index.tsx, app/(app)/[area]/elenco/shelves.tsx … (7) |
-| `Nutrients` | 6 | app/(app)/[area]/[type]/[id]/food-extra.tsx, app/(app)/oggi/day-page.tsx, features/day/DayView.tsx … (6) |
+| `Nutrients` | 7 | app/(app)/[area]/[type]/[id]/food-extra.tsx, app/(app)/oggi/day-page.tsx, features/day/DayView.tsx … (7) |
 | `Banner` | 4 | features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx, features/plan/CycleComposer.tsx … (4) |
 | `Composer` | 4 | features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx, features/plan/CycleComposer.tsx … (4) |
 | `Find` | 4 | features/food/FoodSearch.tsx, features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx … (4) |
@@ -195,6 +195,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `ObjectPage` | 2 | features/gallery/ObjectDemo.tsx, features/objects/ObjectView.tsx |
 | `RangeNav` | 2 | app/(app)/[area]/andamento/[tracker]/page.tsx, app/(app)/oggi/andamento/page.tsx |
 | `Sheet` | 2 | features/day/QuickIntakes.tsx, features/library/PantryActions.tsx |
+| `ThingBox` | 2 | features/library/Library.tsx, app/(app)/kit/page.tsx |
 | `Timer` | 2 | features/gallery/Pieces.tsx, features/training/GymClock.tsx |
 | `Unknown` | 2 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx |
 | `Confirm` | 1 | features/gallery/Pieces.tsx |

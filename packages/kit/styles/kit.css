@@ -4844,6 +4844,22 @@ button.k-link {
   padding-top: 0;
   border-top: 0;
 }
+/* its page, from an open box: an icon at the end of the doors' row (his 20 Nov, VIS-40) */
+.k-go {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -4px -8px -4px auto;
+  border-radius: 999px;
+  color: var(--muted);
+}
+.k-go:active {
+  background: color-mix(in oklab, var(--ink) 10%, transparent);
+}
+.k-go:focus-visible {
+  outline: var(--ring) solid var(--focus);
+}
 .k-door.static {
   border-color: transparent;
   background: transparent;

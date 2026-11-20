@@ -79,7 +79,9 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   at most one short action; more, or a long one, on their own line bottom right. One line per row,
   details on open; `card` (L3) or `row` (L4). Taps (his 19 Nov «interagibili per intero… l'effetto
   "tocco" fa lampeggiare male»): closed, a tap anywhere opens it; open, its head closes it; no
-  side arrow — a box that opens and has a page says «Apri» inside it; no browser flash, a press
+  side arrow — a box that opens and has a page shows, only open, an icon at the right end of its
+  doors' row that goes to the page (his 20 Nov «rimuovere "apri"… in basso a destra sulla stessa
+  riga delle altre voci», proposal §127; the tap on the box is for its levels); no browser flash, a press
   lightens the piece. Spacing (his 19 Nov «spaziature, padding, simmetrie»): the icon sits on
   the first line and never moves when the box opens; every line under the head is `--sp-2` below
   the one above, an empty block takes no room; the head stays one line while the title keeps six

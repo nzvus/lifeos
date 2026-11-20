@@ -758,7 +758,7 @@ describe("Box taps: the whole box, no side arrow (VIS-40; his 19 Nov)", () => {
     expect(html).toContain('class="k-head k-cover"');
     expect(html).not.toContain("›");
   });
-  it("a box that opens has no arrow; open, its page is «Apri» inside it", () => {
+  it("a box that opens has no arrow; open, its page is an icon at the end of its doors (his 20 Nov)", () => {
     const shut = renderToStaticMarkup(
       <Box entry={entry} expanded={false} onToggle={() => {}} doors={[]} />,
     );
@@ -767,7 +767,7 @@ describe("Box taps: the whole box, no side arrow (VIS-40; his 19 Nov)", () => {
     const open = renderToStaticMarkup(
       <Box entry={entry} expanded onToggle={() => {}} doors={[]} />,
     );
-    expect(open).toContain('href="/voce/1"');
-    expect(open).toContain(">Apri</a>");
+    expect(open).toContain('class="k-go" href="/voce/1"');
+    expect(open).not.toContain(">Apri</a>");
   });
 });
