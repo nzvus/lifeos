@@ -213,7 +213,7 @@ the end of its list, in place.
 **Settled, his «yc» (proposal §113):** this direction, ⊕ and the Aggiungi page go; «Al volo»
 stays; built with the instruments, card by card.
 
-## 16. The first card: a meal — content only (proposal §113)
+## 16. The first card: a meal — content only (proposal §113) — WITHDRAWN (his §114: one thing first, again)
 Why first: it is the densest card (intake class, made of parts), it lives in both spaces (Il tempo
 at frame day, Le cose at frame own: one card, target.md B1), and it holds every in-place edit of
 §15. Rules it follows: VIS-40…43 (the Box), PAT-13 (in place), PAT-32 (levels), §21 (instruments,

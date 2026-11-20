@@ -1160,6 +1160,15 @@
     Capture sheet and the Aggiungi page go (undo: PAT-01/10/60 as they are); (2) «Al volo» stays as
     the one shortcut (undo: §15 «Kept»); (3) built with the instruments, card by card (undo: §8.4's
     order). First card: the meal — reframe §16, content only, for his word before any drawing.
+114. **20 Nov, his words on §16:** «aspetta ma in che senso? di nuovo fare una cosa nello specifico?
+    non è meglio pensare e ragionare in dettaglio a tutte le cose che servono per ogni cosa, poi fare
+    un passo indietro per un reframing per capire le cose in comune e cosa unificare, poi ancora un
+    passo indietro su un livello gerarchico superiore, eccetera. e poi tornare nel dettaglio per
+    capire come rifinire e poi di nuovo indietro dove e quando necessario. insomma evitiamo di rifare
+    gli stessi errori. non esistono modus operandi, pattern, robe simili a quella che ti sto
+    dicendo? anche più complessi e standardizzati? non possiamo seguire quelli?» Answer: yes — the
+    methods he describes exist (chat, 20 Nov); reframe §16 (one card first) is withdrawn; his to
+    pick: the method.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
