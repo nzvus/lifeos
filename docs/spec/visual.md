@@ -89,7 +89,9 @@ with meaning, one datum one form, kit only). Fold table: `audit-2026-11/fold-ui-
   wrapping: doors, a hairline, verbs; the › stays put at the end; the chips slide in from the right
   on open and the edge with more fades (his 20 Nov «invece di andare a capo… scorrere
   orizzontalmente… con una animazione carina», §128). Its members (a cibo's marche, with their own
-  €/kg) are a small sideways row (`ChipRow`), never a count like «1 prodotto»; the words under the
+  €/kg) are a small sideways row (`ChipRow`), no written label, never a count like «1 prodotto»; a
+  marca is a choice: one is always on (most used, else best voto, else first made) and the box —
+  value, voto, doors — is that marca's (his 20 Nov, §130); the words under the
   title start at the box's edge, under the icon, `--sp-2` below the head (his 20 Nov, §129); no
   browser flash, a press
   lightens the piece. Spacing (his 19 Nov «spaziature, padding, simmetrie»): the icon sits on

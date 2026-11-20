@@ -10,20 +10,10 @@
  * above it, as links.
  */
 import { useState } from "react";
-import {
-  Box,
-  ChipRow,
-  F,
-  Field,
-  List as KitList,
-  MealBox,
-  Nutrients,
-  ThingBox,
-} from "@lifeos/kit";
-import { planDoors } from "@/features/box-doors";
-import { objects } from "@/i18n/objects";
+import { Box, F, Field, List as KitList, MealBox } from "@lifeos/kit";
 import { common } from "@/i18n/common";
 import { food } from "@/i18n/food";
+import { FoodBox } from "./FoodBox";
 import { MealFoods } from "./MealFoods";
 import { listRows, sortValue, SORTS, type LibraryRow, type SortKey } from "./library";
 
@@ -402,39 +392,13 @@ function List({
                 }
               />
             ) : r.food ? (
-              // A cibo opens in place too (PAT-30 level 1, Deliver ③): its plan's doors, its page beside them.
-              <ThingBox
+              // A cibo opens in place too (PAT-30 level 1, Deliver ③); its marche redraw it (§130).
+              <FoodBox
                 key={r.key}
-                density="row"
+                r={{ ...r, food: r.food }}
                 entry={row(tab, r, value(r), !r.products)}
-                doors={planDoors("food", {
-                  nutrients: {
-                    label: common.doors.nutrients,
-                    value: "100 g",
-                    panel: <Nutrients data={r.food.data} />,
-                  },
-                  ...(r.food.nova
-                    ? {
-                        nova: {
-                          label: objects.fields.food?.["nova"] ?? "NOVA",
-                          value: String(r.food.nova),
-                        },
-                      }
-                    : {}),
-                })}
-              >
-                {r.products && (
-                  // Its marche, most used first, in place of «n prodotti» (his 20 Nov, §129).
-                  <ChipRow
-                    label={food.brands.title}
-                    items={r.products.map((p) => ({
-                      key: p.key,
-                      label: p.name,
-                      ...(p.perKg !== null ? { value: F.num(p.perKg, "€") + "/kg" } : {}),
-                    }))}
-                  />
-                )}
-              </ThingBox>
+                value={(values) => value({ ...r, values })}
+              />
             ) : (
               <Box key={r.key} density="row" rail={false} entry={row(tab, r, value(r))} />
             ),

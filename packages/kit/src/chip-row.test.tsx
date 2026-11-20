@@ -22,4 +22,21 @@ describe("ChipRow (VIS-40: an open box names its members on a sideways row; his 
   it("draws nothing without members", () => {
     expect(renderToStaticMarkup(<ChipRow label="Marche" items={[]} />)).toBe("");
   });
+
+  it("with onPick it is a choice: one chip on, no written label (his 20 Nov, §130)", () => {
+    const html = renderToStaticMarkup(
+      <ChipRow
+        label="Marche"
+        selected="b"
+        onPick={() => {}}
+        items={[
+          { key: "a", label: "Mutti" },
+          { key: "b", label: "Cirio" },
+        ]}
+      />,
+    );
+    expect(html).toContain('role="group"');
+    expect(html.match(/aria-pressed="true"/g)).toHaveLength(1);
+    expect(html).not.toContain(">Marche<");
+  });
 });

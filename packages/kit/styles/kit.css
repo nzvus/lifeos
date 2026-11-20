@@ -4833,7 +4833,7 @@ button.k-link {
   display: flex;
   align-items: center;
   gap: var(--sp-1);
-  margin-top: var(--sp-3);
+  margin-top: var(--sp-2);
 }
 .k-doors,
 .k-hrow {
@@ -4855,17 +4855,16 @@ button.k-link {
   scroll-snap-align: start;
 }
 /* a thing's members (his 20 Nov, §129): the same sideways row, small; its label opens it */
+/* its spacing is its box's (k-bin gives 8 above); his 20 Nov «troppo spazio sopra e sotto» */
 .k-hrow {
   flex: none;
   align-items: center;
-  margin-top: var(--sp-3);
-}
-.k-hrow-label {
-  color: var(--muted);
 }
 .k-hchip {
   gap: 6px;
-  min-height: 32px;
+  min-height: var(--touch-dense);
+}
+.k-hchip.static {
   border-color: var(--hairline);
   background: transparent;
   cursor: default;

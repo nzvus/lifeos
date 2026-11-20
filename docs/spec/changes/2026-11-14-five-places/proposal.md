@@ -1291,6 +1291,18 @@
     elenca. inoltre non so se a questo punto sia meglio per questo genere di testi e per esempio
     anche le descrizioni sotto i pasti, di averle allineate completamente a sinistra, anche sotto
     l'icona. pero spaziati bene comunque».
+130. **20 Nov, his word on the marche:** «ok, ma se fai le marche come bottoni dovresti fare in modo
+    che sia interagibile, quindi se tocchi una, la scheda si aggiorna con i dati di quella
+    specifica. di conseguenza deve essere selezionata una di default, magari quella piu usata, e se
+    mai usate, quella con miglior valutazioni, e se pari, la prima inserita. inoltre c'è troppo
+    spazio sopra e sotto, dimensionato male. e non mi piace "marche" scritto cosi. preferisco
+    un'altra icona allineata a quella di sopra. o magari niente, meglio pure. comunque stiamo
+    facendo cose troppo piccole, oltretutto la freccia ti avevo detto che sarebbe dovuta scomparire
+    se vogliamo fare tutto in place. ma immagino che riguardi i prossimi step quindi tu l'abbia
+    tenuta come cosa momentanea. ok, detto questo aggiusta queste piccolezze e andiamo avanti. ci
+    siamo focalizzati troppo su dettagli inutili». Taken: a marca is a choice that redraws the box;
+    the default most used → best voto → first inserted; no label; tighter spacing; the › is
+    temporary, gone when the page's content is in the box.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

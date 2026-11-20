@@ -62,32 +62,48 @@ export async function readLibrary(
         })()
       : null;
   const by = new Map(foods.map((f) => [f.key, f]));
-  const food = foodRows(foods).map((r) => {
-    const id = r.href?.split("/").at(-1);
+  // One thing judged and drawn per 100 g: a cibo, or one of its marche (PAT-30, §130).
+  const judge = (
+    key: string,
+    values: Record<string, number>,
+    id: string | undefined,
+    group?: string,
+  ) => {
     const sc =
       scoreFoods && refs && id
         ? foodScore(
-            Object.fromEntries(Object.entries(r.values).map(([k, v]) => [k, String(v)])),
+            Object.fromEntries(Object.entries(values).map(([k, v]) => [k, String(v)])),
             refs.estimates.get(id),
             refs.targets,
             refs.micros,
-            r.of?.["group"],
+            group,
             weights,
           )
         : undefined;
-    // A cibo opens in place (PAT-30 level 1, Deliver ③): its doors need 100 g of it, by kind.
-    const open = scoreFoods
-      ? {
-          food: {
-            data: mealNutrients(
-              r.values,
-              mealKinds([{ key: r.key, quantity: "100" }], by),
-            ),
-            ...(r.values["nova"] ? { nova: r.values["nova"] } : {}),
-          },
-        }
-      : {};
-    return { ...r, ...(sc ? { score: sc } : {}), ...open };
+    return {
+      ...(sc ? { score: sc } : {}),
+      data: mealNutrients(values, mealKinds([{ key, quantity: "100" }], by)),
+      ...(values["nova"] ? { nova: values["nova"] } : {}),
+    };
+  };
+  const food = foodRows(foods).map((r) => {
+    const id = r.href?.split("/").at(-1);
+    if (!scoreFoods) return r;
+    const own = judge(r.key, r.values, id, r.of?.["group"]);
+    // A cibo opens in place (PAT-30 level 1, Deliver ③); each marca redraws it when picked (§130).
+    return {
+      ...r,
+      ...(own.score ? { score: own.score } : {}),
+      food: { data: own.data, ...(own.nova ? { nova: own.nova } : {}) },
+      ...(r.products
+        ? {
+            products: r.products.map((p) => ({
+              ...p,
+              box: judge(p.key, p.values, id, r.of?.["group"]),
+            })),
+          }
+        : {}),
+    };
   });
   const meal = recipeRows(recipes, foods).map((r, i) => {
     if (!openMeals || !refs) return r;
