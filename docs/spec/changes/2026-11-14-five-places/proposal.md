@@ -1099,6 +1099,19 @@
     grammar, the constitution's amendments, the process by layer. If he takes it, its parts
     move to their homes (model.md, `views.md` absorbing bars-study §21–§23, the presets table) and
     the file goes (one truth, PRD-40). His to settle: its §9.
+108. **20 Nov, his «yc per ora» on reframe §9, and his words:** «comunque hai controllato eventuali
+    spec… quando hai rifatto le card di oggi e elenco? … ogni cosa che si mette in un orario
+    successivo a tot minuti è obbligatoriamente pianificato, qualcosa che si mette prima o adesso
+    è sempre già fatto e non pianificato. quindi in teoria possiamo togliere i bottoni, dato che si
+    basa tutto sull'orario. e se si mette qualcosa fuori orario? … potremmo dire sempre pianificata
+    finché non viene eseguita, mentre potremmo pensare a cosa debba poter rimanere fuori orario come
+    eccezioni? … i passi li uso così principalmente, ma da svariate precedenti discussioni (trovale)
+    … un refactoring delle attività in generale, esercizi, percorsi, monitoraggio del movimento
+    (tutti dati funzione dei momenti che vengono usati nel calcolo dell'effettiva sedentarietà della
+    giornata, settimana, mese…) … anche tutto questo va inserito nel quadro generale». Answer:
+    reframe §9 settled with undo; §10 the card (checked against VIS-40…43, PAT-30…33, target.md;
+    the reframe had read only target.md); §11 time decides the state (MOD-15 extended); §12 the
+    movement model from his 29 Oct, 3 Nov (BODY-31) and BODY-27 words; §13 his to settle.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

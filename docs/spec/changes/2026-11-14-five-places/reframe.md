@@ -90,8 +90,67 @@ silhouettes, glyphs, the voto chip.
 4. Order: the instruments whose data exists (§22: reach, rhythm, yes / no, trend) → Il tempo at
    day size (today's Oggi and the Piano) → widened (Andamento, Obiettivi) → Le cose.
 
-## 9. His to settle
-1. The two spaces with five presets (§3) — or the five places as separate pages (ADR-0063 as is).
-2. The amendments of §7.
-3. The process of §8, the new `views.md` included.
-4. Anything missing from §1's four questions, or from §6 that he wants kept.
+## 9. Settled for now: his «yc per ora», 20 Nov (proposal §108)
+1. Two spaces with ADR-0063's five as presets (§3) (undo: ADR-0063 as is, five pages).
+2. The amendments of §7, written in `delta.md` (undo: drop those delta rows).
+3. The process by layer and a `views.md` (§8) (undo: bars-study stays the home).
+4. Nothing added to §1 or §6.
+
+## 10. The card of a thing (checked 20 Nov against the rules the Oggi and Elenco rebuilds used)
+The Oggi and Elenco cards were built on VIS-40…43 (one Box: icon · title · value or voto chip ·
+one action; silhouettes; the drawing in the corner; the chip), PAT-30…33 (one object page, one
+voce header, a voce in two levels, the context line) and target.md §2–§4 (one type drawn one
+way; B1–B8). In the four layers the **Box is the card of a thing in layer 3**: the same in Il
+tempo (frame day) and in Le cose (frame own), its instruments inside it from the engine, its
+levels the engine's levels. Not a place's drawing: the convergence target.md started, finished.
+
+## 11. Time decides the state (his 20 Nov, proposal §108)
+His words: «ogni cosa che si mette in un orario successivo a tot minuti è obbligatoriamente
+pianificato, qualcosa che si mette prima o adesso è sempre già fatto… quindi in teoria possiamo
+togliere i bottoni… e se si mette qualcosa fuori orario? … sempre pianificata finché non viene
+eseguita… cosa debba poter rimanere fuori orario come eccezioni?»
+- **After now** (beyond the slack): **previsto**, always. Built: MOD-15 (his 15 Nov), one minute
+  of slack (`statusAt`).
+- **Now or before**: **fatto**, always — new; today a form can still save a past time as previsto.
+- **No buttons**: «Adesso · Previsto · Prima» (PAT-60) and «Mangiato · Previsto» (the composer's
+  «Quando») go; the time alone says it. «Saltato» stays a verb on a previsto (MOD-13's «Fatto»
+  becomes: setting its time to now, or tapping it).
+- **No time**: **previsto until done** — doing it gives it the time it was done.
+- **Exceptions that stay without a time**: the «amount to reach» shape (target.md §6, settled 17
+  Nov): passi, acqua, an assunzione «al giorno» — a day's sum, not an instant.
+- Open (his): the slack (one minute today, his «tot minuti»); a past previsto never done — saltato
+  at «Chiudi la giornata», or left «da confermare»; whether passi stay an exception once §12 exists.
+
+## 12. Activities and movement, refactored (his 20 Nov; found in his earlier words)
+His words today: a refactoring «delle attività in generale, esercizi, percorsi, monitoraggio del
+movimento (tutti dati funzione dei momenti che vengono usati nel calcolo dell'effettiva
+sedentarietà della giornata, settimana, mese…)». Found before: **29 Oct** (energy dossier, his
+«dovrebbe essere tutto dinamico, anche passi… 2, 5, 8+ ore di movimento o sedentarietà mi sembra
+incomprensibile, dovrebbero esserci più fasce»); **3 Nov, BODY-31** («i tragitti come si
+collegano ai passi giornalieri? … una cosa in range orario… i passi dovrebbero essere considerati
+al netto di quelle comprese nelle fasce orarie coperte»); **BODY-27** (routes and trips, «a
+vertical movement layer by time bands considered»); engines.md «sedentary time and time on one's
+feet» from the day's blocks.
+**One model, in the four layers:**
+- **Things**: movement is **windows of time** on the day. A window is covered by a measured source
+  (the watch or phone's steps in that span, a trip, a session, a walk) or estimated (incidental).
+  An activity (session, trip, run, chore) is a voce with a span that **details** the window it
+  sits in, never adds to it (BODY-31). Steps are readings of a window, or a day's total when no
+  window is known.
+- **Measures**: per window, **moving · on one's feet · seated**; per day, week, month the
+  **sedentary time** and its longest stretch, hours on one's feet (the everyday factor, continuous
+  — his «più fasce»), steps, the energy each piece burned (E4a).
+- **Views**: the **rhythm rail** carries the windows as a band beside the voci (moving, standing,
+  seated by shade; the activity's own colour where one details it); **reach** for steps and time
+  on one's feet; **trend** and **spread** of sedentary time over the period.
+- **Places**: none of its own — Il tempo at any window.
+Conflict to settle: product.md §4 says «not now: step windows and a vertical movement layer»
+(x05, his 6 Nov). His words today reopen it; the amendment removes those two from §4. The data
+it needs (windows from a watch) is the first question: a web app cannot read steps in the
+background (BODY-32).
+
+## 13. His to settle (new)
+1. §11: the slack in minutes; a past previsto never done; the exceptions' list.
+2. §12: the movement model; the order (after the instruments of §8.4, or before); the source of
+   windows today (typed spans, a trip, a session) until a watch export exists.
+3. Product.md §4: remove «step windows and a vertical movement layer» from «not now».

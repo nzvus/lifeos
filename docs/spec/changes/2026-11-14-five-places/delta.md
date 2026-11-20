@@ -1,8 +1,21 @@
 # Delta — five places by action (ADR-0063)
 
 ## MODIFIED
-- **PRD-16** (product.md §2) One map: five places by action around Oggi; the area is a filter |
-  P7, ADR-0063
+- **PRD-16** (product.md §2) One map: two spaces — Il tempo (one timeline: window and position
+  are actions) and Le cose (the catalog) — and the bar's five places by action (ADR-0063) as their
+  presets; the area is a filter | P7, ADR-0063, reframe §3 (his «yc per ora», 20 Nov)
+- **PRD-03** (product.md §1) … a new kind of thing is a registry entry, and a new kind of view an
+  engine entry (MOD-56), never a new page or a page's drawing | reframe §7
+- **PRD-19** (product.md §2) Everything one tap away, never everything in view; as many levels as
+  the data has (drill), at most two in view at once | his §99, reframe §7
+- **PRD-20** (product.md §2) Fewer written numbers, more information in channels (condense as much
+  as possible without losing comprehensibility or beauty, his §100); each number with its
+  «Perché?» | reframe §7
+- **MOD-15** (model.md §2) The time decides the state: after now (beyond the slack) a voce is
+  previsto, at now or before it is fatto, whatever was tapped; no control asks it (PAT-60's
+  «Adesso · Previsto · Prima» and the composer's «Mangiato · Previsto» go); a voce with no time is
+  previsto until done, except the «amount to reach» shape (target.md §6). Open: the slack, a past
+  previsto never done | his 15 and 20 Nov, reframe §11 (pending his §13)
 - **PAT-01** (patterns.md §1) One `(app)/layout.tsx` holds NavBar (Elenco · Piano · Oggi ·
   Andamento · Obiettivi, Oggi the middle item and the start page) on every page; pages never mount
   it. ⊕ floats above the bar's corner on every page and opens the one Capture (PAT-10, PAT-60;
