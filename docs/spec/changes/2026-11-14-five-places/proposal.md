@@ -1081,6 +1081,18 @@
     (written nowhere before: now in `.claude/rules/design.md`); the foundations (§23) are a pre-step;
     the visual system (§21–§22) is built on the cards of those three pages. Measuring seven
     obsolete pages in §23 was wasted work; the counts stand only for the shared kit.
+106. **20 Nov, his words:** «aspetta, come non ti ricordi? ne avevamo parlato? e poi scusa non lo
+    vedi? la pagina piano è inesistente e porta a cose inutili, lo stesso vale per andamento e le
+    altre. hanno pochissimo di tutto quello di cui avevamo discusso… è importante perché i
+    cambiamenti che attuiamo toccheranno anche quelli futuri in quelle pagine. anche solo parlando
+    del prossimo piano "macro bar in Oggi's «Il giorno», rebuilt as the reference": non ti ricordi
+    che avevamo detto di pensare a un motore di visualizzazione unico? avevamo attuato cambiamenti
+    parziali in oggi e elenco appositamente per unificare, ma questo va fatto ovunque e per ogni
+    cosa, era solo un esempio e comunque come vedi parziale o solo rappresentativo». What Claude
+    failed to connect: W-04 (15 Nov, «every specific problem is systemic»), target.md (one type,
+    one of each, places only compose), §32 (Piano = a day of Oggi in the future), §93–§94 (one
+    engine, everything through it). The Oggi and Elenco changes were examples of the unification,
+    not the target; every place, current or to come, is built from the same engine.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

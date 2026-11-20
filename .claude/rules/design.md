@@ -89,10 +89,11 @@ dimentichi».
   (PAT-90…94). Baselines only shrink.
 
 ## What the real screens hold today (his «you can infer from the screenshots», 14 Nov)
-**Current, his 20 Nov (proposal §105): only Oggi, Come valutiamo and Elenco «vanno bene»; every
-other page is obsolete** — read the lines below on those pages as history, never as a base to
-measure, photograph or build on. The visual system (bars-study §21–§22) is built on the cards of
-these three pages.
+**Current, his 20 Nov (proposal §105–§106): only Oggi, Come valutiamo and Elenco «vanno bene»;
+every other page is obsolete** — it holds almost nothing of what was decided (Piano = a day of
+Oggi in the future, §32; one type drawn one way, target.md; W-04). Read the lines below on those
+pages as history, never as a base. The visual engine (bars-study §21–§22) is built **once for
+every place**, current and future; the Oggi and Elenco changes were examples, never the target.
 From the photos of the running app with his data, 12 Nov: `LIFEOS/review/2026-11-12/shots/`
 (110 screens at 390 px; never a bare `ls` there, use `find`). **Before touching a screen, open its
 photo: everything on it stays unless he says it goes.** Seen by Claude on 14 Nov: the 19 below.
