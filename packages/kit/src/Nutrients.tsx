@@ -24,6 +24,7 @@ export function Nutrients({
   lit,
   chips = true,
   onTap,
+  inline = false,
 }: {
   data: NutrientsData;
   part?: "all" | "main" | "rest";
@@ -33,6 +34,8 @@ export function Nutrients({
   chips?: boolean;
   /** A tap on the bars goes to the next level (drill down · roll up, VIS-70; §143). */
   onTap?: () => void;
+  /** The four macros side by side on one row, each its icon, number and track (his §145). */
+  inline?: boolean;
 }) {
   const main = part !== "rest";
   const rest = part !== "main";
@@ -99,7 +102,26 @@ export function Nutrients({
           ))}
         </div>
       )}
-      {(main ? macros : []).map((m) => {
+      {main && inline && (
+        <div className="k-ninline">
+          {macros.map((m) => (
+            <button
+              key={m.key}
+              type="button"
+              className="k-mcell"
+              {...(onTap ? { onClick: onTap } : {})}
+              aria-label={m.aria}
+            >
+              <span className="k-line g1">
+                <Glyph of={{ nutrient: m.key }} size="s" />
+                <span className="k-num b3">{m.short}</span>
+              </span>
+              <MacroTrack m={m} />
+            </button>
+          ))}
+        </div>
+      )}
+      {(main && !inline ? macros : []).map((m) => {
         const isOpen = open === m.key;
         const more = m.kinds.length + m.sources.length + m.extras.length > 0;
         return (
@@ -125,25 +147,7 @@ export function Nutrients({
                   {m.target && <span className="k-meta"> / {m.target}</span>}
                 </span>
               </span>
-              <span
-                className={"k-track" + (m.strip ? " zoned" : "")}
-                role="img"
-                aria-label={m.aria}
-              >
-                {m.segs.map((s, i) => (
-                  <span
-                    key={i}
-                    className={"k-seg" + (s.planned ? " planned" : "")}
-                    style={{
-                      width: s.w,
-                      background: s.bg,
-                      opacity: s.planned ? 0.5 : s.dim ? 0.25 : 1,
-                    }}
-                  />
-                ))}
-                {m.mark && <span className="k-mark" style={{ left: m.mark }} />}
-                {m.strip && <Fascia strip={m.strip} />}
-              </span>
+              <MacroTrack m={m} label />
             </button>
             {more && (
               <div className={"k-reveal" + (isOpen ? " on" : "")}>
@@ -333,5 +337,36 @@ export function NutrientsL0({ data }: { data: NutrientsData }) {
         </span>
       ))}
     </div>
+  );
+}
+
+/** A macro's track: its segments (lit or dimmed), its target mark, its zones ruler (VIS-50, VIS-52). */
+function MacroTrack({
+  m,
+  label = false,
+}: {
+  m: ReturnType<typeof nutrientsL1>["macros"][number];
+  /** Its own label for a screen reader; else the cell around it says it. */
+  label?: boolean;
+}) {
+  return (
+    <span
+      className={"k-track" + (m.strip ? " zoned" : "")}
+      {...(label ? { role: "img", "aria-label": m.aria } : { "aria-hidden": true })}
+    >
+      {m.segs.map((s, i) => (
+        <span
+          key={i}
+          className={"k-seg" + (s.planned ? " planned" : "")}
+          style={{
+            width: s.w,
+            background: s.bg,
+            opacity: s.planned ? 0.5 : s.dim ? 0.25 : 1,
+          }}
+        />
+      ))}
+      {m.mark && <span className="k-mark" style={{ left: m.mark }} />}
+      {m.strip && <Fascia strip={m.strip} />}
+    </span>
   );
 }

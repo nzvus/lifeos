@@ -1460,6 +1460,12 @@
     MOD-61 for the day); which ingredient is which at the meal level (lit when editing it, with
     the in-place edits); the box's «›» column narrows its bars. Photos
     `LIFEOS/review/2026-11-21/levels/`; **waits for his word**.
+145. **21 Nov, his word on §144:** «non ha senso mettere la cavolo di freccia, toglie spazio. e poi
+    volevo tutti i macro su un'unica riga». Taken as patterns (PROD-35: never one screen): (a) no
+    Box keeps a column for its «›»: the page is the last, small icon of its actions row (PAT-101),
+    so the content takes the whole width; (b) a meal's macros at both levels are one row — the
+    four bars side by side, each with its icon, its number and its track (same segments, light and
+    target mark as «Il giorno»), the energy line above.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

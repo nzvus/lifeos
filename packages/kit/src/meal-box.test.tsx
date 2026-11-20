@@ -66,6 +66,35 @@ describe("MealBox (PAT-102; his §143: the day's bars, two levels a tap apart)",
         startOpen
       />,
     );
-    expect(html.match(/class="k-mrow"/g)).toHaveLength(1);
+    expect(html.match(/class="k-mcell"/g)).toHaveLength(1);
+    expect(html).not.toContain('class="k-mrow"');
+  });
+
+  it("all the macros on one row (his §145), each with its unit", () => {
+    const two = {
+      ...data,
+      macros: [...data.macros, { key: "carbs" as const, v: 42.7, t: 60 }],
+    };
+    const html = renderToStaticMarkup(
+      <MealBox entry={entry} data={two} slots={[]} words={words} startOpen />,
+    );
+    const row = html.slice(html.indexOf("k-ninline"));
+    expect(row.match(/class="k-mcell"/g)).toHaveLength(2);
+    expect(row).toMatch(/43\sg/);
+  });
+
+  it("its page is the last icon of the actions row, no column of its own (his §145)", () => {
+    const html = renderToStaticMarkup(
+      <MealBox
+        entry={{ ...entry, href: "/voce/1" }}
+        data={data}
+        slots={[]}
+        words={words}
+        startOpen
+      />,
+    );
+    const actions = html.slice(html.indexOf('aria-label="Azioni"'));
+    expect(actions).toContain('href="/voce/1"');
+    expect(html).not.toContain('class="k-go"');
   });
 });

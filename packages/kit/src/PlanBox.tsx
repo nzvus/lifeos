@@ -43,7 +43,11 @@ export type PlanAction = { key: string; label: string } & (
       /** A mode he switches (the bar's «Ingredienti» · «Nutrienti»): a chip, on or off. */
       pressed?: boolean;
     }
-  | { href: string }
+  | {
+      href: string;
+      /** A link drawn as an icon, last in the row: its page (his §145; `label` its aria). */
+      icon?: "link";
+    }
   | {
       step: { value: string; minus: string; plus: string };
       onMinus: () => void;
@@ -55,7 +59,12 @@ export type PlanAction = { key: string; label: string } & (
 export function ActionRow({ actions }: { actions: PlanAction[] }) {
   if (actions.length === 0) return null;
   const danger = (a: PlanAction) => "danger" in a && !!a.danger;
-  const ordered = [...actions.filter((a) => !danger(a)), ...actions.filter(danger)];
+  const page = (a: PlanAction) => "icon" in a && !!a.icon;
+  const ordered = [
+    ...actions.filter((a) => !danger(a) && !page(a)),
+    ...actions.filter(danger),
+    ...actions.filter(page),
+  ];
   return (
     <div className="k-hrow k-actrow" role="group" aria-label={WORDS.actions}>
       {ordered.map((a) =>
@@ -86,6 +95,10 @@ export function ActionRow({ actions }: { actions: PlanAction[] }) {
               +
             </button>
           </span>
+        ) : "href" in a && a.icon ? (
+          <a key={a.key} className="k-btn act icon" href={a.href} aria-label={a.label}>
+            <Glyph of={{ ui: a.icon }} decorative />
+          </a>
         ) : "href" in a ? (
           <a key={a.key} className="k-btn act" href={a.href}>
             {a.label}
@@ -204,11 +217,27 @@ export function PlanBox({
     const d = slotDoor(s);
     return d ? [d] : [];
   });
+  // Its page: the last, small icon of its actions row, never a column of its own (his §145).
+  const { href, hrefLabel, ...rest } = { ...entry, ...(v?.head ?? {}) };
+  const headEntry = rest;
+  const all: PlanAction[] = [
+    ...actions,
+    ...(href
+      ? [
+          {
+            key: "page",
+            label: hrefLabel ?? "Apri " + entry.title,
+            href,
+            icon: "link" as const,
+          },
+        ]
+      : []),
+  ];
   const rows = shown.flatMap((s) => ("words" in s && s.words.length > 0 ? [s] : []));
   return (
-    <ThingBox {...place} entry={{ ...entry, ...(v?.head ?? {}) }} doors={doors}>
+    <ThingBox {...place} entry={headEntry} doors={doors}>
       {before}
-      <ActionRow actions={actions} />
+      <ActionRow actions={all} />
       {children}
       {vs.length > 0 && (
         <ChipRow

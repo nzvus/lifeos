@@ -5762,3 +5762,29 @@ button.k-mrow:active {
   white-space: nowrap;
   margin-inline-start: auto;
 }
+/* a meal's four macros on one row (his 21 Nov, §145): each its icon and number over its own
+   track, the same segments, light and target mark as «Il giorno»; the ruler's numbers left out */
+.k-ninline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--sp-2);
+}
+.k-mcell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: start;
+  cursor: pointer;
+}
+.k-mcell .k-num {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.k-mcell .k-zrule .tk span {
+  display: none;
+}

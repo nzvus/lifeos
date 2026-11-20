@@ -96,6 +96,7 @@ export function MealBox({
             data={atDay ? day! : ownTotal(data)}
             part="main"
             chips={false}
+            inline
             {...(atDay && lit ? { lit } : {})}
             {...(levels > 1 ? { onTap: next } : {})}
           />
