@@ -1361,6 +1361,14 @@
     `LIFEOS/review/2026-11-20/planbox/meal-actions*.png`; **waits for his word** on the meal box.
     Next: the Elenco objects' actions row (MOD-20 verbs, `ObjectActions`' «Altro» into it), the
     voce's righe in place (ACT-03), then Stop B. ④ keeps only where adding happens.
+137. **20 Nov, his word on §136:** «sì preferisco "drawn small", dappertutto, e secondo me può anche
+    essere più stretto orizzontalmente intendo. magari in futuro quando rifacciamo per le modifiche
+    in place, li facciamo simili. per il resto yc». Done: every `Stepper` (`.k-step`) drawn 32 high
+    with 32-wide buttons, each touched at 44 (VIS-05, VIS-105); `.big` (52) stays, unused today.
+    For later: the in-place edits (ACT-03, PAT-13) take the same small stepper.
+    Open, his: in a form the stepper is now 32 while text fields and the segmented control stay 44
+    (VIS-86); recommended: the same «drawn small, touched at 44» for every field, with the in-place
+    edits (photos `planbox/stepper-small.png`).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

@@ -1249,20 +1249,20 @@ textarea {
   align-items: baseline;
   gap: 8px;
 }
+/* drawn small everywhere, narrow buttons, touched at 44 (his 20 Nov, §137: «preferisco "drawn
+   small", dappertutto… più stretto orizzontalmente»; VIS-05, VIS-105) */
 .k-step {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  grid-template-columns: 32px minmax(0, 1fr) 32px;
   align-items: center;
-  height: var(--touch);
+  height: var(--ctl-dense);
   border: 1px solid var(--hairline);
   border-radius: var(--r-control);
   background: var(--sheet);
 }
-/* in a box's actions row (PAT-101) the stepper is drawn as small as its neighbours, touched at 44
-   (§131, VIS-105): its buttons keep 44 wide and the ::before strip gives the height */
+/* in a box's actions row (PAT-101) only as wide as its number */
 .k-actrow .k-step {
-  height: var(--ctl-dense);
-  grid-template-columns: 44px auto 44px;
+  grid-template-columns: 32px auto 32px;
 }
 .k-actrow .k-step .k-num {
   padding-inline: 2px;
@@ -1273,6 +1273,7 @@ textarea {
   grid-template-columns: 52px minmax(0, 1fr) 52px;
 }
 .k-step button {
+  position: relative;
   height: 100%;
   padding: 0;
   border: 0;
@@ -1282,6 +1283,12 @@ textarea {
   line-height: var(--lh-d3);
   color: var(--ink);
   cursor: pointer;
+}
+/* each button touched at 44 around its 32 (PRD-12) */
+.k-step button::before {
+  content: "";
+  position: absolute;
+  inset: calc((var(--ctl-dense) - var(--touch)) / 2);
 }
 .k-step .v {
   text-align: center;
@@ -4372,8 +4379,9 @@ a.k-plain {
   min-width: var(--touch);
 }
 .k-step .k-stepin {
-  /* the whole middle stays a target (PRD-12) */
+  /* the whole middle stays a target (PRD-12): taller than the drawn stepper, transparent */
   min-height: var(--touch);
+  margin-block: calc((var(--ctl-dense) - var(--touch)) / 2);
 }
 .k-mrow {
   padding-block: 12px;
