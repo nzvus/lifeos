@@ -302,21 +302,10 @@ const TONES = [1, 0.75, 0.55, 0.38, 0.22];
  * no target the macros share one scale. No sources, no notes: the box opens
  * for those.
  */
-/** The rest of the day around a meal in focus: no hue, it is not what is shown (hue = what it is). */
-const REST = "color-mix(in srgb, var(--ink) 48%, var(--sheet))";
-
-export function nutrientsL0(
-  d: NutrientsData,
-  /**
-   * The day it sits in (bars study §16.4, his 20 Nov): the bar runs to the day's target, this
-   * meal's share in colour, the rest of the day grey after it, so the end is the day's total.
-   */
-  day?: NutrientsData | null,
-) {
+export function nutrientsL0(d: NutrientsData) {
   const shared = Math.max(0, ...d.macros.filter((m) => m.t == null).map((m) => m.v)) || 1;
   return d.macros.map((m) => {
-    const inDay = day?.macros.find((x) => x.key === m.key);
-    const scale = inDay?.t ?? m.t ?? shared;
+    const scale = m.t ?? shared;
     const kinds = KINDS[m.key].filter(([k]) => (m.parts?.[k] ?? 0) > 0);
     const w = (v: number) => Math.min(100, (v / scale) * 100).toFixed(1) + "%";
     const segs = kinds.length
@@ -324,8 +313,6 @@ export function nutrientsL0(
       : m.v > 0
         ? [{ w: w(m.v), bg: shade(m.key, 1) }]
         : [];
-    const rest = inDay ? Math.max(0, inDay.v - m.v) : 0;
-    if (rest > 0) segs.push({ w: w(rest), bg: REST });
     return {
       key: m.key,
       // The glance level: whole grams with their unit (content.md, every number its unit).
@@ -335,14 +322,7 @@ export function nutrientsL0(
         NAME[m.key] +
         " " +
         F.num(m.v, "g") +
-        (inDay
-          ? " di " +
-            F.num(inDay.v, "g") +
-            " del giorno" +
-            (inDay.t == null ? "" : ", obiettivo " + F.num(inDay.t, "g"))
-          : m.t == null
-            ? ""
-            : " su " + F.num(m.t, "g") + " dell’obiettivo"),
+        (m.t == null ? "" : " su " + F.num(m.t, "g") + " dell’obiettivo"),
     };
   });
 }

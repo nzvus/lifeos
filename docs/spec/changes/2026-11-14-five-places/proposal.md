@@ -951,10 +951,6 @@
     salt»: «e ma dovrebbero portarli. comunque non mi piace». The ridge rejected and removed (kit,
     gallery, Oggi). A meal now carries its limits (free sugars, saturated fat, salt) against the
     day's targets, without a fascia of its own (FD-35: a meal is judged only on protein).
-91. **20 Nov, his answer on what failed in the ridge** (asked, several picks): «The hill shape» and
-    «Too tall, too much». Not picked, so kept: the blended colours and the meal inside its day.
-    Next: the meal's four thin bars (his original, one line each) on the day's scale, this meal's
-    share in colour, the rest of the day grey after it.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

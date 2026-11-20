@@ -171,16 +171,6 @@ describe("L0: a meal box's thin bars", () => {
     expect(rows[3]!.segs[0]!.w).toBe("100.0%");
     expect(rows[0]!.aria).toContain("dell’obiettivo");
   });
-
-  it("inside its day (bars study §16.4): the day's scale, its share lit, the rest of the day grey", async () => {
-    const { nutrientsL0 } = await import("./nutrient-rows");
-    const meal = { macros: [{ key: "protein" as const, v: 20, t: 168 }] };
-    const day = { macros: [{ key: "protein" as const, v: 100, t: 200 }] };
-    const [p] = nutrientsL0(meal, day);
-    expect(p!.segs.map((s) => s.w)).toEqual(["10.0%", "40.0%"]);
-    expect(p!.segs[1]!.bg).toContain("var(--ink)");
-    expect(p!.aria).toContain("di 100");
-  });
 });
 
 describe("the heat bar (dossiers/ranges.md §6)", () => {

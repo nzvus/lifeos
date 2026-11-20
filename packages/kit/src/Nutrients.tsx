@@ -304,17 +304,10 @@ export function Nutrients({
 }
 
 /** Level L0: a meal box's four thin bars, its kinds shaded (the boards' `k-l0`). */
-export function NutrientsL0({
-  data,
-  day,
-}: {
-  data: NutrientsData;
-  /** The day it sits in: the meal's share lit, the rest of the day grey (bars study §16.4). */
-  day?: NutrientsData | null;
-}) {
+export function NutrientsL0({ data }: { data: NutrientsData }) {
   return (
     <div className="k-l0">
-      {nutrientsL0(data, day).map((m) => (
+      {nutrientsL0(data).map((m) => (
         <span key={m.key} className="r" role="img" aria-label={m.aria}>
           <Glyph of={{ nutrient: m.key }} size="xs" />
           <span className="k-track">

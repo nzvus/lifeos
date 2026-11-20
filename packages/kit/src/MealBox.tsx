@@ -19,7 +19,6 @@ export function MealBox({
   details,
   foods,
   top,
-  day,
   children,
   startOpen = false,
   density,
@@ -39,8 +38,6 @@ export function MealBox({
   foods?: ReactNode;
   /** Open, before the bars. */
   top?: ReactNode;
-  /** The day it sits in: its bars on the day's scale, its share lit (bars study §16.4). */
-  day?: NutrientsData | null;
   /** Open, after the bars. */
   children?: ReactNode;
   /** Alone on its own page (PAT-30 level 2): open at first. */
@@ -70,7 +67,7 @@ export function MealBox({
     >
       {top}
       <div className="k-slot-l0">
-        <NutrientsL0 data={data} day={day ?? null} />
+        <NutrientsL0 data={data} />
       </div>
       {children}
     </Box>
