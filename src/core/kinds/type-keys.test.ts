@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import keys from "../../../eslint/type-keys.json";
 import { BUILTIN_KINDS } from "./builtins";
 import { CATALOG_TYPES } from "./catalog";
+import { SIGNALS } from "./signals";
 
 describe("type keys of the lint rule (MOD-02)", () => {
   it("lists every built-in voce kind and nothing else", () => {
@@ -16,5 +17,9 @@ describe("type keys of the lint rule (MOD-02)", () => {
       if (t.storage.table === "catalog_items")
         expect(keys.catalog).toContain(t.storage.catalog);
     }
+  });
+
+  it("lists every signal and nothing else (MOD-01: a signal is a registry entry)", () => {
+    expect([...keys.signal].sort()).toEqual(SIGNALS.map((s) => s.key).sort());
   });
 });

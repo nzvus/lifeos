@@ -264,7 +264,7 @@ ORCA_SCHEMA = {
     "objects": ["ID", "Name", "What it is", "Form", "Class", "Key", "Status", "Source"],
     "relationships": ["ID", "From", "Relation", "To", "How many", "Source"],
     "actions": ["ID", "Object", "Action", "Where", "Source"],
-    "attributes": ["ID", "Object", "Attribute", "Reading", "Question", "Instrument", "Level",
+    "attributes": ["ID", "Object", "Attribute", "Field", "Reading", "Question", "Instrument", "Level",
                    "References", "Data", "Source"],
 }
 ORCA_VALUES = {
@@ -346,7 +346,7 @@ def check_orca(root, files):
         if keys_file.exists():
             import json
             data = json.loads(keys_file.read_text(encoding="utf-8"))
-            registry = set(data.get("voce", [])) | set(data.get("catalog", []))
+            registry = set(data.get("voce", [])) | set(data.get("catalog", [])) | set(data.get("signal", []))
             named = {}
             for i, row in tables["objects"]:
                 for key in (k.strip() for k in row["Key"].split(",")):
@@ -355,7 +355,7 @@ def check_orca(root, files):
             for key in sorted(registry - set(named)):
                 yield (ERR, f"{ORCA}/objects.md", None, f"registry key {key!r} has no OBJ row")
             for key, (i, row) in sorted(named.items()):
-                if key not in registry and row["Form"] in ("voce", "object") and row["Status"] in ("✓", "◐"):
+                if key not in registry and row["Form"] in ("voce", "object", "signal") and row["Status"] in ("✓", "◐"):
                     yield (ERR, f"{ORCA}/objects.md", i, f"{row['ID']} is {row['Status']} but {key!r} is not in the registry")
     changes = root / SPEC / "changes"
     for folder in sorted(p for p in changes.iterdir() if p.is_dir() and p.name != "archive") if changes.exists() else []:

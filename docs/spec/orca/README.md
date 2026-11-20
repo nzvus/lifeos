@@ -29,7 +29,9 @@ or a spec ID). Status: ✓ built · ◐ partly · ○ decided, not built · ✗ 
   compare · why. **Where**: in place — the card, row or instrument it is done on; never ⊕ and
   never a page of its own (his 20 Nov, proposal §112–§113).
 
-## attributes.md — `| ID | Object | Attribute | Reading | Question | Instrument | Level | References | Data | Source |`
+## attributes.md — `| ID | Object | Attribute | Field | Reading | Question | Instrument | Level | References | Data | Source |`
+- **Field**: the registry field it is, as `type.field` (`meal.role`), or `—` when it is computed;
+  a test keeps its question equal to the registry's (MOD-58).
 - **Reading** (MOD-57): amount · time · rating · done · category · presence · composition · score.
 - **Question** and **Instrument** (bars-study §21.3): reach → bar · prediction → fan · trend →
   line · yes/no → cells · rhythm → rail · stock → tank · comparison → ghost · composition → parts

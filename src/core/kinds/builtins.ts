@@ -21,12 +21,17 @@ export const isEaten = (key: string) => (EATEN_KINDS as readonly string[]).inclu
 
 const bodyFields: KindInput["fields"] = [
   { key: "bodyFatPct", type: "number", unit: "%", min: 2, max: 70 },
-  { key: "waistCm", type: "number", unit: "cm", min: 30, max: 250 },
+  { key: "waistCm", type: "number", unit: "cm", min: 30, max: 250, question: "trend" },
   { key: "hipCm", type: "number", unit: "cm", min: 30, max: 250 },
   { key: "neckCm", type: "number", unit: "cm", min: 15, max: 80 },
   { key: "abdomenCm", type: "number", unit: "cm", min: 30, max: 250 },
 ];
-const scale5 = (key: string) => ({ key, type: "scale" as const, scale: 5 as const });
+const scale5 = (key: string, question?: "trend") => ({
+  key,
+  type: "scale" as const,
+  scale: 5 as const,
+  ...(question ? { question } : {}),
+});
 
 export const BUILTIN_KINDS: readonly KindInput[] = [
   // Food and drink.
@@ -43,9 +48,9 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
       { key: "role", type: "choice", choices: [...MEAL_ROLES] },
       // Chosen by the person, or taken from the time (capture.md §4).
       { key: "roleSource", type: "choice", choices: ["manual", "auto"] },
-      { key: "servings", type: "number", min: 0 },
+      { key: "servings", type: "number", min: 0, question: "name" },
       { key: "label", type: "text" },
-      { key: "estimated", type: "boolean" },
+      { key: "estimated", type: "boolean", question: "name" },
       { key: "leftOut", type: "boolean" },
     ],
     relations: [{ to: "session", bands: MEAL_SESSION.bands }],
@@ -215,11 +220,12 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
         min: 20,
         max: 400,
         required: true,
+        question: "trend",
       },
       ...bodyFields,
-      { key: "fasted", type: "boolean" },
-      { key: "afterToilet", type: "boolean" },
-      { key: "afterTraining", type: "boolean" },
+      { key: "fasted", type: "boolean", question: "name" },
+      { key: "afterToilet", type: "boolean", question: "name" },
+      { key: "afterTraining", type: "boolean", question: "name" },
     ],
   },
   {
@@ -267,9 +273,9 @@ export const BUILTIN_KINDS: readonly KindInput[] = [
     shape: "instant",
     entry: "quick",
     fields: [
-      scale5("mood"),
-      scale5("energy"),
-      scale5("stress"),
+      scale5("mood", "trend"),
+      scale5("energy", "trend"),
+      scale5("stress", "trend"),
       { key: "moment", type: "choice", choices: ["morning", "evening"] },
     ],
   },

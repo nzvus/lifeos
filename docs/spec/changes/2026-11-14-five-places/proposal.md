@@ -1238,6 +1238,17 @@
     glossary test until the screens are renamed in ④, as «allenamento (as object)» already was
     (undo: drop the brackets); (d) the drafts keep a «folded» header and stay in the change until it
     archives (PRD-41) rather than moving now (undo: `git mv` to `docs/archive/`). Next: ② the registry.
+124. **20 Nov, Deliver ② done: the registry.** Every field answers a question (MOD-58: `QUESTIONS`,
+    the field's optional `question`, `questionOf`, `INSTRUMENT_OF`); each measure carries its question
+    and instrument; the overrides the tables chose (weight, waist, mood · energy · stress → trend;
+    servings, stima, the pesata's conditions, NOVA → name); the signals are registry entries
+    (`core/kinds/signals.ts`, `type-keys.json` «signal», OBJ-46…50 keyed); `orca/attributes` gains a
+    **Field** column and `questions.test.ts` fails when a row's instrument or a field's question
+    differs from the code (checked by breaking ATT-27). Decided by Claude, each with its undo: (a)
+    done → yes/no as a default, which MOD-58 had not listed (undo: `DEFAULT_QUESTION`); (b) the
+    form in code is the existing split — `Kind`, `CatalogType`, `child`, `Signal` — not a new field
+    (undo: add `form` to the schema); (c) FD-64's code (the flag → pasti salvati) moves to ④, since
+    it changes what the dock and the search row offer (undo: do it here). Next: ③ the Box, stop B.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

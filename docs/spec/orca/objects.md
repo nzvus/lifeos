@@ -47,11 +47,11 @@
 | OBJ-43 | energia | expenditure learnt, with the day's pieces | signal | — | — | ✓ | MOD-54, BD-20…24 |
 | OBJ-44 | trend del peso | the weight line without water | signal | — | — | ✓ | BD-01 |
 | OBJ-45 | progresso | an esercizio against its past: e1RM, trend | signal | — | — | ◐ | MOD-50, TR-20…24 |
-| OBJ-46 | caffeina rimasta | caffeine left, halving every 5 h | signal | — | — | ◐ | FD-61, FD-62 |
-| OBJ-47 | scorte di creatina | creatine stores, 0–100 % | signal | — | — | ✓ | FD-63 |
-| OBJ-48 | movimento | windows moving · on one's feet · seated; sedentary time | signal | — | — | ○ | reframe §12, his 20 Nov |
-| OBJ-49 | meteo | the weather of his city, live | signal | context | — | ✓ | BD-61, VIS-75 |
-| OBJ-50 | luce del giorno | sun and moon, the sky bands | signal | context | — | ✓ | VIS-61 |
+| OBJ-46 | caffeina rimasta | caffeine left, halving every 5 h | signal | — | caffeine_left | ◐ | FD-61, FD-62 |
+| OBJ-47 | scorte di creatina | creatine stores, 0–100 % | signal | — | creatine_stores | ✓ | FD-63 |
+| OBJ-48 | movimento | windows moving · on one's feet · seated; sedentary time | signal | — | movement | ○ | reframe §12, his 20 Nov |
+| OBJ-49 | meteo | the weather of his city, live | signal | context | weather | ✓ | BD-61, VIS-75 |
+| OBJ-50 | luce del giorno | sun and moon, the sky bands | signal | context | daylight | ✓ | VIS-61 |
 | OBJ-51 | volume per muscolo | working serie per muscle per week | signal | — | — | ✓ | TR-25 |
 | OBJ-52 | costo | the € of a riga, a pasto, a day | signal | — | — | ✓ | FD-80…84 |
 | OBJ-53 | serie di giorni | consecutive days meeting a target | signal | — | — | ◐ | DT-13, bars-study §19.1 |

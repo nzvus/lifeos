@@ -37,6 +37,26 @@ export const CLASSES = [
 ] as const;
 export type KindClass = (typeof CLASSES)[number];
 
+/**
+ * The question a field answers (MOD-58, VIS-102; his «yc» q10, 20 Nov): the engine picks the
+ * instrument from it. A field says it only when its reading's default is not what he reads.
+ */
+export const QUESTIONS = [
+  "reach",
+  "prediction",
+  "trend",
+  "yes/no",
+  "rhythm",
+  "stock",
+  "comparison",
+  "composition",
+  "source",
+  "spread",
+  "verdict",
+  "name",
+] as const;
+export type Question = (typeof QUESTIONS)[number];
+
 /** A tracker's class when it does not say one: from its family (MOD-57). */
 export const FAMILY_CLASS: Record<Family, KindClass> = {
   food: "intake",
@@ -97,6 +117,8 @@ export const fieldSchema = z
     required: z.boolean().default(false),
     /** Stored, never shown as a value row: its type's own section edits it (a blocco's `kind`). */
     internal: z.boolean().optional(),
+    /** The question it answers, when not its reading's default (MOD-58). */
+    question: z.enum(QUESTIONS).optional(),
   })
   .refine((f) => f.type !== "scale" || f.scale !== undefined, "a scale needs its top")
   .refine((f) => f.type !== "choice" || f.choices !== undefined, "a choice needs choices")

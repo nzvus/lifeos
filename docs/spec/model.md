@@ -9,7 +9,8 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   ```
   Type
     key, name (his word), area (Corpo|Cibo|Oggi|Mente|Soldi), icon, colour
-    family        voce (logged in time) | object (reused) | part (inside one) | signal (a level over time)
+    form          voce (logged in time) | object (reused) | part (inside one) | signal (a level over time)
+                  (code: a `Kind`, a `CatalogType`, a `Kind` with `child`, a `Signal` in `core/kinds/signals.ts`)
     class         intake | activity | state | measurement | exchange | note | context   (MOD-57)
     shape         instant | interval                       (voce only)
     fields[]      key, label, type, unit, range, required, default, help
@@ -49,10 +50,11 @@ ADR-0054's model section. IDs: `MOD-nn`. Column «Today» = what the code has (a
   §93–§94, bars-study §19.1] — Today: built (`core/engines/view`, slice 1 of #371).
 - **MOD-58** Every field declares the **question** it answers (reach · prediction · trend · yes/no ·
   rhythm · stock · comparison · composition · source · spread · verdict · name), defaulting from its
-  reading (amount → reach, time → rhythm, score → verdict, composition → composition, rating ·
-  category · presence → name); the engine (MOD-56) picks the instrument from the question
+  reading (amount → reach, time → rhythm, done → yes/no, score → verdict, composition →
+  composition, rating · category · presence → name); the engine (MOD-56) picks the instrument from the question
   (VIS-102). WHEN the registry and `orca/attributes` disagree on a field's question THEN a
-  test fails. [his «yc» q10, 20 Nov, proposal §122] — Today: not built (Deliver ②).
+  test fails. [his «yc» q10, 20 Nov, proposal §122] — Today: built (`QUESTIONS`, `questionOf`, `INSTRUMENT_OF`
+  in `core/engines/view/readings.ts`; `questions.test.ts` reads the table).
 
 ## 2. Voce (an entry)
 - **MOD-10** A voce: `type, start, end?, day (logical, boundary 04:00), status, values, lines[],

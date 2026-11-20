@@ -5,7 +5,13 @@
  * that draws it (§18.3). A new tracker is read with no new code. Pure.
  */
 import type { Aggregate } from "../metrics";
-import { classOf, type Field, type Kind, type KindClass } from "../../kinds";
+import {
+  classOf,
+  type Field,
+  type Kind,
+  type KindClass,
+  type Question,
+} from "../../kinds";
 
 export const READINGS = [
   "amount",
@@ -58,12 +64,51 @@ export function readingOf(f: Pick<Field, "type">): Reading | null {
   }
 }
 
+/** A reading's question when the field does not say one (MOD-58). */
+export const DEFAULT_QUESTION: Record<Reading, Question> = {
+  amount: "reach",
+  time: "rhythm",
+  rating: "name",
+  done: "yes/no",
+  category: "name",
+  presence: "name",
+  composition: "composition",
+  score: "verdict",
+};
+
+/** The instrument a question takes (VIS-102); with many members any of them becomes cells. */
+export const INSTRUMENT_OF = {
+  reach: "bar",
+  prediction: "fan",
+  trend: "line",
+  "yes/no": "cells",
+  rhythm: "rail",
+  stock: "tank",
+  comparison: "ghost",
+  composition: "parts",
+  source: "rows",
+  spread: "band",
+  verdict: "skyline",
+  name: "word",
+} as const satisfies Record<Question, string>;
+export type Instrument = (typeof INSTRUMENT_OF)[Question] | "cells";
+
+/** The question a field answers: its own, else its reading's default (MOD-58). */
+export function questionOf(f: Pick<Field, "type" | "question">): Question | null {
+  if (f.question) return f.question;
+  const r = readingOf(f);
+  return r ? DEFAULT_QUESTION[r] : null;
+}
+
 export type Measure = {
   /** The field it reads; none for the voce's own span or its lines. */
   field?: string;
   reading: Reading;
   aggregates: Aggregate["type"][];
   family: ViewFamily;
+  /** What it answers, and so the instrument that draws it (MOD-58, VIS-102). */
+  question: Question;
+  instrument: Instrument;
 };
 
 /**
@@ -73,13 +118,21 @@ export type Measure = {
  */
 export function measuresOf(k: Kind): { class: KindClass; measures: Measure[] } {
   const measures: Measure[] = [];
-  const add = (reading: Reading, field?: string) =>
-    measures.push({ ...(field ? { field } : {}), reading, ...RULES[reading] });
+  const add = (reading: Reading, field?: Field) => {
+    const question = (field && questionOf(field)) || DEFAULT_QUESTION[reading];
+    measures.push({
+      ...(field ? { field: field.key } : {}),
+      reading,
+      ...RULES[reading],
+      question,
+      instrument: INSTRUMENT_OF[question],
+    });
+  };
   if (k.shape === "interval") add("time");
   for (const f of k.fields) {
     if (f.internal) continue;
     const r = readingOf(f);
-    if (r) add(r, f.key);
+    if (r) add(r, f);
   }
   if (k.composite) add("composition");
   // Every voce can be counted: how many in the frame (a journal has only this).

@@ -166,7 +166,8 @@ IDs `FD-nn`. Sources: ledger IDs, phase 1 answers (`n04`, `c08`, `x06`: `audit-2
   > 20 kcal/100 it asks once «ha calorie: lo segno come pasto?». The `intake` flag on a cibo
   (`intake_item`) goes: WHEN a flagged cibo exists THEN it becomes a pasto salvato of that cibo. [FOOD-03,
   FOOD-05, FOOD-44, objects §4 §5 §9.4; his «yc» q2, 20 Nov: his 52 assunzioni already point to pasti
-  salvati] — Today: built on the flag (`core/food/intake.ts`); the move to pasti salvati in Deliver ②.
+  salvati] — Today: built on the flag (`core/food/intake.ts`); the move to pasti salvati in Deliver ④, with
+  the dock and the search row that offer them (proposal §124).
 
 ## 8. Water
 - **FD-70** Need = EFSA AI of total water (2.5 l men, 2.0 women; ≈ 20 % from food) + sweat per session 0.5 /
