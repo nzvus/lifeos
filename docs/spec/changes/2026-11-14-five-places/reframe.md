@@ -186,3 +186,31 @@ Not a new frame; two changes at its base:
 (§12) is the first signal built by hand, and it is why the instruments and movement «si
 influenzano» (§109.4): the rail is designed with lanes from the start. The four layers, the two
 spaces and the presets stand.
+
+## 15. Everything in place: no ⊕, no Aggiungi page (his 20 Nov, proposal §112)
+His words: «molte modifiche e aggiunte… on place negli stessi posti in cui si visualizza… togliessimo
+quell'orribile bottone + e quella pagina aggiungi… cose a comparsa e barre di ricerca a comparsa…
+ma non che coprono… a scorrimento verticale e orizzontale se serve».
+**Is it a new frame?** No: §4 already says «the instrument is the control» and PRD-11 says «edit
+where you read». This adds the missing half — **you add where the thing will show** — and makes
+the grammar one sentence: **read, change and add in the same spot.** What it removes is large:
+⊕ on every page (PAT-01, PAT-10), the Capture sheet (PAT-60), the Aggiungi page and its sheets,
+ADR-0063's «⊕ belongs to the place».
+**Each case, in place (nothing covers the page; what appears pushes the rest down or slides
+sideways):**
+| He wants to | Where it happens | What appears there |
+|---|---|---|
+| change an amount (an ingredient, a drink, a set) | on the number itself | the number becomes a stepper in its row (PAT-13's InPlace, already built) |
+| add an ingredient to a meal | at the end of the meal's lines, inside its card | a search row opens there; results as rows under it, a tap adds |
+| add a voce at a time | on the rail, at that time (a gap, or «adesso») | a search row opens in the gap; ranked suggestions for that hour first (today's «Per te», PAT-60's ranking kept) |
+| add something with no time yet | «Senza orario» at the day's end | the same search row |
+| add a kind of thing to the timeline (a new tracker, a category) | at the end of the search's results, «Nuovo tipo» | the type's fields open in the row (MOD-01: a registry entry) |
+| see more options than fit | the row scrolls **sideways** (chips, ranked rows); a long list scrolls **down** inside its card | — |
+**Kept:** the ranking of what he logs at this hour (the best of today's ⊕), one `Find` (PAT-41),
+«Al volo» as the shortest path for the few he takes daily (creatina, caffè, acqua), the time
+deciding the state (§11). **Le cose** (the catalog) follows the same rule: a new cibo is added at
+the end of its list, in place.
+**His to settle:** (1) this direction, and that ⊕ and the Aggiungi page go; (2) whether «Al volo»
+stays as the one shortcut; (3) when: before the instruments (it changes every card's edit state)
+or after them. Recommendation: (1) yes; (2) yes; (3) **with** the instruments, card by card — the
+card's levels and its edit state are one design, so each card is built once.

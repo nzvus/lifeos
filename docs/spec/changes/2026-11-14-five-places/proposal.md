@@ -1147,6 +1147,15 @@
     or more options with a label over 11 characters are a drop-down, so every label is whole at
     320 px («Da confermare» was cut) (undo: `asSelect` in `Field.tsx`). Open, his: the dashed icon is
     subtle at 18 px — enough, or a dashed ring around it?
+112. **20 Nov, his words:** «ah, una cosa importantissima, molte modifiche e aggiunte preferirei
+    fossero quasi principalmente on place negli stessi posti in cui si visualizza. se togliessimo
+    quell'orribile bottone + e quella pagina aggiungi orribile sarebbe ottimo. per variazioni di cifre
+    di ingredienti, aggiunta di nuovi, con loro ricerca, o aggiunta di categorie diverse magari alla
+    timeline si possono fare cose a comparsa e barre di ricerca a comparsa che ne pensi? ma non che
+    coprono, intendo li on place. usiamo visualizzazioni a scorrimento verticale e orizzontale se
+    serve o non so. insomma magari poi ci pensiamo. o forse andrebbe fatto un reframing di nuovo».
+    Answer: reframe §15 — not a new frame: it completes §4 (one grammar) with «add where it will
+    show», and it removes ⊕ and the Aggiungi page (PAT-01, PAT-10, PAT-60, ADR-0063's per-place ⊕).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
