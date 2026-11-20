@@ -947,6 +947,10 @@
     written, corrections later on the real screens. First screen: Oggi, the ridge as «Il giorno»'s
     overview on his 9 Nov, and a meal open showing its slice lit inside the day's ridge (the
     context rule, bars-study §16.4); photographed; then stop for his word.
+90. **20 Nov, his words on the ridge in Oggi:** on «meals don't carry sugars, saturated fat and
+    salt»: «e ma dovrebbero portarli. comunque non mi piace». The ridge rejected and removed (kit,
+    gallery, Oggi). A meal now carries its limits (free sugars, saturated fat, salt) against the
+    day's targets, without a fascia of its own (FD-35: a meal is judged only on protein).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

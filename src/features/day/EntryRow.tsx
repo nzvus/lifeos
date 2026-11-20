@@ -7,7 +7,6 @@
  * What happens next (the server, the toast's Undo) is the day's: this
  * component only says which.
  */
-import { useInDay } from "./day-frame";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import {
   Box,
@@ -58,7 +57,6 @@ export function EntryRow({
   /** −/+ on the servings: the new value, saved by the day. */
   onServings?: (servings: string) => void;
 }) {
-  const inDay = useInDay(entry.l0);
   const [open, setOpen] = useState(false);
   // Shown at once, the server's value when it comes back (optimistic, UI-59).
   const [served, setServed] = useState(entry.servings ?? null);
@@ -215,7 +213,6 @@ export function EntryRow({
             {...(onRail ? { onRail } : {})}
             acts={acts}
             top={serveRow}
-            inDay={inDay}
           />
         ) : (
           <Box

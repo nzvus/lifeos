@@ -528,4 +528,7 @@ the day's ridge with this meal's share first in its colour and the rest of the d
 (the context rule, §16.4); the meal's own four bars stay behind its «Nutrienti» door. Kit
 `ridgeOf(day, meal?)`; the day reaches the boxes through `DayFrame` (features/day). Decided by
 Claude: a share a meal does not carry (its limits) is drawn all grey, never as the meal's.
+Rejected 20 Nov («comunque non mi piace», proposal §90): the ridge removed from Oggi, the gallery
+and the kit. Kept from it: a meal carries its limits (free sugars, saturated fat, salt) against
+the day's targets (`mealL0`), shown in its «Nutrienti» door.
 

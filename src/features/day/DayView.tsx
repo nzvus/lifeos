@@ -10,7 +10,6 @@
  * «Annulla» (content.md §4). A removed row leaves at once and comes back if
  * the server says no.
  */
-import { DayFrame, useInDay } from "./day-frame";
 import { useEffect, useRef, useState } from "react";
 import {
   Box,
@@ -20,7 +19,6 @@ import {
   ICONS,
   Nutrients,
   NutrientsL0,
-  Ridge,
   type BoxEntry,
   type GlyphOf,
   type NutrientsData,
@@ -96,7 +94,6 @@ export function DayView({
   fromPlan = [],
   arrived = null,
   clock,
-  day = null,
 }: {
   rows: (Row & { minute: number })[];
   untimed: Row[];
@@ -108,8 +105,6 @@ export function DayView({
   fromPlan?: PlanRow[];
   /** An entry ticked done from ⊕ (capture.md §6): its toast, with «Annulla», on arrival. */
   arrived?: { id?: string; text: string } | null;
-  /** The day's nutrients: a meal open shows its slice of them (bars study §16.4). */
-  day?: NutrientsData | null;
   /** The parts of the day (UI-77): the day, whether it is over, its boundary, the
    *  person's meal-role bounds and the roles already eaten (what a gap offers). */
   clock?: {
@@ -351,129 +346,127 @@ export function DayView({
   ) : null;
 
   return (
-    <DayFrame.Provider value={day}>
-      <>
-        {shown.length === 0 && shownUntimed.length === 0 && !ahead ? (
-          <>
-            {filters}
-            <p className="k-empty k-meta">Nessuna voce con questi filtri.</p>
-          </>
-        ) : (
-          <>
-            {/* no timeline (only untimed things): the filters stand alone */}
-            {!(shown.length > 0 || ahead) && filters}
-            {(shown.length > 0 || ahead) && (
-              <Timeline
-                rows={shown}
-                now={now}
-                lead={filters}
-                {...(parts && gap && clock
-                  ? {
-                      parts,
-                      gap,
-                      gone: clock.gone,
-                      end: 1440 + clock.boundaryMin,
-                      sum: partSum,
-                    }
-                  : {})}
-                row={(r, mode, onRail) =>
-                  r === waterRow && water ? (
-                    <div id="acqua" className="k-anchor">
-                      <WaterRow water={water} mode={mode} onRail={onRail} />
-                    </div>
-                  ) : r.group ? (
-                    <GroupRow
-                      row={r}
-                      kids={r.group.filter((k) => !gone.has(k.id))}
-                      mode={mode}
-                      onRail={onRail}
-                      onIntent={(k, i) => act(k, i)}
-                      onServings={(k, v) => serve(k, v)}
-                    />
-                  ) : ghostIds.has(r.id) ? (
-                    <Box entry={r} mode={mode} onRail={onRail} />
-                  ) : (
-                    <EntryRow
-                      entry={r}
-                      status={r.status}
-                      mode={mode}
-                      onRail={onRail}
-                      onIntent={(i) => act(r, i)}
-                      onServings={(v) => serve(r, v)}
-                    />
-                  )
-                }
-              />
-            )}
-            {shownUntimed.length > 0 && (
-              // Below the day's end, aligned with the bands, with no rail (UI-77); the same
-              // card as a timed entry, its icon bare (UI-81: a tile only on button rows).
-              <section className="k-stack g3 k-untimed" aria-label="Senza orario">
-                <span className="k-meta">Senza orario</span>
-                {shownUntimed.map((e) => (
-                  <EntryRow
-                    key={e.id}
-                    entry={e}
-                    status={e.status}
-                    rail={false}
-                    onIntent={(i) => act(e, i)}
-                    onServings={(v) => serve(e, v)}
+    <>
+      {shown.length === 0 && shownUntimed.length === 0 && !ahead ? (
+        <>
+          {filters}
+          <p className="k-empty k-meta">Nessuna voce con questi filtri.</p>
+        </>
+      ) : (
+        <>
+          {/* no timeline (only untimed things): the filters stand alone */}
+          {!(shown.length > 0 || ahead) && filters}
+          {(shown.length > 0 || ahead) && (
+            <Timeline
+              rows={shown}
+              now={now}
+              lead={filters}
+              {...(parts && gap && clock
+                ? {
+                    parts,
+                    gap,
+                    gone: clock.gone,
+                    end: 1440 + clock.boundaryMin,
+                    sum: partSum,
+                  }
+                : {})}
+              row={(r, mode, onRail) =>
+                r === waterRow && water ? (
+                  <div id="acqua" className="k-anchor">
+                    <WaterRow water={water} mode={mode} onRail={onRail} />
+                  </div>
+                ) : r.group ? (
+                  <GroupRow
+                    row={r}
+                    kids={r.group.filter((k) => !gone.has(k.id))}
+                    mode={mode}
+                    onRail={onRail}
+                    onIntent={(k, i) => act(k, i)}
+                    onServings={(k, v) => serve(k, v)}
                   />
-                ))}
-              </section>
+                ) : ghostIds.has(r.id) ? (
+                  <Box entry={r} mode={mode} onRail={onRail} />
+                ) : (
+                  <EntryRow
+                    entry={r}
+                    status={r.status}
+                    mode={mode}
+                    onRail={onRail}
+                    onIntent={(i) => act(r, i)}
+                    onServings={(v) => serve(r, v)}
+                  />
+                )
+              }
+            />
+          )}
+          {shownUntimed.length > 0 && (
+            // Below the day's end, aligned with the bands, with no rail (UI-77); the same
+            // card as a timed entry, its icon bare (UI-81: a tile only on button rows).
+            <section className="k-stack g3 k-untimed" aria-label="Senza orario">
+              <span className="k-meta">Senza orario</span>
+              {shownUntimed.map((e) => (
+                <EntryRow
+                  key={e.id}
+                  entry={e}
+                  status={e.status}
+                  rail={false}
+                  onIntent={(i) => act(e, i)}
+                  onServings={(v) => serve(e, v)}
+                />
+              ))}
+            </section>
+          )}
+        </>
+      )}
+      {plannedIds.length > 0 && (
+        <div className="k-line wrap k-railed" aria-label="Azioni sulla giornata">
+          <button type="button" className="k-btn secondary" onClick={clearPlanned}>
+            Togli i previsti ({plannedIds.length})
+          </button>
+        </div>
+      )}
+      {toast && (
+        <div className="k-toastbar">
+          <div className="k-toast" role="status">
+            <span>{toast.text}</span>
+            {toast.alt && (
+              <button
+                type="button"
+                className="k-btn link"
+                onClick={async () => {
+                  const alt = toast.alt!;
+                  setToast(null);
+                  try {
+                    await alt.run();
+                  } catch {
+                    failed();
+                  }
+                }}
+              >
+                {toast.alt.label}
+              </button>
             )}
-          </>
-        )}
-        {plannedIds.length > 0 && (
-          <div className="k-line wrap k-railed" aria-label="Azioni sulla giornata">
-            <button type="button" className="k-btn secondary" onClick={clearPlanned}>
-              Togli i previsti ({plannedIds.length})
-            </button>
+            {toast.undo && (
+              <button
+                type="button"
+                className="k-btn link"
+                onClick={async () => {
+                  const undo = toast.undo!;
+                  setToast(null);
+                  try {
+                    await undo();
+                  } catch {
+                    failed();
+                  }
+                }}
+              >
+                Annulla
+              </button>
+            )}
           </div>
-        )}
-        {toast && (
-          <div className="k-toastbar">
-            <div className="k-toast" role="status">
-              <span>{toast.text}</span>
-              {toast.alt && (
-                <button
-                  type="button"
-                  className="k-btn link"
-                  onClick={async () => {
-                    const alt = toast.alt!;
-                    setToast(null);
-                    try {
-                      await alt.run();
-                    } catch {
-                      failed();
-                    }
-                  }}
-                >
-                  {toast.alt.label}
-                </button>
-              )}
-              {toast.undo && (
-                <button
-                  type="button"
-                  className="k-btn link"
-                  onClick={async () => {
-                    const undo = toast.undo!;
-                    setToast(null);
-                    try {
-                      await undo();
-                    } catch {
-                      failed();
-                    }
-                  }}
-                >
-                  Annulla
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </>
-    </DayFrame.Provider>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -517,7 +510,6 @@ function GroupRow({
 }) {
   const [open, setOpen] = useState(false);
   const [door, setDoor] = useState<string | null>(null);
-  const inDay = useInDay(row.l0);
   return (
     <div className="k-mgroup">
       <Box
@@ -547,11 +539,7 @@ function GroupRow({
       >
         {open && row.l0 && (
           <div className="k-slot-l0">
-            {inDay?.measures.length ? (
-              <Ridge measures={inDay.measures} unit="g" label={inDay.label} />
-            ) : (
-              <NutrientsL0 data={row.l0} />
-            )}
+            <NutrientsL0 data={row.l0} />
           </div>
         )}
         {open && (

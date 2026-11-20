@@ -26,12 +26,10 @@ export { Nutrients, NutrientsL0 } from "./Nutrients";
 export { Criteria, type CriteriaData } from "./Criteria";
 export { Forms, type FormItem, type FormLook } from "./Forms";
 export { MeasureTree, MeasureDays, type MNode } from "./MeasureTree";
-export { Ridge, type RidgeMeasure } from "./Ridge";
 export {
   nutrientsL0,
   energyStrip,
   nutrientsL1,
-  ridgeOf,
   heatLevel,
   HEAT_WORDS,
   type HeatLevel,
