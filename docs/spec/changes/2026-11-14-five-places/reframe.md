@@ -118,8 +118,13 @@ eseguita… cosa debba poter rimanere fuori orario come eccezioni?»
 - **No time**: **previsto until done** — doing it gives it the time it was done.
 - **Exceptions that stay without a time**: the «amount to reach» shape (target.md §6, settled 17
   Nov): passi, acqua, an assunzione «al giorno» — a day's sum, not an instant.
-- Open (his): the slack (one minute today, his «tot minuti»); a past previsto never done — saltato
-  at «Chiudi la giornata», or left «da confermare»; whether passi stay an exception once §12 exists.
+- **Settled, his 20 Nov (proposal §109):** the **slack** is a setting, **20 minutes** by default; a
+  **past previsto never done** follows a setting — **saltato** (default) · **da confermare** ·
+  **confermato** (counted as fatto at its planned time); **no exceptions** for now: everything
+  without a time is previsto until done (the «amount to reach» is the target, its voci have times).
+- **Previsti in a folded part of the day**: a folded sky band shows its voci's icons (today only the
+  fatti); a previsto's icon is the same **drawn dashed** (VIS-22's outline for previsto), so a
+  folded part says what is still to come.
 
 ## 12. Activities and movement, refactored (his 20 Nov; found in his earlier words)
 His words today: a refactoring «delle attività in generale, esercizi, percorsi, monitoraggio del
@@ -144,13 +149,19 @@ feet» from the day's blocks.
   seated by shade; the activity's own colour where one details it); **reach** for steps and time
   on one's feet; **trend** and **spread** of sedentary time over the period.
 - **Places**: none of its own — Il tempo at any window.
-Conflict to settle: product.md §4 says «not now: step windows and a vertical movement layer»
-(x05, his 6 Nov). His words today reopen it; the amendment removes those two from §4. The data
-it needs (windows from a watch) is the first question: a web app cannot read steps in the
-background (BODY-32).
+Product.md §4's «not now: step windows and a vertical movement layer» (x05, 6 Nov) is dropped by
+his «yc» of 20 Nov (§109). **Order**: after the instruments, «sempre in mente e pensando a come le
+due cose si influenzano» — the rail's design leaves room for the movement band.
+**Typed by hand, until lifeos is a real app (his draft, «magari fallimentare, ci ripensiamo dopo
+con calma»):** a **lane parallel to the time rail**; a tap on it at an hour adds a **quantum** of
+measured movement (a number of steps, or minutes of walking) at that time — no page, no sheet, no
+room taken; the quanta enter the timeline as movement windows, aggregated where they are near;
+the lane grows **denser** where more quanta sit. A web app cannot read the phone's steps in the
+background (BODY-32), so this is the source until then.
 
-## 13. His to settle (new)
-1. §11: the slack in minutes; a past previsto never done; the exceptions' list.
-2. §12: the movement model; the order (after the instruments of §8.4, or before); the source of
-   windows today (typed spans, a trip, a session) until a watch export exists.
-3. Product.md §4: remove «step windows and a vertical movement layer» from «not now».
+## 13. Settled (his 20 Nov, proposal §109)
+1. §11: slack 20 min, a setting; a past previsto: saltato · da confermare · confermato, a setting,
+   saltato by default; no exceptions for now; dashed icons for previsti in a folded part.
+2. §12: the movement model after the instruments, designed with them in mind; the lane of quanta
+   as a draft to rethink.
+3. Product.md §4: «step windows and a vertical movement layer» leave «not now».

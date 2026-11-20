@@ -1112,6 +1112,21 @@
     reframe §9 settled with undo; §10 the card (checked against VIS-40…43, PAT-30…33, target.md;
     the reframe had read only target.md); §11 time decides the state (MOD-15 extended); §12 the
     movement model from his 29 Oct, 3 Nov (BODY-31) and BODY-27 words; §13 his to settle.
+109. **20 Nov, his answers on reframe §13:** «1 possono essere settate dalle impostazioni, ma per ora
+    mettiamo 20 minuti? 2 anche questo da impostazioni, di default saltato (aggiungi una terza
+    opzione di confermato) ah, e dovrebbero essere mostrate delle icone anche per le cose
+    pianificate quando in oggi si minimizzano le fasce temporali. magari icone uguali ma
+    tratteggiate? non so. 3 non lo so, per ora nulla? yc 4 dopo ma sempre in mente e pensando a come
+    le due cose si influenzano. 5 un modo diverso di aggiungere il monitoraggio a mano, (per ora
+    finché non la rendiamo una app vera) magari puoi manualmente aggiungere tot quanti di attività
+    misurata in passi o minuti di camminata nelle varie fasce orarie in modo comodo e senza aprire
+    altre pagine e o pop up e o occupare troppo spazio. stavo pensando a una riga parallela a quella
+    temporale in cui inserire tramite tocco questi quanti che vengono quindi inseriti nella timeline
+    e in un design intelligente aggregati o meno. rendendo quella linea più densa a seconda di
+    quanti quanti ci sono in quegli intorni. vabbe magari ci ripensiamo dopo con calma, è una bozza
+    magari fallimentare. dipende da cosa riuscirai a fare». Written in reframe §11–§13 and delta
+    (MOD-15, product.md §4). Read by Claude: «yc» after 3 = item 6 (drop «step windows» from «not
+    now»); «confermato» = counted as fatto at its planned time (undo: reframe §11).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

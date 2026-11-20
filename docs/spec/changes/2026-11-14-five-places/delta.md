@@ -14,8 +14,11 @@
 - **MOD-15** (model.md §2) The time decides the state: after now (beyond the slack) a voce is
   previsto, at now or before it is fatto, whatever was tapped; no control asks it (PAT-60's
   «Adesso · Previsto · Prima» and the composer's «Mangiato · Previsto» go); a voce with no time is
-  previsto until done, except the «amount to reach» shape (target.md §6). Open: the slack, a past
-  previsto never done | his 15 and 20 Nov, reframe §11 (pending his §13)
+  previsto until done (no exceptions for now). The slack is a setting, 20 minutes by default; a
+  past previsto never done follows a setting: saltato (default) · da confermare · confermato. In a
+  folded part of the day a previsto's icon is drawn dashed | his 15 and 20 Nov, reframe §11
+- **product.md §4** «Not now» loses «step windows and a vertical movement layer» (movement
+  refactored, reframe §12) | his «yc», 20 Nov
 - **PAT-01** (patterns.md §1) One `(app)/layout.tsx` holds NavBar (Elenco · Piano · Oggi ·
   Andamento · Obiettivi, Oggi the middle item and the start page) on every page; pages never mount
   it. ⊕ floats above the bar's corner on every page and opens the one Capture (PAT-10, PAT-60;
