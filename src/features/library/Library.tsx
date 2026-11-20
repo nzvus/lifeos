@@ -11,10 +11,10 @@
  */
 import { useState } from "react";
 import { Box, F, Field, List as KitList, MealBox } from "@lifeos/kit";
-import { common } from "@/i18n/common";
 import { food } from "@/i18n/food";
 import { ExercisePlanBox, FoodPlanBox } from "./boxes";
-import { MealFoods } from "./MealFoods";
+import { mealSlots } from "@/features/box/meal";
+import { partRows } from "./meal-rows";
 import { listRows, sortValue, SORTS, type LibraryRow, type SortKey } from "./library";
 
 const w = food.meal;
@@ -374,9 +374,11 @@ function List({
                 density="row"
                 entry={row(tab, r, value(r))}
                 data={r.meal.data}
-                labels={common.doors}
-                details={r.meal.details}
-                foods={<MealFoods parts={r.meal.parts} />}
+                slots={mealSlots({
+                  data: r.meal.data,
+                  rows: partRows(r.meal.parts),
+                  details: r.meal.details,
+                })}
                 verbs={
                   <>
                     <a className="k-btn act" href={"/aggiungi/pasto?pasto=" + r.meal.id}>

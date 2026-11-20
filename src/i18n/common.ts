@@ -40,6 +40,10 @@ export const common = {
     e1rm: "e1RM",
     facts: "Fatti",
     exercises: "Esercizi",
+    lines: "Cibi",
+    limits: "Nutrienti",
+    context: "Contesto",
+    servings: "Porzioni",
   } as Record<string, string>,
   states: {
     saved: "Salvato",

@@ -4,7 +4,7 @@
  * type's plan (`boxPlan`, level 1), labels them from i18n by key, leaves out what has no data
  * (PRD-22) and refuses a shape that is not the instrument's — a type never draws its own box.
  */
-import type { ChartData, NutrientsData, PlanSlot } from "@lifeos/kit";
+import type { BoxEntry, ChartData, NutrientsData, PlanSlot } from "@lifeos/kit";
 import { boxPlan, instrumentOf, type Instrument } from "@/core/engines/view";
 import { common } from "@/i18n/common";
 
@@ -12,7 +12,8 @@ export type SlotData =
   | { word: string }
   | { words: string[] }
   | { trend: ChartData; value: string; caption?: string }
-  | { nutrients: NutrientsData; value?: string };
+  | { nutrients: NutrientsData; value?: string }
+  | { rows: BoxEntry[]; value?: string };
 export type Supplied = Partial<Record<string, SlotData>>;
 
 /** The instruments each shape may draw (VIS-102): names may also list a composition's members. */
@@ -20,7 +21,9 @@ const SHAPE_OF: Record<string, Instrument[]> = {
   word: ["word"],
   words: ["word", "parts"],
   trend: ["line"],
-  nutrients: ["parts"],
+  // Every nutrient, the limits among them (a meal's ATT-07 is drawn as its «Nutrienti»).
+  nutrients: ["parts", "bar"],
+  rows: ["parts"],
 };
 const shape = (d: SlotData) => Object.keys(d).find((k) => k in SHAPE_OF) ?? "?";
 

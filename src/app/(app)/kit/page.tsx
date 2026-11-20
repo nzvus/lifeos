@@ -38,6 +38,7 @@ import {
   type BoxEntry,
 } from "@lifeos/kit";
 import { common } from "@/i18n/common";
+import { mealSlots } from "@/features/box/meal";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { ownerClock } from "@/app/_server/clock";
@@ -644,15 +645,24 @@ export default async function KitPage({
                   { key: "fiber", v: 11 },
                 ],
               }}
-              labels={common.doors}
-              details={{
-                stats: [{ label: common.doors.cost, value: "≈ 1,40 €" }],
-                lines: [
-                  { label: "Fiocchi d’avena", value: F.num(60, "g") },
-                  { label: "Latte scremato proteico", value: F.num(250, "ml") },
-                ],
-                foot: "",
-              }}
+              slots={mealSlots({
+                data: {
+                  macros: [
+                    { key: "protein", v: 31 },
+                    { key: "carbs", v: 58 },
+                    { key: "fat", v: 17 },
+                    { key: "fiber", v: 11 },
+                  ],
+                },
+                details: {
+                  stats: [{ label: common.doors.cost, value: "≈ 1,40 €" }],
+                  lines: [
+                    { label: "Fiocchi d’avena", value: F.num(60, "g") },
+                    { label: "Latte scremato proteico", value: F.num(250, "ml") },
+                  ],
+                  foot: "aggiunto al volo",
+                },
+              })}
               verbs={
                 <>
                   <a className="k-btn act" href="#pasto-box">
@@ -674,6 +684,7 @@ export default async function KitPage({
           <div key={label} role="group" aria-label={label} className="k-stack g1">
             <span className="k-label">{label}</span>
             <PlanBox
+              density="row"
               startOpen={open}
               entry={{
                 fam: "food",
@@ -713,6 +724,7 @@ export default async function KitPage({
               }))}
             />
             <PlanBox
+              density="row"
               startOpen={open}
               entry={{
                 fam: "train",

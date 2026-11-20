@@ -47,6 +47,7 @@ export function FoodPlanBox({
   const picked = pickProduct(ps)?.key;
   return (
     <PlanBox
+      density="row"
       entry={{ ...entry, value: value(r.values) }}
       slots={foodSlots(r.food)}
       {...(ps.length > 0
@@ -73,6 +74,7 @@ export function ExercisePlanBox({
   const last = ys.at(-1);
   return (
     <PlanBox
+      density="row"
       entry={entry}
       slots={planSlots("exercise", {
         ...(last !== undefined

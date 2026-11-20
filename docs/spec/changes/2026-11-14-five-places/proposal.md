@@ -1327,6 +1327,18 @@
     cost moves to its page) — a change on Oggi, shown as photos first; (b) the box: the table
     changes to match today's doors. The obiettivo's plan (pace → bar, reachedOn → fan) needs two
     more shapes; Obiettivi is history (§105), so it waits for (c)'s answer.
+134. **20 Nov, his «yc» on §133 = (a), the plan wins.** Built on the branch, shown as photos, **waits
+    for his word** (design rule 3; `LIFEOS/review/2026-11-20/planbox/meal-*.png`). The meal's box
+    is `MealBox` on `PlanBox`, its slots from `features/box/meal.ts`. Decided by Claude, each with
+    its undo: (1) open doors in the plan's order: Voto · Cibi (ATT-06) · Nutrienti — the limits
+    slot (ATT-07) keeps today's panel and his word «Nutrienti» (undo: label «Limiti e micro»);
+    (2) the cost leaves the box (ATT-11, level 2): a line «Costo ≈ …» on a pasto's page; **on Oggi
+    a voce's cost is only in the day's «Costo ≈» for now** (undo: `mealDoors` in git); (3) the
+    other details (provenance, his note) are the context slot (ATT-10), a row of words above the
+    doors (undo: a «Dettagli» door); (4) porzioni is its own word (ATT-08), never shown where the
+    place has the − × + stepper (the day); (5) the day's cibi are drawn as a pasto's are, one Box
+    row each: the amount the value, «kcal · ≈ €» its second line (undo: text lines). Open: the
+    day's lines carry no food group, so each has the plain ingredient icon (VIS-31 wants its group).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

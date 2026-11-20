@@ -202,6 +202,7 @@ function Routines({ routines }: { routines: Awaited<ReturnType<typeof readRoutin
               // A scheda opens in place to its esercizi (PAT-30 level 1, ATT-45; Deliver ③).
               <PlanBox
                 key={r.id}
+                density="row"
                 slots={planSlots("routine", {
                   exercises: { words: r.exercises.map((x) => x.name) },
                 })}

@@ -17,7 +17,7 @@ import {
   type BoxEntry,
   type NutrientsData,
 } from "@lifeos/kit";
-import { common } from "@/i18n/common";
+import { mealSlots } from "@/features/box/meal";
 import type { Details } from "./details";
 import type { Status } from "./filter";
 import { stepServings } from "./servings";
@@ -205,8 +205,11 @@ export function EntryRow({
           <MealBox
             entry={entry}
             data={entry.l0}
-            labels={common.doors}
-            details={entry.details ?? null}
+            slots={mealSlots({
+              data: entry.l0,
+              details: entry.details ?? null,
+              stepper: true,
+            })}
             density={density}
             rail={rail}
             mode={mode}

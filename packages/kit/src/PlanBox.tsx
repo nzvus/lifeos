@@ -6,7 +6,8 @@
  * - `word: string` → a door that only says its value (a name, NOVA 1);
  * - `words: string[]` → a sideways `ChipRow` of names, open, before the doors (facts, members);
  * - `trend` → a door with the last value, its `Chart` behind it when there are two points or more;
- * - `nutrients` → a door with its `Nutrients` behind it.
+ * - `nutrients` → a door with its `Nutrients` behind it;
+ * - `rows` → a door with the count, the members as their own Box rows behind it (a meal's cibi).
  * `variants` are a thing's children he picks (a cibo's marche, §132 (b)): each has its own head
  * and slots; one is on at first (the caller's rule), a tap on another redraws the Box with it.
  */
@@ -16,14 +17,17 @@ import { ChipRow } from "./ChipRow";
 import { Nutrients } from "./Nutrients";
 import type { NutrientsData } from "./nutrient-rows";
 import { ThingBox, type ThingBoxPlace } from "./ThingBox";
-import type { BoxDoor, BoxEntry } from "./Box";
+import { Box, type BoxDoor, type BoxEntry } from "./Box";
+import { List } from "./List";
+import type { ReactNode } from "react";
 
 type Base = { key: string; label: string };
 export type PlanSlot =
   | (Base & { word: string })
   | (Base & { words: string[] })
   | (Base & { trend: ChartData; value: string; caption?: string })
-  | (Base & { nutrients: NutrientsData; value?: string });
+  | (Base & { nutrients: NutrientsData; value?: string })
+  | (Base & { rows: BoxEntry[]; value?: string });
 
 export type PlanVariant = {
   key: string;
@@ -56,6 +60,19 @@ export function slotDoor(s: PlanSlot): BoxDoor | null {
           }
         : {}),
     };
+  if ("rows" in s)
+    return {
+      key: s.key,
+      label: s.label,
+      value: s.value ?? String(s.rows.length),
+      panel: (
+        <List label={s.label}>
+          {s.rows.map((e, i) => (
+            <Box key={i} density="row" rail={false} entry={e} />
+          ))}
+        </List>
+      ),
+    };
   return {
     key: s.key,
     label: s.label,
@@ -70,6 +87,7 @@ export function PlanBox({
   variants,
   picked,
   variantsLabel = "",
+  children,
   ...place
 }: ThingBoxPlace & {
   entry: BoxEntry;
@@ -80,6 +98,8 @@ export function PlanBox({
   picked?: string;
   /** The variants' row's name, for a screen reader only (ChipRow). */
   variantsLabel?: string;
+  /** Open, before the variants and the names (a meal's four thin bars, a place's own line). */
+  children?: ReactNode;
 }) {
   const vs = variants ?? [];
   const [key, setKey] = useState(() => picked ?? vs[0]?.key);
@@ -91,12 +111,8 @@ export function PlanBox({
   });
   const rows = shown.flatMap((s) => ("words" in s && s.words.length > 0 ? [s] : []));
   return (
-    <ThingBox
-      density="row"
-      {...place}
-      entry={{ ...entry, ...(v?.head ?? {}) }}
-      doors={doors}
-    >
+    <ThingBox {...place} entry={{ ...entry, ...(v?.head ?? {}) }} doors={doors}>
+      {children}
       {vs.length > 0 && (
         <ChipRow
           label={variantsLabel}

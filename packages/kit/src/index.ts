@@ -13,7 +13,7 @@ export { MealBox } from "./MealBox";
 export { ThingBox, type ThingBoxPlace } from "./ThingBox";
 export { PlanBox, slotDoor, type PlanSlot, type PlanVariant } from "./PlanBox";
 export { ChipRow, type ChipItem } from "./ChipRow";
-export { EntryDetails, mealDoors, type BoxDetails, type DoorWords } from "./meal-doors";
+export { EntryDetails, type BoxDetails } from "./meal-doors";
 export { PageHeader } from "./PageHeader";
 export { NavBar, AreaFilter, AREAS, PLACES, type Area, type Place } from "./NavBar";
 export { DateNav, type DayBars, type Rhythm } from "./DateNav";
