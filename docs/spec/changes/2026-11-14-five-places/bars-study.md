@@ -716,3 +716,134 @@ or drop (his question, 19.5).
 1. The dots: gone from bars and columns only, or also from the chip (VIS-21 changes)?
 2. 19.1: a fixed-dose intake reads as yes/no, a goal can be yes/no — right?
 3. 19.2: which forms to build next in the gallery on the engine (one family at a time).
+
+## 20. One synthesis: everything he asked of the visual system (20 Nov, proposal §98)
+
+His words: «devi pensare e pensare e pensare meglio a come poter combinare tutte le informazioni e
+le richieste che ti ho fatto». No code until he corrects this section. Read for it: this file
+§1–§19, proposal §64–§97, the design memories (bars-content-before-style, abstract-not-specific,
+rich-not-minimal, heat-strip-design), `.claude/rules/design.md`.
+
+### 20.1 Why twelve rounds failed (Claude's diagnosis)
+1. **Each round answered his latest message and dropped the earlier ones.** Slice 2 brought the
+   dots back against §16.3; the ridge broke «a bar stays a bar»; the drill cards wrote range words
+   against «never write what a channel shows».
+2. **Each drawing decided content, form and style at once**; he rejects the whole when one is wrong.
+3. **The content per level (§8) never got his OK**, yet forms were drawn on it.
+4. **Specific answers to a general question** (a meal, water) when he asked for the engine.
+So the order from here: one list of requirements (20.2) → his word on the conflicts (20.3) → the
+system (20.4) → the content table → the foundations measured → one family on his data.
+
+### 20.2 His requirements, merged (one line each; the later word wins, the older is marked)
+**Purpose**
+- R1 One engine for every class of thing, his future trackers too; nothing added bypasses it (§18).
+- R2 Abstract, not specific: the model first, checked on three classes or more.
+- R3 Rich, not minimal: density by levels, never by cutting (13 Nov).
+- R4 Aggregates feed summaries and both are shown (the macros → the day; criteria → the voto) (§7).
+- R5 The plan and the aggregates show; a range implies a judgement (§7).
+- R6 Andamento reuses the same construct for denser aggregates (§7).
+
+**Reading**
+- R7 Comprehensibility first: forms everyone already reads; the scale and the range edges readable
+  on the drawing (20 Nov, round 2).
+- R8 A channel before text, never losing information (§9 rule 4).
+- R9 One number per measure; its scale from a channel; the unit once (§9 rule 7).
+- R10 Never write what a channel shows (range words beside range colours) (20 Nov). *Supersedes §12
+  rule 2 («the ranges named»).*
+- R11 Never text · bar · text on one line (§67).
+- R12 No dots (20 Nov, §96). *Supersedes the ● ◐ ○ end mark of §7; VIS-21's chip mark kept (§97).*
+- R13 Many words could sit in the bars themselves (20 Nov, §96). *Conflicts with §6, 19 Nov: «no
+  words on the bar, la rende troppo grossa».* → C1.
+- R14 The base he likes: the original macro bars, one nutrient bar everywhere, kinds in fixed
+  shades, the zones ruler under it, the tip in its zone (VIS-50, VIS-52; 25 Oct, 20 Nov).
+- R15 Split segments only with their names; at a glance a bar is one colour (§17.3, his «perché
+  sono frazionate?»).
+
+**Structure**
+- R16 Levels of expansion for every type of information, remembered per piece (§8, VIS-70).
+- R17 OLAP, «migliorate e adattate al nostro contesto»: drill, roll up, slice, pivot (§11).
+- R18 The place picks the frame: dynamic first, constant one tap away (§16.4).
+- R19 Yes / no for anything: a fixed dose, a habit, a goal «completato» (§96, built §97).
+
+**Form**
+- R20 More interesting than plain bars (20 Nov) — yet rejected: the polygon («orribile»), 3D («per
+  ora no»), the ridge (too tall, not a bar), the drill cards, three style rounds. → C5.
+- R21 Compact: a bar stays a bar, straight, not tall (the ridge, 20 Nov).
+- R22 Not rejected, kept for later: colours blending along the ranges; a meal drawn as its share
+  of the day with the rest grey (reverted only because it answered the wrong question, §92).
+
+**Foundations**
+- R23 Dimensions are handled badly: cards, padding, colour lightness and saturation; measured, one
+  scale each, never by eye (§92).
+- R24 Controls small, labels fully readable (20 Nov).
+- R25 At ≤ 360 px (his phone) shrink, never hide (VIS-43, 15 Nov).
+
+**Process**
+- R26 Building shows what to rethink: small visible slices (§94).
+- R27 Spec before code; no wasted rounds (§98).
+
+### 20.3 The conflicts, each with the reading Claude proposes (his to settle)
+- **C1 Words in the bar (R13 vs §6).** The two meet if the bar *with* its words is shorter than
+  today's row. Measured in `kit.css`, above the ruler (the ruler stays in both): the macro row
+  (`.k-mrow`) is a text line of 14 px or more + an 8 px gap + a 6 px bar (`--track`) = 28 px or
+  more; MeasureTree is 14 + 3 + 10 = 27 px; a 16 px bar holding the name at its start and the number
+  at its end = 16 px. Fatter bar, row ≥ 11 px thinner. Where the fill is too short for the name, the name sits in the empty track (still
+  inside the bar's outline). Proposed: words in the bar for every measure row; a hair bar (no words)
+  only inside a closed Box's head.
+- **C2 How many levels (§9 rule 1 «two» vs §11 «as many as the hierarchy» vs VIS-70 «three»).**
+  Proposed: as many as the hierarchy has (drill), but **a view never shows more than two at once**:
+  the node and its parts' tier; a tap on a part makes it the node, a path rolls back up.
+- **C3 Range names (§12 rule 2 vs R10).** Proposed: the edges' **amounts** are the scale and are
+  written (at level 1, under the bar); the range **names** are never written (lightness steps and
+  where the bar ends say them); the name lives in «Perché?».
+- **C4 Judgement without dots, still never colour alone (VIS-20).** Proposed: the zones are steps
+  of lightness behind the bar, so where it ends is read without hue; the tip's colour only doubles
+  it. VIS-20 holds; VIS-52's ruler stays.
+- **C5 «More interesting» vs comprehensible and compact.** Proposed: the interest comes from what
+  the forms *do together*, not from new shapes — drill and pivot in place (R17), the dynamic frame
+  over the constant one (a meal lit inside its day, R18, R22), the plan growing into the day, the
+  ghost of last time, motion between levels (VIS-90). The shapes stay ones everyone reads (§19.2).
+
+### 20.4 The system (all of it, in one place)
+1. **What is drawn** = a measure × a frame × a level (§17); the measure's class and reading come
+   from the registry (§18, MOD-56/57), and any measure may read as yes / no (§19.1).
+2. **One family per reading**, a form everyone reads (R7), compact (R21):
+   | Reading | Level 0 (a line) | Level 1 (open) | Over a period |
+   |---|---|---|---|
+   | amount | the bar with its words (C1), one colour (R15) | + its parts' tier, named; the edges' amounts (C3) | columns on the zone bands ≤ 14 days; a month as a calendar tinted by zone; longer, a line on the band |
+   | parts of a whole | the total's bar | the tier on the total's scale, each named | the same, per day |
+   | members (micros) | «n su m», the group's bar | a strip of cells, one per member, condensed (PAT-40) | a grid member × day |
+   | time, a span | its stretch on the rail (VIS-60) | bed → wake against need | one row per night on a 24 h axis |
+   | rating 1–5 | a 5-step bar | + the note | a strip by day; the distribution |
+   | yes / no | the voce's shape (VIS-22) | — | 7 cells · calendar · a goal's n cells (built) |
+   | category | a 100 % bar | its shares named | a strip coloured by category |
+   | score | the chip (VIS-43, VIS-21) | the criteria's tier on 0–100 | a line on the 40 · 70 band |
+   | compare | the ghost of last time on the same bar | the gap, its direction | a slope this ↔ last |
+3. **The channels are fixed** (§16.3), checked on every photo as a list: hue = what; length on a
+   shared scale = how much; where it ends among lightness steps = how good; hatch = planned; solid
+   = done; struck = skipped; transparency and «≈» = uncertain; under its whole = part of; order =
+   rank. No dots (R12); nothing written twice (R10); never text · bar · text (R11).
+4. **Text budget per view:** the name and one number (in the bar, C1), the unit once per group;
+   at level 1 the edges' amounts; everything else in «Perché?».
+5. **Levels and OLAP** (C2): tap = drill (the part becomes the node), path = roll up, the period
+   switch = roll up in time, «fatto · previsto» = slice, «per macro · per pasto · per momento» =
+   pivot on the same chart (R17).
+6. **Frames per place** (§16.4): the timeline = the day (a voce lit inside it); the gym = the
+   session (each set against its ghost); an object's page = own; Andamento = the period.
+7. **Foundations** (R23): one scale each for bar heights, gaps, padding, type and colour lightness
+   / saturation, measured on the app and written as tokens before any family is drawn.
+8. **The guard** (R1, §18.5): a page draws no number outside the engine.
+
+### 20.5 What is already built and fits
+The model and the request (slices 1–2), yes / no (§97), no dots on bars (§97). Kept as they are:
+`MeasureView` dispatching to kit pieces. Not fitting yet: MeasureTree writes the name and number
+above the bar (C1), and its period columns show no edges' amounts.
+
+### 20.6 Next, one stop each
+1. He settles C1–C5 (a word each).
+2. Claude merges §8 into 20.4's table: for every type of §8, its readings and what each level
+   holds — content only; his OK.
+3. The foundations measured (R23) and written as tokens; his OK.
+4. One family — *amount*, the base he likes — at every level and frame on his data, in the real
+   app, photographed; then the others, one at a time.
+Once 20 is agreed, §1–§19 are history: the agreed parts become VIS- and PAT- rows in the delta.

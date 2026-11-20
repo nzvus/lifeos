@@ -1021,6 +1021,10 @@
     since a calendar does not show it at a glance; nothing else is written that the cells show;
     the goal's cells have no day labels (undo: `Done.tsx`). Not yet wired: no screen reads
     `intakeReading` from his logs; words in the bar (§19.3) not built.
+98. **20 Nov, his words:** «mi sento di star sprecando token. non è quello che voglio. assolutamente
+    no. allora, dobbiamo lavorare alla specifica. devi pensare e pensare e pensare meglio a come
+    poter combinare tutte le informazioni e le richieste che ti ho fatto». Answer: building stops;
+    one synthesis of every request on the visual system (bars-study §20), for his corrections.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
