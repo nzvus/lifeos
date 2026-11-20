@@ -62,3 +62,5 @@
 | ATT-58 | OBJ-66 | tempo vuoto | — | time | rhythm | rail | 0 | — | ✓ | VIS-62 |
 | ATT-59 | OBJ-51 | serie per muscolo | — | amount | composition | parts | 1 | fascia | ✓ | TR-25 |
 | ATT-60 | OBJ-49 | meteo | — | category | name | word | 0 | — | ✓ | VIS-75 |
+| ATT-61 | OBJ-22 | kcal per 100 | — | amount | reach | bar | 0 | — | ✓ | PAT-30 «one value», target.md §2; Deliver ③ (decided by Claude) |
+| ATT-62 | OBJ-25 | kcal | — | amount | reach | bar | 0 | target | ✓ | PAT-30 «one value», target.md §2; Deliver ③ (decided by Claude) |

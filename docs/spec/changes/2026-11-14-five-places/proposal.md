@@ -1249,6 +1249,16 @@
     form in code is the existing split — `Kind`, `CatalogType`, `child`, `Signal` — not a new field
     (undo: add `form` to the schema); (c) FD-64's code (the flag → pasti salvati) moves to ④, since
     it changes what the dock and the search row offer (undo: do it here). Next: ③ the Box, stop B.
+125. **20 Nov, Deliver ③a: the Box's plan, no UI.** `core/engines/view/box.ts`: `BOX_PLAN` gives each
+    voce, object and the obiettivo its slots by level (0 the closed head after icon and name, 1 open
+    in place, 2 the page) with the instrument of each, from `orca/attributes`'s Level column;
+    `box.test.ts` keeps code = table both ways (checked by moving ATT-38 to level 0). Decided by
+    Claude, each with its undo: (a) ATT-61 cibo «kcal per 100» and ATT-62 pasto salvato «kcal» at
+    level 0, since PAT-30 and target.md §2 give the closed row «one value» and the table had none
+    (undo: drop the two rows and slots); (b) a type with no rows has the empty plan — icon and name
+    closed, its fields as rows open (PRD-02; undo: a default per family); (c) the obiettivo's plan
+    goes by the key `goal`, as it has no registry type (undo: a registry type). Next: ③b the kit Box
+    draws the plan, Elenco first (photos), then Oggi → stop B.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
