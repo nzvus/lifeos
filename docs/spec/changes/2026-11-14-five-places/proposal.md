@@ -1025,6 +1025,28 @@
     no. allora, dobbiamo lavorare alla specifica. devi pensare e pensare e pensare meglio a come
     poter combinare tutte le informazioni e le richieste che ti ho fatto». Answer: building stops;
     one synthesis of every request on the visual system (bars-study §20), for his corrections.
+99. **20 Nov, his answer on §20.3:** C1 «è che non sei in grado né di fare dentro né fuori. perciò
+    mi contraddico… parlo di compromessi». C2 «non necessariamente solo due. vedi il tuo problema è
+    che ogni volta è come se usassi solo una metrica singola per rappresentare qualcosa. quando
+    potresti usarne tante contemporaneamente per mostrare tante cose. vedi le barre attuali dei
+    macro. nella loro semplicità mostrano attraverso il colore la loro categoria, la loro
+    gradazione il sottotipo di nutriente o la loro qualità, il tratteggio la pianificazione, la
+    linea dei range sotto, con dimensione e colore e cifre. le cifre sopra per specificare meglio
+    la scala delle barre. che altro? … si possono aggiungere anche altre dimensioni allo stesso,
+    come avevi fatto con le collinette, aggiungendo così altri livelli di informazione (momenti,
+    durate degli assorbimenti probabilmente, non so) … tutto questo solo in una barra, non capisci?
+    e aveva ancora margine di aggiunta senza perdere di comprensibilità. immagina adesso con altri
+    tipi di visualizzatori diversi dalle semplici barre. o magari anche con loro aggregati, come hai
+    fatto con i voti … immagino che continui ad usare le barre perché sono gli elementi che si
+    prestano meglio alla comprensibilità e allo stacking … offre un'ottima prestazione dunque per
+    "qualcosa che vuoi raggiungere". ma non come predizione, come andamento, come sì o no, e cosa
+    altro? non so se mi hai capito. non so se hai capito dove voglio arrivare». Answer (chat):
+    every visualizer an instrument like the macro bar, many channels at once; the bar is the one
+    for «reach»; other purposes need their own (prediction, trend, yes / no, rhythm, stock,
+    comparison, composition, source, spread, verdict), each as dense; they combine.
+100. **20 Nov, his principle:** «la cosa fondamentale è condensare il più possibile informazione,
+    senza perdere in comprensibilità e bellezza». Taken as the first rule of the visual system
+    (bars-study §21.0); §21 written on it.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

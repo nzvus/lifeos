@@ -783,6 +783,9 @@ system (20.4) → the content table → the foundations measured → one family 
 - R27 Spec before code; no wasted rounds (§98).
 
 ### 20.3 The conflicts, each with the reading Claude proposes (his to settle)
+- *Settled by him, §99:* C1 is a compromise judged case by case («parlo di compromessi»), not a
+  rule — the failure was the drawing; C2 as many levels as the data has, «non necessariamente solo
+  due». See §21.
 - **C1 Words in the bar (R13 vs §6).** The two meet if the bar *with* its words is shorter than
   today's row. Measured in `kit.css`, above the ruler (the ruler stays in both): the macro row
   (`.k-mrow`) is a text line of 14 px or more + an 8 px gap + a 6 px bar (`--track`) = 28 px or
@@ -847,3 +850,86 @@ above the bar (C1), and its period columns show no edges' amounts.
 4. One family — *amount*, the base he likes — at every level and frame on his data, in the real
    app, photographed; then the others, one at a time.
 Once 20 is agreed, §1–§19 are history: the agreed parts become VIS- and PAT- rows in the delta.
+
+## 21. Instruments by purpose, each as dense as the macro bar (20 Nov, proposal §99–§100)
+
+His words: «la cosa fondamentale è condensare il più possibile informazione, senza perdere in
+comprensibilità e bellezza»; and «il tuo problema è che ogni volta è come se usassi solo una metrica
+singola… quando potresti usarne tante contemporaneamente». This replaces §20.4's table (one reading
+→ one family): a view is an **instrument chosen by the question it answers**, filled with **every
+channel the data has**. No code until he corrects it.
+
+### 21.0 The first rule and how it is checked
+**Condense as much information as possible, without losing comprehensibility or beauty.** Three
+tests, run on every photo, so the rule is measured and not argued:
+- **Density:** the facts one instrument carries, per pixel of height (the macro bar today: 9 facts
+  in one row, §21.1).
+- **Comprehensibility:** list the questions the instrument answers; each is answered by **one
+  glance at one channel**, without reading a word (the number is the one exact value). Two
+  channels on one fact only as VIS-20's redundancy (never colour alone).
+- **Beauty:** only the foundations' tokens (sizes, gaps, lightness, saturation, measured: §20.4.7);
+  one hue per identity, its shades for its kinds; edges aligned; motion only between levels.
+
+### 21.1 The reference: the macro bar, taken apart (his reading, §99)
+| Channel | Fact |
+|---|---|
+| hue | which macro |
+| shade (lightness) of the hue | its kind or quality (alta · media · bassa) |
+| length on the scale | how much |
+| hatch after the fill | the plan |
+| tick | the target |
+| the ruler under it: each stretch's length, thickness and colour | the ranges and which is best |
+| amounts at the ruler's edges | the scale of the ranges |
+| colour of the tip | the judgement |
+| the numbers above | the exact value and the scale |
+**Free channels left on the same bar**, each a fact it could still carry without losing the others:
+thickness (its weight in the day), transparency (certainty, an estimate), position of the fill's
+pieces along the bar (when: the day's moments, his «momenti»), a fading tail after the fill (how
+long an effect lasts, his «durate degli assorbimenti»), a ghost mark (last time), a notch (the
+record), a mean tick (the week's mean, already on the limits). They can be added one at a time,
+each tested by 21.0.
+
+### 21.2 Channels that stack and channels that fight
+Stack (read apart, Bertin's «selective»; Garner's separable dimensions): position or length + hue;
+length + texture (hatch); length + shade inside one hue; position + shape (VIS-22's states);
+length + a mark on the same scale (tick, ghost, notch). Fight (read as one, integral): width +
+height (read as area); two hues for two categories on one mark; size + shape; saturation +
+lightness used for two facts. Rule: a new fact takes a free **separable** channel, or a new
+instrument.
+
+### 21.3 The instruments (one per question; «e cosa altro?»)
+| Question | Instrument | Channels it carries at once | Where in lifeos |
+|---|---|---|---|
+| **Reach**: how far towards a target | the bar (21.1) | the nine of 21.1 + its free ones | macros, kcal, limits, water, sets, steps |
+| **Prediction**: where will it end | the **fan**: solid done → hatched plan → a forecast that fades and widens | done, plan, forecast, uncertainty (width), the goal as a line, the day it is reached, the ranges behind | the day still going (FD-34), weight → its goal date, a session's expected end, stores emptying |
+| **Trend**: where is it going | a **line over the range band** | slope (direction), the band (ranges), transparency (noise), the real readings as marks, the same period last time as a ghost line, the goal | weight, the voto over weeks, an exercise's e1RM (TR-24) |
+| **Yes / no**: did I do it | **cells and calendar** (built, §97) | VIS-22 shape (fatto · previsto · saltato), hue (what), the streak, a goal's n cells, shade = when in the day | creatine, habits, a goal «n volte» |
+| **Rhythm**: when, and how long | the **time rail** (VIS-60), or a 24 h circle | vertical position (time), length (duration), thickness (amount), shade (kind), a fading tail (effect over time), hue (what) | meals, caffeine fading to bedtime (FD-62), sleep, a session, absorption |
+| **Stock**: a level that fills and empties | the **tank** | level now, what came in and went out (marks on its side), when it empties (a dashed fall), its ranges | creatine stores, water balance, energy balance, pantry, money |
+| **Comparison** with himself | the **ghost**, on any instrument above | last time, the record, the gap and its direction | the gym (TR-20/23), this week ↔ last |
+| **Composition**: what it is made of | **parts on the whole's scale** | shade (kind), size (share), one part lit inside the whole | a macro's kinds, a meal inside its day (R22), the voto's criteria |
+| **Source**: where from, where to | **ordered rows**, or a **flow** | order (rank), length (amount), a link from source to whole | «da dove», the costliest part, money |
+| **Spread**: how regular | a **band** or a **strip of days** | width (how irregular), the outliers, the mean | sleep times, weight's water noise |
+| **Verdict**: one word for all of it | the **skyline chip** (VIS-43) | built from the instruments above with fewer channels: width = weight, height = score | every judged Box |
+
+### 21.4 Instruments combine
+As the voto combines its criteria, instruments aggregate into one view on a shared axis, each
+dropping channels it no longer needs: the day = «reach» bars sitting on the «rhythm» rail (each
+voce where and when it happened, its thickness its share, its tail its effect); a period = «trend»
+lines stacked on one time axis with the yes / no cells under them; a session = its sets as
+«reach» bars with the ghost of last time, on the session's rail.
+
+### 21.5 What it changes in the engine (MOD-56)
+A measure declares the **questions** it answers (reach · prediction · trend · yes / no · rhythm ·
+stock · compare · composition · source · spread · verdict), not only its reading; the page's frame
+and level pick the question; the engine picks the instrument and fills **every channel the data
+has** (21.0's tests decide when one more channel costs comprehension). Slices 1–3a stay: readings,
+frames, levels and yes / no are inputs to this.
+
+### 21.6 Next, one stop each
+1. His word on this section.
+2. Each instrument specified on his data: its questions, its channels, its free room, its levels —
+   content only (merging §8).
+3. The foundations measured (21.0, beauty).
+4. The bar rebuilt as the reference with its free channels added one at a time (moments, the
+   tail, the ghost), each shown and tested by 21.0; then the fan, the rail, the tank.
