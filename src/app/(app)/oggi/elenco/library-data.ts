@@ -16,6 +16,7 @@ import { readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { foodScore } from "@/features/day/score";
 import { mealBox } from "./meal-box";
+import { mealKinds, mealNutrients } from "@/features/food/composer";
 import { readExerciseLog, readExercises } from "@/core/training";
 import {
   exerciseRows,
@@ -60,6 +61,7 @@ export async function readLibrary(
           return { targets, micros, estimates, ...(weights ? { weights } : {}) };
         })()
       : null;
+  const by = new Map(foods.map((f) => [f.key, f]));
   const food = foodRows(foods).map((r) => {
     const id = r.href?.split("/").at(-1);
     const sc =
@@ -73,9 +75,20 @@ export async function readLibrary(
             weights,
           )
         : undefined;
-    return sc ? { ...r, score: sc } : r;
+    // A cibo opens in place (PAT-30 level 1, Deliver ③): its doors need 100 g of it, by kind.
+    const open = scoreFoods
+      ? {
+          food: {
+            data: mealNutrients(
+              r.values,
+              mealKinds([{ key: r.key, quantity: "100" }], by),
+            ),
+            ...(r.values["nova"] ? { nova: r.values["nova"] } : {}),
+          },
+        }
+      : {};
+    return { ...r, ...(sc ? { score: sc } : {}), ...open };
   });
-  const by = new Map(foods.map((f) => [f.key, f]));
   const meal = recipeRows(recipes, foods).map((r, i) => {
     if (!openMeals || !refs) return r;
     const recipe = recipes[i]!;

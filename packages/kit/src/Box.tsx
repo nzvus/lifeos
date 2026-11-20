@@ -275,7 +275,8 @@ export function Box({
                 under it, so a tap on the icon opens too. */}
             <span className="k-lead" aria-hidden="true">
               {badge ? (
-                <Glyph of={of} size="m" tile={!!e.href} />
+                // The tile says «this row is a link» (UI-81): a row that opens in place has none.
+                <Glyph of={of} size="m" tile={cover} />
               ) : (
                 <span className="k-glyph-lead">
                   <Glyph of={of} size="s" />

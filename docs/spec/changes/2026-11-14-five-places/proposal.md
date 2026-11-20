@@ -1259,6 +1259,15 @@
     closed, its fields as rows open (PRD-02; undo: a default per family); (c) the obiettivo's plan
     goes by the key `goal`, as it has no registry type (undo: a registry type). Next: ③b the kit Box
     draws the plan, Elenco first (photos), then Oggi → stop B.
+126. **20 Nov, his «go on with this model, i cannot use fable»; Deliver ③b, first screen: Elenco ·
+    Cibi.** A cibo opens in place as a pasto salvato already did (PAT-30 level 1): kit `ThingBox`
+    (the open/door state for any thing; `MealBox` is now it with a meal's doors), doors from the
+    plan (`features/box-doors.ts` `planDoors`): Voto · Nutrienti (100 g) · NOVA, «Apri» inside.
+    Decided by Claude, each with its undo: (a) the icon's tile only on a row that is a link, so a
+    row that opens matches the pasti (undo: `tile={!!e.href}` in `Box`); (b) «1 prodotto» shows
+    only open, as `Box` levels already do for every meta (undo: none needed, the rule exists).
+    Seen, not new: at 320 px «53 kcal/100» drops under the name (it did before). Photos
+    `LIFEOS/review/2026-11-20/box/index.html`. **Stop B for this screen: his word.**
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

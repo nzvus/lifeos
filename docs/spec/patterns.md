@@ -83,8 +83,9 @@ A screen is only a composition of these pieces (PRD-18).
   quanto, quando and the state (PAT-31, VIS-22). A type has one renderer and one editor; a second
   fails the guard (PAT-90). A cibo's label values sit behind the door «Etichetta», closed at first.
   A `ref` field is a row, a choice of his live objects of its catalog (`readRefs`); a field marked
-  `internal` is stored, never a row. Kit: `ObjectPage` ✓, the shared Box from the registry ✗
-  (Deliver ③).
+  `internal` is stored, never a row. Kit: `ObjectPage` ✓; the shared Box from the registry ◐
+  (Deliver ③): the plan `core/engines/view/box.ts` ✓, `ThingBox` ✓ (`MealBox` is it with a
+  meal's doors), a cibo in Elenco ✓; Oggi, esercizi, schede, obiettivi not yet.
 - **PAT-31** **Voce header**, the same for every type: quanto (× servings / quantity) · quando
   (time, previsto/fatto/saltato) · ↺ only when its catalog object changed after it · «⋯».
   The body below edits in place. Kit ✓ `EntryHeader`. [n02, FOOD-38, FOOD-47]

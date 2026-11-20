@@ -5,12 +5,14 @@
  * from. Open: `top` (the place's own line: the day's porzioni and «Elimina»), the four thin
  * bars, `children` (the place's own actions: «Registra», «Apri»), then the doors — «Voto» from
  * its score, Nutrienti, Cibi, Costo — one panel at a time. The place adds; it never redraws.
+ * It is `ThingBox` with a meal's doors (Deliver ③).
  */
-import { useState, type ReactNode } from "react";
-import { Box, type BoxAct, type BoxEntry } from "./Box";
+import type { ReactNode } from "react";
+import type { BoxEntry } from "./Box";
 import { mealDoors, type BoxDetails, type DoorWords } from "./meal-doors";
 import { NutrientsL0 } from "./Nutrients";
 import { energyStrip, type NutrientsData } from "./nutrient-rows";
+import { ThingBox, type ThingBoxPlace } from "./ThingBox";
 
 export function MealBox({
   entry,
@@ -20,13 +22,8 @@ export function MealBox({
   foods,
   top,
   children,
-  startOpen = false,
-  density,
-  rail = false,
-  mode,
-  onRail,
-  acts,
-}: {
+  ...place
+}: ThingBoxPlace & {
   entry: BoxEntry;
   /** Its nutrients: the strip, the four bars, the «Nutrienti» door. */
   data: NutrientsData;
@@ -40,36 +37,18 @@ export function MealBox({
   top?: ReactNode;
   /** Open, after the bars. */
   children?: ReactNode;
-  /** Alone on its own page (PAT-30 level 2): open at first. */
-  startOpen?: boolean;
-  density?: "card" | "row";
-  rail?: boolean;
-  mode?: "compact" | "times";
-  onRail?: () => void;
-  acts?: BoxAct[];
 }) {
-  const [open, setOpen] = useState(startOpen);
-  // One door open at a time; a second tap on it shuts it («Oggi a livelli»).
-  const [door, setDoor] = useState<string | null>(null);
   return (
-    <Box
+    <ThingBox
+      {...place}
       entry={{ ...entry, strip: energyStrip(data) }}
-      rail={rail}
-      {...(density ? { density } : {})}
-      {...(mode ? { mode } : {})}
-      {...(onRail ? { onRail } : {})}
-      {...(acts ? { acts } : {})}
-      expanded={open}
-      onToggle={() => setOpen((o) => !o)}
       doors={mealDoors(data, details, foods, labels)}
-      door={door}
-      onDoor={(k: string) => setDoor((d) => (d === k ? null : k))}
     >
       {top}
       <div className="k-slot-l0">
         <NutrientsL0 data={data} />
       </div>
       {children}
-    </Box>
+    </ThingBox>
   );
 }

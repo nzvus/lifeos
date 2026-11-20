@@ -29,6 +29,7 @@ import {
   Field,
   Glyph,
   MealBox,
+  ThingBox,
   Forms,
   MeasureDays,
   MeasureTree,
@@ -112,6 +113,10 @@ const SCORE = {
 
 /** Example values, declared so: a board never passes them for the owner's (memory v2-boards-kit). */
 /** The one box of a meal (PAT-30, PAT-43), as a row: shut, and opened in place. */
+const THINGS: [string, boolean][] = [
+  ["Box di una cosa · riga chiusa", false],
+  ["Box di una cosa · aperta sul posto", true],
+];
 const MEALS: [string, boolean][] = [
   ["Box di un pasto · riga chiusa", false],
   ["Box di un pasto · aperto sul posto", true],
@@ -657,6 +662,47 @@ export default async function KitPage({
                 </a>
               </div>
             </MealBox>
+          </div>
+        ))}
+      </section>
+
+      <section className="k-section g2" id="cosa-box" aria-label="Il box di una cosa">
+        <h2>Il box di una cosa</h2>
+        {THINGS.map(([label, open]) => (
+          <div key={label} role="group" aria-label={label} className="k-stack g1">
+            <span className="k-label">{label}</span>
+            <ThingBox
+              density="row"
+              startOpen={open}
+              entry={{
+                fam: "food",
+                of: { kind: "ingredient", group: "cereals" },
+                title: "Fiocchi d’avena integrali",
+                value: F.num(372, "kcal") + "/100",
+                score: SCORE,
+                href: "#cosa-box",
+              }}
+              doors={[
+                {
+                  key: "nutrients",
+                  label: common.doors.nutrients,
+                  value: F.num(100, "g"),
+                  panel: (
+                    <Nutrients
+                      data={{
+                        macros: [
+                          { key: "protein", v: 13 },
+                          { key: "carbs", v: 59 },
+                          { key: "fat", v: 7 },
+                          { key: "fiber", v: 10 },
+                        ],
+                      }}
+                    />
+                  ),
+                },
+                { key: "nova", label: "NOVA", value: "1" },
+              ]}
+            />
           </div>
         ))}
       </section>

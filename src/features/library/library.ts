@@ -31,6 +31,8 @@ export type LibraryRow = {
     parts: { name: string; score: number; weight: number }[];
     missing: string[];
   };
+  /** A cibo: what its box holds when it opens in place (PAT-30 level 1), 100 g of it. */
+  food?: { data: NutrientsData; nova?: number };
   /** A saved pasto: what its box holds when it opens in place (PAT-43), from the page. */
   meal?: {
     id: string;

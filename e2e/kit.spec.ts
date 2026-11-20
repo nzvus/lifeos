@@ -17,6 +17,7 @@ const SECTIONS = [
   "stati-nuovi",
   "ogni-quanto",
   "pasto-box",
+  "cosa-box",
   // the voto open behind its door (VIS-43): the bar of points, what lost, what does not count
   "box-livello-2",
   "voto",

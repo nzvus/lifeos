@@ -10,7 +10,17 @@
  * above it, as links.
  */
 import { useState } from "react";
-import { Box, F, Field, List as KitList, MealBox } from "@lifeos/kit";
+import {
+  Box,
+  F,
+  Field,
+  List as KitList,
+  MealBox,
+  Nutrients,
+  ThingBox,
+} from "@lifeos/kit";
+import { planDoors } from "@/features/box-doors";
+import { objects } from "@/i18n/objects";
 import { common } from "@/i18n/common";
 import { food } from "@/i18n/food";
 import { MealFoods } from "./MealFoods";
@@ -386,6 +396,31 @@ function List({
                   </a>
                 </div>
               </MealBox>
+            ) : r.food ? (
+              // A cibo opens in place too (PAT-30 level 1, Deliver ③): its plan's doors, «Apri».
+              <ThingBox
+                key={r.key}
+                density="row"
+                entry={{
+                  ...row(tab, r, value(r), false),
+                  ...(r.href ? { href: r.href } : {}),
+                }}
+                doors={planDoors("food", {
+                  nutrients: {
+                    label: common.doors.nutrients,
+                    value: "100 g",
+                    panel: <Nutrients data={r.food.data} />,
+                  },
+                  ...(r.food.nova
+                    ? {
+                        nova: {
+                          label: objects.fields.food?.["nova"] ?? "NOVA",
+                          value: String(r.food.nova),
+                        },
+                      }
+                    : {}),
+                })}
+              />
             ) : (
               <Box key={r.key} density="row" rail={false} entry={row(tab, r, value(r))} />
             ),
