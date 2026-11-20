@@ -139,7 +139,8 @@ describe("the measure tree: a bullet and its children under it (bars study §7; 
     expect(h).toContain("k-tt");
     expect(h).toContain("width:39%");
     expect(h).toContain("--got:25.6");
-    expect(h).toContain("k-st met");
+    // no judgement dot on a part: where it fills is the judgement (bars-study §19.4, his «yc»)
+    expect(h).not.toContain("k-st");
   });
   it("children judged alone are equal cells; a plan is outlined after the actual", () => {
     const h = renderToStaticMarkup(
