@@ -4,29 +4,14 @@
  * the registry declares and the verbs it allows, each answered by a toast with «Annulla»
  * (PAT-21, PAT-74). Every type moves onto it in its own change (phase 4).
  */
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import {
-  InPlace,
-  MergeSheet,
-  ObjectActions,
-  ObjectPage,
-  useToast,
-  type ObjectVerb,
-} from "@lifeos/kit";
+import { InPlace, ObjectActions, ObjectPage, type ObjectVerb } from "@lifeos/kit";
 import type { Undo } from "@/core/verbs";
 import { common } from "@/i18n/common";
 import { objects } from "@/i18n/objects";
 import type { ObjectField } from "./present";
-
-type Answer = { ok: true; undo: Undo | null } | { ok: false; refused: string };
-
-const DONE: Partial<Record<ObjectVerb, string>> = {
-  archive: common.states.archived,
-  restore: common.states.restored,
-  trash: common.states.deleted,
-  delete: common.states.deleted,
-};
+import { refusal, useObjectVerbs, type Answer } from "./use-object-verbs";
 
 export function ObjectView({
   back,
@@ -88,11 +73,8 @@ export function ObjectView({
   newHref: string;
 }) {
   const router = useRouter();
-  const { say, toast } = useToast();
-  const [merging, setMerging] = useState(false);
-  const [hour] = useState(() => new Date().getHours());
-  const refusal = (r: string) =>
-    objects.refused[r as keyof typeof objects.refused] ?? objects.refused.other;
+  const { act, sheet, toast, say } = useObjectVerbs({ run, revert, mergePreview, merge });
+  const target = { type, id, title, newHref, others, typeName };
   /** PAT-13: a value saved in place — its refusal in words, or «Salvato · Annulla». */
   const saved = async (answer: Promise<Answer>): Promise<string | null> => {
     const r = await answer;
@@ -106,22 +88,9 @@ export function ObjectView({
     return null;
   };
   const onVerb = async (v: ObjectVerb) => {
-    if (v === "merge") return setMerging(true);
-    if (v === "startFrom" || v === "variant")
-      return router.push(`${newHref}?${v === "startFrom" ? "da" : "variante"}=${id}`);
-    const r = await run(type, id, v);
-    if (!r.ok) {
-      const why = objects.refused[r.refused as keyof typeof objects.refused];
-      say(why ?? objects.refused.other);
-      return;
-    }
-    const u = r.undo;
-    say(
-      DONE[v] ?? common.states.saved,
-      u ? () => revert(u).then(() => router.refresh()) : undefined,
-    );
-    if (v === "delete" || v === "trash") router.push(back.href);
-    else router.refresh();
+    const done = await act(target, v);
+    if (done === "delete" || done === "trash") router.push(back.href);
+    else if (done) router.refresh();
   };
   return (
     <ObjectPage
@@ -163,22 +132,7 @@ export function ObjectView({
       }
       toast={
         <>
-          <MergeSheet
-            open={merging}
-            keep={title}
-            candidates={others}
-            hour={hour}
-            findLabel={objects.find(typeName)}
-            preview={(o) => mergePreview(type, id, o.id)}
-            onConfirm={async (o) => {
-              const r = await merge(type, id, o.id);
-              if (!r.ok) return refusal(r.refused);
-              say(objects.merged);
-              router.refresh();
-              return null;
-            }}
-            onClose={() => setMerging(false)}
-          />
+          {sheet}
           {toast}
         </>
       }

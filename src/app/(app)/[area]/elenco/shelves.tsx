@@ -5,6 +5,7 @@
  * a catalog's list with its search and sort (features/library), the pantry
  * or the routes. Decided by the agent (3 Nov, ledger UI-95). Server component.
  */
+import { VERB_SERVER } from "../[type]/[id]/verb-server";
 import { AreaFilter, Box, F, List, PageHeader, PlanBox } from "@lifeos/kit";
 import { planSlots } from "@/features/box/slots";
 import { readNotTwins } from "@/core/account/not-twins";
@@ -100,6 +101,7 @@ export async function AreaShelves({
       <Library
         {...lib.lists}
         view={LIST[shelf]}
+        server={VERB_SERVER}
         only
         shelfLines={lib.shelfLines}
         trackers={{ all: 0, own: 0 }}

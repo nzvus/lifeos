@@ -10,7 +10,8 @@
  * above it, as links.
  */
 import { useState } from "react";
-import { Box, F, Field, List as KitList, MealBox } from "@lifeos/kit";
+import { Box, F, Field, List as KitList, MealBox, type PlanAction } from "@lifeos/kit";
+import { useObjectVerbs, type VerbServer } from "@/features/objects/use-object-verbs";
 import { food } from "@/i18n/food";
 import { ExercisePlanBox, FoodPlanBox } from "./boxes";
 import { mealSlots } from "@/features/box/meal";
@@ -61,7 +62,10 @@ export function Library({
   routes,
   pantry,
   only,
+  server,
 }: {
+  /** The verbs' server side (server actions from the page), for each box's actions row. */
+  server: VerbServer;
   /** An area's Elenco: just this list, no switch of its own. */
   only?: boolean;
   /** The kinds one can enter, and how many are the person's own («Tipi di tracker»). */
@@ -89,7 +93,7 @@ export function Library({
         pantry={pantry}
       />
     );
-  return <List lists={lists} first={view} alone={only ?? false} />;
+  return <List lists={lists} first={view} alone={only ?? false} server={server} />;
 }
 
 /**
@@ -281,11 +285,14 @@ function List({
   lists,
   first,
   alone,
+  server,
 }: {
   lists: Record<Tab, LibraryRow[]>;
   first: Tab;
   alone: boolean;
+  server: VerbServer;
 }) {
+  const verbs = useObjectVerbs(server);
   const [tab, setTab] = useState<Tab>(first);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("uses");
@@ -298,6 +305,15 @@ function List({
     return v === null
       ? "—"
       : F.num(v, UNITS[s] ?? "") + (s === "proteinPerKcal" ? "" : per);
+  };
+  // Each box's actions row (PAT-101): its object's verbs (MOD-20), «Altro» gone.
+  const acts = (r: LibraryRow): PlanAction[] => {
+    const o = r.obj;
+    if (!o) return [];
+    const others = lists[tab].flatMap((x) =>
+      x.obj && x.key !== r.key ? [{ id: x.obj.id, name: x.name }] : [],
+    );
+    return verbs.actions({ ...o, title: r.name, others }, o.verbs);
   };
   return (
     <section className="k-section g3" aria-label="Catalogo">
@@ -379,19 +395,19 @@ function List({
                   rows: partRows(r.meal.parts),
                   details: r.meal.details,
                 })}
-                verbs={
-                  <>
-                    <a className="k-btn act" href={"/aggiungi/pasto?pasto=" + r.meal.id}>
-                      {w.log}
-                    </a>
-                    <a
-                      className="k-btn act"
-                      href={"/cibo/pasto/" + r.meal.id + "/componi"}
-                    >
-                      {r.meal.estimate ? w.composeEstimate : w.compose}
-                    </a>
-                  </>
-                }
+                actions={[
+                  {
+                    key: "log",
+                    label: w.log,
+                    href: "/aggiungi/pasto?pasto=" + r.meal.id,
+                  },
+                  {
+                    key: "compose",
+                    label: r.meal.estimate ? w.composeEstimate : w.compose,
+                    href: "/cibo/pasto/" + r.meal.id + "/componi",
+                  },
+                  ...acts(r),
+                ]}
               />
             ) : r.exercise ? (
               // An esercizio opens in place (PAT-30 level 1, Deliver ③): facts, e1RM trend.
@@ -399,6 +415,7 @@ function List({
                 key={r.key}
                 r={{ ...r, exercise: r.exercise }}
                 entry={row(tab, r, value(r))}
+                actions={acts(r)}
               />
             ) : r.food ? (
               // A cibo opens in place too (PAT-30 level 1, Deliver ③); its marche redraw it (§130).
@@ -407,6 +424,7 @@ function List({
                 r={{ ...r, food: r.food }}
                 entry={row(tab, r, value(r), !r.products)}
                 value={(values) => value({ ...r, values })}
+                actions={acts(r)}
               />
             ) : (
               <Box key={r.key} density="row" rail={false} entry={row(tab, r, value(r))} />
@@ -414,6 +432,8 @@ function List({
           )}
         </KitList>
       )}
+      {verbs.sheet}
+      {verbs.toast}
     </section>
   );
 }

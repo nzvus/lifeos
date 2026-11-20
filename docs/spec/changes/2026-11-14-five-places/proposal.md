@@ -1369,6 +1369,17 @@
     Open, his: in a form the stepper is now 32 while text fields and the segmented control stay 44
     (VIS-86); recommended: the same «drawn small, touched at 44» for every field, with the in-place
     edits (photos `planbox/stepper-small.png`).
+138. **20 Nov, his «yc» of §136, next step: the Elenco objects' actions row (PAT-101).** Each Elenco
+    row knows its object (type, id, its page's verbs, read from its address); `useObjectVerbs`
+    (`features/objects`) runs them for the object page and every Elenco box alike (one merge sheet,
+    one toast with «Annulla»). Cibo: Parti da… · Unisci · Archivia · trash; pasto salvato: Registra
+    · Cambia i cibi · Parti da… · Variante · Unisci · Archivia · trash; esercizio: Unisci · Archivia ·
+    trash. Decided by Claude, each with its undo: the pasto's «Registra» and «Cambia i cibi» leave
+    the doors' row for the actions row (§128's «doors and verbs on one row» changes for the verbs:
+    undo `verbs` in git); every verb in the row, no «Altro» in a box (the page keeps its «Altro»
+    until it is a box too). Not yet: the schede (a server list, no client verbs), rinomina and
+    collegamenti in place (ACT-25, with the in-place edits). Photos `planbox/elenco-actions.png`;
+    **waits for his word**.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

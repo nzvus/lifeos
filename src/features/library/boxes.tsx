@@ -3,7 +3,13 @@
  * slot key; `planSlots` orders and shapes it, the kit draws it (PAT-30, VIS-102). Replaces the
  * per-type `FoodBox` and `ExerciseBox` (undo: them, in git before §132).
  */
-import { F, PlanBox, type BoxEntry, type NutrientsData } from "@lifeos/kit";
+import {
+  F,
+  PlanBox,
+  type BoxEntry,
+  type NutrientsData,
+  type PlanAction,
+} from "@lifeos/kit";
 import { planSlots } from "@/features/box/slots";
 import { food as foodWords } from "@/i18n/food";
 import { training } from "@/i18n/training";
@@ -24,7 +30,9 @@ export function FoodPlanBox({
   r,
   entry,
   value,
+  actions,
 }: {
+  actions: PlanAction[];
   r: LibraryRow & { food: Shown };
   entry: BoxEntry;
   /** The head's number for a set of values per 100 (the list's sort). */
@@ -49,6 +57,7 @@ export function FoodPlanBox({
     <PlanBox
       density="row"
       entry={{ ...entry, value: value(r.values) }}
+      actions={actions}
       slots={foodSlots(r.food)}
       {...(ps.length > 0
         ? {
@@ -65,9 +74,11 @@ export function FoodPlanBox({
 export function ExercisePlanBox({
   r,
   entry,
+  actions,
 }: {
   r: LibraryRow & { exercise: NonNullable<LibraryRow["exercise"]> };
   entry: BoxEntry;
+  actions: PlanAction[];
 }) {
   const { trend, facts } = r.exercise;
   const ys = trend.map((t) => t.v);
@@ -76,6 +87,7 @@ export function ExercisePlanBox({
     <PlanBox
       density="row"
       entry={entry}
+      actions={actions}
       slots={planSlots("exercise", {
         ...(last !== undefined
           ? {
