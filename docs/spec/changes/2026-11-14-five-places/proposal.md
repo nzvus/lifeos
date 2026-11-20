@@ -1305,6 +1305,16 @@
     temporary, gone when the page's content is in the box.
 131. **20 Nov, his word while Esercizi and Schede were built:** «comunque devi diminuire le
     proporzioni generali di tutti i boittoni».
+132. **20 Nov, his «ma stiamo procedendo col piano del framework?», then «yc».** Claude's answer: ③b
+    drifted into one component per type (`FoodBox`, `ExerciseBox`, schede by hand). Taken (his «yc»),
+    decided by Claude, each with its undo: (a) **one builder**: the kit's `PlanBox` draws a slot by
+    its instrument (word → a chip, many words → a `ChipRow`, trend → `Chart` behind a door,
+    composition of nutrients → `Nutrients` behind a door), never by type; `features/box/slots.ts`
+    orders a type's slots by its plan and refuses one whose shape is not its instrument's; a type
+    gives only data (undo: the per-type boxes in git); (b) a thing's children he picks (a cibo's
+    marche) are **variants** of the same `PlanBox`, each with its own head and slots, one picked by
+    the caller's rule (undo: `FoodBox`); (c) then Oggi's voci and Obiettivi through the same
+    builder, then **stop B**: one page with every type's Box closed and open.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
