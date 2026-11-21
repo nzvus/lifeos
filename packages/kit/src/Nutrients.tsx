@@ -7,11 +7,19 @@
  * highlighted in every bar and in «da dove», each kind says where it came from.
  * Pass plain data (server pages may render it).
  */
+import { NumUnit } from "./NumUnit";
 import { useState, type CSSProperties } from "react";
 import { Glyph } from "./Glyph";
 import { Verdict } from "./Verdict";
 import { FitLine } from "./FitLine";
-import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
+import {
+  energyL1,
+  HEAT_WORDS,
+  NAME,
+  nutrientsL0,
+  nutrientsL1,
+  type NutrientsData,
+} from "./nutrient-rows";
 import { Condensed } from "./Condensed";
 import { Fascia } from "./Fascia";
 import { WORDS } from "./words";
@@ -27,6 +35,12 @@ export function Nutrients({
   chips = true,
   onTap,
   inline = false,
+  by = "foods",
+  focus,
+  picked,
+  onPick,
+  litCells = null,
+  openFirst,
 }: {
   data: NutrientsData;
   part?: "all" | "main" | "rest";
@@ -38,19 +52,32 @@ export function Nutrients({
   onTap?: () => void;
   /** The four macros side by side on one row, each its icon, number and track (his §145). */
   inline?: boolean;
+  /** The bars split by «foods» or by «kinds» of nutrient (VIS-106, his §169–§170). */
+  by?: "foods" | "kinds";
+  /** Only this macro's kinds and sources (a box's «Nutrienti» band, his §172). */
+  focus?: string | null;
+  /** Inline: the macro cell picked (its kinds shown below), and a tap on a cell picks it. */
+  picked?: string | null;
+  onPick?: (key: string) => void;
+  /** Inline: only these cells lit, the rest dimmed (a criterion picked, his §189 F3). */
+  litCells?: string[] | null;
+  /** A row open from the start («micro»: the box's «Micro» band shows them at once, §174). */
+  openFirst?: string;
 }) {
   const main = part !== "rest";
   const rest = part !== "main";
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(openFirst ?? null);
   const [sel, setSel] = useState<string | null>(null);
   const { kcal, foods, macros, limits, micros } = nutrientsL1(
     data,
     lit !== undefined ? lit : sel,
+    by,
   );
   const means = limits.some((l) => l.strip?.mean);
+  const energy = inline || focus === KCAL ? energyL1(data, by) : null;
   return (
     <div className="k-stack g3">
-      {main && kcal && !inline && (
+      {main && kcal && !inline && focus === undefined && (
         <div className="k-stack">
           <span className="k-line base between">
             <span className="k-line base">
@@ -104,27 +131,110 @@ export function Nutrients({
           ))}
         </div>
       )}
+      {focus !== undefined &&
+        (() => {
+          if (focus === MICRO)
+            return micros ? <MicroColumns micros={micros} limits={limits} /> : null;
+          if (focus === KCAL) return energy ? <EnergyColumns e={energy} /> : null;
+          const m = macros.find((x) => x.key === focus);
+          return m ? <MacroColumns m={m} /> : null;
+        })()}
       {main && inline && (
-        <div className="k-ninline">
+        <div className={"k-ninline" + (onPick ? " rows" : "")}>
+          {/* the kcal first, a cell like the macros' (his §178): picked, where they come from */}
+          {onPick && energy && (
+            <button
+              type="button"
+              className={
+                "k-mcell kcal" +
+                (picked === KCAL ? " picked" : "") +
+                (litCells && !litCells.includes(KCAL) ? " dim" : "")
+              }
+              aria-pressed={picked === KCAL}
+              aria-label={energy.aria}
+              onClick={() => onPick(KCAL)}
+            >
+              <FitLine className="k-line g1">
+                <Glyph of={{ nutrient: "kcal" }} size="s" />
+                <NumUnit v={energy.short} className="b3" />
+                <Verdict level={energy.level} />
+              </FitLine>
+              <More
+                name={WORDS.energy}
+                word={energy.level ? HEAT_WORDS[energy.level] : null}
+              />
+              <span className="k-track" aria-hidden="true">
+                {energy.segs.map((x, i) => (
+                  <span
+                    key={i}
+                    className="k-seg"
+                    style={{ width: x.w, background: x.bg }}
+                  />
+                ))}
+              </span>
+            </button>
+          )}
           {macros.map((m) => (
             <button
               key={m.key}
               type="button"
-              className="k-mcell"
-              {...(onTap ? { onClick: onTap } : {})}
+              className={
+                "k-mcell" +
+                (picked === m.key ? " picked" : "") +
+                (litCells && !litCells.includes(m.key) ? " dim" : "")
+              }
+              style={{ "--mc": m.color } as CSSProperties}
+              {...(onPick
+                ? { onClick: () => onPick(m.key), "aria-pressed": picked === m.key }
+                : onTap
+                  ? { onClick: onTap }
+                  : {})}
               aria-label={m.aria}
             >
               <FitLine className="k-line g1">
                 <Glyph of={{ nutrient: m.key }} size="s" />
-                <span className="k-num b3">{m.short}</span>
+                <NumUnit v={m.short} className="b3" />
                 <Verdict level={m.level} />
               </FitLine>
+              <More
+                name={NAME[m.key]}
+                word={m.level ? HEAT_WORDS[m.level] : null}
+                share={energy?.byMacro.find((x) => x.key === m.key)?.w}
+              />
               <MacroTrack m={m} full />
             </button>
           ))}
+          {/* the fifth cell: vitamins and minerals, picked like a macro (his §173–§174) */}
+          {onPick && micros && (
+            <button
+              type="button"
+              className={
+                "k-mcell micro" +
+                (picked === MICRO ? " picked" : "") +
+                (litCells && !litCells.includes(MICRO) ? " dim" : "")
+              }
+              aria-pressed={picked === MICRO}
+              aria-label={WORDS.micro + ": " + micros.summary}
+              onClick={() => onPick(MICRO)}
+            >
+              <FitLine className="k-line g1">
+                <Glyph of={{ nutrient: "micro" }} size="s" />
+                <span className="k-num b3">{coverage(micros.summary)}</span>
+                {/* a meal's micros are not judged (FD-35): the dash, as every cell has its mark */}
+                <Verdict level={null} />
+              </FitLine>
+              <More name={WORDS.microAll} word={null} />
+              <span className="k-track" aria-hidden="true">
+                <span
+                  className="k-seg micro"
+                  style={{ width: coveredPct(micros.summary) }}
+                />
+              </span>
+            </button>
+          )}
         </div>
       )}
-      {(main && !inline ? macros : []).map((m) => {
+      {(main && !inline && focus === undefined ? macros : []).map((m) => {
         const isOpen = open === m.key;
         const more = m.kinds.length + m.sources.length + m.extras.length > 0;
         return (
@@ -163,62 +273,14 @@ export function Nutrients({
             {more && (
               <div className={"k-reveal" + (isOpen ? " on" : "")}>
                 <div>
-                  <div className="k-kinds">
-                    {m.kinds.map((k) => (
-                      <div key={k.name} className="k-stack g0">
-                        <div className="k-krow">
-                          <span className="k-body">
-                            <span className="k-sw" style={{ background: k.c }} />
-                            {k.name}
-                          </span>
-                          <span className={"k-bar" + (k.strip ? " zoned" : "")}>
-                            <i style={{ width: k.w, background: k.fill }} />
-                            {k.strip && <Fascia strip={k.strip} />}
-                          </span>
-                          <span className="k-num b3 k-right">{k.v}</span>
-                        </div>
-                        {k.from && <span className="k-help k-nfrom">{k.from}</span>}
-                      </div>
-                    ))}
-                    {m.sources.length > 0 && (
-                      <>
-                        <span className="k-cap">da dove</span>
-                        {m.sources.map((s, n) => (
-                          <div
-                            key={s.name + ":" + n}
-                            className="k-src"
-                            style={{ opacity: s.faint ? 0.6 : s.dim ? 0.3 : 1 }}
-                          >
-                            <span className="k-body k-clip">{s.name}</span>
-                            <span className="k-bar">
-                              <i style={{ width: s.w, background: m.color }} />
-                            </span>
-                            <span className="k-num b3 k-right">{s.g}</span>
-                          </div>
-                        ))}
-                      </>
-                    )}
-                    {m.extras.length > 0 && (
-                      <div className="k-chips">
-                        {m.extras.map((x) => (
-                          <span
-                            key={x.t}
-                            className="k-pill"
-                            style={{ color: x.c, borderColor: x.c }}
-                          >
-                            {x.t}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <MacroKinds m={m} />
                 </div>
               </div>
             )}
           </div>
         );
       })}
-      {rest && limits.length > 0 && (
+      {rest && focus === undefined && limits.length > 0 && (
         <div className="k-grid k-nlims" style={{ "--cols": 3 } as CSSProperties}>
           {limits.map((l) => (
             <span key={l.key} className="k-stack g1" role="img" aria-label={l.aria}>
@@ -242,12 +304,12 @@ export function Nutrients({
           ))}
         </div>
       )}
-      {rest && means && (
+      {rest && focus === undefined && means && (
         <span className="k-help k-heatkey" aria-hidden="true">
           <b /> media della settimana
         </span>
       )}
-      {rest && micros && (
+      {rest && focus === undefined && micros && (
         <div className="k-nrow">
           <button
             type="button"
@@ -384,6 +446,229 @@ function MacroTrack({
       ))}
       {!full && m.mark && <span className="k-mark" style={{ left: m.mark }} />}
       {!full && m.strip && <Fascia strip={m.strip} />}
+    </span>
+  );
+}
+
+/** The key of the kcal's cell among the macros' (his §178). */
+export const KCAL = "kcal";
+/** The key of the vitamins-and-minerals cell among the macros' (his §174). */
+export const MICRO = "micro";
+/** «6 su 11 coperti» → «6/11»; the share covered as a width. */
+const coverage = (summary: string) =>
+  /(\d+)\s*su\s*(\d+)/.exec(summary)?.slice(1, 3).join("/") ?? "";
+const coveredPct = (summary: string) => {
+  const m = /(\d+)\s*su\s*(\d+)/.exec(summary);
+  return m && Number(m[2]) > 0
+    ? ((Number(m[1]) / Number(m[2])) * 100).toFixed(1) + "%"
+    : "0%";
+};
+
+/** A macro's kinds, where it came from and its notes — its row open, or the box's «Nutrienti» band. */
+function MacroKinds({ m }: { m: ReturnType<typeof nutrientsL1>["macros"][number] }) {
+  return (
+    <div className="k-kinds">
+      {m.kinds.map((k) => (
+        <div key={k.name} className="k-stack g0">
+          <div className="k-krow">
+            <span className="k-body">
+              <span className="k-sw" style={{ background: k.c }} />
+              {k.name}
+            </span>
+            <span className={"k-bar" + (k.strip ? " zoned" : "")}>
+              <i style={{ width: k.w, background: k.fill }} />
+              {k.strip && <Fascia strip={k.strip} />}
+            </span>
+            <span className="k-num b3 k-right">{k.v}</span>
+          </div>
+          {k.from && <span className="k-help k-nfrom">{k.from}</span>}
+        </div>
+      ))}
+      {m.sources.length > 0 && (
+        <>
+          <span className="k-cap">da dove</span>
+          {m.sources.map((s, n) => (
+            <div
+              key={s.name + ":" + n}
+              className="k-src"
+              style={{ opacity: s.faint ? 0.6 : s.dim ? 0.3 : 1 }}
+            >
+              <span className="k-body k-clip">{s.name}</span>
+              <span className="k-bar">
+                <i style={{ width: s.w, background: m.color }} />
+              </span>
+              <span className="k-num b3 k-right">{s.g}</span>
+            </div>
+          ))}
+        </>
+      )}
+      {m.extras.length > 0 && (
+        <div className="k-chips">
+          {m.extras.map((x) => (
+            <span key={x.t} className="k-pill" style={{ color: x.c, borderColor: x.c }}>
+              {x.t}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Each macro's kinds named on the band's side (his §174, Claude's pick): what its kinds tell. */
+const KINDS_SIDE: Record<string, string> = {
+  protein: "qualità",
+  carbs: "tipo",
+  fat: "acidi grassi",
+  fiber: "tipo",
+};
+
+type ColumnRow = {
+  key: string;
+  name: string;
+  w: string;
+  c: string;
+  v: string;
+  dim?: boolean;
+  /** Its need's tick on the bar (a micro's target), when it has one. */
+  mark?: string | null;
+};
+
+/**
+ * One section of a band in three vertical tiles (his §174, §176): its label turned on its side,
+ * the rows (name and bar), the numbers (read only). A macro's kinds, «da dove», a micros' group.
+ */
+function SideColumns({ side, rows }: { side: string; rows: ColumnRow[] }) {
+  if (rows.length === 0) return null;
+  return (
+    <div className="k-kcols" role="group" aria-label={side}>
+      <span className="k-kside">
+        <span>{side}</span>
+      </span>
+      <div className="k-kcells">
+        {rows.map((r) => (
+          <div key={r.key} className={"k-kcell" + (r.dim ? " dim" : "")}>
+            <span className="k-kname k-clip">{r.name}</span>
+            <span className="k-bar">
+              <i style={{ width: r.w, background: r.c }} />
+              {r.mark && <span className="k-mark" style={{ left: r.mark }} />}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="k-knums">
+        {rows.map((r) => (
+          <span key={r.key} className="k-num b3">
+            {r.v}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** A macro's kinds and where it came from (his §174): two sections of side columns. */
+function MacroColumns({ m }: { m: ReturnType<typeof nutrientsL1>["macros"][number] }) {
+  return (
+    <div className="k-stack k-kcolumns">
+      <SideColumns
+        side={KINDS_SIDE[m.key] ?? ""}
+        rows={m.kinds.map((k) => ({
+          key: k.name,
+          name: k.name,
+          w: k.w,
+          c: k.fill,
+          v: k.v,
+        }))}
+      />
+      <SideColumns
+        side={WORDS.fromWhere}
+        rows={m.sources.map((x, n) => ({
+          key: x.name + ":" + n,
+          name: x.name,
+          w: x.w,
+          c: m.color,
+          v: x.g,
+          dim: !!x.dim,
+        }))}
+      />
+    </div>
+  );
+}
+
+/**
+ * The vitamins and minerals as the macros' kinds are (his §176: «coerente con quel che abbiamo
+ * fatto»): a section per group, its name on the side; no header line — the «Micro» cell says it.
+ */
+function MicroColumns({
+  micros,
+  limits = [],
+}: {
+  micros: NonNullable<ReturnType<typeof nutrientsL1>["micros"]>;
+  /** The limits first, as their own section (his §183: «i limiti? sono nei micro?»). */
+  limits?: ReturnType<typeof nutrientsL1>["limits"];
+}) {
+  return (
+    <div className="k-stack k-kcolumns">
+      <SideColumns
+        side={WORDS.limits}
+        rows={limits.map((l) => ({
+          key: l.key,
+          name: l.name,
+          w: l.w,
+          c: l.color,
+          v: l.v + " / " + l.t,
+        }))}
+      />
+      {micros.groups.map((g) => (
+        <SideColumns
+          key={g.name}
+          side={g.name.toLowerCase()}
+          rows={g.items.map((i) => ({
+            key: i.name,
+            name: i.name,
+            w: i.w,
+            c: i.color,
+            v: i.v,
+            mark: i.mark,
+          }))}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** The kcal picked (his §178): where they come from, by macro and by ingredient, in kcal. */
+function EnergyColumns({ e }: { e: NonNullable<ReturnType<typeof energyL1>> }) {
+  return (
+    <div className="k-stack k-kcolumns">
+      <SideColumns side={WORDS.byMacro} rows={e.byMacro} />
+      <SideColumns side={WORDS.fromWhere} rows={e.byFood} />
+    </div>
+  );
+}
+
+/**
+ * What a picked cell adds once it takes the whole row (his §184): its name, its verdict's word,
+ * its share of the kcal. Hidden in a cell that is not picked (CSS).
+ */
+function More({
+  name,
+  word,
+  share,
+}: {
+  name: string;
+  word: string | null;
+  share?: string | undefined;
+}) {
+  return (
+    // the name last: the icon already says it, so it is what gives way when the row is short
+    <span className="k-mmore">
+      {share && (
+        <span className="k-meta">{WORDS.ofKcal(Math.round(parseFloat(share)))}</span>
+      )}
+      {word && <span className="k-meta">{word}</span>}
+      <span className="k-mname">{name}</span>
     </span>
   );
 }

@@ -195,3 +195,60 @@
   position: the water drunk with +250 and +500, then what he pinned, in his order, then the
   app's guesses up to four chips, sideways. WHEN he taps «Modifica» THEN a sheet lists the pins («Su»,
   «Togli») and the other «assunzioni» («Fissa»); each tap saves. Pins live in his settings. Kit: ✗.
+- **MOD-23** (model.md §3) **Kinship of pasti** (his §157, «yc» §158; ADR-0065): a pasto's parent
+  is one of its lines — another pasto × a multiplier — and a pasto may have several. Every reader
+  of a pasto's foods expands parent lines (× k, depth ≤ 3, never a loop), so a change to a parent
+  reaches every child. WHEN every food of P is in C at P's quantity × one common k (±2 %, same
+  unit) THEN P is a parent of C with k; only the largest such P are kept; a found link is stored
+  once as a parent line, the foods unchanged and logged. Kinship is never deleted by hand. A voce
+  already logged never changes (ADR-0007). [his 21 Nov, §157]
+- **PAT-103** (patterns.md §2) **Kinship rows** (§157): open, a pasto's Box draws «Genitori» and
+  «Figli» as two sideways rows (VIS-06), each headed by its row icon and colour; a parent reads
+  «× k · name», k stepped in place (PAT-13); a kin chip's name is cut by its width; a «+» ends
+  each row and opens a search in place. «+ figlio» makes a copy of this pasto, named by the copy
+  rule, and scrolls the Elenco to it. Kit: ✗.
+- **PAT-104** (patterns.md §3) **A voce's name is the door to its object** (his «yc», §156, §158):
+  open, the line naming the catalog object a voce came from («Gnocchi alla sorrentina») links to
+  that object's Box in the Elenco; a voce from no object has no such line. Kit: ✗.
+- **VIS-109** (visual.md) **Every button squared, every row filled** (his §166): a button — chip,
+  act, door, «+», ⊕ — has the control's corner (`--r-control`), never a pill or a circle; in a row
+  that is not full, its buttons grow in proportion to fill it; a full row scrolls sideways (VIS-06).
+  Changes VIS-85's «act pills». [his 21 Nov, §166]
+- **PAT-105** (patterns.md §2) **The box as a grid** (his §169, §172): open, a Box is horizontal bands —
+  head (icon | title | value, + the mini voto shut) · bars and voto · parents and children · actions ·
+  the two halves «Nutrienti | Ingredienti» and the band one opens — each line the contour's own,
+  edge to edge; inside, cells as rounded tiles on a faint ground of the box's colour, one small
+  gap, no lines (his pick C, §176); colour only on icons and grounds; everything centred in its
+  cell; the kcal, the macros and «Micro» as six tiles in rows of three (kcal · proteine · carbo /
+  grassi · fibre · micro; his §178), text above and parts below; the kcal picked shows where they
+  come from, by macro and by ingredient; open, the head keeps only the title when the kcal has its
+  tile; the title's tile darker (his pick B, §180). Shut: the strip split by kinds with the mini
+  voto over it (§180). A parent's tile in its tone, the legend of the ingredients' grounds. Every row of cells, the two halves and the actions too, is tiles; whatever appears in the
+  box (a band, a search) is capped and scrolls inside (220 px a search, 320 a band). No «›» to the
+  thing's page: everything is in the box (his §130, §178; changes PAT-101). The bars and the two halves are one state: a macro
+  picked shows its kinds (bars and «Nutrienti»), none picked the ingredients. Kit: `PlanBox`
+  (`bands`), `IngredientTable`. Changes PAT-102's zone order (kin above the actions, his §161).
+- **VIS-30** (visual.md) adds: a Box's head shows its icon only where it tells things apart (a day's
+  timeline, a mixed list); in a list of one type (Elenco · Cibi, Pasti salvati, esercizi) it has
+  none (his §178; `Box lead`). Undo: drop `lead={false}` in `features/library`.
+- **product.md §3, words** (his «yc» 21 Nov, §183, §189): **misura** — the kcal, a macro, the
+  micros, each a tile of a thing's box (PRD-04's measures; never «nutriente», the half's name);
+  **strumento** — a view that answers one question (VIS-102; «feature» is not a word here); a
+  **canale** — a fact added to a strumento (VIS-101); a **comando** — what a tap on it does
+  (VIS-104); a **filtro** — what stays lit while the rest dims, possibly shared by two strumenti;
+  **livello** — how deep a piece is open (VIS-70); **vista** — how its parts are split
+  (ingredienti · nutrienti); **tile** — a cell of the box's grid (PAT-105).
+- **VIS-43** (visual.md) changes, open (his V-A, §189): the voto as tiles, the misure's grammar —
+  a low total tile (the number in its band's colour, the 100-point bar of its criteria), then a
+  tile per criterion, three a row: its colour, a short name, the points lost («−29», «✓»), its
+  arrows (≥ 70 ⇈, ≥ 40 ↑, under ↓); under them its points as a track as long as its weight (the
+  heaviest the whole tile), filled to its score, split by ingredient (MOD-61). A criterion that
+  does not count is a dim tile, «–», its reason on hover. Kit `CriteriaTiles`. Shut: unchanged,
+  the number over its mini skyline (§185). Undo: `Criteria` in `PlanBox`.
+- **PAT-105** adds **the filter between misure and voto** (his §181, F1 + F3): a misura picked
+  lights the criteria it feeds (FD-51; `MISURA_FEEDS` in `features/food/lines-score.ts`) and dims
+  the rest, the 100-point bar too; a criterion picked lights the misure that feed it. Its piece of
+  each criterion (F2) waits for MOD-61 by nutrient. A picked misura's tile in its own colour.
+  «Micro»'s band starts with a «limiti» section (zuccheri liberi, grassi saturi, sale against the
+  day's, FD-33; `mealLimits`).
+

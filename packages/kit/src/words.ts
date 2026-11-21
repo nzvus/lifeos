@@ -4,6 +4,18 @@
  * test reads this file too, so no «Not» word of product.md §3 reaches a piece.
  */
 export const WORDS = {
+  /** The vitamins-and-minerals cell among the macros (his §174). */
+  micro: "Micro",
+  /** «Nutrienti» band: the side labels (his §174). */
+  fromWhere: "da dove",
+  /** The kcal's band: its side label for the share of each macro (his §178). */
+  byMacro: "macro",
+  /** «Micro»'s band: the limits' side label (his §183). */
+  limits: "limiti",
+  /** A picked cell's name (his §184). */
+  energy: "Energia",
+  microAll: "Vitamine e minerali",
+  ofKcal: (pct: number) => `${pct} % kcal`,
   undo: "Annulla",
   cancel: "Annulla",
   close: "Chiudi",

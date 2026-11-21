@@ -9,11 +9,14 @@
  * Elenco (map D) a list stands alone (`only`): the area's own shelves switch
  * above it, as links.
  */
+import { MISURA_FEEDS } from "@/features/food/lines-score";
 import { useState } from "react";
 import { Box, F, Field, List as KitList, MealBox, type PlanAction } from "@lifeos/kit";
 import { useObjectVerbs, type VerbServer } from "@/features/objects/use-object-verbs";
 import { food } from "@/i18n/food";
 import { ExercisePlanBox, FoodPlanBox } from "./boxes";
+import { MealKin } from "./MealKin";
+import { MealIngredients } from "./MealIngredients";
 import { mealSlots } from "@/features/box/meal";
 import { listRows, sortValue, SORTS, type LibraryRow, type SortKey } from "./library";
 
@@ -296,6 +299,11 @@ function List({
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("uses");
   const rows = listRows(lists[tab], query, sort);
+  // what «+ Aggiungi un ingrediente» searches (§169): the cibi and their marche, most used first
+  const cibi = lists.foods.map((f) => ({ id: f.key, name: f.name, uses: f.uses }));
+  const pasti = lists.meals.flatMap((m) =>
+    m.meal ? [{ id: m.meal.id, name: m.name, uses: m.uses }] : [],
+  );
   const per = tab === "foods" ? "/100" : "";
   const value = (r: LibraryRow) => {
     const s =
@@ -387,22 +395,59 @@ function List({
               <MealBox
                 key={r.key}
                 density="row"
-                entry={row(tab, r, value(r))}
+                // a list of one type: no icon in the head (his §178, VIS-30)
+                lead={false}
+                // the filter between the misure and the voto (his §181, §189)
+                feeds={MISURA_FEEDS}
+                // No foods as a sentence under its name: the bar shows them (his §157, VIS-106).
+                entry={row(tab, r, value(r), false)}
                 data={r.meal.data}
                 slots={mealSlots({ details: r.meal.details })}
+                // «Registra» an icon beside «?» and the trash; «Cambia i cibi» and «Parti da» gone:
+                // its foods change in place, a copy is «+ figlio» (his §167, ADR-0065).
                 actions={[
                   {
                     key: "log",
                     label: w.log,
                     href: "/aggiungi/pasto?pasto=" + r.meal.id,
+                    icon: "log",
                   },
-                  {
-                    key: "compose",
-                    label: r.meal.estimate ? w.composeEstimate : w.compose,
-                    href: "/cibo/pasto/" + r.meal.id + "/componi",
-                  },
-                  ...acts(r),
+                  // «Variante» too: a child is «+ figlio» now (ADR-0065)
+                  ...acts(r).filter((a) => a.key !== "startFrom" && a.key !== "variant"),
                 ]}
+                words={w.views}
+                {...(server.kin && r.meal.ingredients
+                  ? {
+                      ingredients: (
+                        <MealIngredients
+                          id={r.meal.id}
+                          ingredients={r.meal.ingredients}
+                          cibi={cibi}
+                          server={server.kin}
+                        />
+                      ),
+                    }
+                  : {})}
+                between={
+                  server.kin &&
+                  !r.meal.estimate && (
+                    <MealKin
+                      id={r.meal.id}
+                      kin={r.meal.kin}
+                      pasti={pasti}
+                      server={server.kin}
+                      onChild={setQuery}
+                      onGo={(name) => {
+                        setQuery(name);
+                        document
+                          .querySelector(
+                            '.k-section[aria-label="Catalogo"] input[type="search"]',
+                          )
+                          ?.scrollIntoView({ block: "start", behavior: "smooth" });
+                      }}
+                    />
+                  )
+                }
               />
             ) : r.exercise ? (
               // An esercizio opens in place (PAT-30 level 1, Deliver ③): facts, e1RM trend.

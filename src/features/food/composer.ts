@@ -311,7 +311,7 @@ export function dayWithMeal(
 
 export const RECIPE_WORDS: Record<RecipeNameError, string> = {
   empty: "Dai un nome al pasto da salvare.",
-  too_long: "Al massimo 80 caratteri.",
+  too_long: "Al massimo 40 caratteri.",
   taken: "Hai già un pasto salvato con questo nome.",
 };
 

@@ -14,6 +14,7 @@
 import { useState } from "react";
 import { Chart, type ChartData } from "./Chart";
 import { ChipRow } from "./ChipRow";
+import { CriteriaTiles, type CriteriaFilter } from "./Criteria";
 import { Nutrients } from "./Nutrients";
 import type { NutrientsData } from "./nutrient-rows";
 import { ThingBox, type ThingBoxPlace } from "./ThingBox";
@@ -42,11 +43,16 @@ export type PlanAction = { key: string; label: string } & (
       danger?: "delete";
       /** A mode he switches (the bar's «Ingredienti» · «Nutrienti»): a chip, on or off. */
       pressed?: boolean;
+      /** A verb drawn as its icon in its own colour, with the row's other icons (§172: «Unisci»). */
+      icon?: "merge";
     }
   | {
       href: string;
-      /** A link drawn as an icon, last in the row: its page (his §145; `label` its aria). */
-      icon?: "link";
+      /**
+       * A link drawn as an icon, at the row's end with the trash (his §145, §167; `label` its
+       * aria): «link» its page (last), «why» how it is judged (?), «log» it put in the day.
+       */
+      icon?: "link" | "why" | "log";
     }
   | {
       step: { value: string; minus: string; plus: string };
@@ -59,9 +65,12 @@ export type PlanAction = { key: string; label: string } & (
 export function ActionRow({ actions }: { actions: PlanAction[] }) {
   if (actions.length === 0) return null;
   const danger = (a: PlanAction) => "danger" in a && !!a.danger;
-  const page = (a: PlanAction) => "icon" in a && !!a.icon;
+  const icon = (a: PlanAction) => "icon" in a && !!a.icon;
+  const page = (a: PlanAction) => "icon" in a && a.icon === "link";
+  // the words first; then the icons — registra, «?», the trash — and the page last (§167)
   const ordered = [
-    ...actions.filter((a) => !danger(a) && !page(a)),
+    ...actions.filter((a) => !danger(a) && !icon(a)),
+    ...actions.filter((a) => icon(a) && !page(a)),
     ...actions.filter(danger),
     ...actions.filter(page),
   ];
@@ -96,13 +105,29 @@ export function ActionRow({ actions }: { actions: PlanAction[] }) {
             </button>
           </span>
         ) : "href" in a && a.icon ? (
-          <a key={a.key} className="k-btn act icon" href={a.href} aria-label={a.label}>
+          <a
+            key={a.key}
+            className={"k-btn act icon " + a.icon}
+            href={a.href}
+            aria-label={a.label}
+          >
             <Glyph of={{ ui: a.icon }} decorative />
           </a>
         ) : "href" in a ? (
           <a key={a.key} className="k-btn act" href={a.href}>
             {a.label}
           </a>
+        ) : "onClick" in a && a.icon ? (
+          <button
+            key={a.key}
+            type="button"
+            className={"k-btn act icon " + a.icon}
+            aria-label={a.aria ?? a.label}
+            title={a.label}
+            onClick={a.onClick}
+          >
+            <Glyph of={{ ui: a.icon }} decorative />
+          </button>
         ) : a.danger ? (
           <button
             key={a.key}
@@ -194,8 +219,13 @@ export function PlanBox({
   children,
   actions = [],
   before,
+  between,
+  xor,
+  voto,
   ...place
 }: ThingBoxPlace & {
+  /** The voto's criteria lit and picked with the misure (his §181, §189: the filter). */
+  voto?: CriteriaFilter;
   entry: BoxEntry;
   /** In the plan's order; a slot with no data is left out by the caller (PRD-22). */
   slots?: PlanSlot[];
@@ -210,6 +240,20 @@ export function PlanBox({
   actions?: PlanAction[];
   /** Open, above the actions: the type's bars (PAT-102 zones 2 and 3). */
   before?: ReactNode;
+  /** Open, after the voto and above the actions: a thing's own rows (its kin, PAT-103). */
+  between?: ReactNode;
+  /**
+   * The last band, two halves of which one is on (his §169–§170): the view the bars show now is
+   * hatched while it is shut; a tap on a half shows that view and opens its band under it (a fixed
+   * height that scrolls inside), filled; a tap on the open one shuts it.
+   */
+  xor?: {
+    items: { key: string; label: string }[];
+    current: string;
+    open: boolean;
+    onPick: (key: string) => void;
+    panel: ReactNode;
+  };
 }) {
   const vs = variants ?? [];
   const [key, setKey] = useState(() => picked ?? vs[0]?.key);
@@ -222,7 +266,9 @@ export function PlanBox({
     const d = slotDoor(s);
     return d ? [d] : [];
   });
-  // Its page: the last, small icon of its actions row, never a column of its own (his §145).
+  // No way to its page from the box: everything is in it (his §130, §178: «perché c'è ancora la
+  // freccia?»); PAT-101's page icon is gone.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { href, hrefLabel, ...rest } = { ...entry, ...(v?.head ?? {}) };
   const headEntry = rest;
   const all: PlanAction[] = [
@@ -247,25 +293,57 @@ export function PlanBox({
         ]
       : []),
     ...actions,
-    ...(href
+    // «Come valutiamo» as «?» in the actions row (his §167), not a link under the voto
+    ...(headEntry.score?.how
       ? [
           {
-            key: "page",
-            label: hrefLabel ?? "Apri " + entry.title,
-            href,
-            icon: "link" as const,
+            key: "why",
+            label: WORDS.scoreHow.replace(/\s*›$/, ""),
+            href: headEntry.score.how,
+            icon: "why" as const,
           },
         ]
       : []),
   ];
   const rows = shown.flatMap((s) => ("words" in s && s.words.length > 0 ? [s] : []));
   return (
-    <ThingBox {...place} entry={headEntry} doors={doors}>
+    <ThingBox {...place} entry={headEntry} doors={doors} votoElsewhere bands>
       {/* The zones in one column, one gap between any two (PAT-102; his §148: bars always had
           nothing between them and what came under). */}
       <div className="k-zones">
-        {v?.before ?? before}
+        {/* zones 2 and 3 in one band: the type's bar and the voto in full (his §161, §172) */}
+        <div className="k-stack g2 k-bars">
+          {v?.before ?? before}
+          {headEntry.score && headEntry.score.value !== null && (
+            // the voto as tiles, the misure's grammar (his V-A, §189)
+            <CriteriaTiles
+              data={headEntry.score}
+              planned={!!headEntry.planned}
+              {...(voto ? { filter: voto } : {})}
+            />
+          )}
+        </div>
+        {/* a thing's own rows above the actions (its kin, PAT-103; his §161) */}
+        {between}
         <ActionRow actions={all} />
+        {xor && (
+          <div className="k-xor" role="group">
+            {xor.items.map((i) => (
+              <button
+                key={i.key}
+                type="button"
+                className={
+                  "k-xorhalf" + (i.key === xor.current ? (xor.open ? " on" : " now") : "")
+                }
+                aria-pressed={xor.open && i.key === xor.current}
+                onClick={() => xor.onPick(i.key)}
+              >
+                {i.label}
+              </button>
+            ))}
+          </div>
+        )}
+        {xor?.open && <div className="k-xorpanel">{xor.panel}</div>}
         {children}
         {choosing && (
           <ChipRow

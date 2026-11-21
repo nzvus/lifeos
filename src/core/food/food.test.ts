@@ -201,7 +201,11 @@ describe("a recipe's name", () => {
       name: "Porridge alla cannella",
     });
     expect(recipeName("  ")).toEqual({ ok: false, error: "empty" });
-    expect(recipeName("x".repeat(81))).toEqual({ ok: false, error: "too_long" });
+    // at most 40 for a new name; a longer one kept as it is stays (his §157, «yc» §158)
+    expect(recipeName("x".repeat(40))).toMatchObject({ ok: true });
+    expect(recipeName("x".repeat(41))).toEqual({ ok: false, error: "too_long" });
+    expect(recipeName("x".repeat(48), "x".repeat(48))).toMatchObject({ ok: true });
+    expect(recipeName("y".repeat(48), "x".repeat(48))).toEqual({ ok: false, error: "too_long" });
   });
 });
 

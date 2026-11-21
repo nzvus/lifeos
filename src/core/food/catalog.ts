@@ -32,7 +32,7 @@ import { INTAKE_FIELDS } from "./intake";
 import { choicePrices, formatPrices } from "./cost";
 import { FIBRE_TYPES, KIND_FIELDS } from "./kinds";
 import { ESTIMATE_FIELDS } from "./meal";
-import { basesOf, resolveParts } from "../catalog/family";
+import { basesOf, expandParts, resolveParts } from "../catalog/family";
 import { MICRO_FIELDS } from "./micros";
 import { ESTIMATE_MARK } from "./recipes";
 
@@ -324,8 +324,10 @@ export async function readRecipeChoices(
       .filter((x) => x.itemId === id)
       .sort((a, b) => a.position - b.position)
       .map((x) => ({ ...x, unit: null }));
+  // A parent line counts as its parent's foods × k (MOD-23, ADR-0065).
+  const partsOf = (id: string) => (family.has(id) ? resolveParts(id, family, own) : null);
   const resolved = recipes.flatMap((r) =>
-    resolveParts(r.id, family, own).map((x, position) => ({
+    expandParts(r.id, partsOf).map((x, position) => ({
       itemId: r.id,
       position,
       partItemId: x.partItemId,
@@ -333,6 +335,10 @@ export async function readRecipeChoices(
       defaults: x.defaults,
     })),
   );
+  const stored = (id: string) =>
+    own(id)
+      .filter((x) => family.has(x.partItemId))
+      .map((x) => ({ id: x.partItemId, k: Number(x.quantity ?? 1) }));
   return recipeChoices(
     recipes.map((r) => {
       const base = basesOf(r.id, family)[0];
@@ -342,7 +348,10 @@ export async function readRecipeChoices(
     new Map(uses.flatMap((u) => (u.itemId ? [[u.itemId, u.uses] as const] : []))),
     foods,
     savedEstimates(values),
-  );
+  ).map((c) => {
+    const parents = stored(c.recipeId);
+    return parents.length > 0 ? { ...c, parents } : c;
+  });
 }
 
 /** Pure: the saved estimates' totals by recipe; a recipe without the mark is none. */

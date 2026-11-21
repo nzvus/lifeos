@@ -20,6 +20,8 @@ export type ThingBoxPlace = {
   acts?: BoxAct[];
   /** Open, the place's verbs on the doors' sideways row («Registra», «Cambia i cibi»). */
   verbs?: ReactNode;
+  /** false: no icon in the head — a list of one type (his §178, VIS-30). */
+  lead?: boolean;
 };
 
 export function ThingBox({
@@ -33,7 +35,14 @@ export function ThingBox({
   onRail,
   acts,
   verbs,
+  votoElsewhere = false,
+  bands = false,
+  lead = true,
 }: ThingBoxPlace & {
+  /** Drawn in bands (his §169). */
+  bands?: boolean;
+  /** Open, the caller draws the voto in its own zone (PlanBox). */
+  votoElsewhere?: boolean;
   entry: BoxEntry;
   /** Its level-1 doors, in its plan's order; «Voto» comes first from `entry.score`. */
   doors: BoxDoor[];
@@ -57,6 +66,9 @@ export function ThingBox({
       {...(verbs ? { verbs } : {})}
       door={door}
       onDoor={(k: string) => setDoor((d) => (d === k ? null : k))}
+      votoElsewhere={votoElsewhere}
+      bands={bands}
+      lead={lead}
     >
       {children}
     </Box>

@@ -11,12 +11,12 @@
  * client component (never from a server page: a function cannot cross);
  * the same for `acts`, the row's actions (tick, skip) in its trail.
  */
+import { NumUnit } from "./NumUnit";
 import type { CSSProperties, ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
-import { Criteria } from "./Criteria";
+import { Criteria, type CriteriaData } from "./Criteria";
 import { F, MET, PART, type State } from "./format";
-import { WORDS } from "./words";
 
 export type BoxEntry = {
   fam: string;
@@ -39,22 +39,7 @@ export type BoxEntry = {
   href?: string;
   hrefLabel?: string;
   /** Its score (E7): the skyline behind it, the parts when it opens; missing parts named. */
-  score?: {
-    value: number | null;
-    parts: {
-      name: string;
-      score: number;
-      weight: number;
-      /** Each part's share of this criterion's input, by the part's key (MOD-61, VIS-107). */
-      split?: Record<string, number>;
-    }[];
-    /** Criteria that do not count here, each with why: «valore (manca il prezzo)». */
-    missing: string[];
-    /** Its «Come valutiamo» page, the model's criteria and their sources. */
-    how?: string;
-    /** What would raise it, in the day's words, when the app knows (UI-75). */
-    action?: string;
-  };
+  score?: CriteriaData;
 };
 
 /** A door of an open Box: a chip that shows one panel, one open at a time («Oggi a livelli»). */
@@ -87,6 +72,9 @@ export function Box({
   verbs,
   door = null,
   onDoor,
+  votoElsewhere = false,
+  bands = false,
+  lead = true,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -108,6 +96,15 @@ export function Box({
   verbs?: ReactNode;
   door?: string | null;
   onDoor?: (key: string) => void;
+  /** Open, the caller draws the voto in its own zone (PlanBox, PAT-102 zone 3), not here. */
+  votoElsewhere?: boolean;
+  /** Drawn in bands (his §169): each zone a full-width band, a hairline between, no inner frames. */
+  bands?: boolean;
+  /**
+   * Its icon in the head: only where it tells things apart (a day's timeline, a mixed list); in a
+   * list of one type it says nothing and goes (his §178, VIS-30).
+   */
+  lead?: boolean;
 }) {
   const levels = doors !== undefined;
   const shut = levels && !expanded;
@@ -115,7 +112,8 @@ export function Box({
   // The score (UI-75, decided 30 Oct combining the developer's picks): the skyline
   // without a frame, each column as wide as its weight, as full as its score and in
   // its band's colour (the ruler's zones), beside the number and its word.
-  const sc = e.score && e.score.parts.length > 0 && !dense ? e.score : null;
+  // The head's mini voto only while shut: open, the voto is shown in full (his §161).
+  const sc = e.score && e.score.parts.length > 0 && !dense && !expanded ? e.score : null;
   const judged = sc ? F.judge(sc.value ?? undefined) : null;
   const chip =
     sc && judged ? (
@@ -161,17 +159,7 @@ export function Box({
     ) : null;
   const allDoors: BoxDoor[] = levels
     ? [
-        // A row has its voto in the head's chip (no `sc`); its criteria open behind the same door.
-        ...(parts && e.score && e.score.parts.length > 0
-          ? [
-              {
-                key: "voto",
-                label: WORDS.score,
-                value: String(e.score.value),
-                panel: parts,
-              },
-            ]
-          : []),
+        // No «Voto» door: open, the voto is always shown in full (his §161, VIS-43).
         ...doors,
       ]
     : [];
@@ -232,6 +220,41 @@ export function Box({
         {actButtons}
       </div>
     ) : null;
+  // The shut row's voto: the mini skyline and its number over it, see-through (his §185).
+  const miniVoto = (
+    <>
+      {dense && !expanded && e.score && e.score.parts.length > 0 && (
+        // A row's score: the board's mini skyline, beside its value.
+        <span className="k-sky mini" aria-hidden="true">
+          {e.score.parts.map((q) => (
+            <span
+              key={q.name}
+              className="col"
+              style={
+                {
+                  flexGrow: q.weight,
+                  "--mix": Math.round(22 + q.score * 40) + "%",
+                } as CSSProperties
+              }
+            >
+              <span
+                className="fill"
+                style={{ height: Math.round(q.score * 100) + "%" }}
+              />
+            </span>
+          ))}
+          <span className="line" />
+        </span>
+      )}
+      {dense && !expanded && e.score && e.score.value !== null && (
+        // The number beside it, in its band's colour: kept when the drawing is
+        // too small to read (≤ 360 px), never a row with no score at all (UI-102).
+        <b className="k-vn" style={{ color: F.judge(e.score.value).tone }}>
+          {e.score.value}
+        </b>
+      )}
+    </>
+  );
   return (
     <div
       className={
@@ -268,7 +291,11 @@ export function Box({
       <div className={"k-shape" + fam + (e.planned ? " planned" : "")}>
         <div
           className={
-            "k-box " + e.fam + (e.sub ? " " + e.sub : "") + (expanded ? " is-open" : "")
+            "k-box " +
+            e.fam +
+            (e.sub ? " " + e.sub : "") +
+            (expanded ? " is-open" : "") +
+            (bands ? " bands" : "")
           }
           // Closed, the whole box opens it, not only its head (his 19 Nov: «interagibili per
           // intero»); a tap on its own buttons and links stays theirs. Open, only the head
@@ -296,16 +323,18 @@ export function Box({
             {/* The icon sits on the first line, shut and open: it never moves when the box
                 opens (his 19 Nov, replacing his 16 Nov centring; VIS-40). The head reaches
                 under it, so a tap on the icon opens too. */}
-            <span className="k-lead" aria-hidden="true">
-              {badge ? (
-                // The tile says «this row is a link» (UI-81): a row that opens in place has none.
-                <Glyph of={of} size="m" tile={cover} />
-              ) : (
-                <span className="k-glyph-lead">
-                  <Glyph of={of} size="s" />
-                </span>
-              )}
-            </span>
+            {lead && (
+              <span className="k-lead" aria-hidden="true">
+                {badge ? (
+                  // The tile says «this row is a link» (UI-81): a row that opens in place has none.
+                  <Glyph of={of} size="m" tile={cover} />
+                ) : (
+                  <span className="k-glyph-lead">
+                    <Glyph of={of} size="s" />
+                  </span>
+                )}
+              </span>
+            )}
             <div className="k-line g1">
               {onToggle ? (
                 <button
@@ -324,7 +353,7 @@ export function Box({
                   </span>
                   <span className="k-hright">
                     {chip}
-                    <span className="k-num d4">{e.value}</span>
+                    <HeadValue v={e.value} />
                   </span>
                 </button>
               ) : cover ? (
@@ -340,7 +369,7 @@ export function Box({
                   </span>
                   <span className="k-hright">
                     {chip}
-                    <span className="k-num d4">{e.value}</span>
+                    <HeadValue v={e.value} />
                   </span>
                 </a>
               ) : (
@@ -350,42 +379,13 @@ export function Box({
                   </span>
                   <span className="k-hright">
                     {chip}
-                    <span className="k-num d4">{e.value}</span>
+                    <HeadValue v={e.value} />
                   </span>
                 </span>
               )}
-              {(headActs.length > 0 || (dense && e.score)) && (
+              {(headActs.length > 0 || (dense && e.score && !expanded)) && (
                 <span className="k-trail">
-                  {dense && e.score && e.score.parts.length > 0 && (
-                    // A row's score: the board's mini skyline, beside its value.
-                    <span className="k-sky mini" aria-hidden="true">
-                      {e.score.parts.map((q) => (
-                        <span
-                          key={q.name}
-                          className="col"
-                          style={
-                            {
-                              flexGrow: q.weight,
-                              "--mix": Math.round(22 + q.score * 40) + "%",
-                            } as CSSProperties
-                          }
-                        >
-                          <span
-                            className="fill"
-                            style={{ height: Math.round(q.score * 100) + "%" }}
-                          />
-                        </span>
-                      ))}
-                      <span className="line" />
-                    </span>
-                  )}
-                  {dense && e.score && e.score.value !== null && (
-                    // The number beside it, in its band's colour: kept when the drawing is
-                    // too small to read (≤ 360 px), never a row with no score at all (UI-102).
-                    <b className="k-vn" style={{ color: F.judge(e.score.value).tone }}>
-                      {e.score.value}
-                    </b>
-                  )}
+                  {miniVoto}
                   {headActs.map((a) => (
                     <button
                       key={a.label}
@@ -402,7 +402,7 @@ export function Box({
             </div>
             {!shut && e.meta && <span className="k-meta k-sub">{e.meta}</span>}
           </div>
-          {!levels && expanded && parts}
+          {expanded && !votoElsewhere && parts && <div className="k-voto">{parts}</div>}
           {shut && e.strip && e.strip.length > 0 && (
             // Closed: one line and its strip (for a meal, where its energy comes from).
             <div className="k-ribbon k-lvstrip">
@@ -537,3 +537,8 @@ export function Box({
 const SCORE_WORD = { met: "bene", part: "così così", no: "male", none: "" } as const;
 export const band = (v: number) =>
   v >= MET ? "var(--heat-good)" : v >= PART ? "var(--heat-fair)" : "var(--heat-bad)";
+
+/** A head's value: its number, its unit a size smaller (his §161). */
+function HeadValue({ v }: { v: string | undefined }) {
+  return v ? <NumUnit v={v} className="d4" /> : null;
+}

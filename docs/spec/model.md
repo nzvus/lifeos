@@ -88,6 +88,8 @@ assunzione is a pasto salvato logged with its dose (FD-64; the `intake_item` fla
   (parent) · modifica in place · unisci · archivia · ripristina · elimina (only if unused, else
   archive). Archived = out of pickers, kept in history. [n03, PLAN-33, P1] — Today: 11 archive
   paths, 6 «parti da» mechanisms, restore for 3 types.
+  Pasti: a parent is a line × a multiplier, kinship found, never deleted (ADR-0065; MOD-23 in the
+  open change five-places).
 - **MOD-21** `parentId` means one thing per type, declared in its family rules (levels or
   variants), never inferred from the parent's catalog. [needs n03]
 - **MOD-22** Prices are observations (formato, shop, day, cents); price per kg is derived.

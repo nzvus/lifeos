@@ -20,6 +20,31 @@ export const PART_WORDS: Record<string, string> = {
   variety: "varietà",
   timing: "momento",
 };
+/** Each criterion's short name, for its tile (his §189, V-A). */
+export const PART_SHORT: Record<string, string> = {
+  density: "densità",
+  limits: "limiti",
+  value: "valore",
+  fit: "piano",
+  carbsQuality: "q. carbo",
+  fatQuality: "q. grassi",
+  satiety: "sazietà",
+  variety: "varietà",
+  timing: "momento",
+};
+/**
+ * Which criteria each misura feeds (FD-51; his §181, §189 «filtro»): a misura picked lights
+ * these, a criterion picked lights the misure that feed it. The kcal feed every criterion «per
+ * 100 kcal»; here only those they decide.
+ */
+export const MISURA_FEEDS: Record<string, string[]> = {
+  kcal: ["fit", "variety", "timing"],
+  protein: ["density", "satiety", "fit", "timing"],
+  carbs: ["carbsQuality", "limits"],
+  fat: ["fatQuality", "limits", "density"],
+  fiber: ["density", "satiety", "carbsQuality"],
+  micro: ["density", "limits"],
+};
 /** Why a criterion does not count for this meal (his 19 Nov: «che significa "senza: …"?»). */
 const MISSING_WHY: Record<string, string> = {
   value: "manca il prezzo",
@@ -76,6 +101,8 @@ export function linesScore(
     value: s.value,
     parts: s.parts.map((p) => ({
       name: (PART_WORDS[p.key] ?? p.key) + (p.key === "limits" ? over : ""),
+      key: p.key,
+      short: PART_SHORT[p.key] ?? p.key,
       score: p.score,
       weight: p.weight,
       ...split(p.key),

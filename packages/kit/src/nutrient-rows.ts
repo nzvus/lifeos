@@ -330,7 +330,16 @@ export function nutrientsL0(d: NutrientsData) {
 }
 
 /** `sel`: the food highlighted in a meal's window (L2), by key; null for none. */
-export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
+/**
+ * `by`: «foods» splits each bar by the foods it came from (the default when there are foods),
+ * «kinds» by kind of nutrient (qualità alta, amidi integrali, omega-3…) — the two views of one bar
+ * (VIS-106, his §169–§170).
+ */
+export function nutrientsL1(
+  d: NutrientsData,
+  sel: string | null = null,
+  by: "foods" | "kinds" = "foods",
+) {
   const foodsIn = d.foods?.length ? d.foods : null;
   const byKcal = [...(foodsIn ?? [])].sort((a, b) => b.kcal - a.kcal);
   const foods = (foodsIn ?? []).map((f) => ({
@@ -404,20 +413,21 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
     const h = heat(m.v, m.zones, scale, planned);
     const kinds = KINDS[m.key].filter(([k]) => (m.parts?.[k] ?? 0) > 0);
     const has = (foodsIn ?? []).filter((f) => total(f.macros[m.key]) > 0);
-    const segs: Seg[] = has.length
-      ? has.map((f) =>
-          foodSeg(m.key, f.macros[m.key]!, scale, sel !== null && sel !== f.key),
-        )
-      : kinds.length
-        ? kinds.map(([k, , tone]) => ({
-            w: pct(m.parts![k]!, scale),
-            bg: shade(m.key, tone),
-            planned: false,
-            dim: false,
-          }))
-        : m.v > 0
-          ? [{ w: pct(m.v, scale), bg: shade(m.key, 1), planned: false, dim: false }]
-          : [];
+    const segs: Seg[] =
+      has.length && (by === "foods" || !kinds.length)
+        ? has.map((f) =>
+            foodSeg(m.key, f.macros[m.key]!, scale, sel !== null && sel !== f.key),
+          )
+        : kinds.length
+          ? kinds.map(([k, , tone]) => ({
+              w: pct(m.parts![k]!, scale),
+              bg: shade(m.key, tone),
+              planned: false,
+              dim: false,
+            }))
+          : m.v > 0
+            ? [{ w: pct(m.v, scale), bg: shade(m.key, 1), planned: false, dim: false }]
+            : [];
     if (planned > 0)
       segs.push({
         w: pct(planned, scale),
@@ -669,10 +679,70 @@ export function energyStrip(d: NutrientsData): { w: number; c: string }[] {
   if (sum <= 0) return [];
   const eaten = d.kcal?.v ?? sum;
   const share = d.kcal?.t ? Math.min(1, eaten / d.kcal.t) : 1;
+  // each macro split by its kinds in their shades, as its bar is (his §180: «le sottodivisioni»)
   return k
     .filter((m) => m.kcal > 0)
-    .map((m) => ({
-      w: Math.round((m.kcal / sum) * share * 1000) / 10,
-      c: "var(--macro-" + m.key + ")",
-    }));
+    .flatMap((m) => {
+      const parts = d.macros.find((x) => x.key === m.key)?.parts ?? {};
+      const kinds = KINDS[m.key].filter(([kk]) => (parts[kk] ?? 0) > 0);
+      const inKinds = kinds.reduce((a, [kk]) => a + parts[kk]!, 0);
+      const w = (kcal: number) => Math.round((kcal / sum) * share * 1000) / 10;
+      return inKinds > 0
+        ? kinds.map(([kk, , tone]) => ({
+            w: w((m.kcal * parts[kk]!) / inKinds),
+            c: shade(m.key, tone),
+          }))
+        : [{ w: w(m.kcal), c: "var(--macro-" + m.key + ")" }];
+    });
+}
+
+/**
+ * The kcal as a sixth cell among the macros' (his §178: «aggiungendo le calorie… dovrebbe
+ * interagire come le altre»): its number, its track (where the energy comes from, by macro in
+ * their colours, or by ingredient in shades of the kcal's colour), and, picked, the two
+ * sections of its band — by macro and by ingredient, each in kcal.
+ */
+export function energyL1(d: NutrientsData, by: "foods" | "kinds" = "foods") {
+  const macro = d.macros
+    .map((m) => ({ key: m.key, name: NAME[m.key], kcal: m.v * KCAL_PER_G[m.key] }))
+    .filter((m) => m.kcal > 0);
+  const food = [...(d.foods ?? [])]
+    .filter((f) => f.kcal > 0)
+    .sort((a, b) => b.kcal - a.kcal);
+  const total = d.kcal?.v ?? macro.reduce((a, m) => a + m.kcal, 0);
+  if (total <= 0) return null;
+  const tone = (n: number) =>
+    "color-mix(in srgb, var(--kcal) " +
+    Math.round(TONES[Math.min(TONES.length - 1, n)]! * 100) +
+    "%, transparent)";
+  const mSum = macro.reduce((a, m) => a + m.kcal, 0) || 1;
+  const fSum = food.reduce((a, f) => a + f.kcal, 0) || 1;
+  const byMacro = macro.map((m) => ({
+    key: m.key,
+    name: m.name,
+    w: pct(m.kcal, mSum),
+    c: MACRO_COLOR[m.key],
+    v: F.num(Math.round(m.kcal), "kcal"),
+  }));
+  const fTop = food[0]?.kcal ?? 1;
+  const byFood = food.map((f, n) => ({
+    key: f.key + ":" + n,
+    name: f.name,
+    w: pct(f.kcal, fTop),
+    c: tone(n),
+    v: F.num(Math.round(f.kcal), "kcal"),
+  }));
+  const segs =
+    by === "kinds" || byFood.length === 0
+      ? byMacro.map((m) => ({ w: m.w, bg: m.c }))
+      : food.map((f, n) => ({ w: pct(f.kcal, fSum), bg: tone(n) }));
+  return {
+    short: F.num(Math.round(total), "kcal"),
+    /** Its verdict where it has zones (a day); a meal's kcal is not judged (FD-35): the dash. */
+    level: d.kcal?.zones?.length ? heatLevel(total, d.kcal.zones) : null,
+    aria: "Energia: " + F.num(Math.round(total), "kcal"),
+    segs,
+    byMacro,
+    byFood,
+  };
 }

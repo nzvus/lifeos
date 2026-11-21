@@ -372,8 +372,6 @@ export const ICONS: IconRegistry = {
     sort: ["Ordina", "arrows-sort"],
     edit: ["Modifica", "pencil"],
     delete: ["Elimina", "trash"],
-    // Added by hand 21 Nov (his §148; icons_build.py and icons.json are not in this checkout):
-    // a verdict's chevrons, Tabler 3.19.0's own paths below.
     twoDown: ["Da evitare", "chevrons-down"],
     down: ["Pessimo", "chevron-down"],
     level: ["Non giudicato", "minus"],
@@ -394,6 +392,11 @@ export const ICONS: IconRegistry = {
     eye: ["Escludi", "eye-off"],
     refresh: ["Aggiorna", "reload"],
     star: ["Preferito", "star"],
+    parents: ["Genitori", "corner-left-up"],
+    children: ["Figli", "corner-right-down"],
+    why: ["Come valutiamo", "question-mark"],
+    log: ["Registra", "calendar-plus"],
+    merge: ["Unisci", "arrow-merge"],
   },
   sections: {
     identity: ["Nome e codici", "barcode"],
@@ -415,6 +418,8 @@ export const ICONS: IconRegistry = {
     armchair:
       "M5 11a2 2 0 0 1 2 2v2h10v-2a2 2 0 1 1 4 0v4a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-4a2 2 0 0 1 2 -2zM5 11v-5a3 3 0 0 1 3 -3h8a3 3 0 0 1 3 3v5M6 19v2M18 19v2",
     "arrow-down-to-arc": "M12 3v12M16 11l-4 4l-4 -4M3 12a9 9 0 0 0 18 0",
+    "arrow-merge":
+      "M8 7l4 -4l4 4M12 3v5.394a6.737 6.737 0 0 1 -3 5.606a6.737 6.737 0 0 0 -3 5.606v1.394M12 3v5.394a6.737 6.737 0 0 0 3 5.606a6.737 6.737 0 0 1 3 5.606v1.394",
     "arrows-exchange": "M7 10h14l-4 -4M17 14h-14l4 4",
     "arrows-move-vertical": "M9 18l3 3l3 -3M12 15v6M15 6l-3 -3l-3 3M12 3v6",
     "arrows-sort": "M3 9l4 -4l4 4m-4 -4v14M21 15l-4 4l-4 -4m4 4v-14",
@@ -451,6 +456,8 @@ export const ICONS: IconRegistry = {
       "M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2zM16 3l0 4M8 3l0 4M4 11l16 0M8 15h2v2h-2z",
     "calendar-month":
       "M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12zM16 3v4M8 3v4M4 11h16M7 14h.013M10.01 14h.005M13.01 14h.005M16.015 14h.005M13.015 17h.005M7.01 17h.005M10.01 17h.005",
+    "calendar-plus":
+      "M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5M16 3v4M8 3v4M4 11h16M16 19h6M19 16v6",
     "calendar-repeat":
       "M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3M16 3v4M8 3v4M4 11h12M20 14l2 2h-3M20 18l2 -2M19 16a3 3 0 1 0 2 5.236",
     "calendar-week":
@@ -473,12 +480,12 @@ export const ICONS: IconRegistry = {
       "M12 3c1.918 0 3.52 1.35 3.91 3.151a4 4 0 0 1 2.09 7.723l0 7.126h-12v-7.126a4 4 0 1 1 2.092 -7.723a4 4 0 0 1 3.908 -3.151zM6.161 17.009l11.839 -.009",
     cherry:
       "M7.5 16.5m-3.5 0a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0M17 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0M9 13c.366 -2 1.866 -3.873 4.5 -5.6M17 15c-1.333 -2.333 -2.333 -5.333 -1 -9M5 6c3.667 -2.667 7.333 -2.667 11 0c-3.667 2.667 -7.333 2.667 -11 0",
-    "chevron-left": "M15 6l-6 6l6 6",
-    "chevron-up": "M6 15l6 -6l6 6",
     "chevron-down": "M6 9l6 6l6 -6",
-    "chevrons-up": "M7 11l5 -5l5 5M7 17l5 -5l5 5",
-    "chevrons-down": "M7 7l5 5l5 -5M7 13l5 5l5 -5",
+    "chevron-left": "M15 6l-6 6l6 6",
     "chevron-right": "M9 6l6 6l-6 6",
+    "chevron-up": "M6 15l6 -6l6 6",
+    "chevrons-down": "M7 7l5 5l5 -5M7 13l5 5l5 -5",
+    "chevrons-up": "M7 11l5 -5l5 5M7 17l5 -5l5 5",
     "circle-plus": "M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0M9 12h6M12 9v6",
     clock: "M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0M12 7v5l3 3",
     cloud:
@@ -490,6 +497,8 @@ export const ICONS: IconRegistry = {
     cookie:
       "M8 13v.01M12 17v.01M12 12v.01M16 14v.01M11 8v.01M13.148 3.476l2.667 1.104a4 4 0 0 0 4.656 6.14l.053 .132a3 3 0 0 1 0 2.296q -.745 1.18 -1.024 1.852q -.283 .684 -.66 2.216a3 3 0 0 1 -1.624 1.623q -1.572 .394 -2.216 .661q -.712 .295 -1.852 1.024a3 3 0 0 1 -2.296 0q -1.203 -.754 -1.852 -1.024q -.707 -.292 -2.216 -.66a3 3 0 0 1 -1.623 -1.624q -.397 -1.577 -.661 -2.216q -.298 -.718 -1.024 -1.852a3 3 0 0 1 0 -2.296q .719 -1.116 1.024 -1.852q .257 -.62 .66 -2.216a3 3 0 0 1 1.624 -1.623q 1.547 -.384 2.216 -.661q .687 -.285 1.852 -1.024a3 3 0 0 1 2.296 0",
     copy: "M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667zM4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1",
+    "corner-left-up": "M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4",
+    "corner-right-down": "M6 6h6a3 3 0 0 1 3 3v10l-4 -4m8 0l-4 4",
     crunch: "M3 20h18M6 20l3-6 6-2M17 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM9 14l5 3",
     cup: "M5 11h14v-3h-14zM17.5 11l-1.5 10h-8l-1.5 -10M6 8v-1a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v1M15 5v-2",
     curl: "M5 22v-6a6 6 0 0 1 6-6h2M13 10l-1-4a2 2 0 0 1 4-1l1 4a6 6 0 0 1-2 6M5 22h10a3 3 0 0 0 3-3v-2",
@@ -622,6 +631,8 @@ export const ICONS: IconRegistry = {
     pulldown:
       "M2 3h20M7 3v4l3 3M17 3v4l-3 3M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM10 22v-6h4v6",
     pushdown: "M12 2v7M9 9h6M12 13a2 2 0 1 0 0-4M8 12v6l4 4 4-4v-6",
+    "question-mark":
+      "M8 8a3.5 3 0 0 1 3.5 -3h1a3.5 3 0 0 1 3.5 3a3 3 0 0 1 -2 3a3 4 0 0 0 -2 4M12 19l0 .01",
     raise:
       "M12 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM2 10h4M18 10h4M6 10h12M10 10v5l-1 7M14 10v5l1 7",
     rearfly:

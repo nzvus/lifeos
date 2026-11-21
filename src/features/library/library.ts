@@ -10,6 +10,7 @@ import { lineTotals } from "@/core/food/totals";
 import type { ExerciseSession } from "@/core/training";
 import { LABEL_FIELDS } from "@/core/kinds/catalog";
 import { objects } from "@/i18n/objects";
+import type { MealKin } from "./kin";
 
 /** A marca of a cibo as its open box shows it; `box` from the page, when the list is judged. */
 export type Product = {
@@ -74,7 +75,23 @@ export type LibraryRow = {
     data: NutrientsData;
     details: BoxDetails;
     parts: MealPart[];
+    /** Its parents and children (MOD-23, PAT-103). */
+    kin?: MealKin;
+    /** Its foods for the «Ingredienti» band (§169): each parent's, then its own, edited in place. */
+    ingredients?: {
+      parents: { id: string; name: string; k: number; foods: MealFood[] }[];
+      own: MealFood[];
+    };
   };
+};
+
+/** A food of a pasto in its «Ingredienti» band: the choice's key, its words and its amount. */
+export type MealFood = {
+  key: string;
+  name: string;
+  brand: string | null;
+  quantity: number;
+  unit: string;
 };
 
 /** One cibo of a pasto, as its row says it. */
@@ -229,6 +246,9 @@ export function listRows(
       words.every((w) => fold(r.name + " " + r.sub + " " + (r.also ?? "")).includes(w)),
     )
     .sort((a, b) => {
+      // The one whose name is exactly what was typed comes first (a kin's name tapped, §160).
+      const exact = (r: LibraryRow) => (fold(r.name) === fold(query.trim()) ? 0 : 1);
+      if (exact(a) !== exact(b)) return exact(a) - exact(b);
       if (s === "name") return byName(a, b);
       if (s === "uses") return b.uses - a.uses || byName(a, b);
       const x = sortValue(a, s);

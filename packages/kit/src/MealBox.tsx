@@ -6,9 +6,9 @@
  * full, showing only the proportions of its parts (its ingredients, or its kinds), each number
  * with its verdict's arrow; then one row of actions (PAT-101), then its other slots.
  */
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { BoxEntry } from "./Box";
-import { Nutrients } from "./Nutrients";
+import { KCAL, MICRO, Nutrients } from "./Nutrients";
 import { energyStrip, type NutrientsData } from "./nutrient-rows";
 import { PlanBox, type PlanAction, type PlanSlot } from "./PlanBox";
 import type { ThingBoxPlace } from "./ThingBox";
@@ -19,6 +19,10 @@ export function MealBox({
   slots,
   actions = [],
   children,
+  between,
+  ingredients,
+  words = { foods: "Ingredienti", kinds: "Nutrienti" },
+  feeds,
   ...place
 }: ThingBoxPlace & {
   entry: BoxEntry;
@@ -30,14 +34,103 @@ export function MealBox({
   actions?: PlanAction[];
   /** Open, after everything (a place's own line). */
   children?: ReactNode;
+  /** Open, after the voto and above the actions (its kin, PAT-103). */
+  between?: ReactNode;
+  /** The «Ingredienti» band's content (its foods, edited in place, §169); none: no two halves. */
+  ingredients?: ReactNode;
+  /** The two halves' words, from the caller (PAT-81). */
+  words?: { foods: string; kinds: string };
+  /**
+   * Which criteria each misura feeds, from the caller's model (PAT-81; his §181, §189): a misura
+   * picked lights its criteria, a criterion picked lights its misure.
+   */
+  feeds?: Record<string, string[]>;
 }) {
+  // One state for the bars and the last band (his §170, §172): a macro picked in the bars shows
+  // its kinds — in the bars and in «Nutrienti»; none picked, the bars show the ingredients. A tap
+  // on the picked one puts it back; a tap on a half opens or shuts its band.
+  const [picked, setPicked] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [crit, setCrit] = useState<string | null>(null);
+  // «Micro» or the kcal picked keep the bars by ingredient; a macro picked shows its kinds (§174)
+  const view = picked && picked !== MICRO && picked !== KCAL ? "kinds" : "foods";
+  // «Nutrienti» opened with nothing picked starts from the first cell, the kcal (§178)
+  const first = KCAL;
   return (
     <PlanBox
       {...place}
       entry={{ ...entry, strip: energyStrip(data) }}
       slots={slots}
       actions={actions}
-      before={<Nutrients data={data} part="main" chips={false} inline />}
+      before={
+        <Nutrients
+          data={data}
+          part="main"
+          chips={false}
+          inline
+          by={view}
+          {...(ingredients
+            ? {
+                picked,
+                onPick: (k: string) => {
+                  setCrit(null);
+                  setPicked((p) => (p === k ? null : k));
+                },
+              }
+            : {})}
+          litCells={
+            feeds && crit
+              ? Object.keys(feeds).filter((k) => feeds[k]!.includes(crit))
+              : null
+          }
+        />
+      }
+      {...(feeds
+        ? {
+            voto: {
+              lit: picked ? (feeds[picked] ?? []) : null,
+              picked: crit,
+              onPick: (k: string) => {
+                setPicked(null);
+                setCrit((c) => (c === k ? null : k));
+              },
+            },
+          }
+        : {})}
+      between={between}
+      {...(ingredients
+        ? {
+            xor: {
+              items: [
+                { key: "kinds", label: words.kinds },
+                { key: "foods", label: words.foods },
+              ],
+              current: picked ? "kinds" : "foods",
+              open,
+              onPick: (k: string) => {
+                if (k === (picked ? "kinds" : "foods")) setOpen((o) => !o);
+                else {
+                  setPicked(k === "kinds" ? first : null);
+                  setOpen(true);
+                }
+              },
+              panel:
+                picked === MICRO || picked === KCAL ? (
+                  <Nutrients key={picked} data={data} chips={false} focus={picked} />
+                ) : picked ? (
+                  <Nutrients
+                    key={picked}
+                    data={data}
+                    part="main"
+                    chips={false}
+                    focus={picked}
+                  />
+                ) : (
+                  ingredients
+                ),
+            },
+          }
+        : {})}
     >
       {children}
     </PlanBox>

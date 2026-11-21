@@ -257,6 +257,8 @@ export type RecipeChoice = {
   estimate?: Record<string, string>;
   /** A variant: its nearest base (ADR-0060); its parts are already resolved. */
   baseId?: string;
+  /** Its parents stored as its lines, each × k (MOD-23, ADR-0065); its parts are expanded. */
+  parents?: { id: string; k: number }[];
 };
 
 export type PartRow = {

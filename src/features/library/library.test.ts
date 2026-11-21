@@ -55,6 +55,15 @@ describe("Libreria's lists", () => {
       "Skyr",
     ]);
     expect(listRows(rows, "SKY", "uses").map((r) => r.key)).toEqual(["skyr"]);
+    // a kin's name tapped (PAT-103, §160): the exact name first, before more used ones
+    const many = foodRows([
+      food("g2", "Gelato proteico al pistacchio", {}, 9),
+      food("g", "Gelato Proteico", {}),
+    ]);
+    expect(listRows(many, "gelato proteico", "uses").map((r) => r.key)).toEqual([
+      "g",
+      "g2",
+    ]);
     expect(sortValue(rows[2]!, "protein")).toBeNull();
     const withProduct = foodRows([
       ...foods,

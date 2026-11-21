@@ -53,3 +53,90 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
     (PAT-102); [ ] one meal box on Oggi, photos, **stop**; [ ] the other types on the anatomy, the
     in-place edits (ACT-03, ACT-25) on it; [ ] an esercizio's own voto, the sessione from them
     (MOD-61); [ ] obiettivi); [ ] ④ where adding happens → stop B; [ ] ⑤ lanes → stop B.
+
+## Next, from his words (his §166: «rivedi tutte le discussioni… di modo che possiamo andare avanti
+## tenendo tutto a mente») — decided, not built; each with its source
+
+**A. The voto** (§139–§141, VIS-107, MOD-61; its look today is temporary, his §163)
+- [ ] A1 The voto bar under the macro bar, drawn unlike it: one column per criterion (width = its
+  weight, height = its score, its band's colour), each column split by ingredient — a piece = that
+  ingredient's share of the criterion's input (MOD-61 `lineShares`/`split`: built). A criterion not
+  from the parts («momento», a missing price) drawn whole.
+- [ ] A2 Live: while an amount is edited the voto and its pieces are recomputed; «senza questo: 64 →
+  71» lives in the «Perché?» (PAT-51), not on the bar.
+- [ ] A3 Each ingredient carries its own voto (a cibo's voto per 100 kcal; §142 (4): a pasto's
+  ingredients show none yet).
+- [ ] A4 A touched or edited ingredient lights its pieces in both bars at once, the rest dims.
+- [ ] A5 The same pattern up the scale (§141): an esercizio gets its own voto, a sessione is their
+  aggregate; a day ← its voci; a period ← its days (Andamento). Open (§144): the day's voto by voce.
+- [x] Open, the voto always in full, no «Voto» door; the mini voto only shut (§161–§162).
+- [x] Five chevrons (⇊ ↓ – ↑ ⇈), their colours shared by the voto (§146–§148, §155).
+
+**B. Editing in place** (§112–§113, reframe §15, PAT-13, §137, §139)
+- [~] B1 (§171: a tap on the grams opens − grams +, steps of 10, saved at once; typing not yet) An ingredient's grams on its number: tap → a small stepper (drawn small, touched at 44,
+  §137) in its row; bars and voto follow live (A2).
+- [x] B2 (§171: at the top of the «Ingredienti» band) «+ ingrediente» at the end of the meal's lines, inside the box: a search row opens there,
+  results under it (no pop-up; the kin search's small window, §163, is the same piece).
+- [ ] B3 Porzioni: one stepper, once (PAT-101; built on the day).
+- [ ] B4 Editing puts the bars in the ingredient view (VIS-106) and lights the edited one (A4).
+- [ ] B5 On the day an edit changes only that voce (ADR-0007); in the Elenco the pasto, and its
+  children follow (MOD-23); «↺» on a voce whose pasto changed after it (PAT-31).
+- [ ] B6 (his «1 yc», §169: option 1, spacing checked with what is around) The name and nota on the box: (1) tap the open title, it becomes a field
+  (recommended); (2) «Nome» and «Nota» rows.
+- [ ] B7 Adding everywhere in place (reframe §15): on the rail at a time or a gap, «Senza orario»,
+  «Nuovo tipo» at the end of the results; ⊕, the Capture sheet and the Aggiungi page go; «Al volo»
+  stays; the ranking for this hour kept.
+- [ ] B8 PAT-104: a voce's dish name is the door to its pasto in the Elenco.
+
+**C. The bars, by ingredient or by nutrient** (§139, §143–§146, §150–§151, VIS-106, VIS-50, §101)
+- [x] A meal's four macros on one row, each bar full = its parts' proportions, a chevron by each
+  number (§146–§149); «Il giorno» expanded with chevrons; the band at the top once scrolled past,
+  the meal in view lit (§150–§151).
+- [x] C1 (§170–§171: a tap on the bars, the last band follows) The two views of the same bars: **by ingredient** (each ingredient a block) · **by
+  nutrient kind** (the origins «Il giorno» draws: qualità alta…, amidi integrali…, omega-3…) —
+  how he switches is **open**: a tap on the bars (his §143 «se tocchi sulle barre scorri tra queste
+  visualizzazioni», recommended) or a chip (VIS-106 as written).
+- [ ] C2 A tapped ingredient (or kind) lights its blocks in every bar, the rest dims (VIS-50 level
+  2, now everywhere).
+- [ ] C3 The same one-bar-by-parts for a sessione (its esercizi) and a day (its voci) (VIS-106).
+- [ ] C4 Drill down / roll up and filters as more views of the same instrument (§101, bars-study
+  §21.7); the instrument is the control.
+
+**D. One box for every type** (§154 steps 4–5, Stop B table §155)
+- [ ] D1 Every type through `PlanBox` (today four builders); zone 2 a bar from its level-0 value
+  (dose, passi, ore di sonno, ritmo dell'obiettivo); ciclo, blocco, obiettivo open like the rest.
+- [ ] D2 One look for a field's value (the row he taps, PAT-13), never tiles and chips both.
+- [ ] D3 The Stop B faults: the assunzione's two costs (0,10 vs 0,06 €), the tragitto's tiles in
+  English, come stai and «a digiuno» shown twice, sonno titled «Sveglia».
+- [ ] D4 «?» (come valutiamo) and the icon actions in the old boxes too, when they move to PlanBox.
+
+**E. Waiting from before this change's Deliver** (handoff, audit 15 Nov)
+- [ ] The gym (§59): the exercise box in the Elenco, a Muscoli picker (show first), «carico per
+  lato», the gym on photos, Andamento per esercizio, the session's voto over time.
+- [ ] Lost since #357: «Copia i pasti di ieri», «Salva come giornata tipo», «+ previsto».
+- [ ] §64 the week strip redesign; inbox W-01…W-04, Q-25.
+
+**Open, his (§173):** the micronutrients (rec: a fifth «Micro» cell in the macros' row). Earlier: none from §166 (B6 «yc» option 1; C1 a tap on the bars; a lone button fills its row,
+his «3 sì»). Next: «Unisci» as a band; the voto bar following the view (A1); typing the grams.
+
+**F. His §178, the tiles' next round** (next chat; show photos, then stop)
+- [x] F1 The two halves and the actions as tiles too (§177's fault: the old «lines» selectors win
+  on specificity — delete them, one rule for every row of cells).
+- [x] F2 The «›» to the page goes (his §130, §178): PAT-101's page icon removed from the box.
+- [x] F3 Everything that appears is capped and scrolls inside: the Nutrienti / Ingredienti band
+  (320 px), the Ingredienti search and its results (not capped today), the kin search (220 px).
+- [x] F4 The macros in rows of three tiles, with **the kcal** as a sixth (kcal · proteine · carbo /
+  grassi · fibre · micro): the head keeps only the title. Open, his: what a tap on kcal does
+  (Claude's rec to propose: it picks the energy — the bars and «Nutrienti» show where the kcal
+  come from, by ingredient and by macro).
+- [x] F5 The icon only where it tells things apart (the day's timeline, a mixed list); in a list of
+  one type (Elenco · Pasti salvati) the box has none. A rule for every Box (VIS-30 changes).
+- [x] F6 (his pick B, §180) The title stands out from the rest — show 2–3 options (size/weight, its tile's ground, the
+  family's colour) on the real box.
+- [x] F7 Photos of the search bars: «Aggiungi un ingrediente» and «+ genitore», open and typed.
+- [x] F9 His §180: ingredient search like «+ genitore», gaps, «+» tiles, title B, arrows on kcal
+  and Micro, shut voto over the strip split by kinds, parents' tones as legend (§182).
+- [x] F11 His §184/§187: a picked misura on the whole row, his W2 (§188).
+- [x] F10 His §181/§189: names, V-A, F1 + F3, «limiti» in Micro (§190). F2 waits for MOD-61 by nutrient.
+- [ ] F8 Found 21 Nov: a shut row at 320 px crushes icon, title and value (kit `cosa-box-320`,
+  the cibo; there before §178). Less in the Elenco now its rows have no icon; fix with D.

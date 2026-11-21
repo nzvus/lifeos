@@ -24,10 +24,12 @@ import {
 import type { MealState } from "@/features/food/Composer";
 import { parseLines, RECIPE_WORDS } from "@/features/food/composer";
 import { formLines } from "../../../aggiungi/pasto/meal-input";
+import { readRecipeName } from "@/core/food/kin";
 
 const NO_FOOD = "Aggiungi almeno un cibo, o scrivi una stima.";
 
-async function read(prev: MealState, data: FormData) {
+/** `id`: the pasto being changed, whose longer old name may stay (the name cap, §158). */
+async function read(prev: MealState, data: FormData, id?: string) {
   const owner = await requireOwner();
   const db = await getDb();
   const form: Record<string, string> = {};
@@ -36,7 +38,10 @@ async function read(prev: MealState, data: FormData) {
   const today = logicalDay(new Date(), (await ownerClock()).clock);
   const choices = await readFoodChoices(db, owner, today);
   const checked = formLines(form, lines, choices);
-  const name = recipeName(form["recipeName"] ?? "");
+  const name = recipeName(
+    form["recipeName"] ?? "",
+    id ? await readRecipeName(db, owner, id) : null,
+  );
   const errors: Record<string, string> = checked.ok ? {} : { ...checked.errors };
   if (!name.ok) errors["recipeName"] = RECIPE_WORDS[name.error];
   if (checked.ok && !checked.estimate && !checked.lines.some((l) => l.itemId))
@@ -76,7 +81,7 @@ export async function replaceSaved(
   prev: MealState,
   data: FormData,
 ): Promise<MealState> {
-  const r = await read(prev, data);
+  const r = await read(prev, data, id);
   if (!r.checked.ok || !r.name.ok || Object.keys(r.errors).length > 0) return r.again();
   const done = await replaceRecipe(r.db, r.owner, id, r.name.name, r.checked);
   if (done === "taken") return r.again({ recipeName: RECIPE_WORDS.taken });

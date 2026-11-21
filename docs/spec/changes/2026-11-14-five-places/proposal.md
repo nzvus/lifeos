@@ -1549,6 +1549,406 @@
     meal in depth, timeline and Elenco: in-place edits (grams, + ingrediente, porzioni) with the
     voto recomputed live and each ingredient's share lit (MOD-61); (4) abstract it into the kit and
     apply it to every type; (5) each type's specifics.
+155. **21 Nov, his «yc procedi»** on §154: the order is approved. Decided by his «yc» (each with its
+    undo): five chevrons, not seven (§145's reason; undo: `Verdict` levels); the dashed previsto
+    icon stays as it is at 18 px, looked at again when the previsto gets its box shape (undo: a
+    dashed ring in `Box.tsx`). **Stop B complete**: all 16 types of `BOX_PLAN` plus the tragitto,
+    shut and open at 390/360/320 on his data, none overflowing, with the table of each zone
+    (`LIFEOS/review/2026-11-21/stop-b/all/index.html`, script `all.mjs`). Found: (a) four builders —
+    `PlanBox` (pasto, cibo, pasto salvato, esercizio, scheda), the old `Box` (seven voci), water's
+    own `WaterRow`, and ciclo · blocco · obiettivo not Boxes at all (they do not open); (b) the head
+    is already one (icon · name · value · voto); (c) zone 2 (the bar) only for macros and water;
+    (d) zone 3 (the voto bar, VIS-107) drawn nowhere — a «Voto n» chip repeats the head; (e) the
+    page arrow mid-right in the old Box, last in the row in `PlanBox`; (f) a field's value as tiles
+    or as chips; (g) faults: come stai's values twice, «a digiuno» twice, the assunzione's two
+    costs (0,10 € and 0,06 €), the tragitto's tiles in English, sonno titled «Sveglia». Next, his
+    step (3): the meal in depth, timeline and Elenco. **Waits for his word on the table.**
+156. **21 Nov, his word on the table:** «hm ok, non so che dirti sulla tabella tanto cambieremo molto
+    se non tutto. andiamo avanti? da cosa partiamo? dobbiamo differenziare la visualizzazione di
+    ogni tipo dipendentemente se sta in elenco o altrove giusto? e altrove dobbiamo sempre avere
+    qualcosa che ci porti alla sua visualizzazione in elenco? e poi? oppure non partiamo da li?»
+    Claude's answer: PAT-30 already says one Box, not two looks — the day adds quanto, quando and
+    the state (PAT-31, VIS-22) and judges against the day; the Elenco judges per unit and holds
+    the object's life (PAT-101). An edit on the day changes only that voce (ADR-0007), in the
+    Elenco the object; «↺» says when they differ (PAT-31). Proposed start: the meal, both places at
+    once (open question: the dish name in a voce as the door to its pasto salvato).
+157. **21 Nov, his design for the Elenco's pasto (verbatim):** «ok, e nell'elenco invece se clicco il
+    nome mi permette di modificarlo? o come? lo stesso per un'eventuale descrizione? il testo sotto i
+    pasti cos'è tra l'altro? spero non ripeta gli ingredienti che dovrei vedere comunque in modo
+    diverso e che non sia una reminescenza passata. in elenco devono poter essere gestite molte
+    cose, ti ricordo. magari mentre gli alimenti hanno le marche, qui c'è una righa a scorrimento per
+    l'ereditarieta? mostrando pasto genitore e pasti figli? però come si modifica? facciamo se tengo
+    premuto il contorno inizia a chiudersi in rosso e si rimuove. se non c'è un parente c'è sempre un
+    + con l'icona del genitore e il suo colore e pattern grafico del bottone o quel che è, che se
+    cliccato si esttende a barra di ricerca e sotto fa comparire una piccola tendina scorrimento per
+    i risultati di ricerca, ma non popup, o magari si, vediamo. quando clicco per un genitore, i suoi
+    ingredienti si aggiungono a quelli gia esistenti e si crea anche il legme. volendo possiamo
+    permettere di avere piu genitori. quando invece, sulla stessa riga, scorro e tocco il + del
+    figlio, si fa lo stesso ma per il figlio e ti fa scorrere in basso o in alto nell'elenco dove
+    compare il nuovo oggetto preimpostato con tutti i valori del padre, una sua copia, con nome
+    preimpostato diverso secondo gli standard delle copie. ora che ci penso non ha senso eliminare
+    genitori o figli. queste parentele devono essere fatte in automatico, rilevate, e fatte
+    visualizzare dinamicamente, se la combinazione di ingredienti esatta esiste gia in elenco,
+    combinazione anche degli ingredienti, in stesse proporzioni: ecco ineffetti è meglio che venga
+    indicato anche il multiplier affianco, anzi prima (per priorità) del nome del genitore. se
+    modifichi un pasto, tutti i suoi figli ereditano quel cambiamento. ah ecco, devi poter anche
+    modificare facilmente il multiplier di ogni genitore. forse è meglio mettere genitori e figli su
+    due righe diverse con intestazione le loro rispettive icone di righa e i loro colori di riga. il
+    nome dei parenti deve essere costretto ad un massimo, di modo che non sia lunghissimo, se il nome
+    del pasto è lunghissimo. dovremmo metter un cap al nome di ingredienti e pasti. per altre cose
+    riguardo i cambiamenti generali degli ingredienti, o le barre, i filtri, o quel che sono, te ne
+    ho gia parlato tanto nelle conversazioni precedenti» Claude's reading: a kinship model for
+    pasti (a parent = another pasto inside it × a multiplier; several parents; changes flow to the
+    children; links found automatically) — it changes MOD-20/MOD-21, PAT-17 and ADR-0060, so it is
+    his to settle (rule 1); the storage options are in Claude's answer. The name cap: a number to
+    measure on his names first.
+158. **21 Nov, his «yc»** on §157: option (a), ADR-0065 → MOD-23, PAT-103; and the dish name as the
+    door (PAT-104). Measured on his data (local copy of the 10 Nov export): 25 pasti, 8 ADR-0060
+    variants; the detector finds 7 links (6 of the variants, plus «GELATO proteico cioccolato e
+    nocciola 2» ⊃ «Gelato Proteico» × 1); 2 variants change a quantity of their base and stay
+    variants (**open, his**: keep them so, or make them plain pasti). Names: pasti median 18
+    characters, longest 48; cibi median 18, longest 46. Decided by Claude: new names of cibi and
+    pasti capped at **40** (1 pasto and 3 cibi are longer today and stay as they are; undo:
+    `NAME_MAX`); kin chips cut by width. The foods-as-a-sentence line under a pasto in the Elenco
+    goes (his «spero non ripeta gli ingredienti»): the bar by part shows them (VIS-106).
+159. **21 Nov, built on §158:** core `expandParts` + `kinship` + `childrenOf` (MOD-23); a pasto inside
+    a pasto is no longer dropped by `recipeChoices` (it counts × k); `core/food/kin.ts` writes k,
+    «+ genitore», «+ figlio» (never a loop). Kit `KinRows` (PAT-103): ↰ «Genitori» lilac, ↴ «Figli»
+    teal (`--kin-parent`, `--kin-child`, the same L and C), «× k» before the name, the name cut at
+    14 characters' width, «+» with the row's icon, dashed; the search opens under the rows (no
+    pop-up). In the Elenco: the pasto's box draws them, the foods-as-a-sentence line gone. Photos
+    `LIFEOS/review/2026-11-21/kin/`. Decided by Claude (each cheap): k steps by ¼; a kin chip opens
+    the pasto's page (scrolling the Elenco to it: not yet); after «+ figlio» the list's search
+    shows the copy; a copy is «name (n)», the importer's rule. His pasti show found links only
+    (×1, no stepper) until the one-time data job (ADR-0065) stores them. Not yet: the name cap of
+    40, the name and nota edited in place, the voce's name as the door (PAT-104), the meal's
+    in-place grams. **Waits for his word on the photos.**
+160. **21 Nov, his word on the kin photos (verbatim):** «ok, puoi tolgliere le icone iniziali, tanto
+    si capisce gia dal colore e dai +. tra l'altro, sposta i + all'inizio. inoltre mi sembrano piu
+    grossi rispetto agli altri bottoni. inoltre i bottoni dei genitori devono essere diversi o
+    sbaglio? se tocchi sul multiplier il bottone si estende per poter modificarlo, altrimenti se sul
+    nome, ti rimanda al genitore, che dici? fammi vedere anche come funziona con la barra di ricerca
+    e tutto. e poi voglio anche vedere le altre cose, hai fatto solo questo fino ad adesso?»
+161. **21 Nov, his word while §160 was built (verbatim):** «comunque il voto in alto a destra serve
+    solo quando le schede sono minimizzate, perché senno  i voti vanno sempre visualizzati per esteso,
+    anche se immagino tu voglia affrontarli un po dopo queste cose. in ogni caso nell'intestazioone
+    kcal puoi farlo piu piccolo in proporzione,e spaziare meglio dalla miniature del voto. oh. di
+    conseguenza, anche coerentemente alle discussioni precedenti sull'avere il voto sempre mostrato,
+    il tasto "voto" sotto, deve sparire, immagino. per il resto vorrei che le azioni fossero sotto i
+    parenti, che dici?»
+162. **21 Nov, built on §160–§161** (each a pattern, every box): the kin rows lose their icons (colour
+    tells them apart), «+» comes first at a chip's size; a chip has two zones — «× k» opens into
+    − k + (both rows; a found link is stored first by `setKin`, the same foods, ADR-0065), the name
+    shows that pasto first in the list (an exact name sorts first). **The voto, every Box (VIS-43
+    changed):** open, its criteria are always in the box — no «Voto» door — and the head's mini voto
+    shows only shut; in `PlanBox` it is zone 3, then the kin, then the actions (his «le azioni sotto
+    i parenti»). A head's unit is a size smaller than its number, 12 px more before the mini voto.
+    Photos `LIFEOS/review/2026-11-21/kin/` (flow-sheet-390/320). Decided by Claude: the voto's look
+    open is today's criteria bar until VIS-107 makes it one bar split by part (step 4).
+163. **21 Nov, his word on §162 (verbatim):** «va bene, ok, il design che riguarda il voto è
+    momentaneao, ci lavoriamo dopo, in ogni caso l'icona nei + potevi lasciarla. mentre per la barra
+    di ricerca, mi sembra troppo grossa: vorrei che lei e i suoi risultati apparissero in una
+    finestrella fissa, che ne pensi? inoltre stavo pensando che magari, quando le 2 linee dei parenti
+    son vuote, e ci sono solo i +, questi bottoni si squadrano e allargano in tutta estentione alla
+    riga, con dentro la didascalia aggiungi figlio o genitore, eccetera, sempre con la loro icona.
+    oh, togli il "x" dal moltiplicatore, non mi piace. per il resto yc» Decided by his «yc»: the
+    unit read as the word («kcal») a size smaller; the 2 variants that change a base quantity stay
+    ADR-0060 variants (no data change; undo: `setKin` on them once he wants them plain); next, the
+    name cap and the name and nota edited in place.
+164. **21 Nov, built on §163:** «+» carries the row's icon again; a row with no kin is its «+» alone,
+    square, the row's width, «Aggiungi un genitore / figlio» written (decided by Claude: per row,
+    not only when both are empty — the same rule, never a special case); «+ genitore»'s search is a
+    small window (220 px) under the rows, its results scrolling inside, field stuck at its top; the
+    multiplier a bare number («1,5»). Found on the way: open, the «+»'s enlarged touch area covered
+    the narrow number — the number now wins its own taps. Photos `review/2026-11-21/kin/`.
+165. **21 Nov, the name cap (his §157, «yc» §158):** one rule in `core/catalog/family.ts` —
+    `NAME_MAX` 40, `nameTooLong(name, current)` — used by every gate: `recipeName` (pasti, cibi,
+    esercizi, assunzioni; was 80), the catalog verbs' create (was 120) and edit (had none); a name
+    already longer stays while it is left as it is (1 pasto, 3 cibi of his). The copy rule cuts
+    within it. The name and nota edited on the box: **asked** (it changes every box's head).
+166. **21 Nov, his rule for every button (verbatim):** «ok, ho capito che i bottoni li voglio tutti
+    squadrati. inoltre facciamo cosi, se la riga non è piena, i bottoni che la componogono si
+    allargano proporzionalmente per riempirla tutta in lunghezza, questo deve valere per tutti i
+    bottoni. per il resto, rivedi tutte le discussioni che abbiamo fatto su i prossimi cambiamenti
+    che dobbiamo apportare, se non li sai gia, di modo che possiamo andare avanti tenendo tutto a
+    mente. riguardano soprattutto voti, modifiche in place degli ingredienti, dinamismo nelle
+    visualizzazioni delle barre dei macro e dei voti in base e ingredienti o in base ai nutrienti,
+    eccetera»
+167. **21 Nov, his word while §166 was built (verbatim):** «come valutiamo diventa un punto
+    interrogativo in un riquadro, come tutte le altre azioni, direi di metterla nella stessa riga di
+    quella del bidone (che equivale ad archivia?) e probabilmente anche con registra? magari lo
+    sostituiamo anche lui con una icona apposita, quale secondo te? cambia cibi diventa inutile, e
+    anche parti da, quindi possiamo toglierli»
+168. **21 Nov, built on §166–§167:** VIS-109 (every button squared; a row not full filled by its
+    buttons). The actions row's icons sit at its end in one group — «Registra» (Tabler
+    `calendar-plus`, Claude's pick: «put it in the day»), «?» («Come valutiamo», out of the voto),
+    the trash, the page last. Claude's answer: the trash is «Elimina», not «Archivia» — MOD-20 already
+    makes it safe (it deletes only a thing never used, else archives). A pasto's box drops «Cambia i
+    cibi» (its foods are still changed from its page until the in-place edits land), «Parti da» and
+    «Variante» (a copy is «+ figlio», ADR-0065). The full list of what is decided and not yet built:
+    `tasks.md` «Next, from his words» (his §166 «rivedi tutte le discussioni»).
+169. **21 Nov, his word on §168 and the box in bands (verbatim):** «in cosa sarebbe diverso
+    archivia? non potrebbe essere assorbito dalla funzione cestino? e poi "unisci" anche puo essere
+    una icona, non so di fatti come funziona attualmente, ma immagino si possa fare che anche per
+    quella compare una finestra in place? in realtà dovrei prima sapere come funziona. registra e
+    come valutiamo anche dovrebbero essere colorati. 3 si. 1 yc ma va visto bene come viene
+    spaziato, renderizzato eccetera considerato le cose che stanno intorno. ora, in realtà stavo
+    pensando che potremmo un po modificare la struttura generale della scheda, dividendola in tagli
+    orizzontali, e eventualmente ogni taglio orizzontale dei tagli verticali, di modo che tutto
+    abbia un contorno intrinseco. tipo dividamo le fasce  orizzontali di intestazione e lei in 3:
+    icona, titolo, cal, e da chiusa diventano 4 col voto. poi fascia barra macro, poi fascia barra
+    voto. poi mettiamo fascia riga a scorrimento dei bottoni genitori, poi fascia figli, poi fascia
+    azioni, e poi ultima magari facciamo una fascia con 2 metà in xor: nutrienti, e ingredienti, e
+    se cliccata una delle due, estende sotto la scheda creando un'altra fascia (o magari estende la
+    stessa? bo, forse sarebbe piu brutto). in nutrienti mostri i nutrienti e le barre diventano in
+    quel livello di visualizzazione. compresi i micro nutrienti? immagino di si. in ingredienti gli
+    ingredienti, solo che le quantità devono poter essere modificate. anche qui, per evitare un
+    elenco infinito, rendiamo la fascia a lunghezza fissa e dentro scorre verso il basso. mi
+    piacerebbe venissero mostrati quali ingredienti sono accomunati da ogni cenitore, non so come,
+    magari dai colori che vengono assegnati ai vari padri, magari diverse tonalità di viola? in ogni
+    caso ogni ingrediente si dovrebbe poter modificare li in place, magari a destra ci sono le cose
+    per le modifiche. poi in alto alla fascia un tasto aggiungi per aggiungere un altro ingrediente
+    che se cliccato trasforma la fascia in una fascia di ricerca mostrando sotto i risultati. a
+    proposito, la "finestra di ricerca che si apriva coi genitori a questo punto puo diventare
+    anch'essa una fascia intera . questa suddivisione in fasce ci fa guadagnare spazio dato che non
+    dobbiamo creare troppi contorni»
+170. **21 Nov, his word while §169 was built (verbatim):** «ah e magari quando si toccano le barre dei
+    macro e dei nutrienti, le loro viste cambiano, e magari la fascia di sotto, estesa o inestesa
+    cambia con loro, se è minimizzata, magari per far capire che visualizzazione è, possiamo far
+    colorare in tratteggiato quella di quel momento. poi se tocchiamo proprio una delle due, non lo
+    so, diventa bianca? non so, insomma una selezione visivamente piu forte per far estendere.»
+171. **21 Nov, built on §169–§170** (one screen, the pasto's box, for his word). Claude's answers:
+    «Archivia» hides a thing from searches and keeps its history (restorable from «Archiviati»);
+    the trash deleted only a thing never used and refused otherwise — now **the trash absorbs it**:
+    a used thing is archived, the toast says so with «Annulla»; «Archivia» leaves every row where
+    the trash is. «Unisci» today opens a sheet (pop-up): «Quale è la stessa cosa?», then what moves,
+    «Non si può annullare», Annulla · Unisci — **in place as a band: next**. «Registra» green
+    (adding), «?» blue. His «3 sì» (a lone button fills its row) and «1 yc» (the open title becomes
+    a field — spacing to be checked with what is around it). Built: **the box in bands** (`PlanBox`
+    → every type on it): each zone a full-width band, a hairline between, one frame; the head's
+    cells icon | title | value (| mini voto shut) split by hairlines, an empty cell left out.
+    **The two halves «Nutrienti | Ingredienti»** as the last band: the bars' view (by foods · by
+    kinds, `Nutrients by`) is one state with it — a tap on the bars switches it, the band follows;
+    shut, the half of the view shown is hatched; a tap on a half shows it filled (ink) and opens
+    its band under it (max 320 px, scrolling inside); a tap on the open one shuts it.
+    «Nutrienti»: every nutrient, micros included (`Nutrients` by kinds). **«Ingredienti»**: «+
+    Aggiungi un ingrediente» at the top turns the band into a search of the cibi (a pick adds 100
+    g); each parent's foods under a stripe in its shade of the kin lilac, its multiplier first;
+    then the pasto's own foods, name | grams — a tap on the grams opens − grams + and the trash in
+    the row (as a kin's multiplier, §160), so names keep their room at 320 (`setRecipeFood`, steps
+    of 10, MOD-23: the children follow). The kin search is a whole band too. Photos
+    `review/2026-11-21/bands/`. Not yet: the voto bar following the view (A1), typing the grams,
+    «Unisci» as a band.
+172. **21 Nov, his word on the bands (verbatim):** «non ci siamo, allora le fasce son troppo larghe,
+    inoltre devono essere dello stesso stile del contorno e arrivare a toccarlo, al massimo giusto un
+    po beno brillante non so. poi devi controllare meglio le centrature, ogni cosa deve essere
+    centrata nella sua fascia. inoltre possiamo fare che le barre macro e voto sono in una, i parenti
+    anche in una. poi ti ho detto che unisci dovrebbe essere un'icona e avere un suo colore. inoltre
+    i nutrienti non sono una ripetizione dei macro, ma dovrebbero essere quelle cose che compaiono per
+    esempio nella scheda generale del giorno quando tocco un macro, ecco magari la loro
+    visualizzazione si basa sulla sottobbarra selezionata dalla barra dei macro in alto: quindi vedi
+    i nutrienti di quel macronutriente. a questo punto non so come fare per i micronutrienti, magari
+    una terza barra che compare e come le altre due interagisce con tutti questi livelli di
+    visualizzazione? non lo so, come potremmo fare? poi non mi piace come mostri i genitori, non
+    mostrare il nome del genitore. piuttosto facciamo cosi: colora lo sfondo dell'agradazione del
+    genitore per ogni ingrediente, se piu ingredienti appertengono allo stesso genitore, lo sfondo si
+    divide in metà colore di uno e metà dell'altro, anzi no, in esatta proporzione rispetto al totale
+    dell'ingrediente e la quantita del genitore moltiplicate per il suo multiplier, questo per ogni
+    suo genitore, quindi prende sempre l'interezza dello sfondo. fino alla parte delle cifre che tra
+    l'altro potremmo anche distinguere meglio verticalmente, due sottofasce verticali, una per i nomi
+    con i loro sfondi cumulati orizzontalmente, e a destra le loro quantità modificabili, senza + e
+    -, non si allargano, semplicemente se tocchi compare la barretta del cursore per la modifica in
+    place. il vestino non serve, basta scorrere l'ingrediente verso sinistra come si fa di solito. è
+    una azione che hai implementato anche altrove se non sbaglio. comunque forse è meglio eliminare i
+    bottoni fatti cosi e fare tutto come una tabella, di modo da guadagnare sempre piu spazio e non
+    avere troppi conorni, i colori sono solo delle icone e eventualmente del loro sfondo di pezzo di
+    scheda, che ne pensi? insomma la scheda diventa una griglia sostanzialmente, solo che voglio che
+    sia bella»
+173. **21 Nov, built on §172 — the box as a grid** (for his word). Each band's line is the contour's
+    (1.2 px, its colour at 55 %), edge to edge; bands lower; everything centred in its band. One band
+    for the bars and the voto; one for parents and children (two rows of cells). Inside the box
+    nothing has a frame: the actions, the kin, the names, the doors and the two halves are cells
+    split by the same line, the colour only on icons and grounds — «Registra» green, «Unisci»
+    (Tabler `arrow-merge`) amber, «?» blue, the trash red. **Nutrienti** = the kinds of the macro
+    picked in the bars (a tap on a macro picks it, its cell lit; the bars and the band show its
+    kinds and «da dove», the same piece as «Il giorno»'s open row, kit `MacroKinds`); none picked,
+    the bars show the ingredients. **Ingredienti** = kit `IngredientTable`: names | amounts, a line
+    between; each name's ground shared among its parents' tones in exact proportion (each parent's
+    foods × its multiplier), the rest plain, no parent named; a tap on an amount is a field with its
+    cursor (no − +, the cell never widens), Enter or leaving saves the total (the pasto's own part =
+    total − what its parents bring, never below); a row swiped left takes its own part out; the
+    first row adds. **Asked:** the micronutrients — Claude's pick: a fifth cell «Micro» in the
+    macros' row, picked like a macro, the «Nutrienti» band then shows vitamins and minerals (one
+    selection for everything, no third bar). Photos `review/2026-11-21/bands/grid-sheet-*.png`.
+174. **21 Nov, his word on the grid (verbatim):** «non mi piacciono cosi squadrate, e comunque devi
+    centrare anche le scritte quando sono in una fascia. e penso possano essere piu strette. inoltre
+    devi spaziare meglio, mi sembra tu abbia copiato e incollato i nutrienti anche col loro offset,
+    quando non serviva. e poi a questo punto i nutrienti fai cosi, a sinistra una fascia verticale,
+    con sotto scritto di lato "da dove" e in alto scritto di lato, non so, qualità? bo, per ogni macro
+    credo che cambi quella parte, cosa proponi? e poi a destra una terza fasvia verticale per le
+    cifre, solo che chiaramente sono in sola visualizzazione. pergli ingredienti non hai ancora
+    fatto la cosa ch eti chiedevo, e non mi piace quella cosa che compare quando selezioni una cifra
+    che vuoi modificare, io intendevo la barretta di default che compare di typing, forse non dovevo
+    specificarla. e comunque anche le cifre devono essere centrate, ti ho detto che utto nelle fasce
+    deve essere centrato. inoltre stavo pensando che a questo pnto potremmo modificare coerentemente
+    anche le marre dei macro e dei voti. per i micro, va bene il tuo consiglio e a maggior ragione
+    per guadagnare spazio dobbiamo agire cosi: invece di sottobbare creiamo nella fascia orizzontale
+    5 sottofascie verticale per ogni macro + quella dei micro. prendono tutta la dimensione della
+    cella, magari con un leggerisimo padding. ovviamente mantieniamo sempre la cosa
+    dell'aggregazione che cambia a seconda della visualizzazione. icona e numero e "freccette" o come
+    li hai chiamati, in trasparenza sullo sfondo. o magari sulla metà superiore della fascia e la
+    metà inferiore la cosa che ti ho detto prima? non so fammi vedere come verrebbe con entrambe.
+    inutile dire che la parte dei voti deve essere allo stesso modo, anche se ci dobbiamo ancora
+    arrivare perché conivolge altre cose. anche per quanto riguarda lo stile della griglia, della
+    divisione delle fasce, ecco magari proponimene qualcuno, sempre coerente con il contorno deve
+    essere.»
+175. **21 Nov, built on §174 — options to compare, on his pasto** (`review/2026-11-21/grid2/`):
+    centred everything in its cell (names and amounts too), cells 40 high, table rows 36; the macros
+    and **«Micro»** as five cells across the bars' band, each one's parts filling the whole cell
+    (the view still switching ingredients · kinds): **over** — icon, number and chevrons over the
+    parts (A) · **split** — them in the upper half, the parts below (B). Grid styles: **lines** (A,
+    the contour's line) · **tiles** (C, rounded tiles with small gaps, no lines) · **soft** (D/E,
+    rounded strips inset in the box, short dividers). **Nutrienti** in three columns: a side band
+    with its label turned («qualità» for proteins, «tipo» for carbs and fibre, «acidi grassi» for
+    fats — Claude's pick, his to change — and «da dove»), the rows (name and bar), the numbers
+    (read only). «Micro» picked opens the vitamins and minerals at once (each pasto now carries its
+    micros, `microsOf`). Typing: only the cursor, at the end. Asked: A or B; lines, tiles or soft;
+    the side labels; what is missing in «Ingredienti» (the parents' share of a name's ground is
+    there: «Latte» and «Proteine del siero» lilac from «Gelato Proteico», «Crema» plain, its own).
+176. **21 Nov, his pick on §175 (verbatim):** «ok quella che preferisco è la C,ma i piccoli riquadri
+    delle macro li voglio divisi in  orizzontale come ti dicevo, ho capito che preferisco le due cose
+    separate. tutto pero deve essere spaziao meglio, soprattutto verticalmente,o forse il problema è
+    solo con le fasce genitori e figli che sono orribili altrimenti, e come ti dicevo tutte le fasce
+    possono essere piu strette secondo me. in ogni caso dovresti pero applicare lo stesso stile anche
+    alla griglia che compare con nutrienti o ingredienti. inoltre lo stesso deve valere anche per
+    l'intestazione in alto. per quanto riguarda i micro, non mi stupisce che come sempre hai
+    semplicemente copiato e incollato, ma non vedi che è ridondante? e dovresti riformattare tutta la
+    visualizzazione in modo coerente con quel che abbiamo fatto fino ad adesso. le scritte "qualità" e
+    da "da dove devono essere meglio centrate.»
+177. **21 Nov, built on §176:** the grid is **tiles** (his C) — every cell a rounded tile (8 px) on a
+    faint ground of the box's colour, one 4 px gap, no lines — and so are the head (icon · title ·
+    value, + the mini voto shut), the parents and children (two rows of tiles, the «+» a square
+    tile), the ingredients table and the Nutrienti / Micro columns; cells 36 high (decided by
+    Claude after his «più strette», under the 44 of PRD-12: a named exception, undo `--cell-h`).
+    The macros' cells **split** (his «divisi in orizzontale»): icon, number and chevrons above, the
+    parts below; «lines», «soft» and «over» are deleted. **Micro** reformatted like a macro's kinds
+    — no header line (the «Micro» cell says «1/11»): a side tile per group («vitamine»,
+    «minerali»), each row its name and bar with the need's tick, its «amount / need» on the right,
+    on one line. The side labels centred both ways (turned inside their tile). Photos
+    `review/2026-11-21/tiles/`.
+178. **21 Nov, his word on the tiles (verbatim):** «ok, perché i bottoni nutrienti e ingredienti sono
+    cosi squadrati? e perché loro e le azioni non hanno quuelle celle? e perché c'è ancora la
+    freccia?. e poi ti avevo detto che le cose a comparsa, tipo le esensioni nutrienti e ingredienti
+    o le barre di ricerca, devono essere cappate in dimensioni. inoltre magari facciamo cosi: invece
+    di mettere le 5 cose dei macro + micro su un'ica fascia, le distribuiamo 3 per fascia
+    orizzontale, aggiungendo le calorie, (dovrebbe interagire come le altre, ma come?) cosi la parte
+    supersiore la lasciamo solo al titolo. e facciamo che l'icona scompare anche, quando non serve
+    che esista (tipo nell'elenco di soli pasti non mi seve che compaiano tutti i nomi con quella
+    icona, quindi la si puo  togliere, facciamo che compare solo quando eventualmente dovremo
+    distinguere da altro, come ad esempio nella timeline? non lo so). inoltre il titolo forse
+    dovremmo evidenziarlo meglio rispetto al resto, non so in che modo però. fammi vedere anche le
+    barre di ricerca come le fai. pero prima di tutto questo fammi l'handoff» Claude's answer to his
+    «perché»: the two halves and the actions kept the old «lines» rules — a more specific selector
+    (`.k-box.bands .k-zones > :is(.k-actrow, .k-xor) > *`: transparent ground, no radius) beats the
+    tiles' rule, a fault of the §177 slice; the «›» is the page's link, kept by PAT-101 though his
+    §130 said it goes once everything is in the box; the Ingredienti search is not capped (the kin
+    search is, 220 px; the open band 320 px). Next chat, from his words: tasks.md «F».
+179. **21 Nov, built on §178** (`review/2026-11-21/f178/`, «yc» of the next chat): the two halves
+    and the actions are tiles (the old «lines» rule that beat them is deleted: F1); no «›» in the
+    box (F2); the Ingredienti search capped like the kin's, 220 px, the field on top, the results
+    scroll inside, and both searches drawn as tiles (F3, F7); the **kcal a sixth tile**, first,
+    the six in two rows of three; open, the head is only the title. **The kcal's tap**, decided by
+    Claude under «yc» (his «come?»): it picks the energy like a macro — the bars stay by
+    ingredient, «Nutrienti» shows where the kcal come from, a side «macro» (each macro's kcal) and
+    «da dove» (each ingredient's kcal); «Nutrienti» opened with nothing picked starts from it.
+    Undo: `KCAL` in `MealBox`/`Nutrients`. The icon gone from the Elenco's one-type lists, kept in
+    the day (F5, VIS-30 in delta). **Asked:** the title — A bigger and left, no tile · B its tile
+    darker · C in the family's colour with a bar on its left (`7-title-*.png`); kcal's tap as
+    built, or another.
+180. **21 Nov, his word on §179 (verbatim):** «"«+ genitore» open" mi piace, fallo uguale per "«Aggiungi
+    un ingrediente» open". inoltre hai fatto un pessimo padding laterale per i tasti delle azioni e
+    nutrienti e ingredienti. tra l'altro li chiamiamo tasti? o celle? inoltre le freccette non
+    dovrebbero esserci anche per le calorie e i micro? inoltre quando è minimizzata penso tu possa
+    guadagnare spazio con la preview del voto mettendolo in trasparenza sulle barre e magari
+    diminuendo il padding rispetto alla sua cella. inoltre la barra minimizzata puo tranquillamente
+    avere anche le sottodivisioni per nutrienti dei macro e magari avere anche sale? tra l'altro i
+    limiti? sono nei micro? a comunque tu le chiami Tiles. ok. cumunque preferisco la versione B.
+    inoltre il pattdind del "+ genitore" quando minimizzato è fatto male, troppo stretto, immagino
+    anche quello del figlio. e poi devi farmi vedere la visualizzazione degli ingredienti quando ci
+    sono piu genitori»
+181. **21 Nov, his word on the voti (verbatim):** «per quanto riguarda i voti: ovviamente dobbiamo
+    modificare tutto: fammi innanzitutto un recap di tutto quello che li riguarda o deve riguardarli
+    e le cose che volevo. stavo pensando inoltre che potremmo aggiungere una feaure alla selezione
+    del macro/micro/cal (dobbiamo metterci d'accordo su come chiamarli, e anche come chiamare
+    "aggiunta a feature esistente", o di per se non so nemmeno se "feature" sia il termine giusto)
+    in combinazione con i voti, cioè che i voti si visualizzano in un livello/filtro/taglio in base
+    alla selezione di uno di quelli, dato che li influenzano immagino. e in generale creare qualcosa
+    che sia piu coerente al livello visico con quello che abbiamo costruito fino ad adesso. fammi
+    delle proposte»
+182. **21 Nov, built on §180** (`review/2026-11-21/f180/`): «Aggiungi un ingrediente» opens like «+
+    genitore» — its tile stays (a tap again shuts it), the search in its window under it (220 px,
+    `IngredientTable finding`, `.k-findwin`), the table still below; «Chiudi la ricerca» gone. The
+    gap between action tiles and between the halves was 0 (an older rule): now the one gap. The
+    «+ ↰» / «+ ↳» tiles as wide as their icons need. Title **B** (his pick): its tile darker, bold.
+    Arrows on the kcal and «Micro» tiles: a pasto's kcal and micros are not judged (FD-35), so the
+    grey dash; a day's kcal gets its verdict from its zones. Shut: the strip 24 px, each macro split
+    in its kinds' shades, the mini voto over its right end, see-through; the head keeps title and
+    value. Two parents (local data, «Dolce Avena» added to the gelato): each parent's tile is in its
+    tone, the legend of the table's grounds; the tones further apart (52 · 28 · 12 %). Answers:
+    «tasti o celle» — **tile** (PAT-105), one tile that acts is still a tile; the limits are not in
+    the box today (zuccheri liberi and saturi are kinds of carbs and fats, sale nowhere): asked
+    in the voti recap (§181). Sale in the shut strip: not built (the strip is energy, sale has none).
+183. **21 Nov, Claude's recap of the voti and proposals for §181** (in the chat; asked, his to pick):
+    names — the six tiles are **misure** (PRD-04's layer), «feature» is an **strumento** (VIS-102)
+    and what is added to one a **canale** (VIS-101) or a **comando** (VIS-104); his idea is a
+    **filtro** shared by two strumenti (VIS-104). Voto looks: **V-A** criteria as tiles, three a row,
+    each track = its points (length = weight, fill = earned, split by ingredient; rec) · **V-B** one
+    100-point bar tile + tiles only for lost points · **V-C** the voto as a third half. Filter:
+    **F1** a misura picked lights the criteria it feeds (FD-51 table) · **F2** + its piece in each ·
+    **F3** a criterion picked lights its misure and ingredients (rec F1 + F3 now, F2 with MOD-61 by
+    nutrient). Limits: a «limiti» side section in the Micro band (sale, zuccheri liberi, saturi,
+    trans; rec).
+184. **21 Nov, his word (verbatim):** «altra idea: magari quando tocchiamo una di quelle misure, la
+    tile si allarga a tutta la riga e le altre si stringono sotto, di modo che vediamo tutto meglio.
+    e magari a questo punto non so se sviluppare anche in lunghezza la metà superiore aggiungendo
+    altre informazioni o non so (proponimi un po di cose). altrimenti li mettiamo solo a sinistra
+    della barra senza togliere troppo spazio e schiacciamo la tile»
+185. **21 Nov, his word on §182 (verbatim):** «comunque la cosa del voto in minimizzazione non l'hai
+    capita: intendevo che la cifra doveva andare in trasparenza sulle minibarre del voto, non che
+    tutto dovesse andare sulla barra delle misure». Claude misread §180: the shut voto goes back to
+    its tile in the head; its number is laid over its own mini skyline, see-through, and the tile's
+    padding is smaller. The strip keeps its kinds' split, thin again.
+186. **21 Nov, built on §184–§185** (`review/2026-11-21/f184/`): a misura picked takes the whole row,
+    first; the other five in one row under it; the picked one adds its name, its verdict's word and
+    its share of the kcal (W1, built; undo the §184 CSS block). Options shown on the real box by
+    injected CSS, nothing else built: **W2** flat — icon, number and arrows left of a long bar, one
+    line · **W3** as W1, the other five without bars (icon and number only). Shut: the voto's
+    number over its own mini skyline, see-through, the tile's padding 4 px (§185). Asked: W1, W2
+    or W3.
+187. **21 Nov, his word on §186 (verbatim):** «ma che hai fatto, fa schifo, ti ho detto di allargare
+    la tile in orizzontale non in verticale e non di cambiarle colore e formato. e di aggiungere le
+    info in larghezza al massimo. e comunque in ogni caso preferiso la versione piu sottile con le
+    cose affiancate. ah adesso capisco, prende il colore della misura, va bene ci sta. quindi w2.
+    comunque vedo un problema di rendering con le calorie. prendono troppo spazio e va a capo. che
+    ti avevo detto a riguardo? per quello che invece mi chiedi, riproponimelo, me lo son perso»
+188. **21 Nov, built on §187 (his W2)** (`review/2026-11-21/f187/`): the picked misura on the whole
+    row, as low as the others: icon, number, arrows, then its share («33 % kcal»), its word and its
+    name side by side, its bar filling the rest; the name last, the first to give way. The other
+    five in one row under it, the kcal a little wider (1.3 shares) so it never wraps; at ≤ 360 px
+    their arrows hide (they show when picked). Every misura's unit a size smaller than its number
+    (his §161, the answer to «che ti avevo detto?»), one `NumUnit` for the head and the misure.
+189. **21 Nov, his word on §183 asked again (verbatim):** «yc, ma mostrami tutte le opzioni. comunque
+    quando seleziono una misura, modifica la palette della pile coerentemente col colore della
+    misura». His «yc» takes: the names (misure · strumento · canale · comando · filtro), V-A, F1 +
+    F3 now (F2 later), a «limiti» section in the Micro band; V-B and V-C shown too. «la palette
+    della pile» read as the picked tile's ground in its misura's colour.
+190. **21 Nov, built on §189** (`review/2026-11-21/f189/`): the names into `delta.md` (product.md
+    §3); **V-A** built in every `PlanBox` (`CriteriaTiles`); V-B (tiles only for lost points) and
+    V-C (the voto as a third half, «Voto») shown by CSS on the real box, not built; **F1 + F3**
+    built for the pasto (Elenco), the feeds from FD-51; the picked misura's tile in its colour;
+    «limiti» first in «Micro»'s band (the Elenco's pasto now carries its limits, `mealLimits`, one
+    rule with the day's meal). Short names «q. carbo», «q. grassi» so a tile never wraps at 320.
+    Not yet: F2 (a misura's piece of each criterion), an ingredient lighting its pieces (A4).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

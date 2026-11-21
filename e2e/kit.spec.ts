@@ -17,6 +17,8 @@ const SECTIONS = [
   "stati-nuovi",
   "ogni-quanto",
   "azioni-box",
+  // kinship rows (PAT-103)
+  "kin",
   "banda",
   "pasto-box",
   "cosa-box",

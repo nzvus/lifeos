@@ -16,23 +16,23 @@ import type { CheckedLine } from "../entries";
 import { ownedBy, type Owner } from "../identity/owner";
 import { ESTIMATE_CONFIDENCE, ESTIMATE_FIELDS, type EstimateField } from "./meal";
 import {
-  basesOf,
+  nameTooLong,
   canBeVariant,
   partsDiff,
   resolveParts,
+  type FamilyItem,
   type Part,
 } from "../catalog/family";
 
 export type RecipeNameError = "empty" | "too_long" | "taken";
-const NAME_MAX = 80;
-
-/** Pure: the name as it will be kept, or why it cannot be. */
+/** Pure: the name as it will be kept, or why it cannot be; `current` is the name it has now. */
 export function recipeName(
   raw: string,
+  current?: string | null,
 ): { ok: true; name: string } | { ok: false; error: RecipeNameError } {
   const name = raw.trim().replace(/\s+/g, " ");
   if (name === "") return { ok: false, error: "empty" };
-  if (name.length > NAME_MAX) return { ok: false, error: "too_long" };
+  if (nameTooLong(name, current)) return { ok: false, error: "too_long" };
   return { ok: true, name };
 }
 
@@ -113,7 +113,11 @@ async function writeParts(
   base: readonly Part[] | null = null,
 ): Promise<void> {
   const wanted = asParts(lines);
-  const parts = base ? partsDiff(base, wanted) : wanted;
+  await insertParts(db, owner, id, base ? partsDiff(base, wanted) : wanted);
+}
+
+/** Parts stored in their order (a pasto with none yet). */
+async function insertParts(db: Db, owner: Owner, id: string, parts: readonly Part[]) {
   if (parts.length > 0)
     await db.insert(catalogParts).values(
       parts.map((x, position) => ({
@@ -128,12 +132,12 @@ async function writeParts(
     );
 }
 
-/** The resolved parts of a live recipe (its bases applied), or null when it is none. */
-export async function resolvedParts(
-  db: Db,
-  owner: Owner,
-  id: string,
-): Promise<Part[] | null> {
+/**
+ * Every live pasto of the owner as one family (ADR-0060): its items, each one's own parts as
+ * stored, and `partsOf` — a pasto's parts with its variant bases applied (parent lines, MOD-23,
+ * left as lines), null for an item that is not a pasto.
+ */
+export async function readRecipeFamily(db: Db, owner: Owner) {
   const items = await db
     .select({ id: catalogItems.id, parentId: catalogItems.parentId })
     .from(catalogItems)
@@ -144,14 +148,25 @@ export async function resolvedParts(
         isNull(catalogItems.deletedAt),
       ),
     );
-  if (!items.some((i) => i.id === id)) return null;
-  const family = new Map(items.map((i) => [i.id, { ...i, catalog: "recipe" }]));
-  const ids = [id, ...basesOf(id, family)];
-  const rows = await db
-    .select()
-    .from(catalogParts)
-    .where(and(ownedBy(catalogParts, owner), inArray(catalogParts.itemId, ids)));
-  const own = (x: string) =>
+  const family = new Map<string, FamilyItem>(
+    items.map((i) => [i.id, { ...i, catalog: "recipe" }]),
+  );
+  const rows =
+    items.length === 0
+      ? []
+      : await db
+          .select()
+          .from(catalogParts)
+          .where(
+            and(
+              ownedBy(catalogParts, owner),
+              inArray(
+                catalogParts.itemId,
+                items.map((i) => i.id),
+              ),
+            ),
+          );
+  const own = (x: string): Part[] =>
     rows
       .filter((r) => r.itemId === x)
       .sort((a, b) => a.position - b.position)
@@ -161,7 +176,30 @@ export async function resolvedParts(
         unit: r.unit,
         defaults: (r.defaults ?? {}) as Record<string, unknown>,
       }));
-  return resolveParts(id, family, own);
+  const partsOf = (id: string) => (family.has(id) ? resolveParts(id, family, own) : null);
+  return { family, partsOf };
+}
+
+/** A pasto's parts written again, its old ones gone (inside the caller's transaction). */
+export async function rewriteParts(
+  db: Db,
+  owner: Owner,
+  id: string,
+  parts: readonly Part[],
+): Promise<void> {
+  await db
+    .delete(catalogParts)
+    .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, id)));
+  await insertParts(db, owner, id, parts);
+}
+
+/** The resolved parts of a live recipe (its bases applied), or null when it is none. */
+export async function resolvedParts(
+  db: Db,
+  owner: Owner,
+  id: string,
+): Promise<Part[] | null> {
+  return (await readRecipeFamily(db, owner)).partsOf(id);
 }
 
 /** The base a recipe is a variant of (same catalog), or null. */
@@ -377,17 +415,7 @@ export async function makeVariantOf(
     resolvedParts(db, owner, baseId),
   ]);
   if (!mine || !base) return false;
-  const items = await db
-    .select({ id: catalogItems.id, parentId: catalogItems.parentId })
-    .from(catalogItems)
-    .where(
-      and(
-        ownedBy(catalogItems, owner),
-        eq(catalogItems.catalog, "recipe"),
-        isNull(catalogItems.deletedAt),
-      ),
-    );
-  const family = new Map(items.map((i) => [i.id, { ...i, catalog: "recipe" }]));
+  const { family } = await readRecipeFamily(db, owner);
   if (!canBeVariant(family.get(childId)!, family.get(baseId)!, family)) return false;
   const stored = partsDiff(base, mine);
   await db.transaction(async (tx) => {
@@ -395,21 +423,55 @@ export async function makeVariantOf(
       .update(catalogItems)
       .set({ parentId: baseId })
       .where(and(ownedBy(catalogItems, owner), eq(catalogItems.id, childId)));
-    await tx
-      .delete(catalogParts)
-      .where(and(ownedBy(catalogParts, owner), eq(catalogParts.itemId, childId)));
-    if (stored.length > 0)
-      await tx.insert(catalogParts).values(
-        stored.map((x, position) => ({
-          userId: owner.id,
-          itemId: childId,
-          position,
-          partItemId: x.partItemId,
-          quantity: x.quantity,
-          unit: x.unit,
-          defaults: x.defaults,
-        })),
-      );
+    await rewriteParts(tx as unknown as Db, owner, childId, stored);
   });
+  return true;
+}
+
+/**
+ * A pasto's food changed in place (his §169: «le quantità devono poter essere modificate… in
+ * place»): `key` is the choice's key (`food` or `food:product`); a quantity sets it (adding the food
+ * when it has none), null takes it out. A food that comes from a parent line is not its own: its
+ * parent's multiplier or the parent itself changes it (MOD-23). A variant keeps storing only its
+ * differences (ADR-0060). False when the pasto is not a live one of the owner, or the change is not
+ * one (≤ 0 or over 5 kg, or a food it does not have to take out).
+ */
+export async function setRecipeFood(
+  db: Db,
+  owner: Owner,
+  id: string,
+  key: string,
+  quantity: number | null,
+): Promise<boolean> {
+  const { family, partsOf } = await readRecipeFamily(db, owner);
+  const mine = partsOf(id);
+  const [food, product] = key.split(":") as [string, string | undefined];
+  if (!mine || family.has(food)) return false;
+  if (quantity !== null && !(quantity > 0 && quantity <= 5000)) return false;
+  const at = mine.findIndex(
+    (p) =>
+      p.partItemId === food && (!product || p.defaults["preferredProduct"] === product),
+  );
+  const q = quantity === null ? null : String(+quantity.toFixed(2));
+  let next: Part[];
+  if (q === null) {
+    if (at < 0) return false;
+    next = mine.filter((_, i) => i !== at);
+  } else if (at >= 0) next = mine.map((p, i) => (i === at ? { ...p, quantity: q } : p));
+  else
+    next = [
+      ...mine,
+      {
+        partItemId: food,
+        quantity: q,
+        unit: null,
+        defaults: product ? { preferredProduct: product } : {},
+      },
+    ];
+  const baseId = family.get(id)?.parentId;
+  const base = baseId && family.has(baseId) ? partsOf(baseId) : null;
+  await db.transaction((tx) =>
+    rewriteParts(tx as unknown as Db, owner, id, base ? partsDiff(base, next) : next),
+  );
   return true;
 }

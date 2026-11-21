@@ -5912,3 +5912,1116 @@ button.k-mrow:active {
   flex-wrap: wrap;
   white-space: normal;
 }
+
+/* kinship rows (PAT-103, his §157, §160): parents and children told apart by colour alone; the
+   «+» first, a chip's size; a chip's «× k» opens into − k +, its name goes to that pasto */
+.k-kinrow.parents {
+  --kin: var(--kin-parent);
+}
+.k-kinrow.children {
+  --kin: var(--kin-child);
+}
+.k-kin.k-hchip.static {
+  gap: 4px;
+  padding-inline: 4px 10px;
+  border-color: color-mix(in oklab, var(--kin) 50%, transparent);
+}
+.k-kink,
+.k-kinname {
+  position: relative;
+  min-height: var(--ctl-dense);
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+/* each zone touched at 44 around its 32 (PRD-12) */
+.k-kink::after,
+.k-kinname::after {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
+}
+.k-kink {
+  font-family: var(--font-display);
+  font-size: var(--ctl-fs);
+  color: var(--kin);
+}
+.k-kin .k-step {
+  grid-template-columns: 32px auto 32px;
+  height: var(--ctl-dense);
+  border: 0;
+  background: transparent;
+}
+.k-kin .k-step .k-btn {
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--kin);
+}
+.k-kin.open {
+  border-color: var(--kin);
+}
+.k-kinname {
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+  text-decoration: none;
+}
+.k-kinadd.k-hchip {
+  justify-content: center;
+  min-width: var(--ctl-dense);
+  padding: 0;
+  border: 1px dashed var(--kin);
+  background: transparent;
+  color: var(--kin);
+}
+
+/* a head's unit a size smaller than its number, and room before the mini voto (his §161) */
+.k-head .k-num .k-unit {
+  font-size: var(--fs-b3);
+  color: var(--muted);
+}
+.k-head > .k-hright {
+  gap: 12px;
+}
+.k-row.dense .k-top > .k-line > .k-trail {
+  margin-left: 8px;
+}
+/* an empty kin row: its «+» alone, square, the row's width, its words written (his §163) */
+.k-kinadd.k-hchip {
+  gap: 2px;
+  padding-inline: 6px;
+}
+.k-kinadd.k-hchip.wide {
+  flex: 1 0 auto;
+  justify-content: flex-start;
+  gap: 6px;
+  padding-inline: 10px;
+  border-radius: var(--r-control);
+  font-size: var(--ctl-fs);
+}
+/* «+ genitore»'s and «Aggiungi un ingrediente»'s search (`.k-findwin`): a small fixed window,
+   its results scrolling inside, the field on top (his §163, §178, §180) */
+.k-kinfind,
+.k-findwin {
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border: 1px solid var(--kin-parent);
+  border-radius: var(--r-control);
+  background: var(--paper);
+}
+.k-kinfind::-webkit-scrollbar,
+.k-findwin::-webkit-scrollbar {
+  display: none;
+}
+.k-kinfind .k-search,
+.k-findwin .k-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-color: var(--hairline);
+}
+.k-kinfind .k-findrow,
+.k-findwin .k-findrow {
+  font-size: var(--fs-b2);
+}
+/* a multiplier, button or plain, centred on the chip's line */
+.k-kink {
+  display: inline-flex;
+  align-items: center;
+}
+.k-kinname {
+  display: inline-block;
+  line-height: var(--ctl-dense);
+}
+/* open, the number stays its own target over the − and +'s enlarged touch areas, and wide enough */
+.k-kin .k-step .k-kink {
+  z-index: 1;
+  justify-content: center;
+  min-width: 28px;
+}
+
+/* ---------- every button (his §166, VIS-85 changed) ----------
+   squared: the control's corner, never a pill or a circle */
+.k-chip,
+.k-act,
+.k-btn.act,
+.k-add,
+.k-add.k-fab,
+.k-kinadd.k-hchip {
+  border-radius: var(--r-control);
+}
+/* a row not full: its buttons grow in proportion to fill it; a full row scrolls sideways as before */
+.k-hrow > :is(button, a, .k-chip, .k-step),
+.k-doors > :is(button, a, .k-chip),
+.k-chips > :is(button, a, .k-chip),
+.k-acts > :is(button, a) {
+  flex: 1 0 auto;
+  justify-content: center;
+}
+
+/* the actions row's coloured icons (his §169): «Registra» the colour of adding, «?» its own */
+.k-btn.act.icon.log {
+  color: var(--herb);
+  border-color: color-mix(in oklab, var(--herb) 55%, transparent);
+}
+.k-btn.act.icon.why {
+  color: var(--macro-fat);
+  border-color: color-mix(in oklab, var(--macro-fat) 55%, transparent);
+}
+.k-btn.act.icon.merge {
+  color: var(--warn);
+}
+
+/* ---------- the box as a grid (his §169, §172) ----------
+   bands as wide as the box, each line the contour's own (1.2 px, its colour, a little dimmer),
+   touching it; inside the box nothing has a frame of its own — cells split by the same lines, the
+   colour only on icons and on a cell's ground; everything centred in its band. */
+.k-box.bands {
+  --line: color-mix(in srgb, var(--fam) 55%, transparent);
+  --cell-x: 10px;
+  padding: 0;
+  overflow: hidden;
+}
+.k-box.bands > .k-top {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--cell-x);
+}
+.k-box.bands > .k-top > .k-lead {
+  position: static;
+  align-self: stretch;
+  align-items: center;
+  height: auto;
+  width: 22px;
+  padding-right: var(--cell-x);
+  margin-right: var(--cell-x);
+  border-right: 1.2px solid var(--line);
+}
+.k-box.bands > .k-top > .k-line {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-self: stretch;
+}
+.k-box.bands .k-top .k-head {
+  align-self: stretch;
+  align-items: center;
+  padding-left: 0;
+  min-height: 44px;
+}
+.k-box.bands .k-head > .k-hright,
+.k-box.bands .k-top > .k-line > .k-trail {
+  align-self: stretch;
+  align-items: center;
+  min-height: 0;
+  margin-left: var(--cell-x);
+  padding-left: var(--cell-x);
+  border-left: 1.2px solid var(--line);
+}
+.k-box.bands .k-head > .k-hright:empty,
+.k-box.bands .k-top > .k-line > .k-trail:empty {
+  display: none;
+}
+.k-box.bands > .k-lvstrip {
+  margin: 0 var(--cell-x) 8px;
+}
+.k-box.bands .k-bin {
+  margin-top: 0;
+}
+.k-box.bands .k-zones {
+  gap: 0;
+  padding-top: 0;
+}
+.k-box.bands .k-zones > * {
+  margin: 0;
+  padding: 6px var(--cell-x);
+  border-top: 1.2px solid var(--line);
+}
+.k-box.bands .k-zones > .k-bars:empty {
+  display: none;
+}
+/* a row of cells: no gap, no frames, a line between, each cell centred, as tall as a target */
+.k-box.bands .k-zones > :is(.k-actrow, .k-xor),
+.k-box.bands .k-kinrow {
+  display: flex;
+  gap: var(--gap);
+  padding: 0;
+  margin: 0;
+  overflow-x: auto;
+}
+.k-box.bands .k-zones > :is(.k-actrow, .k-xor) > *,
+.k-box.bands .k-kinrow > * {
+  flex: 1 0 auto;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  margin: 0;
+  padding: 0 var(--cell-x);
+  border: 0;
+  animation: none;
+}
+.k-box.bands .k-actrow .k-btn.act.danger {
+  color: var(--tomato);
+}
+/* parents and children: one band, two rows of cells, a line between */
+.k-box.bands .k-zones > .k-kinrows {
+  padding: 0;
+  gap: 0;
+}
+.k-box.bands .k-kinrow + .k-kinrow,
+.k-box.bands .k-kinrows > .k-kinfind {
+  border-top: 1.2px solid var(--line);
+}
+.k-box.bands .k-kinrow > .k-kinadd {
+  flex: 0 0 auto;
+  color: var(--kin);
+}
+.k-box.bands .k-kinrow > .k-kinadd.wide {
+  flex: 1 0 auto;
+  justify-content: flex-start;
+  gap: 6px;
+}
+.k-box.bands .k-kinrows > .k-kinfind {
+  max-height: 220px;
+  padding: 6px var(--cell-x);
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  background: transparent;
+}
+/* the two halves: the view shown now hatched while shut, the open one filled (his §170) */
+.k-xorhalf {
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: var(--ctl-fs);
+  font-weight: 600;
+  cursor: pointer;
+}
+.k-box.bands .k-xor > .k-xorhalf.now {
+  color: var(--ink);
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in oklab, var(--ink) 14%, transparent) 0 2px,
+      transparent 2px 7px
+    ),
+    var(--tile);
+}
+.k-box.bands .k-xor > .k-xorhalf.on {
+  color: var(--paper);
+  background: var(--ink);
+}
+.k-box.bands .k-zones > .k-xorpanel {
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+.k-xorpanel::-webkit-scrollbar {
+  display: none;
+}
+/* a picked macro: its cell's ground lit, its kinds below (his §172) */
+.k-mcell.picked {
+  background: color-mix(in oklab, var(--ink) 10%, transparent);
+  border-radius: var(--r-control);
+}
+/* the ingredients table (his §172): names | amounts, a line between, rows split by lines; a
+   name's ground shared by its parents' tones */
+.k-box.bands .k-zones > .k-xorpanel:has(.k-itable) {
+  padding: 0;
+}
+.k-itable,
+.k-kinrows {
+  --kin-t0: color-mix(in oklab, var(--kin-parent) 52%, transparent);
+  --kin-t1: color-mix(in oklab, var(--kin-parent) 28%, transparent);
+  --kin-t2: color-mix(in oklab, var(--kin-parent) 12%, transparent);
+}
+.k-itable {
+  display: flex;
+  flex-direction: column;
+}
+.k-iswipe {
+  position: relative;
+  overflow: hidden;
+  border-top: 1.2px solid var(--line, var(--hairline));
+}
+.k-iunder {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--cell-x, 10px);
+  color: var(--tomato);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.k-irow {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 84px;
+  align-items: stretch;
+  min-height: 40px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: var(--sheet);
+  color: var(--ink);
+  font-size: var(--fs-b2);
+  touch-action: pan-y;
+}
+.k-iadd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--ctl-fs);
+  color: var(--herb);
+  cursor: pointer;
+}
+.k-iname {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 var(--cell-x, 10px);
+}
+.k-iqty {
+  display: flex;
+  align-items: stretch;
+  border-left: 1.2px solid var(--line, var(--hairline));
+}
+.k-iamount,
+.k-iinput {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 0 var(--cell-x, 10px);
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: var(--ctl-fs);
+  font-weight: 600;
+  text-align: right;
+  cursor: pointer;
+}
+.k-iamount.fixed {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--muted);
+  cursor: default;
+}
+.k-iinput {
+  outline: 0;
+  cursor: text;
+  box-shadow: inset 0 -2px 0 var(--ink);
+}
+/* the head stays one line: the title gives way (ellipsis), never the value */
+.k-box.bands .k-top .k-head {
+  flex-wrap: nowrap;
+}
+.k-box.bands .k-top .k-head > .k-hlead {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.k-box.bands .k-top .k-head > .k-hlead .k-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* names and doors are cells too, no frames of their own */
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow),
+.k-box.bands .k-doorbar .k-doors {
+  display: flex;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+}
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow) > *,
+.k-box.bands .k-doorbar .k-doors > * {
+  flex: 1 0 auto;
+  justify-content: center;
+  min-height: 44px;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  animation: none;
+}
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow) > * + *,
+.k-box.bands .k-doorbar .k-doors > * + * {
+  border-left: 1.2px solid var(--line);
+}
+.k-box.bands .k-doorbar {
+  margin: 0;
+  padding: 0;
+  border-top: 1.2px solid var(--line);
+}
+.k-box.bands .k-doorbar .k-doors {
+  flex: 1 1 auto;
+  margin-inline-start: 0;
+}
+
+/* ---------- §174: centred, lower, the macros as five cells, Nutrienti in three columns ---------- */
+.k-box.bands > .k-top,
+.k-box.bands .k-top .k-head {
+  min-height: 40px;
+}
+.k-box.bands .k-zones > :is(.k-actrow, .k-xor) > *,
+.k-box.bands .k-kinrow > *,
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow) > *,
+.k-box.bands .k-doorbar .k-doors > * {
+  text-align: center;
+}
+.k-box.bands .k-kinrow > .k-kinadd.wide {
+  justify-content: center;
+}
+/* the ingredients table: every cell centred, the field only its typing cursor */
+.k-irow {
+  min-height: 36px;
+}
+.k-iname {
+  justify-content: center;
+  text-align: center;
+}
+.k-iamount,
+.k-iinput {
+  text-align: center;
+}
+.k-iamount.fixed {
+  justify-content: center;
+}
+.k-iinput {
+  box-shadow: none;
+  caret-color: var(--ink);
+}
+/* the bars' band: the macros and «Micro» as five cells as tall as the band, each one's parts
+   filling it; its icon, number and chevrons over them (layout «over», the default) */
+.k-box.bands .k-zones > .k-bars {
+  padding: 0;
+  gap: 0;
+}
+.k-box.bands .k-bars > .k-stack {
+  gap: 0;
+}
+.k-box.bands .k-bars > :not(.k-stack) {
+  padding: 6px var(--cell-x);
+  border-top: 1.2px solid var(--line);
+}
+.k-box.bands .k-ninline {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 0;
+}
+.k-box.bands .k-mcell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 3px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.k-box.bands .k-mcell + .k-mcell {
+  border-left: 1.2px solid var(--line);
+}
+.k-box.bands .k-mcell > .k-track {
+  position: absolute;
+  inset: 3px;
+  width: auto;
+  height: auto;
+  border-radius: 4px;
+  opacity: 0.42;
+}
+.k-box.bands .k-mcell > .k-track > .k-seg {
+  height: 100%;
+}
+.k-box.bands .k-mcell > .k-line {
+  position: relative;
+  z-index: 1;
+  justify-content: center;
+}
+.k-box.bands .k-mcell.picked {
+  background: transparent;
+}
+.k-box.bands .k-mcell.picked > .k-track {
+  opacity: 0.8;
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+.k-seg.micro {
+  background: var(--muted);
+}
+/* the macros' cells split (his §176): the text in the upper half, the parts in the lower half */
+.k-box.bands .k-mcell > .k-track {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 12px;
+  margin-top: 4px;
+  opacity: 1;
+}
+/* «Nutrienti»: a side band with its label on its side, the rows, the numbers (his §174) */
+.k-box.bands .k-zones > .k-xorpanel:has(.k-kcolumns) {
+  padding: 0;
+}
+.k-kcolumns {
+  gap: 0;
+}
+.k-kcols {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 64px;
+}
+.k-kcols + .k-kcols {
+  border-top: 1.2px solid var(--line, var(--hairline));
+}
+.k-kside {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: var(--fs-b3);
+  font-weight: 600;
+  border-left: 1.2px solid var(--line, var(--hairline));
+}
+.k-kcells,
+.k-knums {
+  display: flex;
+  flex-direction: column;
+}
+.k-knums {
+  border-left: 1.2px solid var(--line, var(--hairline));
+}
+.k-kcell,
+.k-knums > * {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  padding: 0 8px;
+  text-align: center;
+}
+.k-kcell + .k-kcell,
+.k-knums > * + * {
+  border-top: 1px solid color-mix(in srgb, var(--line, var(--hairline)) 50%, transparent);
+}
+.k-kcell .k-kname {
+  max-width: 100%;
+  font-size: var(--fs-b3);
+}
+.k-kcell .k-bar {
+  width: 100%;
+  margin-top: 3px;
+}
+.k-kcell.dim {
+  opacity: 0.5;
+}
+
+/* ---------- the grid is tiles (his pick C, §176): no lines; every cell a rounded tile on the box's
+   ground, a small gap between; the macros' cells split — text above, parts below ---------- */
+.k-box.bands .k-zones > *,
+.k-box.bands .k-doorbar,
+.k-box.bands .k-bars > :not(.k-stack),
+.k-box.bands .k-kinrow + .k-kinrow {
+  border-top: 0;
+}
+.k-box.bands .k-zones {
+  gap: 4px;
+  padding: 4px;
+}
+.k-box.bands :is(.k-actrow, .k-xor, .k-kinrow, .k-ninline) {
+  gap: 4px;
+}
+.k-box.bands :is(.k-actrow, .k-xor, .k-kinrow) > *,
+.k-box.bands .k-mcell,
+.k-box.bands .k-bars > :not(.k-stack),
+.k-box.bands .k-xorpanel {
+  border: 0 !important;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--fam) 8%, transparent);
+}
+.k-box.bands .k-head > .k-hright,
+.k-box.bands .k-top > .k-lead {
+  border: 0;
+}
+
+/* ---------- §176: tiles everywhere in the box — the head, the parents and children, the
+   Nutrienti / Micro columns, the ingredients table; lower cells; one even gap ---------- */
+.k-box.bands {
+  --tile: color-mix(in srgb, var(--fam) 8%, transparent);
+  --gap: 4px;
+  --cell-h: 36px;
+}
+.k-box.bands .k-zones {
+  gap: var(--gap);
+  padding: 0 var(--gap) var(--gap);
+}
+/* the head: icon · title · value (· mini voto shut), each its tile */
+.k-box.bands > .k-top {
+  gap: var(--gap);
+  min-height: 0;
+  padding: var(--gap);
+}
+.k-box.bands > .k-top > .k-lead,
+.k-box.bands .k-head > .k-hlead,
+.k-box.bands .k-head > .k-hright,
+.k-box.bands .k-top > .k-line > .k-trail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--cell-h);
+  margin: 0;
+  padding: 0 var(--cell-x);
+  border: 0;
+  border-radius: 8px;
+  background: var(--tile);
+}
+.k-box.bands > .k-top > .k-lead {
+  width: var(--cell-h);
+  padding: 0;
+}
+.k-box.bands .k-top .k-head {
+  gap: var(--gap);
+  min-height: var(--cell-h);
+}
+.k-box.bands .k-top > .k-line {
+  gap: var(--gap);
+}
+.k-box.bands .k-head > .k-hlead .k-title {
+  text-align: center;
+}
+/* every row of cells: lower tiles, one gap */
+.k-box.bands :is(.k-actrow, .k-xor, .k-kinrow) > *,
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow) > *,
+.k-box.bands .k-doorbar .k-doors > * {
+  min-height: var(--cell-h);
+  border-radius: 8px;
+  background: var(--tile);
+}
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow),
+.k-box.bands .k-doorbar .k-doors {
+  gap: var(--gap);
+}
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow) > * + *,
+.k-box.bands .k-doorbar .k-doors > * + * {
+  border-left: 0;
+}
+.k-box.bands .k-doorbar {
+  border-top: 0;
+  padding: 0 var(--gap) var(--gap);
+}
+/* parents and children: two rows of tiles, the same gap between them; the «+» a square tile */
+.k-box.bands .k-zones > .k-kinrows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  background: transparent;
+}
+.k-box.bands .k-kinrow + .k-kinrow,
+.k-box.bands .k-kinrows > .k-kinfind {
+  border-top: 0;
+}
+.k-box.bands .k-kinrow {
+  gap: var(--gap);
+}
+/* the «+ ↰» / «+ ↳» tile: its two icons with room around them, as wide as they need (his §180) */
+.k-box.bands .k-kinrow > .k-kinadd {
+  flex: 0 0 auto;
+  width: auto;
+  gap: 6px;
+  padding: 0 14px;
+  border: 0;
+}
+.k-box.bands .k-kinrow > .k-kinadd.wide {
+  flex: 1 0 auto;
+  width: auto;
+  padding: 0 var(--cell-x);
+  justify-content: center;
+}
+.k-box.bands .k-kin.k-hchip.static {
+  border: 0;
+}
+.k-box.bands .k-kinrows > .k-kinfind {
+  padding: var(--gap);
+  border-radius: 8px;
+  background: var(--tile);
+}
+/* the bars' band: the five cells as tiles, the voto under them as one tile */
+.k-box.bands .k-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+.k-box.bands .k-ninline {
+  gap: var(--gap);
+}
+.k-box.bands .k-mcell {
+  min-height: 0;
+  padding: 6px 6px 5px;
+  border-radius: 8px;
+  background: var(--tile);
+}
+.k-box.bands .k-mcell > .k-track {
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+}
+.k-box.bands .k-mcell.picked {
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+}
+.k-box.bands .k-mcell.picked > .k-track {
+  box-shadow: none;
+}
+.k-box.bands .k-bars > :not(.k-stack) {
+  padding: 6px var(--cell-x);
+  border-radius: 8px;
+}
+/* the two halves */
+.k-box.bands .k-xor {
+  gap: var(--gap);
+}
+.k-box.bands .k-xor > .k-xorhalf + .k-xorhalf {
+  border-left: 0;
+}
+/* the band a half opens: no frame of its own, its tiles inside */
+.k-box.bands .k-xorpanel {
+  background: transparent !important;
+  border-radius: 0;
+}
+/* the ingredients table and the Nutrienti / Micro columns: tiles, one gap */
+.k-box.bands .k-itable {
+  gap: var(--gap);
+}
+.k-box.bands .k-iswipe {
+  border-top: 0;
+  border-radius: 8px;
+}
+.k-box.bands .k-irow {
+  gap: var(--gap);
+  min-height: var(--cell-h);
+  background: var(--sheet);
+}
+.k-box.bands .k-iname,
+.k-box.bands .k-iqty,
+.k-box.bands .k-iadd {
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--tile);
+}
+.k-box.bands .k-iadd {
+  min-height: var(--cell-h);
+}
+.k-box.bands .k-kcolumns {
+  gap: var(--gap);
+}
+.k-box.bands .k-kcols {
+  gap: var(--gap);
+}
+.k-box.bands .k-kcols + .k-kcols {
+  border-top: 0;
+}
+.k-box.bands .k-kside,
+.k-box.bands .k-kcells > *,
+.k-box.bands .k-knums > * {
+  border: 0;
+  border-radius: 8px;
+  background: var(--tile);
+}
+.k-box.bands .k-kcells,
+.k-box.bands .k-knums {
+  gap: var(--gap);
+  border: 0;
+}
+.k-box.bands .k-kcell,
+.k-box.bands .k-knums > * {
+  height: var(--cell-h);
+}
+.k-box.bands .k-kcell + .k-kcell,
+.k-box.bands .k-knums > * + * {
+  border-top: 0;
+}
+/* the side label centred both ways in its tile (his §176) */
+.k-kside {
+  writing-mode: horizontal-tb;
+  transform: none;
+  position: relative;
+  overflow: hidden;
+}
+.k-kside > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  white-space: nowrap;
+  line-height: 1;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+.k-kcell .k-bar {
+  position: relative;
+}
+.k-kcell .k-bar > .k-mark {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1.5px;
+  background: var(--ink);
+}
+/* the numbers column fits «948 / 1.000 mg» on one line */
+.k-kcols {
+  grid-template-columns: 24px minmax(0, 1fr) 84px;
+}
+.k-knums > * {
+  white-space: nowrap;
+  font-size: var(--fs-b4);
+  padding: 0 4px;
+}
+
+/* ---------- §178: the macros in rows of three with the kcal (kcal · P · C / G · F · Micro);
+   the head keeps only the title when open; every row of cells one height ---------- */
+.k-box.bands .k-ninline.rows {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.k-box.bands :is(.k-actrow, .k-xor, .k-kinrow) > *,
+.k-box.bands .k-actrow .k-btn.act {
+  min-height: var(--cell-h);
+  border-radius: 8px;
+}
+/* only when the kcal is a cell of its own: else the head's number is its only place */
+.k-box.bands.is-open:has(.k-mcell.kcal) .k-head > .k-hright,
+.k-box.bands.is-open:has(.k-mcell.kcal) .k-top > .k-line > .k-trail {
+  display: none;
+}
+/* the two searches that appear in the box (his §178 «fammi vedere anche le barre di ricerca»):
+   tiles like the rest — the field a tile kept on top (an opaque ground, the rows pass under it),
+   each result a low tile, one gap */
+.k-box.bands :is(.k-kinfind, .k-findwin) :is(.k-find, .k-stack) {
+  gap: var(--gap);
+}
+.k-box.bands :is(.k-kinfind, .k-findwin) .k-search {
+  height: var(--cell-h);
+  padding: 0 var(--cell-x);
+  border: 0;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--fam) 16%, var(--sheet));
+}
+.k-box.bands :is(.k-kinfind, .k-findwin) .k-findrow {
+  align-items: center;
+  min-height: var(--cell-h);
+  padding: 4px var(--cell-x);
+  border: 0;
+  border-radius: 8px;
+  background: var(--tile);
+  text-align: center;
+  font-size: var(--fs-b2);
+}
+.k-box.bands .k-findwin {
+  padding: var(--gap);
+  border: 0;
+  border-radius: 8px;
+  background: var(--tile);
+}
+
+/* ---------- §180: his pick B for the title (its tile darker, bold); the shut row's voto over its
+   strip, see-through, so the head keeps its room for the title ---------- */
+.k-box.bands .k-head > .k-hlead {
+  background: color-mix(in srgb, var(--fam) 26%, transparent);
+}
+.k-box.bands .k-head > .k-hlead .k-title {
+  font-weight: 700;
+}
+/* shut, the voto's tile: its number laid over its mini skyline, the skyline see-through, a
+   smaller padding (his §185) */
+.k-box.bands .k-top > .k-line > .k-trail {
+  position: relative;
+  padding: 0 4px;
+}
+.k-box.bands .k-trail .k-sky.mini {
+  opacity: 0.45;
+}
+.k-box.bands .k-trail .k-sky.mini + .k-vn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  text-shadow: 0 0 3px var(--sheet);
+}
+/* each parent's tile in its tone: the legend of the ingredients' grounds (his §180) */
+.k-box.bands .k-kinrow.parents > .k-kin.t0 {
+  background: var(--kin-t0);
+}
+.k-box.bands .k-kinrow.parents > .k-kin.t1 {
+  background: var(--kin-t1);
+}
+.k-box.bands .k-kinrow.parents > .k-kin.t2 {
+  background: var(--kin-t2);
+}
+
+/* ---------- §184, his W2 (§187): a misura picked takes the whole row, first, as low as the
+   others — icon, number, arrows, its name, word and share side by side, then its bar filling the
+   rest; the other five in one row under it ---------- */
+.k-mmore {
+  display: none;
+}
+.k-box.bands .k-ninline.rows:has(> .picked) {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+/* the kcal among the five: as wide as its number needs, so it never wraps (his §187) */
+.k-box.bands .k-ninline.rows:has(> .picked:not(.kcal)) {
+  grid-template-columns: minmax(0, 1.3fr) repeat(4, minmax(0, 1fr));
+}
+.k-box.bands .k-ninline.rows > .picked {
+  grid-column: 1 / -1;
+  order: -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 0 var(--cell-x);
+  min-height: var(--cell-h);
+}
+.k-box.bands .k-ninline.rows > .picked > .k-line {
+  flex: 0 0 auto;
+}
+.k-box.bands .k-ninline.rows > .picked > .k-mmore {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--fs-b3);
+}
+.k-box.bands .k-ninline.rows > .picked > .k-track {
+  flex: 1 1 40px;
+  min-width: 40px;
+  margin-top: 0;
+}
+/* a misura's unit a size smaller than its number (his §161, §187) */
+.k-mcell .k-num .k-unit {
+  font-size: var(--fs-b4);
+  color: var(--muted);
+}
+/* a narrow phone: the five small tiles keep icon, number and bar; their arrows show when picked */
+@media (max-width: 360px) {
+  .k-box.bands .k-ninline.rows:has(> .picked) > :not(.picked) .k-verdict {
+    display: none;
+  }
+}
+
+/* ---------- §189: the misure in their colours, the filter between misure and voto, the voto as
+   tiles (his V-A) ---------- */
+.k-mcell.kcal {
+  --mc: var(--kcal);
+}
+.k-mcell.micro {
+  --mc: var(--muted);
+}
+/* a picked misura's tile in its own colour (his §189: «la palette… col colore della misura») */
+.k-box.bands .k-mcell.picked {
+  background: color-mix(in srgb, var(--mc, var(--ink)) 24%, transparent);
+}
+.k-box.bands :is(.k-mcell, .k-ctile, .k-cpts > .seg).dim {
+  opacity: 0.32;
+}
+.k-box.bands .k-bars > .k-ctiles-all {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  padding: 0;
+  background: transparent;
+}
+/* the total: its number, then the 100-point bar, one low tile like a picked misura */
+.k-ctotal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--cell-h, 36px);
+  padding: 0 var(--cell-x, 10px);
+  border-radius: 8px;
+  background: var(--tile);
+}
+.k-ctotal > .k-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-d4);
+  font-weight: 700;
+}
+.k-ctotal > .k-cpts {
+  flex: 1 1 auto;
+}
+/* the criteria: three a row */
+.k-ctiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gap, 4px);
+}
+.k-ctile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 6px 5px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--tile);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.k-ctile .k-cid {
+  background: var(--id);
+}
+.k-ctile .nm {
+  font-size: var(--fs-b3);
+}
+.k-ctile > .k-track {
+  align-self: flex-start;
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--id) 22%, transparent);
+}
+.k-ctile > .k-track > .k-seg {
+  height: 100%;
+  background: var(--id);
+}
+.k-ctile.picked {
+  background: color-mix(in srgb, var(--id) 24%, transparent);
+}
+.k-ctile.none {
+  opacity: 0.5;
+  cursor: default;
+}
+.k-ctile.none > .k-track {
+  width: 100%;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--muted) 40%, transparent) 0 2px,
+    transparent 2px 5px
+  );
+}

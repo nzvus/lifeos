@@ -43,6 +43,7 @@ import {
 import { common } from "@/i18n/common";
 import { mealSlots } from "@/features/box/meal";
 import { ActionSample } from "./action-sample";
+import { KinSample } from "./kin-sample";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { ownerClock } from "@/app/_server/clock";
@@ -131,7 +132,8 @@ const MEALS: [string, boolean][] = [
 const LEVELS: [string, string, boolean, string | null][] = [
   ["box-livello-0", "Box a livelli · chiuso: una riga e la striscia", false, null],
   ["box-livello-1", "Box a livelli · aperto, con le porte", true, null],
-  ["box-livello-2", "Box a livelli · una porta aperta (Voto)", true, "voto"],
+  // the voto has no door (§161): it is always in the open box; a door opened is another
+  ["box-livello-2", "Box a livelli · una porta aperta (Nutrienti)", true, "nutrients"],
 ];
 
 const BOXES: [string, string, BoxEntry, "card" | "row"][] = [
@@ -520,7 +522,6 @@ export default async function KitPage({
                   panel: <p className="k-meta">…</p>,
                 },
               ]}
-              door="voto"
             />
           </div>
         ))}
@@ -630,6 +631,11 @@ export default async function KitPage({
         <ActionSample />
       </section>
 
+      <section className="k-section g2" id="kin" aria-label="Genitori e figli">
+        <h2>Genitori e figli</h2>
+        <KinSample />
+      </section>
+
       <section className="k-section g2" id="banda" aria-label="La banda di un intero">
         <h2>La banda di un intero</h2>
         {/* Clipped in a frame: in the gallery it never sticks over the other pieces. */}
@@ -656,7 +662,7 @@ export default async function KitPage({
                 of: { kind: "meal" },
                 title: "Porridge proteico: lamponi, cioccolato, nocciola",
                 value: F.num(533, "kcal"),
-                score: MEAL_SCORE,
+                score: { ...MEAL_SCORE, how: "#pasto-box" },
                 href: "#pasto-box",
               }}
               data={MEAL_SAMPLE}
@@ -664,8 +670,8 @@ export default async function KitPage({
                 details: { stats: [], lines: [], foot: "aggiunto al volo" },
               })}
               actions={[
-                { key: "log", label: "Registra", href: "#pasto-box" },
-                { key: "compose", label: "Cambia i cibi", href: "#pasto-box" },
+                // as in the Elenco (§167): «Registra» an icon, then «?», the page last
+                { key: "log", label: "Registra", href: "#pasto-box", icon: "log" },
               ]}
             />
           </div>

@@ -56,6 +56,26 @@ export const food = {
     none: "In nessun pasto salvato.",
   },
   meal: {
+    // The «Ingredienti» band (his §169) and the two halves' words.
+    views: { foods: "Ingredienti", kinds: "Nutrienti" },
+    ingredients: {
+      add: "Aggiungi un ingrediente",
+      find: "Cerca un cibo",
+      less: (name: string) => "Meno " + name,
+      more: (name: string) => "Più " + name,
+      remove: (name: string) => "Togli " + name,
+      edit: (name: string) => "Quanto " + name,
+      swipe: "Togli",
+    },
+    // Kinship rows (PAT-103, his §157).
+    kin: {
+      parents: { row: "Genitori", add: "Aggiungi un genitore" },
+      children: { row: "Figli", add: "Aggiungi un figlio" },
+      find: "Cerca un genitore",
+      edit: (name: string) => "Quante volte " + name,
+      less: (name: string) => "Meno " + name,
+      more: (name: string) => "Più " + name,
+    },
     eaten: (n: number) => "mangiato " + F.plural(n, "volta", "volte"),
     log: "Registra",
     compose: "Cambia i cibi",

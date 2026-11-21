@@ -20,6 +20,8 @@ export {
   type PlanVariant,
 } from "./PlanBox";
 export { ChipRow, type ChipItem } from "./ChipRow";
+export { KinRows, type KinChip, type KinWords } from "./KinRows";
+export { IngredientTable, shareBackground, type IngredientRow } from "./IngredientTable";
 export { Verdict } from "./Verdict";
 export { FitLine } from "./FitLine";
 export { fitScale, FIT_FLOOR } from "./fit";
@@ -37,7 +39,12 @@ export { listWindow, LIST_WINDOW } from "./list";
 export { Chart, chartGeometry, type ChartData } from "./Chart";
 export { Field, type FieldOption, type FieldProps } from "./Field";
 export { Nutrients, NutrientsL0 } from "./Nutrients";
-export { Criteria, type CriteriaData } from "./Criteria";
+export {
+  Criteria,
+  CriteriaTiles,
+  type CriteriaData,
+  type CriteriaFilter,
+} from "./Criteria";
 export { Forms, type FormItem, type FormLook } from "./Forms";
 export { MeasureTree, MeasureDays, type MNode } from "./MeasureTree";
 export { MeasureView, measureLabel, type MeasureViewSpec } from "./MeasureView";
