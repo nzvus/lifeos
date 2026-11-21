@@ -211,3 +211,11 @@ export function childrenOf(kin: ReadonlyMap<string, Kin[]>): Map<string, Kin[]> 
       out.set(p.id, [...(out.get(p.id) ?? []), { id: child, k: p.k, stored: p.stored }]);
   return out;
 }
+
+/**
+ * The longest name a catalog object may be given (his §157, «yc» §158: «un cap al nome di
+ * ingredienti e pasti»): 40 characters. A name already longer stays while it is left as it is.
+ */
+export const NAME_MAX = 40;
+export const nameTooLong = (name: string, current?: string | null) =>
+  name.length > NAME_MAX && name !== current;

@@ -8,10 +8,8 @@ import { and, eq, isNull, max } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { catalogItems, catalogParts } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
-import { expandParts, kinship, lineKey, MAX_KIN_DEPTH } from "../catalog/family";
+import { expandParts, kinship, lineKey, MAX_KIN_DEPTH, NAME_MAX } from "../catalog/family";
 import { readRecipeFamily, recipeNameTaken, rewriteParts } from "./recipes";
-
-const NAME_MAX = 80;
 
 async function livePasti(db: Db, owner: Owner): Promise<Map<string, string>> {
   const rows = await db

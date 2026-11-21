@@ -23,6 +23,7 @@ import {
   kinds,
 } from "../db/schema";
 import { mergeItems, mergePreview } from "../catalog/merge";
+import { nameTooLong } from "../catalog/family";
 import { restoreEntry, trashEntry } from "../entries/write";
 import { ownedBy, type Owner } from "../identity/owner";
 import { catalogType, valuesSchema, type CatalogType, type Verb } from "../kinds/catalog";
@@ -354,7 +355,7 @@ async function create(
   if (t.storage.table !== "catalog_items") return refuse("verb_not_allowed");
   const name = cleanName(p?.name);
   const values = valuesSchema(t).safeParse(p?.values ?? {});
-  if (!name || name.length > 120 || !values.success)
+  if (!name || nameTooLong(name) || !values.success)
     return refuse("invalid", values.error?.message);
   if (t.fields.some((f) => f.required && (p.values?.[f.key] ?? null) === null))
     return refuse("invalid", "required");
@@ -452,7 +453,8 @@ async function edit(
   const values = valuesSchema(t).safeParse(p?.values ?? {});
   if (!values.success) return refuse("invalid", values.error.message);
   const name = p?.name === undefined ? undefined : cleanName(p.name);
-  if (name === "") return refuse("invalid", "name");
+  if (name === "" || (name && nameTooLong(name, item.name)))
+    return refuse("invalid", "name");
   if (name && (await nameTaken(db, owner, item.catalog, item.parentId, name, item.id)))
     return refuse("name_taken");
   const before = await readProvenance(db, owner, item.id, Object.keys(values.data));

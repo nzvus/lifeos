@@ -16,6 +16,7 @@ import type { CheckedLine } from "../entries";
 import { ownedBy, type Owner } from "../identity/owner";
 import { ESTIMATE_CONFIDENCE, ESTIMATE_FIELDS, type EstimateField } from "./meal";
 import {
+  nameTooLong,
   canBeVariant,
   partsDiff,
   resolveParts,
@@ -24,15 +25,14 @@ import {
 } from "../catalog/family";
 
 export type RecipeNameError = "empty" | "too_long" | "taken";
-const NAME_MAX = 80;
-
-/** Pure: the name as it will be kept, or why it cannot be. */
+/** Pure: the name as it will be kept, or why it cannot be; `current` is the name it has now. */
 export function recipeName(
   raw: string,
+  current?: string | null,
 ): { ok: true; name: string } | { ok: false; error: RecipeNameError } {
   const name = raw.trim().replace(/\s+/g, " ");
   if (name === "") return { ok: false, error: "empty" };
-  if (name.length > NAME_MAX) return { ok: false, error: "too_long" };
+  if (nameTooLong(name, current)) return { ok: false, error: "too_long" };
   return { ok: true, name };
 }
 

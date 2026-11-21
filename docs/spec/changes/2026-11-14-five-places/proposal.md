@@ -1661,6 +1661,11 @@
     small window (220 px) under the rows, its results scrolling inside, field stuck at its top; the
     multiplier a bare number («1,5»). Found on the way: open, the «+»'s enlarged touch area covered
     the narrow number — the number now wins its own taps. Photos `review/2026-11-21/kin/`.
+165. **21 Nov, the name cap (his §157, «yc» §158):** one rule in `core/catalog/family.ts` —
+    `NAME_MAX` 40, `nameTooLong(name, current)` — used by every gate: `recipeName` (pasti, cibi,
+    esercizi, assunzioni; was 80), the catalog verbs' create (was 120) and edit (had none); a name
+    already longer stays while it is left as it is (1 pasto, 3 cibi of his). The copy rule cuts
+    within it. The name and nota edited on the box: **asked** (it changes every box's head).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
