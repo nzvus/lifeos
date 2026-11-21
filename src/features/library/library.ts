@@ -10,6 +10,7 @@ import { lineTotals } from "@/core/food/totals";
 import type { ExerciseSession } from "@/core/training";
 import { LABEL_FIELDS } from "@/core/kinds/catalog";
 import { objects } from "@/i18n/objects";
+import type { MealKin } from "./kin";
 
 /** A marca of a cibo as its open box shows it; `box` from the page, when the list is judged. */
 export type Product = {
@@ -74,6 +75,8 @@ export type LibraryRow = {
     data: NutrientsData;
     details: BoxDetails;
     parts: MealPart[];
+    /** Its parents and children (MOD-23, PAT-103). */
+    kin?: MealKin;
   };
 };
 

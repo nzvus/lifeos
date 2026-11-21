@@ -5,7 +5,7 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **74** · kit pieces: **57**
+- routes: **42** · screen components outside the kit: **76** · kit pieces: **58**
 - components that take input (a form, a field): **37**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
@@ -84,7 +84,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/library/BarcodeBox.tsx` | 308 | Glyph | 2 input | 6 |
 | `features/library/ExerciseForm.tsx` | 90 | Field, PageHeader | 1 form | 6 |
 | `features/library/FoodForm.tsx` | 209 | Field, Glyph, PageHeader | 3 input, 1 form | 6 |
-| `features/library/Library.tsx` | 435 | Box, Field, MealBox | 2 input | 2 |
+| `features/library/Library.tsx` | 450 | Box, Field, MealBox | 2 input | 2 |
 | `features/library/PantryActions.tsx` | 56 | ObjectForm, Sheet | — | 2 |
 | `features/library/RouteForm.tsx` | 112 | Field, PageHeader | 1 form | 1 |
 
@@ -193,6 +193,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `EmptyState` | 2 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx |
 | `EmptyTime` | 2 | features/day/Timeline.tsx, app/(app)/kit/page.tsx |
 | `InPlace` | 2 | features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
+| `KinRows` | 2 | app/(app)/kit/kin-sample.tsx, features/library/MealKin.tsx |
 | `MergeSheet` | 2 | features/gallery/Pieces.tsx, features/objects/use-object-verbs.tsx |
 | `ObjectPage` | 2 | features/gallery/ObjectDemo.tsx, features/objects/ObjectView.tsx |
 | `PartsBand` | 2 | app/(app)/oggi/day-page.tsx, app/(app)/kit/page.tsx |
@@ -242,7 +243,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/[area]/andamento/[tracker]` | 1 | 0 |
 | `/[area]/andamento/legami` | 0 | 0 |
 | `/[area]/ciclo/[id]` | 0 | 0 |
-| `/[area]/elenco` | 24 | 14 |
+| `/[area]/elenco` | 25 | 14 |
 | `/[area]/elenco/doppioni` | 0 | 0 |
 | `/[area]/piano` | 1 | 0 |
 | `/[area]/sessione/[id]` | 7 | 5 |
@@ -256,7 +257,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/aggiungi/spesa` | 1 | 1 |
 | `/aggiungi/tragitto` | 0 | 0 |
 | `/andamento/[tracker]` | 0 | 0 |
-| `/kit` | 2 | 1 |
+| `/kit` | 3 | 1 |
 | `/kit/oggetto` | 1 | 0 |
 | `/oggi/[[...day]]` | 10 | 2 |
 | `/oggi/[type]/[id]` | 33 | 16 |
@@ -266,7 +267,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/oggi/andamento/obiettivi` | 0 | 0 |
 | `/oggi/andamento/obiettivi/nuovo` | 1 | 1 |
 | `/oggi/andamento/qualita` | 0 | 0 |
-| `/oggi/elenco` | 22 | 14 |
+| `/oggi/elenco` | 23 | 14 |
 | `/oggi/piano` | 1 | 0 |
 | `/palestra` | 0 | 0 |
 | `/profilo` | 4 | 3 |

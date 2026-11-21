@@ -16,6 +16,7 @@ import { readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { foodScore } from "@/features/day/score";
 import { mealBox } from "./meal-box";
+import { pastoKin } from "@/features/library/kin";
 import { areaSlug, typeAtSlug } from "@/core/kinds/catalog";
 import { pageVerbs } from "@/features/objects/present";
 import { NEW_FORMS } from "../../[area]/[type]/[id]/new-forms";
@@ -110,10 +111,12 @@ export async function readLibrary(
         : {}),
     };
   });
+  const kin = openMeals ? pastoKin(recipes) : null;
   const meal = recipeRows(recipes, foods).map((r, i) => {
     if (!openMeals || !refs) return r;
     const recipe = recipes[i]!;
     const box = mealBox(recipe, by, refs);
+    const k = kin?.get(recipe.recipeId);
     return {
       ...r,
       ...(box.score ? { score: box.score } : {}),
@@ -123,6 +126,7 @@ export async function readLibrary(
         data: box.data,
         details: box.details,
         parts: box.parts,
+        ...(k ? { kin: k } : {}),
       },
     };
   });

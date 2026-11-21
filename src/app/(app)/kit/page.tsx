@@ -43,6 +43,7 @@ import {
 import { common } from "@/i18n/common";
 import { mealSlots } from "@/features/box/meal";
 import { ActionSample } from "./action-sample";
+import { KinSample } from "./kin-sample";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { ownerClock } from "@/app/_server/clock";
@@ -628,6 +629,11 @@ export default async function KitPage({
       <section className="k-section g2" id="azioni-box" aria-label="Le azioni di un box">
         <h2>Le azioni di un box</h2>
         <ActionSample />
+      </section>
+
+      <section className="k-section g2" id="kin" aria-label="Genitori e figli">
+        <h2>Genitori e figli</h2>
+        <KinSample />
       </section>
 
       <section className="k-section g2" id="banda" aria-label="La banda di un intero">

@@ -55,6 +55,9 @@
   --muscle-arms: #c9a5f0;
   --muscle-core: #4dceca;
   --muscle-legs: #9bc77c;
+  /* kinship rows (PAT-103): the same L and C, their own hues */
+  --kin-parent: #c9a5f0;
+  --kin-child: #4dceca;
 }
 :root {
   --space-unit: 4px;

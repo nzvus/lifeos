@@ -25,6 +25,12 @@ export type VerbServer = {
   revert: (u: Undo) => Promise<Answer>;
   mergePreview: (type: string, keep: string, gone: string) => Promise<string[]>;
   merge: (type: string, keep: string, gone: string) => Promise<Answer>;
+  /** Kinship between pasti (MOD-23, PAT-103): where the Elenco draws it. */
+  kin?: {
+    step: (childId: string, parentId: string, k: number) => Promise<boolean>;
+    addParent: (childId: string, parentId: string) => Promise<boolean>;
+    addChild: (parentId: string) => Promise<string | null>;
+  };
 };
 
 /** The object a verb is done on. */

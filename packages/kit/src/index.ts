@@ -20,6 +20,7 @@ export {
   type PlanVariant,
 } from "./PlanBox";
 export { ChipRow, type ChipItem } from "./ChipRow";
+export { KinRows, type KinChip, type KinWords } from "./KinRows";
 export { Verdict } from "./Verdict";
 export { FitLine } from "./FitLine";
 export { fitScale, FIT_FLOOR } from "./fit";

@@ -55,3 +55,37 @@ it("a parent line counts as the parent's foods × its multiplier; nothing is dro
     [nut, 20],
   ]);
 });
+
+it("kin written (MOD-23): a parent added, its k stepped, a child copied; never a loop", async () => {
+  const { addChild, addParent, setParentK } = await import("./kin");
+  const egg = await item("food", "Uovo");
+  const salt = await item("food", "Sale");
+  const base = await item("recipe", "Frittata");
+  await part(base, 0, egg, "120");
+  await part(base, 1, salt, "1");
+  const dish = await item("recipe", "Frittata e pane");
+  await part(dish, 0, egg, "10");
+
+  expect(await addParent(db, a, dish, base)).toBe(true);
+  expect(await addParent(db, a, dish, base)).toBe(false); // already there
+  expect(await addParent(db, a, base, dish)).toBe(false); // a loop
+  expect(await addParent(db, a, dish, dish)).toBe(false);
+  expect(await setParentK(db, a, dish, base, 1.5)).toBe(true);
+  expect(await setParentK(db, a, dish, base, 0)).toBe(false);
+
+  const foods = await readFoodChoices(db, a, "2026-11-21");
+  const recipes = await readRecipeChoices(db, a, "2026-11-21", foods);
+  const d = recipes.find((r) => r.recipeId === dish)!;
+  expect(d.parents).toEqual([{ id: base, k: 1.5 }]);
+  expect(d.parts.map((p) => [p.key, Number(p.quantity)])).toEqual([
+    [egg, 190],
+    [salt, 1.5],
+  ]);
+
+  const child = await addChild(db, a, base);
+  const again = await addChild(db, a, base);
+  const after = await readRecipeChoices(db, a, "2026-11-21", foods);
+  expect(after.find((r) => r.recipeId === child)?.name).toBe("Frittata (2)");
+  expect(after.find((r) => r.recipeId === again)?.name).toBe("Frittata (3)");
+  expect(after.find((r) => r.recipeId === child)?.parents).toEqual([{ id: base, k: 1 }]);
+});

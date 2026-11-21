@@ -335,6 +335,10 @@ export async function readRecipeChoices(
       defaults: x.defaults,
     })),
   );
+  const stored = (id: string) =>
+    own(id)
+      .filter((x) => family.has(x.partItemId))
+      .map((x) => ({ id: x.partItemId, k: Number(x.quantity ?? 1) }));
   return recipeChoices(
     recipes.map((r) => {
       const base = basesOf(r.id, family)[0];
@@ -344,7 +348,10 @@ export async function readRecipeChoices(
     new Map(uses.flatMap((u) => (u.itemId ? [[u.itemId, u.uses] as const] : []))),
     foods,
     savedEstimates(values),
-  );
+  ).map((c) => {
+    const parents = stored(c.recipeId);
+    return parents.length > 0 ? { ...c, parents } : c;
+  });
 }
 
 /** Pure: the saved estimates' totals by recipe; a recipe without the mark is none. */

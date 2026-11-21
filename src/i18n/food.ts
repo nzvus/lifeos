@@ -56,6 +56,14 @@ export const food = {
     none: "In nessun pasto salvato.",
   },
   meal: {
+    // Kinship rows (PAT-103, his §157).
+    kin: {
+      parents: { row: "Genitori", add: "Aggiungi un genitore" },
+      children: { row: "Figli", add: "Aggiungi un figlio" },
+      find: "Cerca un genitore",
+      less: (name: string) => "Meno " + name,
+      more: (name: string) => "Più " + name,
+    },
     eaten: (n: number) => "mangiato " + F.plural(n, "volta", "volte"),
     log: "Registra",
     compose: "Cambia i cibi",

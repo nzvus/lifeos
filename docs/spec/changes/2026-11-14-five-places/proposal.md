@@ -1611,6 +1611,18 @@
     pasti capped at **40** (1 pasto and 3 cibi are longer today and stay as they are; undo:
     `NAME_MAX`); kin chips cut by width. The foods-as-a-sentence line under a pasto in the Elenco
     goes (his «spero non ripeta gli ingredienti»): the bar by part shows them (VIS-106).
+159. **21 Nov, built on §158:** core `expandParts` + `kinship` + `childrenOf` (MOD-23); a pasto inside
+    a pasto is no longer dropped by `recipeChoices` (it counts × k); `core/food/kin.ts` writes k,
+    «+ genitore», «+ figlio» (never a loop). Kit `KinRows` (PAT-103): ↰ «Genitori» lilac, ↴ «Figli»
+    teal (`--kin-parent`, `--kin-child`, the same L and C), «× k» before the name, the name cut at
+    14 characters' width, «+» with the row's icon, dashed; the search opens under the rows (no
+    pop-up). In the Elenco: the pasto's box draws them, the foods-as-a-sentence line gone. Photos
+    `LIFEOS/review/2026-11-21/kin/`. Decided by Claude (each cheap): k steps by ¼; a kin chip opens
+    the pasto's page (scrolling the Elenco to it: not yet); after «+ figlio» the list's search
+    shows the copy; a copy is «name (n)», the importer's rule. His pasti show found links only
+    (×1, no stepper) until the one-time data job (ADR-0065) stores them. Not yet: the name cap of
+    40, the name and nota edited in place, the voce's name as the door (PAT-104), the meal's
+    in-place grams. **Waits for his word on the photos.**
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

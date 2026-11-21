@@ -14,6 +14,7 @@ import { Box, F, Field, List as KitList, MealBox, type PlanAction } from "@lifeo
 import { useObjectVerbs, type VerbServer } from "@/features/objects/use-object-verbs";
 import { food } from "@/i18n/food";
 import { ExercisePlanBox, FoodPlanBox } from "./boxes";
+import { MealKin } from "./MealKin";
 import { mealSlots } from "@/features/box/meal";
 import { listRows, sortValue, SORTS, type LibraryRow, type SortKey } from "./library";
 
@@ -296,6 +297,9 @@ function List({
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("uses");
   const rows = listRows(lists[tab], query, sort);
+  const pasti = lists.meals.flatMap((m) =>
+    m.meal ? [{ id: m.meal.id, name: m.name, uses: m.uses }] : [],
+  );
   const per = tab === "foods" ? "/100" : "";
   const value = (r: LibraryRow) => {
     const s =
@@ -387,7 +391,8 @@ function List({
               <MealBox
                 key={r.key}
                 density="row"
-                entry={row(tab, r, value(r))}
+                // No foods as a sentence under its name: the bar shows them (his §157, VIS-106).
+                entry={row(tab, r, value(r), false)}
                 data={r.meal.data}
                 slots={mealSlots({ details: r.meal.details })}
                 actions={[
@@ -403,7 +408,17 @@ function List({
                   },
                   ...acts(r),
                 ]}
-              />
+              >
+                {server.kin && !r.meal.estimate && (
+                  <MealKin
+                    id={r.meal.id}
+                    kin={r.meal.kin}
+                    pasti={pasti}
+                    server={server.kin}
+                    onChild={setQuery}
+                  />
+                )}
+              </MealBox>
             ) : r.exercise ? (
               // An esercizio opens in place (PAT-30 level 1, Deliver ③): facts, e1RM trend.
               <ExercisePlanBox
