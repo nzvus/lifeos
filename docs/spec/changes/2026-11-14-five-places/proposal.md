@@ -1549,6 +1549,20 @@
     meal in depth, timeline and Elenco: in-place edits (grams, + ingrediente, porzioni) with the
     voto recomputed live and each ingredient's share lit (MOD-61); (4) abstract it into the kit and
     apply it to every type; (5) each type's specifics.
+155. **21 Nov, his «yc procedi»** on §154: the order is approved. Decided by his «yc» (each with its
+    undo): five chevrons, not seven (§145's reason; undo: `Verdict` levels); the dashed previsto
+    icon stays as it is at 18 px, looked at again when the previsto gets its box shape (undo: a
+    dashed ring in `Box.tsx`). **Stop B complete**: all 16 types of `BOX_PLAN` plus the tragitto,
+    shut and open at 390/360/320 on his data, none overflowing, with the table of each zone
+    (`LIFEOS/review/2026-11-21/stop-b/all/index.html`, script `all.mjs`). Found: (a) four builders —
+    `PlanBox` (pasto, cibo, pasto salvato, esercizio, scheda), the old `Box` (seven voci), water's
+    own `WaterRow`, and ciclo · blocco · obiettivo not Boxes at all (they do not open); (b) the head
+    is already one (icon · name · value · voto); (c) zone 2 (the bar) only for macros and water;
+    (d) zone 3 (the voto bar, VIS-107) drawn nowhere — a «Voto n» chip repeats the head; (e) the
+    page arrow mid-right in the old Box, last in the row in `PlanBox`; (f) a field's value as tiles
+    or as chips; (g) faults: come stai's values twice, «a digiuno» twice, the assunzione's two
+    costs (0,10 € and 0,06 €), the tragitto's tiles in English, sonno titled «Sveglia». Next, his
+    step (3): the meal in depth, timeline and Elenco. **Waits for his word on the table.**
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
