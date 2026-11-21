@@ -54,6 +54,7 @@ export function mealBox(
     ? undefined
     : linesScore(
         used.map((u) => ({
+          key: u.line.key,
           quantity: u.line.quantity,
           values: u.food.per100,
           estimates: u.food.foodId ? refs.estimates.get(u.food.foodId) : undefined,

@@ -4,7 +4,7 @@
 |---|---|---|---|---|
 | ACT-01 | OBJ-01 | log | on the rail at its hour (a gap, or «adesso»): a search row opens there | reframe §15, proposal §113 |
 | ACT-02 | OBJ-01 | plan | the same, at a later hour: the time makes it previsto | reframe §11, MOD-15 |
-| ACT-03 | OBJ-01 | change | its card, level 1: grams on the number, + ingrediente at the end of its righe, the time on itself | reframe §15, PAT-13 |
+| ACT-03 | OBJ-01 | change | its card, level 1: porzioni as the stepper in its actions row (PAT-101), grams on the number, + ingrediente at the end of its righe, the time on itself | reframe §15, PAT-13 |
 | ACT-04 | OBJ-01 | skip | its card: one short action on a previsto | MOD-13, reframe §11 |
 | ACT-05 | OBJ-01 | start from | its card: «Salva come pasto salvato» | MOD-14 |
 | ACT-06 | OBJ-01 | drill | its card: tap → level 1 → a macro → its cibi | VIS-70, bars-study §22.1 |
@@ -50,3 +50,4 @@
 | ACT-46 | OBJ-66 | drill | «Il giorno»: energia → macros → kinds → cibi → the voce | bars-study §22.1 |
 | ACT-47 | OBJ-66 | compare | the window widened: day → week → month | reframe §3, §4 |
 | ACT-48 | OBJ-73 | filter | the area chips: Tutto · Cibo · Corpo · Mente · Soldi | PAT-95 |
+| ACT-49 | OBJ-01 | delete | its card's actions row: the trash icon at the end; or a swipe left (any voce) | PAT-101, FOOD-47 |

@@ -18,8 +18,7 @@ import {
   readRecipeChoices,
 } from "@/core/food/catalog";
 import { mealPage } from "@/features/library/library";
-import { MealFoods } from "@/features/library/MealFoods";
-import { common } from "@/i18n/common";
+import { mealCost, mealSlots } from "@/features/box/meal";
 import { food } from "@/i18n/food";
 import { mealBox } from "../../../oggi/elenco/meal-box";
 import type { Build } from "./extras";
@@ -48,6 +47,7 @@ export const recipeExtra: Build = async (db, owner, id) => {
     }),
   );
   const box = mealBox(recipe, by, { targets, micros, estimates, weights });
+  const cost = mealCost(box.details);
   return {
     meta: w.eaten(page.uses),
     first: (
@@ -63,10 +63,14 @@ export const recipeExtra: Build = async (db, owner, id) => {
             ...(box.score ? { score: box.score } : {}),
           }}
           data={box.data}
-          labels={common.doors}
-          details={box.details}
-          foods={<MealFoods parts={box.parts} />}
+          slots={mealSlots({ details: box.details })}
         />
+        {cost && (
+          // Its cost is level 2 (ATT-11): on its page, beside the box, no longer a door.
+          <p className="k-help">
+            {cost.label} {cost.value}
+          </p>
+        )}
         {page.estimate && <p className="k-help">{w.estimate}</p>}
         <div className="k-line g2 wrap">
           <a className="k-btn primary" href={"/aggiungi/pasto?pasto=" + id}>

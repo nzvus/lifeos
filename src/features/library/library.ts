@@ -65,6 +65,8 @@ export type LibraryRow = {
   products?: Product[];
   /** A cibo: what its box holds when it opens in place (PAT-30 level 1), 100 g of it. */
   food?: { data: NutrientsData; nova?: number };
+  /** Its object, for the verbs of its box's actions row (PAT-101, MOD-20). */
+  obj?: { type: string; id: string; verbs: string[]; newHref: string; typeName: string };
   /** A saved pasto: what its box holds when it opens in place (PAT-43), from the page. */
   meal?: {
     id: string;

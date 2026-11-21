@@ -439,7 +439,9 @@ export function composerScore(
     lines.flatMap((l) => {
       const c = by.get(l.key);
       const q = quantityOf(l.quantity);
-      return c && q ? [{ quantity: q, values: c.per100, estimates: c.estimates }] : [];
+      return c && q
+        ? [{ key: l.key, quantity: q, values: c.per100, estimates: c.estimates }]
+        : [];
     }),
     servings,
     refs.targets,

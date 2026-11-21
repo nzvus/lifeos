@@ -1315,6 +1315,240 @@
     marche) are **variants** of the same `PlanBox`, each with its own head and slots, one picked by
     the caller's rule (undo: `FoodBox`); (c) then Oggi's voci and Obiettivi through the same
     builder, then **stop B**: one page with every type's Box closed and open.
+133. **20 Nov, §132 built (a) and (b), decided by Claude:** kit `PlanBox` (slots `word` · `words` ·
+    `trend` · `nutrients`, and `variants`) and `features/box/slots.ts` (`planSlots`: the plan's
+    order, i18n labels by slot key, throws on a shape that is not the slot's instrument; `words`
+    may also list a composition's members, so a scheda's esercizi are names). Cibi, Esercizi and
+    Schede now go through it; `FoodBox`, `ExerciseBox`, `box-doors.ts` are gone. Photos before and
+    after are pixel-identical (`LIFEOS/review/2026-11-20/planbox/`). **Open, his (blocks (c)):**
+    the meal's Box shows Nutrienti · Cibi · Costo open, but its plan (`orca/attributes.md`, ATT-06…
+    ATT-10) says lines · limits · servings · context at level 1 and cost at level 2. Which is
+    true? (a) the plan, recommended: the meal box redraws by it (Cibi = lines, limits as bars,
+    cost moves to its page) — a change on Oggi, shown as photos first; (b) the box: the table
+    changes to match today's doors. The obiettivo's plan (pace → bar, reachedOn → fan) needs two
+    more shapes; Obiettivi is history (§105), so it waits for (c)'s answer.
+134. **20 Nov, his «yc» on §133 = (a), the plan wins.** Built on the branch, shown as photos, **waits
+    for his word** (design rule 3; `LIFEOS/review/2026-11-20/planbox/meal-*.png`). The meal's box
+    is `MealBox` on `PlanBox`, its slots from `features/box/meal.ts`. Decided by Claude, each with
+    its undo: (1) open doors in the plan's order: Voto · Cibi (ATT-06) · Nutrienti — the limits
+    slot (ATT-07) keeps today's panel and his word «Nutrienti» (undo: label «Limiti e micro»);
+    (2) the cost leaves the box (ATT-11, level 2): a line «Costo ≈ …» on a pasto's page; **on Oggi
+    a voce's cost is only in the day's «Costo ≈» for now** (undo: `mealDoors` in git); (3) the
+    other details (provenance, his note) are the context slot (ATT-10), a row of words above the
+    doors (undo: a «Dettagli» door); (4) porzioni is its own word (ATT-08), never shown where the
+    place has the − × + stepper (the day); (5) the day's cibi are drawn as a pasto's are, one Box
+    row each: the amount the value, «kcal · ≈ €» its second line (undo: text lines). Open: the
+    day's lines carry no food group, so each has the plain ingredient icon (VIS-31 wants its group).
+135. **20 Nov, his words on the §134 photos:** «il moltiplicatore compare 3 volte. elimina può
+    diventare una icona di cestino. entrambe le azioni possono essere spostate nello stesso punto,
+    come le marche nei cibi, sopra le voci a scorrimento orizzontale come altro scorrimento
+    orizzontale ma dedicato alle azioni. oppure no. essendo azioni, e essendo anche la modifica e
+    aggiunta di ingredienti altre azioni, dovremmo studiarle insieme a quei cambiamenti in place.
+    nell'elenco poi ci sarebbe proprio l'opportunità di cambiare tutto, collegamenti con parti
+    parenti, fusioni, cambi di nome, eccetera. poiché nella timeline ti ricordo che non modifichi
+    il pasto vero in elenco. questo tipo di cambiamenti poi immagino possano essere astratti anche
+    per categorie non sul cibo necessariamente. ma non so come questo influisce sul piano».
+    Claude's reading: the actions are `orca/actions.md` (48 rows, by object and place); a voce
+    changes only itself (a snapshot, ADR-0007: porzioni, + ingrediente, salta, elimina, «salva come
+    pasto»), a catalog object changes its life (MOD-20: rinomina, unisci, variante, parti da,
+    collegamenti, archivia). Question to him: how this enters the plan (reply of 20 Nov).
+136. **20 Nov, his «yc» on §135 = (a): actions join the box before Stop B.** Spec: PAT-101 in
+    `delta.md`, ACT-49 (delete a voce) and ACT-03's place in `orca/actions.md`; `delete` joins the
+    action words (README, check.py), for a voce only — decided by Claude (undo: drop it and
+    ACT-49). Built: kit `ActionRow` in `PlanBox` (`actions`), first when open; the day's meal and
+    every other day box draw porzioni once (the stepper, drawn 32, touched 44; the «× n» pill
+    dropped where it steps) and the trash at the end (undo: `serveRow` in git). Photos:
+    `LIFEOS/review/2026-11-20/planbox/meal-actions*.png`; **waits for his word** on the meal box.
+    Next: the Elenco objects' actions row (MOD-20 verbs, `ObjectActions`' «Altro» into it), the
+    voce's righe in place (ACT-03), then Stop B. ④ keeps only where adding happens.
+137. **20 Nov, his word on §136:** «sì preferisco "drawn small", dappertutto, e secondo me può anche
+    essere più stretto orizzontalmente intendo. magari in futuro quando rifacciamo per le modifiche
+    in place, li facciamo simili. per il resto yc». Done: every `Stepper` (`.k-step`) drawn 32 high
+    with 32-wide buttons, each touched at 44 (VIS-05, VIS-105); `.big` (52) stays, unused today.
+    For later: the in-place edits (ACT-03, PAT-13) take the same small stepper.
+    Open, his: in a form the stepper is now 32 while text fields and the segmented control stay 44
+    (VIS-86); recommended: the same «drawn small, touched at 44» for every field, with the in-place
+    edits (photos `planbox/stepper-small.png`).
+138. **20 Nov, his «yc» of §136, next step: the Elenco objects' actions row (PAT-101).** Each Elenco
+    row knows its object (type, id, its page's verbs, read from its address); `useObjectVerbs`
+    (`features/objects`) runs them for the object page and every Elenco box alike (one merge sheet,
+    one toast with «Annulla»). Cibo: Parti da… · Unisci · Archivia · trash; pasto salvato: Registra
+    · Cambia i cibi · Parti da… · Variante · Unisci · Archivia · trash; esercizio: Unisci · Archivia ·
+    trash. Decided by Claude, each with its undo: the pasto's «Registra» and «Cambia i cibi» leave
+    the doors' row for the actions row (§128's «doors and verbs on one row» changes for the verbs:
+    undo `verbs` in git); every verb in the row, no «Altro» in a box (the page keeps its «Altro»
+    until it is a box too). Not yet: the schede (a server list, no client verbs), rinomina and
+    collegamenti in place (ACT-25, with the in-place edits). Photos `planbox/elenco-actions.png`;
+    **waits for his word**.
+139. **21 Nov, his word on §134–§138 (rejected):** «hm, no non va bene, il problema è che la
+    posizione di ogni cosa dovrebbe essere astratta e uniformata, almeno delle cose comuni. e poi il
+    cibo è orribile così, spaziato in quel modo, la marca che crea tutto quello spazio. anche il resto
+    non va bene, mi chiedo poi quanto dovrà cambiare pensando alle modifiche in place. e poi in
+    realtà le azioni son collegate alle visualizzazioni, devo essere in grado di vedere i nutrienti
+    per modificarli, ma vorrei anche vedere i voti come cambiano dinamicamente, forse la cosa più
+    inutile sono i macro, che per i pasti invece di tutte quelle barre possono averne una unica come
+    quella attuale dei voti. e magari mostri sempre i pezzettini di ogni contributo di ogni
+    ingrediente a ogni macro, come avviene per la scheda generale immagino però su un piano diverso.
+    e tra l'altro, magari i blocchettini piccoli cambiano con il tipo di visualizzazione, per esempio
+    nutrienti/ingredienti. in effetti quelli che adesso chiamiamo nutrienti in realtà sono
+    ingredienti. i nutrienti sono le origini che creano i blocchettini attualmente nella scheda
+    generale di oggi. o e poi se si tocca e quindi si sta modificando uno degli ingredienti, la
+    barra illumina tutti i blocchettini che la riguardano (dato che in modalità modifica sarebbe in
+    visualizzazione ingredienti) e come ti dicevo, anche i voti devono essere visualizzati, magari in
+    una barra sotto a quella dei macro ma riconoscibilmente diversa. e allo stesso modo, alla
+    modifica e o al tocco di un ingrediente, i contributi apportati ai voti da quell'ingrediente si
+    illuminano? non lo so». Claude's reading, for his answer: (1) one **anatomy** for every Box, fixed
+    zones for what is common; (2) actions and views are one thing: editing needs the view it
+    changes, and the voto must move as he edits; (3) a meal's four macro bars become **one bar**
+    (like the voto's), its blocks always split by contributor, in two modes — by ingredient · by
+    nutrient kind (the «origins» of «Il giorno») — editing puts it in the ingredient mode; (4) a
+    touched ingredient lights its blocks (VIS-50 already says it for level 2) and, maybe, its part
+    of the voto, in a **voto bar** under the macro bar, drawn unlike it. Nothing more is built on
+    the box until he answers.
+140. **21 Nov, his word:** «be e non pensi che ci dovrebbe essere un collegamento diretto tra i voti
+    di un pasto e gli ingredienti che lo compongono? perché di fatti c'è. i singoli ingredienti hanno
+    voti, quindi si dovrebbe partire da quelli, o meglio si potrebbe, e robe di densità e altri
+    criteri usano anche quelli, quindi perché non evidenziare un legame che esiste». Claude was
+    wrong in §139 («an ingredient adds no fixed share»): `core/food/score.ts` `foodParts` builds
+    every criterion from **sums over the lines** — density from the nutrients' totals against the
+    meal's kcal, the limits from totals of salt, saturated fat, free sugars, trans — and a cibo is
+    scored by the same function on its own (its voto per 100 kcal). So each criterion's input is
+    each ingredient's amount added up, and per kcal the meal's value is the kcal-weighted mix of its
+    ingredients' values; only the last step (density capped at 100 %, the limits' 1…2 ramp) bends
+    it. The link exists and can be drawn exactly at the input level.
+141. **21 Nov, his «yc» on §139–§140 (all four: one anatomy; the voto bar split by ingredient, live;
+    spec first, then one meal box as photos, #372 stays open; «Ingredienti» · «Nutrienti»), and:**
+    «utilizza questa cosa dei voti applicata anche al resto, esempio, esercizi singoli magari hanno
+    voti, le sessioni quindi sono loro aggregati in qualche modo, quindi stesso pattern. e tutto
+    questo ovviamente vale anche per discorsi futuri sull'andamento».
+142. **21 Nov, built on his «yc» of §141 (spec: PAT-102, VIS-106, VIS-107, MOD-61 in `delta.md`):**
+    `lineShares` (exact shares per criterion) and `split` on every meal voto; kit `PartsBar`
+    (macro bar · voto bar); the meal box on the anatomy — head, macro bar, voto bar, one row (mode
+    «Ingredienti» · «Nutrienti», then the actions), the mode's panel (ingredient chips each with
+    «voto n», or every nutrient's rows). Photos `LIFEOS/review/2026-11-21/anatomy/`; **waits for
+    his word**. Decided by Claude, each with its undo: (1) a macro column is full when the macro is
+    in proportion to the meal's energy against the day's targets (the day's whole target left every
+    meal's column almost empty; undo: scale = the day's target); (2) the mode decides the panel, no
+    «Cibi»/«Nutrienti» doors; (3) the ingredient chips do not open their cibo (the old rows did;
+    undo: `meal-rows.ts` in git); (4) a pasto's ingredients show no voto yet (the composer's foods
+    carry none; Oggi's do). Still a sixth row: «Voto n ›» (the criteria and the page) — to fold
+    into zone 3 when the voto bar opens its criteria. The other types keep §132's layout for now.
+143. **21 Nov, his word on §142 (rejected):** «non ci siamo affatto, innanzitutto nell'ultima scheda
+    mostri i macro 2 volte, poi le spaziature sono fatte a caso, in nutrienti mostri ancora quelli
+    che sono di fatto gli ingredienti ma in un rendering vecchio e come dicevo ancora il duplicato
+    dei macro. poi le barre fanno schifo. okay facciamo così, hai presente drill down e dig up o quel
+    che è? se tocchi sulle barre scorri tra queste visualizzazioni, una mostra le porzioni dei macro
+    illuminate che riguardano quelle del pasto rispetto quelle totali del piano, comprese quelle
+    pianificate, quindi prende pari pari quella generale ma con quelle evidenziate, una seconda,
+    parte invece dal totale del pasto e fa la stessa cosa ma con i suoi ingredienti. per la barra di
+    voto lo stesso. ora però il problema è anche un altro, la forma dovrebbe essere più simile a
+    quella usata nei macro attuali comuni. quando riprende quella generale, deve riprendere quindi
+    anche tutte le dimensioni che dovrebbe usare. quando si va all'altro livello… be capiamo, ma
+    sempre qualcosa di simile». Claude's reading: the `PartsBar` skyline goes; the meal's bars are
+    the day's own macro bars («Il giorno», same component, same sizes); a tap on them moves between
+    two levels (drill down · roll up, VIS-70): (1) **the day**, eaten + planned, with this meal's
+    share lit and the rest dimmed; (2) **the meal**, its own total, its ingredients' shares the same
+    way; the voto bar the same two levels. No mode chips, no second copy of the macros.
+144. **21 Nov, built on §143:** the `PartsBar` skyline is gone. The meal box draws «Il giorno»'s
+    own `Nutrients` (same component, same sizes) at two levels a tap on the bars moves between,
+    named «Nella giornata» · «Il pasto» with the level dots (VIS-70): the day, eaten + planned, each
+    meal a part (`dayByMeal`), this meal lit and the rest dimmed; the meal from its own total
+    (no day target, zones or limits: the macros share one scale), its ingredients as its parts.
+    No mode chips, no ingredient chips, macros drawn once. Decided by Claude: a macro's number
+    without a target carries its unit (VIS-11); a number too wide for its row moves whole under
+    the name (a box on the rail at 320). Open: the voto's two levels (the day's voto by voce needs
+    MOD-61 for the day); which ingredient is which at the meal level (lit when editing it, with
+    the in-place edits); the box's «›» column narrows its bars. Photos
+    `LIFEOS/review/2026-11-21/levels/`; **waits for his word**.
+145. **21 Nov, his word on §144:** «non ha senso mettere la cavolo di freccia, toglie spazio. e poi
+    volevo tutti i macro su un'unica riga». Taken as patterns (PROD-35: never one screen): (a) no
+    Box keeps a column for its «›»: the page is the last, small icon of its actions row (PAT-101),
+    so the content takes the whole width; (b) a meal's macros at both levels are one row — the
+    four bars side by side, each with its icon, its number and its track (same segments, light and
+    target mark as «Il giorno»), the energy line above.
+146. **21 Nov, his word on §145:** «in effetti è troppo condensato, allora facciamo così, teniamo solo
+    il livello del pasto, e facciamo però in modo che le 4 minibarre siano tutte piene, quindi
+    indichino solo le proporzionalità o dei nutrienti o degli ingredienti. solo che magari affianco
+    ai numeri, mettiamo anche delle minuscole freccette tipo doppio basso rosso o singolo basso
+    arancione, o trattino grigio o alto giallo/bianco, doppio alto verde. non so queste sono
+    proposte di colori, colori che vengono eventualmente poi ripresi nei voti ovviamente. attento
+    alle spaziature sotto e sopra. per la vista "nella giornata" invece, pensavo che quando si
+    scorre verso il basso, in alto si minimizza a barra singola, identica a quella del pasto in
+    fattezze, e mostra le proporzioni però rispetto a se stessa, quindi per evidenziare il pasto
+    attuale quanto contributo dà. sempre attenta agli spazi. anche qui con stesse feature eccetera.
+    poi quando è estesa è più simile a quella attuale, con 4 barre diverse, anche se aggiungerei lo
+    stesso le freccette dato che sembra esserci spazio. valutiamo se aggiungere anche 3 in basso e 3
+    in alto».
+147. **21 Nov, built on §146 (the meal box only; the day comes next, one screen at a time):** only
+    the meal's level; its four macros on one row, each bar always full (its parts' proportions, no
+    mark, no ruler; a hairline between two parts of one shade), no energy line (the head says it);
+    beside each number a kit `Verdict` arrow — ⇊ «da evitare» · ↓ «pessimo» · – not judged · ↑ «ok»
+    · ⇈ «ottimo», in the heat colours (his proposal; the voto takes them too). Decided by Claude,
+    each with its undo: (1) a meal's carbs, fat and fibre are judged against the day's ranges scaled
+    to its share of the day's energy — **a change to FD-35** («a meal is judged only on protein»;
+    undo: drop `share` in `features/day/nutrients.ts`); (2) five arrows, not seven: the zones have
+    four levels, so a third arrow up or down would have nothing to say yet (his «valutiamo»: open);
+    (3) a saved pasto has no day's targets in the Elenco, so its arrows are «–» (PRD-22). Photos
+    `LIFEOS/review/2026-11-21/arrows/`; **waits for his word**. Next (his §146): «Il giorno» —
+    expanded, today's four rows plus the arrows; scrolling down, it shrinks at the top into one
+    row of four full bars like the meal's, each meal a part, the meal in view lit.
+148. **21 Nov, his word on §147:** «no, non frecce, ma più questi >> ma capovolti. e comunque ti ho
+    detto attento alle spaziature verticali, non vedi che hai sempre problemi a spaziare
+    verticalmente quando metti delle barre con ciò che c'è sotto?» → the verdict is chevrons
+    (»» turned up or down), and the space above and below a row of bars is one token, measured.
+    Built: the `Verdict` draws Tabler's chevrons (two down · one down · dash · one up · two up;
+    added by hand to `icons.generated.ts` — `icons_build.py` and `icons.json` are not in this
+    checkout, said in the file); a Box's zones sit in one column, `.k-zones`, one 12 px gap between
+    any two and the same above the first and before the doors — measured at 390 on his dinner and a
+    pasto: 12 · 12 · 12 · 12 (before: 8 · **0** · 8). `LIFEOS/review/2026-11-21/arrows/gaps.mjs`
+    measures it; **waits for his word**.
+149. **21 Nov, his word on §148:** «a 320 dovresti diminuire la dimensione dei caratteri, le frecce
+    sono mal spaziate e posizionate». Done: each chevron right after its own number; the row of
+    macros knows its width (a container query): under 260 px the numbers take a new smallest size,
+    `--fs-b4` 11 px (decided by Claude; undo: drop the token and the query), the icons 12 px, the
+    gaps tighter. Measured on his dinner, room left in each cell after its chevron: 390 → 11 px,
+    360 → 11, 320 → 1 (it spilled into the next cell before). Script `arrows/cells.mjs`.
+150. **21 Nov, his «ok procedi yc»:** the meal box of §147–§149 approved. Next, §146's day: «Il
+    giorno» expanded = today's four rows with the chevrons; scrolled past, a thin band fixed at the
+    top: one row of four full bars like the meal's, each meal a part, «il pasto attuale» lit — read
+    by Claude as the meal box nearest the top of the screen under the band (decided by Claude; undo:
+    light the open one); a tap on the band scrolls back to the card.
+151. **21 Nov, built on §150:** «Il giorno»'s full rows carry the chevrons too (wherever a macro row
+    has zones); kit `PartsBand`: once the card is above the screen, a band slides in at the top —
+    the meal box's row of four full bars, each eaten voce with lines a part (a coffee, a creatine
+    too), the meal box nearest the top under the band lit, a tap back to the card. It takes no room
+    (a sticky line of no height; the page's «lift over the backdrop» rule needed an exception).
+    Photos `LIFEOS/review/2026-11-21/band/`; **waits for his word**.
+152. **21 Nov, his rule and «yc»:** «facciamo così: ogni volta che in una taglia, come spesso accade
+    in 320, determinate cose che dovrebbero entrare su una sola riga non lo fanno, diminuisci le
+    dimensioni di tutte le sue componenti, ovviamente entro una soglia, per farle rientrare. in ogni
+    caso vai avanti. yc» → VIS-108 (delta): a one-line row that does not fit shrinks as a whole,
+    down to a floor, before anything wraps or is cut. «yc»: §151 approved; go on to the other types
+    on the anatomy, then Stop B.
+153. **21 Nov, built on §152 → Stop B.** VIS-108 as kit `FitLine` (`fitScale`): a macro's row and a
+    macro cell shrink as a whole down to 80 % before they wrap (the earlier «number under the
+    name» fallback is gone). The other types on the anatomy: a cibo's bars per 100 g (its four
+    macros, full, by kind; the picked marca's when it has marche) and no «Nutrienti» door (never
+    the macros twice); the choice is **one chip** in the actions row — several marche: «Quaker ·
+    5,90 €/kg ▾» opens the list in place, a pick closes it; one: a plain chip («Lidl»). Esercizio
+    and scheda already follow the zones (actions, then names). **Stop B**: every type's Box shut
+    and open at 390/360/320 on his data, no overflow in any (`LIFEOS/review/2026-11-21/stop-b/`).
+    Decided by Claude: the cibo's kinds and micros in the Elenco are on its page only now (undo:
+    the «Nutrienti» slot in `features/library/boxes.tsx`).
+154. **21 Nov, his word on Stop B:** «ok, anche perché meglio cambiare chat. comunque non ho capito
+    cosa sono questi chevron e cosa vuoi da me con le 2 cose aperte. e comunque non hai messo ogni
+    tipo, ne hai messi meno della metà. e poi questo step era l'inizio no? mettere tutto insieme per
+    capire cosa accomunare no? come rifare ogni cosa di modo che sia uniforme tra di loro. e poi le
+    cose dei pasti non abbiamo ancora fatto nulla riguardo i cambiamenti in place, e i voti. cosa
+    intendiamo fare? lavoriamo nello specifico ai pasti, sia nella loro versione in elenco che in
+    timeline e poi astraiamo tutto e lo uniformiamo a tutto il resto? per poi lavorare nello
+    specifico a tutto il resto?» Claude's answer: Stop B showed 5 of the 16 types in the plan
+    (`core/engines/view/box.ts`): it is incomplete; its purpose is the comparison of every type to
+    find what is common. Proposed order (his question, his «yc» pending): (1) merge #372; (2) Stop B
+    complete — all 16 types shut and open, with a table of what each shows in each zone; (3) the
+    meal in depth, timeline and Elenco: in-place edits (grams, + ingrediente, porzioni) with the
+    voto recomputed live and each ingredient's share lit (MOD-61); (4) abstract it into the kit and
+    apply it to every type; (5) each type's specifics.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

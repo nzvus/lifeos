@@ -42,6 +42,9 @@
   --lh-b2: 20px;
   --fs-b3: 12px;
   --lh-b3: 16px;
+  /* the smallest: a number among four in a row too narrow for 12 px (his 21 Nov, §149) */
+  --fs-b4: 11px;
+  --lh-b4: 14px;
   --fs-hero: 40px;
   --lh-hero: 42px;
   --touch: 44px;
@@ -1249,20 +1252,31 @@ textarea {
   align-items: baseline;
   gap: 8px;
 }
+/* drawn small everywhere, narrow buttons, touched at 44 (his 20 Nov, §137: «preferisco "drawn
+   small", dappertutto… più stretto orizzontalmente»; VIS-05, VIS-105) */
 .k-step {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  grid-template-columns: 32px minmax(0, 1fr) 32px;
   align-items: center;
-  height: var(--touch);
+  height: var(--ctl-dense);
   border: 1px solid var(--hairline);
   border-radius: var(--r-control);
   background: var(--sheet);
+}
+/* in a box's actions row (PAT-101) only as wide as its number */
+.k-actrow .k-step {
+  grid-template-columns: 32px auto 32px;
+}
+.k-actrow .k-step .k-num {
+  padding-inline: 2px;
+  font-size: var(--ctl-fs);
 }
 .k-step.big {
   height: 52px;
   grid-template-columns: 52px minmax(0, 1fr) 52px;
 }
 .k-step button {
+  position: relative;
   height: 100%;
   padding: 0;
   border: 0;
@@ -1272,6 +1286,12 @@ textarea {
   line-height: var(--lh-d3);
   color: var(--ink);
   cursor: pointer;
+}
+/* each button touched at 44 around its 32 (PRD-12) */
+.k-step button::before {
+  content: "";
+  position: absolute;
+  inset: calc((var(--ctl-dense) - var(--touch)) / 2);
 }
 .k-step .v {
   text-align: center;
@@ -4362,8 +4382,9 @@ a.k-plain {
   min-width: var(--touch);
 }
 .k-step .k-stepin {
-  /* the whole middle stays a target (PRD-12) */
+  /* the whole middle stays a target (PRD-12): taller than the drawn stepper, transparent */
   min-height: var(--touch);
+  margin-block: calc((var(--ctl-dense) - var(--touch)) / 2);
 }
 .k-mrow {
   padding-block: 12px;
@@ -5732,4 +5753,162 @@ button.k-mrow:active {
     display: block;
     height: 6px;
   }
+}
+
+/* a macro's name and numbers: one line, drawn smaller when too narrow (FitLine, VIS-108) */
+.k-mrow > .k-line.between {
+  column-gap: var(--sp-2);
+}
+.k-mrow .k-num {
+  white-space: nowrap;
+  margin-inline-start: auto;
+}
+/* a meal's four macros on one row (his 21 Nov, §145): each its icon and number over its own
+   track, the same segments, light and target mark as «Il giorno»; the ruler's numbers left out */
+.k-ninline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--sp-2);
+}
+.k-mcell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: start;
+  cursor: pointer;
+}
+.k-mcell .k-num {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+/* its chevron right after its own number, never pushed to the next macro (his §149) */
+.k-mcell > .k-line {
+  gap: 3px;
+  min-width: 0;
+}
+.k-mcell .k-verdict {
+  display: inline-flex;
+  margin-inline-start: -1px;
+}
+/* the row knows its own width: too narrow for 12 px (a box on the rail at 320), all smaller */
+.k-ninline {
+  container-type: inline-size;
+}
+@container (max-width: 260px) {
+  .k-ninline {
+    column-gap: 6px;
+  }
+  .k-mcell > .k-line {
+    gap: 2px;
+  }
+  .k-mcell .k-num {
+    font-size: var(--fs-b4);
+    line-height: var(--lh-b4);
+  }
+  .k-mcell .k-glyph svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+.k-mcell .k-zrule .tk span {
+  display: none;
+}
+/* a verdict's arrow beside its number (his 21 Nov, §146): his colours, the voto's too */
+.k-verdict {
+  font-family: var(--font-display);
+  font-size: var(--fs-b3);
+  line-height: 1;
+  font-weight: 700;
+  color: var(--muted);
+}
+.k-verdict.danger {
+  color: var(--heat-danger);
+}
+.k-verdict.bad {
+  color: var(--heat-bad);
+}
+.k-verdict.fair {
+  color: var(--heat-fair);
+}
+.k-verdict.good {
+  color: var(--heat-good);
+}
+/* the parts of a full bar told apart by a hairline of the sheet (two cibi of one shade, §146) */
+.k-mcell .k-seg + .k-seg {
+  box-shadow: inset 1.5px 0 0 var(--sheet);
+}
+/* a Box's zones (PAT-102), one gap between any two and the same above the first (his §148:
+   «attento alle spaziature verticali… quando metti delle barre con ciò che c'è sotto») */
+.k-zones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  /* padding, not margin: a margin collapses into the bin's 8 and the gap above stays 8 */
+  padding-top: calc(var(--sp-3) - var(--sp-2));
+}
+/* and the doors' row under the zones: the same one gap */
+.k-bin:has(> .k-zones) ~ .k-doorbar {
+  margin-top: var(--sp-3);
+}
+.k-zones > .k-hrow {
+  padding-block: 0;
+}
+.k-zones:empty {
+  display: none;
+}
+/* a whole's band at the top (his §146, §150): a sticky line of no height holds it over the page,
+   so it never moves what is under it; it slides in once its card is above the screen */
+.k-bandline {
+  position: sticky;
+  top: 0;
+  height: 0;
+  z-index: 3;
+  overflow: visible;
+}
+.k-band {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--sp-2) var(--sp-4) var(--sp-3);
+  background: var(--sheet);
+  border-bottom: 1px solid var(--hairline);
+  transform: translateY(-100%);
+  opacity: 0;
+  transition:
+    transform var(--t-box) var(--ease),
+    opacity var(--t-box) var(--ease);
+}
+.k-band.on {
+  transform: none;
+  opacity: 1;
+}
+/* the gallery's frame for a band: room for it, and a clip so it never sticks over the page */
+.k-bandframe {
+  position: relative;
+  min-height: 64px;
+  overflow: hidden;
+  border-radius: var(--r-card);
+}
+/* the page lifts its children over the backdrop (position: relative): the band's line must stay
+   sticky, above the content */
+.k-page.has-bd > .k-bandline {
+  position: sticky;
+  z-index: 3;
+}
+/* VIS-108 (his §152): a row that must be one line, drawn smaller as a whole when its room is too
+   narrow (FitLine sets --fit, never under 0.8); past the floor it may wrap */
+.k-fit {
+  zoom: var(--fit, 1);
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.k-fit[data-wrap] {
+  flex-wrap: wrap;
+  white-space: normal;
 }

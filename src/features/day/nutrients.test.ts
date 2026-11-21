@@ -2,7 +2,7 @@ import { F } from "@lifeos/kit";
 import { describe, expect, it } from "vitest";
 import type { Day, DayItem, FoodTargets } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
-import { microTargets } from "@/core/engines/targets";
+import { carbsRange, microTargets } from "@/core/engines/targets";
 import { mealL0, microsOf, presentDay, targetWords } from "./nutrients";
 
 const reg = kindRegistry();
@@ -272,7 +272,18 @@ describe("a meal's thin bars (L0)", () => {
       { from: 0, level: "fair" },
       { from: 18.9, level: "good" },
     ]);
-    expect(m.macros[1]!.zones).toBeUndefined();
+  });
+
+  it("its other macros are judged against the day's ranges scaled to its energy (his §146)", () => {
+    const m = mealL0(
+      item("meal", { lines: [line("Pollo", "100", { kcal: "110", protein: "23" })] }),
+      week,
+      new Map(),
+      75.6,
+    )!;
+    const k = 110 / week.kcal!;
+    const day = carbsRange({ weightKg: 75.6, kcal: week.kcal! }).zones;
+    expect(m.macros[1]!.zones).toEqual(day.map((z) => ({ ...z, from: z.from * k })));
   });
 
   it("«Altro»: the day's caffeine against 400 mg with its zones, creatine against 3 g", () => {

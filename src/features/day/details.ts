@@ -6,6 +6,7 @@
  * model, estimated) and the note. Pure: tested without a browser.
  */
 import { F } from "@lifeos/kit";
+import { common } from "@/i18n/common";
 import type { DayItem } from "@/core/day";
 import { costWords, entryCost } from "@/core/food/cost";
 import { lineTotals } from "@/core/food/totals";
@@ -126,7 +127,10 @@ export function details(i: DayItem, { foods = true }: { foods?: boolean } = {}):
     const cost = costWords(entryCost(i.lines, servings, paid));
     if (cost) stats.push({ label: "Costo", value: cost });
     if (servings !== null && Number(servings) !== 1)
-      stats.push({ label: "Porzioni", value: F.n(Number(servings), 2) });
+      stats.push({
+        label: common.slots["servings"] ?? "",
+        value: F.n(Number(servings), 2),
+      });
   }
 
   if (i.kind.key === "session")

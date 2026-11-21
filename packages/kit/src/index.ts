@@ -11,8 +11,20 @@ export { Glyph, type GlyphSize } from "./Glyph";
 export { Box, type BoxAct, type BoxDoor, type BoxEntry } from "./Box";
 export { MealBox } from "./MealBox";
 export { ThingBox, type ThingBoxPlace } from "./ThingBox";
+export {
+  ActionRow,
+  PlanBox,
+  slotDoor,
+  type PlanAction,
+  type PlanSlot,
+  type PlanVariant,
+} from "./PlanBox";
 export { ChipRow, type ChipItem } from "./ChipRow";
-export { EntryDetails, mealDoors, type BoxDetails, type DoorWords } from "./meal-doors";
+export { Verdict } from "./Verdict";
+export { FitLine } from "./FitLine";
+export { fitScale, FIT_FLOOR } from "./fit";
+export { PartsBand } from "./PartsBand";
+export { EntryDetails, type BoxDetails } from "./meal-doors";
 export { PageHeader } from "./PageHeader";
 export { NavBar, AreaFilter, AREAS, PLACES, type Area, type Place } from "./NavBar";
 export { DateNav, type DayBars, type Rhythm } from "./DateNav";

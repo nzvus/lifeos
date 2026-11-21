@@ -43,6 +43,7 @@ import { dayMicros } from "@/core/food/micros";
 import { lineTotals } from "@/core/food/totals";
 import { mealCompounds } from "@/core/food/compounds";
 import { isEaten } from "@/core/kinds";
+import { foodScore } from "./score";
 
 /** The kit's macro → the field the snapshot and the targets use. */
 const MACROS: [MacroKey, "protein" | "carbs" | "fat" | "fibre"][] = [
@@ -288,6 +289,26 @@ function leucineNote(parts: Record<string, number> | undefined) {
 }
 
 /** A meal's protein (ISSN 2017): 0.25–0.4 g/kg makes the most of a meal; less is only «ok». */
+/**
+ * A meal's zones for carbs, fat and fibre (his 21 Nov, §146: each macro its arrow): the day's
+ * ranges scaled to the meal's share of the day's energy — a third of the energy, a third of each
+ * edge. Decided by Claude, a change to FD-35 («a meal is judged only on protein»): undo by
+ * dropping this. Protein keeps its own per-meal zones (`mealProteinZones`).
+ */
+function share(
+  key: string,
+  weightKg: number | null,
+  dayKcal: number | null,
+  mealKcal: number,
+): { zones?: { from: number; level: "danger" | "bad" | "fair" | "good" }[] } {
+  const r = { carbs: carbsRange, fat: fatRange, fiber: fibreRange }[key];
+  if (!r || !dayKcal || !(mealKcal > 0)) return {};
+  const k = mealKcal / dayKcal;
+  return {
+    zones: r({ weightKg, kcal: dayKcal }).zones.map((z) => ({ ...z, from: z.from * k })),
+  };
+}
+
 const mealProteinZones = (weightKg: number | null) =>
   weightKg === null
     ? {}
@@ -357,6 +378,9 @@ function fibreNote(parts: Record<string, number> | undefined) {
 function mealFoods(
   meal: DayItem,
   estimates: ReadonlyMap<string, Record<string, string>>,
+  /** For each cibo's own voto per 100 kcal (MOD-61): a part scored as its whole is. */
+  targets: FoodTargets | null = null,
+  microTargets: readonly MicroTarget[] | null = null,
 ): NonNullable<NutrientsData["foods"]> {
   const servings = servingsOf(meal);
   return meal.lines.map((l) => {
@@ -365,8 +389,10 @@ function mealFoods(
     const whole = (m: Record<string, number>) =>
       estimates.size > 0 ? m : { all: Object.values(m).reduce((a, v) => a + v, 0) };
     const kcal = Number(lineTotals([l], servings)["kcal"] ?? 0);
+    const own = foodScore(l.values, est, targets, microTargets, est?.["group"])?.value;
     return {
       key: l.id,
+      ...(own != null ? { score: own } : {}),
       name: l.name || "Senza nome",
       amount:
         F.num(Number(l.quantity) * Number(servings ?? "1"), l.unit) +
@@ -429,11 +455,11 @@ export function mealL0(
     }),
     servingsOf(meal),
   );
-  const foods = mealFoods(meal, estimates);
+  const foods = mealFoods(meal, estimates, targets, microTargets);
   const known = estimates.size > 0;
   const micros = mealMicros(meal, estimates, microTargets);
-  // Its limits, against the day's targets (his 20 Nov «dovrebbero portarli»); no fascia of its
-  // own: a meal is judged only on protein (FD-35).
+  // Its limits, against the day's targets (his 20 Nov «dovrebbero portarli»); its macros judged
+  // against the day's ranges scaled to its energy (§146, `share`).
   const dayKcal = targets?.kcal ?? null;
   const limits: NonNullable<NutrientsData["limits"]> = dayKcal
     ? [
@@ -471,7 +497,9 @@ export function mealL0(
       v: v(f),
       t: targets?.[f] ?? null,
       ...(known ? { parts: kinds[f] } : {}),
-      ...(key === "protein" ? mealProteinZones(weightKg) : {}),
+      ...(key === "protein"
+        ? mealProteinZones(weightKg)
+        : share(key, weightKg, dayKcal, v("kcal"))),
       ...(known ? NOTE[f]() : {}),
     })),
     ...(micros ? { micros } : {}),
@@ -565,5 +593,50 @@ export function microsOf(
       ? met + " su " + judged + " coperti · stime"
       : "stime · per gli obiettivi servono sesso ed età",
     groups,
+  };
+}
+
+/**
+ * The day's bars with each meal as a part (his 21 Nov, §143): «Il giorno»'s own data, eaten and
+ * planned, its macros drawn per meal so a meal's box can show the day with its own share lit
+ * (VIS-50's light) — the level above the meal's (drill down · roll up, VIS-70).
+ */
+export function dayByMeal(
+  day: NutrientsData,
+  items: readonly DayItem[],
+  estimates: ReadonlyMap<string, Record<string, string>>,
+  name: (i: DayItem) => string,
+): NutrientsData {
+  const known = estimates.size > 0;
+  const whole = (m: Record<string, number>) =>
+    known ? m : { all: Object.values(m).reduce((a, v) => a + v, 0) };
+  return {
+    ...day,
+    foods: items
+      // What was eaten or will be, made of lines (a meal; a coffee has none).
+      .filter((i) => isEaten(i.kind.key) && i.lines.length > 0 && i.status !== "skipped")
+      .map((i) => {
+        const servings = servingsOf(i);
+        const k = macroKinds(
+          i.lines.map((l) => {
+            const est = l.itemId ? estimates.get(l.itemId) : undefined;
+            return est ? { ...l, estimates: est } : l;
+          }),
+          servings,
+        );
+        const kcal = Number(lineTotals(i.lines, servings)["kcal"] ?? 0);
+        return {
+          key: i.id,
+          name: name(i),
+          amount: F.num(Math.round(kcal), "kcal"),
+          kcal,
+          macros: {
+            protein: whole(k.protein),
+            carbs: whole(k.carbs),
+            fat: whole(k.fat),
+            fiber: whole(k.fibre),
+          },
+        };
+      }),
   };
 }

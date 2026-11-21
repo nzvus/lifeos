@@ -425,3 +425,65 @@ export const DAYS_EXAMPLE = {
     { d: "L", v: 1450, plan: 650 },
   ],
 };
+
+/** A pasto of three cibi (VIS-106, VIS-107): its foods by part, its voto split by them (MOD-61). */
+export const MEAL_SAMPLE = {
+  foods: [
+    {
+      key: "a",
+      name: "Fiocchi d’avena",
+      amount: "60 g",
+      kcal: 222,
+      score: 72,
+      macros: {
+        protein: { all: 8 },
+        carbs: { all: 35 },
+        fat: { all: 4 },
+        fiber: { all: 6 },
+      },
+    },
+    {
+      key: "b",
+      name: "Latte scremato proteico",
+      amount: "250 ml",
+      kcal: 160,
+      score: 68,
+      macros: { protein: { all: 20 }, carbs: { all: 12 } },
+    },
+    {
+      key: "c",
+      name: "Lamponi",
+      amount: "120 g",
+      kcal: 62,
+      score: 81,
+      macros: { protein: { all: 1 }, carbs: { all: 7 }, fiber: { all: 5 } },
+    },
+  ],
+  macros: [
+    { key: "protein" as const, v: 29, t: 45 },
+    { key: "carbs" as const, v: 54, t: 80 },
+    { key: "fat" as const, v: 4, t: 25 },
+    { key: "fiber" as const, v: 11, t: 12 },
+  ],
+};
+export const MEAL_SCORE = {
+  value: 74,
+  parts: [
+    {
+      name: "densità di nutrienti",
+      score: 0.71,
+      weight: 0.39,
+      split: { a: 0.45, b: 0.3, c: 0.25 },
+    },
+    { name: "limiti", score: 1, weight: 0.24, split: { a: 0.6, b: 0.35, c: 0.05 } },
+    {
+      name: "qualità dei carboidrati",
+      score: 0.62,
+      weight: 0.14,
+      split: { a: 0.65, b: 0.22, c: 0.13 },
+    },
+    { name: "sazietà", score: 0.8, weight: 0.13, split: { a: 0.4, b: 0.42, c: 0.18 } },
+    { name: "momento", score: 0.9, weight: 0.1 },
+  ],
+  missing: [],
+};

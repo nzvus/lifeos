@@ -16,6 +16,9 @@ import { readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { foodScore } from "@/features/day/score";
 import { mealBox } from "./meal-box";
+import { areaSlug, typeAtSlug } from "@/core/kinds/catalog";
+import { pageVerbs } from "@/features/objects/present";
+import { NEW_FORMS } from "../../[area]/[type]/[id]/new-forms";
 import { EQUIPMENT_WORDS, PATTERN_WORDS } from "@/i18n/training";
 import { mealKinds, mealNutrients } from "@/features/food/composer";
 import { readExerciseLog, readExercises } from "@/core/training";
@@ -24,6 +27,7 @@ import {
   foodRows,
   recipeRows,
   shelfLines,
+  type LibraryRow,
   type LibraryView,
 } from "@/features/library/library";
 
@@ -132,10 +136,33 @@ export async function readLibrary(
     ],
   );
   return {
-    lists: { foods: food, meals: meal, exercises: exercise } satisfies Record<
-      LibraryView,
-      unknown
-    >,
+    lists: {
+      foods: withObjects(food),
+      meals: withObjects(meal),
+      exercises: withObjects(exercise),
+    } satisfies Record<LibraryView, unknown>,
     shelfLines: shelfLines(foods, meal, exercise),
   };
+}
+
+/**
+ * Each row's object, read from its page's address (`/{area}/{type}/{id}`, PAT-04): its type, id
+ * and the verbs its page offers, for its box's actions row (PAT-101, MOD-20).
+ */
+function withObjects(rows: LibraryRow[]): LibraryRow[] {
+  return rows.map((r) => {
+    const [, , slug, id] = (r.href ?? "").split("/");
+    const t = slug ? typeAtSlug(slug) : null;
+    if (!t || !id) return r;
+    return {
+      ...r,
+      obj: {
+        type: t.key,
+        id,
+        typeName: t.name,
+        verbs: pageVerbs(t, NEW_FORMS[t.key]?.from ?? [], rows.length > 1),
+        newHref: `/${areaSlug(t)}/${slug}/nuovo`,
+      },
+    };
+  });
 }

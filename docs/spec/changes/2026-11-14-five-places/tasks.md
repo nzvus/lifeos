@@ -46,4 +46,10 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
     tests citing VIS-50/52/22; [ ] the delta (VIS-, PAT- rows) for what he approves.
 11. [ ] Delta merged into the spec, ARCHITECTURE, change archived, retro.
 11. [ ] The method (ADR-0064): [x] ADR, `change` skill, `check.py`, `orca/` schema (§118);
-    round 1: [x] Discover, [x] Define → **stop A** (`round-1.md`, §119); [x] stop A passed (§120); [x] Develop (§121) → q10–q11; [~] Deliver: [x] ① docs fold (§123); [x] ② registry (§124); [~] ③ the Box → stop B ([x] ③a the plan, §125; [~] ③b the kit Box draws it: [x] Elenco · Cibi (§126, his word pending), [ ] Oggi, esercizi, schede, obiettivi); [ ] ④ adding in place → stop B; [ ] ⑤ lanes → stop B.
+    round 1: [x] Discover, [x] Define → **stop A** (`round-1.md`, §119); [x] stop A passed (§120); [x] Develop (§121) → q10–q11; [~] Deliver: [x] ① docs fold (§123); [x] ② registry (§124); [~] ③ the Box → stop B ([x] ③a the plan, §125; [~] ③b the kit Box draws it: [x] Elenco · Cibi (§126, his word pending), [x] Oggi, esercizi, schede through `PlanBox` (§132–§138, layout rejected §139); [ ] ③c the
+    anatomy (§139–§141): [x] spec PAT-102, VIS-106, VIS-107, MOD-61; [ ] engine: each righe's
+    share of each criterion's input (MOD-61, `core/food/score.ts`); [ ] kit: the one bar with
+    parts/kinds modes and light (VIS-106), the voto bar split by part (VIS-107), `PlanBox` zones
+    (PAT-102); [ ] one meal box on Oggi, photos, **stop**; [ ] the other types on the anatomy, the
+    in-place edits (ACT-03, ACT-25) on it; [ ] an esercizio's own voto, the sessione from them
+    (MOD-61); [ ] obiettivi); [ ] ④ where adding happens → stop B; [ ] ⑤ lanes → stop B.

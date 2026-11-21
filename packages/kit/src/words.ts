@@ -8,6 +8,7 @@ export const WORDS = {
   cancel: "Annulla",
   close: "Chiudi",
   more: "Altro",
+  actions: "Azioni",
   retry: "Riprova",
   save: "Salva",
   why: "Perché?",

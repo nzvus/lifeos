@@ -31,6 +31,8 @@ import { macroKinds } from "./kinds";
 import { dayMicros } from "./micros";
 
 export type ScoreLine = {
+  /** The line's key, for its share of each criterion (MOD-61). */
+  key?: string;
   quantity: string;
   values: Record<string, string>;
   estimates?: Record<string, string> | undefined;
@@ -277,5 +279,82 @@ export function foodParts(
     value: null,
     fit: null,
     detail: { density, limits },
+  };
+}
+
+/**
+ * Each line's share of each criterion's input (MOD-61, VIS-107; his §140): a meal's criteria are
+ * built from sums over its lines, so a line's part of each sum is exact. Per criterion an array
+ * in the lines' order summing to 1, or empty when the input is nothing (a meal with no fat has
+ * no fat quality to split). Density: the mean of the line's share of each density nutrient;
+ * limits: its share of the limit that decides; carbs and fat quality: of the carbs, of the fat;
+ * satiety: of protein and fibre; variety, value: of the energy; fit: of energy and protein;
+ * timing: of the protein after training, of the energy near bedtime. The whole's own last step
+ * (a cap, a ramp) is not split.
+ */
+export function lineShares(
+  lines: readonly ScoreLine[],
+  servings: string | null,
+  refs: DailyRefs,
+  when: MealWhen | null = null,
+): Record<string, number[]> {
+  const times = Number(servings ?? "1");
+  const amount = (l: ScoreLine, field: string) =>
+    (Number(l.values[field] ?? 0) * Number(l.quantity) * times) / 100;
+  const norm = (xs: number[]) => {
+    const t = xs.reduce((a, b) => a + b, 0);
+    return t > 0 ? xs.map((x) => x / t) : [];
+  };
+  const of = (field: string) => norm(lines.map((l) => amount(l, field)));
+  const mean = (arrays: number[][]) => {
+    const full = arrays.filter((a) => a.length === lines.length);
+    return full.length
+      ? lines.map((_, i) => full.reduce((a, s) => a + s[i]!, 0) / full.length)
+      : [];
+  };
+  const one = (l: ScoreLine) => ({
+    quantity: l.quantity,
+    values: l.values,
+    ...(l.estimates ? { estimates: l.estimates } : {}),
+  });
+  const kinds = lines.map((l) => macroKinds([one(l)], servings));
+  const micros = lines.map((l) => dayMicros([{ servings, lines: [one(l)] }]));
+  const protein = norm(
+    kinds.map((k) =>
+      Object.entries(k.protein).reduce(
+        (a, [q, g]) => a + g * (QUALITY[q] ?? QUALITY["none"]!),
+        0,
+      ),
+    ),
+  );
+  const density = mean([
+    ...(refs.protein > 0 ? [protein] : []),
+    ...(refs.fibre > 0 ? [of("fibre")] : []),
+    ...DENSITY_MICROS.filter((m) => refs.micros[m]).map((m) =>
+      norm(micros.map((x) => x[m] ?? 0)),
+    ),
+    norm(kinds.map((k) => k.fat["n3"] ?? 0)),
+  ]);
+  const parts = foodParts(lines, servings, refs, when);
+  const worst = parts
+    ? Object.entries(parts.detail.limits).sort((a, b) => b[1] - a[1])[0]?.[0]
+    : undefined;
+  const limitShares: Record<string, () => number[]> = {
+    sodium: () => of("salt"),
+    saturated: () => of("saturatedFat"),
+    freeSugars: () => norm(kinds.map((k) => k.carbs["free"] ?? 0)),
+    trans: () => norm(kinds.map((k) => k.fat["trans"] ?? 0)),
+  };
+  const kcal = of("kcal");
+  return {
+    density,
+    limits: worst ? (limitShares[worst]?.() ?? []) : [],
+    carbsQuality: of("carbs"),
+    fatQuality: of("fat"),
+    satiety: mean([of("protein"), of("fibre")]),
+    variety: kcal,
+    value: kcal,
+    fit: mean([kcal, of("protein")]),
+    timing: when?.afterTraining ? of("protein") : when?.nearBed ? kcal : [],
   };
 }

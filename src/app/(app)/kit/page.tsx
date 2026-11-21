@@ -18,6 +18,8 @@ import {
   TREE_PROTEIN,
   TREE_VOTO,
   VOTO_SAMPLES,
+  MEAL_SAMPLE,
+  MEAL_SCORE,
 } from "./samples";
 import { ENGINE_SAMPLES } from "./engine-samples";
 import {
@@ -29,8 +31,8 @@ import {
   Field,
   Glyph,
   MealBox,
-  ThingBox,
-  ChipRow,
+  PartsBand,
+  PlanBox,
   Forms,
   MeasureDays,
   MeasureTree,
@@ -39,6 +41,8 @@ import {
   type BoxEntry,
 } from "@lifeos/kit";
 import { common } from "@/i18n/common";
+import { mealSlots } from "@/features/box/meal";
+import { ActionSample } from "./action-sample";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { ownerClock } from "@/app/_server/clock";
@@ -621,6 +625,24 @@ export default async function KitPage({
         ))}
       </section>
 
+      <section className="k-section g2" id="azioni-box" aria-label="Le azioni di un box">
+        <h2>Le azioni di un box</h2>
+        <ActionSample />
+      </section>
+
+      <section className="k-section g2" id="banda" aria-label="La banda di un intero">
+        <h2>La banda di un intero</h2>
+        {/* Clipped in a frame: in the gallery it never sticks over the other pieces. */}
+        <div className="k-bandframe">
+          <PartsBand
+            data={MEAL_SAMPLE}
+            anchor="banda-nessuna"
+            label="Il giorno"
+            startShown
+          />
+        </div>
+      </section>
+
       <section className="k-section g2" id="pasto-box" aria-label="Il box di un pasto">
         <h2>Il box di un pasto</h2>
         {MEALS.map(([label, open]) => (
@@ -634,36 +656,17 @@ export default async function KitPage({
                 of: { kind: "meal" },
                 title: "Porridge proteico: lamponi, cioccolato, nocciola",
                 value: F.num(533, "kcal"),
-                score: SCORE,
+                score: MEAL_SCORE,
                 href: "#pasto-box",
               }}
-              data={{
-                macros: [
-                  { key: "protein", v: 31 },
-                  { key: "carbs", v: 58 },
-                  { key: "fat", v: 17 },
-                  { key: "fiber", v: 11 },
-                ],
-              }}
-              labels={common.doors}
-              details={{
-                stats: [{ label: common.doors.cost, value: "≈ 1,40 €" }],
-                lines: [
-                  { label: "Fiocchi d’avena", value: F.num(60, "g") },
-                  { label: "Latte scremato proteico", value: F.num(250, "ml") },
-                ],
-                foot: "",
-              }}
-              verbs={
-                <>
-                  <a className="k-btn act" href="#pasto-box">
-                    Registra
-                  </a>
-                  <a className="k-btn act" href="#pasto-box">
-                    Cambia i cibi
-                  </a>
-                </>
-              }
+              data={MEAL_SAMPLE}
+              slots={mealSlots({
+                details: { stats: [], lines: [], foot: "aggiunto al volo" },
+              })}
+              actions={[
+                { key: "log", label: "Registra", href: "#pasto-box" },
+                { key: "compose", label: "Cambia i cibi", href: "#pasto-box" },
+              ]}
             />
           </div>
         ))}
@@ -674,7 +677,7 @@ export default async function KitPage({
         {THINGS.map(([label, open]) => (
           <div key={label} role="group" aria-label={label} className="k-stack g1">
             <span className="k-label">{label}</span>
-            <ThingBox
+            <PlanBox
               density="row"
               startOpen={open}
               entry={{
@@ -685,36 +688,66 @@ export default async function KitPage({
                 score: SCORE,
                 href: "#cosa-box",
               }}
-              doors={[
+              variantsLabel="Marche"
+              picked="b"
+              variants={[
+                ["a", "Esselunga", 4.2, 372, "1"],
+                ["b", "Quaker", 5.9, 379, "1"],
+                ["c", "Coop", null, 368, "3"],
+              ].map(([key, label, perKg, kcal, nova]) => ({
+                key: String(key),
+                label: String(label),
+                ...(perKg ? { meta: F.num(Number(perKg), "€") + "/kg" } : {}),
+                head: { value: F.num(Number(kcal), "kcal") + "/100" },
+                slots: [
+                  {
+                    key: "nutrients",
+                    label: common.doors.nutrients,
+                    value: F.num(100, "g"),
+                    nutrients: {
+                      macros: [
+                        { key: "protein", v: 13 },
+                        { key: "carbs", v: 59 },
+                        { key: "fat", v: 7 },
+                        { key: "fiber", v: 10 },
+                      ],
+                    },
+                  },
+                  { key: "nova", label: "NOVA", word: String(nova) },
+                ],
+              }))}
+            />
+            <PlanBox
+              density="row"
+              startOpen={open}
+              entry={{
+                fam: "train",
+                of: { kind: "exercise" },
+                title: "Panca piana con bilanciere",
+                href: "#cosa-box",
+              }}
+              slots={[
                 {
-                  key: "nutrients",
-                  label: common.doors.nutrients,
-                  value: F.num(100, "g"),
-                  panel: (
-                    <Nutrients
-                      data={{
-                        macros: [
-                          { key: "protein", v: 13 },
-                          { key: "carbs", v: 59 },
-                          { key: "fat", v: 7 },
-                          { key: "fiber", v: 10 },
-                        ],
-                      }}
-                    />
-                  ),
+                  key: "e1rm",
+                  label: "e1RM",
+                  value: F.num(85, "kg"),
+                  caption: "e1RM, le ultime 4 sessioni",
+                  trend: {
+                    x: ["3 nov", "", "", "17 nov"],
+                    y: [80, 82.5, 83, 85],
+                    unit: "kg",
+                    lo: 80,
+                    hi: 85,
+                    decimals: 1,
+                  },
                 },
-                { key: "nova", label: "NOVA", value: "1" },
+                {
+                  key: "facts",
+                  label: "Fatti",
+                  words: ["Spinta orizzontale", "Bilanciere", "Petto"],
+                },
               ]}
-            >
-              <ChipRow
-                label="Marche"
-                items={[
-                  { key: "a", label: "Esselunga", value: F.num(4.2, "€") + "/kg" },
-                  { key: "b", label: "Quaker", value: F.num(5.9, "€") + "/kg" },
-                  { key: "c", label: "Coop" },
-                ]}
-              />
-            </ThingBox>
+            />
           </div>
         ))}
       </section>

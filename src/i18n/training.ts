@@ -80,9 +80,8 @@ export const training = {
     recordsSoon: "I record arrivano dalla terza sessione.",
     log: "Sessioni",
     never: "Ancora mai fatto.",
-    /** Its box in the Elenco (Deliver ③): the trend's caption and the facts row's name. */
+    /** Its box in the Elenco (Deliver ③): the trend's caption. */
     e1rmTrend: (n: number) => "e1RM, le ultime " + n + " sessioni",
-    facts: "Fatti",
     noSet: "nessuna serie",
     notInRoutine: "In nessuna scheda.",
     usedIn: "Le schede con questo esercizio",

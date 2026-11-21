@@ -5,12 +5,12 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **74** · kit pieces: **52**
+- routes: **42** · screen components outside the kit: **74** · kit pieces: **57**
 - components that take input (a form, a field): **37**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
 - components with an inline `style`: **8**
-- kit pieces no screen uses: **8** · components no route reaches: **0**
+- kit pieces no screen uses: **12** · components no route reaches: **0**
 
 ## 1. Where a quantity, a time or a date is typed
 One row per component. The target is one way to type each of them (VIS-86, PAT-13, PAT-61).
@@ -20,13 +20,13 @@ One row per component. The target is one way to type each of them (VIS-86, PAT-1
 | `features/account/SettingsForm.tsx` | Field stepper · Field time | /profilo |
 | `features/day/EntrySheet.tsx` | Field time | /aggiungi/[kind], /voce/[id] |
 | `features/day/WaterRow.tsx` | Stepper | /[area]/[[...day]], /oggi/[[...day]] |
-| `features/food/Composer.tsx` | Field stepper | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /aggiungi/pasto, /oggi/[type]/[id]/componi … (6) |
-| `features/food/EstimateFields.tsx` | Field stepper | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /aggiungi/pasto, /oggi/[type]/[id]/componi … (6) |
+| `features/food/Composer.tsx` | Field stepper | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /[area]/elenco, /aggiungi/pasto … (8) |
+| `features/food/EstimateFields.tsx` | Field stepper | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /[area]/elenco, /aggiungi/pasto … (8) |
 | `features/food/IntakeForm.tsx` | Field stepper | /aggiungi/assunzione/nuova |
-| `features/food/MealWhen.tsx` | Field time | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /aggiungi/pasto, /oggi/[type]/[id]/componi … (6) |
+| `features/food/MealWhen.tsx` | Field time | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /[area]/elenco, /aggiungi/pasto … (8) |
 | `features/gallery/Pieces.tsx` | InPlace | /kit |
-| `features/library/BarcodeBox.tsx` | <input inputMode> | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /oggi/[type]/[id]/componi, /oggi/[type]/[id] |
-| `features/library/FoodForm.tsx` | Field stepper | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /oggi/[type]/[id]/componi, /oggi/[type]/[id] |
+| `features/library/BarcodeBox.tsx` | <input inputMode> | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /[area]/elenco, /oggi/[type]/[id]/componi … (6) |
+| `features/library/FoodForm.tsx` | Field stepper | /[area]/[type]/[id]/componi, /[area]/[type]/[id], /[area]/elenco, /oggi/[type]/[id]/componi … (6) |
 | `features/library/RouteForm.tsx` | Field stepper | /[area]/tragitto/nuovo |
 | `features/money/MovementForm.tsx` | Field time | /aggiungi/spesa, /voce/[id] |
 | `features/objects/ObjectView.tsx` | InPlace | /[area]/[type]/[id], /oggi/[type]/[id] |
@@ -41,7 +41,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 ### app · other (1)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `app/(app)/oggi/day-page.tsx` | 786 | AreaFilter, Box, DateNav, Glyph, Nutrients | 2 form | 2 |
+| `app/(app)/oggi/day-page.tsx` | 796 | AreaFilter, Box, DateNav, Glyph, Nutrients, PartsBand | 2 form | 2 |
 
 ### features/account (5)
 | component | lines | kit pieces | by hand | routes |
@@ -50,7 +50,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/account/FromV1.tsx` | 134 | — | 1 input | 1 |
 | `features/account/SettingsForm.tsx` | 116 | Field | 1 form | 1 |
 | `features/account/ThemePicker.tsx` | 56 | Field | — | 1 |
-| `features/account/TrackerForm.tsx` | 156 | Field | 4 input, 1 select, 1 form | 4 |
+| `features/account/TrackerForm.tsx` | 156 | Field | 4 input, 1 select, 1 form | 6 |
 
 ### features/add (1)
 | component | lines | kit pieces | by hand | routes |
@@ -66,12 +66,12 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 ### features/food (6)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `features/food/Composer.tsx` | 751 | Box, Field, Nutrients, PageHeader | 6 input | 6 |
-| `features/food/EstimateFields.tsx` | 81 | Field | — | 6 |
-| `features/food/FoodSearch.tsx` | 137 | Find, Glyph | — | 6 |
+| `features/food/Composer.tsx` | 751 | Box, Field, Nutrients, PageHeader | 6 input | 8 |
+| `features/food/EstimateFields.tsx` | 81 | Field | — | 8 |
+| `features/food/FoodSearch.tsx` | 137 | Find, Glyph | — | 8 |
 | `features/food/IntakeForm.tsx` | 124 | Field, PageHeader | 1 form | 1 |
-| `features/food/LinePicks.tsx` | 117 | — | 1 select | 6 |
-| `features/food/MealWhen.tsx` | 122 | Field | 2 input | 6 |
+| `features/food/LinePicks.tsx` | 117 | — | 1 select | 8 |
+| `features/food/MealWhen.tsx` | 122 | Field | 2 input | 8 |
 
 ### features/gallery (1)
 | component | lines | kit pieces | by hand | routes |
@@ -81,10 +81,10 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 ### features/library (6)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `features/library/BarcodeBox.tsx` | 308 | Glyph | 2 input | 4 |
-| `features/library/ExerciseForm.tsx` | 90 | Field, PageHeader | 1 form | 4 |
-| `features/library/FoodForm.tsx` | 209 | Field, Glyph, PageHeader | 3 input, 1 form | 4 |
-| `features/library/Library.tsx` | 419 | Box, Field, MealBox | 2 input | 2 |
+| `features/library/BarcodeBox.tsx` | 308 | Glyph | 2 input | 6 |
+| `features/library/ExerciseForm.tsx` | 90 | Field, PageHeader | 1 form | 6 |
+| `features/library/FoodForm.tsx` | 209 | Field, Glyph, PageHeader | 3 input, 1 form | 6 |
+| `features/library/Library.tsx` | 435 | Box, Field, MealBox | 2 input | 2 |
 | `features/library/PantryActions.tsx` | 56 | ObjectForm, Sheet | — | 2 |
 | `features/library/RouteForm.tsx` | 112 | Field, PageHeader | 1 form | 1 |
 
@@ -96,14 +96,14 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 ### features/objects (2)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `features/objects/NewObjectForm.tsx` | 53 | ObjectForm, PageHeader | — | 4 |
-| `features/objects/ObjectView.tsx` | 188 | InPlace, MergeSheet, ObjectActions, ObjectPage | — | 2 |
+| `features/objects/NewObjectForm.tsx` | 53 | ObjectForm, PageHeader | — | 6 |
+| `features/objects/ObjectView.tsx` | 142 | InPlace, ObjectActions, ObjectPage | — | 2 |
 
 ### features/plan (3)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `features/plan/BlockComposer.tsx` | 152 | Banner, Composer, Find, PageHeader | — | 4 |
-| `features/plan/CycleComposer.tsx` | 141 | Banner, Composer, Find, PageHeader | — | 4 |
+| `features/plan/BlockComposer.tsx` | 152 | Banner, Composer, Find, PageHeader | — | 6 |
+| `features/plan/CycleComposer.tsx` | 141 | Banner, Composer, Find, PageHeader | — | 6 |
 | `features/plan/ThisTime.tsx` | 147 | Box, Field | — | 2 |
 
 ### features/progress (2)
@@ -120,7 +120,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/training/Gym.tsx` | 792 | Box, Field, PageHeader | — | 1 |
 | `features/training/GymClock.tsx` | 87 | Timer | — | 1 |
 | `features/training/NextList.tsx` | 199 | Box | 1 input | 1 |
-| `features/training/RoutineComposer.tsx` | 121 | Banner, Composer, Field, PageHeader | — | 4 |
+| `features/training/RoutineComposer.tsx` | 121 | Banner, Composer, Field, PageHeader | — | 6 |
 | `features/training/SetForm.tsx` | 161 | Field | — | 1 |
 
 ## 3. Controls made by hand
@@ -155,7 +155,6 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/day/QuickIntakes.tsx` | 0 | 0 | 0 | 0 | 4 | 0 |
 | `features/training/FinishSheet.tsx` | 0 | 0 | 0 | 0 | 4 | 1 |
 | `features/training/SetForm.tsx` | 0 | 0 | 0 | 0 | 4 | 0 |
-| `features/day/EntryRow.tsx` | 0 | 0 | 0 | 0 | 3 | 1 |
 | `features/training/gym-parts.tsx` | 0 | 0 | 0 | 0 | 3 | 1 |
 | `features/day/DayPlanBar.tsx` | 0 | 0 | 0 | 0 | 2 | 3 |
 | `features/day/WeatherCard.tsx` | 0 | 0 | 0 | 0 | 2 | 2 |
@@ -167,34 +166,36 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/plan/CycleComposer.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
 | `features/plan/ThisTime.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
 | `features/training/StartButton.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
+| `features/day/EntryRow.tsx` | 0 | 0 | 0 | 0 | 0 | 1 |
 
 ## 4. The kit's pieces and who uses them
 | piece | used by (files) | where |
 |---|---|---|
-| `Box` | 33 | app/(app)/[area]/[type]/[id]/block-extra.tsx, app/(app)/[area]/[type]/[id]/cycle-extra.tsx, app/(app)/[area]/[type]/[id]/exercise-extra.tsx … (33) |
+| `Box` | 32 | app/(app)/[area]/[type]/[id]/block-extra.tsx, app/(app)/[area]/[type]/[id]/cycle-extra.tsx, app/(app)/[area]/[type]/[id]/exercise-extra.tsx … (32) |
 | `PageHeader` | 29 | app/(app)/[area]/[type]/[id]/new-forms.tsx, app/(app)/[area]/andamento/money-page.tsx, app/(app)/[area]/area-index.tsx … (29) |
 | `Field` | 21 | features/account/SettingsForm.tsx, features/account/ThemePicker.tsx, features/account/TrackerForm.tsx … (21) |
-| `List` | 12 | app/(app)/[area]/[type]/[id]/block-extra.tsx, app/(app)/[area]/[type]/[id]/cycle-extra.tsx, app/(app)/[area]/[type]/[id]/exercise-extra.tsx … (12) |
+| `List` | 11 | app/(app)/[area]/[type]/[id]/block-extra.tsx, app/(app)/[area]/[type]/[id]/cycle-extra.tsx, app/(app)/[area]/[type]/[id]/exercise-extra.tsx … (11) |
 | `Glyph` | 10 | app/(app)/oggi/day-page.tsx, features/day/DayView.tsx, features/day/QuickIntakes.tsx … (10) |
 | `AreaFilter` | 7 | app/(app)/[area]/andamento/money-page.tsx, app/(app)/[area]/area-index.tsx, app/(app)/[area]/elenco/shelves.tsx … (7) |
 | `Nutrients` | 7 | app/(app)/[area]/[type]/[id]/food-extra.tsx, app/(app)/oggi/day-page.tsx, features/day/DayView.tsx … (7) |
 | `Banner` | 4 | features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx, features/plan/CycleComposer.tsx … (4) |
-| `ChipRow` | 4 | app/(app)/[area]/elenco/shelves.tsx, features/library/ExerciseBox.tsx, features/library/FoodBox.tsx … (4) |
 | `Composer` | 4 | features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx, features/plan/CycleComposer.tsx … (4) |
 | `Find` | 4 | features/food/FoodSearch.tsx, features/gallery/Pieces.tsx, features/plan/BlockComposer.tsx … (4) |
 | `MealBox` | 4 | app/(app)/[area]/[type]/[id]/recipe-extra.tsx, features/day/EntryRow.tsx, features/library/Library.tsx … (4) |
-| `ThingBox` | 4 | app/(app)/[area]/elenco/shelves.tsx, features/library/ExerciseBox.tsx, features/library/FoodBox.tsx … (4) |
-| `Chart` | 3 | features/library/ExerciseBox.tsx, app/(app)/[area]/andamento/[tracker]/page.tsx, app/(app)/kit/page.tsx |
 | `Elenco` | 3 | app/(app)/[area]/piano/piano-list.tsx, features/gallery/Pieces.tsx, app/(app)/oggi/elenco/page.tsx |
 | `ObjectActions` | 3 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
 | `ObjectForm` | 3 | features/gallery/Pieces.tsx, features/library/PantryActions.tsx, features/objects/NewObjectForm.tsx |
+| `PlanBox` | 3 | app/(app)/[area]/elenco/shelves.tsx, features/library/boxes.tsx, app/(app)/kit/page.tsx |
+| `ActionRow` | 2 | app/(app)/kit/action-sample.tsx, features/day/EntryRow.tsx |
 | `Capture` | 2 | features/add/CaptureSheet.tsx, features/gallery/Pieces.tsx |
+| `Chart` | 2 | app/(app)/[area]/andamento/[tracker]/page.tsx, app/(app)/kit/page.tsx |
 | `DayPart` | 2 | features/day/Timeline.tsx, app/(app)/kit/page.tsx |
 | `EmptyState` | 2 | features/gallery/ObjectDemo.tsx, features/gallery/Pieces.tsx |
 | `EmptyTime` | 2 | features/day/Timeline.tsx, app/(app)/kit/page.tsx |
 | `InPlace` | 2 | features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
-| `MergeSheet` | 2 | features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
+| `MergeSheet` | 2 | features/gallery/Pieces.tsx, features/objects/use-object-verbs.tsx |
 | `ObjectPage` | 2 | features/gallery/ObjectDemo.tsx, features/objects/ObjectView.tsx |
+| `PartsBand` | 2 | app/(app)/oggi/day-page.tsx, app/(app)/kit/page.tsx |
 | `RangeNav` | 2 | app/(app)/[area]/andamento/[tracker]/page.tsx, app/(app)/oggi/andamento/page.tsx |
 | `Sheet` | 2 | features/day/QuickIntakes.tsx, features/library/PantryActions.tsx |
 | `Timer` | 2 | features/gallery/Pieces.tsx, features/training/GymClock.tsx |
@@ -215,14 +216,18 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `SortChips` | 1 | features/gallery/Pieces.tsx |
 | `Stepper` | 1 | features/day/WaterRow.tsx |
 | `Why` | 1 | features/gallery/Pieces.tsx |
+| `ChipRow` | 0 | **no screen** (inside the kit only, or unused) |
 | `Criteria` | 0 | **no screen** (inside the kit only, or unused) |
 | `DoneCells` | 0 | **no screen** (inside the kit only, or unused) |
 | `DoneDay` | 0 | **no screen** (inside the kit only, or unused) |
 | `Fascia` | 0 | **no screen** (inside the kit only, or unused) |
+| `FitLine` | 0 | **no screen** (inside the kit only, or unused) |
 | `Recurrence` | 0 | **no screen** (inside the kit only, or unused) |
 | `SheetInline` | 0 | **no screen** (inside the kit only, or unused) |
 | `Swipe` | 0 | **no screen** (inside the kit only, or unused) |
+| `ThingBox` | 0 | **no screen** (inside the kit only, or unused) |
 | `Toast` | 0 | **no screen** (inside the kit only, or unused) |
+| `Verdict` | 0 | **no screen** (inside the kit only, or unused) |
 
 ## 5. Routes and what each reaches
 | route | screen files reached | of which take input |
@@ -237,7 +242,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/[area]/andamento/[tracker]` | 1 | 0 |
 | `/[area]/andamento/legami` | 0 | 0 |
 | `/[area]/ciclo/[id]` | 0 | 0 |
-| `/[area]/elenco` | 6 | 1 |
+| `/[area]/elenco` | 24 | 14 |
 | `/[area]/elenco/doppioni` | 0 | 0 |
 | `/[area]/piano` | 1 | 0 |
 | `/[area]/sessione/[id]` | 7 | 5 |
@@ -251,7 +256,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/aggiungi/spesa` | 1 | 1 |
 | `/aggiungi/tragitto` | 0 | 0 |
 | `/andamento/[tracker]` | 0 | 0 |
-| `/kit` | 1 | 1 |
+| `/kit` | 2 | 1 |
 | `/kit/oggetto` | 1 | 0 |
 | `/oggi/[[...day]]` | 10 | 2 |
 | `/oggi/[type]/[id]` | 33 | 16 |
@@ -261,7 +266,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `/oggi/andamento/obiettivi` | 0 | 0 |
 | `/oggi/andamento/obiettivi/nuovo` | 1 | 1 |
 | `/oggi/andamento/qualita` | 0 | 0 |
-| `/oggi/elenco` | 4 | 1 |
+| `/oggi/elenco` | 22 | 14 |
 | `/oggi/piano` | 1 | 0 |
 | `/palestra` | 0 | 0 |
 | `/profilo` | 4 | 3 |

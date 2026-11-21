@@ -41,7 +41,13 @@ export type BoxEntry = {
   /** Its score (E7): the skyline behind it, the parts when it opens; missing parts named. */
   score?: {
     value: number | null;
-    parts: { name: string; score: number; weight: number }[];
+    parts: {
+      name: string;
+      score: number;
+      weight: number;
+      /** Each part's share of this criterion's input, by the part's key (MOD-61, VIS-107). */
+      split?: Record<string, number>;
+    }[];
     /** Criteria that do not count here, each with why: «valore (manca il prezzo)». */
     missing: string[];
     /** Its «Come valutiamo» page, the model's criteria and their sources. */
@@ -529,5 +535,5 @@ export function Box({
 }
 
 const SCORE_WORD = { met: "bene", part: "così così", no: "male", none: "" } as const;
-const band = (v: number) =>
+export const band = (v: number) =>
   v >= MET ? "var(--heat-good)" : v >= PART ? "var(--heat-fair)" : "var(--heat-bad)";

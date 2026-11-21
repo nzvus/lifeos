@@ -3,6 +3,7 @@
  * the shelves, «Aggiungere». A shelf lives in its area's Elenco (architecture.md
  * §10): the old `?vista=cibi|pasti|esercizi` goes there.
  */
+import { VERB_SERVER } from "../../[area]/[type]/[id]/verb-server";
 import { redirect } from "next/navigation";
 import { AreaFilter, Elenco, F, PageHeader } from "@lifeos/kit";
 import { ownerClock } from "@/app/_server/clock";
@@ -80,6 +81,7 @@ export default async function LibreriaPage({
       <Library
         {...lib.lists}
         view={null}
+        server={VERB_SERVER}
         shelfLines={lib.shelfLines}
         trackers={trackers}
         pantry={{ count: pantry.length, toBuy: pantry.filter((p) => p.toBuy).length }}

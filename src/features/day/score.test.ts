@@ -185,6 +185,27 @@ describe("a meal's score on the day", () => {
     expect(s.parts.find((p) => p.name.startsWith("limiti"))!.name).toBe("limiti · sale");
   });
 
+  it("each criterion carries each line's share of its input, by the line's id (MOD-61)", () => {
+    const two = meal([broccoli, { ...broccoli, id: "l2", quantity: "300" }]);
+    const s = mealScore(two, targets, est, microTargets({ sex: "male", age: 24 }))!;
+    for (const p of s.parts.filter((x) => x.split)) {
+      const sum = Object.values(p.split!).reduce((a, b) => a + b, 0);
+      expect(sum).toBeCloseTo(1, 9);
+      expect(Object.keys(p.split!)).toEqual([broccoli.id, "l2"]);
+    }
+    expect(s.parts.some((p) => p.split)).toBe(true);
+  });
+
+  it("one line alone: nothing to split", () => {
+    const s = mealScore(
+      meal([broccoli]),
+      targets,
+      est,
+      microTargets({ sex: "male", age: 24 }),
+    )!;
+    expect(s.parts.every((p) => !p.split)).toBe(true);
+  });
+
   it("none without the day's targets, nor for a coffee", () => {
     expect(mealScore(meal([broccoli]), null, est, null)).toBeUndefined();
     expect(
