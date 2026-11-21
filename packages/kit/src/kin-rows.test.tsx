@@ -21,12 +21,12 @@ describe("KinRows (PAT-103: parents and children, «+» first, the multiplier be
           {
             key: "g",
             name: "Gelato Proteico",
-            k: "× 1",
+            k: "1",
             step: { minus: "Meno", plus: "Più", onMinus: noop, onPlus: noop },
           },
         ]}
         children={[
-          { key: "c", name: "GELATO proteico al pistacchio", k: "× 1", href: "/x" },
+          { key: "c", name: "GELATO proteico al pistacchio", k: "1", href: "/x" },
         ]}
         onAddParent={noop}
         onAddChild={noop}
@@ -34,14 +34,30 @@ describe("KinRows (PAT-103: parents and children, «+» first, the multiplier be
     );
     expect(html).toContain('aria-label="Genitori"');
     expect(html).toContain('aria-label="Figli"');
-    expect(html.indexOf("× 1")).toBeLessThan(html.indexOf(">Gelato Proteico<"));
+    expect(html.indexOf(">1<")).toBeLessThan(html.indexOf(">Gelato Proteico<"));
     // closed, «× k» is a button that opens the stepper; the «+» comes first in its row
     expect(html).toContain('aria-label="Quante volte Gelato Proteico"');
     expect(html).not.toContain('aria-label="Meno"');
-    expect(html.indexOf("Aggiungi un genitore")).toBeLessThan(html.indexOf("× 1"));
+    expect(html.indexOf("Aggiungi un genitore")).toBeLessThan(html.indexOf(">1<"));
     expect(html).toContain('href="/x"');
     expect(html).toContain('aria-label="Aggiungi un genitore"');
     expect(html).toContain('aria-label="Aggiungi un figlio"');
+  });
+
+  it("an empty row is its «+» alone, wide, its words written (§163)", () => {
+    const html = renderToStaticMarkup(
+      <KinRows
+        words={words}
+        hour={12}
+        candidates={[]}
+        parents={[]}
+        children={[{ key: "c", name: "Figlio", k: "1" }]}
+        onAddParent={noop}
+        onAddChild={noop}
+      />,
+    );
+    expect(html).toMatch(/k-kinadd wide"[^>]*>.*<span>Aggiungi un genitore<\/span>/);
+    expect(html).not.toContain("<span>Aggiungi un figlio</span>");
   });
 
   it("without a way to add, an empty row has no «+»", () => {

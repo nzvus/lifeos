@@ -1645,6 +1645,22 @@
     i parenti»). A head's unit is a size smaller than its number, 12 px more before the mini voto.
     Photos `LIFEOS/review/2026-11-21/kin/` (flow-sheet-390/320). Decided by Claude: the voto's look
     open is today's criteria bar until VIS-107 makes it one bar split by part (step 4).
+163. **21 Nov, his word on §162 (verbatim):** «va bene, ok, il design che riguarda il voto è
+    momentaneao, ci lavoriamo dopo, in ogni caso l'icona nei + potevi lasciarla. mentre per la barra
+    di ricerca, mi sembra troppo grossa: vorrei che lei e i suoi risultati apparissero in una
+    finestrella fissa, che ne pensi? inoltre stavo pensando che magari, quando le 2 linee dei parenti
+    son vuote, e ci sono solo i +, questi bottoni si squadrano e allargano in tutta estentione alla
+    riga, con dentro la didascalia aggiungi figlio o genitore, eccetera, sempre con la loro icona.
+    oh, togli il "x" dal moltiplicatore, non mi piace. per il resto yc» Decided by his «yc»: the
+    unit read as the word («kcal») a size smaller; the 2 variants that change a base quantity stay
+    ADR-0060 variants (no data change; undo: `setKin` on them once he wants them plain); next, the
+    name cap and the name and nota edited in place.
+164. **21 Nov, built on §163:** «+» carries the row's icon again; a row with no kin is its «+» alone,
+    square, the row's width, «Aggiungi un genitore / figlio» written (decided by Claude: per row,
+    not only when both are empty — the same rule, never a special case); «+ genitore»'s search is a
+    small window (220 px) under the rows, its results scrolling inside, field stuck at its top; the
+    multiplier a bare number («1,5»). Found on the way: open, the «+»'s enlarged touch area covered
+    the narrow number — the number now wins its own taps. Photos `review/2026-11-21/kin/`.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

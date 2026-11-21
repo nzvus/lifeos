@@ -1,7 +1,7 @@
 "use client";
 /**
  * A pasto's kinship rows in its Elenco box (PAT-103, MOD-23): «Genitori» and «Figli» from its
- * row's kin, a chip's «× k» stepped by ¼ (a found link is stored first), its name showing that
+ * row's kin, a chip's multiplier stepped by ¼ (a found link is stored first), its name showing that
  * pasto in the list, «+ genitore» searching the other pasti,
  * «+ figlio» a copy whose name then fills the list's search, so the new pasto is in view.
  */
@@ -32,14 +32,14 @@ export function MealKin({
 }) {
   const parents = kin?.parents ?? [];
   const children = kin?.children ?? [];
-  // Both rows alike (his §160): «× k» opens to step it, the name shows that pasto in the list.
+  // Both rows alike (his §160): the multiplier opens to step it, the name shows that pasto in the list.
   const chip = (x: KinLink, parent: boolean): KinChip => {
     const set = (k: number) =>
       void (parent ? server.step(id, x.id, k) : server.step(x.id, id, k));
     return {
       key: x.id,
       name: x.name,
-      k: "×\u00a0" + F.input(x.k, 2),
+      k: F.input(x.k, 2),
       onGo: () => onGo(x.name),
       step: {
         minus: w.less(x.name),

@@ -5991,3 +5991,54 @@ button.k-mrow:active {
 .k-row.dense .k-top > .k-line > .k-trail {
   margin-left: 8px;
 }
+/* an empty kin row: its «+» alone, square, the row's width, its words written (his §163) */
+.k-kinadd.k-hchip {
+  gap: 2px;
+  padding-inline: 6px;
+}
+.k-kinadd.k-hchip.wide {
+  flex: 1 0 auto;
+  justify-content: flex-start;
+  gap: 6px;
+  padding-inline: 10px;
+  border-radius: var(--r-control);
+  font-size: var(--ctl-fs);
+}
+/* «+ genitore»'s search: a small fixed window, its results scrolling inside (his §163) */
+.k-kinfind {
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border: 1px solid var(--kin-parent);
+  border-radius: var(--r-control);
+  background: var(--paper);
+}
+.k-kinfind::-webkit-scrollbar {
+  display: none;
+}
+.k-kinfind .k-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-color: var(--hairline);
+}
+.k-kinfind .k-findrow {
+  font-size: var(--fs-b2);
+}
+/* a multiplier, button or plain, centred on the chip's line */
+.k-kink {
+  display: inline-flex;
+  align-items: center;
+}
+.k-kinname {
+  display: inline-block;
+  line-height: var(--ctl-dense);
+}
+/* open, the number stays its own target over the − and +'s enlarged touch areas, and wide enough */
+.k-kin .k-step .k-kink {
+  z-index: 1;
+  justify-content: center;
+  min-width: 28px;
+}

@@ -1,10 +1,11 @@
 "use client";
 /**
- * KinRows (PAT-103, his §157, §160): a thing's parents and children as two sideways rows, told
- * apart by colour alone (VIS-06: they scroll, never wrap). Each row starts with its «+», as small
- * as a chip. A chip has two zones: its «× k» opens in place into − k + (PAT-13), its name goes to
- * that thing. «+» on the parents' row opens a search under the rows (no pop-up); on the children's
- * it makes one at once. The kit knows no type (PAT-81): words and callbacks come from the caller.
+ * KinRows (PAT-103, his §157, §160, §163): a thing's parents and children as two sideways rows,
+ * told apart by colour (VIS-06: they scroll, never wrap). Each row starts with its «+» and the
+ * row's icon, as small as a chip; a row with no chips is that button alone, square, the row's full
+ * width, its words written. A chip has two zones: its multiplier (a bare number) opens in place
+ * into − k + (PAT-13), its name goes to that thing. «+» on the parents' row opens a search in a
+ * small fixed window under the rows, its results scrolling inside; on the children's it makes one. The kit knows no type (PAT-81): words and callbacks come from the caller.
  */
 import { useState } from "react";
 import { Find, type FindItem } from "./Find";
@@ -13,7 +14,7 @@ import { Glyph } from "./Glyph";
 export type KinChip = {
   key: string;
   name: string;
-  /** «× 1,5», already formatted. */
+  /** The multiplier, already formatted, a bare number («1,5»; his §163: no «×»). */
   k: string;
   /** Its name goes to that thing: a callback in place, else a link. */
   onGo?: () => void;
@@ -120,12 +121,14 @@ export function KinRows({
       {add && (
         <button
           type="button"
-          className="k-chip k-hchip k-kinadd"
+          className={"k-chip k-hchip k-kinadd" + (chips.length === 0 ? " wide" : "")}
           aria-label={words[side].add}
           {...(side === "parents" ? { "aria-expanded": finding } : {})}
           onClick={add}
         >
           <Glyph of={{ ui: "add" }} decorative />
+          <Glyph of={{ ui: side }} decorative />
+          {chips.length === 0 && <span>{words[side].add}</span>}
         </button>
       )}
       {chips.map((c) => chip(side, c))}
@@ -135,17 +138,19 @@ export function KinRows({
     <div className="k-stack g1 k-kinrows">
       {row("parents", parents, onAddParent ? () => setFinding((f) => !f) : undefined)}
       {finding && onAddParent && (
-        <Find
-          items={candidates}
-          label={words.find}
-          hour={hour}
-          all
-          autoFocus
-          onPick={(x) => {
-            setFinding(false);
-            onAddParent(x.id);
-          }}
-        />
+        <div className="k-kinfind">
+          <Find
+            items={candidates}
+            label={words.find}
+            hour={hour}
+            all
+            autoFocus
+            onPick={(x) => {
+              setFinding(false);
+              onAddParent(x.id);
+            }}
+          />
+        </div>
       )}
       {row("children", children, onAddChild)}
     </div>
