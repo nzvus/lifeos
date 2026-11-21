@@ -21,6 +21,7 @@ import {
   Glyph,
   energyStrip,
   Nutrients,
+  PartsBand,
   weekOf,
   AreaFilter,
   type Area,
@@ -70,7 +71,7 @@ import { planRows } from "./plan-rows";
 import { skipStep } from "./[[...day]]/plan-actions";
 import { readExercises, readRoutines } from "@/core/training";
 import { readFoodChoices, readFoodEstimates, readIntakeUses } from "@/core/food/catalog";
-import { foodIds, mealL0 } from "@/features/day/nutrients";
+import { dayByMeal, foodIds, mealL0 } from "@/features/day/nutrients";
 import {
   dayScore,
   presentWeek,
@@ -629,7 +630,7 @@ export async function DayPage({
         </section>
       )}
       {food && whole && (
-        <section className="k-block g3" aria-label="Il giorno">
+        <section className="k-block g3" aria-label="Il giorno" id="oggi-giorno">
           {/* Levels (VIS-40, «Oggi a livelli» step 3): closed = the verdict and where the energy
               comes from; open = kcal and the four macros; the limits and vitamins, then the
               energy, the goal, the cost and creatine, each behind a door. */}
@@ -726,6 +727,15 @@ export async function DayPage({
             )}
           </OpenBox>
         </section>
+      )}
+      {food && whole && (
+        // Scrolled past, the day shrinks to a band at the top: each meal a part, the one in view
+        // lit (his §146, §150).
+        <PartsBand
+          data={dayByMeal(whole.nutrients, items, kinds, (i) => present(i).title)}
+          anchor="oggi-giorno"
+          label="Il giorno"
+        />
       )}
       <section className="k-section g3" aria-label="La giornata">
         {empty && date <= today ? (

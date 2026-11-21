@@ -1508,6 +1508,17 @@
     `--fs-b4` 11 px (decided by Claude; undo: drop the token and the query), the icons 12 px, the
     gaps tighter. Measured on his dinner, room left in each cell after its chevron: 390 → 11 px,
     360 → 11, 320 → 1 (it spilled into the next cell before). Script `arrows/cells.mjs`.
+150. **21 Nov, his «ok procedi yc»:** the meal box of §147–§149 approved. Next, §146's day: «Il
+    giorno» expanded = today's four rows with the chevrons; scrolled past, a thin band fixed at the
+    top: one row of four full bars like the meal's, each meal a part, «il pasto attuale» lit — read
+    by Claude as the meal box nearest the top of the screen under the band (decided by Claude; undo:
+    light the open one); a tap on the band scrolls back to the card.
+151. **21 Nov, built on §150:** «Il giorno»'s full rows carry the chevrons too (wherever a macro row
+    has zones); kit `PartsBand`: once the card is above the screen, a band slides in at the top —
+    the meal box's row of four full bars, each eaten voce with lines a part (a coffee, a creatine
+    too), the meal box nearest the top under the band lit, a tap back to the card. It takes no room
+    (a sticky line of no height; the page's «lift over the backdrop» rule needed an exception).
+    Photos `LIFEOS/review/2026-11-21/band/`; **waits for his word**.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

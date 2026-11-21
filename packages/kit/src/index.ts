@@ -21,6 +21,7 @@ export {
 } from "./PlanBox";
 export { ChipRow, type ChipItem } from "./ChipRow";
 export { Verdict } from "./Verdict";
+export { PartsBand } from "./PartsBand";
 export { EntryDetails, type BoxDetails } from "./meal-doors";
 export { PageHeader } from "./PageHeader";
 export { NavBar, AreaFilter, AREAS, PLACES, type Area, type Place } from "./NavBar";

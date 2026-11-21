@@ -5863,3 +5863,43 @@ button.k-mrow:active {
 .k-zones:empty {
   display: none;
 }
+/* a whole's band at the top (his §146, §150): a sticky line of no height holds it over the page,
+   so it never moves what is under it; it slides in once its card is above the screen */
+.k-bandline {
+  position: sticky;
+  top: 0;
+  height: 0;
+  z-index: 3;
+  overflow: visible;
+}
+.k-band {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--sp-2) var(--sp-4) var(--sp-3);
+  background: var(--sheet);
+  border-bottom: 1px solid var(--hairline);
+  transform: translateY(-100%);
+  opacity: 0;
+  transition:
+    transform var(--t-box) var(--ease),
+    opacity var(--t-box) var(--ease);
+}
+.k-band.on {
+  transform: none;
+  opacity: 1;
+}
+/* the gallery's frame for a band: room for it, and a clip so it never sticks over the page */
+.k-bandframe {
+  position: relative;
+  min-height: 64px;
+  overflow: hidden;
+  border-radius: var(--r-card);
+}
+/* the page lifts its children over the backdrop (position: relative): the band's line must stay
+   sticky, above the content */
+.k-page.has-bd > .k-bandline {
+  position: sticky;
+  z-index: 3;
+}

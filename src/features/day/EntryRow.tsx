@@ -42,6 +42,8 @@ export function EntryRow({
   /** `l0`: a meal's thin macro bars (the boards' L0); `details`: what the open box shows. */
   entry: BoxEntry & {
     l0?: NutrientsData | null;
+    /** Its key: a meal says it (`data-part`) so the day's band lights it when in view (§150). */
+    id?: string;
     details?: Details | null;
     /** A session in progress: «Riprendi» instead of «Fatto» and «Salta». */
     running?: boolean;
@@ -179,6 +181,7 @@ export function EntryRow({
   return (
     <div
       className={"k-swipe" + (dx !== 0 ? " moving" : "")}
+      {...(entry.l0 && entry.id ? { "data-part": entry.id } : {})}
       tabIndex={0}
       aria-label={entry.title + ": Canc per eliminare"}
       aria-keyshortcuts="Delete"

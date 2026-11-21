@@ -5,7 +5,7 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **74** · kit pieces: **55**
+- routes: **42** · screen components outside the kit: **74** · kit pieces: **56**
 - components that take input (a form, a field): **37**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
@@ -41,7 +41,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 ### app · other (1)
 | component | lines | kit pieces | by hand | routes |
 |---|---|---|---|---|
-| `app/(app)/oggi/day-page.tsx` | 786 | AreaFilter, Box, DateNav, Glyph, Nutrients | 2 form | 2 |
+| `app/(app)/oggi/day-page.tsx` | 796 | AreaFilter, Box, DateNav, Glyph, Nutrients, PartsBand | 2 form | 2 |
 
 ### features/account (5)
 | component | lines | kit pieces | by hand | routes |
@@ -195,6 +195,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `InPlace` | 2 | features/gallery/Pieces.tsx, features/objects/ObjectView.tsx |
 | `MergeSheet` | 2 | features/gallery/Pieces.tsx, features/objects/use-object-verbs.tsx |
 | `ObjectPage` | 2 | features/gallery/ObjectDemo.tsx, features/objects/ObjectView.tsx |
+| `PartsBand` | 2 | app/(app)/oggi/day-page.tsx, app/(app)/kit/page.tsx |
 | `RangeNav` | 2 | app/(app)/[area]/andamento/[tracker]/page.tsx, app/(app)/oggi/andamento/page.tsx |
 | `Sheet` | 2 | features/day/QuickIntakes.tsx, features/library/PantryActions.tsx |
 | `Timer` | 2 | features/gallery/Pieces.tsx, features/training/GymClock.tsx |

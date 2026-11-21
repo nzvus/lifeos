@@ -31,6 +31,7 @@ import {
   Field,
   Glyph,
   MealBox,
+  PartsBand,
   PlanBox,
   Forms,
   MeasureDays,
@@ -627,6 +628,19 @@ export default async function KitPage({
       <section className="k-section g2" id="azioni-box" aria-label="Le azioni di un box">
         <h2>Le azioni di un box</h2>
         <ActionSample />
+      </section>
+
+      <section className="k-section g2" id="banda" aria-label="La banda di un intero">
+        <h2>La banda di un intero</h2>
+        {/* Clipped in a frame: in the gallery it never sticks over the other pieces. */}
+        <div className="k-bandframe">
+          <PartsBand
+            data={MEAL_SAMPLE}
+            anchor="banda-nessuna"
+            label="Il giorno"
+            startShown
+          />
+        </div>
       </section>
 
       <section className="k-section g2" id="pasto-box" aria-label="Il box di un pasto">

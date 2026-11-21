@@ -147,6 +147,14 @@ export function Nutrients({
                   {m.value}
                   {m.withPlan && <span className="k-plan"> → {m.withPlan}</span>}
                   {m.target && <span className="k-meta"> / {m.target}</span>}
+                  {/* Its verdict's chevrons, as in a meal's row (his §146: «aggiungerei lo stesso le
+                      freccette»); none where nothing judges it. */}
+                  {m.level && (
+                    <>
+                      {" "}
+                      <Verdict level={m.level} />
+                    </>
+                  )}
                 </span>
               </span>
               <MacroTrack m={m} label />
