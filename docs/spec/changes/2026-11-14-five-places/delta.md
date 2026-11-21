@@ -210,3 +210,7 @@
 - **PAT-104** (patterns.md §3) **A voce's name is the door to its object** (his «yc», §156, §158):
   open, the line naming the catalog object a voce came from («Gnocchi alla sorrentina») links to
   that object's Box in the Elenco; a voce from no object has no such line. Kit: ✗.
+- **VIS-109** (visual.md) **Every button squared, every row filled** (his §166): a button — chip,
+  act, door, «+», ⊕ — has the control's corner (`--r-control`), never a pill or a circle; in a row
+  that is not full, its buttons grow in proportion to fill it; a full row scrolls sideways (VIS-06).
+  Changes VIS-85's «act pills». [his 21 Nov, §166]

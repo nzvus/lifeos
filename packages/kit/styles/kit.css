@@ -6042,3 +6042,22 @@ button.k-mrow:active {
   justify-content: center;
   min-width: 28px;
 }
+
+/* ---------- every button (his §166, VIS-85 changed) ----------
+   squared: the control's corner, never a pill or a circle */
+.k-chip,
+.k-act,
+.k-btn.act,
+.k-add,
+.k-add.k-fab,
+.k-kinadd.k-hchip {
+  border-radius: var(--r-control);
+}
+/* a row not full: its buttons grow in proportion to fill it; a full row scrolls sideways as before */
+.k-hrow > :is(button, a, .k-chip, .k-step),
+.k-doors > :is(button, a, .k-chip),
+.k-chips > :is(button, a, .k-chip),
+.k-acts > :is(button, a) {
+  flex: 1 0 auto;
+  justify-content: center;
+}

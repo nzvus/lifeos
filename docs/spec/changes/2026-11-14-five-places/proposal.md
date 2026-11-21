@@ -1666,6 +1666,14 @@
     esercizi, assunzioni; was 80), the catalog verbs' create (was 120) and edit (had none); a name
     already longer stays while it is left as it is (1 pasto, 3 cibi of his). The copy rule cuts
     within it. The name and nota edited on the box: **asked** (it changes every box's head).
+166. **21 Nov, his rule for every button (verbatim):** «ok, ho capito che i bottoni li voglio tutti
+    squadrati. inoltre facciamo cosi, se la riga non è piena, i bottoni che la componogono si
+    allargano proporzionalmente per riempirla tutta in lunghezza, questo deve valere per tutti i
+    bottoni. per il resto, rivedi tutte le discussioni che abbiamo fatto su i prossimi cambiamenti
+    che dobbiamo apportare, se non li sai gia, di modo che possiamo andare avanti tenendo tutto a
+    mente. riguardano soprattutto voti, modifiche in place degli ingredienti, dinamismo nelle
+    visualizzazioni delle barre dei macro e dei voti in base e ingredienti o in base ai nutrienti,
+    eccetera»
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
