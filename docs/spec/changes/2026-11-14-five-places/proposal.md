@@ -1563,6 +1563,15 @@
     or as chips; (g) faults: come stai's values twice, «a digiuno» twice, the assunzione's two
     costs (0,10 € and 0,06 €), the tragitto's tiles in English, sonno titled «Sveglia». Next, his
     step (3): the meal in depth, timeline and Elenco. **Waits for his word on the table.**
+156. **21 Nov, his word on the table:** «hm ok, non so che dirti sulla tabella tanto cambieremo molto
+    se non tutto. andiamo avanti? da cosa partiamo? dobbiamo differenziare la visualizzazione di
+    ogni tipo dipendentemente se sta in elenco o altrove giusto? e altrove dobbiamo sempre avere
+    qualcosa che ci porti alla sua visualizzazione in elenco? e poi? oppure non partiamo da li?»
+    Claude's answer: PAT-30 already says one Box, not two looks — the day adds quanto, quando and
+    the state (PAT-31, VIS-22) and judges against the day; the Elenco judges per unit and holds
+    the object's life (PAT-101). An edit on the day changes only that voce (ADR-0007), in the
+    Elenco the object; «↺» says when they differ (PAT-31). Proposed start: the meal, both places at
+    once (open question: the dish name in a voce as the door to its pasto salvato).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
