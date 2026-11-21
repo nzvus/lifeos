@@ -66,6 +66,7 @@ export const food = {
       more: (name: string) => "Più " + name,
       remove: (name: string) => "Togli " + name,
       edit: (name: string) => "Quanto " + name,
+      swipe: "Togli",
     },
     // Kinship rows (PAT-103, his §157).
     kin: {

@@ -1739,6 +1739,47 @@
     of 10, MOD-23: the children follow). The kin search is a whole band too. Photos
     `review/2026-11-21/bands/`. Not yet: the voto bar following the view (A1), typing the grams,
     «Unisci» as a band.
+172. **21 Nov, his word on the bands (verbatim):** «non ci siamo, allora le fasce son troppo larghe,
+    inoltre devono essere dello stesso stile del contorno e arrivare a toccarlo, al massimo giusto un
+    po beno brillante non so. poi devi controllare meglio le centrature, ogni cosa deve essere
+    centrata nella sua fascia. inoltre possiamo fare che le barre macro e voto sono in una, i parenti
+    anche in una. poi ti ho detto che unisci dovrebbe essere un'icona e avere un suo colore. inoltre
+    i nutrienti non sono una ripetizione dei macro, ma dovrebbero essere quelle cose che compaiono per
+    esempio nella scheda generale del giorno quando tocco un macro, ecco magari la loro
+    visualizzazione si basa sulla sottobbarra selezionata dalla barra dei macro in alto: quindi vedi
+    i nutrienti di quel macronutriente. a questo punto non so come fare per i micronutrienti, magari
+    una terza barra che compare e come le altre due interagisce con tutti questi livelli di
+    visualizzazione? non lo so, come potremmo fare? poi non mi piace come mostri i genitori, non
+    mostrare il nome del genitore. piuttosto facciamo cosi: colora lo sfondo dell'agradazione del
+    genitore per ogni ingrediente, se piu ingredienti appertengono allo stesso genitore, lo sfondo si
+    divide in metà colore di uno e metà dell'altro, anzi no, in esatta proporzione rispetto al totale
+    dell'ingrediente e la quantita del genitore moltiplicate per il suo multiplier, questo per ogni
+    suo genitore, quindi prende sempre l'interezza dello sfondo. fino alla parte delle cifre che tra
+    l'altro potremmo anche distinguere meglio verticalmente, due sottofasce verticali, una per i nomi
+    con i loro sfondi cumulati orizzontalmente, e a destra le loro quantità modificabili, senza + e
+    -, non si allargano, semplicemente se tocchi compare la barretta del cursore per la modifica in
+    place. il vestino non serve, basta scorrere l'ingrediente verso sinistra come si fa di solito. è
+    una azione che hai implementato anche altrove se non sbaglio. comunque forse è meglio eliminare i
+    bottoni fatti cosi e fare tutto come una tabella, di modo da guadagnare sempre piu spazio e non
+    avere troppi conorni, i colori sono solo delle icone e eventualmente del loro sfondo di pezzo di
+    scheda, che ne pensi? insomma la scheda diventa una griglia sostanzialmente, solo che voglio che
+    sia bella»
+173. **21 Nov, built on §172 — the box as a grid** (for his word). Each band's line is the contour's
+    (1.2 px, its colour at 55 %), edge to edge; bands lower; everything centred in its band. One band
+    for the bars and the voto; one for parents and children (two rows of cells). Inside the box
+    nothing has a frame: the actions, the kin, the names, the doors and the two halves are cells
+    split by the same line, the colour only on icons and grounds — «Registra» green, «Unisci»
+    (Tabler `arrow-merge`) amber, «?» blue, the trash red. **Nutrienti** = the kinds of the macro
+    picked in the bars (a tap on a macro picks it, its cell lit; the bars and the band show its
+    kinds and «da dove», the same piece as «Il giorno»'s open row, kit `MacroKinds`); none picked,
+    the bars show the ingredients. **Ingredienti** = kit `IngredientTable`: names | amounts, a line
+    between; each name's ground shared among its parents' tones in exact proportion (each parent's
+    foods × its multiplier), the rest plain, no parent named; a tap on an amount is a field with its
+    cursor (no − +, the cell never widens), Enter or leaving saves the total (the pasto's own part =
+    total − what its parents bring, never below); a row swiped left takes its own part out; the
+    first row adds. **Asked:** the micronutrients — Claude's pick: a fifth cell «Micro» in the
+    macros' row, picked like a macro, the «Nutrienti» band then shows vitamins and minerals (one
+    selection for everything, no third bar). Photos `review/2026-11-21/bands/grid-sheet-*.png`.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

@@ -115,6 +115,8 @@ export function useObjectVerbs(server: VerbServer) {
         label,
         aria: label + " " + t.title,
         ...(danger ? { danger: "delete" as const } : {}),
+        // «Unisci» an icon in its own colour, with the row's other icons (his §172)
+        ...(verb === "merge" ? { icon: "merge" as const } : {}),
         onClick: () =>
           void act(t, verb).then((done) => {
             if (done) router.refresh();

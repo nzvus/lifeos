@@ -6062,45 +6062,71 @@ button.k-mrow:active {
   justify-content: center;
 }
 
-/* ---------- a box in bands (his §169): each zone a full-width band, a hairline between them, the
-   head's parts split by hairlines too; one frame, the box's own — no frame inside it ---------- */
+/* the actions row's coloured icons (his §169): «Registra» the colour of adding, «?» its own */
+.k-btn.act.icon.log {
+  color: var(--herb);
+  border-color: color-mix(in oklab, var(--herb) 55%, transparent);
+}
+.k-btn.act.icon.why {
+  color: var(--macro-fat);
+  border-color: color-mix(in oklab, var(--macro-fat) 55%, transparent);
+}
+.k-btn.act.icon.merge {
+  color: var(--warn);
+}
+
+/* ---------- the box as a grid (his §169, §172) ----------
+   bands as wide as the box, each line the contour's own (1.2 px, its colour, a little dimmer),
+   touching it; inside the box nothing has a frame of its own — cells split by the same lines, the
+   colour only on icons and on a cell's ground; everything centred in its band. */
 .k-box.bands {
-  --band-x: 12px;
-  --band-y: 8px;
+  --line: color-mix(in srgb, var(--fam) 55%, transparent);
+  --cell-x: 10px;
   padding: 0;
   overflow: hidden;
 }
 .k-box.bands > .k-top {
-  padding: 10px var(--band-x);
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--cell-x);
 }
 .k-box.bands > .k-top > .k-lead {
-  left: var(--band-x);
-  top: 10px;
+  position: static;
+  align-self: stretch;
+  align-items: center;
+  height: auto;
+  width: 22px;
+  padding-right: var(--cell-x);
+  margin-right: var(--cell-x);
+  border-right: 1.2px solid var(--line);
 }
-/* the head's cells: icon | title | value | (shut) the mini voto, each after a hairline */
+.k-box.bands > .k-top > .k-line {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-self: stretch;
+}
+.k-box.bands .k-top .k-head {
+  align-self: stretch;
+  align-items: center;
+  padding-left: 0;
+  min-height: 44px;
+}
 .k-box.bands .k-head > .k-hright,
 .k-box.bands .k-top > .k-line > .k-trail {
-  position: relative;
-  padding-left: 10px;
+  align-self: stretch;
+  align-items: center;
+  min-height: 0;
+  margin-left: var(--cell-x);
+  padding-left: var(--cell-x);
+  border-left: 1.2px solid var(--line);
 }
-.k-box.bands .k-head > .k-hright::before,
-.k-box.bands .k-top > .k-line > .k-trail::before,
-.k-box.bands .k-top .k-hlead::before {
-  content: "";
-  position: absolute;
-  top: -10px;
-  bottom: -10px;
-  left: 0;
-  border-left: 1px solid var(--hairline);
-}
-.k-box.bands .k-top .k-hlead {
-  position: relative;
-}
-.k-box.bands .k-top .k-hlead::before {
-  left: -6px;
+.k-box.bands .k-head > .k-hright:empty,
+.k-box.bands .k-top > .k-line > .k-trail:empty {
+  display: none;
 }
 .k-box.bands > .k-lvstrip {
-  margin: 0 var(--band-x) 10px;
+  margin: 0 var(--cell-x) 8px;
 }
 .k-box.bands .k-bin {
   margin-top: 0;
@@ -6109,53 +6135,80 @@ button.k-mrow:active {
   gap: 0;
   padding-top: 0;
 }
-.k-box.bands .k-zones > *,
-.k-box.bands .k-zones > .k-kinrows > * {
+.k-box.bands .k-zones > * {
   margin: 0;
-  padding: var(--band-y) var(--band-x);
-  border-top: 1px solid var(--hairline);
+  padding: 6px var(--cell-x);
+  border-top: 1.2px solid var(--line);
 }
-.k-box.bands .k-zones > .k-kinrows {
-  display: contents;
-  border: 0;
+.k-box.bands .k-zones > .k-bars:empty {
+  display: none;
+}
+/* a row of cells: no gap, no frames, a line between, each cell centred, as tall as a target */
+.k-box.bands .k-zones > :is(.k-actrow, .k-xor),
+.k-box.bands .k-kinrow {
+  display: flex;
+  gap: 0;
   padding: 0;
+  margin: 0;
+  overflow-x: auto;
 }
-.k-box.bands .k-zones > .k-hrow,
-.k-box.bands .k-zones > .k-kinrows > .k-hrow {
-  margin-inline-start: 0;
-}
-/* the kin search: a whole band, no frame of its own (his §169) */
-.k-box.bands .k-kinfind {
+.k-box.bands .k-zones > :is(.k-actrow, .k-xor) > *,
+.k-box.bands .k-kinrow > * {
+  flex: 1 0 auto;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  height: auto;
+  margin: 0;
+  padding: 0 var(--cell-x);
   border: 0;
-  border-top: 1px solid var(--hairline);
   border-radius: 0;
   background: transparent;
+  animation: none;
 }
-.k-box.bands .k-doorbar {
-  margin: 0;
-  padding: var(--band-y) var(--band-x);
-  border-top: 1px solid var(--hairline);
+.k-box.bands .k-zones > :is(.k-actrow, .k-xor) > * + *,
+.k-box.bands .k-kinrow > * + * {
+  border-left: 1.2px solid var(--line);
 }
-/* the two halves: the view shown now hatched while shut; the one open filled (his §170) */
-.k-box.bands .k-zones > .k-xor {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.k-box.bands .k-actrow .k-btn.act.danger {
+  color: var(--tomato);
+}
+/* parents and children: one band, two rows of cells, a line between */
+.k-box.bands .k-zones > .k-kinrows {
   padding: 0;
+  gap: 0;
 }
-.k-xorhalf {
-  min-height: var(--touch);
-  border: 0;
+.k-box.bands .k-kinrow + .k-kinrow,
+.k-box.bands .k-kinrows > .k-kinfind {
+  border-top: 1.2px solid var(--line);
+}
+.k-box.bands .k-kinrow > .k-kinadd {
+  flex: 0 0 auto;
+  color: var(--kin);
+}
+.k-box.bands .k-kinrow > .k-kinadd.wide {
+  flex: 1 0 auto;
+  justify-content: flex-start;
+  gap: 6px;
+}
+.k-box.bands .k-kinrows > .k-kinfind {
+  max-height: 220px;
+  padding: 6px var(--cell-x);
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
   background: transparent;
+}
+/* the two halves: the view shown now hatched while shut, the open one filled (his §170) */
+.k-xorhalf {
   color: var(--muted);
   font-family: var(--font-display);
   font-size: var(--ctl-fs);
   font-weight: 600;
   cursor: pointer;
 }
-.k-xorhalf + .k-xorhalf {
-  border-left: 1px solid var(--hairline);
-}
-.k-xorhalf.now {
+.k-box.bands .k-xor > .k-xorhalf.now {
   color: var(--ink);
   background: repeating-linear-gradient(
     -45deg,
@@ -6163,7 +6216,7 @@ button.k-mrow:active {
     transparent 2px 7px
   );
 }
-.k-xorhalf.on {
+.k-box.bands .k-xor > .k-xorhalf.on {
   color: var(--paper);
   background: var(--ink);
 }
@@ -6176,116 +6229,146 @@ button.k-mrow:active {
 .k-xorpanel::-webkit-scrollbar {
   display: none;
 }
-
-/* a pasto's «Ingredienti» band (his §169): each parent's foods in its shade of the kin colour, a
-   stripe on the left; the pasto's own foods with their edits on the right */
-.k-ing .k-ingadd {
-  width: 100%;
-  justify-content: flex-start;
-  gap: 6px;
-  border-style: dashed;
+/* a picked macro: its cell's ground lit, its kinds below (his §172) */
+.k-mcell.picked {
+  background: color-mix(in oklab, var(--ink) 10%, transparent);
+  border-radius: var(--r-control);
 }
-.k-inggroup {
-  --grp: var(--kin-parent);
-  padding-left: 8px;
-  border-left: 3px solid var(--grp);
+/* the ingredients table (his §172): names | amounts, a line between, rows split by lines; a
+   name's ground shared by its parents' tones */
+.k-box.bands .k-zones > .k-xorpanel:has(.k-itable),
+.k-box.bands .k-zones > .k-xorpanel:has(.k-ingfind) {
+  padding: 0;
 }
-.k-inggroup.g1 {
-  --grp: color-mix(in oklab, var(--kin-parent) 70%, var(--paper));
+.k-itable {
+  --kin-t0: color-mix(in oklab, var(--kin-parent) 34%, transparent);
+  --kin-t1: color-mix(in oklab, var(--kin-parent) 20%, transparent);
+  --kin-t2: color-mix(in oklab, var(--kin-parent) 10%, transparent);
+  display: flex;
+  flex-direction: column;
 }
-.k-inggroup.g2 {
-  --grp: color-mix(in oklab, var(--kin-parent) 45%, var(--paper));
+.k-iswipe {
+  position: relative;
+  overflow: hidden;
+  border-top: 1.2px solid var(--line, var(--hairline));
 }
-.k-ingparent {
+.k-iunder {
+  position: absolute;
+  inset: 0 0 0 auto;
   display: flex;
   align-items: center;
+  padding: 0 var(--cell-x, 10px);
+  color: var(--tomato);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.k-irow {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 84px;
+  align-items: stretch;
+  min-height: 40px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: var(--sheet);
+  color: var(--ink);
+  font-size: var(--fs-b2);
+  touch-action: pan-y;
+}
+.k-iadd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 6px;
-  min-height: 28px;
-  color: var(--grp);
   font-family: var(--font-display);
   font-weight: 600;
   font-size: var(--ctl-fs);
+  color: var(--herb);
+  cursor: pointer;
 }
-.k-ingrow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+.k-iname {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: var(--touch);
-  font-size: var(--fs-b2);
+  gap: 6px;
+  min-width: 0;
+  padding: 0 var(--cell-x, 10px);
 }
-.k-ingrow.from {
-  grid-template-columns: minmax(0, 1fr) auto;
-  min-height: 28px;
-  color: var(--muted);
+.k-iqty {
+  display: flex;
+  align-items: stretch;
+  border-left: 1.2px solid var(--line, var(--hairline));
 }
-.k-ingrow .k-step {
-  grid-template-columns: 32px auto 32px;
-}
-.k-ingrow .k-step .k-num {
-  min-width: 52px;
-  text-align: center;
-  font-size: var(--ctl-fs);
-}
-/* the name gets the room: narrower − + and a bare trash (his §169) */
-.k-ingrow {
-  gap: 4px;
-}
-.k-ingrow .k-step {
-  grid-template-columns: 28px auto 28px;
-  border-color: transparent;
-  background: transparent;
-}
-.k-ingrow .k-step .k-num {
-  min-width: 44px;
-}
-.k-ingrow .k-btn.act.icon.danger {
-  min-width: 32px;
-  padding: 0 4px;
-  border-color: transparent;
-  background: transparent;
-}
-/* shut, a food's row is its name and its grams; the grams open the edits (§169) */
-.k-ingrow:not(.editing) {
-  grid-template-columns: minmax(0, 1fr) auto;
-}
-.k-ingq {
-  position: relative;
-  min-height: var(--ctl-dense);
-  padding: 0 8px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-control);
+.k-iamount,
+.k-iinput {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 0 var(--cell-x, 10px);
+  border: 0;
   background: transparent;
   color: var(--ink);
   font-family: var(--font-display);
   font-size: var(--ctl-fs);
   font-weight: 600;
+  text-align: right;
   cursor: pointer;
 }
-.k-ingq::after {
-  content: "";
-  position: absolute;
-  inset: -6px 0;
+.k-iamount.fixed {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--muted);
+  cursor: default;
 }
-.k-ingrow.editing .k-ingq {
-  z-index: 1;
-  border-color: var(--ink);
+.k-iinput {
+  outline: 0;
+  cursor: text;
+  box-shadow: inset 0 -2px 0 var(--ink);
 }
-/* the actions row's coloured icons (his §169): «Registra» the colour of adding, «?» its own */
-.k-btn.act.icon.log {
-  color: var(--herb);
-  border-color: color-mix(in oklab, var(--herb) 55%, transparent);
+/* the head stays one line: the title gives way (ellipsis), never the value */
+.k-box.bands .k-top .k-head {
+  flex-wrap: nowrap;
 }
-.k-btn.act.icon.why {
-  color: var(--macro-fat);
-  border-color: color-mix(in oklab, var(--macro-fat) 55%, transparent);
+.k-box.bands .k-top .k-head > .k-hlead {
+  flex: 1 1 0;
+  min-width: 0;
 }
-/* a head cell with nothing in it is no cell; the cells' padding kept small for the title */
-.k-box.bands .k-head > .k-hright:empty,
-.k-box.bands .k-top > .k-line > .k-trail:empty {
-  display: none;
+.k-box.bands .k-top .k-head > .k-hlead .k-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.k-box.bands .k-head > .k-hright,
-.k-box.bands .k-top > .k-line > .k-trail {
-  padding-left: 8px;
+/* names and doors are cells too, no frames of their own */
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow),
+.k-box.bands .k-doorbar .k-doors {
+  display: flex;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+}
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow) > *,
+.k-box.bands .k-doorbar .k-doors > * {
+  flex: 1 0 auto;
+  justify-content: center;
+  min-height: 44px;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  animation: none;
+}
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow) > * + *,
+.k-box.bands .k-doorbar .k-doors > * + * {
+  border-left: 1.2px solid var(--line);
+}
+.k-box.bands .k-doorbar {
+  margin: 0;
+  padding: 0;
+  border-top: 1.2px solid var(--line);
+}
+.k-box.bands .k-doorbar .k-doors {
+  flex: 1 1 auto;
+  margin-inline-start: 0;
 }

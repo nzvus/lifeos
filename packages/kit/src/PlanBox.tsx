@@ -43,6 +43,8 @@ export type PlanAction = { key: string; label: string } & (
       danger?: "delete";
       /** A mode he switches (the bar's «Ingredienti» · «Nutrienti»): a chip, on or off. */
       pressed?: boolean;
+      /** A verb drawn as its icon in its own colour, with the row's other icons (§172: «Unisci»). */
+      icon?: "merge";
     }
   | {
       href: string;
@@ -115,6 +117,17 @@ export function ActionRow({ actions }: { actions: PlanAction[] }) {
           <a key={a.key} className="k-btn act" href={a.href}>
             {a.label}
           </a>
+        ) : "onClick" in a && a.icon ? (
+          <button
+            key={a.key}
+            type="button"
+            className={"k-btn act icon " + a.icon}
+            aria-label={a.aria ?? a.label}
+            title={a.label}
+            onClick={a.onClick}
+          >
+            <Glyph of={{ ui: a.icon }} decorative />
+          </button>
         ) : a.danger ? (
           <button
             key={a.key}
@@ -303,11 +316,13 @@ export function PlanBox({
       {/* The zones in one column, one gap between any two (PAT-102; his §148: bars always had
           nothing between them and what came under). */}
       <div className="k-zones">
-        {v?.before ?? before}
-        {/* zone 3: the voto in full, always, open (his §161; VIS-107 will make it one bar) */}
-        {headEntry.score && headEntry.score.value !== null && (
-          <Criteria data={headEntry.score} planned={!!headEntry.planned} howInRow />
-        )}
+        {/* zones 2 and 3 in one band: the type's bar and the voto in full (his §161, §172) */}
+        <div className="k-stack g2 k-bars">
+          {v?.before ?? before}
+          {headEntry.score && headEntry.score.value !== null && (
+            <Criteria data={headEntry.score} planned={!!headEntry.planned} howInRow />
+          )}
+        </div>
         {/* a thing's own rows above the actions (its kin, PAT-103; his §161) */}
         {between}
         <ActionRow actions={all} />

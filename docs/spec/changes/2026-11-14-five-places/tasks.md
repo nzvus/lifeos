@@ -116,5 +116,5 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 - [ ] Lost since #357: «Copia i pasti di ieri», «Salva come giornata tipo», «+ previsto».
 - [ ] §64 the week strip redesign; inbox W-01…W-04, Q-25.
 
-**Open, his:** none from §166 (B6 «yc» option 1; C1 a tap on the bars; a lone button fills its row,
+**Open, his (§173):** the micronutrients (rec: a fifth «Micro» cell in the macros' row). Earlier: none from §166 (B6 «yc» option 1; C1 a tap on the bars; a lone button fills its row,
 his «3 sì»). Next: «Unisci» as a band; the voto bar following the view (A1); typing the grams.

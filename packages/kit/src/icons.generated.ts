@@ -396,6 +396,7 @@ export const ICONS: IconRegistry = {
     children: ["Figli", "corner-right-down"],
     why: ["Come valutiamo", "question-mark"],
     log: ["Registra", "calendar-plus"],
+    merge: ["Unisci", "arrow-merge"],
   },
   sections: {
     identity: ["Nome e codici", "barcode"],
@@ -417,6 +418,8 @@ export const ICONS: IconRegistry = {
     armchair:
       "M5 11a2 2 0 0 1 2 2v2h10v-2a2 2 0 1 1 4 0v4a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-4a2 2 0 0 1 2 -2zM5 11v-5a3 3 0 0 1 3 -3h8a3 3 0 0 1 3 3v5M6 19v2M18 19v2",
     "arrow-down-to-arc": "M12 3v12M16 11l-4 4l-4 -4M3 12a9 9 0 0 0 18 0",
+    "arrow-merge":
+      "M8 7l4 -4l4 4M12 3v5.394a6.737 6.737 0 0 1 -3 5.606a6.737 6.737 0 0 0 -3 5.606v1.394M12 3v5.394a6.737 6.737 0 0 0 3 5.606a6.737 6.737 0 0 1 3 5.606v1.394",
     "arrows-exchange": "M7 10h14l-4 -4M17 14h-14l4 4",
     "arrows-move-vertical": "M9 18l3 3l3 -3M12 15v6M15 6l-3 -3l-3 3M12 3v6",
     "arrows-sort": "M3 9l4 -4l4 4m-4 -4v14M21 15l-4 4l-4 -4m4 4v-14",

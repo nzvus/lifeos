@@ -214,3 +214,10 @@
   act, door, «+», ⊕ — has the control's corner (`--r-control`), never a pill or a circle; in a row
   that is not full, its buttons grow in proportion to fill it; a full row scrolls sideways (VIS-06).
   Changes VIS-85's «act pills». [his 21 Nov, §166]
+- **PAT-105** (patterns.md §2) **The box as a grid** (his §169, §172): open, a Box is horizontal bands —
+  head (icon | title | value, + the mini voto shut) · bars and voto · parents and children · actions ·
+  the two halves «Nutrienti | Ingredienti» and the band one opens — each line the contour's own,
+  edge to edge; inside, cells split by the same line, no frame of their own, colour only on icons
+  and grounds; everything centred in its cell. The bars and the two halves are one state: a macro
+  picked shows its kinds (bars and «Nutrienti»), none picked the ingredients. Kit: `PlanBox`
+  (`bands`), `IngredientTable`. Changes PAT-102's zone order (kin above the actions, his §161).

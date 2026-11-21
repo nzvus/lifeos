@@ -21,6 +21,7 @@ export {
 } from "./PlanBox";
 export { ChipRow, type ChipItem } from "./ChipRow";
 export { KinRows, type KinChip, type KinWords } from "./KinRows";
+export { IngredientTable, shareBackground, type IngredientRow } from "./IngredientTable";
 export { Verdict } from "./Verdict";
 export { FitLine } from "./FitLine";
 export { fitScale, FIT_FLOOR } from "./fit";

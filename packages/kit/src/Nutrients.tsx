@@ -28,6 +28,9 @@ export function Nutrients({
   onTap,
   inline = false,
   by = "foods",
+  focus,
+  picked,
+  onPick,
 }: {
   data: NutrientsData;
   part?: "all" | "main" | "rest";
@@ -41,6 +44,11 @@ export function Nutrients({
   inline?: boolean;
   /** The bars split by «foods» or by «kinds» of nutrient (VIS-106, his §169–§170). */
   by?: "foods" | "kinds";
+  /** Only this macro's kinds and sources (a box's «Nutrienti» band, his §172). */
+  focus?: string | null;
+  /** Inline: the macro cell picked (its kinds shown below), and a tap on a cell picks it. */
+  picked?: string | null;
+  onPick?: (key: string) => void;
 }) {
   const main = part !== "rest";
   const rest = part !== "main";
@@ -54,7 +62,7 @@ export function Nutrients({
   const means = limits.some((l) => l.strip?.mean);
   return (
     <div className="k-stack g3">
-      {main && kcal && !inline && (
+      {main && kcal && !inline && focus === undefined && (
         <div className="k-stack">
           <span className="k-line base between">
             <span className="k-line base">
@@ -108,14 +116,23 @@ export function Nutrients({
           ))}
         </div>
       )}
+      {focus !== undefined &&
+        (() => {
+          const m = macros.find((x) => x.key === focus);
+          return m ? <MacroKinds m={m} /> : null;
+        })()}
       {main && inline && (
         <div className="k-ninline">
           {macros.map((m) => (
             <button
               key={m.key}
               type="button"
-              className="k-mcell"
-              {...(onTap ? { onClick: onTap } : {})}
+              className={"k-mcell" + (picked === m.key ? " picked" : "")}
+              {...(onPick
+                ? { onClick: () => onPick(m.key), "aria-pressed": picked === m.key }
+                : onTap
+                  ? { onClick: onTap }
+                  : {})}
               aria-label={m.aria}
             >
               <FitLine className="k-line g1">
@@ -128,7 +145,7 @@ export function Nutrients({
           ))}
         </div>
       )}
-      {(main && !inline ? macros : []).map((m) => {
+      {(main && !inline && focus === undefined ? macros : []).map((m) => {
         const isOpen = open === m.key;
         const more = m.kinds.length + m.sources.length + m.extras.length > 0;
         return (
@@ -167,55 +184,7 @@ export function Nutrients({
             {more && (
               <div className={"k-reveal" + (isOpen ? " on" : "")}>
                 <div>
-                  <div className="k-kinds">
-                    {m.kinds.map((k) => (
-                      <div key={k.name} className="k-stack g0">
-                        <div className="k-krow">
-                          <span className="k-body">
-                            <span className="k-sw" style={{ background: k.c }} />
-                            {k.name}
-                          </span>
-                          <span className={"k-bar" + (k.strip ? " zoned" : "")}>
-                            <i style={{ width: k.w, background: k.fill }} />
-                            {k.strip && <Fascia strip={k.strip} />}
-                          </span>
-                          <span className="k-num b3 k-right">{k.v}</span>
-                        </div>
-                        {k.from && <span className="k-help k-nfrom">{k.from}</span>}
-                      </div>
-                    ))}
-                    {m.sources.length > 0 && (
-                      <>
-                        <span className="k-cap">da dove</span>
-                        {m.sources.map((s, n) => (
-                          <div
-                            key={s.name + ":" + n}
-                            className="k-src"
-                            style={{ opacity: s.faint ? 0.6 : s.dim ? 0.3 : 1 }}
-                          >
-                            <span className="k-body k-clip">{s.name}</span>
-                            <span className="k-bar">
-                              <i style={{ width: s.w, background: m.color }} />
-                            </span>
-                            <span className="k-num b3 k-right">{s.g}</span>
-                          </div>
-                        ))}
-                      </>
-                    )}
-                    {m.extras.length > 0 && (
-                      <div className="k-chips">
-                        {m.extras.map((x) => (
-                          <span
-                            key={x.t}
-                            className="k-pill"
-                            style={{ color: x.c, borderColor: x.c }}
-                          >
-                            {x.t}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <MacroKinds m={m} />
                 </div>
               </div>
             )}
@@ -389,5 +358,56 @@ function MacroTrack({
       {!full && m.mark && <span className="k-mark" style={{ left: m.mark }} />}
       {!full && m.strip && <Fascia strip={m.strip} />}
     </span>
+  );
+}
+
+/** A macro's kinds, where it came from and its notes — its row open, or the box's «Nutrienti» band. */
+function MacroKinds({ m }: { m: ReturnType<typeof nutrientsL1>["macros"][number] }) {
+  return (
+    <div className="k-kinds">
+      {m.kinds.map((k) => (
+        <div key={k.name} className="k-stack g0">
+          <div className="k-krow">
+            <span className="k-body">
+              <span className="k-sw" style={{ background: k.c }} />
+              {k.name}
+            </span>
+            <span className={"k-bar" + (k.strip ? " zoned" : "")}>
+              <i style={{ width: k.w, background: k.fill }} />
+              {k.strip && <Fascia strip={k.strip} />}
+            </span>
+            <span className="k-num b3 k-right">{k.v}</span>
+          </div>
+          {k.from && <span className="k-help k-nfrom">{k.from}</span>}
+        </div>
+      ))}
+      {m.sources.length > 0 && (
+        <>
+          <span className="k-cap">da dove</span>
+          {m.sources.map((s, n) => (
+            <div
+              key={s.name + ":" + n}
+              className="k-src"
+              style={{ opacity: s.faint ? 0.6 : s.dim ? 0.3 : 1 }}
+            >
+              <span className="k-body k-clip">{s.name}</span>
+              <span className="k-bar">
+                <i style={{ width: s.w, background: m.color }} />
+              </span>
+              <span className="k-num b3 k-right">{s.g}</span>
+            </div>
+          ))}
+        </>
+      )}
+      {m.extras.length > 0 && (
+        <div className="k-chips">
+          {m.extras.map((x) => (
+            <span key={x.t} className="k-pill" style={{ color: x.c, borderColor: x.c }}>
+              {x.t}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

@@ -85,3 +85,30 @@ describe("ingredientGroups (his §169: which foods each parent brings)", () => {
     expect(g.own).toEqual([{ key: "nut", quantity: 20 }]);
   });
 });
+
+describe("ingredientLines (his §172: a food once, its parents' shares and its own)", () => {
+  it("sums a food that comes from two parents and from the pasto itself", async () => {
+    const { ingredientLines } = await import("./MealIngredients");
+    const f = (key: string, quantity: number) => ({
+      key,
+      name: key,
+      brand: null,
+      quantity,
+      unit: "g",
+    });
+    const lines = ingredientLines({
+      parents: [
+        { id: "a", name: "A", k: 1, foods: [f("milk", 200), f("whey", 15)] },
+        { id: "b", name: "B", k: 2, foods: [f("milk", 100)] },
+      ],
+      own: [f("milk", 50), f("nut", 20)],
+    });
+    const milk = lines.find((l) => l.f.key === "milk")!;
+    expect(milk.parents).toEqual([
+      { tone: 0, q: 200 },
+      { tone: 1, q: 100 },
+    ]);
+    expect(milk.own).toBe(50);
+    expect(lines.map((l) => l.f.key)).toEqual(["milk", "whey", "nut"]);
+  });
+});

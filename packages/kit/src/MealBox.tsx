@@ -40,10 +40,13 @@ export function MealBox({
   /** The two halves' words, from the caller (PAT-81). */
   words?: { foods: string; kinds: string };
 }) {
-  // One view for the bars and the last band (his §170): a tap on the bars switches it, the band
-  // follows; a tap on a half shows that view and opens or shuts its band.
-  const [view, setView] = useState<"foods" | "kinds">("foods");
+  // One state for the bars and the last band (his §170, §172): a macro picked in the bars shows
+  // its kinds — in the bars and in «Nutrienti»; none picked, the bars show the ingredients. A tap
+  // on the picked one puts it back; a tap on a half opens or shuts its band.
+  const [picked, setPicked] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const view = picked ? "kinds" : "foods";
+  const first = data.macros[0]?.key ?? null;
   return (
     <PlanBox
       {...place}
@@ -58,7 +61,7 @@ export function MealBox({
           inline
           by={view}
           {...(ingredients
-            ? { onTap: () => setView((v) => (v === "foods" ? "kinds" : "foods")) }
+            ? { picked, onPick: (k: string) => setPicked((p) => (p === k ? null : k)) }
             : {})}
         />
       }
@@ -75,7 +78,7 @@ export function MealBox({
               onPick: (k: string) => {
                 if (k === view) setOpen((o) => !o);
                 else {
-                  setView(k as "foods" | "kinds");
+                  setPicked(k === "kinds" ? first : null);
                   setOpen(true);
                 }
               },
@@ -83,7 +86,7 @@ export function MealBox({
                 view === "foods" ? (
                   ingredients
                 ) : (
-                  <Nutrients data={data} chips={false} by="kinds" />
+                  <Nutrients data={data} part="main" chips={false} focus={picked} />
                 ),
             },
           }
