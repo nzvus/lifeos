@@ -136,7 +136,7 @@ his «3 sì»). Next: «Unisci» as a band; the voto bar following the view (A1)
 - [x] F7 Photos of the search bars: «Aggiungi un ingrediente» and «+ genitore», open and typed.
 - [x] F9 His §180: ingredient search like «+ genitore», gaps, «+» tiles, title B, arrows on kcal
   and Micro, shut voto over the strip split by kinds, parents' tones as legend (§182).
-- [ ] F11 His §184: a picked misura on the whole row — W1 built, W2/W3 shown (§186); his pick.
+- [x] F11 His §184/§187: a picked misura on the whole row, his W2 (§188).
 - [ ] F10 His §181: the voti recap and proposals (selection → voto as a level/filter; names).
 - [ ] F8 Found 21 Nov: a shut row at 320 px crushes icon, title and value (kit `cosa-box-320`,
   the cibo; there before §178). Less in the Elenco now its rows have no icon; fix with D.

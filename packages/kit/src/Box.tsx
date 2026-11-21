@@ -11,6 +11,7 @@
  * client component (never from a server page: a function cannot cross);
  * the same for `acts`, the row's actions (tick, skip) in its trail.
  */
+import { NumUnit } from "./NumUnit";
 import type { CSSProperties, ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
@@ -552,20 +553,7 @@ const SCORE_WORD = { met: "bene", part: "così così", no: "male", none: "" } as
 export const band = (v: number) =>
   v >= MET ? "var(--heat-good)" : v >= PART ? "var(--heat-fair)" : "var(--heat-bad)";
 
-/** A head's value: its number, its unit a size smaller (his §161: «kcal… più piccolo in proporzione»). */
+/** A head's value: its number, its unit a size smaller (his §161). */
 function HeadValue({ v }: { v: string | undefined }) {
-  if (!v) return null;
-  const m = /^(.*\d)\s+([^\d\s][^\d]*)$/u.exec(v);
-  return (
-    <span className="k-num d4">
-      {m ? (
-        <>
-          {m[1]}
-          <span className="k-unit">{"\u00a0" + m[2]}</span>
-        </>
-      ) : (
-        v
-      )}
-    </span>
-  );
+  return v ? <NumUnit v={v} className="d4" /> : null;
 }

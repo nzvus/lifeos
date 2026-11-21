@@ -119,6 +119,6 @@ describe("Nutrients' misure (PAT-105, his §184): a picked one says its name and
     );
     expect(html).toContain('class="k-mcell picked"');
     expect(html).toContain('<span class="k-mname">Proteine</span>');
-    expect(html).toMatch(/\d+ % delle kcal/);
+    expect(html).toMatch(/\d+ % kcal/);
   });
 });

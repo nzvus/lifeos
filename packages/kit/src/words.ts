@@ -13,7 +13,7 @@ export const WORDS = {
   /** A picked cell's name (his §184). */
   energy: "Energia",
   microAll: "Vitamine e minerali",
-  ofKcal: (pct: number) => `${pct} % delle kcal`,
+  ofKcal: (pct: number) => `${pct} % kcal`,
   undo: "Annulla",
   cancel: "Annulla",
   close: "Chiudi",

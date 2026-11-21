@@ -1925,6 +1925,18 @@
     line · **W3** as W1, the other five without bars (icon and number only). Shut: the voto's
     number over its own mini skyline, see-through, the tile's padding 4 px (§185). Asked: W1, W2
     or W3.
+187. **21 Nov, his word on §186 (verbatim):** «ma che hai fatto, fa schifo, ti ho detto di allargare
+    la tile in orizzontale non in verticale e non di cambiarle colore e formato. e di aggiungere le
+    info in larghezza al massimo. e comunque in ogni caso preferiso la versione piu sottile con le
+    cose affiancate. ah adesso capisco, prende il colore della misura, va bene ci sta. quindi w2.
+    comunque vedo un problema di rendering con le calorie. prendono troppo spazio e va a capo. che
+    ti avevo detto a riguardo? per quello che invece mi chiedi, riproponimelo, me lo son perso»
+188. **21 Nov, built on §187 (his W2)** (`review/2026-11-21/f187/`): the picked misura on the whole
+    row, as low as the others: icon, number, arrows, then its share («33 % kcal»), its word and its
+    name side by side, its bar filling the rest; the name last, the first to give way. The other
+    five in one row under it, the kcal a little wider (1.3 shares) so it never wraps; at ≤ 360 px
+    their arrows hide (they show when picked). Every misura's unit a size smaller than its number
+    (his §161, the answer to «che ti avevo detto?»), one `NumUnit` for the head and the misure.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

@@ -6878,25 +6878,55 @@ button.k-mrow:active {
   background: var(--kin-t2);
 }
 
-/* ---------- §184: a misura picked takes the whole row, first; the other five shrink to one row
-   under it; the picked one says more (its name, its word, its share of the kcal) ---------- */
+/* ---------- §184, his W2 (§187): a misura picked takes the whole row, first, as low as the
+   others — icon, number, arrows, its name, word and share side by side, then its bar filling the
+   rest; the other five in one row under it ---------- */
 .k-mmore {
   display: none;
 }
 .k-box.bands .k-ninline.rows:has(> .picked) {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
+/* the kcal among the five: as wide as its number needs, so it never wraps (his §187) */
+.k-box.bands .k-ninline.rows:has(> .picked:not(.kcal)) {
+  grid-template-columns: minmax(0, 1.3fr) repeat(4, minmax(0, 1fr));
+}
 .k-box.bands .k-ninline.rows > .picked {
   grid-column: 1 / -1;
   order: -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 0 var(--cell-x);
+  min-height: var(--cell-h);
+}
+.k-box.bands .k-ninline.rows > .picked > .k-line {
+  flex: 0 0 auto;
 }
 .k-box.bands .k-ninline.rows > .picked > .k-mmore {
   display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 2px;
+  flex: 0 1 auto;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: var(--fs-b3);
 }
 .k-box.bands .k-ninline.rows > .picked > .k-track {
-  height: 12px;
+  flex: 1 1 40px;
+  min-width: 40px;
+  margin-top: 0;
+}
+/* a misura's unit a size smaller than its number (his §161, §187) */
+.k-mcell .k-num .k-unit {
+  font-size: var(--fs-b4);
+  color: var(--muted);
+}
+/* a narrow phone: the five small tiles keep icon, number and bar; their arrows show when picked */
+@media (max-width: 360px) {
+  .k-box.bands .k-ninline.rows:has(> .picked) > :not(.picked) .k-verdict {
+    display: none;
+  }
 }

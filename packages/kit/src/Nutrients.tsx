@@ -7,6 +7,7 @@
  * highlighted in every bar and in «da dove», each kind says where it came from.
  * Pass plain data (server pages may render it).
  */
+import { NumUnit } from "./NumUnit";
 import { useState, type CSSProperties } from "react";
 import { Glyph } from "./Glyph";
 import { Verdict } from "./Verdict";
@@ -147,7 +148,7 @@ export function Nutrients({
             >
               <FitLine className="k-line g1">
                 <Glyph of={{ nutrient: "kcal" }} size="s" />
-                <span className="k-num b3">{energy.short}</span>
+                <NumUnit v={energy.short} className="b3" />
                 <Verdict level={energy.level} />
               </FitLine>
               <More
@@ -179,7 +180,7 @@ export function Nutrients({
             >
               <FitLine className="k-line g1">
                 <Glyph of={{ nutrient: m.key }} size="s" />
-                <span className="k-num b3">{m.short}</span>
+                <NumUnit v={m.short} className="b3" />
                 <Verdict level={m.level} />
               </FitLine>
               <More
@@ -205,7 +206,7 @@ export function Nutrients({
                 {/* a meal's micros are not judged (FD-35): the dash, as every cell has its mark */}
                 <Verdict level={null} />
               </FitLine>
-              <More name={WORDS.microAll} word={micros.summary} />
+              <More name={WORDS.microAll} word={null} />
               <span className="k-track" aria-hidden="true">
                 <span
                   className="k-seg micro"
@@ -631,12 +632,13 @@ function More({
   share?: string | undefined;
 }) {
   return (
+    // the name last: the icon already says it, so it is what gives way when the row is short
     <span className="k-mmore">
-      <span className="k-mname">{name}</span>
-      {word && <span className="k-meta">{word}</span>}
       {share && (
         <span className="k-meta">{WORDS.ofKcal(Math.round(parseFloat(share)))}</span>
       )}
+      {word && <span className="k-meta">{word}</span>}
+      <span className="k-mname">{name}</span>
     </span>
   );
 }
