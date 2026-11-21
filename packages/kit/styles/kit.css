@@ -6849,33 +6849,23 @@ button.k-mrow:active {
 .k-box.bands .k-head > .k-hlead .k-title {
   font-weight: 700;
 }
-.k-box.bands > .k-lvstrip.voto {
+/* shut, the voto's tile: its number laid over its mini skyline, the skyline see-through, a
+   smaller padding (his §185) */
+.k-box.bands .k-top > .k-line > .k-trail {
   position: relative;
-  height: 24px;
-  margin: 0 var(--gap) var(--gap);
-  border-radius: 8px;
+  padding: 0 4px;
 }
-.k-lvstrip.voto > .k-onstrip {
+.k-box.bands .k-trail .k-sky.mini {
+  opacity: 0.45;
+}
+.k-box.bands .k-trail .k-sky.mini + .k-vn {
   position: absolute;
-  inset: 0 0 0 auto;
+  inset: 0;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 0 4px 0 8px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    color-mix(in srgb, var(--sheet) 70%, transparent) 10px
-  );
-}
-.k-lvstrip.voto > .k-onstrip .k-sky.mini {
-  width: 40px;
-  height: 18px;
-  opacity: 0.8;
-}
-.k-lvstrip.voto > .k-onstrip .k-vn {
+  justify-content: center;
   min-width: 0;
-  line-height: 1;
+  text-shadow: 0 0 3px var(--sheet);
 }
 /* each parent's tile in its tone: the legend of the ingredients' grounds (his §180) */
 .k-box.bands .k-kinrow.parents > .k-kin.t0 {
@@ -6886,4 +6876,27 @@ button.k-mrow:active {
 }
 .k-box.bands .k-kinrow.parents > .k-kin.t2 {
   background: var(--kin-t2);
+}
+
+/* ---------- §184: a misura picked takes the whole row, first; the other five shrink to one row
+   under it; the picked one says more (its name, its word, its share of the kcal) ---------- */
+.k-mmore {
+  display: none;
+}
+.k-box.bands .k-ninline.rows:has(> .picked) {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.k-box.bands .k-ninline.rows > .picked {
+  grid-column: 1 / -1;
+  order: -1;
+}
+.k-box.bands .k-ninline.rows > .picked > .k-mmore {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: var(--fs-b3);
+}
+.k-box.bands .k-ninline.rows > .picked > .k-track {
+  height: 12px;
 }

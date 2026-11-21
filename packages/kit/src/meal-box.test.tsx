@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MealBox } from "./MealBox";
+import { Nutrients } from "./Nutrients";
 
 const part = (key: string, name: string, p: number, c: number) => ({
   key,
@@ -89,8 +90,8 @@ describe("MealBox (PAT-102; his §146: the meal's level only, full bars, arrows)
   });
 });
 
-describe("MealBox shut (VIS-40, his §180): the voto over its strip, the head keeps the title", () => {
-  it("the mini voto sits on the strip, not in the head", () => {
+describe("MealBox shut (VIS-43, his §185): the voto's number over its own mini skyline", () => {
+  it("the number follows the skyline in the head's voto tile, the strip carries no voto", () => {
     const score = {
       value: 71,
       parts: [{ name: "x", weight: 1, score: 0.7 }],
@@ -98,8 +99,26 @@ describe("MealBox shut (VIS-40, his §180): the voto over its strip, the head ke
     const html = renderToStaticMarkup(
       <MealBox entry={{ ...entry, score }} data={data} slots={[]} density="row" />,
     );
-    expect(html).toContain("k-lvstrip voto");
-    expect(html.indexOf("k-onstrip")).toBeGreaterThan(html.indexOf("k-lvstrip voto"));
-    expect(html).not.toContain('class="k-trail"');
+    const trail = html.slice(html.indexOf('class="k-trail"'));
+    expect(trail.indexOf("k-sky mini")).toBeLessThan(trail.indexOf('class="k-vn"'));
+    expect(html).not.toContain("k-onstrip");
+  });
+});
+
+describe("Nutrients' misure (PAT-105, his §184): a picked one says its name and share", () => {
+  it("each misura carries its name, word and share of the kcal, shown when picked", () => {
+    const html = renderToStaticMarkup(
+      <Nutrients
+        data={data}
+        part="main"
+        chips={false}
+        inline
+        picked="protein"
+        onPick={() => {}}
+      />,
+    );
+    expect(html).toContain('class="k-mcell picked"');
+    expect(html).toContain('<span class="k-mname">Proteine</span>');
+    expect(html).toMatch(/\d+ % delle kcal/);
   });
 });

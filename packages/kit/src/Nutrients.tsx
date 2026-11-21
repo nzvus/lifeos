@@ -11,7 +11,14 @@ import { useState, type CSSProperties } from "react";
 import { Glyph } from "./Glyph";
 import { Verdict } from "./Verdict";
 import { FitLine } from "./FitLine";
-import { energyL1, nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
+import {
+  energyL1,
+  HEAT_WORDS,
+  NAME,
+  nutrientsL0,
+  nutrientsL1,
+  type NutrientsData,
+} from "./nutrient-rows";
 import { Condensed } from "./Condensed";
 import { Fascia } from "./Fascia";
 import { WORDS } from "./words";
@@ -143,6 +150,10 @@ export function Nutrients({
                 <span className="k-num b3">{energy.short}</span>
                 <Verdict level={energy.level} />
               </FitLine>
+              <More
+                name={WORDS.energy}
+                word={energy.level ? HEAT_WORDS[energy.level] : null}
+              />
               <span className="k-track" aria-hidden="true">
                 {energy.segs.map((x, i) => (
                   <span
@@ -171,6 +182,11 @@ export function Nutrients({
                 <span className="k-num b3">{m.short}</span>
                 <Verdict level={m.level} />
               </FitLine>
+              <More
+                name={NAME[m.key]}
+                word={m.level ? HEAT_WORDS[m.level] : null}
+                share={energy?.byMacro.find((x) => x.key === m.key)?.w}
+              />
               <MacroTrack m={m} full />
             </button>
           ))}
@@ -189,6 +205,7 @@ export function Nutrients({
                 {/* a meal's micros are not judged (FD-35): the dash, as every cell has its mark */}
                 <Verdict level={null} />
               </FitLine>
+              <More name={WORDS.microAll} word={micros.summary} />
               <span className="k-track" aria-hidden="true">
                 <span
                   className="k-seg micro"
@@ -597,5 +614,29 @@ function EnergyColumns({ e }: { e: NonNullable<ReturnType<typeof energyL1>> }) {
       <SideColumns side={WORDS.byMacro} rows={e.byMacro} />
       <SideColumns side={WORDS.fromWhere} rows={e.byFood} />
     </div>
+  );
+}
+
+/**
+ * What a picked cell adds once it takes the whole row (his §184): its name, its verdict's word,
+ * its share of the kcal. Hidden in a cell that is not picked (CSS).
+ */
+function More({
+  name,
+  word,
+  share,
+}: {
+  name: string;
+  word: string | null;
+  share?: string | undefined;
+}) {
+  return (
+    <span className="k-mmore">
+      <span className="k-mname">{name}</span>
+      {word && <span className="k-meta">{word}</span>}
+      {share && (
+        <span className="k-meta">{WORDS.ofKcal(Math.round(parseFloat(share)))}</span>
+      )}
+    </span>
   );
 }

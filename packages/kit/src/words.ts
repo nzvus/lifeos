@@ -10,6 +10,10 @@ export const WORDS = {
   fromWhere: "da dove",
   /** The kcal's band: its side label for the share of each macro (his §178). */
   byMacro: "macro",
+  /** A picked cell's name (his §184). */
+  energy: "Energia",
+  microAll: "Vitamine e minerali",
+  ofKcal: (pct: number) => `${pct} % delle kcal`,
   undo: "Annulla",
   cancel: "Annulla",
   close: "Chiudi",

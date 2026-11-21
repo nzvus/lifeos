@@ -234,9 +234,7 @@ export function Box({
         {actButtons}
       </div>
     ) : null;
-  // The shut row's voto: the mini skyline and its number. In bands it sits over the strip, see
-  // through, so the head keeps its room for the title (his §180).
-  const onStrip = bands && shut && !!e.strip && e.strip.length > 0;
+  // The shut row's voto: the mini skyline and its number over it, see-through (his §185).
   const miniVoto = (
     <>
       {dense && !expanded && e.score && e.score.parts.length > 0 && (
@@ -399,9 +397,9 @@ export function Box({
                   </span>
                 </span>
               )}
-              {(headActs.length > 0 || (dense && e.score && !expanded && !onStrip)) && (
+              {(headActs.length > 0 || (dense && e.score && !expanded)) && (
                 <span className="k-trail">
-                  {!onStrip && miniVoto}
+                  {miniVoto}
                   {headActs.map((a) => (
                     <button
                       key={a.label}
@@ -421,11 +419,10 @@ export function Box({
           {expanded && !votoElsewhere && parts && <div className="k-voto">{parts}</div>}
           {shut && e.strip && e.strip.length > 0 && (
             // Closed: one line and its strip (for a meal, where its energy comes from).
-            <div className={"k-ribbon k-lvstrip" + (onStrip ? " voto" : "")}>
+            <div className="k-ribbon k-lvstrip">
               {e.strip.map((g, i) => (
                 <span key={i} style={{ width: g.w + "%", background: g.c }} />
               ))}
-              {onStrip && e.score && <span className="k-onstrip">{miniVoto}</span>}
             </div>
           )}
           {shut && e.pills?.some((p) => p.href) && (

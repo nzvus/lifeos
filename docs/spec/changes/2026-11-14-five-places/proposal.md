@@ -1908,6 +1908,23 @@
     **F3** a criterion picked lights its misure and ingredients (rec F1 + F3 now, F2 with MOD-61 by
     nutrient). Limits: a «limiti» side section in the Micro band (sale, zuccheri liberi, saturi,
     trans; rec).
+184. **21 Nov, his word (verbatim):** «altra idea: magari quando tocchiamo una di quelle misure, la
+    tile si allarga a tutta la riga e le altre si stringono sotto, di modo che vediamo tutto meglio.
+    e magari a questo punto non so se sviluppare anche in lunghezza la metà superiore aggiungendo
+    altre informazioni o non so (proponimi un po di cose). altrimenti li mettiamo solo a sinistra
+    della barra senza togliere troppo spazio e schiacciamo la tile»
+185. **21 Nov, his word on §182 (verbatim):** «comunque la cosa del voto in minimizzazione non l'hai
+    capita: intendevo che la cifra doveva andare in trasparenza sulle minibarre del voto, non che
+    tutto dovesse andare sulla barra delle misure». Claude misread §180: the shut voto goes back to
+    its tile in the head; its number is laid over its own mini skyline, see-through, and the tile's
+    padding is smaller. The strip keeps its kinds' split, thin again.
+186. **21 Nov, built on §184–§185** (`review/2026-11-21/f184/`): a misura picked takes the whole row,
+    first; the other five in one row under it; the picked one adds its name, its verdict's word and
+    its share of the kcal (W1, built; undo the §184 CSS block). Options shown on the real box by
+    injected CSS, nothing else built: **W2** flat — icon, number and arrows left of a long bar, one
+    line · **W3** as W1, the other five without bars (icon and number only). Shut: the voto's
+    number over its own mini skyline, see-through, the tile's padding 4 px (§185). Asked: W1, W2
+    or W3.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
