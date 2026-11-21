@@ -61,11 +61,30 @@ describe("MealBox (PAT-102; his §146: the meal's level only, full bars, arrows)
     expect(html).toContain('class="k-verdict none"');
   });
 
-  it("its page is the last icon of the actions row, no column of its own (his §145)", () => {
+  it("no way to its page from the box: no arrow, everything is in it (his §130, §178)", () => {
     const html = renderToStaticMarkup(
       <MealBox entry={{ ...entry, href: "/voce/1" }} data={data} slots={[]} startOpen />,
     );
-    expect(html.slice(html.indexOf('aria-label="Azioni"'))).toContain('href="/voce/1"');
+    expect(html).not.toContain('href="/voce/1"');
     expect(html).not.toContain('class="k-go"');
+  });
+
+  it("with its two halves, the kcal is a cell first, then the macros, in rows of three (§178)", () => {
+    const html = renderToStaticMarkup(
+      <MealBox entry={entry} data={data} slots={[]} startOpen ingredients={<i />} />,
+    );
+    expect(html).toContain('class="k-ninline rows"');
+    const cells = html.match(/class="k-mcell[^"]*"/g) ?? [];
+    expect(cells[0]).toBe('class="k-mcell kcal"');
+  });
+
+  it("no icon in the head of a list of one type (his §178, VIS-30)", () => {
+    const html = renderToStaticMarkup(
+      <MealBox entry={entry} data={data} slots={[]} lead={false} />,
+    );
+    expect(html).not.toContain('class="k-lead"');
+    expect(
+      renderToStaticMarkup(<MealBox entry={entry} data={data} slots={[]} />),
+    ).toContain('class="k-lead"');
   });
 });

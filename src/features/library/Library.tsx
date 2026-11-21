@@ -394,6 +394,8 @@ function List({
               <MealBox
                 key={r.key}
                 density="row"
+                // a list of one type: no icon in the head (his §178, VIS-30)
+                lead={false}
                 // No foods as a sentence under its name: the bar shows them (his §157, VIS-106).
                 entry={row(tab, r, value(r), false)}
                 data={r.meal.data}

@@ -58,6 +58,7 @@ export function FoodPlanBox({
   return (
     <PlanBox
       density="row"
+      lead={false}
       entry={{ ...entry, value: value(r.values) }}
       actions={actions}
       slots={foodSlots(r.food)}
@@ -89,6 +90,7 @@ export function ExercisePlanBox({
   return (
     <PlanBox
       density="row"
+      lead={false}
       entry={entry}
       actions={actions}
       slots={planSlots("exercise", {

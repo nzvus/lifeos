@@ -8,6 +8,8 @@ export const WORDS = {
   micro: "Micro",
   /** «Nutrienti» band: the side labels (his §174). */
   fromWhere: "da dove",
+  /** The kcal's band: its side label for the share of each macro (his §178). */
+  byMacro: "macro",
   undo: "Annulla",
   cancel: "Annulla",
   close: "Chiudi",

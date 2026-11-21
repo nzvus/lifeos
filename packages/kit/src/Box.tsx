@@ -88,6 +88,7 @@ export function Box({
   onDoor,
   votoElsewhere = false,
   bands = false,
+  lead = true,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -113,6 +114,11 @@ export function Box({
   votoElsewhere?: boolean;
   /** Drawn in bands (his §169): each zone a full-width band, a hairline between, no inner frames. */
   bands?: boolean;
+  /**
+   * Its icon in the head: only where it tells things apart (a day's timeline, a mixed list); in a
+   * list of one type it says nothing and goes (his §178, VIS-30).
+   */
+  lead?: boolean;
 }) {
   const levels = doors !== undefined;
   const shut = levels && !expanded;
@@ -296,16 +302,18 @@ export function Box({
             {/* The icon sits on the first line, shut and open: it never moves when the box
                 opens (his 19 Nov, replacing his 16 Nov centring; VIS-40). The head reaches
                 under it, so a tap on the icon opens too. */}
-            <span className="k-lead" aria-hidden="true">
-              {badge ? (
-                // The tile says «this row is a link» (UI-81): a row that opens in place has none.
-                <Glyph of={of} size="m" tile={cover} />
-              ) : (
-                <span className="k-glyph-lead">
-                  <Glyph of={of} size="s" />
-                </span>
-              )}
-            </span>
+            {lead && (
+              <span className="k-lead" aria-hidden="true">
+                {badge ? (
+                  // The tile says «this row is a link» (UI-81): a row that opens in place has none.
+                  <Glyph of={of} size="m" tile={cover} />
+                ) : (
+                  <span className="k-glyph-lead">
+                    <Glyph of={of} size="s" />
+                  </span>
+                )}
+              </span>
+            )}
             <div className="k-line g1">
               {onToggle ? (
                 <button

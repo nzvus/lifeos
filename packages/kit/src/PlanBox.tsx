@@ -263,7 +263,9 @@ export function PlanBox({
     const d = slotDoor(s);
     return d ? [d] : [];
   });
-  // Its page: the last, small icon of its actions row, never a column of its own (his §145).
+  // No way to its page from the box: everything is in it (his §130, §178: «perché c'è ancora la
+  // freccia?»); PAT-101's page icon is gone.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { href, hrefLabel, ...rest } = { ...entry, ...(v?.head ?? {}) };
   const headEntry = rest;
   const all: PlanAction[] = [
@@ -296,16 +298,6 @@ export function PlanBox({
             label: WORDS.scoreHow.replace(/\s*›$/, ""),
             href: headEntry.score.how,
             icon: "why" as const,
-          },
-        ]
-      : []),
-    ...(href
-      ? [
-          {
-            key: "page",
-            label: hrefLabel ?? "Apri " + entry.title,
-            href,
-            icon: "link" as const,
           },
         ]
       : []),

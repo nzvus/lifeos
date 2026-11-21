@@ -8,7 +8,7 @@
  */
 import { useState, type ReactNode } from "react";
 import type { BoxEntry } from "./Box";
-import { MICRO, Nutrients } from "./Nutrients";
+import { KCAL, MICRO, Nutrients } from "./Nutrients";
 import { energyStrip, type NutrientsData } from "./nutrient-rows";
 import { PlanBox, type PlanAction, type PlanSlot } from "./PlanBox";
 import type { ThingBoxPlace } from "./ThingBox";
@@ -45,9 +45,10 @@ export function MealBox({
   // on the picked one puts it back; a tap on a half opens or shuts its band.
   const [picked, setPicked] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  // «Micro» picked keeps the bars by ingredient; a macro picked shows its kinds (§174)
-  const view = picked && picked !== MICRO ? "kinds" : "foods";
-  const first = data.macros[0]?.key ?? null;
+  // «Micro» or the kcal picked keep the bars by ingredient; a macro picked shows its kinds (§174)
+  const view = picked && picked !== MICRO && picked !== KCAL ? "kinds" : "foods";
+  // «Nutrienti» opened with nothing picked starts from the first cell, the kcal (§178)
+  const first = KCAL;
   return (
     <PlanBox
       {...place}
@@ -84,8 +85,8 @@ export function MealBox({
                 }
               },
               panel:
-                picked === MICRO ? (
-                  <Nutrients key={MICRO} data={data} chips={false} focus={MICRO} />
+                picked === MICRO || picked === KCAL ? (
+                  <Nutrients key={picked} data={data} chips={false} focus={picked} />
                 ) : picked ? (
                   <Nutrients
                     key={picked}

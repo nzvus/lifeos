@@ -1853,6 +1853,18 @@
     tiles' rule, a fault of the §177 slice; the «›» is the page's link, kept by PAT-101 though his
     §130 said it goes once everything is in the box; the Ingredienti search is not capped (the kin
     search is, 220 px; the open band 320 px). Next chat, from his words: tasks.md «F».
+179. **21 Nov, built on §178** (`review/2026-11-21/f178/`, «yc» of the next chat): the two halves
+    and the actions are tiles (the old «lines» rule that beat them is deleted: F1); no «›» in the
+    box (F2); the Ingredienti search capped like the kin's, 220 px, the field on top, the results
+    scroll inside, and both searches drawn as tiles (F3, F7); the **kcal a sixth tile**, first,
+    the six in two rows of three; open, the head is only the title. **The kcal's tap**, decided by
+    Claude under «yc» (his «come?»): it picks the energy like a macro — the bars stay by
+    ingredient, «Nutrienti» shows where the kcal come from, a side «macro» (each macro's kcal) and
+    «da dove» (each ingredient's kcal); «Nutrienti» opened with nothing picked starts from it.
+    Undo: `KCAL` in `MealBox`/`Nutrients`. The icon gone from the Elenco's one-type lists, kept in
+    the day (F5, VIS-30 in delta). **Asked:** the title — A bigger and left, no tile · B its tile
+    darker · C in the family's colour with a bar on its left (`7-title-*.png`); kcal's tap as
+    built, or another.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

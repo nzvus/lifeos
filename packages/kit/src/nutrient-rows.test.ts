@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  energyL1,
   energyStrip,
   kcalRamp,
   nutrientsL1 as rows,
@@ -424,5 +425,32 @@ describe("a micro is a macro's row (VIS-50, VIS-52; his 19 Nov «gli stessi crit
     // the tick at the target on a scale of max(80 × 1,05, 110 × 1,5) = 165
     expect(c.mark).toBe("66.7%");
     expect(c.strip!.ticks.length).toBeGreaterThan(0);
+  });
+});
+
+describe("energyL1 — the kcal as a cell among the macros (PAT-105, his §178)", () => {
+  it("each macro's kcal and each ingredient's, the largest first", () => {
+    const e = energyL1({
+      kcal: { v: 210 },
+      macros: [
+        { key: "protein", v: 10 },
+        { key: "fat", v: 10 },
+        { key: "carbs", v: 20 },
+      ],
+      foods: [
+        { key: "a", name: "A", amount: "50 g", kcal: 60, macros: {} },
+        { key: "b", name: "B", amount: "50 g", kcal: 150, macros: {} },
+      ],
+    })!;
+    expect(e.byMacro.map((m) => [m.key, m.v])).toEqual([
+      ["protein", "40 kcal"],
+      ["fat", "90 kcal"],
+      ["carbs", "80 kcal"],
+    ]);
+    expect(e.byFood.map((f) => f.name)).toEqual(["B", "A"]);
+    expect(e.segs).toHaveLength(2);
+  });
+  it("nothing with energy: no cell", () => {
+    expect(energyL1({ macros: [] })).toBeNull();
   });
 });

@@ -219,6 +219,14 @@
   the two halves «Nutrienti | Ingredienti» and the band one opens — each line the contour's own,
   edge to edge; inside, cells as rounded tiles on a faint ground of the box's colour, one small
   gap, no lines (his pick C, §176); colour only on icons and grounds; everything centred in its
-  cell; the macros and «Micro» as five tiles, text above and parts below. The bars and the two halves are one state: a macro
+  cell; the kcal, the macros and «Micro» as six tiles in rows of three (kcal · proteine · carbo /
+  grassi · fibre · micro; his §178), text above and parts below; the kcal picked shows where they
+  come from, by macro and by ingredient; open, the head keeps only the title when the kcal has its
+  tile. Every row of cells, the two halves and the actions too, is tiles; whatever appears in the
+  box (a band, a search) is capped and scrolls inside (220 px a search, 320 a band). No «›» to the
+  thing's page: everything is in the box (his §130, §178; changes PAT-101). The bars and the two halves are one state: a macro
   picked shows its kinds (bars and «Nutrienti»), none picked the ingredients. Kit: `PlanBox`
   (`bands`), `IngredientTable`. Changes PAT-102's zone order (kin above the actions, his §161).
+- **VIS-30** (visual.md) adds: a Box's head shows its icon only where it tells things apart (a day's
+  timeline, a mixed list); in a list of one type (Elenco · Cibi, Pasti salvati, esercizi) it has
+  none (his §178; `Box lead`). Undo: drop `lead={false}` in `features/library`.

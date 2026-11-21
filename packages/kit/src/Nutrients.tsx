@@ -11,7 +11,7 @@ import { useState, type CSSProperties } from "react";
 import { Glyph } from "./Glyph";
 import { Verdict } from "./Verdict";
 import { FitLine } from "./FitLine";
-import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
+import { energyL1, nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
 import { Condensed } from "./Condensed";
 import { Fascia } from "./Fascia";
 import { WORDS } from "./words";
@@ -63,6 +63,7 @@ export function Nutrients({
     by,
   );
   const means = limits.some((l) => l.strip?.mean);
+  const energy = inline || focus === KCAL ? energyL1(data, by) : null;
   return (
     <div className="k-stack g3">
       {main && kcal && !inline && focus === undefined && (
@@ -122,11 +123,36 @@ export function Nutrients({
       {focus !== undefined &&
         (() => {
           if (focus === MICRO) return micros ? <MicroColumns micros={micros} /> : null;
+          if (focus === KCAL) return energy ? <EnergyColumns e={energy} /> : null;
           const m = macros.find((x) => x.key === focus);
           return m ? <MacroColumns m={m} /> : null;
         })()}
       {main && inline && (
-        <div className="k-ninline">
+        <div className={"k-ninline" + (onPick ? " rows" : "")}>
+          {/* the kcal first, a cell like the macros' (his §178): picked, where they come from */}
+          {onPick && energy && (
+            <button
+              type="button"
+              className={"k-mcell kcal" + (picked === KCAL ? " picked" : "")}
+              aria-pressed={picked === KCAL}
+              aria-label={energy.aria}
+              onClick={() => onPick(KCAL)}
+            >
+              <FitLine className="k-line g1">
+                <Glyph of={{ nutrient: "kcal" }} size="s" />
+                <span className="k-num b3">{energy.short}</span>
+              </FitLine>
+              <span className="k-track" aria-hidden="true">
+                {energy.segs.map((x, i) => (
+                  <span
+                    key={i}
+                    className="k-seg"
+                    style={{ width: x.w, background: x.bg }}
+                  />
+                ))}
+              </span>
+            </button>
+          )}
           {macros.map((m) => (
             <button
               key={m.key}
@@ -386,6 +412,8 @@ function MacroTrack({
   );
 }
 
+/** The key of the kcal's cell among the macros' (his §178). */
+export const KCAL = "kcal";
 /** The key of the vitamins-and-minerals cell among the macros' (his §174). */
 export const MICRO = "micro";
 /** «6 su 11 coperti» → «6/11»; the share covered as a width. */
@@ -555,6 +583,16 @@ function MicroColumns({
           }))}
         />
       ))}
+    </div>
+  );
+}
+
+/** The kcal picked (his §178): where they come from, by macro and by ingredient, in kcal. */
+function EnergyColumns({ e }: { e: NonNullable<ReturnType<typeof energyL1>> }) {
+  return (
+    <div className="k-stack k-kcolumns">
+      <SideColumns side={WORDS.byMacro} rows={e.byMacro} />
+      <SideColumns side={WORDS.fromWhere} rows={e.byFood} />
     </div>
   );
 }

@@ -6004,7 +6004,22 @@ button.k-mrow:active {
   border-radius: var(--r-control);
   font-size: var(--ctl-fs);
 }
-/* «+ genitore»'s search: a small fixed window, its results scrolling inside (his §163) */
+/* «+ genitore»'s and «Aggiungi un ingrediente»'s search: a small fixed window, its results
+   scrolling inside, the field on top (his §163, §178: «le cose a comparsa… cappate») */
+.k-ingfind {
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+.k-ingfind::-webkit-scrollbar {
+  display: none;
+}
+.k-ingfind .k-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
 .k-kinfind {
   max-height: 220px;
   overflow-y: auto;
@@ -6157,18 +6172,11 @@ button.k-mrow:active {
   flex: 1 0 auto;
   justify-content: center;
   align-items: center;
-  min-height: 44px;
   height: auto;
   margin: 0;
   padding: 0 var(--cell-x);
   border: 0;
-  border-radius: 0;
-  background: transparent;
   animation: none;
-}
-.k-box.bands .k-zones > :is(.k-actrow, .k-xor) > * + *,
-.k-box.bands .k-kinrow > * + * {
-  border-left: 1.2px solid var(--line);
 }
 .k-box.bands .k-actrow .k-btn.act.danger {
   color: var(--tomato);
@@ -6210,11 +6218,13 @@ button.k-mrow:active {
 }
 .k-box.bands .k-xor > .k-xorhalf.now {
   color: var(--ink);
-  background: repeating-linear-gradient(
-    -45deg,
-    color-mix(in oklab, var(--ink) 14%, transparent) 0 2px,
-    transparent 2px 7px
-  );
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in oklab, var(--ink) 14%, transparent) 0 2px,
+      transparent 2px 7px
+    ),
+    var(--tile);
 }
 .k-box.bands .k-xor > .k-xorhalf.on {
   color: var(--paper);
@@ -6382,7 +6392,6 @@ button.k-mrow:active {
 .k-box.bands .k-kinrow > *,
 .k-box.bands .k-zones > .k-hrow:not(.k-actrow) > *,
 .k-box.bands .k-doorbar .k-doors > * {
-  min-height: 40px;
   text-align: center;
 }
 .k-box.bands .k-kinrow > .k-kinadd.wide {
@@ -6790,4 +6799,47 @@ button.k-mrow:active {
   white-space: nowrap;
   font-size: var(--fs-b4);
   padding: 0 4px;
+}
+
+/* ---------- §178: the macros in rows of three with the kcal (kcal · P · C / G · F · Micro);
+   the head keeps only the title when open; every row of cells one height ---------- */
+.k-box.bands .k-ninline.rows {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.k-box.bands :is(.k-actrow, .k-xor, .k-kinrow) > *,
+.k-box.bands .k-actrow .k-btn.act {
+  min-height: var(--cell-h);
+  border-radius: 8px;
+}
+/* only when the kcal is a cell of its own: else the head's number is its only place */
+.k-box.bands.is-open:has(.k-mcell.kcal) .k-head > .k-hright,
+.k-box.bands.is-open:has(.k-mcell.kcal) .k-top > .k-line > .k-trail {
+  display: none;
+}
+/* the two searches that appear in the box (his §178 «fammi vedere anche le barre di ricerca»):
+   tiles like the rest — the field a tile kept on top (an opaque ground, the rows pass under it),
+   each result a low tile, one gap */
+.k-box.bands :is(.k-kinfind, .k-ingfind) :is(.k-find, .k-stack) {
+  gap: var(--gap);
+}
+.k-box.bands .k-ingfind {
+  gap: var(--gap);
+}
+.k-box.bands :is(.k-kinfind, .k-ingfind) .k-search {
+  height: var(--cell-h);
+  padding: 0 var(--cell-x);
+  border: 0;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--fam) 16%, var(--sheet));
+}
+.k-box.bands :is(.k-kinfind, .k-ingfind) .k-findrow {
+  align-items: center;
+  min-height: var(--cell-h);
+  padding: 4px var(--cell-x);
+  border: 0;
+  border-radius: 8px;
+  background: var(--tile);
+  text-align: center;
+  font-size: var(--fs-b2);
 }

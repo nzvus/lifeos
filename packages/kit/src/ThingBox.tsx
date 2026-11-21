@@ -20,6 +20,8 @@ export type ThingBoxPlace = {
   acts?: BoxAct[];
   /** Open, the place's verbs on the doors' sideways row («Registra», «Cambia i cibi»). */
   verbs?: ReactNode;
+  /** false: no icon in the head — a list of one type (his §178, VIS-30). */
+  lead?: boolean;
 };
 
 export function ThingBox({
@@ -35,6 +37,7 @@ export function ThingBox({
   verbs,
   votoElsewhere = false,
   bands = false,
+  lead = true,
 }: ThingBoxPlace & {
   /** Drawn in bands (his §169). */
   bands?: boolean;
@@ -65,6 +68,7 @@ export function ThingBox({
       onDoor={(k: string) => setDoor((d) => (d === k ? null : k))}
       votoElsewhere={votoElsewhere}
       bands={bands}
+      lead={lead}
     >
       {children}
     </Box>
