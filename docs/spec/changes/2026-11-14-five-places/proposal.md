@@ -1572,6 +1572,36 @@
     the object's life (PAT-101). An edit on the day changes only that voce (ADR-0007), in the
     Elenco the object; «↺» says when they differ (PAT-31). Proposed start: the meal, both places at
     once (open question: the dish name in a voce as the door to its pasto salvato).
+157. **21 Nov, his design for the Elenco's pasto (verbatim):** «ok, e nell'elenco invece se clicco il
+    nome mi permette di modificarlo? o come? lo stesso per un'eventuale descrizione? il testo sotto i
+    pasti cos'è tra l'altro? spero non ripeta gli ingredienti che dovrei vedere comunque in modo
+    diverso e che non sia una reminescenza passata. in elenco devono poter essere gestite molte
+    cose, ti ricordo. magari mentre gli alimenti hanno le marche, qui c'è una righa a scorrimento per
+    l'ereditarieta? mostrando pasto genitore e pasti figli? però come si modifica? facciamo se tengo
+    premuto il contorno inizia a chiudersi in rosso e si rimuove. se non c'è un parente c'è sempre un
+    + con l'icona del genitore e il suo colore e pattern grafico del bottone o quel che è, che se
+    cliccato si esttende a barra di ricerca e sotto fa comparire una piccola tendina scorrimento per
+    i risultati di ricerca, ma non popup, o magari si, vediamo. quando clicco per un genitore, i suoi
+    ingredienti si aggiungono a quelli gia esistenti e si crea anche il legme. volendo possiamo
+    permettere di avere piu genitori. quando invece, sulla stessa riga, scorro e tocco il + del
+    figlio, si fa lo stesso ma per il figlio e ti fa scorrere in basso o in alto nell'elenco dove
+    compare il nuovo oggetto preimpostato con tutti i valori del padre, una sua copia, con nome
+    preimpostato diverso secondo gli standard delle copie. ora che ci penso non ha senso eliminare
+    genitori o figli. queste parentele devono essere fatte in automatico, rilevate, e fatte
+    visualizzare dinamicamente, se la combinazione di ingredienti esatta esiste gia in elenco,
+    combinazione anche degli ingredienti, in stesse proporzioni: ecco ineffetti è meglio che venga
+    indicato anche il multiplier affianco, anzi prima (per priorità) del nome del genitore. se
+    modifichi un pasto, tutti i suoi figli ereditano quel cambiamento. ah ecco, devi poter anche
+    modificare facilmente il multiplier di ogni genitore. forse è meglio mettere genitori e figli su
+    due righe diverse con intestazione le loro rispettive icone di righa e i loro colori di riga. il
+    nome dei parenti deve essere costretto ad un massimo, di modo che non sia lunghissimo, se il nome
+    del pasto è lunghissimo. dovremmo metter un cap al nome di ingredienti e pasti. per altre cose
+    riguardo i cambiamenti generali degli ingredienti, o le barre, i filtri, o quel che sono, te ne
+    ho gia parlato tanto nelle conversazioni precedenti» Claude's reading: a kinship model for
+    pasti (a parent = another pasto inside it × a multiplier; several parents; changes flow to the
+    children; links found automatically) — it changes MOD-20/MOD-21, PAT-17 and ADR-0060, so it is
+    his to settle (rule 1); the storage options are in Claude's answer. The name cap: a number to
+    measure on his names first.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
