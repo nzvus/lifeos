@@ -195,3 +195,18 @@
   position: the water drunk with +250 and +500, then what he pinned, in his order, then the
   app's guesses up to four chips, sideways. WHEN he taps «Modifica» THEN a sheet lists the pins («Su»,
   «Togli») and the other «assunzioni» («Fissa»); each tap saves. Pins live in his settings. Kit: ✗.
+- **MOD-23** (model.md §3) **Kinship of pasti** (his §157, «yc» §158; ADR-0065): a pasto's parent
+  is one of its lines — another pasto × a multiplier — and a pasto may have several. Every reader
+  of a pasto's foods expands parent lines (× k, depth ≤ 3, never a loop), so a change to a parent
+  reaches every child. WHEN every food of P is in C at P's quantity × one common k (±2 %, same
+  unit) THEN P is a parent of C with k; only the largest such P are kept; a found link is stored
+  once as a parent line, the foods unchanged and logged. Kinship is never deleted by hand. A voce
+  already logged never changes (ADR-0007). [his 21 Nov, §157]
+- **PAT-103** (patterns.md §2) **Kinship rows** (§157): open, a pasto's Box draws «Genitori» and
+  «Figli» as two sideways rows (VIS-06), each headed by its row icon and colour; a parent reads
+  «× k · name», k stepped in place (PAT-13); a kin chip's name is cut by its width; a «+» ends
+  each row and opens a search in place. «+ figlio» makes a copy of this pasto, named by the copy
+  rule, and scrolls the Elenco to it. Kit: ✗.
+- **PAT-104** (patterns.md §3) **A voce's name is the door to its object** (his «yc», §156, §158):
+  open, the line naming the catalog object a voce came from («Gnocchi alla sorrentina») links to
+  that object's Box in the Elenco; a voce from no object has no such line. Kit: ✗.

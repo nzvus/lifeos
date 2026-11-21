@@ -105,3 +105,108 @@ export function partsDiff(base: readonly Part[], wanted: readonly Part[]): Part[
       });
   return out;
 }
+
+/** How deep parent lines expand (ADR-0065, the same bound as variants). */
+export const MAX_KIN_DEPTH = 3;
+
+const productOf = (p: Part) => {
+  const x = p.defaults["preferredProduct"];
+  return typeof x === "string" ? x : null;
+};
+const lineKey = (p: Part) =>
+  p.partItemId + "|" + (p.unit ?? "g") + "|" + (productOf(p) ?? "");
+
+/**
+ * A pasto's foods with its parent lines expanded (MOD-23, ADR-0065): a line whose item is another
+ * pasto counts as that pasto's foods × the line's quantity, at any depth up to three; a line in a
+ * loop or deeper is left out. Equal foods (same unit and product) are summed, in first-seen order.
+ * `partsOf` gives a pasto's own parts, null for an item that is not a pasto. Pure.
+ */
+export function expandParts(
+  id: string,
+  partsOf: (id: string) => readonly Part[] | null,
+): Part[] {
+  const out = new Map<string, Part>();
+  const walk = (at: string, k: number, seen: ReadonlySet<string>) => {
+    for (const p of partsOf(at) ?? []) {
+      const q = Number(p.quantity ?? 1) * k;
+      if (partsOf(p.partItemId) !== null) {
+        if (!seen.has(p.partItemId) && seen.size < MAX_KIN_DEPTH + 1)
+          walk(p.partItemId, q, new Set([...seen, p.partItemId]));
+        continue;
+      }
+      const key = lineKey(p);
+      const had = out.get(key);
+      // The stored text stays when nothing was multiplied or summed.
+      const quantity =
+        p.quantity === null || (k === 1 && !had)
+          ? p.quantity
+          : String(+(q + Number(had?.quantity ?? 0)).toFixed(3));
+      out.set(key, { ...p, quantity });
+    }
+  };
+  walk(id, 1, new Set([id]));
+  return [...out.values()];
+}
+
+export type Kin = { id: string; k: number; stored: boolean };
+
+/**
+ * Each pasto's parents (MOD-23): the ones stored as its lines, and the ones found — P is a parent
+ * of C when every food of P (at least two) is in C's expanded foods, same unit and product, at
+ * P's quantity × one common k (within 2 %). Two pasti with the same foods are kin only when k ≠ 1
+ * (the smaller is the parent); equal ones are twins, not kin. Of the found ones only the largest
+ * are kept and never two sharing a food, so a parent of a parent is not a parent too. Pure.
+ */
+export function kinship(
+  pasti: readonly { id: string; own: readonly Part[]; foods: readonly Part[] }[],
+): Map<string, Kin[]> {
+  const ids = new Set(pasti.map((x) => x.id));
+  const ratio = (parent: readonly Part[], child: readonly Part[]): number | null => {
+    if (parent.length < 2) return null;
+    let k: number | null = null;
+    for (const p of parent) {
+      const c = child.find((x) => lineKey(x) === lineKey(p));
+      if (!c || !Number(p.quantity) || !Number(c.quantity)) return null;
+      const r = Number(c.quantity) / Number(p.quantity);
+      if (k === null) k = r;
+      else if (Math.abs(r - k) / k > 0.02) return null;
+    }
+    return k;
+  };
+  const out = new Map<string, Kin[]>();
+  for (const c of pasti) {
+    const stored: Kin[] = c.own
+      .filter((p) => ids.has(p.partItemId))
+      .map((p) => ({ id: p.partItemId, k: Number(p.quantity ?? 1), stored: true }));
+    const found: { id: string; k: number; foods: readonly Part[] }[] = [];
+    for (const p of pasti) {
+      if (p.id === c.id || stored.some((s) => s.id === p.id)) continue;
+      const k = ratio(p.foods, c.foods);
+      if (k === null) continue;
+      if (p.foods.length === c.foods.length && k < 1.02) continue; // twins, or c is the smaller
+      found.push({ id: p.id, k: +k.toFixed(2), foods: p.foods });
+    }
+    found.sort((a, b) => b.foods.length - a.foods.length);
+    const taken = new Set(
+      stored.flatMap((s) => pasti.find((x) => x.id === s.id)?.foods.map(lineKey) ?? []),
+    );
+    const kept: Kin[] = [];
+    for (const f of found) {
+      if (f.foods.some((x) => taken.has(lineKey(x)))) continue;
+      f.foods.forEach((x) => taken.add(lineKey(x)));
+      kept.push({ id: f.id, k: f.k, stored: false });
+    }
+    if (stored.length + kept.length > 0) out.set(c.id, [...stored, ...kept]);
+  }
+  return out;
+}
+
+/** The children of each pasto: the inverse of `kinship`. */
+export function childrenOf(kin: ReadonlyMap<string, Kin[]>): Map<string, Kin[]> {
+  const out = new Map<string, Kin[]>();
+  for (const [child, parents] of kin)
+    for (const p of parents)
+      out.set(p.id, [...(out.get(p.id) ?? []), { id: child, k: p.k, stored: p.stored }]);
+  return out;
+}

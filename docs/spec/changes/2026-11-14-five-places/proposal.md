@@ -1602,6 +1602,15 @@
     children; links found automatically) — it changes MOD-20/MOD-21, PAT-17 and ADR-0060, so it is
     his to settle (rule 1); the storage options are in Claude's answer. The name cap: a number to
     measure on his names first.
+158. **21 Nov, his «yc»** on §157: option (a), ADR-0065 → MOD-23, PAT-103; and the dish name as the
+    door (PAT-104). Measured on his data (local copy of the 10 Nov export): 25 pasti, 8 ADR-0060
+    variants; the detector finds 7 links (6 of the variants, plus «GELATO proteico cioccolato e
+    nocciola 2» ⊃ «Gelato Proteico» × 1); 2 variants change a quantity of their base and stay
+    variants (**open, his**: keep them so, or make them plain pasti). Names: pasti median 18
+    characters, longest 48; cibi median 18, longest 46. Decided by Claude: new names of cibi and
+    pasti capped at **40** (1 pasto and 3 cibi are longer today and stay as they are; undo:
+    `NAME_MAX`); kin chips cut by width. The foods-as-a-sentence line under a pasto in the Elenco
+    goes (his «spero non ripeta gli ingredienti»): the bar by part shows them (VIS-106).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
