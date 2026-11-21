@@ -85,13 +85,7 @@ export function MealBox({
               },
               panel:
                 picked === MICRO ? (
-                  <Nutrients
-                    key={MICRO}
-                    data={data}
-                    part="rest"
-                    chips={false}
-                    openFirst={MICRO}
-                  />
+                  <Nutrients key={MICRO} data={data} chips={false} focus={MICRO} />
                 ) : picked ? (
                   <Nutrients
                     key={picked}

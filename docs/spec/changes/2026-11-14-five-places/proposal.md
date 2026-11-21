@@ -1815,6 +1815,27 @@
     micros, `microsOf`). Typing: only the cursor, at the end. Asked: A or B; lines, tiles or soft;
     the side labels; what is missing in «Ingredienti» (the parents' share of a name's ground is
     there: «Latte» and «Proteine del siero» lilac from «Gelato Proteico», «Crema» plain, its own).
+176. **21 Nov, his pick on §175 (verbatim):** «ok quella che preferisco è la C,ma i piccoli riquadri
+    delle macro li voglio divisi in  orizzontale come ti dicevo, ho capito che preferisco le due cose
+    separate. tutto pero deve essere spaziao meglio, soprattutto verticalmente,o forse il problema è
+    solo con le fasce genitori e figli che sono orribili altrimenti, e come ti dicevo tutte le fasce
+    possono essere piu strette secondo me. in ogni caso dovresti pero applicare lo stesso stile anche
+    alla griglia che compare con nutrienti o ingredienti. inoltre lo stesso deve valere anche per
+    l'intestazione in alto. per quanto riguarda i micro, non mi stupisce che come sempre hai
+    semplicemente copiato e incollato, ma non vedi che è ridondante? e dovresti riformattare tutta la
+    visualizzazione in modo coerente con quel che abbiamo fatto fino ad adesso. le scritte "qualità" e
+    da "da dove devono essere meglio centrate.»
+177. **21 Nov, built on §176:** the grid is **tiles** (his C) — every cell a rounded tile (8 px) on a
+    faint ground of the box's colour, one 4 px gap, no lines — and so are the head (icon · title ·
+    value, + the mini voto shut), the parents and children (two rows of tiles, the «+» a square
+    tile), the ingredients table and the Nutrienti / Micro columns; cells 36 high (decided by
+    Claude after his «più strette», under the 44 of PRD-12: a named exception, undo `--cell-h`).
+    The macros' cells **split** (his «divisi in orizzontale»): icon, number and chevrons above, the
+    parts below; «lines», «soft» and «over» are deleted. **Micro** reformatted like a macro's kinds
+    — no header line (the «Micro» cell says «1/11»): a side tile per group («vitamine»,
+    «minerali»), each row its name and bar with the need's tick, its «amount / need» on the right,
+    on one line. The side labels centred both ways (turned inside their tile). Photos
+    `review/2026-11-21/tiles/`.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

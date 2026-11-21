@@ -121,6 +121,7 @@ export function Nutrients({
       )}
       {focus !== undefined &&
         (() => {
+          if (focus === MICRO) return micros ? <MicroColumns micros={micros} /> : null;
           const m = macros.find((x) => x.key === focus);
           return m ? <MacroColumns m={m} /> : null;
         })()}
@@ -215,7 +216,7 @@ export function Nutrients({
           </div>
         );
       })}
-      {rest && limits.length > 0 && (
+      {rest && focus === undefined && limits.length > 0 && (
         <div className="k-grid k-nlims" style={{ "--cols": 3 } as CSSProperties}>
           {limits.map((l) => (
             <span key={l.key} className="k-stack g1" role="img" aria-label={l.aria}>
@@ -239,12 +240,12 @@ export function Nutrients({
           ))}
         </div>
       )}
-      {rest && means && (
+      {rest && focus === undefined && means && (
         <span className="k-help k-heatkey" aria-hidden="true">
           <b /> media della settimana
         </span>
       )}
-      {rest && micros && (
+      {rest && focus === undefined && micros && (
         <div className="k-nrow">
           <button
             type="button"
@@ -456,54 +457,104 @@ const KINDS_SIDE: Record<string, string> = {
   fiber: "tipo",
 };
 
+type ColumnRow = {
+  key: string;
+  name: string;
+  w: string;
+  c: string;
+  v: string;
+  dim?: boolean;
+  /** Its need's tick on the bar (a micro's target), when it has one. */
+  mark?: string | null;
+};
+
 /**
- * A macro's kinds and where it came from as three vertical bands (his §174): a side band with its
- * label turned on its side («qualità», «da dove»), the rows (name and bar), the numbers (read only).
+ * One section of a band in three vertical tiles (his §174, §176): its label turned on its side,
+ * the rows (name and bar), the numbers (read only). A macro's kinds, «da dove», a micros' group.
  */
-function MacroColumns({ m }: { m: ReturnType<typeof nutrientsL1>["macros"][number] }) {
-  const section = (
-    side: string,
-    rows: { key: string; name: string; w: string; c: string; v: string; dim?: boolean }[],
-  ) =>
-    rows.length > 0 && (
-      <div className="k-kcols" role="group" aria-label={side}>
-        <span className="k-kside">{side}</span>
-        <div className="k-kcells">
-          {rows.map((r) => (
-            <div key={r.key} className={"k-kcell" + (r.dim ? " dim" : "")}>
-              <span className="k-kname k-clip">{r.name}</span>
-              <span className="k-bar">
-                <i style={{ width: r.w, background: r.c }} />
-              </span>
-            </div>
-          ))}
-        </div>
-        <div className="k-knums">
-          {rows.map((r) => (
-            <span key={r.key} className="k-num b3">
-              {r.v}
+function SideColumns({ side, rows }: { side: string; rows: ColumnRow[] }) {
+  if (rows.length === 0) return null;
+  return (
+    <div className="k-kcols" role="group" aria-label={side}>
+      <span className="k-kside">
+        <span>{side}</span>
+      </span>
+      <div className="k-kcells">
+        {rows.map((r) => (
+          <div key={r.key} className={"k-kcell" + (r.dim ? " dim" : "")}>
+            <span className="k-kname k-clip">{r.name}</span>
+            <span className="k-bar">
+              <i style={{ width: r.w, background: r.c }} />
+              {r.mark && <span className="k-mark" style={{ left: r.mark }} />}
             </span>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    );
+      <div className="k-knums">
+        {rows.map((r) => (
+          <span key={r.key} className="k-num b3">
+            {r.v}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** A macro's kinds and where it came from (his §174): two sections of side columns. */
+function MacroColumns({ m }: { m: ReturnType<typeof nutrientsL1>["macros"][number] }) {
   return (
     <div className="k-stack k-kcolumns">
-      {section(
-        KINDS_SIDE[m.key] ?? "",
-        m.kinds.map((k) => ({ key: k.name, name: k.name, w: k.w, c: k.fill, v: k.v })),
-      )}
-      {section(
-        WORDS.fromWhere,
-        m.sources.map((x, n) => ({
+      <SideColumns
+        side={KINDS_SIDE[m.key] ?? ""}
+        rows={m.kinds.map((k) => ({
+          key: k.name,
+          name: k.name,
+          w: k.w,
+          c: k.fill,
+          v: k.v,
+        }))}
+      />
+      <SideColumns
+        side={WORDS.fromWhere}
+        rows={m.sources.map((x, n) => ({
           key: x.name + ":" + n,
           name: x.name,
           w: x.w,
           c: m.color,
           v: x.g,
           dim: !!x.dim,
-        })),
-      )}
+        }))}
+      />
+    </div>
+  );
+}
+
+/**
+ * The vitamins and minerals as the macros' kinds are (his §176: «coerente con quel che abbiamo
+ * fatto»): a section per group, its name on the side; no header line — the «Micro» cell says it.
+ */
+function MicroColumns({
+  micros,
+}: {
+  micros: NonNullable<ReturnType<typeof nutrientsL1>["micros"]>;
+}) {
+  return (
+    <div className="k-stack k-kcolumns">
+      {micros.groups.map((g) => (
+        <SideColumns
+          key={g.name}
+          side={g.name.toLowerCase()}
+          rows={g.items.map((i) => ({
+            key: i.name,
+            name: i.name,
+            w: i.w,
+            c: i.color,
+            v: i.v,
+            mark: i.mark,
+          }))}
+        />
+      ))}
     </div>
   );
 }

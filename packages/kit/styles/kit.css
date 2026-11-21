@@ -6467,8 +6467,8 @@ button.k-mrow:active {
 .k-seg.micro {
   background: var(--muted);
 }
-/* layout «split»: the text in the upper half, the parts in the lower half */
-.k-box.bands.cells-split .k-mcell > .k-track {
+/* the macros' cells split (his §176): the text in the upper half, the parts in the lower half */
+.k-box.bands .k-mcell > .k-track {
   position: relative;
   inset: auto;
   width: 100%;
@@ -6536,53 +6536,258 @@ button.k-mrow:active {
   opacity: 0.5;
 }
 
-/* ---------- grid styles to compare (his §174: «proponimene qualcuno») ----------
-   «tiles»: no lines; every cell a rounded tile on the box's ground, a small gap between */
-.k-box.bands.grid-tiles .k-zones > *,
-.k-box.bands.grid-tiles .k-doorbar,
-.k-box.bands.grid-tiles .k-bars > :not(.k-stack),
-.k-box.bands.grid-tiles .k-kinrow + .k-kinrow {
+/* ---------- the grid is tiles (his pick C, §176): no lines; every cell a rounded tile on the box's
+   ground, a small gap between; the macros' cells split — text above, parts below ---------- */
+.k-box.bands .k-zones > *,
+.k-box.bands .k-doorbar,
+.k-box.bands .k-bars > :not(.k-stack),
+.k-box.bands .k-kinrow + .k-kinrow {
   border-top: 0;
 }
-.k-box.bands.grid-tiles .k-zones {
+.k-box.bands .k-zones {
   gap: 4px;
   padding: 4px;
 }
-.k-box.bands.grid-tiles :is(.k-actrow, .k-xor, .k-kinrow, .k-ninline) {
+.k-box.bands :is(.k-actrow, .k-xor, .k-kinrow, .k-ninline) {
   gap: 4px;
 }
-.k-box.bands.grid-tiles :is(.k-actrow, .k-xor, .k-kinrow) > *,
-.k-box.bands.grid-tiles .k-mcell,
-.k-box.bands.grid-tiles .k-bars > :not(.k-stack),
-.k-box.bands.grid-tiles .k-xorpanel {
+.k-box.bands :is(.k-actrow, .k-xor, .k-kinrow) > *,
+.k-box.bands .k-mcell,
+.k-box.bands .k-bars > :not(.k-stack),
+.k-box.bands .k-xorpanel {
   border: 0 !important;
   border-radius: 8px;
   background: color-mix(in srgb, var(--fam) 8%, transparent);
 }
-.k-box.bands.grid-tiles .k-head > .k-hright,
-.k-box.bands.grid-tiles .k-top > .k-lead {
+.k-box.bands .k-head > .k-hright,
+.k-box.bands .k-top > .k-lead {
   border: 0;
 }
-/* «soft»: bands as rounded strips inset in the box, a faint ground, short dividers between cells */
-.k-box.bands.grid-soft .k-zones > *,
-.k-box.bands.grid-soft .k-bars > :not(.k-stack),
-.k-box.bands.grid-soft .k-kinrow + .k-kinrow {
+
+/* ---------- §176: tiles everywhere in the box — the head, the parents and children, the
+   Nutrienti / Micro columns, the ingredients table; lower cells; one even gap ---------- */
+.k-box.bands {
+  --tile: color-mix(in srgb, var(--fam) 8%, transparent);
+  --gap: 4px;
+  --cell-h: 36px;
+}
+.k-box.bands .k-zones {
+  gap: var(--gap);
+  padding: 0 var(--gap) var(--gap);
+}
+/* the head: icon · title · value (· mini voto shut), each its tile */
+.k-box.bands > .k-top {
+  gap: var(--gap);
+  min-height: 0;
+  padding: var(--gap);
+}
+.k-box.bands > .k-top > .k-lead,
+.k-box.bands .k-head > .k-hlead,
+.k-box.bands .k-head > .k-hright,
+.k-box.bands .k-top > .k-line > .k-trail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--cell-h);
+  margin: 0;
+  padding: 0 var(--cell-x);
+  border: 0;
+  border-radius: 8px;
+  background: var(--tile);
+}
+.k-box.bands > .k-top > .k-lead {
+  width: var(--cell-h);
+  padding: 0;
+}
+.k-box.bands .k-top .k-head {
+  gap: var(--gap);
+  min-height: var(--cell-h);
+}
+.k-box.bands .k-top > .k-line {
+  gap: var(--gap);
+}
+.k-box.bands .k-head > .k-hlead .k-title {
+  text-align: center;
+}
+/* every row of cells: lower tiles, one gap */
+.k-box.bands :is(.k-actrow, .k-xor, .k-kinrow) > *,
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow) > *,
+.k-box.bands .k-doorbar .k-doors > * {
+  min-height: var(--cell-h);
+  border-radius: 8px;
+  background: var(--tile);
+}
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow),
+.k-box.bands .k-doorbar .k-doors {
+  gap: var(--gap);
+}
+.k-box.bands .k-zones > .k-hrow:not(.k-actrow) > * + *,
+.k-box.bands .k-doorbar .k-doors > * + * {
+  border-left: 0;
+}
+.k-box.bands .k-doorbar {
+  border-top: 0;
+  padding: 0 var(--gap) var(--gap);
+}
+/* parents and children: two rows of tiles, the same gap between them; the «+» a square tile */
+.k-box.bands .k-zones > .k-kinrows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  background: transparent;
+}
+.k-box.bands .k-kinrow + .k-kinrow,
+.k-box.bands .k-kinrows > .k-kinfind {
   border-top: 0;
 }
-.k-box.bands.grid-soft .k-zones {
-  gap: 6px;
-  padding: 2px 6px 6px;
+.k-box.bands .k-kinrow {
+  gap: var(--gap);
 }
-.k-box.bands.grid-soft .k-zones > * {
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--fam) 6%, transparent);
+.k-box.bands .k-kinrow > .k-kinadd {
+  flex: 0 0 var(--cell-h);
+  width: var(--cell-h);
+  padding: 0;
+  border: 0;
+}
+.k-box.bands .k-kinrow > .k-kinadd.wide {
+  flex: 1 0 auto;
+  width: auto;
+  padding: 0 var(--cell-x);
+  justify-content: center;
+}
+.k-box.bands .k-kin.k-hchip.static {
+  border: 0;
+}
+.k-box.bands .k-kinrows > .k-kinfind {
+  padding: var(--gap);
+  border-radius: 8px;
+  background: var(--tile);
+}
+/* the bars' band: the five cells as tiles, the voto under them as one tile */
+.k-box.bands .k-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+.k-box.bands .k-ninline {
+  gap: var(--gap);
+}
+.k-box.bands .k-mcell {
+  min-height: 0;
+  padding: 6px 6px 5px;
+  border-radius: 8px;
+  background: var(--tile);
+}
+.k-box.bands .k-mcell > .k-track {
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+}
+.k-box.bands .k-mcell.picked {
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+}
+.k-box.bands .k-mcell.picked > .k-track {
+  box-shadow: none;
+}
+.k-box.bands .k-bars > :not(.k-stack) {
+  padding: 6px var(--cell-x);
+  border-radius: 8px;
+}
+/* the two halves */
+.k-box.bands .k-xor {
+  gap: var(--gap);
+}
+.k-box.bands .k-xor > .k-xorhalf + .k-xorhalf {
+  border-left: 0;
+}
+/* the band a half opens: no frame of its own, its tiles inside */
+.k-box.bands .k-xorpanel {
+  background: transparent !important;
+  border-radius: 0;
+}
+/* the ingredients table and the Nutrienti / Micro columns: tiles, one gap */
+.k-box.bands .k-itable {
+  gap: var(--gap);
+}
+.k-box.bands .k-iswipe {
+  border-top: 0;
+  border-radius: 8px;
+}
+.k-box.bands .k-irow {
+  gap: var(--gap);
+  min-height: var(--cell-h);
+  background: var(--sheet);
+}
+.k-box.bands .k-iname,
+.k-box.bands .k-iqty,
+.k-box.bands .k-iadd {
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--tile);
+}
+.k-box.bands .k-iadd {
+  min-height: var(--cell-h);
+}
+.k-box.bands .k-kcolumns {
+  gap: var(--gap);
+}
+.k-box.bands .k-kcols {
+  gap: var(--gap);
+}
+.k-box.bands .k-kcols + .k-kcols {
+  border-top: 0;
+}
+.k-box.bands .k-kside,
+.k-box.bands .k-kcells > *,
+.k-box.bands .k-knums > * {
+  border: 0;
+  border-radius: 8px;
+  background: var(--tile);
+}
+.k-box.bands .k-kcells,
+.k-box.bands .k-knums {
+  gap: var(--gap);
+  border: 0;
+}
+.k-box.bands .k-kcell,
+.k-box.bands .k-knums > * {
+  height: var(--cell-h);
+}
+.k-box.bands .k-kcell + .k-kcell,
+.k-box.bands .k-knums > * + * {
+  border-top: 0;
+}
+/* the side label centred both ways in its tile (his §176) */
+.k-kside {
+  writing-mode: horizontal-tb;
+  transform: none;
+  position: relative;
   overflow: hidden;
 }
-.k-box.bands.grid-soft :is(.k-actrow, .k-xor, .k-kinrow) > * + *,
-.k-box.bands.grid-soft .k-mcell + .k-mcell {
-  border-left: 0 !important;
-  background-image: linear-gradient(var(--line), var(--line));
-  background-size: 1.2px 50%;
-  background-position: left center;
-  background-repeat: no-repeat;
+.k-kside > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  white-space: nowrap;
+  line-height: 1;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+.k-kcell .k-bar {
+  position: relative;
+}
+.k-kcell .k-bar > .k-mark {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1.5px;
+  background: var(--ink);
+}
+/* the numbers column fits «948 / 1.000 mg» on one line */
+.k-kcols {
+  grid-template-columns: 24px minmax(0, 1fr) 84px;
+}
+.k-knums > * {
+  white-space: nowrap;
+  font-size: var(--fs-b4);
+  padding: 0 4px;
 }

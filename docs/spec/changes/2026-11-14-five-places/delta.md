@@ -217,7 +217,8 @@
 - **PAT-105** (patterns.md §2) **The box as a grid** (his §169, §172): open, a Box is horizontal bands —
   head (icon | title | value, + the mini voto shut) · bars and voto · parents and children · actions ·
   the two halves «Nutrienti | Ingredienti» and the band one opens — each line the contour's own,
-  edge to edge; inside, cells split by the same line, no frame of their own, colour only on icons
-  and grounds; everything centred in its cell. The bars and the two halves are one state: a macro
+  edge to edge; inside, cells as rounded tiles on a faint ground of the box's colour, one small
+  gap, no lines (his pick C, §176); colour only on icons and grounds; everything centred in its
+  cell; the macros and «Micro» as five tiles, text above and parts below. The bars and the two halves are one state: a macro
   picked shows its kinds (bars and «Nutrienti»), none picked the ingredients. Kit: `PlanBox`
   (`bands`), `IngredientTable`. Changes PAT-102's zone order (kin above the actions, his §161).
