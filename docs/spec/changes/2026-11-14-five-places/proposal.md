@@ -1898,6 +1898,16 @@
     «tasti o celle» — **tile** (PAT-105), one tile that acts is still a tile; the limits are not in
     the box today (zuccheri liberi and saturi are kinds of carbs and fats, sale nowhere): asked
     in the voti recap (§181). Sale in the shut strip: not built (the strip is energy, sale has none).
+183. **21 Nov, Claude's recap of the voti and proposals for §181** (in the chat; asked, his to pick):
+    names — the six tiles are **misure** (PRD-04's layer), «feature» is an **strumento** (VIS-102)
+    and what is added to one a **canale** (VIS-101) or a **comando** (VIS-104); his idea is a
+    **filtro** shared by two strumenti (VIS-104). Voto looks: **V-A** criteria as tiles, three a row,
+    each track = its points (length = weight, fill = earned, split by ingredient; rec) · **V-B** one
+    100-point bar tile + tiles only for lost points · **V-C** the voto as a third half. Filter:
+    **F1** a misura picked lights the criteria it feeds (FD-51 table) · **F2** + its piece in each ·
+    **F3** a criterion picked lights its misure and ingredients (rec F1 + F3 now, F2 with MOD-61 by
+    nutrient). Limits: a «limiti» side section in the Micro band (sale, zuccheri liberi, saturi,
+    trans; rec).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
