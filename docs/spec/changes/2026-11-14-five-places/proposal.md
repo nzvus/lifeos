@@ -1502,6 +1502,12 @@
     any two and the same above the first and before the doors — measured at 390 on his dinner and a
     pasto: 12 · 12 · 12 · 12 (before: 8 · **0** · 8). `LIFEOS/review/2026-11-21/arrows/gaps.mjs`
     measures it; **waits for his word**.
+149. **21 Nov, his word on §148:** «a 320 dovresti diminuire la dimensione dei caratteri, le frecce
+    sono mal spaziate e posizionate». Done: each chevron right after its own number; the row of
+    macros knows its width (a container query): under 260 px the numbers take a new smallest size,
+    `--fs-b4` 11 px (decided by Claude; undo: drop the token and the query), the icons 12 px, the
+    gaps tighter. Measured on his dinner, room left in each cell after its chevron: 390 → 11 px,
+    360 → 11, 320 → 1 (it spilled into the next cell before). Script `arrows/cells.mjs`.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

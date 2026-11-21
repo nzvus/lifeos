@@ -42,6 +42,9 @@
   --lh-b2: 20px;
   --fs-b3: 12px;
   --lh-b3: 16px;
+  /* the smallest: a number among four in a row too narrow for 12 px (his 21 Nov, §149) */
+  --fs-b4: 11px;
+  --lh-b4: 14px;
   --fs-hero: 40px;
   --lh-hero: 42px;
   --touch: 44px;
@@ -5784,6 +5787,35 @@ button.k-mrow:active {
 .k-mcell .k-num {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+/* its chevron right after its own number, never pushed to the next macro (his §149) */
+.k-mcell > .k-line {
+  gap: 3px;
+  min-width: 0;
+}
+.k-mcell .k-verdict {
+  display: inline-flex;
+  margin-inline-start: -1px;
+}
+/* the row knows its own width: too narrow for 12 px (a box on the rail at 320), all smaller */
+.k-ninline {
+  container-type: inline-size;
+}
+@container (max-width: 260px) {
+  .k-ninline {
+    column-gap: 6px;
+  }
+  .k-mcell > .k-line {
+    gap: 2px;
+  }
+  .k-mcell .k-num {
+    font-size: var(--fs-b4);
+    line-height: var(--lh-b4);
+  }
+  .k-mcell .k-glyph svg {
+    width: 12px;
+    height: 12px;
+  }
 }
 .k-mcell .k-zrule .tk span {
   display: none;
