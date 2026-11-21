@@ -637,23 +637,26 @@ describe("Box with levels (VIS-40, «Oggi a livelli»)", () => {
     expect(h).not.toContain("k-door");
   });
 
-  it("open: what the closed box said, then the doors with «Voto» first, no panel", () => {
+  it("open: what the closed box said, the voto in full with no door (§161), no panel", () => {
     const h = draw(true);
     expect(h).not.toContain("k-lvstrip");
     expect(h).toContain("Gnocchi alla sorrentina");
     expect(h).toContain("quattro barre");
-    expect(h.indexOf("Voto")).toBeLessThan(h.indexOf("Nutrienti"));
+    // the voto's criteria in the box, no «Voto» door, no mini voto in the head
+    expect(h).toContain("k-voto");
+    expect(h).toContain("densità");
+    expect(h).not.toMatch(/k-door[^"]*"[^>]*>(<span>)?Voto/);
+    expect(h).not.toContain("k-vh");
     expect(h).not.toContain("k-doorpanel");
     // A door with nothing behind it is a plain chip, not a button.
     expect(h).toMatch(/<span class="k-chip k-door static"><span>Costo<\/span>/);
   });
 
   it("one door open at a time: its panel only", () => {
-    const h = draw(true, "voto");
+    expect(draw(true)).not.toContain("tutti i nutrienti");
+    const h = draw(true, "nutrients");
     expect(h).toContain("k-doorpanel");
-    expect(h).toContain("densità");
-    expect(h).not.toContain("tutti i nutrienti");
-    expect(draw(true, "nutrients")).toContain("tutti i nutrienti");
+    expect(h).toContain("tutti i nutrienti");
   });
 });
 

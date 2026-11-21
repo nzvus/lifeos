@@ -132,7 +132,8 @@ const MEALS: [string, boolean][] = [
 const LEVELS: [string, string, boolean, string | null][] = [
   ["box-livello-0", "Box a livelli · chiuso: una riga e la striscia", false, null],
   ["box-livello-1", "Box a livelli · aperto, con le porte", true, null],
-  ["box-livello-2", "Box a livelli · una porta aperta (Voto)", true, "voto"],
+  // the voto has no door (§161): it is always in the open box; a door opened is another
+  ["box-livello-2", "Box a livelli · una porta aperta (Nutrienti)", true, "nutrients"],
 ];
 
 const BOXES: [string, string, BoxEntry, "card" | "row"][] = [
@@ -521,7 +522,6 @@ export default async function KitPage({
                   panel: <p className="k-meta">…</p>,
                 },
               ]}
-              door="voto"
             />
           </div>
         ))}

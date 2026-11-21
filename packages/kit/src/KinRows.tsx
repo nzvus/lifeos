@@ -1,10 +1,10 @@
 "use client";
 /**
- * KinRows (PAT-103, his §157): a thing's parents and children as two sideways rows, each headed by
- * its icon and drawn in its own colour (VIS-06: they scroll, never wrap). A parent reads «× k ·
- * name», the multiplier first; a stored one is stepped in place (− k +, PAT-13), a found one only
- * says it. A name is cut by the chip's width. Each row ends with a «+» that opens a search in place
- * under the rows (no pop-up): a pick adds a parent, or makes a child. The kit knows no type (PAT-81).
+ * KinRows (PAT-103, his §157, §160): a thing's parents and children as two sideways rows, told
+ * apart by colour alone (VIS-06: they scroll, never wrap). Each row starts with its «+», as small
+ * as a chip. A chip has two zones: its «× k» opens in place into − k + (PAT-13), its name goes to
+ * that thing. «+» on the parents' row opens a search under the rows (no pop-up); on the children's
+ * it makes one at once. The kit knows no type (PAT-81): words and callbacks come from the caller.
  */
 import { useState } from "react";
 import { Find, type FindItem } from "./Find";
@@ -15,14 +15,19 @@ export type KinChip = {
   name: string;
   /** «× 1,5», already formatted. */
   k: string;
+  /** Its name goes to that thing: a callback in place, else a link. */
+  onGo?: () => void;
   href?: string;
-  /** A stored link: its multiplier is stepped here. */
+  /** Its multiplier, stepped when the «× k» is opened. */
   step?: { minus: string; plus: string; onMinus: () => void; onPlus: () => void };
 };
 
 type Side = "parents" | "children";
-/** The caller's words (PAT-81): each row's name and its «+»'s, and the search's. */
-export type KinWords = Record<Side, { row: string; add: string }> & { find: string };
+/** The caller's words (PAT-81): each row's name and its «+»'s, the search's, «× k» opened. */
+export type KinWords = Record<Side, { row: string; add: string }> & {
+  find: string;
+  edit: (name: string) => string;
+};
 
 export function KinRows({
   parents,
@@ -44,61 +49,86 @@ export function KinRows({
   onAddChild?: () => void;
 }) {
   const [finding, setFinding] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
+  const chip = (side: Side, c: KinChip) => {
+    const id = side + ":" + c.key;
+    const editing = open === id && !!c.step;
+    return (
+      <span
+        key={c.key}
+        className={"k-chip static k-hchip k-kin" + (editing ? " open" : "")}
+      >
+        {editing ? (
+          <span className="k-line g1 k-step" role="group" aria-label={words.edit(c.name)}>
+            <button
+              type="button"
+              className="k-btn act"
+              aria-label={c.step!.minus}
+              onClick={c.step!.onMinus}
+            >
+              −
+            </button>
+            <button
+              type="button"
+              className="k-num k-kink"
+              aria-expanded
+              aria-label={words.edit(c.name)}
+              onClick={() => setOpen(null)}
+            >
+              {c.k}
+            </button>
+            <button
+              type="button"
+              className="k-btn act"
+              aria-label={c.step!.plus}
+              onClick={c.step!.onPlus}
+            >
+              +
+            </button>
+          </span>
+        ) : c.step ? (
+          <button
+            type="button"
+            className="k-num k-kink"
+            aria-expanded={false}
+            aria-label={words.edit(c.name)}
+            onClick={() => setOpen(id)}
+          >
+            {c.k}
+          </button>
+        ) : (
+          <b className="k-num k-kink">{c.k}</b>
+        )}
+        {c.onGo ? (
+          <button type="button" className="k-kinname" title={c.name} onClick={c.onGo}>
+            {c.name}
+          </button>
+        ) : c.href ? (
+          <a className="k-kinname" href={c.href} title={c.name}>
+            {c.name}
+          </a>
+        ) : (
+          <span className="k-kinname" title={c.name}>
+            {c.name}
+          </span>
+        )}
+      </span>
+    );
+  };
   const row = (side: Side, chips: KinChip[], add?: () => void) => (
     <div className={"k-hrow k-kinrow " + side} role="group" aria-label={words[side].row}>
-      <span className="k-kinhead" title={words[side].row}>
-        <Glyph of={{ ui: side }} decorative />
-      </span>
-      {chips.map((c) => (
-        <span key={c.key} className="k-chip static k-hchip k-kin">
-          {c.step ? (
-            <span className="k-line g1 k-step" role="group" aria-label={c.name}>
-              <button
-                type="button"
-                className="k-btn act"
-                aria-label={c.step.minus}
-                onClick={c.step.onMinus}
-              >
-                −
-              </button>
-              <b className="k-num" aria-live="polite">
-                {c.k}
-              </b>
-              <button
-                type="button"
-                className="k-btn act"
-                aria-label={c.step.plus}
-                onClick={c.step.onPlus}
-              >
-                +
-              </button>
-            </span>
-          ) : (
-            <b className="k-num">{c.k}</b>
-          )}
-          {c.href ? (
-            <a className="k-kinname" href={c.href} title={c.name}>
-              {c.name}
-            </a>
-          ) : (
-            <span className="k-kinname" title={c.name}>
-              {c.name}
-            </span>
-          )}
-        </span>
-      ))}
       {add && (
         <button
           type="button"
-          className="k-btn act icon k-kinadd"
+          className="k-chip k-hchip k-kinadd"
           aria-label={words[side].add}
           {...(side === "parents" ? { "aria-expanded": finding } : {})}
           onClick={add}
         >
           <Glyph of={{ ui: "add" }} decorative />
-          <Glyph of={{ ui: side }} decorative />
         </button>
       )}
+      {chips.map((c) => chip(side, c))}
     </div>
   );
   return (

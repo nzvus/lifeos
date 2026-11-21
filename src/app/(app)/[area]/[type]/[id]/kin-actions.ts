@@ -6,14 +6,14 @@
 import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
-import { addChild, addParent, readRecipeName, setParentK } from "@/core/food/kin";
+import { addChild, addParent, readRecipeName, setKin } from "@/core/food/kin";
 
 export async function kinStep(
   childId: string,
   parentId: string,
   k: number,
 ): Promise<boolean> {
-  const ok = await setParentK(await getDb(), await requireOwner(), childId, parentId, k);
+  const ok = await setKin(await getDb(), await requireOwner(), childId, parentId, k);
   if (ok) revalidatePath("/", "layout");
   return ok;
 }

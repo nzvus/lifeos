@@ -33,7 +33,10 @@ export function ThingBox({
   onRail,
   acts,
   verbs,
+  votoElsewhere = false,
 }: ThingBoxPlace & {
+  /** Open, the caller draws the voto in its own zone (PlanBox). */
+  votoElsewhere?: boolean;
   entry: BoxEntry;
   /** Its level-1 doors, in its plan's order; «Voto» comes first from `entry.score`. */
   doors: BoxDoor[];
@@ -57,6 +60,7 @@ export function ThingBox({
       {...(verbs ? { verbs } : {})}
       door={door}
       onDoor={(k: string) => setDoor((d) => (d === k ? null : k))}
+      votoElsewhere={votoElsewhere}
     >
       {children}
     </Box>

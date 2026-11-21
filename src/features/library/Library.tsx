@@ -408,17 +408,27 @@ function List({
                   },
                   ...acts(r),
                 ]}
-              >
-                {server.kin && !r.meal.estimate && (
-                  <MealKin
-                    id={r.meal.id}
-                    kin={r.meal.kin}
-                    pasti={pasti}
-                    server={server.kin}
-                    onChild={setQuery}
-                  />
-                )}
-              </MealBox>
+                between={
+                  server.kin &&
+                  !r.meal.estimate && (
+                    <MealKin
+                      id={r.meal.id}
+                      kin={r.meal.kin}
+                      pasti={pasti}
+                      server={server.kin}
+                      onChild={setQuery}
+                      onGo={(name) => {
+                        setQuery(name);
+                        document
+                          .querySelector(
+                            '.k-section[aria-label="Catalogo"] input[type="search"]',
+                          )
+                          ?.scrollIntoView({ block: "start", behavior: "smooth" });
+                      }}
+                    />
+                  )
+                }
+              />
             ) : r.exercise ? (
               // An esercizio opens in place (PAT-30 level 1, Deliver ③): facts, e1RM trend.
               <ExercisePlanBox

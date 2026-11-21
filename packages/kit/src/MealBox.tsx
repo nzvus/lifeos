@@ -19,6 +19,7 @@ export function MealBox({
   slots,
   actions = [],
   children,
+  between,
   ...place
 }: ThingBoxPlace & {
   entry: BoxEntry;
@@ -30,6 +31,8 @@ export function MealBox({
   actions?: PlanAction[];
   /** Open, after everything (a place's own line). */
   children?: ReactNode;
+  /** Open, after the voto and above the actions (its kin, PAT-103). */
+  between?: ReactNode;
 }) {
   return (
     <PlanBox
@@ -38,6 +41,7 @@ export function MealBox({
       slots={slots}
       actions={actions}
       before={<Nutrients data={data} part="main" chips={false} inline />}
+      between={between}
     >
       {children}
     </PlanBox>

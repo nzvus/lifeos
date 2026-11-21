@@ -61,6 +61,7 @@ export const food = {
       parents: { row: "Genitori", add: "Aggiungi un genitore" },
       children: { row: "Figli", add: "Aggiungi un figlio" },
       find: "Cerca un genitore",
+      edit: (name: string) => "Quante volte " + name,
       less: (name: string) => "Meno " + name,
       more: (name: string) => "Più " + name,
     },

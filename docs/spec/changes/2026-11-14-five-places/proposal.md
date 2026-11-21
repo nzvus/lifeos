@@ -1623,6 +1623,28 @@
     (×1, no stepper) until the one-time data job (ADR-0065) stores them. Not yet: the name cap of
     40, the name and nota edited in place, the voce's name as the door (PAT-104), the meal's
     in-place grams. **Waits for his word on the photos.**
+160. **21 Nov, his word on the kin photos (verbatim):** «ok, puoi tolgliere le icone iniziali, tanto
+    si capisce gia dal colore e dai +. tra l'altro, sposta i + all'inizio. inoltre mi sembrano piu
+    grossi rispetto agli altri bottoni. inoltre i bottoni dei genitori devono essere diversi o
+    sbaglio? se tocchi sul multiplier il bottone si estende per poter modificarlo, altrimenti se sul
+    nome, ti rimanda al genitore, che dici? fammi vedere anche come funziona con la barra di ricerca
+    e tutto. e poi voglio anche vedere le altre cose, hai fatto solo questo fino ad adesso?»
+161. **21 Nov, his word while §160 was built (verbatim):** «comunque il voto in alto a destra serve
+    solo quando le schede sono minimizzate, perché senno  i voti vanno sempre visualizzati per esteso,
+    anche se immagino tu voglia affrontarli un po dopo queste cose. in ogni caso nell'intestazioone
+    kcal puoi farlo piu piccolo in proporzione,e spaziare meglio dalla miniature del voto. oh. di
+    conseguenza, anche coerentemente alle discussioni precedenti sull'avere il voto sempre mostrato,
+    il tasto "voto" sotto, deve sparire, immagino. per il resto vorrei che le azioni fossero sotto i
+    parenti, che dici?»
+162. **21 Nov, built on §160–§161** (each a pattern, every box): the kin rows lose their icons (colour
+    tells them apart), «+» comes first at a chip's size; a chip has two zones — «× k» opens into
+    − k + (both rows; a found link is stored first by `setKin`, the same foods, ADR-0065), the name
+    shows that pasto first in the list (an exact name sorts first). **The voto, every Box (VIS-43
+    changed):** open, its criteria are always in the box — no «Voto» door — and the head's mini voto
+    shows only shut; in `PlanBox` it is zone 3, then the kin, then the actions (his «le azioni sotto
+    i parenti»). A head's unit is a size smaller than its number, 12 px more before the mini voto.
+    Photos `LIFEOS/review/2026-11-21/kin/` (flow-sheet-390/320). Decided by Claude: the voto's look
+    open is today's criteria bar until VIS-107 makes it one bar split by part (step 4).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

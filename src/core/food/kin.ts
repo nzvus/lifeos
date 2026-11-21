@@ -8,8 +8,8 @@ import { and, eq, isNull, max } from "drizzle-orm";
 import type { Db } from "../db/db";
 import { catalogItems, catalogParts } from "../db/schema";
 import { ownedBy, type Owner } from "../identity/owner";
-import { MAX_KIN_DEPTH } from "../catalog/family";
-import { recipeNameTaken } from "./recipes";
+import { expandParts, kinship, lineKey, MAX_KIN_DEPTH } from "../catalog/family";
+import { readRecipeFamily, recipeNameTaken, rewriteParts } from "./recipes";
 
 const NAME_MAX = 80;
 
@@ -143,4 +143,54 @@ export async function readRecipeName(
   id: string,
 ): Promise<string | null> {
   return (await livePasti(db, owner)).get(id) ?? null;
+}
+
+/**
+ * «× k» set on a kin link (MOD-23): a stored line takes k; a found one is first stored — the
+ * child rewritten as the parent × k plus what is left of its own foods (the same foods at the found
+ * k), leaving any ADR-0060 base — then takes k. False when they are not kin, k is not > 0, or the
+ * child has variants of its own (their differences are kept against its old parts).
+ */
+export async function setKin(
+  db: Db,
+  owner: Owner,
+  childId: string,
+  parentId: string,
+  k: number,
+): Promise<boolean> {
+  if (!(k > 0) || k > 99) return false;
+  if (await setParentK(db, owner, childId, parentId, k)) return true;
+  const f = await readRecipeFamily(db, owner);
+  if (childId === parentId || !f.family.has(childId) || !f.family.has(parentId))
+    return false;
+  if ([...f.family.values()].some((x) => x.parentId === childId)) return false;
+  const foods = expandParts(childId, f.partsOf);
+  const base = expandParts(parentId, f.partsOf);
+  const found = kinship([
+    { id: childId, own: [], foods },
+    { id: parentId, own: [], foods: base },
+  ])
+    .get(childId)
+    ?.find((x) => x.id === parentId);
+  if (!found) return false;
+  const rest = foods.flatMap((c) => {
+    const b = base.find((x) => lineKey(x) === lineKey(c));
+    const left = Number(c.quantity) - (b ? Number(b.quantity) * found.k : 0);
+    // within the 2 % the link allows, nothing is left of a food
+    return left > Number(c.quantity) * 0.02
+      ? [{ ...c, quantity: String(+left.toFixed(3)) }]
+      : [];
+  });
+  await db.transaction(async (tx) => {
+    await rewriteParts(tx as unknown as Db, owner, childId, [
+      { partItemId: parentId, quantity: String(k), unit: null, defaults: {} },
+      ...rest,
+    ]);
+    if (f.family.get(childId)?.parentId && f.family.has(f.family.get(childId)!.parentId!))
+      await tx
+        .update(catalogItems)
+        .set({ parentId: null })
+        .where(and(ownedBy(catalogItems, owner), eq(catalogItems.id, childId)));
+  });
+  return true;
 }

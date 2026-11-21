@@ -113,7 +113,8 @@ const productOf = (p: Part) => {
   const x = p.defaults["preferredProduct"];
   return typeof x === "string" ? x : null;
 };
-const lineKey = (p: Part) =>
+/** A food line's identity: the food, its unit and its preferred product. */
+export const lineKey = (p: Part) =>
   p.partItemId + "|" + (p.unit ?? "g") + "|" + (productOf(p) ?? "");
 
 /**

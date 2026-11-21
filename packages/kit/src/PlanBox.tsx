@@ -14,6 +14,7 @@
 import { useState } from "react";
 import { Chart, type ChartData } from "./Chart";
 import { ChipRow } from "./ChipRow";
+import { Criteria } from "./Criteria";
 import { Nutrients } from "./Nutrients";
 import type { NutrientsData } from "./nutrient-rows";
 import { ThingBox, type ThingBoxPlace } from "./ThingBox";
@@ -194,6 +195,7 @@ export function PlanBox({
   children,
   actions = [],
   before,
+  between,
   ...place
 }: ThingBoxPlace & {
   entry: BoxEntry;
@@ -210,6 +212,8 @@ export function PlanBox({
   actions?: PlanAction[];
   /** Open, above the actions: the type's bars (PAT-102 zones 2 and 3). */
   before?: ReactNode;
+  /** Open, after the voto and above the actions: a thing's own rows (its kin, PAT-103). */
+  between?: ReactNode;
 }) {
   const vs = variants ?? [];
   const [key, setKey] = useState(() => picked ?? vs[0]?.key);
@@ -260,11 +264,17 @@ export function PlanBox({
   ];
   const rows = shown.flatMap((s) => ("words" in s && s.words.length > 0 ? [s] : []));
   return (
-    <ThingBox {...place} entry={headEntry} doors={doors}>
+    <ThingBox {...place} entry={headEntry} doors={doors} votoElsewhere>
       {/* The zones in one column, one gap between any two (PAT-102; his §148: bars always had
           nothing between them and what came under). */}
       <div className="k-zones">
         {v?.before ?? before}
+        {/* zone 3: the voto in full, always, open (his §161; VIS-107 will make it one bar) */}
+        {headEntry.score && headEntry.score.value !== null && (
+          <Criteria data={headEntry.score} planned={!!headEntry.planned} />
+        )}
+        {/* a thing's own rows above the actions (its kin, PAT-103; his §161) */}
+        {between}
         <ActionRow actions={all} />
         {children}
         {choosing && (

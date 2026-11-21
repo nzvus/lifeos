@@ -5913,36 +5913,55 @@ button.k-mrow:active {
   white-space: normal;
 }
 
-/* kinship rows (PAT-103, his §157): parents and children, each row in its own colour, headed by
-   its icon; the multiplier before the name, the name cut by the chip; the «+» in the row's look */
+/* kinship rows (PAT-103, his §157, §160): parents and children told apart by colour alone; the
+   «+» first, a chip's size; a chip's «× k» opens into − k +, its name goes to that pasto */
 .k-kinrow.parents {
   --kin: var(--kin-parent);
 }
 .k-kinrow.children {
   --kin: var(--kin-child);
 }
-.k-kinhead {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--ctl-dense);
-  color: var(--kin);
-}
-.k-kin {
-  border-color: color-mix(in oklab, var(--kin) 50%, transparent);
-}
 .k-kin.k-hchip.static {
+  gap: 4px;
+  padding-inline: 4px 10px;
   border-color: color-mix(in oklab, var(--kin) 50%, transparent);
 }
-.k-kin > .k-num,
-.k-kin .k-step .k-num {
+.k-kink,
+.k-kinname {
+  position: relative;
+  min-height: var(--ctl-dense);
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+/* each zone touched at 44 around its 32 (PRD-12) */
+.k-kink::after,
+.k-kinname::after {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
+}
+.k-kink {
   font-family: var(--font-display);
   font-size: var(--ctl-fs);
   color: var(--kin);
 }
 .k-kin .k-step {
   grid-template-columns: 32px auto 32px;
+  height: var(--ctl-dense);
   border: 0;
   background: transparent;
+}
+.k-kin .k-step .k-btn {
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--kin);
+}
+.k-kin.open {
+  border-color: var(--kin);
 }
 .k-kinname {
   max-width: 14ch;
@@ -5952,13 +5971,23 @@ button.k-mrow:active {
   color: var(--ink);
   text-decoration: none;
 }
-.k-kinadd {
-  gap: 2px;
-  color: var(--kin);
+.k-kinadd.k-hchip {
+  justify-content: center;
+  min-width: var(--ctl-dense);
+  padding: 0;
   border: 1px dashed var(--kin);
-}
-.k-kin .k-step .k-btn {
-  min-width: 0;
-  border: 0;
   background: transparent;
+  color: var(--kin);
+}
+
+/* a head's unit a size smaller than its number, and room before the mini voto (his §161) */
+.k-head .k-num .k-unit {
+  font-size: var(--fs-b3);
+  color: var(--muted);
+}
+.k-head > .k-hright {
+  gap: 12px;
+}
+.k-row.dense .k-top > .k-line > .k-trail {
+  margin-left: 8px;
 }

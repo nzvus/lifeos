@@ -19,7 +19,7 @@ export function KinSample() {
           key: "g",
           name: "Gelato Proteico",
           k: "× " + F.input(k, 2),
-          href: "#kin",
+          onGo: () => {},
           step: {
             minus: "Meno Gelato Proteico",
             plus: "Più Gelato Proteico",
@@ -27,7 +27,7 @@ export function KinSample() {
             onPlus: () => setK((x) => x + 0.25),
           },
         },
-        { key: "p", name: "Porridge Proteico", k: "× 1", href: "#kin" },
+        { key: "p", name: "Porridge Proteico", k: "× 1", onGo: () => {} },
       ]}
       children={[
         {
@@ -36,7 +36,7 @@ export function KinSample() {
           k: "× 1",
           href: "#kin",
         },
-        { key: "c2", name: "GELATO proteico al pistacchio", k: "× 1", href: "#kin" },
+        { key: "c2", name: "GELATO proteico al pistacchio", k: "× 1", onGo: () => {} },
       ]}
       onAddParent={() => {}}
       onAddChild={() => {}}

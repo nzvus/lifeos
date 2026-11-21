@@ -89,3 +89,49 @@ it("kin written (MOD-23): a parent added, its k stepped, a child copied; never a
   expect(after.find((r) => r.recipeId === again)?.name).toBe("Frittata (3)");
   expect(after.find((r) => r.recipeId === child)?.parents).toEqual([{ id: base, k: 1 }]);
 });
+
+it("a found link stepped is stored first: the same foods, the parent as a line (MOD-23)", async () => {
+  const { setKin } = await import("./kin");
+  const oil = await item("food", "Olio");
+  const rice = await item("food", "Riso");
+  const pea = await item("food", "Piselli");
+  const risotto = await item("recipe", "Risotto");
+  await part(risotto, 0, rice, "80");
+  await part(risotto, 1, oil, "10");
+  // an ADR-0060 variant: its base's foods plus peas, stored as differences
+  const [{ id: peas }] = (await db
+    .insert(s.catalogItems)
+    .values({
+      userId: a.id,
+      catalog: "recipe",
+      name: "Risotto ai piselli",
+      parentId: risotto,
+    })
+    .returning({ id: s.catalogItems.id })) as [{ id: string }];
+  await part(peas, 0, pea, "50");
+
+  const foods = await readFoodChoices(db, a, "2026-11-21");
+  const before = (await readRecipeChoices(db, a, "2026-11-21", foods)).find(
+    (r) => r.recipeId === peas,
+  )!;
+  expect(before.parents).toBeUndefined();
+
+  expect(await setKin(db, a, peas, risotto, 1)).toBe(true);
+  const after = (await readRecipeChoices(db, a, "2026-11-21", foods)).find(
+    (r) => r.recipeId === peas,
+  )!;
+  expect(after.parents).toEqual([{ id: risotto, k: 1 }]);
+  const q = (r: typeof after) => r.parts.map((p) => [p.key, Number(p.quantity)]).sort();
+  expect(q(after)).toEqual(q(before));
+
+  expect(await setKin(db, a, peas, risotto, 1.5)).toBe(true);
+  const more = (await readRecipeChoices(db, a, "2026-11-21", foods)).find(
+    (r) => r.recipeId === peas,
+  )!;
+  expect(Object.fromEntries(more.parts.map((p) => [p.key, Number(p.quantity)]))).toEqual({
+    [rice]: 120,
+    [oil]: 15,
+    [pea]: 50,
+  });
+  expect(await setKin(db, a, risotto, peas, 2)).toBe(false); // not kin that way
+});

@@ -232,6 +232,9 @@ export function listRows(
       words.every((w) => fold(r.name + " " + r.sub + " " + (r.also ?? "")).includes(w)),
     )
     .sort((a, b) => {
+      // The one whose name is exactly what was typed comes first (a kin's name tapped, §160).
+      const exact = (r: LibraryRow) => (fold(r.name) === fold(query.trim()) ? 0 : 1);
+      if (exact(a) !== exact(b)) return exact(a) - exact(b);
       if (s === "name") return byName(a, b);
       if (s === "uses") return b.uses - a.uses || byName(a, b);
       const x = sortValue(a, s);
