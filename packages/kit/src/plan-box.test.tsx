@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { PlanBox, slotDoor, type PlanSlot } from "./PlanBox";
+import { ActionRow, PlanBox, slotDoor, type PlanSlot } from "./PlanBox";
 
 const entry = {
   fam: "food",
@@ -111,5 +111,26 @@ describe("ActionRow (PAT-101: the box's actions, one sideways row, danger last a
       <PlanBox entry={entry} actions={[{ key: "x", label: "Registra", href: "/x" }]} />,
     );
     expect(html).not.toContain("Azioni");
+  });
+});
+
+describe("ActionRow's icons (PAT-101, his §167)", () => {
+  it("words first, then the icons in their order («Registra», «?»), the trash, the page last", () => {
+    const html = renderToStaticMarkup(
+      <ActionRow
+        actions={[
+          { key: "page", label: "Apri", href: "/p", icon: "link" },
+          { key: "del", label: "Elimina", danger: "delete", onClick: () => {} },
+          { key: "log", label: "Registra", href: "/l", icon: "log" },
+          { key: "merge", label: "Unisci", onClick: () => {} },
+          { key: "why", label: "Come valutiamo", href: "/w", icon: "why" },
+        ]}
+      />,
+    );
+    const at = (s: string) => html.indexOf(s);
+    expect(at("Unisci")).toBeLessThan(at('aria-label="Registra"'));
+    expect(at('aria-label="Registra"')).toBeLessThan(at('aria-label="Come valutiamo"'));
+    expect(at('aria-label="Come valutiamo"')).toBeLessThan(at('aria-label="Elimina"'));
+    expect(at('aria-label="Elimina"')).toBeLessThan(at('aria-label="Apri"'));
   });
 });

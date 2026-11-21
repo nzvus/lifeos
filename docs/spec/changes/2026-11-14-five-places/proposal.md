@@ -1674,6 +1674,19 @@
     mente. riguardano soprattutto voti, modifiche in place degli ingredienti, dinamismo nelle
     visualizzazioni delle barre dei macro e dei voti in base e ingredienti o in base ai nutrienti,
     eccetera»
+167. **21 Nov, his word while §166 was built (verbatim):** «come valutiamo diventa un punto
+    interrogativo in un riquadro, come tutte le altre azioni, direi di metterla nella stessa riga di
+    quella del bidone (che equivale ad archivia?) e probabilmente anche con registra? magari lo
+    sostituiamo anche lui con una icona apposita, quale secondo te? cambia cibi diventa inutile, e
+    anche parti da, quindi possiamo toglierli»
+168. **21 Nov, built on §166–§167:** VIS-109 (every button squared; a row not full filled by its
+    buttons). The actions row's icons sit at its end in one group — «Registra» (Tabler
+    `calendar-plus`, Claude's pick: «put it in the day»), «?» («Come valutiamo», out of the voto),
+    the trash, the page last. Claude's answer: the trash is «Elimina», not «Archivia» — MOD-20 already
+    makes it safe (it deletes only a thing never used, else archives). A pasto's box drops «Cambia i
+    cibi» (its foods are still changed from its page until the in-place edits land), «Parti da» and
+    «Variante» (a copy is «+ figlio», ADR-0065). The full list of what is decided and not yet built:
+    `tasks.md` «Next, from his words» (his §166 «rivedi tutte le discussioni»).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

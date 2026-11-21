@@ -395,18 +395,17 @@ function List({
                 entry={row(tab, r, value(r), false)}
                 data={r.meal.data}
                 slots={mealSlots({ details: r.meal.details })}
+                // «Registra» an icon beside «?» and the trash; «Cambia i cibi» and «Parti da» gone:
+                // its foods change in place, a copy is «+ figlio» (his §167, ADR-0065).
                 actions={[
                   {
                     key: "log",
                     label: w.log,
                     href: "/aggiungi/pasto?pasto=" + r.meal.id,
+                    icon: "log",
                   },
-                  {
-                    key: "compose",
-                    label: r.meal.estimate ? w.composeEstimate : w.compose,
-                    href: "/cibo/pasto/" + r.meal.id + "/componi",
-                  },
-                  ...acts(r),
+                  // «Variante» too: a child is «+ figlio» now (ADR-0065)
+                  ...acts(r).filter((a) => a.key !== "startFrom" && a.key !== "variant"),
                 ]}
                 between={
                   server.kin &&

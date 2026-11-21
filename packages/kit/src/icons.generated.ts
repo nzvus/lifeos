@@ -394,6 +394,8 @@ export const ICONS: IconRegistry = {
     star: ["Preferito", "star"],
     parents: ["Genitori", "corner-left-up"],
     children: ["Figli", "corner-right-down"],
+    why: ["Come valutiamo", "question-mark"],
+    log: ["Registra", "calendar-plus"],
   },
   sections: {
     identity: ["Nome e codici", "barcode"],
@@ -451,6 +453,8 @@ export const ICONS: IconRegistry = {
       "M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2zM16 3l0 4M8 3l0 4M4 11l16 0M8 15h2v2h-2z",
     "calendar-month":
       "M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12zM16 3v4M8 3v4M4 11h16M7 14h.013M10.01 14h.005M13.01 14h.005M16.015 14h.005M13.015 17h.005M7.01 17h.005M10.01 17h.005",
+    "calendar-plus":
+      "M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5M16 3v4M8 3v4M4 11h16M16 19h6M19 16v6",
     "calendar-repeat":
       "M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3M16 3v4M8 3v4M4 11h12M20 14l2 2h-3M20 18l2 -2M19 16a3 3 0 1 0 2 5.236",
     "calendar-week":
@@ -624,6 +628,8 @@ export const ICONS: IconRegistry = {
     pulldown:
       "M2 3h20M7 3v4l3 3M17 3v4l-3 3M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM10 22v-6h4v6",
     pushdown: "M12 2v7M9 9h6M12 13a2 2 0 1 0 0-4M8 12v6l4 4 4-4v-6",
+    "question-mark":
+      "M8 8a3.5 3 0 0 1 3.5 -3h1a3.5 3 0 0 1 3.5 3a3 3 0 0 1 -2 3a3 4 0 0 0 -2 4M12 19l0 .01",
     raise:
       "M12 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM2 10h4M18 10h4M6 10h12M10 10v5l-1 7M14 10v5l1 7",
     rearfly:

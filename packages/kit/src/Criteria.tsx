@@ -44,9 +44,12 @@ function Mark({ v }: { v: number }) {
 export function Criteria({
   data,
   planned = false,
+  howInRow = false,
 }: {
   data: CriteriaData;
   planned?: boolean;
+  /** Its box draws «Come valutiamo» as «?» in the actions row (PlanBox, §167): no link here. */
+  howInRow?: boolean;
 }) {
   const parts = data.parts.map((q, i) => ({
     ...q,
@@ -141,7 +144,7 @@ export function Criteria({
           </ul>
         </Condensed>
       )}
-      {data.how && (
+      {data.how && !howInRow && (
         <a className="k-link" href={data.how}>
           {WORDS.scoreHow}
         </a>

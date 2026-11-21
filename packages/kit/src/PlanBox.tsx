@@ -46,8 +46,11 @@ export type PlanAction = { key: string; label: string } & (
     }
   | {
       href: string;
-      /** A link drawn as an icon, last in the row: its page (his §145; `label` its aria). */
-      icon?: "link";
+      /**
+       * A link drawn as an icon, at the row's end with the trash (his §145, §167; `label` its
+       * aria): «link» its page (last), «why» how it is judged (?), «log» it put in the day.
+       */
+      icon?: "link" | "why" | "log";
     }
   | {
       step: { value: string; minus: string; plus: string };
@@ -60,9 +63,12 @@ export type PlanAction = { key: string; label: string } & (
 export function ActionRow({ actions }: { actions: PlanAction[] }) {
   if (actions.length === 0) return null;
   const danger = (a: PlanAction) => "danger" in a && !!a.danger;
-  const page = (a: PlanAction) => "icon" in a && !!a.icon;
+  const icon = (a: PlanAction) => "icon" in a && !!a.icon;
+  const page = (a: PlanAction) => "icon" in a && a.icon === "link";
+  // the words first; then the icons — registra, «?», the trash — and the page last (§167)
   const ordered = [
-    ...actions.filter((a) => !danger(a) && !page(a)),
+    ...actions.filter((a) => !danger(a) && !icon(a)),
+    ...actions.filter((a) => icon(a) && !page(a)),
     ...actions.filter(danger),
     ...actions.filter(page),
   ];
@@ -251,6 +257,17 @@ export function PlanBox({
         ]
       : []),
     ...actions,
+    // «Come valutiamo» as «?» in the actions row (his §167), not a link under the voto
+    ...(headEntry.score?.how
+      ? [
+          {
+            key: "why",
+            label: WORDS.scoreHow.replace(/\s*›$/, ""),
+            href: headEntry.score.how,
+            icon: "why" as const,
+          },
+        ]
+      : []),
     ...(href
       ? [
           {
@@ -271,7 +288,7 @@ export function PlanBox({
         {v?.before ?? before}
         {/* zone 3: the voto in full, always, open (his §161; VIS-107 will make it one bar) */}
         {headEntry.score && headEntry.score.value !== null && (
-          <Criteria data={headEntry.score} planned={!!headEntry.planned} />
+          <Criteria data={headEntry.score} planned={!!headEntry.planned} howInRow />
         )}
         {/* a thing's own rows above the actions (its kin, PAT-103; his §161) */}
         {between}

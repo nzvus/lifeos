@@ -662,7 +662,7 @@ export default async function KitPage({
                 of: { kind: "meal" },
                 title: "Porridge proteico: lamponi, cioccolato, nocciola",
                 value: F.num(533, "kcal"),
-                score: MEAL_SCORE,
+                score: { ...MEAL_SCORE, how: "#pasto-box" },
                 href: "#pasto-box",
               }}
               data={MEAL_SAMPLE}
@@ -670,8 +670,8 @@ export default async function KitPage({
                 details: { stats: [], lines: [], foot: "aggiunto al volo" },
               })}
               actions={[
-                { key: "log", label: "Registra", href: "#pasto-box" },
-                { key: "compose", label: "Cambia i cibi", href: "#pasto-box" },
+                // as in the Elenco (§167): «Registra» an icon, then «?», the page last
+                { key: "log", label: "Registra", href: "#pasto-box", icon: "log" },
               ]}
             />
           </div>
