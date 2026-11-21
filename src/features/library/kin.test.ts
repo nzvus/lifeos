@@ -52,3 +52,36 @@ describe("pastoKin (MOD-23, PAT-103)", () => {
     expect(kin.has("Stima")).toBe(false);
   });
 });
+
+describe("ingredientGroups (his §169: which foods each parent brings)", () => {
+  it("each parent's foods × k, then the pasto's own", async () => {
+    const { ingredientGroups } = await import("./kin");
+    const gelato = pasto("Gelato", [
+      ["milk", "400"],
+      ["whey", "15"],
+    ]);
+    const doppio = pasto("Doppio", [
+      ["milk", "800"],
+      ["whey", "30"],
+      ["nut", "20"],
+    ]);
+    const g = ingredientGroups(
+      doppio,
+      [gelato, doppio],
+      [{ id: "Gelato", name: "Gelato", k: 2, stored: true }],
+    );
+    expect(g.parents).toEqual([
+      {
+        id: "Gelato",
+        name: "Gelato",
+        k: 2,
+        stored: true,
+        foods: [
+          { key: "milk", quantity: 800 },
+          { key: "whey", quantity: 30 },
+        ],
+      },
+    ]);
+    expect(g.own).toEqual([{ key: "nut", quantity: 20 }]);
+  });
+});

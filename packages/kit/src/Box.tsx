@@ -87,6 +87,7 @@ export function Box({
   door = null,
   onDoor,
   votoElsewhere = false,
+  bands = false,
 }: {
   entry: BoxEntry;
   density?: "card" | "row";
@@ -110,6 +111,8 @@ export function Box({
   onDoor?: (key: string) => void;
   /** Open, the caller draws the voto in its own zone (PlanBox, PAT-102 zone 3), not here. */
   votoElsewhere?: boolean;
+  /** Drawn in bands (his §169): each zone a full-width band, a hairline between, no inner frames. */
+  bands?: boolean;
 }) {
   const levels = doors !== undefined;
   const shut = levels && !expanded;
@@ -261,7 +264,11 @@ export function Box({
       <div className={"k-shape" + fam + (e.planned ? " planned" : "")}>
         <div
           className={
-            "k-box " + e.fam + (e.sub ? " " + e.sub : "") + (expanded ? " is-open" : "")
+            "k-box " +
+            e.fam +
+            (e.sub ? " " + e.sub : "") +
+            (expanded ? " is-open" : "") +
+            (bands ? " bands" : "")
           }
           // Closed, the whole box opens it, not only its head (his 19 Nov: «interagibili per
           // intero»); a tap on its own buttons and links stays theirs. Open, only the head

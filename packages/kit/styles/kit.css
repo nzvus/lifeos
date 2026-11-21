@@ -6061,3 +6061,231 @@ button.k-mrow:active {
   flex: 1 0 auto;
   justify-content: center;
 }
+
+/* ---------- a box in bands (his §169): each zone a full-width band, a hairline between them, the
+   head's parts split by hairlines too; one frame, the box's own — no frame inside it ---------- */
+.k-box.bands {
+  --band-x: 12px;
+  --band-y: 8px;
+  padding: 0;
+  overflow: hidden;
+}
+.k-box.bands > .k-top {
+  padding: 10px var(--band-x);
+}
+.k-box.bands > .k-top > .k-lead {
+  left: var(--band-x);
+  top: 10px;
+}
+/* the head's cells: icon | title | value | (shut) the mini voto, each after a hairline */
+.k-box.bands .k-head > .k-hright,
+.k-box.bands .k-top > .k-line > .k-trail {
+  position: relative;
+  padding-left: 10px;
+}
+.k-box.bands .k-head > .k-hright::before,
+.k-box.bands .k-top > .k-line > .k-trail::before,
+.k-box.bands .k-top .k-hlead::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  left: 0;
+  border-left: 1px solid var(--hairline);
+}
+.k-box.bands .k-top .k-hlead {
+  position: relative;
+}
+.k-box.bands .k-top .k-hlead::before {
+  left: -6px;
+}
+.k-box.bands > .k-lvstrip {
+  margin: 0 var(--band-x) 10px;
+}
+.k-box.bands .k-bin {
+  margin-top: 0;
+}
+.k-box.bands .k-zones {
+  gap: 0;
+  padding-top: 0;
+}
+.k-box.bands .k-zones > *,
+.k-box.bands .k-zones > .k-kinrows > * {
+  margin: 0;
+  padding: var(--band-y) var(--band-x);
+  border-top: 1px solid var(--hairline);
+}
+.k-box.bands .k-zones > .k-kinrows {
+  display: contents;
+  border: 0;
+  padding: 0;
+}
+.k-box.bands .k-zones > .k-hrow,
+.k-box.bands .k-zones > .k-kinrows > .k-hrow {
+  margin-inline-start: 0;
+}
+/* the kin search: a whole band, no frame of its own (his §169) */
+.k-box.bands .k-kinfind {
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  background: transparent;
+}
+.k-box.bands .k-doorbar {
+  margin: 0;
+  padding: var(--band-y) var(--band-x);
+  border-top: 1px solid var(--hairline);
+}
+/* the two halves: the view shown now hatched while shut; the one open filled (his §170) */
+.k-box.bands .k-zones > .k-xor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0;
+}
+.k-xorhalf {
+  min-height: var(--touch);
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: var(--ctl-fs);
+  font-weight: 600;
+  cursor: pointer;
+}
+.k-xorhalf + .k-xorhalf {
+  border-left: 1px solid var(--hairline);
+}
+.k-xorhalf.now {
+  color: var(--ink);
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--ink) 14%, transparent) 0 2px,
+    transparent 2px 7px
+  );
+}
+.k-xorhalf.on {
+  color: var(--paper);
+  background: var(--ink);
+}
+.k-box.bands .k-zones > .k-xorpanel {
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+.k-xorpanel::-webkit-scrollbar {
+  display: none;
+}
+
+/* a pasto's «Ingredienti» band (his §169): each parent's foods in its shade of the kin colour, a
+   stripe on the left; the pasto's own foods with their edits on the right */
+.k-ing .k-ingadd {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 6px;
+  border-style: dashed;
+}
+.k-inggroup {
+  --grp: var(--kin-parent);
+  padding-left: 8px;
+  border-left: 3px solid var(--grp);
+}
+.k-inggroup.g1 {
+  --grp: color-mix(in oklab, var(--kin-parent) 70%, var(--paper));
+}
+.k-inggroup.g2 {
+  --grp: color-mix(in oklab, var(--kin-parent) 45%, var(--paper));
+}
+.k-ingparent {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  color: var(--grp);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--ctl-fs);
+}
+.k-ingrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--touch);
+  font-size: var(--fs-b2);
+}
+.k-ingrow.from {
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 28px;
+  color: var(--muted);
+}
+.k-ingrow .k-step {
+  grid-template-columns: 32px auto 32px;
+}
+.k-ingrow .k-step .k-num {
+  min-width: 52px;
+  text-align: center;
+  font-size: var(--ctl-fs);
+}
+/* the name gets the room: narrower − + and a bare trash (his §169) */
+.k-ingrow {
+  gap: 4px;
+}
+.k-ingrow .k-step {
+  grid-template-columns: 28px auto 28px;
+  border-color: transparent;
+  background: transparent;
+}
+.k-ingrow .k-step .k-num {
+  min-width: 44px;
+}
+.k-ingrow .k-btn.act.icon.danger {
+  min-width: 32px;
+  padding: 0 4px;
+  border-color: transparent;
+  background: transparent;
+}
+/* shut, a food's row is its name and its grams; the grams open the edits (§169) */
+.k-ingrow:not(.editing) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.k-ingq {
+  position: relative;
+  min-height: var(--ctl-dense);
+  padding: 0 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-control);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: var(--ctl-fs);
+  font-weight: 600;
+  cursor: pointer;
+}
+.k-ingq::after {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
+}
+.k-ingrow.editing .k-ingq {
+  z-index: 1;
+  border-color: var(--ink);
+}
+/* the actions row's coloured icons (his §169): «Registra» the colour of adding, «?» its own */
+.k-btn.act.icon.log {
+  color: var(--herb);
+  border-color: color-mix(in oklab, var(--herb) 55%, transparent);
+}
+.k-btn.act.icon.why {
+  color: var(--macro-fat);
+  border-color: color-mix(in oklab, var(--macro-fat) 55%, transparent);
+}
+/* a head cell with nothing in it is no cell; the cells' padding kept small for the title */
+.k-box.bands .k-head > .k-hright:empty,
+.k-box.bands .k-top > .k-line > .k-trail:empty {
+  display: none;
+}
+.k-box.bands .k-head > .k-hright,
+.k-box.bands .k-top > .k-line > .k-trail {
+  padding-left: 8px;
+}

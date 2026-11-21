@@ -103,7 +103,12 @@ export function ActionRow({ actions }: { actions: PlanAction[] }) {
             </button>
           </span>
         ) : "href" in a && a.icon ? (
-          <a key={a.key} className="k-btn act icon" href={a.href} aria-label={a.label}>
+          <a
+            key={a.key}
+            className={"k-btn act icon " + a.icon}
+            href={a.href}
+            aria-label={a.label}
+          >
             <Glyph of={{ ui: a.icon }} decorative />
           </a>
         ) : "href" in a ? (
@@ -202,6 +207,7 @@ export function PlanBox({
   actions = [],
   before,
   between,
+  xor,
   ...place
 }: ThingBoxPlace & {
   entry: BoxEntry;
@@ -220,6 +226,18 @@ export function PlanBox({
   before?: ReactNode;
   /** Open, after the voto and above the actions: a thing's own rows (its kin, PAT-103). */
   between?: ReactNode;
+  /**
+   * The last band, two halves of which one is on (his §169–§170): the view the bars show now is
+   * hatched while it is shut; a tap on a half shows that view and opens its band under it (a fixed
+   * height that scrolls inside), filled; a tap on the open one shuts it.
+   */
+  xor?: {
+    items: { key: string; label: string }[];
+    current: string;
+    open: boolean;
+    onPick: (key: string) => void;
+    panel: ReactNode;
+  };
 }) {
   const vs = variants ?? [];
   const [key, setKey] = useState(() => picked ?? vs[0]?.key);
@@ -281,7 +299,7 @@ export function PlanBox({
   ];
   const rows = shown.flatMap((s) => ("words" in s && s.words.length > 0 ? [s] : []));
   return (
-    <ThingBox {...place} entry={headEntry} doors={doors} votoElsewhere>
+    <ThingBox {...place} entry={headEntry} doors={doors} votoElsewhere bands>
       {/* The zones in one column, one gap between any two (PAT-102; his §148: bars always had
           nothing between them and what came under). */}
       <div className="k-zones">
@@ -293,6 +311,24 @@ export function PlanBox({
         {/* a thing's own rows above the actions (its kin, PAT-103; his §161) */}
         {between}
         <ActionRow actions={all} />
+        {xor && (
+          <div className="k-xor" role="group">
+            {xor.items.map((i) => (
+              <button
+                key={i.key}
+                type="button"
+                className={
+                  "k-xorhalf" + (i.key === xor.current ? (xor.open ? " on" : " now") : "")
+                }
+                aria-pressed={xor.open && i.key === xor.current}
+                onClick={() => xor.onPick(i.key)}
+              >
+                {i.label}
+              </button>
+            ))}
+          </div>
+        )}
+        {xor?.open && <div className="k-xorpanel">{xor.panel}</div>}
         {children}
         {choosing && (
           <ChipRow

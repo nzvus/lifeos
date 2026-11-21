@@ -17,7 +17,10 @@ import type { Undo } from "@/core/verbs";
 import { common } from "@/i18n/common";
 import { objects } from "@/i18n/objects";
 
-export type Answer = { ok: true; undo: Undo | null } | { ok: false; refused: string };
+export type Answer =
+  | { ok: true; undo: Undo | null }
+  /** `offer`: the verb that would do instead («archive» for a thing in use). */
+  | { ok: false; refused: string; offer?: string };
 
 /** The server's side of the verbs, passed down from the page (server actions). */
 export type VerbServer = {
@@ -30,6 +33,8 @@ export type VerbServer = {
     step: (childId: string, parentId: string, k: number) => Promise<boolean>;
     addParent: (childId: string, parentId: string) => Promise<boolean>;
     addChild: (parentId: string) => Promise<string | null>;
+    /** A food's grams set, added, or taken out (null) in the pasto's box (§169). */
+    food: (pastoId: string, key: string, quantity: number | null) => Promise<boolean>;
   };
 };
 
@@ -61,10 +66,14 @@ export function rowVerbs(
   verbs: readonly string[],
   hasOthers: boolean,
 ): { verb: ObjectVerb; danger: boolean }[] {
-  return verbs
-    .filter((v) => v !== "restore" && (v !== "merge" || hasOthers))
-    .filter((v) => !(v === "trash" && verbs.includes("delete")))
-    .map((v) => ({ verb: v as ObjectVerb, danger: DANGER.has(v) }));
+  return (
+    verbs
+      .filter((v) => v !== "restore" && (v !== "merge" || hasOthers))
+      .filter((v) => !(v === "trash" && verbs.includes("delete")))
+      // the trash absorbs «Archivia» (his §169): a thing in use is archived by it
+      .filter((v) => !(v === "archive" && verbs.includes("delete")))
+      .map((v) => ({ verb: v as ObjectVerb, danger: DANGER.has(v) }))
+  );
 }
 
 export const refusal = (r: string) =>
@@ -76,11 +85,18 @@ export function useObjectVerbs(server: VerbServer) {
   const [merging, setMerging] = useState<VerbTarget | null>(null);
   const [hour] = useState(() => new Date().getHours());
 
-  const act = async (t: VerbTarget, v: ObjectVerb) => {
+  const act = async (t: VerbTarget, verb: ObjectVerb) => {
+    let v = verb;
     if (v === "merge") return setMerging(t);
     if (v === "startFrom" || v === "variant")
       return router.push(`${t.newHref}?${v === "startFrom" ? "da" : "variante"}=${t.id}`);
-    const r = await server.run(t.type, t.id, v);
+    let r = await server.run(t.type, t.id, v);
+    // The trash absorbs «Archivia» (his §169): a thing already used is archived, not refused
+    // (MOD-20: delete only if unused, else archive); the toast says which, with «Annulla».
+    if (!r.ok && v === "delete" && r.refused === "in_use" && r.offer === "archive") {
+      v = "archive";
+      r = await server.run(t.type, t.id, v);
+    }
     if (!r.ok) return say(refusal(r.refused));
     const u = r.undo;
     say(

@@ -6,7 +6,7 @@
  * full, showing only the proportions of its parts (its ingredients, or its kinds), each number
  * with its verdict's arrow; then one row of actions (PAT-101), then its other slots.
  */
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { BoxEntry } from "./Box";
 import { Nutrients } from "./Nutrients";
 import { energyStrip, type NutrientsData } from "./nutrient-rows";
@@ -20,6 +20,8 @@ export function MealBox({
   actions = [],
   children,
   between,
+  ingredients,
+  words = { foods: "Ingredienti", kinds: "Nutrienti" },
   ...place
 }: ThingBoxPlace & {
   entry: BoxEntry;
@@ -33,15 +35,59 @@ export function MealBox({
   children?: ReactNode;
   /** Open, after the voto and above the actions (its kin, PAT-103). */
   between?: ReactNode;
+  /** The «Ingredienti» band's content (its foods, edited in place, §169); none: no two halves. */
+  ingredients?: ReactNode;
+  /** The two halves' words, from the caller (PAT-81). */
+  words?: { foods: string; kinds: string };
 }) {
+  // One view for the bars and the last band (his §170): a tap on the bars switches it, the band
+  // follows; a tap on a half shows that view and opens or shuts its band.
+  const [view, setView] = useState<"foods" | "kinds">("foods");
+  const [open, setOpen] = useState(false);
   return (
     <PlanBox
       {...place}
       entry={{ ...entry, strip: energyStrip(data) }}
       slots={slots}
       actions={actions}
-      before={<Nutrients data={data} part="main" chips={false} inline />}
+      before={
+        <Nutrients
+          data={data}
+          part="main"
+          chips={false}
+          inline
+          by={view}
+          {...(ingredients
+            ? { onTap: () => setView((v) => (v === "foods" ? "kinds" : "foods")) }
+            : {})}
+        />
+      }
       between={between}
+      {...(ingredients
+        ? {
+            xor: {
+              items: [
+                { key: "kinds", label: words.kinds },
+                { key: "foods", label: words.foods },
+              ],
+              current: view,
+              open,
+              onPick: (k: string) => {
+                if (k === view) setOpen((o) => !o);
+                else {
+                  setView(k as "foods" | "kinds");
+                  setOpen(true);
+                }
+              },
+              panel:
+                view === "foods" ? (
+                  ingredients
+                ) : (
+                  <Nutrients data={data} chips={false} by="kinds" />
+                ),
+            },
+          }
+        : {})}
     >
       {children}
     </PlanBox>

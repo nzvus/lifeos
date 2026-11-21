@@ -77,7 +77,21 @@ export type LibraryRow = {
     parts: MealPart[];
     /** Its parents and children (MOD-23, PAT-103). */
     kin?: MealKin;
+    /** Its foods for the «Ingredienti» band (§169): each parent's, then its own, edited in place. */
+    ingredients?: {
+      parents: { id: string; name: string; k: number; foods: MealFood[] }[];
+      own: MealFood[];
+    };
   };
+};
+
+/** A food of a pasto in its «Ingredienti» band: the choice's key, its words and its amount. */
+export type MealFood = {
+  key: string;
+  name: string;
+  brand: string | null;
+  quantity: number;
+  unit: string;
 };
 
 /** One cibo of a pasto, as its row says it. */

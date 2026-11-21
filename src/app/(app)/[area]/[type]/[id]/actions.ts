@@ -15,7 +15,8 @@ import { mergeLines } from "@/features/objects/present";
 const SIMPLE = new Set(["archive", "restore", "trash", "delete"] as const);
 type Simple = "archive" | "restore" | "trash" | "delete";
 
-export type VerbAnswer = { ok: true; undo: Undo | null } | { ok: false; refused: string };
+export type VerbAnswer =
+  { ok: true; undo: Undo | null } | { ok: false; refused: string; offer?: string };
 
 export async function objectVerb(
   type: string,
@@ -26,7 +27,9 @@ export async function objectVerb(
   if (!SIMPLE.has(verb as Simple)) return { ok: false, refused: "verb_not_allowed" };
   const r = await act(await getDb(), owner, verb as Simple, type, id, {});
   revalidatePath("/", "layout");
-  return r.ok ? { ok: true, undo: r.undo } : { ok: false, refused: r.refused };
+  return r.ok
+    ? { ok: true, undo: r.undo }
+    : { ok: false, refused: r.refused, ...(r.offer ? { offer: r.offer } : {}) };
 }
 
 /** PAT-13: one value saved in place; the answer's undo puts the previous one back. */

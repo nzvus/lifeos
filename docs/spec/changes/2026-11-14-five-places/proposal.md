@@ -1687,6 +1687,58 @@
     cibi» (its foods are still changed from its page until the in-place edits land), «Parti da» and
     «Variante» (a copy is «+ figlio», ADR-0065). The full list of what is decided and not yet built:
     `tasks.md` «Next, from his words» (his §166 «rivedi tutte le discussioni»).
+169. **21 Nov, his word on §168 and the box in bands (verbatim):** «in cosa sarebbe diverso
+    archivia? non potrebbe essere assorbito dalla funzione cestino? e poi "unisci" anche puo essere
+    una icona, non so di fatti come funziona attualmente, ma immagino si possa fare che anche per
+    quella compare una finestra in place? in realtà dovrei prima sapere come funziona. registra e
+    come valutiamo anche dovrebbero essere colorati. 3 si. 1 yc ma va visto bene come viene
+    spaziato, renderizzato eccetera considerato le cose che stanno intorno. ora, in realtà stavo
+    pensando che potremmo un po modificare la struttura generale della scheda, dividendola in tagli
+    orizzontali, e eventualmente ogni taglio orizzontale dei tagli verticali, di modo che tutto
+    abbia un contorno intrinseco. tipo dividamo le fasce  orizzontali di intestazione e lei in 3:
+    icona, titolo, cal, e da chiusa diventano 4 col voto. poi fascia barra macro, poi fascia barra
+    voto. poi mettiamo fascia riga a scorrimento dei bottoni genitori, poi fascia figli, poi fascia
+    azioni, e poi ultima magari facciamo una fascia con 2 metà in xor: nutrienti, e ingredienti, e
+    se cliccata una delle due, estende sotto la scheda creando un'altra fascia (o magari estende la
+    stessa? bo, forse sarebbe piu brutto). in nutrienti mostri i nutrienti e le barre diventano in
+    quel livello di visualizzazione. compresi i micro nutrienti? immagino di si. in ingredienti gli
+    ingredienti, solo che le quantità devono poter essere modificate. anche qui, per evitare un
+    elenco infinito, rendiamo la fascia a lunghezza fissa e dentro scorre verso il basso. mi
+    piacerebbe venissero mostrati quali ingredienti sono accomunati da ogni cenitore, non so come,
+    magari dai colori che vengono assegnati ai vari padri, magari diverse tonalità di viola? in ogni
+    caso ogni ingrediente si dovrebbe poter modificare li in place, magari a destra ci sono le cose
+    per le modifiche. poi in alto alla fascia un tasto aggiungi per aggiungere un altro ingrediente
+    che se cliccato trasforma la fascia in una fascia di ricerca mostrando sotto i risultati. a
+    proposito, la "finestra di ricerca che si apriva coi genitori a questo punto puo diventare
+    anch'essa una fascia intera . questa suddivisione in fasce ci fa guadagnare spazio dato che non
+    dobbiamo creare troppi contorni»
+170. **21 Nov, his word while §169 was built (verbatim):** «ah e magari quando si toccano le barre dei
+    macro e dei nutrienti, le loro viste cambiano, e magari la fascia di sotto, estesa o inestesa
+    cambia con loro, se è minimizzata, magari per far capire che visualizzazione è, possiamo far
+    colorare in tratteggiato quella di quel momento. poi se tocchiamo proprio una delle due, non lo
+    so, diventa bianca? non so, insomma una selezione visivamente piu forte per far estendere.»
+171. **21 Nov, built on §169–§170** (one screen, the pasto's box, for his word). Claude's answers:
+    «Archivia» hides a thing from searches and keeps its history (restorable from «Archiviati»);
+    the trash deleted only a thing never used and refused otherwise — now **the trash absorbs it**:
+    a used thing is archived, the toast says so with «Annulla»; «Archivia» leaves every row where
+    the trash is. «Unisci» today opens a sheet (pop-up): «Quale è la stessa cosa?», then what moves,
+    «Non si può annullare», Annulla · Unisci — **in place as a band: next**. «Registra» green
+    (adding), «?» blue. His «3 sì» (a lone button fills its row) and «1 yc» (the open title becomes
+    a field — spacing to be checked with what is around it). Built: **the box in bands** (`PlanBox`
+    → every type on it): each zone a full-width band, a hairline between, one frame; the head's
+    cells icon | title | value (| mini voto shut) split by hairlines, an empty cell left out.
+    **The two halves «Nutrienti | Ingredienti»** as the last band: the bars' view (by foods · by
+    kinds, `Nutrients by`) is one state with it — a tap on the bars switches it, the band follows;
+    shut, the half of the view shown is hatched; a tap on a half shows it filled (ink) and opens
+    its band under it (max 320 px, scrolling inside); a tap on the open one shuts it.
+    «Nutrienti»: every nutrient, micros included (`Nutrients` by kinds). **«Ingredienti»**: «+
+    Aggiungi un ingrediente» at the top turns the band into a search of the cibi (a pick adds 100
+    g); each parent's foods under a stripe in its shade of the kin lilac, its multiplier first;
+    then the pasto's own foods, name | grams — a tap on the grams opens − grams + and the trash in
+    the row (as a kin's multiplier, §160), so names keep their room at 320 (`setRecipeFood`, steps
+    of 10, MOD-23: the children follow). The kin search is a whole band too. Photos
+    `review/2026-11-21/bands/`. Not yet: the voto bar following the view (A1), typing the grams,
+    «Unisci» as a band.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

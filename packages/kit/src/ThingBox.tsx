@@ -34,7 +34,10 @@ export function ThingBox({
   acts,
   verbs,
   votoElsewhere = false,
+  bands = false,
 }: ThingBoxPlace & {
+  /** Drawn in bands (his §169). */
+  bands?: boolean;
   /** Open, the caller draws the voto in its own zone (PlanBox). */
   votoElsewhere?: boolean;
   entry: BoxEntry;
@@ -61,6 +64,7 @@ export function ThingBox({
       door={door}
       onDoor={(k: string) => setDoor((d) => (d === k ? null : k))}
       votoElsewhere={votoElsewhere}
+      bands={bands}
     >
       {children}
     </Box>

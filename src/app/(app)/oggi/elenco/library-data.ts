@@ -16,7 +16,9 @@ import { readMicroTargets } from "@/core/day";
 import { readTargetsFor } from "@/core/energy";
 import { foodScore } from "@/features/day/score";
 import { mealBox } from "./meal-box";
-import { pastoKin } from "@/features/library/kin";
+import { ingredientGroups, pastoKin, type KinLink } from "@/features/library/kin";
+import type { FoodChoice, RecipeChoice } from "@/core/food/choices";
+import type { MealFood } from "@/features/library/library";
 import { areaSlug, typeAtSlug } from "@/core/kinds/catalog";
 import { pageVerbs } from "@/features/objects/present";
 import { NEW_FORMS } from "../../[area]/[type]/[id]/new-forms";
@@ -127,6 +129,9 @@ export async function readLibrary(
         details: box.details,
         parts: box.parts,
         ...(k ? { kin: k } : {}),
+        ...(recipe.estimate === undefined
+          ? { ingredients: ingredientsOf(recipe, recipes, k?.parents ?? [], by) }
+          : {}),
       },
     };
   });
@@ -169,4 +174,29 @@ function withObjects(rows: LibraryRow[]): LibraryRow[] {
       },
     };
   });
+}
+
+/** A pasto's «Ingredienti» band (§169): each parent's foods, then its own, with their words. */
+function ingredientsOf(
+  recipe: RecipeChoice,
+  recipes: readonly RecipeChoice[],
+  parents: readonly KinLink[],
+  by: ReadonlyMap<string, FoodChoice>,
+) {
+  const g = ingredientGroups(recipe, recipes, parents);
+  const food = (x: { key: string; quantity: number }): MealFood[] => {
+    const f = by.get(x.key);
+    return f
+      ? [{ key: x.key, name: f.name, brand: f.brand, quantity: x.quantity, unit: f.unit }]
+      : [];
+  };
+  return {
+    parents: g.parents.map((p) => ({
+      id: p.id,
+      name: p.name,
+      k: p.k,
+      foods: p.foods.flatMap(food),
+    })),
+    own: g.own.flatMap(food),
+  };
 }

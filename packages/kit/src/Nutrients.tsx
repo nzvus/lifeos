@@ -27,6 +27,7 @@ export function Nutrients({
   chips = true,
   onTap,
   inline = false,
+  by = "foods",
 }: {
   data: NutrientsData;
   part?: "all" | "main" | "rest";
@@ -38,6 +39,8 @@ export function Nutrients({
   onTap?: () => void;
   /** The four macros side by side on one row, each its icon, number and track (his §145). */
   inline?: boolean;
+  /** The bars split by «foods» or by «kinds» of nutrient (VIS-106, his §169–§170). */
+  by?: "foods" | "kinds";
 }) {
   const main = part !== "rest";
   const rest = part !== "main";
@@ -46,6 +49,7 @@ export function Nutrients({
   const { kcal, foods, macros, limits, micros } = nutrientsL1(
     data,
     lit !== undefined ? lit : sel,
+    by,
   );
   const means = limits.some((l) => l.strip?.mean);
   return (

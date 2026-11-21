@@ -427,3 +427,51 @@ export async function makeVariantOf(
   });
   return true;
 }
+
+/**
+ * A pasto's food changed in place (his §169: «le quantità devono poter essere modificate… in
+ * place»): `key` is the choice's key (`food` or `food:product`); a quantity sets it (adding the food
+ * when it has none), null takes it out. A food that comes from a parent line is not its own: its
+ * parent's multiplier or the parent itself changes it (MOD-23). A variant keeps storing only its
+ * differences (ADR-0060). False when the pasto is not a live one of the owner, or the change is not
+ * one (≤ 0 or over 5 kg, or a food it does not have to take out).
+ */
+export async function setRecipeFood(
+  db: Db,
+  owner: Owner,
+  id: string,
+  key: string,
+  quantity: number | null,
+): Promise<boolean> {
+  const { family, partsOf } = await readRecipeFamily(db, owner);
+  const mine = partsOf(id);
+  const [food, product] = key.split(":") as [string, string | undefined];
+  if (!mine || family.has(food)) return false;
+  if (quantity !== null && !(quantity > 0 && quantity <= 5000)) return false;
+  const at = mine.findIndex(
+    (p) =>
+      p.partItemId === food && (!product || p.defaults["preferredProduct"] === product),
+  );
+  const q = quantity === null ? null : String(+quantity.toFixed(2));
+  let next: Part[];
+  if (q === null) {
+    if (at < 0) return false;
+    next = mine.filter((_, i) => i !== at);
+  } else if (at >= 0) next = mine.map((p, i) => (i === at ? { ...p, quantity: q } : p));
+  else
+    next = [
+      ...mine,
+      {
+        partItemId: food,
+        quantity: q,
+        unit: null,
+        defaults: product ? { preferredProduct: product } : {},
+      },
+    ];
+  const baseId = family.get(id)?.parentId;
+  const base = baseId && family.has(baseId) ? partsOf(baseId) : null;
+  await db.transaction((tx) =>
+    rewriteParts(tx as unknown as Db, owner, id, base ? partsDiff(base, next) : next),
+  );
+  return true;
+}

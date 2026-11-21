@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
 import { addChild, addParent, readRecipeName, setKin } from "@/core/food/kin";
+import { setRecipeFood } from "@/core/food/recipes";
 
 export async function kinStep(
   childId: string,
@@ -32,4 +33,15 @@ export async function kinAddChild(parentId: string): Promise<string | null> {
   if (!id) return null;
   revalidatePath("/", "layout");
   return readRecipeName(db, owner, id);
+}
+
+/** A pasto's food changed in its box (his §169): grams set, a food added, or taken out (null). */
+export async function pastoFood(
+  id: string,
+  key: string,
+  quantity: number | null,
+): Promise<boolean> {
+  const ok = await setRecipeFood(await getDb(), await requireOwner(), id, key, quantity);
+  if (ok) revalidatePath("/", "layout");
+  return ok;
 }

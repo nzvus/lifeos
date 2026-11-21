@@ -15,6 +15,7 @@ import { useObjectVerbs, type VerbServer } from "@/features/objects/use-object-v
 import { food } from "@/i18n/food";
 import { ExercisePlanBox, FoodPlanBox } from "./boxes";
 import { MealKin } from "./MealKin";
+import { MealIngredients } from "./MealIngredients";
 import { mealSlots } from "@/features/box/meal";
 import { listRows, sortValue, SORTS, type LibraryRow, type SortKey } from "./library";
 
@@ -297,6 +298,8 @@ function List({
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("uses");
   const rows = listRows(lists[tab], query, sort);
+  // what «+ Aggiungi un ingrediente» searches (§169): the cibi and their marche, most used first
+  const cibi = lists.foods.map((f) => ({ id: f.key, name: f.name, uses: f.uses }));
   const pasti = lists.meals.flatMap((m) =>
     m.meal ? [{ id: m.meal.id, name: m.name, uses: m.uses }] : [],
   );
@@ -407,6 +410,19 @@ function List({
                   // «Variante» too: a child is «+ figlio» now (ADR-0065)
                   ...acts(r).filter((a) => a.key !== "startFrom" && a.key !== "variant"),
                 ]}
+                words={w.views}
+                {...(server.kin && r.meal.ingredients
+                  ? {
+                      ingredients: (
+                        <MealIngredients
+                          id={r.meal.id}
+                          ingredients={r.meal.ingredients}
+                          cibi={cibi}
+                          server={server.kin}
+                        />
+                      ),
+                    }
+                  : {})}
                 between={
                   server.kin &&
                   !r.meal.estimate && (

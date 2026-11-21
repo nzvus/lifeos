@@ -330,7 +330,16 @@ export function nutrientsL0(d: NutrientsData) {
 }
 
 /** `sel`: the food highlighted in a meal's window (L2), by key; null for none. */
-export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
+/**
+ * `by`: «foods» splits each bar by the foods it came from (the default when there are foods),
+ * «kinds» by kind of nutrient (qualità alta, amidi integrali, omega-3…) — the two views of one bar
+ * (VIS-106, his §169–§170).
+ */
+export function nutrientsL1(
+  d: NutrientsData,
+  sel: string | null = null,
+  by: "foods" | "kinds" = "foods",
+) {
   const foodsIn = d.foods?.length ? d.foods : null;
   const byKcal = [...(foodsIn ?? [])].sort((a, b) => b.kcal - a.kcal);
   const foods = (foodsIn ?? []).map((f) => ({
@@ -404,7 +413,7 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
     const h = heat(m.v, m.zones, scale, planned);
     const kinds = KINDS[m.key].filter(([k]) => (m.parts?.[k] ?? 0) > 0);
     const has = (foodsIn ?? []).filter((f) => total(f.macros[m.key]) > 0);
-    const segs: Seg[] = has.length
+    const segs: Seg[] = has.length && (by === "foods" || !kinds.length)
       ? has.map((f) =>
           foodSeg(m.key, f.macros[m.key]!, scale, sel !== null && sel !== f.key),
         )

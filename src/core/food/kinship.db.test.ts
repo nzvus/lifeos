@@ -135,3 +135,34 @@ it("a found link stepped is stored first: the same foods, the parent as a line (
   });
   expect(await setKin(db, a, risotto, peas, 2)).toBe(false); // not kin that way
 });
+
+it("a pasto's food changed in place: set, added, taken out; never a parent's food (§169)", async () => {
+  const { setRecipeFood } = await import("./recipes");
+  const bread = await item("food", "Pane");
+  const ham = await item("food", "Prosciutto");
+  const cheese = await item("food", "Formaggio");
+  const toast = await item("recipe", "Toast");
+  await part(toast, 0, bread, "60");
+  await part(toast, 1, ham, "30");
+  const big = await item("recipe", "Toast con formaggio");
+  await part(big, 0, toast, "1");
+
+  expect(await setRecipeFood(db, a, toast, ham, 40)).toBe(true);
+  expect(await setRecipeFood(db, a, toast, cheese, 20)).toBe(true);
+  expect(await setRecipeFood(db, a, toast, bread, null)).toBe(true);
+  expect(await setRecipeFood(db, a, toast, bread, null)).toBe(false); // not there
+  expect(await setRecipeFood(db, a, toast, ham, 0)).toBe(false);
+  expect(await setRecipeFood(db, a, big, toast, 2)).toBe(false); // a parent, not a food
+
+  const foods = await readFoodChoices(db, a, "2026-11-21");
+  const recipes = await readRecipeChoices(db, a, "2026-11-21", foods);
+  const of = (id: string) =>
+    Object.fromEntries(
+      recipes
+        .find((r) => r.recipeId === id)!
+        .parts.map((p) => [p.key, Number(p.quantity)]),
+    );
+  expect(of(toast)).toEqual({ [ham]: 40, [cheese]: 20 });
+  // the child follows its parent (MOD-23)
+  expect(of(big)).toEqual({ [ham]: 40, [cheese]: 20 });
+});

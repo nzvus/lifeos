@@ -73,15 +73,15 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 - [x] Five chevrons (⇊ ↓ – ↑ ⇈), their colours shared by the voto (§146–§148, §155).
 
 **B. Editing in place** (§112–§113, reframe §15, PAT-13, §137, §139)
-- [ ] B1 An ingredient's grams on its number: tap → a small stepper (drawn small, touched at 44,
+- [~] B1 (§171: a tap on the grams opens − grams +, steps of 10, saved at once; typing not yet) An ingredient's grams on its number: tap → a small stepper (drawn small, touched at 44,
   §137) in its row; bars and voto follow live (A2).
-- [ ] B2 «+ ingrediente» at the end of the meal's lines, inside the box: a search row opens there,
+- [x] B2 (§171: at the top of the «Ingredienti» band) «+ ingrediente» at the end of the meal's lines, inside the box: a search row opens there,
   results under it (no pop-up; the kin search's small window, §163, is the same piece).
 - [ ] B3 Porzioni: one stepper, once (PAT-101; built on the day).
 - [ ] B4 Editing puts the bars in the ingredient view (VIS-106) and lights the edited one (A4).
 - [ ] B5 On the day an edit changes only that voce (ADR-0007); in the Elenco the pasto, and its
   children follow (MOD-23); «↺» on a voce whose pasto changed after it (PAT-31).
-- [ ] B6 The name and nota on the box — **asked** (§165): (1) tap the open title, it becomes a field
+- [ ] B6 (his «1 yc», §169: option 1, spacing checked with what is around) The name and nota on the box: (1) tap the open title, it becomes a field
   (recommended); (2) «Nome» and «Nota» rows.
 - [ ] B7 Adding everywhere in place (reframe §15): on the rail at a time or a gap, «Senza orario»,
   «Nuovo tipo» at the end of the results; ⊕, the Capture sheet and the Aggiungi page go; «Al volo»
@@ -92,7 +92,7 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 - [x] A meal's four macros on one row, each bar full = its parts' proportions, a chevron by each
   number (§146–§149); «Il giorno» expanded with chevrons; the band at the top once scrolled past,
   the meal in view lit (§150–§151).
-- [ ] C1 The two views of the same bars: **by ingredient** (each ingredient a block) · **by
+- [x] C1 (§170–§171: a tap on the bars, the last band follows) The two views of the same bars: **by ingredient** (each ingredient a block) · **by
   nutrient kind** (the origins «Il giorno» draws: qualità alta…, amidi integrali…, omega-3…) —
   how he switches is **open**: a tap on the bars (his §143 «se tocchi sulle barre scorri tra queste
   visualizzazioni», recommended) or a chip (VIS-106 as written).
@@ -116,5 +116,5 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 - [ ] Lost since #357: «Copia i pasti di ieri», «Salva come giornata tipo», «+ previsto».
 - [ ] §64 the week strip redesign; inbox W-01…W-04, Q-25.
 
-**Open, his:** B6 (name and nota), C1 (how the view switches), a lone icon button filling its
-whole row (VIS-109 as written does).
+**Open, his:** none from §166 (B6 «yc» option 1; C1 a tap on the bars; a lone button fills its row,
+his «3 sì»). Next: «Unisci» as a band; the voto bar following the view (A1); typing the grams.
