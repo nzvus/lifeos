@@ -236,28 +236,32 @@ export function PlanBox({
   const rows = shown.flatMap((s) => ("words" in s && s.words.length > 0 ? [s] : []));
   return (
     <ThingBox {...place} entry={headEntry} doors={doors}>
-      {before}
-      <ActionRow actions={all} />
-      {children}
-      {vs.length > 0 && (
-        <ChipRow
-          label={variantsLabel}
-          {...(key ? { selected: key } : {})}
-          onPick={setKey}
-          items={vs.map((x) => ({
-            key: x.key,
-            label: x.label,
-            ...(x.meta ? { value: x.meta } : {}),
-          }))}
-        />
-      )}
-      {rows.map((s) => (
-        <ChipRow
-          key={s.key}
-          label={s.label}
-          items={s.words.map((w, i) => ({ key: i + ":" + w, label: w }))}
-        />
-      ))}
+      {/* The zones in one column, one gap between any two (PAT-102; his §148: bars always had
+          nothing between them and what came under). */}
+      <div className="k-zones">
+        {before}
+        <ActionRow actions={all} />
+        {children}
+        {vs.length > 0 && (
+          <ChipRow
+            label={variantsLabel}
+            {...(key ? { selected: key } : {})}
+            onPick={setKey}
+            items={vs.map((x) => ({
+              key: x.key,
+              label: x.label,
+              ...(x.meta ? { value: x.meta } : {}),
+            }))}
+          />
+        )}
+        {rows.map((s) => (
+          <ChipRow
+            key={s.key}
+            label={s.label}
+            items={s.words.map((w, i) => ({ key: i + ":" + w, label: w }))}
+          />
+        ))}
+      </div>
     </ThingBox>
   );
 }

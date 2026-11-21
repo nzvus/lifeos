@@ -5812,3 +5812,22 @@ button.k-mrow:active {
 .k-mcell .k-seg + .k-seg {
   box-shadow: inset 1.5px 0 0 var(--sheet);
 }
+/* a Box's zones (PAT-102), one gap between any two and the same above the first (his §148:
+   «attento alle spaziature verticali… quando metti delle barre con ciò che c'è sotto») */
+.k-zones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  /* padding, not margin: a margin collapses into the bin's 8 and the gap above stays 8 */
+  padding-top: calc(var(--sp-3) - var(--sp-2));
+}
+/* and the doors' row under the zones: the same one gap */
+.k-bin:has(> .k-zones) ~ .k-doorbar {
+  margin-top: var(--sp-3);
+}
+.k-zones > .k-hrow {
+  padding-block: 0;
+}
+.k-zones:empty {
+  display: none;
+}

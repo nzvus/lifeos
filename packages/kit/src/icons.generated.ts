@@ -372,6 +372,13 @@ export const ICONS: IconRegistry = {
     sort: ["Ordina", "arrows-sort"],
     edit: ["Modifica", "pencil"],
     delete: ["Elimina", "trash"],
+    // Added by hand 21 Nov (his §148; icons_build.py and icons.json are not in this checkout):
+    // a verdict's chevrons, Tabler 3.19.0's own paths below.
+    twoDown: ["Da evitare", "chevrons-down"],
+    down: ["Pessimo", "chevron-down"],
+    level: ["Non giudicato", "minus"],
+    up: ["Ok", "chevron-up"],
+    twoUp: ["Ottimo", "chevrons-up"],
     time: ["Orari", "clock"],
     settings: ["Impostazioni", "settings"],
     done: ["Fatto", "check"],
@@ -467,6 +474,10 @@ export const ICONS: IconRegistry = {
     cherry:
       "M7.5 16.5m-3.5 0a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0M17 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0M9 13c.366 -2 1.866 -3.873 4.5 -5.6M17 15c-1.333 -2.333 -2.333 -5.333 -1 -9M5 6c3.667 -2.667 7.333 -2.667 11 0c-3.667 2.667 -7.333 2.667 -11 0",
     "chevron-left": "M15 6l-6 6l6 6",
+    "chevron-up": "M6 15l6 -6l6 6",
+    "chevron-down": "M6 9l6 6l6 -6",
+    "chevrons-up": "M7 11l5 -5l5 5M7 17l5 -5l5 5",
+    "chevrons-down": "M7 7l5 5l5 -5M7 13l5 5l5 -5",
     "chevron-right": "M9 6l6 6l-6 6",
     "circle-plus": "M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0M9 12h6M12 9v6",
     clock: "M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0M12 7v5l3 3",

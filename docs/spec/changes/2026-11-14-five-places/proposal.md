@@ -1492,6 +1492,16 @@
     `LIFEOS/review/2026-11-21/arrows/`; **waits for his word**. Next (his §146): «Il giorno» —
     expanded, today's four rows plus the arrows; scrolling down, it shrinks at the top into one
     row of four full bars like the meal's, each meal a part, the meal in view lit.
+148. **21 Nov, his word on §147:** «no, non frecce, ma più questi >> ma capovolti. e comunque ti ho
+    detto attento alle spaziature verticali, non vedi che hai sempre problemi a spaziare
+    verticalmente quando metti delle barre con ciò che c'è sotto?» → the verdict is chevrons
+    (»» turned up or down), and the space above and below a row of bars is one token, measured.
+    Built: the `Verdict` draws Tabler's chevrons (two down · one down · dash · one up · two up;
+    added by hand to `icons.generated.ts` — `icons_build.py` and `icons.json` are not in this
+    checkout, said in the file); a Box's zones sit in one column, `.k-zones`, one 12 px gap between
+    any two and the same above the first and before the doors — measured at 390 on his dinner and a
+    pasto: 12 · 12 · 12 · 12 (before: 8 · **0** · 8). `LIFEOS/review/2026-11-21/arrows/gaps.mjs`
+    measures it; **waits for his word**.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
