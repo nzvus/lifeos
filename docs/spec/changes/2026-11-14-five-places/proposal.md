@@ -1780,6 +1780,41 @@
     first row adds. **Asked:** the micronutrients — Claude's pick: a fifth cell «Micro» in the
     macros' row, picked like a macro, the «Nutrienti» band then shows vitamins and minerals (one
     selection for everything, no third bar). Photos `review/2026-11-21/bands/grid-sheet-*.png`.
+174. **21 Nov, his word on the grid (verbatim):** «non mi piacciono cosi squadrate, e comunque devi
+    centrare anche le scritte quando sono in una fascia. e penso possano essere piu strette. inoltre
+    devi spaziare meglio, mi sembra tu abbia copiato e incollato i nutrienti anche col loro offset,
+    quando non serviva. e poi a questo punto i nutrienti fai cosi, a sinistra una fascia verticale,
+    con sotto scritto di lato "da dove" e in alto scritto di lato, non so, qualità? bo, per ogni macro
+    credo che cambi quella parte, cosa proponi? e poi a destra una terza fasvia verticale per le
+    cifre, solo che chiaramente sono in sola visualizzazione. pergli ingredienti non hai ancora
+    fatto la cosa ch eti chiedevo, e non mi piace quella cosa che compare quando selezioni una cifra
+    che vuoi modificare, io intendevo la barretta di default che compare di typing, forse non dovevo
+    specificarla. e comunque anche le cifre devono essere centrate, ti ho detto che utto nelle fasce
+    deve essere centrato. inoltre stavo pensando che a questo pnto potremmo modificare coerentemente
+    anche le marre dei macro e dei voti. per i micro, va bene il tuo consiglio e a maggior ragione
+    per guadagnare spazio dobbiamo agire cosi: invece di sottobbare creiamo nella fascia orizzontale
+    5 sottofascie verticale per ogni macro + quella dei micro. prendono tutta la dimensione della
+    cella, magari con un leggerisimo padding. ovviamente mantieniamo sempre la cosa
+    dell'aggregazione che cambia a seconda della visualizzazione. icona e numero e "freccette" o come
+    li hai chiamati, in trasparenza sullo sfondo. o magari sulla metà superiore della fascia e la
+    metà inferiore la cosa che ti ho detto prima? non so fammi vedere come verrebbe con entrambe.
+    inutile dire che la parte dei voti deve essere allo stesso modo, anche se ci dobbiamo ancora
+    arrivare perché conivolge altre cose. anche per quanto riguarda lo stile della griglia, della
+    divisione delle fasce, ecco magari proponimene qualcuno, sempre coerente con il contorno deve
+    essere.»
+175. **21 Nov, built on §174 — options to compare, on his pasto** (`review/2026-11-21/grid2/`):
+    centred everything in its cell (names and amounts too), cells 40 high, table rows 36; the macros
+    and **«Micro»** as five cells across the bars' band, each one's parts filling the whole cell
+    (the view still switching ingredients · kinds): **over** — icon, number and chevrons over the
+    parts (A) · **split** — them in the upper half, the parts below (B). Grid styles: **lines** (A,
+    the contour's line) · **tiles** (C, rounded tiles with small gaps, no lines) · **soft** (D/E,
+    rounded strips inset in the box, short dividers). **Nutrienti** in three columns: a side band
+    with its label turned («qualità» for proteins, «tipo» for carbs and fibre, «acidi grassi» for
+    fats — Claude's pick, his to change — and «da dove»), the rows (name and bar), the numbers
+    (read only). «Micro» picked opens the vitamins and minerals at once (each pasto now carries its
+    micros, `microsOf`). Typing: only the cursor, at the end. Asked: A or B; lines, tiles or soft;
+    the side labels; what is missing in «Ingredienti» (the parents' share of a name's ground is
+    there: «Latte» and «Proteine del siero» lilac from «Gelato Proteico», «Crema» plain, its own).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

@@ -140,7 +140,11 @@ function Row({
               aria-label={words.edit(r.name)}
               defaultValue={String(r.value).replace(".", ",")}
               autoFocus
-              onFocus={(e) => e.currentTarget.select()}
+              // only the typing cursor, at the end (his §174: «la barretta di default»)
+              onFocus={(e) => {
+                const n = e.currentTarget.value.length;
+                e.currentTarget.setSelectionRange(n, n);
+              }}
               onBlur={(e) => commit(e.currentTarget.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") commit(e.currentTarget.value);

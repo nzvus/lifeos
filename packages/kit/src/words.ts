@@ -4,6 +4,10 @@
  * test reads this file too, so no «Not» word of product.md §3 reaches a piece.
  */
 export const WORDS = {
+  /** The vitamins-and-minerals cell among the macros (his §174). */
+  micro: "Micro",
+  /** «Nutrienti» band: the side labels (his §174). */
+  fromWhere: "da dove",
   undo: "Annulla",
   cancel: "Annulla",
   close: "Chiudi",

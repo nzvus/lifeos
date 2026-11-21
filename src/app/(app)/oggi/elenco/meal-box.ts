@@ -18,6 +18,8 @@ import {
   mealTotals,
 } from "@/features/food/composer";
 import { linesScore } from "@/features/food/lines-score";
+import { microsOf } from "@/features/day/nutrients";
+import { dayMicros } from "@/core/food/micros";
 import type { LibraryRow } from "@/features/library/library";
 
 export type MealRefs = {
@@ -49,7 +51,29 @@ export function mealBox(
           Object.entries(recipe.estimate).map(([f, v]) => [f, Number(v)]),
         ),
       )
-    : mealNutrients(mealTotals(lines, by), mealKinds(lines, by), mealFoods(lines, by));
+    : {
+        ...mealNutrients(
+          mealTotals(lines, by),
+          mealKinds(lines, by),
+          mealFoods(lines, by),
+        ),
+        // its vitamins and minerals, for the «Micro» cell (his §174), against the day's need
+        micros: microsOf(
+          dayMicros([
+            {
+              servings: null,
+              lines: used.map((u) => ({
+                quantity: u.line.quantity,
+                values: u.food.per100,
+                ...(u.food.foodId && refs.estimates.get(u.food.foodId)
+                  ? { estimates: refs.estimates.get(u.food.foodId)! }
+                  : {}),
+              })),
+            },
+          ]),
+          refs.micros,
+        ),
+      };
   const score = recipe.estimate
     ? undefined
     : linesScore(

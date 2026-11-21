@@ -31,6 +31,7 @@ export function Nutrients({
   focus,
   picked,
   onPick,
+  openFirst,
 }: {
   data: NutrientsData;
   part?: "all" | "main" | "rest";
@@ -49,10 +50,12 @@ export function Nutrients({
   /** Inline: the macro cell picked (its kinds shown below), and a tap on a cell picks it. */
   picked?: string | null;
   onPick?: (key: string) => void;
+  /** A row open from the start («micro»: the box's «Micro» band shows them at once, §174). */
+  openFirst?: string;
 }) {
   const main = part !== "rest";
   const rest = part !== "main";
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(openFirst ?? null);
   const [sel, setSel] = useState<string | null>(null);
   const { kcal, foods, macros, limits, micros } = nutrientsL1(
     data,
@@ -119,7 +122,7 @@ export function Nutrients({
       {focus !== undefined &&
         (() => {
           const m = macros.find((x) => x.key === focus);
-          return m ? <MacroKinds m={m} /> : null;
+          return m ? <MacroColumns m={m} /> : null;
         })()}
       {main && inline && (
         <div className="k-ninline">
@@ -143,6 +146,27 @@ export function Nutrients({
               <MacroTrack m={m} full />
             </button>
           ))}
+          {/* the fifth cell: vitamins and minerals, picked like a macro (his §173–§174) */}
+          {onPick && micros && (
+            <button
+              type="button"
+              className={"k-mcell micro" + (picked === MICRO ? " picked" : "")}
+              aria-pressed={picked === MICRO}
+              aria-label={WORDS.micro + ": " + micros.summary}
+              onClick={() => onPick(MICRO)}
+            >
+              <FitLine className="k-line g1">
+                <Glyph of={{ nutrient: "micro" }} size="s" />
+                <span className="k-num b3">{coverage(micros.summary)}</span>
+              </FitLine>
+              <span className="k-track" aria-hidden="true">
+                <span
+                  className="k-seg micro"
+                  style={{ width: coveredPct(micros.summary) }}
+                />
+              </span>
+            </button>
+          )}
         </div>
       )}
       {(main && !inline && focus === undefined ? macros : []).map((m) => {
@@ -361,6 +385,18 @@ function MacroTrack({
   );
 }
 
+/** The key of the vitamins-and-minerals cell among the macros' (his §174). */
+export const MICRO = "micro";
+/** «6 su 11 coperti» → «6/11»; the share covered as a width. */
+const coverage = (summary: string) =>
+  /(\d+)\s*su\s*(\d+)/.exec(summary)?.slice(1, 3).join("/") ?? "";
+const coveredPct = (summary: string) => {
+  const m = /(\d+)\s*su\s*(\d+)/.exec(summary);
+  return m && Number(m[2]) > 0
+    ? ((Number(m[1]) / Number(m[2])) * 100).toFixed(1) + "%"
+    : "0%";
+};
+
 /** A macro's kinds, where it came from and its notes — its row open, or the box's «Nutrienti» band. */
 function MacroKinds({ m }: { m: ReturnType<typeof nutrientsL1>["macros"][number] }) {
   return (
@@ -407,6 +443,66 @@ function MacroKinds({ m }: { m: ReturnType<typeof nutrientsL1>["macros"][number]
             </span>
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+/** Each macro's kinds named on the band's side (his §174, Claude's pick): what its kinds tell. */
+const KINDS_SIDE: Record<string, string> = {
+  protein: "qualità",
+  carbs: "tipo",
+  fat: "acidi grassi",
+  fiber: "tipo",
+};
+
+/**
+ * A macro's kinds and where it came from as three vertical bands (his §174): a side band with its
+ * label turned on its side («qualità», «da dove»), the rows (name and bar), the numbers (read only).
+ */
+function MacroColumns({ m }: { m: ReturnType<typeof nutrientsL1>["macros"][number] }) {
+  const section = (
+    side: string,
+    rows: { key: string; name: string; w: string; c: string; v: string; dim?: boolean }[],
+  ) =>
+    rows.length > 0 && (
+      <div className="k-kcols" role="group" aria-label={side}>
+        <span className="k-kside">{side}</span>
+        <div className="k-kcells">
+          {rows.map((r) => (
+            <div key={r.key} className={"k-kcell" + (r.dim ? " dim" : "")}>
+              <span className="k-kname k-clip">{r.name}</span>
+              <span className="k-bar">
+                <i style={{ width: r.w, background: r.c }} />
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="k-knums">
+          {rows.map((r) => (
+            <span key={r.key} className="k-num b3">
+              {r.v}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  return (
+    <div className="k-stack k-kcolumns">
+      {section(
+        KINDS_SIDE[m.key] ?? "",
+        m.kinds.map((k) => ({ key: k.name, name: k.name, w: k.w, c: k.fill, v: k.v })),
+      )}
+      {section(
+        WORDS.fromWhere,
+        m.sources.map((x, n) => ({
+          key: x.name + ":" + n,
+          name: x.name,
+          w: x.w,
+          c: m.color,
+          v: x.g,
+          dim: !!x.dim,
+        })),
       )}
     </div>
   );

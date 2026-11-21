@@ -8,7 +8,7 @@
  */
 import { useState, type ReactNode } from "react";
 import type { BoxEntry } from "./Box";
-import { Nutrients } from "./Nutrients";
+import { MICRO, Nutrients } from "./Nutrients";
 import { energyStrip, type NutrientsData } from "./nutrient-rows";
 import { PlanBox, type PlanAction, type PlanSlot } from "./PlanBox";
 import type { ThingBoxPlace } from "./ThingBox";
@@ -45,7 +45,8 @@ export function MealBox({
   // on the picked one puts it back; a tap on a half opens or shuts its band.
   const [picked, setPicked] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const view = picked ? "kinds" : "foods";
+  // «Micro» picked keeps the bars by ingredient; a macro picked shows its kinds (§174)
+  const view = picked && picked !== MICRO ? "kinds" : "foods";
   const first = data.macros[0]?.key ?? null;
   return (
     <PlanBox
@@ -73,20 +74,34 @@ export function MealBox({
                 { key: "kinds", label: words.kinds },
                 { key: "foods", label: words.foods },
               ],
-              current: view,
+              current: picked ? "kinds" : "foods",
               open,
               onPick: (k: string) => {
-                if (k === view) setOpen((o) => !o);
+                if (k === (picked ? "kinds" : "foods")) setOpen((o) => !o);
                 else {
                   setPicked(k === "kinds" ? first : null);
                   setOpen(true);
                 }
               },
               panel:
-                view === "foods" ? (
-                  ingredients
+                picked === MICRO ? (
+                  <Nutrients
+                    key={MICRO}
+                    data={data}
+                    part="rest"
+                    chips={false}
+                    openFirst={MICRO}
+                  />
+                ) : picked ? (
+                  <Nutrients
+                    key={picked}
+                    data={data}
+                    part="main"
+                    chips={false}
+                    focus={picked}
+                  />
                 ) : (
-                  <Nutrients data={data} part="main" chips={false} focus={picked} />
+                  ingredients
                 ),
             },
           }
