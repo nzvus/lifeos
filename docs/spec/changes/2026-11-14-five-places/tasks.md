@@ -118,3 +118,19 @@ Design first, in the real app on a branch (no separate drawings); nothing merged
 
 **Open, his (§173):** the micronutrients (rec: a fifth «Micro» cell in the macros' row). Earlier: none from §166 (B6 «yc» option 1; C1 a tap on the bars; a lone button fills its row,
 his «3 sì»). Next: «Unisci» as a band; the voto bar following the view (A1); typing the grams.
+
+**F. His §178, the tiles' next round** (next chat; show photos, then stop)
+- [ ] F1 The two halves and the actions as tiles too (§177's fault: the old «lines» selectors win
+  on specificity — delete them, one rule for every row of cells).
+- [ ] F2 The «›» to the page goes (his §130, §178): PAT-101's page icon removed from the box.
+- [ ] F3 Everything that appears is capped and scrolls inside: the Nutrienti / Ingredienti band
+  (320 px), the Ingredienti search and its results (not capped today), the kin search (220 px).
+- [ ] F4 The macros in rows of three tiles, with **the kcal** as a sixth (kcal · proteine · carbo /
+  grassi · fibre · micro): the head keeps only the title. Open, his: what a tap on kcal does
+  (Claude's rec to propose: it picks the energy — the bars and «Nutrienti» show where the kcal
+  come from, by ingredient and by macro).
+- [ ] F5 The icon only where it tells things apart (the day's timeline, a mixed list); in a list of
+  one type (Elenco · Pasti salvati) the box has none. A rule for every Box (VIS-30 changes).
+- [ ] F6 The title stands out from the rest — show 2–3 options (size/weight, its tile's ground, the
+  family's colour) on the real box.
+- [ ] F7 Photos of the search bars: «Aggiungi un ingrediente» and «+ genitore», open and typed.

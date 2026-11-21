@@ -1836,6 +1836,23 @@
     «minerali»), each row its name and bar with the need's tick, its «amount / need» on the right,
     on one line. The side labels centred both ways (turned inside their tile). Photos
     `review/2026-11-21/tiles/`.
+178. **21 Nov, his word on the tiles (verbatim):** «ok, perché i bottoni nutrienti e ingredienti sono
+    cosi squadrati? e perché loro e le azioni non hanno quuelle celle? e perché c'è ancora la
+    freccia?. e poi ti avevo detto che le cose a comparsa, tipo le esensioni nutrienti e ingredienti
+    o le barre di ricerca, devono essere cappate in dimensioni. inoltre magari facciamo cosi: invece
+    di mettere le 5 cose dei macro + micro su un'ica fascia, le distribuiamo 3 per fascia
+    orizzontale, aggiungendo le calorie, (dovrebbe interagire come le altre, ma come?) cosi la parte
+    supersiore la lasciamo solo al titolo. e facciamo che l'icona scompare anche, quando non serve
+    che esista (tipo nell'elenco di soli pasti non mi seve che compaiano tutti i nomi con quella
+    icona, quindi la si puo  togliere, facciamo che compare solo quando eventualmente dovremo
+    distinguere da altro, come ad esempio nella timeline? non lo so). inoltre il titolo forse
+    dovremmo evidenziarlo meglio rispetto al resto, non so in che modo però. fammi vedere anche le
+    barre di ricerca come le fai. pero prima di tutto questo fammi l'handoff» Claude's answer to his
+    «perché»: the two halves and the actions kept the old «lines» rules — a more specific selector
+    (`.k-box.bands .k-zones > :is(.k-actrow, .k-xor) > *`: transparent ground, no radius) beats the
+    tiles' rule, a fault of the §177 slice; the «›» is the page's link, kept by PAT-101 though his
+    §130 said it goes once everything is in the box; the Ingredienti search is not capped (the kin
+    search is, 220 px; the open band 320 px). Next chat, from his words: tasks.md «F».
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
