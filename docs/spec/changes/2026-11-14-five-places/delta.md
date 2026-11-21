@@ -222,7 +222,8 @@
   cell; the kcal, the macros and «Micro» as six tiles in rows of three (kcal · proteine · carbo /
   grassi · fibre · micro; his §178), text above and parts below; the kcal picked shows where they
   come from, by macro and by ingredient; open, the head keeps only the title when the kcal has its
-  tile. Every row of cells, the two halves and the actions too, is tiles; whatever appears in the
+  tile; the title's tile darker (his pick B, §180). Shut: the strip split by kinds with the mini
+  voto over it (§180). A parent's tile in its tone, the legend of the ingredients' grounds. Every row of cells, the two halves and the actions too, is tiles; whatever appears in the
   box (a band, a search) is capped and scrolls inside (220 px a search, 320 a band). No «›» to the
   thing's page: everything is in the box (his §130, §178; changes PAT-101). The bars and the two halves are one state: a macro
   picked shows its kinds (bars and «Nutrienti»), none picked the ingredients. Kit: `PlanBox`

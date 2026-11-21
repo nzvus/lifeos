@@ -54,3 +54,30 @@ describe("IngredientTable (PAT-13, PAT-103: names shared by parents, amounts typ
     expect(html).not.toMatch(/>−</);
   });
 });
+
+describe("IngredientTable's search (PAT-103, his §180): under its add tile, like «+ genitore»", () => {
+  it("the add tile says it is open, the search in its window under it, the rows still below", () => {
+    const html = renderToStaticMarkup(
+      <IngredientTable
+        words={words}
+        onSet={noop}
+        onRemove={noop}
+        onAdd={noop}
+        finding={<b>cerca</b>}
+        rows={[
+          {
+            key: "a",
+            name: "Latte",
+            amount: "100 ml",
+            value: 100,
+            unit: "ml",
+            shares: [],
+            editable: true,
+          },
+        ]}
+      />,
+    );
+    expect(html).toContain('aria-expanded="true"');
+    expect(html.indexOf("k-findwin")).toBeLessThan(html.indexOf("Latte"));
+  });
+});

@@ -67,3 +67,22 @@ describe("KinRows (PAT-103: parents and children, «+» first, the multiplier be
     expect(html).not.toContain("Aggiungi");
   });
 });
+
+describe("KinRows parents' tones (PAT-103, his §180): each parent's tile in its share's tone", () => {
+  it("the first parent t0, the second t1: the legend of the ingredients' grounds", () => {
+    const html = renderToStaticMarkup(
+      <KinRows
+        words={words}
+        hour={12}
+        candidates={[]}
+        parents={[
+          { key: "a", name: "A", k: "1" },
+          { key: "b", name: "B", k: "1" },
+        ]}
+        children={[]}
+      />,
+    );
+    expect(html).toContain("k-kin t0");
+    expect(html).toContain("k-kin t1");
+  });
+});

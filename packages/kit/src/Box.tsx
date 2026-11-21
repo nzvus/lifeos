@@ -234,6 +234,43 @@ export function Box({
         {actButtons}
       </div>
     ) : null;
+  // The shut row's voto: the mini skyline and its number. In bands it sits over the strip, see
+  // through, so the head keeps its room for the title (his §180).
+  const onStrip = bands && shut && !!e.strip && e.strip.length > 0;
+  const miniVoto = (
+    <>
+      {dense && !expanded && e.score && e.score.parts.length > 0 && (
+        // A row's score: the board's mini skyline, beside its value.
+        <span className="k-sky mini" aria-hidden="true">
+          {e.score.parts.map((q) => (
+            <span
+              key={q.name}
+              className="col"
+              style={
+                {
+                  flexGrow: q.weight,
+                  "--mix": Math.round(22 + q.score * 40) + "%",
+                } as CSSProperties
+              }
+            >
+              <span
+                className="fill"
+                style={{ height: Math.round(q.score * 100) + "%" }}
+              />
+            </span>
+          ))}
+          <span className="line" />
+        </span>
+      )}
+      {dense && !expanded && e.score && e.score.value !== null && (
+        // The number beside it, in its band's colour: kept when the drawing is
+        // too small to read (≤ 360 px), never a row with no score at all (UI-102).
+        <b className="k-vn" style={{ color: F.judge(e.score.value).tone }}>
+          {e.score.value}
+        </b>
+      )}
+    </>
+  );
   return (
     <div
       className={
@@ -362,38 +399,9 @@ export function Box({
                   </span>
                 </span>
               )}
-              {(headActs.length > 0 || (dense && e.score && !expanded)) && (
+              {(headActs.length > 0 || (dense && e.score && !expanded && !onStrip)) && (
                 <span className="k-trail">
-                  {dense && !expanded && e.score && e.score.parts.length > 0 && (
-                    // A row's score: the board's mini skyline, beside its value.
-                    <span className="k-sky mini" aria-hidden="true">
-                      {e.score.parts.map((q) => (
-                        <span
-                          key={q.name}
-                          className="col"
-                          style={
-                            {
-                              flexGrow: q.weight,
-                              "--mix": Math.round(22 + q.score * 40) + "%",
-                            } as CSSProperties
-                          }
-                        >
-                          <span
-                            className="fill"
-                            style={{ height: Math.round(q.score * 100) + "%" }}
-                          />
-                        </span>
-                      ))}
-                      <span className="line" />
-                    </span>
-                  )}
-                  {dense && !expanded && e.score && e.score.value !== null && (
-                    // The number beside it, in its band's colour: kept when the drawing is
-                    // too small to read (≤ 360 px), never a row with no score at all (UI-102).
-                    <b className="k-vn" style={{ color: F.judge(e.score.value).tone }}>
-                      {e.score.value}
-                    </b>
-                  )}
+                  {!onStrip && miniVoto}
                   {headActs.map((a) => (
                     <button
                       key={a.label}
@@ -413,10 +421,11 @@ export function Box({
           {expanded && !votoElsewhere && parts && <div className="k-voto">{parts}</div>}
           {shut && e.strip && e.strip.length > 0 && (
             // Closed: one line and its strip (for a meal, where its energy comes from).
-            <div className="k-ribbon k-lvstrip">
+            <div className={"k-ribbon k-lvstrip" + (onStrip ? " voto" : "")}>
               {e.strip.map((g, i) => (
                 <span key={i} style={{ width: g.w + "%", background: g.c }} />
               ))}
+              {onStrip && e.score && <span className="k-onstrip">{miniVoto}</span>}
             </div>
           )}
           {shut && e.pills?.some((p) => p.href) && (

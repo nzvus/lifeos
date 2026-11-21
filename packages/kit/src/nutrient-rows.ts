@@ -679,12 +679,21 @@ export function energyStrip(d: NutrientsData): { w: number; c: string }[] {
   if (sum <= 0) return [];
   const eaten = d.kcal?.v ?? sum;
   const share = d.kcal?.t ? Math.min(1, eaten / d.kcal.t) : 1;
+  // each macro split by its kinds in their shades, as its bar is (his §180: «le sottodivisioni»)
   return k
     .filter((m) => m.kcal > 0)
-    .map((m) => ({
-      w: Math.round((m.kcal / sum) * share * 1000) / 10,
-      c: "var(--macro-" + m.key + ")",
-    }));
+    .flatMap((m) => {
+      const parts = d.macros.find((x) => x.key === m.key)?.parts ?? {};
+      const kinds = KINDS[m.key].filter(([kk]) => (parts[kk] ?? 0) > 0);
+      const inKinds = kinds.reduce((a, [kk]) => a + parts[kk]!, 0);
+      const w = (kcal: number) => Math.round((kcal / sum) * share * 1000) / 10;
+      return inKinds > 0
+        ? kinds.map(([kk, , tone]) => ({
+            w: w((m.kcal * parts[kk]!) / inKinds),
+            c: shade(m.key, tone),
+          }))
+        : [{ w: w(m.kcal), c: "var(--macro-" + m.key + ")" }];
+    });
 }
 
 /**
@@ -729,6 +738,8 @@ export function energyL1(d: NutrientsData, by: "foods" | "kinds" = "foods") {
       : food.map((f, n) => ({ w: pct(f.kcal, fSum), bg: tone(n) }));
   return {
     short: F.num(Math.round(total), "kcal"),
+    /** Its verdict where it has zones (a day); a meal's kcal is not judged (FD-35): the dash. */
+    level: d.kcal?.zones?.length ? heatLevel(total, d.kcal.zones) : null,
     aria: "Energia: " + F.num(Math.round(total), "kcal"),
     segs,
     byMacro,

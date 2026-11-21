@@ -51,13 +51,19 @@ export function KinRows({
 }) {
   const [finding, setFinding] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
-  const chip = (side: Side, c: KinChip) => {
+  // a parent's tile in its tone, the same as its share of the ingredients' grounds: the row is
+  // their legend (his §180, «quando ci sono più genitori»)
+  const chip = (side: Side, c: KinChip, n = 0) => {
     const id = side + ":" + c.key;
     const editing = open === id && !!c.step;
     return (
       <span
         key={c.key}
-        className={"k-chip static k-hchip k-kin" + (editing ? " open" : "")}
+        className={
+          "k-chip static k-hchip k-kin" +
+          (side === "parents" ? " t" + (n % 3) : "") +
+          (editing ? " open" : "")
+        }
       >
         {editing ? (
           <span className="k-line g1 k-step" role="group" aria-label={words.edit(c.name)}>
@@ -131,7 +137,7 @@ export function KinRows({
           {chips.length === 0 && <span>{words[side].add}</span>}
         </button>
       )}
-      {chips.map((c) => chip(side, c))}
+      {chips.map((c, n) => chip(side, c, n))}
     </div>
   );
   return (

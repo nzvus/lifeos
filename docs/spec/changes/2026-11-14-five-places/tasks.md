@@ -131,8 +131,11 @@ his «3 sì»). Next: «Unisci» as a band; the voto bar following the view (A1)
   come from, by ingredient and by macro).
 - [x] F5 The icon only where it tells things apart (the day's timeline, a mixed list); in a list of
   one type (Elenco · Pasti salvati) the box has none. A rule for every Box (VIS-30 changes).
-- [ ] F6 (shown §179: A bigger, left · B its tile darker · C the family's colour; his pick) The title stands out from the rest — show 2–3 options (size/weight, its tile's ground, the
+- [x] F6 (his pick B, §180) The title stands out from the rest — show 2–3 options (size/weight, its tile's ground, the
   family's colour) on the real box.
 - [x] F7 Photos of the search bars: «Aggiungi un ingrediente» and «+ genitore», open and typed.
+- [x] F9 His §180: ingredient search like «+ genitore», gaps, «+» tiles, title B, arrows on kcal
+  and Micro, shut voto over the strip split by kinds, parents' tones as legend (§182).
+- [ ] F10 His §181: the voti recap and proposals (selection → voto as a level/filter; names).
 - [ ] F8 Found 21 Nov: a shut row at 320 px crushes icon, title and value (kit `cosa-box-320`,
   the cibo; there before §178). Less in the Elenco now its rows have no icon; fix with D.

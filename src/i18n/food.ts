@@ -61,7 +61,6 @@ export const food = {
     ingredients: {
       add: "Aggiungi un ingrediente",
       find: "Cerca un cibo",
-      close: "Chiudi la ricerca",
       less: (name: string) => "Meno " + name,
       more: (name: string) => "Più " + name,
       remove: (name: string) => "Togli " + name,

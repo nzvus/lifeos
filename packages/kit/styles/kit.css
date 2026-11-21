@@ -6004,23 +6004,10 @@ button.k-mrow:active {
   border-radius: var(--r-control);
   font-size: var(--ctl-fs);
 }
-/* «+ genitore»'s and «Aggiungi un ingrediente»'s search: a small fixed window, its results
-   scrolling inside, the field on top (his §163, §178: «le cose a comparsa… cappate») */
-.k-ingfind {
-  max-height: 220px;
-  overflow-y: auto;
-  scrollbar-width: none;
-  overscroll-behavior: contain;
-}
-.k-ingfind::-webkit-scrollbar {
-  display: none;
-}
-.k-ingfind .k-search {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-.k-kinfind {
+/* «+ genitore»'s and «Aggiungi un ingrediente»'s search (`.k-findwin`): a small fixed window,
+   its results scrolling inside, the field on top (his §163, §178, §180) */
+.k-kinfind,
+.k-findwin {
   max-height: 220px;
   overflow-y: auto;
   scrollbar-width: none;
@@ -6030,16 +6017,19 @@ button.k-mrow:active {
   border-radius: var(--r-control);
   background: var(--paper);
 }
-.k-kinfind::-webkit-scrollbar {
+.k-kinfind::-webkit-scrollbar,
+.k-findwin::-webkit-scrollbar {
   display: none;
 }
-.k-kinfind .k-search {
+.k-kinfind .k-search,
+.k-findwin .k-search {
   position: sticky;
   top: 0;
   z-index: 1;
   border-color: var(--hairline);
 }
-.k-kinfind .k-findrow {
+.k-kinfind .k-findrow,
+.k-findwin .k-findrow {
   font-size: var(--fs-b2);
 }
 /* a multiplier, button or plain, centred on the chip's line */
@@ -6162,7 +6152,7 @@ button.k-mrow:active {
 .k-box.bands .k-zones > :is(.k-actrow, .k-xor),
 .k-box.bands .k-kinrow {
   display: flex;
-  gap: 0;
+  gap: var(--gap);
   padding: 0;
   margin: 0;
   overflow-x: auto;
@@ -6246,14 +6236,16 @@ button.k-mrow:active {
 }
 /* the ingredients table (his §172): names | amounts, a line between, rows split by lines; a
    name's ground shared by its parents' tones */
-.k-box.bands .k-zones > .k-xorpanel:has(.k-itable),
-.k-box.bands .k-zones > .k-xorpanel:has(.k-ingfind) {
+.k-box.bands .k-zones > .k-xorpanel:has(.k-itable) {
   padding: 0;
 }
+.k-itable,
+.k-kinrows {
+  --kin-t0: color-mix(in oklab, var(--kin-parent) 52%, transparent);
+  --kin-t1: color-mix(in oklab, var(--kin-parent) 28%, transparent);
+  --kin-t2: color-mix(in oklab, var(--kin-parent) 12%, transparent);
+}
 .k-itable {
-  --kin-t0: color-mix(in oklab, var(--kin-parent) 34%, transparent);
-  --kin-t1: color-mix(in oklab, var(--kin-parent) 20%, transparent);
-  --kin-t2: color-mix(in oklab, var(--kin-parent) 10%, transparent);
   display: flex;
   flex-direction: column;
 }
@@ -6652,10 +6644,12 @@ button.k-mrow:active {
 .k-box.bands .k-kinrow {
   gap: var(--gap);
 }
+/* the «+ ↰» / «+ ↳» tile: its two icons with room around them, as wide as they need (his §180) */
 .k-box.bands .k-kinrow > .k-kinadd {
-  flex: 0 0 var(--cell-h);
-  width: var(--cell-h);
-  padding: 0;
+  flex: 0 0 auto;
+  width: auto;
+  gap: 6px;
+  padding: 0 14px;
   border: 0;
 }
 .k-box.bands .k-kinrow > .k-kinadd.wide {
@@ -6820,20 +6814,17 @@ button.k-mrow:active {
 /* the two searches that appear in the box (his §178 «fammi vedere anche le barre di ricerca»):
    tiles like the rest — the field a tile kept on top (an opaque ground, the rows pass under it),
    each result a low tile, one gap */
-.k-box.bands :is(.k-kinfind, .k-ingfind) :is(.k-find, .k-stack) {
+.k-box.bands :is(.k-kinfind, .k-findwin) :is(.k-find, .k-stack) {
   gap: var(--gap);
 }
-.k-box.bands .k-ingfind {
-  gap: var(--gap);
-}
-.k-box.bands :is(.k-kinfind, .k-ingfind) .k-search {
+.k-box.bands :is(.k-kinfind, .k-findwin) .k-search {
   height: var(--cell-h);
   padding: 0 var(--cell-x);
   border: 0;
   border-radius: 8px;
   background: color-mix(in srgb, var(--fam) 16%, var(--sheet));
 }
-.k-box.bands :is(.k-kinfind, .k-ingfind) .k-findrow {
+.k-box.bands :is(.k-kinfind, .k-findwin) .k-findrow {
   align-items: center;
   min-height: var(--cell-h);
   padding: 4px var(--cell-x);
@@ -6842,4 +6833,57 @@ button.k-mrow:active {
   background: var(--tile);
   text-align: center;
   font-size: var(--fs-b2);
+}
+.k-box.bands .k-findwin {
+  padding: var(--gap);
+  border: 0;
+  border-radius: 8px;
+  background: var(--tile);
+}
+
+/* ---------- §180: his pick B for the title (its tile darker, bold); the shut row's voto over its
+   strip, see-through, so the head keeps its room for the title ---------- */
+.k-box.bands .k-head > .k-hlead {
+  background: color-mix(in srgb, var(--fam) 26%, transparent);
+}
+.k-box.bands .k-head > .k-hlead .k-title {
+  font-weight: 700;
+}
+.k-box.bands > .k-lvstrip.voto {
+  position: relative;
+  height: 24px;
+  margin: 0 var(--gap) var(--gap);
+  border-radius: 8px;
+}
+.k-lvstrip.voto > .k-onstrip {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px 0 8px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--sheet) 70%, transparent) 10px
+  );
+}
+.k-lvstrip.voto > .k-onstrip .k-sky.mini {
+  width: 40px;
+  height: 18px;
+  opacity: 0.8;
+}
+.k-lvstrip.voto > .k-onstrip .k-vn {
+  min-width: 0;
+  line-height: 1;
+}
+/* each parent's tile in its tone: the legend of the ingredients' grounds (his §180) */
+.k-box.bands .k-kinrow.parents > .k-kin.t0 {
+  background: var(--kin-t0);
+}
+.k-box.bands .k-kinrow.parents > .k-kin.t1 {
+  background: var(--kin-t1);
+}
+.k-box.bands .k-kinrow.parents > .k-kin.t2 {
+  background: var(--kin-t2);
 }

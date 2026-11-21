@@ -454,3 +454,14 @@ describe("energyL1 — the kcal as a cell among the macros (PAT-105, his §178)"
     expect(energyL1({ macros: [] })).toBeNull();
   });
 });
+
+describe("energyStrip by kinds: each macro split in its kinds' shades (VIS-106, his §180)", () => {
+  it("a macro with kinds is as many stretches, in proportion to their grams", () => {
+    const s = energyStrip({
+      macros: [{ key: "protein", v: 20, parts: { high: 15, low: 5 } }],
+    });
+    expect(s).toHaveLength(2);
+    expect(s[0]!.w).toBeCloseTo(75, 0);
+    expect(s[1]!.w).toBeCloseTo(25, 0);
+  });
+});

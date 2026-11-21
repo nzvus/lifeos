@@ -6,7 +6,7 @@
  * +, the cell never widens); Enter or leaving saves, Esc puts it back. A row swiped left is taken
  * out. The first row adds one. The kit knows no type (PAT-81): rows, words and callbacks.
  */
-import { useRef, useState, type CSSProperties } from "react";
+import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Glyph } from "./Glyph";
 
 export type IngredientRow = {
@@ -43,21 +43,33 @@ export function IngredientTable({
   onSet,
   onRemove,
   onAdd,
+  finding,
   words,
 }: {
   rows: IngredientRow[];
   onSet: (key: string, value: number) => void;
   onRemove: (key: string) => void;
   onAdd: () => void;
+  /**
+   * The search the add tile opens, under it, in a small window that scrolls inside — the same as
+   * «+ genitore»'s (his §180); a tap on the tile again shuts it.
+   */
+  finding?: ReactNode;
   words: { add: string; edit: (name: string) => string; remove: string };
 }) {
   const [editing, setEditing] = useState<string | null>(null);
   return (
     <div className="k-itable" role="table">
-      <button type="button" className="k-irow k-iadd" onClick={onAdd}>
+      <button
+        type="button"
+        className="k-irow k-iadd"
+        aria-expanded={!!finding}
+        onClick={onAdd}
+      >
         <Glyph of={{ ui: "add" }} decorative />
         <span>{words.add}</span>
       </button>
+      {finding && <div className="k-findwin">{finding}</div>}
       {rows.map((r) => (
         <Row
           key={r.key}

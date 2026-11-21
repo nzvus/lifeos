@@ -88,3 +88,18 @@ describe("MealBox (PAT-102; his §146: the meal's level only, full bars, arrows)
     ).toContain('class="k-lead"');
   });
 });
+
+describe("MealBox shut (VIS-40, his §180): the voto over its strip, the head keeps the title", () => {
+  it("the mini voto sits on the strip, not in the head", () => {
+    const score = {
+      value: 71,
+      parts: [{ name: "x", weight: 1, score: 0.7 }],
+    } as unknown as NonNullable<Parameters<typeof MealBox>[0]["entry"]["score"]>;
+    const html = renderToStaticMarkup(
+      <MealBox entry={{ ...entry, score }} data={data} slots={[]} density="row" />,
+    );
+    expect(html).toContain("k-lvstrip voto");
+    expect(html.indexOf("k-onstrip")).toBeGreaterThan(html.indexOf("k-lvstrip voto"));
+    expect(html).not.toContain('class="k-trail"');
+  });
+});

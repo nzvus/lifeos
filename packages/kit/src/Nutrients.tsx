@@ -141,6 +141,7 @@ export function Nutrients({
               <FitLine className="k-line g1">
                 <Glyph of={{ nutrient: "kcal" }} size="s" />
                 <span className="k-num b3">{energy.short}</span>
+                <Verdict level={energy.level} />
               </FitLine>
               <span className="k-track" aria-hidden="true">
                 {energy.segs.map((x, i) => (
@@ -185,6 +186,8 @@ export function Nutrients({
               <FitLine className="k-line g1">
                 <Glyph of={{ nutrient: "micro" }} size="s" />
                 <span className="k-num b3">{coverage(micros.summary)}</span>
+                {/* a meal's micros are not judged (FD-35): the dash, as every cell has its mark */}
+                <Verdict level={null} />
               </FitLine>
               <span className="k-track" aria-hidden="true">
                 <span

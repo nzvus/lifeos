@@ -65,29 +65,26 @@ export function MealIngredients({
     };
   });
   const byKey = new Map(lines.map((l) => [l.f.key, l]));
-  if (adding)
-    return (
-      <div className="k-stack g2 k-ingfind">
-        <button type="button" className="k-irow k-iadd" onClick={() => setAdding(false)}>
-          {w.close}
-        </button>
-        <Find
-          items={cibi}
-          label={w.find}
-          hour={new Date().getHours()}
-          autoFocus
-          onPick={(x) => {
-            setAdding(false);
-            void server.food(id, x.id, ADDED);
-          }}
-        />
-      </div>
-    );
   return (
     <IngredientTable
       rows={rows}
       words={{ add: w.add, edit: w.edit, remove: w.swipe }}
-      onAdd={() => setAdding(true)}
+      onAdd={() => setAdding((a) => !a)}
+      finding={
+        adding && (
+          <Find
+            items={cibi}
+            label={w.find}
+            hour={new Date().getHours()}
+            all
+            autoFocus
+            onPick={(x) => {
+              setAdding(false);
+              void server.food(id, x.id, ADDED);
+            }}
+          />
+        )
+      }
       onSet={(key, total) => {
         const l = byKey.get(key);
         if (!l) return;

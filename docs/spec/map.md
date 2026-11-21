@@ -85,7 +85,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/library/ExerciseForm.tsx` | 90 | Field, PageHeader | 1 form | 6 |
 | `features/library/FoodForm.tsx` | 209 | Field, Glyph, PageHeader | 3 input, 1 form | 6 |
 | `features/library/Library.tsx` | 477 | Box, Field, MealBox | 2 input | 2 |
-| `features/library/MealIngredients.tsx` | 105 | Find, IngredientTable | — | 2 |
+| `features/library/MealIngredients.tsx` | 102 | Find, IngredientTable | — | 2 |
 | `features/library/PantryActions.tsx` | 56 | ObjectForm, Sheet | — | 2 |
 | `features/library/RouteForm.tsx` | 112 | Field, PageHeader | 1 form | 1 |
 
@@ -163,7 +163,6 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/account/SignOut.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
 | `features/day/OpenBox.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
 | `features/day/Timeline.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
-| `features/library/MealIngredients.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
 | `features/library/PantryActions.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
 | `features/plan/CycleComposer.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |
 | `features/plan/ThisTime.tsx` | 0 | 0 | 0 | 0 | 1 | 0 |

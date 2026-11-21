@@ -1865,6 +1865,39 @@
     the day (F5, VIS-30 in delta). **Asked:** the title — A bigger and left, no tile · B its tile
     darker · C in the family's colour with a bar on its left (`7-title-*.png`); kcal's tap as
     built, or another.
+180. **21 Nov, his word on §179 (verbatim):** «"«+ genitore» open" mi piace, fallo uguale per "«Aggiungi
+    un ingrediente» open". inoltre hai fatto un pessimo padding laterale per i tasti delle azioni e
+    nutrienti e ingredienti. tra l'altro li chiamiamo tasti? o celle? inoltre le freccette non
+    dovrebbero esserci anche per le calorie e i micro? inoltre quando è minimizzata penso tu possa
+    guadagnare spazio con la preview del voto mettendolo in trasparenza sulle barre e magari
+    diminuendo il padding rispetto alla sua cella. inoltre la barra minimizzata puo tranquillamente
+    avere anche le sottodivisioni per nutrienti dei macro e magari avere anche sale? tra l'altro i
+    limiti? sono nei micro? a comunque tu le chiami Tiles. ok. cumunque preferisco la versione B.
+    inoltre il pattdind del "+ genitore" quando minimizzato è fatto male, troppo stretto, immagino
+    anche quello del figlio. e poi devi farmi vedere la visualizzazione degli ingredienti quando ci
+    sono piu genitori»
+181. **21 Nov, his word on the voti (verbatim):** «per quanto riguarda i voti: ovviamente dobbiamo
+    modificare tutto: fammi innanzitutto un recap di tutto quello che li riguarda o deve riguardarli
+    e le cose che volevo. stavo pensando inoltre che potremmo aggiungere una feaure alla selezione
+    del macro/micro/cal (dobbiamo metterci d'accordo su come chiamarli, e anche come chiamare
+    "aggiunta a feature esistente", o di per se non so nemmeno se "feature" sia il termine giusto)
+    in combinazione con i voti, cioè che i voti si visualizzano in un livello/filtro/taglio in base
+    alla selezione di uno di quelli, dato che li influenzano immagino. e in generale creare qualcosa
+    che sia piu coerente al livello visico con quello che abbiamo costruito fino ad adesso. fammi
+    delle proposte»
+182. **21 Nov, built on §180** (`review/2026-11-21/f180/`): «Aggiungi un ingrediente» opens like «+
+    genitore» — its tile stays (a tap again shuts it), the search in its window under it (220 px,
+    `IngredientTable finding`, `.k-findwin`), the table still below; «Chiudi la ricerca» gone. The
+    gap between action tiles and between the halves was 0 (an older rule): now the one gap. The
+    «+ ↰» / «+ ↳» tiles as wide as their icons need. Title **B** (his pick): its tile darker, bold.
+    Arrows on the kcal and «Micro» tiles: a pasto's kcal and micros are not judged (FD-35), so the
+    grey dash; a day's kcal gets its verdict from its zones. Shut: the strip 24 px, each macro split
+    in its kinds' shades, the mini voto over its right end, see-through; the head keeps title and
+    value. Two parents (local data, «Dolce Avena» added to the gelato): each parent's tile is in its
+    tone, the legend of the table's grounds; the tones further apart (52 · 28 · 12 %). Answers:
+    «tasti o celle» — **tile** (PAT-105), one tile that acts is still a tile; the limits are not in
+    the box today (zuccheri liberi and saturi are kinds of carbs and fats, sale nowhere): asked
+    in the voti recap (§181). Sale in the shut strip: not built (the strip is energy, sale has none).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
