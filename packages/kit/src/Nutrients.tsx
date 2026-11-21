@@ -10,6 +10,7 @@
 import { useState, type CSSProperties } from "react";
 import { Glyph } from "./Glyph";
 import { Verdict } from "./Verdict";
+import { FitLine } from "./FitLine";
 import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
 import { Condensed } from "./Condensed";
 import { Fascia } from "./Fascia";
@@ -113,11 +114,11 @@ export function Nutrients({
               {...(onTap ? { onClick: onTap } : {})}
               aria-label={m.aria}
             >
-              <span className="k-line g1">
+              <FitLine className="k-line g1">
                 <Glyph of={{ nutrient: m.key }} size="s" />
                 <span className="k-num b3">{m.short}</span>
                 <Verdict level={m.level} />
-              </span>
+              </FitLine>
               <MacroTrack m={m} full />
             </button>
           ))}
@@ -136,7 +137,7 @@ export function Nutrients({
               }
               aria-expanded={!onTap && more ? isOpen : undefined}
             >
-              <span className="k-line between">
+              <FitLine className="k-line between">
                 <span className="k-line">
                   <span className="k-micon">
                     <Glyph of={{ nutrient: m.key }} size="m" />
@@ -156,7 +157,7 @@ export function Nutrients({
                     </>
                   )}
                 </span>
-              </span>
+              </FitLine>
               <MacroTrack m={m} label />
             </button>
             {more && (

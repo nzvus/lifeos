@@ -5,6 +5,7 @@
  */
 import {
   F,
+  Nutrients,
   PlanBox,
   type BoxEntry,
   type NutrientsData,
@@ -16,11 +17,11 @@ import { training } from "@/i18n/training";
 import { pickProduct, type LibraryRow, type Product } from "./library";
 
 type Shown = { data: NutrientsData; nova?: number };
+// Its nutrients are its bars now (PAT-102 zone 2, §152): no «Nutrienti» door, never twice.
 const foodSlots = (x: Shown) =>
-  planSlots("food", {
-    nutrients: { nutrients: x.data, value: F.num(100, "g") },
-    ...(x.nova ? { nova: { word: String(x.nova) } } : {}),
-  });
+  planSlots("food", { ...(x.nova ? { nova: { word: String(x.nova) } } : {}) });
+/** Its four macros per 100 g on one row, full bars by kind, like a meal's (§146, §152). */
+const bars = (x: Shown) => <Nutrients data={x.data} part="main" chips={false} inline />;
 
 /**
  * A cibo: its nutrients and NOVA; with marche, each a variant with its own number, voto and slots,
@@ -50,6 +51,7 @@ export function FoodPlanBox({
         ...(shown.score ? { score: shown.score } : {}),
       },
       slots: foodSlots(shown),
+      before: bars(shown),
     };
   };
   const picked = pickProduct(ps)?.key;
@@ -59,6 +61,7 @@ export function FoodPlanBox({
       entry={{ ...entry, value: value(r.values) }}
       actions={actions}
       slots={foodSlots(r.food)}
+      before={bars(r.food)}
       {...(ps.length > 0
         ? {
             variants: ps.map(variant),

@@ -139,6 +139,8 @@ export type PlanVariant = {
   /** What it changes in the head (its number, its voto). */
   head?: Partial<Pick<BoxEntry, "value" | "score" | "meta">>;
   slots: PlanSlot[];
+  /** Its own bars (PAT-102 zone 2), in place of the box's when it is the one on. */
+  before?: ReactNode;
 };
 
 /** A slot drawn as a door, or null when it is a row of names (drawn above the doors). */
@@ -212,6 +214,9 @@ export function PlanBox({
   const vs = variants ?? [];
   const [key, setKey] = useState(() => picked ?? vs[0]?.key);
   const v = vs.find((x) => x.key === key);
+  // The choice is one chip in the actions row that opens its list in place (PAT-102 zone 4; his
+  // 20–21 Nov: «la marca che crea tutto quello spazio»); a pick closes it.
+  const [choosing, setChoosing] = useState(false);
   const shown = v ? v.slots : slots;
   const doors = shown.flatMap((s) => {
     const d = slotDoor(s);
@@ -221,6 +226,26 @@ export function PlanBox({
   const { href, hrefLabel, ...rest } = { ...entry, ...(v?.head ?? {}) };
   const headEntry = rest;
   const all: PlanAction[] = [
+    ...(v
+      ? [
+          vs.length > 1
+            ? {
+                key: "choice",
+                label: v.label + (v.meta ? " · " + v.meta : "") + " ▾",
+                aria: variantsLabel + ": " + v.label,
+                pressed: choosing,
+                onClick: () => setChoosing((c) => !c),
+              }
+            : // One alone is named, nothing to choose: a plain chip (its marca, §152).
+              {
+                key: "choice",
+                label: v.label + (v.meta ? " · " + v.meta : ""),
+                aria: variantsLabel + ": " + v.label,
+                pressed: false,
+                onClick: () => {},
+              },
+        ]
+      : []),
     ...actions,
     ...(href
       ? [
@@ -239,14 +264,17 @@ export function PlanBox({
       {/* The zones in one column, one gap between any two (PAT-102; his §148: bars always had
           nothing between them and what came under). */}
       <div className="k-zones">
-        {before}
+        {v?.before ?? before}
         <ActionRow actions={all} />
         {children}
-        {vs.length > 0 && (
+        {choosing && (
           <ChipRow
             label={variantsLabel}
             {...(key ? { selected: key } : {})}
-            onPick={setKey}
+            onPick={(k) => {
+              setKey(k);
+              setChoosing(false);
+            }}
             items={vs.map((x) => ({
               key: x.key,
               label: x.label,

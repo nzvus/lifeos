@@ -5755,10 +5755,8 @@ button.k-mrow:active {
   }
 }
 
-/* a macro's number and its target stay together: where the row is too narrow (a box on the rail
-   at 320, §143) the whole number moves under the name, right-aligned, never into it */
+/* a macro's name and numbers: one line, drawn smaller when too narrow (FitLine, VIS-108) */
 .k-mrow > .k-line.between {
-  flex-wrap: wrap;
   column-gap: var(--sp-2);
 }
 .k-mrow .k-num {
@@ -5902,4 +5900,15 @@ button.k-mrow:active {
 .k-page.has-bd > .k-bandline {
   position: sticky;
   z-index: 3;
+}
+/* VIS-108 (his §152): a row that must be one line, drawn smaller as a whole when its room is too
+   narrow (FitLine sets --fit, never under 0.8); past the floor it may wrap */
+.k-fit {
+  zoom: var(--fit, 1);
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.k-fit[data-wrap] {
+  flex-wrap: wrap;
+  white-space: normal;
 }

@@ -10,7 +10,7 @@ const entry = {
 };
 const trend = { x: ["a", "", "b"], y: [80, 82, 85], unit: "kg", lo: 80, hi: 85 };
 
-describe("PlanBox (PAT-30, VIS-102: a slot is drawn by its instrument, never by type)", () => {
+describe("PlanBox (PAT-30, VIS-102, PAT-102: a slot is drawn by its instrument, never by type)", () => {
   it("a word is a door with nothing behind it", () => {
     expect(slotDoor({ key: "nova", label: "NOVA", word: "1" })).toEqual({
       key: "nova",
@@ -71,8 +71,11 @@ describe("PlanBox (PAT-30, VIS-102: a slot is drawn by its instrument, never by 
     );
     expect(html).toContain("380 kcal/100");
     expect(html).not.toContain("360 kcal/100");
-    expect(html).toContain("Coop");
-    expect(html).toMatch(/aria-pressed="true"[^>]*>.*?Quaker/);
+    // The choice is one chip in the actions row (his §152, PAT-102): the picked marca, closed;
+    // the others only once it is tapped.
+    expect(html).toContain('aria-label="Marche: Quaker"');
+    expect(html).toContain("Quaker · 5,90 €/kg ▾");
+    expect(html).not.toContain("Coop");
   });
 });
 

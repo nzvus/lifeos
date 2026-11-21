@@ -21,6 +21,8 @@ export {
 } from "./PlanBox";
 export { ChipRow, type ChipItem } from "./ChipRow";
 export { Verdict } from "./Verdict";
+export { FitLine } from "./FitLine";
+export { fitScale, FIT_FLOOR } from "./fit";
 export { PartsBand } from "./PartsBand";
 export { EntryDetails, type BoxDetails } from "./meal-doors";
 export { PageHeader } from "./PageHeader";

@@ -1519,6 +1519,22 @@
     too), the meal box nearest the top under the band lit, a tap back to the card. It takes no room
     (a sticky line of no height; the page's «lift over the backdrop» rule needed an exception).
     Photos `LIFEOS/review/2026-11-21/band/`; **waits for his word**.
+152. **21 Nov, his rule and «yc»:** «facciamo così: ogni volta che in una taglia, come spesso accade
+    in 320, determinate cose che dovrebbero entrare su una sola riga non lo fanno, diminuisci le
+    dimensioni di tutte le sue componenti, ovviamente entro una soglia, per farle rientrare. in ogni
+    caso vai avanti. yc» → VIS-108 (delta): a one-line row that does not fit shrinks as a whole,
+    down to a floor, before anything wraps or is cut. «yc»: §151 approved; go on to the other types
+    on the anatomy, then Stop B.
+153. **21 Nov, built on §152 → Stop B.** VIS-108 as kit `FitLine` (`fitScale`): a macro's row and a
+    macro cell shrink as a whole down to 80 % before they wrap (the earlier «number under the
+    name» fallback is gone). The other types on the anatomy: a cibo's bars per 100 g (its four
+    macros, full, by kind; the picked marca's when it has marche) and no «Nutrienti» door (never
+    the macros twice); the choice is **one chip** in the actions row — several marche: «Quaker ·
+    5,90 €/kg ▾» opens the list in place, a pick closes it; one: a plain chip («Lidl»). Esercizio
+    and scheda already follow the zones (actions, then names). **Stop B**: every type's Box shut
+    and open at 390/360/320 on his data, no overflow in any (`LIFEOS/review/2026-11-21/stop-b/`).
+    Decided by Claude: the cibo's kinds and micros in the Elenco are on its page only now (undo:
+    the «Nutrienti» slot in `features/library/boxes.tsx`).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

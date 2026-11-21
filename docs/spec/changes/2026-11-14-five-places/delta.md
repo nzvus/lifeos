@@ -109,6 +109,11 @@
   is a filter of Elenco (the formati in casa), with no planning. [his «yc» q7–q8, 20 Nov]
 
 ## ADDED
+- **VIS-108** (visual.md) **A row that must be one line shrinks to fit** (his 21 Nov, §152): where a
+  row is meant to be one line (a macro's name and numbers, a macro cell, a box's head) and its
+  width cannot hold it (often at 320), every part of it — type, icons, gaps — shrinks together,
+  never below 80 % of its size; only past that floor does it wrap. WHEN a one-line row overflows
+  THEN it is drawn smaller as a whole, never cut and never wrapped first. [his 21 Nov]
 - **PAT-102** (patterns.md) **One anatomy for every Box** (his §139, «yc» §141): the same zones in
   the same order for every type, so what is common is always in one place — (1) the **head**: icon ·
   name · value · voto chip (VIS-40, VIS-43); (2) the type's **one bar** (VIS-106); (3) the **voto
