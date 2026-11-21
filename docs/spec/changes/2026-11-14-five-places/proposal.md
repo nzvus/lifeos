@@ -1535,6 +1535,20 @@
     and open at 390/360/320 on his data, no overflow in any (`LIFEOS/review/2026-11-21/stop-b/`).
     Decided by Claude: the cibo's kinds and micros in the Elenco are on its page only now (undo:
     the «Nutrienti» slot in `features/library/boxes.tsx`).
+154. **21 Nov, his word on Stop B:** «ok, anche perché meglio cambiare chat. comunque non ho capito
+    cosa sono questi chevron e cosa vuoi da me con le 2 cose aperte. e comunque non hai messo ogni
+    tipo, ne hai messi meno della metà. e poi questo step era l'inizio no? mettere tutto insieme per
+    capire cosa accomunare no? come rifare ogni cosa di modo che sia uniforme tra di loro. e poi le
+    cose dei pasti non abbiamo ancora fatto nulla riguardo i cambiamenti in place, e i voti. cosa
+    intendiamo fare? lavoriamo nello specifico ai pasti, sia nella loro versione in elenco che in
+    timeline e poi astraiamo tutto e lo uniformiamo a tutto il resto? per poi lavorare nello
+    specifico a tutto il resto?» Claude's answer: Stop B showed 5 of the 16 types in the plan
+    (`core/engines/view/box.ts`): it is incomplete; its purpose is the comparison of every type to
+    find what is common. Proposed order (his question, his «yc» pending): (1) merge #372; (2) Stop B
+    complete — all 16 types shut and open, with a table of what each shows in each zone; (3) the
+    meal in depth, timeline and Elenco: in-place edits (grams, + ingrediente, porzioni) with the
+    voto recomputed live and each ingredient's share lit (MOD-61); (4) abstract it into the kit and
+    apply it to every type; (5) each type's specifics.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos
