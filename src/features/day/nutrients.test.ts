@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { Day, DayItem, FoodTargets } from "@/core/day";
 import { kindRegistry } from "@/core/kinds";
 import { carbsRange, microTargets } from "@/core/engines/targets";
-import { mealL0, microsOf, presentDay, targetWords } from "./nutrients";
+import { mealL0, mealLimits, microsOf, presentDay, targetWords } from "./nutrients";
 
 const reg = kindRegistry();
 const item = (kind: string, over: Partial<DayItem> = {}): DayItem => ({
@@ -424,5 +424,27 @@ describe("a meal's window (L2)", () => {
     expect(m.micros!.summary).toBe("stime · su quanto serve al giorno");
     const k = m.micros!.groups[0]!.items.find((i) => i.name === "Potassio")!;
     expect(k).toEqual({ name: "Potassio", v: 600, t: 3500, unit: "mg" });
+  });
+});
+
+describe("mealLimits (FD-33, his §183): a meal's limits against the day's", () => {
+  const targets = {
+    kcal: 2000,
+    sugars: 50,
+    saturatedFat: 22,
+    salt: 5,
+  } as unknown as Parameters<typeof mealLimits>[2];
+  it("free sugars from the kinds when known, saturated fat, salt", () => {
+    const v = (f: string) => ({ sugars: 30, saturatedFat: 10, salt: 2 })[f] ?? 0;
+    const l = mealLimits(v, 8, targets);
+    expect(l.map((x) => [x.key, x.v, x.t])).toEqual([
+      ["sugars", 8, 50],
+      ["sat", 10, 22],
+      ["salt", 2, 5],
+    ]);
+    expect(mealLimits(v, null, targets)[0]!.v).toBe(30);
+  });
+  it("none without the day's kcal", () => {
+    expect(mealLimits(() => 1, null, null)).toEqual([]);
   });
 });

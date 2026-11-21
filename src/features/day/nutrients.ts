@@ -461,28 +461,7 @@ export function mealL0(
   // Its limits, against the day's targets (his 20 Nov «dovrebbero portarli»); its macros judged
   // against the day's ranges scaled to its energy (§146, `share`).
   const dayKcal = targets?.kcal ?? null;
-  const limits: NonNullable<NutrientsData["limits"]> = dayKcal
-    ? [
-        known
-          ? {
-              key: "sugars",
-              name: "Zuccheri liberi",
-              v: kinds.carbs["free"] ?? 0,
-              t: (dayKcal * 0.1) / 4,
-            }
-          : {
-              key: "sugars",
-              v: v("sugars"),
-              t: targets?.sugars ?? (dayKcal * 45) / 1000,
-            },
-        {
-          key: "sat",
-          v: v("saturatedFat"),
-          t: targets?.saturatedFat ?? (dayKcal * 0.1) / 9,
-        },
-        { key: "salt", v: v("salt"), t: targets?.salt ?? 5 },
-      ]
-    : [];
+  const limits = mealLimits(v, known ? (kinds.carbs["free"] ?? 0) : null, targets);
   const NOTE = {
     protein: () => leucineNote(kinds.protein),
     carbs: () => carbsNote(kinds.carbs),
@@ -639,4 +618,25 @@ export function dayByMeal(
         };
       }),
   };
+}
+
+/**
+ * A meal's limits against the day's targets (his 20 Nov «dovrebbero portarli», FD-33): free
+ * sugars from the kinds when known (else total sugars), saturated fat, salt. None without the
+ * day's kcal. One rule for a meal on the day and a pasto in the Elenco (his §183, «limiti»).
+ */
+export function mealLimits(
+  v: (field: string) => number,
+  freeSugars: number | null,
+  targets: FoodTargets | null,
+): NonNullable<NutrientsData["limits"]> {
+  const dayKcal = targets?.kcal ?? null;
+  if (!dayKcal) return [];
+  return [
+    freeSugars !== null
+      ? { key: "sugars", name: "Zuccheri liberi", v: freeSugars, t: (dayKcal * 0.1) / 4 }
+      : { key: "sugars", v: v("sugars"), t: targets?.sugars ?? (dayKcal * 45) / 1000 },
+    { key: "sat", v: v("saturatedFat"), t: targets?.saturatedFat ?? (dayKcal * 0.1) / 9 },
+    { key: "salt", v: v("salt"), t: targets?.salt ?? 5 },
+  ];
 }

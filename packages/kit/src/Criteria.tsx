@@ -11,14 +11,30 @@
  */
 import type { CSSProperties } from "react";
 import { Condensed } from "./Condensed";
+import { FitLine } from "./FitLine";
+import { Verdict } from "./Verdict";
+import type { HeatLevel } from "./nutrient-rows";
 import { F, MET, PART } from "./format";
 import { WORDS } from "./words";
 
 export type CriteriaData = {
   value: number | null;
-  parts: { name: string; score: number; weight: number }[];
+  parts: {
+    name: string;
+    /** Its key in the model (a criterion's, «density»), for the filter between strumenti. */
+    key?: string;
+    /** A short name for its tile (§189: «densità»). */
+    short?: string;
+    score: number;
+    weight: number;
+    /** Each part's share of this criterion's input, by the part's key (MOD-61, VIS-107). */
+    split?: Record<string, number>;
+  }[];
+  /** Criteria that do not count here, each with why: «valore (manca il prezzo)». */
   missing: string[];
+  /** Its «Come valutiamo» page, the model's criteria and their sources. */
   how?: string;
+  /** What would raise it, in the day's words, when the app knows (UI-75). */
   action?: string;
 };
 
@@ -149,6 +165,155 @@ export function Criteria({
           {WORDS.scoreHow}
         </a>
       )}
+    </div>
+  );
+}
+
+/** How the criteria read beside the misure (his §181, §189): lit by a misura, one picked. */
+export type CriteriaFilter = {
+  /** The criteria a picked misura feeds; null: none picked, all lit. */
+  lit: string[] | null;
+  /** The criterion picked (F3): its misure light up. */
+  picked: string | null;
+  onPick: (key: string) => void;
+};
+
+const TONES = [1, 0.75, 0.55, 0.38, 0.22];
+/** The voto's band as the misure's arrows (§146): ≥ 70 two up, ≥ 40 one up, under it one down. */
+const level = (v: number): HeatLevel => (v >= MET ? "good" : v >= PART ? "fair" : "bad");
+
+/**
+ * The voto as tiles (his pick V-A, §183, §189), the misure's grammar: first its total — the number
+ * in its band's colour and the 100-point bar of its criteria — then each criterion a tile, three
+ * a row: its colour, its short name, the points it lost («−29», «✓»), its arrows; under them its
+ * points as a track — as long as its weight (the heaviest the whole tile), filled as far as it
+ * scored, the fill split by ingredient (MOD-61 `split`, the criterion's colour in shades). What
+ * does not count is a dim tile with its name and «–», its reason on hover and for a screen reader.
+ */
+export function CriteriaTiles({
+  data,
+  planned = false,
+  filter,
+}: {
+  data: CriteriaData;
+  planned?: boolean;
+  filter?: CriteriaFilter;
+}) {
+  const top = Math.max(...data.parts.map((q) => q.weight), 0.0001);
+  const parts = data.parts.map((q, i) => ({
+    ...q,
+    k: q.key ?? q.name,
+    i: (i % CRIT) + 1,
+    v: pct(q.score),
+    max: q.weight * 100,
+    got: q.weight * q.score * 100,
+  }));
+  const state = (k: string) =>
+    filter?.picked === k
+      ? " picked"
+      : filter?.lit && !filter.lit.includes(k)
+        ? " dim"
+        : "";
+  return (
+    <div className={"k-critview k-ctiles-all" + (planned ? " planned" : "")}>
+      <div className="k-ctotal">
+        {data.value !== null && (
+          <b className="k-num" style={{ color: band(data.value) }}>
+            {data.value}
+          </b>
+        )}
+        <div
+          className="k-cpts"
+          role="img"
+          aria-label={`${data.value ?? "—"} punti su 100${planned ? ", previsto" : ""}`}
+        >
+          {parts.map((q) => (
+            <span
+              key={q.k}
+              className={"seg" + state(q.k)}
+              style={
+                {
+                  ...id(q.i),
+                  flexGrow: q.weight,
+                  "--v": q.v + "%",
+                  "--band": band(q.v),
+                } as CSSProperties
+              }
+            >
+              <span className="bar">
+                <span className="fill" />
+              </span>
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="k-ctiles">
+        {parts.map((q) => {
+          const lost = q.max - q.got;
+          const pieces = q.split
+            ? Object.entries(q.split)
+                .filter(([, x]) => x > 0)
+                .sort((a, b) => b[1] - a[1])
+            : [];
+          const sum = pieces.reduce((a, [, x]) => a + x, 0) || 1;
+          return (
+            <button
+              key={q.k}
+              type="button"
+              className={"k-ctile" + (lost < 0.5 ? " full" : "") + state(q.k)}
+              style={id(q.i)}
+              aria-pressed={filter?.picked === q.k}
+              aria-label={`${q.name}: ${F.n(q.got, 0)} su ${F.n(q.max, 0)}`}
+              {...(filter ? { onClick: () => filter.onPick(q.k) } : {})}
+            >
+              <FitLine className="k-line g1">
+                <span className="k-cid" aria-hidden="true" />
+                <span className="nm">{q.short ?? q.name}</span>
+                <b className="k-num b3">{lost >= 0.5 ? "−" + F.n(lost, 0) : "✓"}</b>
+                <Verdict level={level(q.v)} />
+              </FitLine>
+              <span
+                className="k-track"
+                aria-hidden="true"
+                style={{ width: ((q.weight / top) * 100).toFixed(1) + "%" }}
+              >
+                {pieces.length > 1 ? (
+                  pieces.map(([key, x], n) => (
+                    <span
+                      key={key}
+                      className="k-seg"
+                      style={{
+                        width: ((x / sum) * q.v).toFixed(1) + "%",
+                        opacity: TONES[Math.min(TONES.length - 1, n)],
+                      }}
+                    />
+                  ))
+                ) : (
+                  <span className="k-seg" style={{ width: q.v + "%" }} />
+                )}
+              </span>
+            </button>
+          );
+        })}
+        {data.missing.map((m) => {
+          const [name, reason] = why(m);
+          return (
+            <span
+              key={m}
+              className="k-ctile none"
+              title={reason}
+              aria-label={name + (reason ? ": " + reason : "")}
+            >
+              <FitLine className="k-line g1">
+                <span className="nm">{name}</span>
+                <b className="k-num b3">–</b>
+              </FitLine>
+              <span className="k-track" aria-hidden="true" />
+            </span>
+          );
+        })}
+      </div>
+      {data.action && <p className="k-help">{data.action}</p>}
     </div>
   );
 }

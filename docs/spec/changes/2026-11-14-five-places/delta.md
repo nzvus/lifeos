@@ -231,3 +231,24 @@
 - **VIS-30** (visual.md) adds: a Box's head shows its icon only where it tells things apart (a day's
   timeline, a mixed list); in a list of one type (Elenco · Cibi, Pasti salvati, esercizi) it has
   none (his §178; `Box lead`). Undo: drop `lead={false}` in `features/library`.
+- **product.md §3, words** (his «yc» 21 Nov, §183, §189): **misura** — the kcal, a macro, the
+  micros, each a tile of a thing's box (PRD-04's measures; never «nutriente», the half's name);
+  **strumento** — a view that answers one question (VIS-102; «feature» is not a word here); a
+  **canale** — a fact added to a strumento (VIS-101); a **comando** — what a tap on it does
+  (VIS-104); a **filtro** — what stays lit while the rest dims, possibly shared by two strumenti;
+  **livello** — how deep a piece is open (VIS-70); **vista** — how its parts are split
+  (ingredienti · nutrienti); **tile** — a cell of the box's grid (PAT-105).
+- **VIS-43** (visual.md) changes, open (his V-A, §189): the voto as tiles, the misure's grammar —
+  a low total tile (the number in its band's colour, the 100-point bar of its criteria), then a
+  tile per criterion, three a row: its colour, a short name, the points lost («−29», «✓»), its
+  arrows (≥ 70 ⇈, ≥ 40 ↑, under ↓); under them its points as a track as long as its weight (the
+  heaviest the whole tile), filled to its score, split by ingredient (MOD-61). A criterion that
+  does not count is a dim tile, «–», its reason on hover. Kit `CriteriaTiles`. Shut: unchanged,
+  the number over its mini skyline (§185). Undo: `Criteria` in `PlanBox`.
+- **PAT-105** adds **the filter between misure and voto** (his §181, F1 + F3): a misura picked
+  lights the criteria it feeds (FD-51; `MISURA_FEEDS` in `features/food/lines-score.ts`) and dims
+  the rest, the 100-point bar too; a criterion picked lights the misure that feed it. Its piece of
+  each criterion (F2) waits for MOD-61 by nutrient. A picked misura's tile in its own colour.
+  «Micro»'s band starts with a «limiti» section (zuccheri liberi, grassi saturi, sale against the
+  day's, FD-33; `mealLimits`).
+

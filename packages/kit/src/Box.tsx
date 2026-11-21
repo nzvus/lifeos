@@ -15,7 +15,7 @@ import { NumUnit } from "./NumUnit";
 import type { CSSProperties, ReactNode } from "react";
 import { Glyph } from "./Glyph";
 import type { GlyphOf } from "./glyph";
-import { Criteria } from "./Criteria";
+import { Criteria, type CriteriaData } from "./Criteria";
 import { F, MET, PART, type State } from "./format";
 
 export type BoxEntry = {
@@ -39,22 +39,7 @@ export type BoxEntry = {
   href?: string;
   hrefLabel?: string;
   /** Its score (E7): the skyline behind it, the parts when it opens; missing parts named. */
-  score?: {
-    value: number | null;
-    parts: {
-      name: string;
-      score: number;
-      weight: number;
-      /** Each part's share of this criterion's input, by the part's key (MOD-61, VIS-107). */
-      split?: Record<string, number>;
-    }[];
-    /** Criteria that do not count here, each with why: «valore (manca il prezzo)». */
-    missing: string[];
-    /** Its «Come valutiamo» page, the model's criteria and their sources. */
-    how?: string;
-    /** What would raise it, in the day's words, when the app knows (UI-75). */
-    action?: string;
-  };
+  score?: CriteriaData;
 };
 
 /** A door of an open Box: a chip that shows one panel, one open at a time («Oggi a livelli»). */

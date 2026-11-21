@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Box } from "./Box";
-import { Criteria } from "./Criteria";
+import { Criteria, CriteriaTiles } from "./Criteria";
 import { Forms } from "./Forms";
 import { List } from "./List";
 import { MeasureTree } from "./MeasureTree";
@@ -162,5 +162,49 @@ describe("the measure tree: a bullet and its children under it (bars study §7; 
     expect(h).toContain("k-tc");
     expect(h).toContain('class="cell no"');
     expect(h).toContain('class="plan"');
+  });
+});
+
+describe("CriteriaTiles — the voto as tiles, the misure's grammar (VIS-43, his V-A §189)", () => {
+  const data = {
+    value: 54,
+    parts: [
+      {
+        name: "densità di nutrienti",
+        key: "density",
+        short: "densità",
+        score: 0.26,
+        weight: 0.3,
+        split: { a: 2, b: 1 },
+      },
+      { name: "sazietà", key: "satiety", short: "sazietà", score: 1, weight: 0.07 },
+    ],
+    missing: ["valore (manca il prezzo)"],
+  };
+  it("a tile per criterion with its lost points, a dim tile for what does not count", () => {
+    const html = renderToStaticMarkup(<CriteriaTiles data={data} />);
+    expect(html).toContain(">densità<");
+    expect(html).toContain(">−22<");
+    expect(html).toContain(">✓<");
+    expect(html).toContain('class="k-ctile none"');
+    // its points split by ingredient: two pieces
+    const density = html.slice(html.indexOf(">densità<"), html.indexOf(">sazietà<"));
+    expect(density.match(/class="k-seg"/g)).toHaveLength(2);
+  });
+  it("the filter: lit criteria stay, the others dim; the picked one is pressed (his §181, F1 + F3)", () => {
+    const html = renderToStaticMarkup(
+      <CriteriaTiles
+        data={data}
+        filter={{ lit: ["satiety"], picked: null, onPick: () => {} }}
+      />,
+    );
+    expect(html).toContain("k-ctile dim");
+    const picked = renderToStaticMarkup(
+      <CriteriaTiles
+        data={data}
+        filter={{ lit: null, picked: "density", onPick: () => {} }}
+      />,
+    );
+    expect(picked).toContain('aria-pressed="true"');
   });
 });

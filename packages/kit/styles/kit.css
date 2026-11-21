@@ -6930,3 +6930,98 @@ button.k-mrow:active {
     display: none;
   }
 }
+
+/* ---------- §189: the misure in their colours, the filter between misure and voto, the voto as
+   tiles (his V-A) ---------- */
+.k-mcell.kcal {
+  --mc: var(--kcal);
+}
+.k-mcell.micro {
+  --mc: var(--muted);
+}
+/* a picked misura's tile in its own colour (his §189: «la palette… col colore della misura») */
+.k-box.bands .k-mcell.picked {
+  background: color-mix(in srgb, var(--mc, var(--ink)) 24%, transparent);
+}
+.k-box.bands :is(.k-mcell, .k-ctile, .k-cpts > .seg).dim {
+  opacity: 0.32;
+}
+.k-box.bands .k-bars > .k-ctiles-all {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  padding: 0;
+  background: transparent;
+}
+/* the total: its number, then the 100-point bar, one low tile like a picked misura */
+.k-ctotal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--cell-h, 36px);
+  padding: 0 var(--cell-x, 10px);
+  border-radius: 8px;
+  background: var(--tile);
+}
+.k-ctotal > .k-num {
+  font-family: var(--font-display);
+  font-size: var(--fs-d4);
+  font-weight: 700;
+}
+.k-ctotal > .k-cpts {
+  flex: 1 1 auto;
+}
+/* the criteria: three a row */
+.k-ctiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gap, 4px);
+}
+.k-ctile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 6px 5px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--tile);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.k-ctile .k-cid {
+  background: var(--id);
+}
+.k-ctile .nm {
+  font-size: var(--fs-b3);
+}
+.k-ctile > .k-track {
+  align-self: flex-start;
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--id) 22%, transparent);
+}
+.k-ctile > .k-track > .k-seg {
+  height: 100%;
+  background: var(--id);
+}
+.k-ctile.picked {
+  background: color-mix(in srgb, var(--id) 24%, transparent);
+}
+.k-ctile.none {
+  opacity: 0.5;
+  cursor: default;
+}
+.k-ctile.none > .k-track {
+  width: 100%;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--muted) 40%, transparent) 0 2px,
+    transparent 2px 5px
+  );
+}

@@ -1937,6 +1937,18 @@
     five in one row under it, the kcal a little wider (1.3 shares) so it never wraps; at ≤ 360 px
     their arrows hide (they show when picked). Every misura's unit a size smaller than its number
     (his §161, the answer to «che ti avevo detto?»), one `NumUnit` for the head and the misure.
+189. **21 Nov, his word on §183 asked again (verbatim):** «yc, ma mostrami tutte le opzioni. comunque
+    quando seleziono una misura, modifica la palette della pile coerentemente col colore della
+    misura». His «yc» takes: the names (misure · strumento · canale · comando · filtro), V-A, F1 +
+    F3 now (F2 later), a «limiti» section in the Micro band; V-B and V-C shown too. «la palette
+    della pile» read as the picked tile's ground in its misura's colour.
+190. **21 Nov, built on §189** (`review/2026-11-21/f189/`): the names into `delta.md` (product.md
+    §3); **V-A** built in every `PlanBox` (`CriteriaTiles`); V-B (tiles only for lost points) and
+    V-C (the voto as a third half, «Voto») shown by CSS on the real box, not built; **F1 + F3**
+    built for the pasto (Elenco), the feeds from FD-51; the picked misura's tile in its colour;
+    «limiti» first in «Micro»'s band (the Elenco's pasto now carries its limits, `mealLimits`, one
+    rule with the day's meal). Short names «q. carbo», «q. grassi» so a tile never wraps at 320.
+    Not yet: F2 (a misura's piece of each criterion), an ingredient lighting its pieces (A4).
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

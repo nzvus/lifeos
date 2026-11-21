@@ -14,7 +14,7 @@
 import { useState } from "react";
 import { Chart, type ChartData } from "./Chart";
 import { ChipRow } from "./ChipRow";
-import { Criteria } from "./Criteria";
+import { CriteriaTiles, type CriteriaFilter } from "./Criteria";
 import { Nutrients } from "./Nutrients";
 import type { NutrientsData } from "./nutrient-rows";
 import { ThingBox, type ThingBoxPlace } from "./ThingBox";
@@ -221,8 +221,11 @@ export function PlanBox({
   before,
   between,
   xor,
+  voto,
   ...place
 }: ThingBoxPlace & {
+  /** The voto's criteria lit and picked with the misure (his §181, §189: the filter). */
+  voto?: CriteriaFilter;
   entry: BoxEntry;
   /** In the plan's order; a slot with no data is left out by the caller (PRD-22). */
   slots?: PlanSlot[];
@@ -312,7 +315,12 @@ export function PlanBox({
         <div className="k-stack g2 k-bars">
           {v?.before ?? before}
           {headEntry.score && headEntry.score.value !== null && (
-            <Criteria data={headEntry.score} planned={!!headEntry.planned} howInRow />
+            // the voto as tiles, the misure's grammar (his V-A, §189)
+            <CriteriaTiles
+              data={headEntry.score}
+              planned={!!headEntry.planned}
+              {...(voto ? { filter: voto } : {})}
+            />
           )}
         </div>
         {/* a thing's own rows above the actions (its kin, PAT-103; his §161) */}

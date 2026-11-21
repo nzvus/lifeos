@@ -39,6 +39,7 @@ export function Nutrients({
   focus,
   picked,
   onPick,
+  litCells = null,
   openFirst,
 }: {
   data: NutrientsData;
@@ -58,6 +59,8 @@ export function Nutrients({
   /** Inline: the macro cell picked (its kinds shown below), and a tap on a cell picks it. */
   picked?: string | null;
   onPick?: (key: string) => void;
+  /** Inline: only these cells lit, the rest dimmed (a criterion picked, his §189 F3). */
+  litCells?: string[] | null;
   /** A row open from the start («micro»: the box's «Micro» band shows them at once, §174). */
   openFirst?: string;
 }) {
@@ -130,7 +133,8 @@ export function Nutrients({
       )}
       {focus !== undefined &&
         (() => {
-          if (focus === MICRO) return micros ? <MicroColumns micros={micros} /> : null;
+          if (focus === MICRO)
+            return micros ? <MicroColumns micros={micros} limits={limits} /> : null;
           if (focus === KCAL) return energy ? <EnergyColumns e={energy} /> : null;
           const m = macros.find((x) => x.key === focus);
           return m ? <MacroColumns m={m} /> : null;
@@ -141,7 +145,11 @@ export function Nutrients({
           {onPick && energy && (
             <button
               type="button"
-              className={"k-mcell kcal" + (picked === KCAL ? " picked" : "")}
+              className={
+                "k-mcell kcal" +
+                (picked === KCAL ? " picked" : "") +
+                (litCells && !litCells.includes(KCAL) ? " dim" : "")
+              }
               aria-pressed={picked === KCAL}
               aria-label={energy.aria}
               onClick={() => onPick(KCAL)}
@@ -170,7 +178,12 @@ export function Nutrients({
             <button
               key={m.key}
               type="button"
-              className={"k-mcell" + (picked === m.key ? " picked" : "")}
+              className={
+                "k-mcell" +
+                (picked === m.key ? " picked" : "") +
+                (litCells && !litCells.includes(m.key) ? " dim" : "")
+              }
+              style={{ "--mc": m.color } as CSSProperties}
               {...(onPick
                 ? { onClick: () => onPick(m.key), "aria-pressed": picked === m.key }
                 : onTap
@@ -195,7 +208,11 @@ export function Nutrients({
           {onPick && micros && (
             <button
               type="button"
-              className={"k-mcell micro" + (picked === MICRO ? " picked" : "")}
+              className={
+                "k-mcell micro" +
+                (picked === MICRO ? " picked" : "") +
+                (litCells && !litCells.includes(MICRO) ? " dim" : "")
+              }
               aria-pressed={picked === MICRO}
               aria-label={WORDS.micro + ": " + micros.summary}
               onClick={() => onPick(MICRO)}
@@ -585,11 +602,24 @@ function MacroColumns({ m }: { m: ReturnType<typeof nutrientsL1>["macros"][numbe
  */
 function MicroColumns({
   micros,
+  limits = [],
 }: {
   micros: NonNullable<ReturnType<typeof nutrientsL1>["micros"]>;
+  /** The limits first, as their own section (his §183: «i limiti? sono nei micro?»). */
+  limits?: ReturnType<typeof nutrientsL1>["limits"];
 }) {
   return (
     <div className="k-stack k-kcolumns">
+      <SideColumns
+        side={WORDS.limits}
+        rows={limits.map((l) => ({
+          key: l.key,
+          name: l.name,
+          w: l.w,
+          c: l.color,
+          v: l.v + " / " + l.t,
+        }))}
+      />
       {micros.groups.map((g) => (
         <SideColumns
           key={g.name}

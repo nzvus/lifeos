@@ -5,12 +5,12 @@ Why: his 15 Nov note (`RULES_LOG.md`, inbox W-04): the same thing is built again
 file counts it. A row here is a fact about the code, not a decision; the target is in the spec.
 
 ## 0. Totals
-- routes: **42** · screen components outside the kit: **77** · kit pieces: **59**
+- routes: **42** · screen components outside the kit: **77** · kit pieces: **60**
 - components that take input (a form, a field): **38**
 - components where a quantity, a time or a date is typed: **17**
 - components with a control made by hand (`<input>`, `<select>`, `<textarea>`, `<form>`): **20**
 - components with an inline `style`: **8**
-- kit pieces no screen uses: **12** · components no route reaches: **0**
+- kit pieces no screen uses: **13** · components no route reaches: **0**
 
 ## 1. Where a quantity, a time or a date is typed
 One row per component. The target is one way to type each of them (VIS-86, PAT-13, PAT-61).
@@ -84,7 +84,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `features/library/BarcodeBox.tsx` | 308 | Glyph | 2 input | 6 |
 | `features/library/ExerciseForm.tsx` | 90 | Field, PageHeader | 1 form | 6 |
 | `features/library/FoodForm.tsx` | 209 | Field, Glyph, PageHeader | 3 input, 1 form | 6 |
-| `features/library/Library.tsx` | 477 | Box, Field, MealBox | 2 input | 2 |
+| `features/library/Library.tsx` | 480 | Box, Field, MealBox | 2 input | 2 |
 | `features/library/MealIngredients.tsx` | 102 | Find, IngredientTable | — | 2 |
 | `features/library/PantryActions.tsx` | 56 | ObjectForm, Sheet | — | 2 |
 | `features/library/RouteForm.tsx` | 112 | Field, PageHeader | 1 form | 1 |
@@ -221,6 +221,7 @@ A form made per context is the first thing to converge (PAT-61 `ObjectForm`, PAT
 | `Why` | 1 | features/gallery/Pieces.tsx |
 | `ChipRow` | 0 | **no screen** (inside the kit only, or unused) |
 | `Criteria` | 0 | **no screen** (inside the kit only, or unused) |
+| `CriteriaTiles` | 0 | **no screen** (inside the kit only, or unused) |
 | `DoneCells` | 0 | **no screen** (inside the kit only, or unused) |
 | `DoneDay` | 0 | **no screen** (inside the kit only, or unused) |
 | `Fascia` | 0 | **no screen** (inside the kit only, or unused) |

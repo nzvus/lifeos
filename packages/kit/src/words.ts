@@ -10,6 +10,8 @@ export const WORDS = {
   fromWhere: "da dove",
   /** The kcal's band: its side label for the share of each macro (his §178). */
   byMacro: "macro",
+  /** «Micro»'s band: the limits' side label (his §183). */
+  limits: "limiti",
   /** A picked cell's name (his §184). */
   energy: "Energia",
   microAll: "Vitamine e minerali",

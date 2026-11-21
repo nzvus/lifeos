@@ -22,6 +22,7 @@ export function MealBox({
   between,
   ingredients,
   words = { foods: "Ingredienti", kinds: "Nutrienti" },
+  feeds,
   ...place
 }: ThingBoxPlace & {
   entry: BoxEntry;
@@ -39,12 +40,18 @@ export function MealBox({
   ingredients?: ReactNode;
   /** The two halves' words, from the caller (PAT-81). */
   words?: { foods: string; kinds: string };
+  /**
+   * Which criteria each misura feeds, from the caller's model (PAT-81; his §181, §189): a misura
+   * picked lights its criteria, a criterion picked lights its misure.
+   */
+  feeds?: Record<string, string[]>;
 }) {
   // One state for the bars and the last band (his §170, §172): a macro picked in the bars shows
   // its kinds — in the bars and in «Nutrienti»; none picked, the bars show the ingredients. A tap
   // on the picked one puts it back; a tap on a half opens or shuts its band.
   const [picked, setPicked] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [crit, setCrit] = useState<string | null>(null);
   // «Micro» or the kcal picked keep the bars by ingredient; a macro picked shows its kinds (§174)
   const view = picked && picked !== MICRO && picked !== KCAL ? "kinds" : "foods";
   // «Nutrienti» opened with nothing picked starts from the first cell, the kcal (§178)
@@ -63,10 +70,33 @@ export function MealBox({
           inline
           by={view}
           {...(ingredients
-            ? { picked, onPick: (k: string) => setPicked((p) => (p === k ? null : k)) }
+            ? {
+                picked,
+                onPick: (k: string) => {
+                  setCrit(null);
+                  setPicked((p) => (p === k ? null : k));
+                },
+              }
             : {})}
+          litCells={
+            feeds && crit
+              ? Object.keys(feeds).filter((k) => feeds[k]!.includes(crit))
+              : null
+          }
         />
       }
+      {...(feeds
+        ? {
+            voto: {
+              lit: picked ? (feeds[picked] ?? []) : null,
+              picked: crit,
+              onPick: (k: string) => {
+                setPicked(null);
+                setCrit((c) => (c === k ? null : k));
+              },
+            },
+          }
+        : {})}
       between={between}
       {...(ingredients
         ? {
