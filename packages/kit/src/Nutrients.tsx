@@ -9,6 +9,7 @@
  */
 import { useState, type CSSProperties } from "react";
 import { Glyph } from "./Glyph";
+import { Verdict } from "./Verdict";
 import { nutrientsL0, nutrientsL1, type NutrientsData } from "./nutrient-rows";
 import { Condensed } from "./Condensed";
 import { Fascia } from "./Fascia";
@@ -48,7 +49,7 @@ export function Nutrients({
   const means = limits.some((l) => l.strip?.mean);
   return (
     <div className="k-stack g3">
-      {main && kcal && (
+      {main && kcal && !inline && (
         <div className="k-stack">
           <span className="k-line base between">
             <span className="k-line base">
@@ -115,8 +116,9 @@ export function Nutrients({
               <span className="k-line g1">
                 <Glyph of={{ nutrient: m.key }} size="s" />
                 <span className="k-num b3">{m.short}</span>
+                <Verdict level={m.level} />
               </span>
-              <MacroTrack m={m} />
+              <MacroTrack m={m} full />
             </button>
           ))}
         </div>
@@ -344,14 +346,20 @@ export function NutrientsL0({ data }: { data: NutrientsData }) {
 function MacroTrack({
   m,
   label = false,
+  full = false,
 }: {
   m: ReturnType<typeof nutrientsL1>["macros"][number];
   /** Its own label for a screen reader; else the cell around it says it. */
   label?: boolean;
+  /** Always full: only the proportions of its parts, no target mark, no ruler (his §146). */
+  full?: boolean;
 }) {
+  const sum = m.segs.reduce((a, s) => a + parseFloat(s.w), 0);
+  const w = (x: string) =>
+    full && sum > 0 ? ((parseFloat(x) / sum) * 100).toFixed(1) + "%" : x;
   return (
     <span
-      className={"k-track" + (m.strip ? " zoned" : "")}
+      className={"k-track" + (m.strip && !full ? " zoned" : "")}
       {...(label ? { role: "img", "aria-label": m.aria } : { "aria-hidden": true })}
     >
       {m.segs.map((s, i) => (
@@ -359,14 +367,14 @@ function MacroTrack({
           key={i}
           className={"k-seg" + (s.planned ? " planned" : "")}
           style={{
-            width: s.w,
+            width: w(s.w),
             background: s.bg,
             opacity: s.planned ? 0.5 : s.dim ? 0.25 : 1,
           }}
         />
       ))}
-      {m.mark && <span className="k-mark" style={{ left: m.mark }} />}
-      {m.strip && <Fascia strip={m.strip} />}
+      {!full && m.mark && <span className="k-mark" style={{ left: m.mark }} />}
+      {!full && m.strip && <Fascia strip={m.strip} />}
     </span>
   );
 }

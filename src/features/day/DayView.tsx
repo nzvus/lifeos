@@ -46,8 +46,6 @@ type Row = BoxEntry & {
   id: string;
   status: Status;
   l0?: NutrientsData | null;
-  /** A meal: the day's bars with each meal as a part, this one lit (§143). */
-  day?: NutrientsData;
   /** A session in progress (features/day/present `isRunning`). */
   running?: boolean;
   /** A session: «Inizia» instead of «Fatto». */

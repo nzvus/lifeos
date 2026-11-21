@@ -18,7 +18,7 @@ import {
   readRecipeChoices,
 } from "@/core/food/catalog";
 import { mealPage } from "@/features/library/library";
-import { MEAL_WORDS, mealCost, mealSlots } from "@/features/box/meal";
+import { mealCost, mealSlots } from "@/features/box/meal";
 import { food } from "@/i18n/food";
 import { mealBox } from "../../../oggi/elenco/meal-box";
 import type { Build } from "./extras";
@@ -64,7 +64,6 @@ export const recipeExtra: Build = async (db, owner, id) => {
           }}
           data={box.data}
           slots={mealSlots({ details: box.details })}
-          words={MEAL_WORDS}
         />
         {cost && (
           // Its cost is level 2 (ATT-11): on its page, beside the box, no longer a door.

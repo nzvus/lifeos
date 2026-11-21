@@ -40,7 +40,7 @@ import {
   type BoxEntry,
 } from "@lifeos/kit";
 import { common } from "@/i18n/common";
-import { MEAL_WORDS, mealSlots } from "@/features/box/meal";
+import { mealSlots } from "@/features/box/meal";
 import { ActionSample } from "./action-sample";
 import { requireOwner } from "@/app/_server/owner";
 import { getDb } from "@/app/_server/runtime";
@@ -649,7 +649,6 @@ export default async function KitPage({
               slots={mealSlots({
                 details: { stats: [], lines: [], foot: "aggiunto al volo" },
               })}
-              words={MEAL_WORDS}
               actions={[
                 { key: "log", label: "Registra", href: "#pasto-box" },
                 { key: "compose", label: "Cambia i cibi", href: "#pasto-box" },

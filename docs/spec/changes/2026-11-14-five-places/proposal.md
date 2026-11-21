@@ -1466,6 +1466,32 @@
     so the content takes the whole width; (b) a meal's macros at both levels are one row — the
     four bars side by side, each with its icon, its number and its track (same segments, light and
     target mark as «Il giorno»), the energy line above.
+146. **21 Nov, his word on §145:** «in effetti è troppo condensato, allora facciamo così, teniamo solo
+    il livello del pasto, e facciamo però in modo che le 4 minibarre siano tutte piene, quindi
+    indichino solo le proporzionalità o dei nutrienti o degli ingredienti. solo che magari affianco
+    ai numeri, mettiamo anche delle minuscole freccette tipo doppio basso rosso o singolo basso
+    arancione, o trattino grigio o alto giallo/bianco, doppio alto verde. non so queste sono
+    proposte di colori, colori che vengono eventualmente poi ripresi nei voti ovviamente. attento
+    alle spaziature sotto e sopra. per la vista "nella giornata" invece, pensavo che quando si
+    scorre verso il basso, in alto si minimizza a barra singola, identica a quella del pasto in
+    fattezze, e mostra le proporzioni però rispetto a se stessa, quindi per evidenziare il pasto
+    attuale quanto contributo dà. sempre attenta agli spazi. anche qui con stesse feature eccetera.
+    poi quando è estesa è più simile a quella attuale, con 4 barre diverse, anche se aggiungerei lo
+    stesso le freccette dato che sembra esserci spazio. valutiamo se aggiungere anche 3 in basso e 3
+    in alto».
+147. **21 Nov, built on §146 (the meal box only; the day comes next, one screen at a time):** only
+    the meal's level; its four macros on one row, each bar always full (its parts' proportions, no
+    mark, no ruler; a hairline between two parts of one shade), no energy line (the head says it);
+    beside each number a kit `Verdict` arrow — ⇊ «da evitare» · ↓ «pessimo» · – not judged · ↑ «ok»
+    · ⇈ «ottimo», in the heat colours (his proposal; the voto takes them too). Decided by Claude,
+    each with its undo: (1) a meal's carbs, fat and fibre are judged against the day's ranges scaled
+    to its share of the day's energy — **a change to FD-35** («a meal is judged only on protein»;
+    undo: drop `share` in `features/day/nutrients.ts`); (2) five arrows, not seven: the zones have
+    four levels, so a third arrow up or down would have nothing to say yet (his «valutiamo»: open);
+    (3) a saved pasto has no day's targets in the Elenco, so its arrows are «–» (PRD-22). Photos
+    `LIFEOS/review/2026-11-21/arrows/`; **waits for his word**. Next (his §146): «Il giorno» —
+    expanded, today's four rows plus the arrows; scrolling down, it shrinks at the top into one
+    row of four full bars like the meal's, each meal a part, the meal in view lit.
 ## What
 - The bar by action and the area as a filter (ADR-0063): `delta.md`.
 - Each place rebuilt in the real app from the kit pieces, one screen at a time, shown as photos

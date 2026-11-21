@@ -2,99 +2,70 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MealBox } from "./MealBox";
 
-const words = { day: "Nella giornata", meal: "Il pasto" };
-const part = (key: string, name: string, p: number) => ({
+const part = (key: string, name: string, p: number, c: number) => ({
   key,
   name,
   amount: "",
-  kcal: p * 10,
-  macros: { protein: { all: p } },
+  kcal: (p + c) * 4,
+  macros: { protein: { all: p }, carbs: { all: c } },
 });
 const data = {
-  foods: [part("a", "Fiocchi d'avena", 8), part("b", "Latte", 9)],
-  macros: [{ key: "protein" as const, v: 17, t: 40 }],
-};
-const day = {
-  foods: [part("m1", "Colazione", 17), part("m2", "Pranzo", 40)],
-  macros: [{ key: "protein" as const, v: 57, t: 160 }],
+  foods: [part("a", "Fiocchi d'avena", 8, 35), part("b", "Latte", 9, 12)],
+  kcal: { v: 310, t: 2000 },
+  macros: [
+    // 17 g against zones starting at 10 (fair) and 15 (good): «ottimo».
+    {
+      key: "protein" as const,
+      v: 17,
+      t: 40,
+      zones: [
+        { from: 0, level: "bad" as const },
+        { from: 10, level: "fair" as const },
+        { from: 15, level: "good" as const },
+      ],
+    },
+    { key: "carbs" as const, v: 47, t: 60 },
+  ],
 };
 const entry = { fam: "food", title: "Porridge", value: "310 kcal" };
+const open = () =>
+  renderToStaticMarkup(<MealBox entry={entry} data={data} slots={[]} startOpen />);
 
-describe("MealBox (PAT-102; his §143: the day's bars, two levels a tap apart)", () => {
+describe("MealBox (PAT-102; his §146: the meal's level only, full bars, arrows)", () => {
   it("shut it is a row with its strip: no bars", () => {
-    const shut = renderToStaticMarkup(
-      <MealBox entry={entry} data={data} slots={[]} words={words} day={day} lit="m1" />,
-    );
+    const shut = renderToStaticMarkup(<MealBox entry={entry} data={data} slots={[]} />);
     expect(shut).toContain("Porridge");
-    expect(shut).not.toContain("k-mrow");
+    expect(shut).not.toContain("k-mcell");
   });
 
-  it("open with the day: the day's own bars first, the level named, no row of chips", () => {
-    const html = renderToStaticMarkup(
-      <MealBox
-        entry={entry}
-        data={data}
-        slots={[]}
-        words={words}
-        day={day}
-        lit="m1"
-        startOpen
-      />,
-    );
-    expect(html).toContain("Nella giornata");
-    expect(html).toContain("57"); // the day's protein, not the meal's 17
-    expect(html).not.toContain("k-nfood");
-  });
-
-  it("without the day (a pasto): only the meal's level, no level switch", () => {
-    const html = renderToStaticMarkup(
-      <MealBox entry={entry} data={data} slots={[]} words={words} startOpen />,
-    );
-    expect(html).not.toContain("Nella giornata");
-    expect(html).toContain("17");
-  });
-
-  it("the macros are drawn once (his §143: «mostri i macro 2 volte»)", () => {
-    const html = renderToStaticMarkup(
-      <MealBox
-        entry={entry}
-        data={data}
-        slots={[]}
-        words={words}
-        day={day}
-        lit="m1"
-        startOpen
-      />,
-    );
-    expect(html.match(/class="k-mcell"/g)).toHaveLength(1);
+  it("open: the macros on one row, once, no energy line (the head says it)", () => {
+    const html = open();
+    expect(html.match(/class="k-mcell"/g)).toHaveLength(2);
     expect(html).not.toContain('class="k-mrow"');
+    expect(html).not.toContain("2.000");
   });
 
-  it("all the macros on one row (his §145), each with its unit", () => {
-    const two = {
-      ...data,
-      macros: [...data.macros, { key: "carbs" as const, v: 42.7, t: 60 }],
-    };
-    const html = renderToStaticMarkup(
-      <MealBox entry={entry} data={two} slots={[]} words={words} startOpen />,
-    );
-    const row = html.slice(html.indexOf("k-ninline"));
-    expect(row.match(/class="k-mcell"/g)).toHaveLength(2);
-    expect(row).toMatch(/43\sg/);
+  it("each bar is full: its parts' proportions only, no target mark, no ruler", () => {
+    const html = open();
+    const a = html.indexOf('class="k-mcell"');
+    const cell = html.slice(a, html.indexOf('class="k-mcell"', a + 1));
+    const widths = [...cell.matchAll(/width:([\d.]+)%/g)].map((m) => Number(m[1]));
+    expect(widths.reduce((x, y) => x + y, 0)).toBeCloseTo(100, 0);
+    expect(cell).not.toContain("k-mark");
+    expect(cell).not.toContain("k-zrule");
+  });
+
+  it("each number has its verdict's arrow: ⇈ «ottimo»; – where nothing judges it", () => {
+    const html = open();
+    expect(html).toContain('class="k-verdict good" role="img" aria-label="ottimo"');
+    expect(html).toContain('class="k-verdict none"');
   });
 
   it("its page is the last icon of the actions row, no column of its own (his §145)", () => {
     const html = renderToStaticMarkup(
-      <MealBox
-        entry={{ ...entry, href: "/voce/1" }}
-        data={data}
-        slots={[]}
-        words={words}
-        startOpen
-      />,
+      <MealBox entry={{ ...entry, href: "/voce/1" }} data={data} slots={[]} startOpen />,
     );
-    const actions = html.slice(html.indexOf('aria-label="Azioni"'));
-    expect(actions).toContain('href="/voce/1"');
+    expect(html.slice(html.indexOf('aria-label="Azioni"'))).toContain('href="/voce/1"');
     expect(html).not.toContain('class="k-go"');
   });
 });

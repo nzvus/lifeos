@@ -289,6 +289,26 @@ function leucineNote(parts: Record<string, number> | undefined) {
 }
 
 /** A meal's protein (ISSN 2017): 0.25–0.4 g/kg makes the most of a meal; less is only «ok». */
+/**
+ * A meal's zones for carbs, fat and fibre (his 21 Nov, §146: each macro its arrow): the day's
+ * ranges scaled to the meal's share of the day's energy — a third of the energy, a third of each
+ * edge. Decided by Claude, a change to FD-35 («a meal is judged only on protein»): undo by
+ * dropping this. Protein keeps its own per-meal zones (`mealProteinZones`).
+ */
+function share(
+  key: string,
+  weightKg: number | null,
+  dayKcal: number | null,
+  mealKcal: number,
+): { zones?: { from: number; level: "danger" | "bad" | "fair" | "good" }[] } {
+  const r = { carbs: carbsRange, fat: fatRange, fiber: fibreRange }[key];
+  if (!r || !dayKcal || !(mealKcal > 0)) return {};
+  const k = mealKcal / dayKcal;
+  return {
+    zones: r({ weightKg, kcal: dayKcal }).zones.map((z) => ({ ...z, from: z.from * k })),
+  };
+}
+
 const mealProteinZones = (weightKg: number | null) =>
   weightKg === null
     ? {}
@@ -438,8 +458,8 @@ export function mealL0(
   const foods = mealFoods(meal, estimates, targets, microTargets);
   const known = estimates.size > 0;
   const micros = mealMicros(meal, estimates, microTargets);
-  // Its limits, against the day's targets (his 20 Nov «dovrebbero portarli»); no fascia of its
-  // own: a meal is judged only on protein (FD-35).
+  // Its limits, against the day's targets (his 20 Nov «dovrebbero portarli»); its macros judged
+  // against the day's ranges scaled to its energy (§146, `share`).
   const dayKcal = targets?.kcal ?? null;
   const limits: NonNullable<NutrientsData["limits"]> = dayKcal
     ? [
@@ -477,7 +497,9 @@ export function mealL0(
       v: v(f),
       t: targets?.[f] ?? null,
       ...(known ? { parts: kinds[f] } : {}),
-      ...(key === "protein" ? mealProteinZones(weightKg) : {}),
+      ...(key === "protein"
+        ? mealProteinZones(weightKg)
+        : share(key, weightKg, dayKcal, v("kcal"))),
       ...(known ? NOTE[f]() : {}),
     })),
     ...(micros ? { micros } : {}),

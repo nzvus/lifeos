@@ -5788,3 +5788,27 @@ button.k-mrow:active {
 .k-mcell .k-zrule .tk span {
   display: none;
 }
+/* a verdict's arrow beside its number (his 21 Nov, §146): his colours, the voto's too */
+.k-verdict {
+  font-family: var(--font-display);
+  font-size: var(--fs-b3);
+  line-height: 1;
+  font-weight: 700;
+  color: var(--muted);
+}
+.k-verdict.danger {
+  color: var(--heat-danger);
+}
+.k-verdict.bad {
+  color: var(--heat-bad);
+}
+.k-verdict.fair {
+  color: var(--heat-fair);
+}
+.k-verdict.good {
+  color: var(--heat-good);
+}
+/* the parts of a full bar told apart by a hairline of the sheet (two cibi of one shade, §146) */
+.k-mcell .k-seg + .k-seg {
+  box-shadow: inset 1.5px 0 0 var(--sheet);
+}

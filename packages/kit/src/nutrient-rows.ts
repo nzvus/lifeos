@@ -453,6 +453,8 @@ export function nutrientsL1(d: NutrientsData, sel: string | null = null) {
       value: t === null ? F.num(m.v, "g") : g(m.v),
       /** Whole grams with the unit: the number of a bar among four on one row (§145). */
       short: F.num(Math.round(m.v + planned), "g"),
+      /** Its verdict against its zones (eaten + planned), for the arrow by its number (§146). */
+      level: m.zones?.length ? heatLevel(m.v + planned, m.zones) : null,
       withPlan: planned ? g(m.v + planned) : null,
       target: t === null ? null : F.num(t, "g"),
       mark: t === null ? null : pct(t, scale),

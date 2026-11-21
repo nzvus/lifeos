@@ -70,7 +70,7 @@ import { planRows } from "./plan-rows";
 import { skipStep } from "./[[...day]]/plan-actions";
 import { readExercises, readRoutines } from "@/core/training";
 import { readFoodChoices, readFoodEstimates, readIntakeUses } from "@/core/food/catalog";
-import { dayByMeal, foodIds, mealL0 } from "@/features/day/nutrients";
+import { foodIds, mealL0 } from "@/features/day/nutrients";
 import {
   dayScore,
   presentWeek,
@@ -346,10 +346,6 @@ export async function DayPage({
         : null,
     ),
   ]);
-  // The day with each meal as a part: a meal's box shows the day with its share lit (§143).
-  const byMeal = whole
-    ? dayByMeal(whole.nutrients, items, kinds, (i) => present(i).title)
-    : null;
   const row = (i: (typeof items)[number]) => {
     const l0 = mealL0(i, targets, kinds, weightOn(series, date), micros);
     // Its foods with amounts, kcal and cost: a meal shows them behind its «Cibi» door.
@@ -400,7 +396,6 @@ export async function DayPage({
           sessionScores.get(i.id),
       ),
       l0,
-      ...(l0 && byMeal ? { day: byMeal } : {}),
       details: hasDetails(d) ? d : null,
       servings: servingsOf(i),
       id: i.id,
